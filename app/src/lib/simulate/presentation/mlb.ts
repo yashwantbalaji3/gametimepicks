@@ -23,6 +23,27 @@ import type {
   PresentationStat,
 } from "./types";
 
+/*
+ * P247 Release E — the post-start correction register (append-only public disclosure). From
+ * 2026-08-22 to 2026-09-07 the lineup-refresh rerun replaced served full-game artifacts with
+ * revisions generated after first pitch that still presented as pregame. The archive is not
+ * rewritten (a pregame forecast cannot be reconstructed honestly); every affected archived
+ * report DISCLOSES it instead, as a mandatory limits row. Grading was never affected — the
+ * forecast-of-record rule always selected pre-pitch snapshots.
+ */
+import fs from "node:fs";
+import path from "node:path";
+let postStartCorrections: Set<string> | null = null;
+function loadPostStartCorrections(): Set<string> {
+  if (postStartCorrections) return postStartCorrections;
+  postStartCorrections = new Set();
+  try {
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/mlb/corrections/post-start-simulations.json"), "utf8"));
+    for (const e of doc.entries ?? []) postStartCorrections.add(String(e.slug)); // slugs embed date + teams (+gamePk on doubleheaders) — the register's own unique key
+  } catch { /* no register, no rows — absence of the file is absence of corrections */ }
+  return postStartCorrections;
+}
+
 /** Auto-play cadence. Dense chapters hold longer; nothing holds long enough to feel like waiting. */
 const HOLD = { light: 4200, normal: 5200, dense: 6400 } as const;
 
@@ -248,6 +269,12 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
    * the validation sentence and the not-modelled list never yield to input detail.
    */
   const mandatoryRows: { label: string; detail: string }[] = [];
+  if (detail.slug && loadPostStartCorrections().has(String(detail.slug))) {
+    mandatoryRows.push({
+      label: "Archive integrity",
+      detail: "This archived revision was regenerated after first pitch under a since-fixed defect (2026-08-22 to 2026-09-07) while presenting as pregame. The graded record used the genuine pregame forecast of record; see /mlb corrections register.",
+    });
+  }
   if (fg.status === "degraded") {
     mandatoryRows.push({ label: "Status", detail: "The report calls this run degraded — some inputs it prefers were unavailable." });
   }

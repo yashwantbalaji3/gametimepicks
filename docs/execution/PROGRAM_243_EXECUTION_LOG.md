@@ -593,3 +593,26 @@ Gates: suite 5499/0 · build OK · built 464/0.
   same moment on a 15-game in-progress slate — live variance, proven by an empty word diff.
 
 Gates: suite 5499/0 · build OK · built 464/0.
+
+## P247 Release E — MLB historical integrity (post-start simulations)
+- Window determined from git: 2026-08-22 (lineup-refresh began re-running the sim) → 2026-09-07
+  (boundary fix). **186 of 231 games** across all 17 dates carry, as their final committed and
+  publicly served revision, a "pregame" simulation generated after first pitch.
+- **Grading impact: NONE, verified at the rule** — selectForecastOfRecord takes the newest
+  revision strictly BEFORE first pitch from immutable per-run snapshots; hit rates, calibration
+  and the results pages derive from grades. Products never consumed these artifacts.
+- Correction is APPEND-ONLY: nothing rewritten, nothing reconstructed with post-event
+  knowledge. Public register published (public/data/mlb/corrections/post-start-simulations.json,
+  186 entries with reason codes, derived idempotently by a committed script); /results/model-audit
+  discloses it with the enumeration linked; the presentation layer carries an Archive-integrity
+  mandatory row for any surface that renders an affected archived game.
+- Boundary regression tests were added with the fix itself (P246/P247); today's pipeline
+  verified honoring its own clock (0 post-start entries at the 14:51 ET run).
+
+## P247 — observed production-owned regeneration (charter requirement)
+The 20:19Z nfl-event-window run (the workflow, not a local write) republished all 16 boards
+under the new champion receipt: **anytime TD (5) + receiving yards (10) PUBLISHED; receptions
+withheld (coverOk); rushing withheld (calOk); passing withheld (beatsRolling…)** — publication
+followed the receipts with zero board-builder edits, live before first kickoff.
+
+Gates: suite 5499/0 · build OK · built 464/0.

@@ -1,0 +1,1503 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-post-start-simulation-corrections",
+ "dataClass": "PUBLIC",
+ "generatedAt": "2026-09-08T23:50:00Z",
+ "window": {
+  "start": "2026-08-22",
+  "end": "2026-09-07",
+  "cause": "mlb-lineup-refresh re-ran the full-game simulation against the board's pre-event stamp instead of its own clock; fixed 2026-09-08 (boundary re-derived per run, genuinely pregame priors carried forward byte-for-byte)"
+ },
+ "gradingImpact": "NONE — the graded record's forecast-of-record rule selects the newest revision strictly BEFORE first pitch from immutable per-run snapshots; no post-start revision was ever graded.",
+ "servedImpact": "186 archived game reports carry, as their final committed revision, a simulation generated after first pitch. Each renders a provenance disclosure; the pregame forecast of record for these games lives in the immutable snapshots and git history and is what the record was graded from.",
+ "entries": [
+  {
+   "date": "2026-08-22",
+   "gamePk": 823509,
+   "slug": "tor-vs-nyy-2026-08-22",
+   "firstPitchUtc": "2026-08-22T17:35:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 823743,
+   "slug": "atl-vs-mil-2026-08-22",
+   "firstPitchUtc": "2026-08-22T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 823831,
+   "slug": "wsh-vs-mia-2026-08-22",
+   "firstPitchUtc": "2026-08-22T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 823422,
+   "slug": "stl-vs-phi-2026-08-22",
+   "firstPitchUtc": "2026-08-22T22:05:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 824798,
+   "slug": "tb-vs-bal-2026-08-22",
+   "firstPitchUtc": "2026-08-22T23:05:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 822858,
+   "slug": "laa-vs-tex-2026-08-22",
+   "firstPitchUtc": "2026-08-22T23:05:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 824151,
+   "slug": "ath-vs-hou-2026-08-22",
+   "firstPitchUtc": "2026-08-22T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 824560,
+   "slug": "nym-vs-cws-2026-08-22",
+   "firstPitchUtc": "2026-08-22T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 824073,
+   "slug": "det-vs-kc-2026-08-22",
+   "firstPitchUtc": "2026-08-22T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 823910,
+   "slug": "pit-vs-lad-2026-08-22",
+   "firstPitchUtc": "2026-08-22T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 823100,
+   "slug": "chc-vs-sea-2026-08-22",
+   "firstPitchUtc": "2026-08-22T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 824718,
+   "slug": "sf-vs-bos-2026-08-22",
+   "firstPitchUtc": "2026-08-22T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 825044,
+   "slug": "cin-vs-az-2026-08-22",
+   "firstPitchUtc": "2026-08-23T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 824316,
+   "slug": "cle-vs-col-2026-08-22",
+   "firstPitchUtc": "2026-08-23T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-22",
+   "gamePk": 823261,
+   "slug": "min-vs-sd-2026-08-22",
+   "firstPitchUtc": "2026-08-23T00:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-23T02:08:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 824799,
+   "slug": "tb-vs-bal-2026-08-23",
+   "firstPitchUtc": "2026-08-23T17:35:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 823421,
+   "slug": "stl-vs-phi-2026-08-23",
+   "firstPitchUtc": "2026-08-23T17:35:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 823507,
+   "slug": "tor-vs-nyy-2026-08-23",
+   "firstPitchUtc": "2026-08-23T17:35:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 823827,
+   "slug": "wsh-vs-mia-2026-08-23",
+   "firstPitchUtc": "2026-08-23T17:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 824071,
+   "slug": "det-vs-kc-2026-08-23",
+   "firstPitchUtc": "2026-08-23T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 824150,
+   "slug": "ath-vs-hou-2026-08-23",
+   "firstPitchUtc": "2026-08-23T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 824558,
+   "slug": "nym-vs-cws-2026-08-23",
+   "firstPitchUtc": "2026-08-23T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 822856,
+   "slug": "laa-vs-tex-2026-08-23",
+   "firstPitchUtc": "2026-08-23T18:35:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 824315,
+   "slug": "cle-vs-col-2026-08-23",
+   "firstPitchUtc": "2026-08-23T19:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 824720,
+   "slug": "sf-vs-bos-2026-08-23",
+   "firstPitchUtc": "2026-08-23T19:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 823909,
+   "slug": "pit-vs-lad-2026-08-23",
+   "firstPitchUtc": "2026-08-23T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 823099,
+   "slug": "chc-vs-sea-2026-08-23",
+   "firstPitchUtc": "2026-08-23T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 823258,
+   "slug": "min-vs-sd-2026-08-23",
+   "firstPitchUtc": "2026-08-23T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 825043,
+   "slug": "cin-vs-az-2026-08-23",
+   "firstPitchUtc": "2026-08-23T20:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-23",
+   "gamePk": 823745,
+   "slug": "atl-vs-mil-2026-08-23",
+   "firstPitchUtc": "2026-08-23T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-24T02:05:26.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 824235,
+   "slug": "tb-vs-det-2026-08-24",
+   "firstPitchUtc": "2026-08-24T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 823828,
+   "slug": "bos-vs-mia-2026-08-24",
+   "firstPitchUtc": "2026-08-24T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 822695,
+   "slug": "col-vs-wsh-2026-08-24",
+   "firstPitchUtc": "2026-08-24T22:45:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 824557,
+   "slug": "tex-vs-cws-2026-08-24",
+   "firstPitchUtc": "2026-08-24T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 823992,
+   "slug": "cle-vs-laa-2026-08-24",
+   "firstPitchUtc": "2026-08-25T01:38:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 825041,
+   "slug": "chc-vs-az-2026-08-24",
+   "firstPitchUtc": "2026-08-25T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 823260,
+   "slug": "pit-vs-sd-2026-08-24",
+   "firstPitchUtc": "2026-08-25T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 824964,
+   "slug": "min-vs-ath-2026-08-24",
+   "firstPitchUtc": "2026-08-25T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 823097,
+   "slug": "phi-vs-sea-2026-08-24",
+   "firstPitchUtc": "2026-08-25T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-24",
+   "gamePk": 823183,
+   "slug": "cin-vs-sf-2026-08-24",
+   "firstPitchUtc": "2026-08-25T01:45:00Z",
+   "finalRevisionGeneratedAt": "2026-08-25T01:58:41.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 824233,
+   "slug": "tb-vs-det-2026-08-25",
+   "firstPitchUtc": "2026-08-25T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 823826,
+   "slug": "bos-vs-mia-2026-08-25",
+   "firstPitchUtc": "2026-08-25T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 822693,
+   "slug": "col-vs-wsh-2026-08-25",
+   "firstPitchUtc": "2026-08-25T22:45:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 823505,
+   "slug": "hou-vs-nyy-2026-08-25",
+   "firstPitchUtc": "2026-08-25T23:05:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 822773,
+   "slug": "kc-vs-tor-2026-08-25",
+   "firstPitchUtc": "2026-08-25T23:07:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 823585,
+   "slug": "mil-vs-nym-2026-08-25",
+   "firstPitchUtc": "2026-08-25T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 824881,
+   "slug": "lad-vs-atl-2026-08-25",
+   "firstPitchUtc": "2026-08-25T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 824556,
+   "slug": "tex-vs-cws-2026-08-25",
+   "firstPitchUtc": "2026-08-25T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 823016,
+   "slug": "bal-vs-stl-2026-08-25",
+   "firstPitchUtc": "2026-08-25T23:45:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 823989,
+   "slug": "cle-vs-laa-2026-08-25",
+   "firstPitchUtc": "2026-08-26T01:38:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 825042,
+   "slug": "chc-vs-az-2026-08-25",
+   "firstPitchUtc": "2026-08-26T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 823259,
+   "slug": "pit-vs-sd-2026-08-25",
+   "firstPitchUtc": "2026-08-26T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 824962,
+   "slug": "min-vs-ath-2026-08-25",
+   "firstPitchUtc": "2026-08-26T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 823098,
+   "slug": "phi-vs-sea-2026-08-25",
+   "firstPitchUtc": "2026-08-26T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-25",
+   "gamePk": 823181,
+   "slug": "cin-vs-sf-2026-08-25",
+   "firstPitchUtc": "2026-08-26T01:45:00Z",
+   "finalRevisionGeneratedAt": "2026-08-26T02:07:52.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 824234,
+   "slug": "tb-vs-det-2026-08-26",
+   "firstPitchUtc": "2026-08-26T17:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 825039,
+   "slug": "chc-vs-az-2026-08-26",
+   "firstPitchUtc": "2026-08-26T19:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 823180,
+   "slug": "cin-vs-sf-2026-08-26",
+   "firstPitchUtc": "2026-08-26T19:45:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 823988,
+   "slug": "cle-vs-laa-2026-08-26",
+   "firstPitchUtc": "2026-08-26T20:07:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 823255,
+   "slug": "pit-vs-sd-2026-08-26",
+   "firstPitchUtc": "2026-08-26T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 823096,
+   "slug": "phi-vs-sea-2026-08-26",
+   "firstPitchUtc": "2026-08-26T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 823825,
+   "slug": "bos-vs-mia-2026-08-26",
+   "firstPitchUtc": "2026-08-26T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 822692,
+   "slug": "col-vs-wsh-2026-08-26",
+   "firstPitchUtc": "2026-08-26T22:45:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 823506,
+   "slug": "hou-vs-nyy-2026-08-26",
+   "firstPitchUtc": "2026-08-26T23:05:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 822772,
+   "slug": "kc-vs-tor-2026-08-26",
+   "firstPitchUtc": "2026-08-26T23:07:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 823584,
+   "slug": "mil-vs-nym-2026-08-26",
+   "firstPitchUtc": "2026-08-26T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 824878,
+   "slug": "lad-vs-atl-2026-08-26",
+   "firstPitchUtc": "2026-08-26T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 824555,
+   "slug": "tex-vs-cws-2026-08-26",
+   "firstPitchUtc": "2026-08-26T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 823015,
+   "slug": "bal-vs-stl-2026-08-26",
+   "firstPitchUtc": "2026-08-26T23:45:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-26",
+   "gamePk": 824963,
+   "slug": "min-vs-ath-2026-08-26",
+   "firstPitchUtc": "2026-08-27T01:05:00Z",
+   "finalRevisionGeneratedAt": "2026-08-27T03:24:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-27",
+   "gamePk": 823503,
+   "slug": "hou-vs-nyy-2026-08-27",
+   "firstPitchUtc": "2026-08-27T23:05:00Z",
+   "finalRevisionGeneratedAt": "2026-08-28T03:37:57.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-27",
+   "gamePk": 822771,
+   "slug": "kc-vs-tor-2026-08-27",
+   "firstPitchUtc": "2026-08-27T23:07:00Z",
+   "finalRevisionGeneratedAt": "2026-08-28T03:37:57.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-27",
+   "gamePk": 823581,
+   "slug": "mil-vs-nym-2026-08-27",
+   "firstPitchUtc": "2026-08-27T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-28T03:37:57.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-27",
+   "gamePk": 824879,
+   "slug": "lad-vs-atl-2026-08-27",
+   "firstPitchUtc": "2026-08-27T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-28T03:37:57.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-27",
+   "gamePk": 823179,
+   "slug": "az-vs-sf-2026-08-27",
+   "firstPitchUtc": "2026-08-28T01:45:00Z",
+   "finalRevisionGeneratedAt": "2026-08-28T03:37:57.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-28",
+   "gamePk": 822769,
+   "slug": "sea-vs-tor-2026-08-28",
+   "firstPitchUtc": "2026-08-28T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-29T03:14:48.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-28",
+   "gamePk": 824877,
+   "slug": "col-vs-atl-2026-08-28",
+   "firstPitchUtc": "2026-08-28T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-29T03:14:48.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-28",
+   "gamePk": 823504,
+   "slug": "bos-vs-nyy-2026-08-28",
+   "firstPitchUtc": "2026-08-28T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-29T03:14:48.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-28",
+   "gamePk": 823744,
+   "slug": "tex-vs-mil-2026-08-28",
+   "firstPitchUtc": "2026-08-28T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-29T03:14:48.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-28",
+   "gamePk": 823666,
+   "slug": "cws-vs-min-2026-08-28",
+   "firstPitchUtc": "2026-08-29T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-29T03:14:48.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-28",
+   "gamePk": 823013,
+   "slug": "pit-vs-stl-2026-08-28",
+   "firstPitchUtc": "2026-08-29T00:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-29T03:14:48.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-28",
+   "gamePk": 823985,
+   "slug": "phi-vs-laa-2026-08-28",
+   "firstPitchUtc": "2026-08-29T01:38:00Z",
+   "finalRevisionGeneratedAt": "2026-08-29T03:14:48.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-28",
+   "gamePk": 824960,
+   "slug": "bal-vs-ath-2026-08-28",
+   "firstPitchUtc": "2026-08-29T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-08-29T03:14:48.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-28",
+   "gamePk": 823178,
+   "slug": "az-vs-sf-2026-08-28",
+   "firstPitchUtc": "2026-08-29T02:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-29T03:14:48.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 823501,
+   "slug": "bos-vs-nyy-2026-08-29",
+   "firstPitchUtc": "2026-08-29T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 823665,
+   "slug": "cws-vs-min-2026-08-29",
+   "firstPitchUtc": "2026-08-29T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 823011,
+   "slug": "pit-vs-stl-2026-08-29",
+   "firstPitchUtc": "2026-08-29T18:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 824637,
+   "slug": "cin-vs-chc-2026-08-29",
+   "firstPitchUtc": "2026-08-29T18:20:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 822770,
+   "slug": "sea-vs-tor-2026-08-29",
+   "firstPitchUtc": "2026-08-29T19:07:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 822690,
+   "slug": "mia-vs-wsh-2026-08-29",
+   "firstPitchUtc": "2026-08-29T20:05:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 824392,
+   "slug": "kc-vs-cle-2026-08-29",
+   "firstPitchUtc": "2026-08-29T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 823582,
+   "slug": "hou-vs-nym-2026-08-29",
+   "firstPitchUtc": "2026-08-29T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 822936,
+   "slug": "sd-vs-tb-2026-08-29",
+   "firstPitchUtc": "2026-08-29T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 824874,
+   "slug": "col-vs-atl-2026-08-29",
+   "firstPitchUtc": "2026-08-29T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-29",
+   "gamePk": 823741,
+   "slug": "tex-vs-mil-2026-08-29",
+   "firstPitchUtc": "2026-08-29T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-30T01:34:21.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-30",
+   "gamePk": 823662,
+   "slug": "cws-vs-min-2026-08-30",
+   "firstPitchUtc": "2026-08-30T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-31T01:32:39.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-30",
+   "gamePk": 823740,
+   "slug": "tex-vs-mil-2026-08-30",
+   "firstPitchUtc": "2026-08-30T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-31T01:32:39.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-30",
+   "gamePk": 823010,
+   "slug": "pit-vs-stl-2026-08-30",
+   "firstPitchUtc": "2026-08-30T18:15:00Z",
+   "finalRevisionGeneratedAt": "2026-08-31T01:32:39.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-30",
+   "gamePk": 823580,
+   "slug": "hou-vs-nym-2026-08-30",
+   "firstPitchUtc": "2026-08-30T19:10:00Z",
+   "finalRevisionGeneratedAt": "2026-08-31T01:32:39.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-30",
+   "gamePk": 824959,
+   "slug": "bal-vs-ath-2026-08-30",
+   "firstPitchUtc": "2026-08-30T20:05:00Z",
+   "finalRevisionGeneratedAt": "2026-08-31T01:32:39.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-30",
+   "gamePk": 823987,
+   "slug": "phi-vs-laa-2026-08-30",
+   "firstPitchUtc": "2026-08-30T20:07:00Z",
+   "finalRevisionGeneratedAt": "2026-08-31T01:32:39.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-30",
+   "gamePk": 824636,
+   "slug": "cin-vs-chc-2026-08-30",
+   "firstPitchUtc": "2026-08-30T23:20:00Z",
+   "finalRevisionGeneratedAt": "2026-08-31T01:32:39.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 824911,
+   "slug": "sf-vs-atl-2026-08-31",
+   "firstPitchUtc": "2026-08-31T22:05:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 824473,
+   "slug": "sd-vs-cin-2026-08-31",
+   "firstPitchUtc": "2026-08-31T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 822932,
+   "slug": "nym-vs-tb-2026-08-31",
+   "firstPitchUtc": "2026-08-31T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 824719,
+   "slug": "sea-vs-bos-2026-08-31",
+   "firstPitchUtc": "2026-08-31T22:45:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 822689,
+   "slug": "mia-vs-wsh-2026-08-31",
+   "firstPitchUtc": "2026-08-31T22:45:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 823663,
+   "slug": "det-vs-min-2026-08-31",
+   "firstPitchUtc": "2026-08-31T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 824635,
+   "slug": "mil-vs-chc-2026-08-31",
+   "firstPitchUtc": "2026-08-31T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 822855,
+   "slug": "ath-vs-tex-2026-08-31",
+   "firstPitchUtc": "2026-09-01T00:05:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 824149,
+   "slug": "cws-vs-hou-2026-08-31",
+   "firstPitchUtc": "2026-09-01T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 824314,
+   "slug": "bal-vs-col-2026-08-31",
+   "firstPitchUtc": "2026-09-01T00:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 823982,
+   "slug": "nyy-vs-laa-2026-08-31",
+   "firstPitchUtc": "2026-09-01T01:38:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-08-31",
+   "gamePk": 825040,
+   "slug": "phi-vs-az-2026-08-31",
+   "firstPitchUtc": "2026-09-01T01:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-01T02:00:25.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 824472,
+   "slug": "sd-vs-cin-2026-09-01",
+   "firstPitchUtc": "2026-09-01T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 823340,
+   "slug": "sf-vs-pit-2026-09-01",
+   "firstPitchUtc": "2026-09-01T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 822929,
+   "slug": "nym-vs-tb-2026-09-01",
+   "firstPitchUtc": "2026-09-01T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 824391,
+   "slug": "tor-vs-cle-2026-09-01",
+   "firstPitchUtc": "2026-09-01T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 824716,
+   "slug": "sea-vs-bos-2026-09-01",
+   "firstPitchUtc": "2026-09-01T22:45:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 822687,
+   "slug": "atl-vs-wsh-2026-09-01",
+   "firstPitchUtc": "2026-09-01T22:45:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 823661,
+   "slug": "det-vs-min-2026-09-01",
+   "firstPitchUtc": "2026-09-01T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 824070,
+   "slug": "mia-vs-kc-2026-09-01",
+   "firstPitchUtc": "2026-09-01T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 824633,
+   "slug": "mil-vs-chc-2026-09-01",
+   "firstPitchUtc": "2026-09-01T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 822854,
+   "slug": "ath-vs-tex-2026-09-01",
+   "firstPitchUtc": "2026-09-02T00:05:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 824148,
+   "slug": "cws-vs-hou-2026-09-01",
+   "firstPitchUtc": "2026-09-02T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-01",
+   "gamePk": 824313,
+   "slug": "bal-vs-col-2026-09-01",
+   "firstPitchUtc": "2026-09-02T00:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-02T01:17:32.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 822851,
+   "slug": "ath-vs-tex-2026-09-02",
+   "firstPitchUtc": "2026-09-02T18:35:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 824312,
+   "slug": "bal-vs-col-2026-09-02",
+   "firstPitchUtc": "2026-09-02T19:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 825037,
+   "slug": "phi-vs-az-2026-09-02",
+   "firstPitchUtc": "2026-09-02T19:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 824717,
+   "slug": "sea-vs-bos-2026-09-02",
+   "firstPitchUtc": "2026-09-02T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 823339,
+   "slug": "sf-vs-pit-2026-09-02",
+   "firstPitchUtc": "2026-09-02T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 822931,
+   "slug": "nym-vs-tb-2026-09-02",
+   "firstPitchUtc": "2026-09-02T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 824390,
+   "slug": "tor-vs-cle-2026-09-02",
+   "firstPitchUtc": "2026-09-02T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 823660,
+   "slug": "det-vs-min-2026-09-02",
+   "firstPitchUtc": "2026-09-02T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 824068,
+   "slug": "mia-vs-kc-2026-09-02",
+   "firstPitchUtc": "2026-09-02T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 824634,
+   "slug": "mil-vs-chc-2026-09-02",
+   "firstPitchUtc": "2026-09-02T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-02",
+   "gamePk": 824147,
+   "slug": "cws-vs-hou-2026-09-02",
+   "firstPitchUtc": "2026-09-03T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-03T01:22:17.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-03",
+   "gamePk": 824388,
+   "slug": "tor-vs-cle-2026-09-03",
+   "firstPitchUtc": "2026-09-03T17:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-04T01:14:56.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-03",
+   "gamePk": 824144,
+   "slug": "cws-vs-hou-2026-09-03",
+   "firstPitchUtc": "2026-09-03T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-04T01:14:56.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-03",
+   "gamePk": 824796,
+   "slug": "bos-vs-bal-2026-09-03",
+   "firstPitchUtc": "2026-09-03T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-09-04T01:14:56.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-03",
+   "gamePk": 824632,
+   "slug": "mil-vs-chc-2026-09-03",
+   "firstPitchUtc": "2026-09-03T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-09-04T01:14:56.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-03",
+   "gamePk": 824069,
+   "slug": "mia-vs-kc-2026-09-03",
+   "firstPitchUtc": "2026-09-03T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-04T01:14:56.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-03",
+   "gamePk": 822853,
+   "slug": "tb-vs-tex-2026-09-03",
+   "firstPitchUtc": "2026-09-04T00:05:00Z",
+   "finalRevisionGeneratedAt": "2026-09-04T01:14:56.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 824424,
+   "slug": "det-vs-cle-2026-09-04-824424",
+   "firstPitchUtc": "2026-09-04T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 824471,
+   "slug": "mil-vs-cin-2026-09-04",
+   "firstPitchUtc": "2026-09-04T22:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 823418,
+   "slug": "atl-vs-phi-2026-09-04",
+   "firstPitchUtc": "2026-09-04T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 823338,
+   "slug": "laa-vs-pit-2026-09-04",
+   "firstPitchUtc": "2026-09-04T22:45:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 824797,
+   "slug": "bos-vs-bal-2026-09-04",
+   "firstPitchUtc": "2026-09-04T23:05:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 823579,
+   "slug": "sf-vs-nym-2026-09-04",
+   "firstPitchUtc": "2026-09-04T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 823824,
+   "slug": "chc-vs-mia-2026-09-04",
+   "firstPitchUtc": "2026-09-04T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 824554,
+   "slug": "min-vs-cws-2026-09-04",
+   "firstPitchUtc": "2026-09-04T23:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 822852,
+   "slug": "tb-vs-tex-2026-09-04",
+   "firstPitchUtc": "2026-09-05T00:05:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 824146,
+   "slug": "az-vs-hou-2026-09-04",
+   "firstPitchUtc": "2026-09-05T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 824067,
+   "slug": "tor-vs-kc-2026-09-04",
+   "firstPitchUtc": "2026-09-05T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-04",
+   "gamePk": 824311,
+   "slug": "stl-vs-col-2026-09-04",
+   "firstPitchUtc": "2026-09-05T00:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-05T01:19:16.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 823577,
+   "slug": "sf-vs-nym-2026-09-05",
+   "firstPitchUtc": "2026-09-05T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 823823,
+   "slug": "chc-vs-mia-2026-09-05",
+   "firstPitchUtc": "2026-09-05T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 823419,
+   "slug": "atl-vs-phi-2026-09-05",
+   "firstPitchUtc": "2026-09-05T22:05:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 824389,
+   "slug": "det-vs-cle-2026-09-05",
+   "firstPitchUtc": "2026-09-05T22:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 823335,
+   "slug": "laa-vs-pit-2026-09-05",
+   "firstPitchUtc": "2026-09-05T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 824468,
+   "slug": "mil-vs-cin-2026-09-05",
+   "firstPitchUtc": "2026-09-05T22:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 824795,
+   "slug": "bos-vs-bal-2026-09-05",
+   "firstPitchUtc": "2026-09-05T23:05:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 822850,
+   "slug": "tb-vs-tex-2026-09-05",
+   "firstPitchUtc": "2026-09-05T23:05:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 824066,
+   "slug": "tor-vs-kc-2026-09-05",
+   "firstPitchUtc": "2026-09-05T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 824553,
+   "slug": "min-vs-cws-2026-09-05",
+   "firstPitchUtc": "2026-09-05T23:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 824145,
+   "slug": "az-vs-hou-2026-09-05",
+   "firstPitchUtc": "2026-09-05T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 823257,
+   "slug": "nyy-vs-sd-2026-09-05",
+   "firstPitchUtc": "2026-09-05T23:15:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 824310,
+   "slug": "stl-vs-col-2026-09-05",
+   "firstPitchUtc": "2026-09-06T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-05",
+   "gamePk": 823904,
+   "slug": "wsh-vs-lad-2026-09-05",
+   "firstPitchUtc": "2026-09-06T01:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-06T01:17:14.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 823417,
+   "slug": "atl-vs-phi-2026-09-06",
+   "firstPitchUtc": "2026-09-06T17:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 824794,
+   "slug": "bos-vs-bal-2026-09-06",
+   "firstPitchUtc": "2026-09-06T17:35:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 823336,
+   "slug": "laa-vs-pit-2026-09-06",
+   "firstPitchUtc": "2026-09-06T17:35:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 824385,
+   "slug": "det-vs-cle-2026-09-06",
+   "firstPitchUtc": "2026-09-06T17:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 823578,
+   "slug": "sf-vs-nym-2026-09-06",
+   "firstPitchUtc": "2026-09-06T17:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 823822,
+   "slug": "chc-vs-mia-2026-09-06",
+   "firstPitchUtc": "2026-09-06T17:40:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 824142,
+   "slug": "az-vs-hou-2026-09-06",
+   "firstPitchUtc": "2026-09-06T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 824065,
+   "slug": "tor-vs-kc-2026-09-06",
+   "firstPitchUtc": "2026-09-06T18:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 822848,
+   "slug": "tb-vs-tex-2026-09-06",
+   "firstPitchUtc": "2026-09-06T18:35:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 824309,
+   "slug": "stl-vs-col-2026-09-06",
+   "firstPitchUtc": "2026-09-06T19:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 823091,
+   "slug": "ath-vs-sea-2026-09-06",
+   "firstPitchUtc": "2026-09-06T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 823253,
+   "slug": "nyy-vs-sd-2026-09-06",
+   "firstPitchUtc": "2026-09-06T20:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-06",
+   "gamePk": 824552,
+   "slug": "min-vs-cws-2026-09-06",
+   "firstPitchUtc": "2026-09-06T22:20:00Z",
+   "finalRevisionGeneratedAt": "2026-09-07T01:16:07.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-07",
+   "gamePk": 824229,
+   "slug": "min-vs-det-2026-09-07",
+   "firstPitchUtc": "2026-09-07T19:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-08T01:21:04.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-07",
+   "gamePk": 823254,
+   "slug": "wsh-vs-sd-2026-09-07",
+   "firstPitchUtc": "2026-09-07T21:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-08T01:21:04.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-07",
+   "gamePk": 823175,
+   "slug": "stl-vs-sf-2026-09-07",
+   "firstPitchUtc": "2026-09-08T00:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-08T01:21:04.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  },
+  {
+   "date": "2026-09-07",
+   "gamePk": 823902,
+   "slug": "cin-vs-lad-2026-09-07",
+   "firstPitchUtc": "2026-09-08T01:10:00Z",
+   "finalRevisionGeneratedAt": "2026-09-08T01:21:04.000Z",
+   "reasonCode": "SIMULATED_AFTER_FIRST_PITCH_PRESENTED_AS_PREGAME"
+  }
+ ]
+}

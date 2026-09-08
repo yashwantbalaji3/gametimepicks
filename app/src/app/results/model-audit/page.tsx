@@ -64,8 +64,17 @@ function loadCandidateReadout(): { rows: ReadoutRow[]; range: [string, string] |
   } catch { return { rows: [], range: null }; }
 }
 
+/** P247 Release E — the post-start correction register, disclosed where model claims are audited. */
+function loadPostStartCorrections(): { count: number; window: { start: string; end: string }; gradingImpact: string } | null {
+  try {
+    const doc = JSON.parse(fs.readFileSync(nodePath.join(process.cwd(), "public", "data", "mlb", "corrections", "post-start-simulations.json"), "utf8"));
+    return { count: (doc.entries ?? []).length, window: doc.window, gradingImpact: doc.gradingImpact };
+  } catch { return null; }
+}
+
 export default function ModelAuditPage() {
   const { rows: candidateRows, range: candidateAuditRange } = loadCandidateReadout();
+  const postStart = loadPostStartCorrections();
   const modelResults = loadModelResults();
   const audit = loadModelAudit();
   if (!audit) {
@@ -105,6 +114,26 @@ export default function ModelAuditPage() {
 
       <SportBlock sport={nba} accent="nba" />
       <SportBlock sport={mlb} accent="mlb" />
+
+      {/* Corrections are part of the audit: a defect in what was SERVED is disclosed here even
+          when the graded record was untouched — the reader should not need git history. */}
+      {postStart && postStart.count > 0 ? (
+        <section className="mt-8" aria-labelledby="post-start-corrections">
+          <h2 id="post-start-corrections" className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 20 }}>
+            Correction register: post-start simulations ({postStart.window.start} – {postStart.window.end})
+          </h2>
+          <p className="mt-2 text-sm" style={{ color: "var(--vault-text-mute)", lineHeight: 1.6, maxWidth: 780 }}>
+            {postStart.count} archived MLB game reports carried, as their final revision, a full-game
+            simulation regenerated after first pitch while presenting as pregame — a since-fixed
+            scheduling defect (the rerun trusted the board&apos;s pre-event stamp instead of its own
+            clock). {postStart.gradingImpact} The full enumeration is published at{" "}
+            <a href="/data/mlb/corrections/post-start-simulations.json" style={{ color: "var(--vault-gold)" }}>
+              the corrections register
+            </a>{" "}
+            and nothing in the archive was rewritten.
+          </p>
+        </section>
+      ) : null}
 
       {/* P235 · D — the whole settled history, not the 60-row sample the aggregate published beside
           a 37,958-row denominator. Filters and headline figures come from the embedded per-day
