@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-weekly-boards",
   "dataClass": "PUBLIC",
-  "generatedAt": "2026-09-08T20:19:18Z",
+  "generatedAt": "2026-09-08T21:34:24Z",
   "period": {
     "seasonType": 2,
     "week": 1
@@ -26,7 +26,7 @@
       "topN": 5,
       "title": "Top 5 · Anytime touchdown",
       "state": "PUBLISHED",
-      "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing",
+      "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing",
       "rows": [
         {
           "playerId": "nfl-athlete-3121023",
@@ -36,8 +36,8 @@
           "providerEventId": "401872929",
           "kickoffUtc": "2026-09-13T20:25Z",
           "participation": "ACTIVE_PROJECTED",
-          "value": 0.479735,
-          "probability": 0.479735,
+          "value": 0.562665,
+          "probability": 0.562665,
           "pricingState": "NOT_AUTHORIZED"
         },
         {
@@ -48,20 +48,8 @@
           "providerEventId": "401872923",
           "kickoffUtc": "2026-09-13T17:00Z",
           "participation": "ACTIVE_PROJECTED",
-          "value": 0.467862,
-          "probability": 0.467862,
-          "pricingState": "NOT_AUTHORIZED"
-        },
-        {
-          "playerId": "nfl-athlete-4430737",
-          "name": "Kyren Williams",
-          "team": "LAR",
-          "opponent": "SF",
-          "providerEventId": "401872657",
-          "kickoffUtc": "2026-09-11T00:35Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 0.40216,
-          "probability": 0.40216,
+          "value": 0.526242,
+          "probability": 0.526242,
           "pricingState": "NOT_AUTHORIZED"
         },
         {
@@ -72,8 +60,8 @@
           "providerEventId": "401872926",
           "kickoffUtc": "2026-09-13T20:25Z",
           "participation": "ACTIVE_PROJECTED",
-          "value": 0.400693,
-          "probability": 0.400693,
+          "value": 0.468043,
+          "probability": 0.468043,
           "pricingState": "NOT_AUTHORIZED"
         },
         {
@@ -84,8 +72,20 @@
           "providerEventId": "401872659",
           "kickoffUtc": "2026-09-13T17:00Z",
           "participation": "ACTIVE_PROJECTED",
-          "value": 0.391953,
-          "probability": 0.391953,
+          "value": 0.45826,
+          "probability": 0.45826,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4430737",
+          "name": "Kyren Williams",
+          "team": "LAR",
+          "opponent": "SF",
+          "providerEventId": "401872657",
+          "kickoffUtc": "2026-09-11T00:35Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 0.456719,
+          "probability": 0.456719,
           "pricingState": "NOT_AUTHORIZED"
         }
       ]
@@ -96,8 +96,150 @@
       "metric": "median",
       "topN": 10,
       "title": "Top 10 · Receptions",
-      "state": "WITHHELD",
-      "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+      "state": "PUBLISHED",
+      "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
+      "rows": [
+        {
+          "playerId": "nfl-athlete-4430878",
+          "name": "Jaxon Smith-Njigba",
+          "team": "SEA",
+          "opponent": "NE",
+          "providerEventId": "401872656",
+          "kickoffUtc": "2026-09-10T00:20Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 10,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4426515",
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "opponent": "SF",
+          "providerEventId": "401872657",
+          "kickoffUtc": "2026-09-11T00:35Z",
+          "participation": "QUESTIONABLE",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 9,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4429615",
+          "name": "Zay Flowers",
+          "team": "BAL",
+          "opponent": "IND",
+          "providerEventId": "401872659",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "QUESTIONABLE",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 9,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4361370",
+          "name": "Chris Olave",
+          "team": "NO",
+          "opponent": "DET",
+          "providerEventId": "401872923",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 9,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4374302",
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "opponent": "NO",
+          "providerEventId": "401872923",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 9,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4569618",
+          "name": "Garrett Wilson",
+          "team": "NYJ",
+          "opponent": "TEN",
+          "providerEventId": "401872924",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 9,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4362628",
+          "name": "Ja'Marr Chase",
+          "team": "CIN",
+          "opponent": "TB",
+          "providerEventId": "401872925",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "QUESTIONABLE",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 9,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4361307",
+          "name": "Trey McBride",
+          "team": "ARI",
+          "opponent": "LAC",
+          "providerEventId": "401872926",
+          "kickoffUtc": "2026-09-13T20:25Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 9,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4262921",
+          "name": "Justin Jefferson",
+          "team": "MIN",
+          "opponent": "GB",
+          "providerEventId": "401872927",
+          "kickoffUtc": "2026-09-13T20:25Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 9,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4428331",
+          "name": "Rashee Rice",
+          "team": "KC",
+          "opponent": "DEN",
+          "providerEventId": "401872931",
+          "kickoffUtc": "2026-09-15T00:15Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 8,
+          "pricingState": "NOT_AUTHORIZED"
+        }
+      ]
     },
     {
       "id": "top_rush_yds",

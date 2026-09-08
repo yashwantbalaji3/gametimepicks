@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872923",
  "matchup": "NO @ DET",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -62,8 +62,16 @@
      "p75": 42.72,
      "p90": 64.37
     },
+    "player_receptions": {
+     "mean": 2.93,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.467862,
+     "probability": 0.526242,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -82,8 +90,16 @@
      "p75": 19.29,
      "p90": 35.58
     },
+    "player_receptions": {
+     "mean": 1.086,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.39063,
+     "probability": 0.419375,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -102,8 +118,16 @@
      "p75": 80.92,
      "p90": 111.51
     },
+    "player_receptions": {
+     "mean": 5.128,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 7,
+     "p90": 9
+    },
     "anytime_td": {
-     "probability": 0.31526,
+     "probability": 0.380091,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -122,8 +146,16 @@
      "p75": 48.4,
      "p90": 72.26
     },
+    "player_receptions": {
+     "mean": 3.028,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.300254,
+     "probability": 0.285512,
      "participation": "QUESTIONABLE"
     }
    }
@@ -142,8 +174,16 @@
      "p75": 58.44,
      "p90": 85.23
     },
+    "player_receptions": {
+     "mean": 3.212,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.299531,
+     "probability": 0.284404,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -162,28 +202,16 @@
      "p75": 83.35,
      "p90": 113
     },
-    "anytime_td": {
-     "probability": 0.274569,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4242392",
-   "name": "Brock Wright",
-   "team": "DET",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 15.86,
-     "p10": 0,
-     "p25": 0,
-     "median": 10.22,
-     "p75": 24.68,
-     "p90": 41.28
+    "player_receptions": {
+     "mean": 5.286,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 7,
+     "p90": 9
     },
     "anytime_td": {
-     "probability": 0.207677,
+     "probability": 0.245827,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -195,7 +223,7 @@
    "participation": "NOT_IN_POOL",
    "markets": {
     "anytime_td": {
-     "probability": 0.192145,
+     "probability": 0.205589,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -207,7 +235,7 @@
    "participation": "NOT_IN_POOL",
    "markets": {
     "anytime_td": {
-     "probability": 0.18555,
+     "probability": 0.19584,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -219,7 +247,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.184048,
+     "probability": 0.193615,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -238,8 +266,44 @@
      "p75": 43.46,
      "p90": 66.73
     },
+    "player_receptions": {
+     "mean": 2.675,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.150302,
+     "probability": 0.143076,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242392",
+   "name": "Brock Wright",
+   "team": "DET",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 15.86,
+     "p10": 0,
+     "p25": 0,
+     "median": 10.22,
+     "p75": 24.68,
+     "p90": 41.28
+    },
+    "player_receptions": {
+     "mean": 1.482,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.139232,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -258,8 +322,16 @@
      "p75": 50.48,
      "p90": 73.6
     },
+    "player_receptions": {
+     "mean": 3.114,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.140828,
+     "probability": 0.128705,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -278,8 +350,16 @@
      "p75": 21.57,
      "p90": 37.99
     },
+    "player_receptions": {
+     "mean": 1.298,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.128041,
+     "probability": 0.109181,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -291,7 +371,7 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
-     "probability": 0.127163,
+     "probability": 0.107835,
      "participation": "QUESTIONABLE"
     }
    }
@@ -309,6 +389,14 @@
      "median": 13.99,
      "p75": 29.96,
      "p90": 47.89
+    },
+    "player_receptions": {
+     "mean": 1.985,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
     }
    }
   },
@@ -325,6 +413,14 @@
      "median": 18.4,
      "p75": 36.16,
      "p90": 55.68
+    },
+    "player_receptions": {
+     "mean": 2.221,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
     }
    }
   }

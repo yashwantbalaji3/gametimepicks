@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872660",
  "matchup": "BUF @ HOU",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -55,7 +55,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.314354,
+     "probability": 0.373347,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -74,28 +74,16 @@
      "p75": 62.17,
      "p90": 89.75
     },
-    "anytime_td": {
-     "probability": 0.252562,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4379399",
-   "name": "James Cook III",
-   "team": "BUF",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 15.264,
-     "p10": 0,
-     "p25": 0,
-     "median": 9.31,
-     "p75": 23.44,
-     "p90": 39.55
+    "player_receptions": {
+     "mean": 3.549,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
     },
     "anytime_td": {
-     "probability": 0.220401,
+     "probability": 0.292813,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -114,8 +102,16 @@
      "p75": 40.72,
      "p90": 62.64
     },
+    "player_receptions": {
+     "mean": 2.415,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.220097,
+     "probability": 0.246229,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -127,7 +123,35 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.218123,
+     "probability": 0.243364,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4379399",
+   "name": "James Cook III",
+   "team": "BUF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 15.264,
+     "p10": 0,
+     "p25": 0,
+     "median": 9.31,
+     "p75": 23.44,
+     "p90": 39.55
+    },
+    "player_receptions": {
+     "mean": 1.46,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.240203,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -146,8 +170,16 @@
      "p75": 33.05,
      "p90": 53.96
     },
+    "player_receptions": {
+     "mean": 2.013,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.213026,
+     "probability": 0.229394,
      "participation": "QUESTIONABLE"
     }
    }
@@ -166,8 +198,44 @@
      "p75": 42.61,
      "p90": 64.72
     },
+    "player_receptions": {
+     "mean": 2.505,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.209638,
+     "probability": 0.224412,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3117256",
+   "name": "Dalton Schultz",
+   "team": "HOU",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 29.593,
+     "p10": 0,
+     "p25": 9.87,
+     "median": 24.19,
+     "p75": 43.05,
+     "p90": 64.25
+    },
+    "player_receptions": {
+     "mean": 2.795,
+     "p10": 0,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.198293,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -186,29 +254,17 @@
      "p75": 24.46,
      "p90": 42.2
     },
-    "anytime_td": {
-     "probability": 0.18886,
-     "participation": "QUESTIONABLE"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3117256",
-   "name": "Dalton Schultz",
-   "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 29.593,
+    "player_receptions": {
+     "mean": 1.481,
      "p10": 0,
-     "p25": 9.87,
-     "median": 24.19,
-     "p75": 43.05,
-     "p90": 64.25
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     },
     "anytime_td": {
-     "probability": 0.187378,
-     "participation": "ACTIVE_PROJECTED"
+     "probability": 0.193626,
+     "participation": "QUESTIONABLE"
     }
    }
   },
@@ -219,7 +275,7 @@
    "participation": "NOT_IN_POOL",
    "markets": {
     "anytime_td": {
-     "probability": 0.170058,
+     "probability": 0.165428,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -231,11 +287,23 @@
    "participation": "INACTIVE",
    "markets": {
     "anytime_td": {
-     "probability": 0.148785,
+     "probability": 0.140507,
      "participation": "INACTIVE"
     }
    },
    "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
+  },
+  {
+   "playerId": "nfl-athlete-4432577",
+   "name": "C.J. Stroud",
+   "team": "HOU",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.128055,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
   },
   {
    "playerId": "nfl-athlete-4573699",
@@ -244,7 +312,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.145054,
+     "probability": 0.127432,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -263,20 +331,16 @@
      "p75": 34.79,
      "p90": 53.94
     },
+    "player_receptions": {
+     "mean": 2.101,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.141401,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4432577",
-   "name": "C.J. Stroud",
-   "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.140583,
+     "probability": 0.121834,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -288,7 +352,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.134757,
+     "probability": 0.119176,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -300,7 +364,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.116718,
+     "probability": 0.091492,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -318,6 +382,14 @@
      "median": 21.72,
      "p75": 40.3,
      "p90": 61.89
+    },
+    "player_receptions": {
+     "mean": 2.421,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
     }
    }
   },
@@ -334,6 +406,14 @@
      "median": 7.61,
      "p75": 21.54,
      "p90": 36.46
+    },
+    "player_receptions": {
+     "mean": 1.295,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     }
    }
   },
@@ -350,6 +430,14 @@
      "median": 39,
      "p75": 61.84,
      "p90": 88.29
+    },
+    "player_receptions": {
+     "mean": 4.297,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8
     }
    }
   },
@@ -366,6 +454,14 @@
      "median": 11.17,
      "p75": 26.63,
      "p90": 44.71
+    },
+    "player_receptions": {
+     "mean": 1.532,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3.1
     }
    }
   },
@@ -382,6 +478,14 @@
      "median": 8.75,
      "p75": 22.92,
      "p90": 41.5
+    },
+    "player_receptions": {
+     "mean": 1.309,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     }
    }
   }

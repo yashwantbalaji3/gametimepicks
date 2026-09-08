@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872929",
  "matchup": "WSH @ PHI",
  "kickoffUtc": "2026-09-13T20:25Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -62,8 +62,16 @@
      "p75": 53.43,
      "p90": 77.41
     },
+    "player_receptions": {
+     "mean": 3.514,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.479735,
+     "probability": 0.562665,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -82,20 +90,16 @@
      "p75": 26.31,
      "p90": 44.21
     },
+    "player_receptions": {
+     "mean": 1.784,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 3,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.300612,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4040715",
-   "name": "Jalen Hurts",
-   "team": "PHI",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.252203,
+     "probability": 0.318173,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -107,8 +111,20 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
-     "probability": 0.24032,
+     "probability": 0.288091,
      "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4040715",
+   "name": "Jalen Hurts",
+   "team": "PHI",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.246166,
+     "participation": "ACTIVE_PROJECTED"
     }
    }
   },
@@ -119,7 +135,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.231475,
+     "probability": 0.214611,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -131,43 +147,11 @@
    "participation": "INACTIVE",
    "markets": {
     "anytime_td": {
-     "probability": 0.228174,
+     "probability": 0.209546,
      "participation": "INACTIVE"
     }
    },
    "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
-  },
-  {
-   "playerId": "nfl-athlete-4241478",
-   "name": "DeVonta Smith",
-   "team": "PHI",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 44.029,
-     "p10": 6.85,
-     "p25": 19.26,
-     "median": 37.79,
-     "p75": 62.7,
-     "p90": 87.45
-    },
-    "anytime_td": {
-     "probability": 0.209587,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4248557",
-   "name": "E.J. Jenkins",
-   "team": "PHI",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.205487,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
   },
   {
    "playerId": "nfl-athlete-3121422",
@@ -183,8 +167,16 @@
      "p75": 67.14,
      "p90": 94.53
     },
+    "player_receptions": {
+     "mean": 4.087,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 7
+    },
     "anytime_td": {
-     "probability": 0.185386,
+     "probability": 0.209488,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -196,23 +188,50 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.17836,
+     "probability": 0.199238,
      "participation": "ACTIVE_PROJECTED"
     }
    }
   },
   {
-   "playerId": "nfl-athlete-4686104",
-   "name": "Johnny Wilson",
+   "playerId": "nfl-athlete-4241478",
+   "name": "DeVonta Smith",
    "team": "PHI",
-   "participation": "INACTIVE",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 44.029,
+     "p10": 6.85,
+     "p25": 19.26,
+     "median": 37.79,
+     "p75": 62.7,
+     "p90": 87.45
+    },
+    "player_receptions": {
+     "mean": 3.886,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7
+    },
+    "anytime_td": {
+     "probability": 0.180832,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4248557",
+   "name": "E.J. Jenkins",
+   "team": "PHI",
+   "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.152336,
-     "participation": "INACTIVE"
+     "probability": 0.174452,
+     "participation": "ACTIVE_PROJECTED"
     }
-   },
-   "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
+   }
   },
   {
    "playerId": "nfl-athlete-4426948",
@@ -221,7 +240,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.129735,
+     "probability": 0.127111,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -240,11 +259,32 @@
      "p75": 20.97,
      "p90": 38.64
     },
+    "player_receptions": {
+     "mean": 1.295,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.110501,
+     "probability": 0.098015,
      "participation": "ACTIVE_PROJECTED"
     }
    }
+  },
+  {
+   "playerId": "nfl-athlete-4686104",
+   "name": "Johnny Wilson",
+   "team": "PHI",
+   "participation": "INACTIVE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.090298,
+     "participation": "INACTIVE"
+    }
+   },
+   "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
   },
   {
    "playerId": "nfl-athlete-4690923",
@@ -260,8 +300,16 @@
      "p75": 25.31,
      "p90": 42.93
     },
+    "player_receptions": {
+     "mean": 1.535,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.093718,
+     "probability": 0.072368,
      "participation": "QUESTIONABLE"
     }
    }
@@ -280,8 +328,16 @@
      "p75": 36.15,
      "p90": 57.2
     },
+    "player_receptions": {
+     "mean": 2.228,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.093122,
+     "probability": 0.071452,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -293,7 +349,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.089357,
+     "probability": 0.065664,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -311,6 +367,14 @@
      "median": 10.22,
      "p75": 24.82,
      "p90": 41.36
+    },
+    "player_receptions": {
+     "mean": 1.521,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     }
    }
   },
@@ -327,6 +391,14 @@
      "median": 5.72,
      "p75": 19.74,
      "p90": 37.3
+    },
+    "player_receptions": {
+     "mean": 1.131,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     }
    }
   }

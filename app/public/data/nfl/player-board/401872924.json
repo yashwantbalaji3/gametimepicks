@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872924",
  "matchup": "NYJ @ TEN",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -62,8 +62,16 @@
      "p75": 24.71,
      "p90": 43.84
     },
+    "player_receptions": {
+     "mean": 1.525,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.338451,
+     "probability": 0.390637,
      "participation": "QUESTIONABLE"
     }
    }
@@ -82,8 +90,16 @@
      "p75": 78.51,
      "p90": 105.7
     },
+    "player_receptions": {
+     "mean": 5.257,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 7,
+     "p90": 9
+    },
     "anytime_td": {
-     "probability": 0.29716,
+     "probability": 0.332696,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -95,7 +111,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.283166,
+     "probability": 0.312664,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -107,7 +123,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.266255,
+     "probability": 0.306801,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -126,8 +142,16 @@
      "p75": 40.9,
      "p90": 62.32
     },
+    "player_receptions": {
+     "mean": 2.643,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.214535,
+     "probability": 0.232214,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -146,28 +170,16 @@
      "p75": 45.85,
      "p90": 68.37
     },
-    "anytime_td": {
-     "probability": 0.211037,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4597500",
-   "name": "Adonai Mitchell",
-   "team": "NYJ",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 35.598,
-     "p10": 3.81,
-     "p25": 13.9,
-     "median": 29.86,
-     "p75": 50.95,
-     "p90": 74.97
+    "player_receptions": {
+     "mean": 2.778,
+     "p10": 1,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
     },
     "anytime_td": {
-     "probability": 0.207564,
+     "probability": 0.22708,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -186,8 +198,44 @@
      "p75": 17.97,
      "p90": 32.4
     },
+    "player_receptions": {
+     "mean": 1.159,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.197706,
+     "probability": 0.207405,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4597500",
+   "name": "Adonai Mitchell",
+   "team": "NYJ",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 35.598,
+     "p10": 3.81,
+     "p25": 13.9,
+     "median": 29.86,
+     "p75": 50.95,
+     "p90": 74.97
+    },
+    "player_receptions": {
+     "mean": 3.198,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
+    "anytime_td": {
+     "probability": 0.201103,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -199,7 +247,7 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
-     "probability": 0.174543,
+     "probability": 0.150655,
      "participation": "QUESTIONABLE"
     }
    }
@@ -218,8 +266,16 @@
      "p75": 34.6,
      "p90": 53.02
     },
+    "player_receptions": {
+     "mean": 2.452,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.157967,
+     "probability": 0.147794,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -238,8 +294,16 @@
      "p75": 29.48,
      "p90": 48.17
     },
+    "player_receptions": {
+     "mean": 1.905,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.157386,
+     "probability": 0.146912,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -251,7 +315,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.155722,
+     "probability": 0.144384,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -270,8 +334,16 @@
      "p75": 22.88,
      "p90": 40.07
     },
+    "player_receptions": {
+     "mean": 1.421,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.151671,
+     "probability": 0.115116,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -283,7 +355,19 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.146499,
+     "probability": 0.107013,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4035369",
+   "name": "Jeffery Simmons",
+   "team": "TEN",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.095666,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -302,20 +386,16 @@
      "p75": 45.83,
      "p90": 68.85
     },
+    "player_receptions": {
+     "mean": 3.086,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.135088,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4035369",
-   "name": "Jeffery Simmons",
-   "team": "TEN",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.123965,
+     "probability": 0.089049,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -333,6 +413,14 @@
      "median": 19.43,
      "p75": 37.82,
      "p90": 59.1
+    },
+    "player_receptions": {
+     "mean": 2.139,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
     }
    }
   },
@@ -349,6 +437,14 @@
      "median": 20.27,
      "p75": 38.59,
      "p90": 58.46
+    },
+    "player_receptions": {
+     "mean": 2.53,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
     }
    }
   }

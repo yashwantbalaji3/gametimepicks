@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872930",
  "matchup": "DAL @ NYG",
  "kickoffUtc": "2026-09-14T00:20Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -62,8 +62,16 @@
      "p75": 18.09,
      "p90": 33.17
     },
+    "player_receptions": {
+     "mean": 1.189,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.32302,
+     "probability": 0.377192,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -75,7 +83,7 @@
    "participation": "NOT_IN_POOL",
    "markets": {
     "anytime_td": {
-     "probability": 0.293749,
+     "probability": 0.336345,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -94,8 +102,16 @@
      "p75": 38.7,
      "p90": 59.94
     },
+    "player_receptions": {
+     "mean": 2.353,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.266195,
+     "probability": 0.297117,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -114,8 +130,16 @@
      "p75": 62.43,
      "p90": 88.17
     },
+    "player_receptions": {
+     "mean": 3.551,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
+    },
     "anytime_td": {
-     "probability": 0.22012,
+     "probability": 0.229873,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -127,7 +151,7 @@
    "participation": "NOT_IN_POOL",
    "markets": {
     "anytime_td": {
-     "probability": 0.211122,
+     "probability": 0.216507,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -139,7 +163,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.192796,
+     "probability": 0.189047,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -158,8 +182,16 @@
      "p75": 34.59,
      "p90": 52.68
     },
+    "player_receptions": {
+     "mean": 2.287,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.19032,
+     "probability": 0.185312,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -171,7 +203,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.154298,
+     "probability": 0.130353,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -189,6 +221,14 @@
      "median": 18.02,
      "p75": 34.7,
      "p90": 53.96
+    },
+    "player_receptions": {
+     "mean": 2.264,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
     }
    }
   },
@@ -205,6 +245,14 @@
      "median": 16.16,
      "p75": 32.76,
      "p90": 51.41
+    },
+    "player_receptions": {
+     "mean": 2.071,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
     }
    }
   },
@@ -221,6 +269,14 @@
      "median": 37.48,
      "p75": 61.61,
      "p90": 87.46
+    },
+    "player_receptions": {
+     "mean": 3.808,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7
     }
    }
   },
@@ -237,6 +293,14 @@
      "median": 27.43,
      "p75": 48.28,
      "p90": 72.1
+    },
+    "player_receptions": {
+     "mean": 2.91,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
     }
    }
   },
@@ -253,6 +317,14 @@
      "median": 25.77,
      "p75": 46.54,
      "p90": 70.05
+    },
+    "player_receptions": {
+     "mean": 2.749,
+     "p10": 1,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
     }
    }
   },
@@ -269,6 +341,14 @@
      "median": 7.62,
      "p75": 21.55,
      "p90": 38.46
+    },
+    "player_receptions": {
+     "mean": 1.295,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     }
    }
   },
@@ -285,6 +365,14 @@
      "median": 37.26,
      "p75": 60.82,
      "p90": 86.97
+    },
+    "player_receptions": {
+     "mean": 3.641,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
     }
    }
   }

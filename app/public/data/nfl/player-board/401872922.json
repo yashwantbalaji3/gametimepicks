@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872922",
  "matchup": "CLE @ JAX",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -62,8 +62,16 @@
      "p75": 61.98,
      "p90": 87.64
     },
+    "player_receptions": {
+     "mean": 4.04,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 7
+    },
     "anytime_td": {
-     "probability": 0.364264,
+     "probability": 0.441884,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -82,8 +90,16 @@
      "p75": 42.63,
      "p90": 64.23
     },
+    "player_receptions": {
+     "mean": 2.655,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.301142,
+     "probability": 0.334457,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -95,7 +111,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.292446,
+     "probability": 0.321992,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -114,21 +130,17 @@
      "p75": 65.84,
      "p90": 91.69
     },
+    "player_receptions": {
+     "mean": 3.832,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7
+    },
     "anytime_td": {
-     "probability": 0.267226,
+     "probability": 0.28541,
      "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4882093",
-   "name": "Bhayshul Tuten",
-   "team": "JAX",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.233325,
-     "participation": "QUESTIONABLE"
     }
    }
   },
@@ -146,9 +158,29 @@
      "p75": 30.2,
      "p90": 48
     },
+    "player_receptions": {
+     "mean": 1.885,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.221129,
+     "probability": 0.243144,
      "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4882093",
+   "name": "Bhayshul Tuten",
+   "team": "JAX",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.235244,
+     "participation": "QUESTIONABLE"
     }
    }
   },
@@ -166,8 +198,16 @@
      "p75": 42.45,
      "p90": 63.72
     },
+    "player_receptions": {
+     "mean": 2.45,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.214215,
+     "probability": 0.206475,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -179,7 +219,7 @@
    "participation": "NOT_IN_POOL",
    "markets": {
     "anytime_td": {
-     "probability": 0.203492,
+     "probability": 0.190179,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -198,8 +238,16 @@
      "p75": 42.37,
      "p90": 63.82
     },
+    "player_receptions": {
+     "mean": 2.625,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.198231,
+     "probability": 0.182144,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -218,8 +266,16 @@
      "p75": 51.62,
      "p90": 75.52
     },
+    "player_receptions": {
+     "mean": 3.333,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.177897,
+     "probability": 0.150843,
      "participation": "QUESTIONABLE"
     }
    }
@@ -231,7 +287,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.155338,
+     "probability": 0.145249,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -250,8 +306,16 @@
      "p75": 53.6,
      "p90": 77.24
     },
+    "player_receptions": {
+     "mean": 3.359,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.13475,
+     "probability": 0.11381,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -263,7 +327,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.126487,
+     "probability": 0.101084,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -282,8 +346,16 @@
      "p75": 28.38,
      "p90": 46.75
     },
+    "player_receptions": {
+     "mean": 1.831,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.123603,
+     "probability": 0.096629,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -302,8 +374,16 @@
      "p75": 25.5,
      "p90": 43.11
     },
+    "player_receptions": {
+     "mean": 1.474,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.123184,
+     "probability": 0.095982,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -315,7 +395,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.117954,
+     "probability": 0.087881,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -333,6 +413,14 @@
      "median": 8.32,
      "p75": 22.68,
      "p90": 40.53
+    },
+    "player_receptions": {
+     "mean": 1.267,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     }
    }
   }

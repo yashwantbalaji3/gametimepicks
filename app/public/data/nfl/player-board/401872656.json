@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872656",
  "matchup": "NE @ SEA",
  "kickoffUtc": "2026-09-10T00:20Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -55,7 +55,7 @@
    "participation": "INACTIVE",
    "markets": {
     "anytime_td": {
-     "probability": 0.427142,
+     "probability": 0.504613,
      "participation": "INACTIVE"
     }
    },
@@ -75,8 +75,16 @@
      "p75": 32.23,
      "p90": 50.91
     },
+    "player_receptions": {
+     "mean": 1.987,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.315245,
+     "probability": 0.352506,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -95,8 +103,16 @@
      "p75": 92.46,
      "p90": 122.58
     },
+    "player_receptions": {
+     "mean": 5.63,
+     "p10": 2,
+     "p25": 4,
+     "median": 5,
+     "p75": 7,
+     "p90": 10
+    },
     "anytime_td": {
-     "probability": 0.27737,
+     "probability": 0.298033,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -115,8 +131,16 @@
      "p75": 27.77,
      "p90": 46.58
     },
+    "player_receptions": {
+     "mean": 1.655,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.251993,
+     "probability": 0.260727,
      "participation": "QUESTIONABLE"
     }
    }
@@ -135,8 +159,16 @@
      "p75": 34.89,
      "p90": 55.33
     },
+    "player_receptions": {
+     "mean": 2.194,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.20432,
+     "probability": 0.234011,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -155,8 +187,28 @@
      "p75": 43.71,
      "p90": 66.71
     },
+    "player_receptions": {
+     "mean": 2.71,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.189162,
+     "probability": 0.212016,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4431452",
+   "name": "Drake Maye",
+   "team": "NE",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.201812,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -175,44 +227,16 @@
      "p75": 52.43,
      "p90": 75.55
     },
+    "player_receptions": {
+     "mean": 3.239,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.183411,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4431452",
-   "name": "Drake Maye",
-   "team": "NE",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.182177,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4360405",
-   "name": "Jake Bobo",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.165557,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4429835",
-   "name": "George Holani",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.15683,
+     "probability": 0.156768,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -224,7 +248,7 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
-     "probability": 0.140721,
+     "probability": 0.140357,
      "participation": "QUESTIONABLE"
     }
    }
@@ -243,29 +267,17 @@
      "p75": 46.61,
      "p90": 71.67
     },
-    "anytime_td": {
-     "probability": 0.140622,
-     "participation": "NOT_IN_POOL"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4678006",
-   "name": "Elijah Arroyo",
-   "team": "SEA",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 12.183,
+    "player_receptions": {
+     "mean": 2.601,
      "p10": 0,
-     "p25": 0,
-     "median": 5.17,
-     "p75": 18.92,
-     "p90": 35.44
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
     },
     "anytime_td": {
-     "probability": 0.138433,
-     "participation": "ACTIVE_PROJECTED"
+     "probability": 0.140209,
+     "participation": "NOT_IN_POOL"
     }
    }
   },
@@ -283,8 +295,40 @@
      "p75": 51.84,
      "p90": 77.23
     },
+    "player_receptions": {
+     "mean": 3.122,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.136483,
+     "probability": 0.13399,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360405",
+   "name": "Jake Bobo",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.128973,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429835",
+   "name": "George Holani",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.115279,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -303,8 +347,16 @@
      "p75": 27.75,
      "p90": 45.91
     },
+    "player_receptions": {
+     "mean": 1.671,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.112408,
+     "probability": 0.097523,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -316,7 +368,35 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.111526,
+     "probability": 0.096178,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4678006",
+   "name": "Elijah Arroyo",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 12.183,
+     "p10": 0,
+     "p25": 0,
+     "median": 5.17,
+     "p75": 18.92,
+     "p90": 35.44
+    },
+    "player_receptions": {
+     "mean": 1.121,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.086181,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -334,6 +414,14 @@
      "median": 11.32,
      "p75": 27.18,
      "p90": 46.15
+    },
+    "player_receptions": {
+     "mean": 1.557,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
     }
    }
   }

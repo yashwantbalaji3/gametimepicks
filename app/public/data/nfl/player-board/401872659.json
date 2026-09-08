@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872659",
  "matchup": "BAL @ IND",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -55,7 +55,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.391953,
+     "probability": 0.45826,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -74,8 +74,16 @@
      "p75": 29.6,
      "p90": 47.33
     },
+    "player_receptions": {
+     "mean": 1.906,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.322184,
+     "probability": 0.371551,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -94,8 +102,16 @@
      "p75": 51.91,
      "p90": 79.38
     },
+    "player_receptions": {
+     "mean": 2.678,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.30764,
+     "probability": 0.351207,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -114,8 +130,16 @@
      "p75": 87.86,
      "p90": 119.15
     },
+    "player_receptions": {
+     "mean": 5.333,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 7,
+     "p90": 9
+    },
     "anytime_td": {
-     "probability": 0.303931,
+     "probability": 0.336426,
      "participation": "QUESTIONABLE"
     }
    }
@@ -134,8 +158,16 @@
      "p75": 22.6,
      "p90": 39.5
     },
+    "player_receptions": {
+     "mean": 1.398,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.251882,
+     "probability": 0.260611,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -147,7 +179,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.237435,
+     "probability": 0.250041,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -166,8 +198,16 @@
      "p75": 46.68,
      "p90": 69.89
     },
+    "player_receptions": {
+     "mean": 2.94,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.227518,
+     "probability": 0.235362,
      "participation": "QUESTIONABLE"
     }
    }
@@ -179,7 +219,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.21141,
+     "probability": 0.199807,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -191,7 +231,19 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.187628,
+     "probability": 0.175379,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3917792",
+   "name": "Daniel Jones",
+   "team": "IND",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.171797,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -210,20 +262,16 @@
      "p75": 46.08,
      "p90": 68.03
     },
+    "player_receptions": {
+     "mean": 3.039,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.186995,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3917792",
-   "name": "Daniel Jones",
-   "team": "IND",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.185277,
+     "probability": 0.162366,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -242,32 +290,16 @@
      "p75": 18.99,
      "p90": 34.2
     },
+    "player_receptions": {
+     "mean": 1.128,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.177255,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3916387",
-   "name": "Lamar Jackson",
-   "team": "BAL",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.172206,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4690013",
-   "name": "Rasheen Ali",
-   "team": "BAL",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.167592,
+     "probability": 0.159536,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -286,9 +318,41 @@
      "p75": 53.63,
      "p90": 77.27
     },
+    "player_receptions": {
+     "mean": 3.587,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6.1
+    },
     "anytime_td": {
-     "probability": 0.164545,
+     "probability": 0.139989,
      "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3916387",
+   "name": "Lamar Jackson",
+   "team": "BAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.139412,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4690013",
+   "name": "Rasheen Ali",
+   "team": "BAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.132208,
+     "participation": "ACTIVE_PROJECTED"
     }
    }
   },
@@ -306,8 +370,16 @@
      "p75": 27.45,
      "p90": 45.47
     },
+    "player_receptions": {
+     "mean": 1.588,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.153856,
+     "probability": 0.110647,
      "participation": "ACTIVE_PROJECTED"
     }
    }

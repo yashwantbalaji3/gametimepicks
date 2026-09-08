@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872661",
  "matchup": "CHI @ CAR",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -55,7 +55,7 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
-     "probability": 0.240527,
+     "probability": 0.28002,
      "participation": "QUESTIONABLE"
     }
    }
@@ -74,8 +74,28 @@
      "p75": 54.82,
      "p90": 79.66
     },
+    "player_receptions": {
+     "mean": 3.418,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.239685,
+     "probability": 0.267977,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-5160110",
+   "name": "Jahdae Walker",
+   "team": "CHI",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.264644,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -94,20 +114,16 @@
      "p75": 64.12,
      "p90": 89.94
     },
+    "player_receptions": {
+     "mean": 3.711,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
+    },
     "anytime_td": {
-     "probability": 0.23366,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5160110",
-   "name": "Jahdae Walker",
-   "team": "CHI",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.229754,
+     "probability": 0.259256,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -119,7 +135,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.226508,
+     "probability": 0.248861,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -138,8 +154,16 @@
      "p75": 22.33,
      "p90": 38.68
     },
+    "player_receptions": {
+     "mean": 1.492,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.219471,
+     "probability": 0.238587,
      "participation": "QUESTIONABLE"
     }
    }
@@ -158,28 +182,16 @@
      "p75": 62.9,
      "p90": 90.07
     },
-    "anytime_td": {
-     "probability": 0.188009,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4431588",
-   "name": "Ja'Tavion Sanders",
-   "team": "CAR",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 16.674,
-     "p10": 0,
-     "p25": 0.45,
-     "median": 10.93,
-     "p75": 25.9,
-     "p90": 42.1
+    "player_receptions": {
+     "mean": 3.89,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7
     },
     "anytime_td": {
-     "probability": 0.167056,
+     "probability": 0.204051,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -198,8 +210,44 @@
      "p75": 24.57,
      "p90": 42.56
     },
+    "player_receptions": {
+     "mean": 1.454,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.165951,
+     "probability": 0.171397,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4431588",
+   "name": "Ja'Tavion Sanders",
+   "team": "CAR",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 16.674,
+     "p10": 0,
+     "p25": 0.45,
+     "median": 10.93,
+     "p75": 25.9,
+     "p90": 42.1
+    },
+    "player_receptions": {
+     "mean": 1.634,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    },
+    "anytime_td": {
+     "probability": 0.160613,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -218,8 +266,16 @@
      "p75": 25.74,
      "p90": 42.28
     },
+    "player_receptions": {
+     "mean": 1.57,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.161294,
+     "probability": 0.151889,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -238,8 +294,16 @@
      "p75": 19.27,
      "p90": 35.31
     },
+    "player_receptions": {
+     "mean": 1.165,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.147481,
+     "probability": 0.143721,
      "participation": "QUESTIONABLE"
     }
    }
@@ -258,8 +322,16 @@
      "p75": 49.94,
      "p90": 73.65
     },
+    "player_receptions": {
+     "mean": 2.877,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.139938,
+     "probability": 0.132331,
      "participation": "QUESTIONABLE"
     }
    }
@@ -278,8 +350,16 @@
      "p75": 32.03,
      "p90": 51.03
     },
+    "player_receptions": {
+     "mean": 1.968,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.134201,
+     "probability": 0.110467,
      "participation": "QUESTIONABLE"
     }
    }
@@ -291,31 +371,11 @@
    "participation": "INACTIVE",
    "markets": {
     "anytime_td": {
-     "probability": 0.121896,
+     "probability": 0.104889,
      "participation": "INACTIVE"
     }
    },
    "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
-  },
-  {
-   "playerId": "nfl-athlete-4683243",
-   "name": "Mitchell Evans",
-   "team": "CAR",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 12.578,
-     "p10": 0,
-     "p25": 0,
-     "median": 5.82,
-     "p75": 19.3,
-     "p90": 35.76
-    },
-    "anytime_td": {
-     "probability": 0.11358,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
   },
   {
    "playerId": "nfl-athlete-4685278",
@@ -331,9 +391,45 @@
      "p75": 46.59,
      "p90": 69.83
     },
+    "player_receptions": {
+     "mean": 2.782,
+     "p10": 1,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.105167,
+     "probability": 0.079191,
      "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4683243",
+   "name": "Mitchell Evans",
+   "team": "CAR",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 12.578,
+     "p10": 0,
+     "p25": 0,
+     "median": 5.82,
+     "p75": 19.3,
+     "p90": 35.76
+    },
+    "player_receptions": {
+     "mean": 1.189,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.078506,
+     "participation": "ACTIVE_PROJECTED"
     }
    }
   }

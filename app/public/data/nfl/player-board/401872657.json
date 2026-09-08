@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872657",
  "matchup": "SF @ LAR",
  "kickoffUtc": "2026-09-11T00:35Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -62,8 +62,16 @@
      "p75": 22.67,
      "p90": 38.44
     },
+    "player_receptions": {
+     "mean": 1.401,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
     "anytime_td": {
-     "probability": 0.40216,
+     "probability": 0.456719,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -82,8 +90,16 @@
      "p75": 58.46,
      "p90": 81.97
     },
+    "player_receptions": {
+     "mean": 4.102,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7
+    },
     "anytime_td": {
-     "probability": 0.376559,
+     "probability": 0.456335,
      "participation": "QUESTIONABLE"
     }
    }
@@ -102,8 +118,16 @@
      "p75": 90.86,
      "p90": 123.32
     },
+    "player_receptions": {
+     "mean": 5.49,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 7,
+     "p90": 9
+    },
     "anytime_td": {
-     "probability": 0.358973,
+     "probability": 0.396763,
      "participation": "QUESTIONABLE"
     }
    }
@@ -122,8 +146,16 @@
      "p75": 56.21,
      "p90": 81.87
     },
+    "player_receptions": {
+     "mean": 3.306,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.32379,
+     "probability": 0.346405,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -142,8 +174,72 @@
      "p75": 36.92,
      "p90": 59.12
     },
+    "player_receptions": {
+     "mean": 2.256,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.271711,
+     "probability": 0.269452,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3040151",
+   "name": "George Kittle",
+   "team": "SF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 41.833,
+     "p10": 5.7,
+     "p25": 17.51,
+     "median": 36.44,
+     "p75": 59.37,
+     "p90": 85.39
+    },
+    "player_receptions": {
+     "mean": 3.738,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
+    },
+    "anytime_td": {
+     "probability": 0.228176,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4259147",
+   "name": "Jake Tonges",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 25.24,
+     "p10": 0,
+     "p25": 6.7,
+     "median": 19.25,
+     "p75": 37.25,
+     "p90": 57.66
+    },
+    "player_receptions": {
+     "mean": 2.369,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.221243,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -162,28 +258,16 @@
      "p75": 19.28,
      "p90": 35.64
     },
-    "anytime_td": {
-     "probability": 0.235157,
-     "participation": "QUESTIONABLE"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3040151",
-   "name": "George Kittle",
-   "team": "SF",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 41.833,
-     "p10": 5.7,
-     "p25": 17.51,
-     "median": 36.44,
-     "p75": 59.37,
-     "p90": 85.39
+    "player_receptions": {
+     "mean": 1.078,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     },
     "anytime_td": {
-     "probability": 0.212537,
+     "probability": 0.213776,
      "participation": "QUESTIONABLE"
     }
    }
@@ -202,28 +286,16 @@
      "p75": 25.5,
      "p90": 44.64
     },
-    "anytime_td": {
-     "probability": 0.210713,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4259147",
-   "name": "Jake Tonges",
-   "team": "SF",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 25.24,
+    "player_receptions": {
+     "mean": 1.485,
      "p10": 0,
-     "p25": 6.7,
-     "median": 19.25,
-     "p75": 37.25,
-     "p90": 57.66
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     },
     "anytime_td": {
-     "probability": 0.207829,
+     "probability": 0.175801,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -235,28 +307,8 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.202481,
+     "probability": 0.162879,
      "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4426553",
-   "name": "Davis Allen",
-   "team": "LAR",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 12.029,
-     "p10": 0,
-     "p25": 0,
-     "median": 5.7,
-     "p75": 19.23,
-     "p90": 33.85
-    },
-    "anytime_td": {
-     "probability": 0.171432,
-     "participation": "QUESTIONABLE"
     }
    }
   },
@@ -267,7 +319,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.167119,
+     "probability": 0.160447,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -286,9 +338,45 @@
      "p75": 28.36,
      "p90": 47.18
     },
+    "player_receptions": {
+     "mean": 1.634,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    },
     "anytime_td": {
-     "probability": 0.160623,
+     "probability": 0.150606,
      "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426553",
+   "name": "Davis Allen",
+   "team": "LAR",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 12.029,
+     "p10": 0,
+     "p25": 0,
+     "median": 5.7,
+     "p75": 19.23,
+     "p90": 33.85
+    },
+    "player_receptions": {
+     "mean": 1.145,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.113555,
+     "participation": "QUESTIONABLE"
     }
    }
   },
@@ -299,7 +387,7 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
-     "probability": 0.129417,
+     "probability": 0.102806,
      "participation": "QUESTIONABLE"
     }
    }
@@ -311,7 +399,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.11555,
+     "probability": 0.081288,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -323,7 +411,7 @@
    "participation": "NOT_IN_POOL",
    "markets": {
     "anytime_td": {
-     "probability": 0.107227,
+     "probability": 0.068293,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -341,6 +429,14 @@
      "median": 24.85,
      "p75": 46.39,
      "p90": 70.54
+    },
+    "player_receptions": {
+     "mean": 2.69,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
     }
    }
   },
@@ -357,6 +453,14 @@
      "median": 15.38,
      "p75": 31.72,
      "p90": 51.76
+    },
+    "player_receptions": {
+     "mean": 1.911,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
     }
    }
   }

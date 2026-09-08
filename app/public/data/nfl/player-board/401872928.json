@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T20:19:18Z",
- "sourceGeneratedAt": "2026-09-08T20:19:18Z",
+ "generatedAt": "2026-09-08T21:34:24Z",
+ "sourceGeneratedAt": "2026-09-08T21:34:24Z",
  "providerEventId": "401872928",
  "matchup": "MIA @ LV",
  "kickoffUtc": "2026-09-13T20:25Z",
@@ -28,8 +28,8 @@
   },
   "player_receptions": {
    "label": "Receptions",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -39,7 +39,7 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -62,8 +62,16 @@
      "p75": 41.35,
      "p90": 62.65
     },
+    "player_receptions": {
+     "mean": 2.846,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.351384,
+     "probability": 0.396339,
      "participation": "QUESTIONABLE"
     }
    }
@@ -82,8 +90,16 @@
      "p75": 63.05,
      "p90": 87.12
     },
+    "player_receptions": {
+     "mean": 4.202,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 7
+    },
     "anytime_td": {
-     "probability": 0.340481,
+     "probability": 0.381053,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -102,8 +118,16 @@
      "p75": 42.82,
      "p90": 63.05
     },
+    "player_receptions": {
+     "mean": 2.933,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
     "anytime_td": {
-     "probability": 0.322239,
+     "probability": 0.36274,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -122,8 +146,16 @@
      "p75": 34.88,
      "p90": 53.7
     },
+    "player_receptions": {
+     "mean": 2.308,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.288452,
+     "probability": 0.314492,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -135,7 +167,35 @@
    "participation": "NOT_IN_POOL",
    "markets": {
     "anytime_td": {
-     "probability": 0.236072,
+     "probability": 0.228392,
+     "participation": "NOT_IN_POOL"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426535",
+   "name": "Theo Wease Jr.",
+   "team": "MIA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 19.484,
+     "p10": 0,
+     "p25": 1.04,
+     "median": 12.8,
+     "p75": 29.69,
+     "p90": 49.5
+    },
+    "player_receptions": {
+     "mean": 1.679,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    },
+    "anytime_td": {
+     "probability": 0.207197,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -154,29 +214,17 @@
      "p75": 50.84,
      "p90": 72.18
     },
-    "anytime_td": {
-     "probability": 0.219248,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4426535",
-   "name": "Theo Wease Jr.",
-   "team": "MIA",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 19.484,
-     "p10": 0,
-     "p25": 1.04,
-     "median": 12.8,
-     "p75": 29.69,
-     "p90": 49.5
+    "player_receptions": {
+     "mean": 3.148,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
     },
     "anytime_td": {
-     "probability": 0.216021,
-     "participation": "NOT_IN_POOL"
+     "probability": 0.202765,
+     "participation": "ACTIVE_PROJECTED"
     }
    }
   },
@@ -187,7 +235,7 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
-     "probability": 0.199047,
+     "probability": 0.181313,
      "participation": "QUESTIONABLE"
     }
    }
@@ -206,20 +254,16 @@
      "p75": 44.19,
      "p90": 64.89
     },
+    "player_receptions": {
+     "mean": 2.632,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.187557,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4260394",
-   "name": "Aidan O'Connell",
-   "team": "LV",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.17904,
+     "probability": 0.163635,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -231,7 +275,19 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.174937,
+     "probability": 0.144074,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4260394",
+   "name": "Aidan O'Connell",
+   "team": "LV",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.140399,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -250,8 +306,16 @@
      "p75": 39.79,
      "p90": 61.65
     },
+    "player_receptions": {
+     "mean": 2.596,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
     "anytime_td": {
-     "probability": 0.158507,
+     "probability": 0.107956,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -269,6 +333,14 @@
      "median": 11.6,
      "p75": 27.22,
      "p90": 45.04
+    },
+    "player_receptions": {
+     "mean": 1.646,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
     }
    }
   },
@@ -285,6 +357,14 @@
      "median": 9,
      "p75": 23.24,
      "p90": 40.41
+    },
+    "player_receptions": {
+     "mean": 1.385,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     }
    }
   },
@@ -301,6 +381,14 @@
      "median": 7.65,
      "p75": 21.05,
      "p90": 36.64
+    },
+    "player_receptions": {
+     "mean": 1.289,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
     }
    }
   }
