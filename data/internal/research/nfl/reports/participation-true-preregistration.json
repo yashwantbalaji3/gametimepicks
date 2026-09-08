@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "artifact": "participation-true-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "247",
+  "charterSection": "Release B/C — governed family-conditioning change",
+  "registeredAt": "2026-09-08T22:40:00Z",
+  "why": "population-sensitivity-annex.json: every family's committed evaluation scores an absent-from-boxscore candidate as 0 while prop markets VOID a DNP. Ground truth now exists (participation-truth-v1, nflverse snap counts, 99.96% join validation). The market-matching population — absent+played settles 0, absent+did-not-dress voids — is the population the published product's semantics (participation-gated boards, DNP=void labels) have claimed all along.",
+  "change": {
+    "id": "participation-true-conditioning-v1",
+    "scope": "EVALUATION POPULATION ONLY for the four props families, plus in-train re-selection of the ONE population-sensitive fitted parameter (targetShareDeflation gamma — its 0.90 value was selected against the absent-as-zero population and partly compensated for it). Model code, shares, rates, volumes, dispersion, integrated totals: unchanged.",
+    "gammaReselection": "same frozen grid [1.00, 0.98, 0.96, 0.94, 0.92, 0.90], same criterion (min summed receiving-family walk-forward ECE), scored on season-2024 under participation-true conditioning. Tie -> 1.00.",
+    "measurementBeforeRegistration": "A participation-true measurement run at the CURRENT gamma was taken before this registration (recorded in the annex); it motivated the re-selection and means 2025 outcomes under this conditioning have been seen once. This registration freezes the decision rule BEFORE the re-selected configuration is evaluated; the reused-season caveat applies at full strength and the 2026 forward record decides."
+  },
+  "bars": "The evaluator's standard promotion gates, unchanged: beats rolling4 AND shareVol on identical conditioned points, coverage in [0.72, 0.88], ece <= 0.05, n >= 300 -> PUBLIC_ELIGIBLE; (beats either) AND coverage in [0.68, 0.92] -> SHADOW_ELIGIBLE; else RESEARCH_ONLY.",
+  "decisionRule": "The re-receipt under participation-true conditioning (with the in-train re-selected gamma) BECOMES the champion receipt. Promotion states land wherever the bars put them, and publication follows the receipts — including withdrawing a currently published family or promoting a currently withheld one. No state is pinned in advance.",
+  "publicationConsequences": "Boards regenerate through the production-owned pipeline on the next natural run; withheld families name their exact failed bars as always; the register records any publication change before first kickoff.",
+  "notes": "Registered before the re-selected configuration was evaluated; commit order is the proof."
+}

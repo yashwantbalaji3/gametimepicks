@@ -23,6 +23,7 @@ import { SHARE_FAMILIES, familyNumerator, teamGameTotals, decayedShare } from ".
 import { shrunkRate, simulatePlayerProps, PROP_MARKETS, NFL_PLAYER_PROPS_ID } from "../../src/lib/sports/nfl/player-props-v1.mjs";
 import { strengthStateAt } from "../../src/lib/sports/nfl/model-v1.mjs";
 import { totalsStateAt } from "../../src/lib/sports/nfl/totals-rating.mjs";
+import { participationLookup } from "../../src/lib/sports/nfl/participation-truth.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -55,8 +56,24 @@ const DIAGNOSE_SEASON = Number(arg("--diagnose-season", "2025"));
    how much of each family's evidence rests on that branch. */
 const PRESENT_ONLY = process.argv.includes("--present-only");
 if (PRESENT_ONLY && !DIAGNOSE_DIR) { console.error("REFUSED: --present-only requires --diagnose"); process.exit(1); }
+/*
+ * P247 — PARTICIPATION-TRUE conditioning: the market-matching population. An absent-from-
+ * boxscore candidate resolves through the snap-count ground truth (participation-truth-v1,
+ * 99.96% join validation): snaps>0 -> he played, the prop settles 0; no record -> he did not
+ * dress, the prop VOIDS and the point is excluded. Present players are scored exactly as
+ * before. Measurement via --diagnose, or the governed re-receipt via the named challenger.
+ */
+const PARTICIPATION_TRUE = process.argv.includes("--participation-true") || CHALLENGER === "participation-true-conditioning-v1";
+let participationBySeason = null;
+if (PARTICIPATION_TRUE) {
+  participationBySeason = new Map();
+  for (const season of [2023, 2024, 2025]) {
+    const pp = path.join(ROOT, `data/internal/research/nfl/participation-truth-v1/${season}.json`);
+    participationBySeason.set(season, JSON.parse(fs.readFileSync(pp, "utf8")));
+  }
+}
 if (DIAGNOSE_SEASON !== 2025 && !DIAGNOSE_DIR) { console.error("REFUSED: --diagnose-season requires --diagnose"); process.exit(1); }
-if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1", "pass-starter-conditioning-v1"].includes(CHALLENGER)) {
+if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1", "pass-starter-conditioning-v1", "participation-true-conditioning-v1"].includes(CHALLENGER)) {
   console.error(`REFUSED: unknown challenger ${CHALLENGER}`); process.exit(1);
 }
 /* P246 §4.3: gamma for receiving-target-deflation-v1 — a preregistered grid value, threaded
@@ -91,7 +108,7 @@ const integrationVerdictPath = path.join(ROOT, "data/internal/research/nfl/repor
 const INTEGRATED_ADOPTED = fs.existsSync(integrationVerdictPath)
   ? JSON.parse(fs.readFileSync(integrationVerdictPath, "utf8")).verdict === "ACCEPTED"
   : false;
-const USE_MATCHUP_TOTALS = CHALLENGER === "props-gamesim-matchup-totals-v1" || CHALLENGER === "pass-starter-conditioning-v1" || (!CHALLENGER && !DIAGNOSE_DIR && INTEGRATED_ADOPTED);
+const USE_MATCHUP_TOTALS = CHALLENGER === "props-gamesim-matchup-totals-v1" || CHALLENGER === "pass-starter-conditioning-v1" || CHALLENGER === "participation-true-conditioning-v1" || (!CHALLENGER && !DIAGNOSE_DIR && INTEGRATED_ADOPTED);
 /*
  * P247 Release B (pass-starter-conditioning-v1): pass yards becomes a STARTER-CONDITIONED
  * family — evaluated only for the team's projected starter (previous game's leading passer,
@@ -344,6 +361,7 @@ function foldGame(state, g) {
     for (const r of rows) {
       let st = state.get(r.playerId);
       if (!st || st.team !== r.teamAbbr) { st = { team: r.teamAbbr, shares: {}, rates: {}, recent: {} }; state.set(r.playerId, st); }
+      if (r.name) st.name = r.name; // last seen name — the participation-truth join key
       for (const fam of SHARE_FAMILIES) {
         if (!(totals[fam] > 0)) continue;
         (st.shares[fam] ??= []).push({ share: familyNumerator(r, fam) / totals[fam], season: g.season });
@@ -409,7 +427,7 @@ function candidatesFor(state, abbr, season) {
     if (targetShare >= THRESH.targetShare) families.add("targets");
     if (!families.size) continue;
     players.push({
-      playerId, families, qbShare, carryShare, targetShare,
+      playerId, name: st.name ?? null, families, qbShare, carryShare, targetShare,
       share: Math.max(qbShare, carryShare, targetShare),
       compRate: rate("compRate"), ypcmp: rate("ypcmp"), catchRate: rate("catchRate"), ypr: rate("ypr"), ypc: rate("ypc"), intRate: rate("intRate"),
       shareBasis: "walk-forward corpus role", recent: st.recent,
@@ -500,6 +518,12 @@ for (const g of test) {
             if (!actualRow) continue; // absent from the boxscore = VOID, same as the zero-attempt rule
           }
           if (PRESENT_ONLY && !actualRow) continue;
+          if (PARTICIPATION_TRUE && !actualRow) {
+            const part = participationBySeason.get(g.season);
+            const snaps = part ? participationLookup(part, g, abbr, cand.name ?? simP.name ?? "") : null;
+            if (snaps == null || snaps === 0) continue; // did not dress -> the market voids; so does the evaluation
+            // played with zero touches: the prop settles 0 — fall through with actual = 0
+          }
           const actual = actualRow ? MARKET_ACTUAL[mkt](actualRow) : (cand.families.has(MARKET_FAMILY[mkt]) ? 0 : null);
           if (actual == null) continue; // DNP without evidence either way — participation's job, not the head's
           const m = metrics[mkt];
@@ -647,8 +671,10 @@ const OUT = DIAGNOSE_DIR
   ? null
   : CHALLENGER === "receiving-target-deflation-v1"
     ? "data/internal/research/nfl/reports/receiving-repair-evaluation.json"
+    : CHALLENGER === "participation-true-conditioning-v1"
+    ? "data/internal/research/nfl/reports/participation-true-evaluation.json"
     : CHALLENGER === "pass-starter-conditioning-v1"
-    ? "data/internal/research/nfl/reports/pass-starter-evaluation.json"
+      ? "data/internal/research/nfl/reports/pass-starter-evaluation.json"
     : CHALLENGER === "props-gamesim-matchup-totals-v1"
       ? "data/internal/research/nfl/reports/props-integration-evaluation.json"
       : CHALLENGER
@@ -656,7 +682,14 @@ const OUT = DIAGNOSE_DIR
         : "data/internal/research/nfl/reports/player-props-v1-evaluation.json";
 if (CHALLENGER) {
   receipt.artifact = "nfl-pass-yds-repair-evaluation";
-  receipt.challenger = CHALLENGER === "pass-starter-conditioning-v1"
+  receipt.challenger = CHALLENGER === "participation-true-conditioning-v1"
+    ? {
+        id: CHALLENGER,
+        preregistration: "data/internal/research/nfl/reports/participation-true-preregistration.json",
+        champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+        scope: "evaluation POPULATION only — market-true void conditioning via snap-count ground truth; every model parameter identical to the integrated champion",
+      }
+    : CHALLENGER === "pass-starter-conditioning-v1"
     ? {
         id: CHALLENGER,
         preregistration: "data/internal/research/nfl/reports/pass-starter-conditioning-preregistration.json",
