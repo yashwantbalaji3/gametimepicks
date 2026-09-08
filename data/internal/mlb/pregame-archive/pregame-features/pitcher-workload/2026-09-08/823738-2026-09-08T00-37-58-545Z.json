@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823738,
+  "date": "2026-09-08",
+  "capturedAt": "2026-09-08T00:37:58.545Z",
+  "availableAt": "2026-09-08T00:37:58.545Z",
+  "eventStartTime": "2026-09-08T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694819,
+      "name": "Jacob Misiorowski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 6.4,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 10.29,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 155,
+        "k": 227,
+        "bb": 39,
+        "er": 34,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 656849,
+      "name": "David Peterson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 5.4,
+        "bbAvg": 3,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 9.85,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 95,
+        "k": 87,
+        "bb": 46,
+        "er": 62,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-08T00:37:58.545Z"
+  },
+  "recordHash": "229c005c268afb0599bfb288ecc17f70b811dfb3650255464b56b3e8cdfc2bb7"
+}

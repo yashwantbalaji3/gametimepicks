@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823500,
+  "date": "2026-09-08",
+  "capturedAt": "2026-09-08T00:37:58.545Z",
+  "availableAt": "2026-09-08T00:37:58.545Z",
+  "eventStartTime": "2026-09-08T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693645,
+      "name": "Cam Schlittler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 6,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 7.8,
+        "bbAvg": 2.2,
+        "erAvg": 0.8,
+        "hrAvg": 0.4,
+        "kPer9": 10.97,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 171.67,
+        "k": 210,
+        "bb": 42,
+        "er": 39,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 687312,
+      "name": "Gabriel Hughes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 7,
+      "lastStartDate": "2026-09-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 2.8,
+        "bbAvg": 2.4,
+        "erAvg": 4.4,
+        "hrAvg": 0.8,
+        "kPer9": 5.56,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 49.33,
+        "k": 41,
+        "bb": 20,
+        "er": 36,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-08T00:37:58.545Z"
+  },
+  "recordHash": "aaf87ddb6d91a990fbda435ca7faca36468c340a3a67ca1361976fdc6215c375"
+}
