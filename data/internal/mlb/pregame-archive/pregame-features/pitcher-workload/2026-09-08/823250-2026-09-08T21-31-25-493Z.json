@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823250,
+  "date": "2026-09-08",
+  "capturedAt": "2026-09-08T21:31:25.493Z",
+  "availableAt": "2026-09-08T21:31:25.493Z",
+  "eventStartTime": "2026-09-09T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663554,
+      "name": "Casey Mize",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 2.8,
+        "bbAvg": 1.2,
+        "erAvg": 2.4,
+        "hrAvg": 1.4,
+        "kPer9": 5.32,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 113.67,
+        "k": 100,
+        "bb": 28,
+        "er": 46,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 683000,
+      "name": "Riley Cornelio",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-08T21:31:25.493Z"
+  },
+  "recordHash": "365e8a0191d761461e1a1b00427ddcf1529c6482978beb27b0c4b480a9c07cff"
+}
