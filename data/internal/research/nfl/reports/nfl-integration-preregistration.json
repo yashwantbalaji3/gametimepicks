@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-integration-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "247",
+  "charterSection": "Release A — integrated simulation contract",
+  "registeredAt": "2026-09-08T19:50:00Z",
+  "bridgeTrace": {
+    "shared": "The player chain draws (margin, total) from the SAME game-sim heads the team artifact publishes (fit.gamesim, copied verbatim from the committed model receipt), reuses the exact team-score RNG stream, then derives per-team scores own=(total±margin)/2 (snapped to realistic integer scorelines).",
+    "totalCoupling": "Player volumes depend on ownMargin = own − opp. Algebraically own − opp = margin EXACTLY — the total cancels — so attempts, allocations, completions, receptions, and yardage are total-INVARIANT up to two nonlinearities: integer score snapping (snapScore) and the total>=2 floor. The team/player 'divergent totals assumption' therefore couples into player numbers only through snapping granularity.",
+    "independent": "Volume OLS (attempts ~ ownMargin), role shares, allocation kappas, per-opportunity rates, Gamma shapes, gameSigma, targetShareDeflation — all fit independently of the totals head and untouched here.",
+    "userVisible": "The per-team research artifact's own/opp score context DOES shift with the totals head; integrating makes that context agree with the published team report."
+  },
+  "candidate": {
+    "id": "props-gamesim-matchup-totals-v1",
+    "scope": "EXACTLY the totals input to the player chain: per-game muTotal from matchup-totals-v1-decayed-points (walk-forward decayed ratings cut strictly before each game, the exact totalsStateAt recurrence the team builder uses) and sigmaTotal from that receipt's fitted sigma, replacing the constant (muTotal 44.9088, sigmaTotal 13.4915). Margin head, all player parameters, RNG seeds, thresholds and scoring code byte-identical.",
+    "priorExpectation": "Near-zero metric deltas for every family (total-invariance up to snapping). A material delta would itself be a finding (snapping coupling stronger than derived)."
+  },
+  "protocol": {
+    "fit": "identical to champion (2023-24)",
+    "test": "held-out 2025, identical points, --runs 1000. REUSED SEASON per p246-evidentiary-status-annex.json — this evaluation is a consistency check under frozen bars, not fresh evidence of skill.",
+    "output": "data/internal/research/nfl/reports/props-integration-evaluation.json (new file; champion receipt untouched until adoption)"
+  },
+  "frozenBars": {
+    "perPublishedFamily": "player_rush_yds AND player_receptions must each retain PUBLIC_ELIGIBLE under the evaluator's standard gates (beats rolling4 AND shareVol, coverage in [0.72,0.88], ece <= 0.05, n >= 300).",
+    "nonInferiority": "For each published family, MAE and pinball must not worsen by more than 2% vs the current champion receipt (rush: mae 16.067 / pin 5.165; receptions: mae 1.613 / pin 0.524).",
+    "withheldFamilies": "reported, never gating (they are not published)."
+  },
+  "decisionRule": "ALL bars pass -> INTEGRATED configuration adopted: the evaluator's champion path consumes matchup totals (adoption read from the verdict receipt, failing loudly if unreadable — the P246 TDZ lesson), the champion receipt is regenerated under it, and the production game-simulation callers apply the same per-game override receipt-gated; the P246 typed divergence CLOSES. ANY bar fails -> the independent-heads configuration is RETAINED, the divergence stays typed, and the game report's Model details discloses it in one sentence.",
+  "notes": "Registered before implementation; commit order is the proof."
+}

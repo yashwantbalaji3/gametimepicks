@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "artifact": "p246-evidentiary-status-annex",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "247",
+  "charterSection": "Release A — evaluation provenance",
+  "notedAt": "2026-09-08T19:40:00Z",
+  "rule": "Appended beside the receipts; no receipt is rewritten. This annex labels what each P246 result is evidence OF. Preserved results stand; their evidentiary status is corrected where the label overstated.",
+  "sharedCaveat": {
+    "holdoutReuse": "Every P246 evaluation scored the 2025 season, which was already the champion evaluations' held-out season and whose per-family metrics and calibration curves had been inspected before the P246 candidates were designed. Candidate SELECTION happened strictly inside 2023-24 train in each case, which bounds — but does not eliminate — the leakage: the diagnosis that motivated each candidate came from looking at 2025 failures. 2025 is therefore a REUSED evaluation season, not a fresh holdout. The next genuinely untouched evidence for these heads is the 2026 season now underway (forward, walk-forward, bars already frozen).",
+    "consequence": "No promotion is voided — each bar was frozen before its evaluation ran, and selection stayed in-train. But no P246 result may be described as 'proven on unseen data' without this qualifier, and 2026 forward performance is the deciding evidence."
+  },
+  "candidates": {
+    "matchup-totals-v1-decayed-points": {
+      "verdict": "ELIGIBLE (stands)",
+      "pointEstimate": "held-out 2025 mean NLL 4.02898 vs refit shared prior 4.04898",
+      "pairedUncertainty": {
+        "n": 285,
+        "meanDeltaNll": 0.02000,
+        "standardError": 0.01696,
+        "t": 1.18,
+        "bootstrap95": [-0.01246, 0.05291],
+        "probCandidateWorse": 0.1138,
+        "betterOnGames": "157/285 (55.1%)"
+      },
+      "honestReading": "The candidate met its preregistered bar (mean NLL strictly below the prior) and its train slope is strongly significant (a1 = 0.784 ± 0.172, ~4.6 sigma), but the HELD-OUT improvement is a modest point estimate whose 95% interval includes zero — 285 games cannot separate a 0.02-nat gain from noise. This is 'cleared its bar with a real in-sample mechanism', not 'proven better out of sample'. Public prose already claims only that it beat the prior under preregistered bars, which is the point estimate and stays accurate; nothing may escalate that to a significance claim.",
+      "forwardEvidence": "2026 weekly settlement grades every published total against the frozen forecast — that accumulating record is the fresh evidence."
+    },
+    "receiving-target-deflation-v1": {
+      "verdict": "receptions ACCEPTED / reception_yds REJECTED (stands)",
+      "caveats": [
+        "Gamma selected at the FROZEN grid's boundary (0.90, monotone through the grid) — the in-train optimum may lie lower; already recorded in the verdict receipt. Any wider grid is a new candidate on development data with a new frozen rule, never a re-search against the same season.",
+        "The one-sided miscalibration that motivated the candidate was diagnosed on 2025 held-out curves before the candidate existed; the train-visible confirmation (2024 walk-forward, measurement-only lane) is what makes the train-fit correction admissible, but the 2025 bar evaluation is a second look at an inspected season."
+      ]
+    },
+    "pass-gamesigma-pooled-mean-v1": {
+      "verdict": "REJECTED (stands)",
+      "caveat": "The rejection is the strongest-evidenced P246 result (the candidate failed against the bar it was designed to clear). Its center-error diagnosis derives from 2025 residual structure and counts as development knowledge for any successor candidate — a successor's bars must freeze before ITS evaluation, and 2025 remains a reused season for it too."
+    }
+  },
+  "integrationNote": "The team/player totals divergence (team artifact on matchup totals, player chain on the evaluated constant) is audited under this program's Release A integration protocol — see nfl-integration-preregistration.json."
+}
