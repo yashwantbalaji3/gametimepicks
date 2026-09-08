@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "artifact": "pass-starter-conditioning-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "247",
+  "charterSection": "Release B",
+  "registeredAt": "2026-09-08T21:20:00Z",
+  "diagnosis": {
+    "tooling": "per-point diagnostics lane (--diagnose points.jsonl) over held-out 2025, split by an as-of walk-forward starter designation (team's previous game's leading passer)",
+    "findings": [
+      "The published coverage failure is a MIXTURE artifact, not aleatoric dispersion: 468 of 969 evaluated points belong to players who were NOT the previous-game starter, and 88% of those actuals are zero. P(actual<p10)=27.6% while upper quantiles are nearly calibrated (p90: 84.0%) — the left tail fails because the population mixes designated starters with backups who never play.",
+      "CONDITIONING INCONSISTENCY: a player who appears with zero pass attempts is excluded (void), but a player ABSENT from the boxscore entirely is scored as 0 — 687 zero-actual points enter through the absent branch. Prop-market void rules void a DNP either way.",
+      "Conditional on the previous-game starter (n=501, one zero): the WHOLE predicted distribution sits low — P(actual<p10)=2.8%, P(actual<p50)=23.4%, median residual +44.6 yds. Implied effective attempt share ≈0.74 versus the train reality that a playing starter takes 0.9577 of team attempts (2023-24: 993/1108 starter-games, share mean 0.9577, median 1.0) — the decayed walk-forward share smears the starter across DNP history and committee churn.",
+      "The P246 'center error' reading (MAE ≈ interval half-width) was the aggregate shadow of these two structural facts, exactly the inference the charter warned against."
+    ]
+  },
+  "candidate": {
+    "id": "pass-starter-conditioning-v1",
+    "elements": {
+      "eligibility": "player_pass_yds is evaluated ONLY for the team's projected starter: the previous game's leading passer by attempts (walk-forward, as-of); when no prior game exists in-state (season opener), the highest decayed qbShare candidate.",
+      "voidConsistency": "For player_pass_yds only, a projected starter ABSENT from the boxscore is VOID (excluded), identical to the existing zero-attempt exclusion and to prop-market void rules (the anytime-TD family's established DNP=void conditioning). Other families' conditioning is untouched by this candidate.",
+      "starterShare": "The projected starter's effective qbShare is max(walkForwardShare, TRAIN_STARTER_SHARE) where TRAIN_STARTER_SHARE = 0.9577, the 2023-24 mean attempt share of playing last-game starters — a computed train constant, not a tuned parameter. Backup passers' shares are unchanged (they renormalize through the existing allocation)."
+    },
+    "publishedSemantics": "If promoted, the board publishes pass yards ONLY for the projected starter, labeled conditional-on-playing (void if he does not play) — participation evidence (live injuries/actives) still vetoes at publication exactly as today.",
+    "whatIsNotAllowed": "No selection on 2025; no change to rush/receptions/receiving conditioning or parameters; no interval widening; no post-hoc recalibration."
+  },
+  "protocol": {
+    "fit": "2023-24 REG+POST, identical to champion, plus the train constant above",
+    "test": "held-out 2025 scored once on the NEW conditioned population (projected starters with >=1 attempt), --runs 1000. REUSED SEASON per p246-evidentiary-status-annex.json — and this candidate's diagnosis derives from 2025 residuals, so the 2025 evaluation is confirmatory development evidence at best; the 2026 forward record is the deciding evidence.",
+    "baselines": "rolling4 and shareVol recomputed on the identical conditioned points (comparable conditioning, per charter)."
+  },
+  "frozenBars": {
+    "coverage80": "[0.72, 0.88]",
+    "eceMax": 0.05,
+    "beatsBaselines": "MAE beats rolling4 AND shareVol on identical points",
+    "minN": 300
+  },
+  "decisionRule": "ALL bars pass -> promotion recomputed under the standard gates with the starter-conditioned family definition; publication flows only through the receipt-driven gates with the conditional label. ANY bar fails -> REJECTED; pass yards stays withheld with the new quantitative reasons recorded.",
+  "notes": "Registered before implementation; commit order is the proof."
+}
