@@ -68,7 +68,7 @@ if (PRESENT_ONLY && !DIAGNOSE_DIR) { console.error("REFUSED: --present-only requ
 const ptVerdictPath = path.join(ROOT, "data/internal/research/nfl/reports/participation-true-verdict.json");
 const ptVerdict = fs.existsSync(ptVerdictPath) ? JSON.parse(fs.readFileSync(ptVerdictPath, "utf8")) : null;
 const PT_ADOPTED = ptVerdict?.verdict === "ACCEPTED";
-const PARTICIPATION_TRUE = process.argv.includes("--participation-true") || CHALLENGER === "participation-true-conditioning-v1" || (!CHALLENGER && !DIAGNOSE_DIR && PT_ADOPTED);
+const PARTICIPATION_TRUE = process.argv.includes("--participation-true") || CHALLENGER === "participation-true-conditioning-v1" || CHALLENGER === "nfl-joint-sim-v1" || (!CHALLENGER && !DIAGNOSE_DIR && PT_ADOPTED);
 let participationBySeason = null;
 if (PARTICIPATION_TRUE) {
   participationBySeason = new Map();
@@ -78,7 +78,7 @@ if (PARTICIPATION_TRUE) {
   }
 }
 if (DIAGNOSE_SEASON !== 2025 && !DIAGNOSE_DIR) { console.error("REFUSED: --diagnose-season requires --diagnose"); process.exit(1); }
-if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1", "pass-starter-conditioning-v1", "participation-true-conditioning-v1"].includes(CHALLENGER)) {
+if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1", "pass-starter-conditioning-v1", "participation-true-conditioning-v1", "nfl-joint-sim-v1"].includes(CHALLENGER)) {
   console.error(`REFUSED: unknown challenger ${CHALLENGER}`); process.exit(1);
 }
 /* P246 §4.3: gamma for receiving-target-deflation-v1 — a preregistered grid value, threaded
@@ -113,7 +113,36 @@ const integrationVerdictPath = path.join(ROOT, "data/internal/research/nfl/repor
 const INTEGRATED_ADOPTED = fs.existsSync(integrationVerdictPath)
   ? JSON.parse(fs.readFileSync(integrationVerdictPath, "utf8")).verdict === "ACCEPTED"
   : false;
-const USE_MATCHUP_TOTALS = CHALLENGER === "props-gamesim-matchup-totals-v1" || CHALLENGER === "pass-starter-conditioning-v1" || CHALLENGER === "participation-true-conditioning-v1" || (!CHALLENGER && !DIAGNOSE_DIR && INTEGRATED_ADOPTED);
+const USE_MATCHUP_TOTALS = CHALLENGER === "props-gamesim-matchup-totals-v1" || CHALLENGER === "pass-starter-conditioning-v1" || CHALLENGER === "participation-true-conditioning-v1" || CHALLENGER === "nfl-joint-sim-v1" || (!CHALLENGER && !DIAGNOSE_DIR && INTEGRATED_ADOPTED);
+/*
+ * P249 — the joint-simulation challenger (nfl-joint-sim-v1, preregistered): the SAME
+ * walk-forward chain drives simulateJointGame instead of the marginal engine. Player passing
+ * yards are scored under the GROSS convention (identical to the corpus statistic); passing TDs
+ * and the joint anytime-TD mechanism get their own collectors below.
+ */
+const JOINT = CHALLENGER === "nfl-joint-sim-v1";
+/* Identical-points discipline: the joint lane scores ONLY (game, player, market) points the
+   champion dump also scored — engine emission differences must not smuggle in a different
+   denominator. Required for the joint challenger. */
+const CHAMP_DUMP = arg("--champion-dump", null);
+if (JOINT && (!CHAMP_DUMP || !fs.existsSync(CHAMP_DUMP))) { console.error("REFUSED: joint lane needs --champion-dump <points.jsonl> for identical points"); process.exit(1); }
+const champPoints = JOINT
+  ? new Set(fs.readFileSync(CHAMP_DUMP, "utf8").split("\n").filter(Boolean).map((l) => { const r = JSON.parse(l); return `${r.gameId}|${r.playerId}|${r.mkt}`; }))
+  : null;
+const jointDeps = JOINT ? await (async () => {
+  const { simulateJointGame } = await import("../../src/lib/sports/nfl/joint-game-sim.mjs");
+  // fs directly — the shared `read` helper is declared later in this file (the P246 TDZ lesson, third sighting)
+  const bridgeDoc = fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/reports/scoring-bridge-v1.json"), "utf8");
+  const bridge = {
+    lambdaIntercept: Number(bridgeDoc.match(/"lambdaIntercept":\s*(-?[0-9.]+)/)[1]),
+    lambdaPerPoint: Number(bridgeDoc.match(/"lambdaPerPoint":\s*([0-9.]+)/)[1]),
+  };
+  const tdReceipt = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/reports/anytime-td-v1-calibration.json"), "utf8"));
+  return { simulateJointGame, bridge, tdShareParams: { halfLifeGames: tdReceipt.shareParams.halfLifeGames, shrinkK: tdReceipt.shareParams.tdShrink, boundaryDecay: tdReceipt.shareParams.boundaryDecay } };
+})() : null;
+const jointExtra = { passTd: { n: 0, ll: 0, llBase: 0, llR4: 0, pos: 0, cal: [] }, anyTd: { n: 0, ll: 0, pos: 0 } };
+let trainPassTdGames = 0; let trainPassTdHits = 0;
+let trainPassTdRate = 0.5; // finalized after the train fold
 /*
  * P247 Release B (pass-starter-conditioning-v1): pass yards becomes a STARTER-CONDITIONED
  * family — evaluated only for the team's projected starter (previous game's leading passer,
@@ -377,6 +406,12 @@ function foldGame(state, g) {
       }
       const actuals = { player_pass_yds: r.passYds, player_rush_yds: r.rushYds, player_reception_yds: r.recYds, player_receptions: r.rec };
       for (const [mkt, v] of Object.entries(actuals)) if (v != null) (st.recent[mkt] ??= []).push(v);
+      /* P249 joint lane evidence: scorer-TD shares, TD-type mix, and passing-TD recency. */
+      if (totals.scorerTd > 0) (st.tdObs ??= []).push({ share: familyNumerator(r, "scorerTd") / totals.scorerTd, season: g.season });
+      st.tdMix ??= { rush: 0, rec: 0 };
+      st.tdMix.rush += r.rushTd ?? 0; st.tdMix.rec += r.recTd ?? 0;
+      if ((r.passAtt ?? 0) > 0) (st.recentPassTd ??= []).push((r.passTd ?? 0) >= 1 ? 1 : 0);
+      if ((r.passAtt ?? 0) > 0 && g.season <= 2024) { trainPassTdGames += 1; trainPassTdHits += (r.passTd ?? 0) >= 1 ? 1 : 0; }
     }
   }
 }
@@ -431,8 +466,13 @@ function candidatesFor(state, abbr, season) {
     if (carryShare >= THRESH.carryShare) families.add("rushAttempts");
     if (targetShare >= THRESH.targetShare) families.add("targets");
     if (!families.size) continue;
+    const tdShare = JOINT && st.tdObs?.length
+      ? decayedShare({ observations: st.tdObs, predictSeason: season, ...jointDeps.tdShareParams }).share
+      : 0;
+    const tdRushFrac = st.tdMix && st.tdMix.rush + st.tdMix.rec > 0 ? st.tdMix.rush / (st.tdMix.rush + st.tdMix.rec) : 0.4;
     players.push({
-      playerId, name: st.name ?? null, families, qbShare, carryShare, targetShare,
+      playerId, name: st.name ?? null, families, tdShare, tdRushFrac, recentPassTd: st.recentPassTd ?? [], actualRowRef: null,
+      qbShare, carryShare, targetShare,
       share: Math.max(qbShare, carryShare, targetShare),
       compRate: rate("compRate"), ypcmp: rate("ypcmp"), catchRate: rate("catchRate"), ypr: rate("ypr"), ypc: rate("ypc"), intRate: rate("intRate"),
       shareBasis: "walk-forward corpus role", recent: st.recent,
@@ -463,6 +503,7 @@ const tierMeans = (() => { // train league means by within-team share rank (naiv
 
 const state = newState();
 for (const g of train) foldGame(state, g); // full 2023-24 history enters 2025 (boundary-decayed at predict time)
+if (trainPassTdGames > 0) trainPassTdRate = trainPassTdHits / trainPassTdGames;
 let evaluated = 0;
 let realizedVolumeCovered = { covered: 0, total: 0 };
 for (const g of test) {
@@ -507,18 +548,48 @@ for (const g of test) {
           }
         }
       }
-      const sim = simulatePlayerProps({
-        event: { providerEventId: g.providerEventId, home: { abbr: homeAbbr }, away: { abbr: awayAbbr }, seasonType: g.seasonType },
-        teamAbbr: abbr, fit: gameFit, strengthState: wrapped,
-        roleRates: { players: cands }, artifactDate: g.dateUtc.slice(0, 10), runs: RUNS, lines: linesProxy,
-      });
+      const sim = JOINT
+        ? jointDeps.simulateJointGame({
+            event: { providerEventId: g.providerEventId, home: { abbr: homeAbbr }, away: { abbr: awayAbbr }, seasonType: g.seasonType },
+            teamAbbr: abbr, fit: gameFit, bridge: jointDeps.bridge, strengthState: wrapped,
+            players: cands, artifactDate: g.dateUtc.slice(0, 10), runs: RUNS, lines: linesProxy,
+          })
+        : simulatePlayerProps({
+            event: { providerEventId: g.providerEventId, home: { abbr: homeAbbr }, away: { abbr: awayAbbr }, seasonType: g.seasonType },
+            teamAbbr: abbr, fit: gameFit, strengthState: wrapped,
+            roleRates: { players: cands }, artifactDate: g.dateUtc.slice(0, 10), runs: RUNS, lines: linesProxy,
+          });
       if (sim.state !== "SIMULATED") continue;
       const rowsByPlayer = new Map((g.players ?? []).filter((p) => p.teamAbbr === abbr).map((p) => [p.playerId, p]));
       for (const simP of sim.players) {
         const cand = cands.find((c) => c.playerId === simP.playerId);
         const actualRow = rowsByPlayer.get(simP.playerId);
+        if (JOINT && actualRow) {
+          const pt = simP.markets.player_pass_tds;
+          if (pt && (actualRow.passAtt ?? 0) > 0) {
+            const hit = (actualRow.passTd ?? 0) >= 1 ? 1 : 0;
+            const clampP = (x) => Math.min(0.995, Math.max(0.005, x));
+            const p1 = clampP(pt.probOver05);
+            jointExtra.passTd.n += 1; jointExtra.passTd.pos += hit;
+            jointExtra.passTd.ll += hit ? -Math.log(p1) : -Math.log(1 - p1);
+            const r4 = (cand.recentPassTd ?? []).slice(-4);
+            const pr4 = clampP(r4.length ? r4.reduce((a, b) => a + b, 0) / r4.length : 0.5);
+            jointExtra.passTd.llR4 += hit ? -Math.log(pr4) : -Math.log(1 - pr4);
+            const pb = clampP(trainPassTdRate);
+            jointExtra.passTd.llBase += hit ? -Math.log(pb) : -Math.log(1 - pb);
+            jointExtra.passTd.cal.push({ p: p1, hit });
+          }
+          const at = simP.markets.anytime_td;
+          if (at && (cand.tdShare ?? 0) >= 0.02) {
+            const hit = ((actualRow.rushTd ?? 0) + (actualRow.recTd ?? 0)) >= 1 ? 1 : 0;
+            const p1 = Math.min(0.995, Math.max(0.005, at.probability));
+            jointExtra.anyTd.n += 1; jointExtra.anyTd.pos += hit;
+            jointExtra.anyTd.ll += hit ? -Math.log(p1) : -Math.log(1 - p1);
+          }
+        }
         for (const [mkt, dist] of Object.entries(simP.markets)) {
           if (!PROP_MARKETS.includes(mkt)) continue;
+          if (JOINT && !champPoints.has(`${g.providerEventId}|${simP.playerId}|${mkt}`)) continue;
           if (STARTER_CONDITIONED && mkt === "player_pass_yds") {
             if (simP.playerId !== starterId) continue; // starter-conditioned family: one row per team
             if (!actualRow) continue; // absent from the boxscore = VOID, same as the zero-attempt rule
@@ -707,6 +778,8 @@ const receipt = {
 };
 const OUT = DIAGNOSE_DIR
   ? null
+  : CHALLENGER === "nfl-joint-sim-v1"
+  ? "data/internal/research/nfl/reports/joint-sim-evaluation.json"
   : CHALLENGER === "receiving-target-deflation-v1"
     ? "data/internal/research/nfl/reports/receiving-repair-evaluation.json"
     : CHALLENGER === "participation-true-conditioning-v1"
@@ -720,6 +793,28 @@ const OUT = DIAGNOSE_DIR
         : "data/internal/research/nfl/reports/player-props-v1-evaluation.json";
 if (CHALLENGER) {
   receipt.artifact = "nfl-pass-yds-repair-evaluation";
+  if (CHALLENGER === "nfl-joint-sim-v1") {
+    const px = jointExtra.passTd;
+    receipt.jointExtra = {
+      player_pass_tds: px.n ? {
+        n: px.n, baseRateTrain: Number(trainPassTdRate.toFixed(4)), positives: px.pos,
+        logLoss: Number((px.ll / px.n).toFixed(4)),
+        baselineTrainRate: Number((px.llBase / px.n).toFixed(4)),
+        baselineRolling4: Number((px.llR4 / px.n).toFixed(4)),
+      } : null,
+      anytime_td_joint: jointExtra.anyTd.n ? {
+        n: jointExtra.anyTd.n, positives: jointExtra.anyTd.pos,
+        logLoss: Number((jointExtra.anyTd.ll / jointExtra.anyTd.n).toFixed(4)),
+        championReceiptLogLoss: 0.5214,
+      } : null,
+    };
+    receipt.challenger = {
+      id: CHALLENGER,
+      preregistration: "data/internal/research/nfl/reports/joint-sim-preregistration.json",
+      champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+      scope: "the joint generator's marginals scored under the identical walk-forward chain and population contract; pass yds GROSS; passTd/anytime collectors per prereg",
+    };
+  } else
   receipt.challenger = CHALLENGER === "participation-true-conditioning-v1"
     ? {
         id: CHALLENGER,

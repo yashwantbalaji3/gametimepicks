@@ -74,7 +74,7 @@ function truncPoisson(rng, lambda, maxK) {
  *                                   compRate, ypcmp, catchRate, ypr, ypc, tdShare, tdRushFrac }
  * @param {object} args.event        { providerEventId, home:{abbr}, away:{abbr}, seasonType }
  */
-export function simulateJointGame({ event, teamAbbr, fit, bridge, strengthState, players, artifactDate, runs = 5000, diagnostics = false }) {
+export function simulateJointGame({ event, teamAbbr, fit, bridge, strengthState, players, artifactDate, runs = 5000, diagnostics = false, lines = null }) {
   const base = { engineId: NFL_JOINT_SIM_ID, version: NFL_JOINT_SIM_VERSION, providerEventId: event?.providerEventId ?? null, teamAbbr };
   if (!fit?.volume || !fit?.dispersion || !fit?.league || !fit?.gamesim) return { ...base, state: "REFUSED", reason: "no committed fit receipt" };
   if (!bridge || !Number.isFinite(bridge.lambdaIntercept) || !Number.isFinite(bridge.lambdaPerPoint)) return { ...base, state: "REFUSED", reason: "no committed scoring bridge" };
@@ -220,11 +220,16 @@ export function simulateJointGame({ event, teamAbbr, fit, bridge, strengthState,
     const b = acc.get(p.playerId);
     if (!b) return null;
     const out = { playerId: p.playerId, name: p.name ?? null, markets: {} };
-    if (b.passYds.length) out.markets.player_pass_yds = { ...summarize(b.passYds), convention: "GROSS (= team receiving yards share); sacks not modeled" };
+    const withLine = (mkt, summary, samples) => {
+      const line = lines?.[p.playerId]?.[mkt];
+      if (typeof line !== "number") return summary;
+      return { ...summary, line, probOverLine: Number((samples.filter((v) => v > line).length / samples.length).toFixed(4)) };
+    };
+    if (b.passYds.length) out.markets.player_pass_yds = { ...withLine("player_pass_yds", summarize(b.passYds), b.passYds), convention: "GROSS (= team receiving yards share); sacks not modeled" };
     if (b.passTd.length) out.markets.player_pass_tds = { mean: avg(b.passTd), probOver05: share(b.passTd, (v) => v > 0.5), probOver15: share(b.passTd, (v) => v > 1.5) };
-    if (b.rushYds.length) out.markets.player_rush_yds = summarize(b.rushYds);
-    if (b.receptions.length) out.markets.player_receptions = summarize(b.receptions);
-    if (b.recYds.length) out.markets.player_reception_yds = summarize(b.recYds);
+    if (b.rushYds.length) out.markets.player_rush_yds = withLine("player_rush_yds", summarize(b.rushYds), b.rushYds);
+    if (b.receptions.length) out.markets.player_receptions = withLine("player_receptions", summarize(b.receptions), b.receptions);
+    if (b.recYds.length) out.markets.player_reception_yds = withLine("player_reception_yds", summarize(b.recYds), b.recYds);
     if (b.anyTd.length) {
       out.markets.anytime_td = { probability: avg(b.anyTd) };
       out.markets.td_2plus = { probability: share(b.tdCount, (v) => v >= 2), basis: "COUNT draws from the joint simulation — never a transform of anytime probability" };

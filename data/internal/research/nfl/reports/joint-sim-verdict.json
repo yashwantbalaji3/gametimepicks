@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "artifact": "joint-sim-verdict",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "249",
+  "candidate": "nfl-joint-sim-v1",
+  "preregistration": "data/internal/research/nfl/reports/joint-sim-preregistration.json",
+  "evaluation": "data/internal/research/nfl/reports/joint-sim-evaluation.json",
+  "evaluatedAt": "2026-09-08T23:10:00Z",
+  "verdict": "COHERENT_BUT_NOT_PROMOTED",
+  "perFamilyBars": {
+    "player_reception_yds": { "verdict": "NON-INFERIOR (PASSES)", "detail": "mae 20.191 vs champion 20.292 (better); pinball +0.34% (cap 2%); cov 0.832; ece 0.0215 — the joint marginal is as good as the champion's" },
+    "player_receptions": { "verdict": "FAILS on calibration", "detail": "mae/pinball/coverage all within bars, but ece 0.0559 > 0.05 (champion 0.0438)" },
+    "player_pass_yds_gross": { "verdict": "REJECTED", "detail": "mae 78.98 beats the champion chain (80.67) but loses to rolling4 (71.91); cov 0.678 < 0.72; ece 0.131" },
+    "player_pass_tds": { "verdict": "REJECTED (first evaluation)", "detail": "logLoss 0.8014 vs train base rate 0.5932 — the share-proportional receiving-TD credit mechanism is badly calibrated; a passing-TD head needs its own model" },
+    "anytime_td_joint": { "verdict": "REJECTED", "detail": "logLoss 0.6101 vs the corrected engine's 0.5214 (bar: within 0.005) — truncated-Poisson-on-drawn-score + static share allocation degrades the calibrated TD engine substantially" }
+  },
+  "decision": "NO family flips engines. Receiving yards alone passing non-inferiority does not justify splitting the receiving stack across two engines while receptions stays on the champion (coherence would DECREASE). The joint engine remains PRIVATE RESEARCH: its per-draw coherence and correlation structure are proven (joint-game-sim.test.mjs) and it now provides the only internally consistent scenario generator for research — but published forecasts stay on the evaluated marginal engines, and their architecture label stays 'independently calibrated marginal heads over one shared game environment', which is what they are.",
+  "whatWasLearned": [
+    "Coherence and predictive quality are different properties, measured separately — the coherent model lost to independent calibrated baselines on 4 of 5 bars, exactly the charter's warning.",
+    "The TD quality gap localizes the next candidate: the calibrated TD engine's grid-selected shrink/flatten does real work that raw share allocation discards; a joint TD mechanism must inherit that calibration, not re-derive shares.",
+    "Gross-passing = receiving reconciliation is structurally sound (per-draw invariants hold at 6000 draws) — the passing family's problem remains the CENTER (rolling4 still wins), unchanged from P248's diagnosis.",
+    "Identical-points discipline caught two population bugs before they could flatter the candidate (legacy conditioning; emission-set differences)."
+  ],
+  "evidentiaryStatus": "2025 reused throughout (P247 annex); 2026 forward record decides. The joint engine may re-candidate with a calibrated TD mechanism and a repaired passing center under a fresh preregistration."
+}
