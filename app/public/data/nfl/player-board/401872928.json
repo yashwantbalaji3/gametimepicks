@@ -1,0 +1,229 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-08T01:18:09Z",
+ "sourceGeneratedAt": "2026-09-08T01:18:09Z",
+ "providerEventId": "401872928",
+ "matchup": "MIA @ LV",
+ "kickoffUtc": "2026-09-13T20:25Z",
+ "seasonType": 2,
+ "week": 1,
+ "participationBasis": "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3273, all promotion bars pass"
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "players": [
+  {
+   "playerId": "nfl-athlete-4890973",
+   "name": "Ashton Jeanty",
+   "team": "LV",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 60.145,
+     "p10": 23.08,
+     "p25": 37.4,
+     "median": 56.39,
+     "p75": 78.49,
+     "p90": 101.44
+    },
+    "anytime_td": {
+     "probability": 0.353384,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432665",
+   "name": "Brock Bowers",
+   "team": "LV",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.342437,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429160",
+   "name": "De'Von Achane",
+   "team": "MIA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 62.386,
+     "p10": 19.53,
+     "p25": 36.1,
+     "median": 57.72,
+     "p75": 83.01,
+     "p90": 111.45
+    },
+    "anytime_td": {
+     "probability": 0.323885,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4569603",
+   "name": "Malik Washington",
+   "team": "MIA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.289963,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4361332",
+   "name": "Shedrick Jackson",
+   "team": "LV",
+   "participation": "NOT_IN_POOL",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.237536,
+     "participation": "NOT_IN_POOL"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4428718",
+   "name": "Tre Tucker",
+   "team": "LV",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.220624,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426535",
+   "name": "Theo Wease Jr.",
+   "team": "MIA",
+   "participation": "NOT_IN_POOL",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.21721,
+     "participation": "NOT_IN_POOL"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4711533",
+   "name": "Ollie Gordon II",
+   "team": "MIA",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 12.275,
+     "p10": 0,
+     "p25": 1.24,
+     "median": 7.39,
+     "p75": 18.3,
+     "p90": 31.7
+    },
+    "anytime_td": {
+     "probability": 0.200155,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4367209",
+   "name": "Greg Dulcich",
+   "team": "MIA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.188608,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4260394",
+   "name": "Aidan O'Connell",
+   "team": "LV",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.180192,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4682745",
+   "name": "Jaylen Wright",
+   "team": "MIA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 22.729,
+     "p10": 2.08,
+     "p25": 7.64,
+     "median": 17.68,
+     "p75": 32.86,
+     "p90": 50.34
+    },
+    "anytime_td": {
+     "probability": 0.175925,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429086",
+   "name": "Michael Mayer",
+   "team": "LV",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.15954,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  }
+ ],
+ "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+}

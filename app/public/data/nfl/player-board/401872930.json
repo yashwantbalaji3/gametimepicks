@@ -1,0 +1,261 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-08T01:18:09Z",
+ "sourceGeneratedAt": "2026-09-08T01:18:09Z",
+ "providerEventId": "401872930",
+ "matchup": "DAL @ NYG",
+ "kickoffUtc": "2026-09-14T00:20Z",
+ "seasonType": 2,
+ "week": 1,
+ "participationBasis": "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3273, all promotion bars pass"
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "players": [
+  {
+   "playerId": "nfl-athlete-4361579",
+   "name": "Javonte Williams",
+   "team": "DAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 49.396,
+     "p10": 14.42,
+     "p25": 26.23,
+     "median": 45.05,
+     "p75": 67.37,
+     "p90": 90.28
+    },
+    "anytime_td": {
+     "probability": 0.284269,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4431562",
+   "name": "Phil Mafah",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 6.366,
+     "p10": 0,
+     "p25": 0,
+     "median": 0.88,
+     "p75": 8.91,
+     "p90": 20.05
+    },
+    "anytime_td": {
+     "probability": 0.257839,
+     "participation": "NOT_IN_POOL"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-5083754",
+   "name": "Ryan Flournoy",
+   "team": "DAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.2331,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426354",
+   "name": "George Pickens",
+   "team": "DAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.192016,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4685279",
+   "name": "Jaydon Blue",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 21.415,
+     "p10": 1.2,
+     "p25": 6.54,
+     "median": 16.91,
+     "p75": 31.37,
+     "p90": 47.06
+    },
+    "anytime_td": {
+     "probability": 0.184033,
+     "participation": "NOT_IN_POOL"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4240603",
+   "name": "Malik Davis",
+   "team": "DAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 20.508,
+     "p10": 0.68,
+     "p25": 5.41,
+     "median": 15.02,
+     "p75": 29.59,
+     "p90": 47.54
+    },
+    "anytime_td": {
+     "probability": 0.167812,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242355",
+   "name": "Jake Ferguson",
+   "team": "DAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.165624,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3676833",
+   "name": "KaVontae Turpin",
+   "team": "DAL",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.133899,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360516",
+   "name": "Tyrone Tracy Jr.",
+   "team": "NYG",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 38.087,
+     "p10": 9.15,
+     "p25": 18.75,
+     "median": 33.52,
+     "p75": 52.8,
+     "p90": 72.82
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4696981",
+   "name": "Cam Skattebo",
+   "team": "NYG",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 30.456,
+     "p10": 5.66,
+     "p25": 13.08,
+     "median": 25.66,
+     "p75": 42.61,
+     "p90": 62.15
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4040761",
+   "name": "Devin Singletary",
+   "team": "NYG",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 21.933,
+     "p10": 1.89,
+     "p25": 7.42,
+     "median": 17.34,
+     "p75": 31.88,
+     "p90": 47.7
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4689114",
+   "name": "Jaxson Dart",
+   "team": "NYG",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 19.784,
+     "p10": 0.29,
+     "p25": 4.69,
+     "median": 14.13,
+     "p75": 28.86,
+     "p90": 47.01
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2577417",
+   "name": "Dak Prescott",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 8.737,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.51,
+     "p75": 13.16,
+     "p90": 24.9
+    }
+   }
+  }
+ ],
+ "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+}

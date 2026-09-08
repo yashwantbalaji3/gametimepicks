@@ -1,0 +1,342 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-08T01:18:09Z",
+ "sourceGeneratedAt": "2026-09-08T01:18:09Z",
+ "providerEventId": "401872660",
+ "matchup": "BUF @ HOU",
+ "kickoffUtc": "2026-09-13T17:00Z",
+ "seasonType": 2,
+ "week": 1,
+ "participationBasis": "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3273, all promotion bars pass"
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "players": [
+  {
+   "playerId": "nfl-athlete-3918298",
+   "name": "Josh Allen",
+   "team": "BUF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 24.583,
+     "p10": 2.15,
+     "p25": 8.6,
+     "median": 19.26,
+     "p75": 34.96,
+     "p90": 53.78
+    },
+    "anytime_td": {
+     "probability": 0.291412,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4258173",
+   "name": "Nico Collins",
+   "team": "HOU",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.235932,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4877706",
+   "name": "Jayden Higgins",
+   "team": "HOU",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.205314,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429059",
+   "name": "Woody Marks",
+   "team": "HOU",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 42.646,
+     "p10": 12.24,
+     "p25": 23.01,
+     "median": 39.11,
+     "p75": 57.45,
+     "p90": 78.73
+    },
+    "anytime_td": {
+     "probability": 0.203454,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4379399",
+   "name": "James Cook III",
+   "team": "BUF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 51.725,
+     "p10": 15.36,
+     "p25": 28.22,
+     "median": 46.41,
+     "p75": 69.79,
+     "p90": 93.45
+    },
+    "anytime_td": {
+     "probability": 0.203306,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4635008",
+   "name": "Keon Coleman",
+   "team": "BUF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.19643,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4385690",
+   "name": "Dalton Kincaid",
+   "team": "BUF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.193273,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3117256",
+   "name": "Dalton Schultz",
+   "team": "HOU",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.17455,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3915411",
+   "name": "Ty Johnson",
+   "team": "BUF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.202,
+     "p10": 0,
+     "p25": 0.13,
+     "median": 5.09,
+     "p75": 15.38,
+     "p90": 28.18
+    },
+    "anytime_td": {
+     "probability": 0.173938,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4035004",
+   "name": "Mecole Hardman Jr.",
+   "team": "BUF",
+   "participation": "NOT_IN_POOL",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.156479,
+     "participation": "NOT_IN_POOL"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4366031",
+   "name": "Tank Dell",
+   "team": "HOU",
+   "participation": "INACTIVE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.138379,
+     "participation": "INACTIVE"
+    }
+   },
+   "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
+  },
+  {
+   "playerId": "nfl-athlete-4573699",
+   "name": "Jackson Hawes",
+   "team": "BUF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.133312,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432577",
+   "name": "C.J. Stroud",
+   "team": "HOU",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 8.57,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.41,
+     "p75": 12.51,
+     "p90": 25.04
+    },
+    "anytime_td": {
+     "probability": 0.130708,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3930086",
+   "name": "Dawson Knox",
+   "team": "BUF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.129932,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4586312",
+   "name": "Jaylin Noel",
+   "team": "HOU",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.125262,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242546",
+   "name": "Davis Mills",
+   "team": "HOU",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 6.158,
+     "p10": 0,
+     "p25": 0,
+     "median": 0.74,
+     "p75": 8.68,
+     "p90": 18.95
+    },
+    "anytime_td": {
+     "probability": 0.108417,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429939",
+   "name": "Jawhar Jordan",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 24.474,
+     "p10": 2.36,
+     "p25": 8.8,
+     "median": 19.59,
+     "p75": 35.12,
+     "p90": 53.02
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429501",
+   "name": "Ray Davis",
+   "team": "BUF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 8.09,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.5,
+     "p75": 11.4,
+     "p90": 24.34
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4373273",
+   "name": "British Brooks",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 6.606,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.03,
+     "p75": 8.98,
+     "p90": 21.21
+    }
+   }
+  }
+ ],
+ "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+}

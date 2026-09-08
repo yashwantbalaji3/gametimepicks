@@ -1,0 +1,317 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-08T01:18:09Z",
+ "sourceGeneratedAt": "2026-09-08T01:18:09Z",
+ "providerEventId": "401872657",
+ "matchup": "SF @ LAR",
+ "kickoffUtc": "2026-09-11T00:35Z",
+ "seasonType": 2,
+ "week": 1,
+ "participationBasis": "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3273, all promotion bars pass"
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "players": [
+  {
+   "playerId": "nfl-athlete-4430737",
+   "name": "Kyren Williams",
+   "team": "LAR",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 51.464,
+     "p10": 15.58,
+     "p25": 28.19,
+     "median": 46.13,
+     "p75": 69.32,
+     "p90": 95
+    },
+    "anytime_td": {
+     "probability": 0.36193,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3117251",
+   "name": "Christian McCaffrey",
+   "team": "SF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 47.162,
+     "p10": 14.53,
+     "p25": 26.28,
+     "median": 42.98,
+     "p75": 64.06,
+     "p90": 83.97
+    },
+    "anytime_td": {
+     "probability": 0.328816,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426515",
+   "name": "Puka Nacua",
+   "team": "LAR",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.321895,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-16800",
+   "name": "Davante Adams",
+   "team": "LAR",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.289527,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242557",
+   "name": "Colby Parkinson",
+   "team": "LAR",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.24199,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4570037",
+   "name": "Terrance Ferguson",
+   "team": "LAR",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.208873,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2573401",
+   "name": "Tyler Higbee",
+   "team": "LAR",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.186835,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3040151",
+   "name": "George Kittle",
+   "team": "SF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.182649,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429096",
+   "name": "Blake Corum",
+   "team": "LAR",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 33.337,
+     "p10": 5.62,
+     "p25": 13.63,
+     "median": 27.93,
+     "p75": 47.35,
+     "p90": 68.48
+    },
+    "anytime_td": {
+     "probability": 0.179432,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4259147",
+   "name": "Jake Tonges",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.178527,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426553",
+   "name": "Davis Allen",
+   "team": "LAR",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.151592,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4361741",
+   "name": "Brock Purdy",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 14.708,
+     "p10": 0,
+     "p25": 2.15,
+     "median": 9.47,
+     "p75": 21.99,
+     "p90": 36.64
+    },
+    "anytime_td": {
+     "probability": 0.143044,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3043116",
+   "name": "Demarcus Robinson",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.137407,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-16002",
+   "name": "Kyle Juszczyk",
+   "team": "SF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.110418,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4040612",
+   "name": "Luke Farrell",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.098472,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4039358",
+   "name": "Patrick Taylor Jr.",
+   "team": "SF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 11.394,
+     "p10": 0,
+     "p25": 0.4,
+     "median": 5.85,
+     "p75": 17.19,
+     "p90": 31.36
+    },
+    "anytime_td": {
+     "probability": 0.091317,
+     "participation": "NOT_IN_POOL"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4685397",
+   "name": "Jordan James",
+   "team": "SF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 8.233,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.76,
+     "p75": 11.87,
+     "p90": 24.26
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241464",
+   "name": "Mac Jones",
+   "team": "SF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.013,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.16,
+     "p75": 10.13,
+     "p90": 21.03
+    }
+   }
+  }
+ ],
+ "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+}
