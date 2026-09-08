@@ -174,14 +174,19 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </p>
         ) : null}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 10, marginTop: 12 }}>
-          <Stat label="Projected score" value={`${f.away.abbr} ${s.projectedScore.away} — ${s.projectedScore.home} ${f.home.abbr}`} sub="median of every simulated game" />
+          <Stat label="Projected score" value={`${f.away.abbr} ${s.projectedScore.away} — ${s.projectedScore.home} ${f.home.abbr}`} sub="from the median total and margin, so the pieces add up" />
           <Stat label="Win chance" value={`${f.away.abbr} ${pct(s.winProbability.away)} · ${f.home.abbr} ${pct(s.winProbability.home)}`} sub={`ties ${pct(s.winProbability.tieMass)}`} />
           <Stat label="Total points" value={`${s.total.median}`} sub={`usually between ${s.total.p10} and ${s.total.p90}`} />
           <Stat label="Margin" value={`${s.margin.median > 0 ? "+" : ""}${s.margin.median}`} sub={`80% of games land ${s.margin.p10} to ${s.margin.p90}`} />
         </div>
-        <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 760, lineHeight: 1.6 }}>
-          {s.winProbability.calibration}
-        </p>
+        {/* P246 (founder): the calibration paragraph left the browsing path — it lives in an
+            optional disclosure here and in the artifact itself, not beside every number. */}
+        <details style={{ marginTop: 12, maxWidth: 760 }}>
+          <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-faint)", minHeight: 32 }}>Model details</summary>
+          <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", lineHeight: 1.6 }}>
+            {s.winProbability.calibration} Generated {f.generatedAt} under model {String((f as { model?: { id?: string } }).model?.id ?? "nfl-regular-season-public-v1")} and frozen pre-kickoff; every forecast is settled against the official result.
+          </p>
+        </details>
       </section>
 
       <section aria-labelledby="score-range" style={{ marginTop: 26 }}>

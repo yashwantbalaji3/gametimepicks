@@ -298,3 +298,91 @@ published row wears one; volume markets withheld for INACTIVE (TD stays, void-co
 ### Carried forward (named)
 BB step/cycle founder gate · hub-order coordinates · per-instance interaction records · EPL/UFC/
 MLB unchanged and green (EPL settle ran naturally 01:0xZ; boards untouched by NFL schema).
+
+---
+
+# PROGRAM 246 — NFL weekly boards & public product polish (charter: PROGRAM_246_NFL_WEEKLY_BOARDS_AND_PUBLIC_PRODUCT_POLISH.md, REVISED)
+
+Baseline 2026-09-08T02:53Z at `9564524a1` (tree == origin == prod; protected md5s canonical).
+
+## Slice 1 — founder copy removals, at the owners
+- **Block 1** (calibration paragraph): the /nfl hub card path no longer renders it — the
+  `calibrationById` map is deleted and the card footnote carries only ABSENCE reasons. The game
+  report holds the paragraph in an optional `<details>` "Model details" disclosure with the
+  frozen-contract lineage. The artifact FIELD stays (guard "every forecast explains its
+  calibration" + the charter's preserve-lineage-in-artifacts clause).
+- **Block 2** ("Simulations generated … backfilled" footer): replaced with compact
+  `Updated <ET> · frozen pre-kickoff · Model details` linking the same-page coverage section
+  (an early draft linked `slateGames[0]` — the P244 dead-link class — repointed before commit).
+- **Equivalent-phrasing sweep** (all sports): EPL footer `Generated <ISO>` → `Updated
+  <formatUpdatedEt>`; UFC `Card and model read <ISO>` → `· updated <formatUpdatedEt>`. New shared
+  `formatUpdatedEt` in src/lib/format.ts (en-US, America/New_York, hour12 — not the Intl
+  hour-24 class). UFC publication-freshness guard REBASED without weakening: it now recomputes
+  the exact compact form from the artifact's own field (a build-time-computed stamp still fails).
+- **Stale 18h copy**: the card absence footnote quoted "from 18 hours before kickoff" — removed;
+  hub-slate-parity guard rebased with the old→new contract note.
+
+## Score display convention (§4B-NFL)
+- REPRODUCED: 5 of 16 Week-1 games carried a marginal-median inconsistency — GB @ MIN printed
+  25 + 21 = 46 beside median total 45; CHI @ CAR summed 44 ≠ 45; ARI @ LAC diff 11 ≠ margin 10;
+  NYJ @ TEN diff 3 ≠ 2; ATL @ PIT diff 5 ≠ 6.
+- Convention `scores-derived-from-total-and-margin-v1` at the generator, BOTH regimes:
+  home = round((total + margin)/2), away = total − home. Sum equals the printed total exactly;
+  difference within 1 of the printed margin; scoreRange stays marginal. Display labels updated
+  (game page Stat sub, top-reads context). Guard: SRC pins (2 regime uses, no marginal-median
+  headline) + LIVE stamp-conditional sum/diff assertions binding on regenerated artifacts.
+
+## Confirmed-out players (§4.1)
+- Per-game board DEFAULT view excludes `participation === "INACTIVE"`; explicit labelled toggle
+  "Show listed-out players (N) — conditional on playing" (default OFF), source-pinned in
+  player-board-public.test.mjs because client defaults are invisible to built-HTML greps.
+- The weekly ranking owner NEVER ranks INACTIVE (no toggle at week level).
+
+## §5 canonical ranking owner
+- `scripts/nfl/build-nfl-weekly-boards.mjs`: week-scoped (seasonType, week) membership; a family
+  publishes weekly ONLY when every constituent per-game board publishes it; top-N are MAXIMUMS;
+  scope declared (FULL_WEEK vs REMAINING_EVENTS with dropped-count); every row carries
+  `pricingState: NOT_AUTHORIZED`; refuses an unpinned run (`--now` required). Initial artifact
+  committed pinned to the forecast stamp 2026-09-08T01:18:09Z; nfl-event-window step added after
+  the player boards (bash -n across all run blocks clean).
+- First derivation: FULL_WEEK over 16 · top_td=5 · top_rush_yds=10 · receptions / receiving /
+  passing WITHHELD with their exact receipt bars.
+- Guard suite `weekly-boards.test.mjs`: one-owner (the hub never sorts players), LIVE board
+  contract, family unanimity vs per-game boards, workflow-owns-regeneration.
+
+## §3 hub reorder (first pass)
+- Slate section: card grid → ONE compact weekly TABLE (Kickoff ET / Matchup+logos / Model winner
+  = pHome-vs-pAway favourite / Projected score / Total+range / Status / View game). Guard-held
+  absence sentences live in the Status cell. No price column while authorization is expired —
+  stated in prose, never implied. Shared-prior totals note under the table.
+- NEW "Weekly top boards" section (`nfl-boards`) directly under the game table, charter order:
+  TD top-5 (portraits) → receptions → rushing → receiving → passing; withheld families render
+  one-line reason boxes.
+- SportHubNav registry: + "Top boards"; the sportsbook-prices anchor mislabelled "Model picks"
+  now reads "Prices".
+- §6 truth defect found by the reorder: "Sportsbook prices for this slate" would render the
+  ARCHIVED Aug-29 capture under a Week-1 heading (the two-surfaces-called-yesterday's-data-
+  today's class) → `slateMarketRows` scoped to week membership; section + anchor gate on it;
+  public-route-inventory guard rebased STRICTER (existence AND week membership).
+
+Gates: typecheck ✓ · suite 5498/0 · build ✓ · built 464/0 (after the two named guard rebases).
+
+## §6 defects surfaced by rendering the reorder (fixed same session)
+- The games-first HubHeader table said "0 with a supported read / No supported read" on all 16
+  rows DIRECTLY ABOVE "16 of 16 carry a published simulation" — the adapter hardcoded
+  `read: null` from when that was true. The read column now joins the canonical index's own
+  projection (favourite = pHome vs pAway, labelled `model forecast · experimental`); renders
+  "16 with a supported read". The adapter also still carried the 18h event-window sentence —
+  swept to the same closer-to-kickoff copy.
+- Hero advertised "Sportsbook prices 1 · captured 17:50Z" (the archived Aug capture via
+  `index.counts.marketEvents`) beside a Week-1 slate with no current prices, with a CTA
+  anchoring a section that no longer rendered (dead in-page button). Stat is now the WEEK's own
+  count with "none current — capture not authorized" at zero; the second CTA slot follows what
+  the build actually shows (prices when current, else Weekly top boards). hub-slate-parity
+  guard rebased (stricter: week-scoped count + named zero state).
+- A11y: the new listed-out toggle checkbox tripped the structural audit (implicit label not
+  credited) → explicit aria-label; audit back to 0 serious. NOTE (pre-existing, all four sport
+  hubs): moderate `heading-one-unique: 2 <h1>` on /mlb /nfl /ufc /epl — recorded for §6.
+
+Final gates this commit: suite 5498/0 · built 464/0 · e2e (p242+p243 journeys+viewport) 18/18 ·
+a11y structural 0 serious.

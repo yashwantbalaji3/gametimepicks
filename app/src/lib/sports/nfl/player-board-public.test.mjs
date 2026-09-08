@@ -68,3 +68,13 @@ test("CORRUPTION · the wrong-player-join and stale-membership classes are struc
   // The strongest availability evidence wins one row — never two states for one player.
   assert.match(SRC, /RANK\[tdBlock\.participation\]/, "availability states reconcile to the strongest evidence");
 });
+
+test("P246 · confirmed-out players are excluded from the DEFAULT view (client chrome — source pin)", () => {
+  // Built-HTML greps cannot see a client-side default (the vacuous-guard class), so the
+  // component source is pinned: the default state hides INACTIVE rows and only an explicit,
+  // labelled toggle shows their conditional-on-playing numbers.
+  const ui = fs.readFileSync(path.join(APP, "src/components/nfl/player-board.tsx"), "utf8");
+  assert.match(ui, /useState\(false\);\n\s+const outCount/, "the listed-out toggle defaults OFF");
+  assert.match(ui, /includeOut \? true : p\.participation !== "INACTIVE"/, "the default filter excludes confirmed-out players");
+  assert.match(ui, /conditional on playing/, "the toggle names what the shown numbers mean");
+});

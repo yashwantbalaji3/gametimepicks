@@ -84,3 +84,18 @@ export function formatTimestamp(iso: string): string {
 export function marketLabel(market: "PTS" | "REB" | "AST"): string {
   return { PTS: "Points", REB: "Rebounds", AST: "Assists" }[market];
 }
+
+/**
+ * P246 — compact localized provenance stamp for browsing surfaces: "Sep 7, 9:18 PM ET".
+ * Raw ISO timestamps stay in artifacts and Model-details disclosures, never on cards.
+ */
+export function formatUpdatedEt(iso: string | null | undefined): string {
+  if (!iso) return "\u2014";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
+    timeZone: "America/New_York",
+  });
+  return `${fmt.format(d)} ET`;
+}

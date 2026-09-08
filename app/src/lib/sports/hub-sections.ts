@@ -68,9 +68,13 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
   ],
   nfl: [
     { kind: "anchor", target: "nfl-games", label: "Games" },
+    // P246: weekly top boards sit directly under the game table on /nfl.
+    { kind: "anchor", target: "nfl-boards", label: "Top boards" },
     { kind: "anchor", target: "nfl-vault", label: "Products" },
     { kind: "anchor", target: "nfl-reports", label: "Simulations" },
-    { kind: "anchor", target: "nfl-markets", label: "Model picks" },
+    // "Model picks" over the sportsbook-price capture was a mislabel — those rows are the
+    // books' own numbers, and the section says so. The strip now says what the reader gets.
+    { kind: "anchor", target: "nfl-markets", label: "Prices" },
     { kind: "anchor", target: "nfl-results", label: "Results" },
     { kind: "anchor", target: "nfl-coverage", label: "Coverage" },
     { kind: "link", target: "/cards/nfl", label: "Paper cards" },

@@ -219,14 +219,23 @@ export default function NflHubPage() {
     return "Coming up";
   })();
   const simulatedOnSlate = slateGames.filter((g) => eventById.get(g.providerEventId)?.projectedScore).length;
+  /* P246 §6: "Sportsbook prices for this slate" must mean THIS slate. The last authorized
+     capture is from August (authorization expired since); its rows are archived preseason
+     games, and rendering them under a Week-N heading called yesterday's data today's. The
+     section renders only rows belonging to the selected week. */
+  const slateMarketRows = marketRows.filter((r) => weekIds.has(String(r.providerEventId)));
 
   const forecastArtifact = read("nfl/forecasts/latest.json");
   const forecastCard = forecastArtifact?.modelCard ?? null;
+  /* P246 §5: the weekly top boards render VERBATIM from the one canonical ranking owner
+     (scripts/nfl/build-nfl-weekly-boards.mjs). The hub never ranks players itself. */
+  type WeeklyBoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; participation: string; value: number; p10?: number; median?: number; p90?: number; probability?: number };
+  const weeklyBoards = read("nfl/weekly-boards/latest.json") as
+    | { period: { seasonType: number; week: number }; scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number };
+        boards: Array<{ id: string; title: string; state: string; basis?: string; reason?: string; rows?: WeeklyBoardRow[] }> }
+    | null;
   // per-event calibration sentence, keyed the same way the index keys events
-  const calibrationById = new Map<string, string>(
-    ((forecastArtifact?.forecasts ?? []) as Array<{ providerEventId: string; forecastSummary: { winProbability: { calibration: string } } }>)
-      .map((f) => [f.providerEventId, f.forecastSummary.winProbability.calibration]),
-  );
+
 
   // P174-E: Endzone Vault. Renders only when the evaluator produced candidates; a NO_VAULT or
   // INCIDENT window shows nothing here rather than an empty table pretending to be a product.
@@ -291,8 +300,9 @@ export default function NflHubPage() {
         anchors={[
           "nfl-games",
           "nfl-slate",
+          ...(weeklyBoards?.boards?.length ? ["nfl-boards"] : []),
           ...(vault && (vault.watchlist?.length || vault.selections?.length) ? ["nfl-vault"] : []),
-          ...(marketRows.length ? ["nfl-markets"] : []),
+          ...(slateMarketRows.length ? ["nfl-markets"] : []),
           "nfl-results", "nfl-coverage",
         ]}
       />
@@ -325,11 +335,16 @@ export default function NflHubPage() {
         stats={[
           { label: weekLabel ? "Games this week" : "Games on the slate", value: String(slateGames.length), sub: weekLabel ?? slateDay ?? "no capture" },
           { label: "Simulated", value: String(simulatedOnSlate), sub: simulatedOnSlate > 0 ? "10,000 runs each" : "none published" },
-          { label: "Sportsbook prices", value: String(index?.counts?.marketEvents ?? marketRows.length), sub: markets?.capturedAt ? `captured ${markets.capturedAt.slice(11, 16)}Z` : "no capture" },
+          /* P246 §6: the hero counted the INDEX's market events — which still held the archived
+             Aug-29 capture after authorization expired, advertising "1" beside a Week-1 slate with
+             no current prices. The stat is the WEEK's own count, and zero says why. */
+          { label: "Sportsbook prices", value: String(slateMarketRows.length), sub: slateMarketRows.length ? `captured ${markets.capturedAt.slice(11, 16)}Z` : "none current — capture not authorized" },
         ]}
         ctas={[
           { href: "#nfl-slate", label: "See the slate", primary: true },
-          { href: "#nfl-markets", label: "Sportsbook prices" },
+          /* A CTA to a section that did not render is a dead button — the second slot follows
+             what this build actually shows. */
+          slateMarketRows.length ? { href: "#nfl-markets", label: "Sportsbook prices" } : { href: "#nfl-boards", label: "Weekly top boards" },
         ]}
         framing="Experimental, educational, paper-only. This model has not been shown to beat the sportsbook market — nothing here is a pick or a recommendation to wager."
       />
@@ -378,65 +393,138 @@ export default function NflHubPage() {
           }
           rightSlot={experimentalChip}
         />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 10 }}>
-          {slateGames.map((g) => {
-            const e = eventById.get(g.providerEventId);
-            const sim = e?.projectedScore ?? null;
-            const started = e?.lifecycle === "STARTED" || e?.lifecycle === "SETTLED";
-            return (
-              <EventCard
-                key={g.providerEventId}
-                sport="nfl"
-                away={{ abbr: g.away.abbr, name: g.away.name, score: sim ? sim.away : undefined }}
-                home={{ abbr: g.home.abbr, name: g.home.name, score: sim ? sim.home : undefined }}
-                scoreCaption="projected"
-                kickoffLabel={etKickoff(g.dateUtc)}
-                meta={g.venue}
-                eyebrow={`${seasonContextFor(g).state.replace(/_/g, " ").toLowerCase()} · week ${g.week}`}
-                badge={
-                  started ? (
-                    <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--vault-text-faint)" }}>KICKED OFF</span>
-                  ) : sim ? (
-                    <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--sport-nfl)" }}>SIMULATED</span>
-                  ) : null
-                }
-                /* P244: `sim` here means the INDEX carries a projection — which since the weekly
-                   population comes from the FORECAST artifact. The deep /games/nfl page exists only
-                   when a full game-simulation artifact was produced (participation-gated), so the
-                   card links the forecast report route that generates for every published forecast;
-                   sixteen dead sim links shipped on the first weekly build. */
-                href={sim ? `/nfl/game/${g.providerEventId}/` : undefined}
-                hrefLabel="Open full simulation →"
-                footnote={
-                  sim
-                    ? calibrationById.get(g.providerEventId)
-                    : started
-                      ? "Kicked off before a forecast was published — missed coverage, never backfilled."
-                      : "Simulation publishes inside this game's own event window (from 18 hours before kickoff)."
-                }
-              >
-                {sim && e?.winProbability && e?.total ? (
-                  <dl style={{ margin: 0, display: "grid", gridTemplateColumns: "auto 1fr", gap: "3px 10px", fontSize: 12 }}>
-                    <dt style={{ color: "var(--vault-text-faint)" }}>Win chance</dt>
-                    <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
-                      {g.away.abbr} {(e.winProbability.away * 100).toFixed(1)}% · {g.home.abbr} {(e.winProbability.home * 100).toFixed(1)}%
-                    </dd>
-                    <dt style={{ color: "var(--vault-text-faint)" }}>Total points</dt>
-                    <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
-                      {e.total.median} <span style={{ color: "var(--vault-text-faint)" }}>(likely {e.total.p10}–{e.total.p90})</span>
-                    </dd>
-                  </dl>
-                ) : null}
-              </EventCard>
-            );
-          })}
+        {/* P246 §3 (founder): the week reads as ONE COMPACT TABLE, not a wall of cards —
+            kickoff, matchup, the model's winner, the derived score/total pair, readiness, one
+            action. Guard-held absence copy lives in the readiness cell. Prices carry their own
+            section below only from a current authorized capture — none exists (authorization
+            expired), so no price column pretends otherwise. */}
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
+            <thead>
+              <tr>
+                {["Kickoff (ET)", "Matchup", "Model winner", "Projected score", "Total", "Status", ""].map((h) => (
+                  <th key={h || "action"} scope="col" style={{ textAlign: "left", padding: "7px 9px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {slateGames.map((g) => {
+                const e = eventById.get(g.providerEventId);
+                const sim = e?.projectedScore ?? null;
+                const started = e?.lifecycle === "STARTED" || e?.lifecycle === "SETTLED";
+                /* the favourite is pHome vs pAway — the same rule coherence.mjs holds (P245) */
+                const fav = e?.winProbability
+                  ? e.winProbability.home >= e.winProbability.away
+                    ? { abbr: g.home.abbr, p: e.winProbability.home }
+                    : { abbr: g.away.abbr, p: e.winProbability.away }
+                  : null;
+                const td = (extra: Record<string, string | number> = {}) => ({ padding: "8px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, ...extra });
+                return (
+                  <tr key={g.providerEventId}>
+                    <td className="font-mono" style={td({ color: "var(--vault-text-mute)", fontSize: 11.5, whiteSpace: "nowrap" })}>{etKickoff(g.dateUtc)}</td>
+                    <td style={td({ fontSize: 13 })}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <TeamLogo team={g.away.abbr} sport="nfl" size="sm" ariaLabel={`${g.away.name} logo`} />
+                        {g.away.abbr} at
+                        <TeamLogo team={g.home.abbr} sport="nfl" size="sm" ariaLabel={`${g.home.name} logo`} />
+                        {g.home.abbr}
+                      </span>
+                    </td>
+                    <td className="font-mono" style={td()}>{fav ? `${fav.abbr} ${(fav.p * 100).toFixed(1)}%` : "—"}</td>
+                    <td className="font-mono" style={td({ whiteSpace: "nowrap" })}>{sim ? `${g.away.abbr} ${sim.away} — ${sim.home} ${g.home.abbr}` : "—"}</td>
+                    <td className="font-mono" style={td()}>{e?.total ? <>{e.total.median} <span style={{ color: "var(--vault-text-faint)" }}>({e.total.p10}–{e.total.p90})</span></> : "—"}</td>
+                    <td style={td({ fontSize: 11, color: "var(--vault-text-mute)", maxWidth: 220 })}>
+                      {started
+                        ? sim ? "Kicked off · forecast frozen" : "Kicked off before a forecast was published — missed coverage, never backfilled."
+                        : sim ? "Simulated · 10,000 runs" : "Simulation publishes closer to kickoff and says so here when it does."}
+                    </td>
+                    <td style={td({ whiteSpace: "nowrap" })}>
+                      {sim ? (
+                        <Link href={`/nfl/game/${g.providerEventId}/`} className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, color: "var(--vault-gold-bright)" }}>
+                          View game →
+                        </Link>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
+        <p style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
+          The two projected scores are derived from the median total and median margin, so they always
+          add up to the printed total. This season&apos;s total is a league-wide prior shared by every
+          game — it stays the same number across the slate until a matchup-specific totals model clears
+          its preregistered bars, and the range beside it is that prior&apos;s own spread.
+        </p>
         {forecastArtifact?.generatedAt ? (
           <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-            Simulations generated {forecastArtifact.generatedAt} under model {forecastArtifact?.model?.id} before every kickoff shown, and frozen at that moment — the forecast never changes after the fact, and each one is settled against the official result. {forecastCard?.whyPublishItAtAll}
+            Updated {etKickoff(forecastArtifact.generatedAt).replace(" ET", "")} ET · frozen pre-kickoff · <a href="#nfl-coverage" style={{ color: "var(--vault-gold-bright)" }}>Model details</a>
           </p>
         ) : null}
       </section>
+
+      {/* ── WEEKLY TOP BOARDS · P246 §3/§5 ─────────────────────────────────────
+          Rendered VERBATIM from the canonical ranking owner. Top-N is a MAXIMUM, never a quota;
+          a confirmed-out player never ranks; a withheld family names the exact bar it failed. */}
+      {weeklyBoards?.boards?.length ? (
+        <section aria-labelledby="nfl-boards" id="nfl-boards" className="scroll-mt-24">
+          <SectionHeader
+            eyebrow={weeklyBoards.scope.kind === "REMAINING_EVENTS" ? `This week · ${weeklyBoards.scope.eventsIncluded} games left` : "This week"}
+            title="Weekly top boards"
+            sub={`Ranked across ${weeklyBoards.scope.kind === "REMAINING_EVENTS" ? `the ${weeklyBoards.scope.eventsIncluded} games still to kick off (${weeklyBoards.scope.eventsDroppedAfterKickoff} dropped after kickoff)` : "every game this week"} by one ranking owner. A top-N table is a maximum, not a quota — fewer qualified players publish fewer rows, and a player listed out never ranks here.`}
+            rightSlot={experimentalChip}
+          />
+          <div className="flex flex-col gap-5">
+            {weeklyBoards.boards.map((b) =>
+              b.state === "PUBLISHED" && b.rows?.length ? (
+                <div key={b.id}>
+                  <h3 style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>{b.title}</h3>
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 620 }}>
+                      <thead>
+                        <tr>
+                          {["#", "Player", "Game", "Kickoff (ET)", b.id === "top_td" ? "TD chance" : "Median", ...(b.id === "top_td" ? [] : ["Range (10th–90th)"]), ""].map((h, i) => (
+                            <th key={`${h}-${i}`} scope="col" style={{ textAlign: "left", padding: "6px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {b.rows.map((r, i) => (
+                          <tr key={`${r.playerId}-${r.team}`}>
+                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11, color: "var(--vault-text-faint)" }}>{i + 1}</td>
+                            <td style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                                {b.id === "top_td" ? <PlayerAvatar playerId={espnAthleteId(r.playerId)} playerName={r.name} team={r.team} sport="nfl" size="sm" /> : null}
+                                <span>{r.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{r.team}</span></span>
+                              </span>
+                            </td>
+                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-mute)" }}>{r.team} vs {r.opponent}</td>
+                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{etKickoff(r.kickoffUtc)}</td>
+                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 13, fontWeight: 700, color: "var(--gtp-bank-cta)" }}>
+                              {b.id === "top_td" ? `${(r.value * 100).toFixed(1)}%` : r.median}
+                            </td>
+                            {b.id === "top_td" ? null : (
+                              <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-faint)" }}>{r.p10}–{r.p90}</td>
+                            )}
+                            <td style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", whiteSpace: "nowrap" }}>
+                              <Link href={`/nfl/game/${r.providerEventId}/`} className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, color: "var(--vault-gold-bright)" }}>Game →</Link>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <p key={b.id} style={{ margin: 0, fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 760, border: "1px dashed var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
+                  <strong style={{ color: "var(--vault-text-mute)" }}>{b.title}:</strong> not published — {b.reason}
+                </p>
+              ),
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {/* ── GAME REPORTS · P234 · Release I ───────────────────────────────────────────────────
            `/nfl/game/[eventId]` is statically generated for every forecast this project has
@@ -570,7 +658,7 @@ export default function NflHubPage() {
         </section>
       ) : null}
 
-      {marketRows.length ? (
+      {slateMarketRows.length ? (
         <section aria-labelledby="nfl-markets" id="nfl-markets" className="scroll-mt-24">
           <SectionHeader
             eyebrow={`Prices · captured ${markets.capturedAt}`}
@@ -587,7 +675,7 @@ export default function NflHubPage() {
                 </tr>
               </thead>
               <tbody>
-                {marketRows.map((r) => (
+                {slateMarketRows.map((r) => (
                   <tr key={r.providerEventId}>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>

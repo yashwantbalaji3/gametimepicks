@@ -23,6 +23,7 @@
  * with no top-flight history, so they run at the league-average baseline.
  */
 import type { Metadata } from "next";
+import { formatUpdatedEt } from "@/lib/format";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import { eplHub } from "@/lib/sport-hub/adapters";
 import Link from "next/link";
@@ -596,8 +597,8 @@ export default function EplPage() {
       </section>
 
       <p className="mt-6" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-        Paper-only and educational. Not betting advice. Generated {set?.generatedAt ?? "—"} from pregame inputs only;
-        the model never sees a result from a match it is forecasting.
+        Paper-only and educational. Not betting advice. Updated {formatUpdatedEt(set?.generatedAt)} from pregame inputs
+        only; the model never sees a result from a match it is forecasting.
       </p>
     </main>
   );

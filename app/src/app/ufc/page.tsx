@@ -14,6 +14,7 @@
  * fail-closed gate. Paper-only and educational throughout; no stake is filled in anywhere.
  */
 import fs from "node:fs";
+import { formatUpdatedEt } from "@/lib/format";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import { ufcHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
@@ -216,7 +217,7 @@ export default function UfcArchivePage() {
         */}
         {card?.generatedAt ? (
           <p className="m-0" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>
-            Card and model read {card.generatedAt}
+            Card and model read · updated {formatUpdatedEt(card.generatedAt)}
           </p>
         ) : null}
         {/* A nearer card the model cannot read. Contender Series is five debutants — the engine

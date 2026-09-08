@@ -43,13 +43,24 @@ function renderedIfCurrent(artifactPaths) {
   return fs.readFileSync(PAGE, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
 }
 
-test("the CARD's stamp is rendered byte-identically to the artifact's own field", () => {
+test("the CARD's stamp is rendered from the artifact's own field — deterministically, and from nothing else", () => {
   const card = read("public/data/ufc/card-latest.json");
   const rendered = renderedIfCurrent(["public/data/ufc/card-latest.json"]);
   if (!rendered || !card?.generatedAt) return;
-  // Byte-identical, not "approximately today". A reformatted stamp is a stamp someone computed, and
-  // a computed stamp can be computed from the wrong thing — a build time being the classic.
-  assert.ok(rendered.includes(card.generatedAt), `the page must carry ${card.generatedAt} exactly`);
+  /*
+   * REBASED P246. The old bar was byte-identical ISO on the page. The founder removed raw ISO
+   * stamps from browsing surfaces (compact localized "Updated ..." instead), so the bar moves
+   * WITHOUT weakening: this test recomputes the exact compact form from the artifact's own
+   * field with the same Intl options formatUpdatedEt (src/lib/format.ts) uses, and requires
+   * that exact string. A stamp computed from the wrong thing — a build time, another
+   * artifact — still fails, because it formats to a different minute; the companion test
+   * below holds the no-build-time rule directly.
+   */
+  const expected = `${new Intl.DateTimeFormat("en-US", {
+    month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
+    timeZone: "America/New_York",
+  }).format(new Date(card.generatedAt))} ET`;
+  assert.ok(rendered.includes(`updated ${expected}`), `the page must carry "updated ${expected}", formatted from ${card.generatedAt}`);
 });
 
 test("the LADDER's stamp is its own, and differs from the card's", () => {

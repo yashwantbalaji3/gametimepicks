@@ -194,3 +194,20 @@ test("P244 · the builder populates the whole current week, including events day
   assert.match(src, /coherentDirection\(\{ medMargin, pHome, pAway \}\)/, "the builder consumes the one rule");
   assert.doesNotMatch(src, /COIN_FLIP_EPS/, "the mis-justified 3σ patch is gone");
 });
+
+test("P246 · projected scores are DERIVED from total+margin, so the pieces always add up", () => {
+  const src = fs.readFileSync(path.join(APP, "scripts/nfl/build-nfl-public-forecasts.mjs"), "utf8");
+  // Marginal score medians disagreed with the joint medians on 5 of 16 Week-1 games
+  // (GB @ MIN printed 25 + 21 = 46 beside a median total of 45). The convention derives the
+  // two headline integers from what the model actually publishes.
+  assert.match(src, /scores-derived-from-total-and-margin-v1/, "the convention is named at the producer");
+  assert.equal((src.match(/projectedScore: derivedProjectedScore\(/g) ?? []).length, 2, "BOTH regimes (regular + preseason) use the derivation");
+  assert.doesNotMatch(src, /projectedScore: \{ home: sim\.scores/, "no marginal-median headline score survives");
+  // LIVE, stamp-conditional: binds on every artifact regenerated under the convention.
+  for (const f of pub?.forecasts ?? []) {
+    const ps = f.forecastSummary?.projectedScore;
+    if (ps?.convention !== "scores-derived-from-total-and-margin-v1") continue;
+    assert.equal(ps.home + ps.away, f.forecastSummary.total.median, `${f.matchup}: scores must sum to the printed total`);
+    assert.ok(Math.abs((ps.home - ps.away) - f.forecastSummary.margin.median) <= 1, `${f.matchup}: score difference strays from the printed margin`);
+  }
+});

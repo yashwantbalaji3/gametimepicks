@@ -89,9 +89,12 @@ test("EVERY game on the derived slate day renders, and every simulated one opens
   // and sixteen dead sim links shipped the night the weekly population landed without it.
   assert.match(hub, /\/nfl\/game\/\$\{g\.providerEventId\}\//);
   // a game WITHOUT a simulation is stated as such rather than rendered blank — and since P243
-  // C-NFL the absence carries its REASON: a future game names its event window; a game that
-  // kicked off unforecast is missed coverage, never backfilled.
-  assert.match(hub, /Simulation publishes inside this game's own event window/);
+  // C-NFL the absence carries its REASON: a future game says the simulation is coming; a game
+  // that kicked off unforecast is missed coverage, never backfilled.
+  // REBASED P246: the old copy quoted "from 18 hours before kickoff" — a mechanism detail the
+  // founder had removed from the browsing path (and stale: the population is the week, not a
+  // clock window). Absence still explains itself, without the internal window number.
+  assert.match(hub, /Simulation publishes closer to kickoff and says so here when it does/);
   assert.match(hub, /missed coverage, never backfilled/);
 });
 
@@ -107,8 +110,12 @@ test("P243 C-NFL · the lead section is the NATURAL WEEK from the shared read mo
 test("the hub CONSUMES canonical state and does not recompute lifecycle", () => {
   assert.match(hub, /e\?\.lifecycle === "STARTED"/, "started-ness comes from the index");
   assert.doesNotMatch(hub, /Date\.now\(\)/, "a statically exported page must not compare against build-time now");
-  // counts shown in the hero come from the index's own counts block
-  assert.match(hub, /index\?\.counts\?\.marketEvents/);
+  // REBASED P246: the hero's price count is the WEEK's own (the index's counts block still
+  // carried the archived Aug capture after authorization expired — "1" beside a slate with no
+  // current prices). The count derives from rows scoped to the selected week, and the zero
+  // state names why. The index still owns lifecycle; only this stat moved to the honest scope.
+  assert.match(hub, /String\(slateMarketRows\.length\)/);
+  assert.match(hub, /none current — capture not authorized/);
 });
 
 test("SHARED OWNERS · the five parity rows are closed by adoption, not by forking", () => {

@@ -177,6 +177,9 @@ jobs:
           # P245: the public player board — promotion-gated extraction of the eligible families
           # (rush yards + calibrated anytime TD) from the current-event research artifacts.
           node scripts/nfl/build-nfl-player-board.mjs --now "${{ steps.window.outputs.now }}"
+          # P246 §5: the weekly top boards — ONE canonical ranking owner over the per-game
+          # boards; top-N are maximums, confirmed-out players never rank.
+          node scripts/nfl/build-nfl-weekly-boards.mjs --now "${{ steps.window.outputs.now }}"
           node scripts/nfl/build-nfl-product-receipts.mjs --now "${{ steps.window.outputs.now }}"
 
       # ── THE INDEX IS RE-DERIVED EVERY RUN, WINDOW OR NOT ────────────────────────────────────────

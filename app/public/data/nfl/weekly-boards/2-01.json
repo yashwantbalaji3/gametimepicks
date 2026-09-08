@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-weekly-boards",
+  "dataClass": "PUBLIC",
+  "generatedAt": "2026-09-08T01:18:09Z",
+  "period": {
+    "seasonType": 2,
+    "week": 1
+  },
+  "scope": {
+    "kind": "FULL_WEEK",
+    "eventsIncluded": 16,
+    "eventsDroppedAfterKickoff": 0
+  },
+  "model": {
+    "id": "nfl-regular-season-public-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL"
+  },
+  "participationBasis": "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
+  "boards": [
+    {
+      "id": "top_td",
+      "family": "anytime_td",
+      "metric": "probability",
+      "topN": 5,
+      "title": "Top 5 · Anytime touchdown",
+      "state": "PUBLISHED",
+      "basis": "anytime-td-v1 calibration: held-out 2025 n=3570, beats both baselines; DNP settles void, so probabilities condition on playing",
+      "rows": [
+        {
+          "playerId": "nfl-athlete-3121023",
+          "name": "Dallas Goedert",
+          "team": "PHI",
+          "opponent": "WSH",
+          "providerEventId": "401872929",
+          "kickoffUtc": "2026-09-13T20:25Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 0.46382,
+          "probability": 0.46382,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4429795",
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "opponent": "NO",
+          "providerEventId": "401872923",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 0.445676,
+          "probability": 0.445676,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4685382",
+          "name": "Omarion Hampton",
+          "team": "LAC",
+          "opponent": "ARI",
+          "providerEventId": "401872926",
+          "kickoffUtc": "2026-09-13T20:25Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 0.389722,
+          "probability": 0.389722,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-5123663",
+          "name": "Isaac TeSlaa",
+          "team": "DET",
+          "opponent": "NO",
+          "providerEventId": "401872923",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 0.370829,
+          "probability": 0.370829,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4430737",
+          "name": "Kyren Williams",
+          "team": "LAR",
+          "opponent": "SF",
+          "providerEventId": "401872657",
+          "kickoffUtc": "2026-09-11T00:35Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 0.36193,
+          "probability": 0.36193,
+          "pricingState": "NOT_AUTHORIZED"
+        }
+      ]
+    },
+    {
+      "id": "top_receptions",
+      "family": "player_receptions",
+      "metric": "median",
+      "topN": 10,
+      "title": "Top 10 · Receptions",
+      "state": "WITHHELD",
+      "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+    },
+    {
+      "id": "top_rush_yds",
+      "family": "player_rush_yds",
+      "metric": "median",
+      "topN": 10,
+      "title": "Top 10 · Rushing yards",
+      "state": "PUBLISHED",
+      "basis": "props-v1 evaluation: n=3273, all promotion bars pass",
+      "rows": [
+        {
+          "playerId": "nfl-athlete-4242335",
+          "name": "Jonathan Taylor",
+          "team": "IND",
+          "opponent": "BAL",
+          "providerEventId": "401872659",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 65.42,
+          "p10": 27.09,
+          "median": 65.42,
+          "p90": 115.18,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-3929630",
+          "name": "Saquon Barkley",
+          "team": "PHI",
+          "opponent": "WSH",
+          "providerEventId": "401872929",
+          "kickoffUtc": "2026-09-13T20:25Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 58.07,
+          "p10": 24.3,
+          "median": 58.07,
+          "p90": 108.85,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4429160",
+          "name": "De'Von Achane",
+          "team": "MIA",
+          "opponent": "LV",
+          "providerEventId": "401872928",
+          "kickoffUtc": "2026-09-13T20:25Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 57.72,
+          "p10": 19.53,
+          "median": 57.72,
+          "p90": 111.45,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-3043078",
+          "name": "Derrick Henry",
+          "team": "BAL",
+          "opponent": "IND",
+          "providerEventId": "401872659",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 56.46,
+          "p10": 20.63,
+          "median": 56.46,
+          "p90": 108.14,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4890973",
+          "name": "Ashton Jeanty",
+          "team": "LV",
+          "opponent": "MIA",
+          "providerEventId": "401872928",
+          "kickoffUtc": "2026-09-13T20:25Z",
+          "participation": "QUESTIONABLE",
+          "value": 56.39,
+          "p10": 23.08,
+          "median": 56.39,
+          "p90": 101.44,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4429795",
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "opponent": "NO",
+          "providerEventId": "401872923",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 55.75,
+          "p10": 22.01,
+          "median": 55.75,
+          "p90": 105.02,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-3916148",
+          "name": "Tony Pollard",
+          "team": "TEN",
+          "opponent": "NYJ",
+          "providerEventId": "401872924",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 55.69,
+          "p10": 21.08,
+          "median": 55.69,
+          "p90": 105.22,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4430807",
+          "name": "Bijan Robinson",
+          "team": "ATL",
+          "opponent": "PIT",
+          "providerEventId": "401872658",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 53.38,
+          "p10": 20.34,
+          "median": 53.38,
+          "p90": 104.73,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4569987",
+          "name": "Jaylen Warren",
+          "team": "PIT",
+          "opponent": "ATL",
+          "providerEventId": "401872658",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 49.82,
+          "p10": 17.76,
+          "median": 49.82,
+          "p90": 95.39,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-4362238",
+          "name": "Chase Brown",
+          "team": "CIN",
+          "opponent": "TB",
+          "providerEventId": "401872925",
+          "kickoffUtc": "2026-09-13T17:00Z",
+          "participation": "ACTIVE_PROJECTED",
+          "value": 49.43,
+          "p10": 17.53,
+          "median": 49.43,
+          "p90": 95.64,
+          "pricingState": "NOT_AUTHORIZED"
+        }
+      ]
+    },
+    {
+      "id": "top_reception_yds",
+      "family": "player_reception_yds",
+      "metric": "median",
+      "topN": 10,
+      "title": "Top 10 · Receiving yards",
+      "state": "WITHHELD",
+      "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+    },
+    {
+      "id": "top_pass_yds",
+      "family": "player_pass_yds",
+      "metric": "median",
+      "topN": 10,
+      "title": "Top 10 · Passing yards",
+      "state": "WITHHELD",
+      "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+    }
+  ],
+  "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+}

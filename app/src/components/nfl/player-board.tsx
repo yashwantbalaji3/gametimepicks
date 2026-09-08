@@ -39,14 +39,20 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
   const [team, setTeam] = useState<string | null>(null);
   const [family, setFamily] = useState<string>(publishedFamilies[0]?.[0] ?? "");
   const [q, setQ] = useState("");
+  /* P246 (founder §4.1): a player confirmed OUT is excluded from the DEFAULT board — a
+     conditional-on-playing number beside active players reads as a projection that he plays.
+     The rows stay in the artifact; this toggle is the explicit optional detail that shows them. */
+  const [includeOut, setIncludeOut] = useState(false);
+  const outCount = useMemo(() => board.players.filter((p) => p.participation === "INACTIVE").length, [board.players]);
 
   const rows = useMemo(
     () =>
       board.players
+        .filter((p) => (includeOut ? true : p.participation !== "INACTIVE"))
         .filter((p) => (team ? p.team === team : true))
         .filter((p) => (family ? p.markets[family] != null : true))
         .filter((p) => (q ? p.name.toLowerCase().includes(q.toLowerCase()) : true)),
-    [board.players, team, family, q],
+    [board.players, team, family, q, includeOut],
   );
 
   if (publishedFamilies.length === 0) return null;
@@ -81,6 +87,12 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
             {t ?? "Both teams"}
           </button>
         ))}
+        {outCount > 0 ? (
+          <label className="font-mono" style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 40, fontSize: 11, color: "var(--vault-text-mute)", cursor: "pointer" }}>
+            <input type="checkbox" checked={includeOut} onChange={(e) => setIncludeOut(e.target.checked)} aria-label={`Show listed-out players (${outCount}) — conditional on playing`} />
+            Show listed-out players ({outCount}) — conditional on playing
+          </label>
+        ) : null}
         <input
           type="search"
           value={q}

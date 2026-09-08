@@ -151,6 +151,32 @@ export function mlbHub(nowIso: string): SportHubModel {
  * slate out of an archive. The honest header names the phase and the span, and the empty-read state
  * on every row says the rest. Nothing here is padded to match the other three sports.
  */
+/** The canonical NFL index, read once per hub build for the read column. Absent → no reads. */
+function readNflIndexForReads(): Map<string, { home: string; away: string; pHome: number; pAway: number }> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const fs = require("node:fs") as typeof import("node:fs");
+    const path = require("node:path") as typeof import("node:path");
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/index.json"), "utf8"));
+    const map = new Map<string, { home: string; away: string; pHome: number; pAway: number }>();
+    for (const e of doc?.events ?? []) {
+      if (e?.winProbability && e?.home?.abbr && e?.away?.abbr) {
+        map.set(String(e.providerEventId), { home: e.home.abbr, away: e.away.abbr, pHome: e.winProbability.home, pAway: e.winProbability.away });
+      }
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
+function nflReadFor(index: Map<string, { home: string; away: string; pHome: number; pAway: number }>, providerId: string | undefined): HubRead | null {
+  const e = providerId ? index.get(String(providerId)) : null;
+  if (!e) return null;
+  const fav = e.pHome >= e.pAway ? { abbr: e.home, p: e.pHome } : { abbr: e.away, p: e.pAway };
+  return { label: `${fav.abbr} ${(fav.p * 100).toFixed(1)}%`, kind: "MODEL_FORECAST", detail: "experimental" };
+}
+
 export function nflHub(nowIso: string): SportHubModel {
   /*
    * P243 · C-NFL: the hub's period is the NFL's NATURAL period — season/phase/week from the
@@ -162,6 +188,15 @@ export function nflHub(nowIso: string): SportHubModel {
   const events = loadNflEvents(nowIso);
   const key = currentPeriodKey(events, nowIso);
   const period = key ? eventsInPeriod(events, key) : [];
+  /*
+   * P246 §6: the read column joins the canonical index's OWN published projection. This row
+   * used to hardcode `read: null` ("no supported read exists for these events yet") — written
+   * when that was true, still rendering after 16 regular-season forecasts published, directly
+   * above a table saying "16 of 16 carry a published simulation". Two contradictory claims on
+   * one page. The read is the model favourite (pHome vs pAway — the coherence rule's pair),
+   * labelled experimental; a game the index carries no projection for still reads null.
+   */
+  const nflIndex = readNflIndexForReads();
   if (period.length > 0) {
     const rows = [...period]
       .sort((a, b) => String(a.scheduledUtc ?? "").localeCompare(String(b.scheduledUtc ?? "")))
@@ -174,14 +209,14 @@ export function nflHub(nowIso: string): SportHubModel {
           matchup: e.participants.away && e.participants.home ? `${e.participants.away} at ${e.participants.home}` : e.eventId,
           status: e.status.toLowerCase().replace(/_/g, " "),
           started,
-          read: null, // no supported read exists for these events yet — stated, never implied
+          read: nflReadFor(nflIndex, e.providerAliases[0]?.id),
           reportState: e.dimensions.model === "PUBLISHED" ? (started ? "ARCHIVE" : "READY") : "NONE",
           reportHref: e.dimensions.model === "PUBLISHED" ? e.reportHref : null,
           reportNote:
             e.dimensions.model === "MISSED_PREEVENT"
               ? "Kicked off before a forecast was published — missed coverage, never backfilled."
               : e.dimensions.model === "NOT_PUBLISHED"
-                ? "Forecast publishes inside this game's own event window (from 18 hours before kickoff)."
+                ? "Forecast publishes closer to kickoff and says so here when it does."
                 : undefined,
         };
       });

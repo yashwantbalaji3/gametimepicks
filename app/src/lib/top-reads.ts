@@ -163,7 +163,7 @@ export function loadTopReads(): TopReadsSet | null {
         subject: ml.team, team: ml.team, photoUrl: null,
         probability: ml.simulationProbability,
         market: "Moneyline",
-        context: `${p.awayTeam} @ ${p.homeTeam} · simulated median ${p.projectedScore?.away ?? "?"}–${p.projectedScore?.home ?? "?"}`,
+        context: `${p.awayTeam} @ ${p.homeTeam} · projected ${p.projectedScore?.away ?? "?"}–${p.projectedScore?.home ?? "?"}`,
         href: `/games/mlb/${p.slug}/`,
         eventEtDate: today,
       });

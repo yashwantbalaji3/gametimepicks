@@ -40,6 +40,23 @@ const APP = (() => {
 })();
 const ROOT = path.join(APP, "..");
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
+/**
+ * P246 · SCORE DISPLAY CONVENTION ("scores-derived-from-total-and-margin-v1")
+ *
+ * The projected team scores shown to a reader are DERIVED from the pair the model actually
+ * publishes — the median total and the median margin — not the two marginal score medians.
+ * Marginal medians need not be consistent with the joint medians: on the 2026 Week 1 slate,
+ * five of sixteen games disagreed (GB @ MIN printed 25 + 21 = 46 beside a median total of 45).
+ * home = round((total + margin) / 2), away = total − home, so the pieces ALWAYS add up to the
+ * printed total and their difference is within 1 of the printed margin. The marginal per-team
+ * ranges stay marginal in scoreRange — only the two headline integers use this convention.
+ */
+const SCORE_DISPLAY_CONVENTION = "scores-derived-from-total-and-margin-v1";
+function derivedProjectedScore(totalMedian, marginMedian) {
+  const home = Math.round((totalMedian + marginMedian) / 2);
+  return { home, away: totalMedian - home, convention: SCORE_DISPLAY_CONVENTION };
+}
+
 const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const LOOKAHEAD_H = Number(arg("--lookahead-hours", "30"));
@@ -308,7 +325,7 @@ for (const ev of events) {
         regressedToSeason: strength.regressedToSeason,
       },
       forecastSummary: {
-        projectedScore: { home: sim.scores.home.quantiles.p50, away: sim.scores.away.quantiles.p50 },
+        projectedScore: derivedProjectedScore(sim.totalQuantiles.p50, sim.marginQuantiles.p50),
         winProbability: {
           home: sim.winProbability.home,
           away: sim.winProbability.away,
@@ -386,7 +403,7 @@ for (const ev of events) {
     generatedAt: NOW,
     evidence: { schedule: schedule.generatedAt, strengthCutoff: strength.cutoffIso },
     forecastSummary: {
-      projectedScore: { home: Math.round(hS[Math.floor(RUNS / 2)]), away: Math.round(aS[Math.floor(RUNS / 2)]) },
+      projectedScore: derivedProjectedScore(q(tS, 0.5), q(mS, 0.5)),
       winProbability: {
         home: Number(pHomeCalibrated.toFixed(4)),
         away: Number((1 - pHomeCalibrated).toFixed(4)),

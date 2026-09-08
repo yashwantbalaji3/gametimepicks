@@ -355,7 +355,11 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   }
   assert.match(nflHub, /they describe the market, not a forecast of ours/, "the de-vigged percentages disclaim forecast status in words");
   assert.match(nflHub, /markets\?\.capturedAt && r\.kickoffUtc && markets\.capturedAt < r\.kickoffUtc/, "only rows captured BEFORE their own kickoff render — a static truth that cannot rot into liveness theater");
-  assert.match(nflHub, /marketRows\.length \? \(/, "no artifact, no section — a page area is never filled merely because a file exists");
+  // REBASED P246: the gate got STRICTER — rows must also belong to the selected week, so an
+  // archived capture (e.g. the Aug-29 preseason rows after authorization expired) can never
+  // render under a current-week "prices for this slate" heading.
+  assert.match(nflHub, /slateMarketRows\.length \? \(/, "no artifact, no section — a page area is never filled merely because a file exists");
+  assert.match(nflHub, /marketRows\.filter\(\(r\) => weekIds\.has\(String\(r\.providerEventId\)\)\)/, "price rows are scoped to the week the heading claims");
   {
     // the typed NO_MARKET finding also moved into the derived artifact (P172-C)
     const st = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/model-status.json"), "utf8"));
