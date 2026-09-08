@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T18:26:21Z",
- "sourceGeneratedAt": "2026-09-08T18:26:21Z",
+ "generatedAt": "2026-09-08T20:19:18Z",
+ "sourceGeneratedAt": "2026-09-08T20:19:18Z",
  "providerEventId": "401872657",
  "matchup": "SF @ LAR",
  "kickoffUtc": "2026-09-11T00:35Z",
@@ -14,22 +14,22 @@
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=3273, all promotion bars pass"
-  },
-  "player_reception_yds": {
-   "label": "Receiving yards",
    "state": "WITHHELD",
    "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
   },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
   "player_receptions": {
    "label": "Receptions",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=4789, all promotion bars pass"
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -54,24 +54,16 @@
    "team": "LAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 52.262,
-     "p10": 16.73,
-     "p25": 29.72,
-     "median": 47.51,
-     "p75": 70.38,
-     "p90": 93.76
-    },
-    "player_receptions": {
-     "mean": 1.251,
+    "player_reception_yds": {
+     "mean": 14.32,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 8.26,
+     "p75": 22.67,
+     "p90": 38.44
     },
     "anytime_td": {
-     "probability": 0.36193,
+     "probability": 0.40216,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -82,24 +74,16 @@
    "team": "SF",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_rush_yds": {
-     "mean": 48.049,
-     "p10": 15.63,
-     "p25": 27.26,
-     "median": 43.68,
-     "p75": 64.5,
-     "p90": 86.44
-    },
-    "player_receptions": {
-     "mean": 3.711,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7
+    "player_reception_yds": {
+     "mean": 41.944,
+     "p10": 7.66,
+     "p25": 19.16,
+     "median": 36.57,
+     "p75": 58.46,
+     "p90": 81.97
     },
     "anytime_td": {
-     "probability": 0.328816,
+     "probability": 0.376559,
      "participation": "QUESTIONABLE"
     }
    }
@@ -110,16 +94,16 @@
    "team": "LAR",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 4.951,
-     "p10": 2,
-     "p25": 3,
-     "median": 5,
-     "p75": 7,
-     "p90": 8
+    "player_reception_yds": {
+     "mean": 66.776,
+     "p10": 18.69,
+     "p25": 35.85,
+     "median": 60.48,
+     "p75": 90.86,
+     "p90": 123.32
     },
     "anytime_td": {
-     "probability": 0.321895,
+     "probability": 0.358973,
      "participation": "QUESTIONABLE"
     }
    }
@@ -130,16 +114,16 @@
    "team": "LAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.955,
-     "p10": 1,
-     "p25": 1,
-     "median": 3,
-     "p75": 4,
-     "p90": 6
+    "player_reception_yds": {
+     "mean": 38.905,
+     "p10": 4.04,
+     "p25": 15.33,
+     "median": 32.64,
+     "p75": 56.21,
+     "p90": 81.87
     },
     "anytime_td": {
-     "probability": 0.289527,
+     "probability": 0.32379,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -150,16 +134,16 @@
    "team": "LAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.063,
+    "player_reception_yds": {
+     "mean": 25.299,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4
+     "p25": 5.95,
+     "median": 19.09,
+     "p75": 36.92,
+     "p90": 59.12
     },
     "anytime_td": {
-     "probability": 0.24199,
+     "probability": 0.271711,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -170,16 +154,36 @@
    "team": "LAR",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 1.005,
+    "player_reception_yds": {
+     "mean": 12.538,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 5.56,
+     "p75": 19.28,
+     "p90": 35.64
     },
     "anytime_td": {
-     "probability": 0.208873,
+     "probability": 0.235157,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3040151",
+   "name": "George Kittle",
+   "team": "SF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 41.833,
+     "p10": 5.7,
+     "p25": 17.51,
+     "median": 36.44,
+     "p75": 59.37,
+     "p90": 85.39
+    },
+    "anytime_td": {
+     "probability": 0.212537,
      "participation": "QUESTIONABLE"
     }
    }
@@ -190,56 +194,16 @@
    "team": "LAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.361,
+    "player_reception_yds": {
+     "mean": 16.716,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 10.54,
+     "p75": 25.5,
+     "p90": 44.64
     },
     "anytime_td": {
-     "probability": 0.186835,
-     "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3040151",
-   "name": "George Kittle",
-   "team": "SF",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_receptions": {
-     "mean": 3.452,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 6
-    },
-    "anytime_td": {
-     "probability": 0.182649,
-     "participation": "QUESTIONABLE"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4429096",
-   "name": "Blake Corum",
-   "team": "LAR",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 33.095,
-     "p10": 5.27,
-     "p25": 13.93,
-     "median": 28.35,
-     "p75": 46.46,
-     "p90": 67.65
-    },
-    "anytime_td": {
-     "probability": 0.179432,
+     "probability": 0.210713,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -250,16 +214,28 @@
    "team": "SF",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.109,
+    "player_reception_yds": {
+     "mean": 25.24,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4
+     "p25": 6.7,
+     "median": 19.25,
+     "p75": 37.25,
+     "p90": 57.66
     },
     "anytime_td": {
-     "probability": 0.178527,
+     "probability": 0.207829,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429096",
+   "name": "Blake Corum",
+   "team": "LAR",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.202481,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -270,16 +246,16 @@
    "team": "LAR",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 1.052,
+    "player_reception_yds": {
+     "mean": 12.029,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 5.7,
+     "p75": 19.23,
+     "p90": 33.85
     },
     "anytime_td": {
-     "probability": 0.151592,
+     "probability": 0.171432,
      "participation": "QUESTIONABLE"
     }
    }
@@ -290,16 +266,8 @@
    "team": "SF",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 14.86,
-     "p10": 0,
-     "p25": 1.85,
-     "median": 9.48,
-     "p75": 21.84,
-     "p90": 37.49
-    },
     "anytime_td": {
-     "probability": 0.143044,
+     "probability": 0.167119,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -310,16 +278,16 @@
    "team": "SF",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.509,
+    "player_reception_yds": {
+     "mean": 18.639,
      "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "p25": 0.74,
+     "median": 12.36,
+     "p75": 28.36,
+     "p90": 47.18
     },
     "anytime_td": {
-     "probability": 0.137407,
+     "probability": 0.160623,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -331,7 +299,7 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
-     "probability": 0.110418,
+     "probability": 0.129417,
      "participation": "QUESTIONABLE"
     }
    }
@@ -343,7 +311,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.098472,
+     "probability": 0.11555,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -352,51 +320,11 @@
    "playerId": "nfl-athlete-4039358",
    "name": "Patrick Taylor Jr.",
    "team": "SF",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "NOT_IN_POOL",
    "markets": {
-    "player_rush_yds": {
-     "mean": 11.357,
-     "p10": 0,
-     "p25": 0.37,
-     "median": 6.09,
-     "p75": 16.94,
-     "p90": 30.6
-    },
     "anytime_td": {
-     "probability": 0.091317,
+     "probability": 0.107227,
      "participation": "NOT_IN_POOL"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4685397",
-   "name": "Jordan James",
-   "team": "SF",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 8.485,
-     "p10": 0,
-     "p25": 0,
-     "median": 3.34,
-     "p75": 12.22,
-     "p90": 24.5
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4241464",
-   "name": "Mac Jones",
-   "team": "SF",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 6.876,
-     "p10": 0,
-     "p25": 0,
-     "median": 2.26,
-     "p75": 9.86,
-     "p90": 20.43
     }
    }
   },
@@ -406,13 +334,13 @@
    "team": "SF",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_receptions": {
-     "mean": 2.406,
+    "player_reception_yds": {
+     "mean": 31.541,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5
+     "p25": 9.64,
+     "median": 24.85,
+     "p75": 46.39,
+     "p90": 70.54
     }
    }
   },
@@ -422,13 +350,13 @@
    "team": "SF",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_receptions": {
-     "mean": 1.685,
+    "player_reception_yds": {
+     "mean": 21.397,
      "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 2,
-     "p90": 4
+     "p25": 3.4,
+     "median": 15.38,
+     "p75": 31.72,
+     "p90": 51.76
     }
    }
   }

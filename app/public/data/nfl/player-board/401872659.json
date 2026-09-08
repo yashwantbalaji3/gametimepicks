@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T18:26:21Z",
- "sourceGeneratedAt": "2026-09-08T18:26:21Z",
+ "generatedAt": "2026-09-08T20:19:18Z",
+ "sourceGeneratedAt": "2026-09-08T20:19:18Z",
  "providerEventId": "401872659",
  "matchup": "BAL @ IND",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -14,22 +14,22 @@
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=3273, all promotion bars pass"
-  },
-  "player_reception_yds": {
-   "label": "Receiving yards",
    "state": "WITHHELD",
    "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
   },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
   "player_receptions": {
    "label": "Receptions",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=4789, all promotion bars pass"
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -54,16 +54,8 @@
    "team": "BAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 61.555,
-     "p10": 19.96,
-     "p25": 35.52,
-     "median": 55.64,
-     "p75": 81.79,
-     "p90": 110.43
-    },
     "anytime_td": {
-     "probability": 0.352265,
+     "probability": 0.391953,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -74,24 +66,16 @@
    "team": "IND",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 68.653,
-     "p10": 27.02,
-     "p25": 42.89,
-     "median": 64.06,
-     "p75": 89.58,
-     "p90": 115.18
-    },
-    "player_receptions": {
-     "mean": 1.727,
+    "player_reception_yds": {
+     "mean": 19.623,
      "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4
+     "p25": 3.02,
+     "median": 14.47,
+     "p75": 29.6,
+     "p90": 47.33
     },
     "anytime_td": {
-     "probability": 0.289016,
+     "probability": 0.322184,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -102,16 +86,16 @@
    "team": "IND",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.424,
+    "player_reception_yds": {
+     "mean": 35.995,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5
+     "p25": 11.78,
+     "median": 28.94,
+     "p75": 51.91,
+     "p90": 79.38
     },
     "anytime_td": {
-     "probability": 0.275659,
+     "probability": 0.30764,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -122,16 +106,16 @@
    "team": "BAL",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 4.838,
-     "p10": 2,
-     "p25": 3,
-     "median": 5,
-     "p75": 6,
-     "p90": 8
+    "player_reception_yds": {
+     "mean": 64.847,
+     "p10": 17.19,
+     "p25": 35,
+     "median": 59.29,
+     "p75": 87.86,
+     "p90": 119.15
     },
     "anytime_td": {
-     "probability": 0.271175,
+     "probability": 0.303931,
      "participation": "QUESTIONABLE"
     }
    }
@@ -142,16 +126,16 @@
    "team": "BAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.285,
+    "player_reception_yds": {
+     "mean": 14.742,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 8.62,
+     "p75": 22.6,
+     "p90": 39.5
     },
     "anytime_td": {
-     "probability": 0.223835,
+     "probability": 0.251882,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -163,7 +147,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.211651,
+     "probability": 0.237435,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -174,16 +158,16 @@
    "team": "IND",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 2.575,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5
+    "player_reception_yds": {
+     "mean": 32.044,
+     "p10": 1.36,
+     "p25": 11.42,
+     "median": 26.24,
+     "p75": 46.68,
+     "p90": 69.89
     },
     "anytime_td": {
-     "probability": 0.202668,
+     "probability": 0.227518,
      "participation": "QUESTIONABLE"
     }
    }
@@ -195,7 +179,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.18731,
+     "probability": 0.21141,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -206,16 +190,8 @@
    "team": "IND",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 9.224,
-     "p10": 0,
-     "p25": 0,
-     "median": 3.86,
-     "p75": 13.36,
-     "p90": 26.65
-    },
     "anytime_td": {
-     "probability": 0.166672,
+     "probability": 0.187628,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -226,16 +202,16 @@
    "team": "BAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.752,
-     "p10": 1,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5
+    "player_reception_yds": {
+     "mean": 31.942,
+     "p10": 2.16,
+     "p25": 11.41,
+     "median": 26.7,
+     "p75": 46.08,
+     "p90": 68.03
     },
     "anytime_td": {
-     "probability": 0.165389,
+     "probability": 0.186995,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -246,16 +222,8 @@
    "team": "IND",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 9.498,
-     "p10": 0,
-     "p25": 0,
-     "median": 4.44,
-     "p75": 14.4,
-     "p90": 26.74
-    },
     "anytime_td": {
-     "probability": 0.164557,
+     "probability": 0.185277,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -266,16 +234,16 @@
    "team": "IND",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.039,
+    "player_reception_yds": {
+     "mean": 12.168,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 6.05,
+     "p75": 18.99,
+     "p90": 34.2
     },
     "anytime_td": {
-     "probability": 0.157346,
+     "probability": 0.177255,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -286,16 +254,8 @@
    "team": "BAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 15.684,
-     "p10": 0,
-     "p25": 2.01,
-     "median": 9.95,
-     "p75": 23.69,
-     "p90": 39.56
-    },
     "anytime_td": {
-     "probability": 0.15215,
+     "probability": 0.172206,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -307,7 +267,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.148026,
+     "probability": 0.167592,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -318,16 +278,16 @@
    "team": "IND",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 3.187,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 4,
-     "p90": 6
+    "player_reception_yds": {
+     "mean": 37.759,
+     "p10": 5.49,
+     "p25": 15.81,
+     "median": 32.22,
+     "p75": 53.63,
+     "p90": 77.27
     },
     "anytime_td": {
-     "probability": 0.145939,
+     "probability": 0.164545,
      "participation": "QUESTIONABLE"
     }
    }
@@ -338,49 +298,17 @@
    "team": "BAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.417,
+    "player_reception_yds": {
+     "mean": 17.804,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 11.7,
+     "p75": 27.45,
+     "p90": 45.47
     },
     "anytime_td": {
-     "probability": 0.135765,
+     "probability": 0.153856,
      "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4874509",
-   "name": "DJ Giddens",
-   "team": "IND",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 12.7,
-     "p10": 0,
-     "p25": 1.1,
-     "median": 7.48,
-     "p75": 19.05,
-     "p90": 32.73
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4035671",
-   "name": "Tyler Huntley",
-   "team": "BAL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 10.578,
-     "p10": 0,
-     "p25": 0,
-     "median": 4.73,
-     "p75": 15.44,
-     "p90": 29.95
     }
    }
   }

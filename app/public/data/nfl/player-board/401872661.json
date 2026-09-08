@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T18:26:21Z",
- "sourceGeneratedAt": "2026-09-08T18:26:21Z",
+ "generatedAt": "2026-09-08T20:19:18Z",
+ "sourceGeneratedAt": "2026-09-08T20:19:18Z",
  "providerEventId": "401872661",
  "matchup": "CHI @ CAR",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -14,22 +14,22 @@
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=3273, all promotion bars pass"
-  },
-  "player_reception_yds": {
-   "label": "Receiving yards",
    "state": "WITHHELD",
    "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
   },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
   "player_receptions": {
    "label": "Receptions",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=4789, all promotion bars pass"
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -54,16 +54,8 @@
    "team": "CHI",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_rush_yds": {
-     "mean": 44.726,
-     "p10": 11.78,
-     "p25": 22.96,
-     "median": 39.63,
-     "p75": 61.05,
-     "p90": 83.86
-    },
     "anytime_td": {
-     "probability": 0.227387,
+     "probability": 0.240527,
      "participation": "QUESTIONABLE"
     }
    }
@@ -74,16 +66,16 @@
    "team": "CAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 3.09,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 4,
-     "p90": 6
+    "player_reception_yds": {
+     "mean": 38.617,
+     "p10": 4.79,
+     "p25": 15.78,
+     "median": 32.86,
+     "p75": 54.82,
+     "p90": 79.66
     },
     "anytime_td": {
-     "probability": 0.226479,
+     "probability": 0.239685,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -94,16 +86,16 @@
    "team": "CAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 3.313,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 6
+    "player_reception_yds": {
+     "mean": 45.188,
+     "p10": 6.83,
+     "p25": 19.44,
+     "median": 39.09,
+     "p75": 64.12,
+     "p90": 89.94
     },
     "anytime_td": {
-     "probability": 0.220736,
+     "probability": 0.23366,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -115,7 +107,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.217118,
+     "probability": 0.229754,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -126,16 +118,8 @@
    "team": "CAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 14.582,
-     "p10": 0,
-     "p25": 2.12,
-     "median": 9.55,
-     "p75": 21.33,
-     "p90": 37.04
-    },
     "anytime_td": {
-     "probability": 0.213924,
+     "probability": 0.226508,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -146,24 +130,16 @@
    "team": "CAR",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_rush_yds": {
-     "mean": 29.098,
-     "p10": 4.51,
-     "p25": 12.02,
-     "median": 24.25,
-     "p75": 41.01,
-     "p90": 59.82
-    },
-    "player_receptions": {
-     "mean": 1.35,
+    "player_reception_yds": {
+     "mean": 14.798,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 8.97,
+     "p75": 22.33,
+     "p90": 38.68
     },
     "anytime_td": {
-     "probability": 0.207225,
+     "probability": 0.219471,
      "participation": "QUESTIONABLE"
     }
    }
@@ -174,16 +150,16 @@
    "team": "CHI",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 3.527,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7
+    "player_reception_yds": {
+     "mean": 44.933,
+     "p10": 7.85,
+     "p25": 20.14,
+     "median": 38.9,
+     "p75": 62.9,
+     "p90": 90.07
     },
     "anytime_td": {
-     "probability": 0.177406,
+     "probability": 0.188009,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -194,16 +170,16 @@
    "team": "CAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.47,
+    "player_reception_yds": {
+     "mean": 16.674,
      "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "p25": 0.45,
+     "median": 10.93,
+     "p75": 25.9,
+     "p90": 42.1
     },
     "anytime_td": {
-     "probability": 0.157444,
+     "probability": 0.167056,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -214,16 +190,16 @@
    "team": "CHI",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.284,
+    "player_reception_yds": {
+     "mean": 16.053,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 9.56,
+     "p75": 24.57,
+     "p90": 42.56
     },
     "anytime_td": {
-     "probability": 0.156473,
+     "probability": 0.165951,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -234,16 +210,16 @@
    "team": "CAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.37,
+    "player_reception_yds": {
+     "mean": 16.712,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 10.8,
+     "p75": 25.74,
+     "p90": 42.28
     },
     "anytime_td": {
-     "probability": 0.151983,
+     "probability": 0.161294,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -254,24 +230,16 @@
    "team": "CHI",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_rush_yds": {
-     "mean": 30.646,
-     "p10": 4.96,
-     "p25": 12.65,
-     "median": 26.01,
-     "p75": 43.24,
-     "p90": 62.43
-    },
-    "player_receptions": {
-     "mean": 1.039,
+    "player_reception_yds": {
+     "mean": 12.594,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 6.21,
+     "p75": 19.27,
+     "p90": 35.31
     },
     "anytime_td": {
-     "probability": 0.138971,
+     "probability": 0.147481,
      "participation": "QUESTIONABLE"
     }
    }
@@ -282,16 +250,16 @@
    "team": "CHI",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 2.602,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5
+    "player_reception_yds": {
+     "mean": 34.542,
+     "p10": 2.13,
+     "p25": 11.99,
+     "median": 28.47,
+     "p75": 49.94,
+     "p90": 73.65
     },
     "anytime_td": {
-     "probability": 0.13183,
+     "probability": 0.139938,
      "participation": "QUESTIONABLE"
     }
    }
@@ -302,16 +270,16 @@
    "team": "CAR",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 1.775,
+    "player_reception_yds": {
+     "mean": 21.55,
      "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4
+     "p25": 3.94,
+     "median": 16.13,
+     "p75": 32.03,
+     "p90": 51.03
     },
     "anytime_td": {
-     "probability": 0.126337,
+     "probability": 0.134201,
      "participation": "QUESTIONABLE"
     }
    }
@@ -323,7 +291,7 @@
    "participation": "INACTIVE",
    "markets": {
     "anytime_td": {
-     "probability": 0.114765,
+     "probability": 0.121896,
      "participation": "INACTIVE"
     }
    },
@@ -335,16 +303,16 @@
    "team": "CAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.038,
+    "player_reception_yds": {
+     "mean": 12.578,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 5.82,
+     "p75": 19.3,
+     "p90": 35.76
     },
     "anytime_td": {
-     "probability": 0.106851,
+     "probability": 0.11358,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -355,33 +323,17 @@
    "team": "CHI",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 2.525,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5
+    "player_reception_yds": {
+     "mean": 31.799,
+     "p10": 0.59,
+     "p25": 10.36,
+     "median": 25.63,
+     "p75": 46.59,
+     "p90": 69.83
     },
     "anytime_td": {
-     "probability": 0.09896,
+     "probability": 0.105167,
      "participation": "QUESTIONABLE"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4431611",
-   "name": "Caleb Williams",
-   "team": "CHI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 13.21,
-     "p10": 0,
-     "p25": 0.9,
-     "median": 7.56,
-     "p75": 19.43,
-     "p90": 35.02
     }
    }
   }

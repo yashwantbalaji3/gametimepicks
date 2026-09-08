@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T18:26:21Z",
- "sourceGeneratedAt": "2026-09-08T18:26:21Z",
+ "generatedAt": "2026-09-08T20:19:18Z",
+ "sourceGeneratedAt": "2026-09-08T20:19:18Z",
  "providerEventId": "401872927",
  "matchup": "GB @ MIN",
  "kickoffUtc": "2026-09-13T20:25Z",
@@ -14,22 +14,22 @@
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=3273, all promotion bars pass"
-  },
-  "player_reception_yds": {
-   "label": "Receiving yards",
    "state": "WITHHELD",
    "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
   },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
   "player_receptions": {
    "label": "Receptions",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=4789, all promotion bars pass"
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -54,16 +54,8 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 11.392,
-     "p10": 0,
-     "p25": 0.13,
-     "median": 5.52,
-     "p75": 17.07,
-     "p90": 31.08
-    },
     "anytime_td": {
-     "probability": 0.295774,
+     "probability": 0.294487,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -75,7 +67,7 @@
    "participation": "INACTIVE",
    "markets": {
     "anytime_td": {
-     "probability": 0.263651,
+     "probability": 0.262163,
      "participation": "INACTIVE"
     }
    },
@@ -87,16 +79,16 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.198,
+    "player_reception_yds": {
+     "mean": 28.418,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4
+     "p25": 7.91,
+     "median": 22.55,
+     "p75": 42.54,
+     "p90": 64.44
     },
     "anytime_td": {
-     "probability": 0.241359,
+     "probability": 0.240268,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -107,24 +99,16 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 44.749,
-     "p10": 13.25,
-     "p25": 24,
-     "median": 40.09,
-     "p75": 60.46,
-     "p90": 81.99
-    },
-    "player_receptions": {
-     "mean": 2.302,
+    "player_reception_yds": {
+     "mean": 26.508,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5
+     "p25": 7.94,
+     "median": 20.83,
+     "p75": 38.71,
+     "p90": 58.44
     },
     "anytime_td": {
-     "probability": 0.228834,
+     "probability": 0.227791,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -135,16 +119,16 @@
    "team": "GB",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_receptions": {
-     "mean": 2.805,
-     "p10": 1,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5
+    "player_reception_yds": {
+     "mean": 37.668,
+     "p10": 2.77,
+     "p25": 14.08,
+     "median": 31.44,
+     "p75": 53.73,
+     "p90": 80.08
     },
     "anytime_td": {
-     "probability": 0.218593,
+     "probability": 0.217321,
      "participation": "QUESTIONABLE"
     }
    }
@@ -155,16 +139,8 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 33.394,
-     "p10": 5.34,
-     "p25": 13.97,
-     "median": 28.59,
-     "p75": 47.1,
-     "p90": 67.94
-    },
     "anytime_td": {
-     "probability": 0.218164,
+     "probability": 0.217163,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -175,16 +151,16 @@
    "team": "GB",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 3.114,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 4,
-     "p90": 6
+    "player_reception_yds": {
+     "mean": 41.008,
+     "p10": 5.11,
+     "p25": 16.57,
+     "median": 35.07,
+     "p75": 58.25,
+     "p90": 83.27
     },
     "anytime_td": {
-     "probability": 0.204393,
+     "probability": 0.203192,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -195,16 +171,16 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.18,
+    "player_reception_yds": {
+     "mean": 14.035,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 7.53,
+     "p75": 21.26,
+     "p90": 38.23
     },
     "anytime_td": {
-     "probability": 0.166914,
+     "probability": 0.166123,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -215,16 +191,16 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.312,
+    "player_reception_yds": {
+     "mean": 26.742,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5
+     "p25": 7.6,
+     "median": 21.16,
+     "p75": 39.17,
+     "p90": 60.37
     },
     "anytime_td": {
-     "probability": 0.162482,
+     "probability": 0.16171,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -235,16 +211,16 @@
    "team": "GB",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.487,
+    "player_reception_yds": {
+     "mean": 29.98,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5
+     "p25": 9.38,
+     "median": 23.9,
+     "p75": 44,
+     "p90": 66.92
     },
     "anytime_td": {
-     "probability": 0.141765,
+     "probability": 0.140899,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -255,16 +231,16 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 4.469,
-     "p10": 2,
-     "p25": 3,
-     "median": 4,
-     "p75": 6,
-     "p90": 8
+    "player_reception_yds": {
+     "mean": 56.293,
+     "p10": 13.97,
+     "p25": 28.97,
+     "median": 50.07,
+     "p75": 76.85,
+     "p90": 105.88
     },
     "anytime_td": {
-     "probability": 0.127433,
+     "probability": 0.126815,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -273,18 +249,10 @@
    "playerId": "nfl-athlete-4257364",
    "name": "Zavier Scott",
    "team": "MIN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "NOT_IN_POOL",
    "markets": {
-    "player_rush_yds": {
-     "mean": 8.655,
-     "p10": 0,
-     "p25": 0,
-     "median": 3.02,
-     "p75": 12.61,
-     "p90": 25.16
-    },
     "anytime_td": {
-     "probability": 0.124405,
+     "probability": 0.123801,
      "participation": "NOT_IN_POOL"
     }
    }
@@ -295,16 +263,16 @@
    "team": "GB",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.07,
+    "player_reception_yds": {
+     "mean": 25.687,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4
+     "p25": 6.43,
+     "median": 19.5,
+     "p75": 38.1,
+     "p90": 60.12
     },
     "anytime_td": {
-     "probability": 0.112162,
+     "probability": 0.111464,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -316,7 +284,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.100369,
+     "probability": 0.09974,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -328,7 +296,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.098107,
+     "probability": 0.097491,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -340,59 +308,11 @@
    "participation": "INACTIVE",
    "markets": {
     "anytime_td": {
-     "probability": 0.094966,
+     "probability": 0.09437,
      "participation": "INACTIVE"
     }
    },
    "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
-  },
-  {
-   "playerId": "nfl-athlete-4036378",
-   "name": "Jordan Love",
-   "team": "GB",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 7.536,
-     "p10": 0,
-     "p25": 0,
-     "median": 2.14,
-     "p75": 10.78,
-     "p90": 22.64
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-2573079",
-   "name": "Carson Wentz",
-   "team": "MIN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 7.452,
-     "p10": 0,
-     "p25": 0,
-     "median": 1.75,
-     "p75": 10.66,
-     "p90": 22.99
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3149687",
-   "name": "Chris Brooks",
-   "team": "GB",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 7.022,
-     "p10": 0,
-     "p25": 0,
-     "median": 1.43,
-     "p75": 9.79,
-     "p90": 21.5
-    }
-   }
   },
   {
    "playerId": "nfl-athlete-4428085",
@@ -400,13 +320,13 @@
    "team": "GB",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_receptions": {
-     "mean": 1.527,
+    "player_reception_yds": {
+     "mean": 18.041,
      "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "p25": 0.15,
+     "median": 11.64,
+     "p75": 27.6,
+     "p90": 45.91
     }
    }
   },
@@ -416,13 +336,13 @@
    "team": "GB",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_receptions": {
-     "mean": 1.377,
+    "player_reception_yds": {
+     "mean": 16.21,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 10.19,
+     "p75": 25.08,
+     "p90": 42.02
     }
    }
   }

@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T18:26:21Z",
- "sourceGeneratedAt": "2026-09-08T18:26:21Z",
+ "generatedAt": "2026-09-08T20:19:18Z",
+ "sourceGeneratedAt": "2026-09-08T20:19:18Z",
  "providerEventId": "401872931",
  "matchup": "DEN @ KC",
  "kickoffUtc": "2026-09-15T00:15Z",
@@ -14,22 +14,22 @@
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): coverOk"
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=3273, all promotion bars pass"
-  },
-  "player_reception_yds": {
-   "label": "Receiving yards",
    "state": "WITHHELD",
    "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
   },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
   "player_receptions": {
    "label": "Receptions",
-   "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=4789, all promotion bars pass"
+   "state": "WITHHELD",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): coverOk"
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -54,16 +54,16 @@
    "team": "DEN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.927,
-     "p10": 1,
-     "p25": 1,
-     "median": 3,
-     "p75": 4,
-     "p90": 6
+    "player_reception_yds": {
+     "mean": 37.294,
+     "p10": 4.01,
+     "p25": 15.05,
+     "median": 31.35,
+     "p75": 53.43,
+     "p90": 77.5
     },
     "anytime_td": {
-     "probability": 0.282773,
+     "probability": 0.274789,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -74,24 +74,16 @@
    "team": "DEN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 27.336,
-     "p10": 4.68,
-     "p25": 11.6,
-     "median": 22.74,
-     "p75": 37.86,
-     "p90": 56.15
-    },
-    "player_receptions": {
-     "mean": 2.17,
+    "player_reception_yds": {
+     "mean": 24.784,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4
+     "p25": 6.97,
+     "median": 19.7,
+     "p75": 36.7,
+     "p90": 56.21
     },
     "anytime_td": {
-     "probability": 0.255688,
+     "probability": 0.248333,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -102,16 +94,8 @@
    "team": "KC",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_rush_yds": {
-     "mean": 14.537,
-     "p10": 0,
-     "p25": 1.1,
-     "median": 8.66,
-     "p75": 21.57,
-     "p90": 38.01
-    },
     "anytime_td": {
-     "probability": 0.247331,
+     "probability": 0.239919,
      "participation": "QUESTIONABLE"
     }
    }
@@ -122,24 +106,16 @@
    "team": "KC",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 10.28,
-     "p10": 0,
-     "p25": 0.24,
-     "median": 5.16,
-     "p75": 15.12,
-     "p90": 28.05
-    },
-    "player_receptions": {
-     "mean": 1.221,
+    "player_reception_yds": {
+     "mean": 13.933,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 8.13,
+     "p75": 21.3,
+     "p90": 37.53
     },
     "anytime_td": {
-     "probability": 0.220494,
+     "probability": 0.213771,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -150,16 +126,16 @@
    "team": "KC",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 4.28,
-     "p10": 1,
-     "p25": 3,
-     "median": 4,
-     "p75": 6,
-     "p90": 8
+    "player_reception_yds": {
+     "mean": 52.954,
+     "p10": 12.69,
+     "p25": 26.98,
+     "median": 46.8,
+     "p75": 72.31,
+     "p90": 101.42
     },
     "anytime_td": {
-     "probability": 0.215974,
+     "probability": 0.20937,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -171,7 +147,7 @@
    "participation": "INACTIVE",
    "markets": {
     "anytime_td": {
-     "probability": 0.19286,
+     "probability": 0.187086,
      "participation": "INACTIVE"
     }
    },
@@ -183,16 +159,8 @@
    "team": "DEN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 17.935,
-     "p10": 0.26,
-     "p25": 4.33,
-     "median": 13.11,
-     "p75": 26.61,
-     "p90": 41.87
-    },
     "anytime_td": {
-     "probability": 0.180854,
+     "probability": 0.175401,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -203,16 +171,16 @@
    "team": "DEN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.15,
+    "player_reception_yds": {
+     "mean": 26.563,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4
+     "p25": 7.42,
+     "median": 20.58,
+     "p75": 38.9,
+     "p90": 59.67
     },
     "anytime_td": {
-     "probability": 0.167074,
+     "probability": 0.161995,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -223,16 +191,16 @@
    "team": "KC",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 3.321,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 6
+    "player_reception_yds": {
+     "mean": 39.988,
+     "p10": 6.68,
+     "p25": 17.02,
+     "median": 34.81,
+     "p75": 56.26,
+     "p90": 80.36
     },
     "anytime_td": {
-     "probability": 0.163938,
+     "probability": 0.158765,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -244,7 +212,7 @@
    "participation": "ACTIVE_PROJECTED",
    "markets": {
     "anytime_td": {
-     "probability": 0.159941,
+     "probability": 0.155058,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -255,16 +223,8 @@
    "team": "DEN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_rush_yds": {
-     "mean": 46.124,
-     "p10": 12.44,
-     "p25": 23.95,
-     "median": 41.02,
-     "p75": 62.47,
-     "p90": 86.55
-    },
     "anytime_td": {
-     "probability": 0.156792,
+     "probability": 0.151997,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -275,16 +235,16 @@
    "team": "DEN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.323,
+    "player_reception_yds": {
+     "mean": 16.392,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 10.3,
+     "p75": 24.95,
+     "p90": 43.41
     },
     "anytime_td": {
-     "probability": 0.142884,
+     "probability": 0.138479,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -295,16 +255,16 @@
    "team": "KC",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 1.104,
+    "player_reception_yds": {
+     "mean": 14.65,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 7.02,
+     "p75": 22.47,
+     "p90": 41.15
     },
     "anytime_td": {
-     "probability": 0.131009,
+     "probability": 0.126797,
      "participation": "ACTIVE_PROJECTED"
     }
    }
@@ -315,49 +275,17 @@
    "team": "KC",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
-    "player_receptions": {
-     "mean": 2.29,
+    "player_reception_yds": {
+     "mean": 29.492,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5
+     "p25": 8.87,
+     "median": 23.26,
+     "p75": 43.67,
+     "p90": 65.83
     },
     "anytime_td": {
-     "probability": 0.108437,
+     "probability": 0.104907,
      "participation": "ACTIVE_PROJECTED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4722893",
-   "name": "Jaleel McLaughlin",
-   "team": "DEN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 14.239,
-     "p10": 0,
-     "p25": 1.41,
-     "median": 8.69,
-     "p75": 21.18,
-     "p90": 36.77
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4044111",
-   "name": "Chris Oladokun",
-   "team": "KC",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 6.002,
-     "p10": 0,
-     "p25": 0,
-     "median": 0.74,
-     "p75": 7.87,
-     "p90": 18.76
     }
    }
   },
@@ -367,13 +295,13 @@
    "team": "KC",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_receptions": {
-     "mean": 1.387,
+    "player_reception_yds": {
+     "mean": 15.853,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
+     "median": 9.79,
+     "p75": 24.45,
+     "p90": 40.92
     }
    }
   },
@@ -383,13 +311,13 @@
    "team": "DEN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_receptions": {
-     "mean": 2.082,
+    "player_reception_yds": {
+     "mean": 25.417,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4
+     "p25": 6.69,
+     "median": 19.35,
+     "p75": 37.84,
+     "p90": 57.9
     }
    }
   },
@@ -399,13 +327,13 @@
    "team": "DEN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_receptions": {
-     "mean": 1.769,
+    "player_reception_yds": {
+     "mean": 20.77,
      "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4
+     "p25": 3.73,
+     "median": 15.01,
+     "p75": 31.55,
+     "p90": 49.92
     }
    }
   },
@@ -415,13 +343,13 @@
    "team": "DEN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_receptions": {
-     "mean": 1.708,
+    "player_reception_yds": {
+     "mean": 21.286,
      "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4
+     "p25": 3.18,
+     "median": 15.07,
+     "p75": 31.77,
+     "p90": 51.92
     }
    }
   }
