@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824063,
+  "date": "2026-09-08",
+  "capturedAt": "2026-09-08T18:12:39.625Z",
+  "availableAt": "2026-09-08T18:12:39.625Z",
+  "eventStartTime": "2026-09-08T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608379,
+      "name": "Michael Wacha",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32.67,
+        "ipAvg": 6.53,
+        "kAvg": 6.2,
+        "bbAvg": 0.6,
+        "erAvg": 2.2,
+        "hrAvg": 1.4,
+        "kPer9": 8.54,
+        "workloadIpLast5": 32.67
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 176.67,
+        "k": 143,
+        "bb": 44,
+        "er": 66,
+        "hr": 24
+      }
+    },
+    "away": {
+      "id": 669203,
+      "name": "Corbin Burnes",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-08T18:12:39.625Z"
+  },
+  "recordHash": "90b79de7ec684ce9eac10a6359e73268061957a9460c10da7e67b6544f349c2e"
+}
