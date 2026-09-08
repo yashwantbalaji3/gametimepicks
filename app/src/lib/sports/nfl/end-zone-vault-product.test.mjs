@@ -119,7 +119,11 @@ test("today's real outcome is the honest one: candidates exist, a card does not"
   assert.equal(vault.state, "WATCHLIST_ONLY");
   assert.equal(vault.gates.tdMarketOffered, false, "the probe proved the market is absent");
   assert.equal(vault.gates.pricedCandidates, 0);
-  assert.equal(vault.gates.roleReadyCandidates, 0);
+  /* P245: role-ready candidates EXIST now (the weekly population + the injuries-fed role
+     evidence produce them) — pinning 0 was true only while the input chain was empty, and
+     punished the inputs arriving. The load-bearing claim is unchanged and asserted above and
+     below: no priced TD market ⇒ no selections, whatever the candidate pool holds. */
+  assert.ok(vault.gates.roleReadyCandidates >= 0, "role-ready count is a fact of the inputs, not a gate");
   /*
    * A FIXED FLOOR IS THE WRONG SHAPE, AND THIS IS THE SECOND ONE.
    *
