@@ -1,8 +1,20 @@
 {
  "schemaVersion": 1,
  "artifact": "nfl-pass-yds-repair-evaluation",
+ "gamesimTotals": "matchup-totals-v1-decayed-points (integrated)",
+ "conditioning": "participation-true (DNP=void via participation-truth-v1)",
+ "populationContractVersion": 2,
+ "coverageMeasurement": "v2.1: mid-p for count families (player_receptions); inclusive for continuous families",
+ "populationAccounting": {
+  "contractVersion": 2,
+  "scoredWithRow": 8883,
+  "scoredPlayedNoRow": 700,
+  "voidDidNotDress": 0,
+  "excludedAmbiguous": 0,
+  "excludedSourceMissing": 0
+ },
  "dataClass": "PRIVATE_RESEARCH",
- "generatedAt": "2026-09-08T05:30:00Z",
+ "generatedAt": "2026-09-08T23:10:00Z",
  "engine": {
   "id": "nfl-player-props-v1-opportunity-efficiency",
   "version": 1
@@ -27,7 +39,7 @@
  "protocol": {
   "fit": "2023–24 REG+POST only: game-script volume OLS, league Σ-rates, Gamma dispersion (MoM, ≥30-opportunity players), rate shrink m walk-forward-selected inside 2023–24",
   "test": "held-out 2025, fully pre-game walk-forward chain (roles, rates, Elo cutoff, committed game-sim heads), sampled distributions, baselines on identical points",
-  "runs": 1000,
+  "runs": 1500,
   "thresholds": {
    "qbShare": 0.3,
    "carryShare": 0.05,
@@ -66,7 +78,7 @@
     "targets": 65.64
    },
    "gameSigma": {
-    "player_pass_yds": 0.1027,
+    "player_pass_yds": 0,
     "player_rush_yds": 0,
     "player_reception_yds": 0
    }
@@ -100,87 +112,91 @@
   }
  },
  "heldOut2025": {
-  "evaluatedPlayerMarkets": 13820,
+  "evaluatedPlayerMarkets": 9583,
   "realizedYardageCoverage": 0.9132,
   "table": {
    "player_pass_yds": {
-    "n": 969,
-    "mae": 81.415,
-    "rmse": 98.147,
-    "pinball": 27.012,
-    "interval80Coverage": 0.5707,
+    "n": 580,
+    "mae": 78.975,
+    "rmse": 100.101,
+    "pinball": 28.602,
+    "interval80Coverage": 0.6776,
+    "interval80CoverageInclusive": 0.6776,
     "thresholdCalibration": {
-     "pairs": 838,
-     "binsUsed": 6,
-     "ece": 0.042
+     "pairs": 0,
+     "binsUsed": 0,
+     "ece": null
     },
     "baselines": {
-     "rolling4Mae": 111.63,
-     "shareVolMae": 97.191,
-     "roleTierMae": 144.381,
-     "trailing8Pinball": 42.91,
-     "trailing8Cover80": 0.5095,
-     "trailing8N": 838
+     "rolling4Mae": 71.912,
+     "shareVolMae": 70.352,
+     "roleTierMae": 76.226,
+     "trailing8Pinball": 24.999,
+     "trailing8Cover80": 0.7301,
+     "trailing8N": 515
     }
    },
    "player_rush_yds": {
-    "n": 3273,
-    "mae": 16.093,
-    "rmse": 23.692,
-    "pinball": 5.174,
-    "interval80Coverage": 0.7412,
+    "n": 1853,
+    "mae": 18.991,
+    "rmse": 28.566,
+    "pinball": 7.032,
+    "interval80Coverage": 0.742,
+    "interval80CoverageInclusive": 0.742,
     "thresholdCalibration": {
-     "pairs": 2702,
-     "binsUsed": 7,
-     "ece": 0.0297
+     "pairs": 0,
+     "binsUsed": 0,
+     "ece": null
     },
     "baselines": {
-     "rolling4Mae": 21.182,
-     "shareVolMae": 18.087,
-     "roleTierMae": 22.782,
-     "trailing8Pinball": 8.059,
-     "trailing8Cover80": 0.5928,
-     "trailing8N": 2721
+     "rolling4Mae": 20.66,
+     "shareVolMae": 19.008,
+     "roleTierMae": 29.016,
+     "trailing8Pinball": 7.725,
+     "trailing8Cover80": 0.7372,
+     "trailing8N": 1617
     }
    },
    "player_reception_yds": {
-    "n": 4789,
-    "mae": 20.808,
-    "rmse": 27.098,
-    "pinball": 6.559,
-    "interval80Coverage": 0.8219,
+    "n": 3575,
+    "mae": 20.191,
+    "rmse": 27.733,
+    "pinball": 6.992,
+    "interval80Coverage": 0.8319,
+    "interval80CoverageInclusive": 0.8319,
     "thresholdCalibration": {
-     "pairs": 4462,
-     "binsUsed": 7,
-     "ece": 0.0761
+     "pairs": 0,
+     "binsUsed": 0,
+     "ece": null
     },
     "baselines": {
-     "rolling4Mae": 24.198,
-     "shareVolMae": 21.862,
-     "roleTierMae": 24.216,
-     "trailing8Pinball": 8.598,
-     "trailing8Cover80": 0.7066,
-     "trailing8N": 4462
+     "rolling4Mae": 22.489,
+     "shareVolMae": 20.775,
+     "roleTierMae": 25.062,
+     "trailing8Pinball": 7.95,
+     "trailing8Cover80": 0.7646,
+     "trailing8N": 3326
     }
    },
    "player_receptions": {
-    "n": 4789,
-    "mae": 1.639,
-    "rmse": 2.054,
-    "pinball": 0.531,
-    "interval80Coverage": 0.8597,
+    "n": 3575,
+    "mae": 1.507,
+    "rmse": 1.991,
+    "pinball": 0.518,
+    "interval80Coverage": 0.752,
+    "interval80CoverageInclusive": 0.8839,
     "thresholdCalibration": {
-     "pairs": 4462,
-     "binsUsed": 8,
-     "ece": 0.057
+     "pairs": 0,
+     "binsUsed": 0,
+     "ece": null
     },
     "baselines": {
-     "rolling4Mae": 1.901,
-     "shareVolMae": 1.745,
-     "roleTierMae": 1.881,
-     "trailing8Pinball": 0.688,
-     "trailing8Cover80": 0.74,
-     "trailing8N": 4462
+     "rolling4Mae": 1.651,
+     "shareVolMae": 1.558,
+     "roleTierMae": 1.803,
+     "trailing8Pinball": 0.585,
+     "trailing8Cover80": 0.8238,
+     "trailing8N": 3326
     }
    }
   }
@@ -195,21 +211,21 @@
   "player_pass_yds": {
    "state": "RESEARCH_ONLY",
    "evidence": {
-    "beatsRolling": true,
-    "beatsShareVol": true,
+    "beatsRolling": false,
+    "beatsShareVol": false,
     "coverOk": false,
-    "calOk": true,
-    "n": 969
+    "calOk": false,
+    "n": 580
    }
   },
   "player_rush_yds": {
-   "state": "PUBLIC_ELIGIBLE",
+   "state": "SHADOW_ELIGIBLE",
    "evidence": {
     "beatsRolling": true,
     "beatsShareVol": true,
     "coverOk": true,
-    "calOk": true,
-    "n": 3273
+    "calOk": false,
+    "n": 1853
    }
   },
   "player_reception_yds": {
@@ -219,7 +235,7 @@
     "beatsShareVol": true,
     "coverOk": true,
     "calOk": false,
-    "n": 4789
+    "n": 3575
    }
   },
   "player_receptions": {
@@ -229,7 +245,7 @@
     "beatsShareVol": true,
     "coverOk": true,
     "calOk": false,
-    "n": 4789
+    "n": 3575
    }
   },
   "player_pass_int": {
@@ -245,10 +261,14 @@
   "threshold calibration uses the rolling-4 mean as the line proxy (no historical sportsbook lines exist in this repo); P(over) is read off the true sampled distribution as a post-sampling read-out",
   "rush yards are Gamma (non-negative): true negative rushing games exist and are outside v1 support — a stated limitation"
  ],
+ "jointExtra": {
+  "player_pass_tds": null,
+  "anytime_td_joint": null
+ },
  "challenger": {
-  "id": "pass-gamesigma-pooled-mean-v1",
-  "preregistration": "data/internal/research/nfl/reports/pass-yds-coverage-repair-preregistration.json",
+  "id": "nfl-joint-sim-v1",
+  "preregistration": "data/internal/research/nfl/reports/joint-sim-preregistration.json",
   "champion": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
-  "scope": "gameSigma.player_pass_yds estimator only"
+  "scope": "the joint generator's marginals scored under the identical walk-forward chain and population contract; pass yds GROSS; passTd/anytime collectors per prereg"
  }
 }

@@ -248,6 +248,88 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             sub="Only families that cleared their own evaluation bars carry numbers; each row wears its availability state, and volume projections are withheld for players listed out."
           />
           <NflPlayerBoard board={playerBoard} teams={[f.away.abbr, f.home.abbr]} />
+
+          {/* P249 §8 — the RECEIVING table: the three published families for one player on one
+              row (a scorecard view, grouped by player instead of family tabs). Server-rendered
+              from the same artifact; an unsupported family simply has no column here. */}
+          {(() => {
+            const fams = playerBoard.families;
+            const has = (k: string) => fams[k]?.state === "PUBLISHED";
+            if (!has("player_receptions") || !has("player_reception_yds")) return null;
+            const rows = playerBoard.players
+              .filter((p) => p.markets.player_receptions || p.markets.player_reception_yds)
+              .sort((a, b) => (b.markets.player_receptions?.median ?? 0) - (a.markets.player_receptions?.median ?? 0))
+              .slice(0, 14);
+            if (!rows.length) return null;
+            const td = (extra: Record<string, string | number> = {}) => ({ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, ...extra });
+            return (
+              <div style={{ marginTop: 18 }}>
+                <h3 style={{ margin: "0 0 6px", fontSize: 13.5, fontWeight: 700, color: "var(--vault-text)" }}>Receiving, one row per player</h3>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
+                    <thead>
+                      <tr>
+                        {["Player", "Team", "Receptions (10th–90th)", "Rec yards (10th–90th)", has("anytime_td") ? "TD chance" : null].filter(Boolean).map((h) => (
+                          <th key={h as string} scope="col" style={{ textAlign: "left", padding: "6px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((p) => {
+                        const rec = p.markets.player_receptions;
+                        const ry = p.markets.player_reception_yds;
+                        const at = p.markets.anytime_td;
+                        return (
+                          <tr key={`recv-${p.playerId}`}>
+                            <td style={td({ fontSize: 13, fontWeight: 600 })}>{p.name}</td>
+                            <td className="font-mono" style={td({ fontSize: 11, color: "var(--vault-text-mute)" })}>{p.team}</td>
+                            <td className="font-mono" style={td()}>{rec ? <>{rec.median} <span style={{ color: "var(--vault-text-faint)" }}>({rec.p10}–{rec.p90})</span></> : "—"}</td>
+                            {/* yards rounded for display — raw hundredths beside integer counts read as false precision */}
+                            <td className="font-mono" style={td()}>{ry ? <>{Math.round(ry.median ?? 0)} <span style={{ color: "var(--vault-text-faint)" }}>({Math.round(ry.p10 ?? 0)}–{Math.round(ry.p90 ?? 0)})</span></> : "—"}</td>
+                            {has("anytime_td") ? <td className="font-mono" style={td({ fontWeight: 700, color: "var(--gtp-bank-cta)" })}>{at?.probability != null ? `${(at.probability * 100).toFixed(1)}%` : "—"}</td> : null}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <p style={{ margin: "8px 0 0", fontSize: 11, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+                  Columns are marginal medians and percentiles from the evaluated per-family heads over one shared
+                  game environment — expected statistical summaries, not one simulated game, so rows need not add
+                  up to a single box score. Passing and rushing columns are absent because those families have not
+                  cleared their bars.
+                </p>
+              </div>
+            );
+          })()}
+
+          {/* P249 §8 — scoring outlook: the game's TD candidates with their availability states. */}
+          {(() => {
+            if (playerBoard.families.anytime_td?.state !== "PUBLISHED") return null;
+            const top = playerBoard.players
+              .filter((p) => p.markets.anytime_td?.probability != null && p.participation !== "INACTIVE")
+              .sort((a, b) => b.markets.anytime_td!.probability! - a.markets.anytime_td!.probability!)
+              .slice(0, 6);
+            if (!top.length) return null;
+            return (
+              <div style={{ marginTop: 18 }}>
+                <h3 style={{ margin: "0 0 6px", fontSize: 13.5, fontWeight: 700, color: "var(--vault-text)" }}>Scoring outlook</h3>
+                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
+                  {top.map((p) => (
+                    <li key={`out-${p.playerId}`} className="font-mono" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
+                      <strong style={{ color: "var(--gtp-bank-cta)" }}>{(p.markets.anytime_td!.probability! * 100).toFixed(1)}%</strong>{" "}
+                      <span style={{ color: "var(--vault-text)" }}>{p.name}</span> · {p.team}
+                      {p.participation !== "ACTIVE_PROJECTED" ? <span style={{ color: "var(--vault-text-faint)" }}> · {p.participation.toLowerCase().replaceAll("_", " ")}</span> : null}
+                    </li>
+                  ))}
+                </ul>
+                <p style={{ margin: "8px 0 0", fontSize: 11, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+                  Anytime-scorer probability means scoring a touchdown — never throwing one. Void if the player does
+                  not play; questionable players carry their state above.
+                </p>
+              </div>
+            );
+          })()}
         </section>
       ) : null}
 

@@ -754,3 +754,65 @@ stamp + researchEligible consumption + batter_total_bases artifact layer (Engine
 provenance propagation + dead-code consolidation (Engineering) · UFC governed gaps (founder) ·
 week-table/hub component consolidation (Product) · per-instance interaction register + physical
 devices (QA) · founder gates unchanged (odds renewal, BB accounting, legal, analytics).
+
+---
+
+# PROGRAM 249 — joint simulation, player research and projected scorecards
+
+Baseline 18:23 EDT Sep 8 (30 min after P248): clean tree, green CI, no incidents.
+
+## §12 verdicts
+- **EVALUATION_FOUNDATION: HELD.** Dual coverage conventions now on every receipt (mid-p gate
+  + inclusive shown-range fraction — receptions 0.7571 / 0.8845); public labels verified
+  quantile-semantic ("10th/90th percentile", no 80%-band claim). The output contract matrix
+  (nfl-output-contract-matrix.json) maps every family's inputs/conditioning/evaluation/label/
+  settlement and named the four joint-engine gaps this program then addressed.
+- **JOINT_GAME_ENGINE: COHERENT_BUT_NOT_PROMOTED.** nfl-joint-sim-v1 built as an accurately-
+  named opportunity-based joint generator (never a drive simulator): per-draw QB gross passing
+  ≡ team receiving; passing TDs ≡ receiving TDs (never QB scoring); TDs ~ trunc-Poisson of the
+  committed bridge λ(drawn score) ≤ floor(score/6); score decomposes with a non-negative
+  kicks/defense bucket; explicit unallocated masses; P(2+) from count draws. Invariants +
+  correlation-as-output proven on 6000 draws — including a self-caught test bug (own/opp score
+  correlation is variance-implied NEGATIVE here; the first assertion forced "positive").
+  Real-game probe (NE@SEA) coherent against the published team heads. **Preregistered
+  identical-points evaluation: receiving yards NON-INFERIOR (mae better); receptions fails ece
+  by 0.012; gross passing loses to rolling4; passing TDs (first evaluation) lose to the train
+  base rate 0.80 vs 0.59; joint anytime-TD degrades the calibrated engine 0.61 vs 0.5214.**
+  No family flips engines; the joint engine stays private research; published forecasts keep
+  the truthful label "independently calibrated marginal heads over one shared game
+  environment". Identical-points discipline caught two population bugs (legacy conditioning;
+  emission-set drift) before they could flatter the candidate. The rolled-back-batch class
+  struck once (a failed multi-edit assert reverted five edits silently; recovered by
+  re-verifying each anchor).
+- **TEAM_FORECASTS: PUBLISHED, unchanged.**
+- **PLAYER_FAMILY receptions/receiving/TD: PUBLISHED, unchanged** (P248 evidence; the joint
+  candidate did not displace them). **passing/rushing: WITHHELD, unchanged** — the joint
+  mechanism confirmed passing's center problem (rolling4 still wins) and localized the TD-
+  quality gap (the calibrated engine's grid-selected shrink does real work raw shares discard).
+  Next candidates unchanged and named.
+- **PROJECTED_SCORECARD: vertical slice SHIPPED.** The game report gains the §8 receiving
+  table (one row per player: receptions + receiving yards + TD chance, yards display-rounded)
+  and a scoring outlook (top candidates with availability states, "scoring — never throwing"
+  semantics), all server-rendered from the canonical per-game artifact with the honest
+  "expected statistical summaries, not one simulated game" label. Passing/rushing columns
+  absent BECAUSE unsupported, stated. A zero-fill guard catch was fixed by removing a dead
+  `?? 0` (absence stays typed).
+- **WEEKLY_BOARDS: unchanged** (canonical owner; week routes live).
+- **PRICED_SELECTIONS: NONE** (founder-gated authorization; unchanged).
+- **CERTIFICATION: suite 5512/0 · build OK · built 464/0** on the final tree; browser matrix
+  and physical-device status carried (P247: 524/0/18; REAL_DEVICE_CHECK_PENDING).
+
+## Deep-research disposition (charter §4, honestly scoped)
+No broad player-by-player web research was run: the canonical datasets already carry the
+consequential inputs (walk-forward roles/rates, live injuries feed → participation states,
+snap-count ground truth), and the charter's own rule prefers canonical sources over
+duplicative searches. The structured inputs the product actually consumes are enumerated in
+the contract matrix with used/available-unvalidated/unavailable status. OL/defensive
+personnel, weather and market factors remain UNAVAILABLE-to-the-model and are not narrated
+anywhere as if consumed.
+
+## Named residuals (owners unchanged)
+Joint TD mechanism inheriting the calibrated engine (Modeling; prereg) · pass center /
+share-continuous spread (Modeling; prereg) · rush share-conditional center (Modeling; prereg)
+· targets family evaluation before any targets column (Modeling) · founder gates (odds, BB
+accounting, legal, analytics) · physical devices (QA).
