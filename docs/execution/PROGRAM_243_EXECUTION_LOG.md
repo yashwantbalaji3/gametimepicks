@@ -616,3 +616,54 @@ withheld (coverOk); rushing withheld (calOk); passing withheld (beatsRolling…)
 followed the receipts with zero board-builder edits, live before first kickoff.
 
 Gates: suite 5499/0 · build OK · built 464/0.
+
+---
+
+# PROGRAM 247 — §13 CLOSEOUT
+
+## Per-game Week-1 matrix (live artifacts, 20:19Z production regeneration)
+All 16 games: report link live · winner = nfl-regular-season-public-v1 (Elo-logistic, analytic)
+· total.head = matchup-totals-v1-decayed-points (44–52, scores sum exactly) · participation
+freshness 18:26Z injuries-fed · **TD PUBLISHED + receiving yards PUBLISHED** on every game
+(10–21 modeled players/board) · rushing/receptions/passing WITHHELD on every game with their
+exact bars · market state NO_MARKET everywhere (P171 authorization expired — founder-gated;
+no priced pick or value language anywhere) · integration status: INTEGRATED (one totals
+assumption across team artifact, player chain, and research context).
+
+## Model comparison (all on reused-2025; 2026 forward record decides — see annexes)
+| candidate | scope | verdict | key numbers |
+| props-gamesim-matchup-totals-v1 | totals input to player chain | ACCEPTED | deltas <0.5%, invariance derived + confirmed |
+| pass-starter-conditioning-v1 | starter eligibility + share floor | REJECTED | cov 0.703, ece 0.119, loses to shareVol by 13 yds |
+| participation-true-conditioning-v1 | population + γ re-selection | ACCEPTED | γ grid inverted (1.00); recYds PUBLIC ece 0.016; receptions/rush demoted; pass loses to baselines |
+
+## Statuses (separate, as required)
+- **Capability**: four sports generating daily on their owned pipelines; NFL week fully
+  covered; participation ground truth now a committed corpus.
+- **Quality**: honest per the participation-true receipts — 2 player families publication-grade
+  (TD, receiving yds), 2 SHADOW with named bars, passing RESEARCH_ONLY and recorded as losing
+  to its baselines. NOT "complete": passing/rushing/receptions remain unsupported for
+  publication, and that is stated on every surface that would show them.
+- **Publication**: boards/reports followed the receipts through a production-owned
+  regeneration (observed, 20:19Z); prod serving the flip.
+- **Pricing**: none current for NFL (expired authorization; founder decision; prepared ask =
+  bulk h2h+props scope quote, NOT renewed here).
+- **Certification**: suite 5499/0 · built 464/0 · e2e 524/0/18 (3 engines × 6 viewports);
+  a11y structural 0; REAL_DEVICE_CHECK_PENDING stands (no hardware this session).
+
+## NOT claimed complete (charter §13 explicitly)
+Passing/receiving/rushing full support (2 of 5 volume families publish); Release D week
+URLs/prev-next navigation (single-week capture makes it near-vacuous today — carried); §G full
+page-by-page review and §H per-instance interaction inventory beyond the standing matrix
+(carried); MLB team-markets staleness stamp + researchEligible consumption + batter_total_bases
+artifact-layer block (carried, named); EPL provenance-caveat propagation to the published
+validation block + dead-code consolidation (carried); UFC graded-picks market-column now
+renders but the two governed gaps stand untouched. Founder gates unchanged (odds renewal, BB
+step/cycle accounting, legal, analytics provisioning, UFC graduation supersession).
+
+## The honest headline
+A new visitor tonight sees: 16 team reports with matchup-specific totals whose scores add up,
+a TD board and a receiving-yards board that cleared real bars on the market's own void rules,
+three families that say exactly why they are absent, no prices implied anywhere — and a
+results/model-audit page that discloses this week's own defects (186 post-start archived
+simulations) rather than hiding them. The product is smaller than yesterday's claims and more
+true than yesterday's claims.
