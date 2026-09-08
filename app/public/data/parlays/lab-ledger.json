@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-07T18:53:52Z",
+ "generatedAt": "2026-09-08T09:54:50Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -14,23 +14,24 @@
   {
    "id": "mlb",
    "label": "MLB",
-   "live": true,
+   "live": false,
+   "blocked": "no price capture for 2026-09-08 yet — the sport's own generation runs later in the day (newest capture 2026-09-07); only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
-    "pricedGames": 8,
-    "pricesCapturedAt": "2026-09-07T18:45:05.867Z",
-    "priceAgeDays": 0.01,
+    "pricedGames": 0,
+    "pricesCapturedAt": null,
+    "priceAgeDays": null,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
-   "settledDays": 19,
+   "settledDays": 20,
    "record": {
     "wins": 8,
-    "losses": 33,
+    "losses": 36,
     "pushes": 0,
-    "staked": 41,
+    "staked": 44,
     "returned": 35.15,
-    "hitRate": 0.1951,
-    "roi": -0.1427
+    "hitRate": 0.1818,
+    "roi": -0.2011
    },
    "byTier": {
     "low": {
@@ -44,30 +45,30 @@
     },
     "medium": {
      "wins": 7,
-     "losses": 9,
+     "losses": 10,
      "pushes": 0,
-     "staked": 16,
+     "staked": 17,
      "returned": 21.32,
-     "hitRate": 0.4375,
-     "roi": 0.3325
+     "hitRate": 0.4118,
+     "roi": 0.2541
     },
     "high": {
      "wins": 0,
-     "losses": 8,
+     "losses": 9,
      "pushes": 0,
-     "staked": 8,
+     "staked": 9,
      "returned": 0,
      "hitRate": 0,
      "roi": -1
     },
     "longshot": {
      "wins": 1,
-     "losses": 15,
+     "losses": 16,
      "pushes": 0,
-     "staked": 16,
+     "staked": 17,
      "returned": 13.83,
-     "hitRate": 0.0625,
-     "roi": -0.1356
+     "hitRate": 0.0588,
+     "roi": -0.1865
     }
    }
   },
@@ -75,11 +76,11 @@
    "id": "nfl",
    "label": "NFL",
    "live": false,
-   "blocked": "the last price capture is 9.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "blocked": "the last price capture is 9.7 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-08-29T17:50:39Z",
-    "priceAgeDays": 9.04,
+    "priceAgeDays": 9.67,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -140,7 +141,7 @@
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-09-05T13:36:57Z",
-    "priceAgeDays": 2.22,
+    "priceAgeDays": 2.85,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true
    },
@@ -200,7 +201,7 @@
    "evidence": {
     "pricedGames": 18,
     "pricesCapturedAt": "2026-09-06T15:00:44Z",
-    "priceAgeDays": 1.16,
+    "priceAgeDays": 1.79,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },
@@ -256,14 +257,13 @@
   {
    "id": "multi",
    "label": "Multi-sport",
-   "live": true,
+   "live": false,
+   "blocked": "a cross-sport card needs two live sports; only Premier League is cleared",
    "evidence": {
     "liveSports": [
-     "mlb",
      "epl"
     ],
     "liveLabels": [
-     "MLB",
      "Premier League"
     ]
    },
@@ -322,11 +322,11 @@
   "label": "Before the 2026-08-17 selection change",
   "summary": "Up to six cards per tier, legs reused across tiers, cards up to six legs",
   "firstDay": "2026-05-25",
-  "lastDay": "2026-09-06",
-  "gradedDays": 69,
-  "wins": 273,
-  "losses": 1166,
-  "roi": -0.0238,
+  "lastDay": "2026-09-07",
+  "gradedDays": 70,
+  "wins": 275,
+  "losses": 1188,
+  "roi": -0.0351,
   "note": "A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now."
  }
 }
