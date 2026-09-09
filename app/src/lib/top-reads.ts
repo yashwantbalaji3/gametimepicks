@@ -79,7 +79,7 @@ const PROVENANCE: Record<string, string> = {
    * direction.
    */
   ufc: "A fitted fight model that cleared its preregistered bar on a held-out sample — the exact counts live in its committed evaluation receipt.",
-  nfl: "An experimental regular-season model publishing forecasts-of-record before kickoff. Evaluated on a held-out season; not shown to beat the sportsbook market, and its 2026 walk-forward record is still accumulating.",
+  nfl: "An experimental regular-season model publishing forecasts-of-record before kickoff. Evaluated on a held-out season; not shown to out-predict the sportsbook, and its 2026 walk-forward record is still accumulating.",
 };
 
 /**
@@ -256,7 +256,8 @@ export function loadTopReads(): TopReadsSet | null {
       probability: w.probability,
       market: "Fight winner",
       context: `${b.weightClass ?? "bout"}${b.prediction?.method?.most ? ` · model reads ${b.prediction.method.most}` : ""}`,
-      href: "/ufc/",
+      /* P250 · Phase 6: deep-link the bout's own anchor on the card page, not the general hub. */
+      href: b.boutId ? `/ufc/#bout-${b.boutId}` : "/ufc/",
     });
   }
 
