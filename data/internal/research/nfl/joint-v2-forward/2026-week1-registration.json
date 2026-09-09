@@ -1,0 +1,189 @@
+{
+ "artifact": "nfl-joint-v2-forward-registration",
+ "dataClass": "PRIVATE_RESEARCH",
+ "registeredAt": "2026-09-09T02:39:21.961Z",
+ "period": {
+  "season": 2026,
+  "seasonType": 2,
+  "week": 1
+ },
+ "engine": "nfl-joint-sim-v2",
+ "conditioner": "nfl-joint-depth-v1",
+ "status": "FROZEN_AWAITING_RESULTS",
+ "rules": {
+  "cohort": "all 16 Week-1 games; no removing adverse outcomes",
+  "revisionPolicy": "these exact captures are the study record; newer runs cannot replace them",
+  "settlement": "official finals and player stats only; missing/ambiguous outcomes remain explicit; original family participation rules retained",
+  "metrics": "same MAE, pinball, coverage, calibration and baseline comparisons as development; report all families and denominators",
+  "promotion": "NONE; one week is a diagnostic cohort, not proof of public readiness"
+ },
+ "sourceHashes": {
+  "src/lib/sports/nfl/joint-game-sim-v2.mjs": "56a3f33ccea5f504322762978b4a41a07e29f8eb71d2ba4e0a9c20d145f548e6",
+  "src/lib/sports/nfl/joint-matchup-v2.mjs": "a355916ffbfca5252dfc2f8f0ce71aaebec928f6e045e53a09337ae1325dd145",
+  "src/lib/sports/nfl/joint-roster-reconciliation.mjs": "61e14d3c16d923b8131a530153eff9de59bf8353d1be1c36bb1ad39094e3fa72",
+  "src/lib/sports/nfl/depth-chart-snapshots.mjs": "2426c815b835d2532b2f96710aa476ed9b69413d3e38c22209e8e2d41615a6e3",
+  "scripts/nfl/capture-joint-v2-forward.mjs": "181d749d9efdc4926336ebc76bc15ea582fae467fff2ff5ecd28e49a47940e0c"
+ },
+ "cohort": [
+  {
+   "providerEventId": "401872656",
+   "kickoffUtc": "2026-09-10T00:20Z",
+   "capture": "401872656-138238134962ad8df48c.json",
+   "sha256": "d78e0c6cf93c2988d72adf837ed19a19ef8a8218fb3e31d51120231d7cb950a5",
+   "inputHash": "138238134962ad8df48c31c8c28d4de20797d6eb502dcc231c994d569a5fa84c",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872657",
+   "kickoffUtc": "2026-09-11T00:35Z",
+   "capture": "401872657-6fe0a4d25d9b66540b3c.json",
+   "sha256": "17682d2d367beb0563c616c2c7cf7138c6653423ed13fe99b76c87ba6ce3115e",
+   "inputHash": "6fe0a4d25d9b66540b3c4d8beb6b2728e3bebb5048e8059257701d4271d0d6fa",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872925",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "capture": "401872925-65cdbde304294be0aa2e.json",
+   "sha256": "0db228e40b9057f636503f46124c0ec7bea4d785ab7542572dc46d0a0f472c78",
+   "inputHash": "65cdbde304294be0aa2eb80a56448d423f5c7a26e26edfff5cca19431c495339",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872923",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "capture": "401872923-a5b668af947bcba925ae.json",
+   "sha256": "1843be5ec926bf0d98fa2dccec22fb6bd2e45f2b89439647b2fe2d1d1ae1476c",
+   "inputHash": "a5b668af947bcba925aeea572de03682249138742bf4e91c57a9058a3d23b278",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872924",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "capture": "401872924-83dfd79920874277081b.json",
+   "sha256": "d82a1452f4d031fc0ee75be941c7ba024faa781b0b48df484f92d789bef39326",
+   "inputHash": "83dfd79920874277081b7131dbe34852a566430bc79833be995564675d57812c",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872659",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "capture": "401872659-d5033f4556d43e9fc641.json",
+   "sha256": "420e34bd82b5e73a5e6519b450edf97427be3696d9463ba4671e77c60148ef26",
+   "inputHash": "d5033f4556d43e9fc641a8b5afc9c5d21afc18ad83162858b7a706aa9216c6c7",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872658",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "capture": "401872658-c8ce00dbb4d94de5b89a.json",
+   "sha256": "f08b108f363f366203b7c64c9755391b9836cacb37014871d83dd738657db0d4",
+   "inputHash": "c8ce00dbb4d94de5b89adc926d63f402516d8b79928aa02ddc15b73cd48ded0f",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872661",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "capture": "401872661-328e8480bab8710545bd.json",
+   "sha256": "f7b3991c3f1c72408f6d001fc2de7f87335eae54c851e300e41758403f88c4f5",
+   "inputHash": "328e8480bab8710545bd33da9be10d27b92e015045d42df1e937aef4a818f8b9",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872922",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "capture": "401872922-2b627fb2106c488ab75e.json",
+   "sha256": "1443139ca3578fb8d2c868a698c53d460e6da9adcebcbeef94c3532ee219028b",
+   "inputHash": "2b627fb2106c488ab75e3c650392eaf2e1799a9ce95b65891763a3546ff28e40",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872660",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "capture": "401872660-777e762455556ee6049c.json",
+   "sha256": "622ab259a59c744b8e2220fc7355c35f339064e3d0f71b77392a6ec8395d2a9e",
+   "inputHash": "777e762455556ee6049c279e209d9939360c0debcadabd7dd56beea1f6bb182e",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872928",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "capture": "401872928-ec4cfa88b785f6fd5cf8.json",
+   "sha256": "81f02aae6d6f591a06f3a7414062be968f1fc872abb8a180a5a06120c6ff6934",
+   "inputHash": "ec4cfa88b785f6fd5cf86c96bcd757f947a301c23141429d0bb9118b8954eece",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872927",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "capture": "401872927-f119c4203888e9032ba7.json",
+   "sha256": "36b15b129b1e37b9ed7aef92cb26cdce3429c25ce846c0a07c31a01ade1f7cc9",
+   "inputHash": "f119c4203888e9032ba7cf1e43f2a23e191baa3247998f9f498ebab0fcc496e8",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872929",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "capture": "401872929-a93693ad5dc5554ed144.json",
+   "sha256": "a99eccd2a4b0da359f3dfb47fd2dec4b996435dc41f2fdc33e75f04246eebe6d",
+   "inputHash": "a93693ad5dc5554ed144370a484470707879f1f94651ca3ee1b3095c4ecb7cd4",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872926",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "capture": "401872926-ee254cc7262d531ef598.json",
+   "sha256": "8434db44b7d60692b0dfea666f27288e8b49d4370bb108e53482c6b381ad5c53",
+   "inputHash": "ee254cc7262d531ef598a3c439846d652e7b49a0e3a652fa9e80c8f86d4386bb",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872930",
+   "kickoffUtc": "2026-09-14T00:20Z",
+   "capture": "401872930-27f4b4f26b14178a0fb6.json",
+   "sha256": "f8d1bee45ca8ba92dd406ba843440ec02b9efaaf0b5f49e0d0296c4155832de6",
+   "inputHash": "27f4b4f26b14178a0fb6b2633e4752b2f2bbc3875352fb21d46a60619d1d086c",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  },
+  {
+   "providerEventId": "401872931",
+   "kickoffUtc": "2026-09-15T00:15Z",
+   "capture": "401872931-958624e4731919816f6f.json",
+   "sha256": "c2a84cf67a4fa4ec4c462ecf9e38bdb6cb4c1b26b78dda30a78b7e644a7a5f06",
+   "inputHash": "958624e4731919816f6f0872f75d01585fc3c1f783aa89739d04ec38bd6db2f6",
+   "generatedAt": "2026-09-09T02:35:48.913Z",
+   "replay": "EXACT",
+   "runs": 1000
+  }
+ ]
+}

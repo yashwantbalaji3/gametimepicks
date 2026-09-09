@@ -23,6 +23,9 @@ import { SHARE_FAMILIES, familyNumerator, teamGameTotals, decayedShare } from ".
 import { shrunkRate, simulatePlayerProps, PROP_MARKETS, NFL_PLAYER_PROPS_ID } from "../../src/lib/sports/nfl/player-props-v1.mjs";
 import { strengthStateAt } from "../../src/lib/sports/nfl/model-v1.mjs";
 import { totalsStateAt } from "../../src/lib/sports/nfl/totals-rating.mjs";
+import { reconcileJointRoster, conditionQuarterbackShares } from "../../src/lib/sports/nfl/joint-roster-reconciliation.mjs";
+import { projectedQuarterbackAt } from "../../src/lib/sports/nfl/depth-chart-snapshots.mjs";
+import { probabilityCalibration } from "../../src/lib/sports/nfl/probability-calibration.mjs";
 import { classifyParticipation, outcomeForAbsentCandidate, newPopulationAccounting, POPULATION_CONTRACT_VERSION } from "../../src/lib/sports/nfl/participation-truth.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -41,6 +44,8 @@ const RUNS = Number(arg("--runs", "1000"));
  * data/internal/research/nfl/reports/pass-yds-coverage-repair-preregistration.json
  */
 const CHALLENGER = arg("--challenger", null);
+const DEPTH_CONDITIONED = CHALLENGER === "nfl-joint-depth-v1";
+const JOINT_V2 = CHALLENGER === "nfl-joint-sim-v2" || DEPTH_CONDITIONED;
 /* P246 §4.3 diagnostics: --diagnose <dir> reruns the champion protocol but writes the receipt
    AND the per-family threshold-calibration bins into <dir> instead of any committed path —
    measurement only, no receipt is touched. */
@@ -68,7 +73,7 @@ if (PRESENT_ONLY && !DIAGNOSE_DIR) { console.error("REFUSED: --present-only requ
 const ptVerdictPath = path.join(ROOT, "data/internal/research/nfl/reports/participation-true-verdict.json");
 const ptVerdict = fs.existsSync(ptVerdictPath) ? JSON.parse(fs.readFileSync(ptVerdictPath, "utf8")) : null;
 const PT_ADOPTED = ptVerdict?.verdict === "ACCEPTED";
-const PARTICIPATION_TRUE = process.argv.includes("--participation-true") || CHALLENGER === "participation-true-conditioning-v1" || CHALLENGER === "nfl-joint-sim-v1" || (!CHALLENGER && !DIAGNOSE_DIR && PT_ADOPTED);
+const PARTICIPATION_TRUE = process.argv.includes("--participation-true") || CHALLENGER === "participation-true-conditioning-v1" || (CHALLENGER === "nfl-joint-sim-v1" || JOINT_V2) || (!CHALLENGER && !DIAGNOSE_DIR && PT_ADOPTED);
 let participationBySeason = null;
 if (PARTICIPATION_TRUE) {
   participationBySeason = new Map();
@@ -78,7 +83,7 @@ if (PARTICIPATION_TRUE) {
   }
 }
 if (DIAGNOSE_SEASON !== 2025 && !DIAGNOSE_DIR) { console.error("REFUSED: --diagnose-season requires --diagnose"); process.exit(1); }
-if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1", "pass-starter-conditioning-v1", "participation-true-conditioning-v1", "nfl-joint-sim-v1"].includes(CHALLENGER)) {
+if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1", "pass-starter-conditioning-v1", "participation-true-conditioning-v1", "nfl-joint-sim-v1", "nfl-joint-sim-v2", "nfl-joint-depth-v1"].includes(CHALLENGER)) {
   console.error(`REFUSED: unknown challenger ${CHALLENGER}`); process.exit(1);
 }
 /* P246 §4.3: gamma for receiving-target-deflation-v1 — a preregistered grid value, threaded
@@ -113,14 +118,15 @@ const integrationVerdictPath = path.join(ROOT, "data/internal/research/nfl/repor
 const INTEGRATED_ADOPTED = fs.existsSync(integrationVerdictPath)
   ? JSON.parse(fs.readFileSync(integrationVerdictPath, "utf8")).verdict === "ACCEPTED"
   : false;
-const USE_MATCHUP_TOTALS = CHALLENGER === "props-gamesim-matchup-totals-v1" || CHALLENGER === "pass-starter-conditioning-v1" || CHALLENGER === "participation-true-conditioning-v1" || CHALLENGER === "nfl-joint-sim-v1" || (!CHALLENGER && !DIAGNOSE_DIR && INTEGRATED_ADOPTED);
+const USE_MATCHUP_TOTALS = CHALLENGER === "props-gamesim-matchup-totals-v1" || CHALLENGER === "pass-starter-conditioning-v1" || CHALLENGER === "participation-true-conditioning-v1" || (CHALLENGER === "nfl-joint-sim-v1" || JOINT_V2) || (!CHALLENGER && !DIAGNOSE_DIR && INTEGRATED_ADOPTED);
 /*
  * P249 — the joint-simulation challenger (nfl-joint-sim-v1, preregistered): the SAME
  * walk-forward chain drives simulateJointGame instead of the marginal engine. Player passing
  * yards are scored under the GROSS convention (identical to the corpus statistic); passing TDs
  * and the joint anytime-TD mechanism get their own collectors below.
  */
-const JOINT = CHALLENGER === "nfl-joint-sim-v1";
+const JOINT = CHALLENGER === "nfl-joint-sim-v1" || JOINT_V2;
+if (JOINT_V2 && !DIAGNOSE_DIR) { console.error("REFUSED: v2 is private development; requires --diagnose <new-output-dir>"); process.exit(1); }
 /* Identical-points discipline: the joint lane scores ONLY (game, player, market) points the
    champion dump also scored — engine emission differences must not smuggle in a different
    denominator. Required for the joint challenger. */
@@ -130,7 +136,7 @@ const champPoints = JOINT
   ? new Set(fs.readFileSync(CHAMP_DUMP, "utf8").split("\n").filter(Boolean).map((l) => { const r = JSON.parse(l); return `${r.gameId}|${r.playerId}|${r.mkt}`; }))
   : null;
 const jointDeps = JOINT ? await (async () => {
-  const { simulateJointGame } = await import("../../src/lib/sports/nfl/joint-game-sim.mjs");
+  const { simulateJointGame } = await import(JOINT_V2 ? "../../src/lib/sports/nfl/joint-game-sim-v2.mjs" : "../../src/lib/sports/nfl/joint-game-sim.mjs");
   // fs directly — the shared `read` helper is declared later in this file (the P246 TDZ lesson, third sighting)
   const bridgeDoc = fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/reports/scoring-bridge-v1.json"), "utf8");
   const bridge = {
@@ -154,6 +160,9 @@ let trainPassTdRate = 0.5; // finalized after the train fold
  */
 const STARTER_CONDITIONED = CHALLENGER === "pass-starter-conditioning-v1";
 const TRAIN_STARTER_SHARE = 0.9577;
+const depthReceipt = DEPTH_CONDITIONED ? JSON.parse(fs.readFileSync(arg("--depth-charts"), "utf8")) : null;
+if (DEPTH_CONDITIONED && (depthReceipt?.artifact !== "nfl-depth-chart-qb-snapshots" || depthReceipt.season !== 2025 || depthReceipt.invalidRows || !depthReceipt.snapshots?.length)) throw new Error("invalid depth-chart research receipt");
+const depthDecisions = [];
 const lastLeadingPasser = new Map(); // teamAbbr → playerId (walk-forward, updated as games fold)
 const totalsReceipt = USE_MATCHUP_TOTALS ? JSON.parse(fs.readFileSync(totalsReceiptPath, "utf8")) : null;
 if (USE_MATCHUP_TOTALS && totalsReceipt?.verdict !== "ELIGIBLE") {
@@ -493,6 +502,9 @@ const MARKET_FAMILY = { player_pass_yds: "passAttempts", player_rush_yds: "rushA
    quantiles and role rank, so the pass-yds failure can be DECOMPOSED instead of inferred from
    aggregate MAE. Never written outside --diagnose. */
 const diagnosticsPoints = [];
+const refusedSimulations = [];
+const rosterAdjustments = [];
+const matchedChampionPoints = new Set();
 const popAccounting = newPopulationAccounting();
 const metrics = {};
 for (const mkt of PROP_MARKETS) metrics[mkt] = { n: 0, mae: 0, rmse: 0, pinball: 0, cover80: 0, base: { rolling4: 0, shareVol: 0, trailing8Pinball: 0, trailing8Cover: 0, trailing8N: 0, tierMae: 0 }, cal: [] };
@@ -548,18 +560,35 @@ for (const g of test) {
           }
         }
       }
+      let jointCandidates = cands;
+      if (DEPTH_CONDITIONED) {
+        const sourceDepth = projectedQuarterbackAt(depthReceipt.snapshots, { team: abbr, cutoffIso: g.dateUtc });
+        // The corpus namespace is nfl-athlete-<ESPN id>, not the provider's bare numeric id.
+        // No fuzzy name join: keep both identities in the receipt.
+        const depth = sourceDepth.state === "PROJECTED_DEPTH_STARTER"
+          ? { ...sourceDepth, sourceEspnId: sourceDepth.playerId, playerId: `nfl-athlete-${sourceDepth.playerId}` }
+          : sourceDepth;
+        const conditioned = conditionQuarterbackShares(cands, depth, TRAIN_STARTER_SHARE);
+        jointCandidates = conditioned.players;
+        depthDecisions.push({ gameId: g.providerEventId, team: abbr, depth, applied: conditioned.applied, reason: conditioned.reason });
+      }
+      const jointRoster = JOINT_V2 ? reconcileJointRoster(jointCandidates) : { players: cands, adjustments: [] };
+      if (jointRoster.adjustments.length) rosterAdjustments.push({ gameId: g.providerEventId, team: abbr, adjustments: jointRoster.adjustments });
       const sim = JOINT
         ? jointDeps.simulateJointGame({
             event: { providerEventId: g.providerEventId, home: { abbr: homeAbbr }, away: { abbr: awayAbbr }, seasonType: g.seasonType },
             teamAbbr: abbr, fit: gameFit, bridge: jointDeps.bridge, strengthState: wrapped,
-            players: cands, artifactDate: g.dateUtc.slice(0, 10), runs: RUNS, lines: linesProxy,
+            players: jointRoster.players, artifactDate: g.dateUtc.slice(0, 10), runs: RUNS, lines: linesProxy,
           })
         : simulatePlayerProps({
             event: { providerEventId: g.providerEventId, home: { abbr: homeAbbr }, away: { abbr: awayAbbr }, seasonType: g.seasonType },
             teamAbbr: abbr, fit: gameFit, strengthState: wrapped,
             roleRates: { players: cands }, artifactDate: g.dateUtc.slice(0, 10), runs: RUNS, lines: linesProxy,
           });
-      if (sim.state !== "SIMULATED") continue;
+      if (sim.state !== "SIMULATED") {
+        refusedSimulations.push({ gameId: g.providerEventId, team: abbr, reason: sim.reason ?? sim.state });
+        continue;
+      }
       const rowsByPlayer = new Map((g.players ?? []).filter((p) => p.teamAbbr === abbr).map((p) => [p.playerId, p]));
       for (const simP of sim.players) {
         const cand = cands.find((c) => c.playerId === simP.playerId);
@@ -623,6 +652,7 @@ for (const g of test) {
           const m = metrics[mkt];
           m.n += 1;
           evaluated += 1;
+          if (JOINT) matchedChampionPoints.add(`${g.providerEventId}|${simP.playerId}|${mkt}`);
           const err = dist.mean - actual;
           m.mae += Math.abs(err);
           m.rmse += err * err;
@@ -796,12 +826,13 @@ if (CHALLENGER) {
      to inherit the pass-yds-repair artifact name and the champion engine id, so the top level and
      the challenger block named two different things — an ambiguity an automated reader cannot
      resolve. The joint engine is a different ENGINE, not a conditioning variant, and says so. */
-  receipt.artifact = CHALLENGER === "nfl-joint-sim-v1"
+  receipt.artifact = JOINT
     ? "nfl-joint-sim-identical-points-evaluation"
     : "nfl-pass-yds-repair-evaluation";
-  if (CHALLENGER === "nfl-joint-sim-v1") {
+  if (JOINT) {
     receipt.engine = {
-      id: "nfl-joint-sim-v1", version: 1,
+      id: JOINT_V2 ? "nfl-joint-sim-v2" : CHALLENGER, version: JOINT_V2 ? 2 : 1,
+      ...(DEPTH_CONDITIONED ? { conditioner: "nfl-joint-depth-v1" } : {}),
       champion: { id: NFL_PLAYER_PROPS_ID, version: 1 },
       note: "the engine under evaluation is the joint generator; champion baselines are the marginal engine named in challenger.champion",
     };
@@ -814,8 +845,8 @@ if (CHALLENGER) {
         baselineRolling4: Number((px.llR4 / px.n).toFixed(4)),
         /* The preregistration requires calibration bins for this family; this collector does not
            compute them yet, and a receipt that stays silent about that implies complete evidence. */
-        calibrationBins: null,
-        diagnosticGap: "preregistered calibration bins not recorded by this collector — evidence INCOMPLETE as preregistered; the verdict may stand on log loss alone but any re-candidate must record the bins",
+        calibrationBins: JOINT_V2 ? probabilityCalibration(px.cal) : null,
+        diagnosticGap: JOINT_V2 ? null : "preregistered calibration bins not recorded by this collector — evidence INCOMPLETE as preregistered; the verdict may stand on log loss alone but any re-candidate must record the bins",
       } : null,
       anytime_td_joint: jointExtra.anyTd.n ? {
         n: jointExtra.anyTd.n, positives: jointExtra.anyTd.pos,
@@ -825,7 +856,7 @@ if (CHALLENGER) {
     };
     receipt.challenger = {
       id: CHALLENGER,
-      preregistration: "data/internal/research/nfl/reports/joint-sim-preregistration.json",
+      preregistration: JOINT_V2 ? "docs/execution/CODEX_NFL_JOINT_V2_CONTRACT.md" : "data/internal/research/nfl/reports/joint-sim-preregistration.json",
       champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
       scope: "the joint generator's marginals scored under the identical walk-forward chain and population contract; pass yds GROSS; passTd/anytime collectors per prereg",
     };
@@ -866,6 +897,12 @@ if (CHALLENGER) {
         champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
         scope: "gameSigma.player_pass_yds estimator only",
       };
+}
+if (JOINT) {
+  receipt.populationComparison = { expectedChampionPoints: champPoints.size, matchedChampionPoints: matchedChampionPoints.size,
+    missingChampionPoints: [...champPoints].filter(id => !matchedChampionPoints.has(id)), refusedSimulations, rosterAdjustments };
+  receipt.evidentiaryStatus = JOINT_V2 ? "PRIVATE_DEVELOPMENT_ONLY; reused 2025; no public promotion" : "Historical v1 replay";
+  if (DEPTH_CONDITIONED) receipt.depthConditioning = { sourceSha256: depthReceipt.sourceSha256, acquiredAt: depthReceipt.acquiredAt, maxAgeHours: 168, starterShare: TRAIN_STARTER_SHARE, decisions: depthDecisions };
 }
 if (DIAGNOSE_DIR) {
   fs.mkdirSync(DIAGNOSE_DIR, { recursive: true });
