@@ -80,6 +80,15 @@ const APPROVED_DESTINATIONS = new Set([
   "/mr-dub",
   "/homer-nukes",
   /*
+   * P251-F4: the other two LIVE signature products. The flagship line is one per sport, and until
+   * now only baseball's had a destination — the Endzone Vault and Cage Chaos were sections a
+   * reader had to scroll a sport hub to reach, while Goal Rush and Bucket Blitz, neither built,
+   * each had a URL of their own. Both of these render live artifacts and both carry their own
+   * evaluation receipts, which is the bar this list exists to hold.
+   */
+  "/endzone-vault",
+  "/cage-chaos",
+  /*
    * Each live lane's signature card product. The Products rail was four destinations and all four
    * were baseball, while EPL and UFC had published ladders for days that were reachable only by
    * scrolling their sport hub. One dynamic route serves both, and a lane with no published ladder

@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-09T22:37:57.498Z",
+ "generatedAt": "2026-09-09T23:09:38.755Z",
  "totals": {
-  "routes": 64,
-  "public": 41,
+  "routes": 66,
+  "public": 43,
   "internal": 4,
   "redirects": 15,
   "archive": 2,
@@ -76,6 +76,16 @@
    "built": true
   },
   {
+   "route": "/cage-chaos",
+   "classification": "public",
+   "owner": "product",
+   "family": false,
+   "purpose": "The UFC signature product's own page (P251 · F4): the next card ranked by how decisively the model reads each bout — the product's question, where the hub keeps card order, which is the event's — with winner, method and round per row, the bouts the model refuses named rather than dropped, and the three heads' held-out evidence with denominators. Every row opens that bout's own report",
+   "dataOwner": "public/data/ufc/card-latest.json via lib/sports/ufc/bout (build-time read)",
+   "freshness": "the card artifact's own generatedAt via the bout pages it links to",
+   "built": true
+  },
+  {
    "route": "/cards/[sport]",
    "classification": "public",
    "owner": "product",
@@ -84,6 +94,16 @@
    "dataOwner": "parlays/risk-ladder-<sport> artifacts",
    "freshness": "ladder generatedAt; dated by its own slate/card",
    "built": "FAMILY (3 generated page(s))"
+  },
+  {
+   "route": "/endzone-vault",
+   "classification": "public",
+   "owner": "product",
+   "family": false,
+   "purpose": "The NFL signature product's own page (P251 · F4): today's touchdown board ranked by the model's own probability, the closed-set outcome stated before the numbers (CARD or WATCHLIST, with the producer's reason), how the probability is built, and the gates a CARD would have to clear. Renders the SAME artifact and the SAME component the NFL hub's preview uses, so the two cannot drift. Before this the Vault was a section a reader had to scroll /nfl to find while two unbuilt products each had their own route",
+   "dataOwner": "public/data/nfl/end-zone-vault/latest.json (build-time read)",
+   "freshness": "the Vault artifact's own generatedAt, printed above the board",
+   "built": true
   },
   {
    "route": "/epl",

@@ -49,12 +49,17 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
     sport: "nfl",
     sportLabel: "Football",
     name: "Endzone Vault",
-    href: "/nfl",
+    href: "/endzone-vault",
     state: "live",
     question: "Who reaches the end zone?",
     basis:
-      "Touchdown allocation across a roster, from participation shares and the drive model. " +
-      "Published as experimental: the team model was rejected on its own preregistered bars.",
+      /* P251-F4: this used to end "the team model was rejected on its own preregistered bars",
+         which is true of the TEAM-STRENGTH model and says nothing about the touchdown model this
+         product actually runs — that one carries its own calibration receipt. Describing a product
+         by another model's rejection is not honesty, it is the wrong sentence. */
+      "A team's projected points become a distribution over touchdowns, then that total is shared " +
+      "across the roster by each player's walk-forward measured share of his club's scoring. " +
+      "Calibrated on a held-out 2025 season; a probability is conditional on playing.",
   },
   {
     /*
@@ -72,7 +77,7 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
     sport: "ufc",
     sportLabel: "UFC",
     name: "Cage Chaos",
-    href: "/ufc",
+    href: "/cage-chaos",
     state: "live",
     question: "How does this fight end — and in which round?",
     basis:

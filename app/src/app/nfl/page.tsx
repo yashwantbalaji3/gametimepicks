@@ -46,6 +46,7 @@ import { seasonContextFor } from "@/lib/sports/nfl/season-context.mjs";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import NflWeeklyBoards from "@/components/nfl/weekly-boards";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -476,56 +477,28 @@ export default function NflHubPage() {
             sub={`Ranked across ${weeklyBoards.scope.kind === "REMAINING_EVENTS" ? `the ${weeklyBoards.scope.eventsIncluded} games still to kick off (${weeklyBoards.scope.eventsDroppedAfterKickoff} dropped after kickoff)` : "every game this week"} by one ranking owner. A top-N table is a maximum, not a quota — fewer qualified players publish fewer rows, and a player listed out never ranks here.`}
             rightSlot={experimentalChip}
           />
-          <div className="flex flex-col gap-5">
-            {weeklyBoards.boards.map((b) =>
-              (b.state === "PUBLISHED" || b.state === "ESTIMATE") && b.rows?.length ? (
-                <div key={b.id}>
-                  <h3 style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>
-                    {b.title}
-                  </h3>
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 620 }}>
-                      <thead>
-                        <tr>
-                          {["#", "Player", "Game", "Kickoff (ET)", b.id === "top_td" ? "TD chance" : "Median", ...(b.id === "top_td" ? [] : ["Range (10th–90th)"]), ""].map((h, i) => (
-                            <th key={`${h}-${i}`} scope="col" style={{ textAlign: "left", padding: "6px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {b.rows.map((r, i) => (
-                          <tr key={`${r.playerId}-${r.team}`}>
-                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11, color: "var(--vault-text-faint)" }}>{i + 1}</td>
-                            <td style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
-                              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                                {b.id === "top_td" ? <PlayerAvatar playerId={espnAthleteId(r.playerId)} playerName={r.name} team={r.team} sport="nfl" size="sm" /> : null}
-                                <span>{r.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{r.team}</span></span>
-                              </span>
-                            </td>
-                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-mute)" }}>{r.team} vs {r.opponent}</td>
-                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{etKickoff(r.kickoffUtc)}</td>
-                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 13, fontWeight: 700, color: "var(--gtp-bank-cta)" }}>
-                              {b.id === "top_td" ? `${(r.value * 100).toFixed(1)}%` : r.median}
-                            </td>
-                            {b.id === "top_td" ? null : (
-                              <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-faint)" }}>{r.p10}–{r.p90}</td>
-                            )}
-                            <td style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", whiteSpace: "nowrap" }}>
-                              <Link href={`/nfl/game/${r.providerEventId}/`} className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, color: "var(--vault-gold-bright)" }}>Game →</Link>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ) : (
-                <p key={b.id} style={{ margin: 0, fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 760, border: "1px dashed var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
-                  <strong style={{ color: "var(--vault-text-mute)" }}>{b.title}:</strong> not published — {b.reason}
-                </p>
-              ),
-            )}
-          </div>
+          {/* P251-F5: the board block moved to a client component so it can be filtered by team
+              and by player name. Same rows, same ranking, same states — the chips narrow what is
+              SHOWN and never re-rank, and a board with no matching row says so instead of
+              vanishing. The hub carried no control of any kind before this. */}
+          {/*
+            PROJECTED AT THE BOUNDARY, NOT PASSED WHOLE (P229's lesson, applied here).
+            Handing the artifact's board objects to a client component serialises EVERY field into
+            the RSC payload — including `basis`, which carries internal model ids the public page
+            must never carry. This ships the fields the component actually renders and nothing else.
+          */}
+          <NflWeeklyBoards boards={weeklyBoards.boards.map((b: { id: string; title: string; state: string; reason?: string; rows?: Array<Record<string, unknown>> }) => ({
+            id: b.id,
+            title: b.title,
+            state: b.state,
+            reason: b.reason,
+            rows: (b.rows ?? []).map((r) => ({
+              playerId: String(r.playerId), name: String(r.name), team: String(r.team), opponent: String(r.opponent),
+              kickoffUtc: String(r.kickoffUtc), providerEventId: String(r.providerEventId),
+              value: Number(r.value), median: r.median as number | undefined,
+              p10: r.p10 as number | undefined, p90: r.p90 as number | undefined,
+            })),
+          }))} />
         </section>
       ) : null}
 

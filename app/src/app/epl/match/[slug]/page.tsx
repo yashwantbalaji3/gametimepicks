@@ -27,7 +27,7 @@ import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
-import { loadEplForecasts, findEplForecastAnywhere, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture } from "@/lib/sports/epl/forecast-view";
+import { loadEplForecasts, findEplForecastAnywhere, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture, reportableRows } from "@/lib/sports/epl/forecast-view";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 /**
@@ -77,6 +77,12 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
   const generatedLine = set?.generatedAt ?? "see the dated forecast artifact for this fixture";
   const validationLine = set?.validation ?? "NOT_VALIDATED_OUT_OF_SAMPLE";
   const row = findEplForecastAnywhere(params.slug);
+  /* P251-F5: the fixture's slate-mates, from the SAME reportable set the hub lists — so a match
+     that has no report is never offered here, and the strip cannot outlive the matchweek. */
+  const siblings = reportableRows(set)
+    .filter((r) => r.slug && r.slug !== params.slug)
+    .sort((a, b) => Date.parse(a.kickoffUtc) - Date.parse(b.kickoffUtc))
+    .slice(0, 9);
   /*
    * A fixture with no distribution has no report. It is not rendered as an empty page with the
    * furniture of a forecast around it — that reads as coverage.
@@ -414,6 +420,32 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           </dl>
         </div>
       </section>
+
+      {/*
+        ── OTHER FIXTURES (P251 · F5) ──────────────────────────────────────────────────────────
+        Every other sport's event page carries a strip of its slate-mates; this one had four links
+        on the whole page and the only way onward was back to the hub. A reader who came in from a
+        ranked panel for one match had nowhere to go but backwards.
+      */}
+      {siblings.length ? (
+        <section className="mt-8">
+          <SectionHeader eyebrow="More" title={`Other ${row.matchweek ? `Matchweek ${row.matchweek}` : "Premier League"} fixtures`} />
+          <ul style={{ margin: "12px 0 0", padding: 0, listStyle: "none", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 8 }}>
+            {siblings.map((sib) => (
+              <li key={sib.slug}>
+                <Link href={`/epl/match/${sib.slug!}/`}
+                  style={{ display: "block", border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px", textDecoration: "none", color: "inherit" }}>
+                  <span style={{ display: "block", fontSize: 13, fontWeight: 600 }}>{sib.matchup}</span>
+                  <span style={{ display: "block", fontSize: 11.5, color: "var(--vault-text-mute)", marginTop: 2 }}>
+                    {ET(sib.kickoffUtc)} ET
+                    {sib.probs ? ` · ${sib.probs.home >= sib.probs.away ? sib.homeClub ?? "Home" : sib.awayClub ?? "Away"} ${pct(Math.max(sib.probs.home, sib.probs.away))}` : ""}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <p className="mt-6" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
         Paper-only and educational. Not betting advice.{" "}

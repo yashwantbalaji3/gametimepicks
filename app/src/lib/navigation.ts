@@ -163,6 +163,19 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   // is a destination again rather than a name in the archive.
   { href: "/homer-nukes", label: "Homer Nukes", group: "products", glyph: "💣", desc: "Today's five likeliest home runs",
     surfaces: ["rail", "footer"] },
+  /*
+   * P251-F4: THE TWO LIVE SIGNATURE PRODUCTS THAT HAD NO DESTINATION.
+   *
+   * The flagship line is five products, one per sport. Homer Nukes above had a route, a nav entry
+   * and a record. The Endzone Vault and Cage Chaos — both live, both publishing — were sections a
+   * reader had to scroll a sport hub to find, and neither appeared in any nav. Meanwhile Goal Rush
+   * and Bucket Blitz, neither of which is built, each had their own URL. The two products that
+   * exist were the two hardest to reach, and this is what fixes that ordering.
+   */
+  { href: "/endzone-vault", label: "Endzone Vault", group: "products", glyph: "🏈",
+    desc: "Who reaches the end zone today", surfaces: ["rail", "footer"] },
+  { href: "/cage-chaos", label: "Cage Chaos", group: "products", glyph: "🥊",
+    desc: "How each fight ends, and in which round", surfaces: ["rail", "footer"] },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio", group: "products", glyph: "✓", desc: "Paper bankroll journey",
     surfaces: ["rail", "footer"] },
   /*
