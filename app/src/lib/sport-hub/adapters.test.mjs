@@ -94,7 +94,10 @@ test("UFC bouts: a modelled bout anchors to its own detail; an unmodelled one ne
   assert.equal(u.labels.games, "Bouts");
   const modelled = u.rows.find((r) => r.id === "b1");
   assert.equal(modelled.reportState, "READY");
-  assert.equal(modelled.reportHref, "#bout-b1", "a modelled bout deep-links to its rendered detail");
+  /* P251-F3: UFC gained per-bout routes, so a modelled bout LEAVES the hub like every other
+     sport's event row. The invariant is unchanged and is the second half of this test: an
+     unmodelled bout is still given no route at all rather than a page that fakes a read. */
+  assert.equal(modelled.reportHref, "/ufc/bout/b1/", "a modelled bout opens its own report page");
   const unmodelled = u.rows.find((r) => r.id === "b2");
   assert.equal(unmodelled.reportState, "NONE");
   assert.equal(unmodelled.reportHref, null);

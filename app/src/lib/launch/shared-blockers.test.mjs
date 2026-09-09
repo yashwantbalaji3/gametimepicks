@@ -82,7 +82,17 @@ test("PUBLIC BOUNDARY: the registry module is consumed only by internal /launch 
       const p = path.join(d, e.name);
       if (e.isDirectory()) { if (e.name !== "node_modules") walk(p); continue; }
       if (!/\.(ts|tsx|mjs)$/.test(e.name) || /\.test\./.test(e.name)) continue;
-      if (!fs.readFileSync(p, "utf8").includes("shared-blockers.mjs")) continue;
+      /*
+       * P251: mutation probes create TRANSIENT sibling copies (gitignored) that live for the
+       * seconds a probe runs, and the suite runs files concurrently. A walker that reads every
+       * entry it just listed can therefore open a file that has already been deleted, and this
+       * test failed with ENOENT on a file it has no interest in. The colour scanner already skips
+       * this class by name; the read is also made non-fatal, because the race is real either way.
+       */
+      if (e.name.includes(".mutation-probe.")) continue;
+      let body;
+      try { body = fs.readFileSync(p, "utf8"); } catch { continue; }
+      if (!body.includes("shared-blockers.mjs")) continue;
       const rel = path.relative(process.cwd(), p);
       if (!/^src\/(lib\/launch|app\/launch)\//.test(rel) && rel !== "src/lib/launch/shared-blockers.mjs") offenders.push(rel);
     }

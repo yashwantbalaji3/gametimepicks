@@ -374,7 +374,8 @@ export function ufcHub(nowIso: string, bouts: Array<{ id: string; matchup: strin
       matchup: b.matchup, status: b.status ?? (started ? "started or final" : "scheduled"),
       started, read: b.read ?? null,
       reportState: hasRead ? "READY" : "NONE",
-      reportHref: hasRead ? `#bout-${b.id}` : null,
+      /* P251-F3: UFC has per-bout routes now — "View report" leaves the hub like every other sport. */
+      reportHref: hasRead ? `/ufc/bout/${b.id}/` : null,
       reportNote: hasRead ? "bout details below" : "not modelled — no tracked history",
     };
   });

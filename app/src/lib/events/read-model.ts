@@ -271,7 +271,7 @@ export function loadUfcEvents(nowIso: string): CanonicalEvent[] {
         prices: oddsMatchesCard ? ("PRICED" as const) : ("NOT_CAPTURED" as const),
         settlement: "NOT_APPLICABLE" as const,
       },
-      reportHref: `/ufc/#bout-${boutId}`,
+      reportHref: `/ufc/bout/${boutId}/`,
     };
   });
 }

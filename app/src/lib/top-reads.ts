@@ -267,7 +267,8 @@ export function loadTopReads(): TopReadsSet | null {
       market: "Fight winner",
       context: `${b.weightClass ?? "bout"}${b.prediction?.method?.most ? ` · model reads ${b.prediction.method.most}` : ""}`,
       /* P250 · Phase 6: deep-link the bout's own anchor on the card page, not the general hub. */
-      href: b.boutId ? `/ufc/#bout-${b.boutId}` : "/ufc/",
+      /* P251-F3: a ranked read now opens the bout's own page rather than scrolling the hub. */
+      href: b.boutId ? `/ufc/bout/${b.boutId}/` : "/ufc/",
     });
   }
 

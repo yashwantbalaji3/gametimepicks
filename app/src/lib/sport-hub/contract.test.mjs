@@ -113,13 +113,23 @@ test("BUILT · UFC bout rows anchor to their rendered detail, never to a route t
   const f = path.join(OUT, "ufc", "index.html");
   if (!fs.existsSync(f)) return;
   const html = fs.readFileSync(f, "utf8");
-  // A modelled bout deep-links to its own section on the card page…
-  assert.ok(/href="#bout-\d+"/.test(html), "modelled bouts must anchor to their bout detail");
-  assert.ok(/id="bout-\d+"/.test(html), "and the anchored bout sections must exist on the page");
-  // …an unmodelled bout says why it has no read…
+  /*
+   * P251-F3 REBASE. The claim was never "anchors are the right destination" — it was that a bout
+   * row must not promise a route that does not exist. When this was written no per-bout route was
+   * generated, so the only honest destination was an anchor on the card page, and the guard
+   * forbade the route form outright. UFC now has real per-bout pages, so the SAME claim is
+   * checked the stronger way: every bout link a reader can click is resolved against the export.
+   */
+  const linked = [...new Set([...html.matchAll(/href="(\/ufc\/bout\/[^"]+)"/g)].map((m) => m[1]))];
+  assert.ok(linked.length > 0, "modelled bouts must link to their own report page");
+  for (const href of linked) {
+    const target = path.join(OUT, href.replace(/^\//, ""), "index.html");
+    assert.ok(fs.existsSync(target), `UFC links ${href} and that page was never generated`);
+  }
+  // …an unmodelled bout says why it has no read, and is never given a link at all…
   assert.match(renderedText(html), /not modelled — no tracked history/);
-  // …and no row ever links a per-bout ROUTE that is not generated.
-  assert.ok(!/href="\/ufc\/bout\//.test(html), "UFC must not link to a per-bout route that is not generated");
+  // …and the card page keeps its own in-page anchors, which are a different affordance.
+  assert.ok(/id="bout-\d+"/.test(html), "the card's bout sections keep their anchors");
 });
 
 test("BUILT · a period with nothing scheduled still prints its zero", () => {

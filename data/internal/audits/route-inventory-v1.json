@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-08T23:30:00Z",
+ "generatedAt": "2026-09-09T22:07:18.018Z",
  "totals": {
-  "routes": 63,
-  "public": 40,
+  "routes": 64,
+  "public": 41,
   "internal": 4,
   "redirects": 15,
   "archive": 2,
@@ -227,7 +227,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (109 generated page(s))"
+   "built": "FAMILY (110 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -428,7 +428,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (93 generated page(s))"
+   "built": "FAMILY (94 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -556,6 +556,16 @@
    "dataOwner": "card-latest + graded picks + frozen settlement",
    "freshness": "card artifact generatedAt; lifecycle derives from the card's own startUtc",
    "built": true
+  },
+  {
+   "route": "/ufc/bout/[boutId]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "UFC per-bout model report (P251 · F3): the winner split over the two fighters, the method distribution (KO / submission / decision, read among fights that end with a winner), the round distribution with goes-the-distance stated as the method head's decision probability rather than a separate model, both fighters' tracked corpus profiles, and the three heads' held-out evidence printed WITH its denominator. Every figure is read from card-latest.json — nothing is computed here. Statically generated for every bout on the current card including the ones the model refuses to read, which render the producer's own refusal instead of a fabricated read. dynamicParams=false",
+   "dataOwner": "public/data/ufc/card-latest.json via lib/sports/ufc/bout (build-time read)",
+   "freshness": "the card artifact's own generatedAt, printed in the method section",
+   "built": "FAMILY (13 generated page(s))"
   },
   {
    "route": "/world-cup",
