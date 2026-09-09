@@ -103,10 +103,16 @@ test.describe("P243 · charter journeys", () => {
     watchConsole(page);
     await page.goto("/bank-builder/");
     const text = await main(page).innerText();
-    /* One coherent state: a step/cycle readout plus a single exposure figure. */
+    /* One coherent state: a step/cycle readout. Exposure figures are NAMED measures now (P250 ·
+       A01): today's live paper exposure and the protected settled-money authority's exposure are
+       different eras and BOTH render, each under its own name — so the invariant is no longer
+       "one number", it is "today's paper figure is consistent wherever it appears, and the
+       settled-money figure is labelled as the protected record's". */
     expect(text).toMatch(/Step \d+ of \d+ · Cycle \d+/);
-    const exposures = [...text.matchAll(/exposure[^$]*\$([\d,.]+)/gi)].map((m) => m[1]);
-    expect(new Set(exposures).size, `exposure figures disagree: ${exposures.join(", ")}`).toBeLessThanOrEqual(1);
+    expect(text).toMatch(/Today[’']s paper exposure/i);
+    expect(text).toMatch(/settled-money record[’']s open exposure/i);
+    const todayFigs = [...text.matchAll(/Today[’']s paper exposure[^$]*\$([\d,.]+)/gi)].map((m) => m[1]);
+    expect(new Set(todayFigs).size, `today's paper exposure disagrees with itself: ${todayFigs.join(", ")}`).toBeLessThanOrEqual(1);
     assertNoConsoleErrors();
   });
 

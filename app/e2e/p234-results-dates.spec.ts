@@ -45,7 +45,10 @@ test.describe("P234 · results by date", () => {
     await s.scrollIntoViewIfNeeded();
     await s.getByLabel("Record type").selectOption("model-pick");
     await expect(s.getByLabel("From")).toHaveCount(0);
-    await expect(s).toContainText(/publishes a total rather than the individual dated rows/i);
+    /* P250 · A11: the refusal now points at the dated surfaces that actually exist instead of
+       over-claiming "aggregate only" for sports whose complete dated pick lists are published. */
+    await expect(s).toContainText(/dated rows behind it live on their own surfaces/i);
+    await expect(s).toContainText(/model audit explorer/i);
   });
 
   test("THE HEADLINE AND THE TABLE COUNT THE SAME PERIOD", async ({ page }) => {
@@ -135,7 +138,7 @@ test.describe("P234 · results by date", () => {
     await s.getByRole("button", { name: "All history", exact: true }).click();
     const first = s.locator("table").last().locator("tbody tr").first();
     await expect(first).toContainText(/\d{4}-\d{2}-\d{2}/);        // when
-    await expect(first).toContainText(/slip_|-\d{4}-\d{2}-\d{2}/); // which slip
+    await expect(first).toContainText(/slip_|opt_|-\d{4}-\d{2}-\d{2}/); // which slip (optimizer ids are opt_…)
     await expect(first).toContainText(/win|loss|pending|push|void/i); // how it settled
   });
 
