@@ -17,7 +17,7 @@
     "version": 1,
     "launchState": "PUBLIC_EXPERIMENTAL"
   },
-  "participationBasis": "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
+  "participationBasis": "Availability refreshes until kickoff.",
   "boards": [
     {
       "id": "top_td",
@@ -53,18 +53,6 @@
           "pricingState": "NOT_AUTHORIZED"
         },
         {
-          "playerId": "nfl-athlete-4426385",
-          "name": "Zach Charbonnet",
-          "team": "SEA",
-          "opponent": "NE",
-          "providerEventId": "401872656",
-          "kickoffUtc": "2026-09-10T00:20Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 0.507228,
-          "probability": 0.507228,
-          "pricingState": "NOT_AUTHORIZED"
-        },
-        {
           "playerId": "nfl-athlete-4685382",
           "name": "Omarion Hampton",
           "team": "LAC",
@@ -86,6 +74,18 @@
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
           "value": 0.460912,
           "probability": 0.460912,
+          "pricingState": "NOT_AUTHORIZED"
+        },
+        {
+          "playerId": "nfl-athlete-3117251",
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "opponent": "LAR",
+          "providerEventId": "401872657",
+          "kickoffUtc": "2026-09-11T00:35Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 0.457886,
+          "probability": 0.457886,
           "pricingState": "NOT_AUTHORIZED"
         }
       ]
@@ -134,7 +134,7 @@
           "opponent": "IND",
           "providerEventId": "401872659",
           "kickoffUtc": "2026-09-13T17:00Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "participation": "QUESTIONABLE",
           "value": 5,
           "p10": 2,
           "median": 5,
@@ -190,7 +190,7 @@
           "opponent": "TB",
           "providerEventId": "401872925",
           "kickoffUtc": "2026-09-13T17:00Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "participation": "QUESTIONABLE",
           "value": 5,
           "p10": 2,
           "median": 5,
@@ -249,7 +249,7 @@
       "title": "Top 10 · Rushing yards",
       "state": "ESTIMATE",
       "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
-      "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible.",
+      "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable.",
       "rows": [
         {
           "playerId": "nfl-athlete-4242335",
@@ -328,7 +328,7 @@
           "opponent": "MIA",
           "providerEventId": "401872928",
           "kickoffUtc": "2026-09-13T20:25Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "participation": "QUESTIONABLE",
           "value": 56.19,
           "p10": 23,
           "median": 56,
@@ -437,7 +437,7 @@
           "opponent": "IND",
           "providerEventId": "401872659",
           "kickoffUtc": "2026-09-13T17:00Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "participation": "QUESTIONABLE",
           "value": 59.34,
           "p10": 17,
           "median": 59,
@@ -465,7 +465,7 @@
           "opponent": "TB",
           "providerEventId": "401872925",
           "kickoffUtc": "2026-09-13T17:00Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "participation": "QUESTIONABLE",
           "value": 53.32,
           "p10": 17,
           "median": 53,
@@ -552,7 +552,7 @@
       "title": "Top 10 · Passing yards",
       "state": "ESTIMATE",
       "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-      "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible.",
+      "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast.",
       "rows": [
         {
           "playerId": "nfl-athlete-4431452",
@@ -697,5 +697,5 @@
       ]
     }
   ],
-  "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
+  "disclaimer": "Model projections. Educational."
 }

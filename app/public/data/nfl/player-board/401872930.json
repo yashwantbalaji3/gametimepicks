@@ -9,19 +9,19 @@
  "kickoffUtc": "2026-09-14T00:20Z",
  "seasonType": 2,
  "week": 1,
- "participationBasis": "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
+ "participationBasis": "Availability refreshes until kickoff.",
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "ESTIMATE",
    "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
+   "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
    "state": "ESTIMATE",
    "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
-   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
+   "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -56,7 +56,7 @@
     "name": "Darnell Mooney",
     "position": "WR",
     "team": "NYG",
-    "participation": "SOURCE_STALE",
+    "participation": "ACTIVE_UNCERTAIN",
     "lastSeason": {
      "club": "ATL",
      "games": 15,
@@ -75,7 +75,7 @@
     "name": "Calvin Austin III",
     "position": "WR",
     "team": "NYG",
-    "participation": "SOURCE_STALE",
+    "participation": "OUT",
     "lastSeason": {
      "club": "PIT",
      "games": 15,
@@ -94,7 +94,7 @@
     "name": "Isaiah Likely",
     "position": "TE",
     "team": "NYG",
-    "participation": "SOURCE_STALE",
+    "participation": "ACTIVE_UNCERTAIN",
     "lastSeason": {
      "club": "BAL",
      "games": 11,
@@ -264,7 +264,7 @@
    "playerId": "nfl-athlete-4595348",
    "name": "Malik Nabers",
    "team": "NYG",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 43.908,
@@ -292,7 +292,7 @@
    "playerId": "nfl-athlete-4360516",
    "name": "Tyrone Tracy Jr.",
    "team": "NYG",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 38.906,
@@ -376,7 +376,7 @@
    "playerId": "nfl-athlete-4429148",
    "name": "Theo Johnson",
    "team": "NYG",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 33.862,
@@ -529,5 +529,5 @@
    }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
+ "disclaimer": "Model projections. Educational."
 }

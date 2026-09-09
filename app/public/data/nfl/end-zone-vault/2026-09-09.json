@@ -10,7 +10,7 @@
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "187 model candidates, but no card: no authorized touchdown market is captured for these games (price acquisition is a separate authorization, not a claim the books offer nothing) and no player's playing time is established by the availability evidence yet. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
+ "reason": "178 model candidates · no touchdown market is captured for these games and playing time is not established yet",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -50,25 +50,6 @@
    "roleNote": "no source-backed evidence yet of how much this player will play in this game",
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.51, g 53, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
-  },
-  {
-   "playerId": "nfl-athlete-4426385",
-   "name": "Zach Charbonnet",
-   "position": "RB",
-   "team": "SEA",
-   "opponent": "NE",
-   "event": "NE @ SEA",
-   "providerEventId": "401872656",
-   "kickoffUtc": "2026-09-10T00:20Z",
-   "tdProbability": 0.502039,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ROLE_UNCERTAIN",
-   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
-   "marketPrice": null,
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 46, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   },
   {
@@ -217,8 +198,8 @@
    "probabilityRange": {
     "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
    },
-   "roleState": "ROLE_UNCERTAIN",
-   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "roleState": "QUESTIONABLE",
+   "roleNote": "published designation: Questionable",
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.37, g 12, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
@@ -241,10 +222,84 @@
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.53, g 47, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4569987",
+   "name": "Jaylen Warren",
+   "position": "RB",
+   "team": "PIT",
+   "opponent": "ATL",
+   "event": "ATL @ PIT",
+   "providerEventId": "401872658",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "tdProbability": 0.393208,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.48, g 46, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   }
  ],
- "candidateCount": 187,
- "withheld": [],
+ "candidateCount": 178,
+ "withheld": [
+  {
+   "event": "NE @ SEA",
+   "team": "SEA",
+   "player": "Zach Charbonnet",
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "NE @ SEA",
+   "team": "NE",
+   "player": "TreVeyon Henderson",
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "BUF @ HOU",
+   "team": "HOU",
+   "player": "Jayden Higgins",
+   "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "BUF @ HOU",
+   "team": "HOU",
+   "player": "Tank Dell",
+   "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "GB @ MIN",
+   "team": "GB",
+   "player": "Josh Jacobs",
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "WSH @ PHI",
+   "team": "PHI",
+   "player": "Grant Calcaterra",
+   "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "ARI @ LAC",
+   "team": "LAC",
+   "player": "Scott Matlock",
+   "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "ARI @ LAC",
+   "team": "ARI",
+   "player": "James Conner",
+   "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "DEN @ KC",
+   "team": "DEN",
+   "player": "Frank Crum",
+   "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
+  }
+ ],
  "gates": {
   "required": [
    "calibrated TD probability",
@@ -257,5 +312,5 @@
   "pricedCandidates": 0,
   "roleReadyCandidates": 0
  },
- "disclaimer": "Paper only and educational. Touchdown probabilities come from the experimental regular-season scoring model, which has not been shown to out-predict the sportsbook. A watchlist is not a bet."
+ "disclaimer": "Model touchdown probabilities. Educational."
 }

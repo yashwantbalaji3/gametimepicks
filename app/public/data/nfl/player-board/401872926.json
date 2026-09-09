@@ -9,19 +9,19 @@
  "kickoffUtc": "2026-09-13T20:25Z",
  "seasonType": 2,
  "week": 1,
- "participationBasis": "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
+ "participationBasis": "Availability refreshes until kickoff.",
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "ESTIMATE",
    "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
+   "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
    "state": "ESTIMATE",
    "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
-   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
+   "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -56,7 +56,7 @@
     "name": "David Njoku",
     "position": "TE",
     "team": "LAC",
-    "participation": "SOURCE_STALE",
+    "participation": "ACTIVE_UNCERTAIN",
     "lastSeason": {
      "club": "CLE",
      "games": 12,
@@ -75,7 +75,7 @@
     "name": "Theo Wease Jr.",
     "position": "WR",
     "team": "LAC",
-    "participation": "SOURCE_STALE",
+    "participation": "ACTIVE_UNCERTAIN",
     "lastSeason": {
      "club": "MIA",
      "games": 6,
@@ -96,7 +96,7 @@
     "name": "Tyler Allgeier",
     "position": "RB",
     "team": "ARI",
-    "participation": "SOURCE_STALE",
+    "participation": "ACTIVE_UNCERTAIN",
     "lastSeason": {
      "club": "ATL",
      "games": 17,
@@ -115,7 +115,7 @@
     "name": "Kendrick Bourne",
     "position": "WR",
     "team": "ARI",
-    "participation": "SOURCE_STALE",
+    "participation": "ACTIVE_UNCERTAIN",
     "lastSeason": {
      "club": "SF",
      "games": 15,
@@ -285,37 +285,14 @@
    "playerId": "nfl-athlete-3045147",
    "name": "James Conner",
    "team": "ARI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "INACTIVE",
    "markets": {
-    "player_rush_yds": {
-     "mean": 27.464,
-     "p10": 3.98,
-     "p25": 10.76,
-     "median": 23.09,
-     "p75": 39.11,
-     "p90": 56.47
-    },
-    "player_reception_yds": {
-     "mean": 17.253,
-     "p10": 0,
-     "p25": 0,
-     "median": 11.29,
-     "p75": 26.6,
-     "p90": 43.68
-    },
-    "player_receptions": {
-     "mean": 1.61,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 4
-    },
     "anytime_td": {
      "probability": 0.279108,
      "participation": "UNKNOWN"
     }
-   }
+   },
+   "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
   },
   {
    "playerId": "nfl-athlete-4430870",
@@ -473,13 +450,14 @@
    "playerId": "nfl-athlete-4373684",
    "name": "Scott Matlock",
    "team": "LAC",
-   "participation": "UNKNOWN",
+   "participation": "INACTIVE",
    "markets": {
     "anytime_td": {
      "probability": 0.153006,
      "participation": "UNKNOWN"
     }
-   }
+   },
+   "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
   },
   {
    "playerId": "nfl-athlete-2578570",
@@ -510,38 +488,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4429275",
-   "name": "Trey Benson",
-   "team": "ARI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 22.388,
-     "p10": 1.07,
-     "p25": 6.18,
-     "median": 17.16,
-     "p75": 32.6,
-     "p90": 50.79
-    },
-    "player_reception_yds": {
-     "mean": 18.121,
-     "p10": 0,
-     "p25": 1.68,
-     "median": 12.76,
-     "p75": 26.83,
-     "p90": 44.46
-    },
-    "player_receptions": {
-     "mean": 1.793,
-     "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4383351",
    "name": "Trey Lance",
    "team": "LAC",
@@ -561,7 +507,7 @@
    "playerId": "nfl-athlete-4686612",
    "name": "Tre' Harris",
    "team": "LAC",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 19.201,
@@ -606,5 +552,5 @@
    }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
+ "disclaimer": "Model projections. Educational."
 }

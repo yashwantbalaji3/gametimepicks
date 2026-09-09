@@ -17,7 +17,7 @@
       "plainEnglish": "This part now reads the two teams: each game's total comes from that matchup's own scoring ratings, and across this slate the published totals span 44 to 51 points. The head earned this by beating the old league-average prior on a season it had never seen, under bars that were frozen first."
     }
   ],
-  "whyGamesLookAlike": "Both parts of this model now read the teams: win probabilities come from an evaluated strength rating, and each game's total comes from that matchup's own scoring ratings. Where two games still print similar numbers, the distributions behind them differ — the audit checks exactly that.",
+  "whyGamesLookAlike": "Win probabilities come from an evaluated strength rating; each game's total comes from that matchup's own scoring ratings.",
   "whatWeFoundAndFixed": "An earlier version of this page applied the team-strength input anyway. Because the measured effect pointed slightly the wrong way, it was quietly favouring the WEAKER side in every game. We caught it, tested the input properly, and switched it off.",
   "whatWouldChangeIt": "A per-team scoring adapter built from the preseason corpus, which would have to beat a preregistered bar on a season it had never seen before it is allowed to move a published total."
 }
