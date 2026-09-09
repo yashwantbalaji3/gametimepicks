@@ -78,7 +78,7 @@ The development evaluator's `--now` values are configured reference timestamps, 
 3. Repair passing-TD/anytime-TD joint calibration and reception/rushing non-inferiority. Passing yards is improved, but an all-family public joint scorecard is still not accepted.
 4. Refresh the current role/roster evidence chain and incorporate injuries/availability with source timestamps and explicit coverage. The August historical snapshot must not masquerade as current active status.
 5. EPL sparse-data prediction weakness remains unmodified here. Rejected shrinkage is not a fix; needs a new properly evaluated candidate.
-6. Bank Builder/Moonshot accounting remains a founder decision. Asked whether each lane should roll proceeds after a win/reset after a loss, or use independent fixed-stake daily cards. No answer received during this slice; no balance/history changes made.
+6. Bank Builder/Moonshot accounting was awaiting a founder decision in the initial slice. The user has since explicitly approved independent proceeds rollover after wins and reset to each lane's existing seed after losses. See the continuation below. Historical balance/history writes remain prohibited.
 7. Builder period/identity validation, hub ordering, full keyboard/assets/device checks and a clean complete browser matrix remain separate unfinished work. No frontend completeness claim follows from this NFL backend work.
 
 ## Reproduction
@@ -86,3 +86,33 @@ The development evaluator's `--now` values are configured reference timestamps, 
 From `app/`, the evaluator accepts `--challenger participation-true-conditioning-v1` for the integrated marginal comparison, `--challenger nfl-joint-sim-v2` for the accounting candidate, and `--challenger nfl-joint-depth-v1 --depth-charts <2025 receipt>` for the depth conditioner. Joint runs require `--champion-dump <points.jsonl>` and a separate `--diagnose <directory>`; use the same `--runs 1000` and chronological population. The depth acquisition command is `node scripts/nfl/acquire-depth-chart-research.mjs --season 2025` (or 2026).
 
 Forward capture: `node scripts/nfl/capture-joint-v2-forward.mjs --depth-charts <2026 receipt> --runs 1000`. This only writes private files. Do not overwrite the registered cohort. Registration already exists and its tool intentionally refuses to replace it.
+
+## Continuation: TD calibration and current participation, September 8 ET / September 9 UTC
+
+### Completed implementation
+
+- A separately declared **v3** candidate repairs double-conditioning of the offensive-TD mean. The bridge estimates expected TDs from points; v2 used that value as a Poisson rate and truncated the distribution again. Example: intended mean 2 with ceiling 3 became 1.5789. V3 inverts the finite Poisson family to preserve the feasible expected count, with stable log weights and numerical tests. It does not change fitted coefficients, relax bars, or introduce cosmetic seed variation. V2 code, source hashes and the registered Week 1 cohort are unchanged.
+- Same 9,583-point development evaluation, 1,000 draws, no missing observations: passing TD log loss **0.7125 → 0.6757**, ECE **0.1695 → 0.1037** (589 observations). The simple training-rate baseline remains better at **0.5932**. This is an improvement, not acceptance.
+- V3 marginal MAE / ECE: passing **67.512 / 0.0886**, rushing **18.979 / 0.1190**, receiving yards **20.206 / 0.0244**, receptions **1.509 / 0.0553**. Only receiving yards clears the existing family-level bars in this comparison; that does not promote the whole engine. The joint anytime-TD diagnostic improves 0.5938 → 0.5870 on the same 3,109 diagnostic rows; the legacy 0.5214 is still not a paired-population comparator.
+- The evaluator now retains per-observation passing-TD traces. All 32 positives in the near-zero bin can be inspected. Several are clear starter-substitution failures: the chart lists Fields while Taylor played, Purdy while Jones played, or McCarthy while Wentz played. Some are genuine low-frequency backup/trick-play outcomes. Do not remove these cases to improve the headline. The current collector conditions on actual passing attempts, so it must not be described as an all-rostered-player unconditional calibration study.
+- A private participation adapter now checks current team membership and injury classification before using QB depth rank. An out/off-roster starter cannot displace an eligible backup; an uncertain starter yields `PARTICIPATION_UNCERTAIN`, not a fabricated probability or automatic backup promotion. Out/off-roster role mass is removed from the named players and stays in OTHER. Other questionable player rows remain explicit conditional research inputs.
+- All 16 Week 1 events were captured under v3 at **2026-09-09T03:01:12.834Z**, before every kickoff, separately from the frozen v2 study. The current roster/injury filter classifies 428 historical role entries: **300 ACTIVE_PROJECTED, 50 QUESTIONABLE, 28 INACTIVE, 50 UNSUPPORTED**. It removes 78 entries; 31 teams have an eligible projected depth leader, while KC's depth leader is questionable in this captured source. This is source classification, not a claim about eventual game-day availability. None are official confirmed actives.
+- Current inputs were roster capture **2026-09-08T23:12:58Z**, injuries capture **2026-09-08T16:54:09Z**, and depth snapshot **2026-09-08T11:56:57Z**. The historical rate/role snapshot is still August 13. The capture tool rejects future/malformed or older-than-24h roster/injury source stamps. Later evidence-only changes now receive distinct capture identities even if numerical inputs happen to coincide. Original captures remain immutable.
+- The approved prospective lane accounting rule has a complete pure transition implementation and tests: independent seeds, exact integer-cent gross-return rollover, loss reset, void returning the actual rolled stake, final-rung rollover into the next cycle, replay no-ops, conflicting-settlement refusal, and no card opening before the settlement funding it. **It is not connected to live generators/settlers yet.** Existing conflicting opening positions need an evidence-backed migration; no historical protected bankroll is modified by this module.
+
+### Evidence and boundaries
+
+V3 contract: `docs/execution/CODEX_NFL_JOINT_V3_CONTRACT.md`. Full evaluation and passing-TD trace: `data/internal/research/nfl/reports/codex-joint-v2/joint-depth-v3-*`. Private current captures: `data/internal/research/nfl/joint-v3-forward/`. V3 captures are exploratory research, not replacements for the registered v2 forward cohort, and no fresh-holdout or public-promotion claim is made.
+
+The 2025 development evaluation tests the TD correction with the original timestamped depth conditioner. It does **not** retrospectively apply September 2026 injury data to 2025 games. The current participation adapter therefore still needs proper forward evaluation or genuinely archived pregame injury evidence. No 2025 outcomes were used to invent earlier injury reports.
+
+### Exact public-readiness blockers still remaining
+
+1. Passing-TD calibration still loses to the simple baseline; model starter/backup uncertainty with genuinely pregame evidence and training-only probability estimates. The current rank-based depth source alone cannot resolve injury substitutions.
+2. Passing/rushing/receptions joint calibration and other family criteria have not all cleared. Receiving-yard eligibility alone does not justify an all-prop public joint scorecard.
+3. Fifty questionable historical-role entries remain conditional research inputs; August role rates also need a current, timestamped workload-evidence chain. Removing out players fixes an input contradiction, not predictive uncertainty.
+4. The partial offensive engine is coherent for supported counts/yards but still lacks sacks, interceptions, negative yards and individual kicking/defense scoring. Do not label it a complete official-style statistical scorecard.
+5. V2 forward results have not happened yet. A replay-safe official-outcome grader and complete longitudinal comparisons are still required. No outcome may replace a frozen forecast.
+6. Independent-lane accounting is approved and implemented as a tested transition owner; live pipeline migration and public state adoption remain incomplete. This is no longer awaiting the user's basic rollover decision.
+
+No public prediction, eligibility gate, money record, EPL model, UI surface or deployment was changed in this continuation. This is saved backend progress, not public completion.

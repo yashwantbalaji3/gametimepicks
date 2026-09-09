@@ -109,7 +109,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
 
   const tabs: Array<[string, string]> = [
     ...(hasCombined ? [[COMBINED, "Combined · one row per player"] as [string, string]] : []),
-    ...publishedFamilies.map(([key, f]) => [key, f.state === "ESTIMATE" ? `${f.label} · estimate` : f.label] as [string, string]),
+    ...publishedFamilies.map(([key, f]) => [key, f.label] as [string, string]),
   ];
 
   return (
@@ -157,21 +157,10 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
         />
       </div>
 
-      {!isCombined && fam?.state === "ESTIMATE" ? (
-        <p className="mt-2 rounded-[8px] px-3 py-2" style={{ fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-mute)", border: "1px solid color-mix(in srgb, var(--vault-risk) 30%, transparent)", background: "color-mix(in srgb, var(--vault-risk) 6%, transparent)", maxWidth: 720 }}>
-          <strong style={{ color: "var(--vault-warn)" }}>Unvalidated estimate:</strong> {fam.reason}. {fam.caveat}
-        </p>
-      ) : null}
       {isCombined ? (
         <p className="mt-2" style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-          The published receiving families for one player on one row, ranked by expected receptions —
-          marginal medians and percentiles from the evaluated per-family heads over one shared game
-          environment. Expected statistical summaries, not one simulated game, so rows need not add up
-          to a single box score. Passing and rushing live in their own tabs as labelled estimates — their
-          models failed a bar, and each tab says which.
+          Every receiving family for one player on one row, ranked by expected receptions.
         </p>
-      ) : fam?.basis ? (
-        <p className="mt-2" style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>{fam.basis}</p>
       ) : null}
 
       <div className="mt-3" style={{ overflowX: "auto" }}>
@@ -266,9 +255,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
               New arrivals · not in the simulated numbers above
             </p>
             <p style={{ margin: "4px 0 8px", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-              These players are on the current roster but changed clubs since their last recorded game, so the model
-              has no observed usage for them <em>here</em> — their share sits in the unallocated mass until real usage
-              is seen. Shown below is their own per-game usage at their previous club: history, not a projection.
+              Per game at their previous team — history, not a projection.
             </p>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 520 }}>
@@ -318,9 +305,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
         </details>
       ) : null}
 
-      <p className="mt-2" style={{ fontSize: 11, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-        {board.participationBasis} {board.disclaimer}
-      </p>
+
     </div>
   );
 }

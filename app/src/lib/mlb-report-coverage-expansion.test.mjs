@@ -71,7 +71,10 @@ test("6 · in-page game selector lists the day's OTHER MLB games, current highli
   // P184: the label is now DERIVED from the page's sport. It was hard-coded "MLB", which meant an
   // NFL game page announced "Today's MLB" above a strip of NFL games. The intent — the strip states
   // which sport's slate it lists — is better served by deriving it than by pinning one sport.
-  assert.match(detailPage, /Today&apos;s \{detail\.sportLabel\}/, "the selector is labelled with the page's own sport");
+  /* P250-W2: the label was unconditionally "Today's <sport>", so an archive page presented its own
+     slate-mates as tonight's games. Both arms must still name the PAGE'S sport, never a default. */
+  assert.match(detailPage, /Today's \$\{detail\.sportLabel\}/, "the same-day label names the page's own sport");
+  assert.match(detailPage, /\$\{detail\.sportLabel\} · \$\{detail\.date\}/, "an archive page names the day it is showing instead of claiming today");
   assert.match(detailPage, /aria-current="page"/, "the current game is marked aria-current");
   assert.match(detailPage, /href=\{`\/games\/\$\{s\.urlSport\}\/\$\{s\.slug\}`\}/, "each sibling links to its game page");
 });

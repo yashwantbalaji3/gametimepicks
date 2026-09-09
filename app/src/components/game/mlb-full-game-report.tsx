@@ -533,7 +533,7 @@ function Methodology({ g, meta }: { g: FullGameSimGame; meta: FullGameArtifactMe
         </div>
       ) : null}
       <p className="font-mono m-0" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>
-        Model {meta?.modelVersion ?? g.status} · {g.runCount.toLocaleString()} complete games · deterministic (same board → same result){meta?.generatedAt ? ` · generated ${formatEtTime(meta.generatedAt)}` : ""}. Paper-only, educational — not betting advice.
+        Model {meta?.modelVersion ?? g.status} · {g.runCount.toLocaleString()} complete games · deterministic (same board → same result){meta?.generatedAt ? ` · generated ${formatEtTime(meta.generatedAt)}` : ""}.
       </p>
     </div>
   );

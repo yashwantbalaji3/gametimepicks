@@ -44,7 +44,8 @@ const RUNS = Number(arg("--runs", "1000"));
  * data/internal/research/nfl/reports/pass-yds-coverage-repair-preregistration.json
  */
 const CHALLENGER = arg("--challenger", null);
-const DEPTH_CONDITIONED = CHALLENGER === "nfl-joint-depth-v1";
+const JOINT_V3 = CHALLENGER === "nfl-joint-depth-v3";
+const DEPTH_CONDITIONED = CHALLENGER === "nfl-joint-depth-v1" || JOINT_V3;
 const JOINT_V2 = CHALLENGER === "nfl-joint-sim-v2" || DEPTH_CONDITIONED;
 /* P246 §4.3 diagnostics: --diagnose <dir> reruns the champion protocol but writes the receipt
    AND the per-family threshold-calibration bins into <dir> instead of any committed path —
@@ -83,7 +84,7 @@ if (PARTICIPATION_TRUE) {
   }
 }
 if (DIAGNOSE_SEASON !== 2025 && !DIAGNOSE_DIR) { console.error("REFUSED: --diagnose-season requires --diagnose"); process.exit(1); }
-if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1", "pass-starter-conditioning-v1", "participation-true-conditioning-v1", "nfl-joint-sim-v1", "nfl-joint-sim-v2", "nfl-joint-depth-v1"].includes(CHALLENGER)) {
+if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1", "pass-starter-conditioning-v1", "participation-true-conditioning-v1", "nfl-joint-sim-v1", "nfl-joint-sim-v2", "nfl-joint-depth-v1", "nfl-joint-depth-v3"].includes(CHALLENGER)) {
   console.error(`REFUSED: unknown challenger ${CHALLENGER}`); process.exit(1);
 }
 /* P246 §4.3: gamma for receiving-target-deflation-v1 — a preregistered grid value, threaded
@@ -136,7 +137,7 @@ const champPoints = JOINT
   ? new Set(fs.readFileSync(CHAMP_DUMP, "utf8").split("\n").filter(Boolean).map((l) => { const r = JSON.parse(l); return `${r.gameId}|${r.playerId}|${r.mkt}`; }))
   : null;
 const jointDeps = JOINT ? await (async () => {
-  const { simulateJointGame } = await import(JOINT_V2 ? "../../src/lib/sports/nfl/joint-game-sim-v2.mjs" : "../../src/lib/sports/nfl/joint-game-sim.mjs");
+  const { simulateJointGame } = await import(JOINT_V3 ? "../../src/lib/sports/nfl/joint-game-sim-v3.mjs" : JOINT_V2 ? "../../src/lib/sports/nfl/joint-game-sim-v2.mjs" : "../../src/lib/sports/nfl/joint-game-sim.mjs");
   // fs directly — the shared `read` helper is declared later in this file (the P246 TDZ lesson, third sighting)
   const bridgeDoc = fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/reports/scoring-bridge-v1.json"), "utf8");
   const bridge = {
@@ -606,7 +607,11 @@ for (const g of test) {
             jointExtra.passTd.llR4 += hit ? -Math.log(pr4) : -Math.log(1 - pr4);
             const pb = clampP(trainPassTdRate);
             jointExtra.passTd.llBase += hit ? -Math.log(pb) : -Math.log(1 - pb);
-            jointExtra.passTd.cal.push({ p: p1, hit });
+            jointExtra.passTd.cal.push({ p: p1, hit, gameId: g.providerEventId, dateUtc: g.dateUtc,
+              team: abbr, playerId: simP.playerId, name: cand.name ?? null,
+              actualAttempts: actualRow.passAtt, actualTd: actualRow.passTd ?? 0,
+              predictedAttemptsShare: jointRoster.players.find(p => p.playerId === simP.playerId)?.qbShare ?? null,
+              depthDecision: DEPTH_CONDITIONED ? depthDecisions.at(-1) : null });
           }
           const at = simP.markets.anytime_td;
           if (at && (cand.tdShare ?? 0) >= 0.02) {
@@ -831,7 +836,7 @@ if (CHALLENGER) {
     : "nfl-pass-yds-repair-evaluation";
   if (JOINT) {
     receipt.engine = {
-      id: JOINT_V2 ? "nfl-joint-sim-v2" : CHALLENGER, version: JOINT_V2 ? 2 : 1,
+      id: JOINT_V3 ? "nfl-joint-sim-v3" : JOINT_V2 ? "nfl-joint-sim-v2" : CHALLENGER, version: JOINT_V3 ? 3 : JOINT_V2 ? 2 : 1,
       ...(DEPTH_CONDITIONED ? { conditioner: "nfl-joint-depth-v1" } : {}),
       champion: { id: NFL_PLAYER_PROPS_ID, version: 1 },
       note: "the engine under evaluation is the joint generator; champion baselines are the marginal engine named in challenger.champion",
@@ -856,7 +861,7 @@ if (CHALLENGER) {
     };
     receipt.challenger = {
       id: CHALLENGER,
-      preregistration: JOINT_V2 ? "docs/execution/CODEX_NFL_JOINT_V2_CONTRACT.md" : "data/internal/research/nfl/reports/joint-sim-preregistration.json",
+      preregistration: JOINT_V3 ? "docs/execution/CODEX_NFL_JOINT_V3_CONTRACT.md" : JOINT_V2 ? "docs/execution/CODEX_NFL_JOINT_V2_CONTRACT.md" : "data/internal/research/nfl/reports/joint-sim-preregistration.json",
       champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
       scope: "the joint generator's marginals scored under the identical walk-forward chain and population contract; pass yds GROSS; passTd/anytime collectors per prereg",
     };
@@ -909,6 +914,7 @@ if (DIAGNOSE_DIR) {
   fs.writeFileSync(path.join(DIAGNOSE_DIR, "receipt.json"), JSON.stringify(receipt, null, 1));
   fs.writeFileSync(path.join(DIAGNOSE_DIR, "calibration-bins.json"), JSON.stringify(diagnosticsBins, null, 1));
   fs.writeFileSync(path.join(DIAGNOSE_DIR, "points.jsonl"), diagnosticsPoints.map((r) => JSON.stringify(r)).join("\n") + "\n");
+  if (JOINT_V2) fs.writeFileSync(path.join(DIAGNOSE_DIR, "passing-td-points.jsonl"), jointExtra.passTd.cal.map(r => JSON.stringify(r)).join("\n") + "\n");
 } else {
   fs.writeFileSync(path.join(ROOT, OUT), JSON.stringify(receipt, null, 1));
 }

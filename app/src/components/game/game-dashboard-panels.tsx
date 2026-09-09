@@ -87,8 +87,29 @@ export function SoccerComingSoonRoadmap() {
   );
 }
 
-/** Methodology explainer — sport-specific, honest, separates from the official record. */
-export function MethodologyPanel({ sport }: { sport: "mlb" | "world_cup" }) {
+/**
+ * Methodology explainer — sport-specific, honest, separates from the official record.
+ *
+ * P250-W2: the caller passed a hardcoded "mlb" from the shared simulation path, so an NFL game
+ * page explained ITS read with baseball nouns ("run line", "10,000-run seeded simulation of the
+ * published projections") under a heading claiming to say how this was calculated. Any sport that
+ * is neither baseball nor soccer now gets the sport-neutral wording rather than another sport's.
+ */
+export function MethodologyPanel({ sport }: { sport: "mlb" | "world_cup" | (string & {}) }) {
+  if (sport !== "mlb" && sport !== "world_cup") {
+    return (
+      <section aria-label="How this is calculated" className="rounded-[12px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={CARD}>
+        <h3 className="font-mono uppercase tracking-[0.16em] m-0 font-normal" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
+          How this is calculated
+        </h3>
+        <ul className="pl-4 flex flex-col gap-1.5 text-[12px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)", listStyle: "disc" }}>
+          <li><strong style={{ color: "var(--vault-text)" }}>Player markets</strong> come from a seeded simulation of the published projections — the run count is read from the artifact, never hardcoded.</li>
+          <li><strong style={{ color: "var(--vault-text)" }}>Game lines</strong> (moneyline, spread, total) are <strong>market-implied</strong>: de-vigged from the sportsbook&rsquo;s posted prices, not a separate prediction.</li>
+          <li>This sits outside the official paper-card record — model performance is tracked separately.</li>
+        </ul>
+      </section>
+    );
+  }
   return (
     <section aria-label="How this is calculated" className="rounded-[12px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={CARD}>
       <h3 className="font-mono uppercase tracking-[0.16em] m-0 font-normal" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
@@ -109,7 +130,6 @@ export function MethodologyPanel({ sport }: { sport: "mlb" | "world_cup" }) {
           <li>None of this is part of the official <strong style={{ color: "var(--vault-text)" }}>19-14</strong> paper-card record.</li>
         </ul>
       )}
-      <p className="text-[10.5px] m-0" style={{ color: "var(--vault-text-faint)" }}>Paper-only · educational · not betting advice.</p>
     </section>
   );
 }

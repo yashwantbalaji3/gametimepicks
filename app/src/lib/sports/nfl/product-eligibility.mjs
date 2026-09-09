@@ -121,7 +121,7 @@ export function evaluateNflProductEligibility({ events, nowIso, vault = null }) 
     products,
     plainEnglish:
       qualifying.length === 0 && considered.length > 0
-        ? "We looked at every NFL game on the slate today and none of them may enter a paper card. That is the rule working, not a gap: the NFL model is still experimental, and an experimental forecast is never allowed to become a product leg no matter how confident it looks."
+        ? "No NFL game on this slate qualifies for a paper card — an experimental forecast never becomes a product leg."
         : qualifying.length > 0
           ? "At least one NFL game passed the product-leg gate."
           : "There was no pre-kickoff NFL game to evaluate.",

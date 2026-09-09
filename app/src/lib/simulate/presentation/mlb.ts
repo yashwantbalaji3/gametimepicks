@@ -206,7 +206,10 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
       id: "margin",
       kind: "margin",
       title: "The margin",
-      line: `${rl.pick} covered in ${Math.round((rl.coverProbability as number) * 100)}% of simulated games.`,
+      /* P250-W2: this said "of simulated games" unconditionally — a run-count claim in words, made
+         without the artifact's permission, in the one chapter that had not been routed through
+         `runsPhrase`. It is the same rule as the axis caption below it. */
+      line: `${rl.pick} covered in ${Math.round((rl.coverProbability as number) * 100)}% of ${runCount ? "simulated games" : "the distribution"}.`,
       stats: [
         { label: rl.pick, value: rl.coverProbability, format: "probability" },
         ...(Number.isFinite(rl.pushProbability) && (rl.pushProbability as number) > 0

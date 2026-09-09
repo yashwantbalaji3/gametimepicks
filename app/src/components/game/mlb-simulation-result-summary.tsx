@@ -44,6 +44,8 @@ export interface MlbSimulationResultSummaryProps {
   slateDate: string;
   /** Whether THIS game's bundle carries a full-game simulation (the Overview tab's own gate). */
   fullGameAvailable?: boolean;
+  /** P250-W2: the handicap market's name in THIS sport — "run line" reached NFL pages through this shared summary. */
+  spreadLabel?: string;
 }
 
 const pct = (p: number | null | undefined) => (typeof p === "number" ? `${(p * 100).toFixed(0)}%` : "—");
@@ -71,7 +73,7 @@ function LeanRow({ p, lead }: { p: SummaryPick; lead?: boolean }) {
   );
 }
 
-export default function MlbSimulationResultSummary({ headline, picks, runCount, allowsRunCountClaim, isPreviousSlate, slateDate, fullGameAvailable = false }: MlbSimulationResultSummaryProps) {
+export default function MlbSimulationResultSummary({ headline, picks, runCount, allowsRunCountClaim, isPreviousSlate, slateDate, fullGameAvailable = false, spreadLabel = "run line" }: MlbSimulationResultSummaryProps) {
   const ranked = [...picks].filter((p) => typeof p.edgePct === "number").sort((a, b) => (b.edgePct ?? 0) - (a.edgePct ?? 0));
   const top = ranked.slice(0, 3);
   const runLabel = allowsRunCountClaim && runCount != null && runCount > 0 ? `${runCount.toLocaleString()}-run` : "deterministic";
@@ -99,11 +101,11 @@ export default function MlbSimulationResultSummary({ headline, picks, runCount, 
       )}
 
       <p className="font-mono text-[10px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
-        {runLabel} player-prop simulation ({picks.length} markets). Full-game markets (moneyline / run line /
+        {runLabel} player-prop simulation ({picks.length} markets). Full-game markets (moneyline / {spreadLabel.toLowerCase()} /
         total) below are the de-vigged sportsbook lines — market-anchored, not an independent game simulation.
         {fullGameAvailable
-          ? " The projected score and run distributions in the Overview tab come from the separate independent full-game simulation."
-          : " No full-game simulation qualified for this game, so no projected score or margin distribution is shown."} Paper-only, educational.
+          ? " The projected score and score distributions in the Overview tab come from the separate independent full-game simulation."
+          : " No full-game simulation qualified for this game, so no projected score or margin distribution is shown."}
       </p>
     </section>
   );

@@ -262,7 +262,7 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
               </table>
             </div>
             <p className="font-mono m-0" style={{ fontSize: 9.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-              Accuracy is measured against a baseline that always answers the historical base rate. Paper and educational —
+              Accuracy is measured against a base-rate baseline. Paper and educational —
               research estimates, never advice, and never presented as an advantage over the sportsbook price.
             </p>
           </>

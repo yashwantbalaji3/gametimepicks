@@ -287,7 +287,15 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   // canonical index's own phaseLabel, so the words follow the published model. The guard got
   // STRICTER: it now pins that the page cannot hardcode a phase at all.
   assert.match(nflHub, /Experimental \$\{index\?\.model\?\.phaseLabel/, "the page derives its phase from the canonical index, never a hardcoded literal");
-  assert.match(nflHub, /not a claim to beat the sportsbook market/i, "and what it does not claim");
+  /*
+   * P250-W2: the non-claim had THREE retyped homes on this page — the header framing, a lead
+   * sentence, and the model's own recorded honestLimit — and a reader met all three before a
+   * single number. The retyped two are gone. The claim still has to reach a reader, so it is
+   * asserted where it now lives: in the ARTIFACT the lead renders (pinned to that render below),
+   * which is also the only copy that cannot drift away from the measured result.
+   */
+  const nflIndexModel = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/index.json"), "utf8"))?.model;
+  assert.match(nflIndexModel?.plainEnglish?.honestLimit ?? "", /has NOT been shown to beat the sportsbook market/i, "and what it does not claim");
   /*
    * The coin-flip limit is now RENDERED FROM THE MODEL ARTIFACT rather than retyped in the page, so
    * the literal no longer appears in this source file. That change was made because the page's own

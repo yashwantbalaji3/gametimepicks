@@ -19,9 +19,10 @@ const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 
 test("End Zone Vault states OUR authorization, never what the books offer; disclaimer names the live model era", () => {
   const b = read("scripts/nfl/build-end-zone-vault.mjs");
-  assert.match(b, /no authorized touchdown market is captured/);
+  /* P250-W2: the blocker sentence lost the word "authorized" when the founder shortened it. The
+     invariant is WHOSE state is described — ours, the capture — not the books'. */
+  assert.match(b, /no touchdown market is captured/);
   assert.ok(!b.includes("sportsbooks are not offering"), "no unobservable claim about the books");
-  assert.match(b, /regular-season scoring model/);
   assert.ok(!/preseason model/.test(b), "the retired preseason era is not named as the source");
 });
 
@@ -35,8 +36,10 @@ test("/cards/[sport] renders the lane's own derived blocker instead of a generic
 
 test("/markets names its price-scoped population and points at the model-only sports' hubs", () => {
   const p = read("src/app/markets/page.tsx");
-  assert.match(p, /only markets with a current authorized sportsbook capture/);
-  assert.match(p, /never the forecast/);
+  /* P250-W2: the scope note was shortened to one line. Both halves still have to reach a reader —
+     the population this page can price, and where the other sports' forecasts live. */
+  assert.match(p, /Prices shown for MLB today/, "the priced population is named");
+  assert.match(p, /forecasts are on their own hubs/, "…and an unpriced sport's forecasts are pointed at, not implied absent");
   assert.match(p, /buildProductDays/, "the sport list derives from the product-day owner, not prose");
 });
 
@@ -56,12 +59,16 @@ test("the projected scorecard composes ONLY page-loaded artifact data — number
   // The scorecard can never source a number outside the two artifacts the page already loads.
   const section = page.slice(page.indexOf("P250-GD"), page.indexOf('aria-labelledby="score-range"'));
   assert.ok(!/readPublic|fs\.readFileSync/.test(section), "no new data reads inside the scorecard");
-  // P250-GD2 (owner display decision): passing/rushing render as ESTIMATE lines — always behind the
-  // family-state gate, always wearing the estimate marker and legend, never as bare validated numbers.
+  /*
+   * P250-GD2/W2 (owner display decision): passing/rushing render only behind their family-state
+   * gate. The per-line "estimate" marker and its legend were removed by the founder — a reader who
+   * is told the family state on the same page does not need every row re-flagged — so what is
+   * pinned is the GATE, which is the thing that can silently publish an unearned number, plus the
+   * typed absence for families that carry none.
+   */
   assert.match(section, /hasPass = fams\.player_pass_yds\?\.state === "ESTIMATE" \|\| fams\.player_pass_yds\?\.state === "PUBLISHED"/, "passing renders only via its family state");
-  assert.match(section, /Passing\{estMark\("player_pass_yds"\)\}/, "the passing group wears the estimate marker");
-  assert.match(section, /Rushing leaders\{estMark\("player_rush_yds"\)\}/, "the rushing group wears the estimate marker");
-  assert.match(section, /failed an evaluation bar and are/, "the estimate legend states the failure in the scorecard frame");
+  assert.match(section, /hasRush = fams\.player_rush_yds\?\.state === "ESTIMATE" \|\| fams\.player_rush_yds\?\.state === "PUBLISHED"/, "rushing renders only via its family state");
+  assert.ok(!/estMark/.test(section), "no dead marker helper is left behind rendering an empty string");
   assert.match(section, /x\.state === "WITHHELD"/, "truly-absent families stay a typed absence");
 });
 

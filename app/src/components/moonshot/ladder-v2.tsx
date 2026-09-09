@@ -107,14 +107,11 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
 
       {policyPreview ? (
         <p className="px-4 pt-2 text-[10.5px] leading-relaxed sm:px-5 m-0" style={{ color: "var(--vault-text-mute)" }}>
-          This is the ladder&rsquo;s <strong style={{ color: "var(--vault-text)" }}>planned trajectory</strong>, not a live run: today&rsquo;s
-          published Moonshot cards are independent longshot cards, not steps of this ladder, and progression
-          stays inactive until its stake-accounting policy is decided.
+          The planned trajectory. Today&rsquo;s published cards are independent longshots, not steps of this ladder.
         </p>
       ) : null}
       <p className="mt-2.5 px-4 pb-4 text-[10.5px] leading-relaxed sm:px-5" style={{ color: "var(--vault-text-faint)" }}>
-        <strong style={{ color: "var(--vault-text-mute)" }}>Why it can hit:</strong> structured team/game legs grouped by game, aligned with each game&rsquo;s score lean — win Day&nbsp;1 and the $25 seed is banked back immediately, so Days&nbsp;2–3 ride house money ($100 locked before the $1,500 swing).
-        &nbsp;<strong style={{ color: "var(--vault-text-mute)" }}>Why it can fail:</strong> it&rsquo;s a longshot — one wrong leg ends the day. A losing day costs only what was still rolling; locked profit stays banked, and a day with no qualified card is a NO-PLAY, never forced. Settles from official results only.
+        Win Day&nbsp;1 and the $25 seed banks back, so Days&nbsp;2–3 ride house money. One wrong leg ends the day; a day with no qualified card is a no-play. Settles from official results.
       </p>
     </section>
   );

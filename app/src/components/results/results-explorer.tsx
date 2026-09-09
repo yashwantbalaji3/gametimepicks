@@ -552,9 +552,7 @@ export default function ResultsExplorer({
             </table>
           </div>
           <p style={{ fontSize: 11, color: "var(--vault-text-faint)", margin: 0, lineHeight: 1.5 }}>
-            A trailing <code>+n</code> counts cards that have not settled; they are in no rate above.
-            A dash is an empty cell — no card of that tier settled in this period, which is not a loss.
-            Mixed-sport cards are their own row and are never counted inside a single sport.
+            <code>+n</code> = not yet settled. A dash = no card that tier. Mixed-sport cards have their own row.
           </p>
         </div>
       ) : null}

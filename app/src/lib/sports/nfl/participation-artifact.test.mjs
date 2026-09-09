@@ -134,9 +134,16 @@ test("SENSITIVITY · removing a player moves his mass to unallocated, not into t
 
 test("PUBLIC · the summary leads with the limitation and never claims a player will play", () => {
   assert.equal(summary.dataClass, "PUBLIC_DERIVED");
-  assert.match(summary.headline, /We do not know who will play/);
-  assert.match(summary.whyNotKnown, /No source we are authorized to use/);
-  assert.match(summary.whatWeDoInstead, /RANGE/);
+  /*
+   * P250-W2: these pinned one PHASE's wording, not the claim. The preseason strings ("We do not
+   * know who will play", "No source we are authorized to use") were false on a regular-season page
+   * where the injury report IS an authorized designation source, and the founder cut the shouted
+   * RANGE. What must hold in every phase: the headline states the playing-time limitation, the
+   * artifact says WHY the picture is incomplete, and the answer is a range rather than one number.
+   */
+  assert.match(summary.headline, /playing time|who will play/i, "the headline leads with the playing-time limitation");
+  assert.match(summary.whyNotKnown, /(no authorized source|injury report|before kickoff)/i, "…and says why the picture is incomplete");
+  assert.match(summary.whatWeDoInstead, /\brange\b/i, "…and that the answer is a range, not a single number");
   assert.deepEqual(summary.unreachableWithoutSource, [...REQUIRES_AUTHORIZED_ACTIVES]);
   const blob = JSON.stringify(summary);
   // A claim phrase inside its own DENIAL is the opposite of a claim — the headline is literally

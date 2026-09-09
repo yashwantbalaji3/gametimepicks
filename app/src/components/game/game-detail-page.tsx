@@ -18,6 +18,7 @@ import MlbSimulationReportV2 from "@/components/game/mlb-simulation-report-v2";
 import MlbFullGameReport from "@/components/game/mlb-full-game-report";
 import ModelMarketComparison from "@/components/game/model-market-comparison";
 import { loadProductTagMap } from "@/lib/game-detail-product-tags";
+import { reportWordsFor } from "@/lib/game-detail-vocabulary";
 import { currentEtDate } from "@/lib/freshness";
 import WcGameCenter from "@/components/game/wc-game-center";
 import WcSimulationRunner from "@/components/game/wc-simulation-runner";
@@ -412,7 +413,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
 
   const spotlight = (
     <section className="flex flex-col gap-2.5">
-      <SectionHeader eyebrow="Model spotlight" title="The strongest reads for this match" sub="Model-ranked, paper-only — pulled from the current odds and the model gates. Full detail in the tabs below." />
+      <SectionHeader eyebrow="Model spotlight" title="The strongest reads for this match" sub="Pulled from the current odds and the model gates. Full detail in the tabs below." />
       {unifiedScript ? <GameScriptCard script={unifiedScript} /> : null}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {topProj ? (
@@ -453,7 +454,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   // ── Tab: Suggested parlays (prominent, by risk) ──
   const cardsTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow={`Model-built cards · ${engineTotal}`} title="Model-built cards for this match" sub="Paper-only cards generated from current odds and model gates, by risk. Tap any leg for model + market detail." />
+      <SectionHeader eyebrow={`Model-built cards · ${engineTotal}`} title="Model-built cards for this match" sub="Generated from current odds and model gates, by risk. Tap any leg for model + market detail." />
       {engineTotal > 0 ? (
         RISK_ORDER.map((lvl) => {
           const cards = engineCards?.byRisk[lvl] ?? [];
@@ -549,7 +550,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <div className="rounded-[10px] px-4 py-8 text-center flex flex-col items-center gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
             <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Player props pending</span>
             <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No model player picks yet</p>
-            <p className="max-w-md" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.5 }}>Player props will appear when this game enters the active betting window — soccer props post near lineup time. We never show a pick without real posted odds behind it.</p>
+            <p className="max-w-md" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.5 }}>Player props appear as soon as a book posts real odds for this game. We never show a pick without a real posted price behind it.</p>
           </div>
         )}
       </div>
@@ -595,7 +596,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           </div>
         ))}
       </div>
-      <Link href="/learn#sports" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>How soccer markets work →</Link>
+      <Link href="/learn#sports" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>How these markets work →</Link>
     </div>
   );
 
@@ -649,6 +650,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       isPreviousSlate={mlbIsPreviousSlate}
       slateDate={detail.date ?? ""}
       fullGameAvailable={!!mlbFullGameCapability?.available}
+      spreadLabel={reportWordsFor(detail.sport).spreadLabel}
     />
   ) : null;
   const mlbRunLabel = detail.gameLabSimulation?.allowsRunCountClaim && detail.gameLabSimulation?.runCount
@@ -661,8 +663,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       <ExpandableReportSection title="Advanced report" hint="The dense model-vs-market report + the model spotlight + the legacy market tabs.">
         {mlbReport}{spotlight}<SportShell tabs={tabs.filter((t) => t.key !== "player-props")} />
       </ExpandableReportSection>
-      <ExpandableReportSection title="Methodology" hint="How this read is built — honest, paper-only.">
-        <MethodologyPanel sport="mlb" />
+      <ExpandableReportSection title="Methodology" hint="How this read is built.">
+        <MethodologyPanel sport={detail.sport} />
       </ExpandableReportSection>
     </div>
   );
@@ -672,7 +674,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     <MlbSimulationReportV2
       // The sport words its own report. Without this an NFL page renders "MLB · <date>" and
       // "total-runs … for MLB", which is exactly what it did before.
-      vocabulary={detail.fullGameSim?.vocabulary ? { sportCode: detail.fullGameSim.vocabulary.sportCode, scoreUnit: detail.fullGameSim.vocabulary.scoreUnit } : null}
+      // P250-W2: falling back to `null` fell back to BASEBALL — an NFL game with no full-game
+      // simulation rendered "MLB" in its own header. The artifact still wins when it speaks; when
+      // it does not, the words come from the sport, never from another sport's default.
+      vocabulary={detail.fullGameSim?.vocabulary ? { ...reportWordsFor(detail.sport), sportCode: detail.fullGameSim.vocabulary.sportCode, scoreUnit: detail.fullGameSim.vocabulary.scoreUnit, spreadLabel: detail.fullGameSim.vocabulary.spreadLabel ?? reportWordsFor(detail.sport).spreadLabel } : reportWordsFor(detail.sport)}
       home={detail.homeTeam ?? ""}
       away={detail.awayTeam ?? ""}
       date={detail.date ?? ""}
@@ -763,9 +768,14 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           // highlighted; a "sim" chip flags games with a ready simulation. Data is the real slate (no fabrication).
           const siblings = siblingGames(detail.sport, detail.date ?? "", detail.slug);
           if (siblings.length === 0) return null;
+          /* P250-W2: the strip said "Today's NFL" on every archive page, so an August preseason
+             game presented its own slate-mates as tonight's football. The siblings are always the
+             GAME'S day; the label now says which day that is unless it really is today. */
+          const sameDay = !!detail.date && detail.date === currentEtDate();
+          const stripLabel = sameDay ? `Today's ${detail.sportLabel}` : `${detail.sportLabel} · ${detail.date}`;
           return (
-            <div className="mb-4 -mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }} aria-label={`Other ${detail.sportLabel} games today`}>
-              <span className="shrink-0 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Today&apos;s {detail.sportLabel}</span>
+            <div className="mb-4 -mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }} aria-label={sameDay ? `Other ${detail.sportLabel} games today` : `Other ${detail.sportLabel} games on ${detail.date}`}>
+              <span className="shrink-0 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{stripLabel}</span>
               <span className="shrink-0 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-gold-bright)", background: "color-mix(in srgb, var(--vault-crown) 12%, transparent)", border: "1px solid var(--vault-gold-bright)", whiteSpace: "nowrap" }} aria-current="page">{detail.title}</span>
               {siblings.map((s) => (
                 <Link key={s.slug} href={`/games/${s.urlSport}/${s.slug}`} className="shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none", whiteSpace: "nowrap" }}>
@@ -884,7 +894,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <ExpandableReportSection title="Scorers &amp; what's coming" hint="Player markets, match events, and the advanced model layer — honest roadmap.">
           <ScorersPanel /><SoccerComingSoonRoadmap />
         </ExpandableReportSection>
-        <ExpandableReportSection title="Methodology" hint="How this market-implied read is built — paper-only.">
+        <ExpandableReportSection title="Methodology" hint="How this market-implied read is built.">
           <MethodologyPanel sport="world_cup" />
         </ExpandableReportSection>
       </div>

@@ -133,5 +133,44 @@ test("both UIs render arrivals with the not-in-these-numbers frame", () => {
   assert.match(board, /history, not a projection/);
   const page = readApp("src/app/nfl/game/[eventId]/page.tsx");
   assert.match(page, /New arrivals · not in these numbers/);
-  assert.match(page, /their share sits in the\s*\n?\s*unallocated mass/);
+  assert.match(page, /history, not a projection/);
+});
+
+test("LIVE · ONE ANSWER PER PLAYER — no surface calls a designated-out player expected to play", () => {
+  /*
+   * P250-W2: the Vault decided each candidate's role state from a TEAM AGGREGATE ("somebody on
+   * this club is expected to play"), so Zach Charbonnet published at 50.2% with the note "roster
+   * and injury evidence support expected participation" while the same injuries capture had him
+   * Out since Sep 7 and the player board had already withheld his volume. Two public surfaces,
+   * one player, opposite answers — the aggregate can never answer a question about one player.
+   *
+   * The invariant is cross-surface: whatever the designation says, every public NFL surface says
+   * the same thing about that player, or does not carry him at all.
+   */
+  const role = read("data/internal/nfl/role-evidence/latest.json");
+  const outByPlayer = new Map();
+  for (const ev of role.events ?? []) {
+    for (const [abbr, tv] of Object.entries(ev.teams ?? {})) {
+      for (const pl of tv.players ?? []) {
+        if (pl.state === "OUT" || pl.state === "INACTIVE") outByPlayer.set(`${abbr}:${pl.playerId}`, pl);
+      }
+    }
+  }
+  if (outByPlayer.size === 0) return; // no designations this window — nothing to contradict
+
+  const vault = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/end-zone-vault/latest.json"), "utf8"));
+  for (const c of [...(vault.selections ?? []), ...(vault.watchlist ?? [])]) {
+    const designated = outByPlayer.get(`${c.team}:${c.playerId}`);
+    assert.ok(!designated, `${c.name} is designated ${designated?.injuryStatus ?? "out"} and is published in the Vault as ${c.roleState}`);
+  }
+
+  const dir = path.join(APP, "public/data/nfl/player-board");
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir).filter((x) => /^\d+\.json$/.test(x))) {
+    const b = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    for (const p of b.players ?? []) {
+      if (!outByPlayer.has(`${p.team}:${p.playerId}`)) continue;
+      assert.equal(p.participation, "INACTIVE", `${p.name} is designated out and the board calls him ${p.participation}`);
+    }
+  }
 });

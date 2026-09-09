@@ -155,9 +155,10 @@ const receipt = {
     ],
   },
   recordSeparation:
-    "NFL product outcomes are experimental and are kept entirely separate from MLB's settled record, Bank Builder's protected history, Moonshot's history and the Mr. Dub portfolio. A NO_PLAY here touches no money and no other sport's record.",
-  plainEnglish:
-    "All four NFL lanes ran and none produced a card. That is the result of the checks working, not of the products being switched off: our team model is a labelled baseline, none of our player projections passed their own tests, and the sportsbooks are not offering NFL player markets for these games anyway.",
+    "NFL product outcomes are kept separate from every other sport's record and touch no money.",
+  /* P250-GD5: was a hardcoded preseason-era paragraph asserting a BASELINE_ONLY team model and
+     "sportsbooks are not offering" — both false now. Short, and derived from what actually ran. */
+  plainEnglish: `All four NFL lanes ran and none produced a card${playerMarketOffered ? "" : " — no NFL player market is captured for these games"}.`,
 };
 
 fs.writeFileSync(path.join(APP, "public/data/nfl/product-receipts.json"), JSON.stringify(receipt, null, 2) + "\n");

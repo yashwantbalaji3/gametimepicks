@@ -32,7 +32,7 @@ test("ONLY ACTIVE is a card — a watchlist carries no card, no return, no instr
      * the vocabulary the producer actually uses. Pinning only the words "no card" failed a Vault
      * that was being perfectly clear. `isCard` is asserted above and remains the load-bearing check.
      */
-    assert.match(vault.reason, /not a card|no card|no upcoming .* event|no .* to evaluate/i,
+    assert.match(vault.reason, /not a card|no card|no upcoming .* event|no .* to evaluate|no .* market is captured/i,
       `a non-active outcome must state that nothing was published; got "${vault.reason}"`);
   }
   const blob = JSON.stringify(vault);
@@ -143,13 +143,21 @@ test("today's real outcome is the honest one: candidates exist, a card does not"
     assert.ok(vault.candidateCount > 0 && watching > 0,
       `a window with candidates must surface them (count ${vault.candidateCount}, watchlist ${watching})`);
   }
-  /* P250-W1: the disclaimer's no-overclaim clause is the invariant — its exact wording moved to
-     the compliant "out-predict" form (and "preseason model" became the regular-season truth), so
-     the artifact pin accepts either era while the workflow-owned artifact rolls over, and the
-     GENERATOR — the contract owner — is pinned to the new wording exactly. */
-  assert.match(vault.disclaimer, /not been shown to (beat the sportsbook market|out-predict the sportsbook)/);
+  /*
+   * P250-W2: THE INVARIANT IS "NEVER OVERCLAIM", NOT A PARTICULAR SENTENCE. This pinned the exact
+   * words "has not been shown to out-predict the sportsbook". The founder removed that sentence
+   * from the product surface as over-hedging — a reader of a watchlist does not need a paragraph
+   * disowning a claim the product never makes. What must stay true is that the disclaimer says
+   * what the numbers ARE (model probabilities, educational) and asserts no superiority over the
+   * market anywhere in the artifact; that is asserted positively and negatively here.
+   */
+  assert.match(vault.disclaimer, /model .*probabilit/i, "the disclaimer says what the numbers are");
+  assert.match(vault.disclaimer, /educational/i, "…and what they are for");
+  const blob = JSON.stringify(vault).toLowerCase();
+  for (const overclaim of ["beat the market", "beat the sportsbook", "out-predict the sportsbook", "outperform the market", "better than the market"]) {
+    assert.ok(!blob.includes(overclaim), `the artifact must never claim "${overclaim}"`);
+  }
   const builder = fs.readFileSync(path.join(APP, "scripts/nfl/build-end-zone-vault.mjs"), "utf8");
-  assert.match(builder, /regular-season scoring model/, "the disclaimer names the live model era");
-  assert.match(builder, /no authorized touchdown market is captured/, "the blocker states OUR authorization state, never a claim about what the books offer");
+  assert.match(builder, /no touchdown market is captured/, "the blocker states OUR capture state, never a claim about what the books offer");
   assert.ok(!builder.includes("the sportsbooks are not offering"), "the unobservable claim about the books is gone");
 });

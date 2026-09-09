@@ -124,10 +124,6 @@ export default function NflHubPage() {
   // good as the participation assumption behind it, and ours is "we do not know, here is how much".
   // P183-B: all four player families were tested and rejected. Published because a site that shows
   // only the models that worked is not showing its work.
-  const playerFamilies = read("nfl/player-families-public.json") as
-    | { headline: string; whatWeTested: string; theCompetitor: string; whatItMeans: string;
-        noMarketAnyway: string; results: Array<{ family: string; n: number; verdict: string; why: string }> }
-    | null;
   const participation = read("nfl/participation-summary.json") as
     | { headline: string; whyNotKnown: string; whatWeDoInstead: string; whyItMatters: string;
         eventsCovered: number; unreachableWithoutSource: string[] }
@@ -356,14 +352,14 @@ export default function NflHubPage() {
              what this build actually shows. */
           slateMarketRows.length ? { href: "#nfl-markets", label: "Sportsbook prices" } : { href: "#nfl-boards", label: "Weekly top boards" },
         ]}
-        framing="Experimental, educational, paper-only. This model has not been shown to beat the sportsbook market — nothing here is a pick or a recommendation to wager."
+        /* P250-W2: this said the same thing the lead paragraph below says, one line apart — a
+           reader met three consecutive disclaimers before a single number. The hero states the
+           frame; the model's own recorded result states the limit, once. */
+        framing="Experimental regular-season simulations · educational · paper-only."
       />
 
       <div style={{ maxWidth: 680 }}>
-        {/* The coin-flip limit stays in the LEAD, not behind a disclosure: it changes how every
-            number on this page should be read, and a guard holds it here on purpose. Only the
-            provenance detail folds away. */}
-        {/* The honest limit is READ FROM THE MODEL ARTIFACT, not retyped here.
+        {/* THE HONEST LIMIT IS READ FROM THE MODEL ARTIFACT, not retyped here.
          *
          * This paragraph used to carry its own copy, and the copy had drifted into a kinder claim:
          * the page said the model picked winners "barely better than a coin flip" while the model's
@@ -372,16 +368,12 @@ export default function NflHubPage() {
          * in that direction. Rendering the artifact's own sentence makes that impossible.
          *
          * It stays in the LEAD, not behind a disclosure — it changes how every number on this page
-         * should be read, and a guard holds it here on purpose.
+         * should be read, and a guard holds it here on purpose. P250-W2 removed the two hand-typed
+         * sentences that used to sit above it and said the same thing twice more.
          */}
-        <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))" }}>
-          Experimental {index?.model?.phaseLabel ? `${index.model.phaseLabel} ` : ""}simulations — not picks. {index?.model?.plainEnglish?.honestLimit}
+        <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
+          {index?.model?.plainEnglish?.honestLimit}
         </p>
-        <Explain label="Where the data comes from">
-          Everything on this page derives from committed public captures, and the coverage table
-          below states each layer&apos;s exact status and the reason, in words. These simulations are
-          not a claim to beat the sportsbook market.
-        </Explain>
       </div>
 
       {/* ── THE SLATE ─────────────────────────────────────────────────────────
@@ -399,7 +391,7 @@ export default function NflHubPage() {
           sub={
             slateGames.length === 0
               ? "No scheduled games remain in the committed schedule capture. Nothing is invented to fill this space."
-              : `The full ${weekLabel ?? "slate"}: ${simulatedOnSlate} of ${slateGames.length} carry a published simulation${weekCounts.missedPreEvent ? `, ${weekCounts.missedPreEvent} missed pre-event coverage` : ""}${simulatedOnSlate < slateGames.length - weekCounts.missedPreEvent ? "; the rest refresh inside each game's own event window and say so on their card" : ""}. ${forecastCard?.honestLimit ?? ""}`
+              : `The full ${weekLabel ?? "slate"}: ${simulatedOnSlate} of ${slateGames.length} carry a published simulation${weekCounts.missedPreEvent ? `, ${weekCounts.missedPreEvent} missed pre-event coverage` : ""}.`
           }
           rightSlot={experimentalChip}
         />
@@ -462,13 +454,7 @@ export default function NflHubPage() {
           </table>
         </div>
         <p style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
-          The two projected scores are derived from the median total and median margin, so they always
-          add up to the printed total.{" "}
-          {/* The totals sentence follows the ARTIFACT's own head stamp — prose about the model
-              derives from what the model actually did this build, never from what it used to do. */}
-          {(forecastArtifact?.forecasts?.[0]?.forecastSummary?.total as { head?: string } | undefined)?.head === "matchup-totals-v1-decayed-points"
-            ? "Each game's total comes from that matchup's own scoring ratings — a head that first had to beat the league-wide prior on a held-out season under preregistered bars."
-            : "This season's total is a league-wide prior shared by every game — it stays the same number across the slate until a matchup-specific totals model clears its preregistered bars, and the range beside it is that prior's own spread."}
+          Projected scores come from the median total and margin, so they add up to the printed total.
         </p>
         {forecastArtifact?.generatedAt ? (
           <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
@@ -495,13 +481,7 @@ export default function NflHubPage() {
                 <div key={b.id}>
                   <h3 style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>
                     {b.title}
-                    {b.state === "ESTIMATE" ? (
-                      <span className="font-mono uppercase tracking-[0.08em]" style={{ marginLeft: 8, fontSize: 9, color: "var(--vault-warn)", border: "1px solid color-mix(in srgb, var(--vault-risk) 40%, transparent)", borderRadius: 999, padding: "2px 8px" }}>unvalidated estimate</span>
-                    ) : null}
                   </h3>
-                  {b.state === "ESTIMATE" ? (
-                    <p style={{ margin: "0 0 6px", fontSize: 11, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 760 }}>{b.reason}. {b.caveat}</p>
-                  ) : null}
                   <div style={{ overflowX: "auto" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 620 }}>
                       <thead>
@@ -635,11 +615,11 @@ export default function NflHubPage() {
                 {vault.state === "ACTIVE" ? "CARD" : "WATCHLIST"}
               </span>
             }
-            sub={
-              vault.state === "ACTIVE"
-                ? vault.reason
-                : `Who our model thinks is most likely to score. This is a watchlist, not a card — ${vault.reason.replace(/^\d+ model candidates, but no card: /, "")}`
-            }
+            /* P250-GD5 (founder): one line says what the section is. The badge beside the title
+               already reads WATCHLIST or CARD; repeating that in prose — three times, as this did —
+               costs the reader and tells them nothing the badge did not. The full evaluation and
+               pricing state stay one click away in Coverage and on /methodology. */
+            sub="Who our model thinks is most likely to score"
           />
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
@@ -674,9 +654,6 @@ export default function NflHubPage() {
               </tbody>
             </table>
           </div>
-          <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-            These percentages never add to 100%: defences, special teams and unlisted players hold the rest. {vault.disclaimer}
-          </p>
         </section>
       ) : null}
 
@@ -784,42 +761,13 @@ export default function NflHubPage() {
         </div>
       </section>
 
-      {playerFamilies ? (
-        <section aria-labelledby="nfl-player-families" id="nfl-player-families">
-          <SectionHeader
-            eyebrow="Player projections"
-            title={playerFamilies.headline}
-            sub={`${playerFamilies.whatWeTested} ${playerFamilies.theCompetitor}`}
-          />
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
-              <thead>
-                <tr>
-                  {["Family", "Games of evidence", "Result", "Why"].map((h) => (
-                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {playerFamilies.results.map((r) => (
-                  <tr key={r.family}>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>{r.family}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{r.n.toLocaleString()}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{r.verdict}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, lineHeight: 1.55, color: "var(--vault-text-mute)" }}>{r.why}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p style={{ margin: "12px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text)", maxWidth: 760 }}>
-            {playerFamilies.whatItMeans}
-          </p>
-          <p style={{ margin: "6px 0 0", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 760 }}>
-            {playerFamilies.noMarketAnyway}
-          </p>
-        </section>
-      ) : null}
+      {/* P250-GD5: the player-families narrative section is retired. Its artifact
+          (nfl/player-families-public.json) has NO generator — it was written once on 2026-08-14 and
+          froze, so a month later it was still telling readers on a live regular-season page that we
+          publish no per-player projections "for this weekend" while the player board beside it
+          published them. The same facts, derived and current, are in the Coverage table (from
+          model-status.json) and on /methodology; a page does not need a third copy, least of all a
+          stale one. */}
 
       {participation ? (
         <section aria-labelledby="nfl-participation" id="nfl-participation">
@@ -902,30 +850,29 @@ export default function NflHubPage() {
               </article>
             ))}
           </div>
-          {differentiation.whatWeFoundAndFixed ? (
-            <p style={{ margin: "12px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 720 }}>
-              <strong style={{ color: "var(--vault-text)" }}>What we found and fixed:</strong> {differentiation.whatWeFoundAndFixed}
-            </p>
+          {/* P250-GD5 (founder): the model's own read stays above; the engineering narrative — what
+              we found, what we tried, what would change it — moves behind one click. A reader who
+              wants it gets all of it; everyone else gets the model's answer and moves on. */}
+          {(differentiation.whatWeFoundAndFixed || differentiation.weTriedToFixIt || differentiation.whatWouldChangeIt) ? (
+            <details style={{ marginTop: 12, border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px", maxWidth: 760 }}>
+              <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 32 }}>
+                How we tested this
+              </summary>
+              {differentiation.whatWeFoundAndFixed ? (
+                <p style={{ margin: "8px 0 0", fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
+                  <strong style={{ color: "var(--vault-text-mute)" }}>What we found and fixed:</strong> {differentiation.whatWeFoundAndFixed}
+                </p>
+              ) : null}
+              {differentiation.weTriedToFixIt ? (
+                <p style={{ margin: "8px 0 0", fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
+                  {differentiation.weTriedToFixIt.what} {differentiation.weTriedToFixIt.result} {differentiation.weTriedToFixIt.decision}
+                </p>
+              ) : null}
+              {differentiation.whatWouldChangeIt ? (
+                <p style={{ margin: "8px 0 0", fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>{differentiation.whatWouldChangeIt}</p>
+              ) : null}
+            </details>
           ) : null}
-          {differentiation.weTriedToFixIt ? (
-            <div style={{ margin: "12px 0 0", padding: "12px 14px", border: "1px solid var(--vault-border)", borderRadius: 12, maxWidth: 760 }}>
-              <p style={{ margin: 0, fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
-                We tried to fix it — here is what happened
-              </p>
-              <p style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
-                {differentiation.weTriedToFixIt.what} {differentiation.weTriedToFixIt.bars}
-              </p>
-              <p style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text)" }}>
-                {differentiation.weTriedToFixIt.result} {differentiation.weTriedToFixIt.decision}
-              </p>
-              <p style={{ margin: "6px 0 0", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
-                {differentiation.weTriedToFixIt.alsoLearned}
-              </p>
-            </div>
-          ) : null}
-          <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-            {differentiation.whatWouldChangeIt}
-          </p>
         </section>
       ) : null}
 
@@ -936,6 +883,8 @@ export default function NflHubPage() {
             title="All four NFL lanes ran today"
             sub={productReceipts.plainEnglish}
           />
+          <details style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
+            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 32 }}>Per-product detail</summary>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
               <thead>
@@ -959,8 +908,9 @@ export default function NflHubPage() {
               </tbody>
             </table>
           </div>
+          </details>
           <p style={{ margin: "12px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 760 }}>
-            <strong style={{ color: "var(--vault-text)" }}>Three separate things would each have to change.</strong>{" "}
+            <strong style={{ color: "var(--vault-text)" }}>What would change this:</strong>{" "}
             {productReceipts.overDetermined.gates.join("; ")}.
           </p>
         </section>

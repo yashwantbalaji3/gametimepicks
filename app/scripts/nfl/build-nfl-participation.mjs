@@ -230,10 +230,13 @@ for (const ev of events) {
   } else {
     fs.writeFileSync(base, JSON.stringify(body, null, 1) + "\n");
   }
-  written.push({ providerEventId: ev.providerEventId, matchup: ev.shortName, kickoffUtc: ev.dateUtc, teams: Object.keys(teams) });
+  written.push({ providerEventId: ev.providerEventId, matchup: ev.shortName, kickoffUtc: ev.dateUtc, seasonType: ev.seasonType ?? null, teams: Object.keys(teams) });
 }
 
 // ── PUBLIC summary: what we know, said plainly, with the limitation first ──────────────────────
+/* Phase of the window this run covers — the copy above must never assert a season it is not in. */
+const preseasonWindow = written.length > 0 && written.every((w) => (w.seasonType ?? 2) === 1);
+
 const summary = {
   schemaVersion: 1,
   artifact: "nfl-participation-public",
@@ -241,13 +244,18 @@ const summary = {
   generatedAt: NOW,
   eventsCovered: written.length,
   eventsRefused: refused.length,
-  headline: "We do not know who will play in these preseason games — and we would rather size that uncertainty than hide it.",
-  whyNotKnown:
-    "No source we are authorized to use publishes confirmed actives, inactives or preseason playing-time plans for this window. So no player on this slate is listed as expected to start or expected to rotate; every one is marked role-uncertain.",
-  whatWeDoInstead:
-    "For each listed player we publish a RANGE of how much of his team's work he might take, not a single number. The range is deliberately wide because August starters often play one or two series, and the part of the game nobody on our list accounts for is published too, as unallocated share.",
-  whyItMatters:
-    "A player projection is only as good as the playing-time assumption behind it. Quoting a regular-season workload in August would make a projection look precise while being wrong for a reason that has nothing to do with the player.",
+  /* P250-GD5: these four strings were written for preseason and hardcoded, so the regular season
+     made every one of them false on a live page ("we are not publishing per-player projections",
+     "August starters often play one or two series") while the product published them. Phase-aware
+     and short: one sentence each, and the preseason wording only appears in preseason. */
+  headline: preseasonWindow
+    ? "Preseason playing time is decided on the night — we size that uncertainty rather than hide it."
+    : "Playing time refreshes until kickoff.",
+  whyNotKnown: preseasonWindow
+    ? "No authorized source publishes preseason playing-time plans, so every player is marked role-uncertain."
+    : "Game-day actives are published about 90 minutes before kickoff; until then availability comes from the injury report.",
+  whatWeDoInstead: "Each player carries a range of his team's work, not a single number, and the share nobody on the list accounts for is published as unallocated.",
+  whyItMatters: "A projection is only as good as the playing-time behind it.",
   states: { AVAILABLE_ROLE_UNCERTAIN: written.length ? "every named player on this slate" : "no events in window" },
   reachableStatesToday: ["AVAILABLE_ROLE_UNCERTAIN", "UNKNOWN", "SOURCE_STALE", "STARTED_LOCKED"],
   unreachableWithoutSource: REQUIRES_AUTHORIZED_ACTIVES,

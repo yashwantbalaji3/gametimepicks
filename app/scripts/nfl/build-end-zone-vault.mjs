@@ -71,6 +71,33 @@ if (!shares?.teams) missing.push("no committed role shares");
 const nowMs = Date.parse(NOW);
 const upcoming = (forecasts?.forecasts ?? []).filter((f) => Date.parse(f.kickoffUtc) > nowMs);
 
+/*
+ * PER-PLAYER DESIGNATION (P250-W2).
+ *
+ * `poolStatesFor` returns the team's participation COUNTS, and the Vault used them as one boolean
+ * for every player on that club: "somebody here is expected to play" became "this player is
+ * expected to play". On 2026-09-09 that published Zach Charbonnet in the watchlist at 50.2% with
+ * the note "roster and injury evidence support expected participation" — while the same injuries
+ * capture had him designated Out since Sep 7, and the player board (which reads the designation
+ * per player) had already withheld his volume. Two public surfaces, one player, opposite answers.
+ *
+ * A team aggregate can never answer a question about one player. The Vault now reads the same
+ * injuries-fed role evidence the board reads, keyed by player: a designated-out player leaves the
+ * candidate pool entirely (he is recorded in `withheld`, not silently dropped), and a questionable
+ * player publishes as QUESTIONABLE rather than as expected to play.
+ */
+const roleByPlayer = (() => {
+  const m = new Map();
+  const doc = read(path.join(ROOT, "data/internal/nfl/role-evidence/latest.json"));
+  for (const ev of doc?.events ?? []) {
+    for (const [abbr, tv] of Object.entries(ev.teams ?? {})) {
+      for (const pl of tv.players ?? []) m.set(`${abbr}:${pl.playerId}`, { state: pl.state, because: pl.because, injuryStatus: pl.injuryStatus ?? null });
+    }
+  }
+  return m;
+})();
+const OUT_STATES = new Set(["OUT", "INACTIVE", "NOT_ON_ROSTER", "UNSUPPORTED"]);
+
 /** Participation, read from the newest current artifact for the event. */
 function poolStatesFor(providerEventId, teamAbbr) {
   if (!fs.existsSync(currentDir)) return null;
@@ -101,16 +128,25 @@ for (const f of upcoming) {
       const prob = anytimeTdProbability({ teamTd, perTdShare: flat[i] });
       if (prob.state !== "OK") return;
       if (prob.probability < VAULT_PRODUCT_CARD.minCandidateProbability) return;
+      /* The designation is a fact about THIS player — see roleByPlayer above. */
+      const role = roleByPlayer.get(`${teamAbbr}:${p.playerId}`) ?? null;
+      if (role && OUT_STATES.has(role.state)) {
+        withheld.push({ event: f.matchup, team: teamAbbr, player: p.name, reason: `designated ${role.injuryStatus ?? role.state.toLowerCase()} — a player who is not playing is not a scorer candidate` });
+        return;
+      }
+      const questionable = role?.state === "QUESTIONABLE";
       candidates.push({
         playerId: p.playerId, name: p.name, position: p.position ?? null,
         team: teamAbbr, opponent: f[side === "home" ? "away" : "home"].abbr,
         event: f.matchup, providerEventId: f.providerEventId, kickoffUtc: f.kickoffUtc,
         tdProbability: prob.probability,
         probabilityRange: { note: "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual" },
-        roleState: roleEvidence ? "ACTIVE_EXPECTED" : "ROLE_UNCERTAIN",
+        roleState: questionable ? "QUESTIONABLE" : roleEvidence ? "ACTIVE_EXPECTED" : "ROLE_UNCERTAIN",
         // The uncertain-role sentence names the actual gap, not a hardcoded phase (P240): this
         // line used to say "preseason:" and became false copy the day Week 1 entered the window.
-        roleNote: roleEvidence ? "roster and injury evidence support expected participation" : "no source-backed evidence yet of how much this player will play in this game",
+        roleNote: questionable
+          ? (role?.because ?? "published designation: questionable")
+          : roleEvidence ? "roster and injury evidence support expected participation" : "no source-backed evidence yet of how much this player will play in this game",
         marketPrice: null,
         shareBasis: p.shareBasis,
         modelVersion: calibration?.receipt ?? null,
@@ -147,10 +183,12 @@ if (missing.length) {
   /* P250-W1: the old blocker claimed a fact about the books this repo cannot
        observe — the true state is OUR capture carries no authorized touchdown market (the NFL odds
        authorization is founder-gated). Unavailable price authorization is not an absent market. */
-    if (tdMarketOffered === false) blockers.push("no authorized touchdown market is captured for these games (price acquisition is a separate authorization, not a claim the books offer nothing)");
+    if (tdMarketOffered === false) blockers.push("no touchdown market is captured for these games");
   else if (!priced.length) blockers.push("no current comparable touchdown price is available");
-  if (!roleReady.length) blockers.push("no player's playing time is established by the availability evidence yet");
-  reason = `${candidates.length} model candidates, but no card: ${blockers.join(" and ")}. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.`;
+  if (!roleReady.length) blockers.push("playing time is not established yet");
+  /* P250-GD5 (founder): the badge already says WATCHLIST. The reason names the blocker once,
+     for the Coverage table that consumes it — no repetition, no instruction-to-bet sermon. */
+  reason = `${candidates.length} model candidates · ${blockers.join(" and ")}`;
 }
 
 const publicArtifact = {
@@ -173,7 +211,7 @@ const publicArtifact = {
     pricedCandidates: priced.length,
     roleReadyCandidates: roleReady.length,
   },
-  disclaimer: "Paper only and educational. Touchdown probabilities come from the experimental regular-season scoring model, which has not been shown to out-predict the sportsbook. A watchlist is not a bet.",
+  disclaimer: "Model touchdown probabilities. Educational.",
 };
 
 const payload = JSON.stringify(publicArtifact, null, 1);

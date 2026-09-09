@@ -285,7 +285,7 @@ const publicSummary = {
      stale claim the moment the regular identity published. */
   whyGamesLookAlike: publishedRegular
     ? (totalIsMatchup
-        ? "Both parts of this model now read the teams: win probabilities come from an evaluated strength rating, and each game's total comes from that matchup's own scoring ratings. Where two games still print similar numbers, the distributions behind them differ — the audit checks exactly that."
+        ? "Win probabilities come from an evaluated strength rating; each game's total comes from that matchup's own scoring ratings."
         : "Game totals on this slate look similar because the total head draws every game from one league scoring average — that part of the model does not read the teams. Win probabilities DO differ by team: they come from an evaluated strength rating. Similar totals are the honest output of a shared prior, not a coincidence and not a bug.")
     : "Preseason games on this slate look similar to each other because, right now, this model genuinely cannot tell them apart. Scoring comes from one league-wide preseason average, and the team-strength input was measured and found to carry no usable signal, so it is switched off. Similar-looking numbers are the honest output of a model that knows very little — not a coincidence, and not a bug.",
   whatWeFoundAndFixed:

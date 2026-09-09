@@ -204,7 +204,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           .filter((p) => p.markets.player_rush_yds?.median != null)
           .sort((a, b) => (b.markets.player_rush_yds!.median ?? 0) - (a.markets.player_rush_yds!.median ?? 0))
           .slice(0, 2);
-        const estMark = (famKey: string) => (fams[famKey]?.state === "ESTIMATE" ? " · estimate" : "");
+        /* P250-GD5 (founder): the family-state gate still decides WHAT renders; the per-group
+           "· estimate" suffix is gone. Evaluation detail lives on /methodology, not on every row. */
         /* P250-GD3: roster movers the stint rule cannot place yet — factual prior-club usage,
            named on the scorecard so a star the reader came for is never silently absent. */
         const arrivalsOf = (abbr: string) => (playerBoard?.newArrivals?.[abbr] ?? []).slice(0, 3);
@@ -235,7 +236,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             ) : null}
             {hasPass && passTop(t.abbr).length ? (
               <div style={{ marginTop: 10 }}>
-                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Passing{estMark("player_pass_yds")}</p>
+                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Passing</p>
                 {passTop(t.abbr).map((p) => (
                   <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
                     <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
@@ -249,7 +250,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             ) : null}
             {hasRush && rushTop(t.abbr).length ? (
               <div style={{ marginTop: 10 }}>
-                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Rushing leaders{estMark("player_rush_yds")}</p>
+                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Rushing leaders</p>
                 {rushTop(t.abbr).map((p) => (
                   <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
                     <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
@@ -264,6 +265,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             {arrivalsOf(t.abbr).length ? (
               <div style={{ marginTop: 10 }}>
                 <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-warn)" }}>New arrivals · not in these numbers</p>
+                <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>Per game at their previous club — history, not a projection.</p>
                 {arrivalsOf(t.abbr).map((a) => (
                   <p key={a.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
                     <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{a.name}</span>{" "}
@@ -316,19 +318,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   <TeamCol t={f.home} />
                 </div>
               ) : null}
-              {Object.keys(playerBoard?.newArrivals ?? {}).length ? (
-                <p className="font-mono" style={{ margin: "12px 0 0", fontSize: 10, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-                  “New arrivals” changed clubs since their last recorded game, so this model has no observed usage for
-                  them here — their prior-club per-game history is shown as fact and their share sits in the
-                  unallocated mass. Full detail in the board below.
-                </p>
-              ) : null}
-              {estimates.length ? (
-                <p className="font-mono" style={{ margin: "12px 0 0", fontSize: 10, lineHeight: 1.6, color: "var(--vault-warn)" }}>
-                  “estimate” lines ({estimates.map(([, x]) => x.label).join(" · ")}) failed an evaluation bar and are
-                  displayed for completeness — each tab in the board below states the exact bar and caveat. Never a pick.
-                </p>
-              ) : null}
+              
               {/* Every family the scorecard does NOT number, in the scorecard's own frame — the
                   artifact's exact failed bar, never a silent gap and never an invented number. */}
               {withheld.length ? (
@@ -343,11 +333,6 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                       </li>
                     ))}
                   </ul>
-                  <p style={{ margin: "8px 0 0", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-                    A family joins this scorecard the day its model clears the preregistered bar it is measured
-                    against — never sooner. Publishing a number a failed model produced would make every number
-                    here worth less.
-                  </p>
                 </details>
               ) : null}
             </div>
@@ -411,7 +396,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <SectionHeader
             eyebrow={`Player projections · ${playerBoard.players.length} modelled`}
             title="The player board"
-            sub="Validated families carry plain numbers; families that failed a bar display as labelled estimates with the exact bar beside them. Each row wears its availability state, and volume projections are withheld for players listed out."
+            sub="Every modelled player, with his availability. Players listed out carry no volume projection."
           />
           {/* P250 · A15: the P249 combined receiving table is now the board's own "Combined" tab —
               one filter scope, every eligible player reachable, availability on every row, one

@@ -177,7 +177,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
         label: PROP_LABEL[market] ?? market,
         state: "ESTIMATE",
         reason: `${promo.state}${bars ? ` — failed bar(s): ${bars}` : ""}`.trim(),
-        caveat: `Unvalidated estimate, displayed for completeness: ${ESTIMATE_CAVEAT[market] ?? "this family failed the named evaluation bar(s)."} Never a pick and never product-eligible.`,
+        caveat: ESTIMATE_CAVEAT[market] ?? "This family has not cleared its evaluation bar.",
       };
     } else {
       families[market] = { label: PROP_LABEL[market] ?? market, state: "WITHHELD", reason: `${promo.state}${bars ? ` — failed bar(s): ${bars}` : ""}`.trim() };
@@ -276,7 +276,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     kickoffUtc: doc.kickoffUtc,
     seasonType: doc.seasonType,
     week: doc.week,
-    participationBasis: "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
+    participationBasis: "Availability refreshes until kickoff.",
     families,
     /* New arrivals per team: factual prior-club per-game usage for notable movers the stint rule
        cannot yet place. NOT part of the simulated numbers, and each row says so. */
@@ -284,7 +284,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     /* Rows removed because the player is no longer on that roster — counted, never silent. */
     departedFiltered,
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
-    disclaimer: "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook.",
+    disclaimer: "Model projections. Educational.",
   };
   const payload = JSON.stringify(artifact, null, 1);
   for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledger"]) {

@@ -273,7 +273,7 @@ const publicSummary = {
   headline: `We scored all ${cohort.n} of our ${ET_DATE} NFL forecasts against the official finals.`,
   whatThisIs:
     cohort.baselineOnlyRows === cohort.n
-      ? "Every forecast on this slate was a baseline: the model had no measured read separating the two teams, so these numbers grade a league-average preseason prior, not a game-specific prediction."
+      ? "Baseline forecasts: the model had no measured read separating these teams, so the record below grades a league-average prior."
       : "Each forecast was frozen before kickoff and graded against the official result.",
   n: cohort.n,
   decisiveGames: cohort.decisiveN,

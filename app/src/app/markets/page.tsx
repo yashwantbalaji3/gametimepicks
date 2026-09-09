@@ -111,15 +111,9 @@ export default function MarketsPage() {
         if (!modelOnly.length) return null;
         return (
           <p className="reveal" style={{ marginTop: 18, marginBottom: 0, fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-mute)", maxWidth: 760 }}>
-            This board lists only markets with a current authorized sportsbook capture — today that is MLB.{" "}
-            {modelOnly.map((s, i) => (
-              <span key={s.href}>
-                {i > 0 ? (i === modelOnly.length - 1 ? " and " : ", ") : ""}
-                <a href={s.href} style={{ color: "var(--vault-gold-bright)" }}>{s.label}</a>
-              </span>
-            ))}{" "}
-            model forecasts are published without a price comparison on their own hubs — a missing
-            authorized price removes the comparison, never the forecast.
+            Prices shown for MLB today. {modelOnly.map((sp, i) => (
+              <span key={sp.href}>{i > 0 ? (i === modelOnly.length - 1 ? " and " : ", ") : ""}<a href={sp.href} style={{ color: "var(--vault-gold-bright)" }}>{sp.label}</a></span>
+            ))} forecasts are on their own hubs.
           </p>
         );
       })()}

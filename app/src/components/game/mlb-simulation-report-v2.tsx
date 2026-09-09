@@ -43,7 +43,7 @@ export interface MlbSimulationReportV2Props {
    * "total-runs" and "MLB Stats API"; when NFL began rendering through it, an NFL page said MLB.
    * Omitted → baseball, so every existing MLB call site is unchanged.
    */
-  vocabulary?: { sportCode: string; scoreUnit: string } | null;
+  vocabulary?: { sportCode: string; scoreUnit: string; spreadLabel?: string; startLabel?: string } | null;
   home: string;
   away: string;
   homeCode?: string | null;
@@ -175,6 +175,13 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
   } = props;
   const sportCode = vocabulary?.sportCode ?? "MLB";
   const scoreUnit = vocabulary?.scoreUnit ?? "runs";
+  /* P250-W2: two more baseball nouns that reached NFL pages through the shared report. */
+  const spreadLabel = (vocabulary?.spreadLabel ?? "run line").toLowerCase();
+  const startLabel = vocabulary?.startLabel ?? "first pitch";
+  /* P250-W2: the MLB calibration audit is a statement about BASEBALL markets (Strikeouts · Hits ·
+     Total bases · H+R+RBI, 18,659 settled MLB leans). Rendered unconditionally, it appeared on NFL
+     pages as if it described football — the same class of leak as the baseball nouns above. */
+  const isBaseball = sportCode === "MLB";
   // The one capability fact every full-game claim in this tab keys off. Same gate as the Overview tab.
   const fullGameAvailable = !!fullGame?.available;
 
@@ -374,7 +381,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
 
       {/* Calibration disclosure — the honest, audit-backed truth about the model probabilities. Prominent + high
           so nobody reads the "model %"/gap below as a proven advantage. Only hidden if a market is ever validated. */}
-      {!anyModeledMarketBeatsMarket() ? (
+      {isBaseball && !anyModeledMarketBeatsMarket() ? (
         <div className="rounded-[12px] px-4 py-3 flex items-start gap-2.5" style={{ background: "color-mix(in srgb, var(--vault-risk) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-risk) 40%, transparent)" }}>
           <span aria-hidden style={{ color: "var(--vault-warn)", fontSize: 14, lineHeight: 1.2 }}>⚠</span>
           <div className="flex flex-col gap-0.5">
@@ -454,7 +461,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                 </table>
               </div>
             ))}
-            <Explain label="How to read this table">Proj is the model’s projected stat. Model % and Mkt % are each side’s probability of clearing the posted line, and Gap is model minus market in points. A research board, not a bet slip. Paper-only.</Explain>
+            <Explain label="How to read this table">Proj is the model’s projected stat. Model % and Mkt % are each side’s probability of clearing the posted line, and Gap is model minus market in points. A research board, not a bet slip.</Explain>
           </div>
         ) : boardPicks.length > 0 ? (
           <div className="overflow-x-auto -mx-1">
@@ -497,7 +504,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
             </table>
             <p className="mt-2 font-mono text-[9.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
               Proj = the model's projected stat (from the artifact) · Model % / Mkt % = probabilities to clear the line ·
-              Gap = model − market, in points. A research board, not a bet slip. Paper-only.
+              Gap = model − market, in points.
             </p>
           </div>
         ) : <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text-mute)" }}>No simulated player lines for this game yet.</p>}
@@ -639,8 +646,8 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         </div>
         <p className="text-[12px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
           Every player-prop market in this report settles <strong>deterministically from the official {sportCode} statistics feed
-          box score</strong> — strikeouts, hits, total bases, and the rest are read straight from the final box score
-          with no human judgment. Team markets settle from the official final score and run line.
+          box score</strong> — the markets listed above are read straight from the final box score
+          with no human judgment. Team markets settle from the official final score and {spreadLabel}.
         </p>
       </Section>
 
@@ -654,7 +661,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         </div>
         {/* Calibration flag — honest, audit-backed. The candidate markets did NOT out-predict the market, so a
             "model above market" read is NOT a proven advantage. Only shown while no market passes the gate. */}
-        {!anyModeledMarketBeatsMarket() ? (
+        {isBaseball && !anyModeledMarketBeatsMarket() ? (
           <p className="text-[12px] leading-relaxed m-0 mb-1.5 rounded-[8px] px-3 py-2" style={{ color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-risk) 7%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-risk) 28%, transparent)" }}>
             <span className="font-mono uppercase tracking-[0.1em] mr-1.5" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Calibration flag</span>
             These candidate markets (Strikeouts · Hits · Total bases · H+R+RBI) did <strong>not</strong> out-predict
@@ -688,7 +695,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           <p className="text-[12.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>No de-vigged team markets for this game yet — provider needed.</p>
         )}
         <p className="mt-2 text-[11.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
-          Moneyline, run line, and total are the de-vigged sportsbook prices — <strong>market-anchored, not an
+          Moneyline, {spreadLabel}, and total are the de-vigged sportsbook prices — <strong>market-anchored, not an
           independent game simulation</strong>.
         </p>
       </Section>
@@ -757,12 +764,12 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           </div>
           {provenance.generatedLabel ? <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>{provenance.generatedLabel}</span> : null}
           <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>{provenance.captureLabel}</span>
-          {provenance.firstPitch ? <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>Scheduled first pitch {formatEtTime(provenance.firstPitch)}</span> : null}
+          {provenance.firstPitch ? <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>Scheduled {startLabel} {formatEtTime(provenance.firstPitch)}</span> : null}
         </div>
         <p className="font-mono text-[10.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
-          {runLabel} player-prop Monte Carlo simulation. Full-game markets (moneyline / run line / total) are the
+          {runLabel} player-prop Monte Carlo simulation. Full-game markets (moneyline / {spreadLabel} / total) are the
           de-vigged sportsbook lines — market-anchored, not an independent game simulation. No projected score,
-          total-{scoreUnit}, or margin distribution is generated for {sportCode}. Paper-only, educational — not betting advice.
+          total-{scoreUnit}, or margin distribution is generated for {sportCode}.
         </p>
         {/* What's next? — keep the daily loop moving from a finished report (retention, not a prediction). */}
         <p className="font-mono text-[10.5px] m-0 mt-3">

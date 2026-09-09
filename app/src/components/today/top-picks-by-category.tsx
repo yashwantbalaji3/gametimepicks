@@ -54,7 +54,7 @@ export default function TodayTopPicksByCategory({ categories }: { categories: Ca
         ))}
       </div>
       <p className="font-mono m-0" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-        Direction = the side the simulation favors (not model-vs-market gap). Ordered by simulated share, a factual sort — the settled record shows our most confident calls are our worst, so nothing here is ranked by trust. Paper-only research · not a bet.
+        Ordered by simulated share — the settled record shows our most confident calls are our worst, so nothing here is ranked by trust. Paper-only research · not a bet.
       </p>
     </section>
   );

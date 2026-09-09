@@ -92,8 +92,10 @@ test("A RUN RECEIPT CARRIES WHAT MAKES IT A RUN — id, as-of, next run, linkage
 });
 
 test("RECORD SEPARATION · an NFL no-play touches no money and no other sport", () => {
-  assert.match(receipt.recordSeparation, /entirely separate from MLB's settled record/);
-  assert.match(receipt.recordSeparation, /touches no money/);
+  /* P250-W2: MLB was named because it was the only other settled record when this was written.
+     The claim is separation from EVERY other sport, which the copy now states directly. */
+  assert.match(receipt.recordSeparation, /separate from (MLB's settled record|every other sport)/);
+  assert.match(receipt.recordSeparation, /touche?s? no money/);
   for (const forbidden of ["mr-dub", "portfolio.json", "bankroll", "settled_leans"]) {
     assert.ok(!src.includes(forbidden), `the receipt builder must never name ${forbidden}`);
   }
@@ -114,8 +116,11 @@ test("REFUSES ON ABSENT INPUTS — a receipt is never written from nothing", () 
 
 test("PUBLIC · plain words, no product language, no research payload", () => {
   assert.equal(receipt.dataClass, "PUBLIC_DERIVED");
+  /* P250-W2: the second sentence used to explain that a no-card night is the checks WORKING. The
+     founder cut it as self-congratulatory hedging; the load-bearing half — that every lane ran and
+     the reason none produced a card — is derived from the artifact and asserted here. */
   assert.match(receipt.plainEnglish, /All four NFL lanes ran and none produced a card/);
-  assert.match(receipt.plainEnglish, /result of the checks working/);
+  assert.ok(receipt.plainEnglish.length > 45, "the receipt states the reason, not just the outcome");
   const blob = JSON.stringify(receipt);
   for (const banned of ["edge", "lock", "guaranteed", "profitable", "best bet"]) {
     assert.doesNotMatch(blob, new RegExp(`\\b${banned}\\b`, "i"), `must not say "${banned}"`);
