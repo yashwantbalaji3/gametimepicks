@@ -51,19 +51,6 @@ type Forecast = {
   disclaimer: string;
 };
 
-/** The per-game simulation artifact: team opportunity plus one distribution per player family. */
-type GameSim = {
-  providerEventId: string;
-  status: string;
-  simulationSummary: { runCount: number };
-  players: Array<{
-    playerId: string; name: string; position: string | null; team: string; family: string;
-    anytimeTdProbability: number | null; marketState: string;
-    projections: Array<{ field: string; label: string; distribution: { p10: number; p50: number; p90: number; mean: number }; thresholds: Array<{ line: number; modelProbabilityOver: number }> }>;
-  }>;
-  conservation: { enforcedWithinDraw: string[]; notEnforcedAcrossFamilies: string };
-};
-
 const readPublic = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
 };
@@ -101,10 +88,6 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
 
   const idx = indexArtifact();
   const idxEvent = (idx?.events ?? []).find((e: { providerEventId: string }) => e.providerEventId === params.eventId);
-  // P183-F: the per-game simulation — team opportunity plus every player's distribution, from the
-  // SAME joint process that produced the score above.
-  const simArtifact = readPublic("nfl/game-simulations/latest.json") as { games: GameSim[] } | null;
-  const sim: GameSim | undefined = (simArtifact?.games ?? []).find((g) => g.providerEventId === params.eventId);
   const lifecycle: string = idxEvent?.lifecycle ?? "UPCOMING";
   const started = lifecycle !== "UPCOMING";
   const s = f.forecastSummary;
@@ -247,73 +230,29 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             title="The player board"
             sub="Only families that cleared their own evaluation bars carry numbers; each row wears its availability state, and volume projections are withheld for players listed out."
           />
+          {/* P250 · A15: the P249 combined receiving table is now the board's own "Combined" tab —
+              one filter scope, every eligible player reachable, availability on every row, one
+              display-precision policy, no silent cap. The separate server-rendered copy of the same
+              numbers is gone. */}
           <NflPlayerBoard board={playerBoard} teams={[f.away.abbr, f.home.abbr]} />
 
-          {/* P249 §8 — the RECEIVING table: the three published families for one player on one
-              row (a scorecard view, grouped by player instead of family tabs). Server-rendered
-              from the same artifact; an unsupported family simply has no column here. */}
-          {(() => {
-            const fams = playerBoard.families;
-            const has = (k: string) => fams[k]?.state === "PUBLISHED";
-            if (!has("player_receptions") || !has("player_reception_yds")) return null;
-            const rows = playerBoard.players
-              .filter((p) => p.markets.player_receptions || p.markets.player_reception_yds)
-              .sort((a, b) => (b.markets.player_receptions?.median ?? 0) - (a.markets.player_receptions?.median ?? 0))
-              .slice(0, 14);
-            if (!rows.length) return null;
-            const td = (extra: Record<string, string | number> = {}) => ({ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, ...extra });
-            return (
-              <div style={{ marginTop: 18 }}>
-                <h3 style={{ margin: "0 0 6px", fontSize: 13.5, fontWeight: 700, color: "var(--vault-text)" }}>Receiving, one row per player</h3>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
-                    <thead>
-                      <tr>
-                        {["Player", "Team", "Receptions (10th–90th)", "Rec yards (10th–90th)", has("anytime_td") ? "TD chance" : null].filter(Boolean).map((h) => (
-                          <th key={h as string} scope="col" style={{ textAlign: "left", padding: "6px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map((p) => {
-                        const rec = p.markets.player_receptions;
-                        const ry = p.markets.player_reception_yds;
-                        const at = p.markets.anytime_td;
-                        return (
-                          <tr key={`recv-${p.playerId}`}>
-                            <td style={td({ fontSize: 13, fontWeight: 600 })}>{p.name}</td>
-                            <td className="font-mono" style={td({ fontSize: 11, color: "var(--vault-text-mute)" })}>{p.team}</td>
-                            <td className="font-mono" style={td()}>{rec ? <>{rec.median} <span style={{ color: "var(--vault-text-faint)" }}>({rec.p10}–{rec.p90})</span></> : "—"}</td>
-                            {/* yards rounded for display — raw hundredths beside integer counts read as false precision */}
-                            <td className="font-mono" style={td()}>{ry ? <>{Math.round(ry.median ?? 0)} <span style={{ color: "var(--vault-text-faint)" }}>({Math.round(ry.p10 ?? 0)}–{Math.round(ry.p90 ?? 0)})</span></> : "—"}</td>
-                            {has("anytime_td") ? <td className="font-mono" style={td({ fontWeight: 700, color: "var(--gtp-bank-cta)" })}>{at?.probability != null ? `${(at.probability * 100).toFixed(1)}%` : "—"}</td> : null}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                <p style={{ margin: "8px 0 0", fontSize: 11, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-                  Columns are marginal medians and percentiles from the evaluated per-family heads over one shared
-                  game environment — expected statistical summaries, not one simulated game, so rows need not add
-                  up to a single box score. Passing and rushing columns are absent because those families have not
-                  cleared their bars.
-                </p>
-              </div>
-            );
-          })()}
-
-          {/* P249 §8 — scoring outlook: the game's TD candidates with their availability states. */}
+          {/* P249 §8 — scoring outlook: the game's TD candidates with their availability states.
+              A deliberately-sized shortlist; the FULL list lives in the board's TD-chance tab. */}
           {(() => {
             if (playerBoard.families.anytime_td?.state !== "PUBLISHED") return null;
-            const top = playerBoard.players
+            const eligible = playerBoard.players
               .filter((p) => p.markets.anytime_td?.probability != null && p.participation !== "INACTIVE")
-              .sort((a, b) => b.markets.anytime_td!.probability! - a.markets.anytime_td!.probability!)
-              .slice(0, 6);
+              .sort((a, b) => b.markets.anytime_td!.probability! - a.markets.anytime_td!.probability!);
+            const top = eligible.slice(0, 6);
             if (!top.length) return null;
             return (
               <div style={{ marginTop: 18 }}>
-                <h3 style={{ margin: "0 0 6px", fontSize: 13.5, fontWeight: 700, color: "var(--vault-text)" }}>Scoring outlook</h3>
+                <h3 style={{ margin: "0 0 6px", fontSize: 13.5, fontWeight: 700, color: "var(--vault-text)" }}>
+                  Scoring outlook
+                  <span className="font-mono" style={{ marginLeft: 8, fontSize: 10, fontWeight: 400, color: "var(--vault-text-faint)" }}>
+                    top {top.length} of {eligible.length} by TD chance · full list in the board&rsquo;s TD tab
+                  </span>
+                </h3>
                 <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
                   {top.map((p) => (
                     <li key={`out-${p.playerId}`} className="font-mono" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
@@ -333,54 +272,10 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         </section>
       ) : null}
 
-      {sim ? (
-        <section aria-labelledby="sim-players">
-          <SectionHeader
-            eyebrow={`Player simulations · ${sim.players.length} players · ${sim.simulationSummary.runCount.toLocaleString()} runs`}
-            title="Every player we can model, with the range"
-            sub="Each row is a distribution from the same simulation that produced the score above — team volume, then each player's share of it, then efficiency. Wide ranges are the point: preseason playing time is genuinely uncertain, and these numbers carry that rather than hiding it."
-          />
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
-              <thead>
-                <tr>
-                  {["Player", "Stat", "Low (10th)", "Projected", "High (90th)", "Model chance", "Any TD"].map((h) => (
-                    <th key={h} scope="col" style={{ textAlign: "left", padding: "6px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {sim.players.flatMap((pl) =>
-                  pl.projections.map((pr, i) => (
-                    <tr key={`${pl.playerId}-${pr.field}`}>
-                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, whiteSpace: "nowrap" }}>
-                        {i === 0 ? <>{pl.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{pl.position ?? ""} · {pl.team}</span></> : ""}
-                      </td>
-                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{pr.label}</td>
-                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>{pr.distribution.p10}</td>
-                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)", fontWeight: 600 }}>{pr.distribution.p50}</td>
-                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>{pr.distribution.p90}</td>
-                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>
-                        {pr.thresholds.map((t) => `${Math.round(t.modelProbabilityOver * 100)}% over ${t.line}`).join(" · ")}
-                      </td>
-                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12, fontFamily: "var(--font-mono, monospace)" }}>
-                        {i === 0 && pl.anytimeTdProbability != null ? `${(pl.anytimeTdProbability * 100).toFixed(1)}%` : ""}
-                      </td>
-                    </tr>
-                  )),
-                )}
-              </tbody>
-            </table>
-          </div>
-          <p style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 760 }}>
-            No sportsbook offers NFL player markets for this game, so these are model-only research
-            estimates with no price to compare against — we do not invent a line. Tested against a
-            simple role baseline, none of these families beat it, which is why they are published as
-            ranges rather than as picks. {sim.conservation.notEnforcedAcrossFamilies}
-          </p>
-        </section>
-      ) : null}
-
+      {/* P250 · A15: the preseason "player simulations" section was removed as dead code — it keyed
+          on `providerEventId` in the retired game-simulations artifact (whose games carry `gameId`,
+          frozen 2026-08-29), so it could never render against the committed data. The regular-season
+          player projections above are the real player surface. */}
       <section aria-labelledby="how-read" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Reading key" title="What these numbers mean" />
         <dl style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10, fontSize: 12.5 }}>
@@ -409,6 +304,25 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <dt>kickoff</dt><dd style={{ margin: 0 }}>{f.kickoffUtc}</dd>
           <dt>state</dt><dd style={{ margin: 0 }}>{lifecycle}</dd>
         </dl>
+        {/* P250 · A15: the player board's model provenance — the receipt above names only the team
+            forecast model, and nothing else on the page said which evaluation produced each player
+            family. Read verbatim from the artifact's per-family basis lines. */}
+        {playerBoard ? (
+          <details style={{ marginTop: 12, border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
+            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 32 }}>
+              Player-family model provenance ({Object.values(playerBoard.families).filter((x) => x.state === "PUBLISHED").length} published)
+            </summary>
+            <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
+              {Object.entries(playerBoard.families)
+                .filter(([, x]) => x.state === "PUBLISHED")
+                .map(([key, x]) => (
+                  <li key={key} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
+                    <strong style={{ color: "var(--vault-text-mute)" }}>{x.label}:</strong> {x.basis ?? "evaluation basis not recorded on the artifact"}
+                  </li>
+                ))}
+            </ul>
+          </details>
+        ) : null}
         {card?.honestLimit ? (
           <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 760, lineHeight: 1.6 }}>{card.honestLimit}</p>
         ) : null}
