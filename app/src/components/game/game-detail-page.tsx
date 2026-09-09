@@ -407,7 +407,6 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         {playerPropTables.map((t) => <PlayerPropTableCard key={t.market} table={t} />)}
       </div>
 
-      <p className="text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Paper-only · educational · not betting advice.</p>
     </div>
   );
 
@@ -863,10 +862,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           postReveal={mlbGameFirstReport}
         />
 
-        {/* Persistent disclosure — visible regardless of phase. */}
-        <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-          Paper-only · educational · not betting advice
-        </p>
+        {/* P250-W2: GameSimulationRunner already closes with the single paper-only disclosure
+            (with the model version beside it), immediately above this line. Two identical strips
+            one after the other is the duplication the founder asked us to cut. */}
       </div>
     );
   }

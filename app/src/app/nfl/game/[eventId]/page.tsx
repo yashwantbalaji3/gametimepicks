@@ -452,7 +452,10 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             ["Win chance", "How often each side won across the simulations, after the calibration described above."],
             ["80% range", "Eight in ten simulated games landed inside this band. Real games land outside it too."],
             ["pp (percentage points)", "The plain difference between two percentages. A gap is a difference, not an advantage."],
-            ["Experimental", "This model has not been shown to be sharper than the sportsbook price. Its results are tracked openly."],
+            /* P250-W2: a reading key defines the LABEL. Restating the market non-claim here made it
+               the third time this page said it — the model's own measured limit says it once, in
+               Provenance below. */
+            ["Experimental", "Published while its out-of-sample record is still accumulating. Every forecast is frozen before kickoff and graded against the official result."],
           ].map(([t, d]) => (
             <div key={t}>
               <dt style={{ fontWeight: 600 }}>{t}</dt>

@@ -366,7 +366,9 @@ for (const ev of events) {
         ? { ...marketComparison, modelVsMarketTotal: Number((sim.totalQuantiles.p50 - (market.consensus.total ?? 0)).toFixed(1)) }
         : marketComparison,
       settlementKey: { canonicalEventId: `nfl-${ev.providerEventId}`, settlesAgainst: "official final score", ledger: "experimental-forecast" },
-      disclaimer: "Experimental regular-season model. Educational and paper-only — not betting advice, and not shown to beat the market.",
+      /* P250-W2: the market non-claim is rendered directly above this line from the model's own
+         recorded honestLimit, so repeating it here made a reader meet it twice in two sentences. */
+      disclaimer: "Educational and paper-only — not betting advice.",
     };
   } else {
   const strength = strengthStateAt({ rows: finals.filter((r) => r.dateUtc < ev.dateUtc), cutoffIso: NOW });
@@ -470,7 +472,7 @@ for (const ev of events) {
       }
       : { state: "NO_MARKET", note: "No current sportsbook capture covers this game." },
     settlementKey: { canonicalEventId: `nfl-${ev.providerEventId}`, settlesAgainst: "official final score", ledger: "experimental-forecast" },
-    disclaimer: "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market.",
+    disclaimer: "Educational and paper-only — not betting advice.",
   };
   }
 

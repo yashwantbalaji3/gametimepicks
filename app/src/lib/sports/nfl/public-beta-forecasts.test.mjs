@@ -131,7 +131,15 @@ test("LABEL DISCIPLINE · experimental output never borrows validated-pick langu
   }
   assert.equal(pub.model.launchState, "PUBLIC_EXPERIMENTAL");
   for (const f of pub.forecasts) assert.equal(f.state, "PUBLIC_EXPERIMENTAL");
-  assert.match(pub.disclaimer, /has not been shown to beat/);
+  /*
+   * P250-W2: the non-claim was in BOTH the artifact disclaimer and the model card's recorded
+   * honestLimit, and the page rendered them one sentence apart. The founder cut the duplicate.
+   * The claim still has to exist, and it belongs in the honestLimit — the measured sentence that
+   * cannot drift toward flattery — so that is where it is now asserted.
+   */
+  assert.match(card.plainEnglish.honestLimit, /(has |been )?not?.{0,30}shown to beat|coin flip/i,
+    "the model's own recorded limit still carries the market non-claim");
+  assert.match(pub.disclaimer, /educational and paper-only/i, "and the artifact still says what it is for");
   assert.match(card.plainEnglish.honestLimit, /coin flip/);
 });
 
