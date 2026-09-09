@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823090,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T15:01:07.899Z",
+  "availableAt": "2026-09-09T15:01:07.899Z",
+  "eventStartTime": "2026-09-09T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 807739,
+      "name": "Kade Anderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-09-03",
+      "last5": {
+        "starts": 3,
+        "ipSum": 15,
+        "ipAvg": 5,
+        "kAvg": 3.67,
+        "bbAvg": 2.33,
+        "erAvg": 3,
+        "hrAvg": 1,
+        "kPer9": 6.6,
+        "workloadIpLast5": 15
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 15,
+        "k": 11,
+        "bb": 7,
+        "er": 9,
+        "hr": 3
+      }
+    },
+    "away": {
+      "id": 674003,
+      "name": "Cody Bradford",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 7,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 2.2,
+        "bbAvg": 1,
+        "erAvg": 3,
+        "hrAvg": 0.8,
+        "kPer9": 3.81,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 30.33,
+        "k": 16,
+        "bb": 7,
+        "er": 15,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-09T15:01:07.899Z"
+  },
+  "recordHash": "02480d4bde5308243b627b5f0eb79e65279fe1779023d95747cadbfb0834057c"
+}

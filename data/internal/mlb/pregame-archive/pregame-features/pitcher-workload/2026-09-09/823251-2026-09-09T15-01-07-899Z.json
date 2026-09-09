@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823251,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T15:01:07.899Z",
+  "availableAt": "2026-09-09T15:01:07.899Z",
+  "eventStartTime": "2026-09-09T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 621111,
+      "name": "Walker Buehler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 4.4,
+        "bbAvg": 1.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 7.07,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 136.33,
+        "k": 117,
+        "bb": 51,
+        "er": 69,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 800600,
+      "name": "Jackson Kent",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 4.2,
+        "bbAvg": 3.8,
+        "erAvg": 3,
+        "hrAvg": 0.2,
+        "kPer9": 7.77,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 24.33,
+        "k": 21,
+        "bb": 19,
+        "er": 15,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-09T15:01:07.899Z"
+  },
+  "recordHash": "fa4dfd05f80b8b0b625a1b560181615cc4d1f76ba7df66a7ea972b1275ef56f5"
+}
