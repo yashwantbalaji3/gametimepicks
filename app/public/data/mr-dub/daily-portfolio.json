@@ -1,29 +1,29 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-09-09",
-  "generatedAt": "2026-09-09T12:27:47.216Z",
+  "generatedAt": "2026-09-09T17:26:35.360Z",
   "activeBankroll": 19065.4,
   "crownBankroll": 20465.4,
-  "openExposure": 0,
-  "availableBankroll": 19065.4,
-  "potentialReturn": 0,
+  "openExposure": 250,
+  "availableBankroll": 18815.4,
+  "potentialReturn": 3330.32,
   "products": {
     "bankBuilder": {
-      "exposure": 0,
+      "exposure": 200,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 0
+        "pending": 2
       }
     },
     "moonshot": {
-      "exposure": 0,
+      "exposure": 50,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 0
+        "pending": 2
       }
     }
   },
@@ -35,26 +35,57 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 100,
       "exposure": 100,
       "targetReturn": 200,
-      "fitsTarget": false,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 100,
-      "legCount": 0,
+      "fitsTarget": true,
+      "combinedOdds": 101,
+      "combinedDecimal": 2.0098,
+      "potentialReturn": 200.98,
+      "legCount": 2,
       "targetLegs": 2,
-      "legs": [],
+      "legs": [
+        {
+          "id": "MLB:163a7ada5c294169bddfad332af498ef:mlb_moneyline:New_York_Yankees_to_win",
+          "matchup": "Colorado Rockies @ New York Yankees",
+          "market": "Moneyline",
+          "selection": "New York Yankees to win",
+          "player": null,
+          "odds": -258,
+          "provider": "draftkings",
+          "modelConfidence": 0.6894,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:06 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:c8513bd1ec6dd659d64e9c17052f4c9d:mlb_moneyline:Boston_Red_Sox_to_win",
+          "matchup": "Los Angeles Angels @ Boston Red Sox",
+          "market": "Moneyline",
+          "selection": "Boston Red Sox to win",
+          "player": null,
+          "odds": -223,
+          "provider": "draftkings",
+          "modelConfidence": 0.6607,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "6:46 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
       "correlationNote": "Correlation checked: no shared game with Lane B — the two lanes can advance independently.",
-      "shortfallNote": "Fewer than 2 model-qualified legs available — awaiting a full card.",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Awaiting a full card — fewer than 2 model-qualified legs available.",
-        "No combo reaches the $200 goal — strongest available shown as a candidate."
+        "Safest-fit (MLB): chosen to MAXIMIZE the chance all 2 legs land — estimated 46% combined hit probability at Tier 2 (moderate), not the longest-odds card.",
+        "Combined +101 rides $100 toward the $200 rung goal (avg leg confidence 68%)."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-09 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
       }
     },
     {
@@ -64,26 +95,57 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 100,
       "exposure": 100,
       "targetReturn": 200,
-      "fitsTarget": false,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 100,
-      "legCount": 0,
+      "fitsTarget": true,
+      "combinedOdds": 200,
+      "combinedDecimal": 3.0013,
+      "potentialReturn": 300.13,
+      "legCount": 2,
       "targetLegs": 2,
-      "legs": [],
+      "legs": [
+        {
+          "id": "MLB:e1530fe384fbce5fff1d0a587c45122e:mlb_moneyline:Seattle_Mariners_to_win",
+          "matchup": "Texas Rangers @ Seattle Mariners",
+          "market": "Moneyline",
+          "selection": "Seattle Mariners to win",
+          "player": null,
+          "odds": -154,
+          "provider": "draftkings",
+          "modelConfidence": 0.5792,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "4:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:ba3b6f3389f7c7505df2444dceae8938:mlb_total_runs:Over_8.5",
+          "matchup": "Pittsburgh Pirates @ Chicago White Sox",
+          "market": "Total Runs",
+          "selection": "Over 8.5",
+          "player": null,
+          "odds": -122,
+          "provider": "draftkings",
+          "modelConfidence": 0.5248,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:41 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
       "correlationNote": "Correlation checked: no shared game with Lane A — the two lanes can advance independently.",
-      "shortfallNote": "Fewer than 2 model-qualified legs available — awaiting a full card.",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Awaiting a full card — fewer than 2 model-qualified legs available.",
-        "No combo reaches the $200 goal — strongest available shown as a candidate."
+        "Value lane (MLB): the most SURVIVABLE 2-leg card inside the +200..+700 band — ~30% combined hit probability at Tier 3 (higher variance), picked for a bigger jump per win without chasing the longest price.",
+        "Combined +200 rides $100 → $300.13 (clears the $200 rung goal; avg leg confidence 55%)."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-09 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
       }
     },
     {
@@ -93,26 +155,107 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 25,
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 25,
-      "legCount": 0,
-      "targetLegs": 3,
-      "legs": [],
-      "correlationNote": null,
-      "shortfallNote": "Only 0 structured team leg(s) available — no player props forced.",
+      "combinedOdds": 1627,
+      "combinedDecimal": 17.267,
+      "potentialReturn": 431.68,
+      "legCount": 5,
+      "targetLegs": 5,
+      "legs": [
+        {
+          "id": "MLB:e1530fe384fbce5fff1d0a587c45122e:mlb_total_runs:Under_8",
+          "matchup": "Texas Rangers @ Seattle Mariners",
+          "market": "Total Runs",
+          "selection": "Under 8",
+          "player": null,
+          "odds": -113,
+          "provider": "draftkings",
+          "modelConfidence": 0.5076,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "4:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:c8513bd1ec6dd659d64e9c17052f4c9d:mlb_total_runs:Over_9",
+          "matchup": "Los Angeles Angels @ Boston Red Sox",
+          "market": "Total Runs",
+          "selection": "Over 9",
+          "player": null,
+          "odds": -120,
+          "provider": "draftkings",
+          "modelConfidence": 0.5217,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "6:46 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:163a7ada5c294169bddfad332af498ef:mlb_total_runs:Over_9",
+          "matchup": "Colorado Rockies @ New York Yankees",
+          "market": "Total Runs",
+          "selection": "Over 9",
+          "player": null,
+          "odds": -117,
+          "provider": "draftkings",
+          "modelConfidence": 0.5152,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:06 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:ba3b6f3389f7c7505df2444dceae8938:mlb_moneyline:Chicago_White_Sox_to_win",
+          "matchup": "Pittsburgh Pirates @ Chicago White Sox",
+          "market": "Moneyline",
+          "selection": "Chicago White Sox to win",
+          "player": null,
+          "odds": -136,
+          "provider": "draftkings",
+          "modelConfidence": 0.5511,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:41 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:ba3b6f3389f7c7505df2444dceae8938:mlb_run_line:Pittsburgh_Pirates_+1.5",
+          "matchup": "Pittsburgh Pirates @ Chicago White Sox",
+          "market": "Run Line",
+          "selection": "Pittsburgh Pirates +1.5",
+          "player": null,
+          "odds": -181,
+          "provider": "draftkings",
+          "modelConfidence": 0.616,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:41 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": "1 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter).",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Higher-upside: 0 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 0% across 0 legs · combined 0."
+        "Higher-upside: 5 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 54% across 5 legs · combined +1627.",
+        "1 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-09 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event and outside the cutoff"
+      },
+      "narrative": {
+        "title": "Mixed knockout angles",
+        "story": "A spread of independent knockout angles across the window — different games, different markets, one longshot ticket. Diversified, so no single game script carries it."
       }
     },
     {
@@ -122,32 +265,158 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 25,
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 25,
-      "legCount": 0,
-      "targetLegs": 3,
-      "legs": [],
-      "correlationNote": null,
-      "shortfallNote": "Only 0 structured team leg(s) available — no player props forced.",
+      "combinedOdds": 9490,
+      "combinedDecimal": 95.9013,
+      "potentialReturn": 2397.53,
+      "legCount": 8,
+      "targetLegs": 8,
+      "legs": [
+        {
+          "id": "MLB:e1530fe384fbce5fff1d0a587c45122e:mlb_total_runs:Under_8",
+          "matchup": "Texas Rangers @ Seattle Mariners",
+          "market": "Total Runs",
+          "selection": "Under 8",
+          "player": null,
+          "odds": -113,
+          "provider": "draftkings",
+          "modelConfidence": 0.5076,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "4:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:e1530fe384fbce5fff1d0a587c45122e:mlb_run_line:Texas_Rangers_+1.5",
+          "matchup": "Texas Rangers @ Seattle Mariners",
+          "market": "Run Line",
+          "selection": "Texas Rangers +1.5",
+          "player": null,
+          "odds": -170,
+          "provider": "draftkings",
+          "modelConfidence": 0.6018,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "4:11 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:c8513bd1ec6dd659d64e9c17052f4c9d:mlb_total_runs:Over_9",
+          "matchup": "Los Angeles Angels @ Boston Red Sox",
+          "market": "Total Runs",
+          "selection": "Over 9",
+          "player": null,
+          "odds": -120,
+          "provider": "draftkings",
+          "modelConfidence": 0.5217,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "6:46 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:c8513bd1ec6dd659d64e9c17052f4c9d:mlb_run_line:Los_Angeles_Angels_+1.5",
+          "matchup": "Los Angeles Angels @ Boston Red Sox",
+          "market": "Run Line",
+          "selection": "Los Angeles Angels +1.5",
+          "player": null,
+          "odds": -112,
+          "provider": "draftkings",
+          "modelConfidence": 0.5043,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "6:46 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:163a7ada5c294169bddfad332af498ef:mlb_total_runs:Over_9",
+          "matchup": "Colorado Rockies @ New York Yankees",
+          "market": "Total Runs",
+          "selection": "Over 9",
+          "player": null,
+          "odds": -117,
+          "provider": "draftkings",
+          "modelConfidence": 0.5152,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:06 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:163a7ada5c294169bddfad332af498ef:mlb_run_line:New_York_Yankees_-1.5",
+          "matchup": "Colorado Rockies @ New York Yankees",
+          "market": "Run Line",
+          "selection": "New York Yankees -1.5",
+          "player": null,
+          "odds": -118,
+          "provider": "draftkings",
+          "modelConfidence": 0.5174,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:06 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:ba3b6f3389f7c7505df2444dceae8938:mlb_moneyline:Chicago_White_Sox_to_win",
+          "matchup": "Pittsburgh Pirates @ Chicago White Sox",
+          "market": "Moneyline",
+          "selection": "Chicago White Sox to win",
+          "player": null,
+          "odds": -136,
+          "provider": "draftkings",
+          "modelConfidence": 0.5511,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:41 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:ba3b6f3389f7c7505df2444dceae8938:mlb_run_line:Pittsburgh_Pirates_+1.5",
+          "matchup": "Pittsburgh Pirates @ Chicago White Sox",
+          "market": "Run Line",
+          "selection": "Pittsburgh Pirates +1.5",
+          "player": null,
+          "odds": -181,
+          "provider": "draftkings",
+          "modelConfidence": 0.616,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:41 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": "4 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter).",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Higher-upside: 0 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 0% across 0 legs · combined 0."
+        "Higher-upside: 8 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 54% across 8 legs · combined +9490.",
+        "4 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-09 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event and outside the cutoff"
+      },
+      "narrative": {
+        "title": "Mixed knockout angles",
+        "story": "A spread of independent knockout angles across the window — different games, different markets, one longshot ticket. Diversified, so no single game script carries it."
       }
     }
   ],
   "settlement": {
-    "status": "none",
+    "status": "pending",
     "realizedPnl": 0
   },
-  "note": "Daily paper portfolio candidates — no exposure placed; active bankroll and crown unchanged."
+  "note": "Active daily paper portfolio — open exposure is at risk; active bankroll and crown are unchanged until official settlement."
 }
