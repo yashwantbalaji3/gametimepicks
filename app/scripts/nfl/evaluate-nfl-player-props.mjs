@@ -792,8 +792,19 @@ const OUT = DIAGNOSE_DIR
         ? "data/internal/research/nfl/reports/pass-yds-repair-evaluation.json"
         : "data/internal/research/nfl/reports/player-props-v1-evaluation.json";
 if (CHALLENGER) {
-  receipt.artifact = "nfl-pass-yds-repair-evaluation";
+  /* P250 · A16: the receipt states the EXACT identity of what it evaluated. Every challenger used
+     to inherit the pass-yds-repair artifact name and the champion engine id, so the top level and
+     the challenger block named two different things — an ambiguity an automated reader cannot
+     resolve. The joint engine is a different ENGINE, not a conditioning variant, and says so. */
+  receipt.artifact = CHALLENGER === "nfl-joint-sim-v1"
+    ? "nfl-joint-sim-identical-points-evaluation"
+    : "nfl-pass-yds-repair-evaluation";
   if (CHALLENGER === "nfl-joint-sim-v1") {
+    receipt.engine = {
+      id: "nfl-joint-sim-v1", version: 1,
+      champion: { id: NFL_PLAYER_PROPS_ID, version: 1 },
+      note: "the engine under evaluation is the joint generator; champion baselines are the marginal engine named in challenger.champion",
+    };
     const px = jointExtra.passTd;
     receipt.jointExtra = {
       player_pass_tds: px.n ? {
@@ -801,6 +812,10 @@ if (CHALLENGER) {
         logLoss: Number((px.ll / px.n).toFixed(4)),
         baselineTrainRate: Number((px.llBase / px.n).toFixed(4)),
         baselineRolling4: Number((px.llR4 / px.n).toFixed(4)),
+        /* The preregistration requires calibration bins for this family; this collector does not
+           compute them yet, and a receipt that stays silent about that implies complete evidence. */
+        calibrationBins: null,
+        diagnosticGap: "preregistered calibration bins not recorded by this collector — evidence INCOMPLETE as preregistered; the verdict may stand on log loss alone but any re-candidate must record the bins",
       } : null,
       anytime_td_joint: jointExtra.anyTd.n ? {
         n: jointExtra.anyTd.n, positives: jointExtra.anyTd.pos,

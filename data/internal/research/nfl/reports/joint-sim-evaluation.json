@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "artifact": "nfl-pass-yds-repair-evaluation",
+ "artifact": "nfl-joint-sim-identical-points-evaluation",
  "gamesimTotals": "matchup-totals-v1-decayed-points (integrated)",
  "conditioning": "participation-true (DNP=void via participation-truth-v1)",
  "populationContractVersion": 2,
@@ -16,8 +16,13 @@
  "dataClass": "PRIVATE_RESEARCH",
  "generatedAt": "2026-09-08T23:10:00Z",
  "engine": {
-  "id": "nfl-player-props-v1-opportunity-efficiency",
-  "version": 1
+  "id": "nfl-joint-sim-v1",
+  "version": 1,
+  "champion": {
+   "id": "nfl-player-props-v1-opportunity-efficiency",
+   "version": 1
+  },
+  "note": "the engine under evaluation is the joint generator; champion baselines are the marginal engine named in challenger.champion"
  },
  "corpusAccounting": [
   {
@@ -37,7 +42,7 @@
   }
  ],
  "protocol": {
-  "fit": "2023–24 REG+POST only: game-script volume OLS, league Σ-rates, Gamma dispersion (MoM, ≥30-opportunity players), rate shrink m walk-forward-selected inside 2023–24",
+  "fit": "2023\u201324 REG+POST only: game-script volume OLS, league \u03a3-rates, Gamma dispersion (MoM, \u226530-opportunity players), rate shrink m walk-forward-selected inside 2023\u201324",
   "test": "held-out 2025, fully pre-game walk-forward chain (roles, rates, Elo cutoff, committed game-sim heads), sampled distributions, baselines on identical points",
   "runs": 1500,
   "thresholds": {
@@ -202,8 +207,8 @@
   }
  },
  "promotionPolicy": [
-  "PUBLIC_ELIGIBLE: beats rolling-4 AND share×volume on MAE; interval80 coverage in [0.72,0.88]; threshold ECE ≤ 0.05; n ≥ 300 — runtime role/line/settlement gates still apply",
-  "SHADOW_ELIGIBLE: beats ≥1 point baseline; coverage in [0.68,0.92]; n ≥ 300",
+  "PUBLIC_ELIGIBLE: beats rolling-4 AND share\u00d7volume on MAE; interval80 coverage in [0.72,0.88]; threshold ECE \u2264 0.05; n \u2265 300 \u2014 runtime role/line/settlement gates still apply",
+  "SHADOW_ELIGIBLE: beats \u22651 point baseline; coverage in [0.68,0.92]; n \u2265 300",
   "RESEARCH_ONLY otherwise; promotion of one market never promotes siblings",
   "preseason events: every player market ABSTAINS regardless (participation contract), evidenceTier REDUCED_PRESEASON"
  ],
@@ -236,7 +241,8 @@
     "coverOk": true,
     "calOk": true,
     "n": 3575
-   }
+   },
+   "adoption": "ELIGIBLE_NOT_ADOPTED \u2014 passes non-inferiority, but adopting receiving yards alone would split the receiving stack across two engines while receptions stays on the champion (coherence would decrease); see joint-sim-verdict.json `decision`."
   },
   "player_receptions": {
    "state": "SHADOW_ELIGIBLE",
@@ -251,15 +257,15 @@
   "player_pass_int": {
    "state": "RESEARCH_ONLY",
    "evidence": {
-    "note": "simulated component, never separately evaluated — cannot promote"
+    "note": "simulated component, never separately evaluated \u2014 cannot promote"
    }
   }
  },
  "honesty": [
-  "distributions are opportunity×efficiency conditioned on the committed game-sim stream — no odds parameter exists anywhere in the engine (source-scan pinned)",
+  "distributions are opportunity\u00d7efficiency conditioned on the committed game-sim stream \u2014 no odds parameter exists anywhere in the engine (source-scan pinned)",
   "multinomial allocation reconciles player opportunities to team volumes per iteration by construction",
   "threshold calibration uses the rolling-4 mean as the line proxy (no historical sportsbook lines exist in this repo); P(over) is read off the true sampled distribution as a post-sampling read-out",
-  "rush yards are Gamma (non-negative): true negative rushing games exist and are outside v1 support — a stated limitation"
+  "rush yards are Gamma (non-negative): true negative rushing games exist and are outside v1 support \u2014 a stated limitation"
  ],
  "jointExtra": {
   "player_pass_tds": {
@@ -268,7 +274,9 @@
    "positives": 431,
    "logLoss": 0.8014,
    "baselineTrainRate": 0.5932,
-   "baselineRolling4": 0.8833
+   "baselineRolling4": 0.8833,
+   "calibrationBins": null,
+   "diagnosticGap": "the preregistration requires calibration bins for this family; they were not recorded in this run. The evidence is INCOMPLETE as preregistered \u2014 the rejection stands on log loss alone (0.8014 vs train base rate 0.5932), and any re-candidate must record the bins."
   },
   "anytime_td_joint": {
    "n": 3109,
@@ -282,5 +290,21 @@
   "preregistration": "data/internal/research/nfl/reports/joint-sim-preregistration.json",
   "champion": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
   "scope": "the joint generator's marginals scored under the identical walk-forward chain and population contract; pass yds GROSS; passTd/anytime collectors per prereg"
- }
+ },
+ "receptionsEceClarification": "player_receptions ece 0.0559 misses the 0.05 preregistered limit by 0.0059. The 0.0121 figure quoted in the P249 narrative is the deterioration against the champion's 0.0438 \u2014 a different comparison. The rejection is correct either way.",
+ "evaluationDataReuse": "the 2025 held-out season is REUSED across candidates (P247 annex); threshold calibration uses the rolling-4 mean as a line PROXY because no historical sportsbook lines exist in this repo \u2014 it is not calibration against real book lines. The registered 2026 forward population remains untouched and decides.",
+ "metadataCorrections": [
+  {
+   "correctedAt": "2026-09-09T01:20:00Z",
+   "program": 250,
+   "was": {
+    "artifact": "nfl-pass-yds-repair-evaluation",
+    "engine": {
+     "id": "nfl-player-props-v1-opportunity-efficiency",
+     "version": 1
+    }
+   },
+   "reason": "the writer stamped every challenger receipt with the pass-yds-repair artifact name and the champion engine id; the challenger block identified the joint engine, leaving automated readers two contradictory identities. Numbers untouched \u2014 this correction is metadata-only, and the generator now writes the exact identity itself."
+  }
+ ]
 }
