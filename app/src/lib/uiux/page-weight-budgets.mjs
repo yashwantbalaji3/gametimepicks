@@ -5,7 +5,13 @@
  * emission in the same commit.
  */
 export const BUDGET_KB = Object.freeze({
-  "results/index.html": 4500,   // measured 2,840KB after the P207 fix; 8,103KB before
+  /* P251 · F10: 8,103KB before P207 → 2,840KB after it → 3,078KB by drift → 1,821KB now, measured
+     2026-09-09. Two changes, both weight-only: the six style attributes repeated once per rendered
+     leg moved to classes (byte-for-byte, .gtp-team-logo / .gtp-leg-row in globals.css), and the
+     MISSED slips — 509 of the 545 legs, inside a collapsed block most readers never open — render
+     as compact lines that still name every leg and its graded result. The ceiling comes down with
+     the emission, which is the rule this file states above. Shrink-only from here. */
+  "results/index.html": 2300,
   "index.html": 600,            // measured 189KB
   "today/index.html": 1200,     // measured 395KB
   /* P208 (Release H): the redesigned surfaces — measured 2026-08-26 on a 15-game MLB slate
@@ -20,7 +26,8 @@ export const BUDGET_KB = Object.freeze({
      architecture without a capability change; the evidence-backed lever is generation-time
      slate-view JSON + on-expand fetch for the marketplace (filed as ENGINEERING with that exact
      acceptance). Ceiling frozen at the measured daytime page + headroom; shrink-only from here. */
-  "build/custom/index.html": 1400,
+  /* P251 · F10: 832KB → 573KB when the per-leg style attributes became classes. */
+  "build/custom/index.html": 800,
   "mlb/index.html": 3000,
   "markets/index.html": 3000,
   /*

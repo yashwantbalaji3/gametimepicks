@@ -141,11 +141,19 @@ test("LIVE · every eligible leg still travels, and the count the page shows is 
   }
 });
 
-test("LIVE · the page is under its budget without the budget having moved", () => {
+test("LIVE · the page is under its budget, and the budget never moved UP", () => {
   if (!fs.existsSync(PAGE)) return;
   const kb = fs.statSync(PAGE).size / 1024;
-  assert.ok(kb < 1400, `/build/custom is ${Math.round(kb)}KB against the 1400KB budget`);
-
+  /*
+   * P251-F10 REBASE. This pinned the literal 1400 to stop someone RAISING the ceiling to hide a
+   * regression — the right claim, stated in a way that also blocked the opposite move. When the
+   * per-leg style attributes became classes the page fell to 573KB and the budget came down with
+   * the emission, which is the shrink-only rule page-weight-budgets.mjs states about itself. The
+   * ceiling is now read rather than matched, so it can fall and cannot rise.
+   */
   const budgets = fs.readFileSync(path.join(process.cwd(), "src/lib/uiux/page-weight-budgets.mjs"), "utf8");
-  assert.match(budgets, /1400/, "the 1400KB budget must still be the budget — raising it is hiding records one level up");
+  const declared = Number((budgets.match(/"build\/custom\/index\.html":\s*(\d+)/) ?? [])[1]);
+  assert.ok(Number.isFinite(declared), "the budget for /build/custom must be declared in the one owner");
+  assert.ok(declared <= 1400, `the ceiling rose to ${declared}KB from 1400KB — raising it is hiding a regression one level up`);
+  assert.ok(kb < declared, `/build/custom is ${Math.round(kb)}KB against its own ${declared}KB budget`);
 });

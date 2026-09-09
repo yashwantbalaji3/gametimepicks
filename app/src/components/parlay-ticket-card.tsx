@@ -74,6 +74,16 @@ interface Props {
    *  render slightly more subdued so the lane has a clear hierarchy.
    *  Defaults to "featured" for backward compatibility. */
   emphasis?: "featured" | "alternate";
+  /**
+   * P251-F10 · HOW MUCH OF EACH LEG TO SHIP.
+   *
+   * /results rendered 545 full leg rows, 509 of them inside collapsed <details> a reader never
+   * opens — 1.35 MB of markup for portraits, crests, star badges and odds pills nobody had asked
+   * to see. "compact" prints the same legs as one text line each: every leg is still named, still
+   * carries its side, line and graded result, and costs about a tenth of the bytes. Nothing is
+   * hidden; the decoration is.
+   */
+  density?: "full" | "compact";
   /** PR `feature/lane-spread-slip-cards` — whether to render the
    *  stake/payout footer. The lane spread surfaces the featured
    *  slip's payout footer; alternates can opt out via false to keep
@@ -163,6 +173,7 @@ export default function ParlayTicketCard({
   calibrationTable = EMPTY_CALIBRATION_TABLE,
   onLegClick,
   emphasis = "featured",
+  density = "full",
   showStakeFooter = true,
   slateDate = null,
   slateIsFallback = false,
@@ -381,12 +392,16 @@ export default function ParlayTicketCard({
       <ul className={`px-4 ${isFeatured ? "space-y-2" : "space-y-1.5"}`}>
         {slip.legs.map((leg, i) => (
           <li key={`${slip.slipId}-${i}`}>
-            <TicketLegRow
-              leg={leg}
-              calibrationTable={calibrationTable}
-              onLegClick={onLegClick}
-              emphasis={emphasis}
-            />
+            {density === "compact" ? (
+              <CompactLegRow leg={leg} />
+            ) : (
+              <TicketLegRow
+                leg={leg}
+                calibrationTable={calibrationTable}
+                onLegClick={onLegClick}
+                emphasis={emphasis}
+              />
+            )}
           </li>
         ))}
       </ul>
@@ -580,6 +595,36 @@ function CombinedOddsPill({
   );
 }
 
+/**
+ * One leg, as a line. Same facts, a tenth of the markup: who, what market, which side and line,
+ * and how it graded. Used inside the collapsed missed-slip sections, where the rich row was
+ * shipping crests and portraits into a block most readers never open.
+ */
+function CompactLegRow({ leg }: { leg: ParlayLeg }) {
+  const result = leg.result;
+  const accent =
+    result === "win" ? "var(--vault-success)"
+      : result === "loss" ? "var(--vault-warn)"
+        : result === "push" ? "var(--vault-text-mute)"
+          : "var(--vault-text-faint)";
+  const market = humanMarketLabel(leg.sport, leg.market, leg.marketLabel);
+  const sideLine = formatSideLine(leg.side, leg.line);
+  return (
+    <div className="gtp-leg-compact flex items-baseline gap-1.5 min-w-0">
+      <span className="truncate" style={{ flex: 1 }}>
+        {leg.playerName}
+        {leg.team ? <span className="gtp-leg-compact-dim"> · {leg.team}</span> : null}
+        <span className="gtp-leg-compact-dim"> · {market}{sideLine ? ` ${sideLine}` : ""}</span>
+      </span>
+      {result ? (
+        <span className="font-mono shrink-0" style={{ color: accent }}>
+          {result.toUpperCase()}{typeof leg.finalStat === "number" ? ` ${leg.finalStat}` : ""}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 function TicketLegRow({
   leg,
   calibrationTable,
@@ -675,12 +720,9 @@ function TicketLegRow({
   return (
     <RowTag
       {...rowProps}
-      className={`w-full text-left grid grid-cols-[auto_1fr] gap-2.5 items-start px-2.5 py-2 rounded-[6px] ${interactive ? "gtp-leg-button" : ""}`}
-      style={{
-        background: "var(--gtp-card)",
-        border: "1px solid var(--vault-rule)",
-        cursor: interactive ? "pointer" : "default",
-      }}
+      /* P251-F10: .gtp-leg-row carries these three declarations verbatim. This row renders once
+         per leg — 545 times on /results — and the attribute was 78 bytes each. */
+      className={`gtp-leg-row w-full text-left grid grid-cols-[auto_1fr] gap-2.5 items-start px-2.5 py-2 rounded-[6px] ${interactive ? "gtp-leg-button" : ""}`}
     >
       <PlayerPortrait
         playerId={leg.playerId ?? null}

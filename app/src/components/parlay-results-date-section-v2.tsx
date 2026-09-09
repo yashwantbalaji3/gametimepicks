@@ -514,6 +514,11 @@ function LaneBucket({
             savedPregame={false}
             calibrationTable={calibrationTable}
             onLegClick={onLegClick}
+            /* P251-F10: LaneBucket only ever renders the MISSED slips, inside a collapsed
+               block. Every leg is still named and still carries its graded result; the compact
+               row drops the portrait, the crest and the odds pill — 1.35 MB of markup that was
+               shipping into a section most readers never open. */
+            density="compact"
           />
         ))}
       </div>

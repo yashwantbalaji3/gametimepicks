@@ -138,20 +138,13 @@ export default function TeamLogo({
   const src = logoUrl(team, sport);
   if (!src) return <TeamBadge team={team} size={size === "xl" ? "lg" : size} highlight={highlight} />;
   return (
+    /* P251-F10: the constant half of these declarations moved to .gtp-team-logo in globals.css,
+       byte-for-byte. Only the size varies per instance, so only the size is still inline — this
+       component renders 545 times on /results alone, at ~360 bytes of repeated style each. */
     <span
-      className="relative inline-flex items-center justify-center"
-      style={{
-        width: px,
-        height: px,
-        borderRadius: 10,
-        background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
-        border: highlight
-          ? "1.5px solid color-mix(in srgb, var(--vault-accent) 65%, transparent)"
-          : "1px solid var(--vault-border)",
-        boxShadow: highlight
-          ? "0 0 14px color-mix(in srgb, var(--vault-accent) 30%, transparent), inset 0 0 0 1px color-mix(in srgb, var(--vault-accent) 15%, transparent)"
-          : "inset 0 0 0 1px color-mix(in srgb, var(--vault-wash-base) 3%, transparent)",
-      }}
+      className="gtp-team-logo relative inline-flex items-center justify-center"
+      data-highlight={highlight ? "true" : undefined}
+      style={{ ["--gtp-tl-size" as string]: `${px}px`, ["--gtp-tl-img" as string]: `${px - 8}px` }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -166,14 +159,7 @@ export default function TeamLogo({
            browser fetches while parsing SSR HTML, so an error can fire before hydration and never
            reach React. See lib/ui/image-failure. */
         ref={(el) => reportIfAlreadyFailed(el, () => setFailed(true))}
-        style={{
-          width: px - 8,
-          height: px - 8,
-          objectFit: "contain",
-          // ESPN logos are transparent PNGs — a subtle drop-shadow
-          // separates them from the dark card background.
-          filter: "drop-shadow(0 1px 3px color-mix(in srgb, var(--vault-ink-black) 55%, transparent))",
-        }}
+        className="gtp-team-logo-img"
       />
     </span>
   );

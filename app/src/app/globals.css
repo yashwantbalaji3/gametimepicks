@@ -5176,3 +5176,52 @@ body {
 .gtp-sim-blink { animation: gtp-sim-blink var(--motion-ambient-duration, 1.6s) ease-in-out infinite; }
 .gtp-sim-trace { stroke-dashoffset: 300; animation: gtp-sim-trace var(--motion-chart-draw-duration, 1.1s) ease-out forwards; }
 .gtp-sim-paused * { animation-play-state: paused !important; }
+
+/* ── P251 · F10 — REPEATED DECLARATIONS BECOME CLASSES ────────────────────────────────────────
+ *
+ * /results shipped 3.07 MB of HTML before a single script loaded, and 655 KB of that — a third of
+ * the markup — was inline `style` attributes: 254 distinct values repeated 11,011 times. Six of
+ * them accounted for 333 KB on their own, all emitted once per rendered parlay leg, and the page
+ * renders 545 legs.
+ *
+ * The declarations below are BYTE-FOR-BYTE the ones those components inlined; only their location
+ * changed, so nothing renders differently. Per-instance values (a size, a highlight) stay inline
+ * as custom properties, because those genuinely vary. This is the cheapest weight the page had,
+ * and it pays on every surface that renders a leg or a crest, not only on /results.
+ */
+.gtp-team-logo {
+  width: var(--gtp-tl-size);
+  height: var(--gtp-tl-size);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--vault-scrim-base) 45%, transparent);
+  border: 1px solid var(--vault-border);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--vault-wash-base) 3%, transparent);
+}
+.gtp-team-logo[data-highlight="true"] {
+  border: 1.5px solid color-mix(in srgb, var(--vault-accent) 65%, transparent);
+  box-shadow:
+    0 0 14px color-mix(in srgb, var(--vault-accent) 30%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--vault-accent) 15%, transparent);
+}
+.gtp-team-logo-img {
+  width: var(--gtp-tl-img);
+  height: var(--gtp-tl-img);
+  object-fit: contain;
+  /* ESPN logos are transparent PNGs — a subtle drop-shadow separates them from the dark card. */
+  filter: drop-shadow(0 1px 3px color-mix(in srgb, var(--vault-ink-black) 55%, transparent));
+}
+.gtp-leg-row {
+  background: var(--gtp-card);
+  border: 1px solid var(--vault-rule);
+  cursor: default;
+}
+.gtp-leg-row.gtp-leg-button { cursor: pointer; }
+.gtp-leg-compact { font-size: 11.5px; line-height: 1.5; color: var(--vault-text); }
+.gtp-leg-compact-dim { color: var(--vault-text-faint); }
+
+/* Visually hidden, still announced — the standard clip-rect pattern (P251 · F11). Used where a
+ * section's visible label is a control (a tab strip) but the region still needs a heading. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}

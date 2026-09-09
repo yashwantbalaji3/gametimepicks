@@ -152,12 +152,15 @@ export default function MarketsPage() {
       </section>
 
       <section className="reveal reveal-d2" style={{ marginTop: 40 }}>
-        <div
+        {/* P251-F11: a real heading. This page renders 141 controls and 2,085 prop rows under a
+            single h1 — nothing to skim by, and no landmark for a screen reader to jump between.
+            The look is unchanged; the element is not. */}
+        <h2
           className="font-mono uppercase tracking-[0.16em]"
-          style={{ fontSize: 10, color: "var(--vault-gold)", marginBottom: 8 }}
+          style={{ fontSize: 10, color: "var(--vault-gold)", marginBottom: 8, fontWeight: 400 }}
         >
           {EXPLORER_TITLE}
-        </div>
+        </h2>
         <p style={{ fontSize: 12, color: "var(--vault-text-mute)", lineHeight: 1.7, marginBottom: 16 }}>
           {EXPLORER_INTRO}
         </p>
@@ -204,12 +207,12 @@ export default function MarketsPage() {
             lineHeight: 1.7,
           }}
         >
-          <div
+          <h2
             className="font-mono uppercase tracking-[0.16em]"
-            style={{ fontSize: 10, color: "var(--vault-gold)", marginBottom: 8 }}
+            style={{ fontSize: 10, color: "var(--vault-gold)", marginBottom: 8, fontWeight: 400 }}
           >
             What this page does and does not show
-          </div>
+          </h2>
           <p style={{ marginBottom: 8 }}>
             A difference is reported in percentage points and nothing more. Our simulations have not been shown to
             out-predict the sportsbook — on settled history the market price is the better estimate — so a gap is a

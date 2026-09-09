@@ -236,6 +236,10 @@ export default function MarketCenter({
         ))}
       </div>
 
+      {/* P251-F11: the two panels are the page's real sections and had no heading between them —
+          141 controls under one h1. The tab strip above is the visible label; this is the one a
+          screen reader can navigate by, and it names which panel is open. */}
+      <h2 className="sr-only">{tab === "games" ? "Game markets" : "Player props"}</h2>
       {tab === "games" ? (
         <GameSection games={games} />
       ) : (
