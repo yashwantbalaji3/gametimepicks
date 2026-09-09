@@ -1,0 +1,89 @@
+{
+ "providerEventId": "401872924",
+ "canonicalEventId": "nfl-401872924",
+ "matchup": "NYJ @ TEN",
+ "home": {
+  "abbr": "TEN",
+  "name": "Tennessee Titans"
+ },
+ "away": {
+  "abbr": "NYJ",
+  "name": "New York Jets"
+ },
+ "kickoffUtc": "2026-09-13T17:00Z",
+ "seasonType": 2,
+ "week": 1,
+ "venue": "Nissan Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "da0dd66b215e32a3",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v1-decayed-points",
+   "receipt": "matchup-totals-evaluation@2026-09-08T07:30:00Z",
+   "gamesFolded": 855,
+   "sigma": 13.2625
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the Elo-logistic win head over a 854-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-09-09T18:26:09Z",
+ "evidence": {
+  "schedule": "2026-09-08T16:54:00Z",
+  "strengthCutoff": "2026-09-09T18:26:09Z",
+  "strengthGamesFolded": 854,
+  "regressedToSeason": 2026
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 26,
+   "away": 22,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.535,
+   "away": 0.4347,
+   "tieMass": 0.0303,
+   "homeUnrounded": 0.5349597412405681,
+   "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made."
+  },
+  "margin": {
+   "median": 3,
+   "p10": -15,
+   "p90": 21
+  },
+  "total": {
+   "median": 48,
+   "p10": 31,
+   "p90": 65,
+   "head": "matchup-totals-v1-decayed-points"
+  },
+  "scoreRange": {
+   "homeP10": 13,
+   "homeP90": 38,
+   "awayP10": 10,
+   "awayP90": 35
+  }
+ },
+ "marketComparison": {
+  "state": "NO_MARKET",
+  "note": "No current sportsbook capture covers this game."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401872924",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Experimental regular-season model. Educational and paper-only — not betting advice, and not shown to beat the market.",
+ "revisionOf": "401872924.json",
+ "priorInputHash": "7e11d8a70bcff414"
+}
