@@ -51,7 +51,7 @@ function ProbBar({
   );
 }
 
-export default function MlbGameCenter({ gameCenter }: { gameCenter: MlbGameCenter }) {
+export default function MlbGameCenter({ gameCenter, fullGameAvailable = false }: { gameCenter: MlbGameCenter; fullGameAvailable?: boolean }) {
   const { moneyline, total, runLine, homeTeam, awayTeam } = gameCenter;
   const favTeam = runLine ? (runLine.favorite === "home" ? homeTeam : awayTeam) : null;
 
@@ -77,8 +77,17 @@ export default function MlbGameCenter({ gameCenter }: { gameCenter: MlbGameCente
         from the GameTime player-prop model below, and it is not betting advice.
       </p>
       <p className="text-[10.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
-        A full-game score simulation — projected final score plus run and margin distributions — is{" "}
-        <strong style={{ color: "var(--vault-text-mute)" }}>not shown for this game</strong>: it needs a dedicated full-game artifact, and nothing renders here until that artifact is real.
+        {fullGameAvailable ? (
+          <>
+            The independent full-game score simulation — projected final score plus run and total distributions — lives
+            in the <strong style={{ color: "var(--vault-text-mute)" }}>Overview tab</strong>. This panel is the market&rsquo;s view only.
+          </>
+        ) : (
+          <>
+            A full-game score simulation — projected final score plus run and margin distributions — is{" "}
+            <strong style={{ color: "var(--vault-text-mute)" }}>not shown for this game</strong>: it needs a dedicated full-game artifact, and nothing renders here until that artifact is real.
+          </>
+        )}
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

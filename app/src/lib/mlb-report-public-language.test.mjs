@@ -39,7 +39,8 @@ test("the primary V2.5 report keeps the required honest scaffolding", () => {
   const v2 = read("src/components/game/mlb-simulation-report-v2.tsx");
   assert.match(v2, /player-prop sim/i, "labelled a player-prop simulation");
   assert.match(v2, /market-anchored, not an independent game simulation/i, "market snapshot is market-anchored");
-  assert.match(v2, /full-game model[\s\S]*?validating/i, "full-game model shown as validating");
+  // P250: the full-game section derives from the bundle capability (both branches present).
+  assert.match(v2, /Full-game simulation · (?:available|not available) for this game/, "full-game section is capability-derived");
   assert.match(v2, /Player simulation board/i, "the player board section exists");
   assert.match(v2, /Market agreement/i, "the market-agreement section exists");
   assert.doesNotMatch(v2, /projected score of|win probability of \d/i, "no public full-game numbers");

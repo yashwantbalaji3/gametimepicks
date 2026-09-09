@@ -9,7 +9,8 @@
  *
  * PURE DATA — no fabrication. `status`/`predictionSource`/`settlementSupport` describe the real pipeline:
  *   - MLB team markets are de-vigged sportsbook lines (market-anchored); player props are a 10k prop sim
- *     where an artifact exists; there is NO independent full-game score sim (market-implied only).
+ *     where an artifact exists; the full-game score is an independent Monte Carlo where its artifact
+ *     qualifies (experimental — never claimed to out-predict the market).
  *   - World Cup is a de-vigged, market-IMPLIED 90' read — never an independent soccer sim. Player props
  *     and set-piece markets need a provider feed + settlement source.
  *   - UFC moneyline is market-implied (experimental); method/round/distance need an odds feed; nothing
@@ -54,7 +55,7 @@ export const NFL_COVERAGE: MarketCoverage[] = [
     status: "experimental", predictionSource: "independent_sim",
     requiredData: ["schedule", "cutoff-versioned strength state", "phase-appropriate scoring model"],
     settlementSupport: "supported",
-    publicExplanation: "10,000 simulations of the final score per game, always marked experimental. The preseason identity picked winners no better than a coin flip on a held-out preseason, so its win percentages stayed near even; the regular-season identity picked about 64% of winners on a held-out 2025 season. Neither is presented as sharper than the sportsbook price.",
+    publicExplanation: "A simulated score range and win chance for every regular-season game from the evaluated team-strength model, frozen before kickoff and always marked experimental — it picked about 64% of winners on a held-out 2025 season. (The archived preseason identity picked winners no better than a coin flip on its held-out preseason, which is why it never fed products.) Neither is presented as sharper than the sportsbook price.",
   },
   {
     sport: "nfl", market: "moneyline", publicLabel: "Win chance",
@@ -79,17 +80,17 @@ export const NFL_COVERAGE: MarketCoverage[] = [
   },
   {
     sport: "nfl", market: "anytime_touchdown", publicLabel: "Anytime touchdown",
-    status: "settlement_blocked", predictionSource: "independent_sim",
-    requiredData: ["current role evidence", "an offered touchdown market"],
-    settlementSupport: "pending",
-    publicExplanation: "The scoring model is calibrated, but playing time for these games has no source-backed evidence yet and our current capture holds no touchdown market for them — so it appears as a watchlist, never a card.",
+    status: "experimental", predictionSource: "independent_sim",
+    requiredData: ["role evidence + availability states", "an authorized touchdown market for pricing"],
+    settlementSupport: "supported",
+    publicExplanation: "The calibrated scoring model publishes weekly touchdown boards, with each player's availability state attached (injury-listed players marked; everyone else availability-uncertain until kickoff). No authorized touchdown market is captured for these games, so it is model-only — a watchlist, never a card.",
   },
   {
-    sport: "nfl", market: "player_props", publicLabel: "Passing / rushing / receiving",
-    status: "provider_needed", predictionSource: "none",
-    requiredData: ["event-bound player availability", "an offered player market"],
-    settlementSupport: "pending",
-    publicExplanation: "Withheld: no source in our pipeline confirms who dresses for a game or how much they play, so a projection would be invented rather than measured.",
+    sport: "nfl", market: "player_props", publicLabel: "Receptions / receiving yards (passing & rushing withheld)",
+    status: "experimental", predictionSource: "independent_sim",
+    requiredData: ["walk-forward role evidence", "per-family evaluation receipts"],
+    settlementSupport: "supported",
+    publicExplanation: "Receptions and receiving yards publish as model forecasts under their own evaluation receipts, with availability states on every row. Passing and rushing stay withheld: their candidates lost to simpler baselines in evaluation, so those numbers are not invented. No family is priced against a market.",
   },
 ];
 
@@ -130,10 +131,10 @@ export const MARKET_COVERAGE: readonly MarketCoverage[] = [
   },
   {
     sport: "mlb", market: "full_game_sim", publicLabel: "Full-game score simulation",
-    status: "experimental", predictionSource: "market_implied",
-    requiredData: ["Validated independent run-scoring model", "multi-season backtest"],
+    status: "experimental", predictionSource: "independent_sim",
+    requiredData: ["Full-game simulation artifact (10k complete games from board projections)"],
     settlementSupport: "supported",
-    publicExplanation: "Full-game outcomes are currently MARKET-IMPLIED (from the de-vigged lines), not an independent score simulation. An independent, backtested sim is on the roadmap — not claimed until validated.",
+    publicExplanation: "An independent full-game Monte Carlo — 10,000 complete simulated games from the pregame board projections — produces the projected score, win probability and run distributions where its artifact qualifies; games without one show no projected score. Experimental: it has not been validated to out-predict the market.",
   },
   {
     sport: "mlb", market: "team_totals", publicLabel: "Team totals",

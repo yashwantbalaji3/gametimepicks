@@ -271,7 +271,10 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo }: { g
           ]}
           note={
             Math.abs(g.runs.away.mean - g.runs.home.mean) <= 1 && Math.max(g.winProbability.away, g.winProbability.home) < 0.55
-              ? "These two project level: no team-strength rating and no home-field advantage are applied, so a score that differed here would be simulation noise rather than a read."
+              // A rounded tie is not "no signal": the simulated means still differ through each club's player
+              // projections. Report the actual gap and call it what it is — a close read — rather than
+              // claiming the model carries no team signal.
+              ? `Close call: the simulated means differ by ${Math.abs(g.runs.away.mean - g.runs.home.mean).toFixed(1)} ${(g.vocabulary ?? BASEBALL_VOCAB).scoreUnit} and the win probabilities sit near even. Team strength enters only through each club's player projections; no separate home-field advantage term is applied.`
               : g.gameStory?.[0] ?? null
           }
         />
@@ -432,7 +435,13 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-[11px] m-0" style={{ color: "var(--vault-text-faint)" }}>
-        Average per-game stat line across the 10,000 simulated games (same games that produced the score above). Batting order is a documented fallback — real lineups are not posted pregame.
+        Average per-game stat line across the 10,000 simulated games (same games that produced the score above).{" "}
+        {/* Lineup provenance for THIS run, read from the artifact — never a blanket claim about pregame lineups. */}
+        {g.completeness.awayLineupSource === "confirmed" && g.completeness.homeLineupSource === "confirmed"
+          ? "Both clubs' confirmed batting orders were used for this run."
+          : g.completeness.awayLineupSource === "confirmed" || g.completeness.homeLineupSource === "confirmed"
+            ? "One club's confirmed batting order was used; the other is a documented prop-derived fallback order."
+            : "Batting order for this run is a documented prop-derived fallback — confirmed lineups were not available when it generated."}
       </p>
       {teams.map((team) => (
         <section key={team}>
@@ -507,7 +516,13 @@ function Methodology({ g, meta }: { g: FullGameSimGame; meta: FullGameArtifactMe
         <strong style={{ color: "var(--vault-text)" }}>Inputs (all pregame, leakage-safe).</strong> Plate-appearance rates are derived from the public board&apos;s per-player projections: a batter&apos;s expected hits and total bases set the hit rate and extra-base split; the starting pitcher&apos;s strikeout projection sets the strikeout rate; walks use a league prior. Nothing is read from the sportsbook market or from any post-first-pitch source.
       </p>
       <p className="m-0">
-        <strong style={{ color: "var(--vault-warn)" }}>Honest limitations.</strong> Batting order is a documented fallback (lineups are not posted pregame); batter strikeout and walk rates use league priors; park, weather, and handedness effects are not modeled (they do not exist pregame on the public surface). This is a transparent, internally-consistent simulation — it has <strong>not</strong> been validated to out-predict the market, and no such claim is made.
+        <strong style={{ color: "var(--vault-warn)" }}>Honest limitations.</strong>{" "}
+        {g.completeness.awayLineupSource === "confirmed" && g.completeness.homeLineupSource === "confirmed"
+          ? "This run used both clubs' confirmed batting orders; "
+          : g.completeness.awayLineupSource === "confirmed" || g.completeness.homeLineupSource === "confirmed"
+            ? "This run used one confirmed batting order and one documented prop-derived fallback order; "
+            : "This run used a documented prop-derived fallback batting order (confirmed lineups were not yet posted when it generated); "}
+        batter strikeout and walk rates use league priors; park, weather, and handedness effects are not modeled (they do not exist pregame on the public surface). This is a transparent, internally-consistent simulation — it has <strong>not</strong> been validated to out-predict the market, and no such claim is made.
       </p>
       {g.completeness.notes.length ? (
         <div className="rounded-[10px] px-3 py-2" style={{ border: "1px solid var(--vault-rule)" }}>

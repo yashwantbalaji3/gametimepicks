@@ -21,13 +21,17 @@ test("every entry has an honest public explanation + required data when blocked"
   }
 });
 
-test("no overclaim: soccer is market-implied (never an independent sim); MLB full-game is not independent", () => {
+test("no overclaim: soccer is market-implied (never an independent sim); MLB full-game stays experimental", () => {
   for (const m of coverageForSport("soccer")) {
     assert.notEqual(m.predictionSource, "independent_sim", `soccer ${m.market} is not claimed as an independent sim`);
   }
+  // P250: an independent full-game Monte Carlo exists and renders on game reports, so the row says so —
+  // but it stays EXPERIMENTAL (never product-eligible) and its explanation keeps the no-overclaim limit.
   const fullGame = MARKET_COVERAGE.find((m) => m.sport === "mlb" && m.market === "full_game_sim");
-  assert.equal(fullGame.predictionSource, "market_implied", "MLB full-game is market-implied, not an independent sim");
+  assert.equal(fullGame.predictionSource, "independent_sim", "MLB full-game is the real independent sim, stated");
   assert.equal(fullGame.status, "experimental", "MLB full-game sim is experimental, not 'supported'");
+  assert.match(fullGame.publicExplanation, /not been validated to out-predict the market/i, "no market-beating claim");
+  assert.match(fullGame.publicExplanation, /games without one show no projected score/i, "per-game absence stated");
 });
 
 test("settlement-blocked + experimental markets can NEVER enter a product card", () => {

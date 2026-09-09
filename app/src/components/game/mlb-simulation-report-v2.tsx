@@ -14,13 +14,16 @@
  *   8  Settlement support (deterministic official box score)
  *   9  Bank Builder / Moonshot eligibility
  *   10 Market snapshot (de-vigged team markets, MARKET-ANCHORED)
- *   11 Full-game model status — INTERNAL, VALIDATING (no numbers) + why no projected score / win probability
+ *   11 Full-game simulation status — DERIVED from this game's bundle capability (`fullGame` prop): when the
+ *      Overview tab renders a full-game simulation, this section says where that score comes from; when no
+ *      full-game artifact qualified, it states the absence. It can never contradict the Overview.
  *   12 Methodology & data freshness  →  Advanced simulation detail (collapsed)
  *
- * Honesty: the 10k sim is a PLAYER-PROP sim (no game score). Full-game markets are the de-vigged sportsbook
- * lines — market-anchored, NOT an independent game simulation. No projected score / win probability / run or
- * margin distribution, and no best-bet / lock / EV / edge / market-beating language. "Model lead" / "model gap"
- * = model probability minus market-implied probability (display only). Paper-only, review, $0 exposure.
+ * Honesty: the 10k sim here is a PLAYER-PROP sim (no game score of its own). Full-game markets are the
+ * de-vigged sportsbook lines — market-anchored, NOT an independent game simulation. Every full-game claim in
+ * this tab keys off the actual bundle capability rather than hardcoded prose, and no best-bet / lock / EV /
+ * market-beating language appears. "Model lead" / "model gap" = model probability minus market-implied
+ * probability (display only). Paper-only, review, $0 exposure.
  */
 import type { PublicProjection } from "@/lib/normalize";
 import Explain from "@/components/ui/explain";
@@ -75,6 +78,13 @@ export interface MlbSimulationReportV2Props {
   simStatus?: string | null;
   /** The sim game's honest "not generated" modules — a non-empty list ⇒ PARTIAL_FEATURES completeness. */
   unavailableModules?: unknown[] | null;
+  /**
+   * The full-game simulation capability of THIS game's bundle. `available` mirrors the Overview tab's own
+   * gate (status !== "unavailable" and a win probability exists), so this tab and the Overview can never
+   * disagree about whether a full-game simulation exists. Null/absent ⇒ no full-game artifact for this game,
+   * and the absence copy below is then accurate rather than a stale claim.
+   */
+  fullGame?: { available: boolean; modelVersion: string | null; runCount: number | null } | null;
   /** The old dense dashboard, demoted into a collapsed block. */
   advanced?: React.ReactNode;
 }
@@ -161,10 +171,12 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
     playerProps, advanced, picks = [], distributions = null, gameCenter = null, marketSnapshotNode = null,
     productTags, runCount = null, allowsRunCountClaim = false, modelVersion = null, generatedAt = null,
     marketCapturedAt = null, simStatus = null, unavailableModules = null, gameLab = null,
-    vocabulary = null,
+    vocabulary = null, fullGame = null,
   } = props;
   const sportCode = vocabulary?.sportCode ?? "MLB";
   const scoreUnit = vocabulary?.scoreUnit ?? "runs";
+  // The one capability fact every full-game claim in this tab keys off. Same gate as the Overview tab.
+  const fullGameAvailable = !!fullGame?.available;
 
   // Honest provenance timestamps (pure, artifact-backed): when the market line was captured, how long before
   // first pitch, and when the sim was generated. Never labels a post-first-pitch capture as pregame.
@@ -339,8 +351,8 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
             </span>
           </div>
           <div className="rounded-[10px] px-3 py-2" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)" }}>
-            <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>What is not shown</span>
-            <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Projected score / win probability — full-game model still validating</span>
+            <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{fullGameAvailable ? "Shown elsewhere" : "What is not shown"}</span>
+            <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{fullGameAvailable ? "Projected score / win probability — in the Overview tab (full-game simulation)" : "Projected score / win probability — no full-game simulation for this game"}</span>
           </div>
         </div>
         {/* Compact provenance + completeness strip — the run count already sits in "What happened"; this pairs it
@@ -380,7 +392,11 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           <StatTile label="Picks generated" value={String(picks.length)} sub={`${aboveMarket} above market`} />
           <StatTile label="Paper candidates" value={String(eligible.length)} sub="not market-proven" />
           <StatTile label="Team markets" value={hasTeamMarkets ? "Snapshot" : "Not posted"} sub={hasTeamMarkets ? "market-implied" : "provider needed"} />
-          <StatTile label="Full-game score" value="Not simulated" sub="model validating" />
+          <StatTile
+            label="Full-game score"
+            value={fullGameAvailable ? "Simulated" : "Not simulated"}
+            sub={fullGameAvailable ? `Overview tab${fullGame?.runCount ? ` · ${fullGame.runCount.toLocaleString()} runs` : ""}` : "no full-game run for this game"}
+          />
         </div>
         {useLeanBoard ? (
           <p className="mt-2 font-mono text-[10px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
@@ -607,7 +623,9 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         ) : (
           <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text-mute)" }}>
             No outcome-distribution bins for this game's props yet. Distributions appear only when the artifact carries
-            real per-prop bins — we never fabricate a spread, and no full-game run / margin distribution is shown.
+            real per-prop bins — we never fabricate a spread. {fullGameAvailable
+              ? "Full-game score and total distributions live in the Overview tab, from the full-game simulation."
+              : "No full-game run / margin distribution exists for this game."}
           </p>
         )}
       </Section>
@@ -675,21 +693,42 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         </p>
       </Section>
 
-      {/* 11 — Full-game model status (validating) + why no projected score / win probability */}
-      <Section n={11} title="Full-game simulation" subtitle="Why no projected score or win probability" tone="muted">
-        <div className="rounded-[10px] px-4 py-4 flex flex-col gap-1.5 mb-2" style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 50%, transparent)", border: "1px dashed var(--vault-border-strong)" }}>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Full-game model · validating</span>
-          <p className="text-[13px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
-            The 10k simulation above is a <strong>player-prop</strong> simulation — it does not produce a game score,
-            win probability, or total-runs distribution. An internal full-game model exists but is still validating
-            and is not public, so no projected score or win probability is shown here.
-          </p>
-        </div>
-        <ul className="flex flex-col gap-1 m-0 pl-4 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          <li>The public simulation is a <strong>player-prop</strong> engine — it never computes a final score or a win probability.</li>
-          <li>The internal full-game model has <strong>not cleared out-of-sample validation</strong>, so we do not publish its numbers.</li>
-          <li>The team snapshot above is market-implied context, clearly labelled — not a projected score and not a run / margin distribution.</li>
-        </ul>
+      {/* 11 — Full-game simulation status, derived from THIS game's bundle capability (never a stale claim). */}
+      <Section n={11} title="Full-game simulation" subtitle={fullGameAvailable ? "Where the projected score comes from" : "Why no projected score or win probability"} tone="muted">
+        {fullGameAvailable ? (
+          <>
+            <div className="rounded-[10px] px-4 py-4 flex flex-col gap-1.5 mb-2" style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 50%, transparent)", border: "1px dashed var(--vault-border-strong)" }}>
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Full-game simulation · available for this game</span>
+              <p className="text-[13px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
+                This tab is the <strong>player-prop</strong> simulation. The projected score, win probability and
+                run / total distributions in the <strong>Overview tab</strong> come from a separate independent
+                full-game Monte Carlo{fullGame?.runCount ? <> ({fullGame.runCount.toLocaleString()} simulated games)</> : null}
+                {fullGame?.modelVersion ? <> · model <span className="font-mono">{fullGame.modelVersion}</span></> : null}, built
+                from the same pregame board projections — not from the sportsbook market.
+              </p>
+            </div>
+            <ul className="flex flex-col gap-1 m-0 pl-4 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              <li>The player board here and the Overview score come from <strong>the same pregame inputs</strong>, simulated at different granularities.</li>
+              <li>The market snapshot above is market-implied context, clearly labelled — it is <strong>not</strong> the source of the Overview&apos;s projected score.</li>
+              <li>The full-game simulation is internally consistent but has <strong>not</strong> been shown to out-predict the market, and no such claim is made.</li>
+            </ul>
+          </>
+        ) : (
+          <>
+            <div className="rounded-[10px] px-4 py-4 flex flex-col gap-1.5 mb-2" style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 50%, transparent)", border: "1px dashed var(--vault-border-strong)" }}>
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Full-game simulation · not available for this game</span>
+              <p className="text-[13px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
+                The 10k simulation above is a <strong>player-prop</strong> simulation — it does not produce a game score,
+                win probability, or total-{scoreUnit} distribution. No full-game simulation artifact qualified for this
+                game, so no projected score or win probability is shown anywhere on this page.
+              </p>
+            </div>
+            <ul className="flex flex-col gap-1 m-0 pl-4 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+              <li>The player-prop engine here never computes a final score or a win probability by itself.</li>
+              <li>The team snapshot above is market-implied context, clearly labelled — not a projected score and not a run / margin distribution.</li>
+            </ul>
+          </>
+        )}
       </Section>
 
       {/* 12 — Methodology & data freshness */}

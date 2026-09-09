@@ -13,11 +13,15 @@ const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 const SUMMARY = read("src/components/game/mlb-simulation-result-summary.tsx");
 const PAGE = read("src/components/game/game-detail-page.tsx");
 
-test("summary is honest about scope: player-prop sim, full-game markets are de-vigged lines, no invented distributions", () => {
+test("summary is honest about scope: player-prop sim, full-game markets are de-vigged lines, capability-derived full-game copy", () => {
   assert.match(SUMMARY, /player-prop simulation/i, "labels the 10k sim as a player-prop simulation");
   assert.match(SUMMARY, /de-vigged sportsbook lines/i, "full-game markets are de-vigged lines");
   assert.match(SUMMARY, /market-anchored, not an independent game simulation/i, "not an independent game sim");
-  assert.match(SUMMARY, /No projected score, total-runs or margin distribution/i, "never claims a game/total/margin distribution");
+  // P250: the footer keys off the actual bundle capability — it points at the Overview's full-game
+  // simulation when one exists and states the absence when none qualified. Never a stale blanket denial.
+  assert.match(SUMMARY, /\{fullGameAvailable\s*\?/, "footer branches on the bundle capability");
+  assert.match(SUMMARY, /No full-game simulation qualified for this game/i, "absence branch states the absence");
+  assert.match(SUMMARY, /separate independent full-game simulation/i, "available branch points at the Overview simulation");
 });
 
 test("summary surfaces the strongest simulated player-prop leans (ranked by edge)", () => {

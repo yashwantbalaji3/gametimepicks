@@ -617,9 +617,19 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   // page these are threaded into the simulation runner's `postReveal` (revealed ONLY after the reveal),
   // never rendered as pre-click siblings; on every other page they render directly, unchanged.
   const mlbReport = detail.gameLabMlb ? <div className="mb-5"><MlbGameLabReport view={detail.gameLabMlb} /></div> : null;
+  // THE one full-game capability fact for this game, mirroring MlbFullGameReport's own availability gate
+  // (status !== "unavailable" and a win probability exists). Every tab's full-game claim keys off this, so
+  // the Players & Props tab can never deny a simulation the Overview tab is rendering.
+  const mlbFullGameCapability = detail.fullGameSim
+    ? {
+        available: detail.fullGameSim.status !== "unavailable" && !!detail.fullGameSim.winProbability,
+        modelVersion: detail.fullGameSimMeta?.modelVersion ?? null,
+        runCount: detail.fullGameSimMeta?.runCount ?? null,
+      }
+    : null;
   // Market-implied Game Center (win prob / total / run line) — leads the post-reveal
   // dashboard when the game has de-vigged team markets; absent otherwise (no fake modules).
-  const gameCenter = detail.gameCenter ? <MlbGameCenter gameCenter={detail.gameCenter} /> : null;
+  const gameCenter = detail.gameCenter ? <MlbGameCenter gameCenter={detail.gameCenter} fullGameAvailable={!!mlbFullGameCapability?.available} /> : null;
   const tabsShell = <SportShell tabs={tabs} />;
 
   // ── ONE unified report (MLB). The runner owns the answer-first spine (header → market snapshot →
@@ -638,6 +648,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       allowsRunCountClaim={!!detail.gameLabSimulation.allowsRunCountClaim}
       isPreviousSlate={mlbIsPreviousSlate}
       slateDate={detail.date ?? ""}
+      fullGameAvailable={!!mlbFullGameCapability?.available}
     />
   ) : null;
   const mlbRunLabel = detail.gameLabSimulation?.allowsRunCountClaim && detail.gameLabSimulation?.runCount
@@ -683,6 +694,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       marketCapturedAt={detail.gameLabSimulation?.marketCapturedAt ?? null}
       simStatus={detail.gameLabSimulation?.status ?? null}
       unavailableModules={detail.gameLabSimulation?.unavailableModules ?? null}
+      fullGame={mlbFullGameCapability}
       advanced={mlbAdvanced}
     />
   );

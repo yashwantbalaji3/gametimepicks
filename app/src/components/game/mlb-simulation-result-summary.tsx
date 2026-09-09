@@ -4,9 +4,9 @@
  * (model vs market probability + edge + confidence) and the plain-English recap. Honest about scope:
  *
  *   • The 10k sim is a PLAYER-PROP simulation. Its per-prop distributions are real (shown below in the
- *     advanced report). It does NOT produce a full-game score, a total-runs/margin distribution, or a
- *     scoreline — those are not generated for MLB (see the artifact's unavailableModules), so this summary
- *     never invents them.
+ *     advanced report). It does NOT produce a full-game score itself — when a separate full-game simulation
+ *     artifact exists for the game, the Overview tab owns that score and `fullGameAvailable` makes the footer
+ *     point there; when none exists, the footer states the absence. This summary never invents a score.
  *   • Full-game markets (moneyline / run line / total) are the de-vigged sportsbook lines shown in the
  *     Market Snapshot below — MARKET-ANCHORED, not an independent game simulation. This summary points at
  *     them rather than restating them as a "simulated" win probability.
@@ -42,6 +42,8 @@ export interface MlbSimulationResultSummaryProps {
   allowsRunCountClaim: boolean;
   isPreviousSlate: boolean;
   slateDate: string;
+  /** Whether THIS game's bundle carries a full-game simulation (the Overview tab's own gate). */
+  fullGameAvailable?: boolean;
 }
 
 const pct = (p: number | null | undefined) => (typeof p === "number" ? `${(p * 100).toFixed(0)}%` : "—");
@@ -69,7 +71,7 @@ function LeanRow({ p, lead }: { p: SummaryPick; lead?: boolean }) {
   );
 }
 
-export default function MlbSimulationResultSummary({ headline, picks, runCount, allowsRunCountClaim, isPreviousSlate, slateDate }: MlbSimulationResultSummaryProps) {
+export default function MlbSimulationResultSummary({ headline, picks, runCount, allowsRunCountClaim, isPreviousSlate, slateDate, fullGameAvailable = false }: MlbSimulationResultSummaryProps) {
   const ranked = [...picks].filter((p) => typeof p.edgePct === "number").sort((a, b) => (b.edgePct ?? 0) - (a.edgePct ?? 0));
   const top = ranked.slice(0, 3);
   const runLabel = allowsRunCountClaim && runCount != null && runCount > 0 ? `${runCount.toLocaleString()}-run` : "deterministic";
@@ -99,7 +101,9 @@ export default function MlbSimulationResultSummary({ headline, picks, runCount, 
       <p className="font-mono text-[10px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
         {runLabel} player-prop simulation ({picks.length} markets). Full-game markets (moneyline / run line /
         total) below are the de-vigged sportsbook lines — market-anchored, not an independent game simulation.
-        No projected score, total-runs or margin distribution is generated for MLB. Paper-only, educational.
+        {fullGameAvailable
+          ? " The projected score and run distributions in the Overview tab come from the separate independent full-game simulation."
+          : " No full-game simulation qualified for this game, so no projected score or margin distribution is shown."} Paper-only, educational.
       </p>
     </section>
   );

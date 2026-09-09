@@ -21,12 +21,16 @@ test("MLB report is wired to MlbSimulationReportV2, fed the 10k result summary +
   assert.match(PAGE, /postReveal=\{mlbGameFirstReport\}/, "gated behind Generate");
 });
 
-test("honest scope: player-prop sim + market-anchored full-game snapshot; NO internal full-game numbers", () => {
+test("honest scope: player-prop sim + market-anchored snapshot; full-game claims derive from the bundle capability", () => {
   assert.match(V2, /player-prop sim/i, "labelled a player-prop simulation");
   assert.match(V2, /market-anchored, not an independent game simulation/i, "full-game lines are market-anchored");
-  assert.match(V2, /full-game model[\s\S]*?validating/i, "full-game model shown as validating, no numbers");
-  // never renders a projected score / win probability / run distribution value
-  assert.doesNotMatch(V2, /projected score of|win probability of \d|total-runs distribution:\s*\d/i, "no internal full-game numbers");
+  // P250: §11 derives from the game's actual bundle — both capability branches must exist, so this tab
+  // can never deny a simulation the Overview tab is rendering (the old hardcoded "validating" claim did).
+  assert.match(V2, /Full-game simulation · available for this game/, "available branch exists");
+  assert.match(V2, /Full-game simulation · not available for this game/, "absent branch exists");
+  assert.match(V2, /const fullGameAvailable = !!fullGame\?\.available/, "capability is the single gate");
+  // this tab still never renders its own projected score / win probability value
+  assert.doesNotMatch(V2, /projected score of|win probability of \d|total-runs distribution:\s*\d/i, "no full-game numbers of its own");
 });
 
 test("no best-bet/lock/EV/edge/official-pick language (comment-stripped)", () => {

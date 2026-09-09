@@ -13,20 +13,20 @@ const METHODOLOGY: Record<Sport, { title: string; kind: string; lines: string[] 
   // every existing sport's copy is untouched, which is what lets MLB output stay byte-identical.
   nfl: {
     title: "How the NFL simulation works",
-    kind: "experimental · 10,000-run preseason score simulation",
+    kind: "experimental · regular-season team forecasts (public)",
     lines: [
-      "Every eligible game runs 10,000 simulations of the final score. The projected score, win chance, margin and total all come from that one set of runs, so they can never disagree with each other.",
-      "It is an early model and we say so: tested on a full season it had never seen, it picked winners no better than a coin flip, so its win percentages sit deliberately close to even and it makes no claim to beat the sportsbook market.",
-      "Player projections and touchdown cards need to know who actually plays. Nobody publishes that for preseason games, so those stay withheld rather than invented — the touchdown list is a watchlist, not a card.",
+      "Each week's games get independent team forecasts — win chance, projected score and a total range — from the public regular-season model. Every number reacts to the specific teams playing.",
+      "The old preseason score model is archived: on its held-out season it picked winners no better than a coin flip, so it never fed products. The regular-season model replaced it, stays labelled experimental, and makes no claim to beat the sportsbook market.",
+      "Player forecasts publish only where a family passed its evaluation (receptions, receiving yards, anytime touchdown). Passing and rushing stay withheld rather than invented, and availability states travel with every player row.",
     ],
   },
   mlb: {
     title: "How the MLB simulation works",
-    kind: "market-anchored + 10,000-run player-prop sim",
+    kind: "independent full-game sim + 10,000-run player-prop sim",
     lines: [
       "Team markets (moneyline / run line / total) are the de-vigged sportsbook lines — a market-anchored read, settled from the official box score.",
       "Player props (strikeouts / hits / total bases) use a 10,000-run simulation from MLB Stats API game logs where the artifact exists; otherwise a projection vs the line.",
-      "There is no independent full-game score model yet — full-game outcomes are market-implied and labelled experimental. Team totals stay out of product cards until settlement is proven.",
+      "An independent full-game Monte Carlo — 10,000 complete simulated games built from the pregame board projections — produces the projected score, win probability and run distributions where its artifact qualifies; games without one show no projected score. It has not been validated to out-predict the market, and team totals stay out of product cards until settlement is proven.",
     ],
   },
   soccer: {

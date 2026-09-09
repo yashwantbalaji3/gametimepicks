@@ -7,9 +7,9 @@ import TeamLogo from "@/components/team-logo";
  * de-vigged moneyline / run line / total for every game were already committed and already powering
  * the per-game report. A reader who wanted "who wins, and how many runs" had to open a game.
  *
- * This is explicitly the MARKET's read, not ours. The coverage matrix on this page states that team
- * outcomes are market-implied and that no independent full-game score model is published, so the
- * card says so in its own words rather than leaving a win probability to be mistaken for a forecast.
+ * This is explicitly the MARKET's read, not ours. The independent full-game simulation lives on the
+ * per-game report (Overview tab) where its artifact qualifies; this card is the de-vigged market view
+ * and says so in its own words, so a win probability here is never mistaken for a forecast.
  */
 
 export interface TeamMarketRow {

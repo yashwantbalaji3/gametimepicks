@@ -51,8 +51,10 @@ test("the V2.5 player board shows the core per-pick fields (proj / model / marke
 });
 
 test("unsupported outputs are declared, never faked; distributions gated on real data (V2.5)", () => {
-  // Full-game score is explicitly "Not simulated" (declared, not fabricated).
-  assert.match(v2, /label="Full-game score" value="Not simulated"/, "full-game score declared not simulated, never faked");
+  // Full-game score derives from THIS game's bundle capability — never a hardcoded claim either way
+  // (P250: the hardcoded "Not simulated" contradicted the Overview tab's rendered simulation).
+  assert.match(v2, /value=\{fullGameAvailable \? "Simulated" : "Not simulated"\}/, "full-game score tile keys off the bundle capability");
+  assert.match(v2, /const fullGameAvailable = !!fullGame\?\.available/, "one capability fact drives every full-game claim");
   // Distributions only render from a real, non-empty artifact block; honest empty state otherwise.
   assert.match(v2, /distEntries\.length > 0 \?/, "histograms only when a real block exists");
   assert.ok(v2.includes("we never fabricate a spread"), "no fabricated distributions");

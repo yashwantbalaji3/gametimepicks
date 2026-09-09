@@ -27,6 +27,10 @@ test("1 · the MLB market snapshot is honest — market-implied, not a simulatio
   assert.doesNotMatch(gc, /coming soon/i, "no undated promises");
   // It does not positively claim a full-game simulation exists.
   assert.doesNotMatch(gc, /\bruns? a full-game simulation\b|full-game simulation (?:ready|available|shows)/i);
+  // P250: when the game's bundle DOES carry a full-game simulation, the panel points at the Overview tab
+  // instead of denying it — and that positive branch is gated on the capability prop, never hardcoded.
+  assert.match(gc, /fullGameAvailable \?/, "full-game copy branches on the bundle capability");
+  assert.match(gc, /Overview tab/, "available branch points at the Overview simulation");
 });
 
 test("2 · the internal readiness artifact is honest — never 'ready', never a 'simulation' label, not public", () => {

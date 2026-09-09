@@ -23,7 +23,11 @@ test("WC bracket context invents NO finalists — Final + third-place are TBD", 
 test("sport methodology panels are honest (no overclaim)", () => {
   const src = read("src/components/sport-methodology-panel.tsx");
   assert.match(src, /NOT an independent soccer simulation/i, "soccer is market-implied, not an independent sim");
-  assert.match(src, /no independent full-game score model/i, "MLB full-game is not an independent sim");
+  // P250: an independent full-game Monte Carlo now exists and the panel says so — with the honest
+  // limitation kept (never a market-beating claim, and absence stated for games without an artifact).
+  assert.match(src, /independent full-game Monte Carlo/i, "MLB names the real full-game simulation");
+  assert.match(src, /not been validated to out-predict the market/i, "keeps the no-overclaim limit");
+  assert.match(src, /games without one show no projected score/i, "absence stays stated per game");
   assert.match(src, /[Ee]xperimental/, "UFC is experimental");
   assert.match(src, /never faked|never priced|not fabricated|Nothing is fabricated/i, "explicit no-fabrication language");
   const banned = /\block\b|guaranteed|best bet|positive EV|validated edge|sure thing/i;

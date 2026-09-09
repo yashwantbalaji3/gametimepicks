@@ -84,6 +84,8 @@ test("LEAK: no full-game sim/backtest/closing-odds artifact is web-served (app/p
 
 test("public MLB report surfaces NO internal full-game numbers (win prob / projected runs / distributions)", () => {
   const v2 = fs.readFileSync(path.join(APP, "src/components/game/mlb-simulation-report-v2.tsx"), "utf8");
-  assert.match(v2, /full-game model[\s\S]*?validating/i, "full-game section says validating");
-  assert.match(v2, /no projected score or win probability is shown/i, "explicitly hides the numbers");
+  // P250: the section derives from the bundle capability instead of a hardcoded "validating" claim.
+  assert.match(v2, /Full-game simulation · not available for this game/, "absence branch exists");
+  assert.match(v2, /no projected score or win probability is shown/i, "the absence branch explicitly hides the numbers");
+  assert.match(v2, /fullGameAvailable \?/, "the branch is gated on the actual capability");
 });
