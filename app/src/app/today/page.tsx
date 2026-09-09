@@ -61,6 +61,7 @@ import {
   type SecondaryLink,
 } from "@/components/today/status-modules";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import YourTeams from "@/components/follow/your-teams";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -313,6 +314,11 @@ export default function TodayPage() {
         mlbGames={mlbGames}
         mlbLeans={mlbLeans}
       />
+
+      {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed
+              one, and only ever offers a destination the search index derived from a published
+              artifact — so it cannot promise a page that does not exist. */}
+      <YourTeams />
 
       {/* 1c — Daily MLB intelligence brief: the executive digest (overview + spotlight + attention + links) */}
       <TodayMlbBrief brief={brief} recapHref={hasSettledResults ? "/results" : null} />

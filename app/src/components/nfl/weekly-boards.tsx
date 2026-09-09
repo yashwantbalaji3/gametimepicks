@@ -16,6 +16,7 @@ import Link from "next/link";
 
 import PlayerAvatar from "@/components/player-avatar";
 import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
+import FollowToggle from "@/components/follow/follow-toggle";
 
 export interface BoardRow {
   playerId: string;
@@ -59,7 +60,12 @@ const etKickoff = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
     .format(new Date(iso));
 
-export default function NflWeeklyBoards({ boards }: { boards: Board[] }) {
+export default function NflWeeklyBoards({ boards, teamNames = {} }: { boards: Board[]; teamNames?: Record<string, string> }) {
+  /* The follow store keys on a club's own published NAME, which is what every artifact and the
+     search index already agree on. The boards carry abbreviations, so the page passes the
+     abbreviation→name map the forecast artifact publishes rather than a second identity space
+     being invented here. */
+  const fullName = (abbr: string) => teamNames[abbr] ?? abbr;
   const [team, setTeam] = useState<string>("All");
   const [q, setQ] = useState("");
 
@@ -85,7 +91,14 @@ export default function NflWeeklyBoards({ boards }: { boards: Board[] }) {
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
           <Chip on={team === "All"} onClick={() => setTeam("All")}>All teams</Chip>
-          {teams.map((t) => <Chip key={t} on={team === t} onClick={() => setTeam(t)}>{t}</Chip>)}
+          {teams.map((t) => (
+            <span key={t} className="inline-flex items-center gap-0.5 shrink-0">
+              <Chip on={team === t} onClick={() => setTeam(t)}>{t}</Chip>
+              {/* P251-F9: follow from where a reader is already looking at their club. The star
+                  changes what /today shows them first; it never changes a number here. */}
+              <FollowToggle team={fullName(t)} size={13} />
+            </span>
+          ))}
         </div>
         <input
           type="search"

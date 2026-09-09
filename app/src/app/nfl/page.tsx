@@ -498,7 +498,12 @@ export default function NflHubPage() {
               value: Number(r.value), median: r.median as number | undefined,
               p10: r.p10 as number | undefined, p90: r.p90 as number | undefined,
             })),
-          }))} />
+          }))}
+            /* P251-F9: abbr → published club name, from the forecast artifact — the follow store
+               and the search index both key on the name, and no second identity space is made. */
+            teamNames={Object.fromEntries((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string; name?: string }; away?: { abbr?: string; name?: string } }) =>
+              [x.home, x.away].filter((t): t is { abbr: string; name: string } => !!t?.abbr && !!t?.name).map((t) => [t.abbr, t.name])))}
+          />
         </section>
       ) : null}
 
