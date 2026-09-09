@@ -942,3 +942,24 @@ extraction-artifact recheck; prod serves fb1dd62b exactly.
 Remaining Week-1 truths, stated not hidden: no priced NFL anything (founder-gated authorization);
 passing/rushing withheld by evaluation; the site's state between deploys freezes at build
 cadence (event-window passes at 11:00/17:00 ET are the pre-kickoff refresh path).
+
+## P250-GD — game day: the Projected Scorecard (Sep 9, commits 5c8d40a51 + 157635b31, prod verified)
+
+The founder's game-day ask — every simulation reading like a completed game scorecard with all
+props — shipped to the boundary the evaluation gates allow, and no further. Each of the 16 game
+pages opens its player section with ONE box-score-shaped unit: score line, win chance, total,
+margin; per-team Likely TD Scorers (availability marked) and Receiving Leaders (rec · yds); and
+the families that carry no number stated INSIDE the same frame with the exact bar each failed,
+verbatim from the artifact. Labelled "expected statistical summaries · not one simulated game".
+A guard pins that the section reads no new data and can never render a withheld family's number:
+passing/rushing/interception figures join the scorecard the day their models clear preregistered
+bars — never sooner, because a failed model's number would cheapen every earned one.
+
+Also fixed: /today's live-now chips name their time base beside a past slate's counts (bot pushes
+redeploy Vercel, so a morning rebuild had put an "NFL" live-now chip beside Tuesday's MLB counts);
+raw family keys get reader-facing fallbacks in both withheld disclosures. Checker lesson
+(vacuous-guard class, inverted): tag-stripping without removing <script> CONTENT counts RSC
+payload as rendered text — the "defect" it kept reporting was data, not UI.
+
+Ops at push time: event-window 11:00/17:00 ET passes ahead of the 8:20 PM ET kickoff; nightly
+settles green; all 16 forecasts frozen-pre-kickoff with NO_MARKET honesty intact.
