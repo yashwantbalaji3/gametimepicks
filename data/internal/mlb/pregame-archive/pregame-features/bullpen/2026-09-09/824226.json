@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824226,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T00:28:51.497Z",
+  "availableAt": "2026-09-09T00:28:51.497Z",
+  "eventStartTime": "2026-09-09T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-06",
+    "2026-09-07",
+    "2026-09-08"
+  ],
+  "home": {
+    "teamId": 116,
+    "teamName": "Detroit Tigers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 106,
+      "relievers": [
+        {
+          "id": 805427,
+          "name": "Drew Sommers",
+          "appearances": 2,
+          "pitches": 35,
+          "outs": 7,
+          "dates": [
+            "2026-09-06",
+            "2026-09-07"
+          ]
+        },
+        {
+          "id": 445276,
+          "name": "Kenley Jansen",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-06",
+            "2026-09-07"
+          ]
+        },
+        {
+          "id": 641755,
+          "name": "Tyler Kinley",
+          "appearances": 2,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-06",
+            "2026-09-07"
+          ]
+        },
+        {
+          "id": 621097,
+          "name": "Jacob Waguespack",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-07"
+          ]
+        },
+        {
+          "id": 663947,
+          "name": "Tyler Holton",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 640448,
+          "name": "Kyle Finnegan",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 0,
+          "dates": [
+            "2026-09-06"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 172,
+      "relievers": [
+        {
+          "id": 687570,
+          "name": "Connor Prielipp",
+          "appearances": 1,
+          "pitches": 68,
+          "outs": 12,
+          "dates": [
+            "2026-09-07"
+          ]
+        },
+        {
+          "id": 670183,
+          "name": "Garrett Acton",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 1,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 702193,
+          "name": "Andrew Morris",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 667297,
+          "name": "Tommy Nance",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 681892,
+          "name": "Kody Funderburk",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-09-06"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-06,2026-09-07,2026-09-08) + feed/live box scores",
+    "capturedAt": "2026-09-09T00:28:51.497Z"
+  },
+  "recordHash": "34102dd94bb7eb9a4bee2cf0617511b3ebd3f261f77120920ff3dee5cd8af76e"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824791,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T00:28:50.112Z",
+  "availableAt": "2026-09-09T00:28:50.112Z",
+  "eventStartTime": "2026-09-09T22:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669358,
+      "name": "Shane Baz",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 5,
+        "bbAvg": 2.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 8.33,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 163.33,
+        "k": 145,
+        "bb": 57,
+        "er": 71,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 656492,
+      "name": "Foster Griffin",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 4,
+        "bbAvg": 1.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 6.67,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 160.33,
+        "k": 142,
+        "bb": 41,
+        "er": 58,
+        "hr": 23
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-09T00:28:50.112Z"
+  },
+  "recordHash": "2e1ffdee17613ab0f69dd4f702d20ed6875b7e282b256641bc435355c615bf9b"
+}

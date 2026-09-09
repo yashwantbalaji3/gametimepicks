@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823739,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T00:28:51.497Z",
+  "availableAt": "2026-09-09T00:28:51.497Z",
+  "eventStartTime": "2026-09-09T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-06",
+    "2026-09-07",
+    "2026-09-08"
+  ],
+  "home": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 173,
+      "relievers": [
+        {
+          "id": 681982,
+          "name": "Grant Anderson",
+          "appearances": 1,
+          "pitches": 44,
+          "outs": 8,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 668941,
+          "name": "JoJo Romero",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 2,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 622608,
+          "name": "Antonio Senzatela",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 2,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 676879,
+          "name": "Aaron Ashby",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-07"
+          ]
+        },
+        {
+          "id": 694477,
+          "name": "Chad Patrick",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 4,
+          "dates": [
+            "2026-09-07"
+          ]
+        },
+        {
+          "id": 682842,
+          "name": "Abner Uribe",
+          "appearances": 2,
+          "pitches": 17,
+          "outs": 4,
+          "dates": [
+            "2026-09-06",
+            "2026-09-07"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-07"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 112,
+    "teamName": "Chicago Cubs",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 109,
+      "relievers": [
+        {
+          "id": 607067,
+          "name": "Colin Rea",
+          "appearances": 1,
+          "pitches": 61,
+          "outs": 8,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 657097,
+          "name": "Jacob Webb",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-09-07"
+          ]
+        },
+        {
+          "id": 694037,
+          "name": "Daniel Palencia",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 666171,
+          "name": "Ryan Zeferjahn",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 1,
+          "dates": [
+            "2026-09-07"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-06,2026-09-07,2026-09-08) + feed/live box scores",
+    "capturedAt": "2026-09-09T00:28:51.497Z"
+  },
+  "recordHash": "2f370bce88222a58041271aab14439c20949f1b75272bf96f275b21000c23e52"
+}
