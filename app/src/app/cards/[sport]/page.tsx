@@ -21,7 +21,7 @@ import Link from "next/link";
 
 import SportLabCards from "@/components/sport-lab-cards";
 import SectionHeader from "@/components/section-header";
-import { loadCurrentSportLabLadder, ladderDayLabel, type SportLabLadder, loadSportLabStreamRecord } from "@/lib/parlays/sport-lab-cards";
+import { loadCurrentSportLabLadder, ladderDayLabel, type SportLabLadder, loadSportLabStreamRecord, loadSportLabStreamBlocker } from "@/lib/parlays/sport-lab-cards";
 import { loadUfcResultsCoverage } from "@/lib/sports/ufc/coverage-loader";
 
 /** Lanes that can carry a card product, with the hub each one belongs to. */
@@ -89,11 +89,21 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
           this is matters: "nothing left to price today" and "we could not build anything" are
           different facts, and only the first is routine.
         */
-        <p className="mt-4" style={{ fontSize: 13, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
-          No {lane.label} cards are published right now. A ladder is built only from events that have
-          not started, so it empties as the day&rsquo;s {params.sport === "ufc" ? "card approaches" : "matches kick off"} —
-          the next one appears when the following slate is priced.
-        </p>
+        (() => {
+          /* P250-W1: when the lane's OWN ledger says why it is not producing (expired price
+             capture, zero priced games), that derived reason renders — the generic "appears when
+             the following slate is priced" read as a promise in front of a 16-game NFL week whose
+             price authorization is a separate founder gate. */
+          const blocker = loadSportLabStreamBlocker(params.sport);
+          return (
+            <p className="mt-4" style={{ fontSize: 13, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
+              No {lane.label} cards are published right now.{" "}
+              {blocker
+                ? <>This lane is not producing cards: {blocker}. Model forecasts stay published on the <Link href={lane.hub} style={{ color: "var(--vault-gold-bright)" }}>{lane.hubLabel}</Link> — a missing authorized price removes the card, never the forecast.</>
+                : <>A ladder is built only from events that have not started, so it empties as the day&rsquo;s {params.sport === "ufc" ? "card approaches" : "matches kick off"} — the next one appears when the following slate is priced.</>}
+            </p>
+          );
+        })()
       )}
 
       {/*

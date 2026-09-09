@@ -144,9 +144,12 @@ if (missing.length) {
 } else {
   state = "WATCHLIST_ONLY";
   const blockers = [];
-  if (tdMarketOffered === false) blockers.push("the sportsbooks are not offering anytime-touchdown markets for these games");
+  /* P250-W1: the old blocker claimed a fact about the books this repo cannot
+       observe — the true state is OUR capture carries no authorized touchdown market (the NFL odds
+       authorization is founder-gated). Unavailable price authorization is not an absent market. */
+    if (tdMarketOffered === false) blockers.push("no authorized touchdown market is captured for these games (price acquisition is a separate authorization, not a claim the books offer nothing)");
   else if (!priced.length) blockers.push("no current comparable touchdown price is available");
-  if (!roleReady.length) blockers.push("preseason playing time is unknown, so no player's role is established");
+  if (!roleReady.length) blockers.push("no player's playing time is established by the availability evidence yet");
   reason = `${candidates.length} model candidates, but no card: ${blockers.join(" and ")}. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.`;
 }
 
@@ -170,7 +173,7 @@ const publicArtifact = {
     pricedCandidates: priced.length,
     roleReadyCandidates: roleReady.length,
   },
-  disclaimer: "Paper only and educational. Touchdown probabilities come from an experimental preseason model that has not been shown to beat the sportsbook market. A watchlist is not a bet.",
+  disclaimer: "Paper only and educational. Touchdown probabilities come from the experimental regular-season scoring model, which has not been shown to out-predict the sportsbook. A watchlist is not a bet.",
 };
 
 const payload = JSON.stringify(publicArtifact, null, 1);

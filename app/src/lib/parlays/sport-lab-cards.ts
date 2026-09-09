@@ -235,6 +235,21 @@ export interface SportLabStreamRecord {
  * ledger — the ONE record owner for the suggested-lane stream — and returns null only when the
  * stream genuinely has no decisive card.
  */
+/**
+ * P250-W1: the ledger's own typed reason a lane is not producing cards (its `blocked` sentence —
+ * price-capture age, priced-game count, settlement state — derived by the ledger builder). The
+ * cards page renders THIS instead of a generic "appears when the following slate is priced",
+ * which before a 16-game NFL week with an expired price authorization read as a promise.
+ */
+export function loadSportLabStreamBlocker(sport: string): string | null {
+  try {
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "parlays", "lab-ledger.json"), "utf8"));
+    const stream = (doc?.streams ?? []).find((x: { id?: string }) => x?.id === sport);
+    if (!stream || stream.live === true) return null;
+    return typeof stream.blocked === "string" && stream.blocked ? stream.blocked : null;
+  } catch { return null; }
+}
+
 export function loadSportLabStreamRecord(sport: string): SportLabStreamRecord | null {
   try {
     const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "parlays", "lab-ledger.json"), "utf8"));

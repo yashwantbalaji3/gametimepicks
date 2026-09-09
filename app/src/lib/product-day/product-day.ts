@@ -168,29 +168,49 @@ function nflDay(dataRoot: string, today: string): ProductDay {
    * named in the note as week discovery instead.
    */
   const forecastsUpcoming = Number(index.counts?.forecastsUpcoming ?? 0);
+  const forecastsTotal = Number(index.counts?.forecastsTotal ?? 0);
   const nextForecast: string | null = index.nextForecastUtc ?? index.nextKickoffUtc ?? null;
   const nextForecastDay = nextForecast ? etDay(nextForecast) : null;
-  if (forecastsUpcoming > 0 && nextForecastDay != null && nextForecastDay >= today) {
+  /*
+   * P250-W1: the regular-season lane owns the answer whenever ANY regular-season forecast exists —
+   * not only while the next kickoff is still ahead. Gating on a future next-forecast meant the
+   * morning after any kickoff passed (or any index-staleness across an ET midnight), this fell
+   * through to the retired preseason lane and resurrected "The last simulated slate (2026-08-29)
+   * has been played" in the middle of a live NFL week. A played week is a regular-season state
+   * with a regular-season sentence; the preseason archive speaks only when NO regular-season
+   * forecast exists at all (true offseason).
+   */
+  if (forecastsTotal > 0 || forecastsUpcoming > 0) {
     const weekly = readJson(dataRoot, "nfl", "weekly-boards", "latest.json");
     const week: number | null = typeof weekly?.period?.week === "number" ? weekly.period.week : null;
     const weekLabel = week != null ? `Week ${week}` : "this week";
     const events: Array<{ kickoffUtc?: string }> = Array.isArray(index.events) ? index.events : [];
     const todaysEvents = events.filter((e) => typeof e?.kickoffUtc === "string" && etDay(e.kickoffUtc) === today).length;
-    if (nextForecastDay === today && todaysEvents > 0) {
+    if (todaysEvents > 0) {
       return day("nfl", {
         productDate: today, state: "LIVE", events: todaysEvents, eligible: todaysEvents,
         sourceStamp: index.generatedAt ?? null, nextEventUtc: nextForecast,
-        note: `${todaysEvents} game forecast${todaysEvents === 1 ? "" : "s"} today · ${weekLabel}: ${forecastsUpcoming} published`,
+        note: `${todaysEvents} game forecast${todaysEvents === 1 ? "" : "s"} today · ${weekLabel}: ${forecastsUpcoming || forecastsTotal} published`,
         reason: null,
       });
     }
-    /* UFC's precedent: an EVENT_UPCOMING day counts the upcoming WINDOW's events (productDate names
-       the future day), and the note keeps today honest. Consumers rendering "today" must key off the
-       state, not the count — the note is the today-safe sentence. */
+    if (forecastsUpcoming > 0 && nextForecastDay != null && nextForecastDay > today) {
+      /* UFC's precedent: an EVENT_UPCOMING day counts the upcoming WINDOW's events (productDate
+         names the future day), and the note keeps today honest. Consumers rendering "today" must
+         key off the state, not the count — the note is the today-safe sentence. */
+      return day("nfl", {
+        productDate: nextForecastDay, state: "EVENT_UPCOMING", events: forecastsUpcoming, eligible: forecastsUpcoming,
+        sourceStamp: index.generatedAt ?? null, nextEventUtc: nextForecast,
+        note: `No NFL games today · ${weekLabel}: ${forecastsUpcoming} game forecasts published · next kickoff ${nextForecastDay}${typeof index.nextForecastMatchup === "string" ? ` (${index.nextForecastMatchup})` : ""}`,
+        reason: null,
+      });
+    }
+    /* The week has kicked off (or fully settled) and the next window has not published yet — a
+       quiet regular-season day, described in regular-season words. Never the preseason archive. */
     return day("nfl", {
-      productDate: nextForecastDay, state: "EVENT_UPCOMING", events: forecastsUpcoming, eligible: forecastsUpcoming,
-      sourceStamp: index.generatedAt ?? null, nextEventUtc: nextForecast,
-      note: `No NFL games today · ${weekLabel}: ${forecastsUpcoming} game forecasts published · next kickoff ${nextForecastDay}${typeof index.nextForecastMatchup === "string" ? ` (${index.nextForecastMatchup})` : ""}`,
+      productDate: today, state: "NO_EVENTS", events: 0, eligible: 0,
+      sourceStamp: index.generatedAt ?? null, nextEventUtc: nextForecastDay != null && nextForecastDay > today ? nextForecast : null,
+      note: `No NFL games today · ${weekLabel}'s played games are in the record; the next window appears when its forecasts publish.`,
       reason: null,
     });
   }

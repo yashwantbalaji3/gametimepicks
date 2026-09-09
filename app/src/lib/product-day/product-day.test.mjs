@@ -95,6 +95,35 @@ test("EQUIVALENCE · nfl day equals the index's own canonical counts; a PAST kic
   }
 });
 
+test("REGRESSION P250-W1 · a fully played regular-season week never resurrects the preseason note", () => {
+  /*
+   * The regular-season branch used to require a FUTURE next-forecast, so the morning after the
+   * week's last kickoff (forecastsUpcoming 0, next window unpublished) fell through to the retired
+   * preseason lane and rendered "The last simulated slate (2026-08-29) has been played" mid-season.
+   * A played week is a regular-season state with a regular-season sentence.
+   */
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-productday-w1-"));
+  const write = (rel, doc) => {
+    const full = path.join(root, rel);
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    fs.writeFileSync(full, JSON.stringify(doc));
+  };
+  write("nfl/index.json", {
+    generatedAt: "2026-09-16T15:00:00Z", nextKickoffUtc: null, nextForecastUtc: null,
+    counts: { scheduledUpcoming: 0, forecastsTotal: 16, forecastsUpcoming: 0, forecastsStarted: 16 },
+    events: [{ providerEventId: "x", kickoffUtc: "2026-09-15T00:20Z" }],
+  });
+  write("nfl/weekly-boards/latest.json", { period: { seasonType: 2, week: 1 } });
+  // The stale preseason lane sits on disk exactly as it does in the live tree — it must not speak.
+  write("nfl/game-simulations/latest.json", { date: "2026-08-29", generatedAt: "2026-08-29T18:16:23Z", games: [{ gameId: "old" }] });
+  const played = productDayFor("nfl", root, { today: "2026-09-16" });
+  assert.equal(played.state, "NO_EVENTS");
+  assert.match(played.note, /Week 1/, "the quiet day speaks in the week's own vocabulary");
+  assert.match(played.note, /played games are in the record/);
+  assert.doesNotMatch(played.note, /has been played;|2026-08-29/, "the preseason archive stays silent while regular-season forecasts exist");
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
 test("REGRESSION P224 · a NULL anchor beside a played slate is never 'upcoming'", () => {
   /*
    * P202 added "a PAST kickoff is not upcoming" but asked the question of the ANCHOR, so a null

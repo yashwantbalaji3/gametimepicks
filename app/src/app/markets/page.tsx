@@ -7,6 +7,7 @@ import { buildTop10Board } from "@/lib/top10/top10-picks";
 import PageHero from "@/components/page-hero";
 import DisagreementExplorer from "@/components/research/disagreement-explorer";
 import { currentEtDate } from "@/lib/freshness";
+import { buildProductDays } from "@/lib/product-day/product-day";
 import { latestMarketDate, loadMarketCenter } from "@/lib/markets/load";
 import { freshnessLabel, formatSnapshotCapture } from "@/lib/markets/freshness";
 import { toPropRowViews } from "@/lib/markets/view-model";
@@ -90,6 +91,38 @@ export default function MarketsPage() {
           </div>
         </section>
       ) : null}
+
+      {/* P250-W1: THE BOARD'S SCOPE, STATED. This page can only compare markets that carry a
+          current authorized price capture — MLB today. A reader landing on the "Picks" primary
+          during NFL week saw only baseball with no word on why, which reads as "no NFL picks
+          exist". The other in-season sports are named from the product-day owner, each with where
+          its model forecasts actually live — an unavailable price authorization is not an absent
+          prediction. */}
+      {(() => {
+        const days = buildProductDays(`${process.cwd()}/public/data`);
+        const HUBS: Record<string, { label: string; href: string }> = {
+          nfl: { label: "NFL", href: "/nfl/" },
+          epl: { label: "Premier League", href: "/epl/" },
+          ufc: { label: "UFC", href: "/ufc/" },
+        };
+        const modelOnly = days
+          .filter((d) => d.sport !== "mlb" && (d.state === "LIVE" || d.state === "EVENT_UPCOMING") && HUBS[d.sport])
+          .map((d) => HUBS[d.sport]);
+        if (!modelOnly.length) return null;
+        return (
+          <p className="reveal" style={{ marginTop: 18, marginBottom: 0, fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-mute)", maxWidth: 760 }}>
+            This board lists only markets with a current authorized sportsbook capture — today that is MLB.{" "}
+            {modelOnly.map((s, i) => (
+              <span key={s.href}>
+                {i > 0 ? (i === modelOnly.length - 1 ? " and " : ", ") : ""}
+                <a href={s.href} style={{ color: "var(--vault-gold-bright)" }}>{s.label}</a>
+              </span>
+            ))}{" "}
+            model forecasts are published without a price comparison on their own hubs — a missing
+            authorized price removes the comparison, never the forecast.
+          </p>
+        );
+      })()}
 
       {/* Reading key (Program 141). Collapsed by default, so it costs a returning reader nothing,
           and native <details> so it is keyboard-operable and works on touch — a tooltip would not. */}

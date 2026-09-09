@@ -306,7 +306,16 @@ export default function NflHubPage() {
           "nfl-results", "nfl-coverage",
         ]}
       />
-      <section id="nfl-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
+      {/* P250-W1: the canonical weekly table (projected scores + totals, permalinked, guard-tested)
+          renders a few sections below — the hub's generic list was a second 16-row copy of the same
+          games directly above it, so it collapses to a counts line with the quick list one click
+          away. Same games, one table. */}
+      <section id="nfl-games" className="scroll-mt-24">
+        <HubHeader
+          model={__hubModel}
+          deferToCanonical={{ note: "The full weekly table below carries every game with its projected score and total — this quick list is the same games in short form." }}
+        />
+      </section>
       {/* P177-A: the shared sport hero. The freshness badge rides in the badge slot and
           re-derives the REAL browser ET date after mount, so a slate page left open overnight
           stops claiming to be today's. */}

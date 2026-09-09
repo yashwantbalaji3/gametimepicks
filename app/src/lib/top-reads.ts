@@ -285,7 +285,9 @@ export function loadTopReads(): TopReadsSet | null {
   if (nflEventSpecific) {
     for (const e of nfl?.events ?? []) {
       const wp = e.winProbability;
-      if (wp?.home == null || wp?.away == null || e.lifecycle === "SETTLED") continue;
+      /* UPCOMING only: a STARTED game's number is a frozen pregame read, not a current "read" —
+         it lives on the game report (labelled preserved), never in a today's-reads ranking. */
+      if (wp?.home == null || wp?.away == null || e.lifecycle !== "UPCOMING") continue;
       const homeFavored = wp.home >= wp.away;
       const pickTeam = homeFavored ? e.home : e.away;
       const oppTeam = homeFavored ? e.away : e.home;

@@ -36,7 +36,32 @@ export function HubTitle({ model }: { model: SportHubModel }) {
   );
 }
 
-export default function HubHeader({ model }: { model: SportHubModel }) {
+export default function HubHeader({ model, deferToCanonical }: {
+  model: SportHubModel;
+  /**
+   * P250-W1 (audit item E): when the page below carries its OWN canonical event table for the same
+   * period (NFL's weekly table with projected scores/totals), the hub's generic list is a second
+   * 16-row copy of the same games directly above the richer one. This renders the counts line and
+   * keeps the quick list one click away — the same collapsed shape the settled-window state uses —
+   * instead of two tables of one population.
+   */
+  deferToCanonical?: { note: string };
+}) {
+  if (deferToCanonical && model.periodLabel !== "Settled window" && model.rows.length > 0) {
+    const counts = { scheduled: model.rows.length, withReport: model.rows.filter((r) => r.reportState !== "NONE").length };
+    return (
+      <details className="rounded-[12px]" style={{ border: "1px solid var(--vault-border)", background: "var(--vault-wash-faint)" }}>
+        <summary className="cursor-pointer px-4 py-3 text-[13.5px]" style={{ color: "var(--vault-text-mute)", minHeight: 44 }}>
+          <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{model.labels.games}</span>
+          {" · "}{counts.scheduled} scheduled · {counts.withReport} with a report — open the quick list
+        </summary>
+        <div className="px-4 pb-4">
+          <p className="m-0 mb-2 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>{deferToCanonical.note}</p>
+          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} />
+        </div>
+      </details>
+    );
+  }
   /*
    * A SETTLED WINDOW IS AN ARCHIVE, NOT THE FRONT TABLE (P241 · A04). On the first regular-season
    * morning, /nfl opened with a 22-row August preseason table — every row started-or-final —

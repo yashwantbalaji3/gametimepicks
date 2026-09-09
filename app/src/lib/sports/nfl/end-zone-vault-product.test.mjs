@@ -143,5 +143,13 @@ test("today's real outcome is the honest one: candidates exist, a card does not"
     assert.ok(vault.candidateCount > 0 && watching > 0,
       `a window with candidates must surface them (count ${vault.candidateCount}, watchlist ${watching})`);
   }
-  assert.match(vault.disclaimer, /not been shown to beat the sportsbook market/);
+  /* P250-W1: the disclaimer's no-overclaim clause is the invariant — its exact wording moved to
+     the compliant "out-predict" form (and "preseason model" became the regular-season truth), so
+     the artifact pin accepts either era while the workflow-owned artifact rolls over, and the
+     GENERATOR — the contract owner — is pinned to the new wording exactly. */
+  assert.match(vault.disclaimer, /not been shown to (beat the sportsbook market|out-predict the sportsbook)/);
+  const builder = fs.readFileSync(path.join(APP, "scripts/nfl/build-end-zone-vault.mjs"), "utf8");
+  assert.match(builder, /regular-season scoring model/, "the disclaimer names the live model era");
+  assert.match(builder, /no authorized touchdown market is captured/, "the blocker states OUR authorization state, never a claim about what the books offer");
+  assert.ok(!builder.includes("the sportsbooks are not offering"), "the unobservable claim about the books is gone");
 });
