@@ -21,7 +21,10 @@ test("/simulate is the canonical selection destination; /games is collapsed to a
   // render the SAME server view from the ONE selector (lib/simulate/day-view). The invariant this
   // guard has always protected is unchanged: one canonical URL, no duplicated data logic in pages.
   assert.match(simulatePage, /from "@\/lib\/simulate\/day-view"/, "/simulate reads the one day selector");
-  assert.match(simulatePage, /<SimulateDay view=\{view\} \/>/, "/simulate renders the shared day component");
+  // P250 · A08: the chooser now takes the below-chooser depth as props so the sport filter governs
+  // the whole page — the mount spans lines, so match the opening tag + the view prop, not one form.
+  assert.match(simulatePage, /<SimulateDay[\s\S]{0,80}view=\{view\}/, "/simulate renders the shared day component");
+  assert.match(simulatePage, /mlbExplorer=\{<SimulationExplorer/, "the MLB explorer is threaded through the chooser's sport scope");
   const datePage = fs.readFileSync("src/app/simulate/d/[date]/page.tsx", "utf8");
   assert.match(datePage, /buildSimulateDay\(params\.date\)/, "the date route uses the same selector");
   assert.match(datePage, /<SimulateDay view=\{view\} \/>/, "…and the same component");
