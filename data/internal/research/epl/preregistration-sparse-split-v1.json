@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-sparse-split-repair-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "registeredAt": "2026-09-08T23:55:00Z",
+  "program": 250,
+  "purpose": "Fix the acceptance bars for the sparse-split regularization repair BEFORE any variant is scored on held-out data. This is a targeted repair of a reproduced live defect, not model v2: the v2 bake-off (model-v2-bakeoff.json) already rejected wholesale recency weighting on its own bars, and that rejection stands.",
+
+  "reproducedDefect": {
+    "fixture": "Chelsea v Hull City, 2026-09-12, published in soccer/epl/forecasts (matchweek 4)",
+    "observed": "Chelsea home win 2.05%, home lambda floored at 0.05, Hull 56.98%",
+    "mechanism": "lambdasFor treats a 1-2 match split as fully informative. Hull City's away split at the 2026-09-08 fit was ONE match with ZERO goals conceded, so Chelsea's attacking expectation was multiplied by a defensive rate of exactly 0 and only the LAMBDA_FLOOR (0.05) kept it positive. Hull's home split (2 matches, 0 conceded) creates the same class of degeneracy in reverse fixtures.",
+    "affectedClubsAtRegistration": ["Hull City (hg=2, ha=0; ag=1, aa=0)", "Coventry City (hg=1; ag=2)"],
+    "reproduction": "fitEplStrength over loadEplCorpus (1550 rows) at cutoff 2026-09-08; lambdasFor(state, 'Chelsea', 'Hull City') => lamHome 0.05, oneXTwo.home 0.020549"
+  },
+
+  "candidate": {
+    "family": "shrink",
+    "change": "ridge shrinkage of each club's attack/defence multiplier toward 1.0 with pseudo-count k, using the EXISTING shrinkK parameter of lambdasFor — (goals + k*mu) / (games + k) / mu. No new arithmetic is introduced; the parameter has existed in the live lib since the v2 research and defaults to 0.",
+    "grid_k": [1, 2, 4, 8],
+    "gridJustification": "the identical values already swept on DEVELOPMENT in the v2 bake-off; no new hyperparameter values are invented for this repair",
+    "whyNotOtherFamilies": "decay was locked and REJECTED on holdout by the v2 bake-off (B2/B3 failed); Dixon-Coles addresses low-score dependence, not sparse-split degeneracy; manual probability edits, bookmaker copying, and abstention-by-default are all excluded by the operating rules. Shrinkage is the one family whose mechanism directly removes the zero-multiplier failure: a club with k pseudo-matches at league average can never produce a multiplier of 0."
+  },
+
+  "populations": {
+    "sparseDefinition": "a scored fixture is SPARSE when, at its pregame fit, the home club's home-split match count OR the away club's away-split match count is in [1, 4] (weighted count under flat weighting = match count). True cold starts (0 matches, multiplier 1.0 by rule) are NOT sparse — the cold-start rule is not under test.",
+    "development": { "seasons": ["2023-24", "2024-25"], "rule": "ALL selection of k happens here: locked k = argmin development SPARSE log loss subject to the S2 overall guardrail. Nothing else is consulted." },
+    "holdout": { "seasons": ["2025-26"], "disclosure": "this season was scored by the v2 bake-off ONCE, for the control and the locked decay:H=240 configuration only — its control-flow discipline means NO shrink configuration has ever been scored on it. It is therefore a first-use holdout for this family; the control's holdout numbers are already known and that is stated rather than hidden. The registered forward population for any subsequent EPL work remains 2026-27.", "rule": "scored once, for the control and the single locked k only, after locking" },
+    "forward2026_27": "the ~30 current-season rows are OBSERVATIONAL ONLY in this evaluation (reported, never gating): n is far too small to gate on and the affected fixtures are the very ones that motivated the repair"
+  },
+
+  "primaryMetric": "multiclass log loss (H/D/A) over the SPARSE subpopulation",
+  "secondaryMetrics": ["overall log loss (guardrail)", "ECE mean over outcomes", "accuracy", "expected-total MAE"],
+
+  "acceptanceBars": [
+    { "id": "S1_sparse_dev_improves", "statement": "locked k's DEVELOPMENT sparse log loss must beat the control's DEVELOPMENT sparse log loss by >= 0.010" },
+    { "id": "S2_overall_dev_guardrail", "statement": "locked k's DEVELOPMENT overall log loss must not exceed the control's by more than 0.002" },
+    { "id": "S3_sparse_holdout_generalises", "statement": "locked k's HOLDOUT (2025-26) sparse log loss must beat the control's holdout sparse log loss (any positive margin — the sparse n is small and the direction is the claim)" },
+    { "id": "S4_overall_holdout_guardrail", "statement": "locked k's HOLDOUT overall log loss must not exceed the control's (1.045) by more than 0.002" },
+    { "id": "S5_calibration_guardrail", "statement": "locked k's HOLDOUT overall ECE must not exceed the control's holdout ECE by more than 0.010" },
+    { "id": "S6_structural_no_zero_multiplier", "statement": "with the locked k, no fixture in the full walk-forward NOR the current live slate may produce a strength multiplier of exactly 0 for a club with >= 1 folded match in the relevant split; the Chelsea-Hull lambda must leave the floor (lamHome > 0.05)" }
+  ],
+
+  "onFailure": "if any bar fails, shrinkK stays 0 and the recorded original forecast stands; the published outlier is then handled by a bounded suspect-output labeling (state the sparse-input condition beside the number), never by a manual probability edit. The rejection is recorded; bars are not renegotiated.",
+
+  "onSuccess": {
+    "modelId": "epl-model-v1.2-split-poisson-shrunk",
+    "adoption": "build-epl-forecasts and the shadow-run pass the locked shrinkK; EPL_MODEL_ID bumps; ONLY pre-event fixtures are regenerated (matchweek 4 kicks off 2026-09-12+; regeneration on 2026-09-08/09 is a legitimate pre-event revision). All prior dated forecast artifacts and receipts are preserved untouched; graded history keeps the model id it was generated under."
+  }
+}

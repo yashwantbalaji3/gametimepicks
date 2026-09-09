@@ -20,7 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { fitEplStrength } from "../../src/lib/sports/epl/strength-state.mjs";
+import { fitEplStrength, sparseSplitFlags } from "../../src/lib/sports/epl/strength-state.mjs";
 import { loadEplCorpus } from "../../src/lib/sports/epl/corpus.mjs";
 import { loadEplGradedRecord } from "../../src/lib/sports/epl/graded-record.ts";
 import { runEplShadow } from "../../src/lib/sports/epl/shadow-run.mjs";
@@ -122,6 +122,10 @@ const rows = upcoming.map((fixture) => {
   const out = runEplShadow({ fixture, nowIso: NOW, strengthState, oddsSnapshot });
   return {
     eventId: fixture.eventId,
+    /* P250 · A02 suspect-output labeling: the preregistered shrinkage repair was REJECTED, so the
+       recorded model output stands — and a fixture whose fit divides by a 1-4 match split says so
+       beside its numbers (data/internal/research/epl/reports/sparse-split-repair.json). */
+    sparseInput: sparseSplitFlags(strengthState, fixture.homeClub, fixture.awayClub),
     matchup: `${fixture.homeClub} v ${fixture.awayClub}`,
     homeClub: fixture.homeClub,
     awayClub: fixture.awayClub,
@@ -245,6 +249,8 @@ const publicRows = rows.map((r) => ({
    * evaluation population (state === CURRENT_PRE_EVENT everywhere downstream) is untouched.
    */
   modelOnly: r.state === "READY_EXCEPT_ODDS" && r.modelOnly ? true : false,
+  /* The sparse-input condition travels WITH the number it qualifies (P250 · A02). */
+  sparseInput: r.sparseInput ?? null,
   probs: r.model?.probs ?? r.modelOnly?.probs ?? null,
   expectedGoals: r.model?.totals?.expected ?? r.modelOnly?.totals?.expected ?? null,
   over25: r.model?.totals?.over25 ?? r.modelOnly?.totals?.over25 ?? null,

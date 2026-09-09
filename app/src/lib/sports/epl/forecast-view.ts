@@ -49,6 +49,9 @@ export interface EplForecastRow {
   expectedGoals: number | null;
   over25: number | null;
   coldStart: { home: boolean; away: boolean } | null;
+  /** P250 · A02 suspect-output labeling: set when the pregame fit divided by a 1-4 match split (the
+   *  preregistered shrinkage repair was rejected, so the recorded output stands and SAYS this). */
+  sparseInput?: { home: boolean; away: boolean; note: string } | null;
   lambdas: { home: number; away: number } | null;
   totals: {
     expected: number;

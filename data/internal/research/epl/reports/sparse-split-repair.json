@@ -1,0 +1,241 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-sparse-split-repair-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "generatedAt": "2026-09-09T00:05:00Z",
+ "preregistration": {
+  "file": "preregistration-sparse-split-v1.json",
+  "registeredAt": "2026-09-08T23:55:00Z"
+ },
+ "holdoutDisclosure": "this season was scored by the v2 bake-off ONCE, for the control and the locked decay:H=240 configuration only — its control-flow discipline means NO shrink configuration has ever been scored on it. It is therefore a first-use holdout for this family; the control's holdout numbers are already known and that is stated rather than hidden. The registered forward population for any subsequent EPL work remains 2026-27.",
+ "control": {
+  "devSparse": {
+   "n": 31,
+   "logLoss": 0.8379,
+   "accuracy": 0.6452,
+   "ece": 0.1362,
+   "expectedTotalMae": 1.6317
+  },
+  "devOverall": {
+   "n": 760,
+   "logLoss": 0.98,
+   "accuracy": 0.5434,
+   "ece": 0.028,
+   "expectedTotalMae": 1.3412
+  },
+  "holdoutSparse": {
+   "n": 8,
+   "logLoss": 1.6293,
+   "accuracy": 0.25,
+   "ece": 0.3936,
+   "expectedTotalMae": 0.845
+  },
+  "holdoutOverall": {
+   "n": 380,
+   "logLoss": 1.045,
+   "accuracy": 0.4605,
+   "ece": 0.07,
+   "expectedTotalMae": 1.2644
+  }
+ },
+ "developmentSweep": [
+  {
+   "k": 1,
+   "devSparse": {
+    "n": 31,
+    "logLoss": 0.8477,
+    "accuracy": 0.5806,
+    "ece": 0.1253,
+    "expectedTotalMae": 1.535
+   },
+   "devOverall": {
+    "n": 760,
+    "logLoss": 0.979,
+    "accuracy": 0.5382,
+    "ece": 0.0261,
+    "expectedTotalMae": 1.334
+   }
+  },
+  {
+   "k": 2,
+   "devSparse": {
+    "n": 31,
+    "logLoss": 0.8813,
+    "accuracy": 0.5806,
+    "ece": 0.1242,
+    "expectedTotalMae": 1.5115
+   },
+   "devOverall": {
+    "n": 760,
+    "logLoss": 0.9796,
+    "accuracy": 0.5382,
+    "ece": 0.0258,
+    "expectedTotalMae": 1.3306
+   }
+  },
+  {
+   "k": 4,
+   "devSparse": {
+    "n": 31,
+    "logLoss": 0.9314,
+    "accuracy": 0.5806,
+    "ece": 0.1268,
+    "expectedTotalMae": 1.4836
+   },
+   "devOverall": {
+    "n": 760,
+    "logLoss": 0.9814,
+    "accuracy": 0.5329,
+    "ece": 0.0215,
+    "expectedTotalMae": 1.3258
+   }
+  },
+  {
+   "k": 8,
+   "devSparse": {
+    "n": 31,
+    "logLoss": 0.9864,
+    "accuracy": 0.5484,
+    "ece": 0.1256,
+    "expectedTotalMae": 1.4542
+   },
+   "devOverall": {
+    "n": 760,
+    "logLoss": 0.9853,
+    "accuracy": 0.5276,
+    "ece": 0.0183,
+    "expectedTotalMae": 1.3201
+   }
+  }
+ ],
+ "locked": {
+  "k": 1
+ },
+ "holdout": {
+  "lockedSparse": {
+   "n": 8,
+   "logLoss": 1.268,
+   "accuracy": 0.375,
+   "ece": 0.3486,
+   "expectedTotalMae": 0.8585
+  },
+  "lockedOverall": {
+   "n": 380,
+   "logLoss": 1.0367,
+   "accuracy": 0.4632,
+   "ece": 0.0668,
+   "expectedTotalMae": 1.2615
+  },
+  "controlSparse": {
+   "n": 8,
+   "logLoss": 1.6293,
+   "accuracy": 0.25,
+   "ece": 0.3936,
+   "expectedTotalMae": 0.845
+  },
+  "controlOverall": {
+   "n": 380,
+   "logLoss": 1.045,
+   "accuracy": 0.4605,
+   "ece": 0.07,
+   "expectedTotalMae": 1.2644
+  }
+ },
+ "forward2026_27": {
+  "season": "2026-27",
+  "observationalOnly": true,
+  "control": {
+   "sparse": {
+    "n": 2,
+    "logLoss": 0.9449,
+    "accuracy": 0.5,
+    "ece": 0.2858,
+    "expectedTotalMae": 2.891
+   },
+   "overall": {
+    "n": 30,
+    "logLoss": 1.021,
+    "accuracy": 0.5,
+    "ece": 0.1318,
+    "expectedTotalMae": 1.4541
+   }
+  },
+  "locked": {
+   "sparse": {
+    "n": 2,
+    "logLoss": 0.781,
+    "accuracy": 0.5,
+    "ece": 0.2827,
+    "expectedTotalMae": 2.754
+   },
+   "overall": {
+    "n": 30,
+    "logLoss": 1.009,
+    "accuracy": 0.5,
+    "ece": 0.1291,
+    "expectedTotalMae": 1.4446
+   }
+  }
+ },
+ "liveFixtureCheck": {
+  "fixture": "Chelsea v Hull City 2026-09-12",
+  "cutoff": "2026-09-09T00:05:00Z",
+  "control": {
+   "lambdas": {
+    "home": 0.05,
+    "away": 0.8862
+   },
+   "oneXTwo": {
+    "home": 0.020549,
+    "draw": 0.409675,
+    "away": 0.569776
+   }
+  },
+  "locked": {
+   "lambdas": {
+    "home": 0.8373,
+    "away": 1.0357
+   },
+   "oneXTwo": {
+    "home": 0.287363,
+    "draw": 0.318743,
+    "away": 0.393894
+   }
+  }
+ },
+ "bars": [
+  {
+   "id": "S1_sparse_dev_improves",
+   "pass": false,
+   "detail": "dev sparse 0.8477 vs control 0.8379 — improvement -0.0098, need >= 0.010 (n=31)"
+  },
+  {
+   "id": "S2_overall_dev_guardrail",
+   "pass": true,
+   "detail": "dev overall 0.979 vs control 0.98 — degradation -0.0010, allowed <= 0.002"
+  },
+  {
+   "id": "S3_sparse_holdout_generalises",
+   "pass": true,
+   "detail": "holdout sparse 1.268 vs control 1.6293 (n=8) — need any improvement"
+  },
+  {
+   "id": "S4_overall_holdout_guardrail",
+   "pass": true,
+   "detail": "holdout overall 1.0367 vs control 1.045 — degradation -0.0083, allowed <= 0.002"
+  },
+  {
+   "id": "S5_calibration_guardrail",
+   "pass": true,
+   "detail": "holdout ECE 0.0668 vs control 0.07 — degradation -0.0032, allowed <= 0.010"
+  },
+  {
+   "id": "S6_structural_no_zero_multiplier",
+   "pass": true,
+   "detail": "walk-forward zero multipliers with k=1: 0 (control had a structural path to 0); live Chelsea λH 0.8373 > floor 0.05: true"
+  }
+ ],
+ "verdict": "REJECTED",
+ "note": "At least one preregistered bar failed. shrinkK stays 0; the recorded original stands with the bounded suspect-output labeling from the preregistration's onFailure."
+}

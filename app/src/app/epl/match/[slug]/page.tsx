@@ -96,8 +96,10 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
   const anySog = playerRows.some((p) => typeof p.shotsOnGoalOver05 === "number");
   const awaiting = playerFixture?.lineupState !== "PUBLISHED";
 
+  // A DIV, not <main>: the app layout already provides the single main landmark (P250 · A13; the
+  // same fix /nfl and /mlb already carry — two <main> landmarks fail the accessibility contract).
   return (
-    <main className="mx-auto w-full max-w-[900px] px-4 py-8" style={{ color: "var(--vault-text)" }}>
+    <div data-sport="epl" className="mx-auto w-full max-w-[900px] px-4 py-8" style={{ color: "var(--vault-text)" }}>
       <Link href="/epl/" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>← Premier League fixtures</Link>
 
       {/* ── Identity ─────────────────────────────────────────────────────────────────────────── */}
@@ -144,6 +146,16 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           {row.coldStart.home && row.coldStart.away ? "have" : "has"} no top-flight history in the four-season
           corpus this model is fitted on, so {row.coldStart.home && row.coldStart.away ? "they run" : "it runs"} at
           the league-average baseline rather than a fitted strength. Every figure below inherits that.
+        </p>
+      ) : null}
+
+      {/* P250 · A02 — the suspect-output condition rides beside the numbers it qualifies. The
+          preregistered shrinkage repair was REJECTED on its own bars, so the recorded model output
+          stands; a fit that divided by a 1-4 match split says so here, and the probability is never
+          hand-edited. */}
+      {row.sparseInput?.note ? (
+        <p className="mt-3 rounded-[8px] px-3 py-2" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", border: "1px solid color-mix(in srgb, var(--vault-risk) 30%, transparent)", background: "color-mix(in srgb, var(--vault-risk) 6%, transparent)" }}>
+          <strong style={{ color: "var(--vault-warn)" }}>Small-sample input:</strong> {row.sparseInput.note.replace(/^Small-sample input: /, "")}
         </p>
       ) : null}
 
@@ -406,7 +418,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
         Paper-only and educational. Not betting advice.{" "}
         <Link href="/epl/" style={{ color: soccer }}>All Premier League fixtures</Link>
       </p>
-    </main>
+    </div>
   );
 }
 

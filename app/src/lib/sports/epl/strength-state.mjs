@@ -108,6 +108,32 @@ export function lambdasFor(state, homeClub, awayClub, { shrinkK = 0 } = {}) {
 }
 
 /**
+ * SPARSE-SPLIT FLAG (P250 · A02, suspect-output policy). The two split counts lambdasFor actually
+ * divides by are the home club's home split and the away club's away split; a count of 1-4 folded
+ * matches is treated as fully informative by the v1 arithmetic, and a zero-goals split of that size
+ * drives a multiplier to exactly 0 (Chelsea v Hull reproduced at λ=floor). The preregistered
+ * shrinkage repair was REJECTED on its own bars (reports/sparse-split-repair.json), so the recorded
+ * output STANDS — and this flag is how a consumer states the condition beside the number instead of
+ * silently presenting the outlier as validated. True cold starts (0 matches → 1.0 multipliers) are
+ * NOT sparse; that rule is separate and stated on the row already.
+ */
+export function sparseSplitFlags(state, homeClub, awayClub) {
+  const h = state.stats.get(normalizeClubName(homeClub));
+  const a = state.stats.get(normalizeClubName(awayClub));
+  const sparse = (games) => games >= 1 && games <= 4;
+  const home = sparse(h?.hg ?? 0);
+  const away = sparse(a?.ag ?? 0);
+  if (!home && !away) return null;
+  const parts = [];
+  if (home) parts.push(`${homeClub}'s home rates come from ${h.hg} match${h.hg === 1 ? "" : "es"}`);
+  if (away) parts.push(`${awayClub}'s away rates come from ${a.ag} match${a.ag === 1 ? "" : "es"}`);
+  return {
+    home, away,
+    note: `Small-sample input: ${parts.join("; ")}. The model treats these tiny splits as fully informative, so this forecast is unusually sensitive to them.`,
+  };
+}
+
+/**
  * The normalized exact-score matrix and everything derived from it. Probabilities reconcile to 1
  * by construction (tail renormalization); the caller may assert `reconciliation` anyway.
  */
