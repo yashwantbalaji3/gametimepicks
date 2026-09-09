@@ -1024,3 +1024,37 @@ carry the not-in-these-numbers frame · no arrival field may read as a projectio
 ⚠ LESSON: a freshness BOUND is not freshness. A 24h window over a designation that changes hourly
 on game day reported FRESH for a snapshot four hours behind the source. Bound the staleness to the
 decision, not to the feed's convenience.
+
+## P250-GD4 — slate audit: the opportunity pool was a month stale (Sep 9, 0eb08af40, CI green, prod 10/10)
+
+Founder asked to verify the rest of the slate for other missing stars. Audited every player on all
+32 rosters against our own 2025 corpus. **No star is missing**: 281 projected rows + 53 arrival
+rows; the one real contributor absent (Dylan Drummond, ATL) sits at 4.6% target share, under the
+pool's own 5% materiality cut — the model's decision, not a gap.
+
+The audit found something worse than an omission: **27 MISATTRIBUTED rows**. Quinn Ewers was
+projected as Miami's passing leader while rostered in Jacksonville; Brady Cook as the Jets' QB
+while rostered in Miami. A missing player is a gap; a projection for a player who cannot take that
+field is a false statement.
+
+ROOT CAUSE — and it explains BOTH of the day's founder reports at once: build-nfl-role-shares.mjs
+existed and NO WORKFLOW RAN IT, the identical defect this repo already documented for
+capture-nfl-rosters. Its rosterAsOf froze at 2026-08-13, so the opportunity pool listed players by
+the club they were on a month earlier: departures lingered and arrivals (A.J. Brown) never entered.
+
+Fixed at the source: the pool regenerated against today's roster capture, with the walk-forward
+hyperparameters reproducing identically from the frozen receipt (hl=4, k=0.5, boundary=0.25; 2025
+TV 0.4637 still beating last-game 0.4971, rolling-4 0.4954, stint-mean 0.5092) — a refresh changes
+WHO is in the pool, never the estimator. Both generators are now wired into the window in
+dependency order: rosters → role shares → injuries → event assembly → role evidence (event
+assembly had also been reading YESTERDAY's rosters; the same reordering fixes it). The board-level
+roster filter stays as defense-in-depth and now finds zero to remove, recording departedFiltered.
+
+MIA and NYJ publish NO projected passer — honest, since neither actual starter has observed usage
+at that club — while Brady Cook and Geno Smith appear as arrivals with their real prior-club
+numbers.
+
+⚠ LESSON (third sighting of one class): a generator that exists but no job runs is indistinguishable
+from a missing capability, and its artifact rots silently while every freshness surface reads the
+artifact's own stamp as current. capture-nfl-rosters (P-earlier), capture-injuries (GD3),
+build-nfl-role-shares (GD4). When adding a generator, wire it in the same commit.
