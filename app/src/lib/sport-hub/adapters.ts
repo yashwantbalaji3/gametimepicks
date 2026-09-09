@@ -292,13 +292,44 @@ export function eplHub(nowIso: string): SportHubModel {
    * three populations distinct — scheduled, forecast, reportable — instead of hiding the first two
    * behind the third.
    */
+  /*
+   * P250 · A05 — ONE identity, ONE period.
+   *
+   * The old merge deduped on `canonicalEventId ?? providerEventId`, two namespaces the forecast ids
+   * (soccer:epl:…) can never collide with, so all ten Matchweek-4 fixtures rendered twice and two
+   * Matchweek-5 fixtures were filed under "Matchweek 4" (22 rows for 10 fixtures, live-reproduced).
+   * The capture rows carry the SAME `eventId` the forecast set keys on; eplUpcoming now preserves
+   * it, so the join is by canonical fixture identity — never by display strings. The hub is also
+   * scoped to ONE official matchweek: the forecast set's when it is live, else the next matchweek
+   * on the schedule. Later-week fixtures stay in the page's own #schedule section (its next-period
+   * home), and any schedule row that cannot state its identity is counted in the reconciliation
+   * below rather than silently dropped or silently duplicated.
+   */
   const covered = new Set(rows.map((r) => r.id));
   const upcoming = eplUpcoming({ nowIso, artifact: null });
-  for (const ev of (upcoming?.events ?? []) as Array<Record<string, any>>) {
-    const id = String(ev.canonicalEventId ?? ev.providerEventId ?? "");
-    if (!id || covered.has(id)) continue;
+  const upcomingEvents = (upcoming?.events ?? []) as Array<Record<string, any>>;
+  const liveWeek: number | null = typeof live[0]?.matchweek === "number" ? live[0].matchweek : null;
+  const nextScheduledWeek: number | null = upcomingEvents
+    .map((ev) => (Number.isInteger(ev.matchweek) ? (ev.matchweek as number) : null))
+    .filter((w): w is number => w != null)
+    .sort((a, b) => a - b)[0] ?? null;
+  const selectedWeek = liveWeek ?? nextScheduledWeek;
+  const reconciliation = { unidentifiedScheduleRows: 0, laterPeriodRows: 0 };
+  for (const ev of upcomingEvents) {
+    const id = String(ev.eventId ?? "");
+    if (!id) {
+      // No canonical identity on the capture row — count it; a fallback to the provider namespace
+      // is exactly the duplication this block exists to end.
+      reconciliation.unidentifiedScheduleRows += 1;
+      continue;
+    }
+    if (covered.has(id)) continue;
     const kickoff = ev.scheduledStartUtc ?? null;
     if (!kickoff || Date.parse(kickoff) <= nowMs) continue;   // forthcoming only
+    if (selectedWeek != null && ev.matchweek !== selectedWeek) {
+      reconciliation.laterPeriodRows += 1;                    // belongs to #schedule, not this period
+      continue;
+    }
     rows.push({
       id,
       startUtc: kickoff,
@@ -316,8 +347,9 @@ export function eplHub(nowIso: string): SportHubModel {
   const nextUp = rows.filter((r) => !r.started).sort((a, b) => String(a.startUtc).localeCompare(String(b.startUtc)))[0];
   return {
     sport: "epl", sportLabel: "Premier League", labels: { ...DEFAULT_LABELS, games: "Fixtures" },
-    periodLabel: live[0]?.matchweek ? `Matchweek ${live[0].matchweek}`
+    periodLabel: selectedWeek != null ? `Matchweek ${selectedWeek}`
       : nextUp ? `Next fixtures` : "No fixtures scheduled",
+    identityReconciliation: reconciliation,
     periodRange: rangeOf(rows),
     freshness: set?.generatedAt ?? null,
     rows,

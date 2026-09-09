@@ -147,8 +147,35 @@ test("LIVE · EPL shows FORTHCOMING fixtures, not only the current forecast set"
   assert.ok(withRead <= future.length, "read count cannot exceed scheduled");
 });
 
-test("LIVE · no forthcoming EPL row is a duplicate of a forecast row", () => {
+test("LIVE · no forthcoming EPL row is a duplicate of a forecast row — keyed on FIXTURE identity, not row-id strings", () => {
   const e = eplHub(NOW);
   const ids = e.rows.map((r) => r.id);
   assert.equal(new Set(ids).size, ids.length, "a fixture appears twice — the schedule merge is not deduped");
+  /*
+   * P250 · A05: the assertion above passed VACUOUSLY for two weeks while every fixture rendered
+   * twice, because the forecast ids (soccer:epl:…) and the schedule's canonical ids
+   * (epl:premier-league:…) never collide AS STRINGS. Fixture identity is the club pair plus the
+   * kickoff minute — the same fixture under two id schemes is still one fixture.
+   */
+  const fixtureKey = (r) => {
+    const clubs = String(r.matchup ?? "").split(/\s+v(?:s)?\s+|\s+@\s+/i).map((c) => c.trim().toLowerCase()).sort().join("|");
+    return `${clubs}|${String(r.startUtc ?? "").slice(0, 16)}`;
+  };
+  const keys = e.rows.map(fixtureKey);
+  assert.equal(new Set(keys).size, keys.length, "the same fixture renders under two id namespaces — the merge joined on strings, not identity");
+});
+
+test("LIVE · every EPL hub row belongs to the ONE selected matchweek; later weeks are counted, not mixed in", () => {
+  const e = eplHub(NOW);
+  const m = /^Matchweek (\d+)$/.exec(e.periodLabel);
+  if (!m) return; // between matchweeks with no schedule — nothing to scope
+  // The hub's row count is what the header claims: one row per actual fixture of the selected week.
+  // Ten reportable fixtures must never render as 22 rows again.
+  const forecastCount = e.rows.filter((r) => r.read !== null || r.reportState !== "NONE").length;
+  assert.ok(e.rows.length <= 20, `a single matchweek cannot have ${e.rows.length} rows (10 fixtures max + stragglers)`);
+  assert.ok(forecastCount <= e.rows.length, "reportable is a subset of scheduled");
+  // Deferred later-period fixtures are visible in the internal reconciliation, never silently dropped.
+  assert.ok(e.identityReconciliation, "the adapter exposes its identity reconciliation");
+  assert.equal(typeof e.identityReconciliation.laterPeriodRows, "number");
+  assert.equal(e.identityReconciliation.unidentifiedScheduleRows, 0, "every schedule row states its canonical identity");
 });

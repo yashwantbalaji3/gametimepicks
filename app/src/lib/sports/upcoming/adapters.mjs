@@ -89,6 +89,12 @@ export function eplUpcoming({ nowIso, artifact }) {
       sport: "epl", competition: "premier-league", season: newestReal.season ?? "2026-27",
       providerEventId,
       canonicalEventId: canonicalEventId({ sport: "epl", competition: "premier-league", dateEt: dateEtOf(kickoff), providerEventId }),
+      /* P250 · A05: the capture row ALREADY carries the canonical soccer event id — the same id the
+       * forecast set keys on. Dropping it here forced eplHub to dedup across two disjoint namespaces
+       * (soccer:epl:… vs epl:premier-league:…), which rendered every matchweek fixture twice. The
+       * joinable identity and the official matchweek both travel through now. */
+      eventId: r.eventId ?? null,
+      matchweek: Number.isInteger(r.matchweek) ? r.matchweek : null,
       scheduledStartUtc: kickoff,
       status: EVENT_STATUS.includes(rawStatus) ? rawStatus : normalizeEventStatus("epl", rawStatus),
       competitors: { home: { id: r.homeId ?? r.homeClub ?? r.home, name: r.homeClub ?? r.home }, away: { id: r.awayId ?? r.awayClub ?? r.away, name: r.awayClub ?? r.away } },

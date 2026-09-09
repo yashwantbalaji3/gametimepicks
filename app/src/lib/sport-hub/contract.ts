@@ -87,6 +87,10 @@ export interface SportHubModel {
   present: HubSectionId[];
   /** Shown when `rows` is empty — a no-event period must still route somewhere useful. */
   emptyReason?: string;
+  /** P250 · A05 — internal identity reconciliation for adapters that union two sources: schedule
+   *  rows that could not state a canonical identity, and rows deferred to the next period's own
+   *  surface. Counted, never silently dropped; not rendered to readers. */
+  identityReconciliation?: { unidentifiedScheduleRows: number; laterPeriodRows: number };
 }
 
 /** Pre-event rows sorted by start time; started/settled rows after them, most recent first. */

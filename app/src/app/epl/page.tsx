@@ -205,8 +205,10 @@ export default function EplPage() {
 
   const __hubModel = eplHub(nowIso);
 
+  // A DIV, not <main>: the app layout already provides the single main landmark (P250 · A13; the
+  // same fix /nfl and /mlb already carry — two <main> landmarks fail the accessibility contract).
   return (
-    <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
+    <div data-sport="epl" className="mx-auto w-full max-w-[1100px] px-4 py-6">
       {/* Program 237: the events come first on every sport page. */}
 
       {/* P208 · Release C — shared section nav; every hub capability one action from here. */}
@@ -601,6 +603,6 @@ export default function EplPage() {
         Paper-only and educational. Not betting advice. Updated {formatUpdatedEt(set?.generatedAt)} from pregame inputs
         only; the model never sees a result from a match it is forecasting.
       </p>
-    </main>
+    </div>
   );
 }

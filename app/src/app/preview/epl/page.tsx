@@ -161,8 +161,10 @@ export default function EplPreviewPage() {
   ];
   const sampleOnly = artifacts.dataClasses.length > 0 && artifacts.dataClasses.every((c) => c === "FIXTURE_SAMPLE");
 
+  // A DIV, not <main>: the app layout already provides the single main landmark (P250 · A13; the
+  // same fix /nfl and /mlb already carry — two <main> landmarks fail the accessibility contract).
   return (
-    <main className="mx-auto flex w-full max-w-[1100px] flex-col gap-4 px-4 py-8">
+    <div data-sport="epl" className="mx-auto flex w-full max-w-[1100px] flex-col gap-4 px-4 py-8">
       <header className="flex flex-col gap-2">
         <h1 className="font-display text-[22px] font-bold tracking-tight" style={{ color: "var(--vault-text)" }}>
           {EPL_PREVIEW_COPY.title}
@@ -190,6 +192,6 @@ export default function EplPreviewPage() {
           {rejected.length ? ` — ${rejected.map((r) => r.code).join(", ")}` : ""}
         </Note>
       </div>
-    </main>
+    </div>
   );
 }
