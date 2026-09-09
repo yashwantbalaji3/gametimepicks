@@ -14,7 +14,6 @@ export const metadata: Metadata = {
     type: "article",
   },
 };
-import DataSourceBadge from "@/components/data-source-badge";
 import HowToReadThis from "@/components/research/how-to-read-this";
 import TerminalSummaryPanel from "@/components/research/terminal-summary-panel";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
@@ -55,11 +54,18 @@ export default function MethodologyPage() {
         framing="The models are intentionally explainable — no deep learning, no black boxes — so the reasoning behind every projection can be checked. Every number here is paper-only and educational, never wagering advice."
       />
 
+      {/*
+        * P250-W2: this strip used to lead with DataSourceBadge, which reads the LEGACY NBA
+        * meta.json. NBA is out of season, so that file honestly says ScheduleUnavailable — and the
+        * badge rendered "schedule unavailable · model leans unavailable" in red at the top of the
+        * page that explains the whole platform, with nothing saying it was about one dormant sport.
+        * A reader met a broken-looking site on a day when four sports were publishing.
+        *
+        * Platform status has ONE owner and it is /system-status (linked in the hero above), which
+        * reports the worst of every stage rather than one sport's dormancy. What stays here is the
+        * age of the legacy pipeline artifact, which is what this line was actually for and says so.
+        */}
       <div className="mt-6 reveal reveal-d1 flex flex-wrap items-center gap-2">
-        <DataSourceBadge meta={meta} />
-        {/* Honest age of the NBA/legacy pipeline metadata — the client badge recomputes with the real
-            browser clock, so a weeks-old meta.json reads "N days ago" instead of implying currency.
-            (The World Cup + MLB slates carry their own fresh dates on their pages.) */}
         <FreshnessBadge slateDate={(meta?.lastPipelineRun ?? "").slice(0, 10) || null} serverToday={currentEtDate()} noun="legacy pipeline run" />
       </div>
 

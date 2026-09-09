@@ -69,12 +69,29 @@ export default function MlbBoardClient({
     return map;
   }, [leans]);
 
-  // Resolve each schedule game to its Odds-API event id. Reuse the
-  // home/away team match used in the server page.
+  /*
+   * Resolve each schedule game to its Odds-API event id.
+   *
+   * P250-W2 · A DOUBLEHEADER IS TWO GAMES AND THIS KEYED ON THE MATCHUP.
+   * "DET-CLE" is one key and 2026-09-04 had two of them, so the second event id overwrote the
+   * first: both schedule rows rendered the LATE game's single lean, the early game's 47 leans
+   * became unreachable in the UI, and the server-rendered "Top clean leans" strip linked to rows
+   * that existed in the artifact and not in the DOM — a dead jump button on a public page.
+   *
+   * gamePk is the durable per-game identity this repository already settled on for exactly this
+   * reason, and every lean carries it. The matchup key survives ONLY as the fallback for older
+   * boards whose rows predate that field, where it is no worse than what it replaced.
+   */
+  const gameIdByPk = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const l of leans) if (l.gamePk != null && map[String(l.gamePk)] == null) map[String(l.gamePk)] = l.gameId;
+    return map;
+  }, [leans]);
   const gameIdByMatchup = useMemo(() => {
     const map: Record<string, string> = {};
     const seenIds = new Set<string>();
     for (const l of leans) {
+      if (l.gamePk != null) continue; // pk-identified rows never fall back
       if (seenIds.has(l.gameId)) continue;
       seenIds.add(l.gameId);
       const key = `${l.awayTeamAbbr}-${l.homeTeamAbbr}`;
@@ -82,6 +99,9 @@ export default function MlbBoardClient({
     }
     return map;
   }, [leans]);
+  const eventIdFor = (g: MlbScheduleGame): string | undefined =>
+    (g.gamePk != null ? gameIdByPk[String(g.gamePk)] : undefined) ??
+    gameIdByMatchup[`${g.awayTeamAbbr}-${g.homeTeamAbbr}`];
 
   return (
     <>
@@ -103,7 +123,7 @@ export default function MlbBoardClient({
             // game is hidden by filters or pending, fall back to the
             // chronologically first.
             const firstWithLeans = games.find((g) => {
-              const id = gameIdByMatchup[`${g.awayTeamAbbr}-${g.homeTeamAbbr}`];
+              const id = eventIdFor(g);
               return id && (visibleByGameId[id]?.length ?? 0) > 0;
             });
             const openKey =
@@ -112,7 +132,7 @@ export default function MlbBoardClient({
               null;
             return games.map((g) => {
               const matchupKey = `${g.awayTeamAbbr}-${g.homeTeamAbbr}`;
-              const gameId = gameIdByMatchup[matchupKey];
+              const gameId = eventIdFor(g);
               const gameLeans = gameId ? visibleByGameId[gameId] ?? [] : [];
               const totalForGame = gameId ? totalByGameId[gameId] ?? 0 : 0;
               const gpk = g.gamePk;

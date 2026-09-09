@@ -344,9 +344,20 @@ export const topUpcoming = (set: TopReadsSet | null, n = 10) =>
 export const topBySport = (set: TopReadsSet | null, sport: TopRead["sport"], n = 10) =>
   (set?.reads ?? []).filter((r) => r.sport === sport).slice(0, n);
 
-/** The sports present in the ranked set, in the set's own order of first appearance. */
-export const sportsInSet = (set: TopReadsSet | null): TopRead["sport"][] =>
-  [...new Set((set?.reads ?? []).map((r) => r.sport))];
+/**
+ * The sports present in the ranked set — SPORTS PLAYING TODAY FIRST.
+ *
+ * P250-W2: this was the set's own order of first appearance, which is probability order, so on
+ * NFL Week 1 the panels on /today opened with Saturday's UFC card and put tonight's football
+ * last. Ranking WITHIN a sport is the ranked owner's job and is untouched; which sport a reader
+ * meets first on a page called "Today" is a question about the clock, and it is answered here.
+ * Sports with no read playing today keep their relative order behind the ones that do.
+ */
+export const sportsInSet = (set: TopReadsSet | null): TopRead["sport"][] => {
+  const order = [...new Set((set?.reads ?? []).map((r) => r.sport))];
+  const playsToday = new Set((set?.reads ?? []).filter((r) => r.timeframe === "today").map((r) => r.sport));
+  return order.sort((a, b) => Number(playsToday.has(b)) - Number(playsToday.has(a)));
+};
 
 /**
  * One sport's panel, timeframe-pure (P243 · A-1): if the sport has reads that play TODAY, the

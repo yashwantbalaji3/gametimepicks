@@ -35,14 +35,22 @@ import { legKey, type SlipLegInput } from "@/lib/slip/leg-identity";
 
 // The 2026 World Cup is complete — not a selectable build sport (archive only). The SPORT_LABEL map below
 // keeps the "World Cup" label so any historical WC row still renders its badge.
-const SPORTS = ["All", "mlb", "nba", "ufc"] as const;
-const SPORT_LABEL: Record<string, string> = { All: "All", world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
+/*
+ * P250-W2: this list was hardcoded, so the chip row offered filters the pool could not satisfy —
+ * NBA sat there through the off-season selecting zero legs, while NFL, when its legs arrive, would
+ * have no chip at all. A filter that returns nothing is a dead button. The row is now derived from
+ * the legs actually loaded, in this display order, so it can only ever offer what exists.
+ */
+const SPORT_ORDER = ["mlb", "nfl", "nba", "ufc", "epl", "world_cup"];
+const SPORT_LABEL: Record<string, string> = { All: "All", world_cup: "World Cup", mlb: "MLB", nfl: "NFL", nba: "NBA", ufc: "UFC", epl: "Premier League" };
 const SPORT_ICON: Record<string, string> = {
   All: "",
   world_cup: getSportIdentity("world_cup").icon,
   mlb: getSportIdentity("mlb").icon,
   nba: getSportIdentity("nba").icon,
   ufc: getSportIdentity("ufc").icon,
+  nfl: getSportIdentity("nfl").icon,
+  epl: getSportIdentity("epl").icon,
 };
 const RISKS = ["All", "Low", "Medium", "High", "Longshot"] as const;
 
@@ -86,6 +94,13 @@ export default function BuildExperience({
      total function of the atoms, so the legs below are byte-identical to what the server used to
      serialize. Deriving is not compressing — no displayed value changes. */
   const pool = useMemo(() => hydrateBuildLegs(poolAtoms), [poolAtoms]);
+  /* The sport chips the pool can actually satisfy — see SPORT_ORDER above. */
+  const sportChips = useMemo(() => {
+    const present = new Set(pool.map((l) => String(l.sport)));
+    const known = SPORT_ORDER.filter((s) => present.has(s));
+    const rest = [...present].filter((s) => !SPORT_ORDER.includes(s)).sort();
+    return ["All", ...known, ...rest];
+  }, [pool]);
 
   const [sport, setSport] = useState<string>("All");
   const [risk, setRisk] = useState<string>("All");
@@ -112,12 +127,15 @@ export default function BuildExperience({
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const sp = p.get("sport");
-    if (sp && ["mlb", "nba", "ufc"].includes(sp)) setSport(sp);
+    /* P250-W2: this allow-list was a second hardcoded copy of the sport set, so a "build from this
+       game" deep link for any sport outside it was silently ignored. The pool decides. */
+    if (sp && sportChips.includes(sp)) setSport(sp);
     const query = p.get("q");
     if (query) setQ(query);
     const game = p.get("game");
     if (game) setGameFilter(game);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sportChips]);
 
   // ?card=<slipId>: seed the draft from a suggested card — once per mount, only after the store has
   // loaded, adding only legs not already on the card. Removals afterwards are the reader's edits and
@@ -320,7 +338,7 @@ export default function BuildExperience({
             </button>
           ) : null}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-            {SPORTS.map((s) => <Pill key={s} on={sport === s} onClick={() => setSport(s)}>{SPORT_ICON[s] ? <span aria-hidden style={{ marginRight: 5, fontSize: 11 }}>{SPORT_ICON[s]}</span> : null}{SPORT_LABEL[s]}</Pill>)}
+            {sportChips.map((s) => <Pill key={s} on={sport === s} onClick={() => setSport(s)}>{SPORT_ICON[s] ? <span aria-hidden style={{ marginRight: 5, fontSize: 11 }}>{SPORT_ICON[s]}</span> : null}{SPORT_LABEL[s] ?? s.toUpperCase()}</Pill>)}
           </div>
           {/* Game selector — appears when a single sport is chosen (step 1 of the flow). */}
           {sport !== "All" ? (
