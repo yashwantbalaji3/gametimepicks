@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-09T17:58:03.832Z",
+  "generatedAt": "2026-09-09T18:01:01.032Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -73,12 +73,12 @@
           "status": "active",
           "step": 1,
           "legs": 2,
-          "combinedOdds": 200,
+          "combinedOdds": 201,
           "stake": 100,
-          "potentialReturn": 300.13,
+          "potentialReturn": 300.85,
           "selections": [
-            "Seattle Mariners to win",
-            "Over 8.5"
+            "Philadelphia Phillies to win",
+            "Under 9.5"
           ]
         }
       ]
@@ -91,15 +91,15 @@
           "status": "active",
           "step": 1,
           "legs": 5,
-          "combinedOdds": 1627,
+          "combinedOdds": 1800,
           "stake": 25,
-          "potentialReturn": 431.68,
+          "potentialReturn": 475.07,
           "selections": [
-            "Under 8",
+            "Toronto Blue Jays to win",
+            "Athletics +1.5",
+            "Over 8",
             "Over 9",
-            "Over 9",
-            "Chicago White Sox to win",
-            "Pittsburgh Pirates +1.5"
+            "Over 9"
           ]
         },
         {
@@ -107,18 +107,18 @@
           "status": "active",
           "step": 1,
           "legs": 8,
-          "combinedOdds": 9490,
+          "combinedOdds": 10622,
           "stake": 25,
-          "potentialReturn": 2397.53,
+          "potentialReturn": 2680.5,
           "selections": [
-            "Under 8",
-            "Texas Rangers +1.5",
+            "Toronto Blue Jays to win",
+            "Athletics +1.5",
+            "Over 8",
+            "Houston Astros +1.5",
             "Over 9",
             "Los Angeles Angels +1.5",
             "Over 9",
-            "New York Yankees -1.5",
-            "Chicago White Sox to win",
-            "Pittsburgh Pirates +1.5"
+            "New York Yankees -1.5"
           ]
         }
       ]
@@ -230,16 +230,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-09T17:58:03.026Z",
+    "lastRunAt": "2026-09-09T17:58:04.660Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-09",
-    "etTime": "13:58",
+    "etTime": "14:01",
     "stages": [
       {
         "stage": "schedule",
