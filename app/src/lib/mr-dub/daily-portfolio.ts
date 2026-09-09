@@ -23,7 +23,11 @@ const moonNarr = (l: LaneCandidate) =>
     ? moonshotNarrative(l.legs.map((p) => ({ gameId: p.gameId, marketKey: p.marketKey, selection: p.selection, team: p.team ?? null, player: p.player ?? null, odds: p.odds })))
     : null;
 
-export interface DailyPortfolioLeg { selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null; photoUrl?: string | null; teamLogo?: string | null; kickoffEt?: string | null }
+export interface DailyPortfolioLeg {
+  /** The leg's canonical id ("MLB:<gameHash>:<market>:<sel>") — its sport prefix drives sport-correct
+   *  rendering (P250 · A01: MLB legs rendered ⚽ chips for as long as this field was dropped here). */
+  id?: string | null;
+  selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null; photoUrl?: string | null; teamLogo?: string | null; kickoffEt?: string | null }
 
 /** Normalize a player name for joining (accent-strip + lowercase + alphanumerics only). */
 const normPlayerName = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
@@ -94,7 +98,7 @@ function toCard(l: LaneCandidate): DailyPortfolioCard {
     id: l.id, product: l.product, productLabel: PRODUCT_LABEL[l.product] ?? l.product, lane: l.lane, step: 1, clearedSteps: 0,
     status: l.status, stake: l.stake, targetReturn: null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
-    legs: l.legs.map((p) => ({ selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds, player: p.player ?? null })),
+    legs: l.legs.map((p) => ({ id: (p as { id?: string }).id ?? null, selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds, player: p.player ?? null })),
     correlationNote: l.correlationNote, shortfallNote: l.shortfallNote, narrative: moonNarr(l),
   };
 }
@@ -108,7 +112,7 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
     id: l.id, product: l.product, productLabel: l.productLabel, lane: l.lane, step: l.step ?? 1, clearedSteps: l.clearedSteps ?? 0,
     status: l.status, stake: l.stake, targetReturn: l.targetReturn ?? null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
-    legs: (l.legs ?? []).map((g: any) => ({ selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null, photoUrl: g.photoUrl ?? null, teamLogo: g.teamLogo ?? null, kickoffEt: g.kickoffEt ?? null })),
+    legs: (l.legs ?? []).map((g: any) => ({ id: g.id ?? null, selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null, photoUrl: g.photoUrl ?? null, teamLogo: g.teamLogo ?? null, kickoffEt: g.kickoffEt ?? null })),
     correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null, narrative: l.narrative ?? null,
   }));
   enrichLegPhotos(cards, root, date);

@@ -215,10 +215,21 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <Eyebrow>Open exposure</Eyebrow>
+            <Eyebrow>Settled-money exposure</Eyebrow>
             <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>
               {money ? usd(money.openExposure) : "—"}
-              {money && money.openExposure === 0 ? " · no active paper cards" : ""}
+              {/* P250 · A01: this figure lives in the PROTECTED settled-money record — calling its
+                  zero "no active paper cards" contradicted the product pages' live paper lanes.
+                  Today's paper cards get their own dated tile beside this one. */}
+              {money && money.openExposure === 0 ? " · none in the settled record" : ""}
+            </span>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <Eyebrow>Today&rsquo;s paper cards</Eyebrow>
+            <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>
+              {model.today
+                ? `${model.today.bankBuilderCards + model.today.moonshotCards} published · ${usd(model.today.paperExposure)} paper${model.today.date ? ` · ${model.today.date}` : ""}`
+                : "—"}
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
@@ -243,12 +254,16 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
             {
               label: "Bank Builder",
               href: "/bank-builder/",
+              /* P250 · A01: today's published paper lanes lead; the protected record's awaiting
+                 state describes the SETTLED-money era and is scoped as such. */
               status:
-                model.activeCardsCount > 0
-                  ? "Card active"
-                  : model.awaitingCards.length > 0
-                    ? "Awaiting next qualified card"
-                    : "No active card",
+                (model.today?.bankBuilderCards ?? 0) > 0
+                  ? `${model.today!.bankBuilderCards} paper card${model.today!.bankBuilderCards === 1 ? "" : "s"} published today`
+                  : model.activeCardsCount > 0
+                    ? "Card active"
+                    : model.awaitingCards.length > 0
+                      ? "Awaiting next qualified card (settled record)"
+                      : "No active card",
               detail:
                 model.completedCards.length > 0
                   ? `${model.completedCards[0].name} completed ${model.completedCards[0].result}`
@@ -258,11 +273,15 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
               label: "Moonshot",
               href: "/moonshot/",
               status:
-                model.moonshot?.status === "stopped"
-                  ? "No active longshot"
-                  : model.moonshot?.status ?? "No active longshot",
-              detail: model.moonshot
-                ? `Record ${model.moonshot.record.wins}-${model.moonshot.record.losses} · separate paper lane`
+                (model.today?.moonshotCards ?? 0) > 0
+                  ? `${model.today!.moonshotCards} longshot card${model.today!.moonshotCards === 1 ? "" : "s"} published today`
+                  : model.moonshot?.status === "stopped"
+                    ? "No active longshot"
+                    : model.moonshot?.status ?? "No active longshot",
+              /* The record comes from the ONE Moonshot state owner — the same derivation /moonshot
+                 renders — never from the frozen portfolio block alone (which knew one card). */
+              detail: model.moonshotDisplayRecord
+                ? `Settled record ${model.moonshotDisplayRecord.wins}-${model.moonshotDisplayRecord.losses} · separate paper lane`
                 : "Separate paper lane",
             },
             {

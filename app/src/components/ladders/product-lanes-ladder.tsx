@@ -112,6 +112,16 @@ const TOTAL_STEPS: Record<DailyPortfolioCard["product"], number> = { "bank-build
  *  the row — it falls back to initials (portrait) or a ⚽ chip (flag). */
 function LegAvatar({ leg }: { leg: DailyPortfolioLeg }) {
   if (leg.player) return <PlayerAvatar name={leg.player} photo={leg.photoUrl ?? null} size={18} />;
+  /* P250 · A01: the leg's own id states its sport ("MLB:<hash>:mlb_total_runs:…"), so a baseball
+     team leg gets a ⚾ chip — the World Cup flag table is consulted only for legs that are not
+     already claimed by another sport, and ⚽ survives purely as the legacy-soccer fallback. */
+  const sportPrefix = String(leg.id ?? "").split(":")[0]?.toUpperCase() ?? "";
+  const sportChip = sportPrefix === "MLB" ? "⚾" : sportPrefix === "NFL" ? "🏈" : sportPrefix === "UFC" ? "🥊" : null;
+  if (sportChip) {
+    return (
+      <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>{sportChip}</span>
+    );
+  }
   const [home, away] = (leg.matchup ?? "").split(/\s+vs\s+/i).map((s) => s.trim());
   const selCode = wcTeamCodeFromName(leg.selection);
   if (selCode) return <FlagBadge code={selCode} size="sm" ariaLabel={leg.selection} />;

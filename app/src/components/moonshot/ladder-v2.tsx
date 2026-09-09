@@ -12,8 +12,18 @@ import { moonshotV2LadderPolicy } from "@/lib/methodology/ladder-policy";
 const usd = (n: number) => `$${n.toLocaleString("en-US")}`;
 const DAYS = [1, 2, 3] as const;
 
-export default function MoonshotLadderV2({ currentDay = 1, live = false, compact = false, className = "" }: { currentDay?: 1 | 2 | 3; live?: boolean; compact?: boolean; className?: string }) {
+export default function MoonshotLadderV2({ currentDay = 1, live = false, compact = false, policyPreview = false, className = "" }: {
+  currentDay?: 1 | 2 | 3;
+  live?: boolean;
+  compact?: boolean;
+  /** P250 · A01: renders the ladder as the PLANNED trajectory policy, never a live progression.
+   *  Today's published Moonshot cards are independent longshot cards; no job tracks a ladder day,
+   *  and the multi-lane accounting policy is an open founder decision — so no rung may say LIVE. */
+  policyPreview?: boolean;
+  className?: string;
+}) {
   const days = DAYS.map((d) => moonshotV2LadderPolicy(d));
+  const showLive = live && !policyPreview;
 
   // Compact preview (Home / Today) — a slim always-visible 3-day strip.
   if (compact) {
@@ -49,15 +59,22 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
           <div className="font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--product-moonshot)" }}>🚀 The 3-step ladder</div>
           <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(19px, 3.2vw, 26px)", fontWeight: 700 }}>$25 → $1,500 in 3 days</h2>
         </div>
-        <span className="rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em]" style={{ border: "1px solid color-mix(in srgb, var(--vault-accent) 45%, transparent)", color: "var(--gtp-bank-heat)", background: "color-mix(in srgb, var(--vault-accent) 8%, transparent)" }}>
-          ⚠ high variance
+        <span className="flex items-center gap-1.5">
+          {policyPreview ? (
+            <span className="rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-faint)" }}>
+              policy preview · progression not active
+            </span>
+          ) : null}
+          <span className="rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em]" style={{ border: "1px solid color-mix(in srgb, var(--vault-accent) 45%, transparent)", color: "var(--gtp-bank-heat)", background: "color-mix(in srgb, var(--vault-accent) 8%, transparent)" }}>
+            ⚠ high variance
+          </span>
         </span>
       </div>
 
       {/* Ascending trajectory — each day sits higher than the last */}
       <div className="mt-3.5 grid grid-cols-1 gap-2 px-3 pb-1 sm:grid-cols-3 sm:px-4">
         {days.map((p, i) => {
-          const isLive = live && p.day === currentDay;
+          const isLive = showLive && p.day === currentDay;
           return (
             <div
               key={p.day}
@@ -88,6 +105,13 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
         })}
       </div>
 
+      {policyPreview ? (
+        <p className="px-4 pt-2 text-[10.5px] leading-relaxed sm:px-5 m-0" style={{ color: "var(--vault-text-mute)" }}>
+          This is the ladder&rsquo;s <strong style={{ color: "var(--vault-text)" }}>planned trajectory</strong>, not a live run: today&rsquo;s
+          published Moonshot cards are independent longshot cards, not steps of this ladder, and progression
+          stays inactive until its stake-accounting policy is decided.
+        </p>
+      ) : null}
       <p className="mt-2.5 px-4 pb-4 text-[10.5px] leading-relaxed sm:px-5" style={{ color: "var(--vault-text-faint)" }}>
         <strong style={{ color: "var(--vault-text-mute)" }}>Why it can hit:</strong> structured team/game legs grouped by game, aligned with each game&rsquo;s score lean — win Day&nbsp;1 and the $25 seed is banked back immediately, so Days&nbsp;2–3 ride house money ($100 locked before the $1,500 swing).
         &nbsp;<strong style={{ color: "var(--vault-text-mute)" }}>Why it can fail:</strong> it&rsquo;s a longshot — one wrong leg ends the day. A losing day costs only what was still rolling; locked profit stays banked, and a day with no qualified card is a NO-PLAY, never forced. Settles from official results only.

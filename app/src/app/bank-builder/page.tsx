@@ -17,6 +17,7 @@ import { currentEtDate } from "@/lib/freshness";
 import { latestMlbBoardDate } from "@/lib/mlb/mlb-props";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { deriveProductState, productStateLabel, productStateExplanation, isLive } from "@/lib/products/product-state.mjs";
+import { deriveBankBuilderState } from "@/lib/products/product-state-view.mjs";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import LifecycleRecord from "@/components/products/lifecycle-record";
@@ -186,17 +187,16 @@ export default function BankBuilderPage() {
   // Read from THIS PRODUCT'S OWN artifact, never the MLB slate. The two diverge exactly when the
   // card generator has not run — which is the fifteen-day window in which this page said
   // "Live today" over 2026-07-21 cards.
-  const bbArtifact = ((): { date: string | null; cards: number } => {
-    try {
-      const j = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "daily-portfolio.json"), "utf8"));
-      const cards = Array.isArray(j.lanes)
-        ? j.lanes.filter((l: { product?: string; status?: string }) => l.product === "bank-builder" && l.status === "active").length
-        : 0;
-      return { date: typeof j.date === "string" ? j.date : null, cards };
-    } catch {
-      return { date: null, cards: 0 };
-    }
-  })();
+  //
+  // P250 · A01: the lane/date/exposure facts come from deriveBankBuilderState — the owner that
+  // names every record system and TYPES their disagreements — instead of a page-local re-read of
+  // the same file buildDailyPortfolio already parsed. This is that owner's first production
+  // consumer; its `divergences` render below rather than being silently resolved.
+  const bbDerived = deriveBankBuilderState(path.join(process.cwd(), "public", "data"));
+  const bbArtifact = {
+    date: bbDerived.date,
+    cards: bbDerived.lanes.filter((l: { status?: string }) => l.status === "active").length,
+  };
   /*
    * "NO QUALIFIED CARD" CLAIMS THE SLATE WAS CHECKED. Pass the evidence for that claim.
    *
@@ -392,6 +392,30 @@ export default function BankBuilderPage() {
             : <BankBuilderSkippedCard alternatives={strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3)} />}
         </div>
       ) : null}
+
+      {/* P250 · A01 — WHAT THE RECORD SYSTEMS SAY, from the ONE derived owner. Live paper exposure
+          (today's generated lanes) and the protected settled-money authority's exposure are
+          DIFFERENT measures of different eras; both render under their own names, and any typed
+          divergence between the generator's step and the lifecycle store's rule-derived position is
+          stated instead of silently resolved (that resolution is the founder-gated accounting). */}
+      <section aria-label="Record reconciliation" className="mt-5 rounded-[12px] px-4 py-3 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-border)" }}>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>What the record systems say</span>
+        <p className="m-0 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
+          Today&rsquo;s paper exposure (generated lanes): {bbDerived.exposure.live != null ? `$${Number(bbDerived.exposure.live).toFixed(2)}` : "—"} ·
+          settled-money record&rsquo;s open exposure: {bbDerived.exposure.settledAuthority != null ? `$${Number(bbDerived.exposure.settledAuthority).toFixed(2)}` : "—"} (protected ledger, its own era)
+        </p>
+        {bbDerived.divergences.length ? (
+          <ul className="m-0 flex flex-col gap-1 pl-4">
+            {bbDerived.divergences.map((d: { lane: string; generated: number; lifecycleStore: number; note: string }) => (
+              <li key={d.lane} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+                Lane {d.lane}: generator says step {d.generated}, the lifecycle store&rsquo;s rule-derived position says step {d.lifecycleStore} — {d.note}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>No step-counter divergence between the generator and the lifecycle store today.</p>
+        )}
+      </section>
 
       {/* Moonshot is now its OWN product at /moonshot (mirrors Bank Builder). It is no longer surfaced
           here — Bank Builder stays focused on the core ladder. */}

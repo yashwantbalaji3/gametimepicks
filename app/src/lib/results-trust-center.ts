@@ -32,6 +32,17 @@ import {
   latestMlbResultDate,
 } from "./data-mlb-results";
 import { getBankBuilderSettledSteps } from "./bank-builder-results";
+import {
+  deriveMoonshotState,
+  isPublishedCard,
+  MOONSHOT_HAS_SCHEDULED_GENERATOR,
+  MOONSHOT_HAS_WIRED_SETTLER,
+} from "./products/moonshot-state.mjs";
+import { loadLifecycleHistory, settledCardIds } from "./products/lifecycle-view";
+import { loadMoonshotLane } from "./moonshot/moonshot-lane";
+import { buildDailyPortfolio } from "./mr-dub/daily-portfolio";
+import { currentSlateDate } from "./parlays/ui-loader";
+import { currentEtDate } from "./freshness";
 
 const MR_DUB_DIR = path.join(process.cwd(), "public", "data", "mr-dub");
 
@@ -140,6 +151,22 @@ export interface TrustCenterModel {
   settledBankBuilderStepCount: number;
   settlement: TrustSettlement | null;
   moonshot: TrustMoonshot | null;
+  /**
+   * P250 · A01 — TODAY'S paper-card surface, from the daily portfolio. `money` above is the
+   * PROTECTED settled-money record (frozen at its own generatedAt); presenting its zero open
+   * exposure as "no active paper cards" while /bank-builder rendered two live lanes was the
+   * cross-page contradiction this field ends. The two are different eras and both are shown, dated.
+   */
+  today: {
+    date: string | null;
+    generatedAt: string | null;
+    bankBuilderCards: number;
+    moonshotCards: number;
+    paperExposure: number;
+  } | null;
+  /** The ONE Moonshot state owner's display record — the same derivation /moonshot renders, so the
+   *  two surfaces cannot print different records for one product. */
+  moonshotDisplayRecord: { wins: number; losses: number } | null;
   bankrollHealth: TrustBankrollHealth | null;
   mlb: TrustMlbPerformance;
 }
@@ -315,6 +342,40 @@ export function getTrustCenterModel(): TrustCenterModel {
     byMarket,
   };
 
+  /* Today's paper-card surface (P250 · A01) — the daily portfolio through the same builder and
+     published-card rule the product pages use, so this page cannot disagree with them. */
+  const slateToday = currentSlateDate() ?? currentEtDate();
+  let today: TrustCenterModel["today"] = null;
+  try {
+    const dp = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), slateToday);
+    const published = dp.cards.filter((c) => isPublishedCard(c));
+    today = {
+      date: dp.date ?? null,
+      generatedAt: typeof (daily as Record<string, unknown> | null)?.generatedAt === "string" ? String((daily as Record<string, unknown>).generatedAt) : null,
+      bankBuilderCards: published.filter((c) => c.product === "bank-builder").length,
+      moonshotCards: published.filter((c) => c.product === "moonshot").length,
+      paperExposure: Number(dp.exposure?.total ?? 0),
+    };
+  } catch { today = null; }
+
+  /* The ONE Moonshot state owner, with the SAME loaders /moonshot uses. */
+  let moonshotDisplayRecord: TrustCenterModel["moonshotDisplayRecord"] = null;
+  try {
+    const derived = deriveMoonshotState({
+      settledCardIds: settledCardIds(loadLifecycleHistory(), "moonshot"),
+      todayPublishedCardCount: today?.moonshotCards ?? 0,
+      lane: loadMoonshotLane(),
+      portfolioMoonshot: (portfolio as Record<string, unknown> | null)?.moonshot ?? null,
+      productLedger: (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "product-ledger", "moonshot.json"), "utf8")); } catch { return null; } })(),
+      hasScheduledGenerator: MOONSHOT_HAS_SCHEDULED_GENERATOR,
+      hasWiredSettler: MOONSHOT_HAS_WIRED_SETTLER,
+      today: currentEtDate(),
+    });
+    moonshotDisplayRecord = derived.displayRecord
+      ? { wins: derived.displayRecord.wins, losses: derived.displayRecord.losses }
+      : null;
+  } catch { moonshotDisplayRecord = null; }
+
   return {
     money,
     completedCards,
@@ -323,6 +384,8 @@ export function getTrustCenterModel(): TrustCenterModel {
     settledBankBuilderStepCount,
     settlement,
     moonshot,
+    today,
+    moonshotDisplayRecord,
     bankrollHealth,
     mlb,
   };

@@ -60,17 +60,6 @@ export default function MoonshotPage() {
   const etToday = currentEtDate();
   const laneDate = typeof lane?.generatedAt === "string" ? lane.generatedAt.slice(0, 10) : null;
 
-  // Availability comes from the shared signature-state derivation — NOT from the lane's
-  // self-declared status. The previous inline ternary read `lane.status` alone, so a lane
-  // generated 2026-07-21 with status "active" rendered as "Slate in progress" fifteen days later.
-  // Freshness outranks a file's opinion of itself.
-  const signature = presentFromArtifact({
-    slateDate: etToday,
-    artifactDate: laneDate,
-    artifactStatus: lane?.status ?? null,
-  });
-  const status = signature.surfaceStatus as PicksSurfaceStatus;
-
   /*
    * THE ONE OWNER of this product's state. It reconciles the lane artifact, the product ledger and
    * the portfolio block, and reports their disagreements rather than resolving them by fiat — two
@@ -84,6 +73,22 @@ export default function MoonshotPage() {
   const today = currentSlateDate() ?? currentEtDate();
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
   const moonshotLanes = dailyPortfolio.cards.filter((c) => c.product === "moonshot" && isPublishedCard(c));
+
+  // Availability comes from the shared signature-state derivation — NOT from the lane's
+  // self-declared status. The previous inline ternary read `lane.status` alone, so a lane
+  // generated 2026-07-21 with status "active" rendered as "Slate in progress" fifteen days later.
+  // Freshness outranks a file's opinion of itself.
+  //
+  // P250 · A01: the derivation now reads TODAY'S publication surface (the daily portfolio) when it
+  // holds published Moonshot cards. Reading the retired legacy lane first is what rendered a
+  // "Not published today" badge in the same header whose derived note said today's card IS
+  // published — two record systems, one component, no label.
+  const signature = presentFromArtifact({
+    slateDate: etToday,
+    artifactDate: moonshotLanes.length > 0 ? (dailyPortfolio.date ?? etToday) : laneDate,
+    artifactStatus: moonshotLanes.length > 0 ? "active" : (lane?.status ?? null),
+  });
+  const status = signature.surfaceStatus as PicksSurfaceStatus;
   const moonshot = deriveMoonshotState({
     /* Cards the lifecycle ledger has graded. The settler never rewrites the lane artifact — it
        feeds the protected bankroll — so without this a settled card reads as pending for ever. */
@@ -148,12 +153,16 @@ export default function MoonshotPage() {
           <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 15 }}>What this product&rsquo;s records actually say</h2>
 
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {/* Each tile names WHICH record it reads (P250 · A01): the first pair describe TODAY's
+                publication surface; the last pair reconcile the retired legacy lane against the
+                lifecycle ledger. Unlabeled, "Open cards 0 · $0.00" sat two sections above today's
+                two published cards and $50 paper exposure — one page, two unscoped eras. */}
             {[
-              ["Last published", moonshot.lastPublishedDate ?? "—", moonshot.daysSincePublished !== null ? `${moonshot.daysSincePublished} days ago` : ""],
+              ["Published today", String(moonshotLanes.length), moonshotLanes.length ? `$${dailyPortfolio.exposure.moonshot.toFixed(2)} paper` : "no card today"],
               ["Settled cards", moonshot.ledgerRecord ? `${moonshot.ledgerRecord.wins}–${moonshot.ledgerRecord.losses}` : "—",
                 moonshot.ledgerRecord?.fromDate ? `${moonshot.ledgerRecord.fromDate} … ${moonshot.ledgerRecord.throughDate}` : ""],
-              ["Open cards", String(moonshot.openCardCount), moonshot.unsettleableCardCount ? "cannot be graded" : "awaiting results"],
-              ["Stranded stake", `$${moonshot.openExposure.toFixed(2)}`, "paper, never settled"],
+              ["Legacy open cards", String(moonshot.openCardCount), moonshot.openCardCount === 0 ? "legacy lane fully graded" : moonshot.unsettleableCardCount ? "cannot be graded" : "awaiting results"],
+              ["Legacy stranded stake", `$${moonshot.openExposure.toFixed(2)}`, "legacy lane · paper"],
             ].map(([k, v, sub]) => (
               <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
                 <dd className="font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{v}</dd>
@@ -182,21 +191,16 @@ export default function MoonshotPage() {
         </section>
       ) : null}
 
-      {/* The 3-STEP LADDER — now a PROMINENT trajectory visual (was a small inline grid). Rendered from the
-          pure moonshotV2LadderPolicy spec. Day 1 is live when a lane is active today; Days 2-3 unlock only
-          by winning the prior day. Team markets, no props, no forced cards. */}
-      <MoonshotLadderV2 live={moonshotLanes.length > 0} currentDay={1} />
+      {/* The 3-STEP LADDER — rendered as the PLANNED trajectory policy (P250 · A01). Today's cards
+          are independent longshot cards, not steps of a run: no job tracks a ladder day and the
+          stake-accounting policy is an open founder decision, so no rung may claim LIVE. */}
+      <MoonshotLadderV2 live={false} policyPreview currentDay={1} />
 
-      {/* P211 R-E: the next transition, quoted from the ONE runbook registry (guard-tied to the
-          workflow's real cron) — a waiting lane's next transition is tomorrow's evaluation; a live
-          card's is overnight settlement. */}
-      {/* The next transition, and only when one genuinely exists. This line used to promise a
-          "next daily evaluation" at the MLB products cron — but that job does not generate Moonshot,
-          and no job does. Naming a time for work nobody scheduled is the same false promise the
-          header carried. */}
+      {/* The next transition, and only when one genuinely exists. This line used to assert ladder
+          progression mechanics ("a win unlocks the next day") for cards that are not ladder steps. */}
       <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
         {moonshotLanes.length
-          ? "Next transition: settles overnight from official results — a win unlocks the next day, a loss ends the run with banked profit kept."
+          ? "Next transition: today's independent cards settle overnight from official results. They are not steps of the ladder above — progression stays inactive until its accounting policy is decided."
           : "No next transition is scheduled: no job generates a Moonshot card, and no settlement job reaches the cards already published."}
       </p>
 
@@ -238,7 +242,15 @@ export default function MoonshotPage() {
       <div className="flex flex-col gap-3">
         <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>History</h2>
         {lane ? (
-          <MoonshotLaneTracker lane={lane} record={moonshot.displayRecord ?? undefined} exposure={exposure} running={moonshot.running} />
+          <MoonshotLaneTracker
+            lane={lane}
+            record={moonshot.displayRecord ?? undefined}
+            exposure={exposure}
+            running={moonshot.running}
+            /* Outcomes the lifecycle ledger graded, keyed by the lane's own card ids — without this
+               the tracker said "pending" directly above a record listing the same card as lost. */
+            settledOutcomes={new Map(settledCardsFor(msLedger, "moonshot").flatMap((c) => (c.sourceCardId && c.result ? [[c.sourceCardId, c.result] as [string, string]] : [])))}
+          />
         ) : (
           <div className="rounded-xl px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
             <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Moonshot Lane data pending</p>

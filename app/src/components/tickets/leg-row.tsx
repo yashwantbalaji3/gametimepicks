@@ -12,6 +12,9 @@ import type { LegResult } from "./settlement-badge";
 
 export interface TicketLeg {
   selection: string;
+  /** P250 · A01: the leg's sport ("MLB" | "SOCCER" | …). Drives the fallback chip and the start-time
+   *  word — an MLB leg said "Kickoff" under a ⚽ chip for as long as this field did not exist. */
+  sport?: string | null;
   market?: string | null;
   line?: number | null;
   matchup?: string | null;
@@ -34,6 +37,11 @@ export default function LegRow({ leg }: { leg: TicketLeg }) {
   const settled = r === "hit" || r === "miss" || r === "void";
   const status: TicketStatus = r === "hit" ? "hit" : r === "miss" ? "miss" : r === "void" ? "void" : "pending";
   const hasFlag = !!(leg.flagHome || leg.flagAway);
+  const sport = String(leg.sport ?? "").toUpperCase();
+  // Sport-correct fallback chip + start-time word; soccer remains the default for legacy legs that
+  // carry no sport (the pre-P250 shape), so no historical World Cup card changes appearance.
+  const fallbackChip = sport === "MLB" ? "⚾" : sport === "NFL" ? "🏈" : sport === "UFC" ? "🥊" : "⚽";
+  const startWord = sport === "MLB" ? "First pitch" : sport === "UFC" ? "Starts" : "Kickoff";
   return (
     <div className="flex items-start gap-2.5 py-2.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
       <span className="mt-0.5 flex shrink-0 items-center gap-0.5">
@@ -50,7 +58,7 @@ export default function LegRow({ leg }: { leg: TicketLeg }) {
           </>
         ) : (
           <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]"
-            style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
+            style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>{fallbackChip}</span>
         )}
       </span>
       <span className="min-w-0 flex-1">
@@ -58,7 +66,7 @@ export default function LegRow({ leg }: { leg: TicketLeg }) {
         <span className="block text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           {leg.selection}{leg.market ? ` · ${leg.market}` : ""}{leg.line != null ? ` ${leg.line}` : ""}
         </span>
-        {leg.kickoffEt ? <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Kickoff {leg.kickoffEt}</span> : null}
+        {leg.kickoffEt ? <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{startWord} {leg.kickoffEt}</span> : null}
         {settled && leg.official ? <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Official: {leg.official}</span> : null}
         {leg.source ? (
           <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", background: "var(--vault-wash)" }}>

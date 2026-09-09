@@ -233,8 +233,12 @@ export default function HomePage() {
       href: "/bank-builder",
       label: "Bank Builder",
       blurb: "The disciplined paper ladder — structured cards only.",
-      status: bbNoPlay ? `No-play · ${bbStepPhrase}` : bbStepPhrase,
-      statusSub: `Open exposure ${openExposureLabel} · no active card`,
+      /* P250 · A01: an active placed lane leads; "no active card" is DERIVED, never a literal
+         appended beside a live exposure figure. */
+      status: bbHasActiveCard
+        ? `${dailyPortfolio.cards.filter((c) => c.product === "bank-builder" && c.status === "active").length} paper card(s) active today`
+        : bbNoPlay ? `No-play · ${bbStepPhrase}` : bbStepPhrase,
+      statusSub: `Open exposure ${openExposureLabel}${bbHasActiveCard ? "" : " · no active card"}`,
       cta: "View Bank Builder",
       accent: "var(--vault-gold)",
     },

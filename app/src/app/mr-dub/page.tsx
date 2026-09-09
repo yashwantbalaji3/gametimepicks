@@ -24,10 +24,11 @@ import { currentEtDate } from "@/lib/freshness";
 import { deriveProductState, productStateLabel, isLive } from "@/lib/products/product-state.mjs";
 import {
   deriveMoonshotState,
+  isPublishedCard,
   MOONSHOT_HAS_SCHEDULED_GENERATOR,
   MOONSHOT_HAS_WIRED_SETTLER,
 } from "@/lib/products/moonshot-state.mjs";
-import { loadLifecycleLedger, settledCardIds } from "@/lib/products/lifecycle-view";
+import { loadLifecycleHistory, settledCardIds } from "@/lib/products/lifecycle-view";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { ExecutiveDashboard, TodayStatusStrip } from "@/components/mr-dub/flagship/flagship-dashboard";
@@ -67,10 +68,13 @@ export default function MrDubPage() {
   const bankBuilderAlternatives = strongestSlatePicks(root, today, 3);
   const bbProposal = buildBankBuilderProposal(root, today);
   const moonshotLane = loadMoonshotLane();
-  /* The one Moonshot state owner, so this surface and /moonshot cannot drift apart again. */
+  /* The one Moonshot state owner, so this surface and /moonshot cannot drift apart again.
+     P250 · A01: SAME LOADERS as /moonshot — history union (latest.json alone rotates an applied
+     settlement into a bare hold, resurrecting "open" cards) and today's published-card count, so
+     the two surfaces can no longer answer differently from the same owner. */
   const moonshotState = deriveMoonshotState({
-    /* Cards the lifecycle ledger has graded — the settler never rewrites the lane artifact. */
-    settledCardIds: settledCardIds(loadLifecycleLedger(), "moonshot"),
+    settledCardIds: settledCardIds(loadLifecycleHistory(), "moonshot"),
+    todayPublishedCardCount: dailyPortfolio.cards.filter((c) => c.product === "moonshot" && isPublishedCard(c)).length,
     lane: moonshotLane,
     portfolioMoonshot: portfolio?.moonshot ?? null,
     productLedger: (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "product-ledger", "moonshot.json"), "utf8")); } catch { return null; } })(),

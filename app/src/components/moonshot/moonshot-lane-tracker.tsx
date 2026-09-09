@@ -30,6 +30,7 @@ function legsSportLabel(legs?: ReadonlyArray<{ sport?: string }>): string {
 function cardToLegs(card: MoonshotCard): TicketLeg[] {
   return (card.legs ?? []).map((l) => ({
     selection: l.participant,
+    sport: (l as { sport?: string }).sport ?? undefined,
     market: l.marketLabel,
     matchup: l.fixture,
     flagHome: l.countryCode ?? undefined,
@@ -46,6 +47,7 @@ function cardToLegs(card: MoonshotCard): TicketLeg[] {
 function candidateLegToTicket(l: MoonshotCandidateLeg): TicketLeg {
   return {
     selection: l.participant,
+    sport: (l as { sport?: string }).sport ?? undefined,
     market: l.marketLabel,
     matchup: l.fixture,
     flagHome: l.countryCode ?? undefined,
@@ -71,11 +73,15 @@ function cardStatusPill(result?: string): TicketStatus {
 }
 
 export default function MoonshotLaneTracker({
-  lane, record, exposure, running, mode = "full", maxCards, showHistory = true, nowIso,
+  lane, record, exposure, running, mode = "full", maxCards, showHistory = true, nowIso, settledOutcomes,
 }: {
   lane: MoonshotLane;
   record?: { wins: number; losses: number; voids: number; pending: number };
   exposure?: number;
+  /** P250 · A01: outcomes the lifecycle ledger has graded, keyed by the lane's own cardId. The
+   *  settler never rewrites the lane artifact (it feeds the protected bankroll), so without this
+   *  the tracker rendered "pending" directly above a record section listing the same card as lost. */
+  settledOutcomes?: ReadonlyMap<string, string>;
   /* Whether the PRODUCT is running, decided by its state owner. The lane artifact's own `status`
      still reads "active" weeks after the product stopped publishing, so when this is explicitly
      false the pill reports that rather than the artifact's self-declaration. */
@@ -144,7 +150,7 @@ export default function MoonshotLaneTracker({
             subtitle={r.card.cardId}
             sport={legsSportLabel(r.card.legs)}
             risk={r.card.risk}
-            status={cardStatusPill(r.card.result)}
+            status={cardStatusPill(settledOutcomes?.get(r.card.cardId) ?? r.card.result)}
             odds={r.card.combinedOdds}
             oddsTone="violet"
             stake={r.card.stake}
@@ -191,7 +197,11 @@ export default function MoonshotLaneTracker({
         <p className="mt-0.5 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           {lane.restartCandidate
             ? `${lane.restartCandidate.headline} — ${lane.restartCandidate.reason}`
-            : "Awaiting a qualified higher-volatility card. Nothing is active; current exposure is $0.00."}
+            /* Derived, never a typed "$0.00" — this line contradicted the exposure tile above it
+               whenever today's portfolio carried live paper cards (P250 · A01). */
+            : exp > 0
+              ? `This legacy lane has no restart candidate. Today's published cards carry ${usd(exp)} paper exposure — see the section above.`
+              : "Awaiting a qualified higher-volatility card. Nothing is active; current exposure is $0.00."}
         </p>
       </div>
 
