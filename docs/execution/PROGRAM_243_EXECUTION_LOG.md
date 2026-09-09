@@ -905,3 +905,40 @@ from the built HTML; the self-denying MLB report traced to its seven hardcoded s
 - **Rendered-guard catch of this program's own copy:** the new NFL provenance sentence used
   "beat the sportsbook" inside a denial; the built-HTML guard refused it and the wording moved to
   the compliant "out-predict" form — the guard working exactly as designed.
+
+## P250-W1 — NFL Week 1 public readiness (Sep 8/9, commit fb1dd62bf, CI 34307519384 green, prod verified)
+
+End-to-end status before the first regular-season kickoff: all 16 Week-1 forecasts fresh
+(23:12Z event-window run), weekly boards + player boards + rosters + differentiation on the same
+stamp, event-window (11:00/17:00 ET + 10:30 ET settle pass), sport-schedules and nightly-settle
+all green on cadence, and the stale Aug-29 price capture correctly refused as NO_MARKET on every
+game — no stale price can leak. A concurrent Codex session's in-flight files (evaluator v3
+support, its status doc) were left untouched and carried through the push via stash; its v3
+engine is research-only and feeds no public surface.
+
+Blockers fixed (each guard-pinned in week1-public-readiness.test.mjs):
+- **Week boundaries:** nflDay required a FUTURE next-forecast, so the morning after any kickoff
+  it resurrected the retired preseason "last simulated slate (2026-08-29)" note mid-season. The
+  regular-season lane now owns the answer whenever its forecasts exist (game days LIVE with
+  today's count; quiet days speak in the week's own words; the preseason archive speaks only in
+  a true offseason — regression fixture added). Top Reads ranks UPCOMING events only, so a
+  started game's frozen pregame read never poses as a current read.
+- **Price-authorization honesty:** End Zone Vault no longer claims "the sportsbooks are not
+  offering" TD markets (unobservable; the truth is OUR capture holds no authorized market) and
+  names the regular-season model, not "preseason". /cards/nfl renders the ledger's own derived
+  blocker (capture age, priced-game count) with a pointer to the hub's forecasts. /markets
+  states its price-scoped population and links the model-only sports' hubs, derived from the
+  product-day owner — an unavailable price authorization is never presented as an absent
+  prediction.
+- **One week table (audit item E):** the hub's generic 16-row list collapsed behind the
+  canonical weekly table (counts line + quick list one click away, the settled-window shape).
+
+UI/UX investigation (built export driven in-browser, then production): board tabs/filters/
+search/empty-state, availability on every row, "—" never zero, scoring-outlook cap labelled,
+?sport=nfl scoping, mobile 375px zero document overflow with in-container table scroll, one main
+landmark and one h1 per page, quick-list expand to 16 rows. Production checks 12/12 after
+extraction-artifact recheck; prod serves fb1dd62b exactly.
+
+Remaining Week-1 truths, stated not hidden: no priced NFL anything (founder-gated authorization);
+passing/rushing withheld by evaluation; the site's state between deploys freezes at build
+cadence (event-window passes at 11:00/17:00 ET are the pre-kickoff refresh path).
