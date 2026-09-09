@@ -235,7 +235,8 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
           <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
             {withheld.map(([key, f]) => (
               <li key={key} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
-                <strong style={{ color: "var(--vault-text-mute)" }}>{f.label}:</strong> {f.reason}
+                {/* A raw family key is not a reader-facing label (player_pass_int shipped without one). */}
+                <strong style={{ color: "var(--vault-text-mute)" }}>{f.label && f.label !== key ? f.label : key.replace(/^player_/, "").replace(/_/g, " ").replace(/\bint\b/, "interceptions")}:</strong> {f.reason}
               </li>
             ))}
           </ul>
