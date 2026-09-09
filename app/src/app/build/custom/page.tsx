@@ -23,12 +23,13 @@ import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import { buildSeedableCards } from "@/lib/parlays/seedable-cards";
 import path from "node:path";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/build/custom/", {
   title: "Build Your Own · Parlay Center · GameTime Picks",
   description:
     "Build a custom paper card from qualified legs across sports. Filter, search, add legs, enter any stake, see the projected paper return — or start from a suggested card and edit it. Educational, paper-only.",
-};
+});
 
 export default function ParlayCenterCustomPage() {
   // Canonical methodology engine — the SAME gated, not-started, leakage-safe eligible-leg pool that

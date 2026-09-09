@@ -12,12 +12,13 @@ import HowToRead from "@/components/how-to-read";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import SimulationExplorer from "@/components/games/simulation-explorer";
 import { currentEtDate } from "@/lib/freshness";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/simulate/", {
   title: "Simulate · GameTime Picks",
   description:
     "Pick a sport and a date, then open the event's deterministic simulation report — precomputed, so everyone sees the same result. Educational, paper-only.",
-};
+});
 
 export default function SimulatePage() {
   const view = buildSimulateDay();

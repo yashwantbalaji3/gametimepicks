@@ -23,6 +23,7 @@ import SportLabCards from "@/components/sport-lab-cards";
 import SectionHeader from "@/components/section-header";
 import { loadCurrentSportLabLadder, ladderDayLabel, type SportLabLadder, loadSportLabStreamRecord, loadSportLabStreamBlocker } from "@/lib/parlays/sport-lab-cards";
 import { loadUfcResultsCoverage } from "@/lib/sports/ufc/coverage-loader";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 /** Lanes that can carry a card product, with the hub each one belongs to. */
 const LANES: Record<string, { label: string; hub: string; hubLabel: string; slateOf: (l: SportLabLadder) => string }> = {
@@ -54,14 +55,14 @@ export function generateMetadata({ params }: { params: { sport: string } }): Met
   const lane = LANES[params.sport];
   const streamRecord = loadSportLabStreamRecord(params.sport);
   const ladder = loadCurrentSportLabLadder(params.sport);
-  if (!lane) return { title: "Paper cards · GameTime Picks" };
-  return {
+  if (!lane) return withRouteMetadata(`/cards/${params.sport}/`, { title: "Paper cards · GameTime Picks" });
+  return withRouteMetadata(`/cards/${params.sport}/`, {
     title: `${lane.label} Paper Cards · GameTime Picks`,
     description: ladder
       ? `${ladder.cards.length} of 4 price bands built from real posted prices for ${lane.slateOf(ladder)}. ` +
         "Paper-only and educational — no stake is filled in, and nothing here is a pick or a recommendation to wager."
       : `${lane.label} paper card ladder. No cards are published right now — a ladder is built only from events that have not started. Paper-only and educational.`,
-  };
+  });
 }
 
 export default function SportCardsPage({ params }: { params: { sport: string } }) {

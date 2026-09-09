@@ -32,8 +32,9 @@ import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { eventState, eventHeading, EVENT_STATE } from "@/lib/sports/event-lifecycle.mjs";
 import { loadSportLabLadder, loadSportLabStreamRecord } from "@/lib/parlays/sport-lab-cards";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/ufc/", {
   /*
    * THE METADATA WAS DESCRIBING A PAGE THAT NO LONGER EXISTED.
    *
@@ -49,7 +50,7 @@ export const metadata = {
   title: "UFC — Next Card Model Read & Settled Archive · GameTime Picks",
   description:
     "An experimental fight model's read on the next UFC card — winner, method and finishing round for every bout with enough tracked history, with the unmodelled ones disclosed. Paper cards from posted fight-winner prices; paper-only and educational, never advice.",
-};
+});
 
 function loadJSONUfc<T>(name: string): T | null {
   try {

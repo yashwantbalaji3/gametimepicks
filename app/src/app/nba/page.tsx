@@ -6,11 +6,12 @@
  * settled archive. Client-redirect stub (static-export-safe under output:export).
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/nba/", {
   title: "NBA · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function NbaHubRedirect() {
   return <ClientRedirect to="/results/nba/" label="the NBA settled archive" />;

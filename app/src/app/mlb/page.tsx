@@ -74,12 +74,13 @@ import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
 import PlayerPropsExplorer from "@/components/ui/player-props-explorer";
 import StatusChip from "@/components/ui/status-chip";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/mlb/", {
   title: "MLB · GameTime Picks",
   description:
     "Educational MLB player-prop analytics — transparent model leans on pitcher strikeouts and batter markets, plus suggested paper cards. Educational, paper-only.",
-};
+});
 
 const PROPS_PER_MARKET = 9;
 

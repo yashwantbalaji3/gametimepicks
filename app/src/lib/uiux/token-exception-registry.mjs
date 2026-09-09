@@ -18,6 +18,13 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
     files: { "src/app/globals.css": 628 },
   },
   {
+    id: "os-chrome",
+    owner: "design-system",
+    rationale: "The browser theme-colour and the web-app manifest are parsed by the OS before any stylesheet exists, so neither can resolve a custom property. The ground is written ONCE in lib/brand-chrome.ts and imported by both, so the literal cannot reappear per call site.",
+    removal: "never while the site is installable (P251 · F13)",
+    files: { "src/lib/brand-chrome.ts": 1 },
+  },
+  {
     id: "identity-data",
     owner: "sport-operations",
     rationale: "Team/club brand colours are identity DATA, not theme drift (P207 contract). Re-theming them would misrepresent real organisations.",

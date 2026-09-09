@@ -20,12 +20,13 @@ import SettledPlayerList from "@/components/settled-player-list";
 import type { SettledLean } from "@/lib/settlement-data";
 import ModelLessonsCard from "@/components/model-lessons-card";
 import ResultsModelAuditNotes from "@/components/results-model-audit-notes";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/mlb/results/", {
   title: "MLB Results · GameTime Picks",
   description:
     "Educational MLB model audit. Every model lean graded against the verified final box score after the game completes.",
-};
+});
 
 export default function MlbResultsPage() {
   const date = latestMlbResultDate();

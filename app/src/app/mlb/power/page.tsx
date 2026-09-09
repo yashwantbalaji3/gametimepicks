@@ -4,12 +4,13 @@ import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import PowerBoardShell from "@/components/power-board-shell";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/mlb/power/", {
   title: "MLB Power Board · GameTime Picks",
   description:
     "Home-run analytics for MLB. Separate from the main projection board because HR markets have a different variance profile.",
-};
+});
 
 const DEFAULT_DATE = "2026-05-16";
 

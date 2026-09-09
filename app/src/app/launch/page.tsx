@@ -45,8 +45,9 @@ import {
   headlines,
   SCHEMA_VERSION,
 } from "@/lib/launch/launch-contract.mjs";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = { title: "Launch Command Center · GameTimePicks", robots: { index: false, follow: false } };
+export const metadata = withRouteMetadata("/launch/", { title: "Launch Command Center · GameTimePicks", robots: { index: false, follow: false } });
 
 /**
  * FOUNDER LAUNCH COMMAND CENTER — internal only.

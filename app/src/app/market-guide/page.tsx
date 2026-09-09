@@ -8,12 +8,13 @@ import Link from "next/link";
 
 import PageHero from "@/components/page-hero";
 import { glossaryByCategory } from "@/lib/glossary";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/market-guide/", {
   title: "Market Guide · GameTime Picks",
   description:
     "Plain-English definitions for every term on the site — model %, market %, edge, EV, confidence, reliability, paper-only, no-play, pending, settlement, market-implied, and simulation.",
-};
+});
 
 export default function MarketGuidePage() {
   const groups = glossaryByCategory();

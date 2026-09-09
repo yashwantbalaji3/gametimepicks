@@ -13,6 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import SectionHeader from "@/components/section-header";
 import TeamLogo from "@/components/team-logo";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 const read = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
@@ -56,10 +57,10 @@ const weekTitle = (key: string) => {
 };
 
 export function generateMetadata({ params }: { params: { key: string } }): Metadata {
-  return {
+  return withRouteMetadata(`/nfl/week/${params.key}/`, {
     title: `NFL ${weekTitle(params.key)} — Simulations & Top Boards · GameTime Picks`,
     description: `Frozen pre-kickoff simulations, projected scores and the weekly player boards for NFL ${weekTitle(params.key)}. Educational and paper-only.`,
-  };
+  });
 }
 
 const etKickoff = (iso: string) =>

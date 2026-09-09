@@ -16,6 +16,7 @@
  * matching the weekly boards), and a missing value renders "—", never a fabricated zero.
  */
 import { useMemo, useState } from "react";
+import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
 
 export interface PlayerBoardRow {
   playerId: string;
@@ -150,8 +151,8 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Player name"
-          aria-label="Filter players by name"
+          placeholder={SEARCH_PLAYERS}
+          aria-label={SEARCH_PLAYERS_LABEL}
           className="font-mono"
           style={{ minHeight: 40, padding: "0 12px", borderRadius: 10, fontSize: 12, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text)" }}
         />

@@ -5,11 +5,12 @@
  * emits an error shell under output:export), kept noindex so it stays out of search discovery.
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/trends/", {
   title: "Player trends (retired) · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function TrendsRetiredRedirect() {
   return <ClientRedirect to="/mlb/board/" label="the MLB model board" />;

@@ -17,6 +17,7 @@ import Link from "next/link";
 import SectionHeader from "@/components/section-header";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks, loadMlbGameRecord, PICK_SPORTS } from "@/lib/sports/graded-picks-loader";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 const HUBS: Record<string, { label: string; hub: string }> = {
   mlb: { label: "MLB", hub: "/mlb" },
@@ -33,13 +34,13 @@ export const dynamicParams = false;
 export function generateMetadata({ params }: { params: { sport: string } }): Metadata {
   const lane = HUBS[params.sport];
   const rec = loadGradedPicks(params.sport);
-  if (!lane) return { title: "Graded picks · GameTime Picks" };
-  return {
+  if (!lane) return withRouteMetadata(`/results/picks/${params.sport}/`, { title: "Graded picks · GameTime Picks" });
+  return withRouteMetadata(`/results/picks/${params.sport}/`, {
     title: `${lane.label} — Picks vs Outcomes · GameTime Picks`,
     description: rec
       ? `${rec.counts.counted.toLocaleString()} ${lane.label} predictions graded against official results. Paper-only and educational — nothing here is a pick or a recommendation to wager.`
       : `${lane.label} predictions graded against official results. Nothing has been graded yet.`,
-  };
+  });
 }
 
 const FAMILY_LABEL: Record<string, string> = { moneyline: "Winner (moneyline)", total: "Total (over/under)", run_line: "Run line" };

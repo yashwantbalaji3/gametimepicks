@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import SportOverviewHero from "@/components/sport-overview-hero";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/research/", {
   title: "Research Engine · Public Beta — GameTimePicks",
   description:
     "The GameTimePicks research engine: automated pregame data capture, a settlement pipeline, observation-quality validation, and a benchmark framework — building a long-term, leakage-safe MLB dataset. Public beta.",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
     description: "Simulation-powered sports analytics. Automated pregame capture · settlement · quality validation · benchmark framework. Building the dataset.",
     type: "website",
   },
-};
+});
 
 const MILESTONES: { done: boolean; title: string; body: string }[] = [
   { done: true, title: "Automated pregame data capture", body: "Every day, leakage-safe pregame features are captured for the MLB slate — starters, lineups, bullpen, matchup, park, team form, and more — each timestamped strictly before first pitch." },

@@ -34,12 +34,13 @@ import {
   MOONSHOT_HAS_SCHEDULED_GENERATOR,
   MOONSHOT_HAS_WIRED_SETTLER,
 } from "@/lib/products/moonshot-state.mjs";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/moonshot/", {
   title: "Moonshot · GameTime Picks",
   description:
     "Moonshot — a separate, higher-volatility paper product tracked on its own record, apart from the Bank Builder. Educational and paper-only.",
-};
+});
 
 const readData = (...rel: string[]) => {
   try {

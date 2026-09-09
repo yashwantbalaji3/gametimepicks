@@ -23,12 +23,13 @@ import { loadHomerNukesBoard } from "@/lib/mlb/homer-nukes-board";
 import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/homer-nukes/", {
   title: "Homer Nukes · GameTime Picks",
   description:
     "The model's five most likely home runs today, each with its own probability and the numbers behind it. Paper-only, educational.",
-};
+});
 
 /** Every graded day on disk, newest first. Absent until a slate settles. */
 function settledDays(dir: string): { date: string; hits: number; picks: number }[] {

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import SportOverviewHero from "@/components/sport-overview-hero";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/responsible-use/", {
   title: "Responsible Use — GameTimePicks",
   description:
     "GameTimePicks is a paper-only, educational sports-analytics project — not betting advice and no real money. How to use the simulations responsibly. Public beta.",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
       "Paper-only and educational. Not betting advice, no real money. How to use the simulations responsibly.",
     type: "article",
   },
-};
+});
 
 export default function ResponsibleUsePage() {
   return (

@@ -5,11 +5,12 @@
  * stub (static-export-safe; server redirect() emits an error shell under output:export).
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/projections/", {
   title: "Projections · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function ProjectionsRedirect() {
   return <ClientRedirect to="/mlb/board/" label="the MLB model board" />;

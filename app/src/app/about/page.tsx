@@ -10,12 +10,13 @@
 import Link from "next/link";
 
 import PageHero from "@/components/page-hero";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/about/", {
   title: "About · GameTime Picks",
   description:
     "What GameTimePicks does, how the projection model works, and how to read a projection. Plain-English explainer for non-bettors.",
-};
+});
 
 export default function AboutPage() {
   return (

@@ -46,6 +46,7 @@ import {
 } from "@/lib/data-bank-builder";
 import { loadStep5TargetStatus } from "@/lib/bank-builder-step5-target";
 import { RUNBOOKS } from "@/lib/launch/runbook-registry.mjs";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 const BANK = getSportIdentity("bank_builder");
 
@@ -133,12 +134,12 @@ const META_TITLE = "Bank Builder · GameTime Picks";
 const META_DESCRIPTION =
   "An educational $100 → $10,000 paper-bankroll ladder — one card per step. The current run, today's official card, and previous hits. Paper-only; we do not take real money.";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/bank-builder/", {
   title: META_TITLE,
   description: META_DESCRIPTION,
   openGraph: { title: META_TITLE, description: META_DESCRIPTION, type: "website", url: "/bank-builder/" },
   twitter: { card: "summary_large_image", title: META_TITLE, description: META_DESCRIPTION },
-};
+});
 
 export default function BankBuilderPage() {
   const pubSummary = loadPublicBankBuilderSummary();

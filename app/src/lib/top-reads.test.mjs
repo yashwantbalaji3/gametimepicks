@@ -81,3 +81,36 @@ test("homepage + hubs consume the split selectors, never a mixed population unde
       `${hub} hub must derive the heading from the panel's timeframe`);
   }
 });
+
+test("P251-F2 · every read's RENDERED line identifies the event it links to", async () => {
+  /*
+   * The panel renders `sportLabel · market · context` under the headline — `subject` reaches a
+   * reader only as an avatar name. The MLB game-total builder wrote the matchup to `subject`, so
+   * six of the homepage's ten strongest reads printed "Under 8.5 runs · MLB · Game total ·
+   * simulated median 6 runs" with no game on the row, three of them identical apart from a
+   * probability, each linking to a different game.
+   *
+   * The claim is stated over the line a READER SEES, not over the object: a row that links to one
+   * specific event has to say which, and no two rows may be indistinguishable.
+   */
+  const set = loadTopReads();
+  if (!set?.reads?.length) return;
+  const rendered = (r) => `${r.sportLabel} · ${r.market}${r.context ? ` · ${r.context}` : ""}`;
+  const seen = new Map();
+  for (const r of set.reads) {
+    const line = `${r.headline} — ${rendered(r)}`;
+    const prior = seen.get(line);
+    assert.ok(
+      !prior || prior === r.href,
+      `two reads render the same line and link to different events:\n  "${line}"\n  ${prior}\n  ${r.href}`,
+    );
+    seen.set(line, r.href);
+    // A read pointing at ONE event must name that event somewhere a reader can see.
+    if (!/^\/(games|nfl\/game|epl\/match)\//.test(r.href ?? "")) continue;
+    const visible = line.toLowerCase();
+    const named = /\bv(s)?\b|@|—|to beat|to win|to homer/.test(visible) &&
+      // the matchup or the subject has to appear, not merely a market noun
+      (r.subject ? visible.includes(String(r.subject).toLowerCase()) : true);
+    assert.ok(named, `"${line}" links to ${r.href} and never names the event on the row`);
+  }
+});

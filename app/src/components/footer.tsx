@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import Link from "next/link";
 import { getMeta } from "@/lib/data";
 import { formatTimestamp } from "@/lib/format";
@@ -6,6 +8,7 @@ import BrandMark from "./brand-mark";
 import SupportEntry from "./support-entry";
 import { resolveSupportConfig } from "@/lib/support/support-config.mjs";
 import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
+import { liveDataSources, type DataSource } from "@/lib/data-sources";
 
 const FOOTER_DESTINATIONS = destinationsFor("footer");
 
@@ -18,12 +21,16 @@ export default function Footer() {
    * rather than emptied.
    */
   const supportConfigured = resolveSupportConfig(process.env).enabled;
-  // Phase 13: when the site is running in live mode, hide any "demo data"
-  // entries from meta.dataSources so users don't see "demo data" listed
-  // alongside a "live data" status — the previous behavior was confusing.
-  const visibleSources = meta.isDemo
-    ? meta.dataSources
-    : meta.dataSources.filter((s) => !/demo/i.test(s.name));
+  /*
+   * P251-F12: the source list is DERIVED from the sports actually publishing, not read from the
+   * legacy meta.json — which credited "nba_api" and two operator-override lanes on every page,
+   * months after NBA became a settled archive and long after any override fed a live surface.
+   * See lib/data-sources.ts. In demo mode the bundled fallback is still named, because that IS
+   * the source then.
+   */
+  const visibleSources: DataSource[] = meta.isDemo
+    ? meta.dataSources.map((s) => ({ name: s.name, description: s.description ?? "", url: s.url ?? "" }))
+    : liveDataSources(path.join(process.cwd(), "public", "data"));
   return (
     <footer
       className="relative z-10 mt-24"
@@ -207,12 +214,9 @@ export default function Footer() {
               {meta.isDemo ? "demo data" : "live data"}
             </span>
           </span>
-          <span>
-            version{" "}
-            <span style={{ color: "var(--vault-text-mute)" }}>
-              {meta.version}
-            </span>
-          </span>
+          {/* P251-F12: the "version 0.5.0" chip was the legacy meta.json's app version — a number
+              that has not moved in months and means nothing to a reader. Freshness and the last
+              refresh are the two facts on this row a visitor can act on. */}
           <span>
             last refresh{" "}
             <span style={{ color: "var(--vault-text-mute)" }}>

@@ -10,12 +10,13 @@ import {
   getParlaySummary,
   getSnapshotForDate,
 } from "@/lib/data-parlays";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/results/parlays/", {
   title: "Saved slip history · GameTime Picks",
   description:
     "Candidate parlay slips saved before games and graded after settlement. Educational analytics — not betting advice.",
-};
+});
 
 /**
  * /results/parlays — honest saved-slip history.

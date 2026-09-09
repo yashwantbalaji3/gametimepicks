@@ -15,11 +15,12 @@ import { buildSocialOpsBoard } from "@/lib/social/social-ops";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { BuildClockPanel } from "@/components/build-clock-panel";
 import { NflEventTable } from "./nfl-event-table";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/ops/", {
   title: "Ops · GameTime Picks (internal)",
   robots: { index: false, follow: false },
-};
+});
 
 type Lane = { lane: string; status: string; step: number | null; legs: number; combinedOdds: number | null; stake: number | null; potentialReturn: number | null; selections: string[] };
 type Status = {

@@ -13,11 +13,12 @@ import Link from "next/link";
 import WorldCupSpecialsPreviewBox from "@/components/world-cup/world-cup-specials-preview-box";
 import { loadJune20SpecialsPreview } from "@/lib/world-cup/world-cup-specials-preview";
 import { guardInternalRoute } from "@/lib/internal-route-guard";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/preview/june20/", {
   title: "Internal Preview · June 20 full site",
   robots: { index: false, follow: false },
-};
+});
 
 /** Count the June 20 preview WC suggested cards by risk (engine artifact under the preview namespace). */
 function previewParlays(): { count: number; byRisk: Record<string, number> } {

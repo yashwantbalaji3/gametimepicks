@@ -26,12 +26,13 @@ import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import { loadRiskLadder, loadLabLedger, loadTierGrid } from "@/lib/parlays/risk-ladder";
 import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
 import path from "node:path";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/build/", {
   title: "Parlay Center · GameTime Picks",
   description:
     "Start with a model-suggested parlay card — filtered by sport and risk, each with its own settled record — or build your own from qualified legs. Educational, paper-only.",
-};
+});
 
 export default function ParlayCenterSuggestedPage() {
   // Same slate framing the rest of the site uses, so every surface agrees on which day is current.

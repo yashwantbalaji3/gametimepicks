@@ -43,13 +43,14 @@ import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 const usd = (n: number | null | undefined) => n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-export const metadata = {
+export const metadata = withRouteMetadata("/mr-dub/", {
   title: "Mr. Dub's Portfolio · GameTime Picks",
   description: "Mr. Dub's flagship paper portfolio — the $100 → $19.5K journey in full: executive KPIs, the visual Bank Builder ladder, performance analytics, an expandable day-by-day timeline, and every wager by product. Official results only. Educational, paper-only; not financial advice.",
-};
+});
 
 const CTAS = [
   { href: "/bank-builder", label: "Bank Builder" },

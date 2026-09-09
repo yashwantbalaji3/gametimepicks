@@ -91,12 +91,13 @@ import { buildResultRows } from "@/lib/results/read-model.mjs";
 import fs from "node:fs";
 import { getTrustCenterModel } from "@/lib/results-trust-center";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/results/", {
   title: "Results & Receipts · GameTime Picks",
   description:
     "The official paper-card record, open exposure, settlement status, and money-independent model-performance receipts — one public trust center.",
-};
+});
 
 /**
  * The committed ledgers the explorer projects. Read-only, and each stays its own population — the

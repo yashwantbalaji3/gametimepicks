@@ -60,12 +60,13 @@ import {
   SecondaryLinks,
   type SecondaryLink,
 } from "@/components/today/status-modules";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
   description:
     "Today's model hub — the day's top model reads, simulation-ready games, and every product's honest status (Bank Builder, Parlay Center, Moonshot). Paper-only, educational; no-play shown honestly.",
-};
+});
 
 const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 

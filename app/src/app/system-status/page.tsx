@@ -22,12 +22,13 @@ import {
   loadSystemStatus,
   loadTerminal,
 } from "@/lib/research/public-contract-adapter";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/system-status/", {
   title: "System Status — GameTimePicks",
   description:
     "Live status of every stage in the GameTimePicks research pipeline: data capture, settlement, prediction history, calibration, market registry, and the daily research brief.",
-};
+});
 
 /**
  * Visual treatment per state.

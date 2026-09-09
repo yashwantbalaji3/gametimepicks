@@ -21,12 +21,13 @@ import Link from "next/link";
 
 import { allUpcoming, resultsTrackingNote } from "@/lib/sports/upcoming/adapters.mjs";
 import { UpcomingSportsSections, type SportSchedule } from "@/components/sports/upcoming-sports";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/sports/", {
   title: "Upcoming Sports — Schedules · GameTime Picks",
   description:
     "Premier League, NFL, NBA and UFC schedule status — what data exists, where it comes from, and what is honestly not published yet. MLB, NFL, EPL and UFC are modelled on their own hubs; NBA carries schedules only.",
-};
+});
 
 export default function UpcomingSportsPage() {
   const sports = (allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[])

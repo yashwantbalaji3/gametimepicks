@@ -4,11 +4,12 @@
  * output:export) so old links never break.
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/parlay-lab/", {
   title: "Parlay Center · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function ParlayLabRedirect() {
   return <ClientRedirect to="/build#suggested-cards" label="Suggested cards" />;

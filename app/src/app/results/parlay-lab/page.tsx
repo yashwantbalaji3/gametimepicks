@@ -16,12 +16,13 @@ import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
 import { loadLabRecord, labSampleCaption, labCounts } from "@/lib/parlays/lab-record";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/results/parlay-lab/", {
   title: "Suggested-Card Record · GameTime Picks",
   description:
     "Every suggested card the model has published, across every sport, with how each one settled. Paper-only and educational — no stake is filled in, and nothing here is a pick or a recommendation to wager.",
-};
+});
 
 const pctOrDash = (n: number | null) => (n == null ? "—" : `${(n * 100).toFixed(1)}%`);
 

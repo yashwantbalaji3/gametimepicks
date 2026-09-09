@@ -52,12 +52,13 @@ import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { loadCurrentSportLabLadder, ladderDayLabel, loadSportLabStreamRecord } from "@/lib/parlays/sport-lab-cards";
 import { loadEplPlayerProjections, topScorersAcross } from "@/lib/sports/epl/forecast-view";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/epl/", {
   title: "Premier League — Simulation Center · GameTime Picks",
   description:
     "Premier League model simulations: match-result probabilities, scorelines, goals and margin for every fixture we can price. Distributions only — not picks. The model's graded record to date is shown on the page.",
-};
+});
 
 const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
 const ET_DAY = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" });

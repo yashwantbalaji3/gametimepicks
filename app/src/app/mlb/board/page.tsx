@@ -4,12 +4,13 @@ import MlbBoardBody from "@/components/mlb/mlb-board-body";
 import NewsletterSignup from "@/components/newsletter-signup";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/mlb/board/", {
   title: "MLB board · GameTime Picks",
   description:
     "Daily MLB player-prop board: pitcher strikeouts, batter hits, batter total bases. Educational analytics, not betting advice.",
-};
+});
 
 const DEFAULT_DATE = "2026-05-16";
 

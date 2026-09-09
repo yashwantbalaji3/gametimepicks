@@ -10,12 +10,13 @@ import { notFound } from "next/navigation";
 import ProductInDevelopment from "@/components/products/product-in-development";
 import { productReadiness } from "@/lib/products/product-readiness";
 import { gateKeyFor, signatureFor } from "@/lib/products/signature-products";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/bucket-blitz/", {
   title: "Bucket Blitz · GameTime Picks",
   description:
     "The NBA signature product, in development. What is captured today, and every stage still standing between that and a published read. No picks — the league is out of season and no player model is validated.",
-};
+});
 
 export default function BucketBlitzPage() {
   const product = signatureFor("nba");

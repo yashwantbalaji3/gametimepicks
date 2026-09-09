@@ -15,11 +15,12 @@ import { guardInternalRoute } from "@/lib/internal-route-guard";
 import { loadEplArtifacts } from "@/lib/soccer/epl-load";
 import { buildEplPreview, EPL_PREVIEW_COPY, type EplFixtureView } from "@/lib/soccer/epl-preview";
 import { MATCH_RESULT_OUTCOMES } from "@/lib/soccer/epl-markets";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/preview/epl/", {
   title: "Internal Preview · EPL market intelligence",
   robots: { index: false, follow: false },
-};
+});
 
 const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 const american = (o: number | null) => (o === null ? "—" : o > 0 ? `+${o}` : `${o}`);

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getMeta } from "@/lib/data";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/methodology/", {
   title: "Methodology — GameTimePicks",
   description:
     "How GameTimePicks turns a schedule and a sportsbook price into a probability, how those probabilities are scored against the market, and what we refuse to publish. Paper-only, educational, public beta.",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
       "No-vig probabilities, the model–market difference, calibration, and official-settlement-only integrity. Paper-only, public beta.",
     type: "article",
   },
-};
+});
 import HowToReadThis from "@/components/research/how-to-read-this";
 import TerminalSummaryPanel from "@/components/research/terminal-summary-panel";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
@@ -21,6 +21,7 @@ import FreshnessBadge from "@/components/ui/freshness-badge";
 import { currentEtDate } from "@/lib/freshness";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 /**
  * /methodology — how a number on this site is produced and how it is judged.

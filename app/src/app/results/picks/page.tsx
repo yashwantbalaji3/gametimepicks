@@ -17,12 +17,13 @@ import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
 import { loadAllGradedPicks, loadMlbGameRecord } from "@/lib/sports/graded-picks-loader";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/results/picks/", {
   title: "Picks vs Outcomes · GameTime Picks",
   description:
     "Every prediction each sport's model has made, graded against official results. Paper-only and educational — nothing here is a pick or a recommendation to wager.",
-};
+});
 
 const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 const SHOW_RATE = new Set(["ASSESSABLE", "EMERGING"]);

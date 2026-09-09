@@ -4,11 +4,12 @@
  * the same audit content. The legacy `/mlb/results` URL stays alive.
  */
 import MlbResultsPage from "@/app/mlb/results/page";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/results/mlb/", {
   title: "MLB Model Audit · GameTime Picks",
   description:
     "Centralized MLB model audit — every settled projection graded against the verified final box score.",
-};
+});
 
 export default MlbResultsPage;

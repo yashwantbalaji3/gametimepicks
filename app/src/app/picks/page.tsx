@@ -15,11 +15,12 @@
  * second thing to break.
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/picks/", {
   title: "Picks · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function PicksRedirect() {
   return <ClientRedirect to="/build#suggested-cards" label="Suggested cards" />;

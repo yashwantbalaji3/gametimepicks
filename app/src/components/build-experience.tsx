@@ -32,6 +32,7 @@ import { gradeLeg } from "@/lib/build/grade.mjs";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { useSlip, type SlipLeg } from "@/lib/slip/slip-store";
 import { legKey, type SlipLegInput } from "@/lib/slip/leg-identity";
+import { SEARCH_PLAYERS_OR_TEAMS, SEARCH_PLAYERS_OR_TEAMS_LABEL } from "@/lib/ui/search-labels";
 
 // The 2026 World Cup is complete — not a selectable build sport (archive only). The SPORT_LABEL map below
 // keeps the "World Cup" label so any historical WC row still renders its badge.
@@ -356,8 +357,7 @@ export default function BuildExperience({
             {markets.slice(0, 8).map((m) => <Pill key={m} on={market === m} onClick={() => setMarket(m)}>{m}</Pill>)}
           </div>
           {/* Search is secondary (v4): pills are the primary control. */}
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team or player…"
-            aria-label="Search eligible legs by team or player"
+          <input value={q} onChange={(e) => setQ(e.target.value)} type="search" placeholder={SEARCH_PLAYERS_OR_TEAMS} aria-label={SEARCH_PLAYERS_OR_TEAMS_LABEL}
             className="rounded-[8px] px-3 py-2"
             style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
 

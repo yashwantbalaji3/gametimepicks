@@ -17,13 +17,14 @@ import SpecialsLedgerSection from "@/components/world-cup/specials-ledger-sectio
 import DailySpecialsSection from "@/components/specials/daily-specials-section";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import path from "node:path";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/world-cup-specials/", {
   title: "World Cup Specials — Retired Archive · GameTime Picks",
   description:
     "Archived World Cup Specials record — model-ranked suggested longshot cards from the completed 2026 World Cup, settled from official results. Retired; kept as past proof. Paper-only, educational.",
   robots: { index: false, follow: false },
-};
+});
 
 export default function WorldCupSpecialsPage() {
   const nowIso = new Date().toISOString();

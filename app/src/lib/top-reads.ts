@@ -178,7 +178,17 @@ export function loadTopReads(): TopReadsSet | null {
         subject: `${p.awayTeam} @ ${p.homeTeam}`, team: p.homeTeam, photoUrl: null,
         probability: over ? tot.overProbability : tot.underProbability,
         market: "Game total",
-        context: `simulated median ${tot.simulationMedian} runs`,
+        /*
+         * P251-F2: THE MATCHUP HAS TO BE IN THE FIELD THAT RENDERS.
+         *
+         * This wrote the matchup to `subject`, which the panel uses only as the avatar's name —
+         * the visible line is `sportLabel · market · context`. So six of the homepage's ten
+         * strongest reads printed "Under 8.5 runs · MLB · Game total · simulated median 6 runs"
+         * with no game on the row, three of them identical apart from a probability, each linking
+         * to a different game. The moneyline builder twelve lines above already puts the matchup in
+         * `context`, which is why its rows read correctly; totals now do the same.
+         */
+        context: `${p.awayTeam} @ ${p.homeTeam} · simulated median ${tot.simulationMedian} runs`,
         href: `/games/mlb/${p.slug}/`,
       });
     }

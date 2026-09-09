@@ -5,6 +5,7 @@ import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import AddToSlip from "@/components/slip/add-to-slip";
 import { tierFromProb, homerTierFromProb, tierMeta, type ConfTier } from "@/lib/mlb/confidence";
+import { SEARCH_PLAYERS_OR_TEAMS, SEARCH_PLAYERS_OR_TEAMS_LABEL } from "@/lib/ui/search-labels";
 
 export interface BoardProp {
   player: string;
@@ -133,7 +134,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
           ))}
         </div>
         <div className="flex flex-wrap gap-2">
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search player or team…" aria-label="Search player or team"
+          <input value={q} onChange={(e) => setQ(e.target.value)} type="search" placeholder={SEARCH_PLAYERS_OR_TEAMS} aria-label={SEARCH_PLAYERS_OR_TEAMS_LABEL}
             className="flex-1 min-w-[150px] rounded-[8px] px-3 py-1.5 text-[12px]" style={selStyle} />
           <select value={game} onChange={(e) => setGame(e.target.value)} aria-label="Filter by game" className="rounded-[8px] px-2 py-1.5 text-[11.5px]" style={{ ...selStyle, maxWidth: 200 }}>
             <option value="all">All games</option>

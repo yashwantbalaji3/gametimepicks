@@ -8,11 +8,12 @@
  * still published on /about, which remains the guarded surface for those claims.
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/board/", {
   title: "Model Board · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function BoardRedirect() {
   return <ClientRedirect to="/mlb/board/" label="the MLB model board" />;

@@ -28,6 +28,7 @@ import { notFound } from "next/navigation";
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
 import { loadEplForecasts, findEplForecastAnywhere, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture } from "@/lib/sports/epl/forecast-view";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 /**
  * One page per fixture that EVER carried a distribution — enumerated from the dated archive, not
@@ -42,13 +43,13 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const row = findEplForecastAnywhere(params.slug);
-  if (!row) return { title: "Premier League fixture · GameTime Picks" };
-  return {
+  if (!row) return withRouteMetadata(`/epl/match/${params.slug}/`, { title: "Premier League fixture · GameTime Picks" });
+  return withRouteMetadata(`/epl/match/${params.slug}/`, {
     title: `${row.matchup} — model forecast · GameTime Picks`,
     description:
       `Model distribution for ${row.matchup}: match-result probabilities, scoreline table, goals ladder and each side's goal curve. ` +
       "Distributions only — not picks. No Premier League match has been graded under this model yet.",
-  };
+  });
 }
 
 const ET = (iso: string) =>

@@ -12,6 +12,8 @@ import SimulateDay from "@/components/simulate/simulate-day";
 import { availableSimulateDates, buildSimulateDay } from "@/lib/simulate/day-view";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 
 export function generateStaticParams() {
   return availableSimulateDates().map((date) => ({ date }));
@@ -19,10 +21,10 @@ export function generateStaticParams() {
 export const dynamicParams = false;
 
 export function generateMetadata({ params }: { params: { date: string } }): Metadata {
-  return {
+  return withRouteMetadata(surfaceHref("simulate", { date: params.date }) ?? "/simulate/", {
     title: `Simulate · ${params.date} · GameTime Picks`,
     description: `Events, simulations and honest availability for ${params.date}. Educational, paper-only.`,
-  };
+  });
 }
 
 export default function SimulateDatePage({ params }: { params: { date: string } }) {

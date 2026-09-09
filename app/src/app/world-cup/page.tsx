@@ -15,11 +15,12 @@
  * output:export), kept because a tournament URL is exactly the kind of inbound link we do not control.
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/world-cup/", {
   title: "World Cup 2026 (complete) · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function WorldCupArchiveRedirect() {
   return <ClientRedirect to="/results/" label="Results" />;

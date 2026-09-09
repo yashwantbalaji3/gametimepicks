@@ -4,11 +4,12 @@
  * so old links never break and there is a single source of truth.
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/parlays/", {
   title: "Parlays · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function ParlaysRedirect() {
   return <ClientRedirect to="/build#suggested-cards" label="Suggested cards" />;

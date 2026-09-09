@@ -22,6 +22,7 @@ import { notFound } from "next/navigation";
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -68,12 +69,12 @@ export const dynamicParams = false;
 
 export function generateMetadata({ params }: { params: { eventId: string } }): Metadata {
   const f = (forecastArtifact()?.forecasts ?? []).find((x: Forecast) => x.providerEventId === params.eventId);
-  if (!f) return { title: "NFL game · GameTime Picks" };
-  return {
+  if (!f) return withRouteMetadata(`/nfl/game/${params.eventId}/`, { title: "NFL game · GameTime Picks" });
+  return withRouteMetadata(`/nfl/game/${params.eventId}/`, {
     title: `${f.matchup} — experimental simulation · GameTime Picks`,
     description: `A 10,000-run simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental model; educational and paper-only.`,
     alternates: { canonical: `/nfl/game/${f.providerEventId}` },
-  };
+  });
 }
 
 export default function NflGameReport({ params }: { params: { eventId: string } }) {

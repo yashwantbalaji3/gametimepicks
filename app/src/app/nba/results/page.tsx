@@ -7,11 +7,12 @@
  * output:export).
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/nba/results/", {
   title: "NBA Results · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function NbaResultsRedirect() {
   return <ClientRedirect to="/results/nba/" label="the NBA settled archive" />;

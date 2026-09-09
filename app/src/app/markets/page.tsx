@@ -20,12 +20,13 @@ import {
   toExplorerRowViews,
   toGapBucketViews,
 } from "@/lib/research/disagreement-explorer";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/markets/", {
   title: "Picks · GameTimePicks",
   description:
     "Sportsbook prices alongside GameTimePicks simulations for the current MLB slate, with every market labelled by what we can honestly show.",
-};
+});
 
 export default function MarketsPage() {
   const today = currentEtDate();

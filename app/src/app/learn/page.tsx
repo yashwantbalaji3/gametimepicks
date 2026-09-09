@@ -6,12 +6,13 @@
  */
 import Link from "next/link";
 import SectionHeader from "@/components/section-header";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/learn/", {
   title: "Learn · GameTime Picks",
   description:
     "How to read GameTime Picks — model vs market probability, model gap, risk tiers, suggested cards, Bank Builder, and why some markets are gated. Educational, paper-only.",
-};
+});
 
 function Concept({ term, children }: { term: string; children: React.ReactNode }) {
   return (

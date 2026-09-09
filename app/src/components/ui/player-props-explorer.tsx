@@ -14,6 +14,7 @@ import type { PublicProjection } from "@/lib/normalize";
 import PlayerPropCard from "@/components/ui/player-prop-card";
 import PlayerPropGroup, { groupByPlayer } from "@/components/ui/player-prop-group";
 import { worldCupPlayerModelPicks } from "@/lib/world-cup/player-model-picks";
+import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
 
 const TOP_N = 12;
 
@@ -106,7 +107,9 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search player…"
+          type="search"
+          placeholder={SEARCH_PLAYERS}
+          aria-label={SEARCH_PLAYERS_LABEL}
           className="ml-1 rounded-full px-3 py-1.5 min-w-[140px]"
           style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12 }}
         />

@@ -50,12 +50,13 @@ import { HowItWorks, FooterCta } from "@/components/home/home-sections";
 import { UpcomingSportsStrip, type SportSchedule } from "@/components/sports/upcoming-sports";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { readPublicationSlo } from "@/lib/ops/read-publication-slo";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/", {
   title: "GameTime Picks — Simulate today's games. Review model picks. Track results.",
   description:
     "A simulation-first, paper-only sports model. Run deterministic game simulations, review today's model slate, and follow every result with transparent, official-settlement-only receipts. Free and educational.",
-};
+});
 
 const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 

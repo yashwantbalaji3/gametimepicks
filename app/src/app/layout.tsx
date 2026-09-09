@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import Nav from "@/components/nav";
 import Footer from "@/components/footer";
@@ -15,6 +15,8 @@ import AnalyticsBootstrap from "@/components/analytics-bootstrap";
 // only matter inside Parlay Lab's own filter toolbar. Removing
 // it claws back the lg:pl-[76px] offset and gives /results,
 // /parlay-lab, and /projections a wider, less cluttered shell.
+
+import { OS_CHROME_GROUND } from "@/lib/brand-chrome";
 
 import "./globals.css";
 
@@ -53,6 +55,17 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  /* P251-F13: the manifest + the icons Next generates from src/app/icon.png and apple-icon.png,
+     so "Add to Home Screen" launches the product's own mark on its own ground instead of a
+     screenshot in browser chrome. */
+  manifest: "/manifest.webmanifest",
+  applicationName: "GameTime Picks",
+  appleWebApp: { capable: true, title: "GameTime Picks", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  themeColor: OS_CHROME_GROUND,
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

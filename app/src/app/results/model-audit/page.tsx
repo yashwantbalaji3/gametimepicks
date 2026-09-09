@@ -29,12 +29,13 @@ import CandidateReadout, { type ReadoutRow } from "@/components/results/candidat
 import ModelResultsExplorer, { type ModelDay, type ModelCoverage } from "@/components/results/model-results-explorer";
 import fs from "node:fs";
 import nodePath from "node:path";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/results/model-audit/", {
   title: "Model audit deep-dive · GameTime Picks",
   description:
     "Settled-data audit of the GameTime Picks projection model — per-market, per-side, per-confidence, per-difference-band and per-game cuts, every one sourced from real settled rows. Educational only.",
-};
+});
 
 /**
  * The full per-day model-pick history, compacted for the page.

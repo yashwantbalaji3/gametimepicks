@@ -13,6 +13,7 @@ import { getGameDetail, getGameDisambiguation, gameDetailParams } from "@/lib/ga
 import { getGameSpecificCardsForGame, getWorldCupMultiGameCardsForGame } from "@/lib/world-cup/game-specific-cards";
 import { buildGamePropParlays } from "@/lib/world-cup/game-prop-parlays";
 import GameDetailPage from "@/components/game/game-detail-page";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const dynamicParams = false;
 
@@ -23,23 +24,26 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { sport: string; gameId: string } }) {
   const d = getGameDetail(params.sport, params.gameId);
   if (d) {
-    return {
+    return withRouteMetadata(`/games/${params.sport}/${params.gameId}/`, {
       title: `${d.title} · ${d.sportLabel} · GameTime Picks`,
       description: `${d.title} — projections, player props, suggested cards, and market availability. Educational, paper-only.`,
       // Canonical points at THIS game's unique route (one gameId ↔ one URL).
       alternates: { canonical: `/games/${params.sport}/${params.gameId}` },
-    };
+    });
   }
   // Ambiguous legacy base slug (doubleheader) → a disambiguation page, deliberately non-canonical + noindex.
   const dis = getGameDisambiguation(params.sport, params.gameId);
   if (dis) {
+    /* NOT wrapped, deliberately: withRouteMetadata's job is to declare "this URL is the one",
+       and this page exists to say the opposite — the slug is ambiguous and neither game owns it.
+       A canonical here would nominate a disambiguation stub as the home of two real games. */
     return {
       title: `Two games share this matchup · GameTime Picks`,
       description: "This matchup has more than one game on this date. Pick the game you want. Educational, paper-only.",
       robots: { index: false, follow: true },
     };
   }
-  return { title: "Game · GameTime Picks", description: "Game detail — educational, paper-only." };
+  return withRouteMetadata(`/games/${params.sport}/${params.gameId}/`, { title: "Game · GameTime Picks", description: "Game detail — educational, paper-only." });
 }
 
 /** Honest disambiguation view for a doubleheader's shared (legacy) base slug — never silently resolves one game. */

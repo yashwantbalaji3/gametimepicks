@@ -45,12 +45,13 @@ import { loadNflEvents, currentPeriodKey, eventsInPeriod, periodCounts } from "@
 import { seasonContextFor } from "@/lib/sports/nfl/season-context.mjs";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
   description:
     "Every game on the next NFL slate with its experimental simulation, the sportsbook prices captured before kickoff, and an honest market-by-market coverage table. Educational and paper-only.",
-};
+});
 
 const read = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }

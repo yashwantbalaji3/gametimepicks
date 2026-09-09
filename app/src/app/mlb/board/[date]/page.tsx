@@ -5,6 +5,7 @@ import {
 } from "@/lib/data-mlb";
 import MlbBoardBody from "@/components/mlb/mlb-board-body";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 /**
  * Generate static params for every MLB date that has data on disk
@@ -19,10 +20,10 @@ export function generateStaticParams() {
 }
 
 export function generateMetadata({ params }: { params: { date: string } }) {
-  return {
+  return withRouteMetadata(`/mlb/board/${params.date}/`, {
     title: `MLB board · ${params.date} · GameTime Picks`,
     description: `MLB player-prop board for ${params.date}. Educational analytics.`,
-  };
+  });
 }
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;

@@ -20,6 +20,8 @@ import SettledGameDetail, {
 import PlayerResultsCards from "@/components/player-results-cards";
 import { getPlayoffContext } from "@/components/playoff-context";
 import DateSportControls from "@/components/nav/date-sport-controls";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 
 interface PageProps {
   params: { date: string };
@@ -37,10 +39,10 @@ export function generateStaticParams() {
 }
 
 export function generateMetadata({ params }: PageProps) {
-  return {
+  return withRouteMetadata(surfaceHref("results", { date: params.date }) ?? "/results/", {
     title: `Audit · ${params.date} · GameTime Picks`,
     description: `Centralized projection-vs-actual audit for every settled lean on ${params.date}.`,
-  };
+  });
 }
 
 /**

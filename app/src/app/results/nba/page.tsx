@@ -31,12 +31,13 @@ import SettledPlayerList from "@/components/settled-player-list";
 import NeonCornerBracket from "@/components/neon-corner-bracket";
 import { getPlayoffContext } from "@/components/playoff-context";
 import ModelLessonsCard from "@/components/model-lessons-card";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/results/nba/", {
   title: "NBA Model Audit (archive) · GameTime Picks",
   description:
     "The settled NBA archive — every lean graded against the verified final box score. Historical record only; NBA is no longer covered.",
-};
+});
 
 function findLatestScoredBoardDate(): string | null {
   const dates = getAvailableBoardDates().slice().sort().reverse();

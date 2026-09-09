@@ -5,11 +5,12 @@
  * redirect() emits an error shell under output:export).
  */
 import ClientRedirect from "@/components/client-redirect";
+import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
-export const metadata = {
+export const metadata = withRouteMetadata("/events/", {
   title: "Events · GameTime Picks",
   robots: { index: false, follow: false },
-};
+});
 
 export default function EventsRedirect() {
   return <ClientRedirect to="/today/" label="Today" />;
