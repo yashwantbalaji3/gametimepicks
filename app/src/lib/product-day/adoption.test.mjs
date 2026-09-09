@@ -47,11 +47,11 @@ test("ADOPTED · the homepage consumes the authority and keeps no state-bearing 
   for (const banned of ["card-latest.json", "soccer/epl", "nfl/index.json"]) {
     assert.ok(!home.includes(banned), `home reads ${banned} raw — that is the owner's job`);
   }
-  // The ONE documented presentation-only raw read: the NFL player-market COUNT (display detail on
-  // the card's status line; never a state input). Anything beyond it is a new duplicate.
+  // P250: the last exempted raw read (the retired preseason lane's player-market count) is gone —
+  // the homepage now holds ZERO raw sport reads. A new one must be classified here first.
   const rawReads = [...home.matchAll(/readCount\(\s*"([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(rawReads, ["nfl/game-simulations/latest.json"],
-    "exactly the documented presentation-only read — a new raw read must be classified here first");
+  assert.deepEqual(rawReads, [], "no raw sport reads on the homepage — the owner reads the lanes");
+  assert.ok(!home.includes("game-simulations/latest.json"), "the retired preseason lane is not read by home");
 });
 
 test("ADOPTED · /today's active-sports header speaks the owner's answer", () => {

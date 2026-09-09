@@ -151,7 +151,7 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     label: "NFL",
     state: "EXPERIMENTAL_PUBLIC",
     reason:
-      "Schedule capture, public experimental game simulations, an evaluated regular-season identity and 45 graded picks all exist; the preseason model picked winners no better than a coin flip on its held-out season, so nothing enters official prediction products.",
+      "Schedule capture, weekly forecasts-of-record from the evaluated regular-season identity, weekly player boards and graded history all exist; every game is classified PUBLIC_EXPERIMENTAL, and only VALIDATED_PICK may become a product leg — so nothing enters official prediction products yet (see nfl/product-eligibility.json for the live gate).",
     evidence: [
       "app/public/data/nfl/index.json",
       ".github/workflows/nfl-event-window.yml",

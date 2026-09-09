@@ -33,15 +33,24 @@ export default function SimulatePage() {
         </p>
       </header>
 
-      <SimulateDay view={view} />
+      {/* The chooser owns the sport scope for the WHOLE page (P250 · A08): the MLB explorer and the
+          coverage matrix are threaded through it so the ?sport= filter governs them too, instead of
+          a filtered header sitting above an unfiltered MLB gallery. */}
+      <SimulateDay
+        view={view}
+        mlbExplorer={<SimulationExplorer selectedDate={currentEtDate()} />}
+        coverage={{
+          all: <SimulationCoverageMatrix />,
+          bySport: {
+            mlb: <SimulationCoverageMatrix sport="mlb" />,
+            nfl: <SimulationCoverageMatrix sport="nfl" />,
+            epl: <SimulationCoverageMatrix sport="soccer" />,
+            ufc: <SimulationCoverageMatrix sport="ufc" />,
+          },
+        }}
+      />
 
       <HowToRead preset="simulate" title="How to read a simulation" />
-
-      {/* Slate-wide simulated outcomes + player impact — depth AFTER the chooser. */}
-      <SimulationExplorer selectedDate={currentEtDate()} />
-
-      {/* Honest market-coverage matrix — what each sport simulates, and every gap with the reason. */}
-      <SimulationCoverageMatrix />
     </div>
   );
 }

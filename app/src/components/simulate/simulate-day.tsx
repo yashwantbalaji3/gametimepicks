@@ -92,7 +92,16 @@ function EventCard({ e, onOpen }: { e: SimDayEvent; onOpen: (e: SimDayEvent) => 
   );
 }
 
-export default function SimulateDay({ view }: { view: SimulateDayView }) {
+export default function SimulateDay({ view, mlbExplorer = null, coverage = null }: {
+  view: SimulateDayView;
+  /** The slate-wide MLB explorer (server-rendered by the page). Rendered only while the selected
+   *  scope includes MLB — P250 · A08: as a page-level sibling it ignored the sport filter, so
+   *  ?sport=nfl showed "no NFL events today" over 15 MLB explorer links. */
+  mlbExplorer?: React.ReactNode;
+  /** Pre-rendered coverage matrices keyed by scope; the client filter picks the matching one so the
+   *  matrix follows the selection instead of always listing all four sports. */
+  coverage?: { all: React.ReactNode; bySport: Partial<Record<SimSport, React.ReactNode>> } | null;
+}) {
   const [sport, setSport] = useState<SimSport | "all">("all");
   const [staged, setStaged] = useState<SimDayEvent | null>(null);
 
@@ -181,6 +190,11 @@ export default function SimulateDay({ view }: { view: SimulateDayView }) {
           Nothing for this sport on {fmtDay(view.date)} — try another date above.
         </p>
       ) : null}
+
+      {/* Below-chooser depth follows the SAME selection as the sections above — the explorer is an
+          MLB slate view, so it only renders inside an MLB-inclusive scope. */}
+      {sport === "all" || sport === "mlb" ? mlbExplorer : null}
+      {coverage ? (sport === "all" ? coverage.all : coverage.bySport[sport] ?? coverage.all) : null}
 
       {staged ? <SimulationStage event={staged} onClose={() => setStaged(null)} /> : null}
     </div>

@@ -63,18 +63,35 @@ test("EQUIVALENCE · ufc day equals card-latest (bouts, predictions, card date)"
   }
 });
 
-test("EQUIVALENCE · nfl day equals the index's own next window; a PAST kickoff is never upcoming", () => {
+test("EQUIVALENCE · nfl day equals the index's own canonical counts; a PAST kickoff is never upcoming", () => {
   const nfl = productDayFor("nfl", dataRoot);
-  const sims = readJson("nfl", "game-simulations", "latest.json");
-  const games = (sims.games ?? []).length;
-  if (nfl.state === "LIVE" || nfl.state === "EVENT_UPCOMING") {
-    assert.equal(nfl.events, games, "an active window counts the simulated slate");
-    assert.ok(nfl.nextEventUtc, "an active window names its kickoff");
+  const index = readJson("nfl", "index.json");
+  const forecastsUpcoming = Number(index?.counts?.forecastsUpcoming ?? 0);
+  if (forecastsUpcoming > 0 && (index.nextForecastUtc || index.nextKickoffUtc)) {
+    // P250: the regular-season lane is the product. The day derives from the index's OWN counts —
+    // never from the retired preseason game-simulations lane — and the board stays today-only:
+    // an upcoming week is eligible-but-zero-events, named in the note as week discovery.
+    assert.ok(["LIVE", "EVENT_UPCOMING"].includes(nfl.state), `regular-season forecasts make a real window (got ${nfl.state})`);
+    assert.equal(nfl.nextEventUtc, index.nextForecastUtc ?? index.nextKickoffUtc, "the window names the index's own next kickoff");
+    if (nfl.state === "EVENT_UPCOMING") {
+      assert.equal(nfl.events, forecastsUpcoming, "the upcoming WINDOW counts the index's forecasts (UFC precedent)");
+      assert.equal(nfl.eligible, forecastsUpcoming, "eligible = the index's upcoming forecast count");
+      assert.match(nfl.note, /No NFL games today/, "the quiet day says so");
+      assert.match(nfl.note, /forecasts published/, "…and names the week's coverage instead of a false no-simulation state");
+      assert.doesNotMatch(nfl.note, /has been played/, "a live forecast week is never described by the retired preseason lane");
+    }
   } else {
-    // P202 intentional difference: simulations for a played slate are history, not product —
-    // the stale-index window renders NO_EVENTS with the passed date named, never a live day.
-    assert.ok(["EVENT_UPCOMING", "NO_EVENTS", "INCIDENT"].includes(nfl.state));
-    assert.equal(nfl.eligible, 0, "a passed window has nothing actionable");
+    const sims = readJson("nfl", "game-simulations", "latest.json");
+    const games = (sims?.games ?? []).length;
+    if (nfl.state === "LIVE" || nfl.state === "EVENT_UPCOMING") {
+      assert.equal(nfl.events, games, "an active legacy window counts the simulated slate");
+      assert.ok(nfl.nextEventUtc, "an active window names its kickoff");
+    } else {
+      // P202 intentional difference: simulations for a played slate are history, not product —
+      // the stale-index window renders NO_EVENTS with the passed date named, never a live day.
+      assert.ok(["EVENT_UPCOMING", "NO_EVENTS", "INCIDENT"].includes(nfl.state));
+      assert.equal(nfl.eligible, 0, "a passed window has nothing actionable");
+    }
   }
 });
 

@@ -407,10 +407,18 @@ function nflSection(date: string, today: string): SportDaySection {
       });
     }
   }
+  /* P250 · 1B: an empty NFL day names the next real kickoff (from the eligibility owner's own
+     events) instead of a bare "no games" that reads like no simulation capability exists. */
+  const nextDay = (elig.events ?? [])
+    .map((e) => etDayOf(e.kickoffUtc))
+    .filter((d): d is string => d != null && d > date)
+    .sort()[0] ?? null;
   return {
     sport: "nfl", label: "NFL", icon: getSportIdentity("nfl").icon,
     emptyState: events.length ? null : "NO_CURRENT_EVENT",
-    note: events.length ? null : "No NFL games on this date.",
+    note: events.length ? null : nextDay && nextDay > date
+      ? `No NFL games on this date — next kickoff ${nextDay}.`
+      : "No NFL games on this date.",
     events: events.sort((a, b) => String(a.startUtc ?? "").localeCompare(String(b.startUtc ?? ""))),
   };
 }

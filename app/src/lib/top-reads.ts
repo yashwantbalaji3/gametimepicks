@@ -4,10 +4,10 @@
  * WHAT THIS IS NOT. It is not a pick list, and the distinction is not decoration. /picks was retired
  * to a redirect; the sanctioned framing on the MLB report is "Largest model-vs-market gaps · a
  * watchlist, not a bet"; and the prediction layer's own rule is PREDICTION ≠ EDGE. A ranked "top ten
- * bets of the day" would reverse all three, and would do it while three of the four models cannot
- * support it: MLB's markets were demoted to market context, NFL's team-strength term is not
- * statistically significant, and EPL's model has never been scored against a price. Only UFC's has
- * cleared a preregistered bar.
+ * bets of the day" would reverse all three, and would do it while most of the models cannot
+ * support it: MLB's markets were demoted to market context, NFL's regular-season model is
+ * experimental with an accumulating walk-forward record, and EPL's model has never been scored
+ * against a price. Only UFC's has cleared a preregistered bar.
  *
  * WHAT IT IS. The outputs each model is most confident about, ranked by the MODEL'S OWN probability —
  * never by a gap against a price. A gap is a claim that the market is wrong, and we have not
@@ -17,15 +17,15 @@
  * model that cleared its bar than from one that has never been measured, and a list that ranked them
  * together without saying so would quietly average away the difference.
  *
- * A SPORT WITH NO EVENT-SPECIFIC SIGNAL IS EXCLUDED AND SAID SO. NFL produces a projected score for
- * every game and the same one for almost all of them; ranking those by confidence would fill the
- * list with reads that cannot tell one game from another.
+ * A SPORT WITH NO EVENT-SPECIFIC SIGNAL IS EXCLUDED AND SAID SO — and that gate is DERIVED from the
+ * sport's own differentiation audit, never hardcoded (P250: the preseason NFL exclusion outlived the
+ * preseason model by two weeks because it was typed here as prose).
  */
 import fs from "node:fs";
 import path from "node:path";
 
 export interface TopRead {
-  sport: "mlb" | "epl" | "ufc";
+  sport: "mlb" | "epl" | "ufc" | "nfl";
   sportLabel: string;
   /** "team" or "player" — the user-facing split between game markets and player markets. */
   kind: "team" | "player";
@@ -79,6 +79,7 @@ const PROVENANCE: Record<string, string> = {
    * direction.
    */
   ufc: "A fitted fight model that cleared its preregistered bar on a held-out sample — the exact counts live in its committed evaluation receipt.",
+  nfl: "An experimental regular-season model publishing forecasts-of-record before kickoff. Evaluated on a held-out season; not shown to beat the sportsbook market, and its 2026 walk-forward record is still accumulating.",
 };
 
 /**
@@ -260,16 +261,45 @@ export function loadTopReads(): TopReadsSet | null {
   }
 
   /*
-   * NFL is absent on purpose. Its differentiation audit reports NO_EVENT_SPECIFIC_SIGNAL and ten of
-   * eleven games carry the identical projected score, so ranking those by confidence would fill the
-   * list with reads that cannot tell one game from another.
+   * ── NFL: game winners, gated on the model's OWN differentiation audit ──────────────────────────
+   *
+   * P250: the preseason exclusion ("no event-specific signal") was left hardcoded after the
+   * regular-season model replaced it — while the differentiation artifact it cited had been
+   * reporting EVENT_SPECIFIC on every head since Week 1 published. The gate now derives from that
+   * artifact: reads enter only while every head is event-specific, and if the audit ever reports a
+   * no-signal state again the exclusion returns automatically, quoting the audit's own words.
    */
   const nfl = read("public/data/nfl/index.json");
-  if ((nfl?.events ?? []).length > 0) {
+  const nflDiff = read("public/data/nfl/model-differentiation.json");
+  const nflHeads: Array<{ state?: string; plainEnglish?: string }> = nflDiff?.heads ?? [];
+  const nflEventSpecific = nflHeads.length > 0 && nflHeads.every((h) => h.state === "EVENT_SPECIFIC");
+  if ((nfl?.events ?? []).length > 0 && !nflEventSpecific) {
+    const flat = nflHeads.find((h) => h.state !== "EVENT_SPECIFIC");
     excluded.push({
       sport: "NFL",
-      reason: "the model does not currently tell these teams apart — its team-strength term was measured and found not to be statistically significant, so it produces near-identical reads for every game.",
+      reason: flat?.plainEnglish
+        ?? "its differentiation audit does not currently show event-specific signal on every head, so ranking its reads by confidence would fill the list with reads that cannot tell one game from another.",
     });
+  }
+  if (nflEventSpecific) {
+    for (const e of nfl?.events ?? []) {
+      const wp = e.winProbability;
+      if (wp?.home == null || wp?.away == null || e.lifecycle === "SETTLED") continue;
+      const homeFavored = wp.home >= wp.away;
+      const pickTeam = homeFavored ? e.home : e.away;
+      const oppTeam = homeFavored ? e.away : e.home;
+      if (!pickTeam?.name) continue;
+      push({
+        sport: "nfl", sportLabel: "NFL", kind: "team",
+        eventEtDate: etDayOf(e.kickoffUtc),
+        headline: `${pickTeam.name} to beat ${oppTeam?.name ?? "opponent"}`,
+        subject: pickTeam.name, team: pickTeam.abbr ?? pickTeam.name, photoUrl: null,
+        probability: homeFavored ? wp.home : wp.away,
+        market: "Game winner",
+        context: `${e.matchup}${e.projectedScore ? ` · projected ${e.projectedScore.away}–${e.projectedScore.home}` : ""}${e.total?.median != null ? ` · total median ${e.total.median}` : ""}`,
+        href: e.providerEventId ? `/nfl/game/${e.providerEventId}/` : "/nfl/",
+      });
+    }
   }
 
   if (reads.length === 0) return null;

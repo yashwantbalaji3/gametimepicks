@@ -158,6 +158,42 @@ function nflDay(dataRoot: string, today: string): ProductDay {
       nextEventUtc: null, note: "The NFL index could not be read.", reason: "nfl/index.json unreadable",
     });
   }
+  /*
+   * P250: the REGULAR-SEASON lane is the live NFL product. The index is the one canonical NFL state
+   * (its own note says a surface that computes its own is a defect), and it counts upcoming
+   * forecasts-of-record; the retired preseason game-simulations lane below is consulted only when no
+   * regular-season forecast exists (its last artifact froze at 2026-08-29, and reading it first is
+   * what kept the homepage describing a played preseason slate while 16 Week-1 forecasts were live).
+   * Today's board stays TODAY-ONLY: a future-week forecast never counts as today's events — it is
+   * named in the note as week discovery instead.
+   */
+  const forecastsUpcoming = Number(index.counts?.forecastsUpcoming ?? 0);
+  const nextForecast: string | null = index.nextForecastUtc ?? index.nextKickoffUtc ?? null;
+  const nextForecastDay = nextForecast ? etDay(nextForecast) : null;
+  if (forecastsUpcoming > 0 && nextForecastDay != null && nextForecastDay >= today) {
+    const weekly = readJson(dataRoot, "nfl", "weekly-boards", "latest.json");
+    const week: number | null = typeof weekly?.period?.week === "number" ? weekly.period.week : null;
+    const weekLabel = week != null ? `Week ${week}` : "this week";
+    const events: Array<{ kickoffUtc?: string }> = Array.isArray(index.events) ? index.events : [];
+    const todaysEvents = events.filter((e) => typeof e?.kickoffUtc === "string" && etDay(e.kickoffUtc) === today).length;
+    if (nextForecastDay === today && todaysEvents > 0) {
+      return day("nfl", {
+        productDate: today, state: "LIVE", events: todaysEvents, eligible: todaysEvents,
+        sourceStamp: index.generatedAt ?? null, nextEventUtc: nextForecast,
+        note: `${todaysEvents} game forecast${todaysEvents === 1 ? "" : "s"} today · ${weekLabel}: ${forecastsUpcoming} published`,
+        reason: null,
+      });
+    }
+    /* UFC's precedent: an EVENT_UPCOMING day counts the upcoming WINDOW's events (productDate names
+       the future day), and the note keeps today honest. Consumers rendering "today" must key off the
+       state, not the count — the note is the today-safe sentence. */
+    return day("nfl", {
+      productDate: nextForecastDay, state: "EVENT_UPCOMING", events: forecastsUpcoming, eligible: forecastsUpcoming,
+      sourceStamp: index.generatedAt ?? null, nextEventUtc: nextForecast,
+      note: `No NFL games today · ${weekLabel}: ${forecastsUpcoming} game forecasts published · next kickoff ${nextForecastDay}${typeof index.nextForecastMatchup === "string" ? ` (${index.nextForecastMatchup})` : ""}`,
+      reason: null,
+    });
+  }
   const games: unknown[] = sims?.games ?? [];
   const nextKick: string | null = index.nextKickoffUtc ?? null;
   const kickDay = nextKick ? etDay(nextKick) : null;

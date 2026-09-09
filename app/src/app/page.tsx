@@ -157,12 +157,8 @@ export default function HomePage() {
 
   // Presentation-only detail: the NFL player-market count for the card's status line. Never a
   // state input — the owner decides whether the window is live at all.
-  const readCount = (rel: string, pick: (d: Record<string, unknown>) => number): number => {
-    try { return pick(JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", rel), "utf8"))); }
-    catch { return 0; }
-  };
-  const nflPicks = readCount("nfl/game-simulations/latest.json",
-    (d) => ((d.games ?? []) as Array<{ generatedPicks?: unknown[] }>).reduce((n, g) => n + (g.generatedPicks?.length ?? 0), 0));
+  /* P250: the preseason game-simulations lane is retired (its last artifact froze 2026-08-29) — the
+     card's status now derives from the product-day owner's regular-season answer, never that lane. */
 
   const allSports = [
     {
@@ -197,10 +193,12 @@ export default function HomePage() {
       card: {
         href: "/nfl",
         label: "NFL Simulations",
-        /* Capability copy derives from what the hub actually publishes (P241 · A03): the player
-           families are all rejected/held, so no sentence here may promise a "full player board". */
-        blurb: "Projected score and win probability for each game from 10,000 simulated runs — experimental, and clearly labelled.",
-        status: (nflDay?.events ?? 0) > 0 ? `${nflDay?.events} games · ${nflPicks.toLocaleString()} player markets` : (nflDay?.note ?? stateLabel(nflState)),
+        /* Capability copy derives from what the hub actually publishes (P241 · A03): only evaluated
+           player families are public, so no sentence here may promise a "full player board". */
+        blurb: "A simulated score range and win chance for every regular-season game, frozen before kickoff — experimental, and clearly labelled.",
+        /* Only a LIVE day renders a today-count; an upcoming week speaks through the owner's note
+           (which names the week's coverage and the next kickoff) — never as today's board. */
+        status: nflDay?.state === "LIVE" && (nflDay?.events ?? 0) > 0 ? `${nflDay?.events} game forecast${nflDay?.events === 1 ? "" : "s"} today` : (nflDay?.note ?? stateLabel(nflState)),
         statusSub: "experimental simulations",
         cta: "Open NFL hub",
         accent: "var(--vault-gold)",

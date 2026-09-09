@@ -74,8 +74,12 @@ test("NFL coverage states are honest per market — no blanket 'supported'", () 
     const row = block.slice(block.indexOf(`market: "${m}"`));
     assert.match(row.slice(0, 260), /status: "experimental"/, `${m} must be experimental, not supported`);
   }
-  assert.match(block, /market: "player_props"[\s\S]{0,300}status: "provider_needed"/, "player props must be provider_needed");
-  assert.match(block, /market: "anytime_touchdown"[\s\S]{0,300}status: "settlement_blocked"/);
+  // P250: evaluated player families (receptions / receiving / anytime TD) are public model forecasts
+  // now — experimental, never product-eligible, with the withheld families named in the row itself.
+  assert.match(block, /market: "player_props"[\s\S]{0,300}status: "experimental"/, "player props are experimental (evaluated families public, never product-eligible)");
+  assert.match(block, /passing & rushing withheld/i, "the withheld families are named, not implied");
+  assert.match(block, /market: "anytime_touchdown"[\s\S]{0,300}status: "experimental"/, "anytime TD is a public experimental board");
+  assert.match(block, /model-only|watchlist, never a card/i, "TD stays unpriced — a watchlist, never a card");
   assert.match(block, /coin flip/, "the honest limit travels with the coverage row");
   assert.doesNotMatch(block, /\b(edge|lock|best bet|profitable)\b/i);
 });
