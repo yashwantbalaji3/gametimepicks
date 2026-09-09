@@ -28,10 +28,10 @@
    ],
    "tier": "high",
    "slipId": "slip_2026-09-05_balanced_e0d9e48237f7",
-   "result": "pending",
+   "result": "win",
    "combinedDecimal": 6.975963,
    "legs": [
-    "pending",
+    "void",
     "win",
     "win"
    ]
@@ -47,8 +47,8 @@
    "combinedDecimal": 7.63663,
    "legs": [
     "loss",
-    "pending",
-    "pending"
+    "void",
+    "void"
    ]
   },
   {
@@ -58,11 +58,11 @@
    ],
    "tier": "low",
    "slipId": "ufc-low-2026-09-05",
-   "result": "pending",
+   "result": "loss",
    "combinedDecimal": 1.904725,
    "legs": [
-    "pending",
-    "pending"
+    "loss",
+    "win"
    ]
   },
   {
@@ -72,11 +72,11 @@
    ],
    "tier": "medium",
    "slipId": "ufc-medium-2026-09-05",
-   "result": "pending",
+   "result": "loss",
    "combinedDecimal": 2.099458,
    "legs": [
-    "pending",
-    "pending"
+    "win",
+    "loss"
    ]
   },
   {
@@ -86,13 +86,13 @@
    ],
    "tier": "high",
    "slipId": "ufc-high-2026-09-05",
-   "result": "pending",
+   "result": "loss",
    "combinedDecimal": 4.838753,
    "legs": [
-    "pending",
-    "pending",
-    "pending",
-    "pending"
+    "loss",
+    "loss",
+    "win",
+    "win"
    ]
   },
   {
@@ -123,6 +123,99 @@
     "win",
     "loss"
    ]
+  }
+ ],
+ "completedAt": "2026-09-09T00:53:48Z",
+ "completedCards": [
+  {
+   "slipId": "slip_2026-09-05_balanced_e0d9e48237f7",
+   "label": "the card",
+   "from": "pending",
+   "to": "win"
+  },
+  {
+   "slipId": "slip_2026-09-05_balanced_e0d9e48237f7",
+   "label": "leg 1",
+   "from": "pending",
+   "to": "void"
+  },
+  {
+   "slipId": "slip_2026-09-05_balanced_5b027bb92333",
+   "label": "leg 2",
+   "from": "pending",
+   "to": "void"
+  },
+  {
+   "slipId": "slip_2026-09-05_balanced_5b027bb92333",
+   "label": "leg 3",
+   "from": "pending",
+   "to": "void"
+  },
+  {
+   "slipId": "ufc-low-2026-09-05",
+   "label": "the card",
+   "from": "pending",
+   "to": "loss"
+  },
+  {
+   "slipId": "ufc-low-2026-09-05",
+   "label": "leg 1",
+   "from": "pending",
+   "to": "loss"
+  },
+  {
+   "slipId": "ufc-low-2026-09-05",
+   "label": "leg 2",
+   "from": "pending",
+   "to": "win"
+  },
+  {
+   "slipId": "ufc-medium-2026-09-05",
+   "label": "the card",
+   "from": "pending",
+   "to": "loss"
+  },
+  {
+   "slipId": "ufc-medium-2026-09-05",
+   "label": "leg 1",
+   "from": "pending",
+   "to": "win"
+  },
+  {
+   "slipId": "ufc-medium-2026-09-05",
+   "label": "leg 2",
+   "from": "pending",
+   "to": "loss"
+  },
+  {
+   "slipId": "ufc-high-2026-09-05",
+   "label": "the card",
+   "from": "pending",
+   "to": "loss"
+  },
+  {
+   "slipId": "ufc-high-2026-09-05",
+   "label": "leg 1",
+   "from": "pending",
+   "to": "loss"
+  },
+  {
+   "slipId": "ufc-high-2026-09-05",
+   "label": "leg 2",
+   "from": "pending",
+   "to": "loss"
+  },
+  {
+   "slipId": "ufc-high-2026-09-05",
+   "label": "leg 3",
+   "from": "pending",
+   "to": "win"
+  },
+  {
+   "slipId": "ufc-high-2026-09-05",
+   "label": "leg 4",
+   "from": "pending",
+   "to": "win"
   }
  ]
 }

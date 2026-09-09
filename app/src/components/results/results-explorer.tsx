@@ -342,9 +342,11 @@ export default function ResultsExplorer({
         </div>
       ) : (
         <p style={{ fontSize: 11.5, color: "var(--vault-text-faint)", margin: 0, maxWidth: 720, lineHeight: 1.5 }}>
-          No date filter for this population: its ledger publishes a total rather than the individual
-          dated rows behind it, and a date control over a total would narrow the label without
-          narrowing the number.
+          No date filter for this population on this page: the headline above is its ledger&rsquo;s
+          total. The dated rows behind it live on their own surfaces — MLB&rsquo;s full event-level record
+          is at <a href="/results/model-audit/" style={{ color: "var(--vault-gold-bright)" }}>the model audit explorer</a>,
+          and the NFL / EPL / UFC graded-pick lists (complete, dated per event) are on
+          <a href="/results/picks/" style={{ color: "var(--vault-gold-bright)" }}> Picks vs Outcomes</a>.
         </p>
       )}
 
@@ -390,6 +392,24 @@ export default function ResultsExplorer({
               {pooled.pending ? ` · ${pooled.pending} pending` : ""}
             </span>
           </div>
+          {/* P250 · A11: a pooled figure across sports with wildly different volumes must SAY what
+              it is made of — MLB's tens of thousands of graded rows swamp NFL/EPL/UFC's dozens, and
+              an undisclosed blend invites reading the small populations into the big number. */}
+          {(() => {
+            const bySport = new Map<string, number>();
+            for (const r of visible) bySport.set(r.sport, (bySport.get(r.sport) ?? 0) + r.wins + r.losses);
+            const total = pooled.wins + pooled.losses;
+            if (bySport.size < 2 || total === 0) return null;
+            const [topSport, topN] = [...bySport.entries()].sort((a, b) => b[1] - a[1])[0];
+            const share = topN / total;
+            if (share < 0.9) return null;
+            return (
+              <p style={{ margin: "6px 0 0", fontSize: 11, color: "var(--vault-text-faint)", lineHeight: 1.5 }}>
+                {(share * 100).toFixed(1)}% of this pooled population is {SPORT_LABEL[topSport] ?? topSport} —
+                the other sports&rsquo; records are too small to move this number; read them on their own rows below.
+              </p>
+            );
+          })()}
         </div>
       ) : null}
 
@@ -490,7 +510,11 @@ export default function ResultsExplorer({
                 </tr>
               </thead>
               <tbody>
-                {gridSports.map((sp) => {
+                {/* P250 · A11: the grid obeys the SAME sport filter as the headline and the
+                    per-sport table above it — the same fix :419 already carries, one table lower.
+                    An unfiltered all-sport comparison beside a filtered headline was two answers
+                    to one question. */}
+                {gridSports.filter((sp) => sport === "all" || sp === sport).map((sp) => {
                   const mine = inRange.filter((c) => c.sport === sp);
                   const cell = (subset: SettledCard[]) => {
                     const w = subset.filter((c) => c.won).length;

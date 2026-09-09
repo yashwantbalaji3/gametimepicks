@@ -196,6 +196,12 @@ jobs:
           # From the repository root it is MODULE_NOT_FOUND — in the settlement workflow, on a money
           # path. Caught by workflow-script-cwd.test.mjs before it ever ran.
           (cd app && npx tsx scripts/parlays/settle-lab-cards.mjs --now "$NOW" --date "$TARGET" --apply)
+          # P250 · A07: complete every finishable OLDER day too. ET-yesterday-only settlement left
+          # nine cards pending for weeks with their official results on disk (late UFC results;
+          # scratched MLB legs). The sweep re-runs the settler for any dated receipt in the window
+          # that still carries a pending card; the receipt-completion rule keeps it write-once —
+          # pending -> decided only, everything else refused as a rewrite.
+          (cd app && npx tsx scripts/parlays/complete-pending-days.mjs --now "$NOW" --window-days 30 --apply)
           node app/scripts/parlays/build-lab-ledger.mjs --now "$NOW"
 
       - name: MLB player-prop settlement (paper lanes)

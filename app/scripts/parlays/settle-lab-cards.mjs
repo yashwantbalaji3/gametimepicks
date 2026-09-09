@@ -248,6 +248,16 @@ function actualFor(market, stats) {
   return null;
 }
 
+/** Whether actualFor knows how to grade this market at all. A null from a KNOWN market against a
+ *  final box means the player recorded no appearance in that category (bench bat, unused arm) —
+ *  a VOID by the same convention the graded slips upstream apply. A null from an UNKNOWN market
+ *  is our own grading gap and must stay pending, loudly — voiding it would fabricate a refund. */
+function marketKnown(market) {
+  const label = String(market ?? "").toLowerCase();
+  return ["strikeout", "out", "earned", "total base", "hit"].some((k) => label.includes(k))
+    || (label.includes("runs") && label.includes("rbi"));
+}
+
 const boxCache = new Map();
 async function boxFor(gamePk) {
   if (!gamePk) return { final: false, byPlayer: new Map() };
@@ -322,13 +332,26 @@ for (const card of ladder.cards ?? []) {
     const box = await boxFor(leg.gamePk);
     if (!box.final) { results.push("pending"); continue; }
     const stats = box.byPlayer.get(norm(leg.player));
-    if (!stats) { results.push("pending"); continue; }         // scratch — never a loss
+    /*
+     * P250 · A07: a SCRATCH IS A VOID, not an eternal pending. The game is FINAL and the official
+     * box score lists every participant; a player absent from it did not play, and the standard
+     * settlement (the one parlays/graded/<date>.json already applies to the same slips) voids the
+     * leg and reduces the card to its remaining legs. "pending" here meant five cards sat
+     * unfinishable for weeks — the completion pass could never complete them because this rule
+     * re-produced "pending" on every revisit.
+     */
+    if (!stats) { results.push("void"); continue; }
     const actual = actualFor(leg.marketLabel, stats);
-    if (actual == null) { results.push("pending"); continue; }
+    /* Final box, known market, no stat recorded: the player took no appearance in that category —
+       void, same as the scratch above. An UNKNOWN market stays pending (our gap, never a refund). */
+    if (actual == null) { results.push(marketKnown(leg.marketLabel) ? "void" : "pending"); continue; }
     const over = String(leg.side ?? "").toLowerCase().startsWith("o");
     results.push(actual === leg.line ? "push" : (actual > leg.line) === over ? "win" : "loss");
   }
-  const decisive = results.filter((r) => r !== "push");
+  /* Voids reduce the card exactly as pushes do: excluded from the decisive set, never a loss and
+     never a win. A card whose remaining legs all win is a (reduced) win — the same convention the
+     graded slips upstream already apply. */
+  const decisive = results.filter((r) => r !== "push" && r !== "void");
   const result = results.includes("pending") && !results.includes("loss") ? "pending"
     : decisive.includes("loss") ? "loss"
     : decisive.length && decisive.every((r) => r === "win") ? "win"
@@ -347,6 +370,9 @@ for (const card of ladder.cards ?? []) {
      * harness, which grades one of every outcome rather than whatever a live day happened to supply.
      */
     : results.length && results.every((r) => r === "push") ? "push"
+    /* Every leg pushed or voided, at least one void: the card is refunded, and is SETTLED — the
+       same all-legs-decided reasoning as the all-push branch above. */
+    : results.length && results.every((r) => r === "push" || r === "void") ? "void"
     : "pending";
   /* Derived, never hardcoded: a card stamped "mlb" while holding a fight leg makes the receipt
      lie about what was graded, and the attribution is what the record is built from. */
@@ -390,6 +416,37 @@ if (fs.existsSync(out)) {
    * not even back to pending.
    */
   const prior = JSON.parse(fs.readFileSync(out, "utf8"));
+  /*
+   * P250 · A07 — CARRY FORWARD WHAT A QUIET SOURCE CAN NO LONGER SAY.
+   *
+   * A completion re-run re-grades the whole day, and a source that has since rotated (UFC
+   * results-latest holds only recent events) re-produces "pending" for cards the night's run
+   * decided. The classifier rightly refuses decided → pending as a rewrite — but refusing the
+   * WHOLE day also blocked completing the cards whose results finally arrived. The recorded
+   * outcome stands wherever this run says pending and the receipt says decided (per leg and per
+   * card); a decided-vs-decided disagreement still refuses loudly below.
+   */
+  {
+    const priorById = new Map((prior.cards ?? []).map((c) => [c.slipId, c]));
+    /* The recorded receipt IS the day's population of record. A later run can grade more of the
+       generated ladder than the night's run recorded (UFC ladders predate policyVersion 2 here) —
+       adding those cards retroactively would rewrite the historical denominator, so they are
+       logged and left out. A recorded card MISSING from this run still refuses below. */
+    const extras = receipt.cards.filter((c) => !priorById.has(c.slipId));
+    if (extras.length) {
+      for (const c of extras) console.log(`  ${c.slipId}: not on the recorded receipt — left out (the recorded population stands)`);
+      receipt.cards = receipt.cards.filter((c) => priorById.has(c.slipId));
+    }
+    for (const c of receipt.cards) {
+      const p = priorById.get(c.slipId);
+      if (!p || (p.legs ?? []).length !== (c.legs ?? []).length) continue;
+      c.legs = c.legs.map((r, i) => (r === "pending" && p.legs[i] !== "pending" ? p.legs[i] : r));
+      if (c.result === "pending" && p.result !== "pending") {
+        c.result = p.result;
+        console.log(`  ${c.slipId}: source no longer answers — the recorded ${p.result} stands`);
+      }
+    }
+  }
   const change = classifyReceiptChange(prior.cards, receipt.cards);
   if (change.state === RECEIPT_CHANGE.NO_CHANGE) {
     console.log(`receipt ${DATE} already recorded and identical — left untouched`);

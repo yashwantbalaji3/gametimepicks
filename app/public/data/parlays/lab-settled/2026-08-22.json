@@ -4,7 +4,7 @@
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-08-22",
  "settledAt": "2026-08-23T05:53:21Z",
- "source": "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name",
+ "source": "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name; EPL official full-time scores via the results bridge, joined by canonical eventId; NFL official final scores (nfl/results/latest.json), joined by canonical eventId",
  "policyVersion": 2,
  "cards": [
   {
@@ -14,11 +14,11 @@
    ],
    "tier": "medium",
    "slipId": "slip_2026-08-22_conservative_f12f43ed4ecf",
-   "result": "pending",
+   "result": "win",
    "combinedDecimal": 2.659305,
    "legs": [
     "win",
-    "pending"
+    "void"
    ]
   },
   {
@@ -79,7 +79,7 @@
    "legs": [
     "loss",
     "win",
-    "pending"
+    "win"
    ]
   },
   {
@@ -89,51 +89,51 @@
    ],
    "tier": "longshot",
    "slipId": "ufc-longshot-2026-08-22",
-   "result": "pending",
+   "result": "loss",
    "combinedDecimal": 15.6455,
    "legs": [
-    "pending",
-    "pending"
+    "win",
+    "loss"
    ]
   }
  ],
- "completedAt": "2026-08-23T17:38:01Z",
+ "completedAt": "2026-09-09T00:53:48Z",
  "completedCards": [
   {
-   "slipId": "ufc-medium-2026-08-22",
+   "slipId": "slip_2026-08-22_conservative_f12f43ed4ecf",
    "label": "the card",
-   "from": "pending",
-   "to": "loss"
-  },
-  {
-   "slipId": "ufc-medium-2026-08-22",
-   "label": "leg 1",
-   "from": "pending",
-   "to": "loss"
-  },
-  {
-   "slipId": "ufc-medium-2026-08-22",
-   "label": "leg 2",
-   "from": "pending",
-   "to": "loss"
-  },
-  {
-   "slipId": "ufc-high-2026-08-22",
-   "label": "the card",
-   "from": "pending",
-   "to": "loss"
-  },
-  {
-   "slipId": "ufc-high-2026-08-22",
-   "label": "leg 1",
-   "from": "pending",
-   "to": "loss"
-  },
-  {
-   "slipId": "ufc-high-2026-08-22",
-   "label": "leg 2",
    "from": "pending",
    "to": "win"
+  },
+  {
+   "slipId": "slip_2026-08-22_conservative_f12f43ed4ecf",
+   "label": "leg 2",
+   "from": "pending",
+   "to": "void"
+  },
+  {
+   "slipId": "ufc-high-2026-08-22",
+   "label": "leg 3",
+   "from": "pending",
+   "to": "win"
+  },
+  {
+   "slipId": "ufc-longshot-2026-08-22",
+   "label": "the card",
+   "from": "pending",
+   "to": "loss"
+  },
+  {
+   "slipId": "ufc-longshot-2026-08-22",
+   "label": "leg 1",
+   "from": "pending",
+   "to": "win"
+  },
+  {
+   "slipId": "ufc-longshot-2026-08-22",
+   "label": "leg 2",
+   "from": "pending",
+   "to": "loss"
   }
  ]
 }

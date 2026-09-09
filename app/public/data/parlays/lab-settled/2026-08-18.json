@@ -4,7 +4,7 @@
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-08-18",
  "settledAt": "2026-08-20T00:55:40Z",
- "source": "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name",
+ "source": "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name; EPL official full-time scores via the results bridge, joined by canonical eventId; NFL official final scores (nfl/results/latest.json), joined by canonical eventId",
  "policyVersion": 2,
  "cards": [
   {
@@ -14,11 +14,11 @@
    ],
    "tier": "medium",
    "slipId": "slip_2026-08-18_conservative_9cbc273e3512",
-   "result": "pending",
+   "result": "win",
    "combinedDecimal": 2.451623,
    "legs": [
     "win",
-    "pending"
+    "void"
    ]
   },
   {
@@ -34,9 +34,30 @@
     "loss",
     "loss",
     "win",
-    "pending",
+    "void",
     "win"
    ]
+  }
+ ],
+ "completedAt": "2026-09-09T00:54:21Z",
+ "completedCards": [
+  {
+   "slipId": "slip_2026-08-18_conservative_9cbc273e3512",
+   "label": "the card",
+   "from": "pending",
+   "to": "win"
+  },
+  {
+   "slipId": "slip_2026-08-18_conservative_9cbc273e3512",
+   "label": "leg 2",
+   "from": "pending",
+   "to": "void"
+  },
+  {
+   "slipId": "slip_2026-08-18_aggressive_af68ff78ce5c",
+   "label": "leg 4",
+   "from": "pending",
+   "to": "void"
   }
  ]
 }
