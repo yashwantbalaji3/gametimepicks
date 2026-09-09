@@ -192,6 +192,9 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/nfl/build-nfl-public-forecasts.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 48
+          # P251-F6: the event-based score shape is solved onto the forecast published one line
+          # above, so it must run AFTER it and re-run whenever it changes.
+          node scripts/nfl/build-nfl-score-shape.mjs --now "${{ steps.window.outputs.now }}"
           node scripts/nfl/build-nfl-public-status.mjs --now "${{ steps.window.outputs.now }}"
           # P174-A: the canonical index every NFL surface consumes. Built LAST so it summarises
           # the artifacts this run just produced, and it refuses on any contradiction between them.

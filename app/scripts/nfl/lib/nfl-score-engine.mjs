@@ -79,7 +79,7 @@ function normal(rng) {
  * so the validator re-derives the moments from the corpus on every suite run rather than trusting
  * this comment.
  */
-export const SCORING = Object.freeze({
+export const PRESEASON_SCORING = Object.freeze({
   /** Latent scoring opportunities per team per game. NOT a measured drive count. */
   SCORING_CHANCES: 7,
   /** P(a scoring chance ends in a touchdown). */
@@ -93,21 +93,80 @@ export const SCORING = Object.freeze({
   P_TWO_POINT_GOOD: 0.035,
   /** Safety rate per team-game. */
   P_SAFETY: 0.008,
+  /** Preseason overtime: one 10-minute period, and a tie is a legal final result. */
+  OT: Object.freeze({ homeFg: 0.42, awayFg: 0.42 }),
   MODEL_VERSION: "nfl-full-game-v1-scoring-events",
 });
+
+/**
+ * REGULAR-SEASON PARAMETER SET (P251 · F6).
+ *
+ * Same engine, same structure, different league. Fitted by scripts/nfl/fit-nfl-score-engine.mjs
+ * to the 816 regular-season finals in corpus-v1.json (2023–2025), whose measured moments are:
+ *
+ *     team points 22.56 ± 9.93 · total 45.13 ± 13.57 · margin (home) +2.16 ± 14.26
+ *
+ * Two things differ from preseason beyond the numbers, and both are measured rather than assumed:
+ *
+ *   ρ IS NEARLY ZERO. Preseason team scores are strongly negatively correlated (ρ = −0.218) because
+ *   one side pulling away empties the other's bench. In the regular season the same two estimators
+ *   give −0.066 (from the total) and −0.031 (from the margin) — small, and they do NOT agree the
+ *   way the preseason pair did, so κ is fitted to their midpoint and the disagreement is recorded
+ *   here rather than hidden behind a single decimal.
+ *
+ *   HOME ADVANTAGE IS REAL AND IS NOT APPLIED HERE. The measured home edge is +2.21 points. This
+ *   engine stays symmetric on purpose: the published forecast already carries a replay-validated
+ *   Elo head that includes home advantage, and a second, independently-fitted home term would let
+ *   the two disagree about the same game. Asymmetry enters through the points modifier the caller
+ *   supplies, which is driven by that same head.
+ *
+ * ── WHY THE MOMENTS ALONE DID NOT SETTLE IT ─────────────────────────────────────────────────────
+ * Fitting the four moments and nothing else landed on 10 chances at P_TD 0.274 / P_FG 0.112 — 2.7
+ * touchdowns and 1.1 field goals per team per game. Every moment was inside 0.7% and the SHAPE was
+ * wrong: that fit builds 22.6 points out of too many 7s and too few 3s, and the 7s-to-3s mix is
+ * precisely what puts mass on 3-point and 7-point margins. The corpus carries final scores only,
+ * so drive data cannot arbitrate — but the score DISTRIBUTIONS can, because 7s and 3s leave their
+ * fingerprints in which totals are common. Two distributional constraints therefore gate the fit,
+ * each against the distance the 816-game sample has to ITSELF under split-half resampling:
+ *
+ *     margin TVD      0.1959  against a noise floor of 0.2140
+ *     team-points TVD 0.1068  against a noise floor of 0.1209
+ *
+ * Among the candidates that clear both, the best moment fit wins — this one, which also lands on
+ * 2.50 touchdowns and 1.70 field goals per team per game without those ever being fit targets.
+ *
+ *     simulated team 22.55 ± 9.84 · total sd 13.36 · margin sd 14.45
+ *
+ * Re-derive with: node scripts/nfl/fit-nfl-score-engine.mjs --phase 2
+ */
+export const REGULAR_SCORING = Object.freeze({
+  SCORING_CHANCES: 11,
+  P_TD: 0.226,
+  P_FG: 0.154,
+  GAME_FLOW_KAPPA: 0.11,
+  P_XP_GOOD: 0.94,
+  P_TWO_POINT_GOOD: 0.035,
+  P_SAFETY: 0.008,
+  /** Regular-season overtime: 10 minutes, both sides possess, a tie is legal but very rare. */
+  OT: Object.freeze({ homeFg: 0.47, awayFg: 0.47 }),
+  MODEL_VERSION: "nfl-full-game-v2-regular-season",
+});
+
+/** Back-compat alias: `SCORING` has always meant the preseason set. */
+export const SCORING = PRESEASON_SCORING;
 
 /**
  * Simulate ONE team's points for ONE game.
  * `flowMult` is the zero-sum game-flow multiplier; `rosterMult` is the bounded roster-derived
  * modifier (see `rosterModifier`).
  */
-function simulateTeamPoints(rng, flowMult, rosterMult) {
+function simulateTeamPoints(rng, flowMult, rosterMult, P = PRESEASON_SCORING) {
   const m = flowMult * rosterMult;
-  const pTd = Math.max(0.01, Math.min(0.75, SCORING.P_TD * m));
-  const pFg = Math.max(0.01, Math.min(0.75, SCORING.P_FG * m));
+  const pTd = Math.max(0.01, Math.min(0.75, P.P_TD * m));
+  const pFg = Math.max(0.01, Math.min(0.75, P.P_FG * m));
   let td = 0;
   let fg = 0;
-  for (let i = 0; i < SCORING.SCORING_CHANCES; i += 1) {
+  for (let i = 0; i < P.SCORING_CHANCES; i += 1) {
     const u = rng();
     if (u < pTd) td += 1;
     else if (u < pTd + pFg) fg += 1;
@@ -115,10 +174,10 @@ function simulateTeamPoints(rng, flowMult, rosterMult) {
   let points = 6 * td + 3 * fg;
   for (let i = 0; i < td; i += 1) {
     const u = rng();
-    if (u < SCORING.P_XP_GOOD) points += 1;
-    else if (u < SCORING.P_XP_GOOD + SCORING.P_TWO_POINT_GOOD) points += 2;
+    if (u < P.P_XP_GOOD) points += 1;
+    else if (u < P.P_XP_GOOD + P.P_TWO_POINT_GOOD) points += 2;
   }
-  if (rng() < SCORING.P_SAFETY) points += 2;
+  if (rng() < P.P_SAFETY) points += 2;
   return { points, touchdowns: td, fieldGoals: fg };
 }
 
@@ -152,8 +211,9 @@ export function rosterModifier(teamProjectedPoints, leagueBaseline) {
  * win probability, score distribution, margin, total, spread cover and overtime all come from one
  * universe, which is the property that makes the numbers mutually consistent.
  */
-export function simulateFullGame({ gameId, awayTeam, homeTeam, runs = 10000, awayRosterMult = 1, homeRosterMult = 1 }) {
-  const rng = mulberry32(fnv1a(`${SCORING.MODEL_VERSION}|${gameId}|${awayTeam}|${homeTeam}`));
+export function simulateFullGame({ gameId, awayTeam, homeTeam, runs = 10000, awayRosterMult = 1, homeRosterMult = 1, params = PRESEASON_SCORING }) {
+  const P = params;
+  const rng = mulberry32(fnv1a(`${P.MODEL_VERSION}|${gameId}|${awayTeam}|${homeTeam}`));
   const away = [];
   const home = [];
   const margins = [];
@@ -169,8 +229,8 @@ export function simulateFullGame({ gameId, awayTeam, homeTeam, runs = 10000, awa
 
   for (let i = 0; i < runs; i += 1) {
     const z = normal(rng);
-    const a = simulateTeamPoints(rng, 1 + SCORING.GAME_FLOW_KAPPA * z, awayRosterMult);
-    const h = simulateTeamPoints(rng, 1 - SCORING.GAME_FLOW_KAPPA * z, homeRosterMult);
+    const a = simulateTeamPoints(rng, 1 + P.GAME_FLOW_KAPPA * z, awayRosterMult, P);
+    const h = simulateTeamPoints(rng, 1 - P.GAME_FLOW_KAPPA * z, homeRosterMult, P);
     let ap = a.points;
     let hp = h.points;
     awayTd += a.touchdowns; homeTd += h.touchdowns;
@@ -178,12 +238,12 @@ export function simulateFullGame({ gameId, awayTeam, homeTeam, runs = 10000, awa
 
     if (ap === hp) {
       regulationTies += 1;
-      // Preseason overtime: one 10-minute period, and a tie is a legal final result. Resolve the
-      // tied games the way the rules do rather than forcing a winner.
+      // Overtime, resolved the way the rules do rather than by forcing a winner. The split lives
+      // in the parameter set, because preseason and regular-season overtime are different rules.
       const r = rng();
-      if (r < 0.42) hp += 3;
-      else if (r < 0.84) ap += 3;
-      // remaining ~16% stand as a tie
+      if (r < P.OT.homeFg) hp += 3;
+      else if (r < P.OT.homeFg + P.OT.awayFg) ap += 3;
+      // the remainder stands as a tie — legal in both phases, and far rarer in the regular season
     }
     away.push(ap);
     home.push(hp);
@@ -240,6 +300,13 @@ export function simulateFullGame({ gameId, awayTeam, homeTeam, runs = 10000, awa
     runCount: runs,
     winProbability: { away: awayWins / runs, home: homeWins / runs, tie: ties / runs },
     teamScore: { away: summary(away), home: summary(home) },
+    /*
+     * Both sides pooled. A team's OWN score is where the 7s and 3s leave their fingerprints — 21
+     * and 24 against 20 and 22 — so this is what tells a fit that matches every margin moment
+     * apart from one that also gets the composition right. Used by the fitter as a constraint and
+     * by the report to draw what a single team's night looks like.
+     */
+    teamPointsDistribution: bins([...away, ...home]),
     totalScore: { ...summary(totals), distribution: bins(totals) },
     scoreDifferential: { ...summary(margins), distribution: bins(margins) },
     spread: [1.5, 2.5, 3.5, 6.5, 7.5, 10.5].map(coverAt),

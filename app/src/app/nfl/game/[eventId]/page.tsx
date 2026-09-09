@@ -77,6 +77,27 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   });
 }
 
+interface KeyNumberAccuracy {
+  sampleGames: number; seasons: string;
+  byNumber: Record<string, number>; share: number;
+}
+interface ScoreShapeArtifact {
+  engine?: { id?: string; what?: string; centreOwner?: string; fittedOn?: string | null };
+  keyNumberAccuracy?: KeyNumberAccuracy | null;
+  games?: Array<{
+    providerEventId: string; away: string; home: string;
+    centre: { marginMedian: number; totalMedian: number; simulatedMarginMedian: number; simulatedTotalMedian: number };
+    finalScores: Array<{ away: number; home: number; probability: number }>;
+    keyNumbers: { numbers: number[]; share: number; byNumber: Array<{ number: number; probability: number }> };
+    scoringRates: { awayTouchdowns: number; homeTouchdowns: number; awayFieldGoals: number; homeFieldGoals: number };
+    overtimeProbability: number; tieProbability: number;
+  }>;
+}
+type ScoreShapeGame = NonNullable<ScoreShapeArtifact["games"]>[number] & {
+  keyNumberAccuracy?: KeyNumberAccuracy | null;
+  engine?: ScoreShapeArtifact["engine"];
+};
+
 export default function NflGameReport({ params }: { params: { eventId: string } }) {
   const artifact = forecastArtifact();
   const f: Forecast | undefined = (artifact?.forecasts ?? []).find((x: Forecast) => x.providerEventId === params.eventId);
@@ -86,6 +107,18 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/player-board", `${params.eventId}.json`), "utf8"));
     } catch { return null; }
   })();
+
+  /* P251-F6: the lumpy half of the forecast — an event-based score simulation solved onto THIS
+     forecast's own median margin and total, so the two cannot disagree about the centre. Absent
+     when the solve did not converge for this game, in which case the section simply does not
+     render (the artifact records the reason). */
+  const shape = ((): ScoreShapeGame | null => {
+    try {
+      const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/score-shape/latest.json"), "utf8")) as ScoreShapeArtifact;
+      return { ...(doc.games ?? []).find((g) => g.providerEventId === params.eventId), keyNumberAccuracy: doc.keyNumberAccuracy, engine: doc.engine } as ScoreShapeGame;
+    } catch { return null; }
+  })();
+  const hasShape = !!shape?.finalScores?.length;
 
   const idx = indexArtifact();
   const idxEvent = (idx?.events ?? []).find((e: { providerEventId: string }) => e.providerEventId === params.eventId);
@@ -370,6 +403,108 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </table>
         </div>
       </section>
+
+      {/*
+        ── THE LUMPY HALF (P251 · F6) ──────────────────────────────────────────────────────────
+        The published forecast draws a margin and a total from normals. That answers who wins and
+        by roughly how much — and it cannot answer what the score will BE, because a normal has no
+        idea that football scores are sums of 7s and 3s. Its own simulator says so in the code:
+        "key-number clustering (3/7) NOT modeled".
+
+        These numbers come from the event-based engine, which simulates touchdowns and field goals,
+        and which was solved onto the SAME median margin and total printed above — so the shape and
+        the centre are one answer, not two.
+      */}
+      {hasShape ? (
+        <section aria-labelledby="score-shape" style={{ marginTop: 26 }}>
+          <SectionHeader eyebrow="Exact score" title="The likeliest final scores"
+            sub="from an event-based simulation of touchdowns and field goals, solved onto the median margin and total above" />
+          <div style={{ overflowX: "auto", marginTop: 12 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 380 }}>
+              <thead>
+                <tr>{[`Score (${f.away.abbr} – ${f.home.abbr})`, "Chance"].map((h) => (
+                  <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {shape!.finalScores.slice(0, 6).map((sc) => (
+                  <tr key={`${sc.away}-${sc.home}`}>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontFamily: "var(--font-mono, monospace)", fontSize: 13, fontWeight: 600 }}>{sc.away}&ndash;{sc.home}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontFamily: "var(--font-mono, monospace)", fontSize: 12.5 }}>{(sc.probability * 100).toFixed(2)}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 760 }}>
+            No single scoreline is likely — these are the most common of hundreds. The projected score above is derived
+            from the medians and answers a different question: the middle of the distribution, not its most common point.
+          </p>
+
+          <div style={{ marginTop: 18 }}>
+            <SectionHeader eyebrow="Key numbers" title="How often it lands on 3, 7, 10 or 14"
+              sub="football's margins pile up on those four — this is the one thing a normal-draw model cannot show you" />
+            <div style={{ overflowX: "auto", marginTop: 12 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 420 }}>
+                <thead>
+                  <tr>{["Margin", "This game", shape!.keyNumberAccuracy ? "Last 3 regular seasons" : ""].filter(Boolean).map((h) => (
+                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                  ))}</tr>
+                </thead>
+                <tbody>
+                  {shape!.keyNumbers.byNumber.map((k) => (
+                    <tr key={k.number}>
+                      <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>Decided by exactly {k.number}</td>
+                      <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontFamily: "var(--font-mono, monospace)", fontSize: 12.5, fontWeight: 700 }}>{(k.probability * 100).toFixed(1)}%</td>
+                      {shape!.keyNumberAccuracy ? (
+                        <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontFamily: "var(--font-mono, monospace)", fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+                          {((shape!.keyNumberAccuracy.byNumber[String(k.number)] ?? 0) * 100).toFixed(1)}%
+                        </td>
+                      ) : null}
+                    </tr>
+                  ))}
+                  <tr>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13, fontWeight: 600 }}>Any of the four</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontFamily: "var(--font-mono, monospace)", fontSize: 12.5, fontWeight: 700 }}>{(shape!.keyNumbers.share * 100).toFixed(1)}%</td>
+                    {shape!.keyNumberAccuracy ? (
+                      <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontFamily: "var(--font-mono, monospace)", fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+                        {(shape!.keyNumberAccuracy.share * 100).toFixed(1)}%
+                      </td>
+                    ) : null}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            {shape!.keyNumberAccuracy ? (
+              /* The receipt sits beside the claim, not in a footnote. The engine reproduces the
+                 clustering — 3 is by far the biggest number, as it is in reality — and it is not
+                 exact, and a reader is told which way it misses rather than left to assume a
+                 calibration nobody measured. */
+              <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 760, lineHeight: 1.6 }}>
+                The right-hand column is what actually happened across {shape!.keyNumberAccuracy.sampleGames.toLocaleString()} regular-season
+                games ({shape!.keyNumberAccuracy.seasons}) — the same finals this engine was fitted to. It gets the shape right,
+                with 3 the most common margin by a distance, and it is not calibrated to the number: it puts less weight on 3
+                and more on 10 than those seasons did.
+              </p>
+            ) : null}
+          </div>
+
+          <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 8 }}>
+            {[
+              [`${f.away.abbr} touchdowns`, shape!.scoringRates.awayTouchdowns.toFixed(1)],
+              [`${f.home.abbr} touchdowns`, shape!.scoringRates.homeTouchdowns.toFixed(1)],
+              [`${f.away.abbr} field goals`, shape!.scoringRates.awayFieldGoals.toFixed(1)],
+              [`${f.home.abbr} field goals`, shape!.scoringRates.homeFieldGoals.toFixed(1)],
+              ["Tied after regulation", `${(shape!.overtimeProbability * 100).toFixed(1)}%`],
+            ].map(([l, v]) => (
+              <div key={l} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "9px 11px" }}>
+                <div className="font-mono" style={{ fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{l}</div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: "var(--vault-text)" }}>{v}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="vs-market" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Comparison" title="Us versus the sportsbooks" sub="two independent reads, shown side by side" />
