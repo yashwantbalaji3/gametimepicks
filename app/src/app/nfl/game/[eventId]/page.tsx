@@ -172,6 +172,120 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         </details>
       </section>
 
+      {/* P250-GD — THE PROJECTED SCORECARD. One box-score-shaped unit per game: score line,
+          win chance, total, the likely touchdown scorers and receiving leaders per team — and the
+          families that carry NO number stated inside the same frame with the exact bar each failed,
+          read verbatim from the artifact. Every figure is already on this page; this section only
+          composes them into the scorecard shape. It is expected statistical summaries over one
+          shared game environment — never one simulated game — and the label says so. */}
+      {(() => {
+        const fams = playerBoard?.families ?? {};
+        const players = playerBoard?.players ?? [];
+        const hasTd = fams.anytime_td?.state === "PUBLISHED";
+        const hasRec = fams.player_receptions?.state === "PUBLISHED" && fams.player_reception_yds?.state === "PUBLISHED";
+        const ct1 = (v: number | undefined) => (v != null && Number.isFinite(v) ? (Math.round(v * 10) / 10).toString() : "—");
+        const yd0 = (v: number | undefined) => (v != null && Number.isFinite(v) ? String(Math.round(v)) : "—");
+        const active = (abbr: string) => players.filter((p) => p.team === abbr && p.participation !== "INACTIVE");
+        const tdTop = (abbr: string) => active(abbr)
+          .filter((p) => p.markets.anytime_td?.probability != null)
+          .sort((a, b) => b.markets.anytime_td!.probability! - a.markets.anytime_td!.probability!)
+          .slice(0, 3);
+        const recTop = (abbr: string) => active(abbr)
+          .filter((p) => p.markets.player_receptions?.median != null)
+          .sort((a, b) => (b.markets.player_receptions!.median ?? 0) - (a.markets.player_receptions!.median ?? 0))
+          .slice(0, 3);
+        const withheld = Object.entries(fams).filter(([, x]) => x.state !== "PUBLISHED");
+        /* A raw family key is not a reader-facing label — the artifact's label wins, with a plain
+           fallback for any family that ships without one (player_pass_int did). */
+        const famLabel = (key: string, x: { label?: string }) =>
+          x.label && x.label !== key ? x.label : key.replace(/^player_/, "").replace(/_/g, " ").replace(/\bint\b/, "interceptions");
+        const availMark = (p: { participation: string }) =>
+          p.participation === "ACTIVE_PROJECTED" ? "" : ` · ${p.participation.toLowerCase().replaceAll("_", " ")}`;
+        const TeamCol = ({ t }: { t: { abbr: string; name: string } }) => (
+          <div style={{ minWidth: 0 }}>
+            <p className="font-mono" style={{ margin: 0, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+              <TeamLogo team={t.abbr} sport="nfl" size="sm" ariaLabel={`${t.name} logo`} /> {t.abbr}
+            </p>
+            {hasTd && tdTop(t.abbr).length ? (
+              <div style={{ marginTop: 8 }}>
+                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Likely TD scorers</p>
+                {tdTop(t.abbr).map((p) => (
+                  <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
+                    <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
+                    <span className="font-mono" style={{ color: "var(--gtp-bank-cta)", fontWeight: 700 }}>{(p.markets.anytime_td!.probability! * 100).toFixed(1)}%</span>
+                    <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{availMark(p)}</span>
+                  </p>
+                ))}
+              </div>
+            ) : null}
+            {hasRec && recTop(t.abbr).length ? (
+              <div style={{ marginTop: 10 }}>
+                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Receiving leaders</p>
+                {recTop(t.abbr).map((p) => (
+                  <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
+                    <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
+                    <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}>
+                      {ct1(p.markets.player_receptions?.median)} rec · {yd0(p.markets.player_reception_yds?.median)} yds
+                    </span>
+                    <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{availMark(p)}</span>
+                  </p>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        );
+        return (
+          <section aria-labelledby="scorecard-h" style={{ marginTop: 26 }}>
+            <div style={{ border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold)", borderRadius: 14, padding: "18px 18px 14px", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "baseline" }}>
+                <h2 id="scorecard-h" style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--vault-text)" }}>Projected scorecard</h2>
+                <span className="font-mono" style={{ fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+                  expected statistical summaries · not one simulated game
+                </span>
+              </div>
+              {/* The score line — the game in one row. */}
+              <div className="font-mono" style={{ marginTop: 12, display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 26, fontWeight: 800, color: "var(--vault-text)" }}>
+                  {f.away.abbr} {s.projectedScore.away} <span style={{ color: "var(--vault-text-faint)" }}>—</span> {s.projectedScore.home} {f.home.abbr}
+                </span>
+                <span style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
+                  win chance {f.away.abbr} {pct(s.winProbability.away)} · {f.home.abbr} {pct(s.winProbability.home)}
+                </span>
+                <span style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>total {s.total.median} ({s.total.p10}–{s.total.p90})</span>
+                <span style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>margin {s.margin.median > 0 ? "+" : ""}{s.margin.median}</span>
+              </div>
+              {(hasTd || hasRec) && players.length ? (
+                <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+                  <TeamCol t={f.away} />
+                  <TeamCol t={f.home} />
+                </div>
+              ) : null}
+              {/* Every family the scorecard does NOT number, in the scorecard's own frame — the
+                  artifact's exact failed bar, never a silent gap and never an invented number. */}
+              {withheld.length ? (
+                <details style={{ marginTop: 14, borderTop: "1px solid var(--vault-rule)", paddingTop: 10 }}>
+                  <summary className="font-mono" style={{ cursor: "pointer", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--vault-text-faint)", minHeight: 32 }}>
+                    {withheld.map(([key, x]) => famLabel(key, x)).join(" · ")} — withheld, with the exact bar each failed
+                  </summary>
+                  <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
+                    {withheld.map(([key, x]) => (
+                      <li key={key} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
+                        <strong style={{ color: "var(--vault-text-mute)" }}>{famLabel(key, x)}:</strong> {x.reason ?? "did not clear its evaluation bar"}
+                      </li>
+                    ))}
+                  </ul>
+                  <p style={{ margin: "8px 0 0", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+                    A family joins this scorecard the day its model clears the preregistered bar it is measured
+                    against — never sooner. Publishing a number a failed model produced would make every number
+                    here worth less.
+                  </p>
+                </details>
+              ) : null}
+            </div>
+          </section>
+        );
+      })()}
+
       <section aria-labelledby="score-range" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Range" title="How wide the outcomes are" sub="the 10th to 90th percentile of each team's simulated score" />
         <div style={{ overflowX: "auto", marginTop: 12 }}>

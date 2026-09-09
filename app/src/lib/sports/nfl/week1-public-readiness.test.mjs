@@ -45,6 +45,20 @@ test("a started game's frozen pregame read never enters Top Reads", () => {
   assert.match(t, /e\.lifecycle !== "UPCOMING"/, "only UPCOMING events rank");
 });
 
+test("the projected scorecard composes ONLY page-loaded artifact data — numbers where earned, typed absence where not", () => {
+  const page = read("src/app/nfl/game/[eventId]/page.tsx");
+  assert.match(page, /Projected scorecard/, "the scorecard section exists");
+  assert.match(page, /expected statistical summaries · not one simulated game/, "it carries the P249 architecture label");
+  assert.match(page, /Likely TD scorers/, "TD scorers render per team");
+  assert.match(page, /Receiving leaders/, "receiving lines render per team");
+  assert.match(page, /withheld, with the exact bar each failed/, "unearned families are stated inside the scorecard frame");
+  assert.match(page, /x\.reason \?\? "did not clear its evaluation bar"/, "the failed bar is read from the artifact, never typed");
+  // The scorecard can never source a number outside the two artifacts the page already loads.
+  const section = page.slice(page.indexOf("P250-GD"), page.indexOf('aria-labelledby="score-range"'));
+  assert.ok(!/readPublic|fs\.readFileSync/.test(section), "no new data reads inside the scorecard");
+  assert.ok(!/player_pass_yds!\.|player_rush_yds!\./.test(section), "no withheld family's numbers are rendered");
+});
+
 test("the NFL hub carries ONE canonical week table — the generic list collapses behind it", () => {
   const hub = read("src/app/nfl/page.tsx");
   assert.match(hub, /deferToCanonical=\{\{/, "the hub header defers to the weekly table");
