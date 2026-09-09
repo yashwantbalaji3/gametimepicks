@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T00:54:37Z",
+ "generatedAt": "2026-09-09T09:58:14Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -23,15 +23,15 @@
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
-   "settledDays": 20,
+   "settledDays": 21,
    "record": {
     "wins": 13,
-    "losses": 36,
+    "losses": 39,
     "pushes": 0,
-    "staked": 49,
+    "staked": 52,
     "returned": 53.72,
-    "hitRate": 0.2653,
-    "roi": 0.0963
+    "hitRate": 0.25,
+    "roi": 0.0331
    },
    "byTier": {
     "low": {
@@ -45,30 +45,30 @@
     },
     "medium": {
      "wins": 10,
-     "losses": 10,
+     "losses": 11,
      "pushes": 0,
-     "staked": 20,
+     "staked": 21,
      "returned": 28.7,
-     "hitRate": 0.5,
-     "roi": 0.435
+     "hitRate": 0.4762,
+     "roi": 0.3667
     },
     "high": {
      "wins": 2,
-     "losses": 9,
+     "losses": 10,
      "pushes": 0,
-     "staked": 11,
+     "staked": 12,
      "returned": 11.19,
-     "hitRate": 0.1818,
-     "roi": 0.0173
+     "hitRate": 0.1667,
+     "roi": -0.0675
     },
     "longshot": {
      "wins": 1,
-     "losses": 16,
+     "losses": 17,
      "pushes": 0,
-     "staked": 17,
+     "staked": 18,
      "returned": 13.83,
-     "hitRate": 0.0588,
-     "roi": -0.1865
+     "hitRate": 0.0556,
+     "roi": -0.2317
     }
    }
   },
@@ -76,11 +76,11 @@
    "id": "nfl",
    "label": "NFL",
    "live": false,
-   "blocked": "the last price capture is 10.3 days old; official NFL final scores; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "blocked": "the last price capture is 10.7 days old; official NFL final scores; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-08-29T17:50:39Z",
-    "priceAgeDays": 10.29,
+    "priceAgeDays": 10.67,
     "settlementSource": "official NFL final scores",
     "settlementProven": false
    },
@@ -137,11 +137,11 @@
    "id": "ufc",
    "label": "UFC",
    "live": false,
-   "blocked": "the last price capture is 3.5 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "blocked": "the last price capture is 3.8 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-09-05T13:36:57Z",
-    "priceAgeDays": 3.47,
+    "priceAgeDays": 3.85,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true
    },
@@ -201,7 +201,7 @@
    "evidence": {
     "pricedGames": 18,
     "pricesCapturedAt": "2026-09-06T15:00:44Z",
-    "priceAgeDays": 2.41,
+    "priceAgeDays": 2.79,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },
@@ -322,11 +322,11 @@
   "label": "Before the 2026-08-17 selection change",
   "summary": "Up to six cards per tier, legs reused across tiers, cards up to six legs",
   "firstDay": "2026-05-25",
-  "lastDay": "2026-09-07",
-  "gradedDays": 70,
-  "wins": 275,
-  "losses": 1188,
-  "roi": -0.0351,
+  "lastDay": "2026-09-08",
+  "gradedDays": 71,
+  "wins": 277,
+  "losses": 1210,
+  "roi": -0.0474,
   "note": "A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now."
  }
 }
