@@ -963,3 +963,25 @@ payload as rendered text — the "defect" it kept reporting was data, not UI.
 
 Ops at push time: event-window 11:00/17:00 ET passes ahead of the 8:20 PM ET kickoff; nightly
 settles green; all 16 forecasts frozen-pre-kickoff with NO_MARKET honesty intact.
+
+## P250-GD2 — the estimate tier: passing & rushing display end to end (Sep 9, b225f131b, CI green, prod verified)
+
+OWNER DISPLAY DECISION, implemented without touching the evaluation record: the founder directed
+that passing and rushing yards display. The engine had always computed those per-player
+distributions; publication was the filter. A third family tier now exists — ESTIMATE: a computed
+family whose model failed a promotion bar publishes its real numbers WITH the failed bar(s) and a
+plain-English caveat carried ON the family artifact (passing: a rolling recent-form baseline beat
+it on held-out data; rushing: uncertainty calibration failed its bar). Truly-uncomputed families
+(interceptions, ordered TD) remain typed absences; per-player passing TDs are not computed by the
+champion engine and cannot display.
+
+End to end and live: per-game boards (ESTIMATE state + distributions + caveat), the Projected
+Scorecard's per-team "Passing · estimate" / "Rushing leaders · estimate" lines with an in-frame
+legend, "· estimate" board tabs with an amber caveat box, and weekly Top 10 Rushing (Jonathan
+Taylor) + Passing (Drake Maye) under "unvalidated estimate" badges on the hub and week routes.
+
+UNCHANGED, deliberately: product eligibility (an ESTIMATE can never become a card leg), the
+graded record's population, pricing state NOT_AUTHORIZED on every row, and INACTIVE players still
+carry no volume numbers. Guards rebased to pin the estimate contract: reason + caveat REQUIRED on
+the artifact, rendering only via family state, marker always worn. The scorecard is now the full
+completed-game shape: score line, win chance, total, TD scorers, passing, rushing, receiving.
