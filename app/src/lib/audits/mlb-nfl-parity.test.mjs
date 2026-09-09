@@ -77,7 +77,10 @@ test("NFL coverage states are honest per market — no blanket 'supported'", () 
   // P250: evaluated player families (receptions / receiving / anytime TD) are public model forecasts
   // now — experimental, never product-eligible, with the withheld families named in the row itself.
   assert.match(block, /market: "player_props"[\s\S]{0,300}status: "experimental"/, "player props are experimental (evaluated families public, never product-eligible)");
-  assert.match(block, /passing & rushing withheld/i, "the withheld families are named, not implied");
+  // P250-GD2 (owner display decision): passing/rushing display as UNVALIDATED ESTIMATES with the
+  // failed bar carried in the copy — never bare, and never product-eligible.
+  assert.match(block, /UNVALIDATED ESTIMATES/, "the estimate tier is named in the row copy");
+  assert.match(block, /failed a named evaluation bar/i, "the failure travels with the estimate");
   assert.match(block, /market: "anytime_touchdown"[\s\S]{0,300}status: "experimental"/, "anytime TD is a public experimental board");
   assert.match(block, /model-only|watchlist, never a card/i, "TD stays unpriced — a watchlist, never a card");
   assert.match(block, /coin flip/, "the honest limit travels with the coverage row");

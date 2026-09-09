@@ -76,7 +76,9 @@ for (const key of familyKeys) {
   const first = boards[0].families[key];
   familyState[key] = states.size === 1 && states.has("PUBLISHED")
     ? { label: first.label, state: "PUBLISHED", basis: first.basis }
-    : { label: first.label, state: "WITHHELD", reason: first.reason ?? [...states].join("/") };
+    : states.size === 1 && states.has("ESTIMATE")
+      ? { label: first.label, state: "ESTIMATE", reason: first.reason, caveat: first.caveat }
+      : { label: first.label, state: "WITHHELD", reason: first.reason ?? [...states].join("/") };
 }
 
 const opponentOf = (b, team) => {
@@ -134,6 +136,9 @@ const out = {
   boards: BOARD_SPECS.map((spec) => {
     const fam = familyState[spec.family];
     if (!fam) return { ...spec, state: "WITHHELD", reason: "family absent from every per-game board" };
+    /* P250-GD2: a family the per-game boards publish as an ESTIMATE ranks here under the SAME
+       state — numbers with the failed bar and caveat carried on the board, never a bare top list. */
+    if (fam.state === "ESTIMATE") return { ...spec, state: "ESTIMATE", reason: fam.reason, caveat: fam.caveat, rows: rankRows(spec.family, spec.metric, spec.topN) };
     if (fam.state !== "PUBLISHED") return { ...spec, state: "WITHHELD", reason: fam.reason };
     return { ...spec, state: "PUBLISHED", basis: fam.basis, rows: rankRows(spec.family, spec.metric, spec.topN) };
   }),

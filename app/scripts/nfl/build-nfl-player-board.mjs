@@ -15,6 +15,12 @@
  *   pass TDs / INT / first / last / 2+ TD — never separately evaluated or explicitly DISABLED →
  *                       WITHHELD, no receipt
  *
+ * P250-GD2 (owner display decision): families the engine COMPUTES but whose models failed a
+ * promotion bar publish as state "ESTIMATE" — the numbers display with the failed bar(s) and a
+ * plain-English caveat carried ON the family, never as bare picks. Families with no computed
+ * per-player distribution stay WITHHELD. Product eligibility is untouched: an ESTIMATE can never
+ * become a card leg, and the graded record's population is unchanged.
+ *
  * The gates are READ from the artifact's own promotion block and receipts — never hardcoded to
  * a family list, so a future re-evaluation flips publication by changing the receipt, not this
  * file. Every published row carries its participation state (AVAILABLE_ROLE_UNCERTAIN /
@@ -78,13 +84,30 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const families = {};
   const players = [];
 
+  /* Which markets the engine actually computed rows for in THIS event — an ESTIMATE family must
+     have real distributions behind it; a family with no rows stays WITHHELD whatever its state. */
+  const computedMarkets = new Set();
+  for (const tv of Object.values(doc.research?.perTeam ?? {})) {
+    for (const pl of tv.props?.players ?? []) for (const m of Object.keys(pl.markets ?? {})) computedMarkets.add(m);
+  }
+  const ESTIMATE_CAVEAT = {
+    player_pass_yds: "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast.",
+    player_rush_yds: "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable.",
+  };
   for (const [market, promo] of Object.entries(promotion ?? {})) {
+    const bars = promo.evidence
+      ? Object.entries(promo.evidence).filter(([k, v]) => v === false).map(([k]) => k).join(", ")
+      : "no separate evaluation";
     if (promo.state === "PUBLIC_ELIGIBLE") {
       families[market] = { label: PROP_LABEL[market] ?? market, state: "PUBLISHED", basis: `props-v1 evaluation: n=${promo.evidence?.n}, all promotion bars pass` };
+    } else if (computedMarkets.has(market)) {
+      families[market] = {
+        label: PROP_LABEL[market] ?? market,
+        state: "ESTIMATE",
+        reason: `${promo.state}${bars ? ` — failed bar(s): ${bars}` : ""}`.trim(),
+        caveat: `Unvalidated estimate, displayed for completeness: ${ESTIMATE_CAVEAT[market] ?? "this family failed the named evaluation bar(s)."} Never a pick and never product-eligible.`,
+      };
     } else {
-      const bars = promo.evidence
-        ? Object.entries(promo.evidence).filter(([k, v]) => v === false).map(([k]) => k).join(", ")
-        : "no separate evaluation";
       families[market] = { label: PROP_LABEL[market] ?? market, state: "WITHHELD", reason: `${promo.state}${bars ? ` — failed bar(s): ${bars}` : ""}`.trim() };
     }
   }
@@ -93,7 +116,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     : { label: "Anytime touchdown", state: "WITHHELD", reason: "no calibration receipt beating its baselines" };
   families.ordered_td = { label: "First/last/2+ touchdown", state: "WITHHELD", reason: "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities" };
 
-  const publishedMarkets = new Set(Object.entries(families).filter(([, f]) => f.state === "PUBLISHED").map(([m]) => m));
+  const publishedMarkets = new Set(Object.entries(families).filter(([, f]) => f.state === "PUBLISHED" || f.state === "ESTIMATE").map(([m]) => m));
 
   for (const [abbr, tv] of Object.entries(doc.research?.perTeam ?? {})) {
     const props = tv.props;
@@ -162,7 +185,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     participationBasis: "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
     families,
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
-    disclaimer: "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market.",
+    disclaimer: "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook.",
   };
   const payload = JSON.stringify(artifact, null, 1);
   for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledger"]) {

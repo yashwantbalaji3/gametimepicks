@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872656",
  "matchup": "NE @ SEA",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -151,6 +153,14 @@
    "team": "NE",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 33.484,
+     "p10": 5.67,
+     "p25": 14.42,
+     "median": 28.35,
+     "p75": 47.36,
+     "p90": 68.02
+    },
     "player_reception_yds": {
      "mean": 23.567,
      "p10": 0,
@@ -207,6 +217,22 @@
    "team": "NE",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 195.721,
+     "p10": 65.84,
+     "p25": 125.17,
+     "median": 192.67,
+     "p75": 260.18,
+     "p90": 326.61
+    },
+    "player_rush_yds": {
+     "mean": 20.262,
+     "p10": 0.38,
+     "p25": 4.7,
+     "median": 14.58,
+     "p75": 29.61,
+     "p90": 48.37
+    },
     "anytime_td": {
      "probability": 0.201812,
      "participation": "ACTIVE_PROJECTED"
@@ -247,6 +273,14 @@
    "team": "NE",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_rush_yds": {
+     "mean": 28.397,
+     "p10": 3.62,
+     "p25": 11.09,
+     "median": 23.1,
+     "p75": 40.68,
+     "p90": 60.2
+    },
     "anytime_td": {
      "probability": 0.140357,
      "participation": "QUESTIONABLE"
@@ -327,6 +361,14 @@
    "team": "SEA",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 6.657,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.46,
+     "p75": 9.15,
+     "p90": 20.54
+    },
     "anytime_td": {
      "probability": 0.115279,
      "participation": "ACTIVE_PROJECTED"
@@ -402,6 +444,78 @@
    }
   },
   {
+   "playerId": "nfl-athlete-4035693",
+   "name": "Velus Jones Jr.",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.031,
+     "p10": 0,
+     "p25": 0,
+     "median": 4.79,
+     "p75": 14.75,
+     "p90": 28.32
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4427600",
+   "name": "Terrell Jennings",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.374,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.49,
+     "p75": 10.29,
+     "p90": 21.59
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3912547",
+   "name": "Sam Darnold",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 185.351,
+     "p10": 63.51,
+     "p25": 117.57,
+     "median": 181.3,
+     "p75": 247.55,
+     "p90": 308.16
+    },
+    "player_rush_yds": {
+     "mean": 7.005,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.04,
+     "p75": 10.08,
+     "p90": 20.75
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4428943",
+   "name": "Jacardia Wright",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 6.339,
+     "p10": 0,
+     "p25": 0,
+     "median": 0.91,
+     "p75": 8.14,
+     "p90": 19.8
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4032473",
    "name": "Rashid Shaheed",
    "team": "SEA",
@@ -426,5 +540,5 @@
    }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

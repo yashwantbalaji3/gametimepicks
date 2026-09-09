@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872926",
  "matchup": "ARI @ LAC",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -54,6 +56,14 @@
    "team": "LAC",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 38.696,
+     "p10": 9.05,
+     "p25": 18.87,
+     "median": 33.7,
+     "p75": 53.79,
+     "p90": 74.5
+    },
     "player_reception_yds": {
      "mean": 17.729,
      "p10": 0,
@@ -247,6 +257,14 @@
    "team": "LAC",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 31.831,
+     "p10": 5.71,
+     "p25": 14.22,
+     "median": 27.34,
+     "p75": 44.53,
+     "p90": 64.34
+    },
     "anytime_td": {
      "probability": 0.227949,
      "participation": "ACTIVE_PROJECTED"
@@ -259,6 +277,14 @@
    "team": "ARI",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 24.75,
+     "p10": 2.75,
+     "p25": 9.3,
+     "median": 20.14,
+     "p75": 35.45,
+     "p90": 52.41
+    },
     "player_reception_yds": {
      "mean": 12.668,
      "p10": 0,
@@ -315,6 +341,22 @@
    "team": "LAC",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 164.743,
+     "p10": 52.69,
+     "p25": 101.22,
+     "median": 162.16,
+     "p75": 220.92,
+     "p90": 278.35
+    },
+    "player_rush_yds": {
+     "mean": 24.063,
+     "p10": 1.07,
+     "p25": 6.65,
+     "median": 18.12,
+     "p75": 35.38,
+     "p90": 55.3
+    },
     "anytime_td": {
      "probability": 0.152459,
      "participation": "ACTIVE_PROJECTED"
@@ -340,9 +382,105 @@
    "team": "ARI",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 170.067,
+     "p10": 53.67,
+     "p25": 103.58,
+     "median": 167.52,
+     "p75": 232.04,
+     "p90": 286.45
+    },
+    "player_rush_yds": {
+     "mean": 10.356,
+     "p10": 0,
+     "p25": 0.13,
+     "median": 5.18,
+     "p75": 15.46,
+     "p90": 29.01
+    },
     "anytime_td": {
      "probability": 0.078608,
      "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429275",
+   "name": "Trey Benson",
+   "team": "ARI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 21.908,
+     "p10": 1.05,
+     "p25": 6.39,
+     "median": 16.78,
+     "p75": 31.83,
+     "p90": 49.35
+    },
+    "player_reception_yds": {
+     "mean": 18.472,
+     "p10": 0,
+     "p25": 2.23,
+     "median": 12.93,
+     "p75": 27.69,
+     "p90": 45.74
+    },
+    "player_receptions": {
+     "mean": 1.787,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4383351",
+   "name": "Trey Lance",
+   "team": "LAC",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 15.7,
+     "p10": 0,
+     "p25": 2.29,
+     "median": 10.42,
+     "p75": 23.15,
+     "p90": 39.58
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4362452",
+   "name": "Jaret Patterson",
+   "team": "LAC",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 13.548,
+     "p10": 0,
+     "p25": 1.34,
+     "median": 8.32,
+     "p75": 20.18,
+     "p90": 34.89
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4431431",
+   "name": "Corey Kiner",
+   "team": "ARI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.23,
+     "p10": 0,
+     "p25": 0.11,
+     "median": 5.13,
+     "p75": 15.2,
+     "p90": 28.26
     }
    }
   },
@@ -365,30 +503,6 @@
      "p10": 0,
      "p25": 1,
      "median": 1,
-     "p75": 3,
-     "p90": 4
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4429275",
-   "name": "Trey Benson",
-   "team": "ARI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 18.472,
-     "p10": 0,
-     "p25": 2.23,
-     "median": 12.93,
-     "p75": 27.69,
-     "p90": 45.74
-    },
-    "player_receptions": {
-     "mean": 1.787,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
      "p75": 3,
      "p90": 4
     }
@@ -419,5 +533,5 @@
    }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

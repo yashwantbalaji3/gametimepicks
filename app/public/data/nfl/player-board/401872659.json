@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872659",
  "matchup": "BAL @ IND",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -54,6 +56,14 @@
    "team": "BAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 61.342,
+     "p10": 20.31,
+     "p25": 35.26,
+     "median": 55.61,
+     "p75": 81.66,
+     "p90": 108.76
+    },
     "anytime_td": {
      "probability": 0.45826,
      "participation": "ACTIVE_PROJECTED"
@@ -66,6 +76,14 @@
    "team": "IND",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 70.336,
+     "p10": 27.78,
+     "p25": 43.99,
+     "median": 65.83,
+     "p75": 91.57,
+     "p90": 119.3
+    },
     "player_reception_yds": {
      "mean": 19.623,
      "p10": 0,
@@ -230,6 +248,14 @@
    "team": "IND",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 8.902,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.59,
+     "p75": 13.05,
+     "p90": 25.45
+    },
     "anytime_td": {
      "probability": 0.175379,
      "participation": "ACTIVE_PROJECTED"
@@ -242,6 +268,22 @@
    "team": "IND",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 143.034,
+     "p10": 23.69,
+     "p25": 67.93,
+     "median": 134.38,
+     "p75": 206.78,
+     "p90": 272.69
+    },
+    "player_rush_yds": {
+     "mean": 9.346,
+     "p10": 0,
+     "p25": 0,
+     "median": 4,
+     "p75": 13.85,
+     "p90": 26.75
+    },
     "anytime_td": {
      "probability": 0.171797,
      "participation": "ACTIVE_PROJECTED"
@@ -338,6 +380,22 @@
    "team": "BAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 164.354,
+     "p10": 39.19,
+     "p25": 86.9,
+     "median": 156.02,
+     "p75": 231.96,
+     "p90": 298.04
+    },
+    "player_rush_yds": {
+     "mean": 15.163,
+     "p10": 0,
+     "p25": 1.94,
+     "median": 9.91,
+     "p75": 22.36,
+     "p90": 37.61
+    },
     "anytime_td": {
      "probability": 0.139412,
      "participation": "ACTIVE_PROJECTED"
@@ -383,7 +441,47 @@
      "participation": "ACTIVE_PROJECTED"
     }
    }
+  },
+  {
+   "playerId": "nfl-athlete-4874509",
+   "name": "DJ Giddens",
+   "team": "IND",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 12.47,
+     "p10": 0,
+     "p25": 0.98,
+     "median": 7.13,
+     "p75": 18.57,
+     "p90": 33.01
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4035671",
+   "name": "Tyler Huntley",
+   "team": "BAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 87.854,
+     "p10": 0,
+     "p25": 21.11,
+     "median": 69.68,
+     "p75": 135.14,
+     "p90": 200.96
+    },
+    "player_rush_yds": {
+     "mean": 10.118,
+     "p10": 0,
+     "p25": 0,
+     "median": 4.35,
+     "p75": 14.77,
+     "p90": 28.92
+    }
+   }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

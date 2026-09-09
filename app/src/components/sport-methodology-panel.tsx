@@ -17,7 +17,7 @@ const METHODOLOGY: Record<Sport, { title: string; kind: string; lines: string[] 
     lines: [
       "Each week's games get independent team forecasts — win chance, projected score and a total range — from the public regular-season model. Every number reacts to the specific teams playing.",
       "The old preseason score model is archived: on its held-out season it picked winners no better than a coin flip, so it never fed products. The regular-season model replaced it, stays labelled experimental, and makes no claim to out-predict the sportsbook.",
-      "Player forecasts publish only where a family passed its evaluation (receptions, receiving yards, anytime touchdown). Passing and rushing stay withheld rather than invented, and availability states travel with every player row.",
+      "Validated player families (receptions, receiving yards, anytime touchdown) carry plain numbers; passing and rushing yards display as labelled unvalidated estimates with the bar each failed stated beside them. Availability states travel with every player row.",
     ],
   },
   mlb: {

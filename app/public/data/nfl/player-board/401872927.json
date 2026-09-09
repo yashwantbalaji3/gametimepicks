@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872927",
  "matchup": "GB @ MIN",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -54,6 +56,22 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 94.448,
+     "p10": 1.64,
+     "p25": 29.06,
+     "median": 76.92,
+     "p75": 145.33,
+     "p90": 207.77
+    },
+    "player_rush_yds": {
+     "mean": 11.409,
+     "p10": 0,
+     "p25": 0.16,
+     "median": 5.84,
+     "p75": 16.56,
+     "p90": 31.52
+    },
     "anytime_td": {
      "probability": 0.338822,
      "participation": "ACTIVE_PROJECTED"
@@ -135,6 +153,14 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 44.8,
+     "p10": 12.97,
+     "p25": 24.3,
+     "median": 40.25,
+     "p75": 60.21,
+     "p90": 82.89
+    },
     "player_reception_yds": {
      "mean": 26.508,
      "p10": 0,
@@ -163,6 +189,14 @@
    "team": "MIN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 33.774,
+     "p10": 5.81,
+     "p25": 14.84,
+     "median": 28.97,
+     "p75": 47.41,
+     "p90": 68.17
+    },
     "anytime_td": {
      "probability": 0.227178,
      "participation": "ACTIVE_PROJECTED"
@@ -341,8 +375,16 @@
    "playerId": "nfl-athlete-4257364",
    "name": "Zavier Scott",
    "team": "MIN",
-   "participation": "NOT_IN_POOL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 8.293,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.85,
+     "p75": 11.9,
+     "p90": 24.59
+    },
     "anytime_td": {
      "probability": 0.084898,
      "participation": "NOT_IN_POOL"
@@ -385,6 +427,70 @@
     }
    },
    "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
+  },
+  {
+   "playerId": "nfl-athlete-4036378",
+   "name": "Jordan Love",
+   "team": "GB",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 171.894,
+     "p10": 52.98,
+     "p25": 103.2,
+     "median": 167.57,
+     "p75": 232.64,
+     "p90": 292.29
+    },
+    "player_rush_yds": {
+     "mean": 7.638,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.28,
+     "p75": 11.07,
+     "p90": 23.31
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2573079",
+   "name": "Carson Wentz",
+   "team": "MIN",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 89.611,
+     "p10": 0,
+     "p25": 22.18,
+     "median": 69.86,
+     "p75": 137.21,
+     "p90": 208.7
+    },
+    "player_rush_yds": {
+     "mean": 7.38,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.67,
+     "p75": 10.31,
+     "p90": 23.06
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3149687",
+   "name": "Chris Brooks",
+   "team": "GB",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.211,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.64,
+     "p75": 10.17,
+     "p90": 21.72
+    }
+   }
   },
   {
    "playerId": "nfl-athlete-4428085",
@@ -435,5 +541,5 @@
    }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

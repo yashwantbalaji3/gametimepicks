@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872922",
  "matchup": "CLE @ JAX",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -110,6 +112,22 @@
    "team": "JAX",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 173.647,
+     "p10": 58.41,
+     "p25": 107.83,
+     "median": 169.08,
+     "p75": 231.41,
+     "p90": 291.74
+    },
+    "player_rush_yds": {
+     "mean": 18.134,
+     "p10": 0.11,
+     "p25": 3.84,
+     "median": 12.54,
+     "p75": 26.82,
+     "p90": 43.54
+    },
     "anytime_td": {
      "probability": 0.321992,
      "participation": "ACTIVE_PROJECTED"
@@ -150,6 +168,14 @@
    "team": "CLE",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 40.959,
+     "p10": 12.48,
+     "p25": 22.22,
+     "median": 36.98,
+     "p75": 55.49,
+     "p90": 75.44
+    },
     "player_reception_yds": {
      "mean": 19.644,
      "p10": 0,
@@ -178,6 +204,14 @@
    "team": "JAX",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_rush_yds": {
+     "mean": 17.056,
+     "p10": 0.02,
+     "p25": 3.31,
+     "median": 11.62,
+     "p75": 25.21,
+     "p90": 41.27
+    },
     "anytime_td": {
      "probability": 0.235244,
      "participation": "QUESTIONABLE"
@@ -286,6 +320,14 @@
    "team": "CLE",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 15.329,
+     "p10": 0.01,
+     "p25": 2.76,
+     "median": 10.17,
+     "p75": 22.9,
+     "p90": 37.03
+    },
     "anytime_td": {
      "probability": 0.145249,
      "participation": "ACTIVE_PROJECTED"
@@ -326,6 +368,14 @@
    "team": "CLE",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 7.268,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.92,
+     "p75": 10.68,
+     "p90": 22.02
+    },
     "anytime_td": {
      "probability": 0.101084,
      "participation": "ACTIVE_PROJECTED"
@@ -338,6 +388,14 @@
    "team": "CLE",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 15.382,
+     "p10": 0.09,
+     "p25": 3.24,
+     "median": 10.86,
+     "p75": 22.73,
+     "p90": 37.27
+    },
     "player_reception_yds": {
      "mean": 19.049,
      "p10": 0,
@@ -394,9 +452,41 @@
    "team": "CLE",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 118.388,
+     "p10": 14.76,
+     "p25": 49.95,
+     "median": 108.26,
+     "p75": 174.52,
+     "p90": 235.21
+    },
+    "player_rush_yds": {
+     "mean": 9.495,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.35,
+     "p75": 13.62,
+     "p90": 27.91
+    },
     "anytime_td": {
      "probability": 0.087881,
      "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3059989",
+   "name": "Nick Mullens",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.564,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.58,
+     "p75": 10.98,
+     "p90": 22.15
     }
    }
   },
@@ -425,5 +515,5 @@
    }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

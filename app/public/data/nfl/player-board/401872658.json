@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872658",
  "matchup": "ATL @ PIT",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -54,6 +56,14 @@
    "team": "PIT",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 54.142,
+     "p10": 17.36,
+     "p25": 30.71,
+     "median": 49.24,
+     "p75": 72.41,
+     "p90": 97.21
+    },
     "player_reception_yds": {
      "mean": 13.441,
      "p10": 0,
@@ -82,6 +92,14 @@
    "team": "ATL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 58.865,
+     "p10": 19.05,
+     "p25": 33.47,
+     "median": 53.68,
+     "p75": 78.73,
+     "p90": 104.13
+    },
     "player_reception_yds": {
      "mean": 40.172,
      "p10": 6.57,
@@ -263,6 +281,14 @@
    "team": "PIT",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 152.789,
+     "p10": 46.6,
+     "p25": 93.47,
+     "median": 148.15,
+     "p75": 206.14,
+     "p90": 261.17
+    },
     "anytime_td": {
      "probability": 0.106359,
      "participation": "ACTIVE_PROJECTED"
@@ -296,7 +322,39 @@
      "participation": "ACTIVE_PROJECTED"
     }
    }
+  },
+  {
+   "playerId": "nfl-athlete-4605841",
+   "name": "Nathan Carter",
+   "team": "ATL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.748,
+     "p10": 0,
+     "p25": 0.16,
+     "median": 5.68,
+     "p75": 16.15,
+     "p90": 29.07
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4819231",
+   "name": "Kaleb Johnson",
+   "team": "PIT",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 9.298,
+     "p10": 0,
+     "p25": 0.01,
+     "median": 4.38,
+     "p75": 13.4,
+     "p90": 26.29
+    }
+   }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

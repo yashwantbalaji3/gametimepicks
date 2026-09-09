@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872661",
  "matchup": "CHI @ CAR",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -54,6 +56,14 @@
    "team": "CHI",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_rush_yds": {
+     "mean": 44.548,
+     "p10": 11.74,
+     "p25": 23.23,
+     "median": 39.97,
+     "p75": 60.73,
+     "p90": 83.07
+    },
     "anytime_td": {
      "probability": 0.28002,
      "participation": "QUESTIONABLE"
@@ -134,6 +144,22 @@
    "team": "CAR",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 165.503,
+     "p10": 55.84,
+     "p25": 104.86,
+     "median": 162.01,
+     "p75": 221.23,
+     "p90": 275.05
+    },
+    "player_rush_yds": {
+     "mean": 14.612,
+     "p10": 0,
+     "p25": 1.81,
+     "median": 9.48,
+     "p75": 21.6,
+     "p90": 36.68
+    },
     "anytime_td": {
      "probability": 0.248861,
      "participation": "ACTIVE_PROJECTED"
@@ -146,6 +172,14 @@
    "team": "CAR",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_rush_yds": {
+     "mean": 28.931,
+     "p10": 4.45,
+     "p25": 11.67,
+     "median": 24.26,
+     "p75": 41.09,
+     "p90": 59.65
+    },
     "player_reception_yds": {
      "mean": 14.798,
      "p10": 0,
@@ -286,6 +320,14 @@
    "team": "CHI",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_rush_yds": {
+     "mean": 30.1,
+     "p10": 4.75,
+     "p25": 12.28,
+     "median": 25.2,
+     "p75": 42,
+     "p90": 61.38
+    },
     "player_reception_yds": {
      "mean": 12.594,
      "p10": 0,
@@ -432,7 +474,31 @@
      "participation": "ACTIVE_PROJECTED"
     }
    }
+  },
+  {
+   "playerId": "nfl-athlete-4431611",
+   "name": "Caleb Williams",
+   "team": "CHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 170.146,
+     "p10": 56.55,
+     "p25": 106.74,
+     "median": 166.48,
+     "p75": 228.26,
+     "p90": 285.59
+    },
+    "player_rush_yds": {
+     "mean": 12.811,
+     "p10": 0,
+     "p25": 0.51,
+     "median": 6.87,
+     "p75": 18.8,
+     "p90": 34.49
+    }
+   }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

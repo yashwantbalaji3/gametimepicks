@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872931",
  "matchup": "DEN @ KC",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -82,6 +84,14 @@
    "team": "DEN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 26.792,
+     "p10": 4.46,
+     "p25": 11.55,
+     "median": 22.71,
+     "p75": 37.75,
+     "p90": 53.57
+    },
     "player_reception_yds": {
      "mean": 24.784,
      "p10": 0,
@@ -110,6 +120,22 @@
    "team": "KC",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_pass_yds": {
+     "mean": 151.821,
+     "p10": 36.42,
+     "p25": 81.61,
+     "median": 145,
+     "p75": 211.75,
+     "p90": 273.23
+    },
+    "player_rush_yds": {
+     "mean": 14.994,
+     "p10": 0,
+     "p25": 1.43,
+     "median": 9.34,
+     "p75": 22.48,
+     "p90": 38.58
+    },
     "anytime_td": {
      "probability": 0.269541,
      "participation": "QUESTIONABLE"
@@ -122,6 +148,14 @@
    "team": "KC",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 10.365,
+     "p10": 0,
+     "p25": 0.43,
+     "median": 5.58,
+     "p75": 15.61,
+     "p90": 27.91
+    },
     "player_reception_yds": {
      "mean": 13.933,
      "p10": 0,
@@ -191,6 +225,22 @@
    "team": "DEN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 165.248,
+     "p10": 58.83,
+     "p25": 106.53,
+     "median": 162.43,
+     "p75": 219.31,
+     "p90": 274.1
+    },
+    "player_rush_yds": {
+     "mean": 18.435,
+     "p10": 0.29,
+     "p25": 4.67,
+     "median": 13.62,
+     "p75": 26.72,
+     "p90": 42.88
+    },
     "anytime_td": {
      "probability": 0.186648,
      "participation": "ACTIVE_PROJECTED"
@@ -243,6 +293,14 @@
    "team": "DEN",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 45.969,
+     "p10": 11.77,
+     "p25": 23.57,
+     "median": 40.54,
+     "p75": 63.64,
+     "p90": 86.98
+    },
     "anytime_td": {
      "probability": 0.151776,
      "participation": "ACTIVE_PROJECTED"
@@ -362,6 +420,46 @@
    }
   },
   {
+   "playerId": "nfl-athlete-4722893",
+   "name": "Jaleel McLaughlin",
+   "team": "DEN",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 14.183,
+     "p10": 0,
+     "p25": 1.46,
+     "median": 8.74,
+     "p75": 21.06,
+     "p90": 36.6
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4044111",
+   "name": "Chris Oladokun",
+   "team": "KC",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 76.206,
+     "p10": 0,
+     "p25": 15.58,
+     "median": 57.06,
+     "p75": 120.34,
+     "p90": 182.03
+    },
+    "player_rush_yds": {
+     "mean": 5.834,
+     "p10": 0,
+     "p25": 0,
+     "median": 0.5,
+     "p75": 7.28,
+     "p90": 18.74
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4240472",
    "name": "Noah Gray",
    "team": "KC",
@@ -458,5 +556,5 @@
    }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

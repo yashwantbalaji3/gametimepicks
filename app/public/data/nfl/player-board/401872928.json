@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872928",
  "matchup": "MIA @ LV",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -54,6 +56,14 @@
    "team": "LV",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_rush_yds": {
+     "mean": 59.854,
+     "p10": 23.81,
+     "p25": 37.68,
+     "median": 56.05,
+     "p75": 77.73,
+     "p90": 99.93
+    },
     "player_reception_yds": {
      "mean": 28.316,
      "p10": 0.64,
@@ -110,6 +120,14 @@
    "team": "MIA",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 63.01,
+     "p10": 21.14,
+     "p25": 35.83,
+     "median": 57.4,
+     "p75": 84.49,
+     "p90": 112.62
+    },
     "player_reception_yds": {
      "mean": 29.004,
      "p10": 1.2,
@@ -234,6 +252,14 @@
    "team": "MIA",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_rush_yds": {
+     "mean": 11.774,
+     "p10": 0,
+     "p25": 1.1,
+     "median": 7.23,
+     "p75": 17.28,
+     "p90": 30.18
+    },
     "anytime_td": {
      "probability": 0.181313,
      "participation": "QUESTIONABLE"
@@ -274,6 +300,14 @@
    "team": "MIA",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 22.155,
+     "p10": 1.8,
+     "p25": 7.1,
+     "median": 17.27,
+     "p75": 32.16,
+     "p90": 48.5
+    },
     "anytime_td": {
      "probability": 0.144074,
      "participation": "ACTIVE_PROJECTED"
@@ -286,6 +320,14 @@
    "team": "LV",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 94.27,
+     "p10": 4.35,
+     "p25": 29.68,
+     "median": 79,
+     "p75": 142.96,
+     "p90": 204.54
+    },
     "anytime_td": {
      "probability": 0.140399,
      "participation": "ACTIVE_PROJECTED"
@@ -391,7 +433,23 @@
      "p90": 3
     }
    }
+  },
+  {
+   "playerId": "nfl-athlete-4889929",
+   "name": "Quinn Ewers",
+   "team": "MIA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 120.533,
+     "p10": 13.44,
+     "p25": 49.13,
+     "median": 111.77,
+     "p75": 174.84,
+     "p90": 241.33
+    }
+   }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

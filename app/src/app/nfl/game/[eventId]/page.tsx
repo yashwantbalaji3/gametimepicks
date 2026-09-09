@@ -194,7 +194,19 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           .filter((p) => p.markets.player_receptions?.median != null)
           .sort((a, b) => (b.markets.player_receptions!.median ?? 0) - (a.markets.player_receptions!.median ?? 0))
           .slice(0, 3);
-        const withheld = Object.entries(fams).filter(([, x]) => x.state !== "PUBLISHED");
+        const hasPass = fams.player_pass_yds?.state === "ESTIMATE" || fams.player_pass_yds?.state === "PUBLISHED";
+        const hasRush = fams.player_rush_yds?.state === "ESTIMATE" || fams.player_rush_yds?.state === "PUBLISHED";
+        const passTop = (abbr: string) => active(abbr)
+          .filter((p) => p.markets.player_pass_yds?.median != null)
+          .sort((a, b) => (b.markets.player_pass_yds!.median ?? 0) - (a.markets.player_pass_yds!.median ?? 0))
+          .slice(0, 1);
+        const rushTop = (abbr: string) => active(abbr)
+          .filter((p) => p.markets.player_rush_yds?.median != null)
+          .sort((a, b) => (b.markets.player_rush_yds!.median ?? 0) - (a.markets.player_rush_yds!.median ?? 0))
+          .slice(0, 2);
+        const estMark = (famKey: string) => (fams[famKey]?.state === "ESTIMATE" ? " · estimate" : "");
+        const withheld = Object.entries(fams).filter(([, x]) => x.state === "WITHHELD");
+        const estimates = Object.entries(fams).filter(([, x]) => x.state === "ESTIMATE");
         /* A raw family key is not a reader-facing label — the artifact's label wins, with a plain
            fallback for any family that ships without one (player_pass_int did). */
         const famLabel = (key: string, x: { label?: string }) =>
@@ -213,6 +225,34 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
                     <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
                     <span className="font-mono" style={{ color: "var(--gtp-bank-cta)", fontWeight: 700 }}>{(p.markets.anytime_td!.probability! * 100).toFixed(1)}%</span>
+                    <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{availMark(p)}</span>
+                  </p>
+                ))}
+              </div>
+            ) : null}
+            {hasPass && passTop(t.abbr).length ? (
+              <div style={{ marginTop: 10 }}>
+                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Passing{estMark("player_pass_yds")}</p>
+                {passTop(t.abbr).map((p) => (
+                  <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
+                    <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
+                    <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}>
+                      {yd0(p.markets.player_pass_yds?.median)} pass yds ({yd0(p.markets.player_pass_yds?.p10)}–{yd0(p.markets.player_pass_yds?.p90)})
+                    </span>
+                    <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{availMark(p)}</span>
+                  </p>
+                ))}
+              </div>
+            ) : null}
+            {hasRush && rushTop(t.abbr).length ? (
+              <div style={{ marginTop: 10 }}>
+                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Rushing leaders{estMark("player_rush_yds")}</p>
+                {rushTop(t.abbr).map((p) => (
+                  <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
+                    <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
+                    <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}>
+                      {yd0(p.markets.player_rush_yds?.median)} rush yds ({yd0(p.markets.player_rush_yds?.p10)}–{yd0(p.markets.player_rush_yds?.p90)})
+                    </span>
                     <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{availMark(p)}</span>
                   </p>
                 ))}
@@ -259,6 +299,12 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   <TeamCol t={f.away} />
                   <TeamCol t={f.home} />
                 </div>
+              ) : null}
+              {estimates.length ? (
+                <p className="font-mono" style={{ margin: "12px 0 0", fontSize: 10, lineHeight: 1.6, color: "var(--vault-warn)" }}>
+                  “estimate” lines ({estimates.map(([, x]) => x.label).join(" · ")}) failed an evaluation bar and are
+                  displayed for completeness — each tab in the board below states the exact bar and caveat. Never a pick.
+                </p>
               ) : null}
               {/* Every family the scorecard does NOT number, in the scorecard's own frame — the
                   artifact's exact failed bar, never a silent gap and never an invented number. */}
@@ -342,7 +388,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <SectionHeader
             eyebrow={`Player projections · ${playerBoard.players.length} modelled`}
             title="The player board"
-            sub="Only families that cleared their own evaluation bars carry numbers; each row wears its availability state, and volume projections are withheld for players listed out."
+            sub="Validated families carry plain numbers; families that failed a bar display as labelled estimates with the exact bar beside them. Each row wears its availability state, and volume projections are withheld for players listed out."
           />
           {/* P250 · A15: the P249 combined receiving table is now the board's own "Combined" tab —
               one filter scope, every eligible player reachable, availability on every row, one

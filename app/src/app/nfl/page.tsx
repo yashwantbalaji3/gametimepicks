@@ -232,7 +232,7 @@ export default function NflHubPage() {
   type WeeklyBoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; participation: string; value: number; p10?: number; median?: number; p90?: number; probability?: number };
   const weeklyBoards = read("nfl/weekly-boards/latest.json") as
     | { period: { seasonType: number; week: number }; scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number };
-        boards: Array<{ id: string; title: string; state: string; basis?: string; reason?: string; rows?: WeeklyBoardRow[] }> }
+        boards: Array<{ id: string; title: string; state: string; basis?: string; reason?: string; caveat?: string; rows?: WeeklyBoardRow[] }> }
     | null;
   // per-event calibration sentence, keyed the same way the index keys events
 
@@ -491,9 +491,17 @@ export default function NflHubPage() {
           />
           <div className="flex flex-col gap-5">
             {weeklyBoards.boards.map((b) =>
-              b.state === "PUBLISHED" && b.rows?.length ? (
+              (b.state === "PUBLISHED" || b.state === "ESTIMATE") && b.rows?.length ? (
                 <div key={b.id}>
-                  <h3 style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>{b.title}</h3>
+                  <h3 style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>
+                    {b.title}
+                    {b.state === "ESTIMATE" ? (
+                      <span className="font-mono uppercase tracking-[0.08em]" style={{ marginLeft: 8, fontSize: 9, color: "var(--vault-warn)", border: "1px solid color-mix(in srgb, var(--vault-risk) 40%, transparent)", borderRadius: 999, padding: "2px 8px" }}>unvalidated estimate</span>
+                    ) : null}
+                  </h3>
+                  {b.state === "ESTIMATE" ? (
+                    <p style={{ margin: "0 0 6px", fontSize: 11, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 760 }}>{b.reason}. {b.caveat}</p>
+                  ) : null}
                   <div style={{ overflowX: "auto" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 620 }}>
                       <thead>

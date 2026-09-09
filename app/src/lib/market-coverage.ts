@@ -86,11 +86,11 @@ export const NFL_COVERAGE: MarketCoverage[] = [
     publicExplanation: "The calibrated scoring model publishes weekly touchdown boards, with each player's availability state attached (injury-listed players marked; everyone else availability-uncertain until kickoff). No authorized touchdown market is captured for these games, so it is model-only — a watchlist, never a card.",
   },
   {
-    sport: "nfl", market: "player_props", publicLabel: "Receptions / receiving yards (passing & rushing withheld)",
+    sport: "nfl", market: "player_props", publicLabel: "Player volume props (validated + labelled estimates)",
     status: "experimental", predictionSource: "independent_sim",
     requiredData: ["walk-forward role evidence", "per-family evaluation receipts"],
     settlementSupport: "supported",
-    publicExplanation: "Receptions and receiving yards publish as model forecasts under their own evaluation receipts, with availability states on every row. Passing and rushing stay withheld: their candidates lost to simpler baselines in evaluation, so those numbers are not invented. No family is priced against a market.",
+    publicExplanation: "Receptions and receiving yards publish as validated model forecasts under their own evaluation receipts. Passing and rushing yards display as UNVALIDATED ESTIMATES — each failed a named evaluation bar (passing loses to a simple recent-form baseline; rushing failed calibration) and carries that caveat wherever it renders. Availability states on every row; no family is priced against a market and none is product-eligible.",
   },
 ];
 

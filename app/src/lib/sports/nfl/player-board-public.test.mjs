@@ -24,12 +24,17 @@ test("gates are READ from receipts, never a hardcoded publish list", () => {
 
 test("LIVE · every published board obeys the contract (skip-free when boards exist)", () => {
   for (const b of boards) {
-    // A withheld family names its bar; a published one names its basis.
+    // A withheld family names its bar; a published one names its basis; an ESTIMATE (P250-GD2,
+    // the owner's display decision) names BOTH the failed bar and its reader-facing caveat.
     for (const [key, f] of Object.entries(b.families)) {
       if (f.state === "PUBLISHED") assert.ok(f.basis, `${key} publishes without naming its receipt`);
+      else if (f.state === "ESTIMATE") {
+        assert.ok(f.reason, `${key} displays as an estimate without its failed bar`);
+        assert.ok(f.caveat, `${key} displays as an estimate without a caveat`);
+      }
       else assert.ok(f.reason, `${key} withheld without a named bar`);
     }
-    const published = new Set(Object.entries(b.families).filter(([, f]) => f.state === "PUBLISHED").map(([k]) => k));
+    const published = new Set(Object.entries(b.families).filter(([, f]) => f.state === "PUBLISHED" || f.state === "ESTIMATE").map(([k]) => k));
     for (const p of b.players) {
       assert.ok(p.playerId && p.name && p.team, "identity is complete");
       assert.ok(Object.keys(p.markets).length > 0, `${p.name}: a row with no markets is padding`);

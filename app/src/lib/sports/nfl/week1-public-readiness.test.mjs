@@ -56,7 +56,13 @@ test("the projected scorecard composes ONLY page-loaded artifact data — number
   // The scorecard can never source a number outside the two artifacts the page already loads.
   const section = page.slice(page.indexOf("P250-GD"), page.indexOf('aria-labelledby="score-range"'));
   assert.ok(!/readPublic|fs\.readFileSync/.test(section), "no new data reads inside the scorecard");
-  assert.ok(!/player_pass_yds!\.|player_rush_yds!\./.test(section), "no withheld family's numbers are rendered");
+  // P250-GD2 (owner display decision): passing/rushing render as ESTIMATE lines — always behind the
+  // family-state gate, always wearing the estimate marker and legend, never as bare validated numbers.
+  assert.match(section, /hasPass = fams\.player_pass_yds\?\.state === "ESTIMATE" \|\| fams\.player_pass_yds\?\.state === "PUBLISHED"/, "passing renders only via its family state");
+  assert.match(section, /Passing\{estMark\("player_pass_yds"\)\}/, "the passing group wears the estimate marker");
+  assert.match(section, /Rushing leaders\{estMark\("player_rush_yds"\)\}/, "the rushing group wears the estimate marker");
+  assert.match(section, /failed an evaluation bar and are/, "the estimate legend states the failure in the scorecard frame");
+  assert.match(section, /x\.state === "WITHHELD"/, "truly-absent families stay a typed absence");
 });
 
 test("the NFL hub carries ONE canonical week table — the generic list collapses behind it", () => {

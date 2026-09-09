@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872923",
  "matchup": "NO @ DET",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -54,6 +56,14 @@
    "team": "DET",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 61.797,
+     "p10": 22.02,
+     "p25": 36.99,
+     "median": 57.31,
+     "p75": 82.36,
+     "p90": 106.31
+    },
     "player_reception_yds": {
      "mean": 29.485,
      "p10": 1.76,
@@ -232,8 +242,16 @@
    "playerId": "nfl-athlete-4682652",
    "name": "Devin Neal",
    "team": "NO",
-   "participation": "NOT_IN_POOL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 17.063,
+     "p10": 0.27,
+     "p25": 4.12,
+     "median": 12.31,
+     "p75": 25.01,
+     "p90": 39.7
+    },
     "anytime_td": {
      "probability": 0.19584,
      "participation": "NOT_IN_POOL"
@@ -246,6 +264,22 @@
    "team": "NO",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_pass_yds": {
+     "mean": 145.333,
+     "p10": 25.69,
+     "p25": 70.1,
+     "median": 136.92,
+     "p75": 210.07,
+     "p90": 271.41
+    },
+    "player_rush_yds": {
+     "mean": 10.738,
+     "p10": 0,
+     "p25": 0.27,
+     "median": 5.66,
+     "p75": 15.78,
+     "p90": 29.03
+    },
     "anytime_td": {
      "probability": 0.193615,
      "participation": "ACTIVE_PROJECTED"
@@ -342,6 +376,14 @@
    "team": "NO",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 23.902,
+     "p10": 2.19,
+     "p25": 8.13,
+     "median": 19.07,
+     "p75": 34.56,
+     "p90": 51.86
+    },
     "player_reception_yds": {
      "mean": 14.01,
      "p10": 0,
@@ -370,6 +412,14 @@
    "team": "NO",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_rush_yds": {
+     "mean": 14.898,
+     "p10": 0,
+     "p25": 2.14,
+     "median": 9.97,
+     "p75": 21.72,
+     "p90": 37.19
+    },
     "anytime_td": {
      "probability": 0.107835,
      "participation": "QUESTIONABLE"
@@ -382,6 +432,14 @@
    "team": "NO",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 25.408,
+     "p10": 3.41,
+     "p25": 9.96,
+     "median": 20.8,
+     "p75": 36.24,
+     "p90": 53.4
+    },
     "player_reception_yds": {
      "mean": 19.576,
      "p10": 0,
@@ -397,6 +455,46 @@
      "median": 2,
      "p75": 3,
      "p90": 4
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426339",
+   "name": "Spencer Rattler",
+   "team": "NO",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 97.161,
+     "p10": 4,
+     "p25": 29.37,
+     "median": 84.36,
+     "p75": 146.63,
+     "p90": 211.27
+    },
+    "player_rush_yds": {
+     "mean": 8.682,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.9,
+     "p75": 12.74,
+     "p90": 25.51
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3046779",
+   "name": "Jared Goff",
+   "team": "DET",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 184.07,
+     "p10": 65.47,
+     "p25": 117.29,
+     "median": 179.28,
+     "p75": 245.58,
+     "p90": 305.97
     }
    }
   },
@@ -425,5 +523,5 @@
    }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

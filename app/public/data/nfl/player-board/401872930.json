@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-08T23:12:58Z",
+ "generatedAt": "2026-09-09T13:56:33Z",
  "sourceGeneratedAt": "2026-09-08T23:12:58Z",
  "providerEventId": "401872930",
  "matchup": "DAL @ NYG",
@@ -13,13 +13,15 @@
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
-   "state": "WITHHELD",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk"
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast. Never a pick and never product-eligible."
   },
   "player_rush_yds": {
    "label": "Rushing yards",
-   "state": "WITHHELD",
-   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk"
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "Unvalidated estimate, displayed for completeness: its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable. Never a pick and never product-eligible."
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -54,6 +56,14 @@
    "team": "DAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 48.981,
+     "p10": 14.49,
+     "p25": 26.78,
+     "median": 44.61,
+     "p75": 66.09,
+     "p90": 89.48
+    },
     "player_reception_yds": {
      "mean": 11.673,
      "p10": 0,
@@ -80,8 +90,16 @@
    "playerId": "nfl-athlete-4431562",
    "name": "Phil Mafah",
    "team": "DAL",
-   "participation": "NOT_IN_POOL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 6.527,
+     "p10": 0,
+     "p25": 0,
+     "median": 0.93,
+     "p75": 8.92,
+     "p90": 20.62
+    },
     "anytime_td": {
      "probability": 0.336345,
      "participation": "NOT_IN_POOL"
@@ -148,8 +166,16 @@
    "playerId": "nfl-athlete-4685279",
    "name": "Jaydon Blue",
    "team": "DAL",
-   "participation": "NOT_IN_POOL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 21.356,
+     "p10": 1.3,
+     "p25": 6.59,
+     "median": 16.35,
+     "p75": 30.86,
+     "p90": 47.5
+    },
     "anytime_td": {
      "probability": 0.216507,
      "participation": "NOT_IN_POOL"
@@ -162,6 +188,14 @@
    "team": "DAL",
    "participation": "ACTIVE_PROJECTED",
    "markets": {
+    "player_rush_yds": {
+     "mean": 20.44,
+     "p10": 0.66,
+     "p25": 5.3,
+     "median": 15.01,
+     "p75": 29.49,
+     "p90": 47.38
+    },
     "anytime_td": {
      "probability": 0.189047,
      "participation": "ACTIVE_PROJECTED"
@@ -214,6 +248,14 @@
    "team": "NYG",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 38.247,
+     "p10": 8.97,
+     "p25": 18.33,
+     "median": 33.55,
+     "p75": 53.37,
+     "p90": 73.87
+    },
     "player_reception_yds": {
      "mean": 23.409,
      "p10": 0,
@@ -238,6 +280,14 @@
    "team": "NYG",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 31.02,
+     "p10": 5.37,
+     "p25": 13.31,
+     "median": 26.31,
+     "p75": 43.37,
+     "p90": 62.21
+    },
     "player_reception_yds": {
      "mean": 21.881,
      "p10": 0,
@@ -253,6 +303,86 @@
      "median": 2,
      "p75": 3,
      "p90": 4
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4040761",
+   "name": "Devin Singletary",
+   "team": "NYG",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 22.124,
+     "p10": 1.76,
+     "p25": 7.26,
+     "median": 17.38,
+     "p75": 32.22,
+     "p90": 48.49
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4689114",
+   "name": "Jaxson Dart",
+   "team": "NYG",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 151.25,
+     "p10": 39.79,
+     "p25": 84.97,
+     "median": 146.25,
+     "p75": 210.12,
+     "p90": 265.53
+    },
+    "player_rush_yds": {
+     "mean": 20.162,
+     "p10": 0.17,
+     "p25": 4.48,
+     "median": 14.29,
+     "p75": 29.18,
+     "p90": 48.55
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2577417",
+   "name": "Dak Prescott",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 169.388,
+     "p10": 48.36,
+     "p25": 99.91,
+     "median": 164.95,
+     "p75": 229.67,
+     "p90": 290.14
+    },
+    "player_rush_yds": {
+     "mean": 8.708,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.77,
+     "p75": 12.71,
+     "p90": 24.89
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2969939",
+   "name": "Jameis Winston",
+   "team": "NYG",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 81.586,
+     "p10": 0,
+     "p25": 15.4,
+     "median": 60.41,
+     "p75": 126.88,
+     "p90": 196.53
     }
    }
   },
@@ -377,5 +507,5 @@
    }
   }
  ],
- "disclaimer": "Experimental, educational, paper-only. Model projections under their own evaluation receipts — not picks, and not shown to beat any sportsbook market."
+ "disclaimer": "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook."
 }

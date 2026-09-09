@@ -29,7 +29,7 @@ export interface PlayerBoardRow {
 export interface PlayerBoardArtifact {
   matchup: string;
   participationBasis: string;
-  families: Record<string, { label: string; state: string; basis?: string; reason?: string }>;
+  families: Record<string, { label: string; state: string; basis?: string; reason?: string; caveat?: string }>;
   players: PlayerBoardRow[];
   disclaimer: string;
 }
@@ -49,8 +49,11 @@ const ct = (v: number | undefined) => (v != null && Number.isFinite(v) ? (Math.r
 const COMBINED = "combined";
 
 export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArtifact; teams: [string, string] }) {
-  const publishedFamilies = Object.entries(board.families).filter(([, f]) => f.state === "PUBLISHED");
-  const withheld = Object.entries(board.families).filter(([, f]) => f.state !== "PUBLISHED");
+  /* P250-GD2: two display tiers. PUBLISHED families cleared their bars; ESTIMATE families carry
+     real computed numbers WITH the failed bar and a caveat on the tab — the owner's display
+     decision, rendered without ever dressing an estimate as a validated forecast. */
+  const publishedFamilies = Object.entries(board.families).filter(([, f]) => f.state === "PUBLISHED" || f.state === "ESTIMATE");
+  const withheld = Object.entries(board.families).filter(([, f]) => f.state !== "PUBLISHED" && f.state !== "ESTIMATE");
   const hasCombined =
     board.families.player_receptions?.state === "PUBLISHED" &&
     board.families.player_reception_yds?.state === "PUBLISHED";
@@ -93,7 +96,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
 
   const tabs: Array<[string, string]> = [
     ...(hasCombined ? [[COMBINED, "Combined · one row per player"] as [string, string]] : []),
-    ...publishedFamilies.map(([key, f]) => [key, f.label] as [string, string]),
+    ...publishedFamilies.map(([key, f]) => [key, f.state === "ESTIMATE" ? `${f.label} · estimate` : f.label] as [string, string]),
   ];
 
   return (
@@ -141,13 +144,18 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
         />
       </div>
 
+      {!isCombined && fam?.state === "ESTIMATE" ? (
+        <p className="mt-2 rounded-[8px] px-3 py-2" style={{ fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-mute)", border: "1px solid color-mix(in srgb, var(--vault-risk) 30%, transparent)", background: "color-mix(in srgb, var(--vault-risk) 6%, transparent)", maxWidth: 720 }}>
+          <strong style={{ color: "var(--vault-warn)" }}>Unvalidated estimate:</strong> {fam.reason}. {fam.caveat}
+        </p>
+      ) : null}
       {isCombined ? (
         <p className="mt-2" style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
           The published receiving families for one player on one row, ranked by expected receptions —
           marginal medians and percentiles from the evaluated per-family heads over one shared game
           environment. Expected statistical summaries, not one simulated game, so rows need not add up
-          to a single box score. Passing and rushing columns are absent because those families have not
-          cleared their bars.
+          to a single box score. Passing and rushing live in their own tabs as labelled estimates — their
+          models failed a bar, and each tab says which.
         </p>
       ) : fam?.basis ? (
         <p className="mt-2" style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>{fam.basis}</p>
