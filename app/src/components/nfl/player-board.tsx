@@ -26,9 +26,22 @@ export interface PlayerBoardRow {
   markets: Record<string, { mean?: number; p10?: number; median?: number; p90?: number; probability?: number; participation?: string }>;
 }
 
+/** P250-GD3: a roster-present mover the evaluated stint rule cannot yet place — factual prior-club
+ *  per-game usage, explicitly NOT part of this game's simulated team numbers. */
+export interface NewArrival {
+  playerId: string;
+  name: string;
+  position: string;
+  team: string;
+  participation: string;
+  lastSeason: { club: string; games: number; targetsPg: number; receptionsPg: number; recYdsPg: number; rushAttPg: number; rushYdsPg: number; passAttPg: number; passYdsPg: number };
+  note: string;
+}
+
 export interface PlayerBoardArtifact {
   matchup: string;
   participationBasis: string;
+  newArrivals?: Record<string, NewArrival[]>;
   families: Record<string, { label: string; state: string; basis?: string; reason?: string; caveat?: string }>;
   players: PlayerBoardRow[];
   disclaimer: string;
@@ -234,6 +247,60 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
           </tbody>
         </table>
       </div>
+
+      {/* P250-GD3 — NEW ARRIVALS. A player who changed clubs after his last corpus game is absent
+          from BOTH share pools: gone from the old club's list, and started at zero evidence on the
+          new one by the evaluated stint rule. The rule is right about what is unknown (his role
+          here) — but silently omitting a star the reader came for is a product defect. His own
+          prior-club per-game usage is stated as fact, with the frame that it is NOT in the
+          simulated numbers above. */}
+      {(() => {
+        const arrivals = Object.entries(board.newArrivals ?? {})
+          .filter(([t]) => (team ? t === team : true))
+          .flatMap(([, list]) => list)
+          .filter((a) => (q ? a.name.toLowerCase().includes(q.toLowerCase()) : true));
+        if (!arrivals.length) return null;
+        return (
+          <div className="mt-4 rounded-[10px]" style={{ border: "1px solid var(--vault-rule)", padding: "10px 12px" }}>
+            <p className="font-mono uppercase tracking-[0.08em]" style={{ margin: 0, fontSize: 9.5, color: "var(--vault-gold)" }}>
+              New arrivals · not in the simulated numbers above
+            </p>
+            <p style={{ margin: "4px 0 8px", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+              These players are on the current roster but changed clubs since their last recorded game, so the model
+              has no observed usage for them <em>here</em> — their share sits in the unallocated mass until real usage
+              is seen. Shown below is their own per-game usage at their previous club: history, not a projection.
+            </p>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 520 }}>
+                <thead>
+                  <tr>
+                    {["Player", "Team", "Availability", "Last club", "Per game (prior club)"].map((h) => (
+                      <th key={h} scope="col" style={{ textAlign: "left", padding: "5px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {arrivals.map((a) => (
+                    <tr key={a.playerId} style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                      <td style={{ padding: "7px 9px", fontSize: 13, color: "var(--vault-text)", fontWeight: 600 }}>{a.name} <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{a.position}</span></td>
+                      <td className="font-mono" style={{ padding: "7px 9px", fontSize: 11, color: "var(--vault-text-mute)" }}>{a.team}</td>
+                      <td className="font-mono" style={{ padding: "7px 9px", fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+                        {PARTICIPATION_LABEL[a.participation] ?? a.participation.toLowerCase().replaceAll("_", " ")}
+                      </td>
+                      <td className="font-mono" style={{ padding: "7px 9px", fontSize: 11, color: "var(--vault-text-mute)" }}>{a.lastSeason.club} · {a.lastSeason.games}g</td>
+                      <td className="font-mono" style={{ padding: "7px 9px", fontSize: 12 }}>
+                        {a.lastSeason.targetsPg > 0 ? `${a.lastSeason.receptionsPg} rec · ${a.lastSeason.recYdsPg} yds` : null}
+                        {a.lastSeason.rushAttPg >= 1 ? `${a.lastSeason.targetsPg > 0 ? " · " : ""}${a.lastSeason.rushYdsPg} rush yds` : null}
+                        {a.lastSeason.passAttPg >= 1 ? `${a.lastSeason.targetsPg > 0 || a.lastSeason.rushAttPg >= 1 ? " · " : ""}${a.lastSeason.passYdsPg} pass yds` : null}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
 
       {withheld.length ? (
         <details className="mt-3" style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>

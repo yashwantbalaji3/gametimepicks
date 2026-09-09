@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T15:32:23Z",
- "sourceGeneratedAt": "2026-09-09T15:32:23Z",
+ "generatedAt": "2026-09-09T15:43:17Z",
+ "sourceGeneratedAt": "2026-09-09T15:34:59Z",
  "providerEventId": "401872659",
  "matchup": "BAL @ IND",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -48,6 +48,29 @@
    "state": "WITHHELD",
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
+ },
+ "newArrivals": {
+  "IND": [
+   {
+    "playerId": "nfl-athlete-15818",
+    "name": "Keenan Allen",
+    "position": "WR",
+    "team": "IND",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "LAC",
+     "games": 18,
+     "targetsPg": 7.2,
+     "receptionsPg": 4.7,
+     "recYdsPg": 44.6,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from LAC (18 games last season) — his role at IND is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
  },
  "players": [
   {
@@ -234,11 +257,11 @@
    "playerId": "nfl-athlete-4696882",
    "name": "Devontez Walker",
    "team": "BAL",
-   "participation": "ACTIVE_PROJECTED",
+   "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
      "probability": 0.201226,
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "QUESTIONABLE"
     }
    }
   },

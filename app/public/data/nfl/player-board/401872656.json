@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T15:32:23Z",
- "sourceGeneratedAt": "2026-09-09T15:32:23Z",
+ "generatedAt": "2026-09-09T15:43:17Z",
+ "sourceGeneratedAt": "2026-09-09T15:34:59Z",
  "providerEventId": "401872656",
  "matchup": "NE @ SEA",
  "kickoffUtc": "2026-09-10T00:20Z",
@@ -48,6 +48,69 @@
    "state": "WITHHELD",
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
+ },
+ "newArrivals": {
+  "SEA": [
+   {
+    "playerId": "nfl-athlete-4887558",
+    "name": "Emanuel Wilson",
+    "position": "RB",
+    "team": "SEA",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "GB",
+     "games": 20,
+     "targetsPg": 0.9,
+     "receptionsPg": 0.8,
+     "recYdsPg": 6.5,
+     "rushAttPg": 7,
+     "rushYdsPg": 28.5,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from GB (20 games last season) — his role at SEA is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "NE": [
+   {
+    "playerId": "nfl-athlete-4047646",
+    "name": "A.J. Brown",
+    "position": "WR",
+    "team": "NE",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "PHI",
+     "games": 16,
+     "targetsPg": 8,
+     "receptionsPg": 5.1,
+     "recYdsPg": 64.3,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from PHI (16 games last season) — his role at NE is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-4361432",
+    "name": "Romeo Doubs",
+    "position": "WR",
+    "team": "NE",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "GB",
+     "games": 19,
+     "targetsPg": 5.2,
+     "receptionsPg": 3.4,
+     "recYdsPg": 44.7,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from GB (19 games last season) — his role at NE is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
  },
  "players": [
   {
@@ -271,21 +334,14 @@
    "playerId": "nfl-athlete-4432710",
    "name": "TreVeyon Henderson",
    "team": "NE",
-   "participation": "QUESTIONABLE",
+   "participation": "INACTIVE",
    "markets": {
-    "player_rush_yds": {
-     "mean": 28.762,
-     "p10": 4.17,
-     "p25": 11.14,
-     "median": 23.82,
-     "p75": 40.37,
-     "p90": 60.26
-    },
     "anytime_td": {
      "probability": 0.140763,
-     "participation": "QUESTIONABLE"
+     "participation": "INACTIVE"
     }
-   }
+   },
+   "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
   },
   {
    "playerId": "nfl-athlete-4429022",

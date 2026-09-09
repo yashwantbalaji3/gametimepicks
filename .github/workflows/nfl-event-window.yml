@@ -88,6 +88,28 @@ jobs:
           echo "events=$COUNT" >> "$GITHUB_OUTPUT"
           if [ "$COUNT" -eq 0 ]; then echo "NO_EVENTS: no pre-start event in the current week or backstop window — clean skip, not an outage"; fi
 
+      # ---- Injury designations ----
+      #
+      # P250-GD3, found on game day: the injuries feed is captured ONLY by sport-schedules, on its
+      # own daily cadence, so this chain read whatever that job last stored. On 2026-09-09 the
+      # capture was 22.6h old — inside the 24h freshness bound, so every surface reported FRESH —
+      # while ESPN had upgraded TreVeyon Henderson to Out at 2026-09-08T21:05Z, four hours AFTER
+      # our snapshot. The site therefore published volume projections for a player who was out, on
+      # the day of his game. The rule this encodes: a pre-kickoff pass must refresh the designations
+      # it is about to condition on, rather than inheriting another job's snapshot.
+      #
+      # It runs BEFORE event assembly (which builds the participation pool) and before the
+      # role-evidence build, so both read the same fresh capture. Keyless public JSON, no cost;
+      # continue-on-error so a provider blip degrades to the previous capture with its real
+      # timestamp — which the freshness bound then reports honestly — rather than failing the window.
+      - name: Capture NFL injury designations (freshness input for the whole chain)
+        if: steps.window.outputs.events != '0'
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/sports/capture-injuries.mjs --now "${{ steps.window.outputs.now }}"
+
       - name: Authorized odds capture (receipt-gated, the only credit-bearing step)
         if: steps.window.outputs.events != '0' && github.event.inputs.skip_odds != 'true'
         working-directory: app

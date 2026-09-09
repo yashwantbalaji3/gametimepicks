@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T15:32:23Z",
- "sourceGeneratedAt": "2026-09-09T15:32:23Z",
+ "generatedAt": "2026-09-09T15:43:17Z",
+ "sourceGeneratedAt": "2026-09-09T15:34:59Z",
  "providerEventId": "401872925",
  "matchup": "TB @ CIN",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -48,6 +48,50 @@
    "state": "WITHHELD",
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
+ },
+ "newArrivals": {
+  "CIN": [
+   {
+    "playerId": "nfl-athlete-11394",
+    "name": "Josh Johnson",
+    "position": "QB",
+    "team": "CIN",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "WSH",
+     "games": 6,
+     "targetsPg": 0,
+     "receptionsPg": 0,
+     "recYdsPg": 0,
+     "rushAttPg": 2.7,
+     "rushYdsPg": 8.3,
+     "passAttPg": 16.3,
+     "passYdsPg": 108.5
+    },
+    "note": "usage carried from WSH (6 games last season) — his role at CIN is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "TB": [
+   {
+    "playerId": "nfl-athlete-4371733",
+    "name": "Kenny Gainwell",
+    "position": "RB",
+    "team": "TB",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "PIT",
+     "games": 20,
+     "targetsPg": 4.6,
+     "receptionsPg": 3.9,
+     "recYdsPg": 25.7,
+     "rushAttPg": 6.2,
+     "rushYdsPg": 28.3,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from PIT (20 games last season) — his role at TB is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
  },
  "players": [
   {
@@ -534,7 +578,7 @@
    "playerId": "nfl-athlete-4430834",
    "name": "Jalen McMillan",
    "team": "TB",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 20.598,

@@ -205,6 +205,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           .sort((a, b) => (b.markets.player_rush_yds!.median ?? 0) - (a.markets.player_rush_yds!.median ?? 0))
           .slice(0, 2);
         const estMark = (famKey: string) => (fams[famKey]?.state === "ESTIMATE" ? " · estimate" : "");
+        /* P250-GD3: roster movers the stint rule cannot place yet — factual prior-club usage,
+           named on the scorecard so a star the reader came for is never silently absent. */
+        const arrivalsOf = (abbr: string) => (playerBoard?.newArrivals?.[abbr] ?? []).slice(0, 3);
         const withheld = Object.entries(fams).filter(([, x]) => x.state === "WITHHELD");
         const estimates = Object.entries(fams).filter(([, x]) => x.state === "ESTIMATE");
         /* A raw family key is not a reader-facing label — the artifact's label wins, with a plain
@@ -258,6 +261,19 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                 ))}
               </div>
             ) : null}
+            {arrivalsOf(t.abbr).length ? (
+              <div style={{ marginTop: 10 }}>
+                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-warn)" }}>New arrivals · not in these numbers</p>
+                {arrivalsOf(t.abbr).map((a) => (
+                  <p key={a.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
+                    <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{a.name}</span>{" "}
+                    <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}>
+                      {a.lastSeason.targetsPg > 0 ? `${a.lastSeason.receptionsPg} rec · ${a.lastSeason.recYdsPg} yds` : a.lastSeason.passAttPg >= 1 ? `${a.lastSeason.passYdsPg} pass yds` : `${a.lastSeason.rushYdsPg} rush yds`}/g at {a.lastSeason.club}
+                    </span>
+                  </p>
+                ))}
+              </div>
+            ) : null}
             {hasRec && recTop(t.abbr).length ? (
               <div style={{ marginTop: 10 }}>
                 <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Receiving leaders</p>
@@ -299,6 +315,13 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   <TeamCol t={f.away} />
                   <TeamCol t={f.home} />
                 </div>
+              ) : null}
+              {Object.keys(playerBoard?.newArrivals ?? {}).length ? (
+                <p className="font-mono" style={{ margin: "12px 0 0", fontSize: 10, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
+                  “New arrivals” changed clubs since their last recorded game, so this model has no observed usage for
+                  them here — their prior-club per-game history is shown as fact and their share sits in the
+                  unallocated mass. Full detail in the board below.
+                </p>
               ) : null}
               {estimates.length ? (
                 <p className="font-mono" style={{ margin: "12px 0 0", fontSize: 10, lineHeight: 1.6, color: "var(--vault-warn)" }}>

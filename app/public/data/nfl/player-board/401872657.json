@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T15:32:23Z",
- "sourceGeneratedAt": "2026-09-09T15:32:23Z",
+ "generatedAt": "2026-09-09T15:43:17Z",
+ "sourceGeneratedAt": "2026-09-09T15:34:59Z",
  "providerEventId": "401872657",
  "matchup": "SF @ LAR",
  "kickoffUtc": "2026-09-11T00:35Z",
@@ -49,6 +49,67 @@
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
  },
+ "newArrivals": {
+  "SF": [
+   {
+    "playerId": "nfl-athlete-16737",
+    "name": "Mike Evans",
+    "position": "WR",
+    "team": "SF",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "TB",
+     "games": 8,
+     "targetsPg": 7.6,
+     "receptionsPg": 3.8,
+     "recYdsPg": 46,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from TB (8 games last season) — his role at SF is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-3126486",
+    "name": "Deebo Samuel Sr.",
+    "position": "WR",
+    "team": "SF",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "WSH",
+     "games": 17,
+     "targetsPg": 5.8,
+     "receptionsPg": 4.2,
+     "recYdsPg": 42.8,
+     "rushAttPg": 1.1,
+     "rushYdsPg": 5.5,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from WSH (17 games last season) — his role at SF is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-3895856",
+    "name": "Christian Kirk",
+    "position": "WR",
+    "team": "SF",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "HOU",
+     "games": 14,
+     "targetsPg": 4.9,
+     "receptionsPg": 2.9,
+     "recYdsPg": 29.7,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from HOU (14 games last season) — his role at SF is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
+ },
  "players": [
   {
    "playerId": "nfl-athlete-4430737",
@@ -90,7 +151,7 @@
    "playerId": "nfl-athlete-3117251",
    "name": "Christian McCaffrey",
    "team": "SF",
-   "participation": "QUESTIONABLE",
+   "participation": "ACTIVE_PROJECTED",
    "markets": {
     "player_rush_yds": {
      "mean": 47.495,
@@ -118,7 +179,7 @@
     },
     "anytime_td": {
      "probability": 0.454992,
-     "participation": "QUESTIONABLE"
+     "participation": "ACTIVE_PROJECTED"
     }
    }
   },
@@ -126,7 +187,7 @@
    "playerId": "nfl-athlete-4426515",
    "name": "Puka Nacua",
    "team": "LAR",
-   "participation": "QUESTIONABLE",
+   "participation": "ACTIVE_PROJECTED",
    "markets": {
     "player_reception_yds": {
      "mean": 67.31,
@@ -146,7 +207,7 @@
     },
     "anytime_td": {
      "probability": 0.396272,
-     "participation": "QUESTIONABLE"
+     "participation": "ACTIVE_PROJECTED"
     }
    }
   },
@@ -266,7 +327,7 @@
    "playerId": "nfl-athlete-4570037",
    "name": "Terrance Ferguson",
    "team": "LAR",
-   "participation": "QUESTIONABLE",
+   "participation": "ACTIVE_PROJECTED",
    "markets": {
     "player_reception_yds": {
      "mean": 12.817,
@@ -286,7 +347,7 @@
     },
     "anytime_td": {
      "probability": 0.213473,
-     "participation": "QUESTIONABLE"
+     "participation": "ACTIVE_PROJECTED"
     }
    }
   },
@@ -398,7 +459,7 @@
    "playerId": "nfl-athlete-4426553",
    "name": "Davis Allen",
    "team": "LAR",
-   "participation": "QUESTIONABLE",
+   "participation": "ACTIVE_PROJECTED",
    "markets": {
     "player_reception_yds": {
      "mean": 12.368,
@@ -418,7 +479,7 @@
     },
     "anytime_td": {
      "probability": 0.113384,
-     "participation": "QUESTIONABLE"
+     "participation": "ACTIVE_PROJECTED"
     }
    }
   },

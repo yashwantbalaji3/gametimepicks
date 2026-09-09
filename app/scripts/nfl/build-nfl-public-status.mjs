@@ -144,11 +144,20 @@ const familyState = (key, label) => {
       modelStanding: promo === "PUBLIC_ELIGIBLE" ? "The projection model itself meets its accuracy bar; only the game-day evidence is missing." : promo === "SHADOW_ELIGIBLE" ? "The projection model is close to its bar and runs privately." : "The projection model is still research — its ranges are not yet reliable enough to publish.",
     };
   }
+  /* P250-GD2: a below-bar family whose distributions the engine computes DISPLAYS, labelled an
+     unvalidated estimate with its failed bar — so "not published" became false copy for exactly
+     the families the reader can now see. The state vocabulary is unchanged (a shadow family is
+     still a shadow family); the headline stops claiming absence. */
+  const displaysAsEstimate = promo === "SHADOW_ELIGIBLE" || promo === "RESEARCH_ONLY";
   return {
     key, label,
     state: promo === "PUBLIC_ELIGIBLE" ? "MODEL_READY" : promo === "SHADOW_ELIGIBLE" ? "PRIVATE_SHADOW" : "RESEARCH_ONLY",
-    headline: `${label}: ${promo === "PUBLIC_ELIGIBLE" ? "model ready, awaiting live inputs" : "not published"}`,
-    detail: promo === "PUBLIC_ELIGIBLE" ? "The model meets its bar; publication still needs current role evidence and a current price." : "The model has not cleared its accuracy bar and stays private.",
+    headline: `${label}: ${promo === "PUBLIC_ELIGIBLE" ? "model ready, awaiting live inputs" : "displayed as an unvalidated estimate"}`,
+    detail: promo === "PUBLIC_ELIGIBLE"
+      ? "The model meets its bar; publication still needs current role evidence and a current price."
+      : displaysAsEstimate
+        ? "The model has not cleared its accuracy bar. Its numbers display for completeness, labelled an unvalidated estimate with the bar it failed, and never enter a product card or the graded record."
+        : "The model has not cleared its accuracy bar and stays private.",
     nextGate: "Current role evidence, a current offered line, and settlement support.",
   };
 };

@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T15:32:23Z",
- "sourceGeneratedAt": "2026-09-09T15:32:23Z",
+ "generatedAt": "2026-09-09T15:43:17Z",
+ "sourceGeneratedAt": "2026-09-09T15:34:59Z",
  "providerEventId": "401872927",
  "matchup": "GB @ MIN",
  "kickoffUtc": "2026-09-13T20:25Z",
@@ -48,6 +48,88 @@
    "state": "WITHHELD",
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
+ },
+ "newArrivals": {
+  "MIN": [
+   {
+    "playerId": "nfl-athlete-3886598",
+    "name": "Jauan Jennings",
+    "position": "WR",
+    "team": "MIN",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "SF",
+     "games": 17,
+     "targetsPg": 5.8,
+     "receptionsPg": 3.4,
+     "recYdsPg": 41.8,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0.1,
+     "passYdsPg": 1.7
+    },
+    "note": "usage carried from SF (17 games last season) — his role at MIN is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-3917315",
+    "name": "Kyler Murray",
+    "position": "QB",
+    "team": "MIN",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "ARI",
+     "games": 6,
+     "targetsPg": 0,
+     "receptionsPg": 0,
+     "recYdsPg": 0,
+     "rushAttPg": 5.2,
+     "rushYdsPg": 30.3,
+     "passAttPg": 28.2,
+     "passYdsPg": 176.3
+    },
+    "note": "usage carried from ARI (6 games last season) — his role at MIN is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "GB": [
+   {
+    "playerId": "nfl-athlete-14163",
+    "name": "Tyrod Taylor",
+    "position": "QB",
+    "team": "GB",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "NYJ",
+     "games": 6,
+     "targetsPg": 0,
+     "receptionsPg": 0,
+     "recYdsPg": 0,
+     "rushAttPg": 4.5,
+     "rushYdsPg": 23.8,
+     "passAttPg": 22.3,
+     "passYdsPg": 129.8
+    },
+    "note": "usage carried from NYJ (6 games last season) — his role at GB is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-3054212",
+    "name": "Jonnu Smith",
+    "position": "TE",
+    "team": "GB",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "PIT",
+     "games": 18,
+     "targetsPg": 3.2,
+     "receptionsPg": 2.2,
+     "recYdsPg": 12.3,
+     "rushAttPg": 0.5,
+     "rushYdsPg": 3.9,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from PIT (18 games last season) — his role at GB is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
  },
  "players": [
   {
@@ -489,30 +571,6 @@
      "median": 1.58,
      "p75": 9.84,
      "p90": 22.08
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4428085",
-   "name": "Luke Musgrave",
-   "team": "GB",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 18.092,
-     "p10": 0,
-     "p25": 0.64,
-     "median": 12.29,
-     "p75": 27.45,
-     "p90": 45.81
-    },
-    "player_receptions": {
-     "mean": 1.648,
-     "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 2,
-     "p90": 4
     }
    }
   },

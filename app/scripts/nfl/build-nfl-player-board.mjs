@@ -33,6 +33,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { deriveNewArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -66,6 +67,48 @@ const PROP_LABEL = {
   player_reception_yds: "Receiving yards",
   player_receptions: "Receptions",
 };
+
+/* P250-GD3 — NEW ARRIVALS: roster-present skill players with notable prior-club usage who the
+ * evaluated stint rule keeps out of the share pool (their new-club role is unobserved). Derived
+ * once for the week from the committed corpus + role evidence + share snapshot; attached per
+ * event so no star is ever silently absent. Factual per-game history, never a projection. */
+const newArrivalsByEvent = (() => {
+  try {
+    return deriveNewArrivals({
+      corpusSeasons: [
+        read(path.join(ROOT, "data/internal/research/nfl/player-events-v1/2025.json")),
+        read(path.join(ROOT, "data/internal/research/nfl/player-events-v1/2024.json")),
+      ].filter(Boolean),
+      roleEvidence: read(path.join(ROOT, "data/internal/nfl/role-evidence/latest.json")),
+      shares: read(path.join(ROOT, "data/internal/research/nfl/role-shares-v1/current.json")),
+    });
+  } catch (e) { console.error(`new-arrivals derivation failed (boards publish without the strip): ${e.message}`); return new Map(); }
+})();
+
+/*
+ * P250-GD3 — ONE DESIGNATION VOCABULARY, JOINED AT THE ROW.
+ *
+ * Found on game day: Tyrell Shavers was designated Out in the injuries feed and role evidence, and
+ * still carried receiving projections, because a props row's participation came from the event
+ * artifact's pool and was only ever UPGRADED by the anytime-TD board — a player absent from the TD
+ * top rows never met his own designation. The two artifacts also speak different words for the same
+ * state (role evidence OUT / board INACTIVE), so a naive comparison silently missed every out
+ * player. Every row now joins the role-evidence designation directly, translated once here.
+ */
+const ROLE_TO_BOARD = { OUT: "INACTIVE", INACTIVE: "INACTIVE", QUESTIONABLE: "QUESTIONABLE", ACTIVE_PROJECTED: "ACTIVE_PROJECTED", ACTIVE_UNCERTAIN: "AVAILABLE_ROLE_UNCERTAIN", SOURCE_STALE: "AVAILABLE_ROLE_UNCERTAIN" };
+const designationByPlayer = (() => {
+  const m = new Map();
+  const doc = read(path.join(ROOT, "data/internal/nfl/role-evidence/latest.json"));
+  for (const ev of doc?.events ?? []) {
+    for (const [abbr, tv] of Object.entries(ev.teams ?? {})) {
+      for (const p of tv.players ?? []) {
+        const mapped = ROLE_TO_BOARD[p.state];
+        if (mapped) m.set(`${abbr}:${p.playerId}`, mapped);
+      }
+    }
+  }
+  return m;
+})();
 
 const outDir = path.join(APP, "public/data/nfl/player-board");
 fs.mkdirSync(outDir, { recursive: true });
@@ -153,6 +196,14 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     }
   }
 
+  /* The designation join: the strongest evidence wins on every row, not only on rows the TD board
+     happened to rank. Runs BEFORE the withholding pass below, which is what acts on it. */
+  const RANK = { INACTIVE: 3, QUESTIONABLE: 2, ACTIVE_PROJECTED: 1, AVAILABLE_ROLE_UNCERTAIN: 0 };
+  for (const pl of players) {
+    const designated = designationByPlayer.get(`${pl.team}:${pl.playerId}`);
+    if (designated && (RANK[designated] ?? 0) > (RANK[pl.participation] ?? 0)) pl.participation = designated;
+  }
+
   /*
    * CONFIRMED ABSENCE CONDITIONS THE OUTPUT (the charter's direction test, applied at publication):
    * a volume distribution for an injury-listed INACTIVE player is a projection of a game he is
@@ -184,6 +235,9 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     week: doc.week,
     participationBasis: "No authorized actives feed publishes this far out: every projection conditions on the role evidence's availability state (injury-listed players are marked; everyone else is AVAILABLE_ROLE_UNCERTAIN) and refreshes until kickoff.",
     families,
+    /* New arrivals per team: factual prior-club per-game usage for notable movers the stint rule
+       cannot yet place. NOT part of the simulated numbers, and each row says so. */
+    newArrivals: newArrivalsByEvent.get(doc.providerEventId) ?? {},
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
     disclaimer: "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook.",
   };

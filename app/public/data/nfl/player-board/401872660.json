@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T15:32:23Z",
- "sourceGeneratedAt": "2026-09-09T15:32:23Z",
+ "generatedAt": "2026-09-09T15:43:17Z",
+ "sourceGeneratedAt": "2026-09-09T15:34:59Z",
  "providerEventId": "401872660",
  "matchup": "BUF @ HOU",
  "kickoffUtc": "2026-09-13T17:00Z",
@@ -48,6 +48,88 @@
    "state": "WITHHELD",
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
+ },
+ "newArrivals": {
+  "HOU": [
+   {
+    "playerId": "nfl-athlete-4035538",
+    "name": "David Montgomery",
+    "position": "RB",
+    "team": "HOU",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "DET",
+     "games": 17,
+     "targetsPg": 1.7,
+     "receptionsPg": 1.4,
+     "recYdsPg": 11.3,
+     "rushAttPg": 9.3,
+     "rushYdsPg": 42.1,
+     "passAttPg": 0.1,
+     "passYdsPg": 0.2
+    },
+    "note": "usage carried from DET (17 games last season) — his role at HOU is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-4429022",
+    "name": "Kayshon Boutte",
+    "position": "WR",
+    "team": "HOU",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "NE",
+     "games": 19,
+     "targetsPg": 3.5,
+     "receptionsPg": 2.3,
+     "recYdsPg": 38.3,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from NE (19 games last season) — his role at HOU is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-4690070",
+    "name": "Mitchell Tinsley",
+    "position": "WR",
+    "team": "HOU",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "CIN",
+     "games": 10,
+     "targetsPg": 3.1,
+     "receptionsPg": 1.4,
+     "recYdsPg": 20.4,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from CIN (10 games last season) — his role at HOU is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "BUF": [
+   {
+    "playerId": "nfl-athlete-3915416",
+    "name": "DJ Moore",
+    "position": "WR",
+    "team": "BUF",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "CHI",
+     "games": 21,
+     "targetsPg": 4.9,
+     "receptionsPg": 3,
+     "recYdsPg": 39.4,
+     "rushAttPg": 0.8,
+     "rushYdsPg": 3.9,
+     "passAttPg": 0,
+     "passYdsPg": 0.1
+    },
+    "note": "usage carried from CHI (21 games last season) — his role at BUF is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
  },
  "players": [
   {
@@ -110,29 +192,14 @@
    "playerId": "nfl-athlete-4877706",
    "name": "Jayden Higgins",
    "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
+   "participation": "INACTIVE",
    "markets": {
-    "player_reception_yds": {
-     "mean": 27.571,
-     "p10": 0,
-     "p25": 7.69,
-     "median": 21.38,
-     "p75": 40.69,
-     "p90": 62.67
-    },
-    "player_receptions": {
-     "mean": 2.458,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5
-    },
     "anytime_td": {
      "probability": 0.247093,
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "INACTIVE"
     }
-   }
+   },
+   "volumeNote": "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise"
   },
   {
    "playerId": "nfl-athlete-4429059",
@@ -407,11 +474,11 @@
    "playerId": "nfl-athlete-4586312",
    "name": "Jaylin Noel",
    "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
+   "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
      "probability": 0.119628,
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "QUESTIONABLE"
     }
    }
   },
@@ -479,7 +546,7 @@
    "playerId": "nfl-athlete-4373273",
    "name": "British Brooks",
    "team": "HOU",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 6.535,
@@ -543,7 +610,7 @@
    "playerId": "nfl-athlete-4373678",
    "name": "Khalil Shakir",
    "team": "BUF",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 44.318,
@@ -579,30 +646,6 @@
     },
     "player_receptions": {
      "mean": 1.534,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4241476",
-   "name": "Tyrell Shavers",
-   "team": "BUF",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 15.355,
-     "p10": 0,
-     "p25": 0,
-     "median": 9.06,
-     "p75": 23.31,
-     "p90": 40.96
-    },
-    "player_receptions": {
-     "mean": 1.36,
      "p10": 0,
      "p25": 0,
      "median": 1,

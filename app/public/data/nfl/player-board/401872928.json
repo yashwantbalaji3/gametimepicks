@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T15:32:23Z",
- "sourceGeneratedAt": "2026-09-09T15:32:23Z",
+ "generatedAt": "2026-09-09T15:43:17Z",
+ "sourceGeneratedAt": "2026-09-09T15:34:59Z",
  "providerEventId": "401872928",
  "matchup": "MIA @ LV",
  "kickoffUtc": "2026-09-13T20:25Z",
@@ -48,6 +48,69 @@
    "state": "WITHHELD",
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
+ },
+ "newArrivals": {
+  "LV": [
+   {
+    "playerId": "nfl-athlete-4382466",
+    "name": "Jalen Nailor",
+    "position": "WR",
+    "team": "LV",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "MIN",
+     "games": 18,
+     "targetsPg": 3,
+     "receptionsPg": 1.7,
+     "recYdsPg": 25.2,
+     "rushAttPg": 0.1,
+     "rushYdsPg": 0.7,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from MIN (18 games last season) — his role at LV is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-14880",
+    "name": "Kirk Cousins",
+    "position": "QB",
+    "team": "LV",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "ATL",
+     "games": 10,
+     "targetsPg": 0,
+     "receptionsPg": 0,
+     "recYdsPg": 0,
+     "rushAttPg": 1.4,
+     "rushYdsPg": 0.7,
+     "passAttPg": 26.9,
+     "passYdsPg": 172.1
+    },
+    "note": "usage carried from ATL (10 games last season) — his role at LV is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "MIA": [
+   {
+    "playerId": "nfl-athlete-4429435",
+    "name": "Brady Cook",
+    "position": "QB",
+    "team": "MIA",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "NYJ",
+     "games": 8,
+     "targetsPg": 0,
+     "receptionsPg": 0,
+     "recYdsPg": 0,
+     "rushAttPg": 2,
+     "rushYdsPg": 7.1,
+     "passAttPg": 23.9,
+     "passYdsPg": 121.8
+    },
+    "note": "usage carried from NYJ (8 games last season) — his role at MIA is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
  },
  "players": [
   {
@@ -383,30 +446,6 @@
      "median": 1,
      "p75": 2,
      "p90": 4
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4432775",
-   "name": "Dont'e Thornton Jr.",
-   "team": "LV",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 15.373,
-     "p10": 0,
-     "p25": 0,
-     "median": 9.06,
-     "p75": 23.73,
-     "p90": 40.66
-    },
-    "player_receptions": {
-     "mean": 1.398,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3
     }
    }
   },

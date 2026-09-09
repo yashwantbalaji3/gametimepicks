@@ -6,8 +6,9 @@
  * verbatim. Rules, each from the charter:
  *  - WEEK-SCOPED MEMBERSHIP: only events whose (seasonType, week) match the current forecast
  *    week qualify — never a clock window.
- *  - PROMOTION-GATED: a family ranks only if every constituent board publishes it; a withheld
- *    family appears as a withheld BOARD carrying the exact bar it failed, never as numbers.
+ *  - PROMOTION-GATED: a family ranks only if every constituent board carries the same state; a
+ *    withheld family appears as a withheld BOARD carrying the exact bar it failed, never as numbers.
+ *    P250-GD2: an ESTIMATE family ranks under that state, its failed bar and caveat riding along.
  *  - CONFIRMED OUT = EXCLUDED: an INACTIVE player never ranks on a default top board; his
  *    conditional numbers stay in the per-game board's explicit optional detail.
  *  - TOP-N ARE MAXIMUMS, NOT QUOTAS: fewer qualified rows publish fewer rows; nothing is
@@ -157,5 +158,5 @@ fs.writeFileSync(path.join(OUT_DIR, "latest.json"), raw + "\n");
 fs.writeFileSync(path.join(OUT_DIR, `${period.seasonType}-${String(period.week).padStart(2, "0")}.json`), raw + "\n");
 console.log(
   `weekly boards: ${scope.kind} over ${scoped.length} events · ` +
-  out.boards.map((b) => `${b.id}=${b.state === "PUBLISHED" ? b.rows.length : "withheld"}`).join(" "),
+  out.boards.map((b) => `${b.id}=${b.state === "PUBLISHED" ? b.rows.length : b.state === "ESTIMATE" ? `${b.rows.length}est` : "withheld"}`).join(" "),
 );

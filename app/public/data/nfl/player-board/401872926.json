@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T15:32:23Z",
- "sourceGeneratedAt": "2026-09-09T15:32:23Z",
+ "generatedAt": "2026-09-09T15:43:17Z",
+ "sourceGeneratedAt": "2026-09-09T15:34:59Z",
  "providerEventId": "401872926",
  "matchup": "ARI @ LAC",
  "kickoffUtc": "2026-09-13T20:25Z",
@@ -48,6 +48,88 @@
    "state": "WITHHELD",
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
+ },
+ "newArrivals": {
+  "LAC": [
+   {
+    "playerId": "nfl-athlete-3123076",
+    "name": "David Njoku",
+    "position": "TE",
+    "team": "LAC",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "CLE",
+     "games": 12,
+     "targetsPg": 4.2,
+     "receptionsPg": 2.9,
+     "recYdsPg": 26.1,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from CLE (12 games last season) — his role at LAC is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-4426535",
+    "name": "Theo Wease Jr.",
+    "position": "WR",
+    "team": "LAC",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "MIA",
+     "games": 6,
+     "targetsPg": 4.2,
+     "receptionsPg": 2.7,
+     "recYdsPg": 40.5,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from MIA (6 games last season) — his role at LAC is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "ARI": [
+   {
+    "playerId": "nfl-athlete-4373626",
+    "name": "Tyler Allgeier",
+    "position": "RB",
+    "team": "ARI",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "ATL",
+     "games": 17,
+     "targetsPg": 0.9,
+     "receptionsPg": 0.8,
+     "recYdsPg": 5.6,
+     "rushAttPg": 8.4,
+     "rushYdsPg": 30.2,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from ATL (17 games last season) — his role at ARI is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-3045523",
+    "name": "Kendrick Bourne",
+    "position": "WR",
+    "team": "ARI",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "SF",
+     "games": 15,
+     "targetsPg": 3.7,
+     "receptionsPg": 2.5,
+     "recYdsPg": 36.7,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from SF (15 games last season) — his role at ARI is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
  },
  "players": [
   {
@@ -405,38 +487,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4429275",
-   "name": "Trey Benson",
-   "team": "ARI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 22.173,
-     "p10": 1.13,
-     "p25": 6.37,
-     "median": 16.93,
-     "p75": 32.66,
-     "p90": 49.13
-    },
-    "player_reception_yds": {
-     "mean": 18.109,
-     "p10": 0,
-     "p25": 1.37,
-     "median": 12.59,
-     "p75": 27.21,
-     "p90": 46.06
-    },
-    "player_receptions": {
-     "mean": 1.772,
-     "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4383351",
    "name": "Trey Lance",
    "team": "LAC",
@@ -488,7 +538,7 @@
    "playerId": "nfl-athlete-4686612",
    "name": "Tre' Harris",
    "team": "LAC",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 19.572,
