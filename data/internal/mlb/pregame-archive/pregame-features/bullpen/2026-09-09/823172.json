@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823172,
   "date": "2026-09-09",
-  "capturedAt": "2026-09-09T00:53:22.805Z",
-  "availableAt": "2026-09-09T00:53:22.805Z",
+  "capturedAt": "2026-09-09T05:43:01.895Z",
+  "availableAt": "2026-09-09T05:43:01.895Z",
   "eventStartTime": "2026-09-09T19:45:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,67 @@
     "teamId": 137,
     "teamName": "San Francisco Giants",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 68,
+      "relievers": [
+        {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 2,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 669270,
+          "name": "Joel Kuhnel",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 128,
+      "appearances": 9,
+      "pitches": 196,
       "relievers": [
+        {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 2,
+          "pitches": 47,
+          "outs": 5,
+          "dates": [
+            "2026-09-06",
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 669270,
+          "name": "Joel Kuhnel",
+          "appearances": 2,
+          "pitches": 41,
+          "outs": 7,
+          "dates": [
+            "2026-09-06",
+            "2026-09-08"
+          ]
+        },
         {
           "id": 681916,
           "name": "Dylan Smith",
@@ -49,13 +102,14 @@
           ]
         },
         {
-          "id": 669270,
-          "name": "Joel Kuhnel",
-          "appearances": 1,
-          "pitches": 20,
-          "outs": 3,
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 2,
+          "pitches": 21,
+          "outs": 4,
           "dates": [
-            "2026-09-06"
+            "2026-09-07",
+            "2026-09-08"
           ]
         },
         {
@@ -67,42 +121,39 @@
           "dates": [
             "2026-09-07"
           ]
-        },
-        {
-          "id": 693313,
-          "name": "Carson Seymour",
-          "appearances": 1,
-          "pitches": 16,
-          "outs": 3,
-          "dates": [
-            "2026-09-06"
-          ]
-        },
-        {
-          "id": 665665,
-          "name": "Reiver Sanmartin",
-          "appearances": 1,
-          "pitches": 5,
-          "outs": 1,
-          "dates": [
-            "2026-09-07"
-          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 693313,
+        "name": "Carson Seymour",
+        "reason": "31 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 138,
     "teamName": "St. Louis Cardinals",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 32,
+      "relievers": [
+        {
+          "id": 700669,
+          "name": "Gordon Graceffo",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-09-08"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 9,
-      "pitches": 161,
+      "appearances": 10,
+      "pitches": 193,
       "relievers": [
         {
           "id": 687309,
@@ -123,6 +174,16 @@
           "dates": [
             "2026-09-06",
             "2026-09-07"
+          ]
+        },
+        {
+          "id": 700669,
+          "name": "Gordon Graceffo",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-09-08"
           ]
         },
         {
@@ -178,12 +239,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 700669,
+        "name": "Gordon Graceffo",
+        "reason": "32 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-06,2026-09-07,2026-09-08) + feed/live box scores",
-    "capturedAt": "2026-09-09T00:53:22.805Z"
+    "capturedAt": "2026-09-09T05:43:01.895Z"
   },
-  "recordHash": "27c4157b1e3c2bfbd4a7ef5dc30c56e4fbedcee64fc92b8ca68ef4a7fb8240ca"
+  "recordHash": "e66c36b8a3e2c857c980300e605401b7681a3c3ec9f93bef8d9b3698c14f0df3"
 }
