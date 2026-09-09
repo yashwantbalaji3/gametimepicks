@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824064,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T18:12:01.905Z",
+  "availableAt": "2026-09-09T18:12:01.905Z",
+  "eventStartTime": "2026-09-09T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663738,
+      "name": "Daniel Lynch IV",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19,
+        "ipAvg": 3.8,
+        "kAvg": 1.8,
+        "bbAvg": 1.2,
+        "erAvg": 2.6,
+        "hrAvg": 0.6,
+        "kPer9": 4.26,
+        "workloadIpLast5": 19
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 20.67,
+        "k": 11,
+        "bb": 8,
+        "er": 16,
+        "hr": 3
+      }
+    },
+    "away": {
+      "id": 668678,
+      "name": "Zac Gallen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 64,
+      "lastStartDate": "2026-07-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 3,
+        "bbAvg": 2,
+        "erAvg": 5.4,
+        "hrAvg": 1.4,
+        "kPer9": 4.76,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 98,
+        "k": 61,
+        "bb": 31,
+        "er": 69,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-09T18:12:01.905Z"
+  },
+  "recordHash": "a6d00ae8a630b2764b0525afce9af9c50fd62f53a4b2facec2fdc8bbcad7f365"
+}
