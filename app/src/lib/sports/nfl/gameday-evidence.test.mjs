@@ -194,3 +194,54 @@ test("LIVE · ONE ANSWER PER PLAYER — no surface calls a designated-out player
     }
   }
 });
+
+test("P251 · A STALE FEED CANNOT UN-DESIGNATE A PLAYER", () => {
+  /*
+   * "Silence from a stale feed proves nothing" was enforced in one direction only. Any non-FRESH
+   * injuries read collapsed EVERY player to SOURCE_STALE — including the ones the feed had already
+   * designated Out — and SOURCE_STALE maps downstream to AVAILABLE_ROLE_UNCERTAIN, while the
+   * board's withholding pass strips volume only from INACTIVE. So a degraded read handed a
+   * designated-out player his projection back.
+   *
+   * It happened live: the 2026-09-09T22:57Z run recorded injuries CLOCK_DEFECT and published 33
+   * rushing yards for Zach Charbonnet, three days after ESPN listed him Out and hours after this
+   * same chain had correctly withheld them.
+   *
+   * The asymmetry is the claim: staleness widens what we do not know, and cannot create knowledge
+   * we never had. A recent blocking designation survives a degraded read; everything softer still
+   * degrades; and a designation older than the carry window is NOT carried forward, because that
+   * would be the opposite error.
+   */
+  const src = readApp("scripts/nfl/build-nfl-role-evidence.mjs");
+  assert.match(src, /a stale feed cannot un-designate a player/, "the rule is stated where it is enforced");
+  assert.match(src, /DESIGNATION_CARRY_H/, "and it is bounded — an ancient designation is not carried forward");
+  /* The blocking branch must be evaluated BEFORE the two staleness branches, or it is unreachable. */
+  const iCarry = src.indexOf("carried through a");
+  const iRosterStale = src.indexOf('because = `roster capture is');
+  const iInjuryStale = src.indexOf("silence from a stale feed proves nothing");
+  assert.ok(iCarry > 0 && iCarry < iRosterStale && iCarry < iInjuryStale,
+    "the designation-carry branch must run before the staleness branches, or a stale read still wins");
+
+  /* And the live artifact must agree with the live designations, whatever the freshness says. */
+  const role = read("data/internal/nfl/role-evidence/latest.json");
+  const injuries = read("data/internal/research/injuries/nfl/latest.json");
+  const blocking = new Map(
+    (injuries.entries ?? [])
+      .filter((e) => /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i.test(String(e.status ?? "")))
+      .map((e) => [`nfl-athlete-${e.athleteId}`, e]),
+  );
+  for (const ev of role.events ?? []) {
+    const kickoff = Date.parse(ev.kickoffUtc);
+    for (const [, tv] of Object.entries(ev.teams ?? {})) {
+      for (const p of tv.players ?? []) {
+        const inj = blocking.get(p.playerId);
+        if (!inj) continue;
+        const stated = Date.parse(inj.statedAt ?? "");
+        const recent = Number.isFinite(stated) && Number.isFinite(kickoff) && kickoff - stated <= 336 * 3.6e6 && stated <= kickoff;
+        if (!recent) continue;
+        assert.equal(p.state, "OUT",
+          `${p.name} is designated ${inj.status} (stated ${inj.statedAt}) and the role evidence says ${p.state} — freshness is ${JSON.stringify(role.freshness)}`);
+      }
+    }
+  }
+});

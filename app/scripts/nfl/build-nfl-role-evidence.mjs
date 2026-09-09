@@ -64,6 +64,10 @@ const injuryByPlayer = new Map();
 for (const e of injuries?.entries ?? []) if (e?.athleteId != null) injuryByPlayer.set(`nfl-athlete-${e.athleteId}`, e);
 
 const BLOCKING = /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i;
+/** How recent a blocking designation must be, relative to KICKOFF, to survive a degraded read.
+ *  Two weeks: long enough to cover a designation made the week before a game, short enough that
+ *  last season's cannot rule a player out today. */
+const DESIGNATION_CARRY_H = 336;
 const QUESTIONABLE = /^(questionable|doubtful)/i;
 
 const nowMs = Date.parse(NOW);
@@ -89,7 +93,33 @@ for (const ev of events) {
       const inj = injuryByPlayer.get(p.playerId) ?? null;
       const status = String(inj?.status ?? "");
       let state; let because;
-      if (rosterFresh.state !== "FRESH") { state = "SOURCE_STALE"; because = `roster capture is ${rosterFresh.state.toLowerCase()}`; }
+      /*
+       * P251: A STALE FEED CANNOT UN-DESIGNATE SOMEBODY.
+       *
+       * "Silence from a stale feed proves nothing" was applied in one direction only: any
+       * non-FRESH injuries read collapsed EVERY player to SOURCE_STALE, including the ones the
+       * feed had already designated Out. Downstream, SOURCE_STALE maps to
+       * AVAILABLE_ROLE_UNCERTAIN and the board's withholding pass only strips volume from
+       * INACTIVE — so a degraded feed silently handed a designated-out player his rushing
+       * projection back. That is exactly what happened on 2026-09-09: the 22:57Z run recorded
+       * injuries CLOCK_DEFECT and published 33 rushing yards for Zach Charbonnet, three days
+       * after ESPN listed him Out and hours after this chain had correctly withheld them.
+       *
+       * The asymmetry is the point. Staleness widens what we do not know; it cannot create
+       * knowledge we never had. So a BLOCKING designation that is recent relative to the event it
+       * concerns survives a stale read, and everything softer still degrades. A designation older
+       * than the two-week window is not carried forward — that would be the opposite error.
+       */
+      const statedMs = Date.parse(inj?.statedAt ?? "");
+      const kickoffMs = Date.parse(ev.dateUtc);
+      const designationRecent = Number.isFinite(statedMs) && Number.isFinite(kickoffMs)
+        && kickoffMs - statedMs <= DESIGNATION_CARRY_H * 3.6e6 && statedMs <= kickoffMs;
+      const feedDegraded = rosterFresh.state !== "FRESH" || injuryFresh.state !== "FRESH";
+      if (feedDegraded && BLOCKING.test(status) && designationRecent) {
+        state = "OUT";
+        because = `published designation: ${inj.status} (stated ${inj.statedAt}) — carried through a ${(injuryFresh.state !== "FRESH" ? injuryFresh.state : rosterFresh.state).toLowerCase()} read, because a stale feed cannot un-designate a player`;
+      }
+      else if (rosterFresh.state !== "FRESH") { state = "SOURCE_STALE"; because = `roster capture is ${rosterFresh.state.toLowerCase()}`; }
       else if (injuryFresh.state !== "FRESH") { state = "SOURCE_STALE"; because = `injury feed is ${injuryFresh.state.toLowerCase()} — silence from a stale feed proves nothing`; }
       else if (BLOCKING.test(status)) { state = "OUT"; because = `published designation: ${inj.status}`; }
       else if (QUESTIONABLE.test(status)) { state = "QUESTIONABLE"; because = `published designation: ${inj.status}`; }

@@ -16,6 +16,7 @@ import Link from "next/link";
 import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
 import { usePathname } from "next/navigation";
 import BrandMark from "./brand-mark";
+import SiteSearch from "@/components/search/site-search";
 
 // June-12 IA restructure — the rail is organised around user intent
 // ("what do I want to do?"), not internal implementation routes:
@@ -113,6 +114,12 @@ export default function CommandRail() {
       >
         <BrandMark variant="rail" />
       </Link>
+
+      {/* P251-F7: the way in. 377 pages and nineteen board-scoped filter boxes meant a reader had
+          to know which page to open before they could look anything up. */}
+      <div className="px-4 pb-1">
+        <SiteSearch />
+      </div>
 
       <nav aria-label="Primary (rail)" className="flex-1 px-3 py-2 flex flex-col gap-0.5 overflow-y-auto">
         {ITEMS.map((item) => {

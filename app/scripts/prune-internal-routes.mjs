@@ -37,11 +37,16 @@ const INTERNAL_ROUTES = ["ops", "preview", "launch"];
 
 /**
  * Data files the public site serves even though no page links them. Kept deliberately, not by accident.
- *   build-info.json — the deployed build marker. `verify-deployment.mjs` and `public-beta-observe.mjs`
- *                     fetch it from production to state (not infer) which build is live.
+ *   build-info.json    — the deployed build marker. `verify-deployment.mjs` and
+ *                        `public-beta-observe.mjs` fetch it from production to state (not infer)
+ *                        which build is live.
+ *   search/index.json  — the site search index (P251 · F7). Fetched by the search overlay on first
+ *                        open rather than bundled, so no page references it at build time and the
+ *                        derived keep-set cannot see it. It is public by design: it holds only
+ *                        labels, context lines and destinations that already exist on shipped pages.
  * Paths are relative to out/data/.
  */
-const ALWAYS_PUBLIC_DATA = ["build-info.json"];
+const ALWAYS_PUBLIC_DATA = ["build-info.json", "search/index.json"];
 
 if (process.env.NEXT_PUBLIC_INTERNAL_ROUTES === "1") {
   console.log("[prune-internal-routes] NEXT_PUBLIC_INTERNAL_ROUTES=1 → keeping internal routes in out/");
