@@ -985,3 +985,42 @@ graded record's population, pricing state NOT_AUTHORIZED on every row, and INACT
 carry no volume numbers. Guards rebased to pin the estimate contract: reason + caveat REQUIRED on
 the artifact, rendering only via family state, marker always worn. The scorecard is now the full
 completed-game shape: score line, win chance, total, TD scorers, passing, rushing, receiving.
+
+## P250-GD3 — game-day evidence freshness + roster movers (Sep 9, 374ebb295, CI green, prod 10/10)
+
+Two founder reports on game day, both real, both systemic rather than one-off.
+
+**"Henderson out."** Confirmed against the authorized source: ESPN upgraded him to Out at
+2026-09-08T21:05Z; our injuries capture was taken 16:54Z — four hours EARLIER — and nothing
+refreshed it on game day, so the site published a rushing line for a player ruled out. Two root
+causes: (a) the injuries feed was captured only by sport-schedules on its own cadence, so this
+chain inherited a snapshot; at 22.6h it sat inside the 24h bound and every surface reported FRESH
+while carrying a two-day-old designation — the window now captures injuries ITSELF, before event
+assembly and before role evidence, because a pre-kickoff pass must refresh what it conditions on;
+(b) a VOCABULARY MISMATCH hid the scale — role evidence says OUT, the board's withholding rule
+checks INACTIVE, and a props row only ever met its designation if the anytime-TD board happened to
+rank it. Henderson was caught by that accident; **twelve other out-designated players across the
+slate were not** and carried volume projections. Every row now joins the role-evidence designation
+directly, translated once at the builder.
+
+**"Doesn't mention AJ Brown at all."** A real hole in the pool, not a display bug: a player who
+changes clubs after his last corpus game is absent from BOTH share pools — off the old club's
+list, and started at zero evidence on the new one by the evaluated stint rule. A.J. Brown (16
+games, 64.3 receiving yards per game at PHI in our own corpus) appeared NOWHERE on New England's
+page. The stint rule is RIGHT about what is unknown; rendering that as silence was the defect.
+new-arrivals.mjs publishes each notable mover's own prior-club per-game usage as stated FACT,
+explicitly outside the simulated numbers, on the scorecard and in a board strip — no decay model,
+no invented share, no renormalization, and the row retires itself once real usage is observed.
+
+Also corrected: model-status still said "Passing yards: not published" after GD2 made them
+display; the index and its dependent artifacts must be re-derived on ONE stamp (a consistency
+guard caught the mismatch mid-gate).
+
+Guards (gameday-evidence.test.mjs): the window captures injuries before the steps that read them ·
+NO out-designated player may carry a volume projection on any board (live invariant) · role
+evidence may never predate its injuries capture · an arrival needs a real prior sample and must
+carry the not-in-these-numbers frame · no arrival field may read as a projection.
+
+⚠ LESSON: a freshness BOUND is not freshness. A 24h window over a designation that changes hourly
+on game day reported FRESH for a snapshot four hours behind the source. Bound the staleness to the
+decision, not to the feed's convenience.
