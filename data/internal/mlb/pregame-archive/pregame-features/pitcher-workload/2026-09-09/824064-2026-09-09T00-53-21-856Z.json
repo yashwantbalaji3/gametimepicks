@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824064,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T00:53:21.856Z",
+  "availableAt": "2026-09-09T00:53:21.856Z",
+  "eventStartTime": "2026-09-09T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663738,
+      "name": "Daniel Lynch IV",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19,
+        "ipAvg": 3.8,
+        "kAvg": 1.8,
+        "bbAvg": 1.2,
+        "erAvg": 2.6,
+        "hrAvg": 0.6,
+        "kPer9": 4.26,
+        "workloadIpLast5": 19
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 20.67,
+        "k": 11,
+        "bb": 8,
+        "er": 16,
+        "hr": 3
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-09T00:53:21.856Z"
+  },
+  "recordHash": "4628f86856ae785d169b5f050ded073a4b6d892b53f6ba8d9b5efbe9b9ca1e9a"
+}

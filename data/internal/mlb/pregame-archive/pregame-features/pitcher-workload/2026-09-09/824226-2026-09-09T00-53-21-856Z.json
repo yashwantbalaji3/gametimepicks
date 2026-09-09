@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824226,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T00:53:21.856Z",
+  "availableAt": "2026-09-09T00:53:21.856Z",
+  "eventStartTime": "2026-09-09T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 672456,
+      "name": "Keider Montero",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 3,
+        "bbAvg": 1.4,
+        "erAvg": 3,
+        "hrAvg": 0.8,
+        "kPer9": 5.06,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 128.67,
+        "k": 80,
+        "bb": 28,
+        "er": 52,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 805673,
+      "name": "Zebby Matthews",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 4.8,
+        "bbAvg": 1,
+        "erAvg": 2.2,
+        "hrAvg": 1,
+        "kPer9": 6.97,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 117,
+        "k": 97,
+        "bb": 33,
+        "er": 61,
+        "hr": 22
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-09T00:53:21.856Z"
+  },
+  "recordHash": "2d38dc6958806a236a6066745d39cedcde1d5684ba40369acf42fb8feea4a398"
+}

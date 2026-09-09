@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823818,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T00:53:21.856Z",
+  "availableAt": "2026-09-09T00:53:21.856Z",
+  "eventStartTime": "2026-09-09T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676083,
+      "name": "Janson Junk",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 2.4,
+        "bbAvg": 1.2,
+        "erAvg": 1.2,
+        "hrAvg": 0,
+        "kPer9": 4.26,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 107,
+        "k": 74,
+        "bb": 29,
+        "er": 48,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 476594,
+      "name": "Robert Stock",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 9,
+      "lastStartDate": "2026-08-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21,
+        "ipAvg": 4.2,
+        "kAvg": 4.2,
+        "bbAvg": 2.6,
+        "erAvg": 3.2,
+        "hrAvg": 0.2,
+        "kPer9": 9,
+        "workloadIpLast5": 21
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 26,
+        "k": 25,
+        "bb": 13,
+        "er": 17,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-09T00:53:21.856Z"
+  },
+  "recordHash": "dd196b78b39f6ee0da526be4fe519939b0fbdeaf049bbdbfcb26fa958256d321"
+}

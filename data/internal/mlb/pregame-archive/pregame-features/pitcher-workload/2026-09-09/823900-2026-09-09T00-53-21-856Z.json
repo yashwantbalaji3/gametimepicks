@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823900,
+  "date": "2026-09-09",
+  "capturedAt": "2026-09-09T00:53:21.856Z",
+  "availableAt": "2026-09-09T00:53:21.856Z",
+  "eventStartTime": "2026-09-10T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 808967,
+      "name": "Yoshinobu Yamamoto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 7,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.33,
+        "ipAvg": 6.27,
+        "kAvg": 8,
+        "bbAvg": 1.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 11.49,
+        "workloadIpLast5": 31.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 165,
+        "k": 161,
+        "bb": 38,
+        "er": 49,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 695076,
+      "name": "Rhett Lowder",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 3.4,
+        "bbAvg": 1.6,
+        "erAvg": 3.6,
+        "hrAvg": 1,
+        "kPer9": 5.67,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 109,
+        "k": 87,
+        "bb": 42,
+        "er": 69,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-09T00:53:21.856Z"
+  },
+  "recordHash": "fa5531b770b31f3cfcfe697d463a9845b2f86bebf3083b88743b08808f33ec4a"
+}
