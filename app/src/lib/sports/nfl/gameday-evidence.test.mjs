@@ -71,6 +71,33 @@ test("LIVE · every board's evidence is no older than the artifact that built it
   );
 });
 
+test("LIVE · no published row belongs to a player who is off that team's roster", () => {
+  /*
+   * P250-GD4: the Aug-13 share snapshot still listed movers under the club they LEFT, so the pool
+   * did not merely omit them — it attributed their volume to the wrong team. Quinn Ewers was
+   * projected as Miami's passing leader while rostered in Jacksonville; Brady Cook as the Jets' QB
+   * while rostered in Miami; 27 rows in all. A missing player is a gap; a projection for a player
+   * who cannot take that field is a false statement, and this is the invariant that forbids it.
+   */
+  const rosters = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/rosters/latest.json"), "utf8"));
+  const byTeam = new Map();
+  for (const t of rosters.teams ?? []) {
+    const ids = new Set((t.players ?? []).map((p) => `nfl-athlete-${p.id}`));
+    if (ids.size) byTeam.set(t.teamAbbr, ids);
+  }
+  const dir = path.join(APP, "public/data/nfl/player-board");
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir).filter((x) => /^\d+\.json$/.test(x))) {
+    const b = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    for (const p of b.players ?? []) {
+      const roster = byTeam.get(p.team);
+      if (!roster) continue; // capture gap for that team — the builder fails closed rather than wiping a board
+      assert.ok(roster.has(p.playerId), `${p.name} is projected for ${p.team} in ${b.matchup} and is not on its roster`);
+    }
+    assert.equal(typeof b.departedFiltered, "number", "the board records how many rows the roster filter removed");
+  }
+});
+
 test("new arrivals: a notable mover is published as prior-club FACT, never as a projection", () => {
   const seasons = ["2025", "2024"]
     .map((y) => { try { return read(`data/internal/research/nfl/player-events-v1/${y}.json`); } catch { return null; } })

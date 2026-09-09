@@ -95,6 +95,35 @@ const newArrivalsByEvent = (() => {
  * state (role evidence OUT / board INACTIVE), so a naive comparison silently missed every out
  * player. Every row now joins the role-evidence designation directly, translated once here.
  */
+/*
+ * P250-GD4 — A DEPARTED PLAYER IS NOT PROJECTABLE FOR HIS OLD CLUB.
+ *
+ * The mirror of the new-arrivals gap, and worse: the Aug-13 share snapshot still lists players who
+ * have since changed clubs, so the pool did not merely omit movers — it ATTRIBUTED their volume to
+ * the team they left. On game day 27 departed players rendered on published boards, including
+ * Quinn Ewers as Miami's passing leader (rostered in Jacksonville) and Brady Cook as the Jets' QB
+ * (rostered in Miami). Silence is a gap; a projection for a player who cannot take that field is a
+ * false statement.
+ *
+ * The rule already written into this file for injuries applies with more force here: confirmed
+ * absence conditions the output. A player off the roster is dropped, his share mass falls to the
+ * unallocated OTHER exactly as the allocation policy intends, and — because he is on SOMEONE's
+ * roster — he reappears there as a new arrival carrying his real prior-club usage.
+ *
+ * FAIL-CLOSED ON THE FILTER, not on the reader: if the roster capture is missing or a team's list
+ * is empty (a provider blip), that team is NOT filtered — we do not wipe a board because our own
+ * feed failed. `departedFiltered` records what was removed so the count is never silent.
+ */
+const rosterByTeam = (() => {
+  const m = new Map();
+  const doc = read(path.join(APP, "public/data/nfl/rosters/latest.json"));
+  for (const t of doc?.teams ?? []) {
+    const ids = new Set((t.players ?? []).map((p) => `nfl-athlete-${p.id}`));
+    if (ids.size) m.set(t.teamAbbr, ids);
+  }
+  return m;
+})();
+
 const ROLE_TO_BOARD = { OUT: "INACTIVE", INACTIVE: "INACTIVE", QUESTIONABLE: "QUESTIONABLE", ACTIVE_PROJECTED: "ACTIVE_PROJECTED", ACTIVE_UNCERTAIN: "AVAILABLE_ROLE_UNCERTAIN", SOURCE_STALE: "AVAILABLE_ROLE_UNCERTAIN" };
 const designationByPlayer = (() => {
   const m = new Map();
@@ -196,6 +225,20 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     }
   }
 
+  /* Roster filter FIRST: a player who is not on this team's current roster gets no projection for
+     it at all — before designations, before withholding, because team membership is the
+     precondition every other participation question assumes. */
+  let departedFiltered = 0;
+  {
+    const kept = [];
+    for (const pl of players) {
+      const roster = rosterByTeam.get(pl.team);
+      if (roster && !roster.has(pl.playerId)) { departedFiltered += 1; continue; }
+      kept.push(pl);
+    }
+    players.length = 0; players.push(...kept);
+  }
+
   /* The designation join: the strongest evidence wins on every row, not only on rows the TD board
      happened to rank. Runs BEFORE the withholding pass below, which is what acts on it. */
   const RANK = { INACTIVE: 3, QUESTIONABLE: 2, ACTIVE_PROJECTED: 1, AVAILABLE_ROLE_UNCERTAIN: 0 };
@@ -238,6 +281,8 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     /* New arrivals per team: factual prior-club per-game usage for notable movers the stint rule
        cannot yet place. NOT part of the simulated numbers, and each row says so. */
     newArrivals: newArrivalsByEvent.get(doc.providerEventId) ?? {},
+    /* Rows removed because the player is no longer on that roster — counted, never silent. */
+    departedFiltered,
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
     disclaimer: "Experimental, educational, paper-only. Validated families carry plain numbers under their evaluation receipts; families marked ESTIMATE failed a bar and say which — not picks, and not shown to out-predict any sportsbook.",
   };
