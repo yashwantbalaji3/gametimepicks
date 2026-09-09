@@ -816,3 +816,92 @@ Joint TD mechanism inheriting the calibrated engine (Modeling; prereg) · pass c
 share-continuous spread (Modeling; prereg) · rush share-conditional center (Modeling; prereg)
 · targets family evaluation before any targets column (Modeling) · founder gates (odds, BB
 accounting, legal, analytics) · physical devices (QA).
+
+# PROGRAM 250 — coherent public product, evaluated NFL completion, verified journeys
+
+Baseline 19:40 EDT Sep 8: tip 2da735a7c + 3 bot commits (FF'd). Every Phase-1 audit finding was
+live-reproduced before its fix (Chelsea λ 0.05 re-derived from the corpus; 22-row EPL hub counted
+from the built HTML; the self-denying MLB report traced to its seven hardcoded strings).
+
+## §Verdicts
+- **A01 PRODUCT_STATE: RESOLVED (rendering; founder gate unchanged and named).** /moonshot header
+  badge and note derive from ONE surface (today's portfolio when it has published cards); the
+  3-step ladder renders as a labelled POLICY PREVIEW — independent longshot cards are never
+  presented as a live progression while the multi-lane stake-accounting decision is open; the lane
+  tracker receives the lifecycle ledger's graded outcomes (pending-vs-lost on one page ends);
+  reconciliation tiles name their eras. /mr-dub and /launch use the SAME loaders as /moonshot
+  (history union + today's count) — the loader split had two surfaces printing different open-card
+  counts from one owner. deriveBankBuilderState gained its first production consumer
+  (/bank-builder renders named exposures + typed divergences). Results Trust Center dates the
+  protected July-7 money record instead of presenting it as current, shows today's paper cards in
+  their own tile, and takes the Moonshot record from the state owner's displayRecord. Home derives
+  "no active card". Legs carry their sport (⚾/First pitch, never ⚽/Kickoff on MLB).
+  OPEN FOUNDER DECISION (exact): which counter governs Bank Builder progression (generator step vs
+  lifecycle-store rule-derived position) and the multi-lane stake/exposure policy; until then no
+  surface claims an active progression.
+- **A02 EPL_SPARSE: evaluated, REJECTED, governed labeling.** preregistration-sparse-split-v1
+  committed BEFORE scoring (shrink k∈{1,2,4,8}, the values the v2 bake-off already swept; 2025-26
+  disclosed as first-use for this family). Verdict REJECTED — S1 failed (dev sparse n=31 worsened
+  0.0098) even though holdout sparse improved 1.63→1.27, overall holdout improved and the
+  degenerate λ left the floor. Bars stand; shrinkK stays 0. Per the prereg's onFailure:
+  sparseSplitFlags labels every row whose fit divided by a 1-4 match split (Chelsea–Hull +
+  Coventry–Brighton), the match page renders the condition beside unedited numbers, and
+  sparse-labeling.test.mjs proves the published probabilities equal the recorded model's.
+- **A03 MLB_REPORT: RESOLVED.** One capability fact — the Overview tab's own gate — drives every
+  full-game claim in Players & Props, the result summary and Game Center; lineup provenance reads
+  the artifact's own lineup sources; the near-level note reports the actual mean gap instead of
+  claiming no team signal; seven tests that pinned the obsolete prose now pin the capability
+  contract; market-coverage's full_game_sim row states the real independent Monte Carlo
+  (experimental, never product-eligible).
+- **A04/A12 NFL_DISCOVERY: RESOLVED.** product-day's nflDay reads the regular-season lane first
+  (the retired preseason game-simulations lane survives only as the archive fallback, P202/P224
+  guards intact); Home holds ZERO raw sport reads; Top Reads' NFL gate DERIVES from
+  model-differentiation.json — 16 game-winner reads admitted with their own provenance sentence,
+  auto re-exclusion quoting the audit if signal ever degrades; capability registry, methodology
+  panel and the NFL coverage rows updated to the current family truth (receptions/receiving/TD
+  public experimental; passing & rushing withheld BY NAME).
+- **A05 EPL_IDENTITY: RESOLVED.** eplUpcoming preserves the capture's canonical eventId +
+  matchweek (it had been dropping the joinable key and rebuilding a provider-namespace id);
+  eplHub joins on fixture identity, scoped to ONE official matchweek — 10 rows · 10 reports ·
+  Matchweek 4 live, two MW5 fixtures deferred to #schedule and counted in a typed
+  identityReconciliation. The uniqueness test that passed VACUOUSLY on string ids now keys on
+  club-pair + kickoff minute. /epl, /epl/match, /preview/epl each lost their second <main> (A13).
+- **A07 RESULTS_PENDING: RESOLVED.** All nine aged pending cards settled from official sources by
+  their real mechanisms: scratch→VOID against a FINAL box (unknown market still pends — a grading
+  gap never fabricates a refund; voids reduce the card like pushes), and a complete-pending-days
+  sweep (30-day window, completion-only, idempotent, carried outcomes never regress, recorded
+  population stands) now runs in nightly-settle after ET-yesterday. Lab record 15-46 · 0 pending;
+  ledger rebuilt from receipts; explorer-scope.test.mjs holds a live no-aged-pending invariant.
+- **A08 SCOPE: RESOLVED.** /simulate's sport filter governs the whole page — the MLB explorer and
+  coverage matrix are threaded through the chooser; an empty NFL day names the next kickoff.
+- **A11 FILTERS: RESOLVED.** The sport×tier grid obeys the selected sport (same rule as the table
+  above it); a pooled figure ≥90% one sport names its mix beside the number; the date-filter
+  refusal links the dated surfaces that exist (MLB model-audit; complete dated NFL/EPL/UFC lists).
+- **A15 NFL_SCORECARD: RESOLVED.** The combined receiving view is the ONE board's first tab —
+  shared team/player/listed-out filters, availability on every row, no 14-cap (current games reach
+  13), "—" never a ??0 zero, one precision policy (yards whole, counts 1dp) shared with the weekly
+  boards; scoring outlook declares "top N of M · full list in the TD tab"; the dead preseason
+  player-simulations section (keyed on a field the retired artifact never carried) removed;
+  player-family provenance renders from the artifact's own basis lines.
+- **A16 RECEIPT: RESOLVED.** joint-sim-evaluation.json self-describes exactly (artifact + engine =
+  the joint challenger, champion named as baseline) with metadataCorrections lineage; the missing
+  preregistered passing-TD calibration bins are typed as a diagnosticGap (evidence INCOMPLETE);
+  the receptions ECE narrative distinguishes 0.0059-vs-bar from 0.0121-vs-champion (correcting
+  P249 §12's "by 0.012" in this log); 2025 reuse + proxy-line disclosures beside the numbers;
+  receiving yards typed ELIGIBLE_NOT_ADOPTED. The generator writes the exact identity itself.
+- **A06 / charter §4B JOINT MODEL: unchanged champion, documented.** P249's rejection stands. The
+  named next candidates (joint TD inheriting the calibrated engine's grid-selected shrink; pass
+  center vs rolling-4; rush share-conditional center) each require a fresh preregistration and a
+  bounded budget; none was run in P250 — the charter's stated priority (finish customer-visible
+  coherence, not another engine pass on a reused holdout) consumed the program. Public forecasts
+  remain the independently calibrated marginal heads, correctly labelled.
+- **A09 / A10 / A13(rest) / A14: PARTIAL.** A09 (builder-pool period validation) untouched —
+  owner: Parlay Center. A10 largely subsumed by the fixes above; no hub restructure attempted.
+  A13: EPL landmarks + sport icons fixed; full asset/keyboard certification not rerun. A14: gate
+  (typecheck + 5,52x suite + build + 74 rendered guard files) run fresh on the final tree;
+  playwright e2e per closeout; browser matrix and physical devices remain carried/pending.
+- **Register/record:** P248 R-C + P249 R-A appended (conservation guard had flagged the gap);
+  operating record regenerated + PDF verified (188 rows, sha 5135a9cd…).
+- **Rendered-guard catch of this program's own copy:** the new NFL provenance sentence used
+  "beat the sportsbook" inside a denial; the built-HTML guard refused it and the wording moved to
+  the compliant "out-predict" form — the guard working exactly as designed.
