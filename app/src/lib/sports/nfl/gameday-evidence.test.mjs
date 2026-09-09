@@ -158,10 +158,30 @@ test("LIVE · ONE ANSWER PER PLAYER — no surface calls a designated-out player
   }
   if (outByPlayer.size === 0) return; // no designations this window — nothing to contradict
 
+  const byPlayer = new Map();
+  for (const ev of role.events ?? []) {
+    for (const [abbr, tv] of Object.entries(ev.teams ?? {})) {
+      for (const pl of tv.players ?? []) byPlayer.set(`${abbr}:${pl.playerId}`, pl);
+    }
+  }
   const vault = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/end-zone-vault/latest.json"), "utf8"));
   for (const c of [...(vault.selections ?? []), ...(vault.watchlist ?? [])]) {
     const designated = outByPlayer.get(`${c.team}:${c.playerId}`);
     assert.ok(!designated, `${c.name} is designated ${designated?.injuryStatus ?? "out"} and is published in the Vault as ${c.roleState}`);
+    /*
+     * And the state itself agrees with that evidence rather than with a team-level aggregate. The
+     * aggregate flipped every candidate on this slate between "expected to play" and "playing time
+     * unknown" across two runs forty seconds apart, with no underlying fact changing.
+     */
+    const ev = byPlayer.get(`${c.team}:${c.playerId}`);
+    if (!ev) continue; // a candidate the evidence does not carry keeps the pool fallback
+    if (ev.state === "QUESTIONABLE") {
+      assert.equal(c.roleState, "QUESTIONABLE", `${c.name} is listed questionable and the Vault says ${c.roleState}`);
+    } else if (["ACTIVE_EXPECTED", "ACTIVE_PROJECTED", "ACTIVE_UNCERTAIN"].includes(ev.state)) {
+      assert.equal(c.roleState, "ACTIVE_EXPECTED", `${c.name} is rostered with no blocking designation and the Vault says ${c.roleState}`);
+    } else {
+      assert.equal(c.roleState, "ROLE_UNCERTAIN", `${c.name}'s evidence is ${ev.state} — the Vault may not claim more than that`);
+    }
   }
 
   const dir = path.join(APP, "public/data/nfl/player-board");

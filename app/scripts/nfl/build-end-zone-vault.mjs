@@ -97,6 +97,14 @@ const roleByPlayer = (() => {
   return m;
 })();
 const OUT_STATES = new Set(["OUT", "INACTIVE", "NOT_ON_ROSTER", "UNSUPPORTED"]);
+/*
+ * Rostered, injury feed fresh, no blocking designation. The role-evidence generator emits
+ * ACTIVE_UNCERTAIN for this in the regular season (its own note: "on the roster with no blocking
+ * designation, but game-day actives are not carried by an authorized source") — the uncertainty is
+ * about HOW MUCH he plays, which is what the share model already carries, not about whether he is
+ * available. SOURCE_STALE and NOT_YET_PUBLISHED are NOT in this set: those mean we could not look.
+ */
+const AVAILABLE_STATES = new Set(["ACTIVE_EXPECTED", "ACTIVE_PROJECTED", "ACTIVE_UNCERTAIN"]);
 
 /** Participation, read from the newest current artifact for the event. */
 function poolStatesFor(providerEventId, teamAbbr) {
@@ -135,18 +143,29 @@ for (const f of upcoming) {
         return;
       }
       const questionable = role?.state === "QUESTIONABLE";
+      /*
+       * P250-W2b: the availability answer comes from the SAME per-player evidence the board reads,
+       * not from `roleEvidence` (a team-level count taken from whichever `current/` snapshot
+       * happened to be newest). That aggregate flipped every candidate on this slate from
+       * "expected to play" to "playing time unknown" between two runs forty seconds apart, purely
+       * because a later snapshot classified the pool differently — a public answer that changes
+       * without the underlying fact changing. The team aggregate survives only as the fallback for
+       * a player the role evidence does not carry at all.
+       */
+      const available = role ? AVAILABLE_STATES.has(role.state) : !!roleEvidence;
       candidates.push({
         playerId: p.playerId, name: p.name, position: p.position ?? null,
         team: teamAbbr, opponent: f[side === "home" ? "away" : "home"].abbr,
         event: f.matchup, providerEventId: f.providerEventId, kickoffUtc: f.kickoffUtc,
         tdProbability: prob.probability,
         probabilityRange: { note: "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual" },
-        roleState: questionable ? "QUESTIONABLE" : roleEvidence ? "ACTIVE_EXPECTED" : "ROLE_UNCERTAIN",
+        roleState: questionable ? "QUESTIONABLE" : available ? "ACTIVE_EXPECTED" : "ROLE_UNCERTAIN",
         // The uncertain-role sentence names the actual gap, not a hardcoded phase (P240): this
         // line used to say "preseason:" and became false copy the day Week 1 entered the window.
-        roleNote: questionable
-          ? (role?.because ?? "published designation: questionable")
-          : roleEvidence ? "roster and injury evidence support expected participation" : "no source-backed evidence yet of how much this player will play in this game",
+        roleNote: role?.because
+          ?? (questionable
+            ? "published designation: questionable"
+            : available ? "roster and injury evidence support expected participation" : "no source-backed evidence yet of how much this player will play in this game"),
         marketPrice: null,
         shareBasis: p.shareBasis,
         modelVersion: calibration?.receipt ?? null,
