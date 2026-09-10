@@ -25,6 +25,7 @@
  * Writes: data/internal/nfl/participation/<date>/<providerEventId>.json   (append-only revisions)
  *         app/public/data/nfl/participation-summary.json                  (PUBLIC_DERIVED)
  */
+import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -131,10 +132,11 @@ const activesSource = read(path.join(ROOT, "data/internal/research/nfl/actives/c
  * no reason attached is how a board loses a player nobody can account for.
  */
 const injuries = read(path.join(ROOT, "data/internal/research/injuries/nfl/latest.json"));
-const BLOCKING_STATUS = /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i;
+/* Blocking statuses come from the contract's own vocabulary (injuries/contract.mjs). The hand-written
+   regex this replaces missed "Suspension" — seventh letter s, not d — so suspended players read as available. */
 const blockedById = new Map();
 for (const e of injuries?.entries ?? []) {
-  if (!e?.athleteId || !BLOCKING_STATUS.test(String(e.status ?? ""))) continue;
+  if (!e?.athleteId || !isBlockingStatus(e.status)) continue;
   blockedById.set(`nfl-athlete-${e.athleteId}`, { status: e.status, statedAt: e.statedAt ?? null, name: e.athleteName ?? null });
 }
 /*

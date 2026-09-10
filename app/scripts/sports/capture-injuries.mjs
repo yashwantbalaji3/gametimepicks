@@ -18,6 +18,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { normalizeInjuryFeed } from "../../src/lib/sports/injuries/contract.mjs";
+import { ABSENT_DESIGNATION_CARRY_H, carryForwardDesignations } from "../../src/lib/sports/injuries/carry-forward.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = (sport) => path.join(APP, "..", "data", "internal", "research", "injuries", sport);
@@ -42,6 +43,17 @@ for (const [sport, url] of Object.entries(FEEDS)) {
     continue;
   }
   const normalized = normalizeInjuryFeed(feed, { sport, nowIso: NOW });
+  /*
+   * AN OMISSION IS NOT AN ACTIVATION (P254d — see lib/sports/injuries/carry-forward.mjs).
+   *
+   * ESPN's feed is a rolling list: long-term designations age out of it without any "activated"
+   * event, and every consumer used to read the absence as health. The file this capture is about to
+   * replace is the only memory there is, so it is read FIRST. The feed still overrules it whenever
+   * it lists the player at all.
+   */
+  let previous = null;
+  try { previous = JSON.parse(fs.readFileSync(path.join(OUT(sport), "latest.json"), "utf8")); } catch { previous = null; }
+  const carry = carryForwardDesignations({ previousEntries: previous?.entries ?? [], currentEntries: normalized.entries, nowIso: NOW });
   const artifact = {
     schemaVersion: 1,
     sport,
@@ -51,10 +63,18 @@ for (const [sport, url] of Object.entries(FEEDS)) {
     source: { id: "espn_scoreboard", name: `ESPN ${sport.toUpperCase()} public injuries feed`, license: "public JSON endpoint, no key; normalized facts only — editorial prose never stored" },
     contractVersion: normalized.contractVersion,
     reconciliation: normalized.reconciliation,
+    /* `reconciliation` still describes the FEED exactly. Carried rows are accounted beside it, so
+       entries.length === reconciliation.kept + carryForward.carried holds — and is guarded. */
+    carryForward: {
+      carried: carry.carried.length,
+      windowHours: ABSENT_DESIGNATION_CARRY_H,
+      previousGeneratedAt: previous?.generatedAt ?? null,
+      skipped: carry.skipped,
+    },
     quarantined: normalized.quarantined,
-    entries: normalized.entries,
+    entries: carry.entries,
   };
   fs.mkdirSync(OUT(sport), { recursive: true });
   fs.writeFileSync(path.join(OUT(sport), "latest.json"), JSON.stringify(artifact, null, 1));
-  console.log(`${sport} injuries/latest.json: ${normalized.entries.length} entries, ${normalized.quarantined.length} quarantined, exact=${normalized.reconciliation.exact}`);
+  console.log(`${sport} injuries/latest.json: ${normalized.entries.length} entries from the feed + ${carry.carried.length} carried forward, ${normalized.quarantined.length} quarantined, exact=${normalized.reconciliation.exact}`);
 }

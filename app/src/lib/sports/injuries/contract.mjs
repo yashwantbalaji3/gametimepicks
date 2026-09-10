@@ -26,6 +26,43 @@ export const INJURY_STATUSES = Object.freeze({
   nba: Object.freeze(["Day-To-Day", "Out"]),
 });
 
+/**
+ * WHICH STATUSES MEAN A PLAYER CANNOT PLAY — derived from the vocabulary above, never hand-written.
+ *
+ * Every consumer used to carry its own copy of /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i. That
+ * regex was written from assumption rather than from this contract, and it was wrong in both
+ * directions. "Suspension" — the string this contract actually emits — does not match /^suspend/:
+ * the seventh letter is s, not d. So on 2026-09-10 four suspended players read as available to role
+ * evidence, participation, the board's publication gate and the guard meant to catch exactly that.
+ * Meanwhile its pup and nfi branches matched nothing, because the contract never emits them.
+ *
+ * Membership is EXACT against the vocabulary (case-insensitive). The contract quarantines any status
+ * it does not list, so a string outside it never reaches a consumer — and a predicate that guessed a
+ * near-miss into a bucket would be the same mistake the old regex made.
+ */
+export const BLOCKING_STATUSES = Object.freeze({
+  nfl: Object.freeze(["Out", "Injured Reserve", "Suspension"]),
+  nba: Object.freeze(["Out"]),
+});
+
+/** Blocking statuses that describe a roster state lasting beyond a single game. */
+export const LONG_TERM_STATUSES = Object.freeze({
+  nfl: Object.freeze(["Injured Reserve", "Suspension"]),
+  nba: Object.freeze([]),
+});
+
+const normStatus = (s) => String(s ?? "").trim().toLowerCase();
+
+/** True when the status means the player cannot take the field. */
+export function isBlockingStatus(status, sport = "nfl") {
+  return (BLOCKING_STATUSES[sport] ?? []).some((b) => normStatus(b) === normStatus(status));
+}
+
+/** True when the status is blocking AND outlasts a single game (IR, suspension). */
+export function isLongTermStatus(status, sport = "nfl") {
+  return (LONG_TERM_STATUSES[sport] ?? []).some((b) => normStatus(b) === normStatus(status));
+}
+
 /** Extract the athlete id from a playercard href; null when the shape does not match. */
 export function athleteIdFromLinks(links) {
   const pc = (links ?? []).find((l) => (l?.rel ?? []).includes("playercard"));

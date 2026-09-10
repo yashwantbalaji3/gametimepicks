@@ -22,6 +22,7 @@
  * Usage: node scripts/nfl/build-nfl-role-evidence.mjs --now <iso> [--lookahead-hours 30]
  * Writes: data/internal/nfl/role-evidence/<date>.json (PRIVATE) + a public summary in the index
  */
+import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -63,7 +64,8 @@ const registry = buildPlayerRegistry([rosters]);
 const injuryByPlayer = new Map();
 for (const e of injuries?.entries ?? []) if (e?.athleteId != null) injuryByPlayer.set(`nfl-athlete-${e.athleteId}`, e);
 
-const BLOCKING = /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i;
+/* Blocking statuses come from the contract's own vocabulary (injuries/contract.mjs). The hand-written
+   regex this replaces missed "Suspension" — seventh letter s, not d — so suspended players read as available. */
 /** How recent a blocking designation must be, relative to KICKOFF, to survive a degraded read.
  *  Two weeks: long enough to cover a designation made the week before a game, short enough that
  *  last season's cannot rule a player out today. */
@@ -115,13 +117,13 @@ for (const ev of events) {
       const designationRecent = Number.isFinite(statedMs) && Number.isFinite(kickoffMs)
         && kickoffMs - statedMs <= DESIGNATION_CARRY_H * 3.6e6 && statedMs <= kickoffMs;
       const feedDegraded = rosterFresh.state !== "FRESH" || injuryFresh.state !== "FRESH";
-      if (feedDegraded && BLOCKING.test(status) && designationRecent) {
+      if (feedDegraded && isBlockingStatus(status) && designationRecent) {
         state = "OUT";
         because = `published designation: ${inj.status} (stated ${inj.statedAt}) — carried through a ${(injuryFresh.state !== "FRESH" ? injuryFresh.state : rosterFresh.state).toLowerCase()} read, because a stale feed cannot un-designate a player`;
       }
       else if (rosterFresh.state !== "FRESH") { state = "SOURCE_STALE"; because = `roster capture is ${rosterFresh.state.toLowerCase()}`; }
       else if (injuryFresh.state !== "FRESH") { state = "SOURCE_STALE"; because = `injury feed is ${injuryFresh.state.toLowerCase()} — silence from a stale feed proves nothing`; }
-      else if (BLOCKING.test(status)) { state = "OUT"; because = `published designation: ${inj.status}`; }
+      else if (isBlockingStatus(status)) { state = "OUT"; because = `published designation: ${inj.status}`; }
       else if (QUESTIONABLE.test(status)) { state = "QUESTIONABLE"; because = `published designation: ${inj.status}`; }
       else if (preseason) {
         // THE HONEST PRESEASON ANSWER: rostered, no blocking designation, and nobody has said

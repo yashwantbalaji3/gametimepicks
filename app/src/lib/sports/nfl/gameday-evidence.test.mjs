@@ -18,6 +18,7 @@
  *    unknown; the product was wrong to render that as silence. His prior-club usage now publishes
  *    as stated fact, explicitly outside the simulated numbers.
  */
+import { isBlockingStatus } from "../injuries/contract.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -60,7 +61,7 @@ test("LIVE · a player designated Out carries no volume projection anywhere", ()
   const injuries = read("data/internal/research/injuries/nfl/latest.json");
   const out = new Set(
     (injuries.entries ?? [])
-      .filter((e) => /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i.test(String(e.status ?? "")))
+      .filter((e) => isBlockingStatus(e.status))
       .map((e) => `nfl-athlete-${e.athleteId}`),
   );
   const dir = path.join(APP, "public/data/nfl/player-board");
@@ -251,7 +252,7 @@ test("P251 · A STALE FEED CANNOT UN-DESIGNATE A PLAYER", () => {
   const injuries = read("data/internal/research/injuries/nfl/latest.json");
   const blocking = new Map(
     (injuries.entries ?? [])
-      .filter((e) => /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i.test(String(e.status ?? "")))
+      .filter((e) => isBlockingStatus(e.status))
       .map((e) => [`nfl-athlete-${e.athleteId}`, e]),
   );
   for (const ev of role.events ?? []) {

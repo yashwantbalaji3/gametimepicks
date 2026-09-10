@@ -75,10 +75,36 @@ test("NOT_YET_PUBLISHED names a real window; UNSUPPORTED means no source exists 
 });
 
 test("a stale source degrades every player to SOURCE_STALE rather than silently trusting it", () => {
+  /*
+   * REBASED 2026-09-10 (P254d) — and the old version was vacuous before it ever failed.
+   *
+   * It compared the FIRST textual "SOURCE_STALE" — a header comment, far above any code — against
+   * the first "BLOCKING.test(status)". A comment precedes all code, so the ordering held by
+   * construction and never inspected control flow. Worse, the first blocking check it found was
+   * P251's bounded CARRY, which by design runs BEFORE the staleness branches: for that branch its own
+   * message ("freshness is checked BEFORE any designation is trusted") was false while it passed. It
+   * failed only when the hand-written regex gave way to the contract predicate and its anchor string
+   * disappeared.
+   *
+   * The invariant, stated against CODE: on a degraded feed a designation is trusted only through
+   * P251's bounded carry, which precedes staleness; every other designation is decided AFTER both
+   * staleness branches, so a stale read degrades rather than trusts. Each anchor must occur exactly
+   * once, so a comment can never satisfy it.
+   */
   assert.match(src, /silence from a stale feed proves nothing/);
-  const staleIdx = src.indexOf("SOURCE_STALE");
-  const blockingIdx = src.indexOf("BLOCKING.test(status)");
-  assert.ok(staleIdx < blockingIdx, "freshness is checked BEFORE any designation is trusted");
+  const orderHolds = (text) => {
+    const at = (needle) => { const i = text.indexOf(needle); return i >= 0 && text.indexOf(needle, i + 1) < 0 ? i : -1; };
+    const carry = at("feedDegraded && isBlockingStatus(status)");
+    const rosterStale = at("because = `roster capture is");
+    const injuryStale = at("because = `injury feed is");
+    const freshBlocking = at("else if (isBlockingStatus(status))");
+    if ([carry, rosterStale, injuryStale, freshBlocking].some((i) => i < 0)) return false;
+    return carry < rosterStale && rosterStale < injuryStale && injuryStale < freshBlocking;
+  };
+  assert.ok(orderHolds(src), "bounded carry → roster staleness → injury staleness → fresh designation, each anchor exactly once");
+  // Mutation probe: a fresh-path designation trusted ahead of the staleness branches must be rejected.
+  const mutated = "feedDegraded && isBlockingStatus(status)\nelse if (isBlockingStatus(status))\nbecause = `roster capture is\nbecause = `injury feed is";
+  assert.equal(orderHolds(mutated), false, "trusting a designation before the staleness branches would be caught");
 });
 
 test("today's real verdict withholds player families for every event, with reasons", () => {

@@ -30,6 +30,7 @@
  * Usage: node scripts/nfl/build-nfl-player-board.mjs --now <iso>
  * Writes: app/public/data/nfl/player-board/<eventId>.json + latest.json (index)
  */
+import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -211,10 +212,11 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     console.error("REFUSED: injuries capture unreadable — a board will not be published as if nobody were injured");
     process.exit(2);
   }
-  const BLOCKING_STATUS = /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i;
+  /* Blocking statuses come from the contract's own vocabulary (injuries/contract.mjs). The hand-written
+     regex this replaces missed "Suspension" — seventh letter s, not d — so suspended players read as available. */
   const ineligible = new Map();
   for (const e of injuriesArtifact.entries) {
-    if (!e?.athleteId || !BLOCKING_STATUS.test(String(e.status ?? ""))) continue;
+    if (!e?.athleteId || !isBlockingStatus(e.status)) continue;
     ineligible.set(`nfl-athlete-${e.athleteId}`, { status: e.status, statedAt: e.statedAt ?? null, name: e.athleteName ?? null });
   }
   const gatedOut = [];

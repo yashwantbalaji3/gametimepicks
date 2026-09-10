@@ -21,6 +21,7 @@
  * NAMED residual (never forced to 100% across the visible list); player TDs reconcile to team
  * offensive TDs. Violations refuse the whole allocation — partial coherence is incoherence.
  */
+import { isBlockingStatus } from "../injuries/contract.mjs";
 import { checkFreshness } from "./season-context.mjs";
 
 export const NFL_PARTICIPATION_VERSION = 1;
@@ -29,7 +30,8 @@ export const PARTICIPATION_STATES = Object.freeze([
   "ACTIVE_CONFIRMED", "ACTIVE_PROJECTED", "QUESTIONABLE", "ROLE_UNCERTAIN", "INACTIVE", "UNSUPPORTED", "UNKNOWN",
 ]);
 
-const BLOCKING = /^(out|injured.reserve|ir|suspend|pup|nfi)/i;
+/* Blocking statuses come from the contract's own vocabulary (injuries/contract.mjs). The hand-written
+   regex this replaces missed "Suspension" — seventh letter s, not d — so suspended players read as available. */
 const QUESTION = /^(questionable|doubtful)/i;
 
 /**
@@ -48,7 +50,7 @@ export function classifyParticipation({ rosterPlayer, injuryFact = null, injurie
     return { state: "UNKNOWN", reason: `injuries input is ${injuriesFreshness?.state ?? "MISSING"} — absence of injury data is never health` };
   }
   const status = injuryFact?.status ?? injuryFact?.designation ?? null;
-  if (status && BLOCKING.test(status)) return { state: "INACTIVE", reason: `injuries artifact: ${status}` };
+  if (status && isBlockingStatus(status)) return { state: "INACTIVE", reason: `injuries artifact: ${status}` };
   if (status && QUESTION.test(status)) return { state: "QUESTIONABLE", reason: `injuries artifact: ${status}` };
   if (seasonType === 1) {
     const sc = validateSnapScenario(snapScenario, nowIso);
