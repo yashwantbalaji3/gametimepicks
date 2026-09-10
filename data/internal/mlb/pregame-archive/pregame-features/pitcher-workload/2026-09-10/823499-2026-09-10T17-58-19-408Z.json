@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823499,
+  "date": "2026-09-10",
+  "capturedAt": "2026-09-10T17:58:19.408Z",
+  "availableAt": "2026-09-10T17:58:19.408Z",
+  "eventStartTime": "2026-09-10T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608331,
+      "name": "Max Fried",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 5.2,
+        "bbAvg": 1.4,
+        "erAvg": 0.8,
+        "hrAvg": 0.4,
+        "kPer9": 9,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 95.67,
+        "k": 87,
+        "bb": 29,
+        "er": 29,
+        "hr": 3
+      }
+    },
+    "away": {
+      "id": 663372,
+      "name": "Ryan Feltner",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 3.6,
+        "bbAvg": 3.2,
+        "erAvg": 4.2,
+        "hrAvg": 0.4,
+        "kPer9": 6.23,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 102.67,
+        "k": 75,
+        "bb": 46,
+        "er": 70,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-10&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-10T17:58:19.408Z"
+  },
+  "recordHash": "59ee7705b1c6677e5997a426f489907384baeb49f24d6e88fc8679ab3901091c"
+}
