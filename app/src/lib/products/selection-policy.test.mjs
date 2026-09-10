@@ -23,19 +23,41 @@ import {
   MOONSHOT_MIN_COMBINED_ODDS,
 } from "../world-cup/model-qualified-picks.ts";
 import { ACTIVATION_CUTOFF_MIN, MOONSHOT_MAX_EXPOSURE } from "../daily-portfolio/accounting.ts";
+import { RUNG_CARD_LEGS, LEG_ODDS_MIN, LEG_ODDS_MAX } from "../moonshot/rung-card.mjs";
+import { MOONSHOT_LADDER, MOONSHOT_SEED } from "../moonshot/moonshot-ladder.mjs";
+import fs from "node:fs";
+import path from "node:path";
 
 const bb = SELECTION_POLICIES[CURRENT_POLICY["bank-builder"]];
 const ms = SELECTION_POLICIES[CURRENT_POLICY["moonshot"]];
+const ms1 = SELECTION_POLICIES["moonshot@1"];
 
 test("DRIFT: every frozen bar equals the live executor constant", () => {
   assert.equal(bb.bars.maxLegOdds, BANK_BUILDER_MAX_ODDS);
   assert.equal(bb.bars.poolOddsMax, POOL_ODDS_MAX);
   assert.equal(bb.bars.activationCutoffMinutes, ACTIVATION_CUTOFF_MIN);
-  assert.equal(ms.bars.targetLegs, MOONSHOT_TARGET_LEGS);
-  assert.equal(ms.bars.minLegs, MOONSHOT_MIN_LEGS);
-  assert.equal(ms.bars.minCombinedOdds, MOONSHOT_MIN_COMBINED_ODDS);
+  // The CURRENT Moonshot policy against the executor that deals it.
+  assert.equal(ms.version, 2, "Moonshot runs the ladder (@2)");
+  assert.equal(ms.bars.legsPerLane, RUNG_CARD_LEGS);
+  assert.equal(ms.bars.legOddsMin, LEG_ODDS_MIN);
+  assert.equal(ms.bars.legOddsMax, LEG_ODDS_MAX);
+  assert.equal(ms.bars.seedStake, MOONSHOT_SEED);
+  assert.deepEqual(ms.bars.rungs.map((r) => [...r]), MOONSHOT_LADDER.map((r) => [r.start, r.goal]));
   assert.equal(ms.bars.maxExposure, MOONSHOT_MAX_EXPOSURE);
   assert.equal(ms.bars.activationCutoffMinutes, ACTIVATION_CUTOFF_MIN);
+  // @1 stays frozen as a RECORD — its bars still describe the longshot builder's constants.
+  assert.equal(ms1.bars.targetLegs, MOONSHOT_TARGET_LEGS);
+  assert.equal(ms1.bars.minLegs, MOONSHOT_MIN_LEGS);
+  assert.equal(ms1.bars.minCombinedOdds, MOONSHOT_MIN_COMBINED_ODDS);
+});
+
+test("DRIFT: the generator actually deals the current Moonshot policy's executor", () => {
+  // A frozen record can pass its constant checks while the generator runs something else — which is
+  // exactly how @1 kept passing after the ladder replaced it. So the executor is checked at the call site.
+  const acct = fs.readFileSync(path.join(process.cwd(), "src/lib/daily-portfolio/accounting.ts"), "utf8");
+  assert.match(acct, /selectMoonshotRungCard\(poolForMoon/, "accounting deals Moonshot through the rung selector");
+  assert.match(acct, /receiptPositions\(\{ root, date, product: "moonshot"/, "at the position the receipts give it");
+  assert.doesNotMatch(acct, /buildDailyLaneCandidates\(/, "the @1 longshot builder no longer deals a lane");
 });
 
 test("the registry is frozen data: versioned, dated, deep-frozen, and the current pointers resolve", () => {
@@ -66,7 +88,7 @@ test("SCHEMA: candidate lanes carry the canonical shape and arrive as candidates
     assert.equal(lane.status, "candidate", "the builder NEVER activates");
   }
   assert.equal(lanes.bankBuilderA.stake, bb.bars.seedStake);
-  assert.equal(lanes.moonshotA.stake, ms.bars.stake);
+  assert.equal(lanes.moonshotA.stake, ms1.bars.stake, "the legacy builder still stakes @1's $25");
   assert.equal(lanes.bankBuilderA.targetLegs, bb.bars.legsPerLane);
 });
 

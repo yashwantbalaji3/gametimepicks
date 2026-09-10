@@ -55,12 +55,48 @@ export const SELECTION_POLICIES = Object.freeze({
       "src/lib/daily-portfolio/accounting.ts · laneEligibility (MOONSHOT_MAX_EXPOSURE, ACTIVATION_CUTOFF_MIN)",
     ]),
   }),
+  /*
+   * moonshot@2 — the three-day LADDER (founder direction, 2026-09-10). @1 above stays frozen as the
+   * record of the longshot design it replaces: 3–10 legs, a +700 floor, a fresh $25 ticket every day,
+   * nothing carried. @2 is Bank Builder's rule run faster — a two-leg card that must reach its rung,
+   * both legs win → the whole payout carries to the next day, either loses → back to the $25 seed.
+   */
+  "moonshot@2": Object.freeze({
+    product: "moonshot",
+    version: 2,
+    frozenAt: "2026-09-10",
+    frozenBy: "P255 (the three-day ladder the founder directed on 2026-09-10)",
+    bars: Object.freeze({
+      lanes: 2,                    // A and B — independent runs that share no game
+      legsPerLane: 2,              // exactly two legs, one per game
+      maxLegsPerGame: 1,
+      lanesShareGames: false,
+      legOddsMin: -650,            // no heavy chalk that adds nothing
+      legOddsMax: 400,             // no lottery legs
+      rungs: Object.freeze([Object.freeze([25, 100]), Object.freeze([100, 400]), Object.freeze([400, 1000])]),
+      seedStake: 25,               // the at-risk seed per lane; a carried balance is winnings riding
+      maxExposure: 50,             // both lanes together
+      activationCutoffMinutes: 30,
+      teamMarketsOnly: true,       // settleable from the official linescore; never player props
+      bothSides: true,             // underdogs included — a +300 rung usually needs one
+      placement: "the carried balance × the combined price must reach the rung's goal, or no card is placed",
+      ranking: "highest joint probability (de-vigged market) among pairs that reach the rung; ties go to the smaller overshoot",
+      position: "official receipts (mr-dub/settled): won → the next rung carrying the real payout; lost → Day 1 at the seed",
+      candidateSource: "MLB team markets, both sides, de-vigged, captured before first pitch",
+    }),
+    executors: Object.freeze([
+      "src/lib/moonshot/rung-card.mjs · selectMoonshotRungCard (RUNG_CARD_LEGS, LEG_ODDS_MIN, LEG_ODDS_MAX)",
+      "src/lib/moonshot/moonshot-ladder.mjs · MOONSHOT_LADDER, MOONSHOT_SEED",
+      "src/lib/products/ladder-position.mjs · positionFromReceipts",
+      "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (MOONSHOT_MAX_EXPOSURE, ACTIVATION_CUTOFF_MIN)",
+    ]),
+  }),
 });
 
 /** The version each product runs TODAY. The lifecycle receipts stamp this. */
 export const CURRENT_POLICY = Object.freeze({
   "bank-builder": "bank-builder@1",
-  "moonshot": "moonshot@1",
+  "moonshot": "moonshot@2",
 });
 
 /**

@@ -142,7 +142,7 @@ export const PRODUCT_REGISTRY = registerProducts([
     id: "moonshot",
     ledgerKind: "money",
     label: "Moonshot",
-    policyVersion: "moonshot@1",
+    policyVersion: "moonshot@2",
     /*
      * PAUSED on an exact founder token. Its safe engineering is complete and its history is intact;
      * what it lacks is a scheduled producer, which is already one of the two dimensions the coverage
