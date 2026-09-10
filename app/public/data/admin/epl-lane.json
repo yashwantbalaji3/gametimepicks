@@ -2,36 +2,36 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-09-08T19:29:49Z",
+  "generatedAt": "2026-09-10T23:04:39Z",
   "nextCluster": {
     "kickoffUtc": "2026-09-12T14:00:00.000Z",
     "fixtures": 5,
-    "hoursAway": 90.5
+    "hoursAway": 38.92
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-09-08T19:29:37Z",
+      "stampedAt": "2026-09-10T23:04:30Z",
       "ageHours": 0
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-09-06T15:00:44Z",
-      "ageHours": 52.48
+      "ageHours": 104.07
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-09-08T19:29:48Z",
+      "stampedAt": "2026-09-10T23:04:37Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-09-06T15:00:51Z",
-      "ageHours": 52.48
+      "stampedAt": "2026-09-10T23:04:38Z",
+      "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-09-08T19:29:40Z",
+      "stampedAt": "2026-09-10T23:04:33Z",
       "ageHours": 0
     }
   },
@@ -60,23 +60,23 @@
       "headroom": 64,
       "kickoffWindowHours": 30,
       "spendingFirings": 185,
-      "skippedFirings": 496
+      "skippedFirings": 495
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-09-08T19:29:48Z",
+    "generatedAt": "2026-09-10T23:04:37Z",
     "counts": {
       "READY_EXCEPT_ODDS": 10
     },
     "rows": 10
   },
   "playerSet": {
-    "generatedAt": "2026-09-06T15:00:51Z",
+    "generatedAt": "2026-09-10T23:04:38Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
-      "fixtures": 1,
-      "withLineup": 1,
-      "awaitingLineup": 0
+      "fixtures": 10,
+      "withLineup": 0,
+      "awaitingLineup": 10
     },
     "markets": [
       "anytime_goalscorer",
@@ -111,14 +111,19 @@
     "all": true
   },
   "productLane": {
-    "live": true,
-    "blocked": null
+    "live": false,
+    "blocked": "the last price capture is 4.3 days old"
   },
   "blockers": [
     {
       "id": "calibration-sample",
       "state": "REALITY_GATED",
       "detail": "calibration needs a preregistered backtest at the MLB bar, and the stopping rule applies from 30 matches paired with a market baseline. 26 match(es) are graded and 21 are paired. No amount of engineering shortens this; matches have to be played."
+    },
+    {
+      "id": "product-lane-closed",
+      "state": "REALITY_GATED",
+      "detail": "the Lab gate has closed this lane: the last price capture is 4.3 days old. It reopens by itself when the evidence returns."
     }
   ]
 }
