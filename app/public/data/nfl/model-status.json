@@ -2,16 +2,16 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T22:57:31Z",
+ "generatedAt": "2026-09-10T17:12:41Z",
  "windowSeasonType": "MIXED_OR_REGULAR",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
   "state": "PUBLIC_EXPERIMENTAL",
   "headline": "Experimental regular-season simulations are published",
-  "detail": "We publish a simulated score range and win chance for every game, clearly marked experimental (16 games forecast today under nfl-regular-season-public-v1). On a full held-out 2025 season the model behind it picked about 64% of winners (log loss 0.6478 against a coin's 0.6931), and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.",
+  "detail": "We publish a simulated score range and win chance for every game, clearly marked experimental (15 games forecast today under nfl-regular-season-public-v1). On a full held-out 2025 season the model behind it picked about 64% of winners (log loss 0.6478 against a coin's 0.6931), and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.",
   "nextGate": "A validated pick additionally needs the frozen 2026 walk-forward evaluation to pass its own bars — 64 decisive games and 4 completed weeks before any reading counts.",
   "checkable": {
-   "forecasts": 16,
+   "forecasts": 15,
    "model": "nfl-regular-season-public-v1",
    "heldOutWinnerLogLoss": 0.6478,
    "coinLogLoss": 0.6931
