@@ -51,6 +51,8 @@ import { UpcomingSportsStrip, type SportSchedule } from "@/components/sports/upc
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { readPublicationSlo } from "@/lib/ops/read-publication-slo";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import YesterdayCard from "@/components/recap/yesterday-card";
+import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 
 export const metadata = withRouteMetadata("/", {
   title: "GameTime Picks — Simulate today's games. Review model picks. Track results.",
@@ -307,6 +309,11 @@ export default function HomePage() {
         activeProducts={activeProductCards}
         lastSettledDate={lastSettledDate}
       />
+
+      {/* 1b — P251: how the last settled day actually went, above everything the model is saying
+              about the next one. The record is the most credible thing here and it lived only on
+              /results; a reader who never opens that page now meets it on arrival. */}
+      <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
 
       {/* 2 — Simulation Hub: the per-sport simulation centers, directly under the hero (P200). This
           IS the live-sports strip — each card carries its sport's derived state, honest tier line and

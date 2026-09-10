@@ -62,6 +62,8 @@ import {
 } from "@/components/today/status-modules";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import YourTeams from "@/components/follow/your-teams";
+import YesterdayCard from "@/components/recap/yesterday-card";
+import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -319,6 +321,11 @@ export default function TodayPage() {
               one, and only ever offers a destination the search index derived from a published
               artifact — so it cannot promise a page that does not exist. */}
       <YourTeams />
+
+      {/* 1b2 — P251: the daily loop closes here. Everything settles overnight from official box
+              scores and that record lived only on /results; this puts it where a reader already
+              is, and it does not soften a losing day. */}
+      <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
 
       {/* 1c — Daily MLB intelligence brief: the executive digest (overview + spotlight + attention + links) */}
       <TodayMlbBrief brief={brief} recapHref={hasSettledResults ? "/results" : null} />
