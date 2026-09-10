@@ -57,7 +57,7 @@ function ReadRow({ r }: { r: TopRead }) {
 }
 
 export default function TopReadsPanel({
-  set, reads, eyebrow, title, sub, groupBySport = false, compact = false,
+  set, reads, eyebrow, title, sub, groupBySport = false, compact = false, domId,
 }: {
   set: TopReadsSet;
   reads: TopRead[];
@@ -76,12 +76,20 @@ export default function TopReadsPanel({
    * the homepage's frozen word budget. Compact is presentation only; the ranking is unchanged.
    */
   compact?: boolean;
+  /**
+   * The section's DOM id. Defaults to "top-reads", which is what today/top-reads-filter.tsx scrolls
+   * to. P253: when the homepage renders both panels — today and upcoming — the hardcoded id
+   * appeared TWICE in the built page. Two elements sharing an id is invalid, and the filter's
+   * `#top-reads` jump resolved to whichever came first by accident rather than by intent. The
+   * caller now says which one it is, and the anchor keeps meaning the today panel.
+   */
+  domId?: string;
 }) {
   if (reads.length === 0) return null;
   const sports = [...new Set(reads.map((r) => r.sport))];
   const hasToday = reads.some((r) => r.timeframe === "today");
   return (
-    <section className="mt-8" id="top-reads">
+    <section className="mt-8" id={domId ?? "top-reads"}>
       <SectionHeader
         eyebrow={eyebrow}
         title={title}
