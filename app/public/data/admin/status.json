@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-10T17:15:05.135Z",
+  "generatedAt": "2026-09-10T17:50:38.788Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -31,14 +31,14 @@
         "source": "mlb/team-markets",
         "state": "CURRENT",
         "artifactDate": "2026-09-10",
-        "generatedAt": "2026-09-10T17:04:41.435Z",
+        "generatedAt": "2026-09-10T17:43:29.022Z",
         "ageDays": 0
       },
       {
         "source": "mlb/player-props",
         "state": "CURRENT",
         "artifactDate": "2026-09-10",
-        "generatedAt": "2026-09-10T17:04:42.263Z",
+        "generatedAt": "2026-09-10T17:43:30.056Z",
         "ageDays": 0
       }
     ]
@@ -122,20 +122,20 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-09-10",
-      "generatedAt": "2026-09-10T15:17:46Z",
+      "generatedAt": "2026-09-10T17:15:07Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 19,
-            "priced": 16,
+            "scheduled": 20,
+            "priced": 17,
             "generated": 10,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "GENERATION_PENDING:7 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
+            "GENERATION_PENDING:8 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
           ]
         },
         {
@@ -183,7 +183,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-10",
       "present": true,
-      "generatedAt": "2026-09-10T15:17:45Z",
+      "generatedAt": "2026-09-10T17:15:06Z",
       "watchdog": [
         {
           "product": "end-zone-vault",
@@ -232,16 +232,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-10T17:11:35.781Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-09-10T17:50:37.983Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-10",
-    "etTime": "13:15",
+    "etTime": "13:50",
     "stages": [
       {
         "stage": "schedule",
