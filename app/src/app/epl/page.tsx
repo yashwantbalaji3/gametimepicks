@@ -463,10 +463,15 @@ export default function EplPage() {
                     {/* Two markets, each having cleared its OWN preregistered bars. Plain shots is
                         absent because it failed calibration — a rejected market is not shown with a
                         warning, it is not shown. */}
+                    {/* P251-F8: both figures are labelled. The row read "81.3% SOG 52.9%" — the
+                        trailing label attached to the wrong number by eye, and the headline
+                        probability had no label at all. */}
                     <span className="font-mono" title="chance of a shot on goal" style={{ fontSize: 12, color: "var(--sport-soccer)" }}>
-                      {p.shotsOnGoalOver05 != null ? `${pct(p.shotsOnGoalOver05)} SOG` : ""}
+                      {p.shotsOnGoalOver05 != null ? `SOG ${pct(p.shotsOnGoalOver05)}` : ""}
                     </span>
-                    <span className="font-mono" title="chance of scoring" style={{ fontSize: 13, fontWeight: 700, color: "var(--vault-accent)" }}>{pct(p.probability)}</span>
+                    <span className="font-mono" title="chance of scoring" style={{ fontSize: 13, fontWeight: 700, color: "var(--vault-accent)" }}>
+                      <span style={{ fontSize: 10, fontWeight: 400, color: "var(--vault-text-faint)" }}>Score </span>{pct(p.probability)}
+                    </span>
                   </div>
                 </li>
               ))}

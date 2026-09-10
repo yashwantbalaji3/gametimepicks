@@ -140,10 +140,24 @@ if (sogAccepted) {
 const squads = readJson(path.join(RESEARCH, "players/squads-2026-27.json"));
 const squadByClub = new Map(squads.squads.map((s) => [s.teamName, s]));
 
-/* ── The fixtures to project: the same priced set the team forecasts publish ──────────────────── */
+/* ── The fixtures to project ──────────────────────────────────────────────────────────────────
+ *
+ * P251-F8: this gated on CURRENT_PRE_EVENT, which means "a current authorized PRICE covers this
+ * fixture". A goalscorer probability needs no price — it is the model's own number, graded from
+ * the official result — so tying it to one meant the whole product went dark whenever the odds
+ * authorization lapsed, which is the state EPL has been in for days. The team forecasts already
+ * publish on exactly this population and label the rows model-only; the player layer now does the
+ * same, and carries the same flag so a reader is told which it is.
+ *
+ * The states are the ones the forecast artifact itself defines: CURRENT_PRE_EVENT has a price,
+ * READY_EXCEPT_ODDS is the same model output with no price captured yet. Anything else — a
+ * settled fixture, a refused one — is still excluded.
+ */
 const forecasts = readJson(path.join(PUBLIC_EPL, "forecasts/latest.json"));
-const priced = (forecasts.rows ?? []).filter((r) => r.state === "CURRENT_PRE_EVENT" && r.probs && r.slug);
-if (priced.length === 0) { console.error("no priced fixtures — nothing to project"); process.exit(2); }
+const PROJECTABLE = new Set(["CURRENT_PRE_EVENT", "READY_EXCEPT_ODDS"]);
+const priced = (forecasts.rows ?? []).filter((r) => PROJECTABLE.has(r.state) && r.probs && r.slug);
+if (priced.length === 0) { console.error("no current pre-event fixture carries a model forecast — nothing to project"); process.exit(2); }
+console.log(`projecting ${priced.length} fixture(s): ${priced.filter((r) => r.state === "CURRENT_PRE_EVENT").length} priced · ${priced.filter((r) => r.state === "READY_EXCEPT_ODDS").length} model-only (no current price capture)`);
 
 const get = async (url) => {
   const res = await fetch(url, { headers: { accept: "application/json" } });
