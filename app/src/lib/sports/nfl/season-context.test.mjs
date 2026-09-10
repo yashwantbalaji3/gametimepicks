@@ -73,3 +73,38 @@ test("freshness: typed states, per-input bounds, clock defects refused", () => {
   assert.throws(() => checkFreshness("vibes", { sourceAsOf: NOW }, NOW), /matrix is closed/);
   for (const [k, v] of Object.entries(FRESHNESS_MATRIX)) assert.ok(v.hours > 0 && v.why.length > 10, k);
 });
+
+/* ── CLOCK-SKEW TOLERANCE (P254c) ─────────────────────────────────────────────────────────────
+   Imported dynamically so this block does not depend on the exact import line above it. */
+const { CLOCK_SKEW_TOLERANCE_MS, checkFreshness: cf, FRESHNESS_MATRIX: FM } = await import("./season-context.mjs");
+
+test("THE BUG · a capture thirty seconds after the run's clock is FRESH, not a defect", () => {
+  // Measured in nfl-event-window run 34513082364: NOW stamped 18:15:13, injuries captured 18:15:42,
+  // role evidence judged at 18:15:45. This used to be CLOCK_DEFECT, which degraded every player to
+  // SOURCE_STALE and hid an Injured Reserve designation.
+  const v = cf("injuries", { sourceAsOf: "2026-09-10T18:15:42Z", fetchedAt: "2026-09-10T18:15:13Z" }, "2026-09-10T18:15:13Z");
+  assert.equal(v.state, "FRESH");
+  assert.equal(v.ageHours, 0, "a slightly-future timestamp is age zero, never negative");
+});
+
+test("a genuinely wrong clock is still refused — the pinned 2-hour inversion stands", () => {
+  const v = cf("odds", { sourceAsOf: "2026-08-13T13:00:00Z", fetchedAt: "2026-08-13T11:00:00Z" }, "2026-08-13T13:30:00Z");
+  assert.equal(v.state, "CLOCK_DEFECT");
+});
+
+test("just past the tolerance is a defect on BOTH future branches", () => {
+  const over = (CLOCK_SKEW_TOLERANCE_MS / 60_000) + 5; // minutes
+  const later = new Date(Date.parse("2026-09-10T18:00:00Z") + over * 60_000).toISOString();
+  // sourceAsOf postdates fetchedAt by more than the tolerance
+  assert.equal(cf("injuries", { sourceAsOf: later, fetchedAt: "2026-09-10T18:00:00Z" }, later).state, "CLOCK_DEFECT");
+  // sourceAsOf is further in the future than the evaluator's clock allows
+  assert.equal(cf("injuries", { sourceAsOf: later, fetchedAt: later }, "2026-09-10T18:00:00Z").state, "CLOCK_DEFECT");
+});
+
+test("probe: the tolerance cannot grow into a way to launder stale or future data", () => {
+  // Pinned well below the tightest bound, so tolerance can never be mistaken for freshness.
+  const tightestMs = Math.min(...Object.values(FM).map((b) => b.hours)) * 3_600_000;
+  assert.ok(CLOCK_SKEW_TOLERANCE_MS <= 15 * 60_000, "skew tolerance is minutes, not hours");
+  assert.ok(CLOCK_SKEW_TOLERANCE_MS < tightestMs / 10, "and a small fraction of the tightest freshness bound");
+  assert.ok(CLOCK_SKEW_TOLERANCE_MS < 2 * 3_600_000, "and below the 2-hour inversion the suite pins as a defect");
+});

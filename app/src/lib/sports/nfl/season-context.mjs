@@ -36,6 +36,27 @@ export function forwardWindowState(rows, nowIso) {
  * Freshness bounds by input (hours). Each entry names WHY its bound differs — the matrix is the
  * documentation. Odds keeps the Program-167 lane bound; schedule/results keep their adapters'.
  */
+/**
+ * CLOCK-SKEW TOLERANCE — the same moment, seen by two clocks.
+ *
+ * On 2026-09-10 every nfl-event-window run stamped the injuries feed CLOCK_DEFECT. The window
+ * stamps NOW once, then captures injuries a few steps later, and capture-injuries writes
+ * generatedAt from that NOW but sourceAsOf from ESPN's own feed timestamp. Measured in run
+ * 34513082364: NOW 18:15:13, capture 18:15:42 — ESPN's clock read thirty seconds AFTER ours, so
+ * `sourceAsOf > fetchedAt` fired and the feed was refused.
+ *
+ * The refusal failed in the DANGEROUS direction. A defective injuries feed degrades every player
+ * to SOURCE_STALE, so Tony Fields II — on Injured Reserve since 2026-08-31 — stopped reading as
+ * OUT. "A STALE FEED CANNOT UN-DESIGNATE A PLAYER" caught it; the feed was not stale, the clock
+ * comparison was wrong.
+ *
+ * Fifteen minutes is ~30x the observed skew and a whole window job runs in under two, so any
+ * capture made during the run that judges it passes. It is still far below every bound in the
+ * matrix (the tightest is 6h) and below the 2-hour inversion the existing test pins as a defect —
+ * a genuinely wrong clock (a timezone slip, the Intl midnight "24" class) is hours off, not seconds.
+ */
+export const CLOCK_SKEW_TOLERANCE_MS = 15 * 60_000;
+
 export const FRESHNESS_MATRIX = Object.freeze({
   schedule: { hours: 26, why: "daily 13:00Z cadence + drift; one missed run must read STALE, not broken" },
   results: { hours: 36, why: "results adapter's committed window (P161-D)" },
@@ -55,9 +76,13 @@ export function checkFreshness(input, { sourceAsOf, fetchedAt }, nowIso) {
   const fetched = Date.parse(fetchedAt ?? sourceAsOf ?? "");
   if (!Number.isFinite(now)) throw new Error("checkFreshness: nowIso required");
   if (!Number.isFinite(asOf)) return { state: "UNDATED", reason: "no parseable sourceAsOf — an undated artifact is not evidence" };
-  if (Number.isFinite(fetched) && asOf > fetched) return { state: "CLOCK_DEFECT", reason: "sourceAsOf postdates fetchedAt — refused, never reordered" };
-  const ageHours = (now - asOf) / 3_600_000;
-  if (ageHours < 0) return { state: "CLOCK_DEFECT", reason: "sourceAsOf is in the future" };
+  /* A timestamp inside the skew tolerance is the same moment seen by two clocks, not a defect.
+     Beyond it, the refusal stands exactly as before: refused, never reordered. */
+  if (Number.isFinite(fetched) && asOf - fetched > CLOCK_SKEW_TOLERANCE_MS) return { state: "CLOCK_DEFECT", reason: "sourceAsOf postdates fetchedAt — refused, never reordered" };
+  const rawAgeMs = now - asOf;
+  if (rawAgeMs < -CLOCK_SKEW_TOLERANCE_MS) return { state: "CLOCK_DEFECT", reason: "sourceAsOf is in the future" };
+  // Within the tolerance a slightly-future timestamp is age zero, never a negative age.
+  const ageHours = Math.max(0, rawAgeMs) / 3_600_000;
   return ageHours <= bound.hours
     ? { state: "FRESH", ageHours: Number(ageHours.toFixed(1)), boundHours: bound.hours }
     : { state: "STALE", ageHours: Number(ageHours.toFixed(1)), boundHours: bound.hours, reason: `age ${ageHours.toFixed(1)}h exceeds the ${input} bound (${bound.hours}h): ${bound.why}` };

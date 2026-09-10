@@ -37,9 +37,15 @@ export function buildTeamMarkIndex({ mlbGames = [], nflRows = [] } = {}) {
   const index = new Map();
   const put = (name, abbr, sport) => {
     if (!name || !abbr) return;
+    const mark = { abbr: String(abbr).toLowerCase(), sport, name: String(name) };
     const key = normaliseTeam(name);
-    if (!key || index.has(key)) return;
-    index.set(key, { abbr: String(abbr).toLowerCase(), sport, name: String(name) });
+    if (key && !index.has(key)) index.set(key, mark);
+    /* The ABBREVIATION is indexed too, because half this project's surfaces render "DET @ IND"
+       rather than full club names. It is only ever matched EXACTLY (see resolveTeamMark) — a
+       three-letter substring scan would find "TB" inside "TBD" and put a crest on a row about a
+       pitcher nobody has named yet. */
+    const abbrKey = normaliseTeam(abbr);
+    if (abbrKey && !index.has(abbrKey)) index.set(abbrKey, mark);
   };
   for (const g of mlbGames ?? []) {
     put(g?.homeTeamName, g?.homeTeamAbbr, "mlb");
@@ -61,6 +67,10 @@ export function buildTeamMarkIndex({ mlbGames = [], nflRows = [] } = {}) {
 export function resolveTeamMark(selection, index) {
   const hay = normaliseTeam(selection);
   if (!hay || !index?.size) return null;
+  /* An EXACT hit is unambiguous at any length, which is how a bare abbreviation resolves without
+     opening the door to short substring matches below. */
+  const exact = index.get(hay);
+  if (exact) return exact;
   let best = null;
   for (const [key, mark] of index) {
     if (key.length < 4) continue; // too short to be a safe substring match
@@ -78,7 +88,8 @@ export function resolveTeamMark(selection, index) {
  */
 export function resolveMatchupMarks(matchup, index) {
   const raw = String(matchup ?? "");
-  const parts = raw.split(/\s+(?:@|vs\.?|v)\s+/i).map((s) => s.trim()).filter(Boolean);
+  // "@", "vs", "v" and "at" — the sports hub writes "X at Y" where the boards write "X @ Y".
+  const parts = raw.split(/\s+(?:@|vs\.?|v|at)\s+/i).map((s) => s.trim()).filter(Boolean);
   if (parts.length !== 2) return null;
   const marks = parts.map((p) => resolveTeamMark(p, index));
   return marks[0] && marks[1] ? { away: marks[0], home: marks[1] } : null;

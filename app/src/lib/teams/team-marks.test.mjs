@@ -66,3 +66,28 @@ test("normalisation ignores punctuation and case", () => {
   assert.equal(normaliseTeam("St. Louis Cardinals"), "stlouiscardinals");
   assert.equal(normaliseTeam("  new york   YANKEES "), "newyorkyankees");
 });
+
+test("abbreviations resolve EXACTLY — and only exactly", () => {
+  // Half the surfaces here render "DET @ IND" rather than full club names.
+  const idx = buildTeamMarkIndex({
+    mlbGames: [{ homeTeamName: "Tampa Bay Rays", homeTeamAbbr: "TB", awayTeamName: "Atlanta Braves", awayTeamAbbr: "ATL" }],
+    nflRows: [{ home: { name: "Indianapolis Colts", abbr: "IND" }, away: { name: "Detroit Lions", abbr: "DET" } }],
+  });
+  assert.equal(resolveTeamMark("DET", idx).name, "Detroit Lions");
+  assert.equal(resolveTeamMark("tb", idx).name, "Tampa Bay Rays");
+  assert.equal(resolveMatchupMarks("DET @ IND", idx).home.abbr, "ind");
+  // …but a short abbreviation must never match as a SUBSTRING, or "TBD" wears a Rays crest.
+  assert.equal(resolveTeamMark("TBD starter", idx), null);
+  assert.equal(resolveTeamMark("INDoor game", idx), null);
+});
+
+test("a matchup splits on 'at' as well as '@' and 'vs'", () => {
+  // The sports hub writes "Colorado Rockies at New York Yankees"; the boards write "X @ Y".
+  const m = resolveMatchupMarks("Colorado Rockies at New York Yankees", index);
+  assert.equal(m.away.abbr, "col");
+  assert.equal(m.home.abbr, "nyy");
+  // …and 'at' inside a club name must not split it. "Atlanta" starts with "at" but the separator
+  // needs surrounding whitespace, so this still resolves as one club per side.
+  const a = resolveMatchupMarks("Tampa Bay Rays at Atlanta Braves", index);
+  assert.equal(a.home.abbr, "atl");
+});

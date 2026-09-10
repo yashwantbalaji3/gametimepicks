@@ -13,6 +13,7 @@ import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
 import type { GradedRecord } from "@/lib/sports/graded-picks-loader";
+import { MatchupCrests } from "@/components/teams/matchup-crests";
 
 const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 /** Small samples never get a rate at all — the note explains why, so nothing is hidden. */
@@ -73,7 +74,13 @@ export default function GradedPicksSection({ record, rows = 6, href }: { record:
             {record.picks.slice(0, rows).map((p) => (
               <tr key={p.eventId ?? `${p.when}-${p.subject}`} style={{ borderTop: "1px solid var(--vault-rule)" }}>
                 <td className="font-mono py-2 pr-3" style={{ color: "var(--vault-text-faint)", whiteSpace: "nowrap" }}>{p.when}</td>
-                <td className="py-2 pr-3" style={{ color: "var(--vault-text)" }}>{p.subject}</td>
+                <td className="py-2 pr-3" style={{ color: "var(--vault-text)" }}>
+                  {/* The subject IS the matchup ("DET @ IND"), so the row can wear both clubs. */}
+                  <span className="inline-flex items-center gap-1.5">
+                    <MatchupCrests matchup={p.subject} size="sm" />
+                    <span>{p.subject}</span>
+                  </span>
+                </td>
                 <td className="py-2 pr-3" style={{ color: "var(--vault-text-mute)" }}>
                   {p.predicted}
                   {p.modelProbability != null ? <span className="font-mono" style={{ color: "var(--vault-text-faint)" }}> · {pct(p.modelProbability)}</span> : null}

@@ -10,6 +10,8 @@
  * Desktop: a 2×2 grid of lane cards. Mobile: a single column — no horizontal overflow at 375px.
  */
 import OddsPill from "@/components/tickets/odds-pill";
+import TeamLogo from "@/components/team-logo";
+import { teamMarkFor } from "@/lib/teams/load-team-marks";
 import FlagBadge from "@/components/flag-badge";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
@@ -26,6 +28,10 @@ const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFrac
  *  falls back to initials (portrait) or a ⚽ chip (flag). */
 function LegAvatar({ leg }: { leg: DailyPortfolioLeg }) {
   if (leg.player) return <PlayerAvatar name={leg.player} photo={leg.photoUrl ?? null} size={18} />;
+  /* The club the leg is on, resolved from the feed's own name/abbr pairing. The flag table below
+     only ever understood World Cup countries, so every MLB and NFL leg fell past it to a chip. */
+  const mark = teamMarkFor(leg.selection) ?? teamMarkFor((leg.matchup ?? "").split(/\s+(?:vs\.?|@|at)\s+/i)[1]);
+  if (mark) return <TeamLogo team={mark.abbr} sport={mark.sport as never} size="sm" ariaLabel={leg.selection ?? ""} />;
   const [home, away] = (leg.matchup ?? "").split(/\s+vs\s+/i).map((s) => s.trim());
   const selCode = wcTeamCodeFromName(leg.selection);
   if (selCode) return <FlagBadge code={selCode} size="sm" ariaLabel={leg.selection} />;

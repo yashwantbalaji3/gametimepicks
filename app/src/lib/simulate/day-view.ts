@@ -14,6 +14,7 @@
  * Server-only (fs via the owners it calls).
  */
 import { currentEtDate } from "@/lib/freshness";
+import { teamLogoUrlFor } from "@/lib/teams/load-team-marks";
 import { getMlbBoardForDate, getMlbPowerForDate, getMlbAvailableScheduleDates, getMlbStatsapiScheduleForDate } from "@/lib/data-mlb";
 import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { buildAllGameDetails } from "@/lib/game-detail";
@@ -474,7 +475,27 @@ export function buildSimulateDay(date?: string, opts?: { today?: string }): Simu
   const d = date ?? today;
   const availableDates = availableSimulateDates({ today });
   const idx = availableDates.indexOf(d);
-  const sections = [mlbSection(d, today), eplSection(d, today), ufcSection(d, today), nflSection(d, today), nbaSection(d)];
+  const sections = [mlbSection(d, today), eplSection(d, today), ufcSection(d, today), nflSection(d, today), nbaSection(d)]
+    /*
+     * FILL THE CRESTS THAT THE BRANCHES ABOVE LEAVE NULL.
+     *
+     * The row component already draws two team marks — but only when a `logo` URL is present, and
+     * the NFL, EPL and several archive branches set it to null. An audit of the built export found
+     * these day views among 103 team-bearing pages rendering no imagery at all, which is not a
+     * missing component so much as a field nobody filled.
+     *
+     * Filling here rather than in five separate branches keeps one rule: a name that resolves gets
+     * its crest, a name that does not keeps null and the row renders as it always did. A UFC row's
+     * `logo` is a fighter PHOTO, not a club crest, so an already-set value is never overwritten.
+     */
+    .map((section) => ({
+      ...section,
+      events: section.events.map((e) => ({
+        ...e,
+        away: e.away ? { ...e.away, logo: e.away.logo ?? teamLogoUrlFor(e.away.name) } : null,
+        home: e.home ? { ...e.home, logo: e.home.logo ?? teamLogoUrlFor(e.home.name) } : null,
+      })),
+    }));
   const all = sections.flatMap((s) => s.events);
   return {
     date: d,

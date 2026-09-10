@@ -14,6 +14,7 @@
  *   - hit-rate chip is faint when bucket has < 5 decisive picks
  */
 import type { ReactNode } from "react";
+import { MatchupCrests } from "@/components/teams/matchup-crests";
 
 export interface SettledLeanRow {
   id: string;
@@ -109,11 +110,16 @@ export default function SettledGameDetail({
         style={{ borderRadius: 6 }}
       >
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span
-            className="font-display font-semibold tracking-tight"
-            style={{ color: "var(--vault-text)", fontSize: 16 }}
-          >
-            {matchup}
+          <span className="inline-flex items-center gap-1.5">
+            {/* Both clubs, when both resolve. A settled archive row carries the matchup and nothing
+                stopped it wearing the crests except that nobody had a name-to-abbr map. */}
+            <MatchupCrests matchup={matchup} size="sm" />
+            <span
+              className="font-display font-semibold tracking-tight"
+              style={{ color: "var(--vault-text)", fontSize: 16 }}
+            >
+              {matchup}
+            </span>
           </span>
           {subtitle && (
             <span

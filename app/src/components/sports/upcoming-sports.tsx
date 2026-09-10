@@ -14,6 +14,7 @@
  *   - no liveness chips of any kind — there is no chip to date-gate, which is the structural fix.
  */
 import Link from "next/link";
+import { MatchupCrests } from "@/components/teams/matchup-crests";
 
 const ET_DATE = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
 const ET_TIME = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit", hour12: true });
@@ -113,7 +114,12 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
         <ul style={{ listStyle: "none", margin: "14px 0 0", padding: 0, display: "grid", gap: 10 }}>
           {s.events.map((e) => (
             <li key={e.canonicalEventId} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "baseline", borderTop: "1px solid var(--vault-border)", paddingTop: 10 }}>
-              <span style={{ fontSize: 14 }}>{competitorsLine(e)}</span>
+              <span className="inline-flex items-center gap-1.5">
+                {/* "X at Y" resolves through the same matchup parser as "X @ Y". A UFC bout names
+                    two fighters, resolves to nothing, and correctly stays bare. */}
+                <MatchupCrests matchup={competitorsLine(e)} size="sm" />
+                <span style={{ fontSize: 14 }}>{competitorsLine(e)}</span>
+              </span>
               <span style={{ fontSize: 12.5, color: "var(--text-mute)" }}>{etDateTime(e.scheduledStartUtc)}</span>
               {e.status !== "SCHEDULED" ? <span style={{ fontSize: 11, color: "var(--text-mute)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{e.status.toLowerCase()}</span> : null}
               {e.venue ? <span style={{ fontSize: 12, color: "var(--text-mute)" }}>{e.venue}</span> : null}

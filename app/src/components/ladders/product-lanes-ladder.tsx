@@ -16,6 +16,8 @@
  * overflow at 375px.
  */
 import OddsPill from "@/components/tickets/odds-pill";
+import TeamLogo from "@/components/team-logo";
+import { teamMarkFor } from "@/lib/teams/load-team-marks";
 import FlagBadge from "@/components/flag-badge";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
@@ -115,6 +117,12 @@ function LegAvatar({ leg }: { leg: DailyPortfolioLeg }) {
   /* P250 · A01: the leg's own id states its sport ("MLB:<hash>:mlb_total_runs:…"), so a baseball
      team leg gets a ⚾ chip — the World Cup flag table is consulted only for legs that are not
      already claimed by another sport, and ⚽ survives purely as the legacy-soccer fallback. */
+  /* A REAL CREST BEATS A SPORT EMOJI. The chip below says "this is baseball", which the market
+     label already said; the club it is on is the thing a reader is actually scanning for. Resolved
+     from the feed's own name/abbr pairing, and absent when the name does not resolve — the emoji
+     stays as the fallback rather than a guessed logo. */
+  const mark = teamMarkFor(leg.selection) ?? teamMarkFor((leg.matchup ?? "").split(/\s+(?:vs\.?|@|at)\s+/i)[1]);
+  if (mark) return <TeamLogo team={mark.abbr} sport={mark.sport as never} size="sm" ariaLabel={leg.selection ?? ""} />;
   const sportPrefix = String(leg.id ?? "").split(":")[0]?.toUpperCase() ?? "";
   const sportChip = sportPrefix === "MLB" ? "⚾" : sportPrefix === "NFL" ? "🏈" : sportPrefix === "UFC" ? "🥊" : null;
   if (sportChip) {
