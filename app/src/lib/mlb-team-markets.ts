@@ -15,6 +15,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { pregameGamesOnly } from "./mlb/team-market-capture.mjs";
 
 export interface TeamMarketSide {
   odds: number;
@@ -57,7 +58,11 @@ function readArtifact(date: string): TeamMarketArtifact | null {
   try {
     const p = path.join(DATA, `${date}.json`);
     if (!fs.existsSync(p)) return null;
-    return JSON.parse(fs.readFileSync(p, "utf-8")) as TeamMarketArtifact;
+    const art = JSON.parse(fs.readFileSync(p, "utf-8")) as TeamMarketArtifact;
+    // A market captured after first pitch is a LIVE line, not a pregame one — the 2026-09-10 file
+    // carries a 2.5 game total for a game 88 minutes old. Dropped here so no reader can publish it.
+    const { games } = pregameGamesOnly(art);
+    return { ...art, games, gameCount: Object.keys(games).length } as TeamMarketArtifact;
   } catch (err) {
     console.warn(`[mlb-team-markets] could not load ${date}:`, err);
     return null;

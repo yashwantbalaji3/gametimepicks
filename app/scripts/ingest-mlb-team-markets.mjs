@@ -20,6 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { noVigTwoWay, americanToImpliedRaw } from "../src/lib/projection-framework.ts";
+import { capturedPregame, carryPregameCaptures } from "../src/lib/mlb/team-market-capture.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REPO = path.resolve(APP, "..");
@@ -109,8 +110,19 @@ async function main() {
 
   const games = {};
   let kept = 0;
+  // One capture moment for the whole artifact, stamped BEFORE the loop: a game is only a pregame
+  // market if it had not started when these prices were taken (see team-market-capture.mjs — the
+  // feed keeps serving a game after first pitch, with live lines).
+  const capturedAt = new Date().toISOString();
+  const startedRefused = [];
+  const startedIds = [];
   for (const ev of events) {
     if (!slateIds.has(ev.id)) continue; // slate events only
+    if (!capturedPregame({ commenceTime: ev.commence_time }, capturedAt)) {
+      startedRefused.push(`${ev.away_team} @ ${ev.home_team} (started ${ev.commence_time})`);
+      startedIds.push(ev.id);
+      continue;
+    }
     const bk = (ev.bookmakers ?? []).find((b) => b.key === BOOK) ?? (ev.bookmakers ?? [])[0];
     if (!bk) continue;
     const mk = Object.fromEntries((bk.markets ?? []).map((m) => [m.key, m]));
@@ -156,21 +168,31 @@ async function main() {
         };
       }
     }
+    out.capturedAt = capturedAt;
     games[ev.id] = out;
     kept += 1;
   }
+  // A started game keeps the line an EARLIER run captured before its start (the file is rewritten
+  // whole, so refusing it alone would delete a genuine pregame price). Never the live one.
+  let previous = null;
+  try { previous = JSON.parse(fs.readFileSync(path.join(APP, "public", "data", "mlb", "team-markets", `${args.date}.json`), "utf8")); } catch { /* first capture of the day */ }
+  const carried = carryPregameCaptures(previous, startedIds);
+  for (const [id, g] of Object.entries(carried)) { games[id] = g; kept += 1; }
+  if (Object.keys(carried).length) console.log(`[team-markets] carried ${Object.keys(carried).length} started game(s) from the earlier pregame capture`);
 
   const artifact = {
     sport: "mlb",
     date: args.date,
-    generatedAt: new Date().toISOString(),
+    generatedAt: capturedAt,
     source: "odds_api",
     bookmaker: BOOK,
     method: "market_implied_devig",
     marketsCovered: ["moneyline", "run_line", "total"],
     gameCount: kept,
+    startedRefused,
     games,
   };
+  if (startedRefused.length) console.log(`[team-markets] refused ${startedRefused.length} game(s) already under way — live lines are not pregame markets: ${startedRefused.join("; ")}`);
 
   console.log(`[team-markets] slate ${args.date}: ${kept}/${slateIds.size} slate games have team markets`);
   const sample = Object.values(games)[0];
