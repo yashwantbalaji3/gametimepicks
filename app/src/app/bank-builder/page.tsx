@@ -21,6 +21,7 @@ import { deriveBankBuilderState } from "@/lib/products/product-state-view.mjs";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import { rungProjection } from "@/lib/bank-builder/rung-economics.mjs";
+import { buildTeamMarkIndex, resolveTeamMark } from "@/lib/teams/team-marks.mjs";
 import LifecycleRecord from "@/components/products/lifecycle-record";
 import { loadLifecycleHistory, settledCardsFor, positionFor } from "@/lib/products/lifecycle-view";
 import ClimbHero, { type ClimbLane, type ClimbRung, type ClimbClearedDetail } from "@/components/bank-builder/climb-hero";
@@ -237,6 +238,46 @@ export default function BankBuilderPage() {
   // Public-dual-ladder view models give the rung states (cleared/active/awaiting/upcoming) without ever
   // surfacing a lost step — exactly what the hero needs. The day's Bank Builder card (stake/odds/return/
   // legs) comes from the daily portfolio. Both are already loaded; nothing is recomputed.
+  /*
+   * Crests for the ladder's legs, resolved from the live feed's OWN name/abbr pairing rather than a
+   * typed table — the MLB board publishes homeTeamName beside homeTeamAbbr, so the map cannot drift
+   * from what is rendered. Before this, LegAvatar understood World Cup country codes and nothing
+   * else, and every MLB leg on the board wore a soccer ball.
+   */
+  const teamMarks = (() => {
+    const readJson = (rel: string) => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", rel), "utf8")); } catch { return null; } };
+    const boardsDir = path.join(process.cwd(), "public", "data", "mlb", "boards");
+    let mlbGames: unknown[] = [];
+    try {
+      /*
+       * A WINDOW, NOT JUST TODAY. Today's board names ten clubs; a lane's card can reference a team
+       * that played yesterday, and with a one-day index those legs silently kept the fallback while
+       * the one team on today's slate got a crest — a board where some rows have logos and others
+       * do not looks broken in a way that no logo at all does not.
+       *
+       * Fourteen days covers all thirty clubs many times over and costs a few small reads at build
+       * time. The pairing is still the feed's own, so nothing is invented.
+       */
+      const files = fs.readdirSync(boardsDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().slice(-14);
+      for (const f of files) {
+        const doc = JSON.parse(fs.readFileSync(path.join(boardsDir, f), "utf8"));
+        // The board publishes its slate under `games`; `events` is the shape other MLB artifacts use.
+        // Reading the wrong one fails SILENTLY into an empty index and every leg keeps its fallback.
+        mlbGames = mlbGames.concat(doc?.games ?? doc?.events ?? []);
+      }
+    } catch { /* a partial index is fine: an unresolved leg keeps its fallback, never a wrong crest */ }
+    const nflRows = readJson("nfl/schedule/latest.json")?.rows ?? [];
+    return buildTeamMarkIndex({ mlbGames: mlbGames as never, nflRows });
+  })();
+
+  /* Attach the crest to a leg. A player leg keeps its portrait; a team leg gets its club; anything
+     that resolves to nothing keeps the existing fallback rather than wearing a guess. */
+  const withMark = <T extends { selection?: string | null; player?: string | null }>(leg: T) => {
+    if (leg.player) return leg;
+    const mark = resolveTeamMark(leg.selection ?? "", teamMarks);
+    return mark ? { ...leg, teamAbbr: mark.abbr, teamSport: mark.sport } : leg;
+  };
+
   const climbLanes: ClimbLane[] = (["A", "B"] as const)
     .map((letter): ClimbLane | null => {
       const laneId = letter === "A" ? ("lane-a" as const) : ("lane-b" as const);
@@ -338,8 +379,8 @@ export default function BankBuilderPage() {
         reviewNote: reviewCard?.reviewNote ?? null,
         rungs,
         legs: hasReview
-          ? reviewCard!.legs
-          : (card?.legs ?? []).map((l) => ({
+          ? reviewCard!.legs.map((l) => withMark(l))
+          : (card?.legs ?? []).map((l) => withMark({
               selection: l.selection,
               market: l.marketLabel,
               odds: l.odds,

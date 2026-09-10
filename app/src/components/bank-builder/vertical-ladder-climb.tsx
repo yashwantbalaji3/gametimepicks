@@ -9,6 +9,7 @@
  */
 import type { ClimbLane, ClimbLeg, ClimbRung } from "./climb-hero";
 import FlagBadge from "@/components/flag-badge";
+import TeamLogo from "@/components/team-logo";
 import { PlayerPortrait } from "@/components/entity";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
 
@@ -39,9 +40,14 @@ function Chip({ label, color }: { label: string; color: string }) {
   );
 }
 
-/** A team flag (or player portrait / ⚽ fallback) for a leg — never a broken or fabricated mark. */
+/** A team crest (or player portrait / flag fallback) for a leg — never a broken or fabricated mark. */
 function LegAvatar({ leg }: { leg: ClimbLeg }) {
   if (leg.player && String(leg.player).trim()) return <PlayerPortrait name={String(leg.player)} size="xs" />;
+  /* A resolved club wins over everything below: the flag path only ever understood World Cup country
+     codes, so an MLB or NFL leg used to skip straight past it to a generic soccer ball. */
+  if (leg.teamAbbr && leg.teamSport) {
+    return <TeamLogo team={leg.teamAbbr} sport={leg.teamSport as never} size="sm" ariaLabel={String(leg.selection ?? "")} />;
+  }
   const [home, away] = String(leg.game ?? "").split(/\s+vs\s+/i).map((s) => s.trim());
   const sel = String(leg.selection ?? "");
   const named = [home, away].find((t) => t && sel.toLowerCase().includes(t.toLowerCase()));

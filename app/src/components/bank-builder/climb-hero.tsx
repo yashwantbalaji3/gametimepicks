@@ -48,6 +48,16 @@ export interface ClimbLeg {
   modelProb?: number | null; // model win probability (0..1)
   marketProb?: number | null;// market-implied probability (0..1)
   edgePct?: number | null;   // model edge in percentage points (model − market)
+  /**
+   * The club this leg is on, resolved server-side from the live feed's own name/abbr pairing.
+   *
+   * The avatar used to understand World Cup country codes and nothing else — a leftover from a
+   * retired product — so every MLB and NFL leg fell through to a generic soccer ball. Resolution
+   * happens on the server because it reads artifacts; the component only draws what it is handed,
+   * and draws nothing when this is absent rather than guessing a crest.
+   */
+  teamAbbr?: string | null;
+  teamSport?: string | null;
 }
 export interface ClimbLane {
   id: "lane-a" | "lane-b";
