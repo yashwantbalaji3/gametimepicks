@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823499,
   "date": "2026-09-10",
-  "capturedAt": "2026-09-10T00:43:52.035Z",
-  "availableAt": "2026-09-10T00:43:52.035Z",
+  "capturedAt": "2026-09-10T05:35:26.784Z",
+  "availableAt": "2026-09-10T05:35:26.784Z",
   "eventStartTime": "2026-09-10T23:05:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,44 @@
     "teamId": 147,
     "teamName": "New York Yankees",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 40,
+      "relievers": [
+        {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 605242,
+          "name": "Michael Fulmer",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 3,
-      "pitches": 34,
+      "appearances": 6,
+      "pitches": 74,
       "relievers": [
         {
           "id": 657612,
@@ -39,6 +70,26 @@
           ]
         },
         {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 605242,
+          "name": "Michael Fulmer",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
           "id": 687396,
           "name": "Brent Headrick",
           "appearances": 1,
@@ -46,6 +97,16 @@
           "outs": 3,
           "dates": [
             "2026-09-08"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
           ]
         },
         {
@@ -66,14 +127,35 @@
     "teamId": 115,
     "teamName": "Colorado Rockies",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 33,
+      "relievers": [
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 4,
-      "pitches": 63,
+      "appearances": 5,
+      "pitches": 96,
       "relievers": [
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
         {
           "id": 677955,
           "name": "Jaden Hill",
@@ -116,12 +198,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 675848,
+        "name": "Juan Mejia",
+        "reason": "33 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-07,2026-09-08,2026-09-09) + feed/live box scores",
-    "capturedAt": "2026-09-10T00:43:52.035Z"
+    "capturedAt": "2026-09-10T05:35:26.784Z"
   },
-  "recordHash": "3e16bd5a8c6a7f06b221df7e8d2a9e7c6616272be105dd225fa512deb453a5a8"
+  "recordHash": "eb47c606877be8a715e85462f69aad17eadee28754359312388839168bc5cc8a"
 }

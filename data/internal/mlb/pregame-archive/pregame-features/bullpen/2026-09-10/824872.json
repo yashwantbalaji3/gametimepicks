@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824872,
   "date": "2026-09-10",
-  "capturedAt": "2026-09-10T00:43:52.035Z",
-  "availableAt": "2026-09-10T00:43:52.035Z",
+  "capturedAt": "2026-09-10T05:35:26.784Z",
+  "availableAt": "2026-09-10T05:35:26.784Z",
   "eventStartTime": "2026-09-10T16:15:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,44 @@
     "teamId": 144,
     "teamName": "Atlanta Braves",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 45,
+      "relievers": [
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 663559,
+          "name": "Bailey Falter",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 678061,
+          "name": "Ray Kerr",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 4,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 3,
-      "pitches": 123,
+      "appearances": 6,
+      "pitches": 168,
       "relievers": [
         {
           "id": 622694,
@@ -57,6 +88,36 @@
           "dates": [
             "2026-09-07"
           ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 663559,
+          "name": "Bailey Falter",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 678061,
+          "name": "Ray Kerr",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 4,
+          "dates": [
+            "2026-09-09"
+          ]
         }
       ]
     },
@@ -66,22 +127,84 @@
     "teamId": 139,
     "teamName": "Tampa Bay Rays",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 3,
-      "pitches": 41,
+      "appearances": 4,
+      "pitches": 62,
       "relievers": [
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 694494,
+          "name": "Ty Johnson",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
         {
           "id": 642121,
           "name": "Cole Sulser",
           "appearances": 1,
-          "pitches": 17,
+          "pitches": 8,
           "outs": 3,
           "dates": [
-            "2026-09-08"
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 103,
+      "relievers": [
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 642121,
+          "name": "Cole Sulser",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-09-08",
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 694494,
+          "name": "Ty Johnson",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-09-09"
           ]
         },
         {
@@ -103,15 +226,31 @@
           "dates": [
             "2026-09-08"
           ]
+        },
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-09-09"
+          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 571927,
+        "name": "Steven Matz",
+        "reason": "30 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-07,2026-09-08,2026-09-09) + feed/live box scores",
-    "capturedAt": "2026-09-10T00:43:52.035Z"
+    "capturedAt": "2026-09-10T05:35:26.784Z"
   },
-  "recordHash": "1e1344ca1957869d167d7130ebe2793d9f9948265ef1645935816471e22f47b9"
+  "recordHash": "1743689fa548eb19aec8c2b051e9238915fdb31a2f716962856273f07c1f2407"
 }
