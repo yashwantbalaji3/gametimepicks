@@ -2,23 +2,44 @@
  "schemaVersion": 1,
  "sport": "nfl",
  "dataClass": "RESULTS_CAPTURE",
- "generatedAt": "2026-09-09T16:56:32Z",
- "sourceAsOf": "2026-09-09T16:56:32Z",
+ "generatedAt": "2026-09-10T16:44:31Z",
+ "sourceAsOf": "2026-09-10T16:44:31Z",
  "windowDays": 9,
- "state": "NO_RESULTS_YET",
+ "state": "RESULTS",
  "source": {
   "id": "espn_scoreboard",
   "name": "ESPN NFL public scoreboard",
   "license": "public JSON endpoint, no key; used as a point-in-time snapshot with attribution — same class of usage as the schedule capture"
  },
- "rowCount": 1,
- "completedCount": 0,
+ "rowCount": 2,
+ "completedCount": 1,
  "rows": [
+  {
+   "providerEventId": "401872657",
+   "shortName": "SF VS LAR",
+   "dateUtc": "2026-09-11T00:35Z",
+   "statusRaw": "STATUS_SCHEDULED",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "LAR",
+    "name": "Los Angeles Rams",
+    "providerTeamId": "14"
+   },
+   "away": {
+    "abbr": "SF",
+    "name": "San Francisco 49ers",
+    "providerTeamId": "25"
+   },
+   "ftHome": 0,
+   "ftAway": 0,
+   "capturedAt": "2026-09-10T16:44:31Z"
+  },
   {
    "providerEventId": "401872656",
    "shortName": "NE @ SEA",
    "dateUtc": "2026-09-10T00:20Z",
-   "statusRaw": "STATUS_SCHEDULED",
+   "statusRaw": "STATUS_FINAL",
    "seasonType": 2,
    "week": 1,
    "home": {
@@ -31,9 +52,9 @@
     "name": "New England Patriots",
     "providerTeamId": "17"
    },
-   "ftHome": 0,
-   "ftAway": 0,
-   "capturedAt": "2026-09-09T16:56:32Z"
+   "ftHome": 13,
+   "ftAway": 10,
+   "capturedAt": "2026-09-10T16:44:31Z"
   }
  ]
 }
