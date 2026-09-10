@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823413,
+  "date": "2026-09-10",
+  "capturedAt": "2026-09-10T00:28:45.982Z",
+  "availableAt": "2026-09-10T00:28:45.982Z",
+  "eventStartTime": "2026-09-10T17:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 554430,
+      "name": "Zack Wheeler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 6.2,
+        "bbAvg": 3,
+        "erAvg": 3.2,
+        "hrAvg": 1.2,
+        "kPer9": 10.73,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 136.33,
+        "k": 163,
+        "bb": 43,
+        "er": 49,
+        "hr": 20
+      }
+    },
+    "away": {
+      "id": 664299,
+      "name": "Cristian Javier",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 5,
+        "bbAvg": 1.4,
+        "erAvg": 2.6,
+        "hrAvg": 1.2,
+        "kPer9": 9.38,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 36.33,
+        "k": 33,
+        "bb": 19,
+        "er": 29,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-10&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-10T00:28:45.982Z"
+  },
+  "recordHash": "e98179483f6db1a3f8f3f3518d92aa96a21a1e842045114525bad5d54dc396b2"
+}

@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824872,
+  "date": "2026-09-10",
+  "capturedAt": "2026-09-10T00:28:46.471Z",
+  "availableAt": "2026-09-10T00:28:46.471Z",
+  "eventStartTime": "2026-09-10T16:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-07",
+    "2026-09-08",
+    "2026-09-09"
+  ],
+  "home": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 123,
+      "relievers": [
+        {
+          "id": 622694,
+          "name": "Elieser Hernández",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 6,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 11,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 800311,
+          "name": "Didier Fuentes",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 6,
+          "dates": [
+            "2026-09-07"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 41,
+      "relievers": [
+        {
+          "id": 642121,
+          "name": "Cole Sulser",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 687330,
+          "name": "Kevin Kelly",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-07,2026-09-08,2026-09-09) + feed/live box scores",
+    "capturedAt": "2026-09-10T00:28:46.471Z"
+  },
+  "recordHash": "1e1344ca1957869d167d7130ebe2793d9f9948265ef1645935816471e22f47b9"
+}
