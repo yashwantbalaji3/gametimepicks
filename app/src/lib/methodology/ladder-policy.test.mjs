@@ -137,17 +137,31 @@ test("v2.1: under-target rolls SCALE the schedule proportionally (safe-under-tar
   assert.ok(s.minAcceptablePayout > s.roll && s.minAcceptablePayout < s.target, "safe-under-target floor sits between roll and target");
 });
 
-test("Moonshot v2: 25→100 lock 25 · 75→375 lock 75 · 300→1,500 completes — reconciles, freerolls from Day 2", () => {
+test("Moonshot v2: 25→100→400→1,000, full roll-forward — one rule with Bank Builder", () => {
+  /*
+   * REBASED 2026-09-10 on founder direction. This pinned the PROFIT-LOCKING ladder — 25→100 banking
+   * the seed, 75→375 banking $75, 300→1,500 — which had a real virtue: after a Day-1 win the seed
+   * was safe. It also meant Moonshot settled by different rules from the ladder it is drawn to look
+   * like. The call was to make it compound like Bank Builder over a shorter climb to $1,000.
+   *
+   * The assertions below are the ones that outlive any particular spec: the chain reconciles (each
+   * day rides exactly what the last one produced), the ladder lands on its crown, and player props
+   * stay opt-in. The lock is now asserted to be ABSENT, so the trade is explicit rather than
+   * forgotten — nothing banks along the way, and a Day-3 loss returns the run to the seed.
+   */
   const d1 = moonshotV2LadderPolicy(1), d2 = moonshotV2LadderPolicy(2), d3 = moonshotV2LadderPolicy(3);
-  assert.equal(d1.lock, 25, "Day-1 win locks the seed back");
-  assert.equal(d1.rollForward, 75);
+  assert.equal(d1.roll, 25, "the run starts at the $25 seed");
+  assert.equal(d1.target, 100);
   assert.equal(d2.roll, d1.rollForward, "Day 2 rides exactly the Day-1 roll-forward");
-  assert.equal(d2.rollForward, 300);
-  assert.equal(d3.roll, d2.rollForward);
-  assert.equal(d3.target, 1500);
-  assert.equal(d3.cumulativeLocked, 100, "$100 locked before the Day-3 swing");
+  assert.equal(d2.target, 400);
+  assert.equal(d3.roll, d2.rollForward, "Day 3 rides exactly the Day-2 roll-forward");
+  assert.equal(d3.target, 1000, "the ladder lands on its crown");
+  // Nothing banks: this is the whole difference from the old table, so it is asserted, not implied.
+  for (const d of [d1, d2, d3]) assert.equal(d.lock, 0, "a compounding ladder banks nothing along the way");
+  assert.equal(d3.cumulativeLocked, 0);
+  for (const d of [d1, d2, d3]) assert.equal(d.rollForward, d.target, "the whole balance rides on");
   for (const d of [d1, d2, d3]) assert.equal(d.playerPropsAllowed, false, "props only via explicit opt-in");
-  assert.equal(moonshotV2LadderPolicy(2, 75, true).playerPropsAllowed, true);
+  assert.equal(moonshotV2LadderPolicy(2, 100, true).playerPropsAllowed, true);
 });
 
 test("policy generation NEVER touches canonical money (pure functions; portfolio.json byte-identical)", () => {

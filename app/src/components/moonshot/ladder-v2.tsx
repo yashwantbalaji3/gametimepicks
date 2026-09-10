@@ -1,8 +1,8 @@
 /**
  * MoonshotLadderV2 — the PROMINENT 3-step Moonshot trajectory ladder for /moonshot (and a compact preview
  * for Home / Today). Renders straight from the pure `moonshotV2LadderPolicy` spec ($25 → $100 → $375 →
- * $1,500 with profit-locking), so it can never drift. Every figure (roll → target, lock, roll-forward,
- * cumulative locked, legs) is spec-derived — nothing fabricated, no money computed here.
+ * $1,000, full roll-forward — founder direction 2026-09-10), so it can never drift. Every figure is
+ * spec-derived — nothing fabricated, no money computed here.
  *
  * High-variance by design; a losing day costs only what was still rolling. `currentDay` marks the live
  * rung. CSS-only, reduced-motion-safe. Settles from official results only.
@@ -30,20 +30,20 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
     return (
       <div className={`moon-ladder-v2-compact rounded-xl px-3.5 py-3 ${className}`} style={{ border: "1px solid var(--product-moonshot-deep)", background: "color-mix(in srgb, var(--product-moonshot-mid) 6%, transparent)" }} aria-label="Moonshot 3-step ladder preview">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
-          <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--product-moonshot)" }}>🚀 3-step ladder · $25 → $1,500</span>
+          <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--product-moonshot)" }}>🚀 3-step ladder · $25 → $1,000</span>
           <span className="font-mono text-[8.5px] uppercase" style={{ color: "var(--gtp-bank-heat)" }}>⚠ high variance</span>
         </div>
         <div className="mt-2 flex items-center gap-1">
           {days.map((p, i) => (
             <div key={p.day} className="flex items-center gap-1 shrink-0">
               <span className="rounded px-1.5 py-1 font-mono text-[9px] tabular" style={{ border: `1px solid ${live && p.day === currentDay ? "var(--product-moonshot-mid)" : "var(--vault-rule)"}`, color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-mute)", background: live && p.day === currentDay ? "color-mix(in srgb, var(--product-moonshot-mid) 12%, transparent)" : "transparent" }}>
-                D{p.day} ${p.target.toLocaleString("en-US")}{p.lock > 0 ? ` ·bank $${p.lock}` : ""}
+                D{p.day} ${p.target.toLocaleString("en-US")}
               </span>
               {i < days.length - 1 ? <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>→</span> : null}
             </div>
           ))}
         </div>
-        <p className="mt-1.5 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Win Day&nbsp;1 → the $25 seed banks back; Days 2-3 ride house money. No forced cards.</p>
+        <p className="mt-1.5 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Win a day and the whole balance rides into the next. One wrong leg ends the run at the $25 seed. No forced cards.</p>
       </div>
     );
   }
@@ -57,7 +57,7 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 sm:px-5">
         <div>
           <div className="font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--product-moonshot)" }}>🚀 The 3-step ladder</div>
-          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(19px, 3.2vw, 26px)", fontWeight: 700 }}>$25 → $1,500 in 3 days</h2>
+          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(19px, 3.2vw, 26px)", fontWeight: 700 }}>$25 → $1,000 in 3 days</h2>
         </div>
         <span className="flex items-center gap-1.5">
           {policyPreview ? (
@@ -97,7 +97,7 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
                 {usd(p.roll)} <span style={{ color: "var(--vault-text-faint)" }}>→</span> {usd(p.target)}
               </div>
               <div className="mt-1 font-mono text-[9.5px]" style={{ color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>
-                {p.lock > 0 ? `bank ${usd(p.lock)} · roll ${usd(p.rollForward)}` : "completes — all realizes"}
+                {p.day === 3 ? "completes the run" : `the whole ${usd(p.target)} rides into Day ${p.day + 1}`}
               </div>
               <div className="mt-0.5 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>{p.legRange[0]}–{p.legRange[1]} legs · team markets · no props</div>
             </div>
@@ -111,7 +111,7 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
         </p>
       ) : null}
       <p className="mt-2.5 px-4 pb-4 text-[10.5px] leading-relaxed sm:px-5" style={{ color: "var(--vault-text-faint)" }}>
-        Win Day&nbsp;1 and the $25 seed banks back, so Days&nbsp;2–3 ride house money. One wrong leg ends the day; a day with no qualified card is a no-play. Settles from official results.
+        Same rule as Bank Builder: every leg must win, the whole balance rides into the next day, and one wrong leg ends the run back at the $25 seed — nothing banks along the way. A day with no qualified card is a no-play. Settles from official results.
       </p>
     </section>
   );

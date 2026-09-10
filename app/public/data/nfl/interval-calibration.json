@@ -1,0 +1,72 @@
+{
+  "_note": "How often this model's published intervals actually contained the result. Derived from the experimental-settlement ledger, which grades every published forecast against the official final score. Educational and paper-only; not a betting record.",
+  "schemaVersion": 1,
+  "artifact": "nfl-interval-calibration",
+  "dataClass": "PUBLIC_DERIVED",
+  "generatedAt": "2026-09-10T16:51:49Z",
+  "modelVersion": "nfl-regular-season-public-v1",
+  "ledgerGeneratedAt": "2026-09-10T16:48:53Z",
+  "bars": {
+    "minSample": 20,
+    "zThreshold": 2
+  },
+  "nominalCoverage": 0.8,
+  "cohorts": [
+    {
+      "label": "preseason",
+      "n": 41,
+      "margin": {
+        "state": "OVERCONFIDENT",
+        "z": -2.265,
+        "observed": 0.6585,
+        "expected": 32.8,
+        "n": 41,
+        "covered": 27,
+        "impliedScale": 1.347,
+        "claim": "an interval printed as 80% contained the result only 65.9% of the time over 41 settled forecasts (z -2.26) — the interval is too narrow and the label overstates what the model knows"
+      },
+      "total": {
+        "state": "CALIBRATED",
+        "z": 1.249,
+        "observed": 0.878,
+        "expected": 32.8,
+        "n": 41,
+        "covered": 36,
+        "impliedScale": 0.829,
+        "claim": "an interval printed as 80% contained the result 87.8% of the time over 41 settled forecasts — consistent with the label"
+      },
+      "winnerAccuracy": 0.5366,
+      "marginMAE": 12.3953,
+      "totalMAE": 8.186
+    },
+    {
+      "label": "regular-season",
+      "n": 1,
+      "margin": {
+        "state": "INSUFFICIENT",
+        "z": null,
+        "observed": null,
+        "expected": null,
+        "n": 1,
+        "covered": 1,
+        "impliedScale": null,
+        "claim": "1 settled forecast(s) — below the 20-game floor, so no calibration claim is made"
+      },
+      "total": {
+        "state": "INSUFFICIENT",
+        "z": null,
+        "observed": null,
+        "expected": null,
+        "n": 1,
+        "covered": 0,
+        "impliedScale": null,
+        "claim": "1 settled forecast(s) — below the 20-game floor, so no calibration claim is made"
+      },
+      "winnerAccuracy": 1,
+      "marginMAE": 3,
+      "totalMAE": 23
+    }
+  ],
+  "worst": "OVERCONFIDENT",
+  "action": "OPEN — a published interval is narrower than its label. A widening factor is proposed on the cohort; adopting it requires a preregistration and a held-out evaluation."
+}

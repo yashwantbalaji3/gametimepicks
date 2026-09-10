@@ -15,6 +15,8 @@
  * rather than adding a weak leg to force the rung.
  */
 
+import { MOONSHOT_LADDER } from "@/lib/moonshot/moonshot-ladder.mjs";
+
 export type RiskBand = "standard" | "protected" | "safety-first";
 export type LadderMarket = "double_chance" | "draw_no_bet" | "moneyline_90" | "match_total_goals" | "btts";
 
@@ -195,11 +197,30 @@ export interface MoonshotV2Day {
   note: string;
 }
 
-const MOON_V2 = [
-  { roll: 25,  target: 100,  lock: 25, legs: [3, 5] as [number, number] },
-  { roll: 75,  target: 375,  lock: 75, legs: [3, 6] as [number, number] },
-  { roll: 300, target: 1500, lock: 0,  legs: [3, 6] as [number, number] }, // completes → all realizes
-];
+/*
+ * MOONSHOT LADDER — founder direction, 2026-09-10: one rule with Bank Builder.
+ *
+ * This table used to describe a PROFIT-LOCKING climb: $25 → $100 locking the seed back, $75 → $375
+ * locking $75, $300 → $1,500. That design had a real virtue — after a Day-1 win the seed was safe,
+ * so a Day-2 loss still left the run up $25 — and it also meant Moonshot settled by different rules
+ * from the ladder it sits beside, while being drawn as the same picture.
+ *
+ * The founder's call is the straight compound: the whole balance rides each day, exactly as Bank
+ * Builder's rungs do, over a shorter and steeper climb to $1,000. THE TRADE IS EXPLICIT — nothing
+ * banks along the way, so a Day-3 loss returns the run to the $25 seed with nothing kept. That is
+ * the same trade Bank Builder makes at every rung, and having ONE rule across both products is
+ * worth more than the partial protection the old table gave.
+ *
+ * Derived from lib/moonshot/moonshot-ladder.mjs so the rungs and their required prices cannot
+ * drift apart from the surfaces that render them.
+ */
+const MOON_V2 = MOONSHOT_LADDER.map((r, i) => ({
+  roll: r.start,
+  target: r.goal,
+  // Nothing locks: a compounding ladder carries the whole balance into the next rung.
+  lock: 0,
+  legs: (i === 0 ? [3, 5] : [3, 6]) as [number, number],
+}));
 
 /** Moonshot v2 day policy — profit-locking 3-day ladder. Pure; display/proposal shaping only. */
 export function moonshotV2LadderPolicy(day: 1 | 2 | 3, currentRoll?: number, allowPlayerProps = false): MoonshotV2Day {
@@ -222,9 +243,9 @@ export function moonshotV2LadderPolicy(day: 1 | 2 | 3, currentRoll?: number, all
     playerPropsAllowed: allowPlayerProps === true,
     riskBand: "longshot",
     note: day === 1
-      ? "Win Day 1 and the $25 seed is locked back immediately — Days 2-3 ride house money."
+      ? "Win Day 1 and the whole $100 rides into Day 2 — nothing banks along the way."
       : day === 2
-        ? "Win Day 2 and another $75 locks; only $300 of winnings stays at risk for the $1,500 swing."
+        ? "Win Day 2 and the whole $400 rides into Day 3 for the $1,000 finish."
         : "Day 3 completes the ladder — everything realizes. A loss on any day costs only what was still rolling; locked profit stays banked. NO-PLAY days are never forced.",
   };
 }

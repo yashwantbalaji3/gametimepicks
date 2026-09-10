@@ -70,12 +70,23 @@ for (const r of read("soccer/epl/forecasts/latest.json")?.rows ?? []) {
 
 // ── PLAYERS ────────────────────────────────────────────────────────────────────────────────────
 /* A player is in the index because a PUBLISHED board names him, and his destination is the report
-   that names him. No roster is walked: being rostered is not being published. */
+   that names him. No roster is walked: being rostered is not being published.
+
+   AND THE REPORT HAS TO EXIST. An index entry is a promise that a page is there. Player boards
+   outlive the forecast window — a board file for NE @ SEA sat on disk after the game was played and
+   the forecast rolled forward, so every player on it pointed at /nfl/game/401872656/, a route that
+   is no longer generated. Twice in one day this index shipped destinations that 404 (the MLB game
+   pages this morning were the same shape), so the events that actually generate a page are the
+   only ones a row may point at. */
+const forecastEventIds = new Set(
+  (read("nfl/forecasts/latest.json")?.forecasts ?? []).map((f) => String(f.providerEventId)),
+);
 const boardDir = path.join(DATA, "nfl", "player-board");
 if (fs.existsSync(boardDir)) {
   for (const file of fs.readdirSync(boardDir).filter((x) => /^\d+\.json$/.test(x))) {
     const b = JSON.parse(fs.readFileSync(path.join(boardDir, file), "utf8"));
     const eventId = file.replace(/\.json$/, "");
+    if (!forecastEventIds.has(eventId)) continue; // no report page for this event — no promise made
     for (const p of b.players ?? []) {
       add("player", p.name, `NFL · ${p.team} · ${b.matchup}`, `/nfl/game/${eventId}/`, [p.team, "nfl", "football"]);
     }

@@ -61,6 +61,15 @@ export interface ClimbLane {
   combinedOdds: number | null;
   potentialReturn: number | null;
   goalTarget: number | null;
+  /**
+   * Whether today's card actually reaches this rung's target, and by how much it misses.
+   *
+   * The rung prints the balance the run is climbing toward. Whether the card gets there depends on
+   * its price: $200 at +207 returns $614, not $700. Printing the target while the card underneath
+   * cannot reach it is the same species of error as staking the seed on rung two.
+   */
+  reachesTarget?: boolean | null;
+  shortfall?: number | null;
   hasCard: boolean;          // false → polished awaiting state (a real money card is placed)
   // A REVIEW card is a $0 paper card whose legs ARE shown for founder/public review, but no money is
   // placed (hasCard stays false so exposure/seed logic never counts it). reviewMode drives the review

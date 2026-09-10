@@ -44,6 +44,7 @@ import { deriveSlateAnchor } from "@/lib/sports/nfl/slate-anchor.mjs";
 import { loadNflEvents, currentPeriodKey, eventsInPeriod, periodCounts } from "@/lib/events/read-model";
 import { seasonContextFor } from "@/lib/sports/nfl/season-context.mjs";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
+import IntervalCalibrationPanel, { loadIntervalCalibration } from "@/components/nfl/interval-calibration-panel";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NflWeeklyBoards from "@/components/nfl/weekly-boards";
@@ -162,6 +163,7 @@ export default function NflHubPage() {
     | null;
   const finals = (results?.rows ?? []).filter((r: { statusRaw: string }) => /^STATUS_FINAL/.test(r.statusRaw));
   const nflGraded = loadGradedPicks("nfl");
+  const nflCalibration = loadIntervalCalibration();
 
   // market rows are pre-kickoff facts by construction: keep only rows whose capture precedes
   // their own kickoff (a static truth that cannot rot), sorted by kickoff.
@@ -718,6 +720,8 @@ export default function NflHubPage() {
         preregistered bar, and a tie is recorded as void rather than as a miss.
       */}
       {nflGraded ? <GradedPicksSection record={nflGraded} href="/results/picks/nfl" /> : null}
+      {/* The interval label's own track record, beside the record of the picks. */}
+      <IntervalCalibrationPanel cal={nflCalibration} />
 
       <section aria-labelledby="nfl-coverage" id="nfl-coverage" className="scroll-mt-24">
         <SectionHeader

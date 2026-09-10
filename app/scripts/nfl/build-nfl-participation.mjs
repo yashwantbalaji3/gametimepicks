@@ -104,6 +104,49 @@ if (!schedule?.rows || !roleShares?.teams) {
 // Any registered source that could promote a player past AVAILABLE_ROLE_UNCERTAIN. None today.
 const activesSource = read(path.join(ROOT, "data/internal/research/nfl/actives/current.json"));
 
+/*
+ * ── ELIGIBILITY IS NOT ROLE CERTAINTY ────────────────────────────────────────────────────────
+ *
+ * This builder marked EVERY named player AVAILABLE_ROLE_UNCERTAIN, on the stated grounds that no
+ * registered source can confirm participation. That reasoning is right about one question and was
+ * silently applied to a second one.
+ *
+ * Confirming a player IS playing genuinely needs an actives/inactives source this project does not
+ * have, and CONFIRMED_OUT stays unreachable for exactly that reason. But knowing a player CANNOT
+ * play is a different claim with a different source: the injuries capture. On 2026-09-10 Trey
+ * Benson had been on Injured Reserve since 2026-08-25 — sixteen days, stated and dated — and a
+ * board built that afternoon still published a full rush-yards distribution for him in a game three
+ * days out. No amount of epistemic caution about his ROLE justifies projecting carries for a player
+ * who is not eligible to take one.
+ *
+ * So the injuries feed is read here in ONE direction. It can remove a player; it can never promote
+ * one, and no state in the closed vocabulary changes meaning.
+ *
+ * REMOVING THEM ALSO FIXES THE MODEL. Depth rank drives every share below. Leaving an ineligible
+ * RB1 in the ranking does not merely publish a phantom row — it holds the RB2 behind him at second-
+ * string volume for a game he is going to start. Filtering before ranking is the same correction in
+ * both places.
+ *
+ * Excluded players are RECORDED on the artifact, never silently dropped: a row that disappears with
+ * no reason attached is how a board loses a player nobody can account for.
+ */
+const injuries = read(path.join(ROOT, "data/internal/research/injuries/nfl/latest.json"));
+const BLOCKING_STATUS = /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i;
+const blockedById = new Map();
+for (const e of injuries?.entries ?? []) {
+  if (!e?.athleteId || !BLOCKING_STATUS.test(String(e.status ?? ""))) continue;
+  blockedById.set(`nfl-athlete-${e.athleteId}`, { status: e.status, statedAt: e.statedAt ?? null, name: e.athleteName ?? null });
+}
+/*
+ * FAIL LOUD IF THE FEED IS UNREADABLE. An empty blocked set because the capture is missing looks
+ * exactly like a healthy week with nobody hurt, and would restore the defect silently.
+ */
+if (!injuries?.entries) {
+  console.error("REFUSED: injuries capture unreadable — participation will not be built as if nobody were injured");
+  process.exit(2);
+}
+let excluded = [];
+
 const nowMs = Date.parse(NOW);
 const events = schedule.rows
     .filter((r) => {
@@ -132,6 +175,7 @@ const written = [];
 const refused = [];
 
 for (const ev of events) {
+  excluded = [];
   const teams = {};
   let ok = true;
   for (const side of ["home", "away"]) {
@@ -140,8 +184,19 @@ for (const ev of events) {
     if (!teamRoles) { ok = false; break; }
     const markets = {};
     for (const m of MARKETS) {
-      // Rank by the regular-season share — the ONLY thing it is used for now.
-      const ranked = [...(teamRoles[m]?.players ?? [])].sort((a, b) => b.share - a.share);
+      // Rank by the regular-season share — the ONLY thing it is used for now. Ineligible players
+      // are removed BEFORE ranking, so the depth order below describes who can actually play.
+      const eligible = (teamRoles[m]?.players ?? []).filter((p) => {
+        const block = blockedById.get(p.playerId);
+        if (!block) return true;
+        excluded.push({
+          playerId: p.playerId, name: p.name ?? block.name, team: abbr, market: m,
+          status: block.status, statedAt: block.statedAt,
+          reason: `injuries capture designates ${block.status}${block.statedAt ? ` (stated ${block.statedAt})` : ""} — ineligible players carry no opportunity share`,
+        });
+        return false;
+      });
+      const ranked = [...eligible].sort((a, b) => b.share - a.share);
       const players = ranked.map((p, rankIndex) => {
         // Every named player is ROLE_UNCERTAIN today: no registered source can confirm otherwise.
         const state = "AVAILABLE_ROLE_UNCERTAIN";
@@ -209,6 +264,11 @@ for (const ev of events) {
     rankSharesSource: RANK_SHARES_SOURCE,
     shareModelVersion: SHARE_MODEL_VERSION,
     teams,
+    /* Every player the injuries capture removed from this event's depth ranking, with the
+       designation and the date it was stated. A row that vanishes without a reason attached is how
+       a board loses a player nobody can account for. */
+    excludedIneligible: excluded.filter((x) => x.team === ev.home?.abbr || x.team === ev.away?.abbr),
+    injuriesAsOf: injuries.generatedAt ?? null,
     cutoffSafe: Date.parse(roleShares.rosterAsOf) < Date.parse(ev.dateUtc),
   };
   body.inputHash = crypto.createHash("md5").update(JSON.stringify({ e: ev.providerEventId, r: roleShares.generatedAt, f: RANK_SHARES, v: SHARE_MODEL_VERSION })).digest("hex").slice(0, 16);

@@ -190,10 +190,46 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
 
   const publishedMarkets = new Set(Object.entries(families).filter(([, f]) => f.state === "PUBLISHED" || f.state === "ESTIMATE").map(([m]) => m));
 
+  /*
+   * ── THE PUBLICATION GATE: AN INELIGIBLE PLAYER NEVER REACHES A BOARD ─────────────────────────
+   *
+   * build-nfl-participation now filters ineligible players out of the depth ranking, which is the
+   * right fix in the right place — and it is a DIFFERENT branch from the one this board reads. The
+   * board assembles from the event artifact's simulated props, so on 2026-09-10 Trey Benson, on
+   * Injured Reserve since 2026-08-25, still arrived here with a full rush-yards distribution for a
+   * game three days out.
+   *
+   * Filtering upstream and gating at publication are not redundant. Upstream is where the model gets
+   * the depth chart right; here is the last point before a reader sees it. This gate does not care
+   * which upstream path produced the row.
+   *
+   * Whole rows go, not just their volume markets. A touchdown probability for a player who cannot
+   * take the field is not more defensible than a yardage line for one.
+   */
+  const injuriesArtifact = read(path.join(ROOT, "data/internal/research/injuries/nfl/latest.json"));
+  if (!injuriesArtifact?.entries) {
+    console.error("REFUSED: injuries capture unreadable — a board will not be published as if nobody were injured");
+    process.exit(2);
+  }
+  const BLOCKING_STATUS = /^(out|injured\s*reserve|ir|suspend|pup|nfi)/i;
+  const ineligible = new Map();
+  for (const e of injuriesArtifact.entries) {
+    if (!e?.athleteId || !BLOCKING_STATUS.test(String(e.status ?? ""))) continue;
+    ineligible.set(`nfl-athlete-${e.athleteId}`, { status: e.status, statedAt: e.statedAt ?? null, name: e.athleteName ?? null });
+  }
+  const gatedOut = [];
+  const gate = (playerId, name, team) => {
+    const block = ineligible.get(playerId);
+    if (!block) return false;
+    gatedOut.push({ playerId, name: name ?? block.name, team, status: block.status, statedAt: block.statedAt });
+    return true;
+  };
+
   for (const [abbr, tv] of Object.entries(doc.research?.perTeam ?? {})) {
     const props = tv.props;
     if (props?.state === "SIMULATED") {
       for (const pl of props.players ?? []) {
+        if (gate(pl.playerId, pl.name, abbr)) continue;
         const markets = {};
         for (const [m, dist] of Object.entries(pl.markets ?? {})) {
           if (!publishedMarkets.has(m)) continue;
@@ -206,6 +242,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     const atd = tv.anytimeTdBoard;
     if (publishedMarkets.has("anytime_td") && atd?.topRows?.length) {
       for (const row of atd.topRows) {
+        if (gate(row.playerId, row.name, abbr)) continue;
         const existing = players.find((p) => p.playerId === row.playerId && p.team === abbr);
         /* The board's field is modelProbability (calibrated anytime-TD probability, conditioned on
            playing — DNP voids). An INACTIVE row is still published WITH that state: the reader

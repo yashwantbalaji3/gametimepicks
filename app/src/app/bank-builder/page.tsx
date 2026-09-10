@@ -20,6 +20,7 @@ import { deriveProductState, productStateLabel, productStateExplanation, isLive 
 import { deriveBankBuilderState } from "@/lib/products/product-state-view.mjs";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
+import { rungProjection } from "@/lib/bank-builder/rung-economics.mjs";
 import LifecycleRecord from "@/components/products/lifecycle-record";
 import { loadLifecycleHistory, settledCardsFor, positionFor } from "@/lib/products/lifecycle-view";
 import ClimbHero, { type ClimbLane, type ClimbRung, type ClimbClearedDetail } from "@/components/bank-builder/climb-hero";
@@ -269,6 +270,32 @@ export default function BankBuilderPage() {
           : view.currentStatus === "advanced" ? "Advanced"
           // No placed card + no review card → honestly awaiting (never a bare "Active" with nothing behind it).
           : `Step ${curRung?.step ?? view.currentStep ?? 1} · Awaiting a qualified card`;
+      /*
+       * ── ONE BET, THREE NUMBERS THAT AGREE ────────────────────────────────────────────────────
+       *
+       * The money row shows a stake, a price and a return, and before this they came from three
+       * places. The stake came from the daily card (flat $100 whatever rung the lane stood on), the
+       * price from the daily card, and the ladder artifact carried a DIFFERENT card for the same
+       * rung — a stale one at +364 where today's is +207. Rendering the ladder's projection beside
+       * today's price produced "$200 stake · +207 · to win $928", which is not any bet that exists.
+       *
+       * So the projection is computed here, once, from the rung's carried stake and the price of
+       * the card whose legs are actually on screen. If those two cannot both be read, no return is
+       * shown at all — an absent number is recoverable, a confident wrong one is not.
+       */
+      const displayOdds = card?.combinedOdds ?? reviewCard?.combinedOdds ?? null;
+      const carried = curRung?.carriedStake ?? null;
+      const proj = hasCard && carried != null && displayOdds != null
+        ? rungProjection({ stake: carried, americanOdds: displayOdds, goalTarget: curRung?.goalTarget ?? null })
+        : null;
+      const laneMoney = {
+        stake: hasReview ? 0 : hasCard ? carried : null,
+        combinedOdds: displayOdds,
+        potentialReturn: hasReview ? null : (proj?.projectedReturn ?? null),
+        reachesTarget: proj?.reachesTarget ?? null,
+        shortfall: proj?.shortfall ?? null,
+      };
+
       // Cycle # from the lane label ("… lane (cycle 5)") if present — display-only, never fabricated.
       const cycleMatch = /cycle\s+(\d+)/i.exec(view.label === "Lane A" ? (bbPreview.laneA?.label ?? "") : (bbPreview.laneB?.label ?? ""));
       // Official settled detail for each CLEARED step (from the ledger) → the expandable "how it cleared".
@@ -291,9 +318,20 @@ export default function BankBuilderPage() {
         statusTone,
         step: curRung?.step ?? reviewCard?.step ?? view.currentStep ?? null,
         cycle: cycleMatch ? Number(cycleMatch[1]) : null,
-        stake: card?.stake ?? (hasReview ? 0 : null), // review card is $0 — nothing placed
-        combinedOdds: card?.combinedOdds ?? reviewCard?.combinedOdds ?? null,
-        potentialReturn: card?.potentialReturn ?? null, // review → no money projection
+        /*
+         * THE LADDER OWNS THE STAKE, NOT THE CARD.
+         *
+         * This read `card?.stake`, and the daily card is generated at a flat $100 whatever rung the
+         * lane stands on — so the board showed "Step 2 · from $200" beside "$100.00 Stake". A
+         * ladder that compounds cannot stake the seed twice. The rung's carried stake is the
+         * ladder's own number; the card supplies only the legs and the price.
+         */
+        stake: laneMoney.stake,
+        combinedOdds: laneMoney.combinedOdds,
+        // Return follows the same stake AND the same price, so the three numbers describe one bet.
+        potentialReturn: laneMoney.potentialReturn,
+        reachesTarget: laneMoney.reachesTarget,
+        shortfall: laneMoney.shortfall,
         goalTarget: curRung?.goalTarget ?? null,
         hasCard,
         reviewMode: hasReview,

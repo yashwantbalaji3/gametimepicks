@@ -29,13 +29,24 @@ test("BB ladder component renders all 7 steps from the pure policy (roll/target/
   assert.match(bbLadder, /v2 preview · live settlement runs v1/i, "states v2-preview / v1-live status");
 });
 
-test("Moonshot ladder component renders 3 days with profit-locking from the pure policy", () => {
+test("Moonshot ladder component renders 3 days from the pure policy, never typed figures", () => {
+  /*
+   * REBASED 2026-09-10. This required the component to show `lock` and `rollForward`, which pinned
+   * the PROFIT-LOCKING design rather than the property worth protecting. The ladder now compounds
+   * (founder direction), so there is no lock to render and a rung's roll-forward is simply its
+   * target — printing it twice would be noise.
+   *
+   * The invariant is the one that was always load-bearing: every figure comes from the policy
+   * function, so the picture cannot drift from the spec, and the volatility warning survives.
+   */
   assert.match(moonLadder, /moonshotV2LadderPolicy/, "derives from the spec");
   assert.match(moonLadder, /DAYS = \[1, 2, 3\]/, "3 days");
-  for (const field of ["roll", "target", "lock", "rollForward"]) {
+  for (const field of ["roll", "target"]) {
     assert.match(moonLadder, new RegExp(`p\\.${field}`), `shows ${field}`);
   }
   assert.match(moonLadder, /high variance/i, "carries the volatility warning");
+  // And it must not re-grow a claim the ladder no longer makes.
+  assert.ok(!/banks back|house money|profit-lock/i.test(moonLadder), "no locking language on a compounding ladder");
 });
 
 test("/bank-builder does NOT render the 7-step preview — the live product shows the implemented 5-step ladder only", () => {

@@ -235,6 +235,17 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
           <p className="mt-2 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
             Combined {american(lane.combinedOdds)}{lane.nextKickoff ? ` · next kickoff ${lane.nextKickoff}` : ""}
           </p>
+          {/* A rung names the balance the run climbs toward; the card decides whether it gets there.
+              Saying so is the difference between a target and a promise. */}
+          {lane.reachesTarget === false && lane.shortfall != null ? (
+            <p className="mt-1 font-mono text-[10px]" style={{ color: "var(--vault-gold)" }}>
+              Clears at {money(lane.potentialReturn)} — {money(lane.shortfall)} under this step&rsquo;s {money(lane.goalTarget)} target
+            </p>
+          ) : lane.reachesTarget === true ? (
+            <p className="mt-1 font-mono text-[10px]" style={{ color: "var(--vault-success)" }}>
+              Clears this step&rsquo;s {money(lane.goalTarget)} target
+            </p>
+          ) : null}
         </>
       )}
 

@@ -41,6 +41,22 @@ test("the event window captures injuries ITSELF, before the steps that condition
 });
 
 test("LIVE · a player designated Out carries no volume projection anywhere", () => {
+  /*
+   * SCOPED TO GAMES THAT HAVE NOT KICKED OFF (rebased 2026-09-10).
+   *
+   * This iterated every board on disk. On 2026-09-10 it failed on NE @ SEA — a game that had
+   * already been PLAYED, 13-10 final — because Tory Horton was designated Out at 23:04Z, our board
+   * was built at 22:57Z, and the game kicked off at 00:20Z. The finding was real at kickoff and the
+   * demand it makes now is not: satisfying this assertion today would mean editing the board we
+   * published BEFORE that game, which is the one thing a frozen pre-event artifact must never allow.
+   * P252 settled that argument in the other direction — the pre-kickoff numbers are exactly what a
+   * reader auditing the record needs to see, unchanged.
+   *
+   * So the invariant is unchanged for every board that can still mislead somebody, and history is
+   * left alone. The timing gap the failure exposed — a last refresh 83 minutes before kickoff, with
+   * nothing re-reading designations after it — is a scheduling problem, not something to fix by
+   * rewriting yesterday's artifact.
+   */
   const injuries = read("data/internal/research/injuries/nfl/latest.json");
   const out = new Set(
     (injuries.entries ?? [])
@@ -49,14 +65,22 @@ test("LIVE · a player designated Out carries no volume projection anywhere", ()
   );
   const dir = path.join(APP, "public/data/nfl/player-board");
   if (!fs.existsSync(dir)) return;
+  const now = Date.now();
+  let judged = 0;
   for (const f of fs.readdirSync(dir).filter((x) => /^\d+\.json$/.test(x))) {
     const b = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    const kickoff = Date.parse(b.kickoffUtc ?? "");
+    // An unreadable kickoff is judged: refusing to check is the flattering direction.
+    if (Number.isFinite(kickoff) && kickoff <= now) continue; // already played — a record, not a claim
+    judged += 1;
     for (const p of b.players ?? []) {
       if (!out.has(p.playerId)) continue;
       const volume = Object.keys(p.markets).filter((m) => m !== "anytime_td");
       assert.deepEqual(volume, [], `${p.name} is designated out and still carries ${volume.join(", ")} in ${b.matchup}`);
     }
   }
+  // A pass because every board was in the past is not a pass. Say so rather than reporting health.
+  if (judged === 0) console.log("      (no upcoming board to judge — every board on disk is for a game already played)");
 });
 
 test("LIVE · every board's evidence is no older than the artifact that built it", () => {

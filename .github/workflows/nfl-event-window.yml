@@ -369,12 +369,35 @@ jobs:
             fi
           done
 
+      # ── THE MODEL'S OWN CALIBRATION RECORD ────────────────────────────────────────────────────
+      #
+      # Runs immediately after settlement, because that is the moment the evidence changes. The
+      # settlement ledger has computed interval coverage since P174-G and nothing ever read it: a
+      # whole preseason went by with the margin interval printed as 80% and realised at 65%, a
+      # z of -2.3 sitting in a private JSON file. Measuring without publishing is how that happens.
+      #
+      # It never edits the model. It classifies against preregistered bars and proposes a widening
+      # factor; adopting one needs a preregistration and a held-out evaluation, like every other
+      # promotion here. Non-blocking: a monitor must not be why settlement fails.
+      - name: Publish interval calibration (measure, never auto-tune)
+        working-directory: app
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          node scripts/nfl/build-interval-calibration.mjs --now "${{ steps.window.outputs.now }}" --write | tee /tmp/cal.txt
+          WORST="$(node -e "try{console.log(require('./public/data/nfl/interval-calibration.json').worst)}catch{console.log('UNKNOWN')}")"
+          if [ "$WORST" = "OVERCONFIDENT" ]; then
+            echo "::warning::NFL interval calibration $WORST — a published confidence label is narrower than its realised coverage; see public/data/nfl/interval-calibration.json"
+          fi
+          { echo "### NFL interval calibration"; echo ""; echo '```'; cat /tmp/cal.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Commit settlement receipts
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/internal/nfl/settlement/ data/internal/nfl/experimental-settlement/
+          git add data/internal/nfl/settlement/ data/internal/nfl/experimental-settlement/ \
+                  app/public/data/nfl/interval-calibration.json
           if git diff --cached --quiet; then echo "no settlement change"; exit 0; fi
           git commit -m "auto: nfl settlement receipts [skip ci]"
           git pull --rebase --autostash origin main
