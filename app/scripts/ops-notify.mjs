@@ -17,6 +17,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { redactOutbound } from "../src/lib/ops/redact-outbound.mjs";
+
 const argv = process.argv.slice(2);
 const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
 const DATA = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "public", "data");
@@ -25,7 +27,17 @@ const readJson = (rel) => { try { return JSON.parse(fs.readFileSync(path.join(DA
 const status = arg("--status", "info");      // pass | fail | partial | info
 const phase = arg("--phase", "lifecycle");
 const date = arg("--date", "");
-const message = arg("--message", "");
+/*
+ * P253: `--message` is the only free-form field in this payload, and this script POSTs it to an
+ * external webhook. It did so verbatim. scripts/ops_alert.sh has redacted the equivalent field
+ * since Program 069 and has a proof beside it; this second sender was written later and never
+ * joined that contract, which nobody noticed because the proof itself was wired into nothing.
+ *
+ * Redacted once, here, so BOTH the heartbeat artifact and the webhook line carry the same safe
+ * string — a heartbeat is committed to a public repo, so redacting only on the way out would leave
+ * the unredacted copy in git.
+ */
+const message = redactOutbound(arg("--message", ""));
 let nowIso = arg("--now", "");
 try { if (!nowIso) nowIso = new Date().toISOString(); } catch { nowIso = `${date || "1970-01-01"}T00:00:00Z`; }
 

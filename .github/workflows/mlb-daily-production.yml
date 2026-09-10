@@ -214,9 +214,17 @@ jobs:
           dispatch-recovery: "false"
           ops-webhook-url: ${{ secrets.OPS_WEBHOOK_URL }}
 
+      # NOT continue-on-error. It was, and that single line silently defeated the whole point of the
+      # Sprint 035 retry below: on 2026-09-10 this step exhausted its five attempts, printed
+      # "the work was discarded", exited 1 — and the step concluded SUCCESS anyway, so the run was
+      # green while the entire day's paid MLB slate (team markets, player props, predictions,
+      # simulations, 17 files) was thrown away. daily-products then refused with INPUT_MISSING,
+      # which was the only visible symptom, three workflows downstream of the actual failure.
+      #
+      # A step that detects a discard and exits 1 must not be wrapped in something that ignores it.
+      # Guarded by app/src/lib/ops/push-failures-are-visible.test.mjs.
       - name: 8) Persist completed slate (PATH-SCOPED to public MLB slate dirs; money-safe; rebase-safe; [skip ci])
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
-        continue-on-error: true
         run: |
           set -u
           git config user.name "gtp-mlb-production-bot"
@@ -240,15 +248,44 @@ jobs:
           # SPRINT 035: rebase/push failures used to `exit 0` or `echo` and vanish, so a fully generated
           # slate could be committed locally and thrown away with the run still green. Retry for genuine
           # races with the other bots, then fail — a discarded slate must be visible.
+          #
+          # P253 — WHY THIS RE-APPLIES INSTEAD OF REBASING.
+          #
+          # The retry above was `git pull --rebase`, which assumes a conflict is TRANSIENT. On
+          # 2026-09-10 it was not: ufc-fight-week had just created
+          # parlays/tier-grid/mlb-2026-09-10.json (its tier-grid builder regenerates every sport),
+          # and this run created the same path. That is an add/add conflict, identical on every
+          # attempt, so five retries burned 75 seconds and failed five times — and the whole day's
+          # slate, seventeen files including paid Odds API market data, was discarded.
+          #
+          # Every path this step commits is an artifact THIS run just regenerated from the complete
+          # slate for this date. There is nothing to merge: our copy is the newer derivation. So
+          # rather than replay a commit over a moved base, reset to origin and lay our own files
+          # back on top of it.
+          #
+          # It re-applies THE FILES OUR COMMIT TOUCHED, not the directories it staged. Restoring
+          # whole directories would have reverted ufc-fight-week's own tier-grid files, trading one
+          # workflow's lost work for another's. Verified against a scratch reproduction of the
+          # 2026-09-10 conflict: our MLB grid lands, UFC's sibling in the same directory survives.
+          #
+          # The loop still exists, because the one genuinely transient failure remains — another
+          # bot pushing between our fetch and our push. That is what a retry is for.
+          OURS="$(git rev-parse HEAD)"
+          FILES="$(git diff-tree --no-commit-id --name-only -r "$OURS")"
+          if [ -z "$FILES" ]; then echo "no files in the slate commit — nothing to persist"; exit 0; fi
           pushed=0
           for attempt in 1 2 3 4 5; do
-            if ! git pull --rebase --autostash origin "${GITHUB_REF_NAME}"; then
-              git rebase --abort 2>/dev/null || true
-              echo "::warning::rebase attempt ${attempt} failed — retrying"
-              sleep $((attempt * 5)); continue
+            git fetch -q origin "${GITHUB_REF_NAME}" || { echo "::warning::fetch attempt ${attempt} failed"; sleep $((attempt * 5)); continue; }
+            git reset -q --hard "origin/${GITHUB_REF_NAME}"
+            # shellcheck disable=SC2086  # every path here is a dated artifact path; none contain spaces
+            git checkout "$OURS" -- $FILES
+            git add -- $FILES
+            if git diff --cached --quiet; then
+              echo "slate already current on origin — nothing to persist"; pushed=1; break
             fi
+            git commit -q -m "auto: mlb daily production slate ${{ steps.cfg.outputs.date }} [skip ci]"
             if git push origin "HEAD:${GITHUB_REF_NAME}"; then pushed=1; break; fi
-            echo "::warning::push attempt ${attempt} failed (non-fast-forward or perms) — retrying"
+            echo "::warning::push attempt ${attempt} failed (another writer landed first) — retrying"
             sleep $((attempt * 5))
           done
           if [ "$pushed" -ne 1 ]; then

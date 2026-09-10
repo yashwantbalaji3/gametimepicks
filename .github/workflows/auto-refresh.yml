@@ -259,9 +259,12 @@ jobs:
             python3 -m pipeline.generate_daily_board --date "$TOMORROW_ET"               || echo "  (enrichment for $TOMORROW_ET errored — props data already safe)"
           fi
 
+      # NOT continue-on-error (P253): this step retries and then `exit 1`s when the push never lands,
+      # and the swallow made that exit invisible — the same contradiction that discarded a whole
+      # day's MLB slate from mlb-daily-production on 2026-09-10 against a completely green board.
+      # The step name still says "best-effort"; the DELIVERY is best-effort, the REPORTING is not.
       - name: Commit projections (best-effort)
         if: env.ENABLE_ODDS_REFRESH == 'true'
-        continue-on-error: true
         run: |
           # PR 8: best-effort commit of any projections produced by enrichment.
           git pull --rebase || true

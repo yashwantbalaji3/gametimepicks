@@ -114,17 +114,39 @@ check "warning kind never says FAILED"         "no"  "$(contains "FAILED" "$OUT_
 check "warning kind never claims to be a TEST" "no"  "$(contains "delivery TEST" "$OUT_WARN")"
 check "warning carries the budget detail"      "yes" "$(contains "below warning threshold" "$OUT_WARN")"
 
-# ── 5. every workflow that can fail routes through this script ─────────────────
-# Four workflows previously carried their own inline notify block. A new one that hand-rolls a
-# payload would drift straight back out of the contract.
+# ── 5. every workflow that can alert routes through a REDACTING sender ─────────
+#
+# REBASED 2026-09-10 (P253), because the original check was failing and both halves of the failure
+# were instructive. It asked whether a workflow naming OPS_WEBHOOK_URL also names `ops_alert.sh`,
+# and flagged auto-refresh.yml and publication-watchdog.yml. Neither hand-rolls anything: they
+# reach their alert through .github/actions/publication-slo. So the heuristic produced two false
+# positives — and it missed the real one, because that composite action calls a SECOND sender,
+# app/scripts/ops-notify.mjs, which POSTed its free-form message with no redaction at all.
+#
+# Nothing had run this suite since it was written, so neither the false alarm nor the real gap was
+# ever seen. It runs in the JS suite now (app/src/lib/ops/shell-suites.test.mjs).
+#
+# The invariant was never "which file is named". It is that anything able to SEND redacts first, so
+# that is what is checked: every routing target a workflow can reach must be a known redacting
+# sender. Reading the variable is the capability; mentioning it in prose is not.
 WF_DIR="$DIR/../.github/workflows"
+REDACTING_SENDERS="ops_alert.sh ops-notify.mjs publication-slo"
 INLINE=""
 for f in "$WF_DIR"/*.yml; do
-    if grep -q 'OPS_WEBHOOK_URL' "$f" && ! grep -q 'ops_alert.sh' "$f"; then
-        INLINE="$INLINE $(basename "$f")"
-    fi
+    grep -q 'OPS_WEBHOOK_URL' "$f" || continue
+    routed=no
+    for sender in $REDACTING_SENDERS; do
+        if grep -q "$sender" "$f"; then routed=yes; break; fi
+    done
+    [ "$routed" = yes ] || INLINE="$INLINE $(basename "$f")"
 done
-check "no workflow hand-rolls its own alert payload" "" "$INLINE"
+check "every alerting workflow routes through a redacting sender" "" "$INLINE"
+
+# And the senders themselves actually redact — the property the line above delegates to them.
+check "ops_alert.sh redacts its free-form field" "yes" \
+    "$(contains "REDACTED_ERROR" "$(cat "$DIR/ops_alert.sh")")"
+check "ops-notify.mjs redacts its free-form field" "yes" \
+    "$(contains "redactOutbound" "$(cat "$DIR/../app/scripts/ops-notify.mjs")")"
 
 if [ "$FAILURES" -ne 0 ]; then
     echo "FAIL — $FAILURES assertion(s)"
