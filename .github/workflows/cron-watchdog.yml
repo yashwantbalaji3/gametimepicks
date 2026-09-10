@@ -19,8 +19,13 @@ on:
     - cron: "30 9 * * 6,0"
   workflow_dispatch:
 
+# P253: this was `contents: read` from the day the job was written, and the job's last step
+# commits a coverage report. So every run since built the report, committed it locally, took a
+# 403 on the push, and threw it away — for three weeks, against a green board, while the report
+# it could not publish said "34 missed slots". A workflow that writes needs write; the swallow
+# that hid the 403 is removed in the commit step below.
 permissions:
-  contents: read
+  contents: write
   actions: write
 
 concurrency:
@@ -234,8 +239,16 @@ jobs:
             echo "::warning::lane staleness: see $OUT"
           fi
 
+      # NOT continue-on-error. It used to be, and that is exactly how a 403 on every push since
+      # 2026-08-20 stayed invisible: the report was built, committed locally, refused by the
+      # remote, and discarded, while the step — and the job — reported success. An observer that
+      # cannot publish its observation is DOWN, and a down observer must look down.
+      #
+      # The retry is for the one failure this genuinely shares with every other writer here: a
+      # concurrent bot push moving main under us. That is transient and rebasing fixes it. A 403,
+      # a protected branch or a missing token is not transient, and after three tries this step
+      # fails and takes the job red — which is the only way anyone finds out.
       - name: Commit the coverage report
-        continue-on-error: true
         run: |
           set -euo pipefail
           git config user.name  "gtp-bot"
@@ -245,5 +258,13 @@ jobs:
           git add app/public/data/ops/cron-slot-watchdog.json app/public/data/ops/lane-staleness.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "no coverage change"; exit 0; fi
           git commit -m "auto: cron-slot coverage $(date -u +%Y-%m-%d) [skip ci]"
-          git pull --rebase --autostash origin main
-          git push origin HEAD:main
+          for attempt in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push origin HEAD:main; then
+              echo "coverage report published (attempt ${attempt})"
+              exit 0
+            fi
+            echo "::warning::coverage push attempt ${attempt} failed — retrying"
+            sleep $((attempt * 5))
+          done
+          echo "::error::cron-slot coverage could not be published after 3 attempts — the watchdog's own report is not reaching main, which is how this went unnoticed for three weeks"
+          exit 1
