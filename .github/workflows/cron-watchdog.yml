@@ -223,6 +223,52 @@ jobs:
       # The only evidence of that is the OUTPUT. This reads each sport's lane-status artifact and
       # reports the combinations that cannot both be true — a lane calling itself live while its
       # cards belong to another event, or one whose settler cannot grade what it publishes.
+      # ── DID IT RUN, AND DID IT RUN ON TIME ────────────────────────────────────────────────────
+      #
+      # The step above answers the first question. It has answered it correctly and uselessly for
+      # three weeks: from 2026-08-27 this repo's scheduled dispatch drifted to 2.5-5 hours late, and
+      # a drift wider than cron-slots' ±2h tolerance comes out of it labelled MISSED — the same word
+      # it uses for a slot that never fired at all. Everyone read the missed slots as GitHub being
+      # GitHub. Nobody had a number for how late anything actually was.
+      #
+      # This produces that number, and produces it here rather than in its own workflow ON PURPOSE:
+      # a punctuality instrument that is itself a fresh cron would be one more thing to be dispatched
+      # four hours late, and — worse — one more artifact that can quietly stop regenerating. Bolting
+      # it to a job that already runs daily and already commits keeps it in the same failure domain
+      # as the report beside it, where a single push covers both.
+      #
+      # NOT continue-on-error, unlike the observer above. That step was allowed to fail because it
+      # was bolted onto the MLB recovery job and must never be why recovery fails. This one runs
+      # after every recovery decision has already been made, so a failure here costs nothing but a
+      # red job — which is the point, since a silent instrument is the failure being fixed.
+      - name: Cron punctuality (how late, not just whether)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          OUT=app/public/data/ops/cron-punctuality.json
+          node app/scripts/ops/cron-punctuality.mjs \
+            --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --days 7 --json "$OUT" | tee /tmp/punct.txt
+          STATE="$(node -e "try{console.log(require('./$OUT').summary.state)}catch{console.log('UNKNOWN')}")"
+          MEDIAN="$(node -e "try{console.log(require('./$OUT').summary.fleetMedianDelayMinutes)}catch{console.log('null')}")"
+          case "$STATE" in
+            SEVERE)
+              echo "::error::cron punctuality $STATE — scheduled dispatch is running a median of ${MEDIAN} minutes late across the measurable fleet. The morning band is not arriving in the morning." ;;
+            DEGRADED)
+              echo "::warning::cron punctuality $STATE — median ${MEDIAN} minutes late across the measurable fleet." ;;
+            UNKNOWN)
+              echo "::warning::cron punctuality could not be measured — this is not evidence that dispatch is healthy." ;;
+            *)
+              echo "cron punctuality $STATE (median ${MEDIAN}m)" ;;
+          esac
+          {
+            echo "### Cron punctuality"
+            echo ""
+            echo '```'
+            cat /tmp/punct.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Check each lane agrees with itself
         env:
           GH_TOKEN: ${{ github.token }}
@@ -255,7 +301,8 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           # Allowlisted single file. An artifact that is generated and never committed is the
           # 62-hour-outage shape, and this repo has hit it twice.
-          git add app/public/data/ops/cron-slot-watchdog.json app/public/data/ops/lane-staleness.json 2>/dev/null || true
+          git add app/public/data/ops/cron-slot-watchdog.json app/public/data/ops/lane-staleness.json \
+                  app/public/data/ops/cron-punctuality.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "no coverage change"; exit 0; fi
           git commit -m "auto: cron-slot coverage $(date -u +%Y-%m-%d) [skip ci]"
           for attempt in 1 2 3; do

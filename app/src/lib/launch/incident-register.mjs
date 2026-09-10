@@ -114,6 +114,20 @@ export const INCIDENT_KINDS = Object.freeze({
     mitigation: "the matrix reports the finding rather than presenting a total that does not decompose",
     clearing: "offered = published + refused + pending balances again",
   },
+  /*
+   * P253. The register's other kinds describe work that did not happen. This one describes work
+   * that happened at the wrong time, which had no representation here at all — and so a condition
+   * that emptied the site's front door every morning for three weeks was, by construction, never
+   * an incident. `workflowHealth` said the last run succeeded, and it had.
+   */
+  DISPATCH_SEVERELY_LATE: {
+    severity: "P2",
+    cause: "GitHub dispatched the scheduled workflows hours after their cron, so the morning band did not arrive in the morning",
+    owner: "automation — whoever owns the workflow schedule",
+    detection: "cron-punctuality — cron-to-dispatch delay, measured per slot on once-daily workflows",
+    mitigation: "the ordering constraint is expressed as a chain off the upstream workflow's completion rather than as a wall-clock guess, so the band inherits one delay instead of stacking several",
+    clearing: "the measured fleet median falls back under two hours",
+  },
 });
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
@@ -162,6 +176,9 @@ export function buildIncidentRegister({ appDir, etDate = null, nowUtcMs = null, 
   const receipts = newestDated(path.join(ROOT, "data", "internal", "products", "receipts"));
   const coverage = readJson(path.join(ROOT, "data", "internal", "products", "lifecycle-coverage.json"));
   const offered = newestDated(path.join(ROOT, "data", "internal", "offered-window"));
+  /* Read-only authority, exactly like the three above: a row exists while this artifact reports
+     SEVERE and vanishes when it stops, with no field an operator can edit to silence it. */
+  const punctuality = readJson(path.join(appDir, "public", "data", "ops", "cron-punctuality.json"));
 
   if (!receipts && !coverage && !offered) {
     return { present: false, state: "UNKNOWN", asOf: null, actionable: 0, rows: [], pending: [], counts: { P1: 0, P2: 0, P3: 0, GATED: 0 } };
@@ -268,6 +285,30 @@ export function buildIncidentRegister({ appDir, etDate = null, nowUtcMs = null, 
       push("OFFERED_WINDOW_FINDING", s.sport, typeof f === "string" ? f : JSON.stringify(f),
         `offered-window/${offered.date}.json`);
     }
+  }
+
+  /*
+   * ONE ROW FOR THE FLEET, NOT ONE PER WORKFLOW.
+   *
+   * Ten workflows were SEVERE the morning this landed, and ten rows would have buried every other
+   * incident on the board — the alarm-fatigue failure this register is careful about elsewhere.
+   * The condition is also singular: it is not ten workflows each having a bad day, it is one
+   * scheduler being late for all of them. The worst offender rides along as detail.
+   *
+   * DEGRADED does not open a row. The bands were set from the pre-drift baseline, where this repo
+   * routinely paid 19-41 minutes for GitHub's scheduler; a register that opened on the second band
+   * would have been reporting normal weather since long before the drift began.
+   */
+  if (punctuality?.summary?.state === "SEVERE") {
+    const sum = punctuality.summary;
+    push(
+      "DISPATCH_SEVERELY_LATE",
+      "automation:schedule",
+      `scheduled dispatch is a median of ${sum.fleetMedianDelayMinutes}m late across ` +
+        `${sum.measurableWorkflows} measurable workflow(s)` +
+        (sum.worstWorkflow ? ` — worst ${sum.worstWorkflow}` : ""),
+      "ops/cron-punctuality.json",
+    );
   }
 
   const counts = { P1: 0, P2: 0, P3: 0, GATED: 0 };

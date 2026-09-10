@@ -63,6 +63,34 @@ function loadStatus(): Status | null {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "admin", "status.json"), "utf8")); } catch { return null; }
 }
 
+/**
+ * P253 — how late scheduled dispatch actually is.
+ *
+ * Distinct from `workflowHealth` right below it, which reports whether the LAST run finished well.
+ * A run can finish perfectly and still have started four hours after it was asked to, which is what
+ * happened here every day from 2026-08-27: green board, empty morning.
+ */
+type Punctuality = {
+  generatedAt?: string;
+  summary?: {
+    state?: string;
+    fleetMedianDelayMinutes?: number | null;
+    measurableWorkflows?: number;
+    unmeasurableWorkflows?: number;
+    worstWorkflow?: string | null;
+  };
+  workflows?: { workflow: string; state: string; medianDelayMinutes: number | null; attributable: boolean }[];
+};
+function loadPunctuality(): Punctuality | null {
+  try {
+    return JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), "public", "data", "ops", "cron-punctuality.json"), "utf8"),
+    );
+  } catch {
+    return null;
+  }
+}
+
 // ── Growth-ops readers (internal repo artifacts; /ops is pruned from the public export) ──
 const REPO_ROOT = path.dirname(process.cwd()); // `next build` runs with cwd = app/
 function loadLatestSocialPack(): { pack: unknown; date: string | null } {
@@ -258,6 +286,52 @@ export default function OpsPage() {
               <span>Next refresh: <span style={{ color: "var(--vault-text-mute)" }}>{s.nextRefreshDate ?? "—"}</span></span>
             </div>
           </div>
+        </Card>
+
+        <Card title="Dispatch punctuality">
+          {(() => {
+            const p = loadPunctuality();
+            if (!p?.summary) {
+              return (
+                <span className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
+                  cron-punctuality.json not found — regenerate with{" "}
+                  <code>node app/scripts/ops/cron-punctuality.mjs --json app/public/data/ops/cron-punctuality.json</code>.
+                  An absent measurement is not evidence that dispatch is healthy.
+                </span>
+              );
+            }
+            const sum = p.summary;
+            const bad = sum.state === "SEVERE" || sum.state === "DEGRADED";
+            const late = sum.fleetMedianDelayMinutes;
+            const worst = (p.workflows ?? []).filter((w) => w.attributable && w.medianDelayMinutes !== null).slice(0, 4);
+            return (
+              <div className="flex flex-col gap-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+                <div>
+                  Scheduled dispatch:{" "}
+                  <span className="font-mono" style={{ color: bad ? "var(--gtp-bank-heat)" : "var(--vault-success)" }}>
+                    {sum.state ?? "UNKNOWN"}
+                  </span>
+                  {late === null || late === undefined ? null : <> · median <span className="font-mono">{late}m</span> late</>}
+                </div>
+                <div className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+                  {sum.measurableWorkflows ?? 0} measurable · {sum.unmeasurableWorkflows ?? 0} too frequent to attribute
+                </div>
+                {worst.length ? (
+                  <div className="mt-2 flex flex-col gap-0.5 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+                    {worst.map((w) => (
+                      <span key={w.workflow}>
+                        {w.medianDelayMinutes}m · {w.workflow.replace(/\.yml$/, "")}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <span className="mt-2 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+                  A run that happened is not a run that happened on time. Workflows firing more often than
+                  every two hours report no delay rather than a flattering one.
+                </span>
+              </div>
+            );
+          })()}
         </Card>
 
         <Card title="Deployed build clock">

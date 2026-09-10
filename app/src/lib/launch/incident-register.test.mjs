@@ -87,10 +87,17 @@ test("LIVE · the register reports exactly what the watchdogs report — no more
   const receipt = read(path.join(dir, newest));
   const coverage = read(path.join(ROOT, "data/internal/products/lifecycle-coverage.json"));
 
+  /* P253's authority is read here too rather than exempted below. Adding the row to the skip list
+     would have made it the one thing on the board no anti-drift check covered — and this test
+     exists precisely because a register that can report what no authority reports is hand-kept by
+     another name. The rule it must obey is the same one every other row obeys: SEVERE opens it,
+     anything else does not. */
+  const punctuality = read(path.join(APP, "public/data/ops/cron-punctuality.json"));
   const expected = new Set([
     ...(receipt?.watchdog ?? []).map((a) => `${a.kind}:${a.product}`),
     ...(coverage?.openGaps ?? []).map((g) => `COVERAGE_GAP:${g.id}`),
     ...(coverage?.publishesWithoutSettling ?? []).map((id) => `PUBLISHES_WITHOUT_SETTLING:${id}`),
+    ...(punctuality?.summary?.state === "SEVERE" ? ["DISPATCH_SEVERELY_LATE:automation:schedule"] : []),
   ]);
   const got = new Set(reg.rows.filter((r) => !r.kind.startsWith("OFFERED_WINDOW")).map((r) => r.id));
 
@@ -197,4 +204,32 @@ test("the console injects the clock rather than the register reading one", () =>
   assert.ok(!code.includes("currentEtDate"), "the register must not resolve the product day itself");
   const page = fs.readFileSync(path.join(APP, "src/app/launch/page.tsx"), "utf8");
   assert.match(page, /buildIncidentRegister\(\{[^}]*etDate:/, "the console passes the product day in");
+});
+
+test("P253 · only SEVERE dispatch opens a row — DEGRADED is normal weather", () => {
+  /*
+   * The bands were set from this repo's pre-drift baseline, where GitHub routinely cost 19-41
+   * minutes. A register that opened on DEGRADED would have been reporting the weather since long
+   * before the drift began, and the row would have been ignored by the time it mattered.
+   */
+  const kind = INCIDENT_KINDS.DISPATCH_SEVERELY_LATE;
+  assert.ok(kind, "the kind is classified — an unclassified alarm would surface as UNCLASSIFIED");
+  assert.equal(kind.severity, "P2");
+  assert.match(kind.clearing, /median/i, "it clears on a MEASUREMENT, never on someone declaring it fixed");
+
+  const src = fs.readFileSync(path.join(APP, "src/lib/launch/incident-register.mjs"), "utf8");
+  assert.match(src, /punctuality\?\.summary\?\.state === "SEVERE"/, "only SEVERE opens the row");
+  assert.ok(
+    !/state === "DEGRADED"/.test(src),
+    "DEGRADED must not open a row, or the board reports normal scheduler jitter as an incident",
+  );
+});
+
+test("P253 · the fleet gets ONE row, not one per workflow", () => {
+  // Ten workflows were SEVERE the morning this landed. Ten rows would have buried every other
+  // incident — and the condition is singular anyway: one scheduler, late for all of them.
+  const src = fs.readFileSync(path.join(APP, "src/lib/launch/incident-register.mjs"), "utf8");
+  const block = src.slice(src.indexOf('=== "SEVERE"'), src.indexOf("const counts = {"));
+  assert.ok(!/for\s*\(/.test(block), "the punctuality authority must not iterate per workflow");
+  assert.match(block, /automation:schedule/, "one subject stands for the fleet");
 });
