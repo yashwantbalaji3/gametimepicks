@@ -89,6 +89,31 @@ for (const b of read("ufc/card-latest.json")?.bouts ?? []) {
     if (side?.name) add("player", side.name, `UFC · ${b.weightClass ?? "bout"}`, `/ufc/bout/${b.boutId}/`, ["ufc", "mma", "fighter"]);
   }
 }
+/*
+ * P252: EPL players were missing entirely. The player layer shipped after this index was written
+ * and the generator never learned about it, so searching a Premier League striker found nothing
+ * while his projection was live on three surfaces. Same rule as everywhere else here: a player is
+ * indexed because a PUBLISHED projection names him, and his destination is the page that names
+ * him — the fixture report.
+ */
+/*
+ * The match page renders the 12 likeliest of its 64 squad rows, so only those 12 are indexed:
+ * a result whose destination does not name the player is a promise the page cannot keep, and
+ * that is the rule this whole index is held to.
+ */
+const EPL_PLAYERS_RENDERED = 12;
+for (const f of read("soccer/epl/player-projections/latest.json")?.fixtures ?? []) {
+  if (!f.slug) continue;
+  const shown = [...(f.players ?? [])]
+    .sort((a, b) => (b.probability ?? 0) - (a.probability ?? 0))
+    .slice(0, EPL_PLAYERS_RENDERED);
+  for (const p of shown) {
+    if (!p.name) continue;
+    add("player", p.name, `Premier League · ${p.teamName ?? ""} · ${f.matchup}`.replace(" ·  ·", " ·"),
+      `/epl/match/${f.slug}/`, [p.teamName, "epl", "premier league", "soccer", "football"].filter(Boolean));
+  }
+}
+
 const mlbBoard = mlbSimDate ? read(`mlb/boards/${mlbSimDate}.json`) : null;
 for (const l of mlbBoard?.leans ?? []) {
   if (!l.playerName || !l.gamePk) continue;

@@ -82,4 +82,35 @@ test("a player is indexed because a BOARD published him, never because a roster 
   assert.match(src, /player-board/, "NFL players come from the published boards");
   assert.ok(!/rosters\/latest\.json/.test(src), "being rostered is not being published");
   assert.match(src, /entries\.has\(key\)/, "a repeat cannot double-list a player who appears on four boards");
+  /*
+   * P252: EPL was missing entirely — the player layer shipped after this index was written and the
+   * generator never learned about it, so a Premier League striker was unfindable while his
+   * projection was live on three surfaces. And the fix had to respect the same rule: the fixture
+   * page renders the 12 likeliest of ~64 squad rows, so indexing all 64 would have sent a searcher
+   * to a page that does not name 52 of them.
+   */
+  assert.match(src, /player-projections/, "EPL players come from the published projections");
+  assert.match(src, /EPL_PLAYERS_RENDERED/, "…capped to what the fixture page actually renders");
+});
+
+test("LIVE · every sport that publishes players has them in the index", { skip: !hasExport && "no export" }, () => {
+  const players = idx.rows.filter((r) => r.k === 1);
+  for (const [sport, marker] of [["NFL", /NFL ·/], ["MLB", /MLB ·/], ["UFC", /UFC ·/], ["Premier League", /Premier League ·/]]) {
+    assert.ok(players.some((p) => marker.test(p.s)), `no ${sport} player is indexed, but that sport publishes them`);
+  }
+});
+
+test("LIVE · an indexed EPL player is one the fixture page actually names", { skip: !hasExport && "no export" }, () => {
+  const eplPlayers = idx.rows.filter((r) => r.k === 1 && /Premier League ·/.test(r.s));
+  if (!eplPlayers.length) return;
+  const byPage = new Map();
+  for (const p of eplPlayers) {
+    const f = path.join(OUT, String(p.h).replace(/^\//, "").replace(/\/$/, ""), "index.html");
+    if (!byPage.has(f)) {
+      byPage.set(f, fs.existsSync(f)
+        ? fs.readFileSync(f, "utf8").replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<[^>]+>/g, " ")
+        : "");
+    }
+    assert.ok(byPage.get(f).includes(p.l), `${p.l} is indexed to ${p.h}, and that page never names him`);
+  }
 });

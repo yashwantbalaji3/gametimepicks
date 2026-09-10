@@ -75,7 +75,11 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
+      {/* P252: `as="h1"` — this is the page's own title, and SectionHeader defaults to h2 because
+          it is usually a SECTION header. Without it these three routes shipped no h1 at all: the
+          only heading a screen reader could land on was a section, and the document had no name. */}
       <SectionHeader
+        as="h1"
         eyebrow={`${lane.label} · paper cards`}
         title={`${lane.label} card ladder`}
         sub="One card per price band, built from prices a sportsbook actually posted. Paper-only and educational — no stake is filled in anywhere, and nothing here is a pick or a recommendation to wager."

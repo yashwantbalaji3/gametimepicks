@@ -31,7 +31,10 @@ export default function ParlayLabRecordPage() {
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
+      {/* P252: `as="h1"` — the page's own title. SectionHeader defaults to h2 because it is
+          usually a SECTION header, so this route shipped no h1 and the document had no name. */}
       <SectionHeader
+        as="h1"
         eyebrow="Track record · Suggested cards"
         title="Every card the Lab has suggested"
         sub="One card per price band per sport, published before the events start and graded from official results. This is the Lab's OWN suggestions — separate from saved slips, which are cards a reader built and kept."
