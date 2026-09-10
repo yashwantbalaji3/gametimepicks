@@ -3,99 +3,12 @@
  "artifact": "nfl-experimental-forecast-settlement",
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
- "date": "2026-09-09",
+ "date": "2026-09-10",
  "generatedAt": "2026-09-10T17:12:41Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [
-  {
-   "canonicalEventId": "nfl-401872656",
-   "providerEventId": "401872656",
-   "matchup": "NE @ SEA",
-   "kickoffUtc": "2026-09-10T00:20Z",
-   "seasonType": 2,
-   "week": 1,
-   "lineage": {
-    "receiptFile": "data/internal/nfl/forecast-receipts/2026-09-09/401872656-rev-2257Z.json",
-    "model": "nfl-regular-season-public-v1",
-    "modelVersion": 1,
-    "inputHash": "f4d6a733c5458b33",
-    "forecastGeneratedAt": "2026-09-09T22:57:31Z",
-    "revisionChain": [
-     {
-      "file": "401872656.json",
-      "generatedAt": "2026-09-09T15:32:23Z",
-      "inputHash": "588cd070a0620b0a"
-     },
-     {
-      "file": "401872656-rev-1758Z.json",
-      "generatedAt": "2026-09-09T17:58:50Z",
-      "inputHash": "166541472de1765a"
-     },
-     {
-      "file": "401872656-rev-1825Z.json",
-      "generatedAt": "2026-09-09T18:25:34.574Z",
-      "inputHash": "059667046ee40131"
-     },
-     {
-      "file": "401872656-rev-1826Z.json",
-      "generatedAt": "2026-09-09T18:26:09Z",
-      "inputHash": "e1c6c980376c0a2e"
-     },
-     {
-      "file": "401872656-rev-2257Z.json",
-      "generatedAt": "2026-09-09T22:57:31Z",
-      "inputHash": "f4d6a733c5458b33"
-     }
-    ],
-    "marketCapturedAt": null,
-    "resultSource": "espn_scoreboard",
-    "resultObservedAt": "2026-09-10T16:44:31Z",
-    "settledAt": "2026-09-10T17:12:41Z",
-    "settlementVersion": 1
-   },
-   "grade": {
-    "actual": {
-     "home": 13,
-     "away": 10,
-     "margin": 3,
-     "total": 23,
-     "tie": false
-    },
-    "winner": {
-     "outcome": "HOME",
-     "modelFavoured": "HOME",
-     "correct": true
-    },
-    "margin": {
-     "projected": 6,
-     "actual": 3,
-     "absError": 3,
-     "insideInterval80": true
-    },
-    "total": {
-     "projected": 46,
-     "actual": 23,
-     "absError": 23,
-     "insideInterval80": false
-    },
-    "score": {
-     "projected": {
-      "home": 26,
-      "away": 20,
-      "convention": "scores-derived-from-total-and-margin-v1"
-     },
-     "absError": 23
-    },
-    "probabilistic": {
-     "brier": 0.146766,
-     "logLoss": 0.483048
-    }
-   },
-   "marketBenchmark": null
-  }
- ],
+ "events": [],
  "pending": [
   {
    "canonicalEventId": "nfl-401872657",
@@ -190,24 +103,24 @@
  ],
  "quarantined": [],
  "accounting": {
-  "receipts": 16,
-  "settled": 1,
+  "receipts": 15,
+  "settled": 0,
   "pending": 15,
   "quarantined": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 1,
-  "decisive": 1,
+  "settledForecasts": 0,
+  "decisive": 0,
   "ties": 0,
-  "winnerCorrect": 1,
-  "winnerAccuracy": 1,
-  "marginMAE": 3,
-  "totalMAE": 23,
-  "marginInterval80Coverage": 1,
-  "totalInterval80Coverage": 0,
-  "brier": 0.1468,
-  "logLoss": 0.483
+  "winnerCorrect": 0,
+  "winnerAccuracy": null,
+  "marginMAE": null,
+  "totalMAE": null,
+  "marginInterval80Coverage": null,
+  "totalInterval80Coverage": null,
+  "brier": null,
+  "logLoss": null
  },
  "marketBenchmark": null,
  "comparison": null

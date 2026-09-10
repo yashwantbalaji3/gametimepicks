@@ -2,17 +2,17 @@
  "schemaVersion": 2,
  "artifact": "nfl-experimental-record",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-09T22:57:31Z",
+ "generatedAt": "2026-09-10T17:12:41Z",
  "ledger": "experimental-forecast",
  "modelVersion": "nfl-regular-season-public-v1",
- "seasonTypeScope": "preseason",
- "settledForecasts": 43,
- "decisive": 41,
- "winnerAccuracy": 0.5366,
- "marginMAE": 12.3953,
- "totalMAE": 8.186,
- "marginInterval80Coverage": 0.6512,
- "totalInterval80Coverage": 0.8837,
+ "seasonTypeScope": "regular-season",
+ "settledForecasts": 1,
+ "decisive": 1,
+ "winnerAccuracy": 1,
+ "marginMAE": 3,
+ "totalMAE": 23,
+ "marginInterval80Coverage": 1,
+ "totalInterval80Coverage": 0,
  "cohorts": {
   "preseason": {
    "label": "preseason",
@@ -23,8 +23,18 @@
    "totalMAE": 8.186,
    "marginInterval80Coverage": 0.6512,
    "totalInterval80Coverage": 0.8837
+  },
+  "regular-season": {
+   "label": "regular-season",
+   "settledForecasts": 1,
+   "decisive": 1,
+   "winnerAccuracy": 1,
+   "marginMAE": 3,
+   "totalMAE": 23,
+   "marginInterval80Coverage": 1,
+   "totalInterval80Coverage": 0
   }
  },
  "unknownSeasonTypeRows": 0,
- "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: preseason cohort; season types never share an aggregate."
+ "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
 }
