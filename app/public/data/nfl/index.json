@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-10T17:12:41Z",
+ "generatedAt": "2026-09-10T17:51:34Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-09T22:57:31Z",
+  "generatedAt": "2026-09-10T17:12:41Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
-  "seasonTypeScope": "preseason",
-  "settledForecasts": 43,
-  "decisive": 41,
-  "winnerAccuracy": 0.5366,
-  "marginMAE": 12.3953,
-  "totalMAE": 8.186,
-  "marginInterval80Coverage": 0.6512,
-  "totalInterval80Coverage": 0.8837,
+  "seasonTypeScope": "regular-season",
+  "settledForecasts": 1,
+  "decisive": 1,
+  "winnerAccuracy": 1,
+  "marginMAE": 3,
+  "totalMAE": 23,
+  "marginInterval80Coverage": 1,
+  "totalInterval80Coverage": 0,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -54,10 +54,20 @@
     "totalMAE": 8.186,
     "marginInterval80Coverage": 0.6512,
     "totalInterval80Coverage": 0.8837
+   },
+   "regular-season": {
+    "label": "regular-season",
+    "settledForecasts": 1,
+    "decisive": 1,
+    "winnerAccuracy": 1,
+    "marginMAE": 3,
+    "totalMAE": 23,
+    "marginInterval80Coverage": 1,
+    "totalInterval80Coverage": 0
    }
   },
   "unknownSeasonTypeRows": 0,
-  "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: preseason cohort; season types never share an aggregate."
+  "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
   {
@@ -97,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "d2edba9f2cd83203",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "89cbb65b748c894c",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -138,8 +148,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "b9f963f17ec21456",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "00f882ab334eb087",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -179,8 +189,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "9987559b01ee0915",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "d30ef2501621f3e9",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -220,8 +230,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "5a747a9a5d174999",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "c3dcba5eeecc4ccb",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -261,8 +271,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "cb94b7f82d7aa78d",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "f78c4eb80acb4b88",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -302,8 +312,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "8a8f02970feeee31",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "d044928e2a45c2b5",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -343,8 +353,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "14033ef65b6cdd72",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "8d895564812db7dc",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -384,8 +394,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "3f322911d07a60bd",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "e71f03ceeef2f6a4",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -425,8 +435,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "ede49894f858783a",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "d64963812be27a99",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -466,8 +476,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "e13b930641712f55",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "26a0a7af37693d24",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -507,8 +517,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "a6c22c53b239a957",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "6162ec4a9ae5b609",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -548,8 +558,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "86832737ccee88c4",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "e146cecc447a288b",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -589,8 +599,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "f2848794c677345a",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "d77b81b62b36c867",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -630,8 +640,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "b2a39d0551f0a8ba",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "5e421b51415685f7",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   },
   {
@@ -671,8 +681,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "777a27f2dd8d4b50",
-    "generatedAt": "2026-09-10T17:12:41Z"
+    "inputHash": "fd9a9f3d9b81c554",
+    "generatedAt": "2026-09-10T17:51:34Z"
    }
   }
  ],
