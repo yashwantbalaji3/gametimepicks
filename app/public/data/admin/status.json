@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-10T17:50:38.788Z",
+  "generatedAt": "2026-09-10T17:54:03.358Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -73,9 +73,9 @@
           "status": "active",
           "step": 1,
           "legs": 2,
-          "combinedOdds": 213,
+          "combinedOdds": 208,
           "stake": 100,
-          "potentialReturn": 313.22,
+          "potentialReturn": 307.93,
           "selections": [
             "New York Yankees -1.5",
             "Seattle Mariners to win"
@@ -91,9 +91,9 @@
           "status": "active",
           "step": 1,
           "legs": 4,
-          "combinedOdds": 1124,
+          "combinedOdds": 1101,
           "stake": 25,
-          "potentialReturn": 305.97,
+          "potentialReturn": 300.34,
           "selections": [
             "Under 7",
             "Under 8.5",
@@ -106,9 +106,9 @@
           "status": "active",
           "step": 1,
           "legs": 5,
-          "combinedOdds": 1688,
+          "combinedOdds": 1658,
           "stake": 25,
-          "potentialReturn": 446.97,
+          "potentialReturn": 439.38,
           "selections": [
             "Under 7",
             "Texas Rangers +1.5",
@@ -232,16 +232,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-10T17:50:37.983Z",
-    "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "lastRunAt": "2026-09-10T17:50:39.613Z",
+    "ageHours": 0.1,
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-10",
-    "etTime": "13:50",
+    "etTime": "13:54",
     "stages": [
       {
         "stage": "schedule",

@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-10",
- "generatedAt": "2026-09-10T17:15:06Z",
+ "generatedAt": "2026-09-10T17:54:05Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -137,18 +137,18 @@
   {
    "product": "end-zone-vault",
    "label": "End Zone Vault",
-   "state": "NOT_RUN",
-   "reason": "the Vault ledger holds no entry for 2026-09-10",
+   "state": "NO_PLAY",
+   "reason": "participation: FAIL(UNKNOWN) · scorerPrice: FAIL(NO_MARKET — authorized capture probed this window and the provider offers no anytime-TD market)",
    "candidatesEvaluated": 0,
    "rejections": [],
    "card": null,
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "INCIDENT",
+    "state": "NO_PLAY",
     "policyVersion": "end-zone-vault@1",
     "evidence": {
      "policyVersion": "end-zone-vault@1",
-     "incidentRef": "NOT_RUN: the Vault ledger holds no entry for 2026-09-10"
+     "reason": "participation: FAIL(UNKNOWN) · scorerPrice: FAIL(NO_MARKET — authorized capture probed this window and the provider offers no anytime-TD market)"
     },
     "transitions": [
      {
@@ -156,8 +156,8 @@
       "runId": "open:end-zone-vault:2026-09-10"
      },
      {
-      "to": "INCIDENT",
-      "runId": "eval:2026-09-10:NOT_RUN"
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-10:4b7c4a25e988"
      }
     ]
    }
@@ -184,15 +184,15 @@
      "venue": "Citizens Bank Park",
      "opposingPitcher": "Cristian Javier",
      "opposingPitcherId": 664299,
-     "probability": 0.2596,
+     "probability": 0.2567,
      "seasonHr": 44,
-     "seasonPa": 628,
-     "seasonRate": 0.07006,
-     "adjustedRate": 0.069,
+     "seasonPa": 629,
+     "seasonRate": 0.06995,
+     "adjustedRate": 0.06814,
      "pitcherHrAllowed": 9,
-     "pitcherBattersFaced": 223,
-     "pitcherMultiplier": 1.141,
-     "reason": "44 HR in 628 plate appearances (7.0% of trips, league 3.0%). Cristian Javier has been more homer-prone than average (9 allowed in 223 batters faced), lifting it to 26.0%."
+     "pitcherBattersFaced": 229,
+     "pitcherMultiplier": 1.128,
+     "reason": "44 HR in 629 plate appearances (7.0% of trips, league 3.0%). Cristian Javier has been more homer-prone than average (9 allowed in 229 batters faced), lifting it to 25.7%."
     },
     {
      "playerId": 700250,
@@ -212,10 +212,10 @@
      "seasonHr": 36,
      "seasonPa": 599,
      "seasonRate": 0.0601,
-     "adjustedRate": 0.06262,
+     "adjustedRate": 0.06263,
      "pitcherHrAllowed": 19,
      "pitcherBattersFaced": 479,
-     "pitcherMultiplier": 1.189,
+     "pitcherMultiplier": 1.19,
      "reason": "36 HR in 599 plate appearances (6.0% of trips, league 3.0%). Ryan Feltner has been more homer-prone than average (19 allowed in 479 batters faced), lifting it to 23.8%."
     },
     {
@@ -236,10 +236,10 @@
      "seasonHr": 25,
      "seasonPa": 421,
      "seasonRate": 0.05938,
-     "adjustedRate": 0.06025,
+     "adjustedRate": 0.06026,
      "pitcherHrAllowed": 26,
      "pitcherBattersFaced": 661,
-     "pitcherMultiplier": 1.204,
+     "pitcherMultiplier": 1.205,
      "reason": "25 HR in 421 plate appearances (5.9% of trips, league 3.0%). Logan Gilbert has been more homer-prone than average (26 allowed in 661 batters faced), lifting it to 23.0%."
     },
     {
@@ -263,32 +263,32 @@
      "adjustedRate": 0.0601,
      "pitcherHrAllowed": 19,
      "pitcherBattersFaced": 479,
-     "pitcherMultiplier": 1.189,
+     "pitcherMultiplier": 1.19,
      "reason": "29 HR in 494 plate appearances (5.9% of trips, league 3.0%). Ryan Feltner has been more homer-prone than average (19 allowed in 479 batters faced), lifting it to 22.9%."
     },
     {
-     "playerId": 670541,
-     "player": "Yordan Alvarez",
-     "teamId": 117,
-     "teamAbbr": "HOU",
-     "teamName": "Houston Astros",
-     "opponentAbbr": "PHI",
-     "opponentTeamId": 143,
-     "matchup": "HOU @ PHI",
-     "gamePk": 823413,
-     "gameDate": "2026-09-10T17:05:00Z",
-     "venue": "Citizens Bank Park",
-     "opposingPitcher": "Zack Wheeler",
-     "opposingPitcherId": 554430,
-     "probability": 0.2288,
-     "seasonHr": 38,
-     "seasonPa": 633,
-     "seasonRate": 0.06003,
-     "adjustedRate": 0.05993,
-     "pitcherHrAllowed": 20,
-     "pitcherBattersFaced": 547,
-     "pitcherMultiplier": 1.133,
-     "reason": "38 HR in 633 plate appearances (6.0% of trips, league 3.0%). Zack Wheeler has been more homer-prone than average (20 allowed in 547 batters faced), lifting it to 22.9%."
+     "playerId": 808959,
+     "player": "Munetaka Murakami",
+     "teamId": 145,
+     "teamAbbr": "CWS",
+     "teamName": "Chicago White Sox",
+     "opponentAbbr": "PIT",
+     "opponentTeamId": 134,
+     "matchup": "PIT @ CWS",
+     "gamePk": 824550,
+     "gameDate": "2026-09-10T23:40:00Z",
+     "venue": "Rate Field",
+     "opposingPitcher": "Jared Jones",
+     "opposingPitcherId": 683003,
+     "probability": 0.2281,
+     "seasonHr": 31,
+     "seasonPa": 482,
+     "seasonRate": 0.06432,
+     "adjustedRate": 0.05974,
+     "pitcherHrAllowed": 12,
+     "pitcherBattersFaced": 333,
+     "pitcherMultiplier": 1.099,
+     "reason": "31 HR in 482 plate appearances (6.4% of trips, league 3.0%). Jared Jones has been more homer-prone than average (12 allowed in 333 batters faced), lifting it to 22.8%."
     }
    ],
    "ledgerOwned": true,
@@ -298,7 +298,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-10T17:04:46.000Z"
+     "lockAt": "2026-09-10T17:43:35.000Z"
     },
     "transitions": [
      {
@@ -572,7 +572,7 @@
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-10T17:15:05Z"
+     "lockAt": "2026-09-10T17:54:03Z"
     },
     "transitions": [
      {
@@ -625,13 +625,7 @@
    "ledgerOwned": false
   }
  ],
- "watchdog": [
-  {
-   "product": "end-zone-vault",
-   "kind": "INCIDENT_OPEN",
-   "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-10"
-  }
- ],
+ "watchdog": [],
  "authorities": {
   "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
   "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
