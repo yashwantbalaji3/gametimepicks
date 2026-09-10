@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "artifact": "cron-punctuality",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-10T14:26:39.492Z",
+  "generatedAt": "2026-09-10T14:49:18.000Z",
   "windowDays": 7,
   "bands": {
     "onTimeMaxMinutes": 60,
@@ -12,7 +12,7 @@
   "summary": {
     "measurableWorkflows": 10,
     "unmeasurableWorkflows": 7,
-    "fleetMedianDelayMinutes": 204,
+    "fleetMedianDelayMinutes": 203,
     "worstWorkflow": "ufc-post-card.yml",
     "missedTotal": 0,
     "underCoveredWorkflows": [],
@@ -128,7 +128,7 @@
       "judgedSlots": 6,
       "servedSlots": 6,
       "missedSlots": 0,
-      "observedRuns": 20,
+      "observedRuns": 21,
       "coverageRatio": 1,
       "medianDelayMinutes": 227,
       "maxDelayMinutes": 309,
@@ -215,55 +215,6 @@
       ]
     },
     {
-      "workflow": "cron-watchdog.yml",
-      "crons": [
-        "30 14 * * *",
-        "30 9 * * 6,0"
-      ],
-      "minGapMinutes": 300,
-      "attributable": true,
-      "judgedSlots": 9,
-      "servedSlots": 9,
-      "missedSlots": 0,
-      "observedRuns": 44,
-      "coverageRatio": 1,
-      "medianDelayMinutes": 204,
-      "maxDelayMinutes": 257,
-      "state": "SEVERE",
-      "samples": [
-        {
-          "slot": "2026-09-06T09:30:00.000Z",
-          "run": "2026-09-06T13:01:47.000Z",
-          "delayMinutes": 212,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-09-06T14:30:00.000Z",
-          "run": "2026-09-06T17:11:15.000Z",
-          "delayMinutes": 161,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-09-07T14:30:00.000Z",
-          "run": "2026-09-07T18:47:13.000Z",
-          "delayMinutes": 257,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-09-08T14:30:00.000Z",
-          "run": "2026-09-08T17:58:23.000Z",
-          "delayMinutes": 208,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-09-09T14:30:00.000Z",
-          "run": "2026-09-09T17:53:14.000Z",
-          "delayMinutes": 203,
-          "state": "SEVERE"
-        }
-      ]
-    },
-    {
       "workflow": "morning-projections.yml",
       "crons": [
         "30 13 * * *"
@@ -273,7 +224,7 @@
       "judgedSlots": 6,
       "servedSlots": 6,
       "missedSlots": 0,
-      "observedRuns": 80,
+      "observedRuns": 79,
       "coverageRatio": 1,
       "medianDelayMinutes": 204,
       "maxDelayMinutes": 288,
@@ -307,6 +258,55 @@
           "slot": "2026-09-09T13:30:00.000Z",
           "run": "2026-09-09T17:11:50.000Z",
           "delayMinutes": 222,
+          "state": "SEVERE"
+        }
+      ]
+    },
+    {
+      "workflow": "cron-watchdog.yml",
+      "crons": [
+        "30 14 * * *",
+        "30 9 * * 6,0"
+      ],
+      "minGapMinutes": 300,
+      "attributable": true,
+      "judgedSlots": 8,
+      "servedSlots": 8,
+      "missedSlots": 0,
+      "observedRuns": 44,
+      "coverageRatio": 1,
+      "medianDelayMinutes": 203,
+      "maxDelayMinutes": 257,
+      "state": "SEVERE",
+      "samples": [
+        {
+          "slot": "2026-09-06T09:30:00.000Z",
+          "run": "2026-09-06T13:01:47.000Z",
+          "delayMinutes": 212,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-09-06T14:30:00.000Z",
+          "run": "2026-09-06T17:11:15.000Z",
+          "delayMinutes": 161,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-09-07T14:30:00.000Z",
+          "run": "2026-09-07T18:47:13.000Z",
+          "delayMinutes": 257,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-09-08T14:30:00.000Z",
+          "run": "2026-09-08T17:58:23.000Z",
+          "delayMinutes": 208,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-09-09T14:30:00.000Z",
+          "run": "2026-09-09T17:53:14.000Z",
+          "delayMinutes": 203,
           "state": "SEVERE"
         }
       ]
@@ -609,7 +609,7 @@
       ],
       "minGapMinutes": 30,
       "attributable": false,
-      "judgedSlots": 21,
+      "judgedSlots": 20,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 84,

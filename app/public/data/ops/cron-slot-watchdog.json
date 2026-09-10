@@ -1,6 +1,6 @@
 {
   "kind": "cron-slot-watchdog",
-  "generatedAt": "2026-08-20T02:52:46Z",
+  "generatedAt": "2026-09-10T14:49:09Z",
   "lookbackHours": 168,
   "sports": {
     "mlb": {
@@ -8,24 +8,42 @@
       "crons": [
         "15 14 * * *"
       ],
-      "createdAt": "2026-07-22T18:06:42.000Z",
+      "createdAt": "2026-08-24T23:16:16.000Z",
       "expected": 7,
-      "ran": 71,
-      "missed": [],
-      "state": "OK"
+      "ran": 100,
+      "missed": [
+        "2026-09-04T14:15:00.000Z",
+        "2026-09-06T14:15:00.000Z",
+        "2026-09-07T14:15:00.000Z",
+        "2026-09-08T14:15:00.000Z"
+      ],
+      "lastConclusion": "success",
+      "consecutiveFailures": 0,
+      "state": "MISSED"
     },
     "ufc": {
       "workflow": "ufc-fight-week.yml",
       "crons": [
         "0 11 * * 2",
         "0 11 * * 4",
-        "0 11 * * 6"
+        "0 11 * * 6",
+        "0 13 * * 0,1,3,5"
       ],
-      "createdAt": "2026-08-18T02:26:24.000Z",
-      "expected": 1,
-      "ran": 8,
-      "missed": [],
-      "state": "OK"
+      "createdAt": "2026-08-24T23:16:16.000Z",
+      "expected": 7,
+      "ran": 35,
+      "missed": [
+        "2026-09-04T13:00:00.000Z",
+        "2026-09-05T11:00:00.000Z",
+        "2026-09-06T13:00:00.000Z",
+        "2026-09-07T13:00:00.000Z",
+        "2026-09-08T11:00:00.000Z",
+        "2026-09-09T13:00:00.000Z",
+        "2026-09-10T11:00:00.000Z"
+      ],
+      "lastConclusion": "success",
+      "consecutiveFailures": 0,
+      "state": "MISSED"
     },
     "nfl": {
       "workflow": "nfl-event-window.yml",
@@ -34,30 +52,82 @@
         "0 21 * * *",
         "30 14 * * *"
       ],
-      "createdAt": "2026-08-13T12:13:21.000Z",
+      "createdAt": "2026-08-24T23:16:16.000Z",
       "expected": 21,
-      "ran": 25,
-      "missed": [],
-      "state": "OK"
+      "ran": 98,
+      "missed": [
+        "2026-09-03T15:00:00.000Z",
+        "2026-09-04T14:30:00.000Z",
+        "2026-09-04T15:00:00.000Z",
+        "2026-09-05T14:30:00.000Z",
+        "2026-09-06T14:30:00.000Z",
+        "2026-09-06T15:00:00.000Z",
+        "2026-09-07T14:30:00.000Z",
+        "2026-09-07T15:00:00.000Z",
+        "2026-09-08T14:30:00.000Z",
+        "2026-09-08T15:00:00.000Z"
+      ],
+      "lastConclusion": "success",
+      "consecutiveFailures": 0,
+      "state": "MISSED"
     },
     "epl": {
       "workflow": "epl-matchweek.yml",
       "crons": [
-        "0 7 * * 4",
-        "0 7 * * 6",
-        "0 7 * * 0"
+        "0 21 * * 4",
+        "0 21 * * 5",
+        "0 21 * * 6",
+        "0 21 * * 0",
+        "0 18 * * 5",
+        "30 10 * * 6",
+        "0 13 * * 6",
+        "30 15 * * 6",
+        "0 12 * * 0",
+        "30 14 * * 0",
+        "0 18 * * 1",
+        "0 19 * * 5",
+        "0 11 * * 6",
+        "30 13 * * 6",
+        "0 16 * * 6",
+        "30 12 * * 0",
+        "0 15 * * 0",
+        "30 18 * * 1"
       ],
-      "createdAt": "2026-08-18T10:44:37.000Z",
-      "expected": 0,
-      "ran": 0,
-      "missed": [],
-      "state": "OK"
+      "createdAt": "2026-08-24T23:16:16.000Z",
+      "expected": 18,
+      "ran": 68,
+      "missed": [
+        "2026-09-03T21:00:00.000Z",
+        "2026-09-05T10:30:00.000Z",
+        "2026-09-06T12:00:00.000Z",
+        "2026-09-06T12:30:00.000Z"
+      ],
+      "lastConclusion": "success",
+      "consecutiveFailures": 0,
+      "state": "MISSED"
     },
     "nba": {
-      "skipped": true,
-      "reason": "off-season; nba-market-probe.yml is dispatch-only and the source has failed since 2026-06-13"
+      "workflow": "sport-schedules.yml",
+      "crons": [
+        "0 13 * * *"
+      ],
+      "createdAt": "2026-08-24T23:16:16.000Z",
+      "expected": 7,
+      "ran": 33,
+      "missed": [
+        "2026-09-04T13:00:00.000Z",
+        "2026-09-05T13:00:00.000Z",
+        "2026-09-06T13:00:00.000Z",
+        "2026-09-07T13:00:00.000Z",
+        "2026-09-08T13:00:00.000Z",
+        "2026-09-09T13:00:00.000Z"
+      ],
+      "lastConclusion": "success",
+      "consecutiveFailures": 0,
+      "state": "MISSED"
     }
   },
-  "missedTotal": 0,
+  "missedTotal": 31,
+  "failingTotal": 0,
   "unknown": []
 }
