@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-10T17:11:35.010Z",
+  "generatedAt": "2026-09-10T17:15:05.135Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -60,12 +60,12 @@
           "status": "active",
           "step": 1,
           "legs": 2,
-          "combinedOdds": 101,
+          "combinedOdds": 104,
           "stake": 100,
-          "potentialReturn": 200.51,
+          "potentialReturn": 204.09,
           "selections": [
             "New York Yankees to win",
-            "Tampa Bay Rays +1.5"
+            "Chicago White Sox +1.5"
           ]
         },
         {
@@ -73,11 +73,11 @@
           "status": "active",
           "step": 1,
           "legs": 2,
-          "combinedOdds": 207,
+          "combinedOdds": 213,
           "stake": 100,
-          "potentialReturn": 307.01,
+          "potentialReturn": 313.22,
           "selections": [
-            "Houston Astros +1.5",
+            "New York Yankees -1.5",
             "Seattle Mariners to win"
           ]
         }
@@ -90,36 +90,31 @@
           "lane": "A",
           "status": "active",
           "step": 1,
-          "legs": 6,
-          "combinedOdds": 3380,
+          "legs": 4,
+          "combinedOdds": 1124,
           "stake": 25,
-          "potentialReturn": 870.04,
+          "potentialReturn": 305.97,
           "selections": [
-            "Atlanta Braves to win",
+            "Under 7",
             "Under 8.5",
-            "Philadelphia Phillies to win",
-            "Over 8.5",
-            "Over 6.5",
-            "Under 8.5"
+            "Chicago White Sox to win",
+            "Over 7.5"
           ]
         },
         {
           "lane": "B",
           "status": "active",
           "step": 1,
-          "legs": 8,
-          "combinedOdds": 8778,
+          "legs": 5,
+          "combinedOdds": 1688,
           "stake": 25,
-          "potentialReturn": 2219.47,
+          "potentialReturn": 446.97,
           "selections": [
-            "Atlanta Braves to win",
-            "Under 8.5",
-            "Philadelphia Phillies to win",
-            "Over 8.5",
-            "Over 6.5",
+            "Under 7",
             "Texas Rangers +1.5",
             "Under 8.5",
-            "New York Yankees -1.5"
+            "Chicago White Sox to win",
+            "Over 7.5"
           ]
         }
       ]
@@ -237,16 +232,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-10T17:11:34.263Z",
-    "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "lastRunAt": "2026-09-10T17:11:35.781Z",
+    "ageHours": 0.1,
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-10",
-    "etTime": "13:11",
+    "etTime": "13:15",
     "stages": [
       {
         "stage": "schedule",
