@@ -77,3 +77,37 @@ export function carryForwardDesignations({ previousEntries = [], currentEntries 
 
   return { entries: [...current, ...carried], carried, skipped };
 }
+
+/**
+ * Rebuild what the carry WOULD have remembered, from the committed history of the injuries file.
+ *
+ * The carry-forward only shipped on 2026-09-10, so designations that aged out of ESPN's rolling list
+ * before then were already gone from the committed file — 55 Injured Reserve placements still inside
+ * the window, some missing since 2026-08-31. Git kept every capture, so the memory exists; it just was
+ * never consulted.
+ *
+ * Deliberately a thin wrapper: it builds the "previous" set from each absent athlete's LAST KNOWN
+ * entry and hands it to carryForwardDesignations, so a backfilled row obeys exactly the same four
+ * rules as a live carry. Last-known wins — a player later re-listed as Questionable and then dropped
+ * is not resurrected as Injured Reserve.
+ *
+ * @param {object} o
+ * @param {Array<{generatedAt:string, entries:Array<object>}>} o.captures  oldest → newest; the last is current
+ * @param {string} o.nowIso
+ */
+export function recoverFromHistory({ captures = [], nowIso } = {}) {
+  const list = (Array.isArray(captures) ? captures : []).filter((c) => c && Array.isArray(c.entries));
+  if (!list.length) return { entries: [], carried: [], skipped: { spokenInFeed: 0, gameWeekOut: 0, tooOld: 0, undated: 0 } };
+  const current = list[list.length - 1];
+  const lastSeen = new Map();
+  list.forEach((c, i) => { for (const e of c.entries) if (e?.athleteId != null) lastSeen.set(String(e.athleteId), { entry: e, idx: i }); });
+  const currentIds = new Set(current.entries.map((e) => String(e?.athleteId ?? "")));
+  const previousEntries = [];
+  for (const [id, { entry, idx }] of lastSeen) {
+    if (currentIds.has(id)) continue;
+    // The first capture after its last appearance is when the feed forgot it.
+    const firstMissing = list[idx + 1]?.generatedAt ?? null;
+    previousEntries.push({ ...entry, absentFromFeedSince: entry.absentFromFeedSince ?? firstMissing });
+  }
+  return carryForwardDesignations({ previousEntries, currentEntries: current.entries, nowIso });
+}
