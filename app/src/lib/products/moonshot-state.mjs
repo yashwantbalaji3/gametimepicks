@@ -68,17 +68,23 @@ export const MOONSHOT_LIFECYCLE = [
   "ABANDONED",        // published cards can never be settled — no settler reaches them
   "NOT_GENERATING",   // nothing generates the product, and no card is left open
   "STALE",            // a generator exists but has not produced for longer than its cadence
+  "WAITING",          // the generator ran today, but no two-leg card reaches the rung's price — nothing is forced
   "RETIRED",          // explicitly retired; history retained, removed from current generation
   "UNKNOWN",          // artifacts unreadable; never presented as healthy
 ];
 
 /**
- * Does anything generate or settle this product today? Both are false, each for a reason recorded
- * above and pinned by a guard in the test beside this file. They are constants rather than inferred
+ * Does anything generate or settle this product today? Each answer is recorded beside its constant
+ * and pinned by a guard in the test beside this file. They are constants rather than inferred
  * at render time because a static page must not shell out to read the workflow directory — and a
  * guard that fails the build is a stronger signal than a value that silently flips.
  */
-export const MOONSHOT_HAS_SCHEDULED_GENERATOR = false;
+/* TRUE since 2026-09-10. daily-products.yml runs `activate-daily-portfolio.mjs --apply` every morning,
+ * and accounting.ts deals each Moonshot lane its rung card (moonshot/rung-card.mjs) at the position the
+ * official receipts give it (products/ladder-position.mjs). The legacy lane store,
+ * moonshot-lane/active.json, is still produced by nothing — it is history, not the product. Pinned
+ * against the workflow and the generator by the LIVE test beside this file. */
+export const MOONSHOT_HAS_SCHEDULED_GENERATOR = true;
 /* TRUE since Program 236: `scripts/products/settle-ladder-cards.mjs` is invoked by nightly-settle and
  * reads `moonshot-lane/active.json` directly, grading each leg from the official StatsAPI box score
  * joined by the gamePk carried in its legId. The three cards open since 2026-08-17 settled on
@@ -166,6 +172,21 @@ export function isPublishedCard(card) {
 }
 
 /**
+ * Today's three Moonshot counts, from the daily portfolio's cards — one helper so every surface that
+ * derives the state (/moonshot, /mr-dub, /launch, the trust center) tells SHOWN (a card with legs)
+ * from PLACED (active) from GENERATED (a lane exists at all) the same way.
+ */
+export function moonshotTodayCounts(cards) {
+  const ms = (cards ?? []).filter((c) => c?.product === "moonshot");
+  const shown = ms.filter(isPublishedCard);
+  return {
+    todayPublishedCardCount: shown.length,
+    todayPlacedCardCount: shown.filter((c) => c.status === "active").length,
+    todayLaneCount: ms.length,
+  };
+}
+
+/**
  * @param {object}      args
  * @param {object|null} args.lane                  moonshot-lane/active.json
  * @param {object|null} args.portfolioMoonshot     the `.moonshot` block of the protected portfolio
@@ -175,6 +196,11 @@ export function isPublishedCard(card) {
  * @param {string}      args.today                 ET product date
  * @param {string[]}   [args.settledCardIds]       card ids the lifecycle ledger has already graded
  * @param {number}      [args.todayPublishedCardCount] published (legs > 0) Moonshot cards in today's daily portfolio — the revived daily lane
+ * @param {number}      [args.todayPlacedCardCount]    of those, the ones actually PLACED (status active). A candidate that
+ *                                                     does not reach its rung's price is shown, never placed, and the
+ *                                                     note must not call it placed. Defaults to the published count.
+ * @param {number}      [args.todayLaneCount]          Moonshot lanes in today's daily portfolio, card or not — evidence
+ *                                                     the generator ran today even when it dealt nothing
  */
 export function deriveMoonshotState({
   lane, portfolioMoonshot, productLedger,
@@ -183,6 +209,11 @@ export function deriveMoonshotState({
   settledCardIds = [],
   /** Published (legs > 0) Moonshot cards in TODAY'S daily portfolio — the revived daily lane. */
   todayPublishedCardCount = 0,
+  todayPlacedCardCount = null,
+  todayLaneCount = 0,
+  /** The lifecycle registry's founder gate for this product. Only the founder's token clears it, so
+   *  it is open unless a caller has positive evidence otherwise. */
+  founderGateOpen = true,
 }) {
   const contradictions = [];
 
@@ -266,6 +297,9 @@ export function deriveMoonshotState({
   // The caller passes the count from the daily portfolio, legs > 0 only; this module still reads
   // nothing.
   else if (todayPublishedCardCount > 0) lifecycle = "PUBLISHED";
+  // The ladder deals a card only when two legs reach the rung's price. A slate that offers none is a
+  // real answer about the day's prices, and the generator having run is not "stale".
+  else if (hasScheduledGenerator && todayLaneCount > 0) lifecycle = "WAITING";
   else if (!hasScheduledGenerator) lifecycle = "NOT_GENERATING";
   else if (laneDate === today) lifecycle = "PUBLISHED";
   else lifecycle = "STALE";
@@ -286,12 +320,16 @@ export function deriveMoonshotState({
           : lifecycle === "STALE"
             ? `The last Moonshot card was published ${since}; today's has not been produced.`
             : lifecycle === "PUBLISHED"
-              ? `Today's Moonshot card is published. Paper-only, separate from the Bank Builder.`
-              : `Moonshot's current state cannot be established from its artifacts.`;
+              ? ((todayPlacedCardCount ?? todayPublishedCardCount) > 0
+                ? `Today's Moonshot card is published. Paper-only, separate from the Bank Builder.`
+                : `Today's Moonshot card is shown as a candidate only — it does not reach its rung's price, so nothing is placed.`)
+              : lifecycle === "WAITING"
+                ? `No Moonshot card is placed today: nothing on today's slate reaches the rung's price with two legs, and the ladder waits rather than force a card.`
+                : `Moonshot's current state cannot be established from its artifacts.`;
 
   return {
     lifecycle,
-    running: lifecycle === "PUBLISHED" || lifecycle === "SETTLING",
+    running: lifecycle === "PUBLISHED" || lifecycle === "SETTLING" || lifecycle === "WAITING",
     lastPublishedDate: laneDate,
     daysSincePublished: daysSince,
     hasScheduledGenerator,
@@ -338,13 +376,21 @@ export function deriveMoonshotState({
      *
      * Publishing is blocked exactly while nothing generates the product. That is the condition.
      */
+    /*
+     * P255: the daily ladder now generates and settles, so "publishing is blocked" stopped being
+     * true — but the founder gate is still open, and the thing it gates is still real: the protected
+     * Mr. Dub ledger models ONE active Moonshot card. The disclosure therefore stays public while the
+     * gate is open, narrowed to what is actually still paused.
+     */
     founderDecision:
       !hasScheduledGenerator || lifecycle === "ABANDONED"
         ? "Settling is resolved: the lane's cards are graded nightly from the official box score. Publishing still needs multi-lane exposure accounting in the paper ledger, because the Mr. Dub ledger models a single active card and two concurrent lanes would mis-account the money. Whether to build that, formally pause the product, or retire it is a product decision."
-        : null,
+        : founderGateOpen
+          ? "The daily ladder is live on the paper portfolio: its cards are graded nightly from the official box score, and each lane's rung comes from those receipts. What stays paused is the protected Mr. Dub ledger, which models a single active Moonshot card — folding two concurrent lanes into it needs multi-lane exposure accounting there. Until that exists the ladder's record is kept separately and never touches the protected bankroll. Whether to build it is a product decision."
+          : null,
     /** The answer token. PROTECTED-CONSOLE ONLY — never rendered on a public route. */
     founderGateToken:
-      !hasScheduledGenerator || lifecycle === "ABANDONED"
+      !hasScheduledGenerator || lifecycle === "ABANDONED" || founderGateOpen
         ? "MOONSHOT_REPAIR_PAUSE_OR_RETIRE"
         : null,
   };

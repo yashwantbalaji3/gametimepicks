@@ -112,12 +112,12 @@ export default function MoonshotLaneTracker({
   if (lane.priorRun?.card && showHistory && !priorHasPendingProp) allRuns.push({ key: "prior", label: "Prior run · June 19", card: lane.priorRun.card, note: lane.priorRun.note });
   const runs = allRuns.slice(0, maxCards ?? (compact ? 1 : allRuns.length));
 
-  // Moonshot is NOT a ladder — it publishes independent high-upside cards. Track its own record + exposure
-  // (no step/target progression).
+  // This tracker reads the LEGACY lane store (moonshot-lane/active.json), whose cards predate the ladder.
+  // The live product is the three-day ladder on the daily portfolio; this block keeps the old record.
   const summary: Array<[string, string]> = [
     ["Record", recordStr],
     ["Exposure", usd(exp)],
-    ["Style", "High-upside longshots"],
+    ["Style", "Fast ladder · $25 → $1,000"],
   ];
 
   return (

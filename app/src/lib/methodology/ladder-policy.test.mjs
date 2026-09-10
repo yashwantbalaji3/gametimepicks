@@ -89,6 +89,7 @@ test("Moonshot 3-day ladder: $25→$100→$400→$1,500; no props by default; ex
 
 // ── v2.1 DOLLAR-SCHEDULE ladder (the operator's 7-step template, reconciled) ─────────────────────
 import { bankBuilderV2StepPolicy, moonshotV2LadderPolicy } from "./ladder-policy.ts";
+import { RUNG_CARD_LEGS } from "../moonshot/rung-card.mjs";
 
 test("v2.1 ladder RECONCILES exactly: every roll-forward = target − lock, and it feeds the next step", () => {
   let cum = 0;
@@ -170,4 +171,13 @@ test("policy generation NEVER touches canonical money (pure functions; portfolio
   for (const day of [1, 2, 3]) moonshotLadderPolicy(day, 25 * day);
   const after = fs.readFileSync("public/data/mr-dub/portfolio.json");
   assert.ok(before.equals(after), "canonical portfolio untouched by policy calls");
+});
+
+test("Moonshot v2 (the spec /moonshot renders): two legs a day, and nothing is ever called banked", () => {
+  for (const day of [1, 2, 3]) {
+    const d = moonshotV2LadderPolicy(day);
+    assert.deepEqual(d.legRange, [RUNG_CARD_LEGS, RUNG_CARD_LEGS], `day ${day}: the two-leg rung card the generator deals`);
+    assert.equal(d.lock, 0, `day ${day}: a compounding ladder locks nothing`);
+    assert.doesNotMatch(d.note, /locked profit|stays banked/i, `day ${day}: the note never promises a bank the ladder does not keep`);
+  }
 });

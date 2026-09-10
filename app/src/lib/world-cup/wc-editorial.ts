@@ -104,7 +104,7 @@ export function expectedGameScript(ctx: KnockoutContext): string {
  *  Moonshot tells a believable story ("Low-scoring knockout", "Favorites advance") instead of reading as a
  *  random odds stack. Derived only from the legs; no fabricated data. */
 export function moonshotNarrative(legs: EditorialLeg[]): { title: string; story: string } {
-  if (!legs.length) return { title: "Moonshot", story: "Awaiting a qualified longshot card." };
+  if (!legs.length) return { title: "Moonshot", story: "Awaiting a qualified card." };
   const leans = legs.map(eventLean);
   const defensive = leans.filter((x) => x === -1).length;
   const attacking = legs.filter((l) => l.marketKey.startsWith("player_") || eventLean(l) === 1).length;

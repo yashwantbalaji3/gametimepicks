@@ -156,7 +156,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   // ── PRODUCTS ───────────────────────────────────────────────────────────────────────────────────
   { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Conservative paper card",
     surfaces: ["rail", "footer"] },
-  { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "High-risk paper longshots",
+  { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "Fast ladder · $25 → $1,000",
     surfaces: ["rail", "footer"] },
   // Revived 2026-08-17. The route was a retired redirect stub for six weeks because the provider
   // home-run feed it read had gone away; it now computes its own probability from StatsAPI, so it

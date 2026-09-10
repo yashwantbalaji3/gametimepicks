@@ -16,6 +16,7 @@
  */
 
 import { MOONSHOT_LADDER } from "@/lib/moonshot/moonshot-ladder.mjs";
+import { RUNG_CARD_LEGS } from "@/lib/moonshot/rung-card.mjs";
 
 export type RiskBand = "standard" | "protected" | "safety-first";
 export type LadderMarket = "double_chance" | "draw_no_bet" | "moneyline_90" | "match_total_goals" | "btts";
@@ -219,10 +220,12 @@ const MOON_V2 = MOONSHOT_LADDER.map((r, i) => ({
   target: r.goal,
   // Nothing locks: a compounding ladder carries the whole balance into the next rung.
   lock: 0,
-  legs: (i === 0 ? [3, 5] : [3, 6]) as [number, number],
+  // Two legs from two different games, every rung — the card the generator actually deals
+  // (moonshot/rung-card.mjs). The 3–6 legs this used to print belonged to the longshot design.
+  legs: [RUNG_CARD_LEGS, RUNG_CARD_LEGS] as [number, number],
 }));
 
-/** Moonshot v2 day policy — profit-locking 3-day ladder. Pure; display/proposal shaping only. */
+/** Moonshot day policy — the compounding 3-day ladder. Pure; display/proposal shaping only. */
 export function moonshotV2LadderPolicy(day: 1 | 2 | 3, currentRoll?: number, allowPlayerProps = false): MoonshotV2Day {
   const s = MOON_V2[day - 1];
   const roll = round2(currentRoll ?? s.roll);
@@ -246,7 +249,7 @@ export function moonshotV2LadderPolicy(day: 1 | 2 | 3, currentRoll?: number, all
       ? "Win Day 1 and the whole $100 rides into Day 2 — nothing banks along the way."
       : day === 2
         ? "Win Day 2 and the whole $400 rides into Day 3 for the $1,000 finish."
-        : "Day 3 completes the ladder — everything realizes. A loss on any day costs only what was still rolling; locked profit stays banked. NO-PLAY days are never forced.",
+        : "Day 3 completes the ladder at $1,000. A loss on any day sends the lane back to the $25 seed — nothing banks along the way. No-play days are never forced.",
   };
 }
 

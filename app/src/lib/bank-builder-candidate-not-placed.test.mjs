@@ -57,7 +57,7 @@ test("/today builds the Bank Builder lane-ladder from ACTIVE cards only (candida
 test("the daily-portfolio model can distinguish candidate from active (the field the fix relies on)", async () => {
   const { buildPersistedDailyPortfolio } = await import("./daily-portfolio/accounting.ts");
   // Exercise the candidate/active distinction on an UNSETTLED approved lane: `buildPersistedDailyPortfolio`
-  // renders that lane ACTIVE (a placed card, $100 seed), while any Moonshot below its floor stays a CANDIDATE.
+  // renders that lane ACTIVE (a placed card, $100 seed), while a lane that cannot reach its rung stays unplaced.
   // (The real July-7 Lane A card has since settled WON — see the settled-status assertion below — so we build a
   // temp root that keeps its ladder step unsettled to keep the active-vs-candidate distinction genuinely covered.)
   const { tmp, dataRoot } = makeUnsettledApprovedRoot();
@@ -69,9 +69,11 @@ test("the daily-portfolio model can distinguish candidate from active (the field
     assert.equal(activeA?.status, "active", "the unsettled approved lane is ACTIVE (a placed card)");
     // A candidate with legs must NOT be counted as an active/placed card.
     const placed = dp.lanes.filter((c) => c.status === "active" && (c.legs ?? []).length > 0);
-    const candidates = dp.lanes.filter((c) => c.status === "candidate");
-    assert.ok(candidates.length > 0, "at least one candidate lane surfaces (below-floor Moonshot)");
-    assert.ok(candidates.every((c) => !placed.includes(c)), "candidates are never in the placed set");
+    // Not every lane is placed on this slate (a Moonshot lane whose pair cannot reach its rung, or one
+    // with no legs) — and whatever is not placed must never be counted as placed.
+    const notPlaced = dp.lanes.filter((c) => c.status !== "active");
+    assert.ok(notPlaced.length > 0, "at least one lane surfaces that is NOT placed");
+    assert.ok(notPlaced.every((c) => !placed.includes(c)), "a lane that is not active is never in the placed set");
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }

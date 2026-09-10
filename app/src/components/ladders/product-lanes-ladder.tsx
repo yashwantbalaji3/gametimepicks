@@ -6,9 +6,10 @@
  *
  * Bank Builder IS a ladder: each lane card carries a STEP RAIL reflecting real progress — rungs below
  * the current step read CLEARED (✓), the current step reads "Current card" (accent glow), and rungs
- * above await the prior step's settlement (5 steps). Moonshot is NOT a ladder — it publishes
- * independent daily longshot cards with no step/target/progress, so its cards show a flat
- * "independent longshot card · max upside" descriptor instead of a rail or step goal.
+ * above await the prior step's settlement (5 steps). Moonshot is the same ladder run faster — three
+ * rungs named by the day they are climbed on (Day 1 $25 → $100, Day 2 → $400, Day 3 → $1,000) — so
+ * it wears the same rail, labelled by day. It used to be drawn as a flat "independent longshot card"
+ * because it was one; since 2026-09-10 its rung comes from the official receipts like Bank Builder's.
  *
  * Both share one shape and two accents (gold / violet). Honest by construction — active lanes read
  * "$X at risk · open exposure"; candidates read "$0 placed · not activated". Pure presentational; all
@@ -27,7 +28,7 @@ const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFrac
 
 const DESCRIPTOR: Record<DailyPortfolioCard["product"], string> = {
   "bank-builder": "Lower-volatility · 2 legs per lane · ladder toward higher rungs",
-  moonshot: "Higher-upside · independent longshot cards · maximum upside (not a ladder)",
+  moonshot: "Faster ladder · 2 legs a day · $25 → $100 → $400 → $1,000",
 };
 
 type Accent = "gold" | "violet";
@@ -61,7 +62,7 @@ type RungState = "cleared" | "current" | "future";
  * even at 5 rungs). The per-rung label is shown only for the current rung; future/cleared rungs use a
  * short shared caption below the row so five rungs never overflow.
  */
-function StepRail({ currentStep, totalSteps, accentColor }: { currentStep: number; totalSteps: number; accentColor: string }) {
+function StepRail({ currentStep, totalSteps, accentColor, unit = "Step" }: { currentStep: number; totalSteps: number; accentColor: string; unit?: "Step" | "Day" }) {
   const rungs = Array.from({ length: totalSteps }, (_, i) => {
     const n = i + 1;
     const state: RungState = n < currentStep ? "cleared" : n === currentStep ? "current" : "future";
@@ -69,7 +70,7 @@ function StepRail({ currentStep, totalSteps, accentColor }: { currentStep: numbe
   });
   const success = "var(--vault-success)";
   return (
-    <div className="flex flex-col gap-1 min-w-0" aria-label={`Ladder · step ${currentStep} of ${totalSteps}`}>
+    <div className="flex flex-col gap-1 min-w-0" aria-label={`Ladder · ${unit.toLowerCase()} ${currentStep} of ${totalSteps}`}>
       <div className="flex items-center min-w-0">
         {rungs.map((r, i) => {
           const isCleared = r.state === "cleared";
@@ -99,8 +100,8 @@ function StepRail({ currentStep, totalSteps, accentColor }: { currentStep: numbe
         })}
       </div>
       <span className="font-mono uppercase tracking-[0.08em] truncate" style={{ fontSize: 8, color: accentColor }}>
-        Step {currentStep} of {totalSteps} · Current card
-        {currentStep < totalSteps ? <span style={{ color: "var(--vault-text-faint)" }}> · Step {currentStep + 1} awaits Step {currentStep} settlement</span> : null}
+        {unit} {currentStep} of {totalSteps} · Current card
+        {currentStep < totalSteps ? <span style={{ color: "var(--vault-text-faint)" }}> · {unit} {currentStep + 1} awaits {unit} {currentStep} settlement</span> : null}
       </span>
     </div>
   );
@@ -188,15 +189,8 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
           </span>
           <StatusPill status={card.status} />
         </div>
-        {/* Bank Builder is a ladder (step rail). Moonshot is NOT a ladder — independent daily longshot
-            cards with no step/target/progress — so it shows a flat descriptor, never a rail. */}
-        {isMoonshot ? (
-          <span className="font-mono uppercase tracking-[0.08em] truncate" style={{ fontSize: 8, color: accentColor }}>
-            Independent longshot card · {card.legCount} legs · maximum upside
-          </span>
-        ) : (
-          <StepRail currentStep={currentStep} totalSteps={totalSteps} accentColor={accentColor} />
-        )}
+        {/* Both products are ladders; Moonshot's three rungs are named by day. */}
+        <StepRail currentStep={currentStep} totalSteps={totalSteps} accentColor={accentColor} unit={isMoonshot ? "Day" : "Step"} />
       </div>
 
       {/* Current card body */}
@@ -207,9 +201,9 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
           </span>
           <OddsPill odds={card.combinedOdds} size="sm" tone={tone} />
         </div>
-        {!isMoonshot && card.targetReturn != null ? (
+        {card.targetReturn != null ? (
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: accentColor, fontSize: 8.5 }}>
-            → Step {currentStep} goal {money(card.targetReturn)}
+            → {isMoonshot ? "Day" : "Step"} {currentStep} goal {money(card.targetReturn)}
           </span>
         ) : null}
         <div className="flex items-center gap-2 flex-wrap">
@@ -222,7 +216,17 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
         </div>
       </div>
 
-      {/* Moonshot narrative — the story this longshot tells (display-only; derived from the legs) */}
+      {/* A Moonshot card with no rung goal was dealt before the ladder existed (the morning of
+          2026-09-10 and earlier). Say so, rather than let "2 legs a day" sit above a five-leg card. */}
+      {isMoonshot && card.targetReturn == null && card.legs.length ? (
+        <div className="px-3.5 py-2" style={{ borderBottom: "1px solid var(--vault-rule)" }}>
+          <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
+            Dealt under the earlier rules, before the ladder. It settles from official results tonight, and its result sets this lane&rsquo;s next rung.
+          </span>
+        </div>
+      ) : null}
+
+      {/* Moonshot narrative — the story this card tells (display-only; derived from the legs) */}
       {isMoonshot && card.narrative && card.legs.length ? (
         <div className="px-3.5 py-2.5" style={{ borderBottom: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--product-moonshot-electric) 6%, transparent)" }}>
           <div className="font-mono uppercase tracking-[0.08em]" style={{ color: accentColor, fontSize: 9.5, fontWeight: 700 }}>

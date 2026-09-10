@@ -35,6 +35,7 @@ import { getBankBuilderSettledSteps } from "./bank-builder-results";
 import {
   deriveMoonshotState,
   isPublishedCard,
+  moonshotTodayCounts,
   MOONSHOT_HAS_SCHEDULED_GENERATOR,
   MOONSHOT_HAS_WIRED_SETTLER,
 } from "./products/moonshot-state.mjs";
@@ -346,9 +347,11 @@ export function getTrustCenterModel(): TrustCenterModel {
      published-card rule the product pages use, so this page cannot disagree with them. */
   const slateToday = currentSlateDate() ?? currentEtDate();
   let today: TrustCenterModel["today"] = null;
+  let msCounts = moonshotTodayCounts([]);
   try {
     const dp = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), slateToday);
     const published = dp.cards.filter((c) => isPublishedCard(c));
+    msCounts = moonshotTodayCounts(dp.cards);
     today = {
       date: dp.date ?? null,
       generatedAt: typeof (daily as Record<string, unknown> | null)?.generatedAt === "string" ? String((daily as Record<string, unknown>).generatedAt) : null,
@@ -363,7 +366,7 @@ export function getTrustCenterModel(): TrustCenterModel {
   try {
     const derived = deriveMoonshotState({
       settledCardIds: settledCardIds(loadLifecycleHistory(), "moonshot"),
-      todayPublishedCardCount: today?.moonshotCards ?? 0,
+      ...msCounts,
       lane: loadMoonshotLane(),
       portfolioMoonshot: (portfolio as Record<string, unknown> | null)?.moonshot ?? null,
       productLedger: (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "product-ledger", "moonshot.json"), "utf8")); } catch { return null; } })(),

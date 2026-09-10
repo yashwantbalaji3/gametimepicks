@@ -52,7 +52,10 @@ export function deriveBankBuilderState(dataRoot) {
         lane: l.lane,
         generated: l.step,
         lifecycleStore: pos.step,
-        note: "the prospective lifecycle store's rule-derived position disagrees with the step the generator issued today — which counter governs progression is part of the founder-gated multi-lane exposure accounting",
+        // P255: this used to call the choice of counter an open founder question. It is answered: the
+        // generator and the board both follow the official daily receipts (products/ladder-position.mjs).
+        // The store's counter is kept visible as history, not hidden.
+        note: "the lifecycle store's position comes from the 2026-08-17 card store, which nothing has written since; today's card and this board follow the official daily receipts, so the store's counter is history, not the rung",
       });
     }
   }

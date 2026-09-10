@@ -160,7 +160,13 @@ test("with a generator wired and today's card published, it is PUBLISHED", () =>
   });
   assert.equal(s.lifecycle, "PUBLISHED");
   assert.equal(s.running, true);
-  assert.equal(s.founderDecision, null);
+  // P255: generating is no longer the blocker, but the founder gate (protected-ledger multi-lane
+  // accounting) is still open — so the disclosure stays, narrowed to what is actually paused.
+  assert.match(s.founderDecision, /protected Mr\. Dub ledger/);
+  assert.doesNotMatch(s.founderDecision, /Publishing still needs/, "never quote a blocker that no longer holds");
+  const cleared = derive({ lane: lane({ generatedAt: `${TODAY}T14:00:00Z`, lanes: [] }), hasScheduledGenerator: true, hasWiredSettler: true, founderGateOpen: false });
+  assert.equal(cleared.founderDecision, null, "once the founder clears the gate, nothing is left to disclose");
+  assert.equal(cleared.founderGateToken, null);
 });
 
 test("with a generator wired but no card today, it is STALE — not silently fine", () => {
@@ -229,7 +235,15 @@ test("LIVE · the declared generator constant matches the workflow directory", (
     const src = fs.readFileSync(laf, "utf8").replace(/^\s*#.*$/gm, "");
     assert.ok(!/^\s*schedule:/m.test(src), "lineup-aware-refresh is scheduled again — Moonshot may now publish on a cron");
   }
-  assert.equal(MOONSHOT_HAS_SCHEDULED_GENERATOR, false, "the constant must match the tree above");
+  // Neither of those generates it — the DAILY PORTFOLIO does. The constant is true exactly when a
+  // workflow applies the daily activation AND that activation deals Moonshot its rung card.
+  const dailyApply = files.some((f) => {
+    const src = fs.readFileSync(path.join(wf, f), "utf8").replace(/^\s*#.*$/gm, "");
+    return /activate-daily-portfolio\.mjs[^\n]*--apply/.test(src) && /^\s*schedule:/m.test(src);
+  });
+  const acct = fs.readFileSync(path.join(process.cwd(), "src/lib/daily-portfolio/accounting.ts"), "utf8");
+  const dealsMoonshot = /selectMoonshotRungCard\(poolForMoon/.test(acct);
+  assert.equal(MOONSHOT_HAS_SCHEDULED_GENERATOR, dailyApply && dealsMoonshot, "the constant must match the tree above");
 });
 
 test("LIVE · the declared settler constant matches what nightly-settle can reach", () => {
@@ -367,4 +381,18 @@ test("P240 · today's published daily card outranks the frozen legacy lane: PUBL
     todayPublishedCardCount: 2,
   });
   assert.equal(open.lifecycle, "SETTLING");
+});
+
+test("WAITING · the generator ran and dealt nothing — never STALE, never NOT_GENERATING", () => {
+  const s = deriveMoonshotState({ lane: null, portfolioMoonshot: { record: { wins: 0, losses: 1 } }, productLedger: null, hasScheduledGenerator: true, hasWiredSettler: true, today: "2026-09-11", todayPublishedCardCount: 0, todayLaneCount: 2 });
+  assert.equal(s.lifecycle, "WAITING");
+  assert.ok(MOONSHOT_LIFECYCLE.includes("WAITING"));
+  assert.match(s.publicNote, /waits rather than force/);
+});
+
+test("a CANDIDATE card is shown, never called placed", () => {
+  const s = deriveMoonshotState({ lane: null, portfolioMoonshot: { record: { wins: 0, losses: 1 } }, productLedger: null, hasScheduledGenerator: true, hasWiredSettler: true, today: "2026-09-11", todayPublishedCardCount: 1, todayPlacedCardCount: 0, todayLaneCount: 2 });
+  assert.equal(s.lifecycle, "PUBLISHED");
+  assert.match(s.publicNote, /candidate only/);
+  assert.doesNotMatch(s.publicNote, /is published\./);
 });

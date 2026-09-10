@@ -309,7 +309,10 @@ const receipt = {
   settledAt: new Date().toISOString().replace(/\.\d{3}Z$/, "Z"),
   source: "MLB Stats API official box score (feed/live), joined by gamePk",
   lanes: (dp.lanes ?? []).map((l) => ({
-    product: l.product, lane: l.lane, step: l.step, stake: l.stake,
+    // `status` says whether the lane was PLACED. Without it a pending row is ambiguous — placed and
+    // awaiting its grade, or never placed at all — and the ladder position (ladder-position.mjs)
+    // must hold a placed-and-open lane but ignore a candidate that was never dealt.
+    product: l.product, lane: l.lane, step: l.step, stake: l.stake, status: l.status ?? null,
     result: l.result ?? "pending", potentialReturn: l.potentialReturn,
     legs: (l.legs ?? []).map((g) => ({
       // Identity travels with the receipt (P240): id, matchup and selection are what a CATCH-UP

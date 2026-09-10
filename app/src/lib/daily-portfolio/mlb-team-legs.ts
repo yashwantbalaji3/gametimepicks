@@ -26,6 +26,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { ModelPick } from "../world-cup/model-qualified-picks";
+import { pregameGamesOnly } from "../mlb/team-market-capture.mjs";
 
 const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const round4 = (n: number) => Math.round(n * 10000) / 10000;
@@ -74,9 +75,10 @@ function pick(
  * Pre-event filtering is the CALLER's job, matching the World Cup loader — generation runs before
  * first pitch and the caller already applies its own started-game guard.
  */
-export function loadMlbTeamLegs(root: string, _nowIso: string, date: string): ModelPick[] {
+export function loadMlbTeamLegs(root: string, _nowIso: string, date: string, opts: { bothSides?: boolean } = {}): ModelPick[] {
   const doc = readJson(path.join(root, "mlb", "team-markets", `${date}.json`));
-  const games = doc?.games;
+  // Only markets captured before first pitch — a live line is not a pregame leg (team-market-capture.mjs).
+  const games = doc ? pregameGamesOnly(doc).games : null;
   if (!games) return [];
   const out: ModelPick[] = [];
 
@@ -88,26 +90,33 @@ export function loadMlbTeamLegs(root: string, _nowIso: string, date: string): Mo
     const kickoffUtc = game.commenceTime ?? null;
     const provider = game.bookmaker ?? doc.bookmaker ?? null;
 
-    // ── Moneyline: the de-vigged FAVOURITE only. Bank Builder wants the likelier side, and offering
-    //    both sides of one game would let the selector build a card against itself.
+    // ── Moneyline: the de-vigged FAVOURITE only by default. Bank Builder wants the likelier side, and
+    //    offering both sides of one game would let its selector build a card against itself.
+    //    `bothSides` is for Moonshot: a +300 rung usually needs an underdog, and its selector allows
+    //    one leg per game, which is what stops a card from betting against itself.
     const ml = game.moneyline;
     if (ml?.home && ml?.away) {
       const homeFav = (ml.home.noVigProb ?? 0) >= (ml.away.noVigProb ?? 0);
-      const side = homeFav ? ml.home : ml.away;
-      const team = homeFav ? game.homeTeam : game.awayTeam;
-      if (inWindow(side?.odds) && typeof side?.noVigProb === "number") {
-        out.push(pick(gameId, matchup, kickoffUtc, "mlb_moneyline", "Moneyline", `${team} to win`, team, side.odds, side.noVigProb, provider));
+      const sides: Array<[any, string]> = opts.bothSides
+        ? [[ml.home, game.homeTeam], [ml.away, game.awayTeam]]
+        : [homeFav ? [ml.home, game.homeTeam] : [ml.away, game.awayTeam]];
+      for (const [side, team] of sides) {
+        if (inWindow(side?.odds) && typeof side?.noVigProb === "number") {
+          out.push(pick(gameId, matchup, kickoffUtc, "mlb_moneyline", "Moneyline", `${team} to win`, team, side.odds, side.noVigProb, provider));
+        }
       }
     }
 
     // ── Total runs: the de-vigged favoured side of the posted line.
     const t = game.total;
     if (t?.over && t?.under && typeof t.line === "number") {
-      const over = (t.over.noVigProb ?? 0) >= (t.under.noVigProb ?? 0);
-      const side = over ? t.over : t.under;
-      if (inWindow(side?.odds) && typeof side?.noVigProb === "number") {
-        out.push(pick(gameId, matchup, kickoffUtc, "mlb_total_runs", "Total Runs",
-          `${over ? "Over" : "Under"} ${t.line}`, null, side.odds, side.noVigProb, provider));
+      const overFav = (t.over.noVigProb ?? 0) >= (t.under.noVigProb ?? 0);
+      const sides: Array<[any, boolean]> = opts.bothSides ? [[t.over, true], [t.under, false]] : [overFav ? [t.over, true] : [t.under, false]];
+      for (const [side, over] of sides) {
+        if (inWindow(side?.odds) && typeof side?.noVigProb === "number") {
+          out.push(pick(gameId, matchup, kickoffUtc, "mlb_total_runs", "Total Runs",
+            `${over ? "Over" : "Under"} ${t.line}`, null, side.odds, side.noVigProb, provider));
+        }
       }
     }
 
@@ -117,11 +126,14 @@ export function loadMlbTeamLegs(root: string, _nowIso: string, date: string): Mo
     const rl = game.runLine;
     if (rl?.home && rl?.away) {
       const homeCovers = (rl.home.coverNoVigProb ?? 0) >= (rl.away.coverNoVigProb ?? 0);
-      const side = homeCovers ? rl.home : rl.away;
-      const team = homeCovers ? game.homeTeam : game.awayTeam;
-      if (inWindow(side?.odds) && typeof side?.coverNoVigProb === "number") {
-        out.push(pick(gameId, matchup, kickoffUtc, "mlb_run_line", "Run Line",
-          `${team} ${side.line > 0 ? "+" : ""}${side.line}`, team, side.odds, side.coverNoVigProb, provider));
+      const sides: Array<[any, string]> = opts.bothSides
+        ? [[rl.home, game.homeTeam], [rl.away, game.awayTeam]]
+        : [homeCovers ? [rl.home, game.homeTeam] : [rl.away, game.awayTeam]];
+      for (const [side, team] of sides) {
+        if (inWindow(side?.odds) && typeof side?.coverNoVigProb === "number") {
+          out.push(pick(gameId, matchup, kickoffUtc, "mlb_run_line", "Run Line",
+            `${team} ${side.line > 0 ? "+" : ""}${side.line}`, team, side.odds, side.coverNoVigProb, provider));
+        }
       }
     }
   }

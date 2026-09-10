@@ -217,20 +217,20 @@ test("a Moonshot lock does NOT force a STARTED game live (no late activation)", 
 });
 
 // ── Live June-24 slate: structured team-market lanes field real longshots; canonical money frozen ─
-test("live June-24 portfolio: both STRUCTURED Moonshot lanes display; paper exposure reconciles; canonical money frozen", () => {
+test("live June-24 portfolio: both Moonshot ladder lanes display; paper exposure reconciles; canonical money frozen", () => {
   const dp = buildPersistedDailyPortfolio(root, `${DATE}T08:00:00Z`, DATE, `${DATE}T08:00:00Z`, true);
   const moon = dp.lanes.filter((l) => l.product === "moonshot");
   assert.equal(moon.length, 2, "both Moonshot lanes are present (displayed)");
   for (const l of moon) {
-    // NEW spec: the structured team-market builder fields real longshot lanes (result + total per game),
-    // so a lane is a genuine STRUCTURED longshot — team markets only, clearing the +700 floor.
+    // THE LADDER (2026-09-10): a two-leg rung card — team markets only — placed only when it reaches
+    // its rung's goal. (The +700 floor belonged to the lottery-ticket design the ladder replaced.)
     assert.ok(l.activationEligibility?.reason, "discloses its activation eligibility reason");
-    assert.ok(l.legs.every((g) => g.category !== "player"), `Lane ${l.lane}: team markets only (no player props)`);
-    if (l.status === "active") assert.ok(l.combinedOdds >= MOONSHOT_MIN_COMBINED_ODDS, `Lane ${l.lane}: an active structured lane clears the +700 floor`);
+    assert.ok(l.legs.every((g) => g.category !== "player" && g.player == null), `Lane ${l.lane}: team markets only (no player props)`);
+    if (l.status === "active") assert.ok(l.potentialReturn >= (l.targetReturn ?? Infinity) - 0.01, `Lane ${l.lane}: an active card reaches its rung goal`);
   }
   // Paper exposure reconciles from the ACTIVE lanes ($25 each) — the daily view derives it, never fabricates it.
   const activeMoon = moon.filter((l) => l.status === "active");
-  assert.equal(dp.products.moonshot.exposure, activeMoon.length * 25, "Moonshot paper exposure = $25 × active structured lanes (reconciles)");
+  assert.equal(dp.products.moonshot.exposure, activeMoon.length * 25, "Moonshot paper exposure = the $25 seed × active lanes (reconciles)");
   // Canonical money is FROZEN — the daily portfolio never touches the bankroll / crown / record.
   assert.equal(dp.activeBankroll, 19065.40, "canonical active bankroll frozen (crown − $1400 fourteen real lost seeds, after the July-5 settlement)");
   assert.equal(dp.crownBankroll, 20465.40, "canonical crown frozen (Σ of two completed-ladder finals)");

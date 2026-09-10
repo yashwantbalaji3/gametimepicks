@@ -25,7 +25,7 @@ import { buildDailyProductOps, buildForwardCoveragePanel } from "@/lib/launch/da
 import { buildLedgerPanel } from "@/lib/launch/ledger-panel.mjs";
 import { buildIncidentRegister } from "@/lib/launch/incident-register.mjs";
 import { buildGatePackets } from "@/lib/launch/gate-packets.mjs";
-import { deriveMoonshotState, isPublishedCard, MOONSHOT_HAS_SCHEDULED_GENERATOR, MOONSHOT_HAS_WIRED_SETTLER } from "@/lib/products/moonshot-state.mjs";
+import { deriveMoonshotState, moonshotTodayCounts, MOONSHOT_HAS_SCHEDULED_GENERATOR, MOONSHOT_HAS_WIRED_SETTLER } from "@/lib/products/moonshot-state.mjs";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadLifecycleHistory, settledCardIds } from "@/lib/products/lifecycle-view";
@@ -211,12 +211,12 @@ export default function LaunchCommandCenter() {
            1 open card / $25 stranded while /moonshot correctly reported 0 / $0. */
         return deriveMoonshotState({
           settledCardIds: settledCardIds(loadLifecycleHistory(), "moonshot"),
-          todayPublishedCardCount: (() => {
+          ...(() => {
             try {
               const today = currentSlateDate() ?? currentEtDate();
               const dp = buildDailyPortfolio(path.join(APP, "public", "data"), new Date().toISOString(), today);
-              return dp.cards.filter((c) => c.product === "moonshot" && isPublishedCard(c)).length;
-            } catch { return 0; }
+              return moonshotTodayCounts(dp.cards);
+            } catch { return moonshotTodayCounts([]); }
           })(),
           lane: loadMoonshotLane(),
           portfolioMoonshot: (() => { try { return readData("mr-dub", "portfolio.json").moonshot ?? null; } catch { return null; } })(),

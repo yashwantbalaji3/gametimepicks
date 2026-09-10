@@ -200,8 +200,8 @@ export default function TodayPage() {
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
   const longshotStatusValue = moonshotActive ? "Active" : "No-play";
   const longshotReason = moonshotActive
-    ? "A high-variance longshot lane is live today — only what is still rolling is ever at risk."
-    : "No qualified high-variance longshot today. This lane sits out far more often than it plays — that is the design.";
+    ? "A Moonshot ladder card is live today — both legs must win to carry the balance to the next day's rung."
+    : "No Moonshot card today: nothing on the slate reaches the rung's price with two legs, and the ladder waits rather than force one.";
 
   // ── Build-a-Pick — the engine's suggested-card count for today (public label "Build-a-Pick" → /picks). ──
   const engineSlate = loadTodaySlate();
@@ -262,7 +262,7 @@ export default function TodayPage() {
   // ── Section 8 · No-play / unavailable notes — honest, discipline-framed. Built from the real states. ──
   const noPlayNotes: string[] = [];
   if (bbNoPlay) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
-  if (!moonshotActive) noPlayNotes.push("Moonshot is no-play — the high-variance lane only plays when a qualified longshot appears, and today none did.");
+  if (!moonshotActive) noPlayNotes.push("Moonshot is no-play — no two-leg card on today's slate reaches its rung's price, and the ladder waits rather than force one.");
   if (slateReadyCount === 0) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
 

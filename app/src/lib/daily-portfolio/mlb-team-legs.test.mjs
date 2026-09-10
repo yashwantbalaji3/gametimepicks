@@ -11,7 +11,9 @@ function root(games) {
   const r = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-mlbteam-"));
   const dir = path.join(r, "mlb", "team-markets");
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "2026-09-05.json"), JSON.stringify({ bookmaker: "draftkings", games }));
+  // Every real artifact carries its capture moment, and the loader refuses a market captured after
+  // first pitch (team-market-capture.mjs) — so the fixture carries one too, before every game here.
+  fs.writeFileSync(path.join(dir, "2026-09-05.json"), JSON.stringify({ bookmaker: "draftkings", generatedAt: "2026-09-05T14:00:00Z", games }));
   return r;
 }
 const game = (id, over = {}) => ({
@@ -115,4 +117,21 @@ test("a close MLB game still contributes its moneyline", () => {
   const close = game("g3", { moneyline: { home: { odds: 105, noVigProb: 0.49 }, away: { odds: -115, noVigProb: 0.51 }, draw: null } });
   const { moonshotA } = buildDailyLaneCandidates(loadMlbTeamLegs(root([close]), NOW, "2026-09-05"), "2026-09-05");
   assert.ok(moonshotA.legs.some((l) => l.marketKey === "mlb_moneyline"), "a close MLB game must still contribute its moneyline");
+});
+
+test("bothSides (Moonshot's menu) offers every side of every market; the default stays favourites only", () => {
+  const r = root([game("g1")]);
+  const menu = loadMlbTeamLegs(r, NOW, "2026-09-05", { bothSides: true });
+  for (const m of ["mlb_moneyline", "mlb_total_runs", "mlb_run_line"]) {
+    assert.equal(menu.filter((l) => l.marketKey === m).length, 2, `${m}: both sides on the menu`);
+  }
+  assert.ok(menu.some((l) => l.selection === "Away g1 to win" && l.odds === 130), "the underdog a +300 rung needs");
+  assert.equal(loadMlbTeamLegs(r, NOW, "2026-09-05").filter((l) => l.marketKey === "mlb_moneyline").length, 1);
+});
+
+test("a market captured AFTER first pitch never becomes a leg", () => {
+  const r = root([game("g1", { commenceTime: "2026-09-05T13:00:00Z" }), game("g2")]); // g1 started before the 14:00Z capture
+  const legs = loadMlbTeamLegs(r, NOW, "2026-09-05", { bothSides: true });
+  assert.ok(legs.every((l) => l.gameId !== "g1"), "the live g1 line is refused");
+  assert.ok(legs.some((l) => l.gameId === "g2"));
 });

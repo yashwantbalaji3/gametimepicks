@@ -26,6 +26,8 @@ import LifecycleRecord from "@/components/products/lifecycle-record";
 import { loadLifecycleHistory, settledCardsFor, positionFor } from "@/lib/products/lifecycle-view";
 import ClimbHero, { type ClimbLane, type ClimbRung, type ClimbClearedDetail } from "@/components/bank-builder/climb-hero";
 import { readLaneReviewCard } from "@/lib/bank-builder/review-card";
+import { currentRunSteps, positionFromReceipts, readReceipts } from "@/lib/products/ladder-position.mjs";
+import { clearedDetailFromReceipts, laneDisplayFromReceipts, receiptPositionRecord } from "@/lib/bank-builder/receipt-lane-display";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
 import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
@@ -278,10 +280,30 @@ export default function BankBuilderPage() {
     return mark ? { ...leg, teamAbbr: mark.abbr, teamSport: mark.sport } : leg;
   };
 
+  /* ONE LADDER RECORD. The generator deals each lane from the official receipts
+     (products/ladder-position.mjs); the board reads the same record, so a rung and its card cannot
+     disagree. The dual-ladder card store is used only where no placed receipt exists at all. */
+  const dataRoot = path.join(process.cwd(), "public", "data");
+  const bbReceipts = readReceipts(dataRoot, today);
+  const bbPositions = {
+    A: positionFromReceipts({ receipts: bbReceipts, product: "bank-builder", lane: "A", ladder: BANK_BUILDER_LADDER as never, seed: BANK_BUILDER_LADDER[0].start }),
+    B: positionFromReceipts({ receipts: bbReceipts, product: "bank-builder", lane: "B", ladder: BANK_BUILDER_LADDER as never, seed: BANK_BUILDER_LADDER[0].start }),
+  };
+  const receiptsDrive = Boolean(bbPositions.A.basis || bbPositions.B.basis);
+
   const climbLanes: ClimbLane[] = (["A", "B"] as const)
     .map((letter): ClimbLane | null => {
       const laneId = letter === "A" ? ("lane-a" as const) : ("lane-b" as const);
-      const view = buildPublicDualLadder(letter === "A" ? bbPreview.laneA : bbPreview.laneB, laneId);
+      const tableCard = dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === letter && c.status === "active") ?? null;
+      const laneRun = receiptsDrive ? currentRunSteps(bbReceipts, "bank-builder", letter, BANK_BUILDER_LADDER as never) : [];
+      const laneDisplay = receiptsDrive
+        ? laneDisplayFromReceipts({
+            letter, position: bbPositions[letter], run: laneRun,
+            card: tableCard && tableCard.legs.length ? { step: tableCard.step, stake: tableCard.stake, combinedOdds: tableCard.combinedOdds, potentialReturn: tableCard.potentialReturn, date: today } : null,
+            waitingReason: dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === letter)?.shortfallNote ?? null,
+          })
+        : (letter === "A" ? bbPreview.laneA : bbPreview.laneB);
+      const view = buildPublicDualLadder(laneDisplay, laneId);
       if (!view) return null;
       // A card is "placed" ONLY when it is APPROVED (status "active"). A "candidate"/"awaiting" lane is a
       // proposal pending founder approval — it must render as "Awaiting a qualified card" (no profit
@@ -291,7 +313,9 @@ export default function BankBuilderPage() {
       const hasCard = !!card && card.legs.length > 0;
       // No placed money card → look for an ACTIVE review card in the ladder artifact (paper · $0). Its
       // legs ARE shown for founder/public review, but hasCard stays false so exposure/seed never count it.
-      const reviewCard = !hasCard ? readLaneReviewCard(path.join(process.cwd(), "public", "data"), letter === "A" ? "laneA" : "laneB") : null;
+      // The review card lives in the frozen card store; when the receipts drive the board it would be a
+      // July card beside a September rung, so it is read only in the store's own era.
+      const reviewCard = !hasCard && !receiptsDrive ? readLaneReviewCard(path.join(process.cwd(), "public", "data"), letter === "A" ? "laneA" : "laneB") : null;
       const hasReview = !!reviewCard && reviewCard.legs.length > 0;
       // The active rung is the one carrying today's card; fall back to awaiting, then currentStep.
       const curRung =
@@ -338,9 +362,11 @@ export default function BankBuilderPage() {
       };
 
       // Cycle # from the lane label ("… lane (cycle 5)") if present — display-only, never fabricated.
-      const cycleMatch = /cycle\s+(\d+)/i.exec(view.label === "Lane A" ? (bbPreview.laneA?.label ?? "") : (bbPreview.laneB?.label ?? ""));
+      const cycleMatch = /cycle\s+(\d+)/i.exec(laneDisplay?.label ?? "");
       // Official settled detail for each CLEARED step (from the ledger) → the expandable "how it cleared".
-      const clearedByStep = readClearedSteps(path.join(process.cwd(), "public", "data"), laneId);
+      const clearedByStep = receiptsDrive
+        ? clearedDetailFromReceipts(bbReceipts, laneRun, "bank-builder", letter)
+        : readClearedSteps(path.join(process.cwd(), "public", "data"), laneId);
       const rungs: ClimbRung[] = view.steps.map((s) => {
         const status = RUNG_STATUS[s.status];
         return {
@@ -515,7 +541,9 @@ export default function BankBuilderPage() {
       <div className="mt-6">
         <LifecycleRecord
           cards={bbSettled}
-          position={positionFor(bbLedger, "bank-builder-lane-A")}
+          position={receiptsDrive
+            ? receiptPositionRecord(bbPositions.A, dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === "A" && c.status === "active")?.step ?? null)
+            : positionFor(bbLedger, "bank-builder-lane-A")}
           positionLabel="Lane A"
           emptyReason="No Bank Builder card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
         />

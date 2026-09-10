@@ -1,6 +1,6 @@
 /**
  * MoonshotLadderV2 — the PROMINENT 3-step Moonshot trajectory ladder for /moonshot (and a compact preview
- * for Home / Today). Renders straight from the pure `moonshotV2LadderPolicy` spec ($25 → $100 → $375 →
+ * for Home / Today). Renders straight from the pure `moonshotV2LadderPolicy` spec ($25 → $100 → $400 →
  * $1,000, full roll-forward — founder direction 2026-09-10), so it can never drift. Every figure is
  * spec-derived — nothing fabricated, no money computed here.
  *
@@ -99,7 +99,7 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
               <div className="mt-1 font-mono text-[9.5px]" style={{ color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>
                 {p.day === 3 ? "completes the run" : `the whole ${usd(p.target)} rides into Day ${p.day + 1}`}
               </div>
-              <div className="mt-0.5 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>{p.legRange[0]}–{p.legRange[1]} legs · team markets · no props</div>
+              <div className="mt-0.5 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>{p.legRange[0] === p.legRange[1] ? `${p.legRange[0]} legs` : `${p.legRange[0]}–${p.legRange[1]} legs`} · team markets · no props</div>
             </div>
           );
         })}

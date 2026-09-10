@@ -14,15 +14,18 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { loadWorldCupModelPicks, buildDailyLaneCandidates, MOONSHOT_MIN_COMBINED_ODDS, type LaneCandidate, type ModelPick } from "../world-cup/model-qualified-picks";
+import { loadWorldCupModelPicks, MOONSHOT_MIN_COMBINED_ODDS, type LaneCandidate, type ModelPick } from "../world-cup/model-qualified-picks";
 import { legSportEligibility } from "./sport-eligibility";
-import { readLaneRungs, selectSafestTargetFitCard, SEED_EXPOSURE, type GeneratedLane } from "./bank-builder-generation";
+import { readLaneRungs, selectSafestTargetFitCard, SEED_EXPOSURE, type GeneratedLane, type LaneRung } from "./bank-builder-generation";
+import { receiptPositions } from "../products/ladder-position.mjs";
+import { BANK_BUILDER_LADDER } from "../bank-builder-ladder";
+import { MOONSHOT_LADDER, MOONSHOT_SEED } from "../moonshot/moonshot-ladder.mjs";
+import { selectMoonshotRungCard } from "../moonshot/rung-card.mjs";
 import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
 import { loadMlbModelPicks } from "./mlb-model-picks";
 import { loadWorldCupTeamLegs } from "./wc-team-legs";
 import { loadMlbTeamLegs } from "./mlb-team-legs";
 import { poolAvailability, emptyPoolReason } from "./input-availability.mjs";
-import { moonshotNarrative } from "../world-cup/wc-editorial";
 import { sumActiveExposure } from "./exposure";
 
 /** Activation cutoff — a lane cannot be newly activated if any leg kicks off within this many minutes. */
@@ -43,7 +46,7 @@ export interface PortfolioLane {
   status: "active" | "candidate" | "awaiting" | "won" | "lost";
   stake: number;            // the balance riding on the card (rolled for Bank Builder)
   exposure: number;         // the at-risk amount: Bank Builder $100 seed; Moonshot $25 stake
-  targetReturn: number | null; // rung goal (Bank Builder), else null
+  targetReturn: number | null; // rung goal (Bank Builder and Moonshot ladders), else null
   fitsTarget: boolean;
   combinedOdds: number;
   combinedDecimal: number;
@@ -103,32 +106,7 @@ export function laneEligibility(lane: LaneCandidate, nowMs: number, emptyReason:
   return { eligible: true, reason: "all legs pre-event and outside the cutoff" };
 }
 
-function whyThisCard(lane: LaneCandidate): string[] {
-  const why: string[] = [];
-  if (lane.product === "bank-builder") why.push("Lower-volatility: the 2 highest model-confidence legs, max 1 per game.");
-  else why.push(`Higher-upside: ${lane.legCount} model-qualified longshot legs (up to 5, min 3) for a longer combined price.`);
-  const avg = lane.legs.length ? Math.round((lane.legs.reduce((s, l) => s + l.modelProbability, 0) / lane.legs.length) * 100) : 0;
-  why.push(`Avg model confidence ${avg}% across ${lane.legCount} legs · combined ${lane.combinedOdds > 0 ? "+" : ""}${lane.combinedOdds}.`);
-  if (lane.correlationNote) why.push(lane.correlationNote);
-  return why;
-}
-
 const toLeg = (p: ModelPick): PortfolioLaneLeg => ({ id: p.id, matchup: p.matchup, market: p.marketLabel, selection: p.selection, player: p.player, odds: p.odds, provider: p.provider, modelConfidence: p.modelProbability, probabilitySource: p.probabilitySource ?? (p.edge === 0 ? "market-devigged" : "model"), kickoffEt: p.kickoffEt, risk: p.risk, photoUrl: p.playerPortrait ?? null, teamLogo: p.teamLogo ?? null });
-
-function toPortfolioLane(lane: LaneCandidate, status: PortfolioLane["status"], eligibility: ActivationEligibility): PortfolioLane {
-  return {
-    id: lane.id, product: lane.product, productLabel: PRODUCT_LABEL[lane.product] ?? lane.product, lane: lane.lane,
-    step: 1, clearedSteps: 0, status, stake: lane.stake, exposure: lane.stake, targetReturn: null, fitsTarget: true,
-    combinedOdds: lane.combinedOdds, combinedDecimal: lane.combinedDecimal,
-    potentialReturn: lane.potentialReturn, legCount: lane.legCount, targetLegs: lane.targetLegs,
-    legs: lane.legs.map(toLeg),
-    correlationNote: lane.correlationNote, shortfallNote: lane.shortfallNote,
-    whyThisCard: whyThisCard(lane), activationEligibility: eligibility,
-    narrative: lane.product === "moonshot" && lane.legs.length
-      ? moonshotNarrative(lane.legs.map((p) => ({ gameId: p.gameId, marketKey: p.marketKey, selection: p.selection, team: p.team, player: p.player, odds: p.odds })))
-      : undefined,
-  };
-}
 
 /** Map a Bank Builder GeneratedLane (target-fit next-step card) to a PortfolioLane. Exposure is the
  *  $100 seed (ledger convention); the card displays the rolled balance riding toward the rung goal. */
@@ -141,6 +119,36 @@ function toBBLane(g: GeneratedLane, status: PortfolioLane["status"], eligibility
     legCount: g.legs.length, targetLegs: 2, legs: g.legs.map(toLeg),
     correlationNote: g.correlationNote, shortfallNote: g.shortfallNote,
     whyThisCard: g.whyThisCard, activationEligibility: eligibility,
+  };
+}
+
+/** Map a Moonshot rung card to a PortfolioLane. Exposure is the $25 seed, exactly as Bank Builder's is
+ *  its $100 seed: a carried balance is winnings riding, and a loss costs the lane its seed. */
+function toMoonLane(g: ReturnType<typeof selectMoonshotRungCard>, status: PortfolioLane["status"], eligibility: ActivationEligibility): PortfolioLane {
+  const legs = g.legs as ModelPick[];
+  return {
+    id: `moonshot-lane-${String(g.lane).toLowerCase()}-step-${g.step}`, product: "moonshot", productLabel: "Moonshot", lane: g.lane as "A" | "B",
+    step: g.step, clearedSteps: g.clearedSteps, status, stake: g.rolledStake, exposure: g.seedExposure,
+    targetReturn: g.targetReturn, fitsTarget: g.fitsTarget,
+    combinedOdds: g.combinedOdds, combinedDecimal: g.combinedDecimal, potentialReturn: g.potentialReturn,
+    legCount: legs.length, targetLegs: 2, legs: legs.map(toLeg),
+    correlationNote: g.correlationNote, shortfallNote: g.shortfallNote,
+    // No story line: the World Cup narrative writer describes "knockout angles" and "one longshot
+    // ticket", neither of which a two-leg MLB rung card is. whyThisCard says what the card is for.
+    whyThisCard: g.whyThisCard, activationEligibility: eligibility,
+  };
+}
+
+/** A lane whose last placed card is still open: shown, never dealt a second card on top of it. */
+function heldLane(product: "bank-builder" | "moonshot", r: { lane: string; nextStep: number; clearedSteps: number; rolledStake: number; targetReturn: number; why: string; basis: { step: number; stake: number } | null }): PortfolioLane {
+  const letter = String(r.lane).toUpperCase() as "A" | "B";
+  return {
+    id: `${product}-lane-${letter.toLowerCase()}-held`, product, productLabel: PRODUCT_LABEL[product], lane: letter,
+    step: r.basis?.step ?? r.nextStep, clearedSteps: r.clearedSteps, status: "awaiting",
+    stake: r.basis?.stake ?? r.rolledStake, exposure: 0, targetReturn: r.targetReturn, fitsTarget: false,
+    combinedOdds: 0, combinedDecimal: 1, potentialReturn: 0, legCount: 0, targetLegs: 2, legs: [],
+    correlationNote: null, shortfallNote: r.why, whyThisCard: [r.why],
+    activationEligibility: { eligible: false, reason: r.why },
   };
 }
 
@@ -408,7 +416,18 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   } else {
   // ── Bank Builder: pick Lane A + Lane B TOGETHER so they share no game (cross-lane independence),
   //    each fitting its next rung (Lane A Step 4, Lane B Step 2), team/game markets preferred. ──
-  const rungs = readLaneRungs(root);
+  //
+  //    WHICH RUNG. The official nightly receipts (mr-dub/settled/<date>.json) decide it: a won step
+  //    carries its real payout to the next rung, a lost step restarts the lane at $100 — the rule the
+  //    product has always stated. This used to read the dual-ladder card store, which stopped moving
+  //    on 2026-08-17, so every morning both lanes were dealt Step 1 at $100 even after a win (A won
+  //    09-06 and 09-08, B won 09-07 and 09-09; none advanced). The card store is still consulted
+  //    where a root has no placed receipt at all — the fixtures and the era before daily settlement.
+  const fromReceipts = receiptPositions({ root, date, product: "bank-builder", ladder: BANK_BUILDER_LADDER, seed: BANK_BUILDER_LADDER[0].start });
+  const receiptsKnown = Boolean(fromReceipts.laneA.basis || fromReceipts.laneB.basis);
+  for (const held of receiptsKnown ? [fromReceipts.laneA, fromReceipts.laneB].filter((r) => r.state === "held") : []) lanes.push(heldLane("bank-builder", held));
+  const ready = (r: typeof fromReceipts.laneA): LaneRung | null => (r.state === "ready" ? (r as unknown as LaneRung) : null);
+  const rungs = receiptsKnown ? { laneA: ready(fromReceipts.laneA), laneB: ready(fromReceipts.laneB) } : readLaneRungs(root);
   if (rungs.laneA && rungs.laneB) {
     const { laneA, laneB } = selectCrossLaneBankBuilder(bbPool, rungs.laneA, rungs.laneB);
     for (const g of [laneA, laneB]) {
@@ -438,33 +457,41 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   applyCardLocks(lanes, locksFor(cardLock, "bank-builder"), bbPool, "bank-builder", { activate, nowMs });
   for (const lane of lanes) if (lane.product === "bank-builder" && (lane as PortfolioLane & { locked?: boolean }).locked) lane.legs.forEach((l) => usedBB.add(l.id));
 
-  // ── Moonshot: up to 5 higher-upside longshot legs per lane (min 3, ≥+700 floor), from the pool MINUS
-  //    the Bank Builder legs (distinct lanes). A thin slate leaves lanes AWAITING — never forced. ──
+  // ── Moonshot: Bank Builder's ladder, run faster — Day 1 $25 → $100, Day 2 $100 → $400, Day 3 $400 →
+  //    $1,000. Each lane's rung comes from the same official receipts as Bank Builder (both legs win →
+  //    the payout carries to the next day; either loses → back to $25), and its card is the two-leg pair
+  //    from different games that reaches the rung with the best chance of both landing
+  //    (moonshot/rung-card.mjs).
   //
-  //    THE POOL, which was the whole problem. `pool` is the World Cup, archived months ago: it
-  //    returns 0 picks, so Moonshot has published "only 0/3 model-qualified legs" every single day
-  //    while a full MLB slate went by. That reads as a thin slate; the truth was that no slate could
-  //    ever qualify. MLB player props are the live source of the shape this lane was built for, and
-  //    the MLB team markets are the live source of the shape this lane was rebuilt for — Moonshot is
-  //    STRUCTURED team markets grouped by game (result + total), not player-prop stacks — and all
-  //    three are graded by the existing MLB product settlement. Settleability is the precondition,
-  //    not an afterthought: a leg nobody can grade must never be selected.
+  //    This replaces a 3-to-10-leg card held to a +700 floor and re-dealt at $25 every morning. That
+  //    was a lottery ticket, not a ladder: nothing it won was ever carried, and at +1,101 to +1,658 a
+  //    four- or five-leg card lands a few percent of the time. A rung asks only for its own price.
   //
-  //    The +700 floor is UNCHANGED and does the deciding. On a slate priced like 2026-09-05, where
-  //    every prop is a favourite between -113 and -274, three legs cannot reach it and the lane will
-  //    correctly publish no card. That is a real answer about the day's prices rather than a claim
-  //    about an empty pool, and it is the answer the floor exists to give.
-  const poolForMoon = [...pool, ...mlbTeam].filter((p) => !usedBB.has(p.id));
-  const cands = buildDailyLaneCandidates(poolForMoon, date);
+  //    THE POOL. `pool` is the archived World Cup (empty) and `mlbTeam` the MLB team markets, whose
+  //    probabilities are de-vigged market prices and whose legs the nightly settler grades from the
+  //    official linescore. Settleability is the precondition: a leg nobody can grade is never dealt.
+  //    BOTH SIDES of every market: a +300 rung usually needs an underdog, and Bank Builder's pool is
+  //    favourites only. The selector's one-leg-per-game rule keeps a card from betting against itself.
+  const mlbTeamMenu = preEvent(loadMlbTeamLegs(root, nowIso, date, { bothSides: true }));
+  //    TEAM LEGS ONLY. `pool` can carry player props, which this product does not deal: Moonshot is
+  //    team markets, graded from the official linescore.
+  const poolForMoon = [...pool, ...mlbTeamMenu].filter((p) => p.player == null && !usedBB.has(p.id));
+  const moonRungs = receiptPositions({ root, date, product: "moonshot", ladder: MOONSHOT_LADDER, seed: MOONSHOT_SEED });
+  const moonIds = new Set<string>(usedBB);
+  const moonGames = new Set<string>();
   let moonshotExposure = 0;
-  for (const c of [cands.moonshotA, cands.moonshotB] as LaneCandidate[]) {
-    const elig = laneEligibility(c, nowMs, missingInputReason);
-    let status: PortfolioLane["status"] = c.legCount < c.targetLegs ? "awaiting" : "candidate";
+  for (const rung of [moonRungs.laneA, moonRungs.laneB]) {
+    if (rung.state === "held") { lanes.push(heldLane("moonshot", rung)); continue; }
+    // Lane B never shares a game with Lane A, so one result cannot end both runs.
+    const g = selectMoonshotRungCard(poolForMoon, rung, { excludeIds: moonIds, excludeGames: moonGames, seed: MOONSHOT_SEED });
+    (g.legs as ModelPick[]).forEach((l) => { moonIds.add(l.id); moonGames.add(l.gameId); });
+    const elig = bbEligibility(g as unknown as GeneratedLane, nowMs, missingInputReason);
+    let status: PortfolioLane["status"] = g.legs.length < 2 ? "awaiting" : "candidate";
     if (activate && elig.eligible) {
-      if (moonshotExposure + c.stake > MOONSHOT_MAX_EXPOSURE) { lanes.push(toPortfolioLane(c, "candidate", { eligible: false, reason: `Moonshot exposure cap $${MOONSHOT_MAX_EXPOSURE} reached` })); continue; }
-      status = "active"; moonshotExposure += c.stake;
+      if (moonshotExposure + g.seedExposure > MOONSHOT_MAX_EXPOSURE) { lanes.push(toMoonLane(g, "candidate", { eligible: false, reason: `Moonshot exposure cap $${MOONSHOT_MAX_EXPOSURE} reached` })); continue; }
+      status = "active"; moonshotExposure += g.seedExposure;
     }
-    lanes.push(toPortfolioLane(c, status, elig));
+    lanes.push(toMoonLane(g, status, elig));
   }
   // Honor an operator-approved Moonshot card lock (same principle as Bank Builder): pin + place it.
   applyCardLocks(lanes, locksFor(cardLock, "moonshot"), poolForMoon, "moonshot", { activate, nowMs });

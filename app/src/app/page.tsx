@@ -138,7 +138,7 @@ export default function HomePage() {
 
   // ── Longshot / Moonshot status — no active Moonshot card today ⇒ honest no-play ──
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
-  const moonshotStatus = moonshotActive ? "Active longshot lane today" : "No-play today · no active longshot";
+  const moonshotStatus = moonshotActive ? "Ladder card live today" : "No card today · the ladder waits";
 
   // ── SIMULATION HUB — facts from the PRODUCT-DAY AUTHORITY (P202 · A). The page used to rebuild
   //    each sport's state from raw artifacts — a duplicate product-day derivation. The owner answers
@@ -248,7 +248,7 @@ export default function HomePage() {
     {
       href: "/moonshot",
       label: "Moonshot",
-      blurb: "High-upside longshot paper cards — separate record, its own risk.",
+      blurb: "The fast ladder: $25 → $100 → $400 → $1,000, two legs a day. Paper-only, its own record.",
       status: moonshotStatus,
       statusSub: "high-variance",
       cta: "View Moonshot",

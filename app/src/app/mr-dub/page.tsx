@@ -25,6 +25,7 @@ import { deriveProductState, productStateLabel, isLive } from "@/lib/products/pr
 import {
   deriveMoonshotState,
   isPublishedCard,
+  moonshotTodayCounts,
   MOONSHOT_HAS_SCHEDULED_GENERATOR,
   MOONSHOT_HAS_WIRED_SETTLER,
 } from "@/lib/products/moonshot-state.mjs";
@@ -75,7 +76,7 @@ export default function MrDubPage() {
      the two surfaces can no longer answer differently from the same owner. */
   const moonshotState = deriveMoonshotState({
     settledCardIds: settledCardIds(loadLifecycleHistory(), "moonshot"),
-    todayPublishedCardCount: dailyPortfolio.cards.filter((c) => c.product === "moonshot" && isPublishedCard(c)).length,
+    ...moonshotTodayCounts(dailyPortfolio.cards),
     lane: moonshotLane,
     portfolioMoonshot: portfolio?.moonshot ?? null,
     productLedger: (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "product-ledger", "moonshot.json"), "utf8")); } catch { return null; } })(),

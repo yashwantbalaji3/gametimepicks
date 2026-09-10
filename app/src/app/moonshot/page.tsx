@@ -23,7 +23,10 @@ import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import LifecycleRecord from "@/components/products/lifecycle-record";
-import { loadLifecycleHistory, settledCardsFor, positionFor, settledCardIds } from "@/lib/products/lifecycle-view";
+import { positionFromReceipts, readReceipts } from "@/lib/products/ladder-position.mjs";
+import { receiptPositionRecord } from "@/lib/bank-builder/receipt-lane-display";
+import { MOONSHOT_LADDER, MOONSHOT_SEED } from "@/lib/moonshot/moonshot-ladder.mjs";
+import { loadLifecycleHistory, settledCardsFor, settledCardIds } from "@/lib/products/lifecycle-view";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
@@ -31,6 +34,7 @@ import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 import {
   deriveMoonshotState,
   isPublishedCard,
+  moonshotTodayCounts,
   MOONSHOT_HAS_SCHEDULED_GENERATOR,
   MOONSHOT_HAS_WIRED_SETTLER,
 } from "@/lib/products/moonshot-state.mjs";
@@ -94,7 +98,7 @@ export default function MoonshotPage() {
     /* Cards the lifecycle ledger has graded. The settler never rewrites the lane artifact — it
        feeds the protected bankroll — so without this a settled card reads as pending for ever. */
     settledCardIds: settledCardIds(loadLifecycleHistory(), "moonshot"),
-    todayPublishedCardCount: moonshotLanes.length,
+    ...moonshotTodayCounts(dailyPortfolio.cards),
     lane,
     portfolioMoonshot,
     productLedger: readData("product-ledger", "moonshot.json"),
@@ -117,7 +121,7 @@ export default function MoonshotPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       {/* Slate liveness (real ET clock) — no-play framing when today has no live slate; points at the next
-          scheduled focus. The longshot lanes below remain the most-recent published cards. */}
+          scheduled focus. The ladder lanes below remain the most-recent published cards. */}
       <SlateLivenessBanner
         publishDeadlineUtc={publicationDeadlineUtc()}
         buildTimeToday={currentEtDate()}
@@ -192,17 +196,18 @@ export default function MoonshotPage() {
         </section>
       ) : null}
 
-      {/* The 3-STEP LADDER — rendered as the PLANNED trajectory policy (P250 · A01). Today's cards
-          are independent longshot cards, not steps of a run: no job tracks a ladder day and the
-          stake-accounting policy is an open founder decision, so no rung may claim LIVE. */}
-      <MoonshotLadderV2 live={false} policyPreview currentDay={1} />
+      {/* The 3-STEP LADDER — the rule both lanes climb. Since 2026-09-10 each lane's rung comes from the
+          official receipts (products/ladder-position.mjs), and each lane's own day is on its rail in
+          today's cards below; this graphic names no single LIVE day, because two lanes can stand on
+          different ones. */}
+      <MoonshotLadderV2 currentDay={1} />
 
       {/* The next transition, and only when one genuinely exists. This line used to assert ladder
           progression mechanics ("a win unlocks the next day") for cards that are not ladder steps. */}
       <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
         {moonshotLanes.length
-          ? "Next transition: today's independent cards settle overnight from official results. They are not steps of the ladder above — progression stays inactive until its accounting policy is decided."
-          : "No next transition is scheduled: no job generates a Moonshot card, and no settlement job reaches the cards already published."}
+          ? "Next transition: today's cards settle overnight from official results. Both legs win → the whole payout carries to the lane's next day; either leg loses → the lane restarts at $25."
+          : "No card is placed today. The ladder deals again tomorrow morning from wherever each lane stands."}
       </p>
 
       {/*
@@ -234,8 +239,13 @@ export default function MoonshotPage() {
 
       <LifecycleRecord
         cards={settledCardsFor(msLedger, "moonshot")}
-        position={positionFor(msLedger, "moonshot")}
-        positionLabel="The Moonshot ladder"
+        /* Where Lane A stands, from the same official receipts the generator deals from; the card on
+           the table wins for today. */
+        position={receiptPositionRecord(
+          positionFromReceipts({ receipts: readReceipts(path.join(process.cwd(), "public", "data"), today), product: "moonshot", lane: "A", ladder: MOONSHOT_LADDER as never, seed: MOONSHOT_SEED }) as never,
+          dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.lane === "A" && c.status === "active")?.step ?? null,
+        )}
+        positionLabel="Moonshot Lane A"
         emptyReason="No Moonshot card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
       />
 

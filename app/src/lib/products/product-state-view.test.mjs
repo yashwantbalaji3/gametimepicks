@@ -28,7 +28,10 @@ test("LIVE · a step disagreement between the store and the generator is TYPED, 
     if (pos.step !== l.step) {
       const d = s.divergences.find((x) => x.kind === "STEP_COUNTER" && x.lane === l.lane);
       assert.ok(d, `lane ${l.lane}: store step ${pos.step} vs generated ${l.step} must surface as a typed divergence`);
-      assert.match(d.note, /founder-gated/, "the divergence names the gate that owns its resolution");
+      // P255: resolved — the generator and the board follow the official daily receipts. The divergence
+      // stays TYPED and visible, and its note names what now governs the rung and what the store is.
+      assert.match(d.note, /official daily receipts/, "the divergence names what governs the rung");
+      assert.match(d.note, /history, not the rung/, "and says what the store's counter is");
     }
   }
 });
