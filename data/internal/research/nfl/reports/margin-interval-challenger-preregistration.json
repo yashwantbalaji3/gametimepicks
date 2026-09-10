@@ -1,0 +1,24 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-margin-interval-challenger-preregistration",
+ "dataClass": "INTERNAL_RESEARCH",
+ "public": false,
+ "frozenAt": "2026-09-10T21:10:00Z",
+ "frozenBy": "P254f — written and fingerprinted BEFORE the evaluation below was run; the candidate, split and bars may not be changed after seeing any 2025 interval result",
+ "motivation": "The 2026 preseason margin interval printed as 80% contained the result 65.9% of the time (41 forecasts, z -2.26), and P180 already recorded that margins miss on blowouts. The regular-season margin interval (Normal, sigma fitted on 2023-24 residuals) has NEVER been measured for interval coverage: model-v1-evaluation's 'coverage' is the share of games predicted, not interval coverage.",
+ "incumbent": { "id": "nfl-model-v1-elo-analytic", "interval": "Normal(a*d, sigma_margin) central 80%: mean +/- 1.2816*sigma" },
+ "candidate": {
+  "id": "margin-interval-empirical-residuals-v1",
+  "definition": "identical mean (a*d, same slope, same Elo replay) — only dispersion changes: the 80% interval is [mean + q10, mean + q90] where q10/q90 are the empirical 10th/90th percentiles of the TRAIN residuals (margin - a*d), 2023-2024 regular season + postseason",
+  "why": "normality cannot put the observed blowout mass in the tails; empirical quantiles let the residuals speak",
+  "onlyOneCandidate": "exactly one challenger is registered, so the result is not a best-of-many selection"
+ },
+ "split": { "train": [2023, 2024], "test": 2025, "preseason": "excluded from fit and test, as in model-v1" },
+ "bars": {
+  "source": "data/internal/research/nfl/regular-season-evaluation-contract.json bars.marginHead (frozen 2026-08-24)",
+  "coverage80Band": [0.75, 0.85],
+  "maeRule": "margin MAE not worse than the incumbent's by more than 0.5 points (identical mean => satisfied by construction; reported anyway)"
+ },
+ "decisionRule": "This 2025 retrospective is INFORMATIONAL. Per the frozen contract, a regular-season head is promoted only through the 2026 walk-forward (fit through week N-1, forecast week N, >= 64 games over >= 4 weeks). The candidate therefore runs in SHADOW on every 2026 regular-season forecast and is promoted automatically when that sample exists and it is inside the band while the incumbent is not — or rejected, and recorded as rejected.",
+ "evaluationStatus": "NOT YET RUN at frozenAt"
+}

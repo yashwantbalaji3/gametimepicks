@@ -28,6 +28,7 @@ import { totalsStateAt, NFL_TOTALS_HEAD_ID } from "../../src/lib/sports/nfl/tota
 import { fnv1a } from "../../src/lib/sports/research/replay-runner.mjs";
 import { strengthStateAt, ELO_PARAMS } from "../../src/lib/sports/nfl/strength-state.mjs";
 import { coherentDirection } from "../../src/lib/sports/nfl/coherence.mjs";
+import { publishedMarginInterval } from "../../src/lib/sports/nfl/margin-interval-shadow.mjs";
 
 /* A narrow root seam so tests can run THIS builder — not a copy of its rules — against a
  * disposable repo-shaped store. Production default is unchanged: the app directory above this
@@ -159,6 +160,12 @@ console.log(
  * belongs to that contract alone; nothing in this file can satisfy it.
  */
 const rsEval = read(path.join(ROOT, "data/internal/research/nfl/reports/model-v1-evaluation.json"));
+/* The preregistered margin-interval challenger, graded in shadow on every settled regular-season game
+ * (scripts/nfl/evaluate-margin-interval-shadow.mjs). Its band is published ONLY when the frozen
+ * regular-season contract has promoted it; a missing or unreadable report keeps the incumbent. */
+const marginShadow = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/reports/margin-interval-shadow-latest.json"), "utf8")); } catch { return null; }
+})();
 /*
  * P246 §4B-NFL: the matchup totals head — adopted ONLY on an ELIGIBLE receipt (preregistered
  * bars, held-out 2025: NLL 4.029 < prior 4.049, cov80 0.786, MAE under cap). An absent or
@@ -358,7 +365,11 @@ for (const ev of events) {
           homeUnrounded: sim.winProbability.homeUnrounded,
           calibration: "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made.",
         },
-        margin: { median: sim.marginQuantiles.p50, p10: sim.marginQuantiles.p10, p90: sim.marginQuantiles.p90 },
+        margin: (() => {
+          const iv = publishedMarginInterval({ median: sim.marginQuantiles.p50, incumbentP10: sim.marginQuantiles.p10, incumbentP90: sim.marginQuantiles.p90, report: marginShadow });
+          // The source is named only when it is NOT the incumbent, so an unpromoted run publishes the same bytes.
+          return { median: sim.marginQuantiles.p50, p10: iv.p10, p90: iv.p90, ...(iv.source !== "incumbent" ? { intervalSource: iv.source } : {}) };
+        })(),
         total: { median: sim.totalQuantiles.p50, p10: sim.totalQuantiles.p10, p90: sim.totalQuantiles.p90, head: matchupTotals ? NFL_TOTALS_HEAD_ID : "shared-prior" },
         scoreRange: { homeP10: sim.scores.home.quantiles.p10, homeP90: sim.scores.home.quantiles.p90, awayP10: sim.scores.away.quantiles.p10, awayP90: sim.scores.away.quantiles.p90 },
       },

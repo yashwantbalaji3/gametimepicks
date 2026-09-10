@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-margin-interval-challenger-evaluation",
+ "dataClass": "INTERNAL_RESEARCH",
+ "generatedAt": "2026-09-10T21:57:27Z",
+ "preregistration": {
+  "file": "data/internal/research/nfl/reports/margin-interval-challenger-preregistration.json",
+  "sha256": "4aa70f85ded08fe1444fa2709c7e199cabebe04d9ac82cfafdbcecc444fbb4dc",
+  "frozenAt": "2026-09-10T21:10:00Z"
+ },
+ "fit": {
+  "trainSeasons": [
+   2023,
+   2024
+  ],
+  "n": 570,
+  "marginSlope": 0.069322,
+  "sigmaMargin": 13.7007,
+  "residualQ10": -17.409,
+  "residualQ90": 17.416,
+  "normalHalfWidth": 17.558
+ },
+ "test": {
+  "season": 2025,
+  "n": 285,
+  "marginMAE": 10.262
+ },
+ "incumbent": {
+  "coverage80": 0.8246,
+  "z": 1.04,
+  "verdict": "IN_BAND",
+  "descriptiveBlowoutCoverage": 0.5152,
+  "descriptiveCloseCoverage": 0.9892
+ },
+ "challenger": {
+  "coverage80": 0.8175,
+  "z": 0.74,
+  "verdict": "IN_BAND",
+  "descriptiveBlowoutCoverage": 0.4949,
+  "descriptiveCloseCoverage": 0.9892,
+  "maeDelta": 0
+ },
+ "slices": {
+  "preGameTerciles_byPredictedAbsMargin": {
+   "incumbent": [
+    {
+     "n": 95,
+     "predAbsMarginMax": 2.82,
+     "coverage80": 0.8421,
+     "z": 1.03
+    },
+    {
+     "n": 95,
+     "predAbsMarginMax": 6.07,
+     "coverage80": 0.8211,
+     "z": 0.51
+    },
+    {
+     "n": 95,
+     "predAbsMarginMax": 17.41,
+     "coverage80": 0.8105,
+     "z": 0.26
+    }
+   ],
+   "challenger": [
+    {
+     "n": 95,
+     "predAbsMarginMax": 2.82,
+     "coverage80": 0.8421,
+     "z": 1.03
+    },
+    {
+     "n": 95,
+     "predAbsMarginMax": 6.07,
+     "coverage80": 0.8105,
+     "z": 0.26
+    },
+    {
+     "n": 95,
+     "predAbsMarginMax": 17.41,
+     "coverage80": 0.8,
+     "z": 0
+    }
+   ],
+   "note": "the valid conditional check — sliced on a quantity known before kickoff"
+  },
+  "descriptiveOnly_outcomeConditioned": {
+   "blowouts_abs_margin_ge_14": 99,
+   "closer_games": 186,
+   "warning": "conditions on the realised margin; low blowout / high close-game coverage is what a CALIBRATED interval produces — not a calibration test"
+  }
+ },
+ "status": "INFORMATIONAL — the 2025 retrospective cannot promote; the challenger runs in SHADOW through the 2026 walk-forward (>= 64 games, >= 4 weeks) per the frozen contract"
+}
