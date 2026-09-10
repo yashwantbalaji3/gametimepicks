@@ -22,6 +22,8 @@
  * preseason model by two weeks because it was typed here as prose).
  */
 import fs from "node:fs";
+
+import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import path from "node:path";
 
 export interface TopRead {
@@ -133,6 +135,9 @@ const etDayOf = (iso: string | null | undefined): string | null => {
 
 export function loadTopReads(): TopReadsSet | null {
   const today = etToday();
+  /* P252: one instant for the whole set, so two reads in the same list cannot be judged against
+     two different clocks. */
+  const nowIso = new Date().toISOString();
   const reads: TopRead[] = [];
   const excluded: Array<{ sport: string; reason: string }> = [];
   /*
@@ -296,9 +301,17 @@ export function loadTopReads(): TopReadsSet | null {
   if (nflEventSpecific) {
     for (const e of nfl?.events ?? []) {
       const wp = e.winProbability;
-      /* UPCOMING only: a STARTED game's number is a frozen pregame read, not a current "read" —
-         it lives on the game report (labelled preserved), never in a today's-reads ranking. */
-      if (wp?.home == null || wp?.away == null || e.lifecycle !== "UPCOMING") continue;
+      /*
+       * UPCOMING only: a STARTED game's number is a frozen pregame read, not a current "read" —
+       * it lives on the game report (labelled preserved), never in a today's-reads ranking.
+       *
+       * P252: read the EFFECTIVE lifecycle, not the stamp. The stamp is written when the event
+       * window runs and is not re-examined until the next one, so a game that kicked off at
+       * 00:20Z still said UPCOMING at 03:29Z — and this panel, which is the first real content on
+       * the homepage, was ranking a completed game as one of today's strongest reads.
+       */
+      if (wp?.home == null || wp?.away == null) continue;
+      if (effectiveLifecycle(e, nowIso) !== "UPCOMING") continue;
       const homeFavored = wp.home >= wp.away;
       const pickTeam = homeFavored ? e.home : e.away;
       const oppTeam = homeFavored ? e.away : e.home;

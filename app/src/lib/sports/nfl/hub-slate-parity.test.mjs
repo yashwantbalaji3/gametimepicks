@@ -108,7 +108,16 @@ test("P243 C-NFL · the lead section is the NATURAL WEEK from the shared read mo
 });
 
 test("the hub CONSUMES canonical state and does not recompute lifecycle", () => {
-  assert.match(hub, /e\?\.lifecycle === "STARTED"/, "started-ness comes from the index");
+  /*
+   * P252 REBASE. The claim is that the hub does not ROLL ITS OWN lifecycle logic, and it pinned
+   * the inline comparison that was the only way to consume the stamp at the time. That comparison
+   * was itself the defect: the stamp is written when the event window runs, so the table said
+   * "scheduled" beside a game that had kicked off three hours earlier. The hub now consumes the
+   * shared owner, which is MORE of what this test asks for — so the assertion moves to the owner
+   * and additionally forbids the inline form coming back.
+   */
+  assert.match(hub, /hasStarted\(/, "started-ness comes from the shared lifecycle owner");
+  assert.doesNotMatch(hub, /\.lifecycle\s*(?:===|!==)\s*"/, "the hub must not compare the raw stamp itself");
   assert.doesNotMatch(hub, /Date\.now\(\)/, "a statically exported page must not compare against build-time now");
   // REBASED P246: the hero's price count is the WEEK's own (the index's counts block still
   // carried the archived Aug capture after authorization expired — "1" beside a slate with no

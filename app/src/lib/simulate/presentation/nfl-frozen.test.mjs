@@ -95,7 +95,14 @@ test("the frozen numbers are the artifact's numbers", () => {
 test("A BASELINE READ IS NEVER PROMOTED BY BEING ANIMATED", () => {
   const e = frozenEvent();
   if (!e) return;
-  const m = buildNflPresentation({ ...e, lifecycle: "UPCOMING", locked: false });
+  /*
+   * P252: an UPCOMING event now means the stamp AND the clock agree, so this fixture moves the
+   * kickoff forward as well as the stamp. Forcing only the stamp used to be enough because the
+   * adapter read it alone — which was the defect: three hours after kickoff it still framed a
+   * played game as upcoming. The CLAIM here is unchanged and is about readiness, not tense.
+   */
+  const upcoming = new Date(Date.now() + 6 * 3_600_000).toISOString();
+  const m = buildNflPresentation({ ...e, lifecycle: "UPCOMING", locked: false, kickoffUtc: upcoming });
   if (!isPresentable(m)) return;
   assert.equal(m.readiness, "degraded", "BASELINE_ONLY is degraded, never ready");
   const text = JSON.stringify(m);

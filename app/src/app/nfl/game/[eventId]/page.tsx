@@ -23,6 +23,7 @@ import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -122,7 +123,13 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
 
   const idx = indexArtifact();
   const idxEvent = (idx?.events ?? []).find((e: { providerEventId: string }) => e.providerEventId === params.eventId);
-  const lifecycle: string = idxEvent?.lifecycle ?? "UPCOMING";
+  /* P252: the EFFECTIVE lifecycle. The stamp is written when the event window runs, so a game
+     that kicked off after the last run still reported UPCOMING here and the page framed a played
+     game as a forecast. The clock may advance the stamp; it may never rewind it. */
+  const lifecycle: string = effectiveLifecycle(
+    { lifecycle: idxEvent?.lifecycle, kickoffUtc: (idxEvent as { kickoffUtc?: string } | undefined)?.kickoffUtc ?? f.kickoffUtc },
+    new Date().toISOString(),
+  );
   const started = lifecycle !== "UPCOMING";
   const s = f.forecastSummary;
   const mc = f.marketComparison;

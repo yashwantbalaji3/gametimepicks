@@ -83,7 +83,10 @@ test("ONE SET · the card count, the ready count and the rendered rows cannot di
     "readyCount counts SIMULATION_READY events");
   assert.ok(live.readyCount <= live.events.length);
   // the lobby builds its rows from that same call, and its card reads the row count back
-  assert.match(lobby, /const nflEligibility = nflSimulateEligibility\(\)/);
+  /* P252: the lobby now supplies the instant it renders at, because the eligibility module reads
+     no clock of its own. The invariant is unchanged — ONE call, and the rows and both numbers come
+     from it — so the assertion allows the argument and still pins the single call. */
+  assert.match(lobby, /const nflEligibility = nflSimulateEligibility\([^)]*\)/);
   assert.match(lobby, /for \(const e of nflEligibility\.events\)/);
   /*
    * The ONE SET invariant is that the NFL card's two numbers come from the SAME call the rows were

@@ -184,7 +184,10 @@ export default function SimulateLobby() {
   // The founder's defect: /simulate listed Today, MLB, NBA, NHL and UFC while live NFL simulations
   // existed only behind /nfl. Every NFL number below — rows, card count, chip count, ready count —
   // comes from ONE selector, so they cannot disagree with each other or with /nfl.
-  const nflEligibility = nflSimulateEligibility();
+  /* P252: the lobby is a render site, so it supplies the instant it is rendering at — the
+     eligibility module never reads a clock of its own. Without this a game that kicked off after
+     the last event-window run was still offered as a live simulation. */
+  const nflEligibility = nflSimulateEligibility(new Date().toISOString());
   for (const e of nflEligibility.events) {
     rows.push({
       id: `nfl_${e.providerEventId}`,

@@ -47,6 +47,7 @@ import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NflWeeklyBoards from "@/components/nfl/weekly-boards";
+import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -190,8 +191,11 @@ export default function NflHubPage() {
    * reader looking for Sunday's games found a schedule, not the week. The period membership
    * comes from the read model (one owner); the rendering rows stay the schedule capture's own.
    */
-  const nflEvents = loadNflEvents(new Date().toISOString());
-  const weekKey = currentPeriodKey(nflEvents, new Date().toISOString());
+  /* P252: ONE instant for the page, so two rows in the same table cannot be judged against two
+     different clocks — the same rule the ranked reads set follows. */
+  const nowIso = new Date().toISOString();
+  const nflEvents = loadNflEvents(nowIso);
+  const weekKey = currentPeriodKey(nflEvents, nowIso);
   const weekEvents = weekKey ? eventsInPeriod(nflEvents, weekKey) : [];
   const weekCounts = periodCounts(weekEvents);
   const weekIds = new Set(weekEvents.map((e) => e.providerAliases[0]?.id));
@@ -281,7 +285,7 @@ export default function NflHubPage() {
   /* Program 237. The games come first here too. This adapter deliberately does NOT label the board
      "this week": every NFL artifact on disk runs 2026-08-14 to 2026-08-29 with no prediction, no
      simulation and no market snapshot, so it is a preseason archive and says so. */
-  const __hubModel = nflHub(new Date().toISOString());
+  const __hubModel = nflHub(nowIso);
 
   return (
     // P176: adopt the SHARED application shell /mlb uses (vault-page-shell, 1440px) instead of
@@ -415,7 +419,10 @@ export default function NflHubPage() {
               {slateGames.map((g) => {
                 const e = eventById.get(g.providerEventId);
                 const sim = e?.projectedScore ?? null;
-                const started = e?.lifecycle === "STARTED" || e?.lifecycle === "SETTLED";
+                /* P252: the EFFECTIVE lifecycle. The stamp is written when the event window runs
+                   and not re-examined until the next one, so this table said "scheduled" beside a
+                   game that had kicked off three hours earlier. */
+                const started = e ? hasStarted({ ...e, kickoffUtc: e.kickoffUtc ?? g.dateUtc }, nowIso) : false;
                 /* the favourite is pHome vs pAway — the same rule coherence.mjs holds (P245) */
                 const fav = e?.winProbability
                   ? e.winProbability.home >= e.winProbability.away
@@ -531,8 +538,8 @@ export default function NflHubPage() {
               .sort((a, b) => b.kickoffUtc.localeCompare(a.kickoffUtc))
               .slice(0, 12)
               .map((f) => {
-                const lifecycle = eventById.get(f.providerEventId)?.lifecycle ?? "UPCOMING";
-                const played = lifecycle !== "UPCOMING";
+                const ev = eventById.get(f.providerEventId);
+                const played = hasStarted({ lifecycle: ev?.lifecycle, kickoffUtc: ev?.kickoffUtc ?? f.kickoffUtc }, nowIso);
                 return (
                   <li key={f.providerEventId}>
                     <Link

@@ -17,6 +17,7 @@
  */
 import type { NflEligibleEvent } from "@/lib/sports/nfl/simulate-eligibility";
 import type { ChapterKind, PresentationChapter, PresentationManifest, PresentationResult } from "./types";
+import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 
 const HOLD = { light: 4200, normal: 5200, dense: 6400 } as const;
 const pctOf = (n: number) => Math.round(n * 100);
@@ -28,6 +29,8 @@ export function buildNflPresentation(
     /** The forecast artifact's own trial count. Carried only when the artifact states one. */
     runCount?: number | null;
     modelVersion?: string | null;
+    /** P252: the instant the caller is rendering at, so a page can judge every event on one clock. */
+    nowIso?: string;
   },
 ): PresentationResult {
   const reportHref = e?.reportHref ?? "/nfl/";
@@ -47,7 +50,12 @@ export function buildNflPresentation(
    * what a reader auditing the record needs to see, so they are shown under their TRUE event date
    * with `archived` readiness, and every chapter says which one it is.
    */
-  const archived = e.lifecycle === "STARTED" || e.locked;
+  /*
+   * P252: the EFFECTIVE lifecycle. A stamp is written when the event window runs and this adapter
+   * trusted it, so three hours after kickoff the opening chapter still framed a played game as
+   * upcoming. The clock may advance a stamp; it may never rewind one.
+   */
+  const archived = hasStarted({ lifecycle: e.lifecycle, kickoffUtc: e.kickoffUtc }, opts?.nowIso ?? new Date().toISOString()) || e.locked;
   const baseline = e.readiness === "BASELINE_ONLY";
   const chapters: PresentationChapter[] = [];
 

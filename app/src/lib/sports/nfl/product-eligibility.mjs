@@ -23,6 +23,7 @@
  */
 
 import { permitsProductLeg } from "./output-state.mjs";
+import { hasStarted } from "./effective-lifecycle.mjs";
 
 /** Closed set. A caller that sees anything else has a defect, not a new case. */
 export const PRODUCT_ELIGIBILITY_STATES = Object.freeze([
@@ -51,7 +52,10 @@ export function evaluateNflProductEligibility({ events, nowIso, vault = null }) 
   // Only PRE-KICKOFF events can ever be a leg. A started game is not a "failed" candidate — it is
   // not a candidate at all, and counting it as one would understate how much was actually examined.
   const rows = (events ?? []).map((e) => {
-    const started = e.lifecycle === "STARTED" || e.lifecycle === "SETTLED";
+    /* P252: the EFFECTIVE lifecycle. The stamp is written when the event window runs, so a game
+       that kicked off after the last run still read UPCOMING here and stayed a live product
+       candidate — the one thing this line exists to prevent. */
+    const started = hasStarted(e, nowIso);
     const passes = !started && permitsProductLeg(e.state);
     return {
       canonicalEventId: e.canonicalEventId,

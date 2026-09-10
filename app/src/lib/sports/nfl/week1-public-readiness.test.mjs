@@ -45,7 +45,12 @@ test("/markets names its price-scoped population and points at the model-only sp
 
 test("a started game's frozen pregame read never enters Top Reads", () => {
   const t = read("src/lib/top-reads.ts");
-  assert.match(t, /e\.lifecycle !== "UPCOMING"/, "only UPCOMING events rank");
+  /*
+   * P252 REBASE. Same claim, stronger check. The stamp alone let a completed game rank: at
+   * 03:29Z, three hours after NE @ SEA kicked off, the homepage still carried "Seattle Seahawks to
+   * beat New England Patriots" in "The model's strongest reads today". The clock decides now.
+   */
+  assert.match(t, /effectiveLifecycle\(e, nowIso\) !== "UPCOMING"/, "only events that are STILL upcoming rank");
 });
 
 test("the projected scorecard composes ONLY page-loaded artifact data — numbers where earned, typed absence where not", () => {

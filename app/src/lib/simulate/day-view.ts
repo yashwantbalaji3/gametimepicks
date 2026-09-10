@@ -370,7 +370,8 @@ function ufcSection(date: string, today: string): SportDaySection {
 }
 
 function nflSection(date: string, today: string): SportDaySection {
-  const elig = nflSimulateEligibility();
+  /* P252: see simulate-lobby — the render site supplies the clock. */
+  const elig = nflSimulateEligibility(new Date().toISOString());
   const events: SimDayEvent[] = [];
   for (const e of elig.events ?? []) {
     if (etDayOf(e.kickoffUtc) !== date) continue;

@@ -24,6 +24,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 
 /**
  * How long after kickoff a started-but-unsettled game may still count as the current slate.
@@ -123,16 +124,24 @@ const readJson = <T,>(rel: string): T | null => {
  * Decide eligibility for one index event against one artifact stamp. Exported so the metamorphic
  * tests can drive it directly with synthetic events rather than writing files.
  */
-export function isEligibleForLobby(e: IndexEvent, indexGeneratedAt: string): boolean {
+export function isEligibleForLobby(e: IndexEvent, indexGeneratedAt: string, nowIso?: string): boolean {
   if (!e?.projectedScore || !e?.winProbability || !e?.total) return false;  // schedule-only never promotes
   if (e.lifecycle === "SETTLED") return false;                              // graded games belong in results
-  if (e.lifecycle === "STARTED") {
+  /*
+   * P252: the EFFECTIVE lifecycle. The stamp is written when the event window runs, so a game
+   * that kicked off after the last run still read UPCOMING and the lobby offered it as a live
+   * simulation. The grace window below already understood that a started game ages out — it was
+   * simply never reached, because nothing compared the kickoff to the clock.
+   */
+  const lifecycle = effectiveLifecycle(e, nowIso ?? indexGeneratedAt);
+  if (lifecycle === "SETTLED") return false;
+  if (lifecycle === "STARTED") {
     const kickoff = Date.parse(e.kickoffUtc);
     const stamp = Date.parse(indexGeneratedAt);
     if (!Number.isFinite(kickoff) || !Number.isFinite(stamp)) return false;
     return stamp - kickoff <= STARTED_GRACE_HOURS * 3_600_000;
   }
-  return e.lifecycle === "UPCOMING";
+  return lifecycle === "UPCOMING";
 }
 
 /**
@@ -159,7 +168,13 @@ function readinessOf(signal: { state: string; note?: string } | null): { readine
 }
 
 /** Build the eligible set from the committed artifacts. */
-export function nflSimulateEligibility(): NflSimulateEligibility {
+/**
+ * @param nowIso the instant the CALLER is rendering at. Omitted, this file compares artifact
+ *   stamps only — it never reads a clock of its own, because a static export would freeze that
+ *   clock into the HTML where it silently becomes a lie (the rule this module's own guard holds).
+ *   A surface that must know whether a kickoff has passed supplies the instant it is rendering at.
+ */
+export function nflSimulateEligibility(nowIso?: string): NflSimulateEligibility {
   const index = readJson<{ generatedAt: string; events: IndexEvent[] }>("nfl/index.json");
   if (!index || !Array.isArray(index.events)) {
     return {
@@ -189,7 +204,7 @@ export function nflSimulateEligibility(): NflSimulateEligibility {
   }
 
   const events: NflEligibleEvent[] = index.events
-    .filter((e) => isEligibleForLobby(e, index.generatedAt))
+    .filter((e) => isEligibleForLobby(e, index.generatedAt, nowIso ?? index.generatedAt))
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc))
     .map((e) => ({
       providerEventId: e.providerEventId,
@@ -198,7 +213,9 @@ export function nflSimulateEligibility(): NflSimulateEligibility {
       kickoffUtc: e.kickoffUtc,
       home: e.home,
       away: e.away,
-      lifecycle: e.lifecycle as "UPCOMING" | "STARTED",
+      /* P252: the lobby is told the EFFECTIVE lifecycle, so its "Kicked off · locked" label
+         follows the clock rather than the stamp the last event window happened to write. */
+      lifecycle: effectiveLifecycle(e, nowIso ?? index.generatedAt) as "UPCOMING" | "STARTED",
       locked: Boolean(e.locked),
       state: e.state,
       projectedScore: e.projectedScore!,
