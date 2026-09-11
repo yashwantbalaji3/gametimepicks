@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824227,
   "date": "2026-09-11",
-  "capturedAt": "2026-09-11T00:41:49.893Z",
-  "availableAt": "2026-09-11T00:41:49.893Z",
+  "capturedAt": "2026-09-11T05:37:05.474Z",
+  "availableAt": "2026-09-11T05:37:05.474Z",
   "eventStartTime": "2026-09-11T22:40:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -106,14 +106,45 @@
     "teamId": 115,
     "teamName": "Colorado Rockies",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 69,
+      "relievers": [
+        {
+          "id": 688642,
+          "name": "Zach Agnos",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 5,
+          "dates": [
+            "2026-09-10"
+          ]
+        },
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 4,
+          "dates": [
+            "2026-09-10"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 96,
+      "appearances": 7,
+      "pitches": 165,
       "relievers": [
+        {
+          "id": 688642,
+          "name": "Zach Agnos",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 5,
+          "dates": [
+            "2026-09-10"
+          ]
+        },
         {
           "id": 675848,
           "name": "Juan Mejia",
@@ -122,6 +153,16 @@
           "outs": 6,
           "dates": [
             "2026-09-09"
+          ]
+        },
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 4,
+          "dates": [
+            "2026-09-10"
           ]
         },
         {
@@ -166,12 +207,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 688642,
+        "name": "Zach Agnos",
+        "reason": "45 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-08,2026-09-09,2026-09-10) + feed/live box scores",
-    "capturedAt": "2026-09-11T00:41:49.893Z"
+    "capturedAt": "2026-09-11T05:37:05.474Z"
   },
-  "recordHash": "cfcc4de641bb50016f8cff95cec1f6e58581acc123655d0ca2e976e8158d656c"
+  "recordHash": "7eb10ee5d9b1df26fec11cec4d35f9d72cb625519c9304c06a071ffb562a2ba4"
 }
