@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-11T14:00:22.468Z",
+  "generatedAt": "2026-09-11T14:02:09.353Z",
   "canonical": {
     "record": "27-22",
     "bankroll": 17865.4,
@@ -62,10 +62,10 @@
           "legs": 2,
           "combinedOdds": 120,
           "stake": 100,
-          "potentialReturn": 219.97,
+          "potentialReturn": 219.96,
           "selections": [
             "Los Angeles Dodgers to win",
-            "Boston Red Sox to win"
+            "Milwaukee Brewers to win"
           ]
         },
         {
@@ -75,10 +75,10 @@
           "legs": 2,
           "combinedOdds": 201,
           "stake": 307.93,
-          "potentialReturn": 925.38,
+          "potentialReturn": 925.51,
           "selections": [
-            "New York Yankees to win",
-            "Arizona Diamondbacks to win"
+            "San Diego Padres to win",
+            "Kansas City Royals +1.5"
           ]
         }
       ]
@@ -95,8 +95,8 @@
           "stake": 25,
           "potentialReturn": 100.06,
           "selections": [
-            "Under 8",
-            "Baltimore Orioles to win"
+            "Under 7.5",
+            "Boston Red Sox -1.5"
           ]
         },
         {
@@ -104,12 +104,12 @@
           "status": "active",
           "step": 1,
           "legs": 2,
-          "combinedOdds": 301,
+          "combinedOdds": 300,
           "stake": 25,
-          "potentialReturn": 100.26,
+          "potentialReturn": 100.02,
           "selections": [
-            "Washington Nationals -1.5",
-            "Philadelphia Phillies +1.5"
+            "Baltimore Orioles to win",
+            "Over 7.5"
           ]
         }
       ]
@@ -221,16 +221,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-11T14:00:21.681Z",
+    "lastRunAt": "2026-09-11T14:00:23.261Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-11",
-    "etTime": "10:00",
+    "etTime": "10:02",
     "stages": [
       {
         "stage": "schedule",
