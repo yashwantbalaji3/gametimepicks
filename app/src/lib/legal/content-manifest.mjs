@@ -22,8 +22,8 @@ export const LEGAL_CONTENT_MANIFEST = Object.freeze({
   version: 1,
   packet: "docs/LEGAL_SECTION3_DECISION_PACKET.md",
   sections: Object.freeze({
-    terms: { status: "LEGAL_COUNSEL_REQUIRED", approval: null, effectiveDate: null, note: "cannot draft final text before decisions 1-3 (entity, jurisdiction, geography)" },
-    privacy: { status: "LEGAL_COUNSEL_REQUIRED", approval: null, effectiveDate: null, note: "consent basis for the PII-free counter is adviser question 10" },
+    terms: { status: "DRAFT_FOR_REVIEW", approval: null, effectiveDate: null, note: "drafted 2026-09-10 in lib/legal/texts.mjs from founder decisions 1, 3, 4, 5; open: the operator (placeholder), the governing state, the contact, and counsel review" },
+    privacy: { status: "DRAFT_FOR_REVIEW", approval: null, effectiveDate: null, note: "drafted 2026-09-10 from repository facts, guard-checked against the code; open: the contact, and adviser question 10 (consent basis for the PII-free counter)" },
     "responsible-use": { status: "LEGAL_COUNSEL_REQUIRED", approval: null, effectiveDate: null, note: "mandatory-vs-advisable signposting is adviser question 8; age position is founder decision 4" },
   }),
 });

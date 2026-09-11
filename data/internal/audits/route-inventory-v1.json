@@ -2,11 +2,11 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-09T23:09:38.755Z",
+ "generatedAt": "2026-09-11T02:03:39Z",
  "totals": {
-  "routes": 66,
+  "routes": 68,
   "public": 43,
-  "internal": 4,
+  "internal": 6,
   "redirects": 15,
   "archive": 2,
   "findings": 0,
@@ -247,7 +247,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (110 generated page(s))"
+   "built": "FAMILY (111 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -279,7 +279,7 @@
    "route": "/moonshot",
    "classification": "public",
    "owner": "product",
-   "purpose": "high-volatility paper longshot lane",
+   "purpose": "fast three-day paper ladder ($25 → $1,000, two legs a day)",
    "dataOwner": "moonshot-lane active.json",
    "freshness": "product-state contract",
    "built": true
@@ -334,7 +334,7 @@
    "purpose": "NFL per-game experimental simulation report (P177-A): projected score, win chance, total and margin distributions with percentiles, the market read side by side, a reading key and the full provenance receipt — statically generated from the committed forecast artifact, dynamicParams=false",
    "dataOwner": "nfl/forecasts/latest.json + nfl/index.json + nfl/player-board/<eventId>.json + nfl/score-shape/latest.json (build-time reads)",
    "freshness": "each report carries its own generatedAt, kickoff and lifecycle",
-   "built": "FAMILY (16 generated page(s))"
+   "built": "FAMILY (15 generated page(s))"
   },
   {
    "route": "/nfl/week/[key]",
@@ -406,6 +406,15 @@
    "built": false
   },
   {
+   "route": "/privacy",
+   "classification": "internal",
+   "owner": "legal",
+   "purpose": "privacy notice — draft for review until counsel approval",
+   "dataOwner": "lib/legal/texts.mjs + content manifest",
+   "freshness": "effective date on approval",
+   "built": false
+  },
+  {
    "route": "/projections",
    "classification": "redirect",
    "owner": "product",
@@ -448,7 +457,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (94 generated page(s))"
+   "built": "FAMILY (95 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -550,6 +559,15 @@
    "dataOwner": "public research contract",
    "freshness": "contract stamps",
    "built": true
+  },
+  {
+   "route": "/terms",
+   "classification": "internal",
+   "owner": "legal",
+   "purpose": "terms of use — draft for review until counsel approval",
+   "dataOwner": "lib/legal/texts.mjs + content manifest",
+   "freshness": "effective date on approval",
+   "built": false
   },
   {
    "route": "/today",

@@ -11,6 +11,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { legalRouteIsPublic } from "../legal/texts.mjs";
 
 export const ROUTE_INVENTORY_VERSION = 1;
 
@@ -28,7 +29,7 @@ export const ROUTE_TABLE = Object.freeze({
   "/build": { classification: "public", owner: "product", purpose: "Parlay Center · Suggested Parlays mode (default): risk ladder + optimizer cards + lane links (P208)", dataOwner: "risk-ladder + suggested-cards artifacts", freshness: "sourceDate == productDate gate" },
   "/build/custom": { classification: "public", owner: "product", purpose: "Parlay Center · Build Your Own mode: qualified leg pool + shared slip draft + optimizer marketplace (P208)", dataOwner: "build legs from eligible slate", freshness: "sourceDate == productDate gate" },
   "/bank-builder": { classification: "public", owner: "product", purpose: "conservative paper ladder (ONE 5-step ladder)", dataOwner: "protected locks + lanes", freshness: "product-state contract" },
-  "/moonshot": { classification: "public", owner: "product", purpose: "high-volatility paper longshot lane", dataOwner: "moonshot-lane active.json", freshness: "product-state contract" },
+  "/moonshot": { classification: "public", owner: "product", purpose: "fast three-day paper ladder ($25 → $1,000, two legs a day)", dataOwner: "moonshot-lane active.json", freshness: "product-state contract" },
   /*
    * One dynamic route serving every live lane's card ladder. Added because the Products rail was
    * four destinations and all four were baseball, while EPL and UFC had published ladders for days
@@ -79,6 +80,9 @@ export const ROUTE_TABLE = Object.freeze({
    * is now a SECTION of a public product route, not the route's identity.
    */
   "/ufc": { classification: "public", owner: "product", purpose: "UFC hub: current card with three-head model reads + live ladder, model-vs-market graded record, settled archive section", dataOwner: "card-latest + graded picks + frozen settlement", freshness: "card artifact generatedAt; lifecycle derives from the card's own startUtc" },
+  // Legal pages are internal until the content gate lets them publish (lib/legal/texts.mjs).
+  "/terms": { classification: legalRouteIsPublic("terms") ? "public" : "internal", owner: "legal", purpose: "terms of use — draft for review until counsel approval", dataOwner: "lib/legal/texts.mjs + content manifest", freshness: "effective date on approval" },
+  "/privacy": { classification: legalRouteIsPublic("privacy") ? "public" : "internal", owner: "legal", purpose: "privacy notice — draft for review until counsel approval", dataOwner: "lib/legal/texts.mjs + content manifest", freshness: "effective date on approval" },
   "/launch": { classification: "internal", owner: "ops", purpose: "founder command center (pruned from public export)", dataOwner: "evidence artifacts + derived boards", freshness: "per-artifact" },
   "/ops": { classification: "internal", owner: "ops", purpose: "ops dashboard (pruned)", dataOwner: "admin status", freshness: "per-artifact" },
   "/preview/epl": { classification: "internal", owner: "research", purpose: "EPL artifact preview (pruned)", dataOwner: "epl lane artifacts", freshness: "per-artifact" },

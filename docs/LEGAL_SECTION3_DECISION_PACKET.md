@@ -15,6 +15,19 @@ makes unapproved text structurally unable to ship as final. Source of repository
 | 4 | **Age position** — 18+/21+/none | the product takes no bets but publishes betting analysis; promotion to minors is treated seriously in most regimes | 18+ stated, pending adviser confirmation of whether a formal gate is required | 21+ · none (not recommended) | responsible-use page, onboarding, beta terms | responsible-use copy stays blocked |
 | 5 | **Audience claim** — research/education vs followable picks | the record supports the former: the model demonstrably does not beat the market (Sprint 056/057) | KEEP "research and education" — the entire public copy already enforces it | none honest | every public claim, methodology, results framing | none — the current framing holds until changed |
 
+### Founder answers — 2026-09-10 (in chat, founder's words)
+
+| # | Decision | Answer | Status |
+|---|---|---|---|
+| 1 | Operating entity | "Please use GameTime Picks as a placeholder." | PLACEHOLDER — the gate refuses a placeholder party, so Terms cannot publish until a legal name is given |
+| 2 | Governing jurisdiction | "A US state" — which state was not given | OPEN — Terms render `[to be decided: state]` |
+| 3 | Target geography | "US only" | DECIDED |
+| 4 | Age position | "18+" | DECIDED — counsel question 7 should confirm 18+ against state betting ages, most of which are 21 |
+| 5 | Audience claim | unchanged: research and education | DECIDED (the packet's recommendation, enforced by every public page) |
+
+Drafts built from these answers: `docs/legal/terms-draft.md`, `docs/legal/privacy-draft.md` (source
+`app/src/lib/legal/texts.mjs`). Reviewer brief: `docs/legal/COUNSEL_REVIEW_BRIEF.md`.
+
 ## Part B — LEGAL_COUNSEL_REQUIRED (verbatim scope for the adviser session; do not answer from the repository)
 
 6. Does publishing paper betting analysis constitute regulated gambling advertising or affiliate

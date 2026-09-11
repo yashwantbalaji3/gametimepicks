@@ -33,7 +33,12 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const INTERNAL_ROUTES = ["ops", "preview", "launch"];
+import { LEGAL_ROUTES, legalRouteIsPublic } from "../src/lib/legal/texts.mjs";
+
+/* Legal pages join the sweep until they may publish (lib/legal/texts.mjs · legalReadiness): an
+   unapproved Terms page must not be reachable at its raw URL any more than /launch is. */
+const GATED_LEGAL_ROUTES = Object.entries(LEGAL_ROUTES).filter(([id]) => !legalRouteIsPublic(id)).map(([, r]) => r.slice(1));
+const INTERNAL_ROUTES = ["ops", "preview", "launch", ...GATED_LEGAL_ROUTES];
 
 /**
  * Data files the public site serves even though no page links them. Kept deliberately, not by accident.

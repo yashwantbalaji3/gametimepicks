@@ -34,6 +34,11 @@ export default function ResponsibleUsePage() {
       <div className="mt-10 space-y-6 text-[15px] text-[var(--text-mute)] leading-relaxed">
         <Block
           icon="!"
+          title="Who this is for"
+          body="GameTimePicks is intended for adults aged 18 or older in the United States. If you are younger than 18, please do not use this site."
+        />
+        <Block
+          icon="!"
           title="Not betting advice"
           body="Nothing on this site is a recommendation to wager money. Model leans are educational outputs of a transparent analytical pipeline. Past hit rates do not predict future results."
         />

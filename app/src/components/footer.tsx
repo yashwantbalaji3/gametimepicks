@@ -7,6 +7,16 @@ import FooterFreshness from "./footer-freshness";
 import BrandMark from "./brand-mark";
 import SupportEntry from "./support-entry";
 import { resolveSupportConfig } from "@/lib/support/support-config.mjs";
+import { LEGAL_ROUTES, legalRouteIsPublic } from "@/lib/legal/texts.mjs";
+
+/* The legal pages are INTERNAL routes until their text is approved, and a link to one would be a nav
+   P0. The route comes from the legal table and the filter admits it only once it may publish; the
+   built-output guard (lib/legal/legal-export.test.mjs) checks the exported footer carries no link
+   while it may not. */
+const LEGAL_LINKS = [
+  { id: "terms" as const, label: "Terms of Use" },
+  { id: "privacy" as const, label: "Privacy" },
+].filter((l) => legalRouteIsPublic(l.id)).map((l) => ({ ...l, href: `${LEGAL_ROUTES[l.id]}/` }));
 import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
 import { liveDataSources, type DataSource } from "@/lib/data-sources";
 
@@ -115,6 +125,13 @@ export default function Footer() {
                       </Link>
                     </li>
                   ))}
+                  {/* Terms and Privacy appear only once they may publish — a link to a 404, or to an
+                      unapproved draft, is worse than no link. */}
+                  {group === "record" ? LEGAL_LINKS.map((l) => (
+                    <li key={l.href}>
+                      <Link href={l.href} style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>{l.label}</Link>
+                    </li>
+                  )) : null}
                   {group === "record" && supportConfigured ? (
                     /* Renders nothing unless a real support destination is configured — see
                        SupportEntry. A dead "Contact support" link is worse than none, so there is

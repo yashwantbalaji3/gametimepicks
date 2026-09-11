@@ -102,9 +102,9 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["shared"],
     unlocks: "public Terms/Privacy/responsible-use pages; a beta prerequisite",
-    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
-    engineeringEvidence: "docs/LEGAL_SECTION3_DECISION_PACKET.md (11 numbered items: 5 founder decisions with conservative recommendations + 6 verbatim LEGAL_COUNSEL_REQUIRED questions) + lib/legal/content-manifest publish guard — unapproved text is structurally unable to ship as final; approval = named reviewer + role + date + packet version, never inferred from a commit (P164 Release 5)",
-    founderAction: "answer the five business decisions (entity, jurisdiction, audience geography, age floor, audience framing), then book the counsel review for the adviser questions",
+    engineeringState: "FOUNDER_ACTION_PROVIDED",
+    engineeringEvidence: "founder answered 2026-09-10 (operator placeholder 'GameTime Picks', a US state, US-only audience, 18+, research-and-education framing) — recorded in docs/LEGAL_SECTION3_DECISION_PACKET.md; Terms + Privacy drafted in lib/legal/texts.mjs, exported for review to docs/legal/*-draft.md with the content hash an approval must carry; /terms and /privacy are built but gated (404 + pruned from the public export until legalReadiness passes); /responsible-use states 18+ and US",
+    founderAction: "name the governing state and (when ready) the legal operator, then book the counsel review in docs/legal/COUNSEL_REVIEW_BRIEF.md — the approval records reviewer, role, date and the content hash in the manifest",
     requiredValues: [
       { name: "section-3 answers", format: "five short answers, numbered 1-5, in the founder's words", where: "reply in chat or a note in docs/ — these are business facts, not secrets", neverShare: "—" },
       { name: "counsel review", format: "reviewer identity/role + approval date when it happens", where: "recorded in the legal content manifest on approval", neverShare: "counsel correspondence stays outside the repository" },
