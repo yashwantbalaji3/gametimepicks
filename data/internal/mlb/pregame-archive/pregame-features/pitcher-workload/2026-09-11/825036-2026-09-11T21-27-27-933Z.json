@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825036,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T21:27:27.933Z",
+  "availableAt": "2026-09-11T21:27:27.933Z",
+  "eventStartTime": "2026-09-12T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 518876,
+      "name": "Merrill Kelly",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 7,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 3.8,
+        "bbAvg": 2.8,
+        "erAvg": 3.6,
+        "hrAvg": 0.8,
+        "kPer9": 6.18,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 147.67,
+        "k": 99,
+        "bb": 64,
+        "er": 83,
+        "hr": 27
+      }
+    },
+    "away": {
+      "id": 669022,
+      "name": "MacKenzie Gore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 5,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 4.2,
+        "bbAvg": 2.8,
+        "erAvg": 2.6,
+        "hrAvg": 0.2,
+        "kPer9": 7.99,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 157.67,
+        "k": 170,
+        "bb": 63,
+        "er": 79,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T21:27:27.933Z"
+  },
+  "recordHash": "8f4fb61a7cd387599b27c2c6111fb1c025bc1fef519bcecb54ccbb49e4d0a000"
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822930,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T21:27:27.933Z",
+  "availableAt": "2026-09-11T21:27:27.933Z",
+  "eventStartTime": "2026-09-11T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656876,
+      "name": "Drew Rasmussen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 5.2,
+        "bbAvg": 1,
+        "erAvg": 2.2,
+        "hrAvg": 0.4,
+        "kPer9": 8.07,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 153.33,
+        "k": 156,
+        "bb": 27,
+        "er": 49,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 699044,
+      "name": "Miguel Ullola",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T21:27:27.933Z"
+  },
+  "recordHash": "f8c33371f523bae277030521ed06a242cf12ba57adab146ac8776ec100b59772"
+}

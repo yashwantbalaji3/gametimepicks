@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "824711-dc7aa3629d76aa202f2488c47f551b9d",
+  "snapshotCreatedAt": "2026-09-11T21:27:27.668Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-09-11",
+  "eventId": "824711",
+  "gamePk": 824711,
+  "eventStartTime": "2026-09-11T23:10:00Z",
+  "homeTeam": "BOS",
+  "awayTeam": "KC",
+  "venue": "Fenway Park",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "aedca41b664102028284ae81b5b79e60",
+  "normalizedPayloadHash": "10c0496904eee2a38ea714878e6966a2",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          701350,
+          681508,
+          668939,
+          677800,
+          596115,
+          686765,
+          702332,
+          680776,
+          643396
+        ],
+        "away": [
+          695600,
+          677951,
+          686469,
+          521692,
+          686681,
+          670231,
+          679845,
+          664728,
+          686555
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-11T21:27:27.668Z",
+      "availableAt": "2026-09-11T21:27:27.668Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-11T21:27:27.668Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824711/feed/live",
+        "requestedAt": "2026-09-11T21:27:27.668Z",
+        "receivedAt": "2026-09-11T21:27:27.668Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Sonny Gray",
+        "awayProbable": "Seth Lugo",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-11T21:27:27.668Z",
+      "availableAt": "2026-09-11T21:27:27.668Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-11T21:27:27.668Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824711/feed/live",
+        "requestedAt": "2026-09-11T21:27:27.668Z",
+        "receivedAt": "2026-09-11T21:27:27.668Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Clear",
+        "temp": "71",
+        "wind": "6 mph, L To R",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-11T21:27:27.668Z",
+      "availableAt": "2026-09-11T21:27:27.668Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-11T21:27:27.668Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824711/feed/live",
+        "requestedAt": "2026-09-11T21:27:27.668Z",
+        "receivedAt": "2026-09-11T21:27:27.668Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Alan Porter",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Jim Wolf",
+            "type": "First Base"
+          },
+          {
+            "name": "Roberto Ortiz",
+            "type": "Second Base"
+          },
+          {
+            "name": "Alex MacKay",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-11T21:27:27.668Z",
+      "availableAt": "2026-09-11T21:27:27.668Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-11T21:27:27.668Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824711/feed/live",
+        "requestedAt": "2026-09-11T21:27:27.668Z",
+        "receivedAt": "2026-09-11T21:27:27.668Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

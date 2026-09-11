@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823498,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T21:27:27.933Z",
+  "availableAt": "2026-09-11T21:27:27.933Z",
+  "eventStartTime": "2026-09-11T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607074,
+      "name": "Carlos Rodón",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 4.8,
+        "bbAvg": 2.4,
+        "erAvg": 1,
+        "hrAvg": 0.6,
+        "kPer9": 9.53,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 64,
+        "k": 70,
+        "bb": 34,
+        "er": 22,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 690997,
+      "name": "Nolan McLean",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 7,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 4.6,
+        "bbAvg": 3.4,
+        "erAvg": 0.8,
+        "hrAvg": 0.2,
+        "kPer9": 6.68,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 161.67,
+        "k": 179,
+        "bb": 65,
+        "er": 55,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T21:27:27.933Z"
+  },
+  "recordHash": "c6befbb7d0824d60e5f3cd9a91d2b6bc6fad11d5b8756d769f58d96b73996d90"
+}
