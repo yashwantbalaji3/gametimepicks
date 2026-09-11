@@ -14,6 +14,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 import { calibrate, blendProbabilities, reliabilityWeight, clamp01, dataQualityFactor } from "./index.ts";
+import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 
@@ -87,8 +88,7 @@ test("5 · UNWIRED — no public recommendation imports the calibration module",
 });
 
 test("6 · money md5 unchanged; the module is money-independent", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
   for (const f of ["types.ts", "reliability.ts", "market-blend.ts", "index.ts"]) {
     assert.doesNotMatch(fs.readFileSync(path.join(app, "src/lib/calibration", f), "utf8"), /portfolio\.json|mr-dub|bankroll/);
   }

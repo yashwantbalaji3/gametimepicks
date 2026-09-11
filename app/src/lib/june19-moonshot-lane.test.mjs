@@ -69,13 +69,13 @@ test("Moonshot correlation is disclosed, and it is never called lower-risk", () 
 
 test("Mr. Dub: Moonshot exposure is broken out separately and does NOT change the Lane A/B record", () => {
   assert.ok(portfolio.moonshot, "moonshot section present");
-  assert.equal(portfolio.moonshot.status, "stopped", "Moonshot settled LOST → stopped");
-  assert.equal(portfolio.moonshot.exposure, 0, "Moonshot settled LOST → $0 open exposure");
-  assert.equal(portfolio.moonshot.separateFromCore, true);
-  assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "Moonshot 0-1 (Step 1 restart card lost)");
+  assert.equal((portfolio.moonshot?.legacy ?? portfolio.moonshot).status, "stopped", "Moonshot settled LOST → stopped");
+  assert.equal((portfolio.moonshot?.legacy ?? portfolio.moonshot).exposure, 0, "Moonshot settled LOST → $0 open exposure");
+  assert.equal((portfolio.moonshot?.legacy ?? portfolio.moonshot).separateFromCore, true, "the July single-card lane was separate (kept as history under moonshot.legacy since the Rule S fold)");
+  assert.deepEqual((portfolio.moonshot?.legacy ?? portfolio.moonshot).record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "Moonshot 0-1 (Step 1 restart card lost)");
   // Core Lane A/B record + exposure reflect the July-7 settlement (Lane A WON its cycle-8 Step-1 and Step-2 → record +2 → 19-14;
   // the July-5 losses still stand in the priorLane chain), and Moonshot stays separate from the core record.
-  assert.deepEqual(portfolio.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record 19-14 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
+  assert.deepEqual((portfolio.protectedFold?.base?.record ?? portfolio.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record 19-14 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
   assert.equal(portfolio.openExposure, 0, "core open exposure $0 (Lane A completed the ladder; Lane B settled LOST — no open seeds)");
   assert.equal(portfolio.totalOpenExposure, 0, "total exposure $0 (core $0; moonshot settled → 0)");
 });

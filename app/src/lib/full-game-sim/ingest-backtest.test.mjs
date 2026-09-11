@@ -13,6 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { ingestTeamMarketLines, buildTeamMarketLinesSnapshot } from "../../../scripts/ingest-mlb-team-market-lines.mjs";
+import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.join(app, "..");
@@ -138,6 +139,5 @@ test("10 · the new scripts never write a money artifact and never write under p
 });
 
 test("11 · money md5 unchanged — the whole ingest/backtest layer is money-independent", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

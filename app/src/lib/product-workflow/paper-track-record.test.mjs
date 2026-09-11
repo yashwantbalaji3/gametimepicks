@@ -8,6 +8,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 
 const app = process.cwd();
 const repo = path.join(app, "..");
@@ -32,7 +33,9 @@ test("1 · the paper track record is internal, money-walled, and paper-units-onl
   assert.equal(j.card.wonCards + j.card.lostCards + j.card.voidedCards <= j.card.settledCards, true);
   assert.equal(j.leg.settledLegs + j.leg.pendingLegs, j.leg.totalLegs);
   // The official baseline is carried READ-ONLY and matches the protected money md5.
-  assert.equal(j.official.officialMoneyMd5, "affe6b21071f2b3be96bb2774eb347c3");
+  // P256: the protected record moves nightly under Rule S, so the carried fingerprint must describe the
+  // file AS IT IS — a stale fingerprint is a stale artifact.
+  assert.equal(j.official.officialMoneyMd5, crypto.createHash("md5").update(fs.readFileSync(path.join(process.cwd(), "public/data/mr-dub/portfolio.json"))).digest("hex"));
   // A tiny sample must NOT claim to be a meaningful record.
   if (j.card.settledCards < j.minimumSampleForMeaningful) assert.equal(j.meaningful, false, "small sample ⇒ not meaningful yet");
 });

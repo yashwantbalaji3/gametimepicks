@@ -19,6 +19,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 import { MLB_MARKET_CALIBRATION, modelBeatsMarket, anyModeledMarketBeatsMarket, isCalibrationFailed, MLB_CALIBRATION_DISCLOSURE } from "./mlb/model-calibration-status.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const report = fs.readFileSync(path.join(app, "src/components/game/mlb-simulation-report-v2.tsx"), "utf8");
@@ -61,6 +62,5 @@ test("4 · no banned edge/market-beating language in the new copy", () => {
 });
 
 test("5 · money md5 unchanged (audit + demotion are display-only)", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

@@ -79,4 +79,6 @@ jobs:
       - name: Money md5 unchanged
         working-directory: app
         run: |
-          echo "affe6b21071f2b3be96bb2774eb347c3  public/data/mr-dub/portfolio.json" | md5sum -c -
+          # P256: the protected record moves nightly under the founder's Rule S; this job must leave it
+          # INTACT (history, crown, bankroll = July base + a fresh fold of the receipts).
+          node --input-type=module -e 'import { assertProtectedLedgerIntact } from "./src/lib/mr-dub/protected-invariant.mjs"; assertProtectedLedgerIntact(); console.log("protected record intact")'

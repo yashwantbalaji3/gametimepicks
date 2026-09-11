@@ -23,6 +23,7 @@ import crypto from "node:crypto";
 
 import { eligibilityFor, MLB_MARKET_VERDICT, validatedModeledMarkets, isProductEligibleModeledMarket } from "./mlb/calibration/eligibility-policy.ts";
 import { anyModeledMarketBeatsMarket } from "./mlb/model-calibration-status.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.dirname(app);
@@ -94,6 +95,5 @@ test("6 · existing public demotion disclosures are unchanged (still demoted; no
 });
 
 test("7 · money md5 unchanged (the whole experiment is internal + analysis-only)", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

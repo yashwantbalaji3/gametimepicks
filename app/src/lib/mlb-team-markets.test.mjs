@@ -13,6 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 import {
   getTeamMarketsForDate,
   buildMlbGameCenter,
@@ -96,11 +97,7 @@ test("5 · run distributions are an HONEST unavailable module (main lines can't 
 });
 
 test("6 · money md5 unchanged; the layer is money-independent", () => {
-  const md5 = crypto
-    .createHash("md5")
-    .update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json")))
-    .digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
   // neither the deriver nor the ingest reads money/portfolio artifacts
   assert.doesNotMatch(deriverSrc, /portfolio\.json|mr-dub|bankroll|banked-ladder/);
   assert.doesNotMatch(ingestSrc, /portfolio\.json|mr-dub|bankroll/);

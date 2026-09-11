@@ -41,6 +41,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { evaluateDailyFreshness, currentEtHour } from "../src/lib/daily-freshness-slo.mjs";
 import { isBotChallenge } from "../src/lib/deployment-verification.mjs";
+import { checkProtectedLedger, readReceiptsFrom } from "../src/lib/mr-dub/protected-invariant.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REPO = path.resolve(APP, "..");
@@ -59,7 +60,7 @@ const STALE_SETTLEMENT_DAYS = 3;
  * written. A mismatch is the one thing here that stops the world.
  */
 const PROTECTED = [
-  { file: "app/public/data/mr-dub/portfolio.json", expected: "affe6b21071f2b3be96bb2774eb347c3" },
+  { file: "app/public/data/mr-dub/portfolio.json", expected: "invariant" }, // judged by protected-invariant.mjs (P256)
   { file: "app/public/data/mr-dub/bank-builder-locks.json", expected: "cb80473f88f3cb5f67208fa568925295" },
 ];
 
@@ -605,6 +606,15 @@ async function observe() {
 
   const protectedHashes = PROTECTED.map(({ file, expected }) => {
     const actual = md5(path.join(REPO, file));
+    /* P256: the protected Mr. Dub record now moves nightly under the founder's Rule S, so it is judged by
+       its invariant (history hash + crown + bankroll = July base + a fresh fold of the receipts), not by
+       a fixed hash. Every other protected file keeps its byte pin. */
+    if (file.endsWith("mr-dub/portfolio.json") && actual !== null) {
+      const v = checkProtectedLedger(JSON.parse(fs.readFileSync(path.join(REPO, file), "utf8")), readReceiptsFrom(path.join(REPO, "app")));
+      const state = v.ok ? "MATCH" : "MISMATCH";
+      if (!v.ok) failures.push(`${state}: ${file} — ${v.reasons.join("; ")}`);
+      return { file, expected: "protected invariant (lib/mr-dub/protected-invariant.mjs)", actual, state };
+    }
     const state = actual === null ? "MISSING" : actual === expected ? "MATCH" : "MISMATCH";
     if (state !== "MATCH") failures.push(`${state}: ${file} — expected ${expected}, found ${actual ?? "no file"}`);
     return { file, expected, actual, state };

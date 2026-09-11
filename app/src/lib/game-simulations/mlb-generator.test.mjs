@@ -13,7 +13,7 @@
  *   9. unsupported modules (scoreline/xG/corners/cards/first-scorer) listed unavailable
  *  10. runCount equals the RUN_COUNT constant and is truthful (samples actually drawn)
  *  11. no artifact claims "Monte Carlo"
- *  12. canonical money unchanged: portfolio.json md5 stays affe6b21071f2b3be96bb2774eb347c3
+ *  12. canonical money intact: the protected invariant holds (P256)
  *
  * Fixtures / any generated files go to os.tmpdir() — NEVER into the repo (except the real WRITE apply
  * step done outside the test). The canonical money artifact is never touched.
@@ -38,6 +38,7 @@ import {
   SIMULATION_VERSION,
 } from "./mlb-generator.ts";
 import { SeededRng, leanSeed, stableHash } from "./rng.ts";
+import { assertProtectedDataIntact } from "../mr-dub/protected-invariant.mjs";
 
 // ---------------------------------------------------------------------------
 // Paths — locate the app root, the real board, the CLI script, and the money file.
@@ -49,7 +50,6 @@ const BOARD_DATE = "2026-07-07";
 const BOARD_PATH = path.join(DATA_ROOT, "mlb", "boards", `${BOARD_DATE}.json`);
 const CLI_PATH = path.join(APP_ROOT, "scripts", "generate-mlb-game-simulations.mjs");
 const PORTFOLIO_PATH = path.join(DATA_ROOT, "mr-dub", "portfolio.json");
-const PORTFOLIO_EXPECTED_MD5 = "affe6b21071f2b3be96bb2774eb347c3";
 
 function loadBoard() {
   return JSON.parse(fs.readFileSync(BOARD_PATH, "utf8"));
@@ -327,7 +327,7 @@ test("no persisted copy claims 'Monte Carlo'", () => {
 // ---------------------------------------------------------------------------
 test("canonical money md5 unchanged (portfolio.json)", () => {
   assert.ok(fs.existsSync(PORTFOLIO_PATH), `expected ${PORTFOLIO_PATH}`);
-  assert.equal(md5(PORTFOLIO_PATH), PORTFOLIO_EXPECTED_MD5, "portfolio.json md5 must be unchanged");
+  assertProtectedDataIntact(DATA_ROOT); // P256: was a whole-file md5 pin
 });
 
 // ---------------------------------------------------------------------------

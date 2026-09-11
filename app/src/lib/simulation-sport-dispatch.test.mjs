@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const ANIM_SRC = fs.readFileSync(path.join(app, "src/components/game/simulation-animation.tsx"), "utf8");
@@ -100,6 +101,5 @@ test("no fabricated sport data in the animation; money md5 unchanged", () => {
     !/scoreline|first[\s_-]?scorer|firstScorer|\bxg\b|corner[\s_-]?kick|yellow[\s_-]?card|red[\s_-]?card|\bbookings\b/i.test(ANIM_SRC),
     "no fake scoreline / first-scorer / xG / corner-kicks / cards in the animation",
   );
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3", "portfolio.json money file untouched");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

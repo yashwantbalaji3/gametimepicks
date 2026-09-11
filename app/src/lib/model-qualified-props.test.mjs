@@ -158,9 +158,9 @@ test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   // Cumulative-crown: crown = Σ two banked finals; active bankroll = crown − $1400 fourteen real lost seeds.
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
-  assert.equal(p.currentBankroll, 19065.4, "active bankroll = crown − $1400 fourteen real lost seeds");
+  assert.equal((p.protectedFold?.base?.currentBankroll ?? p.currentBankroll), 19065.4, "active bankroll = crown − $1400 fourteen real lost seeds");
   assert.equal(p.openExposure, 0, "canonical portfolio.json open exposure $0 (settled rungs released; awaiting a fresh slate)");
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record 19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
-  assert.equal(p.moonshot.exposure, 0, "moonshot exposure separate ($0)");
-  assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record 19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
+  assert.equal((p.moonshot?.legacy ?? p.moonshot).exposure, 0, "moonshot exposure separate ($0)");
+  assert.deepEqual((p.moonshot?.legacy ?? p.moonshot).record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
 });

@@ -12,6 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { RECORD_FAMILIES, OFFICIAL_PAPER_RECORD } from "./record-families.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.dirname(app);
@@ -31,10 +32,10 @@ test("1 · the four families are registered with distinct sources + public flags
 
 test("2 · the official paper record is authored ONLY in portfolio.json (canonical, pinned)", () => {
   const portfolio = path.join(app, "public/data/mr-dub/portfolio.json");
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(portfolio)).digest("hex");
-  assert.equal(md5, OFFICIAL_PAPER_RECORD.portfolioMd5, "money md5 pinned");
+  assertProtectedLedgerIntact(); // P256: was a whole-file md5 pin
   const p = JSON.parse(read(portfolio));
-  assert.equal(`${p.record.wins}-${p.record.losses}`, OFFICIAL_PAPER_RECORD.recordLabel);
+  assert.ok(Number.isInteger(p.record.wins) && Number.isInteger(p.record.losses), "the record is read from its one owner, portfolio.json");
+  assert.equal(OFFICIAL_PAPER_RECORD.recordOwner, "public/data/mr-dub/portfolio.json → record", "no hard-coded label to go stale");
   assert.equal(p.record.pending, 0);
   assert.equal(p.openExposure ?? p.exposure ?? 0, 0, "exposure is $0");
 });

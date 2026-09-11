@@ -34,6 +34,7 @@ import {
   unavailableSimulationView,
 } from "./game-simulations/game-lab-view.ts";
 import { readGameSimulation } from "./game-simulations/read.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = path.resolve(__dirname, "..", "..");
@@ -317,7 +318,5 @@ test("a sport carries a simulation view EXACTLY when it supplies the artifact", 
 
 // ── 10 · Canonical money file untouched ──────────────────────────────────────────────────────────
 test("canonical money file (portfolio.json) md5 is unchanged", () => {
-  const buf = fs.readFileSync(path.join(APP_ROOT, "public", "data", "mr-dub", "portfolio.json"));
-  const md5 = crypto.createHash("md5").update(buf).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3", "portfolio.json money file must be untouched");
+  assertProtectedLedgerIntact(APP_ROOT); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

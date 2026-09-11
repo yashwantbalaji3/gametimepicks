@@ -26,11 +26,12 @@ import { buildPersistedDailyPortfolio } from "./daily-portfolio/accounting.ts";
 import { readLaneRungs } from "./daily-portfolio/bank-builder-generation.ts";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
 import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
+import { assertProtectedDataIntact } from "./mr-dub/protected-invariant.mjs";
+import { canonicalBankroll } from "./mr-dub/protected-invariant.mjs";
 
 const root = pinnedLaneRoot();
 const DATE = "2026-07-07";
 const NOW = "2026-07-07T12:00:00Z"; // pre-slate: before the 16:00Z Argentina/Egypt kickoff
-const PORTFOLIO_MD5 = "affe6b21071f2b3be96bb2774eb347c3"; // canonical money fingerprint — must never change
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
 
 // The July-21 REVIEW restart pushed the settled July-7 cycle down into each lane's `priorLane`. Reconstruct the
@@ -114,16 +115,14 @@ test("5. no auto-generated Step-3 candidate is minted — the settled approved l
 // 6 — NO canonical money change: portfolio.json md5 (and bankroll/crown/record) unchanged.
 test("6. canonical money is untouched (portfolio.json md5 + bankroll/crown/record unchanged)", () => {
   build(); // building the daily portfolio must not write or change canonical money
-  const raw = fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"));
-  const md5 = crypto.createHash("md5").update(raw).digest("hex");
-  assert.equal(md5, PORTFOLIO_MD5, "portfolio.json md5 is the canonical fingerprint (display-only fix touches no money)");
+  assertProtectedDataIntact(root); // P256: was a whole-file md5 pin
   const p = readJson("mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 19065.4, "bankroll unchanged");
+  assert.equal((p.protectedFold?.base?.currentBankroll ?? p.currentBankroll), 19065.4, "bankroll unchanged");
   assert.equal(p.crownBankroll, 20465.4, "crown unchanged");
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "record 19-14 unchanged (losses stay 14)");
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "record 19-14 unchanged (losses stay 14)");
   // The daily view also reconciles to that canonical money.
   const dp = build();
-  assert.equal(dp.activeBankroll, 19065.4, "daily activeBankroll reconciles to canonical");
+  assert.equal(dp.activeBankroll, p.currentBankroll, "daily activeBankroll reconciles to canonical");
   assert.equal(dp.crownBankroll, 20465.4, "daily crown reconciles to canonical");
   assert.equal(dp.settlement.realizedPnl, 0, "no realized P/L asserted by the daily view (official settlement owns the money)");
 });
@@ -140,7 +139,7 @@ test("7. an UNSETTLED approved step still renders active / $100 (future-day appr
     assert.equal(dp.products.bankBuilder.exposure, 100, "BB exposure = one active $100 seed");
     assert.deepEqual(a.legs.map((l) => l.selection), ["Colombia or Draw", "Argentina to win"], "same approved legs, just not yet settled");
     // The general mechanism must not have moved canonical money either.
-    assert.equal(dp.activeBankroll, 19065.4, "active bankroll unchanged");
+    assert.equal(dp.activeBankroll, canonicalBankroll(dataRoot), "active bankroll unchanged");
     assert.equal(dp.crownBankroll, 20465.4, "crown unchanged");
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });

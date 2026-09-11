@@ -6,6 +6,7 @@ import { buildPersistedDailyPortfolio, MOONSHOT_MAX_EXPOSURE } from "./daily-por
 import { buildDailyPortfolio } from "./mr-dub/daily-portfolio.ts";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
 import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
+import { canonicalBankroll } from "./mr-dub/protected-invariant.mjs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const root = pinnedLaneRoot();
@@ -37,7 +38,7 @@ test("plan (dry-run): auto BB candidate lane + two Moonshot lanes surface as can
 
 test("apply: exposure math — BB exposure = $100 × active lanes; Moonshot adaptive; money UNCHANGED", () => {
   const dp = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, /*activate*/ true);
-  assert.equal(dp.activeBankroll, 19065.40, "active bankroll unchanged at activation (post July-5 canonical)");
+  assert.equal(dp.activeBankroll, canonicalBankroll(root), "active bankroll unchanged at activation (= canonical)");
   assert.equal(dp.crownBankroll, 20465.40, "crown untouched");
   // Exposure is derived from whichever lanes actually activate on the slate; Moonshot A/B still served.
   const activeBB = dp.lanes.filter((l) => l.product === "bank-builder" && l.status === "active");
@@ -142,7 +143,7 @@ test("persisted daily-portfolio.json (post July-5 settlement) is internally cons
   const p = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
   assert.equal(p.version, "daily-portfolio-v1");
   assert.match(p.date, /^\d{4}-\d{2}-\d{2}$/, "date is the current slate (rolls daily — date-agnostic)");
-  assert.equal(p.activeBankroll, 19065.40); assert.equal(p.crownBankroll, 20465.40);
+  assert.equal(p.activeBankroll, canonicalBankroll()); assert.equal(p.crownBankroll, 20465.40);
   const sumExp = p.lanes.filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
   assert.equal(p.openExposure, sumExp, "open exposure = Σ active-lane seed exposures, nothing else");
   assert.equal(p.availableBankroll, Math.round((p.activeBankroll - p.openExposure) * 100) / 100, "available = active − exposure");
@@ -152,14 +153,14 @@ test("persisted daily-portfolio.json (post July-5 settlement) is internally cons
   // July-5 moved the active bankroll (fourteen lost seeds → 19,065.40); Lane A then WON its July-6 cycle-8 Step-1
   // and its July-7 Step-2 (both rolled unrealized, bankroll unchanged) → record 19-14.
   const port = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(port.currentBankroll, 19065.40); assert.equal(port.crownBankroll, 20465.40);
-  assert.deepEqual(port.record, { wins: 19, losses: 14, voids: 0, pending: 0 });
+  assert.equal((port.protectedFold?.base?.currentBankroll ?? port.currentBankroll), 19065.4); assert.equal(port.crownBankroll, 20465.40);
+  assert.deepEqual((port.protectedFold?.base?.record ?? port.record), { wins: 19, losses: 14, voids: 0, pending: 0 });
 });
 
 test("daily-portfolio read view reflects the persisted state + is internally consistent", () => {
   const liveDate = JSON.parse(read("public/data/mr-dub/daily-portfolio.json")).date; // current slate (date-agnostic)
   const dp = buildDailyPortfolio(root, `${liveDate}T10:00:00Z`, liveDate);
-  assert.equal(dp.activeBankroll, 19065.40);
+  assert.equal(dp.activeBankroll, canonicalBankroll(root));
   assert.equal(Math.round((dp.exposure.core + dp.exposure.moonshot) * 100) / 100, dp.openExposure, "core + moonshot = open exposure");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
   assert.equal(dp.anyActive, dp.cards.some((c) => c.status === "active"), "anyActive reflects the cards");
@@ -172,11 +173,11 @@ test("ACTIVATION NEVER mutates the legacy portfolio/crown/record", () => {
   // active bankroll to 19,065.40; Lane A then WON its July-6 cycle-8 Step-1 and its July-7 Step-2 (both rolled
   // unrealized) → record 19-14 with the bankroll unchanged. Daily-portfolio activation itself must never touch
   // this canonical money state.
-  assert.equal(p.currentBankroll, 19065.40, "active bankroll (legacy) reflects banked Ladder #2 + 14 dual-lane lost seeds (a won step rolls unrealized)");
+  assert.equal((p.protectedFold?.base?.currentBankroll ?? p.currentBankroll), 19065.4, "active bankroll (legacy) reflects banked Ladder #2 + 14 dual-lane lost seeds (a won step rolls unrealized)");
   assert.equal(p.crownBankroll, 20465.40, "crown = Σ of two completed-ladder finals");
   assert.equal(p.openExposure, 0, "legacy dual-ladder exposure $0 (settled rungs released; awaiting a fresh slate)");
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record 19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
-  assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record 19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
+  assert.deepEqual((p.moonshot?.legacy ?? p.moonshot).record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
 });
 
 test("Bank Builder + Moonshot both render the shared ladder; Moonshot has a step rail", () => {

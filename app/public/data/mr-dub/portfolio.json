@@ -6,13 +6,13 @@
   "startingDate": "2026-06-09",
   "startingBankroll": 100,
   "crownBankroll": 20465.4,
-  "currentBankroll": 19065.4,
+  "currentBankroll": 18015.4,
   "openExposure": 0,
-  "settledProfit": 18965.4,
-  "roi": 189.65,
+  "settledProfit": 17915.4,
+  "roi": 179.15,
   "record": {
-    "wins": 19,
-    "losses": 14,
+    "wins": 26,
+    "losses": 21,
     "voids": 0,
     "pending": 0
   },
@@ -39,10 +39,10 @@
   "activeCards": [],
   "generatedAt": "2026-07-07T18:00:00Z",
   "highWaterMark": 20465.4,
-  "drawdown": 1400,
-  "drawdownPct": 0.0684,
+  "drawdown": 2450,
+  "drawdownPct": 0.1197,
   "openExposurePct": 0,
-  "roiMultiple": 189.65,
+  "roiMultiple": 179.15,
   "exposure": {
     "bySport": [],
     "byMarket": [],
@@ -77,10 +77,10 @@
   },
   "intelligence": {
     "highWaterMark": 20465.4,
-    "maxDrawdown": 1400,
-    "drawdown": 1400,
-    "drawdownPct": 0.0684,
-    "winRate": 0.58,
+    "maxDrawdown": 2450,
+    "drawdown": 2450,
+    "drawdownPct": 0.1197,
+    "winRate": 0.55,
     "exposureBySport": {},
     "largestOpenCard": 0,
     "avgStake": 540.55,
@@ -91,50 +91,429 @@
     "note": "Paper exposure, bankroll health and drawdown — educational tracking, not financial advice."
   },
   "moonshot": {
-    "lane": "Moonshot Lane",
+    "lane": "Moonshot",
     "paperOnly": true,
-    "separateFromCore": true,
-    "exposure": 0,
-    "currentStep": 1,
-    "targetReturn": 3000,
-    "status": "stopped",
+    "separateFromCore": false,
+    "inBankrollSince": "2026-08-15",
     "record": {
       "wins": 0,
-      "losses": 1,
+      "losses": 14,
       "voids": 0,
       "pending": 0
     },
-    "card": {
-      "cardId": "moonshot-2026-06-21-cross-slate-restart",
-      "stake": 25,
-      "projectedReturn": 312.99,
-      "combinedAmerican": 1152,
-      "risk": "longshot",
-      "result": "lost",
-      "legs": [
-        {
-          "selection": "Both teams to score: No Both Teams To Score",
-          "result": "lost",
-          "official": "New Zealand 1-3 Egypt (FT, ESPN/FIFA)"
-        },
-        {
-          "selection": "Norway Moneyline (90′)",
-          "result": "pending",
-          "official": null
-        },
-        {
-          "selection": "Over 2.5 Total Goals",
-          "result": "pending",
-          "official": null
-        },
-        {
-          "selection": "Under 2.5 Total Goals",
-          "result": "pending",
-          "official": null
-        }
-      ]
-    },
-    "note": "Settled LOST — NZ/Egypt BTTS No missed (both teams scored). A parlay with a lost leg cannot win; the remaining June 22 legs are moot. Paper-only, separate from the core ladder."
+    "exposure": 0,
+    "note": "Since the 2026-09-10 reconciliation Moonshot's settled results move the core bankroll (a lost lane costs its $25 seed). Its record is kept on its own line; the earlier single-card lane is kept below as history.",
+    "legacy": {
+      "lane": "Moonshot Lane",
+      "paperOnly": true,
+      "separateFromCore": true,
+      "exposure": 0,
+      "currentStep": 1,
+      "targetReturn": 3000,
+      "status": "stopped",
+      "record": {
+        "wins": 0,
+        "losses": 1,
+        "voids": 0,
+        "pending": 0
+      },
+      "card": {
+        "cardId": "moonshot-2026-06-21-cross-slate-restart",
+        "stake": 25,
+        "projectedReturn": 312.99,
+        "combinedAmerican": 1152,
+        "risk": "longshot",
+        "result": "lost",
+        "legs": [
+          {
+            "selection": "Both teams to score: No Both Teams To Score",
+            "result": "lost",
+            "official": "New Zealand 1-3 Egypt (FT, ESPN/FIFA)"
+          },
+          {
+            "selection": "Norway Moneyline (90′)",
+            "result": "pending",
+            "official": null
+          },
+          {
+            "selection": "Over 2.5 Total Goals",
+            "result": "pending",
+            "official": null
+          },
+          {
+            "selection": "Under 2.5 Total Goals",
+            "result": "pending",
+            "official": null
+          }
+        ]
+      },
+      "note": "Settled LOST — NZ/Egypt BTTS No missed (both teams scored). A parlay with a lost leg cannot win; the remaining June 22 legs are moot. Paper-only, separate from the core ladder."
+    }
   },
-  "totalOpenExposure": 0
+  "totalOpenExposure": 0,
+  "protectedFold": {
+    "rule": "S",
+    "decidedBy": "founder, 2026-09-10 — Rule S (docs/PROTECTED_LEDGER_RECONCILIATION_PROPOSAL.md)",
+    "base": {
+      "asOf": "2026-07-07",
+      "currentBankroll": 19065.4,
+      "record": {
+        "wins": 19,
+        "losses": 14,
+        "voids": 0,
+        "pending": 0
+      }
+    },
+    "foldedAt": "2026-09-11T03:44:58Z",
+    "foldedThrough": "2026-09-09",
+    "bankrollDelta": -1050,
+    "days": [
+      {
+        "date": "2026-08-15",
+        "bankBuilder": {
+          "won": 1,
+          "lost": 1
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 2
+        },
+        "delta": -150
+      },
+      {
+        "date": "2026-08-16",
+        "bankBuilder": {
+          "won": 1,
+          "lost": 1
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 2
+        },
+        "delta": -150
+      },
+      {
+        "date": "2026-08-17",
+        "bankBuilder": {
+          "won": 1,
+          "lost": 1
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 2
+        },
+        "delta": -150
+      },
+      {
+        "date": "2026-08-18",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-19",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-20",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-21",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-22",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-23",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-24",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-25",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-26",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-27",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-28",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-29",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-30",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-08-31",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-09-01",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-09-02",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-09-03",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-09-04",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-09-05",
+        "bankBuilder": {
+          "won": 0,
+          "lost": 0
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 0
+        },
+        "delta": 0
+      },
+      {
+        "date": "2026-09-06",
+        "bankBuilder": {
+          "won": 1,
+          "lost": 1
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 2
+        },
+        "delta": -150
+      },
+      {
+        "date": "2026-09-07",
+        "bankBuilder": {
+          "won": 1,
+          "lost": 1
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 2
+        },
+        "delta": -150
+      },
+      {
+        "date": "2026-09-08",
+        "bankBuilder": {
+          "won": 1,
+          "lost": 1
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 2
+        },
+        "delta": -150
+      },
+      {
+        "date": "2026-09-09",
+        "bankBuilder": {
+          "won": 1,
+          "lost": 1
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 2
+        },
+        "delta": -150
+      }
+    ],
+    "uncarriedWins": [
+      {
+        "product": "bank-builder",
+        "lane": "A",
+        "date": "2026-08-17",
+        "step": 1,
+        "paid": 191.13,
+        "replacedBy": "2026-09-06 step 1 $100"
+      },
+      {
+        "product": "bank-builder",
+        "lane": "A",
+        "date": "2026-09-06",
+        "step": 1,
+        "paid": 223.54,
+        "replacedBy": "2026-09-07 step 1 $100"
+      },
+      {
+        "product": "bank-builder",
+        "lane": "A",
+        "date": "2026-09-08",
+        "step": 1,
+        "paid": 200.13,
+        "replacedBy": "2026-09-09 step 1 $100"
+      },
+      {
+        "product": "bank-builder",
+        "lane": "B",
+        "date": "2026-09-07",
+        "step": 1,
+        "paid": 307.93,
+        "replacedBy": "2026-09-08 step 1 $100"
+      }
+    ]
+  }
 }

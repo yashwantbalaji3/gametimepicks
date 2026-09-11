@@ -115,7 +115,7 @@ test("live ladder: record is consistent with the crown ladder + dual-lane settle
   const p = read("mr-dub/portfolio.json");
   const run = read("methodology/launch/dual-bank-builder-active.json").run;
   const activeDualWon = ["laneA", "laneB"].reduce((n, k) => n + (run[k].steps ?? []).filter((s) => s.status === "settled" && s.result === "won").length, 0);
-  assert.deepEqual(p.record, REC(19, 14), "canonical record 19-14 (dual-lane settlements through July-7; Lane A won Steps 1 & 2 in cycle 6 then lost July-3, both lanes lost July-5, then Lane A won its cycle-8 Step-1 July-6 and Step-2 July-7)");
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), REC(19, 14), "canonical record 19-14 (dual-lane settlements through July-7; Lane A won Steps 1 & 2 in cycle 6 then lost July-3, both lanes lost July-5, then Lane A won its cycle-8 Step-1 July-6 and Step-2 July-7)");
   // wins beyond the 5-0 crown ladder are dual-lane step wins; the CURRENT run's settled rungs are a subset of that
   // history. JULY-21 REVIEW RESTART: both lanes were reset to fresh Step-1 review cycles (paper, $0), so the TOP
   // LEVEL of the live run carries ZERO settled-WON rungs. The advanced July-6/July-7 cycle (8: Lane A Step-1 +
@@ -180,7 +180,7 @@ test("active-run protection: settled rungs are immutable history — exposure on
   const p = read("mr-dub/portfolio.json");
   // The CANONICAL dual-ladder never carries exposure on a settled rung (settled steps released their seeds).
   assert.equal(p.openExposure, 0, "no canonical exposure carried from settled rungs");
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 });
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 });
   // The daily portfolio MAY place a new card on the lane's current (unsettled) rung — legitimate forward
   // exposure. Verify no active BB lane card carries STALE exposure on a rung that was settled on an EARLIER
   // slate. A same-day card on a rung the live ladder just settled is fine: it IS that day's card, now graded

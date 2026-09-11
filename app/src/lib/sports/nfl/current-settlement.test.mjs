@@ -15,6 +15,7 @@ import crypto from "node:crypto";
 
 import { gradeNflLeg } from "./settlement-contract.mjs";
 import { validateCurrentEventArtifact } from "./current-event-contract.mjs";
+import { assertProtectedLedgerIntact } from "../../mr-dub/protected-invariant.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "..");
@@ -108,8 +109,7 @@ test("PROTECTED MONEY · the NFL settlement path cannot reach the money writers"
   }
   assert.match(src, /PRIVATE_PAPER_RECORD/, "its own separate record class");
   // and the protected artifact is byte-identical right now
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3", "protected money file untouched by every P171 release");
+  assertProtectedLedgerIntact(APP); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });
 
 test("REALITY WATCH · armed with an exact trigger and a falsifiable acceptance test", () => {

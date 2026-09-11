@@ -269,6 +269,21 @@ jobs:
             --apply --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             || echo "::warning::ladder settlement failed — prior ledger retained, cards stay pending"
 
+      # ---- Fold the night's receipts into the protected record (Rule S) ----
+      #
+      # The founder authorized this on 2026-09-10 (docs/PROTECTED_LEDGER_RECONCILIATION_PROPOSAL.md):
+      # a lost step costs its seed, a won step rolls, the crown never moves. The script refuses to
+      # write unless the record passes its invariant before AND after — history through 2026-07-07
+      # byte-identical, crown unchanged, bankroll = the July base + a fresh fold of every receipt — and
+      # a night with nothing new to fold rewrites nothing. It runs BEFORE the roll so the new day's
+      # portfolio opens on the folded bankroll. Fail loud: a refusal means the record was touched.
+      - name: Fold settled receipts into the protected record (Rule S — fail loud)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          cd app
+          node scripts/mr-dub/fold-protected-era.mjs --apply --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
       # ---- Roll the daily portfolio forward to TODAY (ET) ----
       #
       # Was step 5/6 inside settle_soccer_day.sh, which is invoked above under continue-on-error. The
@@ -651,8 +666,10 @@ jobs:
           # Paper-lane settlement. WITHOUT these two lines the settler runs, writes, and its output is
           # dropped on the floor — a contract that is generated but never added to the commit allowlist
           # is the same failure that cost this repo a 62-hour freshness outage.
-          # NOTE the deliberate omission: portfolio.json / banked-ladders.json are the protected money
-          # authority and are NEVER auto-committed. Only the dated receipt and today's working copy.
+          # portfolio.json is the protected money authority. Since 2026-09-10 the founder authorized ONE
+          # automated writer for it — the Rule S fold above, which refuses unless the invariant holds —
+          # so it is committed here. banked-ladders.json remains founder-only and is NEVER auto-committed.
+          git add app/public/data/mr-dub/portfolio.json 2>/dev/null || true
           git add app/public/data/mr-dub/settled/ 2>/dev/null || true
           # Without these two the Lab would grade every night and have its output dropped — the same
           # shape as the 62-hour freshness outage, where a step ran green and its result never landed.

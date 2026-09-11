@@ -16,6 +16,7 @@ import crypto from "node:crypto";
 import { researchEligibility, collectionGateMet, RESEARCH_ONLY_FLAGS, SCHEMA_VERSION } from "./mlb/pregame-archive/eligibility.ts";
 import { validatedModeledMarkets } from "./mlb/calibration/eligibility-policy.ts";
 import { anyModeledMarketBeatsMarket } from "./mlb/model-calibration-status.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.dirname(app);
@@ -99,8 +100,7 @@ test("8 · NOTHING changed: no validated market, calibration disclosures intact,
 });
 
 test("9 · money md5 unchanged (forward-only research capture is internal + money-independent)", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });
 
 test("10 · the capture workflow is enabled, non-blocking, PR-safe, and money/public-safe", () => {

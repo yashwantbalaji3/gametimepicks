@@ -16,6 +16,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 
 import { confidenceLabel, confidenceCaption } from "./confidence-labels.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const APP = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
@@ -165,8 +166,5 @@ test("MUTATION · restoring the inverted labels trips the guard", () => {
 // ── money guard ────────────────────────────────────────────────────────────
 
 test("money file untouched", () => {
-  const md5 = createHash("md5")
-    .update(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json")))
-    .digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(APP); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

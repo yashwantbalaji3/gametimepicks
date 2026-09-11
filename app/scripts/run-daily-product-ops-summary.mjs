@@ -13,10 +13,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { checkProtectedLedger, readReceiptsFrom } from "../src/lib/mr-dub/protected-invariant.mjs";
 
 const APP = path.join(process.cwd(), process.cwd().endsWith("app") ? "" : "app");
 const REPO = path.join(APP, "..");
-const EXPECTED_MONEY_MD5 = "affe6b21071f2b3be96bb2774eb347c3";
+// P256: the protected record is judged by its invariant, not a fixed hash (lib/mr-dub/protected-invariant.mjs).
 const WRITE = process.argv.includes("--write-summary");
 const DATE = (() => { const i = process.argv.indexOf("--date"); return i >= 0 ? process.argv[i + 1] : null; })();
 
@@ -31,7 +32,7 @@ function main() {
   // ── Money (READ-ONLY) ──
   const portfolio = readJson(path.join(APP, "public", "data", "mr-dub", "portfolio.json")) ?? {};
   const moneyMd5 = crypto.createHash("md5").update(fs.readFileSync(path.join(APP, "public", "data", "mr-dub", "portfolio.json"))).digest("hex");
-  const moneyIntact = moneyMd5 === EXPECTED_MONEY_MD5;
+  const moneyIntact = checkProtectedLedger(portfolio, readReceiptsFrom(APP)).ok;
   const money = { md5: moneyMd5, intact: moneyIntact, record: portfolio.record, currentBankroll: portfolio.currentBankroll, crownBankroll: portfolio.crownBankroll, openExposure: portfolio.openExposure ?? 0 };
 
   // ── Slates ──
@@ -80,7 +81,7 @@ function main() {
 
   // ── Recommended action ──
   let recommendedAction;
-  if (!moneyIntact) recommendedAction = "STOP — official money md5 drift detected; investigate before any ops";
+  if (!moneyIntact) recommendedAction = "STOP — the protected record fails its invariant; investigate before any ops";
   else if (pendingApproval.length) recommendedAction = `review preview → (operator) approve paper card for: ${pendingApproval.join(", ")}`;
   else if (pendingSettlement > 0) recommendedAction = `run settle-paper-product-cards (${pendingSettlement} paper card(s) pending settlement)`;
   else if (Object.values(previews).every((p) => p.status === "no_play")) recommendedAction = "no-play — collect more data";

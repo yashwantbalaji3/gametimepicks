@@ -15,6 +15,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { settleOverUnder, settleMoneyline, settleRunLine, gradeLean, gradePlayerLean, gradeTeamLean, extractOfficialGame, findPlayer, mergeLeanKeys, SUPPORTED_JOIN_MARKETS } from "../../scripts/join-mlb-pregame-settlements.mjs";
 import { settleOverUnder as ouCanon, settleMlbMoneyline, settleMlbRunLine } from "./mlb/product-settlement/mlb-markets.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.dirname(app);
@@ -201,6 +202,5 @@ test("15 · REGRESSION: lean merge keeps the LATEST capturedAt (older capture ne
 });
 
 test("14 · money md5 unchanged (settlement-join is internal + money-independent)", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

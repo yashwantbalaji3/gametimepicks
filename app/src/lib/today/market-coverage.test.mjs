@@ -16,6 +16,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
+import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
 import {
   buildMarketCoverage,
   coverageHeadline,
@@ -239,8 +240,5 @@ test("FUNCTIONAL · derives real coverage from the live artifacts", async () => 
 // ── money guard ────────────────────────────────────────────────────────────
 
 test("money file untouched", () => {
-  const md5 = createHash("md5")
-    .update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json")))
-    .digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

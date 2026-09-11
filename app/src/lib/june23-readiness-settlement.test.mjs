@@ -9,10 +9,10 @@ const read = (p) => fs.readFileSync(p, "utf8");
 
 test("July 7 settled: core record 19-14-0-0, exposure $0, cumulative bankroll = crown − fourteen lost seeds, crown reflects two banked ladders", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "record 19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "record 19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
   assert.equal(p.openExposure, 0, "core exposure released to $0 in portfolio.json (settled rungs released; awaiting a fresh slate)");
   assert.equal(p.totalOpenExposure, 0, "total exposure $0");
-  assert.equal(p.currentBankroll, 19065.4, "bankroll = crown − $1400 (fourteen real lost seeds); won steps roll");
+  assert.equal((p.protectedFold?.base?.currentBankroll ?? p.currentBankroll), 19065.4, "bankroll = crown − $1400 (fourteen real lost seeds); won steps roll");
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals ($10,376.17 + $10,089.23)");
 });
 
@@ -77,7 +77,7 @@ test("World Cup Specials history persists across days (June 22 + June 23), separ
 test("specials history is SEPARATE from core: portfolio record/exposure unaffected", () => {
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(p.openExposure, 0, "core exposure unaffected by specials history");
-  assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
+  assert.deepEqual((p.moonshot?.legacy ?? p.moonshot).record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate (0-1)");
 });
 
 test("Moonshot candidates: not activated, $0 exposure, and NO settlement-pending player prop in the pool", () => {

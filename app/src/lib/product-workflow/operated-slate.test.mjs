@@ -12,6 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { validatePaperProductCard, validateApprovalRequest, validatePaperSettlementEntry } from "./schema.ts";
+import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.join(app, "..");
@@ -71,6 +72,5 @@ test("4 · committed workflow artifacts carry NO wall-clock (deterministic + ide
 
 test("5 · the operated artifacts live under data/internal (never web-served) + money unchanged", () => {
   assert.ok(!fs.existsSync(path.join(app, "public/data/product-cards")), "not under app/public");
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

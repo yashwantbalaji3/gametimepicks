@@ -52,8 +52,9 @@ export const RECORD_FAMILIES: Record<RecordFamilyId, RecordFamily> = {
 
 /** The canonical money figures — the ONLY place these numbers are authored is portfolio.json. Pinned for guards. */
 export const OFFICIAL_PAPER_RECORD = {
-  recordLabel: "19-14",
-  portfolioMd5: "affe6b21071f2b3be96bb2774eb347c3",
+  // P256: the record is read from mr-dub/portfolio.json (the one owner) and the file is judged by its
+  // invariant (lib/mr-dub/protected-invariant.mjs) — a hard-coded label or hash went stale at the fold.
+  recordOwner: "public/data/mr-dub/portfolio.json → record",
 } as const;
 
 /** Rule: no public surface may present a number that blends two families. */

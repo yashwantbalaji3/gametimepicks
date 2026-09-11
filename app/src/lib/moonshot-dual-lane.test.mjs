@@ -18,6 +18,7 @@ import {
 } from "./world-cup/model-qualified-picks.ts";
 import { buildPersistedDailyPortfolio, applyCardLocks, laneEligibility } from "./daily-portfolio/accounting.ts";
 import { buildMasterLedger } from "./mr-dub/master-ledger.ts";
+import { canonicalBankroll } from "./mr-dub/protected-invariant.mjs";
 
 const root = path.join(process.cwd(), "public", "data");
 const read = (p) => fs.readFileSync(p, "utf8");
@@ -232,11 +233,11 @@ test("live June-24 portfolio: both Moonshot ladder lanes display; paper exposure
   const activeMoon = moon.filter((l) => l.status === "active");
   assert.equal(dp.products.moonshot.exposure, activeMoon.length * 25, "Moonshot paper exposure = the $25 seed × active lanes (reconciles)");
   // Canonical money is FROZEN — the daily portfolio never touches the bankroll / crown / record.
-  assert.equal(dp.activeBankroll, 19065.40, "canonical active bankroll frozen (crown − $1400 fourteen real lost seeds, after the July-5 settlement)");
+  assert.equal(dp.activeBankroll, canonicalBankroll(root), "the daily view carries the canonical bankroll, never its own");
   assert.equal(dp.crownBankroll, 20465.40, "canonical crown frozen (Σ of two completed-ladder finals)");
   const p = JSON.parse(read(path.join(root, "mr-dub", "portfolio.json")));
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "canonical record untouched by the moonshot view (19-14 after Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
-  assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "canonical moonshot block untouched");
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "canonical record untouched by the moonshot view (19-14 after Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
+  assert.deepEqual((p.moonshot?.legacy ?? p.moonshot).record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "canonical moonshot block untouched");
 });
 
 // ── Master ledger: Moonshot tracked as an independent product, exposure off the LIVE portfolio ────

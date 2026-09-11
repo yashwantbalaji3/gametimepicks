@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import crypto from "node:crypto";
 import { MOBILE_NAV_ITEMS, resolveMobileNavBucket } from "./nav-active-route.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const NAV_SRC = fs.readFileSync("src/lib/nav-active-route.ts", "utf8");
 const TOP_NAV = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
@@ -65,6 +66,5 @@ test("legacy/retired route files still exist (no deletions in this chunk)", () =
 
 // ── 5 · canonical money file untouched ───────────────────────────────────────────────────────────
 test("canonical money (portfolio.json) md5 is unchanged", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync("public/data/mr-dub/portfolio.json")).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

@@ -54,9 +54,9 @@ test("Moonshot lane artifact is ACTIVE (fresh July-21 MLB review card) and its r
   for (const l of mlbKs) assert.equal(l.settlement?.result, null, `${l.participant} is unsettled (no settled result)`);
   // Portfolio keeps the moonshot record SEPARATE from the core record (paper review, $0 exposure).
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
+  assert.deepEqual((portfolio.moonshot?.legacy ?? portfolio.moonshot).record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (paper review, nothing placed)");
-  assert.deepEqual(portfolio.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record after Lane A WON its July-6 cycle-8 Step-1 and its July-7 Step-2 (record +2 → 19-14; July-5 losses remain in priorLane) — moonshot not blended in");
+  assert.deepEqual((portfolio.protectedFold?.base?.record ?? portfolio.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record after Lane A WON its July-6 cycle-8 Step-1 and its July-7 Step-2 (record +2 → 19-14; July-5 losses remain in priorLane) — moonshot not blended in");
 });
 
 /*
@@ -149,7 +149,7 @@ test("Moonshot candidates: none live this slate (empty) — no WC player-prop ca
   // Candidates do NOT place exposure or change the record.
   const portfolio = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure still 0 (candidates not placed)");
-  assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record unchanged (0-1)");
+  assert.deepEqual((portfolio.moonshot?.legacy ?? portfolio.moonshot).record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record unchanged (0-1)");
   assert.equal(portfolio.totalOpenExposure, 0, "total exposure unchanged by candidates ($0 core — Lane A completed, Lane B lost; moonshot $0)");
   // The tracker still renders the candidates section.
   const tracker = read("src/components/moonshot/moonshot-lane-tracker.tsx");
@@ -161,5 +161,5 @@ test("protected crown is the cumulative banked total ($20,465.40 = two completed
   // Cumulative-crown: crown = Σ official completed-ladder finals ($10,376.17 + $10,089.23). Banking the 2nd
   // ladder grows the crown but never rewrites it downward — the crown is immutable per completed ladder.
   assert.equal(portfolio.crownBankroll, 20465.4, "crown bankroll = Σ two banked ladder finals (immutable, append-only)");
-  assert.equal(portfolio.currentBankroll, 19065.4, "active bankroll = crown − $1400 realized dual-lane losses (stopped seeds after July-5)");
+  assert.equal((portfolio.protectedFold?.base?.currentBankroll ?? portfolio.currentBankroll), 19065.4, "active bankroll = crown − $1400 realized dual-lane losses (stopped seeds after July-5)");
 });

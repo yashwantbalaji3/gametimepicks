@@ -18,6 +18,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 import { EPL_ARTIFACT_ROOT, EPL_ARTIFACT_SUBROOTS } from "./epl-artifacts.ts";
+import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
 
 const APP = process.cwd();
 // src/lib/sports/research joined in Program 149: the shared replay harness uses the EPL Poisson
@@ -233,9 +234,5 @@ test("the lane makes no predictive claim in what it ships", () => {
 });
 
 test("money is untouched by this lane", () => {
-  const md5 = crypto
-    .createHash("md5")
-    .update(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json")))
-    .digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(APP); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

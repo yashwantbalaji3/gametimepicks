@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import crypto from "node:crypto";
 import { MOBILE_NAV_ITEMS } from "./nav-active-route.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const NAV = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
 const RAIL = fs.readFileSync("src/components/command-rail.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
@@ -98,6 +99,5 @@ test("/mr-dub is \"Mr. Dub's Portfolio\" in nav; 'Track Record'/'Daily Dashboard
 
 // ── 6 · canonical money file untouched ───────────────────────────────────────────────────────────
 test("canonical money (portfolio.json) md5 is unchanged", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync("public/data/mr-dub/portfolio.json")).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3", "portfolio.json must be untouched by label changes");
+  assertProtectedLedgerIntact(); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

@@ -14,6 +14,7 @@ import { validateCurrentEventArtifact } from "./current-event-contract.mjs";
 import { classifyParticipation } from "./participation.mjs";
 import { parseAuthorizationReceipt, assertCallAllowed, emptyLedger } from "../odds/p171-authorization.mjs";
 import { runNflShadow } from "./shadow-run.mjs";
+import { assertProtectedLedgerIntact } from "../../mr-dub/protected-invariant.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "..");
@@ -117,11 +118,10 @@ test("STATE RENDERING · every unavailable state is distinct, and none is silent
 });
 
 test("PROTECTED · every P171 artifact class stays out of public output, and money is untouched", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(APP); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
   const portfolio = JSON.parse(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json"), "utf8"));
-  assert.deepEqual(portfolio.record, { wins: 19, losses: 14, voids: 0, pending: 0 });
-  assert.equal(portfolio.currentBankroll, 19065.4);
+  assert.deepEqual((portfolio.protectedFold?.base?.record ?? portfolio.record), { wins: 19, losses: 14, voids: 0, pending: 0 });
+  assert.equal((portfolio.protectedFold?.base?.currentBankroll ?? portfolio.currentBankroll), 19065.4);
   assert.equal(portfolio.crownBankroll, 20465.4);
   assert.equal(portfolio.openExposure, 0);
   // the public market artifact carries prices and provenance — never a research payload

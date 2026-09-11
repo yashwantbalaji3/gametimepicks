@@ -10,6 +10,7 @@ import {
   MOONSHOT_MIN_COMBINED_ODDS,
 } from "./world-cup/model-qualified-picks.ts";
 import { buildDailyPortfolio } from "./mr-dub/daily-portfolio.ts";
+import { canonicalBankroll } from "./mr-dub/protected-invariant.mjs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const root = path.join(process.cwd(), "public", "data");
@@ -104,8 +105,8 @@ test("daily portfolio: 4 candidate lanes, $0 exposure (post-settlement — no qu
   assert.equal(dp.openExposure, 0, "open exposure $0 (no active lanes)");
   assert.equal(dp.exposure.core, 0, "core exposure $0");
   assert.equal(dp.exposure.moonshot, 0, "moonshot exposure $0");
-  assert.equal(dp.activeBankroll, 19065.40, "active bankroll = portfolio.currentBankroll (after the July-5 Step settlement)");
-  assert.equal(dp.availableBankroll, 19065.40, "available = active − exposure ($0)");
+  assert.equal(dp.activeBankroll, canonicalBankroll(root), "active bankroll = portfolio.currentBankroll");
+  assert.equal(dp.availableBankroll, dp.activeBankroll, "available = active − exposure ($0)");
   assert.equal(dp.crownBankroll, 20465.40, "crown reported separately, unchanged");
 });
 
@@ -116,11 +117,11 @@ test("daily portfolio NEVER mutates money state: portfolio.json bankroll/crown/e
   // the two completed-ladder finals, unchanged) and bankroll = crown − $1400 realized dual-lane losses = 19065.40;
   // record advanced to 19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2). The read-only daily
   // portfolio must never mutate it.
-  assert.equal(p.currentBankroll, 19065.40, "active bankroll = post-July-5 value");
+  assert.equal((p.protectedFold?.base?.currentBankroll ?? p.currentBankroll), 19065.4, "active bankroll = post-July-5 value");
   assert.equal(p.crownBankroll, 20465.40, "crown = Σ of two completed-ladder finals");
   assert.equal(p.openExposure, 0, "core exposure $0");
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "record 19-14-0-0");
-  assert.deepEqual(p.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "record 19-14-0-0");
+  assert.deepEqual((p.moonshot?.legacy ?? p.moonshot).record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot record separate");
 });
 
 test("model picks table: grouped by game, has team + total/BTTS + player columns; cards column always empty", () => {

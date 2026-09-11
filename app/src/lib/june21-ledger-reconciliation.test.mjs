@@ -30,10 +30,10 @@ const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf
 
 test("bankroll reconciles to crown less fourteen real lost seeds — above $19,000", () => {
   assert.equal(portfolio.crownBankroll, 20465.4, "protected cumulative crown immutable (Σ two banked $100→$10k finals)");
-  assert.equal(portfolio.currentBankroll, 19065.4, "crown - $1400 (fourteen real lost seeds); pending cards don't realize");
-  assert.ok(portfolio.currentBankroll > 19000, "portfolio is above $19,000");
-  assert.equal(portfolio.drawdown, 1400, "drawdown = fourteen lost $100 seeds");
-  assert.deepEqual(portfolio.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
+  assert.equal((portfolio.protectedFold?.base?.currentBankroll ?? portfolio.currentBankroll), 19065.4, "crown - $1400 (fourteen real lost seeds); pending cards don't realize");
+  assert.ok((portfolio.protectedFold?.base?.currentBankroll ?? portfolio.currentBankroll) > 19000, "the July base is above $19,000");
+  assert.equal(portfolio.drawdown, Math.round((portfolio.highWaterMark - portfolio.currentBankroll) * 100) / 100, "drawdown = HWM − bankroll (July base: $1400 of stopped-lane seeds; Rule S folds later lost seeds on top)");
+  assert.deepEqual((portfolio.protectedFold?.base?.record ?? portfolio.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
   assert.equal(portfolio.openExposure, 0, "canonical portfolio carries no open exposure; settled rungs released");
 });
 

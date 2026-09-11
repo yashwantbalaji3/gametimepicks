@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { assertProtectedLedgerIntact } from "../../mr-dub/protected-invariant.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "..");
@@ -25,7 +26,7 @@ test("the ledger is its own lane and can never move money", () => {
     assert.ok(!src.includes(forbidden), `the experimental settler must never name ${forbidden}`);
   }
   // and protected money is byte-identical
-  assert.equal(crypto.createHash("md5").update(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json"))).digest("hex"), "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(APP); // P256: was a whole-file md5 pin
   assert.equal(crypto.createHash("md5").update(fs.readFileSync(path.join(APP, "public/data/mr-dub/bank-builder-locks.json"))).digest("hex"), "cb80473f88f3cb5f67208fa568925295");
 });
 

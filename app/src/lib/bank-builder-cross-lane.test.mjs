@@ -7,6 +7,7 @@ import { selectCrossLaneBankBuilder } from "./daily-portfolio/bank-builder-corre
 import { loadWorldCupModelPicks } from "./world-cup/model-qualified-picks.ts";
 import { loadWorldCupTeamLegs } from "./daily-portfolio/wc-team-legs.ts";
 import { loadMlbModelPicks } from "./daily-portfolio/mlb-model-picks.ts";
+import { canonicalBankroll } from "./mr-dub/protected-invariant.mjs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const root = path.join(process.cwd(), "public", "data");
@@ -92,12 +93,12 @@ test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   // POST JULY-5 SETTLEMENT: crown = 20465.40 (Σ two banked finals); active bankroll = crown −
   // $1400 dual-lane losses (fourteen real lost seeds; both lanes lost on July-5) = 19065.40.
   // The daily view holds the July-7 slate where only Lane A is active; open exposure = Σ active-lane seeds.
-  assert.equal(dp.activeBankroll, 19065.4); assert.equal(dp.crownBankroll, 20465.4);
+  assert.equal(dp.activeBankroll, canonicalBankroll()); assert.equal(dp.crownBankroll, 20465.4);
   const sumExposure = (dp.lanes ?? []).filter((l) => l.status === "active").reduce((s, l) => s + (l.exposure ?? 0), 0);
   assert.equal(dp.openExposure, sumExposure, "open exposure = Σ active-lane seed exposures, nothing else");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
   const p = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(p.currentBankroll, 19065.4); assert.equal(p.crownBankroll, 20465.4);
+  assert.equal((p.protectedFold?.base?.currentBankroll ?? p.currentBankroll), 19065.4); assert.equal(p.crownBankroll, 20465.4);
   assert.equal(p.openExposure, 0, "CANONICAL dual-ladder exposure stays $0 (separate from the daily view)");
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 });
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 });
 });

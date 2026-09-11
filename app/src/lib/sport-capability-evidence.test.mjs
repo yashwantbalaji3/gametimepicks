@@ -22,6 +22,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 
 import { SPORT_CAPABILITIES, capabilityState, FULL_MODEL_SPORTS } from "./sport-capability-registry.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -147,8 +148,5 @@ test("the audit script exists and reports rather than gates", () => {
 // ── money guard ────────────────────────────────────────────────────────────
 
 test("money file untouched", () => {
-  const md5 = createHash("md5")
-    .update(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json")))
-    .digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(APP); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

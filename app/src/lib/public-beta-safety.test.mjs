@@ -11,6 +11,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.dirname(app);
@@ -18,9 +19,9 @@ const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); }
 const walk = (dir, out = []) => { try { for (const e of fs.readdirSync(dir, { withFileTypes: true })) { const p = path.join(dir, e.name); if (e.isDirectory()) walk(p, out); else if (/\.(ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name)) out.push(p); } } catch { /* skip */ } return out; };
 
 test("1 · money is untouched (portfolio md5 pinned)", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
-  const r = readJson(path.join(app, "public/data/mr-dub/portfolio.json")).record;
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
+  const pf = readJson(path.join(app, "public/data/mr-dub/portfolio.json"));
+  const r = pf.protectedFold?.base?.record ?? pf.record; // the July base; Rule S folds later settlements on top
   assert.equal(`${r.wins}-${r.losses}`, "19-14"); assert.equal(r.pending, 0);
 });
 

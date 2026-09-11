@@ -13,6 +13,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 import { computeMarketReliability, historicalReliability } from "./mlb-reliability.ts";
+import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.join(app, "..");
@@ -102,8 +103,7 @@ test("4 · no shipped UI/product code references the shadow layer or claims an i
 });
 
 test("5 · money md5 unchanged; the whole shadow/calibration layer is money-independent", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
   // The exporters/builders never write a money file.
   for (const s of ["export-mlb-calibration-rows.mjs", "build-shadow-calibration.mjs", "build-shadow-calibrated-leans.mjs", "backtest-shadow-calibration.mjs"]) {
     const src = fs.readFileSync(path.join(app, "scripts", s), "utf8");

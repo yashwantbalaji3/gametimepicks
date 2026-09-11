@@ -96,10 +96,10 @@ test("Lane A's completion was operator-gated then BANKED (Ladder #2) — never a
 
 test("the consumed lock NEVER mutates canonical money (bankroll/crown/record are the post-banking truth)", () => {
   const p = read("mr-dub/portfolio.json");
-  assert.equal(p.currentBankroll, 19065.4);
+  assert.equal((p.protectedFold?.base?.currentBankroll ?? p.currentBankroll), 19065.4);
   assert.equal(p.crownBankroll, 20465.4);
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 });
-  assert.equal(dp.activeBankroll, 19065.4);
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 });
+  assert.equal(dp.activeBankroll, p.currentBankroll, "daily view reconciles to the canonical bankroll");
   assert.equal(dp.crownBankroll, 20465.4);
 });
 

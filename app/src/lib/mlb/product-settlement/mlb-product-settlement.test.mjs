@@ -12,6 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { settleMlbMoneyline, settleMlbRunLine, settleMlbTotal, settleMlbTeamTotal, settleMlbPitcherStrikeouts } from "./mlb-markets.ts";
+import { assertProtectedLedgerIntact } from "../../mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.join(app, "..");
@@ -105,8 +106,7 @@ test("4 · the settlement module + script contain no money-write path", () => {
 });
 
 test("5 · money md5 unchanged — settlement is fully money-independent", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });
 
 test("6 · team moneyline is graded from the official linescore (source statsapi), cross-checked", () => {

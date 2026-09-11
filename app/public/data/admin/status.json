@@ -1,14 +1,14 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-10T17:54:03.358Z",
+  "generatedAt": "2026-09-11T03:49:01.769Z",
   "canonical": {
-    "record": "19-14",
-    "bankroll": 19065.4,
+    "record": "26-21",
+    "bankroll": 18015.4,
     "crown": 20465.4,
-    "drawdown": 1400,
-    "profit": 18965.4,
-    "roiMultiple": 189.65,
-    "portfolioMd5": "affe6b21071f2b3be96bb2774eb347c3"
+    "drawdown": 2450,
+    "profit": 17915.4,
+    "roiMultiple": 179.15,
+    "portfolioMd5": "1bb7060969c4450b93ed9fab9bf180af"
   },
   "moneyGate": {
     "crownMinusDrawdownEqualsBankroll": true,
@@ -18,7 +18,7 @@
   "slate": {
     "date": "2026-09-10",
     "dailyPortfolioDate": "2026-09-10",
-    "activeBankroll": 19065.4,
+    "activeBankroll": 18015.4,
     "openExposure": 250,
     "worldCupGames": 0,
     "mlbGames": 5,
@@ -122,7 +122,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-09-10",
-      "generatedAt": "2026-09-10T17:15:07Z",
+      "generatedAt": "2026-09-10T18:39:37Z",
       "sports": [
         {
           "sport": "epl",
@@ -183,14 +183,8 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-10",
       "present": true,
-      "generatedAt": "2026-09-10T17:15:06Z",
-      "watchdog": [
-        {
-          "product": "end-zone-vault",
-          "kind": "INCIDENT_OPEN",
-          "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-10"
-        }
-      ],
+      "generatedAt": "2026-09-10T18:39:35Z",
+      "watchdog": [],
       "states": {
         "bank-builder": {
           "state": "NO_PLAY",
@@ -201,7 +195,7 @@
           "policyVersion": "moonshot@1"
         },
         "end-zone-vault": {
-          "state": "INCIDENT",
+          "state": "NO_PLAY",
           "policyVersion": "end-zone-vault@1"
         },
         "homer-nukes": {
@@ -232,8 +226,8 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-10T17:50:39.613Z",
-    "ageHours": 0.1,
+    "lastRunAt": "2026-09-11T01:23:38.173Z",
+    "ageHours": 2.4,
     "ok": false,
     "status": "fail",
     "phase": "daily-owner-slo"
@@ -241,48 +235,48 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-10",
-    "etTime": "13:54",
+    "etTime": "23:49",
     "stages": [
       {
         "stage": "schedule",
         "present": true,
         "state": "ready",
-        "dueEt": "09:30",
+        "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
       {
         "stage": "board",
         "present": true,
         "state": "ready",
-        "dueEt": "09:30",
+        "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
       {
         "stage": "teamMarkets",
         "present": true,
         "state": "ready",
-        "dueEt": "10:15",
+        "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
         "present": true,
         "state": "ready",
-        "dueEt": "10:15",
+        "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "simulations",
         "present": true,
         "state": "ready",
-        "dueEt": "10:15",
+        "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "predictions",
         "present": true,
         "state": "ready",
-        "dueEt": "10:15",
+        "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       }
     ],

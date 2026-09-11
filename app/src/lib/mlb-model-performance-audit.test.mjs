@@ -20,6 +20,7 @@ import crypto from "node:crypto";
 
 import { buildMlbAudit } from "./results-audit-notes.ts";
 import { getMlbSettledLeans } from "./data-mlb-results.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.join(app, "..");
@@ -39,17 +40,14 @@ const stripComments = (s) =>
 
 // ── 1. money md5 unchanged ───────────────────────────────────────────────
 test("1 · canonical money md5 unchanged", () => {
-  const md5 = crypto
-    .createHash("md5")
-    .update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json")))
-    .digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });
 
 // ── 2. official product-card record untouched ────────────────────────────
-test("2 · official product-card record unchanged (19-14)", () => {
-  assert.equal(portfolio.record.wins, 19);
-  assert.equal(portfolio.record.losses, 14);
+test("2 · official product-card record unchanged (July base 19-14; Rule S folds later settlements)", () => {
+  const r = portfolio.protectedFold?.base?.record ?? portfolio.record;
+  assert.equal(r.wins, 19);
+  assert.equal(r.losses, 14);
 });
 
 // ── 3. grader docstring lists all four graded markets ────────────────────

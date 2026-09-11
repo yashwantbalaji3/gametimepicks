@@ -23,6 +23,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 import { featuredSimulations } from "./simulate-lobby-featured.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
@@ -153,8 +154,7 @@ test("6 · no banned copy in the lobby, the featured lib, or the new components"
 });
 
 test("7 · canonical money md5 unchanged", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3", "portfolio.json md5 unchanged");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });
 
 test("FUNCTIONAL: today's real MLB details thread logos into the featured cards (never null when the board has ids)", async () => {

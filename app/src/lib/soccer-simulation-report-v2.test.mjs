@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const APP = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
@@ -80,6 +81,5 @@ test("coming-soon section lists the genuinely-unsupported markets, lower in the 
 });
 
 test("money untouched (this is a display-only report change)", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(APP); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

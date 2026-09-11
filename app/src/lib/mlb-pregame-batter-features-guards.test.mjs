@@ -17,6 +17,7 @@ import { windowForm } from "../../scripts/capture-mlb-pregame-batter-form.mjs";
 import { runEnvironmentSignal } from "../../scripts/capture-mlb-pregame-park-factors.mjs";
 import { buildObservation } from "../../scripts/build-mlb-research-observations.mjs";
 import { auditQuality } from "../../scripts/monitor-mlb-research-quality.mjs";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.dirname(app);
@@ -115,8 +116,7 @@ test("6 · batter-feature artifacts are internal only (never web-served); money 
     const hit = fs.readdirSync(out, { recursive: true }).filter((p) => /batter-splits|batter-form|park-factors/.test(String(p)) && String(p).includes("internal"));
     assert.equal(hit.length, 0);
   }
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });
 
 test("7 · [integration] REAL archive batter-feature families pass quality (no FAIL)", { skip: RUN_INTEGRATION ? false : SKIP_REASON }, () => {

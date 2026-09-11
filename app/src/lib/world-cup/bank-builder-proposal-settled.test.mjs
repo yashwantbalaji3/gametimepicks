@@ -12,10 +12,10 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { makeSettledApprovedRoot } from "../__testsupport__/settled-ladder-root.mjs";
 import { pinnedLaneRoot } from "../bank-builder/fixtures/root.mjs";
+import { assertProtectedDataIntact } from "../mr-dub/protected-invariant.mjs";
 
 const DATA = pinnedLaneRoot();
 const md5 = (p) => crypto.createHash("md5").update(fs.readFileSync(p)).digest("hex");
-const MONEY_MD5 = "affe6b21071f2b3be96bb2774eb347c3";
 const POST_SETTLE = Date.UTC(2026, 6, 8, 3, 0); // ~11pm ET July-7, after both games
 
 // P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
@@ -87,5 +87,5 @@ test("UNSETTLED approved step falls back to the kickoff lifecycle — NEVER a fa
 });
 
 test("proposal-card settled-detection touches NO canonical money", () => {
-  assert.equal(md5(path.join(DATA, "mr-dub", "portfolio.json")), MONEY_MD5, "portfolio.json md5 unchanged");
+  assertProtectedDataIntact(DATA); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

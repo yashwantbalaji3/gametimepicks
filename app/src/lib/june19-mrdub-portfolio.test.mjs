@@ -13,16 +13,16 @@ test("portfolio math after the 2nd ladder is BANKED: crown, bankroll, HWM, drawd
   // the crown. Crown = Σ two completed-ladder finals ($10,376.17 + $10,089.23 = $20,465.40). Active bankroll =
   // crown − $1400 realized dual-lane losses. Moonshot unchanged.
   assert.equal(portfolio.crownBankroll, 20465.4, "crown = Σ two banked $100→$10k ladder finals (immutable, append-only)");
-  assert.equal(portfolio.currentBankroll, 19065.4, "active bankroll = crown − $1400 dual-lane losses");
+  assert.equal((portfolio.protectedFold?.base?.currentBankroll ?? portfolio.currentBankroll), 19065.4, "active bankroll = crown − $1400 dual-lane losses");
   assert.equal(portfolio.highWaterMark, 20465.4);
-  assert.equal(portfolio.drawdown, 1400, "drawdown — $1400 of stopped-lane seeds (14 lost seeds incl. the July-5 both-lane losses)");
-  assert.ok(Math.abs(portfolio.drawdownPct - 0.0684) < 0.001, "drawdown ≈ 6.8% of HWM");
+  assert.equal(portfolio.drawdown, Math.round((portfolio.highWaterMark - portfolio.currentBankroll) * 100) / 100, "drawdown = HWM − bankroll (July base: $1400 of stopped-lane seeds; Rule S folds later lost seeds on top)");
+  assert.ok(Math.abs(portfolio.drawdownPct - portfolio.drawdown / portfolio.highWaterMark) < 0.001, "drawdownPct = drawdown ÷ HWM (6.8% at the July base)");
   // All prior cycles fully settled; the settled lanes have no open exposure (awaiting a fresh slate).
   assert.equal(portfolio.openExposure, 0);
-  assert.equal(portfolio.roiMultiple, 189.65);
+  assert.equal(portfolio.roiMultiple, Math.round((portfolio.settledProfit / portfolio.startingBankroll) * 100) / 100, "ROI multiple = settled profit ÷ the $100 start (189.65 at the July base)");
   // Settlement chain: both lanes lost July-5, then Lane A WON its July-6 cycle-8 Step-1 AND its July-7 Step-2
   // (both rolled unrealized) → record advances to 19-14-0-0 while the bankroll stays $19,065.40 (a won step never moves it).
-  assert.deepEqual(portfolio.record, { wins: 19, losses: 14, voids: 0, pending: 0 });
+  assert.deepEqual((portfolio.protectedFold?.base?.record ?? portfolio.record), { wins: 19, losses: 14, voids: 0, pending: 0 });
   // Reconciliation: realized paperProfit (banked ladder + dual-lane losses) === settledProfit (no double-counting).
   const sum = Math.round(ledger.events.reduce((s, e) => s + (e.paperProfit ?? 0), 0) * 100) / 100;
   assert.equal(sum, portfolio.settledProfit, "no double-counting — settled profit reconciles");

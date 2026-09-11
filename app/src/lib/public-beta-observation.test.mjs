@@ -59,7 +59,7 @@ test("1 · the runner never writes money — every mr-dub artifact is byte-ident
     // The pinned hashes must be REPORTED as matching, not silently absent from the report.
     const o = JSON.parse(r.stdout);
     const pinned = Object.fromEntries(o.protectedHashes.map((h) => [h.file, h]));
-    assert.equal(pinned["app/public/data/mr-dub/portfolio.json"].actual, "affe6b21071f2b3be96bb2774eb347c3");
+    assert.equal(pinned["app/public/data/mr-dub/portfolio.json"].state, "MATCH", "the protected record passes its invariant (P256: no longer a fixed hash)");
     assert.equal(pinned["app/public/data/mr-dub/bank-builder-locks.json"].actual, "cb80473f88f3cb5f67208fa568925295");
     for (const h of o.protectedHashes) assert.equal(h.state, "MATCH", `${h.file} is ${h.state}`);
   } finally {

@@ -8,6 +8,7 @@ import { buildPersistedDailyPortfolio } from "./daily-portfolio/accounting.ts";
 import { loadWorldCupModelPicks } from "./world-cup/model-qualified-picks.ts";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
 import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
+import { canonicalBankroll } from "./mr-dub/protected-invariant.mjs";
 
 /**
  * Build a temp `root` mirroring public/data with an UNSETTLED approved BB step, so the ACTIVE/$100 seed path
@@ -136,7 +137,7 @@ test("settlement history is DURABLY recorded in the ladder priorLane chain (Lane
   // The daily-portfolio (whatever slate it now holds) must always reconcile to the canonical bankroll.
   const dp = JSON.parse(read(path.join(pinnedLaneRoot(), "mr-dub/daily-portfolio.json")));
   const port = JSON.parse(read("public/data/mr-dub/portfolio.json"));
-  assert.equal(dp.activeBankroll, port.currentBankroll, "daily view reconciles to canonical bankroll");
+  assert.equal(dp.activeBankroll, port.protectedFold?.base?.currentBankroll ?? port.currentBankroll, "the pinned Aug-15 daily view reconciles to the bankroll of its day (the July base; Rule S folds later)");
   assert.equal(dp.crownBankroll, port.crownBankroll, "daily view reconciles to canonical crown");
   assert.equal(dp.availableBankroll, Math.round((dp.activeBankroll - dp.openExposure) * 100) / 100, "available = active − exposure");
 });
@@ -159,7 +160,7 @@ test("BB seed-model invariant: an ACTIVE approved lane risks exactly its $100 se
     assert.notEqual(a.exposure, a.stake, "exposure (the $100 seed at risk) is distinct from the rolled stake");
     assert.equal(dp.products.bankBuilder.exposure, 100, "BB exposure = one active $100 seed");
     // Generation reads canonical money read-only — the temp root's copy still carries the canonical figures.
-    assert.equal(dp.activeBankroll, 19065.4, "active bankroll is the post-settlement truth, unchanged by generation");
+    assert.equal(dp.activeBankroll, canonicalBankroll(dataRoot), "active bankroll is the canonical truth, unchanged by generation");
     assert.equal(dp.crownBankroll, 20465.4, "crown unchanged by generation (Σ two banked finals)");
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
@@ -179,7 +180,7 @@ test("BB same-day settlement: the settled July-7 Lane A Step-2 card renders WON 
     assert.equal(a.exposure, 0, "settled seed is $0 exposure");
     assert.equal(a.clearedSteps, 2, "Step 2 counts as a cleared rung");
     assert.equal(dp.products.bankBuilder.exposure, 0, "BB open exposure is $0 after the same-day settlement");
-    assert.equal(dp.activeBankroll, 19065.4, "active bankroll unchanged by generation");
+    assert.equal(dp.activeBankroll, canonicalBankroll(dataRoot), "active bankroll unchanged by generation");
     assert.equal(dp.crownBankroll, 20465.4, "crown unchanged by generation");
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });

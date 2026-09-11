@@ -72,6 +72,18 @@ function moonshotSummary() {
 }
 
 function main() {
+  /* P256 — since 2026-09-10 the protected record is carried forward by the Rule S fold
+     (scripts/mr-dub/fold-protected-era.mjs), the one authorized writer. This rebuild derives
+     portfolio/ledger/daily-summary from the pre-fold card stores, so running it over a folded record
+     would silently erase every folded day. Refuse; the fold owns these three files now. */
+  try {
+    const existing = JSON.parse(fs.readFileSync(path.join(OUT, "portfolio.json"), "utf8"));
+    if (existing?.protectedFold) {
+      console.error("[mr-dub-ledger] REFUSED: portfolio.json carries a Rule S fold — the fold owns portfolio/ledger/daily-summary (scripts/mr-dub/fold-protected-era.mjs). Nothing written.");
+      process.exitCode = 3;
+      return;
+    }
+  } catch { /* no existing record: a first build is allowed */ }
   const crown = JSON.parse(fs.readFileSync(CROWN, "utf8"));
   const active = JSON.parse(fs.readFileSync(ACTIVE, "utf8")).run;
   const events = [];

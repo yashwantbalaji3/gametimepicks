@@ -12,9 +12,9 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { collectForDate } from "../../../scripts/_settlement-collect.mjs";
 import { settleCard } from "./soccer-markets.ts";
+import { assertProtectedDataIntact } from "../mr-dub/protected-invariant.mjs";
 
 const DATA = path.join(process.cwd(), "public", "data");
-const MONEY_MD5 = "affe6b21071f2b3be96bb2774eb347c3";
 const md5 = (p) => crypto.createHash("md5").update(fs.readFileSync(p)).digest("hex");
 const read = (rel) => JSON.parse(fs.readFileSync(path.join(DATA, rel), "utf8"));
 
@@ -65,5 +65,5 @@ test("unresolved player props remain PENDING and pending cards are NOT recorded 
 });
 
 test("preserving settled products touches NO canonical money", () => {
-  assert.equal(md5(path.join(DATA, "mr-dub", "portfolio.json")), MONEY_MD5, "portfolio.json md5 unchanged");
+  assertProtectedDataIntact(DATA); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

@@ -13,6 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { deriveSlateStatus } from "../../scripts/mlb-slate-completeness-gate.mjs";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.dirname(app);
@@ -157,6 +158,5 @@ test("11 · production-history dashboard: expanded per-run fields + committed da
 test("7 · gate + orchestrator are money-independent; money md5 unchanged", () => {
   // the gate writes only the internal health status; the orchestrator's grep never lets money/public/portfolio through
   assert.ok(!/portfolio\.json|bankroll|crown|openExposure/.test(fs.readFileSync(path.join(app, "scripts/mlb-slate-completeness-gate.mjs"), "utf8").replace(/mr-dub/g, "")), "gate never touches money");
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

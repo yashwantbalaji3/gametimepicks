@@ -17,6 +17,7 @@ import { brierScore, logLoss, accuracy, roiSim, calibrationBins, BASELINES, BENC
 import { validateFeatures, NullSimulationModel, SIMULATION_PIPELINE_STAGES, SIMULATION_PIPELINE_GUARDRAILS } from "./mlb/simulation/simulation-pipeline.ts";
 import { PA_BY_SLOT } from "../../scripts/capture-mlb-pregame-pa-opportunity.mjs";
 import { buildObservation } from "../../scripts/build-mlb-research-observations.mjs";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.dirname(app);
@@ -146,6 +147,5 @@ test("6 · readiness monitor keeps modeling BLOCKED; artifacts internal; money m
     const hit = fs.readdirSync(out, { recursive: true }).filter((p) => /simulation-feature-contract|batter-vs-pitcher|simulation-readiness/.test(String(p)));
     assert.equal(hit.length, 0);
   }
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

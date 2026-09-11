@@ -24,6 +24,7 @@ import crypto from "node:crypto";
 
 import { getTrustCenterModel } from "./results-trust-center.ts";
 import { latestMlbResultDate, getMlbComparisonReport } from "./data-mlb-results.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
@@ -161,7 +162,7 @@ test("12 · canonical money md5 is unchanged and unread-mutated", () => {
       .update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json")))
       .digest("hex");
   const before = md5();
-  assert.equal(before, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
   // Calling the loader must never write.
   getTrustCenterModel();
   assert.equal(md5(), before);

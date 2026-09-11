@@ -13,6 +13,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { classifyBuildClock, buildClockLabel } from "./build-clock.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.resolve(HERE, "../..");
@@ -170,8 +171,5 @@ test("next.config bakes the marker in without recomputing it", () => {
 // ── money guard ────────────────────────────────────────────────────────────
 
 test("money file untouched", () => {
-  const md5 = createHash("md5")
-    .update(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json")))
-    .digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3", "portfolio.json money file must be untouched");
+  assertProtectedLedgerIntact(APP); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

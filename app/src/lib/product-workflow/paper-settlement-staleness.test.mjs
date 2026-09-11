@@ -23,6 +23,7 @@ import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
+import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const repo = path.join(app, "..");
@@ -105,7 +106,7 @@ test("settling paper cards never mutates canonical money", () => {
     runSettle(root);
     const after = crypto.createHash("md5").update(fs.readFileSync(portfolio)).digest("hex");
     assert.equal(after, before, "portfolio.json untouched by paper settlement");
-    assert.equal(after, "affe6b21071f2b3be96bb2774eb347c3", "money stays canonical 19-14");
+    assertProtectedLedgerIntact(); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

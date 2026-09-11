@@ -22,6 +22,7 @@ import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const script = path.join(app, "scripts", "build-admin-status.mjs");
@@ -134,5 +135,5 @@ test("building the admin status never mutates canonical money (portfolio md5 pin
   buildStatusAt("2026-07-24T20:00:00Z");
   const after = crypto.createHash("md5").update(fs.readFileSync(portfolioPath)).digest("hex");
   assert.equal(after, before, "portfolio.json md5 unchanged by the status build");
-  assert.equal(after, "affe6b21071f2b3be96bb2774eb347c3", "money stays canonical 19-14");
+  assertProtectedLedgerIntact(); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

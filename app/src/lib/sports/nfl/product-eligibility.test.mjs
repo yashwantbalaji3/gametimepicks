@@ -10,6 +10,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 import { evaluateNflProductEligibility, PRODUCT_ELIGIBILITY_STATES } from "./product-eligibility.mjs";
+import { assertProtectedLedgerIntact } from "../../mr-dub/protected-invariant.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "..");
@@ -98,7 +99,7 @@ test("the registry refuses NFL for a stated reason and names what would change i
 });
 
 test("PROTECTED MONEY IS BYTE-IDENTICAL — adding a gate changed no existing lane", () => {
-  assert.equal(crypto.createHash("md5").update(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json"))).digest("hex"), "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(APP); // P256: was a whole-file md5 pin
   assert.equal(crypto.createHash("md5").update(fs.readFileSync(path.join(APP, "public/data/mr-dub/bank-builder-locks.json"))).digest("hex"), "cb80473f88f3cb5f67208fa568925295");
 });
 

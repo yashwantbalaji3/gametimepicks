@@ -12,6 +12,7 @@ import path from "node:path";
 
 import { loadHomerNukes, HOMER_NUKES_DAILY_ALLOCATION, HOMER_NUKES_STAKE, HOMER_NUKES_PICK_COUNT, HOMER_NUKES_LANE_STAKE, HOMER_NUKES_LEGS_PER_LANE, HOMER_NUKES_LANE_COUNT } from "./mlb/homer-nukes.ts";
 import { buildPortfolioAllocation, WC_SPECIALS_DAILY_ALLOCATION } from "./mr-dub/product-allocation.ts";
+import { canonicalBankroll } from "./mr-dub/protected-invariant.mjs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 const root = path.join(process.cwd(), "public", "data");
@@ -72,8 +73,10 @@ test("portfolio analytics: Bank Builder carries the 19-14 record + ranks #1; WC 
   const bb = a.products.find((p) => p.key === "bank-builder");
   const wc = a.products.find((p) => p.key === "world-cup-specials");
   // Lane A won its July-6 cycle-8 Step-1 and its July-7 Step-2 → record advances to 19-14 (win rate 19/33 ≈ 0.58).
-  assert.deepEqual(bb.record, { wins: 19, losses: 14, pushes: 0 });
-  assert.ok(bb.winRate != null && bb.winRate === 0.58);
+  // The allocation carries the protected record as it stands (P256: July base 19-14 + the Rule S fold).
+  const live = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8")).record;
+  assert.deepEqual(bb.record, { wins: live.wins, losses: live.losses, pushes: 0 });
+  assert.ok(bb.winRate != null && bb.winRate === Math.round((live.wins / (live.wins + live.losses)) * 100) / 100);
   assert.equal(bb.rank, 1);
   assert.equal(wc.dailyAllocation, WC_SPECIALS_DAILY_ALLOCATION);
 });
@@ -82,7 +85,7 @@ test("BANKROLL INTEGRITY: the allocation never mutates portfolio.json", () => {
   const before = read(path.join(root, "mr-dub", "portfolio.json"));
   const a = buildPortfolioAllocation(root, NOW, DATE);
   assert.equal(read(path.join(root, "mr-dub", "portfolio.json")), before, "portfolio.json byte-for-byte unchanged");
-  assert.equal(a.activeBankroll, 19065.40);
+  assert.equal(a.activeBankroll, canonicalBankroll(root));
   assert.equal(a.crownBankroll, 20465.40);
   assert.ok(Math.abs(a.availableBankroll - (a.activeBankroll - a.totalOpenExposure)) < 0.01, "available = active − exposure");
 });

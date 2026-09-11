@@ -19,6 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 import {
   humanizeMarket,
   deriveTakeaways,
@@ -253,6 +254,5 @@ test("NO banned copy anywhere in the runner source", () => {
 
 // ── 14 · money md5 unchanged ─────────────────────────────────────────────────────────────────────
 test("canonical money file (portfolio.json) md5 is unchanged", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3", "portfolio.json md5 unchanged");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
 });

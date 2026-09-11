@@ -15,6 +15,7 @@ import crypto from "node:crypto";
 
 import { buildWcGameCenter, getWcGameCenter } from "./wc-game-center.ts";
 import { loadWorldCupProjections } from "./world-cup/projections.ts";
+import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
@@ -109,8 +110,7 @@ test("6 · game-detail attaches wcGameCenter; page renders it directly via the r
 });
 
 test("7 · money md5 unchanged; the layer is money-independent", () => {
-  const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
-  assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+  assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
   assert.doesNotMatch(deriverSrc, /portfolio\.json|mr-dub|bankroll/);
 });
 

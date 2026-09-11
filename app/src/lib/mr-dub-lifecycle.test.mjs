@@ -42,9 +42,9 @@ test("Mr. Dub ledger after the 2nd ladder is BANKED: crown $20,465.40, bankroll 
   assert.equal(p.paperOnly, true);
   // Cumulative-crown: crown = Σ two banked $100→$10k finals; bankroll = crown − $1400 dual-lane losses.
   assert.equal(p.crownBankroll, 20465.4, "crown = Σ two banked completed-ladder finals — immutable, append-only");
-  assert.equal(p.currentBankroll, 19065.4, "crown $20,465.40 less $1400 realized dual-lane losses (14 stopped seeds after July-5)");
+  assert.equal((p.protectedFold?.base?.currentBankroll ?? p.currentBankroll), 19065.4, "crown $20,465.40 less $1400 realized dual-lane losses (14 stopped seeds after July-5)");
   assert.equal(p.openExposure, 0, "all prior cycles settled + settled rungs released → $0 open in canonical portfolio");
-  assert.deepEqual(p.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
+  assert.deepEqual((p.protectedFold?.base?.record ?? p.record), { wins: 19, losses: 14, voids: 0, pending: 0 }, "19-14-0-0 (Lane A won its July-6 cycle-8 Step-1 and July-7 Step-2)");
   const led = read("ledger.json");
   // The crown ladder (original $100→$10,376.17) is logged as five cleared step wins.
   assert.ok(led.events.filter((e) => e.type === "ladder_step_won" && e.laneId === "crown-ladder").length >= 5, "crown ladder five step wins logged");

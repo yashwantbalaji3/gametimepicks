@@ -120,14 +120,14 @@ export function MethodologyPanel({ sport }: { sport: "mlb" | "world_cup" | (stri
           <li><strong style={{ color: "var(--vault-text)" }}>Player props</strong> come from a <strong>10,000-run</strong> seeded simulation of the published projections — the run count is read from the artifact, never hardcoded.</li>
           <li><strong style={{ color: "var(--vault-text)" }}>Game lines</strong> (moneyline, run line, total) are <strong>market-implied</strong>: de-vigged from the sportsbook&rsquo;s posted prices, not a separate prediction.</li>
           <li>Game-level run distributions aren&rsquo;t shown until the alternate-line ladders + tail-bin guard are built.</li>
-          <li>None of this is part of the official <strong style={{ color: "var(--vault-text)" }}>19-14</strong> paper-card record — model performance is tracked separately.</li>
+          <li>None of this is part of the official <strong style={{ color: "var(--vault-text)" }}>Mr. Dub</strong> paper-card record — model performance is tracked separately.</li>
         </ul>
       ) : (
         <ul className="pl-4 flex flex-col gap-1.5 text-[12px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)", listStyle: "disc" }}>
           <li>This is a <strong style={{ color: "var(--vault-text)" }}>market-implied dashboard</strong> — every probability is <strong>de-vigged</strong> (no-vig) from the sportsbook&rsquo;s posted prices.</li>
           <li>It is <strong style={{ color: "var(--vault-text)" }}>not</strong> a sampled simulation and not an independent stat model — there is no run-based simulation engine for soccer yet.</li>
           <li><strong style={{ color: "var(--vault-text)" }}>90-minute regulation only</strong> — extra time and penalties do not count; a Draw is a real third outcome.</li>
-          <li>None of this is part of the official <strong style={{ color: "var(--vault-text)" }}>19-14</strong> paper-card record.</li>
+          <li>None of this is part of the official <strong style={{ color: "var(--vault-text)" }}>Mr. Dub</strong> paper-card record.</li>
         </ul>
       )}
     </section>

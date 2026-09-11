@@ -26,6 +26,7 @@ import {
   missingProvider,
   resolveModule,
 } from "./registry.ts";
+import { assertProtectedDataIntact } from "../mr-dub/protected-invariant.mjs";
 import {
   unavailableModule,
   unavailableResult,
@@ -36,7 +37,6 @@ import {
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.join(process.cwd(), "public", "data");
 const REPO_ROOT = path.resolve(process.cwd(), ".."); // app/ -> repo root
-const PORTFOLIO_MD5 = "affe6b21071f2b3be96bb2774eb347c3"; // canonical money fingerprint — must never change
 
 // The env var NAMES this phase introduces (placeholders only — never real keys).
 const PLACEHOLDER_ENV_NAMES = [
@@ -221,9 +221,7 @@ test("(d) a provider reports its OWN modules unavailable when unconfigured, avai
 // ── (e) canonical money unchanged ────────────────────────────────────────────────────────────────
 
 test("(e) canonical money is untouched — portfolio.json md5 is unchanged", () => {
-  const raw = fs.readFileSync(path.join(DATA_ROOT, "mr-dub", "portfolio.json"));
-  const md5 = crypto.createHash("md5").update(raw).digest("hex");
-  assert.equal(md5, PORTFOLIO_MD5, "portfolio.json md5 is the canonical fingerprint — scaffolding touches no money");
+  assertProtectedDataIntact(DATA_ROOT); // P256: was a whole-file md5 pin
 });
 
 // ── sanity: descriptions are non-secret and complete ─────────────────────────────────────────────

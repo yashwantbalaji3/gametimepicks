@@ -12,9 +12,9 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { collectForDate, parseSpecialLeg } from "../../../scripts/_settlement-collect.mjs";
 import { settleCard, findPlayerLine } from "./soccer-markets.ts";
+import { assertProtectedDataIntact } from "../mr-dub/protected-invariant.mjs";
 
 const DATA = path.join(process.cwd(), "public", "data");
-const MONEY_MD5 = "affe6b21071f2b3be96bb2774eb347c3";
 const md5 = (p) => crypto.createHash("md5").update(fs.readFileSync(p)).digest("hex");
 const official = JSON.parse(fs.readFileSync(path.join(DATA, "world-cup", "settlement", "2026-07-07.official-input.json"), "utf8"));
 // July-7 WC-specials are pinned to a fixture so this join-repair REGRESSION test is decoupled from the
@@ -84,7 +84,7 @@ test("a FULLY-gradable card settles honestly (Defensive Games → lost via real 
 });
 
 test("the join repair touches NO canonical money and does NOT regrade Bank Builder differently", () => {
-  assert.equal(md5(path.join(DATA, "mr-dub", "portfolio.json")), MONEY_MD5, "portfolio.json md5 unchanged");
+  assertProtectedDataIntact(DATA); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
   // Bank Builder Lane A grades WON from the same bundle — the join fix is specials-only, no BB regression.
   const bb = collectForDate(DATA, "2026-07-07").filter((c) => c.product === "bank-builder");
   for (const c of bb) {
