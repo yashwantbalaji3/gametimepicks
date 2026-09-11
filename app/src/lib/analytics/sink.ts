@@ -29,7 +29,17 @@ export interface SinkConfig {
  * non-empty endpoint is present — so an accidental half-configuration can never send.
  */
 export function readSinkConfig(env?: Record<string, string | undefined>): SinkConfig {
-  const e = env ?? (typeof process !== "undefined" && process.env ? process.env : {});
+  /*
+   * LITERAL REFERENCES, ON PURPOSE (P256). Next.js inlines a public variable into the browser bundle only
+   * where the source says `process.env.NEXT_PUBLIC_…` literally. This used to read them through an alias
+   * (`const e = process.env; e.NEXT_PUBLIC_…`), which leaves the browser holding an empty object — so the
+   * sink resolved to NOOP in production whatever Vercel was set to, and analytics could never turn on.
+   * Tests still pass their own `env`; the literal pair is the production path. Guarded in sink-inline.test.
+   */
+  const e = env ?? {
+    NEXT_PUBLIC_ANALYTICS_ENABLED: process.env.NEXT_PUBLIC_ANALYTICS_ENABLED,
+    NEXT_PUBLIC_ANALYTICS_ENDPOINT: process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT,
+  };
   const flag = e.NEXT_PUBLIC_ANALYTICS_ENABLED;
   const on = flag === "1" || flag === "true";
   const endpoint = typeof e.NEXT_PUBLIC_ANALYTICS_ENDPOINT === "string" && e.NEXT_PUBLIC_ANALYTICS_ENDPOINT.trim() ? e.NEXT_PUBLIC_ANALYTICS_ENDPOINT.trim() : null;

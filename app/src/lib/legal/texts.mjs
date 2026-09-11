@@ -25,8 +25,10 @@ const SUPPORT_LIVE = resolveSupportConfig(typeof process !== "undefined" ? proce
 /* Analytics is "on" exactly when the browser sink would send anything: the public switch AND an
    endpoint, the same two values lib/analytics/sink.ts requires. The privacy notice follows it, so it
    can never say "switched off" on a site that is counting, or the reverse. */
-const ENV = typeof process !== "undefined" ? process.env : {};
-const ANALYTICS_LIVE = ENV.NEXT_PUBLIC_ANALYTICS_ENABLED === "1" && typeof ENV.NEXT_PUBLIC_ANALYTICS_ENDPOINT === "string" && ENV.NEXT_PUBLIC_ANALYTICS_ENDPOINT.trim() !== "";
+// Literal references, as everywhere a NEXT_PUBLIC_ value is read (analytics/sink-inline.test.mjs).
+const ANALYTICS_ENABLED = typeof process !== "undefined" ? process.env.NEXT_PUBLIC_ANALYTICS_ENABLED : undefined;
+const ANALYTICS_ENDPOINT = typeof process !== "undefined" ? process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT : undefined;
+const ANALYTICS_LIVE = ANALYTICS_ENABLED === "1" && typeof ANALYTICS_ENDPOINT === "string" && ANALYTICS_ENDPOINT.trim() !== "";
 
 /**
  * The founder's section-3 decisions (docs/LEGAL_SECTION3_DECISION_PACKET.md, answered 2026-09-10).

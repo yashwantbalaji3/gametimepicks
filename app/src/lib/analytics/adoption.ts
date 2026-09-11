@@ -73,7 +73,9 @@ function endpointHost(endpoint: string | null): string | null {
  */
 export function resolveMeasurementMode(config: SinkConfig, env?: Record<string, string | undefined>): MeasurementMode {
   if (!config.enabled || !config.endpoint) return "off";
-  const e = env ?? (typeof process !== "undefined" && process.env ? process.env : {});
+  // Literal reference so the build inlines it (see analytics/sink-inline.test.mjs) — the alias this replaced
+  // left the browser with an empty object, so a staging rehearsal could never be forced client-side.
+  const e = env ?? { NEXT_PUBLIC_ANALYTICS_MODE: process.env.NEXT_PUBLIC_ANALYTICS_MODE };
   if (String(e.NEXT_PUBLIC_ANALYTICS_MODE ?? "").trim().toLowerCase() === "staging") return "staging";
   const host = endpointHost(config.endpoint);
   if (host == null || NON_PRODUCTION_HOST_RE.test(host)) return "staging";
