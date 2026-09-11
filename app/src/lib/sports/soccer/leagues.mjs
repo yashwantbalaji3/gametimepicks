@@ -23,7 +23,9 @@ export const SOCCER_LEAGUES = Object.freeze([
   { key: "laliga", name: "LaLiga", country: "Spain", espn: "esp.1", footballData: "SP1", oddsApiKey: "soccer_spain_la_liga", stage: "REJECTED_V1", wave: 1 },
   { key: "serie-a", name: "Serie A", country: "Italy", espn: "ita.1", footballData: "I1", oddsApiKey: "soccer_italy_serie_a", stage: "REJECTED_V1", wave: 1 },
   { key: "bundesliga", name: "Bundesliga", country: "Germany", espn: "ger.1", footballData: "D1", oddsApiKey: "soccer_germany_bundesliga", stage: "REJECTED_V1", wave: 1 },
-  { key: "ligue-1", name: "Ligue 1", country: "France", espn: "fra.1", footballData: "F1", oddsApiKey: "soccer_france_ligue_one", stage: "ACCEPTED_V1", wave: 1 },
+  { key: "ligue-1", name: "Ligue 1", country: "France", espn: "fra.1", footballData: "F1", oddsApiKey: "soccer_france_ligue_one", stage: "ACCEPTED_V1", wave: 1,
+    /* ESPN display name → football-data club name, where they differ (checked club by club, 2026-09-11). */
+    aliases: { "AJ Auxerre": "Auxerre", "AS Monaco": "Monaco", "Le Havre AC": "Le Havre", "Paris Saint-Germain": "Paris SG", "Stade Rennais": "Rennes" } },
   { key: "championship", name: "Championship", country: "England", espn: "eng.2", footballData: "E1", oddsApiKey: "soccer_efl_champ", stage: "PLANNED", wave: 2 },
   { key: "mls", name: "MLS", country: "USA", espn: "usa.1", footballDataExtra: "USA", oddsApiKey: "soccer_usa_mls", stage: "PLANNED", wave: 2 },
   { key: "eredivisie", name: "Eredivisie", country: "Netherlands", espn: "ned.1", footballData: "N1", oddsApiKey: "soccer_netherlands_eredivisie", stage: "PLANNED", wave: 3 },

@@ -102,6 +102,26 @@ const EPL_TEAM_IDS: Record<string, string> = {
   spurs: "367",
   sunderland: "366",
   tottenhamhotspur: "367",
+  /* Ligue 1 (P257) — from ESPN's fra.1 team endpoint; every URL verified 200 on 2026-09-11. Aliases cover
+     both the ESPN display name and the short forms ("PSG", "Rennes"). */
+  ajauxerre: "172", auxerre: "172",
+  asmonaco: "174", monaco: "174",
+  angers: "7868",
+  brest: "6997",
+  lehavreac: "3236", lehavre: "3236",
+  lemans: "2697",
+  lens: "175",
+  lille: "166",
+  lorient: "273",
+  lyon: "167",
+  marseille: "176",
+  nice: "2502",
+  parisfc: "6851",
+  parissaintgermain: "160", psg: "160", parissg: "160",
+  staderennais: "169", rennes: "169",
+  strasbourg: "180",
+  toulouse: "179",
+  troyes: "170",
 };
 
 function logoUrl(team: string, sport: SportKey): string {

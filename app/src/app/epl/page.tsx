@@ -226,6 +226,10 @@ export default function EplPage() {
         />
       </div>
       <section id="epl-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
+      {/* P257: the same model, applied to Ligue 1 after its own preregistered backtest accepted it. */}
+      <p className="mb-4 text-[13px]" style={{ color: "var(--vault-text-mute)", margin: "0 0 16px" }}>
+        Also forecast with this model: <Link href="/soccer/ligue-1/" style={{ color: "var(--vault-accent)" }}>Ligue 1 match forecasts →</Link>
+      </p>
       <section id="epl-overview" className="scroll-mt-24">
       <SportOverviewHero
         headingLevel="h2"

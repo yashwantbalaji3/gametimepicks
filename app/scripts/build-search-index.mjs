@@ -113,6 +113,14 @@ for (const b of read("ufc/card-latest.json")?.bouts ?? []) {
  * that is the rule this whole index is held to.
  */
 const EPL_PLAYERS_RENDERED = 12;
+// P257 · soccer leagues beyond the Premier League (accepted by their preregistered backtest).
+for (const lg of ["ligue-1"]) {
+  const set = read(`soccer/${lg}/forecasts/latest.json`);
+  for (const r of set?.rows ?? []) {
+    add("event", r.matchup, `${set.competition} · model forecast`, `/soccer/${lg}/`,
+      [r.homeClub, r.awayClub, String(set.competition ?? "").toLowerCase(), "soccer", "football"].filter(Boolean));
+  }
+}
 for (const f of read("soccer/epl/player-projections/latest.json")?.fixtures ?? []) {
   if (!f.slug) continue;
   const shown = [...(f.players ?? [])]
