@@ -220,12 +220,15 @@ const READINESS_STAGES = [
   // VERIFIED against the workflows that actually stage each path, not assumed. An early draft credited
   // the schedule to mlb-pregame-capture (07:00 ET) and produced a false "late" at 09:30; git history and
   // the `git add` lines show morning-projections.yml:216 and mlb-daily-production.yml:161 write it.
-  { key: "schedule",    dir: "mlb/schedule",               dueEtHour: 9,  dueEtMinute: 30, by: "morning-projections" },
-  { key: "board",       dir: "mlb/boards",                 dueEtHour: 9,  dueEtMinute: 30, by: "morning-projections" },
-  { key: "teamMarkets", dir: "mlb/team-markets",           dueEtHour: 10, dueEtMinute: 15, by: "mlb-daily-production" },
-  { key: "playerProps", dir: "mlb/player-props",           dueEtHour: 10, dueEtMinute: 15, by: "mlb-daily-production" },
-  { key: "simulations", dir: "mlb/full-game-simulations",  dueEtHour: 10, dueEtMinute: 15, by: "mlb-daily-production" },
-  { key: "predictions", dir: "mlb/predictions",            dueEtHour: 10, dueEtMinute: 15, by: "mlb-daily-production" },
+  // P256: due times moved with the backstop crons so the morning site is ready by 8:00 AM ET — 06:47 ET
+  // (morning-projections 10:47 UTC) and 07:17 ET (mlb-daily-production 11:17 UTC); the chain off
+  // nightly-settle normally lands them earlier.
+  { key: "schedule",    dir: "mlb/schedule",               dueEtHour: 6,  dueEtMinute: 47, by: "morning-projections" },
+  { key: "board",       dir: "mlb/boards",                 dueEtHour: 6,  dueEtMinute: 47, by: "morning-projections" },
+  { key: "teamMarkets", dir: "mlb/team-markets",           dueEtHour: 7,  dueEtMinute: 17, by: "mlb-daily-production" },
+  { key: "playerProps", dir: "mlb/player-props",           dueEtHour: 7,  dueEtMinute: 17, by: "mlb-daily-production" },
+  { key: "simulations", dir: "mlb/full-game-simulations",  dueEtHour: 7,  dueEtMinute: 17, by: "mlb-daily-production" },
+  { key: "predictions", dir: "mlb/predictions",            dueEtHour: 7,  dueEtMinute: 17, by: "mlb-daily-production" },
 ];
 /** Grace before a missing artifact is called late — a workflow needs time to actually run. */
 const READINESS_GRACE_MINUTES = 45;

@@ -457,7 +457,7 @@ export default function BankBuilderPage() {
         <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
           {isLive(bbProductState)
             ? "Next transition: settles overnight from official box scores — the ladder advances or restarts on the graded result."
-            : `Next daily evaluation: ${RUNBOOKS.mlb.products.when} (scheduled; the cron can drift up to ~90 minutes).`}
+            : `Next daily evaluation: ${RUNBOOKS.mlb.products.when}. A watchdog re-runs a missed morning before 7:00 AM ET.`}
         </span>
       </div>
 

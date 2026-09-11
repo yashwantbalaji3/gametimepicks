@@ -59,7 +59,10 @@ on:
     types: [completed]
   schedule:
     # Backstop only. 13:30 UTC = 9:30 AM EDT / 8:30 AM EST.
-    - cron: "30 13 * * *"
+    # P256: the backstop moves before 8:00 AM ET (10:47 UTC = 6:47 EDT / 5:47 EST). The chain off
+    # nightly-settle is the normal path; this fires only if that did not happen, and the paid-run
+    # gate still allows at most one paid refresh per ET day whichever trigger arrives first.
+    - cron: "47 10 * * *"
   workflow_dispatch:
     inputs:
       projections_date:

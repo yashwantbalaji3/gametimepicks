@@ -10,9 +10,9 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT="$DIR/cron_watchdog.sh"
 FAILURES=0
 
-decide() { # decide <runs_today> <active> <board> [recoverable_events]
+decide() { # decide <runs_today> <active> <board> [recoverable_events] [settle_runs_today]
     TODAY_ET="2026-07-31" NEWEST_BOARD="$3" PRIMARY_RUNS_TODAY="$1" ACTIVE_RUNS="$2" \
-    RECOVERABLE_EVENTS="${4:-0}" \
+    RECOVERABLE_EVENTS="${4:-0}" SETTLE_RUNS_TODAY="${5:-}" \
         bash "$SCRIPT" | head -1
 }
 expect() { # expect <desc> <want-prefix> <got>
@@ -28,6 +28,14 @@ expect "fresh board blocks dispatch"               "SKIP" "$(decide 0 0 2026-07-
 expect "failed-but-ran primary blocks re-dispatch" "SKIP" "$(decide 1 0 2026-07-30)"
 expect "genuinely missed cron dispatches"          "DISPATCH" "$(decide 0 0 2026-07-30)"
 expect "missed cron with no boards dispatches"     "DISPATCH" "$(decide 0 0 none)"
+
+# ── P256 · recover the chain's HEAD, never deal before yesterday settles ─────────────────────
+expect "board missing + settlement never ran today -> DISPATCH_SETTLE"   "DISPATCH_SETTLE" "$(decide 0 0 2026-07-30 0 0)"
+expect "board missing + settlement ran -> DISPATCH the morning refresh"   "DISPATCH no primary run" "$(decide 0 0 2026-07-30 0 1)"
+expect "board missing + settlement count unknown -> the old DISPATCH"     "DISPATCH no primary run" "$(decide 0 0 2026-07-30 0)"
+expect "an active settle (counted in ACTIVE) blocks every dispatch"       "SKIP" "$(decide 0 1 2026-07-30 0 0)"
+expect "today's board present -> never a settle dispatch"                 "SKIP" "$(decide 0 0 2026-07-31 0 0)"
+expect "primary already ran -> failure handling owns it, even unsettled"  "SKIP" "$(decide 1 0 2026-07-30 0 0)"
 
 # ── missed-refresh recovery (2026-08-04) ───────────────────────────────────────
 # The gap this closes: on 2026-08-03 the 09:30 cron never fired, the 00:34 board existed, so the

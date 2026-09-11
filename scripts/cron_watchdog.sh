@@ -12,6 +12,7 @@
 #   NEWEST_BOARD        newest generated board date (YYYY-MM-DD or "none")
 #   PRIMARY_RUNS_TODAY  count of primary-workflow runs started today (any status)
 #   ACTIVE_RUNS         count of queued/in-progress runs of the primary OR its chained production
+#   SETTLE_RUNS_TODAY   successful nightly-settle runs started today (UTC); EMPTY = unknown (P256)
 #
 # Output (stdout): "DISPATCH <reason>" or "SKIP <reason>". Exit 0 always.
 set -u
@@ -20,6 +21,7 @@ TODAY_ET="${TODAY_ET:?}"
 NEWEST_BOARD="${NEWEST_BOARD:-none}"
 PRIMARY_RUNS_TODAY="${PRIMARY_RUNS_TODAY:-0}"
 ACTIVE_RUNS="${ACTIVE_RUNS:-0}"
+SETTLE_RUNS_TODAY="${SETTLE_RUNS_TODAY:-}"
 
 # Machine-readable state alongside the human line. The decision line stays FIRST (callers parse
 # `head -1`), and the state line is emitted after it so operators and dashboards can consume a
@@ -65,6 +67,15 @@ if [ "$NEWEST_BOARD" = "$TODAY_ET" ]; then
     emit SKIP REFRESH_COMPLETE "board for ${TODAY_ET} already generated and refreshed today"
 fi
 
+# P256 · THE CHAIN'S HEAD. The morning band is settle → morning-projections → production → products.
+# Dispatching the morning refresh while yesterday has NOT settled deals today's cards over a
+# portfolio the settler still needs to grade — the exact ordering constraint the chain exists for.
+# So when the board is missing and settlement has provably not run today, recover the HEAD: its
+# completion chains everything else. Only a definite 0 does this; an unknown count keeps the old
+# behaviour rather than guessing.
+if [ "$PRIMARY_RUNS_TODAY" -eq 0 ] && [ "$SETTLE_RUNS_TODAY" = "0" ]; then
+    emit DISPATCH_SETTLE SETTLE_MISSING "no settlement has run today and the ${TODAY_ET} board is missing — dispatching nightly-settle, whose completion chains the morning band"
+fi
 # The primary ran today (and is no longer active). If it ran and no board exists, that is a
 # FAILURE being handled by the failure alert — a watchdog re-dispatch would double-spend the
 # morning's paid ingest path on an already-alerted defect.

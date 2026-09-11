@@ -55,7 +55,8 @@ on:
     # that day made the emptiness visible, and the job has failed every morning since; the MLB risk
     # ladder has been rebuilt and thrown away each time, because the failing assert sits before the
     # commit step. The ladder on disk is still dated 2026-08-19.
-    - cron: "30 15 * * *"
+    # P256: backstop before 8:00 AM ET (11:41 UTC); the workflow_run chain is the normal path.
+    - cron: "41 11 * * *"
   workflow_dispatch:
     inputs:
       date:

@@ -64,8 +64,18 @@ on:
     #     is 30 min later than the previous single 07:00 run, giving extra
     #     margin for the longest games. It only commits/deploys when it finds
     #     newly-final games, so a clean night produces no second deploy.
-    - cron: "30 5 * * *"
-    - cron: "30 7 * * *"
+    # P256 · READY BY 8:00 AM ET. This is the head of the morning chain (settle → morning-projections →
+    # mlb-daily-production → daily-products, each a workflow_run of the one before), so the whole
+    # site's morning readiness waits on the moment THIS job starts — and GitHub started the old 05:30
+    # and 07:30 slots 3-6 hours late (median ~200 min). Four slots on off-peak minutes (the top and
+    # half of the hour are when the scheduler is most congested) make an early start likely; the job
+    # is idempotent (a settled date re-settles as a no-op) and the concurrency group serialises
+    # overlaps, so a second or third start costs a few free StatsAPI calls and nothing else.
+    # Earliest slot 05:17 UTC = 1:17 AM ET, after the last West Coast finals.
+    - cron: "17 5 * * *"
+    - cron: "43 6 * * *"
+    - cron: "11 8 * * *"
+    - cron: "37 9 * * *"
   workflow_dispatch:
     inputs:
       settle_date:

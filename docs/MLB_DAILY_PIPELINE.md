@@ -10,7 +10,7 @@ StatsAPI schedule + Odds API markets + StatsAPI research captures
         ▼
 1. BOARD ─────────► app/public/data/mlb/boards/<date>.json  (+ schedule, power)
         │            scripts/automation_projections.sh → python -m pipeline.mlb.generate_mlb_board
-        │            workflow: morning-projections.yml  (cron 13:30 UTC)   ✅ automated
+        │            workflow: morning-projections.yml  (chained off nightly-settle; backstop 10:47 UTC)   ✅ automated
         ▼
 2. PREGAME ARCHIVE ► data/internal/mlb/pregame-archive/…  (13 leakage-safe families — INTERNAL research)
         │            app/scripts/capture-mlb-pregame-*.mjs
@@ -46,9 +46,9 @@ StatsAPI schedule + Odds API markets + StatsAPI research captures
 
 ## Automation
 
-- **`morning-projections.yml`** (cron 13:30 UTC) → **board** (step 1). Already automated. Uses the CI `ODDS_API_KEY` secret.
+- **`morning-projections.yml`** (chained off `nightly-settle` via `workflow_run`; backstop cron 10:47 UTC; the paid-run gate allows one paid refresh per ET day) → **board** (step 1). Uses the CI `ODDS_API_KEY` secret. Since 2026-09-10 the whole chain targets **ready by 8:00 AM ET**.
 - **`mlb-pregame-capture.yml`** (8 crons/day) → **research archive** (step 2) + research settlement. Independent of the public product.
-- **`mlb-daily-production.yml`** (NEW — chains after morning-projections via `workflow_run`, + backstop cron 14:15 UTC, + `workflow_dispatch`) → **steps 3–6**: team markets → player props → simulations → verify → commit. **This closes the gap** that previously left the slate incomplete after board generation.
+- **`mlb-daily-production.yml`** (NEW — chains after morning-projections via `workflow_run`, + backstop cron 11:17 UTC, + `workflow_dispatch`) → **steps 3–6**: team markets → player props → simulations → verify → commit. **This closes the gap** that previously left the slate incomplete after board generation.
 
 ### The gap this closed (root cause)
 Before: `morning-projections` produced the board, but steps 3–5 (`ingest-mlb-team-markets`, `ingest-mlb-slate`, `generate-mlb-game-simulations`) were **not wired into any daily cron** — the sim step was manual, and the prop ingest lived only in the **dormant** `mlb-daily.yml`. So the slate was board-only → `SIMULATION_PENDING` → the public "today's games" showed "not yet simulated". `mlb-daily-production.yml` now runs all three automatically after the board.

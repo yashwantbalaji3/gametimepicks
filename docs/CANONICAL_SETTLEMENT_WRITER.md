@@ -1,12 +1,12 @@
 # Canonical Settlement Writer (Program 092-095 Lane E — DECIDED)
 
-**The one scheduled settlement writer is `nightly-settle` (05:30 + 07:30 UTC).**
+**The one scheduled settlement writer is `nightly-settle` (05:17, 06:43, 08:11 + 09:37 UTC since 2026-09-10 — the head of the morning chain, so the site is ready by 8:00 AM ET).**
 
 ## Writer inventory (complete)
 
 | Writer | Trigger | Unique responsibility | Overlap | Success evidence | Disposition |
 |---|---|---|---|---|---|
-| `nightly-settle` | cron 05:30+07:30 UTC + dispatch | official MLB settlement, linescores, product settlement, track record, calibration export, learning policy, corpus, **public research contract**, health gate, commit/push | — | proven daily cycles; alert-wired; serialized; pipefail-live | **CANONICAL** |
+| `nightly-settle` | cron 05:17 · 06:43 · 08:11 · 09:37 UTC + dispatch (+ cron-watchdog recovery at 10:53 UTC) | official MLB settlement, linescores, product settlement, track record, calibration export, learning policy, corpus, **public research contract**, health gate, commit/push | — | proven daily cycles; alert-wired; serialized; pipefail-live | **CANONICAL** |
 | `daily-lifecycle` | was cron 08:30 UTC | full roll (settle→generate→gate→deploy→smoke→report) — but `ENABLE_AUTONOMOUS_DEPLOY` unset meant even green runs stopped pre-deploy | re-ran the whole settle nightly-settle had just completed | 6 consecutive gate failures producing nothing | **cron removed** → manual recovery tool (dispatch preserved, now alert-wired) |
 | `mlb-daily-production` / `morning-projections` | cron/chain | generation + completion (pregame) | none on settlement writes | healthy | keep (not settlement writers) |
 | `auto-refresh` | cron 9×/day | recent10 hydrate + settled-results re-EXPORT (derived read-model, not ledger writes) | none on the ledger | first green today | keep |

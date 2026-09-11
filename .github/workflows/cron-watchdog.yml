@@ -10,6 +10,9 @@ on:
   schedule:
     # 14:30 UTC = 10:30 ET — after morning-projections (13:30 UTC) and before/near the
     # mlb-daily-production backstop (14:15 UTC) has finished queueing.
+    # P256: an early check at 10:53 UTC (6:53 AM EDT) so a stalled morning chain is recovered before
+    # 8:00 AM ET, and the original 14:30 check as a second look.
+    - cron: "53 10 * * *"
     - cron: "30 14 * * *"
     # P197 · Release B: the single 14:30 UTC slot could not cover a weekend cluster's EARLIEST
     # kickoff (Saturday 11:30, Sunday 13:00 UTC) — the EPL monitoring stage recorded that as
@@ -48,8 +51,12 @@ jobs:
           NEWEST_BOARD="$(ls app/public/data/mlb/boards 2>/dev/null | grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}\.json$' | sort | tail -1 | sed 's/\.json//')"
           [ -n "$NEWEST_BOARD" ] || NEWEST_BOARD=none
           PRIMARY_RUNS_TODAY="$(gh run list --workflow=morning-projections --created "$(date -u +%F)" --json databaseId --jq 'length' || echo 0)"
+          # P256: the chain's head. Dealing today's cards before yesterday settles strands yesterday's
+          # grades, so a recovery with no settlement today dispatches SETTLEMENT (which chains the rest),
+          # never the morning refresh. Unknown (the query failed) is passed as empty, not 0.
+          SETTLE_RUNS_TODAY="$(gh run list --workflow=nightly-settle --created "$(date -u +%F)" --status success --json databaseId --jq 'length' 2>/dev/null || echo "")"
           ACTIVE=0
-          for wf in morning-projections mlb-daily-production; do
+          for wf in nightly-settle morning-projections mlb-daily-production; do
             n="$(gh run list --workflow="$wf" --status in_progress --json databaseId --jq 'length' || echo 0)"
             q="$(gh run list --workflow="$wf" --status queued --json databaseId --jq 'length' || echo 0)"
             ACTIVE=$((ACTIVE + n + q))
@@ -65,7 +72,7 @@ jobs:
           RECOVERABLE_EVENTS="${RECOVERABLE_EVENTS:-0}"
           echo "recoverable pregame events lacking coverage: $RECOVERABLE_EVENTS"
           OUT="$(TODAY_ET="$TODAY_ET" NEWEST_BOARD="$NEWEST_BOARD" \
-                 PRIMARY_RUNS_TODAY="$PRIMARY_RUNS_TODAY" ACTIVE_RUNS="$ACTIVE" \
+                 PRIMARY_RUNS_TODAY="$PRIMARY_RUNS_TODAY" ACTIVE_RUNS="$ACTIVE" SETTLE_RUNS_TODAY="$SETTLE_RUNS_TODAY" \
                  RECOVERABLE_EVENTS="$RECOVERABLE_EVENTS" \
                  bash scripts/cron_watchdog.sh)"
           echo "$OUT"
@@ -86,6 +93,24 @@ jobs:
             echo "- decision: \`${DECISION_LINE%% *}\`"
             echo "- reason: ${DECISION_LINE#* }"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # P256: the chain's head was missed — dispatch settlement; its completion chains the morning
+      # band (settle → morning-projections → production → products). A GITHUB_TOKEN dispatch still
+      # emits workflow_run for the next stage (observed live: every morning-projections dispatch
+      # chained into mlb-daily-production).
+      - name: Dispatch the missed settlement (chain head) and alert
+        if: steps.decide.outputs.decision == 'DISPATCH_SETTLE'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          OPS_ALERT_KIND: warning
+          PHASE: cron-watchdog
+          EXIT_STATUS: "0"
+          ERROR_LINE: "[${{ steps.decide.outputs.state }}] ${{ steps.decide.outputs.reason }}"
+        run: |
+          gh workflow run nightly-settle
+          echo "::notice::cron-watchdog [${{ steps.decide.outputs.state }}] dispatched nightly-settle (chain head)"
+          node app/scripts/ops-notify.mjs || true
 
       - name: Dispatch the missed primary and alert
         if: steps.decide.outputs.decision == 'DISPATCH'

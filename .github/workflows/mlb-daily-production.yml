@@ -30,8 +30,9 @@ on:
     workflows: ["morning-projections"]
     types: [completed]
   # Backstop cron ~14:15 UTC (after morning-projections' 13:30 UTC) in case the chain is skipped.
+  # P256: backstop before 8:00 AM ET (11:17 UTC); the workflow_run chain is the normal path.
   schedule:
-    - cron: "15 14 * * *"
+    - cron: "17 11 * * *"
 
 # One queue for every workflow that writes generated public data to main. Per-workflow groups
 # only serialize a workflow against ITSELF; on 2026-07-30 morning-projections and daily-refresh
