@@ -1,0 +1,49 @@
+# nflverse — free NFL research tables, refreshed weekly (P257 · free data). $0, no key.
+#
+# Captures the nflverse players crosswalk, every game's closing lines (nfldata games.csv) and per-season
+# snap counts, and commits only the DERIVED tables (data/internal/research/nfl/nflverse/). Raw files are not
+# redistributed (public repository); the CC BY 4.0 attribution travels in every derived file. Nothing here
+# feeds a model or a public page until a preregistration says so. Fail loud on any source error.
+name: nflverse-weekly
+
+on:
+  schedule:
+    - cron: "30 11 * * 2"   # Tuesday 07:30 ET — after Monday Night Football; nflverse publishes overnight
+  workflow_dispatch: {}
+
+concurrency:
+  group: gtp-generated-artifacts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Capture nflverse (players, game lines, snap counts)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/capture-nflverse.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      - name: Commit the derived tables
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/research/nfl/nflverse/
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: nflverse weekly capture [skip ci]"
+          for a in 1 2 3 4; do
+            git push origin HEAD:main && exit 0
+            echo "push rejected (attempt $a) — rebasing onto origin/main and retrying"
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((a * 5))
+          done
+          echo "::error::push never landed after 4 attempts"; exit 1

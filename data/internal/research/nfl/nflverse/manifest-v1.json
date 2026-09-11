@@ -1,0 +1,101 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nflverse-capture",
+ "dataClass": "PRIVATE_RESEARCH",
+ "capturedAt": "2026-09-11T14:40:26Z",
+ "attribution": "Data: nflverse (https://github.com/nflverse), licensed CC BY 4.0. Derived tables; raw files are not redistributed here.",
+ "sources": [
+  {
+   "name": "players.csv",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/players/players.csv",
+   "status": 200,
+   "bytes": 7288059,
+   "sha256": "6f896e1134757efe09761ae81280f89d9604d8ce611a888a56d9e7d49e80eeb9"
+  },
+  {
+   "name": "games.csv",
+   "url": "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv",
+   "status": 200,
+   "bytes": 2178393,
+   "sha256": "cf8632c85fdc82c8915c7866d0bd16465a88946052bccfbf83b44bee87d5d65e"
+  },
+  {
+   "name": "snap_counts_2022.csv",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2022.csv",
+   "status": 200,
+   "bytes": 2379719,
+   "sha256": "0018a4833fbf0f825286c1c27450c6254391b548d6c55bcde728e93e4816815a"
+  },
+  {
+   "name": "snap_counts_2023.csv",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2023.csv",
+   "status": 200,
+   "bytes": 2394875,
+   "sha256": "303b61aa5c33ffda863f93a750fc14483f397f9187ad502b1ce71e9b516a64c0"
+  },
+  {
+   "name": "snap_counts_2024.csv",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2024.csv",
+   "status": 200,
+   "bytes": 2402841,
+   "sha256": "a2aa58efe093f8aa0ad5aadf09f81d8ec690a1183bd2dde68d20e7f109a9c335"
+  },
+  {
+   "name": "snap_counts_2025.csv",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2025.csv",
+   "status": 200,
+   "bytes": 2401193,
+   "sha256": "80b02a6e511aa20283551cae622b29ba4d0a6f006c489a2d91591fcad33792e7"
+  },
+  {
+   "name": "snap_counts_2026.csv",
+   "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2026.csv",
+   "status": 200,
+   "bytes": 8397,
+   "sha256": "3e40ec0361391e8cc9ecf85ddecd316d5c800a1a56be7de51f8d3f4254d92d8d"
+  }
+ ],
+ "tables": {
+  "gameLines": {
+   "games": 1411,
+   "withClose": 1242
+  },
+  "participation": {
+   "2022": {
+    "file": "participation-2022.jsonl",
+    "rows": 10458,
+    "unjoined": 23,
+    "joinRate": 0.9978,
+    "published": true
+   },
+   "2023": {
+    "file": "participation-2023.jsonl",
+    "rows": 10552,
+    "unjoined": 19,
+    "joinRate": 0.9982,
+    "published": true
+   },
+   "2024": {
+    "file": "participation-2024.jsonl",
+    "rows": 10552,
+    "unjoined": 37,
+    "joinRate": 0.9965,
+    "published": true
+   },
+   "2025": {
+    "file": "participation-2025.jsonl",
+    "rows": 10573,
+    "unjoined": 31,
+    "joinRate": 0.9971,
+    "published": true
+   },
+   "2026": {
+    "file": "participation-2026.jsonl",
+    "rows": 36,
+    "unjoined": 0,
+    "joinRate": 1,
+    "published": true
+   }
+  }
+ }
+}
