@@ -99,8 +99,13 @@ test("Parlay Lab UI renders the full matrix (totals footer, Moonshot + Bank Buil
   // first Deployment B attempt deleting the capability outright.
   // P208 Release A moved the marketplace WITH the builder to the Build Your Own mode
   // (/build/custom) — the assertions move with it, exactly as they moved from /picks to /build.
+  // P257: the "Advanced" explorer on /build/custom loads on first open, so the matrix is built server-side in
+  // the static route that emits its data at build time — the assertions move with it once more.
   const page = fs.readFileSync("src/app/build/custom/page.tsx", "utf8");
-  assert.match(page, /buildCoverageMatrix\(\w+, loadMoonshotLane\(\)/, "matrix built server-side on /build/custom");
+  assert.match(page, /<LazyParlaysExplorer /, "the explorer (and its matrix) stays on /build/custom");
+  const route = fs.readFileSync("src/app/data/build/explorer-slate.json/route.ts", "utf8");
+  assert.match(route, /buildCoverageMatrix\(\w+, loadMoonshotLane\(\)/, "matrix built server-side (at build time) for /build/custom");
+  assert.match(route, /export const dynamic = "force-static"/, "never computed in the client");
   // The legacy /parlays route is a thin CLIENT redirect to the canonical lobby — not a competing page.
   // (Server redirect() emits an error shell under output:export, so it uses ClientRedirect.)
   const legacy = fs.readFileSync("src/app/parlays/page.tsx", "utf8");

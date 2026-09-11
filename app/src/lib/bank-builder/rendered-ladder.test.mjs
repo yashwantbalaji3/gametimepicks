@@ -45,8 +45,10 @@ function lanes() {
 test("BUILT · a lane never stakes the seed on a rung it did not enter at the seed", () => {
   if (!hasBuild) return;
   for (const { label, seg } of lanes()) {
-    const here = /(?:✓ )?\$([\d,]+) You are here Step (\d) · from \$([\d,]+)/.exec(seg)
-      ?? /Step (\d) · from \$([\d,]+)/.exec(seg);
+    /* P257: amounts may carry cents — since P255 a won step carries its REAL payout into the next rung
+       ($307.93, not the template's $200), and the rung prints what the lane actually entered with. */
+    const here = /(?:✓ )?\$([\d,]+) You are here Step (\d) · from \$([\d,]+(?:\.\d\d)?)/.exec(seg)
+      ?? /Step (\d) · from \$([\d,]+(?:\.\d\d)?)/.exec(seg);
     const stake = /\$([\d,]+\.\d\d) Stake/.exec(seg);
     if (!here || !stake) continue;
     const step = Number(here[2] ?? here[1]);

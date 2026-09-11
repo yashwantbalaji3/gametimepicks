@@ -26,8 +26,11 @@ export const BUDGET_KB = Object.freeze({
      architecture without a capability change; the evidence-backed lever is generation-time
      slate-view JSON + on-expand fetch for the marketplace (filed as ENGINEERING with that exact
      acceptance). Ceiling frozen at the measured daytime page + headroom; shrink-only from here. */
-  /* P251 · F10: 832KB → 573KB when the per-leg style attributes became classes. */
-  "build/custom/index.html": 800,
+  /* P251 · F10: 832KB → 573KB when the per-leg style attributes became classes.
+     P257: 573KB on 373 legs (09-09) grew to 886KB on 598 (09-11) — the collapsed "Advanced" explorer carried
+     every leg again. It now loads on first open (data/build/explorer-slate.json): measured 427KB on the
+     598-leg slate. Ceiling down 800 → 560 with the emission; the builder pool still adds ~0.31KB/leg. */
+  "build/custom/index.html": 560,
   "mlb/index.html": 3000,
   "markets/index.html": 3000,
   /*

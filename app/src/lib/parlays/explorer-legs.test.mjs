@@ -81,63 +81,38 @@ test("THE CONTRACT MODULE IS NODE-FREE — the client must be able to load it", 
 
 const PAGE = path.join(process.cwd(), "out", "build", "custom", "index.html");
 
-test("LIVE · every eligible leg still travels, and the count the page shows is unchanged", () => {
+test("LIVE · every eligible leg still travels — now in the explorer file — and the count the page states is the file's", () => {
   if (!fs.existsSync(PAGE)) return;
+  /*
+   * P257 · WHERE THE LEGS TRAVEL MOVED. The explorer used to be embedded in this page, so this read the
+   * marketplace's `Legs (N)` heading and the omitted-row markers out of the HTML. The page grew with the
+   * slate (886KB on 598 legs, 2026-09-11) and the explorer now loads its data from
+   * out/data/build/explorer-slate.json on first open. The claims are unchanged — nothing is dropped,
+   * the projection never swallows the rendered window — they are simply checked where the legs now are.
+   */
   const raw = fs.readFileSync(PAGE, "utf8");
-
   const text = raw.replace(/<!--.*?-->/g, "").replace(/<[^>]+>/g, " ");
-  const shown = /Legs \((\d+)\)/.exec(text);
-
-  /*
-   * A THIRD REGIME, and it is the ordinary overnight one.
-   *
-   * `Legs (N)` is the marketplace accordion's heading and only renders for a sport tab that has
-   * legs. Late at night every game has started, the eligible pool is legitimately zero, and the page
-   * renders "0 eligible legs" with a named reason and the builder still mounted — which is correct
-   * behaviour, not a missing count.
-   *
-   * This guard asserted the heading unconditionally and went red at 23:52 ET for the second time in
-   * two days, in the branch next to the one already fixed for the same reason. A guard that fails on
-   * a correct empty slate teaches whoever is on call that this file cries wolf.
-   */
-  if (!shown) {
-    assert.match(text, /\b0 eligible legs?\b/, "an empty pool must still state its count");
-    assert.match(text, /No eligible legs right now/, "and say why, rather than rendering blank");
-    assert.equal(
-      (raw.match(/detailOmitted/g) ?? []).length,
-      0,
-      "nothing may be omitted from a pool that is empty",
-    );
-    return;
-  }
-  const total = Number(shown[1]);
-
-  const omittedRows = (raw.match(/detailOmitted/g) ?? []).length;
-
-  /*
-   * THE ASSERTION DEPENDS ON THE SLATE, and both regimes are real.
-   *
-   * This used to assert `omittedRows > 0` unconditionally, which made it a test of how many games
-   * happened to be on tonight rather than of the projection. It failed at 21:30 ET on a 32-leg slate
-   * — below the per-sport render cap, where omitting nothing is the CORRECT behaviour — so the guard
-   * went red because the product was right. A test that fails when the code succeeds gets deleted by
-   * whoever is on call, and the real claim goes with it.
-   *
-   * The real claim holds either way: nothing is ever dropped, and the projection never swallows the
-   * window it exists to preserve.
-   */
-  if (total > EXPLORER_LEG_RENDER_CAP) {
-    assert.ok(omittedRows > 0, `a ${total}-leg slate exceeds the ${EXPLORER_LEG_RENDER_CAP} cap — the projection must be in effect`);
-    assert.ok(
-      omittedRows < total,
-      `every leg was omitted (${omittedRows} of ${total}) — the projection has swallowed the rendered window`,
-    );
-  } else {
-    assert.equal(
-      omittedRows,
-      0,
-      `a ${total}-leg slate fits inside the ${EXPLORER_LEG_RENDER_CAP} cap — nothing may be omitted from it`,
-    );
+  const stated = /the full eligible-leg pool \((\d+) legs?, by risk\)/.exec(text);
+  assert.ok(stated, "the disclosure states the pool size before anything loads");
+  assert.equal((raw.match(/detailOmitted/g) ?? []).length, 0, "the page itself no longer carries the explorer payload");
+  const file = path.join(process.cwd(), "out", "data", "build", "explorer-slate.json");
+  assert.ok(fs.existsSync(file), "the build emits the explorer file the disclosure loads");
+  const body = JSON.parse(fs.readFileSync(file, "utf8"));
+  const pool = body?.slate?.eligibleLegs;
+  const legs = Array.isArray(pool) ? pool : Object.values(pool ?? {}).flat();
+  const total = legs.length;
+  assert.equal(total, Number(stated[1]), `the page states ${stated[1]} legs; the explorer file carries ${total}`);
+  if (total === 0) return; // the ordinary overnight regime: an empty pool, stated as such
+  const bySport = new Map();
+  for (const l of legs) { const k = l?.sport ?? l?.sportKey ?? "?"; bySport.set(k, [...(bySport.get(k) ?? []), l]); }
+  for (const [sport, rows] of bySport) {
+    const omitted = rows.filter((l) => isDetailOmitted(l)).length;
+    if (rows.length > EXPLORER_LEG_RENDER_CAP) {
+      assert.ok(omitted > 0, `${sport}: ${rows.length} legs exceed the ${EXPLORER_LEG_RENDER_CAP} cap — the projection must be in effect`);
+      assert.ok(omitted < rows.length, `${sport}: every leg was omitted — the projection has swallowed the rendered window`);
+    } else {
+      assert.equal(omitted, 0, `${sport}: ${rows.length} legs fit inside the ${EXPLORER_LEG_RENDER_CAP} cap — nothing may be omitted`);
+    }
   }
 });
 

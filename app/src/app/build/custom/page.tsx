@@ -13,11 +13,9 @@
  */
 import { buildEngineLegAtoms } from "@/lib/build-legs";
 import type { BuildLegAtoms } from "@/lib/build/leg-atoms";
-import { loadTodaySlate, currentSlateDate, explorerSlateView } from "@/lib/parlays/ui-loader";
+import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import BuildExperience, { type SeedableCard } from "@/components/build-experience";
-import ParlaysExplorer from "@/components/parlays/parlays-explorer";
-import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
-import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
+import LazyParlaysExplorer from "@/components/parlays/lazy-parlays-explorer";
 import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
@@ -81,14 +79,9 @@ export default function ParlayCenterCustomPage() {
           loaders, same collapsed-by-default disclosure as always. */}
       <section id="optimizer-coverage" aria-labelledby="optimizer-coverage-heading" className="scroll-mt-6">
         <h2 id="optimizer-coverage-heading" className="sr-only">Card-builder coverage and the full eligible-leg pool</h2>
-        <details className="rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--vault-wash-faint)" }}>
-          <summary className="cursor-pointer select-none px-4 py-3 text-[13px]" style={{ color: "var(--vault-text-mute)", minHeight: 44 }}>
-            Advanced — card-builder coverage &amp; the full eligible-leg pool (by risk). Tap to expand.
-          </summary>
-          <div className="px-1 pb-2 pt-1">
-            <ParlaysExplorer slate={explorerSlateView(engineSlate)} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />
-          </div>
-        </details>
+        {/* P257: the explorer loads on first open (data/build/explorer-slate.json, emitted at build time) —
+            embedding it made this page grow with every game on the slate (886KB on 598 legs). */}
+        <LazyParlaysExplorer eligibleCount={engineSlate.eligibleLegs?.length ?? 0} />
       </section>
     </div>
   );

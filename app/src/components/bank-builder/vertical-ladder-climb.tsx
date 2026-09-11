@@ -91,7 +91,7 @@ function LegRow({ leg }: { leg: ClimbLeg }) {
 /** One rung on the vertical spine: a node (centered on the rail) + its content. The CURRENT rung (the one
  *  carrying today's card — identified by step, not a status string) is the glowing "you are here" and its
  *  card legs attach to it; rungs below it read cleared, rungs above read upcoming. */
-function RungRow({ rung, legs, isCurrent, isReview }: { rung: ClimbRung; legs: ClimbLeg[]; isCurrent: boolean; isReview?: boolean }) {
+function RungRow({ rung, legs, isCurrent, isReview, entry }: { rung: ClimbRung; legs: ClimbLeg[]; isCurrent: boolean; isReview?: boolean; entry?: number | null }) {
   // A review card's current rung uses the gold "paper review" palette (never the red live-money heat).
   const REVIEW = { label: "Review · Paper $0", color: "var(--vault-gold-bright)", ring: "color-mix(in srgb, var(--vault-crown) 55%, transparent)", fill: "color-mix(in srgb, var(--vault-crown) 10%, transparent)" };
   const m = isCurrent ? (isReview ? REVIEW : RUNG.active) : RUNG[rung.status];
@@ -126,7 +126,10 @@ function RungRow({ rung, legs, isCurrent, isReview }: { rung: ClimbRung; legs: C
           <span className="font-mono uppercase tracking-[0.06em]" style={{ color: m.color, fontSize: 8.5 }}>{m.label}</span>
         </div>
         <span className="mt-0.5 block font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>
-          Step {rung.step} · from {money0(rung.startTarget)}
+          {/* P257: the CURRENT rung was entered with the real rolled payout (P255 — a win carries the actual
+              payout to the next rung), not the template's round start. Printing the template ($200) beside a
+              $307.93 stake read as two different ladders. Upcoming rungs keep the template target. */}
+          Step {rung.step} · from {isCurrent && entry != null && Number.isFinite(entry) ? money(entry) : money0(rung.startTarget)}
         </span>
         {isActive && legs.length > 0 ? (
           <ul className="mt-2 flex flex-col gap-1.5">{legs.map((leg, i) => <LegRow key={i} leg={leg} />)}</ul>
@@ -203,7 +206,7 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
           </span>
         </div>
         {rungsTopDown.map((r) => (
-          <RungRow key={r.step} rung={r} legs={lane.legs} isCurrent={showsCard && lane.step != null && r.step === lane.step} isReview={isReview} />
+          <RungRow key={r.step} rung={r} legs={lane.legs} isCurrent={showsCard && lane.step != null && r.step === lane.step} isReview={isReview} entry={isReview ? null : lane.stake} />
         ))}
       </div>
 
