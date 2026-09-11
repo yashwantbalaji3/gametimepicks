@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823817,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T14:51:02.504Z",
+  "availableAt": "2026-09-11T14:51:02.504Z",
+  "eventStartTime": "2026-09-11T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687473,
+      "name": "Ryan Gusto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 3.8,
+        "bbAvg": 1.6,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 7.33,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 63,
+        "k": 53,
+        "bb": 22,
+        "er": 30,
+        "hr": 9
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T14:51:02.504Z"
+  },
+  "recordHash": "f8e5454eb53bf525a963c5ddada998e818df73dc8e296e8b1aba0eb716195615"
+}

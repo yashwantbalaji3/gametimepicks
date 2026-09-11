@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824873,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T14:51:02.504Z",
+  "availableAt": "2026-09-11T14:51:02.504Z",
+  "eventStartTime": "2026-09-11T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 519242,
+      "name": "Chris Sale",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 7,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33,
+        "ipAvg": 6.6,
+        "kAvg": 8.2,
+        "bbAvg": 0.6,
+        "erAvg": 1.6,
+        "hrAvg": 0.2,
+        "kPer9": 11.18,
+        "workloadIpLast5": 33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 150,
+        "k": 184,
+        "bb": 29,
+        "er": 35,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 605400,
+      "name": "Aaron Nola",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 5,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 6.6,
+        "bbAvg": 1.8,
+        "erAvg": 1.2,
+        "hrAvg": 0.6,
+        "kPer9": 9.9,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 155,
+        "k": 162,
+        "bb": 52,
+        "er": 82,
+        "hr": 32
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T14:51:02.504Z"
+  },
+  "recordHash": "b4e3b3fa47098248064db8e35cd7660b59f21a54bdbaa136c0b384f176f30ff3"
+}

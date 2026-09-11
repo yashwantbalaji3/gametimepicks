@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822684,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T14:51:02.504Z",
+  "availableAt": "2026-09-11T14:51:02.504Z",
+  "eventStartTime": "2026-09-11T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676917,
+      "name": "Cade Cavalli",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 8.8,
+        "bbAvg": 1.4,
+        "erAvg": 0.8,
+        "hrAvg": 0.4,
+        "kPer9": 13.2,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 158.67,
+        "k": 185,
+        "bb": 46,
+        "er": 55,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 579328,
+      "name": "Yusei Kikuchi",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 4.4,
+        "bbAvg": 1.6,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 7.92,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 49,
+        "k": 49,
+        "bb": 19,
+        "er": 27,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T14:51:02.504Z"
+  },
+  "recordHash": "77a7cd24e88b4ab49fb66324ca880df88d131358e95885651227ec8db602b1d7"
+}
