@@ -1,0 +1,210 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824631,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T00:26:08.230Z",
+  "availableAt": "2026-09-11T00:26:08.230Z",
+  "eventStartTime": "2026-09-11T18:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-08",
+    "2026-09-09",
+    "2026-09-10"
+  ],
+  "home": {
+    "teamId": 112,
+    "teamName": "Chicago Cubs",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 129,
+      "relievers": [
+        {
+          "id": 650644,
+          "name": "Aaron Civale",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 663423,
+          "name": "Trent Thornton",
+          "appearances": 2,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-09-08",
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 657097,
+          "name": "Jacob Webb",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 694037,
+          "name": "Daniel Palencia",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 573204,
+          "name": "Caleb Thielbar",
+          "appearances": 2,
+          "pitches": 18,
+          "outs": 4,
+          "dates": [
+            "2026-09-08",
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 607067,
+          "name": "Colin Rea",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 166,
+      "relievers": [
+        {
+          "id": 685126,
+          "name": "Brandon Eisert",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 7,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 696062,
+          "name": "Wilber Dotel",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 666808,
+          "name": "Camilo Doval",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 1,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 642397,
+          "name": "Gregory Soto",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 596133,
+          "name": "Luke Weaver",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 682254,
+          "name": "Mason Montgomery",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 2,
+          "pitches": 15,
+          "outs": 5,
+          "dates": [
+            "2026-09-08",
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 669387,
+          "name": "Carmen Mlodzinski",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-08,2026-09-09,2026-09-10) + feed/live box scores",
+    "capturedAt": "2026-09-11T00:26:08.230Z"
+  },
+  "recordHash": "2959a9831058041fb0e84d4211fd7dfac8cd755429b1ca5b0905573899aa3976"
+}

@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823736,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T00:26:08.230Z",
+  "availableAt": "2026-09-11T00:26:08.230Z",
+  "eventStartTime": "2026-09-11T23:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-08",
+    "2026-09-09",
+    "2026-09-10"
+  ],
+  "home": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 143,
+      "relievers": [
+        {
+          "id": 687075,
+          "name": "Brandon Sproat",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 4,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 668941,
+          "name": "JoJo Romero",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 1,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 682842,
+          "name": "Abner Uribe",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 669084,
+          "name": "DL Hall",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 5,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 622608,
+          "name": "Antonio Senzatela",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 694477,
+          "name": "Chad Patrick",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 1,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 676879,
+          "name": "Aaron Ashby",
+          "appearances": 1,
+          "pitches": 1,
+          "outs": 1,
+          "dates": [
+            "2026-09-08"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 113,
+    "teamName": "Cincinnati Reds",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 142,
+      "relievers": [
+        {
+          "id": 670062,
+          "name": "Julian Garcia",
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 7,
+          "dates": [
+            "2026-09-08",
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 682825,
+          "name": "Luis Mey",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 5,
+          "dates": [
+            "2026-09-08",
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 572955,
+          "name": "Pierce Johnson",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 663574,
+          "name": "Tony Santillan",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 668933,
+          "name": "Graham Ashcraft",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 624431,
+          "name": "Jose Trevino",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-08,2026-09-09,2026-09-10) + feed/live box scores",
+    "capturedAt": "2026-09-11T00:26:08.230Z"
+  },
+  "recordHash": "6678aeb8bdc5461fee5eef59cdd21382f58b17eb3680b3eb0b3abfbf93648e4c"
+}

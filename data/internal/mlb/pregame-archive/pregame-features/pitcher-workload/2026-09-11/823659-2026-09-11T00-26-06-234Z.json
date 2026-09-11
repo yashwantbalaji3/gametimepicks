@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823659,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T00:26:06.234Z",
+  "availableAt": "2026-09-11T00:26:06.234Z",
+  "eventStartTime": "2026-09-12T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 671737,
+      "name": "Taj Bradley",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 7.2,
+        "bbAvg": 2.6,
+        "erAvg": 3,
+        "hrAvg": 1.2,
+        "kPer9": 11.71,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 159.33,
+        "k": 184,
+        "bb": 68,
+        "er": 70,
+        "hr": 23
+      }
+    },
+    "away": {
+      "id": 800048,
+      "name": "Parker Messick",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 7.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 10.98,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 167,
+        "k": 173,
+        "bb": 45,
+        "er": 47,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T00:26:06.234Z"
+  },
+  "recordHash": "8d15a4b1806d008f0422a6ecabec4b97d97c5819919579b357c5b4a07444c8e7"
+}

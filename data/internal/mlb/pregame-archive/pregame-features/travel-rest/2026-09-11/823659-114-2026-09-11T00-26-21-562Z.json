@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 823659,
+  "teamId": 114,
+  "name": "Cleveland Guardians",
+  "side": "away",
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T00:26:21.562Z",
+  "availableAt": "2026-09-11T00:26:21.562Z",
+  "eventStartTime": "2026-09-12T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 2,
+  "gamesLast7": 7,
+  "gamesLast10": 10,
+  "travelDistanceKm": 1508.8,
+  "previousGameDate": "2026-09-09",
+  "previousVenueId": 2,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=114&startDate=2026-08-28&endDate=2026-09-10",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-09-11T00:26:21.562Z"
+  },
+  "recordHash": "752e6a82e2db2e835130bec4e9a36fa62e2db61ebd71168565337b1fcdd5d180"
+}

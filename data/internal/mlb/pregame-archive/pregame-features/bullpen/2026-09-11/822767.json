@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822767,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T00:26:08.230Z",
+  "availableAt": "2026-09-11T00:26:08.230Z",
+  "eventStartTime": "2026-09-11T23:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-08",
+    "2026-09-09",
+    "2026-09-10"
+  ],
+  "home": {
+    "teamId": 141,
+    "teamName": "Toronto Blue Jays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 123,
+      "relievers": [
+        {
+          "id": 547179,
+          "name": "Michael Lorenzen",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 8,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 693686,
+          "name": "Spencer Miles",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 643511,
+          "name": "Tyler Rogers",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 686973,
+          "name": "Louis Varland",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 573009,
+          "name": "Joe Mantiply",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 4,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 623149,
+          "name": "Paul Sewald",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 143,
+      "relievers": [
+        {
+          "id": 695380,
+          "name": "Alex Hoppe",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 2,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 5,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 664991,
+          "name": "Grant Wolfram",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 1,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 676742,
+          "name": "Cam Sanders",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 677020,
+          "name": "Josh Walker",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 4,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 801725,
+          "name": "Luis De León",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-08"
+          ]
+        },
+        {
+          "id": 689296,
+          "name": "Anthony Nunez",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-09-08"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-08,2026-09-09,2026-09-10) + feed/live box scores",
+    "capturedAt": "2026-09-11T00:26:08.230Z"
+  },
+  "recordHash": "3466f7220bac44f2555440615bebb3e70b278503bab864ba0131b8285924e290"
+}
