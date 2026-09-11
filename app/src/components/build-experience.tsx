@@ -33,6 +33,7 @@ import { getSportIdentity } from "@/lib/sport-identity";
 import { useSlip, type SlipLeg } from "@/lib/slip/slip-store";
 import { legKey, type SlipLegInput } from "@/lib/slip/leg-identity";
 import { SEARCH_PLAYERS_OR_TEAMS, SEARCH_PLAYERS_OR_TEAMS_LABEL } from "@/lib/ui/search-labels";
+import SlipGauges from "@/components/parlays/lab/slip-gauges";
 
 // The 2026 World Cup is complete — not a selectable build sport (archive only). The SPORT_LABEL map below
 // keeps the "World Cup" label so any historical WC row still renders its badge.
@@ -81,7 +82,7 @@ interface DraftLeg {
 }
 
 export default function BuildExperience({
-  pool: poolAtoms, productDate = null, cards = {},
+  pool: poolAtoms, productDate = null, cards = {}, bandByTier = null,
 }: {
   /* ATOMS, not display legs (P230 · Release 0). The server ships what cannot be recomputed and this
      component derives the rest, so the pool travels at 294 B/leg instead of 1010 and no longer needs
@@ -90,6 +91,14 @@ export default function BuildExperience({
   productDate?: string | null;
   /** slipId → seedable card, for /build/custom?card=<slipId> ("Customize this card"). */
   cards?: Record<string, SeedableCard>;
+  /**
+   * The risk ladder's settled record by price band (P261).
+   *
+   * A card someone is building has no record of its own, and never will — it does not exist until
+   * they build it. The honest comparison is what the lab's OWN published cards at the same price
+   * have done, which is exactly what this record holds. Null simply omits the comparison.
+   */
+  bandByTier?: Readonly<Record<string, { wins: number; losses: number; roi?: number | null }>> | null;
 }) {
   /* One hydration for the whole pool, memoised on the prop identity: `hydrateBuildLeg` is a pure
      total function of the atoms, so the legs below are byte-identical to what the server used to
@@ -281,6 +290,19 @@ export default function BuildExperience({
             ))}
           </div>
           <StakePayoutInput combinedAmerican={combinedAmerican} />
+
+          {/* P261: what this card IS — the chance its price implies beside the published record at
+              the same price, the linked pairs by name, and one shorter-priced stand-in to trade for. */}
+          <SlipGauges
+            draft={draft}
+            pool={pool}
+            byTier={bandByTier}
+            onSwap={(outgoingKey, incoming) => {
+              if (!incoming.slipLeg) return;
+              remove(outgoingKey);
+              add({ ...incoming.slipLeg, key: legKey(incoming.slipLeg) });
+            }}
+          />
           {(correlated || hasPrelineup || hasSoccer || draft.length < 2 || bankEligible || staleCount > 0) ? (
             <div className="flex flex-col gap-1 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
               {draft.length < 2 ? <StatusChip label="Single leg — add another for a parlay" /> : null}

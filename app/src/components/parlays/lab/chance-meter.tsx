@@ -22,9 +22,12 @@ const fmtDate = (d: string) =>
 function Bar({ label, value, sub, fill, order }: { label: string; value: number; sub: string; fill: string; order: number }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-baseline justify-between gap-2">
-        <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{label}</span>
-        <span className="font-mono tabular-nums whitespace-nowrap" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>
+      {/* WRAPS AS A BLOCK, NOT A COLUMN OF WORDS. In the builder's betslip the container is ~200px, and
+          a nowrap value beside a flex label squeezed the label to one word per line. Wrapping lets the
+          value drop to its own line and gives the label the full width. */}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+        <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5, flex: "1 1 auto", minWidth: 0 }}>{label}</span>
+        <span className="font-mono tabular-nums whitespace-nowrap shrink-0" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>
           {pct(value)}{" "}
           <span style={{ color: "var(--vault-text-faint)", fontSize: 11, fontWeight: 400 }}>· {oneIn(value)}</span>
         </span>

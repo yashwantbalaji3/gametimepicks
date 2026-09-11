@@ -28,7 +28,14 @@ test("the seed map has ONE owner and the builder page uses it", () => {
   assert.match(lib, /loadSuggestedCards/, "identity-complete suggested families");
   const page = read("src/app/build/custom/page.tsx");
   assert.match(page, /buildSeedableCards\(dataRoot, ladderDate\)/, "the page consumes the owner");
-  assert.doesNotMatch(page, /loadRiskLadder|loadCurrentSportLabLadder/, "…and composes no second map");
+  /*
+   * The ban is on composing a second SEED MAP — the page must not load ladder CARDS and build its own
+   * ?card= seeding beside the owner's. It was written as a bare name match, which also caught
+   * `loadRiskLadderRecord`: the settled record BY PRICE BAND, which seeds nothing and is what the
+   * builder's gauges compare a built card's price against (P261). Matched with the call parenthesis
+   * so the two card loaders stay banned and the record loader is not collateral.
+   */
+  assert.doesNotMatch(page, /loadRiskLadder\(|loadCurrentSportLabLadder\(/, "…and composes no second seed map");
 });
 
 test("lane legs map to canonical identities under the documented participant convention", () => {

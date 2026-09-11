@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const read = (rel) => fs.readFileSync(path.join(process.cwd(), rel), "utf8");
-const LAB = ["src/components/parlays/lab/for-you-spotlight.tsx", "src/components/parlays/lab/chance-meter.tsx", "src/components/parlays/lab/style-replay-chart.tsx"];
+const LAB = ["src/components/parlays/lab/for-you-spotlight.tsx", "src/components/parlays/lab/chance-meter.tsx", "src/components/parlays/lab/style-replay-chart.tsx", "src/components/parlays/lab/slip-gauges.tsx"];
 const code = (rel) => read(rel).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 const prose = (rel) => code(rel).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
 
@@ -53,4 +53,31 @@ test("switching level re-renders the card rather than hiding the others", () => 
   assert.match(s, /RISK_ORDER\.map\(/, "all four levels are always offered");
   assert.match(s, /aria-pressed=\{on\}/, "the chosen level is announced");
   assert.match(s, /key=\{pick\.main\.slipId\}/, "a new card animates in on switch");
+});
+
+test("the builder's gauges compare a built card to PUBLISHED cards at the same price, never to itself", () => {
+  const g = code("src/components/parlays/lab/slip-gauges.tsx");
+  assert.match(g, /bandRecord\(chance\.american, byTier\)/, "the comparison is the band's settled record");
+  assert.match(g, /not this card, which/, "and it says the built card has never been graded");
+  assert.ok(!/modelProb|winProbability/.test(g), "no model probability on a demoted market");
+});
+
+test("a linked pair is named with the engine's own reason, and a shared game is disclosed not blocked", () => {
+  const g = code("src/components/parlays/lab/slip-gauges.tsx");
+  assert.match(g, /linkedPairs\(engineLegs\)/);
+  assert.match(g, /\{p\.reason\}/, "the engine's reason is what renders");
+  assert.match(g, /vault-danger[\s\S]{0,80}vault-warn/, "provable conflicts read louder than disclosures");
+});
+
+test("the stand-in is offered as a trade and applied only on a tap", () => {
+  const g = code("src/components/parlays/lab/slip-gauges.tsx");
+  assert.match(g, /A trade, not an improvement/);
+  assert.match(g, /onClick=\{\(\) => onSwap\(outgoingKey, alt\.incoming\.leg\)\}/, "nothing swaps itself");
+  for (const banned of [/\bbetter\b/i, /\bsafer\b/i, /you should/i]) assert.doesNotMatch(g.replace(/\/\*[\s\S]*?\*\//g, ""), banned);
+});
+
+test("the builder renders the gauges, and the page supplies the published band record", () => {
+  assert.match(code("src/components/build-experience.tsx"), /<SlipGauges[\s\S]{0,200}byTier=\{bandByTier\}/);
+  assert.match(code("src/app/build/custom/page.tsx"), /loadRiskLadderRecord\(dataRoot\)\?\.byTier \?\? null/);
+  assert.match(code("src/app/build/custom/page.tsx"), /bandByTier=\{bandByTier\}/);
 });
