@@ -99,3 +99,19 @@ test("buildFlagship orchestrator returns a fully-reconciled model (money == cano
   assert.ok(f.todayStatus.settlementStatus.length > 0, "settlement status present");
   assert.ok(Array.isArray(f.todayStatus.products), "today product exposure present");
 });
+
+test("P256 · folded days count their Bank Builder steps — history is not restated", () => {
+  const daily = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/mr-dub/daily-summary.json"), "utf8"));
+  const portfolio = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/mr-dub/portfolio.json"), "utf8"));
+  const { timeline } = buildTimeline(daily.days, portfolio);
+  const byDate = [...timeline].sort((a, b) => a.date.localeCompare(b.date)); // the timeline renders newest-first
+  const last = byDate.at(-1);
+  assert.deepEqual([last.cumWins, last.cumLosses], [portfolio.record.wins, portfolio.record.losses], "the newest row reads the official record");
+  const base = portfolio.protectedFold?.base;
+  if (base) {
+    const july = byDate.filter((t) => t.date <= base.asOf).at(-1);
+    assert.deepEqual([july.cumWins, july.cumLosses], [base.record.wins, base.record.losses], `the ${base.asOf} row still reads the July record, not the folded one`);
+    for (const t of timeline.filter((x) => x.events.some((e) => e.type === "folded_day") && x.sign === "loss"))
+      assert.match(t.headline, /Bank Builder step|Moonshot lane/, `${t.date}: a folded loss names what was lost`);
+  }
+});

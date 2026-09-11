@@ -32,6 +32,8 @@ export interface FlagshipEvent {
   combinedAmerican?: number | null; combinedOdds?: number | null; status?: string; result?: string;
   rolled?: boolean; officialResultConfirmed?: boolean; settlementSource?: string; publicBankBuilderVisible?: boolean;
   legs?: FlagshipLeg[]; notes?: string; accountingNote?: string; projectedReturn?: number; atRiskStake?: number;
+  /** Rule S folded days (P256): the day's settled steps per product. The core record counts Bank Builder only. */
+  bankBuilder?: { won: number; lost: number }; moonshot?: { won: number; lost: number };
 }
 export interface DailyDay {
   date: string; staked: number; returned: number; pl: number;
@@ -138,6 +140,10 @@ export function buildTimeline(days: DailyDay[], portfolio: PortfolioDoc): { time
       const r = e.result;
       const isAggregate = e.type === "dual_lane_losses";
       if (isAggregate) { l += seedsOf(e); continue; }
+      // A Rule S folded day carries several settled steps in ONE event; the record counts its Bank
+      // Builder steps (Moonshot has its own line). Counting it as a single won/lost result pushed the
+      // folded wins into the July residual and restated history (Jul 7 read 26–14, not 19–14).
+      if (e.type === "folded_day") { w += e.bankBuilder?.won ?? 0; l += e.bankBuilder?.lost ?? 0; continue; }
       if (r === "won" || r === "win") w++;
       else if (r === "lost") l++;
     }
@@ -179,7 +185,13 @@ export function buildTimeline(days: DailyDay[], portfolio: PortfolioDoc): { time
     const pendingCount = (d.events ?? []).filter((e) => e.status === "open" || e.status === "queued").length;
 
     const s = sign(d.pl);
+    const folded = (d.events ?? []).find((e) => e.type === "folded_day");
+    const foldedLoss = folded && s === "loss"
+      ? [folded.bankBuilder?.lost ? `${folded.bankBuilder.lost} Bank Builder step${folded.bankBuilder.lost === 1 ? "" : "s"}` : null,
+         folded.moonshot?.lost ? `${folded.moonshot.lost} Moonshot lane${folded.moonshot.lost === 1 ? "" : "s"}` : null].filter(Boolean).join(" + ")
+      : null;
     const headline =
+      foldedLoss ? `Down ${money(Math.abs(d.pl))} — ${foldedLoss} lost, bankroll ${money(closing)}` :
       s === "win" && wonRung ? `Ladder step ${wonRung.step} won — bankroll ${money(opening)} → ${money(closing)}`
       : s === "win" ? `Up ${money(d.pl)} — bankroll ${money(closing)}`
       : s === "loss" ? `Down ${money(Math.abs(d.pl))} — ${dayL} seed${dayL === 1 ? "" : "s"} lost, bankroll ${money(closing)}`
