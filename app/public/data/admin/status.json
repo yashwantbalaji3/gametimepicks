@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-11T11:52:39.015Z",
+  "generatedAt": "2026-09-11T12:50:18.158Z",
   "canonical": {
     "record": "27-22",
     "bankroll": 17865.4,
@@ -209,7 +209,7 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-11T11:52:38.248Z",
+    "lastRunAt": "2026-09-11T12:50:17.357Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
@@ -218,7 +218,7 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-11",
-    "etTime": "07:52",
+    "etTime": "08:50",
     "stages": [
       {
         "stage": "schedule",
@@ -237,37 +237,37 @@
       {
         "stage": "teamMarkets",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "simulations",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "predictions",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       }
     ],
     "readyCount": 0,
     "totalStages": 6,
-    "lateCount": 2,
+    "lateCount": 6,
     "signal": "RED",
-    "summary": "2 stage(s) overdue: schedule (due 06:47 ET via morning-projections), board (due 06:47 ET via morning-projections)"
+    "summary": "6 stage(s) overdue: schedule (due 06:47 ET via morning-projections), board (due 06:47 ET via morning-projections), teamMarkets (due 07:17 ET via mlb-daily-production), playerProps (due 07:17 ET via mlb-daily-production), simulations (due 07:17 ET via mlb-daily-production), predictions (due 07:17 ET via mlb-daily-production)"
   },
   "learningLoop": {
     "signal": "GREEN",
