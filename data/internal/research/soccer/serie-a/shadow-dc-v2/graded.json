@@ -1,0 +1,63 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-graded",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "frozenAt": "2026-09-11T19:49:08.471Z",
+ "rule": "each forward match graded once, against its single pre-kickoff shadow forecast, from the football-data.co.uk final score",
+ "sampleState": "NONE",
+ "summary": {
+  "matches": 0,
+  "logLoss": null,
+  "brier": null,
+  "uniformLogLoss": 1.0986,
+  "sampleState": "NONE"
+ },
+ "decision": {
+  "state": "INTERIM_DECIDES_NOTHING",
+  "why": "before the single preregistered look — these figures are reported and decide nothing",
+  "n": 0,
+  "figures": {
+   "dixonColes": {
+    "n": 0
+   },
+   "empirical": {
+    "n": 0
+   },
+   "drawEceNullBound": null,
+   "bars": {
+    "skill": null,
+    "drawEcePass": null,
+    "drawEceBeyondNoise": null
+   }
+  },
+  "due": false,
+  "look": {
+   "seasonRowsInCorpus": 30,
+   "seasonMatches": 380,
+   "deadline": "2027-07-01T00:00:00Z"
+  },
+  "stageChanged": false
+ },
+ "reportedNotGating": {
+  "v1SplitPoisson": {
+   "n": 0
+  },
+  "marketClose": {
+   "n": 0
+  },
+  "rescheduled": 0
+ },
+ "population": {
+  "graded": 0,
+  "pendingResult": 9,
+  "excluded": []
+ },
+ "matches": [],
+ "generatedAt": "2026-09-11T19:49:53.000Z"
+}

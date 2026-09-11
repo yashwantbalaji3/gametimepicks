@@ -50,3 +50,14 @@ test("nflverse-weekly captures snap counts for the participation preregistration
 test("the CI python job installs pytest (two script-style tests import it)", () => {
   assert.match(read(".github/workflows/quality-gate.yml"), /pip install -r pipeline\/requirements\.txt pytest/);
 });
+
+test("the Dixon-Coles v2 shadow runs daily in its own workflow, grades before it forecasts, and stays private", () => {
+  const DC = read(".github/workflows/soccer-dc-shadow.yml");
+  const grade = DC.indexOf("dixon-coles-shadow.mjs --grade");
+  const forecast = DC.indexOf("dixon-coles-shadow.mjs --now");
+  assert.ok(grade > 0 && forecast > grade, "grade finished matches first, then forecast");
+  assert.ok(!/continue-on-error/.test(DC), "a refusal of the frozen registration must fail the job");
+  assert.ok(!/app\/public/.test(DC.replace(/^#.*$/gm, "")), "research only: nothing published");
+  assert.match(DC, /group: soccer-dc-shadow/, "never in the public writers' queue");
+  assert.ok(!/dixon-coles/.test(read(".github/workflows/soccer-leagues.yml")), "the public job never waits on research");
+});

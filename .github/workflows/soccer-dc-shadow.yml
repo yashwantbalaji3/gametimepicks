@@ -1,0 +1,70 @@
+# Dixon-Coles v2 private forward shadow (P259) — LaLiga, Serie A, Bundesliga.
+#
+# RESEARCH ONLY. The v1 model was rejected for these leagues on draw calibration. v2 is preregistered
+# (data/internal/research/soccer/preregistration-dixon-coles-v2.json, frozen 2026-09-11) and is scored
+# only on 2026-27 matches forecast before kickoff, one decisive look per league at season end. Nothing
+# here writes under app/public or changes a league's stage.
+#
+# Its own workflow, on purpose: the runner REFUSES (exit 3) if the frozen document, model or alias table
+# change, and that refusal must fail loudly — but it must never be the reason the public soccer forecasts
+# (soccer-leagues) do not publish. Only this job writes these paths, so it needs no shared writer queue.
+name: soccer-dc-shadow
+
+on:
+  schedule:
+    - cron: "45 9 * * *"   # 05:45 ET daily — after soccer-leagues; the runner forecasts a 72-hour horizon
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: soccer-dc-shadow
+  cancel-in-progress: false
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Refresh the three leagues' history, grade finished matches, forecast the next 72 hours
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/soccer/capture-football-data.mjs --leagues laliga,serie-a,bundesliga --seasons 2627
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node scripts/soccer/dixon-coles-shadow.mjs --grade --now "$NOW" | tee /tmp/dc-grade.txt
+          node scripts/soccer/dixon-coles-shadow.mjs --now "$NOW" | tee /tmp/dc-forecast.txt
+          { echo "### Dixon-Coles v2 shadow (private)"; echo '```'; cat /tmp/dc-grade.txt /tmp/dc-forecast.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the research record
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/research/soccer/{laliga,serie-a,bundesliga}/corpus-football-data-v1.json \
+                  data/internal/research/soccer/{laliga,serie-a,bundesliga}/shadow-dc-v2/ \
+                  data/internal/research/soccer/shadow-dc-v2-summary.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: soccer Dixon-Coles v2 shadow $(date -u +%Y-%m-%d) [skip ci]"
+          for a in 1 2 3 4; do
+            git push origin HEAD:main && exit 0
+            echo "push rejected (attempt $a) — rebasing onto origin/main and retrying"
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((a * 5))
+          done
+          echo "::error::push never landed after 4 attempts"; exit 1
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: soccer-dc-shadow
+          EXIT_STATUS: "1"
+          ERROR_LINE: "Dixon-Coles v2 shadow failed. Exit 3 is a refusal: the frozen preregistration, model or aliases changed."
+        run: bash scripts/ops_alert.sh

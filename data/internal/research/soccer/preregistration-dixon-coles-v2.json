@@ -1,0 +1,393 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dixon-coles-v2-preregistration",
+ "dataClass": "PRIVATE_RESEARCH",
+ "version": "1.0",
+ "frozenAt": "2026-09-11T19:49:08.471Z",
+ "purpose": "Decide, per league, whether a Dixon-Coles variant repairs the draw calibration that rejected epl-model-v1-split-poisson for LaLiga, Serie A and Bundesliga — judged ONLY on 2026-27 matches that had not kicked off when this document was frozen. Private research: nothing here publishes, promotes or changes a registry stage.",
+ "knownFailure": {
+  "source": "data/internal/research/soccer/preregistration-league-expansion-v1.json (registeredVersion 1.2), bar L2_calibration",
+  "bar": "poisson DRAW ECE (10-bin, the draw probability alone) over ALL scored seasons (2023-24, 2024-25, 2025-26) ≤ 0.030",
+  "v1Results": {
+   "laliga": {
+    "report": "data/internal/research/soccer/laliga/reports/walk-forward-v1.json",
+    "verdict": "REJECTED",
+    "scored": 1140,
+    "drawEceAllScored": 0.0305,
+    "failedBars": [
+     "L2_calibration"
+    ],
+    "marketDrawEceAllScored": 0.017
+   },
+   "serie-a": {
+    "report": "data/internal/research/soccer/serie-a/reports/walk-forward-v1.json",
+    "verdict": "REJECTED",
+    "scored": 1140,
+    "drawEceAllScored": 0.0431,
+    "failedBars": [
+     "L2_calibration"
+    ],
+    "marketDrawEceAllScored": 0.0155
+   },
+   "bundesliga": {
+    "report": "data/internal/research/soccer/bundesliga/reports/walk-forward-v1.json",
+    "verdict": "REJECTED",
+    "scored": 918,
+    "drawEceAllScored": 0.045,
+    "failedBars": [
+     "L2_calibration"
+    ],
+    "marketDrawEceAllScored": 0.0271
+   }
+  },
+  "reading": "Each league passed L1_skill and L3_development_consistency and failed only L2_calibration. Independent Poisson fixes P(draw) entirely by the two goal means; it has no parameter that can move probability among the low-score cells (0-0, 1-1, and the one-goal results beside them) where draws concentrate. The Dixon-Coles correction is exactly such a parameter. LaLiga's 0.0305 sits at the noise floor of a 1,140-match draw ECE; Serie A (0.0431) and Bundesliga (0.045 on 918) are clearer failures."
+ },
+ "whyForwardOnly": "The 2023-24, 2024-25 and 2025-26 seasons produced the v1 rejection. Choosing a variant after seeing them and then scoring it on them would be data-snooping, so v2 is scored ONLY on matches that kick off after frozenAt. Historical seasons are used to FIT parameters — exactly as any forecast made today would be — and never to score v2.",
+ "leagues": {
+  "laliga": {
+   "name": "LaLiga",
+   "espn": "esp.1",
+   "footballData": "SP1",
+   "seasonMatches": 380
+  },
+  "serie-a": {
+   "name": "Serie A",
+   "espn": "ita.1",
+   "footballData": "I1",
+   "seasonMatches": 380
+  },
+  "bundesliga": {
+   "name": "Bundesliga",
+   "espn": "ger.1",
+   "footballData": "D1",
+   "seasonMatches": 306
+  }
+ },
+ "season": "2026-27",
+ "forwardPopulationAtFreeze": {
+  "note": "upper bound per league = the season's matches minus those already in the corpus at freeze; matches under way at frozenAt, unforecast matches and exclusions lower it",
+  "laliga": {
+   "inCorpusAtFreeze": 41,
+   "atMost": 339
+  },
+  "serie-a": {
+   "inCorpusAtFreeze": 30,
+   "atMost": 350
+  },
+  "bundesliga": {
+   "inCorpusAtFreeze": 18,
+   "atMost": 288
+  }
+ },
+ "model": {
+  "id": "soccer-dixon-coles-v2",
+  "code": "app/src/lib/sports/soccer/dixon-coles.mjs",
+  "equations": {
+   "lambdaHome": "log λ_home = μ + home + att[home club] + def[away club]",
+   "lambdaAway": "log λ_away = μ + att[away club] + def[home club]",
+   "scoreProbability": "P(x, y) ∝ Pois(x; λ_home) · Pois(y; λ_away) · τ(x, y), x = home goals, y = away goals, grid 0..maxGoals per side, renormalised to 1",
+   "tau": "τ(0,0) = 1 − λ_home·λ_away·ρ; τ(0,1) = 1 + λ_home·ρ; τ(1,0) = 1 + λ_away·ρ; τ(1,1) = 1 − ρ; τ = 1 for every other cell (Dixon & Coles 1997). A τ below 0 is clamped to 0 and counted (tauClamped).",
+   "timeDecay": "a folded match d days before the cutoff has weight exp(−xiPerDay · d)",
+   "objective": "Σ weight · log P(x, y) − ½ · ridgePrecision · Σ_clubs (att² + def²); μ, home and ρ unpenalised"
+  },
+  "parameters": {
+   "xiPerDay": 0.00186,
+   "ridgePrecision": 2,
+   "maxGoals": 10,
+   "rhoBounds": [
+    -0.5,
+    0.5
+   ],
+   "tolerance": 1e-8,
+   "maxSweeps": 5000
+  },
+  "parameterRationale": {
+   "xiPerDay": "Dixon & Coles (1997) published ξ = 0.0065 per half-week; ÷ 3.5 days = 0.00186 per day, a half-life of ≈ 373 days. Taken from the paper, not tuned on any league here.",
+   "ridgePrecision": "κ = 2 on att/def only (log scale), fixed a priori as a numerical stabiliser worth one to two league-average matches of pseudo-data per club. It removes the unpenalised model's two flat directions and stops a promoted club's first few results from reading as a strength estimate. A 10-seed synthetic check showed κ = 2 and κ = 0 recover ρ identically (mean error +0.007, SD 0.02 at 7,600 matches).",
+   "maxGoals": "0..10 per side, renormalised — v1's grid.",
+   "rhoBounds": "outer bounds [−0.5, 0.5], intersected with the interval in which every observed low-score cell keeps τ > 0 — far wider than published estimates.",
+   "tolerance": "converged when no parameter moves more than 1e-8 in a full sweep; a fit that has not converged after maxSweeps forecasts nothing (the run is refused and logged)."
+  },
+  "fitProcedure": "Block coordinate ascent: one Newton step per strength parameter (Poisson curvature), halved until the objective does not fall; att and def re-centred to mean zero with the means absorbed into μ (λ unchanged, penalty reduced — the exact optimum along the flat directions); then an exact one-dimensional maximisation of ρ, which is concave in ρ, inside the τ > 0 interval. Repeated to convergence.",
+  "homeAdvantage": "one league-wide log-scale home term, re-fit walk-forward with everything else",
+  "coldStart": "a club with no folded match gets att = def = 0 (league average) and coldStart = true, as v1 does. Every 2026-27 club already has corpus rows at freeze."
+ },
+ "fitting": {
+  "rule": "walk-forward: every forecast run fits μ, home, att, def and ρ jointly on corpus rows with dateUtc strictly before the run's time, which is strictly before every kickoff it forecasts. Nothing is carried over from an earlier fit.",
+  "data": "the league's football-data.co.uk corpus (corpus-football-data-v1.json), all seasons from 2022-23, time-decayed. Market columns are never a model input.",
+  "rhoInitial": {
+   "definition": "ρ fit at each league's first 2026-27 kickoff, on 2022-23 through 2025-26 (the four completed seasons, 'seasons starting 2022 to 2025'). Recorded as the frozen starting point of the record. Forecasts re-fit ρ walk-forward and never read this value.",
+   "laliga": {
+    "cutoffIso": "2026-08-15T17:30:00.000Z",
+    "seasonsFolded": [
+     "2022-23",
+     "2023-24",
+     "2024-25",
+     "2025-26"
+    ],
+    "matchesFitted": 1520,
+    "rho": 0.01752,
+    "home": 0.294955,
+    "converged": true,
+    "sweeps": 22
+   },
+   "serie-a": {
+    "cutoffIso": "2026-08-22T16:30:00.000Z",
+    "seasonsFolded": [
+     "2022-23",
+     "2023-24",
+     "2024-25",
+     "2025-26"
+    ],
+    "matchesFitted": 1520,
+    "rho": -0.029411,
+    "home": 0.116526,
+    "converged": true,
+    "sweeps": 20
+   },
+   "bundesliga": {
+    "cutoffIso": "2026-08-28T18:30:00.000Z",
+    "seasonsFolded": [
+     "2022-23",
+     "2023-24",
+     "2024-25",
+     "2025-26"
+    ],
+    "matchesFitted": 1224,
+    "rho": -0.074313,
+    "home": 0.182863,
+    "converged": true,
+    "sweeps": 20
+   },
+   "reading": "ρ is near zero for LaLiga, small and negative for Serie A, and materially negative (more low-score draws than independent Poisson allows) for Bundesliga. Stated before any forward match is scored, so a small LaLiga effect cannot be explained away afterwards."
+  }
+ },
+ "forecastProtocol": {
+  "runner": "app/scripts/soccer/dixon-coles-shadow.mjs",
+  "fixtures": "ESPN public scoreboard https://site.api.espn.com/apis/site/v2/sports/soccer/<espn>/scoreboard?dates=YYYYMMDD-YYYYMMDD (free); only events whose status state is 'pre' and whose kickoff is after both the run time and frozenAt",
+  "clubMapping": "app/src/lib/sports/soccer/dixon-coles-aliases.mjs, keyed by ESPN team id → football-data club name, covering every 2026-27 club. An unmapped club is refused with its name and id, never guessed and never given league-average strength.",
+  "horizonHours": 72,
+  "horizonRationale": "Each match is forecast once, by the first run whose window contains it. With one run a day that is 48–72 h before kickoff, and a missed or late run still leaves two more chances before kickoff (scheduled CI runs in this repository have arrived 3–6 h late, and whole cron bands have been dropped). A shorter horizon would fold slightly fresher results, but the corpus itself lags by days, so that gain is small against the sample lost to a missed run.",
+  "onePerMatch": "one forecast per (season, home, away) in corpus club names — unique in a double round-robin and stable if ESPN re-issues an event id. The first forecast written is the forecast: never overwritten, never replaced by a later, better-informed run.",
+  "informationSet": "the corpus as captured when the run starts. Every row records how many ESPN finals from the previous corpusLagLookbackDays days the corpus did not yet hold (corpusLag). Lag is recorded, never a reason to skip a forecast.",
+  "corpusLagLookbackDays": 14,
+  "recordedPerForecast": [
+   "probs {home, draw, away}",
+   "over25 / under25",
+   "expectedGoals",
+   "lambdas",
+   "rho",
+   "tauClamped",
+   "coldStart",
+   "clubMatchesFitted",
+   "fit {cutoffIso, matchesFitted, lastFoldedUtc, sweeps, converged}",
+   "corpusLag",
+   "comparators {v1SplitPoisson, empirical} at the same cutoff"
+  ],
+  "output": "data/internal/research/soccer/<league>/shadow-dc-v2/forecasts-<YYYY-MM-DD>.json — PRIVATE_RESEARCH, public: false. Nothing under app/public, and nothing linked from any page."
+ },
+ "evaluationPopulation": {
+  "rule": "per league: every 2026-27 league match that (a) kicks off after frozenAt, (b) has a shadow forecast with forecastAt ≥ frozenAt, and (c) whose forecastAt is strictly before the actual kickoff in the corpus. Each is graded once, from the football-data.co.uk final score in the league corpus.",
+  "notImputed": "a match with no forecast (runner outage, refused club) is absent, not imputed. graded.json lists every exclusion with its reason and counts matches still awaiting a result.",
+  "historicalSeasons": "2022-23 through 2025-26 are never scored for v2.",
+  "rescheduled": "a match whose actual kickoff differs from the forecast's scheduled kickoff by more than 6 h stays in if (c) holds, and is flagged rescheduled."
+ },
+ "metrics": {
+  "source": "imported, not copied: app/src/lib/sports/soccer/grading.mjs (per match probabilityOfResult, logLoss, brier; summary matches, logLoss, brier, uniformLogLoss, sampleState) and app/src/lib/sports/soccer/walk-forward.mjs scorePredictions (n, logLoss, brier, rps, accuracy, ece, drawEce) — the functions behind the v1 verdicts",
+  "drawEce": "scorePredictions field drawEce: 10 bins by min(9, floor(10 · P(draw))); Σ_b (n_b / n) · |mean P(draw) in bin b − observed draw rate in bin b|",
+  "sampleState": "grading.mjs summarize: NONE → TOO_SMALL_TO_ASSESS (< 20) → ACCUMULATING"
+ },
+ "acceptance": {
+  "metric": {
+   "name": "drawEce",
+   "definedIn": "app/src/lib/sports/soccer/walk-forward.mjs scorePredictions"
+  },
+  "rules": {
+   "drawEceMax": 0.03,
+   "skillMargin": 0.005,
+   "minimumSample": 250,
+   "resampling": {
+    "quantile": 0.95,
+    "replicates": 10000,
+    "seed": 20260911
+   }
+  },
+  "bars": [
+   {
+    "id": "F1_skill",
+    "statement": "v2 logLoss ≤ empirical logLoss − 0.005 over the league's forward population",
+    "why": "v1.2 L1 applied to the forward population. The empirical baseline (running league H/D/A, Laplace +1, walk-forward.mjs's definition) is recorded on every forecast row at the same cutoff."
+   },
+   {
+    "id": "F2_draw_calibration",
+    "statement": "v2 drawEce over the league's forward population ≤ 0.030",
+    "why": "v1.2 L2 — the same metric and the same threshold"
+   }
+  ],
+  "notCarriedOver": "v1.2 L3 (skill on each development season) has no analogue inside one forward season, so it is not a bar here.",
+  "decisionStates": {
+   "INTERIM_DECIDES_NOTHING": "any time before the look — figures are written and decide nothing",
+   "NO_VERDICT_INSUFFICIENT_SAMPLE": "fewer than minimumSample graded matches at the look; no verdict in either direction and no second look",
+   "PASS": "F1 and F2 both hold",
+   "FAIL": "F1 fails, or drawEce exceeds the resampling bound (miscalibration beyond sampling noise)",
+   "INCONCLUSIVE": "F1 holds and drawEce is above 0.030 but within the resampling bound"
+  },
+  "resamplingBound": "consistency resampling (Bröcker & Smith 2007): redraw every graded match's result from its OWN v2 forecast, recompute drawEce with scorePredictions, 10,000 times from mulberry32 seed 20260911, and take the 9,500th smallest value. A calibrated forecaster exceeds it 5% of the time, so FAIL on F2 means evidence of miscalibration, not noise. Acceptance still needs the unchanged v1.2 threshold.",
+  "look": {
+   "deadline": "2027-07-01T00:00:00Z",
+   "rule": "ONE look per league: when the league corpus holds its full 2026-27 season (seasonMatches rows), or at the deadline, whichever comes first. There is no early stop in either direction.",
+   "why": "repeatedly checking and stopping at the first pass inflates false acceptance; a single fixed look does not"
+  },
+  "minimumSample": {
+   "value": 250,
+   "justification": [
+    "Reachable inside 2026-27 by every league: at freeze at most 339 (LaLiga), 350 (Serie A) and 288 (Bundesliga) league matches remain; 250 is ≈ 87% of Bundesliga's remainder, leaving room for missed runs, refusals and postponements.",
+    "150 — the round number first considered — is not defensible: a perfectly calibrated forecaster's expected 10-bin drawEce at n = 150 is ≈ 0.047–0.049, above the 0.030 bar itself. It would pass only ≈ 19% of the time, so a verdict there mostly measures noise.",
+    "At 250 the FAIL rule wrongly rejects a calibrated forecaster 5% of the time and catches a 7-point draw miscalibration 63% of the time; a calibrated forecaster passes ≈ 34% (≈ 43% at 300)."
+   ],
+   "expectedOutcome": "Stated in advance: INCONCLUSIVE is the most likely per-league result this season even if v2 is well calibrated, because a 10-bin draw ECE on ≈ 300 matches is noise-dominated. The pooled three-league figure (≈ 900 matches, where a calibrated forecaster passes ≈ 86%) is reported beside the per-league decisions and does not gate.",
+   "simulation": {
+    "method": "10-bin drawEce with outcomes simulated from resampled forecast draw probabilities. Pool: v1 poisson draw probabilities on the 3,287 scored 2023-24 to 2025-26 matches of the three leagues — used only as a realistic spread of forecast draw probabilities, never to score v2. δ = true draw rate minus forecast draw probability. 4,000 trials per cell with 500 resampling replicates each (1,000 trials and 400 replicates at n ≥ 900).",
+    "columns": [
+     "n",
+     "δ",
+     "P(PASS)",
+     "P(FAIL)",
+     "P(INCONCLUSIVE)"
+    ],
+    "rows": [
+     [
+      150,
+      0,
+      0.19,
+      0.05,
+      0.76
+     ],
+     [
+      150,
+      0.05,
+      0.08,
+      0.23,
+      0.69
+     ],
+     [
+      150,
+      0.07,
+      0.04,
+      0.43,
+      0.53
+     ],
+     [
+      200,
+      0,
+      0.27,
+      0.05,
+      0.69
+     ],
+     [
+      200,
+      0.05,
+      0.09,
+      0.31,
+      0.6
+     ],
+     [
+      200,
+      0.07,
+      0.04,
+      0.54,
+      0.43
+     ],
+     [
+      250,
+      0,
+      0.34,
+      0.05,
+      0.61
+     ],
+     [
+      250,
+      0.03,
+      0.21,
+      0.16,
+      0.63
+     ],
+     [
+      250,
+      0.05,
+      0.09,
+      0.38,
+      0.53
+     ],
+     [
+      250,
+      0.07,
+      0.03,
+      0.63,
+      0.34
+     ],
+     [
+      300,
+      0,
+      0.43,
+      0.05,
+      0.52
+     ],
+     [
+      300,
+      0.05,
+      0.1,
+      0.42,
+      0.48
+     ],
+     [
+      300,
+      0.07,
+      0.03,
+      0.7,
+      0.27
+     ],
+     [
+      900,
+      0,
+      0.86,
+      0.05,
+      0.09
+     ],
+     [
+      900,
+      0.05,
+      0.06,
+      0.88,
+      0.06
+     ]
+    ],
+    "calibratedExpectedDrawEce": {
+     "150": 0.0488,
+     "200": 0.0421,
+     "250": 0.0381,
+     "300": 0.035,
+     "380": 0.0312
+    }
+   }
+  }
+ },
+ "reportedNotGating": {
+  "v1SplitPoisson": "the rejected v1 model's logLoss, drawEce and ece on the same forward matches, fit at the same cutoff — shows whether τ moved draw calibration where v1 missed it",
+  "marketClose": "de-vigged closing 1X2 from the corpus, scored on the same matches. Reported only; it never gates, and no comparison with it is ever presented as a claim over the market.",
+  "pooled": "all three leagues together (data/internal/research/soccer/shadow-dc-v2-summary.json)",
+  "other": "all-outcome ece, rps, accuracy, tauClamped counts, and the ρ each forecast used"
+ },
+ "whatAPassMeans": {
+  "stageChange": "NONE",
+  "statement": "A PASS changes nothing in lib/sports/soccer/leagues.mjs and publishes nothing. It only makes the league eligible for a separate, founder-reviewed promotion decision under its own document. REJECTED_V1 remains the registry stage throughout this study."
+ },
+ "stoppingRule": "One registration, one look per league. No bar, parameter, population rule, horizon or alias entry changes after frozenAt; any change is a NEW registration with its own frozenAt, and only matches after that new frozenAt count for it. The model code and the alias table are pinned below by sha256, and the runner writes nothing if they, this document or the model's parameters differ.",
+ "whatThisDoesNotTest": "Prices; any comparison against the market as a gate; player markets; cross-league competitions; the Premier League or Ligue 1 models.",
+ "sourceHashes": {
+  "app/src/lib/sports/soccer/dixon-coles.mjs": "293baf86efa20de28a081cdcfd48beefce045bacf360ab7d7b77d961f236aeb9",
+  "app/src/lib/sports/soccer/dixon-coles-aliases.mjs": "c2c506edd10ce06237b18b01d0e31d3253dc0218f9ba2134cf147f9988bd1a61"
+ },
+ "hashProcedure": "frozenSha256 = sha256 of canonicalJson(this document with frozenSha256 removed): keys sorted recursively in JavaScript's default string order, no whitespace, UTF-8 (canonicalJson and preregistrationSha256 in app/src/lib/sports/soccer/dixon-coles-shadow-record.mjs, which also pins the value as DC_V2_PREREGISTRATION.sha256). sourceHashes are sha256 of raw file bytes, the convention of the NFL forward registrations. The soccer v1 registration carries no hash; a document cannot contain the hash of its own bytes, so this one hashes its canonical content.",
+ "frozenSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0"
+}
