@@ -1,20 +1,15 @@
 {
  "schemaVersion": 1,
- "artifact": "nfl-current-settlement",
+ "artifact": "nfl-experimental-forecast-settlement",
  "dataClass": "PRIVATE_PAPER_RECORD",
- "date": "2026-09-10",
+ "ledger": "experimental-forecast",
+ "date": "2026-09-11",
  "generatedAt": "2026-09-11T02:20:54Z",
- "scope": "NFL current-artifact settlement — a SEPARATE paper record. It never reads or writes MLB money, Bank Builder, Moonshot, or Mr. Dub.",
- "whatIsGraded": "the PRE-START MARKET consensus pinned in each artifact (favourite / home spread / over total). The team model ABSTAINS in preseason, so this is a market-accuracy record and is never reported as model performance.",
+ "modelVersion": "nfl-regular-season-public-v1",
+ "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
+ "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
  "events": [],
  "pending": [
-  {
-   "canonicalEventId": "nfl-401872657",
-   "matchup": "SF @ LAR",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-09-11T00:35Z",
-   "observedStatus": "STATUS_SCHEDULED"
-  },
   {
    "canonicalEventId": "nfl-401872658",
    "matchup": "ATL @ PIT",
@@ -100,17 +95,27 @@
    "kickoffUtc": "2026-09-15T00:15Z"
   }
  ],
+ "quarantined": [],
  "accounting": {
-  "artifactsForDate": 15,
+  "receipts": 14,
   "settled": 0,
-  "pending": 15,
-  "reconciles": true,
-  "legs": 0,
-  "wins": 0,
-  "losses": 0,
-  "pushes": 0,
-  "voids": 0,
+  "pending": 14,
+  "quarantined": 0,
+  "reconciles": true
+ },
+ "metrics": {
+  "settledForecasts": 0,
   "decisive": 0,
-  "note": "decisive = WIN + LOSS only; pushes and voids are reported separately and pending is never a loss"
- }
+  "ties": 0,
+  "winnerCorrect": 0,
+  "winnerAccuracy": null,
+  "marginMAE": null,
+  "totalMAE": null,
+  "marginInterval80Coverage": null,
+  "totalInterval80Coverage": null,
+  "brier": null,
+  "logLoss": null
+ },
+ "marketBenchmark": null,
+ "comparison": null
 }
