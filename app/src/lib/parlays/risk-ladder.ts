@@ -45,6 +45,37 @@ export function loadLabLedger(root: string): LabLedger | null {
   catch { return null; }
 }
 
+/** One day's settled lab cards, narrowed to what the style replay reads (P260). */
+export interface LabSettledDoc {
+  readonly date: string;
+  readonly policyVersion?: number;
+  readonly cards: readonly { readonly sport: string; readonly tier: string; readonly result: string; readonly combinedDecimal: number }[];
+}
+
+/**
+ * Every settled day of the lab, from the same receipts the ledger is re-derived from. An unreadable
+ * day is skipped, never guessed at; an unreadable directory is an empty list (the replay then says
+ * there is nothing settled to replay rather than drawing a flat line).
+ */
+export function loadLabSettled(root: string): LabSettledDoc[] {
+  const dir = path.join(root, "parlays", "lab-settled");
+  let files: string[] = [];
+  try { files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)); } catch { return []; }
+  const out: LabSettledDoc[] = [];
+  for (const f of files) {
+    try {
+      const d = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+      out.push({
+        date: String(d.date), policyVersion: d.policyVersion,
+        cards: (d.cards ?? []).map((c: Record<string, unknown>) => ({
+          sport: String(c.sport ?? ""), tier: String(c.tier ?? ""), result: String(c.result ?? ""), combinedDecimal: Number(c.combinedDecimal),
+        })),
+      });
+    } catch { /* a torn receipt is not a result */ }
+  }
+  return out;
+}
+
 export interface RiskLadder {
   readonly date: string;
   readonly generatedAt: string;

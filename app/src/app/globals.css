@@ -5225,3 +5225,16 @@ body {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+
+/* ── PARLAY LAB 2.0 MOTION (P260) ─────────────────────────────────────────────────────────────────
+   Three movements, each carrying information: a meter fills to the value it states, a replay line
+   draws in date order, and a card rises into place when the reader changes risk level. Every one
+   rests at its final state, and reduced motion gets the final state with no movement at all. */
+@keyframes gtp-meter-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes gtp-line-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.gtp-meter-fill { transform-origin: left center; animation: gtp-meter-fill 900ms cubic-bezier(.2,.8,.2,1) both; }
+.gtp-line-draw { stroke-dasharray: 1; stroke-dashoffset: 0; animation: gtp-line-draw 1400ms cubic-bezier(.3,.7,.2,1) both; }
+.gtp-rise { animation: vault-rise 420ms cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+@media (prefers-reduced-motion: reduce) {
+  .gtp-meter-fill, .gtp-line-draw, .gtp-rise { animation: none; }
+}

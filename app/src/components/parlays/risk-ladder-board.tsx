@@ -10,6 +10,7 @@ import { decimalOdds, toAmerican, type SwapCandidate } from "@/lib/parlays/leg-s
 import ParlayLabEntry, { type BettorTier, type LabLedgerView } from "@/components/parlays/parlay-lab-entry";
 import { useReaderPrefs, unitStake } from "@/lib/prefs/reader-prefs";
 import { tierForBankroll, risksForTier } from "@/lib/prefs/bettor-tier";
+import ForYouSpotlight, { type TierReplayView } from "@/components/parlays/lab/for-you-spotlight";
 
 /**
  * THE RISK LADDER — today's card at each risk level, each shown with that tier's own record.
@@ -122,7 +123,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
   }));
 
   return (
-    <article className="flex flex-col gap-2.5 rounded-[14px] p-3.5"
+    <article id={`ladder-${card.tier}`} className="gtp-rise flex flex-col gap-2.5 rounded-[14px] p-3.5 scroll-mt-6"
       style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-baseline justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: TIER_TONE[card.tier] ?? "var(--vault-text-mute)", fontSize: 9.5 }}>
@@ -216,7 +217,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
 
 export default function RiskLadderBoard({
   cards, skipped, overallRoi, gradedDays, pool = [], bettorTiers = [], ledger = null, entryShowsTitle = true,
-  grid = null, slateDate = null,
+  grid = null, slateDate = null, replay = null, recordSince = null,
 }: {
   cards: readonly LadderCard[];
   /**
@@ -252,6 +253,10 @@ export default function RiskLadderBoard({
    * — the artifact is the truth, the derivation is the renderer.
    */
   grid?: TierGridView | null;
+  /** P260: each tier's settled cards since the last rule change — the "for you" replay. */
+  replay?: TierReplayView | null;
+  /** First graded day of the tier records, so the chance meter names its sample. */
+  recordSince?: string | null;
   /** False on /build, whose page title is already "Parlay Lab". */
   entryShowsTitle?: boolean;
 }) {
@@ -300,6 +305,11 @@ export default function RiskLadderBoard({
       </div>
 
       <ParlayLabEntry tiers={bettorTiers} ledger={ledger} showTitle={entryShowsTitle} />
+
+      {/* P260 · Parlay Lab 2.0: the chosen level's card, its chance and its replay, one tap to switch. */}
+      {/* Only where the page supplies the replay (/build). /mlb renders this board without it, and an
+          empty replay there would read as "this level has no record". */}
+      {replay ? <ForYouSpotlight cards={cards} replay={replay} recordSince={recordSince} slateDate={slateDate} /> : null}
 
       {/*
        * When a reader's bankroll points at bands that produced no card today, say it.

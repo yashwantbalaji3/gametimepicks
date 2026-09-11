@@ -23,7 +23,8 @@ import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
-import { loadRiskLadder, loadLabLedger, loadTierGrid } from "@/lib/parlays/risk-ladder";
+import { loadRiskLadder, loadLabLedger, loadTierGrid, loadLabSettled } from "@/lib/parlays/risk-ladder";
+import { buildTierReplay } from "@/lib/parlays/lab/style-replay.mjs";
 import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
@@ -46,6 +47,9 @@ export default function ParlayCenterSuggestedPage() {
      the same set and the mapping is auditable rather than re-derived per browser. */
   const tierGrid = loadTierGrid(dataRoot, "mlb");
   const labLedger = loadLabLedger(dataRoot);
+  /* P260: each tier's settled MLB cards since the last rule change — the same receipts the ledger is
+     re-derived from — so the "for you" replay is a completed past, never a projection. */
+  const replay = buildTierReplay(loadLabSettled(dataRoot), { sport: "mlb" });
   /* Substitution bench: the same eligible legs the boards render, so a swap can only reach a leg
      the site already publishes. */
   const swapPool = loadMlbPropsBoard(dataRoot, ladderDate).map((p) => ({
@@ -95,6 +99,8 @@ export default function ParlayCenterSuggestedPage() {
         /* The artifact's own date and the real ET date, so the heading's "Today's" is a claim the
            data supports rather than a word baked into the component. */
         slateDate={riskLadder?.date ?? null}
+        replay={replay}
+        recordSince={riskLadder?.record.firstDay ?? null}
       />
 
       {/* ── EVERY LANE, ONE DESTINATION (P201 · D2) ─────────────────────────────────────────────
@@ -130,7 +136,19 @@ export default function ParlayCenterSuggestedPage() {
           </p>
         </div>
         {suggestedCards.length > 0 ? (
-          <PicksExperience cards={suggestedCards} />
+          /* P260: eighteen near-identical cards used to follow the ladder open, and read as the page's
+             answer. They are the optimizer's full pool — worth browsing, not worth leading with — so
+             they sit behind one tap. The markup is still in the page (details, not a lazy load). */
+          <details className="rounded-[12px]" style={{ border: "1px solid var(--vault-border)" }}>
+            <summary className="vault-press cursor-pointer flex items-center justify-between gap-2 px-4 py-3"
+              style={{ minHeight: 48, color: "var(--vault-text)", fontWeight: 700, fontSize: 14 }}>
+              <span>See all {suggestedCards.length} cards the model built today</span>
+              <span aria-hidden="true" style={{ color: "var(--vault-text-faint)" }}>▾</span>
+            </summary>
+            <div className="px-2 pb-3 sm:px-3">
+              <PicksExperience cards={suggestedCards} />
+            </div>
+          </details>
         ) : (
           <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
             <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No suggested cards for today</p>
