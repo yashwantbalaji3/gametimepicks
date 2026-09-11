@@ -22,6 +22,12 @@ import { resolveSupportConfig } from "../support/support-config.mjs";
    documents stay unpublishable, rather than pointing people at a link that is not there. */
 const SUPPORT_LIVE = resolveSupportConfig(typeof process !== "undefined" ? process.env : {}).enabled;
 
+/* Analytics is "on" exactly when the browser sink would send anything: the public switch AND an
+   endpoint, the same two values lib/analytics/sink.ts requires. The privacy notice follows it, so it
+   can never say "switched off" on a site that is counting, or the reverse. */
+const ENV = typeof process !== "undefined" ? process.env : {};
+const ANALYTICS_LIVE = ENV.NEXT_PUBLIC_ANALYTICS_ENABLED === "1" && typeof ENV.NEXT_PUBLIC_ANALYTICS_ENDPOINT === "string" && ENV.NEXT_PUBLIC_ANALYTICS_ENDPOINT.trim() !== "";
+
 /**
  * The founder's section-3 decisions (docs/LEGAL_SECTION3_DECISION_PACKET.md, answered 2026-09-10).
  * `value: null` means not yet decided; `placeholder: true` means decided only as a stand-in. Either
@@ -34,7 +40,7 @@ export const LEGAL_PARAMETERS = Object.freeze({
   minimumAge: Object.freeze({ value: "18", source: "founder, 2026-09-10: 18+. Counsel question 7 — most US states set the sports-betting age at 21" }),
   framing: Object.freeze({ value: "research and education", source: "packet decision 5 — unchanged; every public page already enforces it" }),
   contact: Object.freeze({ value: SUPPORT_LIVE ? "the \u201cContact support\u201d link at the bottom of every page" : null, source: "the support destination (blocker-support, configured 2026-09-10) — resolved only when the build's support config is live" }),
-  analyticsRetentionDays: Object.freeze({ value: "90", source: "collector spec recommendation (90-day rolling); confirmed when analytics is switched on" }),
+  analyticsRetentionDays: Object.freeze({ value: "90", source: "founder, 2026-09-10: 90 days — enforced daily by api/analytics-retention.mjs" }),
   effectiveDate: Object.freeze({ value: null, source: "set when counsel approves the text" }),
   site: Object.freeze({ value: "gametimepicks.yashwantbalaji.com", source: "deployment config" }),
 });
@@ -91,13 +97,20 @@ const PRIVACY = {
     { heading: "In short", paragraphs: [
       "The Site has no user accounts, sets no cookies, shows no ads, and does not sell or share personal information.",
     ] },
-    { heading: "What we collect today", paragraphs: [
-      "Visitor analytics are switched off. The Site does not ask for or collect your name, email address, or any other personal information.",
-    ] },
-    { heading: "If analytics is switched on", paragraphs: [
-      "We may turn on first-party, cookieless counting of a fixed list of interactions — for example, opening a game report or viewing the results page. Each event records only the type of interaction, the calendar day, and short fixed labels such as the area of the Site or the sport.",
-      "It does not record your IP address, device or browser identifiers, the page you came from, the precise time, or any cookie or session identifier, and it cannot be linked back to you. Event counts are kept for {{analyticsRetentionDays}} days. This notice will carry a new effective date before analytics is switched on.",
-    ] },
+    ...(ANALYTICS_LIVE ? [
+      { heading: "What we collect", paragraphs: [
+        "The Site does not ask for or collect your name, email address, or any other personal information. It counts a fixed list of interactions — for example, opening a game report or viewing the results page — using first-party, cookieless measurement on our own hosting.",
+        "Each event records only the type of interaction, the calendar day, and short fixed labels such as the area of the Site or the sport. It does not record your IP address, device or browser identifiers, the page you came from, the precise time, or any cookie or session identifier, and it cannot be linked back to you. Event records are deleted automatically after {{analyticsRetentionDays}} days.",
+      ] },
+    ] : [
+      { heading: "What we collect today", paragraphs: [
+        "Visitor analytics are switched off. The Site does not ask for or collect your name, email address, or any other personal information.",
+      ] },
+      { heading: "If analytics is switched on", paragraphs: [
+        "We may turn on first-party, cookieless counting of a fixed list of interactions — for example, opening a game report or viewing the results page. Each event records only the type of interaction, the calendar day, and short fixed labels such as the area of the Site or the sport.",
+        "It does not record your IP address, device or browser identifiers, the page you came from, the precise time, or any cookie or session identifier, and it cannot be linked back to you. Event records are deleted automatically after {{analyticsRetentionDays}} days. This notice will carry a new effective date before analytics is switched on.",
+      ] },
+    ]),
     { heading: "What is stored on your device", paragraphs: [
       "To remember your reading preferences, the teams you follow, and the picks in your slip, the Site saves small settings in your browser's local storage. One session value records how you arrived, such as from a shared link.",
       "These stay on your device, and you can clear them at any time in your browser's site-data settings. When analytics is on, the arrival value is sent as one of the fixed labels described above.",

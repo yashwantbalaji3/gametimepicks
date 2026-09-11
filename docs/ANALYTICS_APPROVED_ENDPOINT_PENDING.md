@@ -1,5 +1,13 @@
 # Analytics — Approved, Endpoint Pending (2026-07-31)
 
+> **Update 2026-09-10 (P256 · Task 4): the endpoint is approved.** The founder chose **Option A** — the
+> first-party collector on the `gametime-picks` project — with **90-day retention**. A private Vercel
+> Blob store (`gtp-analytics`) now backs it; writes go through `@vercel/blob` with `access: "private"`,
+> and a daily, secret-locked Vercel cron (`api/analytics-retention.mjs`) deletes day buckets older than
+> 90 days. Activation is staged: collector on (server switch) → a synthetic event proven stored →
+> browser switches (`NEXT_PUBLIC_ANALYTICS_ENABLED`, `NEXT_PUBLIC_ANALYTICS_ENDPOINT`) → real traffic
+> inspected. The sections below are the record of the state before this approval.
+
 **State: APPROVED_NOT_CONFIGURED.** This is the terminal state of Program 084–087 Lane C, and it is
 the correct one: the founder approval received today authorizes the *contract*, and explicitly does
 **not** authorize choosing an endpoint or provider.

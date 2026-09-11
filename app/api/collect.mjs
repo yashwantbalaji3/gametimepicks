@@ -14,6 +14,7 @@
  *   - stores exactly the normalized event — never IP, user-agent, referrer, cookies, or headers
  *   - always answers 204 fast; a failure here can never affect the public product
  */
+import { put } from "@vercel/blob";
 import { validateCollectPayload, collectorDisabled, MAX_BODY_BYTES } from "./_collect-core.mjs";
 
 const ALLOWED_ORIGINS = [
@@ -71,15 +72,10 @@ export default async function handler(req, res) {
     // Append-only: one tiny object per event under the day bucket; the internal roll-up job
     // aggregates. Random suffix avoids read-modify-write races entirely.
     const key = `analytics/${v.event.dayBucket}/${crypto.randomUUID()}.json`;
-    await fetch(`https://blob.vercel-storage.com/${key}`, {
-      method: "PUT",
-      headers: {
-        authorization: `Bearer ${token}`,
-        "x-content-type": "application/json",
-        "x-add-random-suffix": "0",
-      },
-      body: JSON.stringify(v.event),
-    });
+    // P256: the store is PRIVATE (raw data is never publicly exported — §7.1), and a private store
+    // accepts writes only through the SDK with access "private". The old raw REST PUT carried no
+    // access level and would have failed silently against it.
+    await put(key, JSON.stringify(v.event), { access: "private", contentType: "application/json", addRandomSuffix: false });
   } catch {
     // Storage failure is invisible to the user by contract.
   }

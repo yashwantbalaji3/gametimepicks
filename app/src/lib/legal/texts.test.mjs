@@ -83,3 +83,17 @@ test("FACT · the email section is true: no newsletter or form collects addresse
   // public build; if it ever is, the notice's email section is false and must change first.
   assert.equal(process.env.NEXT_PUBLIC_BUTTONDOWN_USERNAME ?? "", "");
 });
+
+test("FACT · the analytics section follows the build's analytics switch, both ways", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const render = (env) => execFileSync(process.execPath, ["--input-type=module", "-e",
+    'import { renderLegal } from "./src/lib/legal/texts.mjs"; process.stdout.write(renderLegal("privacy").text);'],
+    { env: { ...process.env, NEXT_PUBLIC_ANALYTICS_ENABLED: "", NEXT_PUBLIC_ANALYTICS_ENDPOINT: "", ...env }, encoding: "utf8" });
+  const off = render({});
+  assert.match(off, /Visitor analytics are switched off/);
+  const on = render({ NEXT_PUBLIC_ANALYTICS_ENABLED: "1", NEXT_PUBLIC_ANALYTICS_ENDPOINT: "https://gametimepicks.yashwantbalaji.com/api/collect/" });
+  assert.doesNotMatch(on, /switched off/);
+  assert.match(on, /first-party, cookieless measurement/);
+  assert.match(on, /deleted automatically after 90 days/);
+  assert.equal(render({ NEXT_PUBLIC_ANALYTICS_ENABLED: "1" }).includes("switched off"), true, "a switch with no endpoint sends nothing, so the notice says off");
+});

@@ -85,8 +85,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["shared"],
     unlocks: "measurement for launch decisions (activation, route coverage, comprehension) — currently NOTHING is measured",
-    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
-    engineeringEvidence: "full event contract + forbidden-property rejection + NOOP sink verified: with the flag unset, nothing leaves the browser (lib/analytics; privacy basis §7 signed; staging payloads inspected in P092-095)",
+    engineeringState: "FOUNDER_ACTION_PROVIDED",
+    engineeringEvidence: "founder approved Option A (first-party collector on gametime-picks) and 90-day retention on 2026-09-10; a PRIVATE Vercel Blob store (gtp-analytics) was created and linked to production + preview; api/collect.mjs writes through @vercel/blob with access private; api/analytics-retention.mjs (daily Vercel cron, CRON_SECRET-locked) deletes day buckets older than 90 days (api/_retention-core.mjs, unit-tested); the live collector validated synthetic payloads on production (allowed accepted; email key, free text, and a timestamp rejected; a foreign origin silently dropped); the privacy notice follows the build's analytics switch (lib/legal/texts.mjs)",
     founderAction: "stand up the approved first-party collector endpoint and flip the two public (non-secret) build variables",
     requiredValues: [
       { name: "NEXT_PUBLIC_ANALYTICS_ENABLED", format: "1 (kill switch: unset/0 = hard off, no code change)", where: "Vercel project env (public build var — not a secret)", neverShare: "—" },

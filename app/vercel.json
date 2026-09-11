@@ -5,9 +5,21 @@
     {
       "source": "/(launch|ops|preview)(/.*)?",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
-        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        }
       ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/analytics-retention/",
+      "schedule": "17 7 * * *"
     }
   ]
 }
