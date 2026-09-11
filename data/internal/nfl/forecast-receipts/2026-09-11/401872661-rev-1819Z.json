@@ -1,0 +1,89 @@
+{
+ "providerEventId": "401872661",
+ "canonicalEventId": "nfl-401872661",
+ "matchup": "CHI @ CAR",
+ "home": {
+  "abbr": "CAR",
+  "name": "Carolina Panthers"
+ },
+ "away": {
+  "abbr": "CHI",
+  "name": "Chicago Bears"
+ },
+ "kickoffUtc": "2026-09-13T17:00Z",
+ "seasonType": 2,
+ "week": 1,
+ "venue": "Bank of America Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "ec3d7d77ba016280",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v1-decayed-points",
+   "receipt": "matchup-totals-evaluation@2026-09-08T07:30:00Z",
+   "gamesFolded": 857,
+   "sigma": 13.2625
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the Elo-logistic win head over a 856-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-09-11T18:19:40Z",
+ "evidence": {
+  "schedule": "2026-09-11T13:21:12Z",
+  "strengthCutoff": "2026-09-11T18:19:40Z",
+  "strengthGamesFolded": 856,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 24,
+   "away": 23,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.4775,
+   "away": 0.4908,
+   "tieMass": 0.0317,
+   "homeUnrounded": 0.4774693899961559,
+   "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made."
+  },
+  "margin": {
+   "median": 0,
+   "p10": -18,
+   "p90": 17
+  },
+  "total": {
+   "median": 47,
+   "p10": 31,
+   "p90": 65,
+   "head": "matchup-totals-v1-decayed-points"
+  },
+  "scoreRange": {
+   "homeP10": 11,
+   "homeP90": 36,
+   "awayP10": 11,
+   "awayP90": 36
+  }
+ },
+ "marketComparison": {
+  "state": "NO_MARKET",
+  "note": "No current sportsbook capture covers this game."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401872661",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "revisionOf": "401872661.json",
+ "priorInputHash": "f2865e5dfe7981e6"
+}
