@@ -21,8 +21,12 @@ on:
         required: false
         default: "false"
 
+# OWN group (P257): GitHub keeps ONE pending run per concurrency group and cancels the older pending one
+# when another queues — in the shared gtp-generated-artifacts group this run was silently cancelled on its
+# first dispatch, and could in turn cancel a pending daily-products run. The push step retries with rebase,
+# which is what actually protects against a racing push.
 concurrency:
-  group: gtp-generated-artifacts
+  group: soccer-leagues
   cancel-in-progress: false
 
 permissions:
@@ -53,6 +57,17 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/soccer/capture-football-data.mjs --leagues "${{ steps.leagues.outputs.keys }}" --seasons 2627
+
+      - name: Grade finished matches against their last pre-kickoff forecast (append-only)
+        if: steps.leagues.outputs.keys != ''
+        working-directory: app
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          IFS=',' read -ra KEYS <<< "${{ steps.leagues.outputs.keys }}"
+          for k in "${KEYS[@]}"; do
+            node scripts/soccer/grade-league-forecasts.mjs --league "$k" --now "$NOW"
+          done
 
       - name: Build the forecasts (fail loud on any refusal of a whole run)
         if: steps.leagues.outputs.keys != ''

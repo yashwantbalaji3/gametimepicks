@@ -11,8 +11,12 @@ on:
     - cron: "30 11 * * 2"   # Tuesday 07:30 ET — after Monday Night Football; nflverse publishes overnight
   workflow_dispatch: {}
 
+# OWN group (P257): GitHub keeps ONE pending run per concurrency group and cancels the older pending one
+# when another queues — in the shared gtp-generated-artifacts group this run was silently cancelled on its
+# first dispatch, and could in turn cancel a pending daily-products run. The push step retries with rebase,
+# which is what actually protects against a racing push.
 concurrency:
-  group: gtp-generated-artifacts
+  group: nflverse-weekly
   cancel-in-progress: false
 
 permissions:

@@ -37,3 +37,23 @@ export function loadLeagueForecasts(league: string): LeagueForecastSet | null {
     return null;
   }
 }
+
+export interface LeagueGradedMatch {
+  eventId: string; matchup: string; homeClub: string; awayClub: string; kickoffUtc: string;
+  final: { home: number; away: number }; result: "H" | "D" | "A"; probabilityOfResult: number; logLoss: number;
+}
+export interface LeagueGradedRecord {
+  summary: { matches: number; logLoss: number | null; brier: number | null; uniformLogLoss: number; sampleState: "NONE" | "TOO_SMALL_TO_ASSESS" | "ACCUMULATING" };
+  matches: LeagueGradedMatch[];
+}
+
+/** The league's forward-graded record (public/data/soccer/<league>/results/graded.json), or null. */
+export function loadLeagueGraded(league: string): LeagueGradedRecord | null {
+  try {
+    const p = path.join(process.cwd(), "public", "data", "soccer", league, "results", "graded.json");
+    const raw = JSON.parse(fs.readFileSync(p, "utf8"));
+    return raw?.artifact === "soccer-league-graded" && Array.isArray(raw.matches) ? (raw as LeagueGradedRecord) : null;
+  } catch {
+    return null;
+  }
+}

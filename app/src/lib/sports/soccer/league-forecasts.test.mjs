@@ -76,3 +76,39 @@ test("the page reads only the public artifact", () => {
   const code = (view + page).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   assert.ok(!/data\/internal|["'\/]research\//.test(code), "no research path is read from a public page");
 });
+
+test("forward grading: the workflow grades before it rebuilds, append-only, from the last pre-kickoff forecast", () => {
+  const wf = fs.readFileSync(path.join(REPO, ".github/workflows/soccer-leagues.yml"), "utf8");
+  const grade = wf.indexOf("grade-league-forecasts.mjs --league");
+  const build = wf.indexOf("build-league-forecasts.mjs --league");
+  assert.ok(grade > 0 && build > grade, "grading reads yesterday's archives before today's build rewrites them");
+  const builder = fs.readFileSync(path.join(APP, "scripts/soccer/build-league-forecasts.mjs"), "utf8");
+  assert.match(builder, /forecastAt: NOW/, "every published row carries its own publish time");
+  assert.match(builder, /Date\.parse\(r\.kickoffUtc\) <= from/, "a same-day rewrite keeps matches that have already kicked off");
+  const grader = fs.readFileSync(path.join(APP, "scripts/soccer/grade-league-forecasts.mjs"), "utf8");
+  assert.match(grader, /mergeGraded\(prev\?\.matches/, "grades merge append-only into the existing record");
+  assert.match(grader, /lastPreKickoffForecasts\(archives\)/, "the graded forecast is the last one before kickoff");
+});
+
+test("the graded record, when present, is internally consistent", () => {
+  for (const l of accepted) {
+    const f = path.join(APP, "public/data/soccer", l.key, "results/graded.json");
+    if (!fs.existsSync(f)) continue;
+    const g = JSON.parse(fs.readFileSync(f, "utf8"));
+    assert.equal(g.summary.matches, g.matches.length);
+    for (const m of g.matches) {
+      assert.ok(Date.parse(m.forecastAt) < Date.parse(m.kickoffUtc), `${m.matchup}: graded against a pre-kickoff forecast`);
+      const res = m.final.home > m.final.away ? "H" : m.final.home === m.final.away ? "D" : "A";
+      assert.equal(m.result, res, `${m.matchup}: the result follows the score`);
+    }
+  }
+});
+
+test("the new data workflows never join the shared generated-artifacts group (a queued run cancels the pending one)", () => {
+  for (const name of ["soccer-leagues.yml", "nflverse-weekly.yml"]) {
+    const wf = fs.readFileSync(path.join(REPO, ".github/workflows", name), "utf8");
+    const group = /concurrency:\s*\n\s*group:\s*([^\n]+)/.exec(wf)?.[1]?.trim();
+    assert.ok(group && group !== "gtp-generated-artifacts", `${name}: own concurrency group (got ${group})`);
+    assert.match(wf, /git pull --rebase --autostash origin main/, `${name}: push races are handled by retry + rebase`);
+  }
+});

@@ -7,7 +7,8 @@
  * rating were both more accurate. Model-only forecasts; not betting advice.
  */
 import TeamLogo from "@/components/team-logo";
-import { loadLeagueForecasts, type LeagueForecastRow } from "@/lib/sports/soccer/forecast-view";
+import { loadLeagueForecasts, loadLeagueGraded, type LeagueForecastRow } from "@/lib/sports/soccer/forecast-view";
+import { gradedCaption } from "@/lib/sports/soccer/grading.mjs";
 
 const pct = (n: number | null | undefined) => (n == null || !Number.isFinite(n) ? "—" : `${Math.round(n * 1000) / 10}%`);
 const ET_DAY = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" });
@@ -83,6 +84,9 @@ export default function LeagueForecastPage({ leagueKey }: { leagueKey: string })
   const name = set?.competition ?? "League";
   const days = byDay(set?.rows ?? []);
   const v = set?.validation;
+  const graded = loadLeagueGraded(leagueKey);
+  const recent = [...(graded?.matches ?? [])].sort((a, b) => b.kickoffUtc.localeCompare(a.kickoffUtc)).slice(0, 5);
+  const OUTCOME = { H: "home win", D: "draw", A: "away win" } as const;
   return (
     <div data-sport="soccer" className="mx-auto w-full max-w-[1100px] px-4 py-6">
       <header className="mb-5">
@@ -105,6 +109,24 @@ export default function LeagueForecastPage({ leagueKey }: { leagueKey: string })
           <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--vault-text-faint)" }}>Model-only forecasts for research and entertainment — not betting advice.</p>
         </section>
       ) : null}
+
+      <section aria-labelledby="graded-so-far" className="mb-6">
+        <h2 id="graded-so-far" style={{ margin: 0, fontSize: 15, color: "var(--vault-text)" }}>How it&rsquo;s doing now</h2>
+        <p style={{ margin: "6px 0 0", fontSize: 13.5, color: "var(--vault-text-mute)", maxWidth: "75ch" }}>
+          {graded && graded.summary.matches > 0
+            ? `${graded.summary.matches} ${graded.summary.matches === 1 ? "match" : "matches"} graded · average log loss ${graded.summary.logLoss} (a one-in-three guess scores ${graded.summary.uniformLogLoss}) — ${gradedCaption(graded.summary)}.`
+            : "No forecast match has finished yet. Each result is graded once, against the forecast published before kick-off."}
+        </p>
+        {recent.length ? (
+          <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+            {recent.map((m) => (
+              <li key={m.eventId}>
+                {m.homeClub} {m.final.home}–{m.final.away} {m.awayClub}: the forecast gave the {OUTCOME[m.result]} {pct(m.probabilityOfResult)}.
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
 
       {!set ? (
         <p role="status" style={{ fontSize: 14, color: "var(--vault-text-mute)" }}>The {leagueKey} forecast file isn&rsquo;t available right now.</p>

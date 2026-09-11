@@ -72,7 +72,7 @@ for (const e of events) {
     matchup: `${home.displayName} v ${away.displayName}`, homeClub: home.displayName, awayClub: away.displayName,
     historyNames: { home: h, away: a },
     slug: `${slugify(home.displayName)}-v-${slugify(away.displayName)}-${kickoffUtc.slice(0, 10)}`,
-    modelOnly: true, modelId: EPL_MODEL_ID,
+    modelOnly: true, modelId: EPL_MODEL_ID, forecastAt: NOW,
     probs: m.oneXTwo, expectedGoals: m.totals?.expected ?? null, lambdas: m.lambdas,
     over25: m.totals?.over25 ?? null,
     btts: m.btts ?? null, doubleChance: m.doubleChance ?? null,
@@ -103,7 +103,19 @@ const artifact = {
 const outDir = path.join(APP, "public/data/soccer", L.key, "forecasts");
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, "latest.json"), JSON.stringify(artifact, null, 1) + "\n");
-if (rows.length) fs.writeFileSync(path.join(outDir, `${NOW.slice(0, 10)}.json`), JSON.stringify(artifact, null, 1) + "\n");
+/* THE DATED ARCHIVE IS WHAT GRADING READS. A second run on the same day must not erase a match that has
+   kicked off since the first: its forecast from that earlier run IS its last pre-kickoff forecast. Rows
+   already started are carried over verbatim (with their own forecastAt); everything else is replaced. */
+const datedFile = path.join(outDir, `${NOW.slice(0, 10)}.json`);
+if (rows.length || fs.existsSync(datedFile)) {
+  const earlier = fs.existsSync(datedFile) ? JSON.parse(fs.readFileSync(datedFile, "utf8")) : null;
+  const fresh = new Set(rows.map((r) => r.eventId));
+  const carried = (earlier?.rows ?? [])
+    .filter((r) => !fresh.has(r.eventId) && Date.parse(r.kickoffUtc) <= from)
+    .map((r) => ({ ...r, forecastAt: r.forecastAt ?? earlier.generatedAt }));
+  const dated = { ...artifact, rows: [...carried, ...rows].sort((x, y) => x.kickoffUtc.localeCompare(y.kickoffUtc)), carriedFromEarlierRun: carried.length };
+  fs.writeFileSync(datedFile, JSON.stringify(dated, null, 1) + "\n");
+}
 console.log(`[forecasts] ${L.name}: ${rows.length} fixtures forecast, ${refused.length} refused · fit on ${state.matchesFitted} matches`);
 for (const r of refused) console.log(`  REFUSED ${r.matchup ?? r.eventId}: ${r.reason}`);
 if (refused.length && !rows.length) process.exit(3);
