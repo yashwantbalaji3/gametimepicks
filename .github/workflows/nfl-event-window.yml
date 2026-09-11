@@ -154,11 +154,14 @@ jobs:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |
           set -euo pipefail
+          # P256 · Task 7: the founder's 2026-09-10 authorization (team markets, 500-credit season
+          # ceiling, expiry at the ceiling). The P171 receipt lapsed at its program's close and refused
+          # every capture since. Player props are OUT of this receipt's scope, so the per-event prop
+          # probe is no longer requested.
           node scripts/nfl/capture-nfl-odds.mjs \
             --now "${{ steps.window.outputs.now }}" \
             --authorized \
-            --receipt docs/receipts/ODDS_AUTHORIZATION_P171.md \
-            --probe-props auto \
+            --receipt docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md \
             --lookahead-hours 40
 
       - name: Event assembly + shadow simulations + current artifacts

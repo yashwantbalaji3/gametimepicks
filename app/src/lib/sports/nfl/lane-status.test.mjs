@@ -6,6 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { parseAuthorizationReceipt } from "../odds/p171-authorization.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "..");
@@ -85,7 +86,12 @@ test("the event-window workflow is single-writer, fail-loud, and window-gated", 
   for (const b of runBlocks) assert.match(b, /set -euo pipefail/, "every run block fails loud (the P066 crash-printing-success lesson)");
   assert.match(wf, /NO_EVENTS/, "an empty window is a clean skip, not an outage");
   assert.match(wf, /steps\.window\.outputs\.events != '0'/, "every downstream step is gated on real pre-start events");
-  assert.match(wf, /--receipt docs\/receipts\/ODDS_AUTHORIZATION_P171\.md/, "the paid step runs only under the committed receipt");
+  // The paid step runs only under a COMMITTED receipt that PARSES. This pinned the P171 filename; that
+  // receipt lapsed at its program's close (P256), so the invariant is the parse, not the name.
+  const receipt = /--receipt (docs\/receipts\/[A-Za-z0-9_.-]+\.md)/.exec(wf);
+  assert.ok(receipt, "the paid step names a committed receipt");
+  const receiptText = fs.readFileSync(path.join(ROOT, receipt[1]), "utf8");
+  assert.equal(parseAuthorizationReceipt(receiptText).ok, true, `${receipt[1]} must parse fail-closed (scope, ceiling, floor, discipline, expiry)`);
   assert.match(wf, /skip_odds/, "the chain can run for zero credits against the last capture");
   // the odds step is the ONLY credit-bearing step
   const oddsSteps = (wf.match(/ODDS_API_KEY: \$\{\{ secrets\.ODDS_API_KEY \}\}/g) ?? []).length;

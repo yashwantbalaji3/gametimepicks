@@ -1,0 +1,79 @@
+name: odds-canary
+
+# P256 · Task 7 — the guarded multi-sport odds canary, runnable where the key works.
+#
+# The local key is dead (the provider answers 401), and the repository secret is live, so the
+# canary runs here. Dispatch-only, never scheduled. Without `authorized` it makes ONE zero-credit
+# call (the provider's /sports index), prints the plan and the remaining balance, and writes nothing.
+# With `authorized` it makes ONE capped h2h request for ONE sport (the script refuses anything else)
+# and commits the validated snapshot. Founder approval for credit spend: 2026-09-10, in chat.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sport:
+        description: "Which sport (one per run)"
+        required: true
+        default: nfl
+        type: choice
+        options: [nfl, nba, epl, ufc]
+      authorized:
+        description: "Make the one capped paid request (otherwise a zero-credit dry run)"
+        required: true
+        default: false
+        type: boolean
+      max_credits:
+        description: "Hard ceiling for the single request"
+        required: true
+        default: "5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: odds-canary
+  cancel-in-progress: false
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Run the canary
+        working-directory: app
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          SPORT: ${{ github.event.inputs.sport }}
+          AUTHORIZED: ${{ github.event.inputs.authorized }}
+          MAX_CREDITS: ${{ github.event.inputs.max_credits }}
+        run: |
+          set -euo pipefail
+          if [ "$AUTHORIZED" = "true" ]; then
+            npx tsx scripts/ops/odds-canary.mjs --sport "$SPORT" --max-credits "$MAX_CREDITS" --authorized
+          else
+            npx tsx scripts/ops/odds-canary.mjs --sport "$SPORT"
+          fi
+
+      - name: Commit the snapshot
+        if: github.event.inputs.authorized == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/research/odds/
+          if git diff --cached --quiet; then echo "no snapshot written"; exit 0; fi
+          git commit -m "auto: odds canary ${{ github.event.inputs.sport }} [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
