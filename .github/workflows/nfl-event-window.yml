@@ -341,7 +341,12 @@ jobs:
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json
+          # P256: the injury capture this run used is committed WITH the evidence built from it. It was
+          # missing from this list, so the window read a fresh feed, built role evidence from it, and
+          # threw the capture away — leaving the committed injury file hours older than the evidence
+          # (Travis Bell and Ben Sims: IR in the file, Questionable in the feed the evidence used), and
+          # leaving the carry-forward's "previous file" frozen in CI, so it could not accumulate memory.
+          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/
           if git diff --cached --quiet; then
             echo "nothing changed — no commit"
             exit 0
