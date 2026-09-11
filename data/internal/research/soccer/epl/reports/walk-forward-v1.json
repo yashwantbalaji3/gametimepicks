@@ -1,0 +1,325 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-league-walk-forward",
+ "dataClass": "PRIVATE_RESEARCH",
+ "league": "epl",
+ "leagueName": "Premier League",
+ "generatedAt": "2026-09-11T14:55:00Z",
+ "preregistration": "data/internal/research/soccer/preregistration-league-expansion-v1.json",
+ "population": {
+  "scored": 1140,
+  "bySeason": {
+   "2023-24": 380,
+   "2024-25": 380,
+   "2025-26": 380
+  }
+ },
+ "scores": {
+  "empirical": {
+   "overall": {
+    "n": 1140,
+    "logLoss": 1.075,
+    "brier": 0.6509,
+    "rps": 0.2329,
+    "accuracy": 0.4316,
+    "ece": 0.02,
+    "drawEce": 0.016
+   },
+   "bySeason": {
+    "2023-24": {
+     "n": 380,
+     "logLoss": 1.0566,
+     "brier": 0.6388,
+     "rps": 0.2345,
+     "accuracy": 0.4605,
+     "ece": 0.0178,
+     "drawEce": 0.0077
+    },
+    "2024-25": {
+     "n": 380,
+     "logLoss": 1.0843,
+     "brier": 0.6581,
+     "rps": 0.2364,
+     "accuracy": 0.4079,
+     "ece": 0.0342,
+     "drawEce": 0.0151
+    },
+    "2025-26": {
+     "n": 380,
+     "logLoss": 1.0839,
+     "brier": 0.656,
+     "rps": 0.2278,
+     "accuracy": 0.4263,
+     "ece": 0.027,
+     "drawEce": 0.0404
+    }
+   }
+  },
+  "elo": {
+   "overall": {
+    "n": 1140,
+    "logLoss": 0.9991,
+    "brier": 0.5962,
+    "rps": 0.2055,
+    "accuracy": 0.5254,
+    "ece": 0.02,
+    "drawEce": 0.016
+   },
+   "bySeason": {
+    "2023-24": {
+     "n": 380,
+     "logLoss": 0.9744,
+     "brier": 0.5775,
+     "rps": 0.2039,
+     "accuracy": 0.5553,
+     "ece": 0.0416,
+     "drawEce": 0.0077
+    },
+    "2024-25": {
+     "n": 380,
+     "logLoss": 0.9968,
+     "brier": 0.5956,
+     "rps": 0.2051,
+     "accuracy": 0.5237,
+     "ece": 0.0182,
+     "drawEce": 0.0151
+    },
+    "2025-26": {
+     "n": 380,
+     "logLoss": 1.026,
+     "brier": 0.6155,
+     "rps": 0.2076,
+     "accuracy": 0.4974,
+     "ece": 0.0217,
+     "drawEce": 0.0404
+    }
+   }
+  },
+  "poisson": {
+   "overall": {
+    "n": 1140,
+    "logLoss": 1.0017,
+    "brier": 0.5968,
+    "rps": 0.2061,
+    "accuracy": 0.5158,
+    "ece": 0.0334,
+    "drawEce": 0.0262
+   },
+   "bySeason": {
+    "2023-24": {
+     "n": 380,
+     "logLoss": 0.9601,
+     "brier": 0.5663,
+     "rps": 0.1988,
+     "accuracy": 0.5684,
+     "ece": 0.0271,
+     "drawEce": 0.0081
+    },
+    "2024-25": {
+     "n": 380,
+     "logLoss": 0.9999,
+     "brier": 0.597,
+     "rps": 0.2063,
+     "accuracy": 0.5184,
+     "ece": 0.0317,
+     "drawEce": 0.0263
+    },
+    "2025-26": {
+     "n": 380,
+     "logLoss": 1.045,
+     "brier": 0.627,
+     "rps": 0.2133,
+     "accuracy": 0.4605,
+     "ece": 0.0516,
+     "drawEce": 0.0524
+    }
+   }
+  },
+  "uniform": {
+   "overall": {
+    "n": 1140,
+    "logLoss": 1.0986,
+    "brier": 0.6667,
+    "rps": 0.237,
+    "accuracy": 0.4316,
+    "ece": 0,
+    "drawEce": 0.0886
+   },
+   "bySeason": {
+    "2023-24": {
+     "n": 380,
+     "logLoss": 1.0986,
+     "brier": 0.6667,
+     "rps": 0.2418,
+     "accuracy": 0.4605,
+     "ece": 0,
+     "drawEce": 0.1175
+    },
+    "2024-25": {
+     "n": 380,
+     "logLoss": 1.0986,
+     "brier": 0.6667,
+     "rps": 0.237,
+     "accuracy": 0.4079,
+     "ece": 0,
+     "drawEce": 0.0886
+    },
+    "2025-26": {
+     "n": 380,
+     "logLoss": 1.0986,
+     "brier": 0.6667,
+     "rps": 0.2322,
+     "accuracy": 0.4263,
+     "ece": 0,
+     "drawEce": 0.0596
+    }
+   }
+  },
+  "market": {
+   "overall": {
+    "n": 1140,
+    "logLoss": 0.9597,
+    "brier": 0.5699,
+    "rps": 0.1938,
+    "accuracy": 0.55,
+    "ece": 0.0082,
+    "drawEce": 0.0115
+   },
+   "bySeason": {
+    "2023-24": {
+     "n": 380,
+     "logLoss": 0.9007,
+     "brier": 0.5267,
+     "rps": 0.1808,
+     "accuracy": 0.6,
+     "ece": 0.0297,
+     "drawEce": 0.0099
+    },
+    "2024-25": {
+     "n": 380,
+     "logLoss": 0.9667,
+     "brier": 0.5752,
+     "rps": 0.1961,
+     "accuracy": 0.5553,
+     "ece": 0.0113,
+     "drawEce": 0.018
+    },
+    "2025-26": {
+     "n": 380,
+     "logLoss": 1.0118,
+     "brier": 0.6077,
+     "rps": 0.2045,
+     "accuracy": 0.4947,
+     "ece": 0.0239,
+     "drawEce": 0.0258
+    }
+   }
+  }
+ },
+ "parity": {
+  "tolerance": 0.003,
+  "rows": [
+   {
+    "model": "poisson",
+    "season": "2023-24",
+    "reference": 0.9601,
+    "harness": 0.9601,
+    "diff": 0
+   },
+   {
+    "model": "poisson",
+    "season": "2024-25",
+    "reference": 0.9999,
+    "harness": 0.9999,
+    "diff": 0
+   },
+   {
+    "model": "poisson",
+    "season": "2025-26",
+    "reference": 1.045,
+    "harness": 1.045,
+    "diff": 0
+   },
+   {
+    "model": "elo",
+    "season": "2023-24",
+    "reference": 0.9744,
+    "harness": 0.9744,
+    "diff": 0
+   },
+   {
+    "model": "elo",
+    "season": "2024-25",
+    "reference": 0.9968,
+    "harness": 0.9968,
+    "diff": 0
+   },
+   {
+    "model": "elo",
+    "season": "2025-26",
+    "reference": 1.026,
+    "harness": 1.026,
+    "diff": 0
+   },
+   {
+    "model": "empirical",
+    "season": "2023-24",
+    "reference": 1.0566,
+    "harness": 1.0566,
+    "diff": 0
+   },
+   {
+    "model": "empirical",
+    "season": "2024-25",
+    "reference": 1.0843,
+    "harness": 1.0843,
+    "diff": 0
+   },
+   {
+    "model": "empirical",
+    "season": "2025-26",
+    "reference": 1.0839,
+    "harness": 1.0839,
+    "diff": 0
+   }
+  ],
+  "pass": true
+ },
+ "bars": [
+  {
+   "id": "L1_skill",
+   "value": {
+    "poisson": 1.045,
+    "empirical": 1.0839
+   },
+   "pass": true
+  },
+  {
+   "id": "L2_calibration",
+   "value": {
+    "drawEce": 0.0524,
+    "allOutcomeEceReported": 0.0516
+   },
+   "pass": false
+  },
+  {
+   "id": "L3_development_consistency",
+   "value": {
+    "2023-24": {
+     "poisson": 0.9601,
+     "empirical": 1.0566
+    },
+    "2024-25": {
+     "poisson": 0.9999,
+     "empirical": 1.0843
+    }
+   },
+   "pass": true
+  }
+ ],
+ "verdict": "CONTROL_PARITY_PASS",
+ "reportedNotGating": {
+  "poissonMinusElo": 0.019,
+  "poissonMinusMarket": 0.0332
+ }
+}

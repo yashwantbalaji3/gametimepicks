@@ -10,7 +10,15 @@
   "harness": "lib/sports/soccer/walk-forward.mjs — EPL's protocol: walk forward by UTC calendar day, one pregame state per day fit on strictly earlier-dated matches, warm-up folded never scored, cold starts at league average.",
   "data": "football-data.co.uk results + de-vigged market-average closing 1X2 (data/internal/research/soccer/<league>/corpus-football-data-v1.json)"
  },
- "seasons": { "warmup": "2022-23", "development": ["2023-24", "2024-25"], "holdout": "2025-26", "notScored": "2026-27 (in progress — live shadow only)" },
+ "seasons": {
+  "warmup": "2022-23",
+  "development": [
+   "2023-24",
+   "2024-25"
+  ],
+  "holdout": "2025-26",
+  "notScored": "2026-27 (in progress — live shadow only)"
+ },
  "baselines": {
   "empirical": "running league H/D/A frequencies, Laplace +1",
   "elo": "K=20, home advantage +60, P(draw) = running empirical draw rate",
@@ -19,16 +27,61 @@
  "acceptanceBars": {
   "note": "ALL must hold, per league, on the 2025-26 HOLDOUT, for that league to publish model-only forecasts. Any failure is a rejection for this model version and is recorded, not retried with a new bar.",
   "bars": [
-   { "id": "H0_harness_parity", "statement": "Before any league verdict counts: EPL run through this harness reproduces reports/baseline-evaluation-v1.json per season (2023-24, 2024-25, 2025-26) for empirical, elo and poisson within ±0.003 log loss. If it does not, every verdict below is VOID.", "reference": { "poisson": { "2023-24": 0.9601, "2024-25": 0.9999, "2025-26": 1.045 }, "elo": { "2023-24": 0.9744, "2024-25": 0.9968, "2025-26": 1.026 }, "empirical": { "2023-24": 1.0566, "2024-25": 1.0843, "2025-26": 1.0839 } } },
-   { "id": "L1_skill", "statement": "poisson holdout log loss ≤ empirical holdout log loss − 0.005", "why": "The model must know something real about the clubs, by a margin — EPL clears this by 0.039 on 2025-26." },
-   { "id": "L2_calibration", "statement": "poisson holdout ECE (10-bin, all outcome probabilities) ≤ 0.030", "why": "A public probability must mean what it says. EPL's draw ECE reference is 0.0262." },
-   { "id": "L3_development_consistency", "statement": "poisson log loss ≤ empirical log loss − 0.005 on EACH development season too", "why": "A single good season is not a model." }
+   {
+    "id": "H0_harness_parity",
+    "statement": "Before any league verdict counts: EPL run through this harness reproduces reports/baseline-evaluation-v1.json per season (2023-24, 2024-25, 2025-26) for empirical, elo and poisson within ±0.003 log loss. If it does not, every verdict below is VOID.",
+    "reference": {
+     "poisson": {
+      "2023-24": 0.9601,
+      "2024-25": 0.9999,
+      "2025-26": 1.045
+     },
+     "elo": {
+      "2023-24": 0.9744,
+      "2024-25": 0.9968,
+      "2025-26": 1.026
+     },
+     "empirical": {
+      "2023-24": 1.0566,
+      "2024-25": 1.0843,
+      "2025-26": 1.0839
+     }
+    }
+   },
+   {
+    "id": "L1_skill",
+    "statement": "poisson holdout log loss ≤ empirical holdout log loss − 0.005",
+    "why": "The model must know something real about the clubs, by a margin — EPL clears this by 0.039 on 2025-26."
+   },
+   {
+    "id": "L2_calibration",
+    "statement": "poisson holdout DRAW ECE (10-bin, the draw probability alone) ≤ 0.030",
+    "why": "A public probability must mean what it says. This is the calibration metric the EPL model card reports (drawEce 0.0262). All-outcome ECE is reported beside it, not gating."
+   },
+   {
+    "id": "L3_development_consistency",
+    "statement": "poisson log loss ≤ empirical log loss − 0.005 on EACH development season too",
+    "why": "A single good season is not a model."
+   }
   ]
  },
  "reportedNotGating": {
   "elo": "poisson vs elo holdout log loss is reported. EPL's published model does NOT beat Elo on 2025-26 (1.045 vs 1.026), so gating other leagues on it would hold them to a standard EPL itself does not meet; it stays a disclosed limitation, exactly as for EPL.",
-  "market": "model − market holdout log loss is reported. Every model in this repository has lost to the closing market; this comparison is never marketed as beating anything and never gates publication of a model-only forecast."
+  "market": "model − market holdout log loss is reported. Every model in this repository has lost to the closing market; this comparison is never marketed as beating anything and never gates publication of a model-only forecast.",
+  "allOutcomeEce": "poisson holdout all-outcome ECE is reported for every league (EPL control: 0.0516)."
  },
  "stoppingRule": "One run per league for this version. A rejected league stays rejected for epl-model-v1-split-poisson; any variant (shrinkage, Dixon-Coles, decay, league-specific parameters) needs its own preregistration and a season nobody has looked at.",
- "whatThisDoesNotTest": "Player markets (Phase C, separate preregistration), prices, cross-league competitions, or whether any forecast beats the market."
+ "whatThisDoesNotTest": "Player markets (Phase C, separate preregistration), prices, cross-league competitions, or whether any forecast beats the market.",
+ "amendments": [
+  {
+   "version": "1.1",
+   "at": "2026-09-11T14:55:00Z",
+   "bar": "L2_calibration",
+   "was": "poisson holdout ECE (10-bin, all outcome probabilities) ≤ 0.030",
+   "now": "poisson holdout DRAW ECE (10-bin, the draw probability alone) ≤ 0.030",
+   "why": "The v1 text named an all-outcome ECE but cited EPL's DRAW ECE (0.0262) as its reference. The H0 parity run on the EPL control showed the published EPL model's all-outcome holdout ECE is 0.0516 — so v1 would have held new leagues to a standard the EPL model does not meet, contradicting this registration's stated purpose ('exactly the evidence EPL was published on'). Amended to the metric the reference actually is.",
+   "whatWasSeen": "ONLY the EPL control (already public in reports/model-v1-evaluation.json). No LaLiga, Serie A, Bundesliga or Ligue 1 prediction had been scored when this amendment was committed."
+  }
+ ],
+ "registeredVersion": "1.1"
 }

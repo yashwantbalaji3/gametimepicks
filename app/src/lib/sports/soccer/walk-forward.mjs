@@ -67,6 +67,7 @@ export function scorePredictions(preds, model) {
   if (!list.length) return { n: 0 };
   let ll = 0, brier = 0, rps = 0, hit = 0;
   const bins = Array.from({ length: 10 }, () => ({ n: 0, p: 0, o: 0 }));
+  const dbins = Array.from({ length: 10 }, () => ({ n: 0, p: 0, o: 0 })); // the DRAW probability alone — EPL's reported calibration metric
   for (const r of list) {
     const q = r.probs[model];
     ll += -Math.log(Math.max(1e-12, q[r.result]));
@@ -75,10 +76,12 @@ export function scorePredictions(preds, model) {
     rps += ((cq1 - co1) ** 2 + (cq2 - co2) ** 2) / 2;
     if ([...OUTCOMES].sort((x, y) => q[y] - q[x])[0] === r.result) hit += 1;
     for (const o of OUTCOMES) { const b = bins[Math.min(9, Math.floor(q[o] * 10))]; b.n += 1; b.p += q[o]; b.o += r.result === o ? 1 : 0; }
+    { const b = dbins[Math.min(9, Math.floor(q.D * 10))]; b.n += 1; b.p += q.D; b.o += r.result === "D" ? 1 : 0; }
   }
   const N = list.length * 3;
   const ece = bins.reduce((s, b) => s + (b.n ? (b.n / N) * Math.abs(b.p / b.n - b.o / b.n) : 0), 0);
-  return { n: list.length, logLoss: r4(ll / list.length), brier: r4(brier / list.length), rps: r4(rps / list.length), accuracy: r4(hit / list.length), ece: r4(ece) };
+  const drawEce = dbins.reduce((s, b) => s + (b.n ? (b.n / list.length) * Math.abs(b.p / b.n - b.o / b.n) : 0), 0);
+  return { n: list.length, logLoss: r4(ll / list.length), brier: r4(brier / list.length), rps: r4(rps / list.length), accuracy: r4(hit / list.length), ece: r4(ece), drawEce: r4(drawEce) };
 }
 
 export function scoreBySeason(preds, model) {
