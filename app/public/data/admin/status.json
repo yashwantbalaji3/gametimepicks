@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-11T14:02:09.353Z",
+  "generatedAt": "2026-09-11T14:48:24.637Z",
   "canonical": {
     "record": "27-22",
     "bankroll": 17865.4,
@@ -31,14 +31,14 @@
         "source": "mlb/team-markets",
         "state": "CURRENT",
         "artifactDate": "2026-09-11",
-        "generatedAt": "2026-09-11T13:52:58.160Z",
+        "generatedAt": "2026-09-11T14:40:32.936Z",
         "ageDays": 0
       },
       {
         "source": "mlb/player-props",
         "state": "CURRENT",
         "artifactDate": "2026-09-11",
-        "generatedAt": "2026-09-11T13:52:59.011Z",
+        "generatedAt": "2026-09-11T14:40:33.868Z",
         "ageDays": 0
       }
     ]
@@ -117,7 +117,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-09-11",
-      "generatedAt": "2026-09-11T13:19:34Z",
+      "generatedAt": "2026-09-11T14:02:12Z",
       "sports": [
         {
           "sport": "epl",
@@ -149,14 +149,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 15,
-            "priced": 15,
+            "scheduled": 29,
+            "priced": 29,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:15 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:29 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -178,7 +178,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-11",
       "present": true,
-      "generatedAt": "2026-09-11T13:19:33Z",
+      "generatedAt": "2026-09-11T14:02:11Z",
       "watchdog": [],
       "states": {
         "bank-builder": {
@@ -206,7 +206,7 @@
           "policyVersion": "epl-cards@1"
         },
         "mlb-cards": {
-          "state": "ACTIVE",
+          "state": "AWAITING_RESULT",
           "policyVersion": "mlb-cards@1"
         },
         "multi-cards": {
@@ -221,16 +221,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-11T14:00:23.261Z",
+    "lastRunAt": "2026-09-11T14:48:23.728Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-11",
-    "etTime": "10:02",
+    "etTime": "10:48",
     "stages": [
       {
         "stage": "schedule",
