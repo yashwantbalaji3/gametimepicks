@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825036,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T18:01:33.754Z",
+  "availableAt": "2026-09-11T18:01:33.754Z",
+  "eventStartTime": "2026-09-12T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 669022,
+      "name": "MacKenzie Gore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 5,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 4.2,
+        "bbAvg": 2.8,
+        "erAvg": 2.6,
+        "hrAvg": 0.2,
+        "kPer9": 7.99,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 157.67,
+        "k": 170,
+        "bb": 63,
+        "er": 79,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T18:01:33.754Z"
+  },
+  "recordHash": "44b779f34262663573edc4f1308cdb2b99f34980552455a79a25b581508e63cf"
+}

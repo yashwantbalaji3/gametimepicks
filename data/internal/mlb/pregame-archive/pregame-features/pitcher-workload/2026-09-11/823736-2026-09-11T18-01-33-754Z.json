@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823736,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T18:01:33.754Z",
+  "availableAt": "2026-09-11T18:01:33.754Z",
+  "eventStartTime": "2026-09-11T23:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669160,
+      "name": "Dustin May",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 17.33,
+        "ipAvg": 3.47,
+        "kAvg": 3.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 8.31,
+        "workloadIpLast5": 17.33
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 132.33,
+        "k": 127,
+        "bb": 45,
+        "er": 69,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 671096,
+      "name": "Andrew Abbott",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 4.2,
+        "bbAvg": 1.8,
+        "erAvg": 3.8,
+        "hrAvg": 1,
+        "kPer9": 7.99,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 152.33,
+        "k": 120,
+        "bb": 70,
+        "er": 75,
+        "hr": 22
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T18:01:33.754Z"
+  },
+  "recordHash": "8a9e5b9bf8aa06edfaefb6d2b26feb906c3c8668669ba1ed2d7af22bc4c5b83e"
+}
