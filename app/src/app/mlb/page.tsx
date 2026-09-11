@@ -25,7 +25,6 @@ import {
 } from "@/lib/data-mlb";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
-import { getGameOutlook } from "@/lib/data-game-outlook";
 import { formatTipoffEt } from "@/lib/format-mlb";
 import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import TeamMark from "@/components/ui/team-mark";
@@ -62,7 +61,6 @@ import MlbSimulationsSection from "@/components/mlb/mlb-simulations-section";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { loadMlbSimCards } from "@/lib/mlb/full-game/hub-cards";
-import GameOutlookSection from "@/components/game-outlook-card";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
@@ -116,7 +114,6 @@ export default function MlbLandingPage() {
   const propsAvailable = board.propsAvailable;
   const games = schedule.games ?? [];
   const gameCount = summary.scheduledGames || games.length || 0;
-  const gameOutlook = getGameOutlook("mlb");
   const homerNukesBoard = loadHomerNukesBoard(path.join(process.cwd(), "public", "data"), date);
   /* The live record behind the honest-limits sentence (lib/mlb/homer-nukes-honesty.mjs). */
   const homerNukesRecord = (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mlb", "homer-nukes", "record.json"), "utf8")); } catch { return null; } })();
@@ -287,7 +284,6 @@ export default function MlbLandingPage() {
         <SectionHeader eyebrow={`Slate · ${date}`} title={isTodaysSlate ? `${games.length} game${games.length === 1 ? "" : "s"} today` : `${games.length} game${games.length === 1 ? "" : "s"} · ${date}`} rightSlot={games.length > 0 ? <Link href="/mlb/board" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>Open board →</Link> : undefined} />
         {slateTiles}
       </section>
-      <GameOutlookSection outlook={gameOutlook} slateDate={date} />
       <UpcomingSlateStrip title="Upcoming · next 7 days" days={buildMlbUpcomingDays(date)} boardHrefBase="/mlb/board" emptyMessage="No upcoming MLB slates on disk yet. The next refresh will pull the rolling window." />
     </div>
   );

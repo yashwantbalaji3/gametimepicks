@@ -82,13 +82,14 @@ test("a board built for another slate is never served as today's", () => {
 
 // ── The two /mlb truth repairs that shipped with this board ──────────────────────────────────────
 
-test("the market outlook cannot render prices from another day", () => {
-  // It had no date gate at all, so a 2026-06-10 artifact rendered under "Implied by CURRENT
-  // sportsbook prices" for two months — thirteen June games above an eleven-game August slate.
-  const src = fs.readFileSync(path.join(APP, "src/components/game-outlook-card.tsx"), "utf8");
-  assert.match(src, /outlook\.date !== slateDate/, "the section compares its artifact date to the slate");
+test("the retired market-outlook section cannot come back with stale prices", () => {
+  // It rendered a 2026-06-10 artifact under "Implied by CURRENT sportsbook prices" for two months, then
+  // sat hidden behind a date gate because nothing regenerated it. P258 removed it with its data, its
+  // component and its workflow; this pins the removal so June prices can never render again.
   const page = fs.readFileSync(path.join(APP, "src/app/mlb/page.tsx"), "utf8");
-  assert.match(page, /<GameOutlookSection[^>]*slateDate=/, "/mlb passes the slate date so the gate can fire");
+  assert.ok(!/GameOutlook|getGameOutlook|game-outlook/.test(page), "/mlb no longer renders the market outlook");
+  assert.ok(!fs.existsSync(path.join(APP, "public/data/game-outlook")), "its June data is gone");
+  assert.ok(!fs.existsSync(path.join(APP, "src/components/game-outlook-card.tsx")), "its component is gone");
 });
 
 test("the upcoming strip reads the schedule source that actually names its teams", () => {

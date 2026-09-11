@@ -10,7 +10,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { projectMatch } from "../src/lib/world-cup/internal-soccer-projection-engine.ts";
+import { projectMatch } from "../../src/lib/world-cup/internal-soccer-projection-engine.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(__dirname, "..", "..");

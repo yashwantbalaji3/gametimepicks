@@ -122,7 +122,7 @@ fi
 
 DELIVERY="not attempted (OPS_WEBHOOK_URL unset)"
 if [ -n "${OPS_WEBHOOK_URL:-}" ]; then
-    if curl -sS --max-time 15 -X POST -H 'content-type: application/json' --data "$PAYLOAD" "$OPS_WEBHOOK_URL" >/dev/null 2>&1; then
+    if curl -sS --fail --max-time 15 -X POST -H 'content-type: application/json' --data "$PAYLOAD" "$OPS_WEBHOOK_URL" >/dev/null 2>&1; then
         DELIVERY="delivered"
     else
         DELIVERY="FAILED to deliver (the run failure above still stands)"

@@ -101,7 +101,7 @@ jobs:
 
     steps:
       - name: Checkout (full history so the roll can push to main)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -142,7 +142,7 @@ jobs:
           if [ -f pipeline/requirements.txt ]; then pip install -r pipeline/requirements.txt; else pip install requests; fi
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: "npm"

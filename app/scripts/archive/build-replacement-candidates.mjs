@@ -13,9 +13,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { extractPredictionsForDate, resolveSports } from "../src/lib/methodology/sources.ts";
-import { buildLegPool, eligibleLegs } from "../src/lib/parlays/eligible-leg.ts";
-import { survivalScore, laneLeg } from "../src/lib/parlays/dual-bank-builder.ts";
+import { extractPredictionsForDate, resolveSports } from "../../src/lib/methodology/sources.ts";
+import { buildLegPool, eligibleLegs } from "../../src/lib/parlays/eligible-leg.ts";
+import { survivalScore, laneLeg } from "../../src/lib/parlays/dual-bank-builder.ts";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");

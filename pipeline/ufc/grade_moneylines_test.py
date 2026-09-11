@@ -18,8 +18,13 @@ from pipeline.ufc.grade_moneylines import _bout_key, grade
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 COLLISION_AUDIT = REPO_ROOT / "data" / "internal" / "ufc" / "integrity" / "ufc-collision-audit.json"
-RESULTS_LATEST = REPO_ROOT / "app" / "public" / "data" / "ufc" / "results-latest.json"
-ODDS_LATEST = REPO_ROOT / "app" / "public" / "data" / "ufc" / "odds-latest.json"
+# P258: PINNED copies of the inputs these tests were written against (46fb6325d, 2026-07-30). They used
+# to read the live app/public/data/ufc/*-latest.json, which a bot rewrites daily — by September the
+# 2023 rematch rows had left the results window and every quoted bout had a result, so three tests
+# failed (unnoticed: nothing ran this file). A live artifact is not a fixture.
+PINNED = Path(__file__).resolve().parent / "testdata" / "grade-moneylines-2026-07-30"
+RESULTS_LATEST = PINNED / "results.json"
+ODDS_LATEST = PINNED / "odds.json"
 
 
 def _legacy_pair_join(fighters, commence_time, by_id, pair_dates):

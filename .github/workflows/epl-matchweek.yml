@@ -107,9 +107,9 @@ jobs:
     steps:
       - name: Record the run start
         run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with: { node-version: "20", cache: "npm", cache-dependency-path: app/package-lock.json }
       - run: npm ci
         working-directory: app

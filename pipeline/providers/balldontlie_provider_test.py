@@ -54,6 +54,11 @@ class GameLogsFetchTests(unittest.TestCase):
         p._key = "test-key"
         p._enabled = True
         p._player_index = {1630162: 27}
+        # #319 (2026-06-08) replaced the in-memory index with _resolve_bdl_id (cache → offline name →
+        # free-tier search); these tests kept setting _player_index and silently began hitting the
+        # resolver. They failed unnoticed for three months because nothing ran this file (P258).
+        # Resolve through the test's own index so each test still pins the behaviour it names.
+        p._resolve_bdl_id = lambda nba_id: p._player_index.get(int(nba_id))
         return p
 
     def test_successful_fetch_uses_rate_limiter(self) -> None:

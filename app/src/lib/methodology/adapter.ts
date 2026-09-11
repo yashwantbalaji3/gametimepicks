@@ -874,7 +874,7 @@ export function extractUfcPredictions(source: any, sourcePath: string | null, op
   const notes: string[] = [];
   if (preds.length === 0) notes.push("No UFC projections found for this date");
   if (source?.marketScope && source.marketScope !== "h2h_moneyline_only") notes.push(`UFC market scope: ${source.marketScope}`);
-  notes.push("UFC method/round/distance props not_available (no prop-odds provider connected)");
+  notes.push("UFC method/round/distance props not_available (no prop-odds feed connected)");
   return summarize("UFC", String(source?.eventDate ?? "").slice(0, 10) || null, sourcePath, preds, notes);
 }
 

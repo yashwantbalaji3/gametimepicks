@@ -125,11 +125,14 @@ class ExtractRecentGamesTests(unittest.TestCase):
             self.assertEqual(n, games[i]["value"],
                              msg=f"row {i} mismatch: num={n} game={games[i]}")
 
-    def test_all_markets_returns_three_keys(self):
+    def test_all_markets_returns_every_supported_market(self):
+        # Was "three keys" (PTS/REB/AST); #368 added 3PM/PRA/BLK/STL and this assertion was never
+        # updated — it failed unnoticed because no workflow ran the pipeline's Python tests (P258).
+        from pipeline.recent10_extractor import SUPPORTED_MARKETS
         logs = [_log(game_date="2026-05-20", opponent_abbr="X", home_away="Home",
                      pts=20, reb=8, ast=5)]
         out = extract_recent_games_all_markets(logs)
-        self.assertEqual(set(out.keys()), {"PTS", "REB", "AST"})
+        self.assertEqual(set(out.keys()), set(SUPPORTED_MARKETS))
         self.assertEqual(out["PTS"][0]["value"], 20.0)
         self.assertEqual(out["REB"][0]["value"], 8.0)
         self.assertEqual(out["AST"][0]["value"], 5.0)

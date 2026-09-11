@@ -64,11 +64,12 @@ test("daily-lifecycle.yml is the manual recovery roll — dispatch-only, deploy 
   assert.match(wf, /ops_alert\.sh/, "failures route through the shared alerter");
 });
 
-test("overlapping product orchestrators are retired to dispatch-only (no duplicate crons)", () => {
-  const hasCron = (rel) => /^\s*-\s*cron:/m.test(readRepo(rel));
-  // mlb ingest is now step 8 of the canonical lifecycle; lineup-aware's window cron expired.
-  assert.ok(!hasCron(".github/workflows/mlb-daily.yml"), "mlb-daily cron retired (dispatch-only)");
-  assert.ok(!hasCron(".github/workflows/lineup-aware-refresh.yml"), "lineup-aware cron retired (dispatch-only)");
+test("overlapping product orchestrators are retired (no duplicate crons)", () => {
+  // mlb ingest is now step 8 of the canonical lifecycle; lineup-aware's window cron expired. P258 removed
+  // both files outright (idle since June). If either returns, it must not carry a cron.
+  const hasCron = (rel) => fs.existsSync(path.join(repo, rel)) && /^\s*-\s*cron:/m.test(readRepo(rel));
+  assert.ok(!hasCron(".github/workflows/mlb-daily.yml"), "mlb-daily must not regain a cron");
+  assert.ok(!hasCron(".github/workflows/lineup-aware-refresh.yml"), "lineup-aware-refresh must not regain a cron");
 });
 
 test("there is exactly ONE product orchestrator (the dead parallel daily-product-refresh is removed)", () => {

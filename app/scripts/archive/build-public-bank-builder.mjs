@@ -9,7 +9,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { resolveLadderStep, BANK_BUILDER_GOAL } from "../src/lib/bank-builder-ladder.ts";
+import { resolveLadderStep, BANK_BUILDER_GOAL } from "../../src/lib/bank-builder-ladder.ts";
 
 const dir = path.join(process.cwd(), "public", "data", "bank-builder");
 const read = (f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));

@@ -10,7 +10,7 @@
  * that went red every time the gate did its job would be turned off within a week.
  *
  * Usage:
- *   node app/scripts/ops/paid-run-gate.mjs --workflow morning-projections.yml [--forced] [--now <iso>]
+ *   node app/scripts/ops/paid-run-gate.mjs --workflow morning-projections.yml [--forced] [--runs-only] [--now <iso>]
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -83,11 +83,15 @@ function successfulRunsToday(workflow, today, selfRunId) {
 const nowIso = arg("now");
 const workflow = arg("workflow", "morning-projections.yml");
 const today = etDate(nowIso);
+/* --runs-only (P258): judge by this workflow's own successful runs today and nothing else. The board
+   check answers "has morning-projections already produced today's work?" — true by construction for a
+   workflow that CHAINS after it (mlb-daily-production), which would then never spend at all. */
+const runsOnly = flag("runs-only");
 const decision = decidePaidRun({
   forced: flag("forced"),
   etDate: today,
   successfulRunsToday: successfulRunsToday(workflow, today, process.env.GITHUB_RUN_ID),
-  newestBoardDate: newestBoardDate(),
+  newestBoardDate: runsOnly ? null : newestBoardDate(),
 });
 
 console.log(formatDecision(decision));

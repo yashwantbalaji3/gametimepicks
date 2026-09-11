@@ -114,7 +114,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
           persist-credentials: true
@@ -155,7 +155,7 @@ jobs:
       # and a NO-OP when API_FOOTBALL_KEY is absent or no game is FT yet — so it is safe to schedule and
       # safe to rerun. Non-fatal: a fetch hiccup never fails the nightly run.
       - name: Set up Node (World Cup settlement)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "20"
           # Program 088-091: lockfile-keyed npm cache (parity with the second setup-node
@@ -361,7 +361,7 @@ jobs:
       # prior artifact stays and generation keeps its conservative fallback.
       - name: Set up Node (selection-learning)
         if: ${{ github.event.inputs.dry_run != 'true' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: "npm"

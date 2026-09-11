@@ -44,7 +44,7 @@ const SPORTS: Array<{ name: string; note: string }> = [
 const GATES: Array<{ label: string; note: string }> = [
   { label: "Predictions switched off for the market", note: "This market's own settled record sits below break-even, so we make no prediction in it. The history stays visible." },
   { label: "Waiting on lineups", note: "A player prop needs the confirmed starting lineup before it can be shown as a card leg." },
-  { label: "Market unavailable", note: "The odds provider doesn't offer this market for this event, so there is no price to read against." },
+  { label: "Market unavailable", note: "Our odds feed doesn't offer this market for this event, so there is no price to read against." },
   { label: "Not enough settled results", note: "Too few decided results to say anything yet. It is reported and never acted on." },
 ];
 

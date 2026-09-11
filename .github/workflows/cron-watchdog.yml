@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Decide (tested logic, explicit inputs)
         id: decide
@@ -191,6 +191,59 @@ jobs:
           echo "::notice::epl-matchday-watch [${{ steps.epl_watch.outputs.state }}] dispatched epl-matchweek"
           bash scripts/ops_alert.sh
 
+      # ── A CANCELLED RUN IS NOT A MISSED SLOT AND NOT A FAILURE ──────────────────────────────────
+      #
+      # P258: every writer shares the gtp-generated-artifacts queue (guarded — the July-30 lost board),
+      # and GitHub keeps ONE pending run per group: a second pending run replaces the first, which
+      # ends "cancelled". Normally a later run covers it. When nothing does, the day's slate never
+      # lands — and slot coverage (a run fired) and failure alerts (not a failure) both stay quiet.
+      # Recovery re-dispatches the earliest stranded stage; the chain carries the rest, and the paid
+      # stages re-enter their once-per-ET-day gates, so this cannot buy odds twice. Skipped when the
+      # decision above already dispatched the chain.
+      - name: Morning-chain cancel watch
+        id: chain
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node app/scripts/ops/chain-cancel-watch.mjs | tee /tmp/chain.txt
+          { echo "### Morning-chain cancel watch"; echo '```'; cat /tmp/chain.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Re-dispatch the stranded chain stage and alert
+        if: steps.chain.outputs.state == 'STRANDED' && steps.decide.outputs.decision != 'DISPATCH' && steps.decide.outputs.decision != 'DISPATCH_SETTLE'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          OPS_ALERT_KIND: warning
+          PHASE: chain-cancel-watch
+          EXIT_STATUS: "0"
+          ERROR_LINE: "[STRANDED] ${{ steps.chain.outputs.reason }}"
+        run: |
+          set -euo pipefail
+          # Chain order: re-running the EARLIEST stranded stage re-runs everything after it.
+          STAGE="$(grep -m1 -oE '^(morning-projections|mlb-daily-production|daily-products): STRANDED' /tmp/chain.txt | cut -d: -f1)"
+          gh workflow run "${STAGE}.yml"
+          echo "::warning::chain-cancel-watch: ${STAGE} was cancelled with no later success today — re-dispatched"
+          bash scripts/ops_alert.sh
+
+      # ── THE FREE FEEDS THE ENGINES STAND ON ─────────────────────────────────────────────────────
+      #
+      # ESPN, StatsAPI, nflverse, football-data.co.uk and the NWS cost nothing and page no one when
+      # they change shape — a capture writes an empty file and a model runs on less. REPORT ONLY, like
+      # the slot check below was at first: a detector that has not been quiet through a real week has
+      # not earned the right to page. The runner retries once and always exits 0.
+      - name: Free data-feed health (report only)
+        continue-on-error: true
+        id: feeds
+        run: |
+          set -euo pipefail
+          node app/scripts/ops/feed-health.mjs --json app/public/data/ops/feed-health.json | tee /tmp/feeds.txt
+          { echo "### Free data-feed health"; echo '```'; cat /tmp/feeds.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          STATE="$(sed -n 's/^FEED_HEALTH state=\([A-Z]*\).*/\1/p' /tmp/feeds.txt)"
+          if [ "$STATE" != "OK" ]; then
+            echo "::warning::free data-feed health $STATE — $(grep '^FAIL' /tmp/feeds.txt | tr -s ' ' | cut -d' ' -f2 | paste -sd, -)"
+          fi
+
       # ── Cross-sport cron-slot check (UFC / NFL / EPL / MLB) ──────────────────────────────────────
       #
       # The step above recovers the MLB chain and knows nothing about the other sports. This one asks
@@ -327,7 +380,7 @@ jobs:
           # Allowlisted single file. An artifact that is generated and never committed is the
           # 62-hour-outage shape, and this repo has hit it twice.
           git add app/public/data/ops/cron-slot-watchdog.json app/public/data/ops/lane-staleness.json \
-                  app/public/data/ops/cron-punctuality.json 2>/dev/null || true
+                  app/public/data/ops/cron-punctuality.json app/public/data/ops/feed-health.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "no coverage change"; exit 0; fi
           git commit -m "auto: cron-slot coverage $(date -u +%Y-%m-%d) [skip ci]"
           for attempt in 1 2 3; do

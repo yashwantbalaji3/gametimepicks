@@ -19,7 +19,13 @@
  *   oddsApiKey    The Odds API sport key — PAID; each league needs its own founder receipt before any capture
  */
 export const SOCCER_LEAGUES = Object.freeze([
-  { key: "epl", name: "Premier League", country: "England", espn: "eng.1", footballData: "E0", oddsApiKey: "soccer_epl", stage: "LIVE", wave: 0 },
+  { key: "epl", name: "Premier League", country: "England", espn: "eng.1", footballData: "E0", oddsApiKey: "soccer_epl", stage: "LIVE", wave: 0,
+    /* ESPN display name → football-data club name, where they differ (P258 closing-line benchmark join; the
+       nine in the 2026-27 graded ledger checked against the E0 file, the rest for promoted/relegated clubs). */
+    aliases: { "AFC Bournemouth": "Bournemouth", "Brighton & Hove Albion": "Brighton", "Coventry City": "Coventry", "Hull City": "Hull",
+      "Ipswich Town": "Ipswich", "Leeds United": "Leeds", "Leicester City": "Leicester", "Luton Town": "Luton", "Manchester City": "Man City",
+      "Manchester United": "Man United", "Newcastle United": "Newcastle", "Nottingham Forest": "Nott'm Forest", "Tottenham Hotspur": "Tottenham",
+      "West Ham United": "West Ham", "Wolverhampton Wanderers": "Wolves" } },
   { key: "laliga", name: "LaLiga", country: "Spain", espn: "esp.1", footballData: "SP1", oddsApiKey: "soccer_spain_la_liga", stage: "REJECTED_V1", wave: 1 },
   { key: "serie-a", name: "Serie A", country: "Italy", espn: "ita.1", footballData: "I1", oddsApiKey: "soccer_italy_serie_a", stage: "REJECTED_V1", wave: 1 },
   { key: "bundesliga", name: "Bundesliga", country: "Germany", espn: "ger.1", footballData: "D1", oddsApiKey: "soccer_germany_bundesliga", stage: "REJECTED_V1", wave: 1 },

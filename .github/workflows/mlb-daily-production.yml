@@ -25,6 +25,10 @@ on:
         description: "true = plan only (no paid calls, no commit)."
         required: false
         default: "false"
+      force:
+        description: "true = buy odds again even if a run already succeeded today (recovery only)."
+        required: false
+        default: "false"
   # Chain right after the projection board is refreshed.
   workflow_run:
     workflows: ["morning-projections"]
@@ -71,8 +75,8 @@ jobs:
       - name: Stamp the run start
         run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
 
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "20"
           # Program 088-091: lockfile-keyed npm cache — same pattern the other daily
@@ -93,8 +97,24 @@ jobs:
           BOARD="app/public/data/mlb/boards/${{ steps.cfg.outputs.date }}.json"
           if [ -f "$BOARD" ]; then echo "have_board=true" >> "$GITHUB_OUTPUT"; echo "board present: $BOARD";
           else echo "have_board=false" >> "$GITHUB_OUTPUT"; echo "NO board for ${{ steps.cfg.outputs.date }} — morning-projections must run first; skipping completion (nothing published)."; fi
-      - name: 3) Team markets ingest (paid Odds API — de-vigged h2h/spreads/totals, credit-guarded, non-blocking)
+      # ── ONCE A DAY FOR THE PAID INGESTS (P258) ─────────────────────────────────────────────
+      # 39 runs in 14 days (chain + backstop cron + recoveries), and every one bought odds again. The
+      # same tested gate morning-projections uses; --runs-only because a board always exists by the time
+      # this chained workflow runs. The FREE completion steps below still run every time.
+      - name: Paid-run gate (once per ET day)
+        id: gate
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node app/scripts/ops/paid-run-gate.mjs --workflow mlb-daily-production.yml --runs-only \
+            ${{ github.event.inputs.force == 'true' && '--forced' || '' }} | tee /tmp/gate.txt
+          { echo "### Paid-run gate"; echo '```'; cat /tmp/gate.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 3) Team markets ingest (paid Odds API — de-vigged h2h/spreads/totals, credit-guarded, non-blocking)
+        id: odds_team
+        if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true' && steps.gate.outputs.run == 'true'
         continue-on-error: true
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
@@ -104,7 +124,8 @@ jobs:
           # --write is REQUIRED (the script refuses to run without --write | --dry-run); --date scopes the slate.
           npx tsx app/scripts/ingest-mlb-team-markets.mjs --write --date "${{ steps.cfg.outputs.date }}" || echo "team-markets ingest failed/blocked — slate stays AWAITING_MARKET_DATA, nothing fabricated"
       - name: 4) Player props ingest (paid Odds API — prop lines, credit-guarded, non-blocking)
-        if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
+        id: odds_props
+        if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true' && steps.gate.outputs.run == 'true'
         continue-on-error: true
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
@@ -112,14 +133,17 @@ jobs:
           if [ -z "$ODDS_API_KEY" ]; then echo "ODDS_API_KEY secret not set — skipping player props (honest no-op)."; exit 0; fi
           npx tsx app/scripts/ingest-mlb-slate.mjs --date "${{ steps.cfg.outputs.date }}" || echo "player-props ingest failed/blocked — nothing fabricated"
       - name: 5) Game simulations (FREE, deterministic, board-based — no network, no money)
+        id: sims
         if: steps.board.outputs.have_board == 'true'
         continue-on-error: true
         run: npx tsx app/scripts/generate-mlb-game-simulations.mjs --write --date "${{ steps.cfg.outputs.date }}" --now "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
       - name: 5b) Full-game simulations (FREE, deterministic, board-based — 10k complete games/matchup, no network, no money)
+        id: fullsims
         if: steps.board.outputs.have_board == 'true'
         continue-on-error: true
         run: npx tsx app/scripts/generate-mlb-full-game-simulations.mjs --write --date "${{ steps.cfg.outputs.date }}" --now "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
       - name: 5c) Predictions (FREE, deterministic decision layer over the full-game artifact — no network, no money)
+        id: preds
         if: steps.board.outputs.have_board == 'true'
         continue-on-error: true
         run: npx tsx app/scripts/generate-mlb-predictions.mjs --write --date "${{ steps.cfg.outputs.date }}" --now "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
@@ -193,12 +217,25 @@ jobs:
           # build-admin-status.mjs then regenerates admin/status.json, which fails closed on a stale
           # heartbeat (>36h). Before this step, NOTHING in CI wrote either file: the heartbeat had gone
           # 409h without an update while /ops kept reporting ok:true from its last recorded verdict.
+          # P258: the steps below are tolerated (continue-on-error) so one failure never costs the rest of
+          # the slate — but a tolerated failure used to vanish: the heartbeat said "pass" whenever the build
+          # passed, even with simulations or predictions missing. Name every one that failed. (A paid
+          # ingest the once-a-day gate SKIPPED is "skipped", not "failure", and is not reported.)
+          TOLERATED=""
+          [ "${{ steps.odds_team.outcome }}" = "failure" ] && TOLERATED="$TOLERATED team-markets"
+          [ "${{ steps.odds_props.outcome }}" = "failure" ] && TOLERATED="$TOLERATED player-props"
+          [ "${{ steps.sims.outcome }}" = "failure" ] && TOLERATED="$TOLERATED game-simulations"
+          [ "${{ steps.fullsims.outcome }}" = "failure" ] && TOLERATED="$TOLERATED full-game-simulations"
+          [ "${{ steps.preds.outcome }}" = "failure" ] && TOLERATED="$TOLERATED predictions"
           if [ "${{ steps.board.outputs.have_board }}" != "true" ]; then
             ST=partial; MSG="no board for the date — nothing to produce"
-          elif [ "${{ steps.build.outcome }}" = "success" ]; then
-            ST=pass; MSG="slate generated and built"
-          else
+          elif [ "${{ steps.build.outcome }}" != "success" ]; then
             ST=fail; MSG="public build ${{ steps.build.outcome }}"
+          elif [ -n "$TOLERATED" ]; then
+            ST=partial; MSG="slate built, but these steps failed:$TOLERATED"
+            echo "::warning::tolerated failures in today's MLB production:$TOLERATED"
+          else
+            ST=pass; MSG="slate generated and built"
           fi
           echo "heartbeat status=$ST ($MSG)"
           node app/scripts/ops-notify.mjs --status "$ST" --phase "mlb-daily-production" --date "${{ steps.cfg.outputs.date }}" --message "$MSG"

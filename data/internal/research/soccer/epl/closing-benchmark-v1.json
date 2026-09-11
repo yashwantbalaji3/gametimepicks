@@ -1,0 +1,574 @@
+{
+  "schemaVersion": "epl-closing-benchmark.v1",
+  "dataClass": "INTERNAL_RESEARCH",
+  "generatedAt": "2026-09-11T19:22:40.713Z",
+  "attribution": "Closing odds: football-data.co.uk market average, de-vigged (free for research use). Results and forecasts: this project's graded ledger.",
+  "note": "Not a validation and not a wagering claim. Gap = model minus market log loss on identical matches; lower is better.",
+  "corpusGeneratedAt": "2026-09-11T14:03:10.157Z",
+  "gradedRows": 26,
+  "summary": {
+    "matches": 26,
+    "sampleState": "ACCUMULATING",
+    "model": {
+      "meanLogLoss": 1.0390216977753428,
+      "meanBrier": 0.6371852871646924
+    },
+    "market": {
+      "meanLogLoss": 1.0348420268322354,
+      "meanBrier": 0.6185690046153846
+    },
+    "logLossGap": {
+      "mean": 0.004179670943107178,
+      "standardError": 0.07521080838019059
+    }
+  },
+  "unjoined": [],
+  "rows": [
+    {
+      "eventId": "soccer:epl:arsenal-v-coventry-city:20260821t1900",
+      "kickoffUtc": "2026-08-21T19:00:00Z",
+      "matchup": "Arsenal v Coventry City",
+      "outcome": "H",
+      "model": {
+        "home": 0.69144,
+        "draw": 0.17808,
+        "away": 0.13048,
+        "logLoss": 0.36897889953775426,
+        "brier": 0.14394679039999997
+      },
+      "market": {
+        "home": 0.791,
+        "draw": 0.1412,
+        "away": 0.0678,
+        "logLoss": 0.23445731121448313,
+        "brier": 0.06821527999999999
+      },
+      "logLossGap": 0.13452158832327113
+    },
+    {
+      "eventId": "soccer:epl:hull-city-v-manchester-united:20260822t1130",
+      "kickoffUtc": "2026-08-22T11:30:00Z",
+      "matchup": "Hull City v Manchester United",
+      "outcome": "H",
+      "model": {
+        "home": 0.42233,
+        "draw": 0.250414,
+        "away": 0.327256,
+        "logLoss": 0.8619682800200813,
+        "brier": 0.5035062898320001
+      },
+      "market": {
+        "home": 0.1111,
+        "draw": 0.1847,
+        "away": 0.7042,
+        "logLoss": 2.197324582336553,
+        "brier": 1.32015494
+      },
+      "logLossGap": -1.3353563023164714
+    },
+    {
+      "eventId": "soccer:epl:crystal-palace-v-everton:20260822t1400",
+      "kickoffUtc": "2026-08-22T14:00:00Z",
+      "matchup": "Everton v Crystal Palace",
+      "outcome": "H",
+      "model": {
+        "home": 0.348599,
+        "draw": 0.295147,
+        "away": 0.356253,
+        "logLoss": 1.0538330145176575,
+        "brier": 0.638351214419
+      },
+      "market": {
+        "home": 0.408,
+        "draw": 0.2817,
+        "away": 0.3103,
+        "logLoss": 0.8964881045779755,
+        "brier": 0.5261049800000002
+      },
+      "logLossGap": 0.1573449099396821
+    },
+    {
+      "eventId": "soccer:epl:ipswich-town-v-sunderland:20260822t1400",
+      "kickoffUtc": "2026-08-22T14:00:00Z",
+      "matchup": "Ipswich Town v Sunderland",
+      "outcome": "H",
+      "model": {
+        "home": 0.160042,
+        "draw": 0.254108,
+        "away": 0.58585,
+        "logLoss": 1.8323189981954071,
+        "brier": 1.113320539928
+      },
+      "market": {
+        "home": 0.3331,
+        "draw": 0.2928,
+        "away": 0.3741,
+        "logLoss": 1.099312533782503,
+        "brier": 0.6704382600000001
+      },
+      "logLossGap": 0.7330064644129042
+    },
+    {
+      "eventId": "soccer:epl:leeds-united-v-nottingham-forest:20260822t1400",
+      "kickoffUtc": "2026-08-22T14:00:00Z",
+      "matchup": "Nottingham Forest v Leeds United",
+      "outcome": "A",
+      "model": {
+        "home": 0.516826,
+        "draw": 0.247386,
+        "away": 0.235788,
+        "logLoss": 1.444822182759078,
+        "brier": 0.912328928216
+      },
+      "market": {
+        "home": 0.3848,
+        "draw": 0.2946,
+        "away": 0.3206,
+        "logLoss": 1.1375610388066846,
+        "brier": 0.69644456
+      },
+      "logLossGap": 0.30726114395239335
+    },
+    {
+      "eventId": "soccer:epl:brentford-v-tottenham-hotspur:20260822t1630",
+      "kickoffUtc": "2026-08-22T16:30:00Z",
+      "matchup": "Brentford v Tottenham Hotspur",
+      "outcome": "H",
+      "model": {
+        "home": 0.418581,
+        "draw": 0.218456,
+        "away": 0.362963,
+        "logLoss": 0.870884859393583,
+        "brier": 0.5175132168659999
+      },
+      "market": {
+        "home": 0.4709,
+        "draw": 0.2526,
+        "away": 0.2765,
+        "logLoss": 0.7531095217326282,
+        "brier": 0.42020581999999995
+      },
+      "logLossGap": 0.11777533766095472
+    },
+    {
+      "eventId": "soccer:epl:bournemouth-v-manchester-city:20260823t1300",
+      "kickoffUtc": "2026-08-23T13:00:00Z",
+      "matchup": "Manchester City v Bournemouth",
+      "outcome": "H",
+      "model": {
+        "home": 0.791497,
+        "draw": 0.123175,
+        "away": 0.085327,
+        "logLoss": 0.23382918993988944,
+        "brier": 0.065926278563
+      },
+      "market": {
+        "home": 0.6546,
+        "draw": 0.1972,
+        "away": 0.1482,
+        "logLoss": 0.423730916915057,
+        "brier": 0.18015224000000002
+      },
+      "logLossGap": -0.18990172697516755
+    },
+    {
+      "eventId": "soccer:epl:liverpool-v-newcastle-united:20260823t1530",
+      "kickoffUtc": "2026-08-23T15:30:00Z",
+      "matchup": "Newcastle United v Liverpool",
+      "outcome": "D",
+      "model": {
+        "home": 0.466432,
+        "draw": 0.219738,
+        "away": 0.313831,
+        "logLoss": 1.5153193514164274,
+        "brier": 0.924857495829
+      },
+      "market": {
+        "home": 0.2588,
+        "draw": 0.2479,
+        "away": 0.4933,
+        "logLoss": 1.3947298399409922,
+        "brier": 0.8759767399999999
+      },
+      "logLossGap": 0.12058951147543517
+    },
+    {
+      "eventId": "soccer:epl:chelsea-v-fulham:20260824t1900",
+      "kickoffUtc": "2026-08-24T19:00:00Z",
+      "matchup": "Fulham v Chelsea",
+      "outcome": "A",
+      "model": {
+        "home": 0.375007,
+        "draw": 0.243607,
+        "away": 0.381386,
+        "logLoss": 0.9639432933589605,
+        "brier": 0.582657901494
+      },
+      "market": {
+        "home": 0.264,
+        "draw": 0.2693,
+        "away": 0.4666,
+        "logLoss": 0.7622829193948074,
+        "brier": 0.42673405
+      },
+      "logLossGap": 0.20166037396415304
+    },
+    {
+      "eventId": "soccer:epl:liverpool-v-nottingham-forest:20260829t1130",
+      "kickoffUtc": "2026-08-29T11:30:00Z",
+      "matchup": "Liverpool v Nottingham Forest",
+      "outcome": "D",
+      "model": {
+        "home": 0.740023,
+        "draw": 0.156626,
+        "away": 0.103351,
+        "logLoss": 1.853894481109511,
+        "brier": 1.269595173606
+      },
+      "market": {
+        "home": 0.645,
+        "draw": 0.2004,
+        "away": 0.1546,
+        "logLoss": 1.6074399097714274,
+        "brier": 1.07928632
+      },
+      "logLossGap": 0.24645457133808368
+    },
+    {
+      "eventId": "soccer:epl:bournemouth-v-everton:20260829t1400",
+      "kickoffUtc": "2026-08-29T14:00:00Z",
+      "matchup": "Bournemouth v Everton",
+      "outcome": "D",
+      "model": {
+        "home": 0.414882,
+        "draw": 0.304636,
+        "away": 0.280482,
+        "logLoss": 1.1886376577174398,
+        "brier": 0.734328318744
+      },
+      "market": {
+        "home": 0.4342,
+        "draw": 0.2736,
+        "away": 0.2922,
+        "logLoss": 1.2960880932337415,
+        "brier": 0.8015674399999999
+      },
+      "logLossGap": -0.10745043551630173
+    },
+    {
+      "eventId": "soccer:epl:coventry-city-v-hull-city:20260829t1400",
+      "kickoffUtc": "2026-08-29T14:00:00Z",
+      "matchup": "Coventry City v Hull City",
+      "outcome": "A",
+      "model": {
+        "home": 0.442878,
+        "draw": 0.242335,
+        "away": 0.314788,
+        "logLoss": 1.155855882606368,
+        "brier": 0.7243826600529999
+      },
+      "market": {
+        "home": 0.5511,
+        "draw": 0.2481,
+        "away": 0.2008,
+        "logLoss": 1.6054458911645628,
+        "brier": 1.00398546
+      },
+      "logLossGap": -0.44959000855819475
+    },
+    {
+      "eventId": "soccer:epl:newcastle-united-v-tottenham-hotspur:20260829t1630",
+      "kickoffUtc": "2026-08-29T16:30:00Z",
+      "matchup": "Tottenham Hotspur v Newcastle United",
+      "outcome": "A",
+      "model": {
+        "home": 0.35007,
+        "draw": 0.229642,
+        "away": 0.420288,
+        "logLoss": 0.8668150884136296,
+        "brier": 0.511350456008
+      },
+      "market": {
+        "home": 0.437,
+        "draw": 0.256,
+        "away": 0.307,
+        "logLoss": 1.18090753139494,
+        "brier": 0.7367540000000001
+      },
+      "logLossGap": -0.31409244298131034
+    },
+    {
+      "eventId": "soccer:epl:brentford-v-leeds-united:20260830t1300",
+      "kickoffUtc": "2026-08-30T13:00:00Z",
+      "matchup": "Leeds United v Brentford",
+      "outcome": "D",
+      "model": {
+        "home": 0.337418,
+        "draw": 0.252361,
+        "away": 0.410221,
+        "logLoss": 1.3768946768942585,
+        "brier": 0.841096249886
+      },
+      "market": {
+        "home": 0.3436,
+        "draw": 0.2769,
+        "away": 0.3796,
+        "logLoss": 1.284098848805221,
+        "brier": 0.7850307300000001
+      },
+      "logLossGap": 0.09279582808903752
+    },
+    {
+      "eventId": "soccer:epl:fulham-v-sunderland:20260830t1300",
+      "kickoffUtc": "2026-08-30T13:00:00Z",
+      "matchup": "Sunderland v Fulham",
+      "outcome": "H",
+      "model": {
+        "home": 0.427055,
+        "draw": 0.287964,
+        "away": 0.284981,
+        "logLoss": 0.8508424684276352,
+        "brier": 0.49240340868200005
+      },
+      "market": {
+        "home": 0.4252,
+        "draw": 0.2869,
+        "away": 0.2878,
+        "logLoss": 0.8551956325143442,
+        "brier": 0.49553548999999997
+      },
+      "logLossGap": -0.004353164086708938
+    },
+    {
+      "eventId": "soccer:epl:ipswich-town-v-manchester-united:20260830t1530",
+      "kickoffUtc": "2026-08-30T15:30:00Z",
+      "matchup": "Manchester United v Ipswich Town",
+      "outcome": "H",
+      "model": {
+        "home": 0.61843,
+        "draw": 0.204067,
+        "away": 0.177503,
+        "logLoss": 0.4805712705958278,
+        "brier": 0.218746320398
+      },
+      "market": {
+        "home": 0.7027,
+        "draw": 0.1747,
+        "away": 0.1226,
+        "logLoss": 0.35282522078398504,
+        "brier": 0.13393814
+      },
+      "logLossGap": 0.1277460498118428
+    },
+    {
+      "eventId": "soccer:epl:arsenal-v-aston-villa:20260831t1900",
+      "kickoffUtc": "2026-08-31T19:00:00Z",
+      "matchup": "Aston Villa v Arsenal",
+      "outcome": "A",
+      "model": {
+        "home": 0.226554,
+        "draw": 0.242488,
+        "away": 0.530958,
+        "logLoss": 0.633072356913653,
+        "brier": 0.330127542824
+      },
+      "market": {
+        "home": 0.1443,
+        "draw": 0.2139,
+        "away": 0.6418,
+        "logLoss": 0.4434785503063805,
+        "brier": 0.19488293999999995
+      },
+      "logLossGap": 0.18959380660727254
+    },
+    {
+      "eventId": "soccer:epl:ipswich-town-v-liverpool:20260904t1900",
+      "kickoffUtc": "2026-09-04T19:00:00Z",
+      "matchup": "Ipswich Town v Liverpool",
+      "outcome": "A",
+      "model": {
+        "home": 0.057025,
+        "draw": 0.107586,
+        "away": 0.835389,
+        "logLoss": 0.17985779435073673,
+        "brier": 0.04192337934199998
+      },
+      "market": {
+        "home": 0.1953,
+        "draw": 0.2187,
+        "away": 0.586,
+        "logLoss": 0.5344354894051245,
+        "brier": 0.25736778000000005
+      },
+      "logLossGap": -0.3545776950543878
+    },
+    {
+      "eventId": "soccer:epl:bournemouth-v-newcastle-united:20260905t1130",
+      "kickoffUtc": "2026-09-05T11:30:00Z",
+      "matchup": "Newcastle United v Bournemouth",
+      "outcome": "D",
+      "model": {
+        "home": 0.656127,
+        "draw": 0.176773,
+        "away": 0.167099,
+        "logLoss": 1.7328888553728332,
+        "brier": 1.136127409459
+      },
+      "market": {
+        "home": 0.4463,
+        "draw": 0.2599,
+        "away": 0.2938,
+        "logLoss": 1.3474583373346924,
+        "brier": 0.83325014
+      },
+      "logLossGap": 0.38543051803814077
+    },
+    {
+      "eventId": "soccer:epl:brentford-v-sunderland:20260905t1400",
+      "kickoffUtc": "2026-09-05T14:00:00Z",
+      "matchup": "Brentford v Sunderland",
+      "outcome": "D",
+      "model": {
+        "home": 0.547202,
+        "draw": 0.241679,
+        "away": 0.211119,
+        "logLoss": 1.4201448796150282,
+        "brier": 0.919052000006
+      },
+      "market": {
+        "home": 0.5622,
+        "draw": 0.2447,
+        "away": 0.1931,
+        "logLoss": 1.407722308533511,
+        "brier": 0.92383454
+      },
+      "logLossGap": 0.01242257108151712
+    },
+    {
+      "eventId": "soccer:epl:crystal-palace-v-fulham:20260905t1400",
+      "kickoffUtc": "2026-09-05T14:00:00Z",
+      "matchup": "Fulham v Crystal Palace",
+      "outcome": "A",
+      "model": {
+        "home": 0.426407,
+        "draw": 0.261461,
+        "away": 0.312132,
+        "logLoss": 1.1643291037213843,
+        "brier": 0.7233471695939999
+      },
+      "market": {
+        "home": 0.4382,
+        "draw": 0.2792,
+        "away": 0.2826,
+        "logLoss": 1.2637228087317098,
+        "brier": 0.7846346400000002
+      },
+      "logLossGap": -0.09939370501032552
+    },
+    {
+      "eventId": "soccer:epl:coventry-city-v-manchester-city:20260905t1400",
+      "kickoffUtc": "2026-09-05T14:00:00Z",
+      "matchup": "Manchester City v Coventry City",
+      "outcome": "H",
+      "model": {
+        "home": 0.989935,
+        "draw": 0.009624,
+        "away": 0.000442,
+        "logLoss": 0.010115994574644653,
+        "brier": 0.00019412096499999982
+      },
+      "market": {
+        "home": 0.7952,
+        "draw": 0.1318,
+        "away": 0.073,
+        "logLoss": 0.22916162363977274,
+        "brier": 0.06464328
+      },
+      "logLossGap": -0.2190456290651281
+    },
+    {
+      "eventId": "soccer:epl:nottingham-forest-v-tottenham-hotspur:20260905t1400",
+      "kickoffUtc": "2026-09-05T14:00:00Z",
+      "matchup": "Nottingham Forest v Tottenham Hotspur",
+      "outcome": "D",
+      "model": {
+        "home": 0.350129,
+        "draw": 0.250515,
+        "away": 0.399357,
+        "logLoss": 1.3842364800104465,
+        "brier": 0.843804095315
+      },
+      "market": {
+        "home": 0.3581,
+        "draw": 0.2797,
+        "away": 0.3622,
+        "logLoss": 1.274037678774223,
+        "brier": 0.7782565399999999
+      },
+      "logLossGap": 0.11019880123622361
+    },
+    {
+      "eventId": "soccer:epl:aston-villa-v-hull-city:20260905t1630",
+      "kickoffUtc": "2026-09-05T16:30:00Z",
+      "matchup": "Hull City v Aston Villa",
+      "outcome": "D",
+      "model": {
+        "home": 0.839877,
+        "draw": 0.152653,
+        "away": 0.00747,
+        "logLoss": 1.8795879071938397,
+        "brier": 1.423446114438
+      },
+      "market": {
+        "home": 0.24,
+        "draw": 0.2621,
+        "away": 0.4979,
+        "logLoss": 1.3390291686527764,
+        "brier": 0.85000082
+      },
+      "logLossGap": 0.5405587385410633
+    },
+    {
+      "eventId": "soccer:epl:everton-v-manchester-united:20260906t1300",
+      "kickoffUtc": "2026-09-06T13:00:00Z",
+      "matchup": "Everton v Manchester United",
+      "outcome": "D",
+      "model": {
+        "home": 0.341827,
+        "draw": 0.282842,
+        "away": 0.375331,
+        "logLoss": 1.262866841135473,
+        "brier": 0.772034654454
+      },
+      "market": {
+        "home": 0.2586,
+        "draw": 0.2471,
+        "away": 0.4942,
+        "logLoss": 1.3979621659875727,
+        "brier": 0.87796601
+      },
+      "logLossGap": -0.13509532485209963
+    },
+    {
+      "eventId": "soccer:epl:arsenal-v-chelsea:20260906t1530",
+      "kickoffUtc": "2026-09-06T15:30:00Z",
+      "matchup": "Arsenal v Chelsea",
+      "outcome": "H",
+      "model": {
+        "home": 0.651776,
+        "draw": 0.190847,
+        "away": 0.157376,
+        "logLoss": 0.42805433436735973,
+        "brier": 0.18244973696099998
+      },
+      "market": {
+        "home": 0.5555,
+        "draw": 0.2453,
+        "away": 0.1992,
+        "logLoss": 0.5878866699024524,
+        "brier": 0.29743298
+      },
+      "logLossGap": -0.15983233553509268
+    }
+  ]
+}

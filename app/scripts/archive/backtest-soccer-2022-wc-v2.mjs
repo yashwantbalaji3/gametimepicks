@@ -11,8 +11,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { projectMatch, brier1x2, rps1x2 } from "../src/lib/world-cup/internal-soccer-projection-engine.ts";
-import { projectMatchV2 } from "../src/lib/world-cup/internal-soccer-projection-engine-v2.ts";
+import { projectMatch, brier1x2, rps1x2 } from "../../src/lib/world-cup/internal-soccer-projection-engine.ts";
+import { projectMatchV2 } from "../../src/lib/world-cup/internal-soccer-projection-engine-v2.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(__dirname, "..", "..");

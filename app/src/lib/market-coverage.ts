@@ -205,7 +205,7 @@ export const MARKET_COVERAGE: readonly MarketCoverage[] = [
   {
     sport: "soccer", market: "corners_cards", publicLabel: "Corners / cards",
     status: "provider_needed", predictionSource: "none",
-    requiredData: ["Corners/cards odds provider", "match-event settlement source"],
+    requiredData: ["Corners/cards odds feed", "match-event settlement source"],
     settlementSupport: "unsupported",
     publicExplanation: "Not offered — needs a set-piece/discipline feed + settlement. On the roadmap.",
   },
