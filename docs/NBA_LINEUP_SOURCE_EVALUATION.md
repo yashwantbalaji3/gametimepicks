@@ -38,3 +38,12 @@ gate: eligibility requires an explicitly labeled official lineup with `sourceAsO
 `scheduledStartUtc`. Post-start evidence, projections, rosters, injuries, absent timestamps and
 unlabeled official claims all refuse with their exact reasons. When a real source is ever
 licensed, its adapter must satisfy this contract — the vocabulary does not bend to the feed.
+
+## Founder decision — 2026-09-10 (P256 · Task 8)
+
+**Defer.** Asked to choose between reviewing the NBA.com terms, evaluating a licensed feed, or deferring,
+the founder chose to defer. NBA proceeds without official pre-start lineups and says so wherever an NBA
+model surface exists; today NBA is HISTORICAL_ONLY (the settled archive only), so nothing live depends on
+lineups. Revisit before the regular season's first week (late October): the adapter contract above is
+unchanged, and any future source must still satisfy `lineupShadowEligibility` with provably pre-start
+timestamps.
