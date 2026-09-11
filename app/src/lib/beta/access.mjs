@@ -18,6 +18,9 @@ import { canPublishLegalSet } from "../legal/content-manifest.mjs";
 
 export const BETA_ACCESS_VERSION = 1;
 
+/** The founder's written-disclosure alternative to approved legal pages (P256, 2026-09-10). */
+export const WRITTEN_LEGAL_NOTICE = "WRITTEN_NOTICE_TO_TESTERS";
+
 const EMAIL_SHAPED = /[^\s@]+@[^\s@]+\.[^\s@]{2,}/;
 const ROSTER_FIELDS = /^(email|emails|name|names|participants?|roster|phone|address)$/i;
 
@@ -42,11 +45,15 @@ export function validateCohortContract(c) {
 }
 
 /** The invitation prerequisite gate. Nothing invites until every prerequisite holds for real. */
-export function invitationPrerequisites({ supportState, legalManifest, analyticsDecision }) {
+export function invitationPrerequisites({ supportState, legalManifest, analyticsDecision, legalDisclosure = null }) {
   const blockedBy = [];
   if (supportState !== "CONFIGURED") blockedBy.push(`support is ${supportState ?? "UNKNOWN"} — testers need a real, monitored destination before they hit a problem`);
   const legal = canPublishLegalSet(legalManifest ?? {});
-  if (!legal.allowed) blockedBy.push(`legal set unpublishable (${legal.blocked.length} section(s) blocked) — beta terms cannot reference unapproved text`);
+  /* The cohort contract's one alternative to published legal text (docs/PRIVATE_BETA_COHORT_CONTRACT.md
+     §7: "legal (hard, or explicit written disclosure to testers)"). Only the founder's explicit choice
+     satisfies it, and only in that exact form — the invitation kit then carries the notice verbatim. */
+  const disclosed = legalDisclosure === WRITTEN_LEGAL_NOTICE;
+  if (!legal.allowed && !disclosed) blockedBy.push(`legal set unpublishable (${legal.blocked.length} section(s) blocked) — beta terms cannot reference unapproved text`);
   if (analyticsDecision !== "ENABLED" && analyticsDecision !== "DEFERRED_BY_FOUNDER") {
     blockedBy.push("analytics undecided — either enabled or an explicit founder deferral; silence is not a decision");
   }

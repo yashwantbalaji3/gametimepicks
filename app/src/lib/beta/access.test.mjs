@@ -5,6 +5,8 @@
  * Run: npx tsx --test src/lib/beta/access.test.mjs
  */
 import { test } from "node:test";
+import fs from "node:fs";
+import path from "node:path";
 import assert from "node:assert/strict";
 
 import { validateCohortContract, invitationPrerequisites, resolveBetaAccess } from "./access.mjs";
@@ -47,4 +49,25 @@ test("access is deny-by-default at every layer; revocation beats presence", () =
   assert.equal(resolveBetaAccess({ allowlistConfigured: true, entryPresent: true, windowOpen: true, revoked: true }).allow, false);
   assert.equal(resolveBetaAccess({ allowlistConfigured: true, entryPresent: true, windowOpen: false }).allow, false);
   assert.equal(resolveBetaAccess({ allowlistConfigured: true, entryPresent: true, windowOpen: true }).allow, true);
+});
+
+test("P256 · the founder's written notice satisfies the legal prerequisite — nothing else does", async () => {
+  const { WRITTEN_LEGAL_NOTICE } = await import("./access.mjs");
+  const base = { supportState: "CONFIGURED", legalManifest: LEGAL_CONTENT_MANIFEST, analyticsDecision: "ENABLED" };
+  assert.equal(invitationPrerequisites(base).ready, false, "unpublished legal still blocks by default");
+  assert.equal(invitationPrerequisites({ ...base, legalDisclosure: WRITTEN_LEGAL_NOTICE }).ready, true);
+  assert.equal(invitationPrerequisites({ ...base, legalDisclosure: "yes" }).ready, false, "only the exact recorded choice counts");
+  assert.equal(invitationPrerequisites({ ...base, supportState: "NOT_CONFIGURED", legalDisclosure: WRITTEN_LEGAL_NOTICE }).ready, false, "the notice never stands in for support");
+});
+
+test("P256 · the committed friends-beta contract is valid, PII-free, and its kit carries the notice verbatim", async () => {
+  const { WRITTEN_LEGAL_NOTICE } = await import("./access.mjs");
+  const repo = path.resolve(process.cwd(), "..");
+  const c = JSON.parse(fs.readFileSync(path.join(repo, "data/internal/beta/cohort-contract.json"), "utf8"));
+  assert.deepEqual(validateCohortContract(c), { valid: true, errors: [] });
+  assert.equal(c.legalDisclosure, WRITTEN_LEGAL_NOTICE);
+  const kit = fs.readFileSync(path.join(repo, "docs/beta/INVITATION_KIT.md"), "utf8");
+  assert.match(kit, /Terms of Use and Privacy Notice are still under legal review/);
+  assert.match(kit, /adults 18 and older in the US/);
+  assert.doesNotMatch(kit, /[^\s@]+@[^\s@]+\.[a-z]{2,}/i, "no email address in the kit — feedback goes through the site's support link");
 });

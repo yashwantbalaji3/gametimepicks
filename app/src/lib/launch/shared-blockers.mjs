@@ -119,8 +119,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["shared"],
     unlocks: "the private beta itself",
-    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
-    engineeringEvidence: "lib/beta/access: PII structurally refused (email-shaped values + roster-like fields fail validation anywhere in the object), deny-by-default access with revocation-wins, and the invitation prerequisite gate that blocks until support is CONFIGURED, the legal set is publishable, and analytics is explicitly decided — P164 Release 6, on top of the existing operating docs",
+    engineeringState: "FOUNDER_ACTION_PROVIDED",
+    engineeringEvidence: "founder decided 2026-09-10: a friends cohort of up to 5 (1-2 is still useful), 14 days from 2026-09-11, Option A (public site, observational), with the written legal notice in place of approved pages (the cohort contract's stated alternative) — recorded PII-free in data/internal/beta/cohort-contract.json (validateCohortContract), invitation kit + tester-code feedback log in docs/beta/, and lib/beta/access accepts only that exact recorded disclosure (support must still be CONFIGURED)",
     founderAction: "choose cohort size (contract recommends 8), access option, start window, and sourcing channel — and hold the roster OUTSIDE git",
     requiredValues: [
       { name: "cohort decision", format: "size + start window + access option (allowlist recommended) + sourcing channel", where: "reply in chat; the roster itself goes to the access provider directly, never the repository", neverShare: "participant names/emails — no PII in git, tickets, logs, or artifacts, ever" },
