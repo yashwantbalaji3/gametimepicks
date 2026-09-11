@@ -333,7 +333,9 @@ jobs:
             git reset
             exit 0
           fi
-          git commit -m "auto: daily products ${{ steps.d.outputs.date }} [skip ci]"
-          # Fast-forward over the nightly bot rather than racing it.
-          git pull --rebase --autostash origin main
-          git push origin HEAD:main
+          # P257: two runs regenerating the same day's files (lab ledger, forward coverage, today's receipt)
+          # used to fail the second one on a rebase conflict (2026-09-11 15:13 UTC). The helper retries the
+          # push and resolves a conflict INSIDE these generated paths to this (later) run's copy; any other
+          # conflict — and the protected money files, always — fails loud.
+          GENERATED_PATHS="app/public/data/mr-dub/daily-portfolio.json app/public/data/admin/ data/internal/products/ app/public/data/parlays/" \
+            bash scripts/ci/commit-generated.sh "auto: daily products ${{ steps.d.outputs.date }} [skip ci]"

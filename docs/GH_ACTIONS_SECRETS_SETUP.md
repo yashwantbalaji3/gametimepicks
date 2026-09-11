@@ -1,5 +1,8 @@
 # GitHub Actions Secrets — Turn On Daily Automation
 
+> **Retired 2026-09-11 (P257 pipeline review):** `world-cup-odds.yml` and `world-cup-stats-discovery.yml` were removed — the 2026 World Cup is closed, neither had run since June, and both could spend `ODDS_API_KEY` / `API_FOOTBALL_KEY` credits if dispatched. Mentions below are historical.
+
+
 The daily refresh / settlement / deploy workflows already exist; they **fail closed (no-op) until these repo
 secrets are added**. Adding them is the single highest-leverage fix for the weekend-stale problem.
 

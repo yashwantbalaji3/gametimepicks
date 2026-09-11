@@ -1,0 +1,51 @@
+# Pregame weather for MLB and NFL — research tables, $0, public-domain forecasts (P257 · data sources).
+#
+# National Weather Service hourly forecasts at each venue (MLB parks from StatsAPI coordinates; NFL stadiums
+# from data/internal/research/nfl/stadiums-v1.json). Domes are recorded as such. Nothing here feeds a model
+# or a public page until a preregistration says so; historical weather for backtests comes from what the
+# leagues record (StatsAPI game weather, nflverse games.csv).
+name: weather-capture
+
+on:
+  schedule:
+    - cron: "10 13 * * *"   # 09:10 ET — the day's MLB slate and the NFL week, well before first pitch
+    - cron: "10 20 * * *"   # 16:10 ET — a fresher look before evening games
+  workflow_dispatch: {}
+
+concurrency:
+  group: weather-capture     # own group: never cancels (or is cancelled by) a pending product run
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: MLB — today and tomorrow
+        working-directory: app
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          for D in "$(TZ=America/New_York date +%F)" "$(TZ=America/New_York date -d tomorrow +%F)"; do
+            node scripts/mlb/capture-mlb-weather.mjs --date "$D" --now "$NOW"
+          done
+      - name: NFL — the next seven days
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/capture-nfl-weather.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      - name: Commit the research tables
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/research/mlb/weather/ data/internal/research/nfl/weather/ 2>/dev/null || true
+          GENERATED_PATHS="data/internal/research/mlb/weather/ data/internal/research/nfl/weather/" \
+            bash scripts/ci/commit-generated.sh "auto: pregame weather capture [skip ci]"
