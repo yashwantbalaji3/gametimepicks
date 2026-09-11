@@ -71,6 +71,7 @@ const inputs = {
   mlbBoard: { date: DATE, present: Boolean(board), games: boardGames, leans: boardLeans, hash: hash(path.join(DATA, `mlb/boards/${DATE}.json`)) },
   nflMarket: { present: Boolean(nflMarkets), capturedAt: nflMarkets?.capturedAt ?? null, events: nflMarkets?.eventCount ?? 0 },
   nflModelEligible,
+  get portfolioSource() { return portfolioSource; },
   nflNote: nflModelEligible
     ? "NFL model layer is publishable and may contribute legs"
     : `NFL contributes NO legs: ${nflStatus?.teamSimulation?.state ?? "UNKNOWN"} — sportsbook prices are not a GameTimePicks pick`,
@@ -79,11 +80,30 @@ const inputs = {
 // ---------------------------------------------------------------- run the LIVE authority
 let portfolio = null;
 let evaluationError = null;
+let portfolioSource = null;
+/*
+ * P256 · WHAT THE PRODUCT PUBLISHED, NOT A SECOND OPINION.
+ *
+ * This called buildPersistedDailyPortfolio(..., activate=false) — the CANDIDATE view, in which no lane
+ * is ever "active". Every day with four placed cards (2026-09-09, -10, -11: $250 at risk) was
+ * therefore recorded as Bank Builder NO_PLAY and Moonshot NO_PLAY, with the acceptance reason
+ * ("the card reaches the rung target") printed as a rejection. The receipt exists so it "can never
+ * disagree with the product" — so it now reads the daily portfolio the product actually published
+ * for this date, and only evaluates (with the live activation policy, exactly as
+ * activate-daily-portfolio.mjs --apply does) when no published portfolio for the date exists.
+ */
 if (board) {
-  try {
-    portfolio = buildPersistedDailyPortfolio(DATA, NOW, DATE, NOW, false);
-  } catch (e) {
-    evaluationError = String(e?.message ?? e);
+  const published = read(path.join(DATA, "mr-dub", "daily-portfolio.json"));
+  if (published?.date === DATE && Array.isArray(published.lanes)) {
+    portfolio = published;
+    portfolioSource = "published mr-dub/daily-portfolio.json";
+  } else {
+    try {
+      portfolio = buildPersistedDailyPortfolio(DATA, NOW, DATE, NOW, true);
+      portfolioSource = "live evaluation (activation policy applied; no published portfolio for this date)";
+    } catch (e) {
+      evaluationError = String(e?.message ?? e);
+    }
   }
 }
 
@@ -107,8 +127,8 @@ function productEntry(product, label) {
   // rejection reasons come VERBATIM from the live policy — this script never invents one
   const rejections = lanes
     .filter((l) => l.status !== "active")
-    .map((l) => ({ lane: l.lane, step: l.step, status: l.status, legsFound: l.legCount, legsRequired: l.targetLegs, reason: l.activationEligibility?.reason ?? "no reason recorded by the policy" }));
-  const candidatesEvaluated = lanes.reduce((s, l) => s + (l.legCount ?? 0), 0);
+    .map((l) => ({ lane: l.lane, step: l.step, status: l.status, legsFound: l.legCount ?? l.legs?.length ?? 0, legsRequired: l.targetLegs, reason: l.activationEligibility?.reason ?? "no reason recorded by the policy" }));
+  const candidatesEvaluated = lanes.reduce((s, l) => s + (l.legCount ?? l.legs?.length ?? 0), 0);
 
   if (active.length) {
     return {
@@ -116,7 +136,7 @@ function productEntry(product, label) {
       reason: `${active.length} lane(s) qualified under the live activation policy`,
       candidatesEvaluated,
       rejections,
-      card: active.map((l) => ({ id: l.id, lane: l.lane, step: l.step, legCount: l.legCount, combinedOdds: l.combinedOdds, exposure: l.exposure, potentialReturn: l.potentialReturn })),
+      card: active.map((l) => ({ id: l.id, lane: l.lane, step: l.step, legCount: l.legCount ?? l.legs?.length ?? 0, combinedOdds: l.combinedOdds, exposure: l.exposure, potentialReturn: l.potentialReturn })),
     };
   }
   return {

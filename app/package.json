@@ -3,6 +3,7 @@
   "version": "0.3.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/build-search-index.mjs",
     "dev": "next dev",
     "build": "node scripts/build-info.mjs --emit && node scripts/build-search-index.mjs && next build && node scripts/prune-internal-routes.mjs && node scripts/build-info.mjs --publish",
     "start": "npx serve@latest out",

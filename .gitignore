@@ -115,3 +115,8 @@ app/.build-info.json
 data/internal/research/epl/players/raw/
 *.mutation-probe.ts
 *.mutation-probe.mjs
+
+# P256 · the site search index is GENERATED at build time (app/package.json build → build-search-index.mjs)
+# and fetched from the built site. Committing it made every bot that touched app/public/data/ race
+# over one regenerated file: an overnight auto-refresh died on the merge conflict (2026-09-11).
+app/public/data/search/index.json

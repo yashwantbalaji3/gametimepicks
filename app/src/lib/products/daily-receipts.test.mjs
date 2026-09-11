@@ -90,3 +90,25 @@ test("MOONSHOT POLICY FORK · the dormant band is labelled and the live authorit
   assert.notEqual(dormantMin, liveMin, "the fork is real and recorded — resolving it is a deliberate change, not a drift");
   assert.match(receipt.authorities.moonshot, /MOONSHOT_MIN_COMBINED_ODDS/, "the receipt names the live band");
 });
+
+test("P256 · the receipt reads what the product PUBLISHED — never the candidate view", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/products/build-daily-product-receipts.mjs"), "utf8");
+  assert.ok(!/buildPersistedDailyPortfolio\([^)]*,\s*false\s*\)/.test(src), "activate=false is the candidate view — no lane is ever active there");
+  const pub = src.indexOf('"mr-dub", "daily-portfolio.json"');
+  const evalCall = src.indexOf("buildPersistedDailyPortfolio(DATA");
+  assert.ok(pub > 0 && evalCall > pub, "the published portfolio is consulted before any evaluation");
+});
+
+test("P256 · a day's receipt agrees with that day's published portfolio", () => {
+  const dp = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/mr-dub/daily-portfolio.json"), "utf8"));
+  const rp = path.join(process.cwd(), "..", "data/internal/products/receipts", `${dp.date}.json`);
+  if (!fs.existsSync(rp)) return; // the roll-forward dates the portfolio before the products job writes its receipt
+  const r = JSON.parse(fs.readFileSync(rp, "utf8"));
+  for (const product of ["bank-builder", "moonshot"]) {
+    const active = dp.lanes.filter((l) => l.product === product && l.status === "active");
+    const entry = r.products.find((p) => p.product === product);
+    assert.equal(entry.state, active.length ? "ACTIVE" : entry.state === "INPUTS_MISSING" ? "INPUTS_MISSING" : "NO_PLAY",
+      `${dp.date} ${product}: the portfolio has ${active.length} active lane(s), the receipt says ${entry.state}`);
+    if (active.length) assert.equal(entry.card.length, active.length, `${product}: one card per active lane`);
+  }
+});
