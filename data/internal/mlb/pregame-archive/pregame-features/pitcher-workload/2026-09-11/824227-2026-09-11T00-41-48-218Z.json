@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824227,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T00:41:48.218Z",
+  "availableAt": "2026-09-11T00:41:48.218Z",
+  "eventStartTime": "2026-09-11T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 664285,
+      "name": "Framber Valdez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 3.2,
+        "bbAvg": 2.6,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 4.75,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 157.67,
+        "k": 119,
+        "bb": 58,
+        "er": 73,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 690279,
+      "name": "Mason Adams",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 3,
+        "ipSum": 13.67,
+        "ipAvg": 4.56,
+        "kAvg": 5.67,
+        "bbAvg": 2,
+        "erAvg": 2,
+        "hrAvg": 1.33,
+        "kPer9": 11.2,
+        "workloadIpLast5": 13.67
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 13.67,
+        "k": 17,
+        "bb": 6,
+        "er": 6,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T00:41:48.218Z"
+  },
+  "recordHash": "c4cd04adbb0a7a7cca24bad28a316644f54dd2befd98ab8edd42e6abd9894e44"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824711,
+  "date": "2026-09-11",
+  "capturedAt": "2026-09-11T00:41:48.218Z",
+  "availableAt": "2026-09-11T00:41:48.218Z",
+  "eventStartTime": "2026-09-11T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 543243,
+      "name": "Sonny Gray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 5.8,
+        "bbAvg": 1.6,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 8.42,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 150.67,
+        "k": 135,
+        "bb": 40,
+        "er": 45,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 607625,
+      "name": "Seth Lugo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 6,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 3,
+        "bbAvg": 1,
+        "erAvg": 4.6,
+        "hrAvg": 0.4,
+        "kPer9": 5.55,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 159,
+        "k": 119,
+        "bb": 51,
+        "er": 89,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-11T00:41:48.218Z"
+  },
+  "recordHash": "6b07a22a184355cd607b9e419b0a7274219b5ada97608d73b2c59c11b96e4f88"
+}
