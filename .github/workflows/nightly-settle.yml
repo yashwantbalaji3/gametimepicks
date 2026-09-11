@@ -668,8 +668,13 @@ jobs:
           # is the same failure that cost this repo a 62-hour freshness outage.
           # portfolio.json is the protected money authority. Since 2026-09-10 the founder authorized ONE
           # automated writer for it — the Rule S fold above, which refuses unless the invariant holds —
-          # so it is committed here. banked-ladders.json remains founder-only and is NEVER auto-committed.
+          # so it is committed here, TOGETHER with the two files the fold writes beside it. Committing
+          # portfolio.json alone (2026-09-11) left ledger.json one day behind the bankroll: the health gate
+          # passed in this run and failed in every fresh checkout after it, and morning-projections aborted
+          # three times. banked-ladders.json remains founder-only and is NEVER auto-committed.
           git add app/public/data/mr-dub/portfolio.json 2>/dev/null || true
+          git add app/public/data/mr-dub/ledger.json 2>/dev/null || true
+          git add app/public/data/mr-dub/daily-summary.json 2>/dev/null || true
           git add app/public/data/mr-dub/settled/ 2>/dev/null || true
           # Without these two the Lab would grade every night and have its output dropped — the same
           # shape as the 62-hour freshness outage, where a step ran green and its result never landed.
