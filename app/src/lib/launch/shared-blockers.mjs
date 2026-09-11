@@ -34,8 +34,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["nfl", "nba", "epl", "ufc"],
     unlocks: "no-vig market comparison — the last missing shadow input for NFL (READY_EXCEPT_ODDS) and one of several for NBA/EPL/UFC",
-    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
-    engineeringEvidence: "lib/sports/odds/snapshot-contract (provider-neutral, no-vig with the vig visible, fail-closed secret shapes, population-exact validation) + four-sport sanitized fixtures + scripts/ops/odds-canary.mjs (dry-run default, authorization flag, ceiling 5 + floor 50, single sport/market, redacted, self-leak-scanned) — P164 Release 2; refusals proven as real subprocesses",
+    engineeringState: "FOUNDER_ACTION_PROVIDED",
+    engineeringEvidence: "founder authorized credit spend on 2026-09-10 ('We are not even using 30-40% of the credit limit we get per month - so we can afford to be lavish on spending API credits'); the NFL capture's P171 receipt had lapsed at its program's close and refused every window since (AUTHORIZATION_EXPIRED; 69 of 3,000 credits ever used) — renewed as docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md (team markets only, 500-credit season ceiling, expiry at the ceiling; both receipt parsers accept it, the P171 file still refuses); nfl-event-window reads it without the prop probe (props are out of scope); the canary runs in CI via .github/workflows/odds-canary.yml because the local key is dead (401); provider balance 16,044 on 2026-09-10 — CLOSED on the canary receipt and the first authorized NFL capture",
     founderAction: "confirm The Odds API plan covers NFL/NBA/EPL/UFC market reads within existing credits, then authorize ONE canary run (single sport, single event, hard credit ceiling)",
     requiredValues: [
       { name: "ODDS_API_KEY", format: "existing repository-CI secret — already set for MLB; NO new secret needed", where: "GitHub Actions secrets (already present)", neverShare: "the key value itself — never in chat, commits, or logs" },
@@ -51,8 +51,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["nba"],
     unlocks: "the lineups half of NBA's injuriesLineups input — the last non-odds gap for NBA shadow readiness",
-    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
-    engineeringEvidence: "free sources REJECTED with probe receipts (docs/NBA_LINEUP_SOURCE_EVALUATION.md); the six-class lineup contract is committed and any licensed adapter must pass lineupShadowEligibility (P163-B)",
+    engineeringState: "FOUNDER_ACTION_PROVIDED",
+    engineeringEvidence: "founder chose DEFER on 2026-09-10: NBA proceeds without official lineups and the limitation stays stated; NBA is HISTORICAL_ONLY until its season starts in late October, so no live surface depends on lineups today; revisit before tip-off week with nba-com-terms-reviewed or licensed-feed:<vendor> (docs/NBA_LINEUP_SOURCE_EVALUATION.md)",
     founderAction: "decide the source path: (a) review NBA.com official-lineup terms for permitted use, (b) evaluate a licensed data feed, or (c) defer — NBA proceeds without lineups and the model card carries the limitation",
     requiredValues: [
       { name: "source decision", format: "one of: nba-com-terms-reviewed | licensed-feed:<vendor> | defer", where: "reply in chat; if a licensed feed, credentials go to CI secrets later via their own card", neverShare: "any credentials until the engineering card for the chosen path exists" },
@@ -135,8 +135,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["shared"],
     unlocks: "the founder reading the command center without a local checkout",
-    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
-    engineeringEvidence: "docs/ADMIN_ACCESS_DECISION.md (recommended: host-level protection on a separate internal deployment; URL-hiding and client prompts named insufficient) + lib/admin/access-contract (deny-by-default on every missing input, session expiry, noindex/no-store headers) with synthetic fixtures — P164 Release 7; public pruning unchanged and still gate-proven",
+    engineeringState: "VERIFYING",
+    engineeringEvidence: "Option 1 has been live since 2026-08-12 as the separate, SSO-protected gtp-ops project (docs/ADMIN_DEPLOYMENT_GTP_OPS.md); redeployed 2026-09-11 from 44aab660d with the internal build (so /launch and the legal review drafts are current) and re-verified: unauthenticated → 302 to Vercel SSO with no content, deny responses no-store, public /launch and /ops 404, the removed gtp-ops.vercel.app domain 404 — the authenticated half (founder signs in with the Vercel account → /launch renders) closes it",
     founderAction: "choose the hosting/auth option from the decision record (recommended: a separate password-protected preview deployment with server-side auth), then authorize its setup",
     requiredValues: [
       { name: "hosting/auth choice", format: "one of the decision record's options", where: "reply in chat", neverShare: "any auth secret goes to the hosting provider's env, never chat or git" },

@@ -78,3 +78,20 @@ npx tsx scripts/ops/verify-admin-access.mjs --url https://<team-scoped-generated
 
 `app/.vercel/` (the project link) is gitignored; the public project is never linked from this
 checkout.
+
+## Redeploy receipt — 2026-09-11 (P256 · Task 6)
+
+Redeployed with the runbook above from repository commit `44aab660d`, so the protected console carries the
+current `/launch` and the gated legal drafts for review. The command refused to run unless the local
+link was `gtp-ops` (the internal build must never reach the public project).
+
+`verify-admin-access.mjs` against the team-scoped URL and the new deployment URL (both private, not
+recorded here):
+
+- unauthenticated `/launch` → 302 to Vercel SSO, no content bytes — OK
+- deny responses `cache-control: no-store, max-age=0` — OK
+- public production `/launch` and `/ops` → 404 — OK
+- the removed `gtp-ops.vercel.app` domain → 404 — OK (no production domain was re-attached)
+
+Remaining: the authenticated half, founder-run — sign in with the Vercel account, confirm `/launch`
+renders, sign out, confirm the challenge returns.
