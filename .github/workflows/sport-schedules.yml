@@ -31,6 +31,7 @@ concurrency:
 
 permissions:
   contents: write
+  actions: write   # P257: start nfl-event-window when the NFL injury facts change (below)
 
 jobs:
   capture:
@@ -399,6 +400,34 @@ jobs:
           git commit -m "auto: injuries facts capture [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
+
+      # ── NEW NFL DESIGNATIONS MUST REACH THE BOARDS (P257 · 2026-09-11) ─────────────────────────
+      #
+      # This job captures NFL injuries twice a day but builds nothing from them; only nfl-event-window
+      # rebuilds role evidence → participation → simulations → player boards. So the published boards
+      # carried role evidence from 02:20 UTC while the injury file said 13:29 UTC — a player designated
+      # after the last window could still rank (gameday-evidence.test.mjs caught it). When the NFL facts
+      # actually changed, start the window: it re-captures, rebuilds the whole chain consistently, and
+      # skips cleanly when no NFL game is left in the current week. NBA-only changes start nothing.
+      - name: Rebuild the NFL boards when the NFL injury facts changed
+        if: github.event.inputs.dry_run != 'true' && steps.injuries.outputs.state == 'CAPTURED'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          F=data/internal/research/injuries/nfl/latest.json
+          if node -e "
+            const { execSync } = require('child_process');
+            const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; delete o.sourceAsOf; return JSON.stringify(o); };
+            let before = null; try { before = execSync('git show HEAD~1:$F', { encoding: 'utf8' }); } catch {}
+            const committed = execSync('git log -1 --format=%s', { encoding: 'utf8' }).startsWith('auto: injuries facts capture');
+            process.exit(committed && before && strip(before) !== strip(require('fs').readFileSync('$F', 'utf8')) ? 0 : 1);
+          "; then
+            gh workflow run nfl-event-window.yml --ref main
+            echo "::notice::NFL injury facts changed — nfl-event-window started to rebuild the boards"
+          else
+            echo "NFL injury facts unchanged (or nothing committed) — no rebuild needed"
+          fi
 
       - name: Capture UFC current results (ESPN MMA scoreboard, no key; honest empty states)
         id: ufcresults

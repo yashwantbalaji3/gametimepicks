@@ -48,8 +48,11 @@ test("team markets expose moneyline / run line / total — and NOT team total", 
   }
 });
 
-test("no sportsbook row carries its own capture timestamp — freshness is FILE-level only", () => {
-  // This is why no per-market "updated N minutes ago" claim is supportable.
+test("freshness is FILE-level only — a row's capture stamp, where one exists, is the file's own", () => {
+  // This is why no per-market "updated N minutes ago" claim is supportable: every row in a file was
+  // captured in the same pass. P255a (2026-09-10) stamps each team-market row with capturedAt so the
+  // ingest can refuse an in-game line (capturedAt after first pitch) — that stamp is the PASS time,
+  // identical for every row and equal to the file's generatedAt, never a per-market update time.
   const tm = newestIn("mlb/team-markets");
   const pp = newestIn("mlb/player-props");
   assert.ok(tm && pp, "both MLB market artifacts must exist");
@@ -57,9 +60,14 @@ test("no sportsbook row carries its own capture timestamp — freshness is FILE-
   assert.ok(tm.json.generatedAt, "team-markets must carry a file-level generatedAt");
   assert.ok(pp.json.generatedAt, "player-props must carry a file-level generatedAt");
 
+  const games = Object.values(tm.json.games ?? {});
+  for (const g of games) {
+    if (g.capturedAt != null) assert.equal(g.capturedAt, tm.json.generatedAt, "a team-market row's capturedAt is the pass time, never its own");
+    assert.equal(g.lastUpdate ?? null, null, "no per-game provider update time is carried");
+    assert.equal(g.sourceTimestamp ?? null, null, "no per-game source timestamp is carried");
+  }
   const rowTimestamped = (rows) =>
     rows.filter((r) => r.capturedAt != null || r.lastUpdate != null || r.sourceTimestamp != null);
-  assert.deepEqual(rowTimestamped(Object.values(tm.json.games ?? {})), [], "no per-game capture timestamp exists");
   assert.deepEqual(rowTimestamped(pp.json.props ?? []), [], "no per-prop capture timestamp exists");
 });
 

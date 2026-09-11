@@ -71,8 +71,13 @@ function makeRoot({ scheduleRows }) {
   return { root, app };
 }
 
+/* The REAL committed schedule capture — PINNED to the last one taken before the Week 1 opener kicked off.
+   This read latest.json, which rotted the moment the opener went final (2026-09-11): the fixture's first
+   rows stopped being a pre-kickoff Week 1, so the phase-refusal scenarios had nothing to refuse. A dated
+   capture never changes; latest.json always will. */
+const WEEK1_PREKICKOFF_CAPTURE = "capture-2026-09-10T1644.json";
 const realWeek1Rows = () => JSON.parse(
-  fs.readFileSync(path.join(APP, "public", "data", "nfl", "schedule", "latest.json"), "utf8"),
+  fs.readFileSync(path.join(APP, "public", "data", "nfl", "schedule", WEEK1_PREKICKOFF_CAPTURE), "utf8"),
 ).rows.filter((r) => r.seasonType === 2);
 
 const runBuilder = (app, now, extra = []) => spawnSync(
