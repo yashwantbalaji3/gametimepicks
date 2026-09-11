@@ -55,8 +55,8 @@
    },
    {
     "id": "L2_calibration",
-    "statement": "poisson holdout DRAW ECE (10-bin, the draw probability alone) ≤ 0.030",
-    "why": "A public probability must mean what it says. This is the calibration metric the EPL model card reports (drawEce 0.0262). All-outcome ECE is reported beside it, not gating."
+    "statement": "poisson DRAW ECE (10-bin, the draw probability alone) over ALL scored seasons (2023-24, 2024-25, 2025-26) ≤ 0.030",
+    "why": "A public probability must mean what it says. This is the metric AND the population of the EPL model card's reference (drawEce 0.0262 over its 1,140 scored matches). Per-season and all-outcome ECE are reported beside it, not gating."
    },
    {
     "id": "L3_development_consistency",
@@ -68,7 +68,8 @@
  "reportedNotGating": {
   "elo": "poisson vs elo holdout log loss is reported. EPL's published model does NOT beat Elo on 2025-26 (1.045 vs 1.026), so gating other leagues on it would hold them to a standard EPL itself does not meet; it stays a disclosed limitation, exactly as for EPL.",
   "market": "model − market holdout log loss is reported. Every model in this repository has lost to the closing market; this comparison is never marketed as beating anything and never gates publication of a model-only forecast.",
-  "allOutcomeEce": "poisson holdout all-outcome ECE is reported for every league (EPL control: 0.0516)."
+  "allOutcomeEce": "poisson holdout all-outcome ECE is reported for every league (EPL control: 0.0516).",
+  "perSeasonEce": "per-season draw ECE and all-outcome ECE are reported for every league (EPL control: draw 0.0081 / 0.0263 / 0.0524; all-outcome holdout 0.0516)."
  },
  "stoppingRule": "One run per league for this version. A rejected league stays rejected for epl-model-v1-split-poisson; any variant (shrinkage, Dixon-Coles, decay, league-specific parameters) needs its own preregistration and a season nobody has looked at.",
  "whatThisDoesNotTest": "Player markets (Phase C, separate preregistration), prices, cross-league competitions, or whether any forecast beats the market.",
@@ -81,7 +82,16 @@
    "now": "poisson holdout DRAW ECE (10-bin, the draw probability alone) ≤ 0.030",
    "why": "The v1 text named an all-outcome ECE but cited EPL's DRAW ECE (0.0262) as its reference. The H0 parity run on the EPL control showed the published EPL model's all-outcome holdout ECE is 0.0516 — so v1 would have held new leagues to a standard the EPL model does not meet, contradicting this registration's stated purpose ('exactly the evidence EPL was published on'). Amended to the metric the reference actually is.",
    "whatWasSeen": "ONLY the EPL control (already public in reports/model-v1-evaluation.json). No LaLiga, Serie A, Bundesliga or Ligue 1 prediction had been scored when this amendment was committed."
+  },
+  {
+   "version": "1.2",
+   "at": "2026-09-11T15:05:00Z",
+   "bar": "L2_calibration",
+   "was": "poisson holdout DRAW ECE ≤ 0.030 (holdout season only)",
+   "now": "poisson DRAW ECE over ALL scored seasons ≤ 0.030",
+   "why": "v1.1 fixed the metric but not the population. The EPL reference (0.0262) is computed over all three scored seasons; a 10-bin ECE on one 380-match season is noise-dominated — the EPL control itself reads 0.0081 / 0.0263 / 0.0524 across its three seasons. v1.1 would have compared a new league's single season against a three-season reference. This is the reference's own population. No further amendment will be made to this version.",
+   "whatWasSeen": "ONLY the EPL control. No LaLiga, Serie A, Bundesliga or Ligue 1 prediction had been scored when this amendment was committed."
   }
  ],
- "registeredVersion": "1.1"
+ "registeredVersion": "1.2"
 }

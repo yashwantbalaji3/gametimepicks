@@ -39,7 +39,7 @@ if (L.key === "epl") {
 const h = holdout;
 const bars = [
   { id: "L1_skill", value: { poisson: S("poisson", h).logLoss, empirical: S("empirical", h).logLoss }, pass: S("poisson", h).logLoss <= S("empirical", h).logLoss - 0.005 },
-  { id: "L2_calibration", value: { drawEce: S("poisson", h).drawEce, allOutcomeEceReported: S("poisson", h).ece }, pass: S("poisson", h).drawEce <= 0.03 },
+  { id: "L2_calibration", value: { drawEceAllScored: scores.poisson.overall.drawEce, holdoutDrawEceReported: S("poisson", h).drawEce, holdoutAllOutcomeEceReported: S("poisson", h).ece }, pass: scores.poisson.overall.drawEce <= 0.03 },
   { id: "L3_development_consistency", value: Object.fromEntries(development.map((s) => [s, { poisson: S("poisson", s).logLoss, empirical: S("empirical", s).logLoss }])), pass: development.every((s) => S("poisson", s).logLoss <= S("empirical", s).logLoss - 0.005) },
 ];
 const verdict = L.key === "epl" ? (parity.pass ? "CONTROL_PARITY_PASS" : "CONTROL_PARITY_FAIL — every league verdict is VOID") : (bars.every((b) => b.pass) ? "ACCEPTED_FOR_MODEL_ONLY_FORECASTS" : "REJECTED");
@@ -57,6 +57,6 @@ fs.mkdirSync(path.join(dir, "reports"), { recursive: true });
 fs.writeFileSync(path.join(dir, "reports", "walk-forward-v1.json"), JSON.stringify(report, null, 1) + "\n");
 const fmt = (m) => [...development, h].map((s) => `${s} ${S(m, s)?.logLoss ?? "—"}`).join(" · ");
 console.log(`[backtest] ${L.name}: ${verdict}`);
-for (const m of MODELS) console.log(`  ${m.padEnd(9)} ${fmt(m)}${m === "poisson" ? ` · holdout drawECE ${S(m, h).drawEce} (all-outcome ${S(m, h).ece})` : ""}`);
+for (const m of MODELS) console.log(`  ${m.padEnd(9)} ${fmt(m)}${m === "poisson" ? ` · drawECE(all scored) ${scores[m].overall.drawEce} · holdout drawECE ${S(m, h).drawEce}` : ""}`);
 if (parity) for (const r of parity.rows.filter((x) => Math.abs(x.diff ?? 9) > 0.003)) console.log(`  PARITY MISS ${r.model} ${r.season}: harness ${r.harness} vs ${r.reference}`);
 console.log(`  reported: poisson−elo ${report.reportedNotGating.poissonMinusElo} · poisson−market ${report.reportedNotGating.poissonMinusMarket}`);
