@@ -2,18 +2,18 @@
   "schemaVersion": 1,
   "artifact": "mlb-model-results-index",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-10T12:21:10Z",
+  "generatedAt": "2026-09-11T11:51:45Z",
   "sport": "mlb",
   "coverage": {
-    "dates": 90,
+    "dates": 91,
     "firstDate": "2026-05-16",
-    "lastDate": "2026-09-09",
-    "rows": 42587,
-    "wins": 20181,
-    "losses": 20085,
-    "pushes": 2321,
-    "decisive": 40266,
-    "games": 1131,
+    "lastDate": "2026-09-10",
+    "rows": 42771,
+    "wins": 20248,
+    "losses": 20196,
+    "pushes": 2327,
+    "decisive": 40444,
+    "games": 1136,
     "note": "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree. `games` counts the distinct games those picks came from — the rows are clustered within games and are not independent observations."
   },
   "days": [
@@ -3994,6 +3994,51 @@
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-09-09.json"
+    },
+    {
+      "date": "2026-09-10",
+      "sport": "mlb",
+      "rows": 184,
+      "wins": 67,
+      "losses": 111,
+      "pushes": 6,
+      "decisive": 178,
+      "games": 5,
+      "byMarket": {
+        "batter_hits": {
+          "rows": 78,
+          "wins": 36,
+          "losses": 39,
+          "pushes": 3,
+          "decisive": 75,
+          "games": 5
+        },
+        "batter_hits_runs_rbis": {
+          "rows": 78,
+          "wins": 24,
+          "losses": 51,
+          "pushes": 3,
+          "decisive": 75,
+          "games": 5
+        },
+        "batter_total_bases": {
+          "rows": 20,
+          "wins": 5,
+          "losses": 15,
+          "pushes": 0,
+          "decisive": 20,
+          "games": 4
+        },
+        "pitcher_strikeouts": {
+          "rows": 8,
+          "wins": 2,
+          "losses": 6,
+          "pushes": 0,
+          "decisive": 8,
+          "games": 5
+        }
+      },
+      "rowsUrl": "/data/mlb/results/model-rows/2026-09-10.json"
     }
   ]
 }
