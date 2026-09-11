@@ -135,7 +135,7 @@ function SectionBlock({
   const sorted = sortDrilldownSlips(slips);
   return (
     <details
-      className="rounded-[8px] overflow-hidden"
+      className="gtp-disclose rounded-[8px] overflow-hidden"
       style={{
         background: "var(--gtp-card-sunken)",
         border: "1px solid var(--vault-rule)",

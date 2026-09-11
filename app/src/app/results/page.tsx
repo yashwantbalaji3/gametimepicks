@@ -592,7 +592,11 @@ export default function ResultsPage() {
           // full avatar leg-rows inline. The newest 3 graded days render in full; EVERY older day is
           // one click away at its own /results/date/<date> page (all 79 exist in the export), linked
           // below by date. Older slips still count in every total above; nothing is dropped.
-          dateSections.slice(0, 3).map((section) => (
+          /* P262 · entrance role: the three newest settled days arrive in order, one short lift each.
+             Three items is well inside the contract's five-item stagger cap, and the wrapper animates
+             — never the section's own layout. */
+          dateSections.slice(0, 3).map((section, i) => (
+            <div key={`rise-${section.date}`} className="gtp-rise" style={{ ["--i" as string]: i }}>
             <ParlayResultsDateSectionV2
               key={section.date}
               date={section.date}
@@ -600,6 +604,7 @@ export default function ResultsPage() {
               totals={section.totals}
               calibrationTable={calibrationTable}
             />
+            </div>
           ))
         )}
         {dateSections.length > 3 ? (

@@ -5230,11 +5230,40 @@ body {
    Three movements, each carrying information: a meter fills to the value it states, a replay line
    draws in date order, and a card rises into place when the reader changes risk level. Every one
    rests at its final state, and reduced motion gets the final state with no movement at all. */
-@keyframes gtp-meter-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* ON THE ROLE TOKENS, not hand-picked durations (P185 · B4 contract). chart-draw for anything that
+   draws to a value the artifact already fixed; entrance for a card arriving.
+
+   RENAMED from .gtp-meter-fill: that class already existed at line ~4792 as the Bank Builder's
+   progress meter, and redefining it here applied this scale-in to the flagship meter as well — a
+   surface this work never intended to touch. A second definition of a live class name is a silent
+   change to whatever already used it. */
+@keyframes gtp-chance-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes gtp-line-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-.gtp-meter-fill { transform-origin: left center; animation: gtp-meter-fill 900ms cubic-bezier(.2,.8,.2,1) both; }
-.gtp-line-draw { stroke-dasharray: 1; stroke-dashoffset: 0; animation: gtp-line-draw 1400ms cubic-bezier(.3,.7,.2,1) both; }
-.gtp-rise { animation: vault-rise 420ms cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.gtp-chance-fill {
+  transform-origin: left center;
+  animation: gtp-chance-fill var(--motion-chart-draw-duration) var(--motion-chart-draw-easing) both;
+}
+.gtp-line-draw {
+  stroke-dasharray: 1; stroke-dashoffset: 0;
+  animation: gtp-line-draw var(--motion-chart-draw-duration) var(--motion-chart-draw-easing) both;
+}
+/* Entrance, staggered — the contract caps a stagger at five items, so the delay stops climbing there. */
+.gtp-rise {
+  animation: vault-rise var(--motion-entrance-duration) var(--motion-entrance-easing) both;
+  animation-delay: calc(min(var(--i, 0), 4) * 70ms);
+}
 @media (prefers-reduced-motion: reduce) {
-  .gtp-meter-fill, .gtp-line-draw, .gtp-rise { animation: none; }
+  /* The tokens already collapse the durations; the DELAY has to go too, or a `both`-filled item
+     waits at opacity 0 through a stagger it can no longer see. */
+  .gtp-chance-fill, .gtp-line-draw, .gtp-rise { animation: none; animation-delay: 0ms; }
+}
+
+/* DISCLOSURE (role: disclosure, 220ms) — a <details> that opens with a short lift reads as the same
+   surface expanding rather than as a new block appearing under the cursor. Opt-in via .gtp-disclose so
+   an existing <details> is never animated by surprise; the summary itself never moves (a control that
+   shifts under the pointer is harder to hit). The role's reduced-motion policy is "shorten", not
+   "remove", so the token block keeps it at 80ms and this needs no override of its own. */
+@keyframes gtp-disclose-open { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.gtp-disclose[open] > *:not(summary) {
+  animation: gtp-disclose-open var(--motion-disclosure-duration) var(--motion-disclosure-easing) both;
 }

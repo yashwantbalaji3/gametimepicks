@@ -6,6 +6,7 @@
  * across World Cup / MLB / NBA / mixed cards and the Build betslip.
  */
 import { useState } from "react";
+import AnimatedNumber from "@/components/ui/animated-number";
 import { americanToDecimal, formatAmerican } from "@/lib/odds-math";
 import { sanitizeStake } from "@/lib/parlay-payout";
 
@@ -103,15 +104,23 @@ export default function StakePayoutInput({
           <>
             <div className="flex flex-col">
               <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>To return</span>
-              <span className="font-display tabular" style={{ color: "var(--vault-success)", fontSize: 16, fontWeight: 700 }}>
-                {money(ret)}
-              </span>
+              {/* P262 · number-transition: the reader's own stake drives this, so the figure travels
+                  to its new value instead of snapping. A PUBLISHED number would never animate here. */}
+              <AnimatedNumber
+                value={ret}
+                format={money}
+                className="font-display tabular"
+                style={{ color: "var(--vault-success)", fontSize: 16, fontWeight: 700 }}
+              />
             </div>
             <div className="flex flex-col items-end">
               <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Profit</span>
-              <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>
-                +{money(profit)}
-              </span>
+              <AnimatedNumber
+                value={profit}
+                format={(n) => `+${money(n)}`}
+                className="font-display tabular"
+                style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}
+              />
             </div>
           </>
         ) : (

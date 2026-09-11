@@ -236,7 +236,7 @@ export default function CustomParlayGenerator({ snapshot }: Props) {
         </div>
         {/* Availability filters — DNP-risk toggle lives here (advanced),
             not in the primary flow. */}
-        <details className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+        <details className="gtp-disclose text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
           <summary
             className="font-mono uppercase tracking-[0.14em] cursor-pointer"
             style={{ color: "var(--vault-text-faint)", fontSize: 10 }}

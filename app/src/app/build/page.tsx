@@ -139,7 +139,7 @@ export default function ParlayCenterSuggestedPage() {
           /* P260: eighteen near-identical cards used to follow the ladder open, and read as the page's
              answer. They are the optimizer's full pool — worth browsing, not worth leading with — so
              they sit behind one tap. The markup is still in the page (details, not a lazy load). */
-          <details className="rounded-[12px]" style={{ border: "1px solid var(--vault-border)" }}>
+          <details className="gtp-disclose rounded-[12px]" style={{ border: "1px solid var(--vault-border)" }}>
             <summary className="vault-press cursor-pointer flex items-center justify-between gap-2 px-4 py-3"
               style={{ minHeight: 48, color: "var(--vault-text)", fontWeight: 700, fontSize: 14 }}>
               <span>See all {suggestedCards.length} cards the model built today</span>

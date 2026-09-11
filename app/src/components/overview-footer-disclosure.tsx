@@ -30,7 +30,7 @@ export default function OverviewFooterDisclosure({
   return (
     <section className="mt-10">
       <details
-        className="rounded-[6px] vault-glass overflow-hidden group"
+        className="gtp-disclose rounded-[6px] vault-glass overflow-hidden group"
         style={{ color: "var(--vault-text-mute)" }}
       >
         <summary

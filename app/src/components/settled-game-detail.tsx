@@ -98,7 +98,7 @@ export default function SettledGameDetail({
 
   return (
     <details
-      className="group rounded-[6px]"
+      className="gtp-disclose group rounded-[6px]"
       style={{
         background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",

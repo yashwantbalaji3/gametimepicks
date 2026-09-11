@@ -24,7 +24,7 @@ export default function HowToRead({
 
   return (
     <details
-      className="gtp-how-to-read rounded-[10px] my-3"
+      className="gtp-disclose gtp-how-to-read rounded-[10px] my-3"
       style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)" }}
     >
       <summary

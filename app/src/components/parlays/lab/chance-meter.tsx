@@ -34,7 +34,7 @@ function Bar({ label, value, sub, fill, order }: { label: string; value: number;
       </div>
       <div className="h-2.5 rounded-full overflow-hidden" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
         <div
-          className="gtp-meter-fill h-full rounded-full"
+          className="gtp-chance-fill h-full rounded-full"
           style={{ width: `${Math.max(1.5, Math.min(100, value * 100))}%`, background: fill, animationDelay: `${order * 180}ms` }}
         />
       </div>
