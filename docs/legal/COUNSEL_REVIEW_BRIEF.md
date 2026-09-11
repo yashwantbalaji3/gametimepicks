@@ -13,6 +13,7 @@ about data handling is checked against the code by automated guards; the adviser
 - The browser stores reading preferences, followed teams, and a pick slip in local storage, plus one
   session value recording how the visitor arrived.
 - Images load from MLB (mlbstatic.com), ESPN (espncdn.com), and NBA (nba.com) servers; hosting is Vercel.
+- Support is a mailto link to a Gmail inbox; writing to it shares the sender's address with the operator.
 
 ## Founder decisions (2026-09-10)
 
@@ -21,8 +22,8 @@ governing state **not yet named**.
 
 ## Please review
 
-1. `docs/legal/terms-draft.md` — content hash `f46cb4e89eaeff564ae3cf1e37a0e126defc59f4c4a52fb93869db99cbe5abbe`
-2. `docs/legal/privacy-draft.md` — content hash `a3f2fac6707b12e9da81e6e5176e1ceaa6b4dd3a59a830765401aa71cc50d803`
+1. `docs/legal/terms-draft.md` — content hash `a2ea6dbcd25754e373b33dae06d0b0e1d3f8982b5a25a16857de85677a5060b8`
+2. `docs/legal/privacy-draft.md` — content hash `2c0d6b1ad8cdaccdd656e2f6ba5e04a591e929a892ab25c8d69f1602027f9564`
 3. The live `/responsible-use` page (states 18+ and US, not betting advice, 1-800-GAMBLER).
 
 ## Questions for the adviser (packet Part B, verbatim scope)

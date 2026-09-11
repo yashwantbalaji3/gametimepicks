@@ -67,8 +67,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["shared"],
     unlocks: "the public support entry point + a beta prerequisite",
-    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
-    engineeringEvidence: "fail-closed since P137 and verified this program: NOT_CONFIGURED renders nothing, placeholders and partial config are rejected loudly, no SLA is ever invented (lib/support/support-config)",
+    engineeringState: "VERIFYING",
+    engineeringEvidence: "founder chose 2026-09-10: destination mailto (a Gmail inbox), owner 'GameTime Picks founder', response 'We reply within 2 business days.'; the three GTP_SUPPORT_* values were set on the gametime-picks Vercel production project the same day (lib/support/support-config.mjs resolves CONFIGURED); the footer entry renders from the next production build",
     founderAction: "choose the destination and response expectation you will actually staff",
     requiredValues: [
       { name: "GTP_SUPPORT_DESTINATION", format: "mailto:you@yourdomain OR an https helpdesk URL (placeholders like noreply/test@ are auto-rejected)", where: "Vercel project env (production)", neverShare: "nothing here is secret — but do not set it until the inbox is really monitored" },

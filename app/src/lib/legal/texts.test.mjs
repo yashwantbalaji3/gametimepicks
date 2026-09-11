@@ -74,7 +74,11 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
   assert.ok(!SOURCE.some((f) => /\bindexedDB\b/.test(fs.readFileSync(f, "utf8"))), "IndexedDB is not described");
 });
 
-test("FACT · the email section is true: no newsletter or form collects addresses in production", () => {
+test("FACT · the email section is true: no newsletter or form collects addresses; support email is disclosed", () => {
+  const p = renderLegal("privacy").text;
+  assert.match(p, /no newsletter or sign-up form/);
+  assert.match(p, /If you write to us through the support link, we receive your message and your email address/);
+  assert.match(p, /Support email is handled by Google \(Gmail\)/);
   // The newsletter posts only when NEXT_PUBLIC_BUTTONDOWN_USERNAME is set. It is not set for the
   // public build; if it ever is, the notice's email section is false and must change first.
   assert.equal(process.env.NEXT_PUBLIC_BUTTONDOWN_USERNAME ?? "", "");

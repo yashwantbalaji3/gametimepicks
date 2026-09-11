@@ -15,6 +15,12 @@
  */
 import crypto from "node:crypto";
 import { LEGAL_CONTENT_MANIFEST, canPublishLegal } from "./content-manifest.mjs";
+import { resolveSupportConfig } from "../support/support-config.mjs";
+
+/* The contact the documents name is the site's support link — and only while that link really
+   renders. Without a configured, monitored support destination the parameter is undecided and both
+   documents stay unpublishable, rather than pointing people at a link that is not there. */
+const SUPPORT_LIVE = resolveSupportConfig(typeof process !== "undefined" ? process.env : {}).enabled;
 
 /**
  * The founder's section-3 decisions (docs/LEGAL_SECTION3_DECISION_PACKET.md, answered 2026-09-10).
@@ -27,7 +33,7 @@ export const LEGAL_PARAMETERS = Object.freeze({
   audience: Object.freeze({ value: "the United States", source: "founder, 2026-09-10: US only" }),
   minimumAge: Object.freeze({ value: "18", source: "founder, 2026-09-10: 18+. Counsel question 7 — most US states set the sports-betting age at 21" }),
   framing: Object.freeze({ value: "research and education", source: "packet decision 5 — unchanged; every public page already enforces it" }),
-  contact: Object.freeze({ value: null, source: "the support destination — blocker-support" }),
+  contact: Object.freeze({ value: SUPPORT_LIVE ? "the \u201cContact support\u201d link at the bottom of every page" : null, source: "the support destination (blocker-support, configured 2026-09-10) — resolved only when the build's support config is live" }),
   analyticsRetentionDays: Object.freeze({ value: "90", source: "collector spec recommendation (90-day rolling); confirmed when analytics is switched on" }),
   effectiveDate: Object.freeze({ value: null, source: "set when counsel approves the text" }),
   site: Object.freeze({ value: "gametimepicks.yashwantbalaji.com", source: "deployment config" }),
@@ -98,10 +104,10 @@ const PRIVACY = {
     ] },
     { heading: "Services your browser contacts", paragraphs: [
       "The Site is hosted by Vercel, which receives standard request information — such as your IP address and browser type — to deliver pages, and may keep it in its logs under its own privacy policy.",
-      "Team logos and player photos load from image servers run by Major League Baseball (mlbstatic.com), ESPN (espncdn.com), and the NBA (nba.com), and your browser sends them the same standard request information. Links to other websites are governed by those websites' own policies.",
+      "Team logos and player photos load from image servers run by Major League Baseball (mlbstatic.com), ESPN (espncdn.com), and the NBA (nba.com), and your browser sends them the same standard request information. Support email is handled by Google (Gmail) under Google's privacy policy. Links to other websites are governed by those websites' own policies.",
     ] },
     { heading: "Email", paragraphs: [
-      "The Site does not currently collect email addresses. If a newsletter or support form is added, this notice will be updated before any collection begins.",
+      "The Site has no newsletter or sign-up form and does not ask for your email address. If you write to us through the support link, we receive your message and your email address, use them only to reply, and keep them in our email account no longer than we need to.",
     ] },
     { heading: "Children", paragraphs: [
       "The Site is not directed to anyone under {{minimumAge}}, and we do not knowingly collect information from them.",
