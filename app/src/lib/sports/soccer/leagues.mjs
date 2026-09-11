@@ -4,9 +4,13 @@
  * no script hard-codes a league again (the EPL pipeline does, in ~20 files; that is the debt this pays).
  *
  * Stages (a league moves forward only on evidence, never on data arriving):
- *   LIVE      public model-only forecasts (EPL today)
- *   RESEARCH  data captured; the walk-forward backtest decides — see the league preregistration
- *   PLANNED   named here, nothing captured yet
+ *   LIVE         public model-only forecasts (EPL today)
+ *   ACCEPTED_V1  cleared every preregistered bar (preregistration-league-expansion-v1.json, v1.2) —
+ *                may publish model-only forecasts once its public surface exists
+ *   REJECTED_V1  scored once and failed a bar; stays rejected for epl-model-v1-split-poisson. A variant
+ *                needs its own preregistration and an unseen season (2026-27, forward).
+ *   RESEARCH     data captured; the walk-forward backtest decides
+ *   PLANNED      named here, nothing captured yet
  *
  * Sources (all verified reachable 2026-09-11, $0):
  *   espn          site.api.espn.com/apis/site/v2/sports/soccer/<code>/  fixtures, results, per-player stats
@@ -16,10 +20,10 @@
  */
 export const SOCCER_LEAGUES = Object.freeze([
   { key: "epl", name: "Premier League", country: "England", espn: "eng.1", footballData: "E0", oddsApiKey: "soccer_epl", stage: "LIVE", wave: 0 },
-  { key: "laliga", name: "LaLiga", country: "Spain", espn: "esp.1", footballData: "SP1", oddsApiKey: "soccer_spain_la_liga", stage: "RESEARCH", wave: 1 },
-  { key: "serie-a", name: "Serie A", country: "Italy", espn: "ita.1", footballData: "I1", oddsApiKey: "soccer_italy_serie_a", stage: "RESEARCH", wave: 1 },
-  { key: "bundesliga", name: "Bundesliga", country: "Germany", espn: "ger.1", footballData: "D1", oddsApiKey: "soccer_germany_bundesliga", stage: "RESEARCH", wave: 1 },
-  { key: "ligue-1", name: "Ligue 1", country: "France", espn: "fra.1", footballData: "F1", oddsApiKey: "soccer_france_ligue_one", stage: "RESEARCH", wave: 1 },
+  { key: "laliga", name: "LaLiga", country: "Spain", espn: "esp.1", footballData: "SP1", oddsApiKey: "soccer_spain_la_liga", stage: "REJECTED_V1", wave: 1 },
+  { key: "serie-a", name: "Serie A", country: "Italy", espn: "ita.1", footballData: "I1", oddsApiKey: "soccer_italy_serie_a", stage: "REJECTED_V1", wave: 1 },
+  { key: "bundesliga", name: "Bundesliga", country: "Germany", espn: "ger.1", footballData: "D1", oddsApiKey: "soccer_germany_bundesliga", stage: "REJECTED_V1", wave: 1 },
+  { key: "ligue-1", name: "Ligue 1", country: "France", espn: "fra.1", footballData: "F1", oddsApiKey: "soccer_france_ligue_one", stage: "ACCEPTED_V1", wave: 1 },
   { key: "championship", name: "Championship", country: "England", espn: "eng.2", footballData: "E1", oddsApiKey: "soccer_efl_champ", stage: "PLANNED", wave: 2 },
   { key: "mls", name: "MLS", country: "USA", espn: "usa.1", footballDataExtra: "USA", oddsApiKey: "soccer_usa_mls", stage: "PLANNED", wave: 2 },
   { key: "eredivisie", name: "Eredivisie", country: "Netherlands", espn: "ned.1", footballData: "N1", oddsApiKey: "soccer_netherlands_eredivisie", stage: "PLANNED", wave: 3 },
