@@ -1,0 +1,258 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-participation-v1-preregistration",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "frozenAt": "2026-09-11T19:38:12Z",
+ "frozenBy": "Written and fingerprinted BEFORE any snap-share state was joined to a projection or an outcome for any season. The feature definition, candidate, fit protocol, population, metrics, bars and decision look may not change after frozenAt; a change is a new version with a new file.",
+ "researchOnly": "No public model, board, promotion state or page changes under this registration. An ACCEPTED result only makes the candidate eligible for a separately preregistered promotion program.",
+ "hypothesis": "Conditioning the engine's per-player opportunity shares on the observed snap-share state (target share for receptions, carry share for rush attempts) improves threshold calibration (ece) and log loss (logLoss) versus the current engine, on identical players and identical threshold pairs.",
+ "motivation": "Eligibility is not role certainty: a rostered player with no blocking injury status was projected as a starter while on IR or while taking a handful of snaps. The engine's role shares come from box-score opportunities only; a player who dressed and ran few routes, or did not dress, leaves no box-score row, so the engine cannot tell an absent role from a quiet one. Offensive snap share is the free, observed participation signal that can.",
+ "feature": {
+  "id": "nfl-snap-share-v1-rolling-stint",
+  "module": "app/src/lib/sports/nfl/snap-share.mjs",
+  "version": 1,
+  "source": "nflverse snap_counts (CC BY 4.0), captured by app/scripts/nfl/capture-nfl-snap-counts.mjs into data/internal/research/nfl/snap-counts/",
+  "definition": "For target (season S, week W, team T): the player's trailing stint on T among rows strictly before (S, W), bounded to seasons >= S - maxSeasonsBack. The window is the last windowGames completed T games inside that stint that have a snap sheet. Per game: PLAYED_OFFENSE (share = offense_pct), PLAYED_NO_OFFENSE (special teams only; share = 0, a real zero), ABSENT_FROM_SHEET (sheet exists, he is not on it; lowers availability, never the share), SOURCE_MISSING (scheduled and final but no sheet; skipped, counted, fills no slot). Bye weeks are not games. meanShare, lastShare, shareSd (population sd), trend (lastShare minus mean of earlier played window games), availability (played / observable window games), roleStability = availability * (1 - min(1, shareSd / 0.25)).",
+  "params": {
+   "windowGames": 4,
+   "minGames": 3,
+   "establishedShare": 0.6,
+   "establishedMaxSd": 0.15,
+   "emergingShare": 0.4,
+   "emergingRise": 0.15,
+   "fringeShare": 0.25,
+   "maxSeasonsBack": 1
+  },
+  "states": [
+   "ESTABLISHED",
+   "EMERGING",
+   "ROTATION",
+   "FRINGE",
+   "ABSENT_RECENT",
+   "NO_HISTORY"
+  ],
+  "stateRules": [
+   "NO_HISTORY: no row on T inside the lookback (includes a team change whose new stint is unobserved). meanShare/lastShare/shareSd/trend/availability are null, NEVER 0.",
+   "ABSENT_RECENT: stint history exists, but T played every observable window game without him (the IR / inactive class).",
+   "ESTABLISHED: played >= minGames AND meanShare >= establishedShare AND shareSd <= establishedMaxSd.",
+   "EMERGING: lastShare >= emergingShare AND (played < minGames OR trend >= emergingRise).",
+   "FRINGE: meanShare < fringeShare.",
+   "ROTATION: otherwise.",
+   "Precedence is the order ESTABLISHED, EMERGING, FRINGE, ROTATION after NO_HISTORY and ABSENT_RECENT."
+  ],
+  "teamMapping": "board ESPN abbreviations map to nflverse by ESPN_TO_NFLVERSE_TEAM (WSH->WAS, LAR->LA); every other team is spelled the same (verified: no team appears in only one of the snap tables or the nflverse schedule).",
+  "noLookahead": "Only games with (season, week) strictly before the target week are read; nflverse numbers postseason weeks 19+, so this order is chronological. Guarded by snap-share.test.mjs."
+ },
+ "identity": {
+  "join": "Board ids are nfl-athlete-<ESPN id>; snap rows carry pfr_player_id. The bridge is the exact crosswalk in nflverse players.csv (pfr_id -> gsis_id -> espn_id), committed as data/internal/research/nfl/snap-counts/id-bridge-v1.json. An ESPN id claimed by two PFR ids resolves to nobody. A name never joins.",
+  "measured2025": {
+   "source": "data/internal/research/nfl/snap-counts/manifest-v1.json joinAudit.2025",
+   "bridge": {
+    "file": "id-bridge-v1.json",
+    "pfrIdsInTables": 3532,
+    "inPlayersFile": 3517,
+    "withGsisId": 3517,
+    "withEspnId": 3512,
+    "espnCollisions": 0
+   },
+   "forward": {
+    "offenseRows": 10573,
+    "withEspnId": 10542,
+    "rate": 0.9971,
+    "skillOffenseRows": 6876,
+    "skillWithEspnId": 6862,
+    "skillRate": 0.998,
+    "rowsWithoutPfrId": 0
+   },
+   "reverse": {
+    "playerGames": 5370,
+    "matched": 5362,
+    "unbridged": 8,
+    "ambiguous": 0,
+    "noSnapRow": 0,
+    "teamAgree": 5362,
+    "nameAgree": 5270,
+    "rate": 0.9985,
+    "teamAgreeRate": 1,
+    "nameAgreeRate": 0.9828
+   },
+   "reading": "Board-space 2025 REG player-games with any pass/rush/target involvement: 5362/5370 (0.9985) join to a snap row by id; 8 unbridged (players.csv carries no PFR id for their ESPN id), 0 ambiguous, 0 bridged-but-no-row. Team agreement 1. Name agreement 0.9828; every disagreement sampled is a nickname or short form of the same player (e.g. \"Hollywood Brown\" / \"Marquise Brown\"), which is why names are audited and never used to join.",
+   "unmatchedPlayers": [
+    "Nathan Carter",
+    "Chris Manhertz",
+    "Adrian Martinez",
+    "Cody White"
+   ]
+  },
+  "unresolvedRule": "A board player whose ESPN id does not resolve (UNBRIDGED or AMBIGUOUS) gets factor 1.0 in the candidate (identical to the incumbent), is COUNTED as identityUnbridged, and is never dropped from either arm."
+ },
+ "incumbent": {
+  "engine": "nfl-player-props-v1-opportunity-efficiency (version 1), the configuration recorded in the champion receipt and the accepted receiving verdict at frozenAt",
+  "receipts": [
+   {
+    "path": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+    "sha256": "1a437278b22cd9b9b08ce116e61042d8c2837e146f0ce86569817f2a90091b84"
+   },
+   {
+    "path": "data/internal/research/nfl/reports/receiving-repair-verdict.json",
+    "sha256": "c4871a9cdfd5f7df4b90222c0e7221b8abd01ae840d5aa877b0d3ed5a035ff24"
+   },
+   {
+    "path": "data/internal/research/nfl/reports/count-coverage-amendment-preregistration.json",
+    "sha256": "887dc8f1a86923ddfc718e558dd8f0fa741b77ecdb964216a10df5eccb57e6c1"
+   },
+   {
+    "path": "app/src/lib/sports/nfl/participation-truth.mjs",
+    "sha256": "41a2beda056638b30f59ae3929f1f079487a3fca8f17f2929ff86e960006c78e"
+   }
+  ],
+  "frozenForThisEvaluation": "The incumbent arm is the configuration at frozenAt. If production changes during 2026, the frozen configuration keeps running in shadow for this comparison; the comparison never switches incumbents mid-season.",
+  "rushAttemptsQuantity": "The incumbent's rush-attempt distribution is the engine's own simulated per-player carry count (the carry allocation that already produces player_rush_yds, same draws, same runs). Recording it reads an existing intermediate; it is not a model change."
+ },
+ "candidate": {
+  "id": "participation-snap-state-v1",
+  "families": [
+   "player_receptions",
+   "player_rush_attempts"
+  ],
+  "change": "ONE multiplicative factor per (family, snap state) on the player's effective opportunity share before allocation: targetShare for player_receptions, carryShare for player_rush_attempts. Freed mass goes to OTHER by construction; shares are renormalized only if their sum exceeds 1 (the role-shares rule). Volumes, rates, dispersion, targetShareDeflation, game-sim heads, the pass family and the TD family are untouched.",
+  "degreesOfFreedom": "12 factors (2 families x 6 states). No per-player, per-team, per-week or per-bin correction. No grid search: each factor has a closed-form fit.",
+  "fit": {
+   "data": "2023-2025 REG+POST, the engine's committed pregame walk-forward chain (roles, rates, Elo cutoff, committed heads) exactly as the champion protocol runs it. The snap-share state for each player-game is computed with the frozen params from snap tables strictly before that week.",
+   "estimator": "m[family][state] = (A + k) / (P + k), where A = realized opportunities (targets, or rush attempts) and P = the incumbent's expected opportunities (mean over its simulated draws) summed over scored player-games in that stratum; k = 100 opportunities; clipped to [0.5, 1.5].",
+   "population": "The same population contract v2 as the evaluation (below): DID_NOT_DRESS is void and excluded from A and P; absent-from-boxscore + PLAYED scores 0 realized opportunities; excluded rows are counted.",
+   "once": "Fit ONCE, written to data/internal/research/nfl/reports/participation-v1-fit.json with its own sha256, committed before the first forward kickoff it scores. No refit, re-selection or amendment during the evaluation.",
+   "vacuityRule": "If every fitted factor lies inside [0.98, 1.02], the candidate is VACUOUS and is recorded as REJECTED without forward scoring.",
+   "whyFittingOnSeenSeasonsIsAllowed": "Fitting 12 closed-form factors on past seasons is training. Nothing about those seasons decides acceptance; only the forward 2026 record does."
+  }
+ },
+ "evaluation": {
+  "mode": "FORWARD_ONLY",
+  "why": [
+   "p246-evidentiary-status-annex.json: 2025 is a REUSED evaluation season; per-family metrics and calibration curves were inspected before candidates were designed.",
+   "receiving-calibration-repair-preregistration.json: receptions threshold-calibration bins were inspected on 2025 held-out AND on the 2024 train diagnostic, and a share-level correction (targetShareDeflation) was chosen from them. The receptions share is exactly what this candidate conditions.",
+   "count-coverage-amendment-preregistration.json (alsoRecorded.rushing): 2025 rushing calibration was diagnosed as share-structured (backs with >= 12 carries cover 0.645) and a share-conditional correction was named as the next candidate. The carry-share conditioning here descends from that inspected calibration.",
+   "app/src/lib/sports/nfl/nflverse.mjs (P257-F): snap share was acquired because the player families were rejected (P182/P183) for lacking this signal. The feature itself was chosen from those seasons' results.",
+   "participation-true-preregistration.json: 2025 outcomes under snap-based participation conditioning have been seen.",
+   "2023 is burn-in or fit data in every NFL player receipt, so no untouched historical season remains."
+  ],
+  "conclusion": "The current engine's calibration on 2023-2025 has already been used to choose features of this kind. A historical walk-forward would grade the candidate on the seasons that motivated it. The deciding evaluation is therefore FORWARD ONLY: 2026 weeks after frozenAt.",
+  "historicalUse": "2023-2025 may be used only (a) to fit the 12 factors and (b) for a labelled REUSED_SEASONS_DIAGNOSTIC that can neither accept nor reject.",
+  "cohort": "2026 NFL regular-season games whose kickoff is after BOTH frozenAt AND the commit time of participation-v1-fit.json. The 2026 week-1 games already final at frozenAt (NE@SEA 2026-09-09, SF@LA 2026-09-10) are outside the cohort. Postseason games are reported, never decisive.",
+  "pregameDiscipline": "Both arms are forecast before kickoff (forecast of record frozen pregame). The snap tables used must carry capturedAt earlier than the kickoff; the forward runner records each table's contentSha256 and capturedAt. A player-game whose state was computed from a capture at or after kickoff is EXCLUDED as excludedLeakageGuard and counted."
+ },
+ "population": {
+  "unit": "player-game per family.",
+  "membership": "Every player the INCUMBENT's pregame forecast of record includes in the family (engine thresholds, unchanged: targetShare >= 0.05 for player_receptions, carryShare >= 0.05 for player_rush_attempts). The candidate can neither add nor remove a player, so both arms are scored on identical players and identical threshold pairs.",
+  "contract": "Population contract v2 (app/src/lib/sports/nfl/participation-truth.mjs, POPULATION_CONTRACT_VERSION 2; count-family coverage per v2.1).",
+  "outcomes": {
+   "boxscoreRow": "scored with the row's own value (receptions, or rush attempts).",
+   "absentAndPlayed": "PLAYED_OFFENSE or PLAYED_NO_OFFENSE with no box-score row: scored 0. He dressed; the zero is real.",
+   "didNotDress": "VOID: not scored, counted as voidDidNotDress. A pregame-INACTIVE player is normally outside the population because the incumbent does not forecast him; any forecast player who did not dress is void like everyone else.",
+   "ambiguousIdentity": "EXCLUDED, counted as excludedAmbiguous; never a guess.",
+   "sourceMissing": "EXCLUDED, counted as excludedSourceMissing; absence of the sheet is not evidence."
+  },
+  "noHistory": "NO_HISTORY players stay in the population with their own fitted factor. Their share is never imputed and never 0.",
+  "reconciliation": "forecastOfRecord = scoredWithRow + scoredPlayedNoRow + voidDidNotDress + excludedAmbiguous + excludedSourceMissing + excludedLeakageGuard, per family and per arm; identityUnbridged is reported beside it. A receipt that does not reconcile is invalid.",
+  "failureClassTally": "Report-only, both arms, per snap state: forecast players who did not dress, and scored players whose realized offense_pct was below 0.25. This makes the IR / low-snap class visible without letting it decide."
+ },
+ "metrics": {
+  "namesFrom": "player-props-v1-evaluation.json (n, mae, pinball, interval80Coverage, interval80CoverageInclusive, thresholdCalibration.{pairs, binsUsed, ece}) and anytime-td-v1-calibration.json (logLoss, brier).",
+  "n": "scored player-games in the family.",
+  "mae": "mean absolute error of the distribution median.",
+  "pinball": "mean pinball loss over the engine's five reported quantiles, as the champion evaluator computes it.",
+  "interval80Coverage": "mid-p for both families (both are integer counts; contract v2.1): strictly inside = 1, on an endpoint = 1/2. interval80CoverageInclusive is reported beside it.",
+  "thresholdPairs": "The champion evaluator's house line: the mean of the player's last 4 actual values in that family, used only when 4 exist and the mean is > 0; pair = (P(X > line), hit = actual > line). Identical lines for both arms.",
+  "thresholdCalibration": "ece over 10 equal-width probability bins, a bin used only with >= 50 pairs, weighted by bin count (the champion evaluator's definition).",
+  "logLoss": "mean binary log loss over the same threshold pairs, probabilities clipped to [0.0005, 0.9995].",
+  "brier": "mean squared error over the same threshold pairs.",
+  "reportOnly": "per-state breakdowns; fixed-line pairs over the whole population (player_receptions lines 2.5, 3.5, 4.5; player_rush_attempts lines 7.5, 11.5, 15.5); player_rush_yds under both arms. None of these decide."
+ },
+ "bars": {
+  "perFamily": "player_receptions and player_rush_attempts are judged SEPARATELY. ACCEPTED requires every bar below; any failure is REJECTED.",
+  "LOG_LOSS": "candidate logLoss <= incumbent logLoss - 0.002 on identical threshold pairs.",
+  "PAIRED_UNCERTAINTY": "game-clustered paired bootstrap (2000 resamples of games, seed 20260911): the 95% interval of the mean per-pair (incumbent - candidate) logLoss lies entirely above 0.",
+  "CALIBRATION": "candidate ece < incumbent ece AND candidate ece <= 0.05.",
+  "NO_DEGRADATION": "candidate pinball <= 1.02 x incumbent pinball; candidate mae <= 1.02 x incumbent mae; candidate interval80Coverage in [0.72, 0.88].",
+  "whyTheseNumbers": "0.002 nats is the smallest log-loss gain not buried by week-to-week noise at this sample; the bootstrap requirement stops a point estimate from standing in for evidence (the P247 annex lesson); 1.02 is the house sharpness allowance from the receiving repair; [0.72, 0.88] and ece <= 0.05 are the evaluator's standard gates."
+ },
+ "minimumSample": {
+  "rule": "At the decision look, per family: n >= 300 AND thresholdCalibration.pairs >= 300 AND >= 64 games AND >= 4 distinct weeks (the evaluator's n and the regular-season contract's games and weeks).",
+  "underMinimum": "INSUFFICIENT_SAMPLE: reported, supports no decision in either direction."
+ },
+ "decisionLook": {
+  "rule": "ONE decisive look, after every 2026 regular-season week-10 game is official. If the minimum sample is not met then, the single look moves to after week 18. Interim figures may be reported, labelled NOT_DECISIVE; no interim result accepts or rejects.",
+  "outcomes": [
+   "ACCEPTED",
+   "REJECTED",
+   "INSUFFICIENT_SAMPLE",
+   "VACUOUS"
+  ]
+ },
+ "decisionRule": "Per family: ACCEPTED makes that family's candidate eligible for a new, separately preregistered promotion program. It does not by itself change any board, model, promotion state or public page. REJECTED is recorded with its numbers, and the snap-share feature may remain a research descriptor. No state is pinned in advance.",
+ "prohibitions": [
+  "no scoring of any game that kicked off before frozenAt or before the fit receipt's commit",
+  "no refit, re-selection or parameter change after the fit receipt",
+  "no per-player, per-team, per-week or per-bin correction",
+  "no change to DEFAULT_PARAMS or the state rules (snap-share.test.mjs asserts equality with this file)",
+  "no abstention: the candidate may not drop a player the incumbent forecast",
+  "no absent-as-zero: ABSENT_FROM_SHEET and NO_HISTORY are never a 0 share",
+  "no name join, and no guess on an ambiguous id",
+  "no paid data, and no sportsbook price as a feature"
+ ],
+ "seenBeforeFreeze": "Identity and plumbing only: the id-join audit (identity, no outcomes) and snap-state FREQUENCIES on 2025 weeks 1 and 10 and 2026 weeks 1-2 (a smoke run: no projections, no outcomes, no calibration). No snap-share state was joined to a projection or an outcome before frozenAt.",
+ "inputs": {
+  "snapTables": {
+   "2022": {
+    "file": "data/internal/research/nfl/snap-counts/snap-counts-2022.json",
+    "rowCount": 26381,
+    "contentSha256": "7a6b1332e38eb5df6794e4aed26a2c29940253e7cf9ecd6782c235a67ce20106"
+   },
+   "2023": {
+    "file": "data/internal/research/nfl/snap-counts/snap-counts-2023.json",
+    "rowCount": 26540,
+    "contentSha256": "abfbbc9008cabb665624904bb8b1ce11d045c31b3283ea2e61b1e6fece86866e"
+   },
+   "2024": {
+    "file": "data/internal/research/nfl/snap-counts/snap-counts-2024.json",
+    "rowCount": 26615,
+    "contentSha256": "6ca8cdb6ce81a645a104a8ecafed834a987cea724fc55b3ac4c0143b0f92cd85"
+   },
+   "2025": {
+    "file": "data/internal/research/nfl/snap-counts/snap-counts-2025.json",
+    "rowCount": 26612,
+    "contentSha256": "b5f8cc6f57a61ac6373b48b7b8bb4b574d62e1723fbde7985e139c5710aab6ad"
+   },
+   "2026": {
+    "file": "data/internal/research/nfl/snap-counts/snap-counts-2026.json",
+    "rowCount": 187,
+    "contentSha256": "4c5f19d5c0ff9d0e8273775a02cf70c2f3b48efbc211018b44796428a7b18026"
+   }
+  },
+  "idBridge": {
+   "path": "data/internal/research/nfl/snap-counts/id-bridge-v1.json",
+   "sha256": "f51a3454c4b5a83f6137b9c895c98f208c57b10c87074ccfa1eb95211d7496ce"
+  },
+  "captureScript": {
+   "path": "app/scripts/nfl/capture-nfl-snap-counts.mjs",
+   "sha256": "18ef560ac22b7eb762f415ae6177f4c4ce8538b40410c942e68c711f7338bcd3"
+  },
+  "featureModuleAtFreeze": {
+   "path": "app/src/lib/sports/nfl/snap-share.mjs",
+   "sha256": "6531e4214a493ebe6140a5be55b09f9739c33c52727536221f1d64fa1e9a21f2",
+   "note": "informational; the binding guard is the params/states equality test"
+  },
+  "note": "The 2026 table grows weekly; forward runs record the contentSha256 and capturedAt of the table they read. 2022-2025 contentSha256 values are fixed at freeze."
+ },
+ "outputsWhenRun": {
+  "fitReceipt": "data/internal/research/nfl/reports/participation-v1-fit.json",
+  "forwardForecasts": "data/internal/research/nfl/participation-v1-forward/<season>-w<week>.json",
+  "evaluation": "data/internal/research/nfl/reports/participation-v1-evaluation.json (new file; no champion receipt is overwritten)"
+ },
+ "frozenHash": {
+  "algorithm": "sha256",
+  "canonicalization": "canonicalJson(hashableContent(doc)) from app/src/lib/sports/nfl/snap-share.mjs: the whole document minus this frozenHash block, keys sorted recursively, no whitespace. snap-share.test.mjs recomputes it. Evaluators additionally record the sha256 of this file's raw bytes on their receipts (the house convention).",
+  "value": "6588cf90b7accf90a312a0d222adb21a09d8dfe2c840628b685da7861f34d692"
+ }
+}

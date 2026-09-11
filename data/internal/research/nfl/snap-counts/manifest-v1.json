@@ -1,0 +1,448 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-snap-counts-manifest",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "attribution": "nflverse (CC BY 4.0)",
+ "license": {
+  "name": "CC BY 4.0",
+  "url": "https://creativecommons.org/licenses/by/4.0/",
+  "project": "https://github.com/nflverse/nflverse-data",
+  "upstream": "snap counts are sourced by nflverse from Pro-Football-Reference"
+ },
+ "capturedAt": "2026-09-11T19:35:00Z",
+ "script": "app/scripts/nfl/capture-nfl-snap-counts.mjs",
+ "consumers": "research only — no model, board, promotion or public page reads these files",
+ "seasons": {
+  "2022": {
+   "file": "snap-counts-2022.json",
+   "published": true,
+   "rowCount": 26381,
+   "offenseRows": 10458,
+   "teamGames": 568,
+   "weekRange": [
+    1,
+    22
+   ],
+   "contentSha256": "7a6b1332e38eb5df6794e4aed26a2c29940253e7cf9ecd6782c235a67ce20106"
+  },
+  "2023": {
+   "file": "snap-counts-2023.json",
+   "published": true,
+   "rowCount": 26540,
+   "offenseRows": 10552,
+   "teamGames": 570,
+   "weekRange": [
+    1,
+    22
+   ],
+   "contentSha256": "abfbbc9008cabb665624904bb8b1ce11d045c31b3283ea2e61b1e6fece86866e"
+  },
+  "2024": {
+   "file": "snap-counts-2024.json",
+   "published": true,
+   "rowCount": 26615,
+   "offenseRows": 10552,
+   "teamGames": 570,
+   "weekRange": [
+    1,
+    22
+   ],
+   "contentSha256": "6ca8cdb6ce81a645a104a8ecafed834a987cea724fc55b3ac4c0143b0f92cd85"
+  },
+  "2025": {
+   "file": "snap-counts-2025.json",
+   "published": true,
+   "rowCount": 26612,
+   "offenseRows": 10573,
+   "teamGames": 570,
+   "weekRange": [
+    1,
+    22
+   ],
+   "contentSha256": "b5f8cc6f57a61ac6373b48b7b8bb4b574d62e1723fbde7985e139c5710aab6ad"
+  },
+  "2026": {
+   "file": "snap-counts-2026.json",
+   "published": true,
+   "rowCount": 187,
+   "offenseRows": 74,
+   "teamGames": 4,
+   "weekRange": [
+    1,
+    1
+   ],
+   "contentSha256": "4c5f19d5c0ff9d0e8273775a02cf70c2f3b48efbc211018b44796428a7b18026"
+  }
+ },
+ "tablesOnDisk": [
+  "snap-counts-2022.json",
+  "snap-counts-2023.json",
+  "snap-counts-2024.json",
+  "snap-counts-2025.json",
+  "snap-counts-2026.json"
+ ],
+ "bridge": {
+  "file": "id-bridge-v1.json",
+  "pfrIdsInTables": 3532,
+  "inPlayersFile": 3517,
+  "withGsisId": 3517,
+  "withEspnId": 3512,
+  "espnCollisions": 0
+ },
+ "joinAudit": {
+  "2022": {
+   "state": "NO_BOARD_ID_CORPUS",
+   "note": "no data/internal/research/nfl/player-events-v1/2022.json — reverse join not measurable"
+  },
+  "2023": {
+   "season": 2023,
+   "method": "id join pfr_player_id → nflverse players.csv (pfr_id → espn_id); names are audited, never used to join",
+   "forward": {
+    "offenseRows": 10552,
+    "withEspnId": 10533,
+    "rate": 0.9982,
+    "skillOffenseRows": 6990,
+    "skillWithEspnId": 6977,
+    "skillRate": 0.9981,
+    "rowsWithoutPfrId": 0
+   },
+   "reverse": {
+    "playerGames": 5387,
+    "matched": 5382,
+    "unbridged": 5,
+    "ambiguous": 0,
+    "noSnapRow": 0,
+    "teamAgree": 5382,
+    "nameAgree": 5282,
+    "examplesUnmatched": [
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 3,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 4,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 6,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4250969",
+      "name": "Rodney Williams",
+      "week": 8,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 10,
+      "why": "UNBRIDGED"
+     }
+    ],
+    "examplesNameDisagree": [
+     {
+      "espn": "Chig Okonkwo",
+      "nflverse": "Chigoziem Okonkwo"
+     },
+     {
+      "espn": "Drew Ogletree",
+      "nflverse": "Andrew Ogletree"
+     },
+     {
+      "espn": "Hollywood Brown",
+      "nflverse": "Marquise Brown"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Gabe Davis",
+      "nflverse": "Gabriel Davis"
+     },
+     {
+      "espn": "Gabe Davis",
+      "nflverse": "Gabriel Davis"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Chig Okonkwo",
+      "nflverse": "Chigoziem Okonkwo"
+     },
+     {
+      "espn": "Hollywood Brown",
+      "nflverse": "Marquise Brown"
+     },
+     {
+      "espn": "Drew Ogletree",
+      "nflverse": "Andrew Ogletree"
+     },
+     {
+      "espn": "Chig Okonkwo",
+      "nflverse": "Chigoziem Okonkwo"
+     }
+    ],
+    "rate": 0.9991,
+    "teamAgreeRate": 1,
+    "nameAgreeRate": 0.9814
+   }
+  },
+  "2024": {
+   "season": 2024,
+   "method": "id join pfr_player_id → nflverse players.csv (pfr_id → espn_id); names are audited, never used to join",
+   "forward": {
+    "offenseRows": 10552,
+    "withEspnId": 10515,
+    "rate": 0.9965,
+    "skillOffenseRows": 6953,
+    "skillWithEspnId": 6939,
+    "skillRate": 0.998,
+    "rowsWithoutPfrId": 0
+   },
+   "reverse": {
+    "playerGames": 5324,
+    "matched": 5318,
+    "unbridged": 6,
+    "ambiguous": 0,
+    "noSnapRow": 0,
+    "teamAgree": 5318,
+    "nameAgree": 5240,
+    "examplesUnmatched": [
+     {
+      "playerId": "nfl-athlete-4242526",
+      "name": "John Samuel Shenker",
+      "week": 8,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 8,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 9,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4241983",
+      "name": "Cody White",
+      "week": 9,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 17,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 18,
+      "why": "UNBRIDGED"
+     }
+    ],
+    "examplesNameDisagree": [
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Chig Okonkwo",
+      "nflverse": "Chigoziem Okonkwo"
+     },
+     {
+      "espn": "Gabe Davis",
+      "nflverse": "Gabriel Davis"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Gabe Davis",
+      "nflverse": "Gabriel Davis"
+     },
+     {
+      "espn": "Chig Okonkwo",
+      "nflverse": "Chigoziem Okonkwo"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Drew Ogletree",
+      "nflverse": "Andrew Ogletree"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Scotty Miller",
+      "nflverse": "Scott Miller"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Chig Okonkwo",
+      "nflverse": "Chigoziem Okonkwo"
+     }
+    ],
+    "rate": 0.9989,
+    "teamAgreeRate": 1,
+    "nameAgreeRate": 0.9853
+   }
+  },
+  "2025": {
+   "season": 2025,
+   "method": "id join pfr_player_id → nflverse players.csv (pfr_id → espn_id); names are audited, never used to join",
+   "forward": {
+    "offenseRows": 10573,
+    "withEspnId": 10542,
+    "rate": 0.9971,
+    "skillOffenseRows": 6876,
+    "skillWithEspnId": 6862,
+    "skillRate": 0.998,
+    "rowsWithoutPfrId": 0
+   },
+   "reverse": {
+    "playerGames": 5370,
+    "matched": 5362,
+    "unbridged": 8,
+    "ambiguous": 0,
+    "noSnapRow": 0,
+    "teamAgree": 5362,
+    "nameAgree": 5270,
+    "examplesUnmatched": [
+     {
+      "playerId": "nfl-athlete-4605841",
+      "name": "Nathan Carter",
+      "week": 3,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 3,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4605841",
+      "name": "Nathan Carter",
+      "week": 8,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4361182",
+      "name": "Adrian Martinez",
+      "week": 9,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4241983",
+      "name": "Cody White",
+      "week": 9,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4241983",
+      "name": "Cody White",
+      "week": 13,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4241983",
+      "name": "Cody White",
+      "week": 14,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-2531358",
+      "name": "Chris Manhertz",
+      "week": 18,
+      "why": "UNBRIDGED"
+     }
+    ],
+    "examplesNameDisagree": [
+     {
+      "espn": "Hollywood Brown",
+      "nflverse": "Marquise Brown"
+     },
+     {
+      "espn": "Dee Eskridge",
+      "nflverse": "D'Wayne Eskridge"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Chig Okonkwo",
+      "nflverse": "Chigoziem Okonkwo"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Chig Okonkwo",
+      "nflverse": "Chigoziem Okonkwo"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Dee Eskridge",
+      "nflverse": "D'Wayne Eskridge"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Hollywood Brown",
+      "nflverse": "Marquise Brown"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     }
+    ],
+    "rate": 0.9985,
+    "teamAgreeRate": 1,
+    "nameAgreeRate": 0.9828
+   }
+  },
+  "2026": {
+   "state": "NO_BOARD_ID_CORPUS",
+   "note": "no data/internal/research/nfl/player-events-v1/2026.json — reverse join not measurable"
+  }
+ }
+}

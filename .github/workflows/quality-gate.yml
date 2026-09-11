@@ -131,7 +131,8 @@ jobs:
           cache: pip
           cache-dependency-path: pipeline/requirements.txt
 
-      - run: pip install -r pipeline/requirements.txt
+      # pytest: two script-style tests (nba_sgp, recent10_cache_fallback) import it for fixtures/raises.
+      - run: pip install -r pipeline/requirements.txt pytest
 
       - name: Pipeline Python tests (every *_test.py / test_*.py, as modules)
         run: bash scripts/ci/run-python-tests.sh

@@ -39,3 +39,14 @@ test("soccer-leagues builds the EPL closing-line benchmark and publishes it", ()
   const commit = SL.slice(SL.indexOf("- name: Commit and push"));
   assert.match(commit, /data\/internal\/research\/soccer\/epl\/closing-benchmark-v1\.json/);
 });
+
+test("nflverse-weekly captures snap counts for the participation preregistration and commits them", () => {
+  const NW = read(".github/workflows/nflverse-weekly.yml");
+  assert.match(NW, /node scripts\/nfl\/capture-nfl-snap-counts\.mjs --now/);
+  const commit = NW.slice(NW.indexOf("- name: Commit the derived tables"));
+  assert.match(commit, /git add [^\n]*data\/internal\/research\/nfl\/snap-counts\//);
+});
+
+test("the CI python job installs pytest (two script-style tests import it)", () => {
+  assert.match(read(".github/workflows/quality-gate.yml"), /pip install -r pipeline\/requirements\.txt pytest/);
+});
