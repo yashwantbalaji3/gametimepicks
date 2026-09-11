@@ -4,19 +4,104 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-09-10",
- "generatedAt": "2026-09-11T02:20:54Z",
+ "generatedAt": "2026-09-11T14:09:45Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401872657",
+   "providerEventId": "401872657",
    "matchup": "SF @ LAR",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-09-11T00:35Z",
-   "observed": "STATUS_SCHEDULED"
-  },
+   "seasonType": 2,
+   "week": 1,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-09-10/401872657-rev-2256Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 1,
+    "inputHash": "739be4ef72ef18e9",
+    "forecastGeneratedAt": "2026-09-10T22:56:45Z",
+    "revisionChain": [
+     {
+      "file": "401872657.json",
+      "generatedAt": "2026-09-10T17:12:41Z",
+      "inputHash": "d2edba9f2cd83203"
+     },
+     {
+      "file": "401872657-rev-1751Z.json",
+      "generatedAt": "2026-09-10T17:51:34Z",
+      "inputHash": "89cbb65b748c894c"
+     },
+     {
+      "file": "401872657-rev-1815Z.json",
+      "generatedAt": "2026-09-10T18:15:13Z",
+      "inputHash": "ed2015b58d9c03c7"
+     },
+     {
+      "file": "401872657-rev-1912Z.json",
+      "generatedAt": "2026-09-10T19:12:22Z",
+      "inputHash": "e829ff882bcd2d69"
+     },
+     {
+      "file": "401872657-rev-1941Z.json",
+      "generatedAt": "2026-09-10T19:41:08Z",
+      "inputHash": "146d3570276c3650"
+     },
+     {
+      "file": "401872657-rev-2256Z.json",
+      "generatedAt": "2026-09-10T22:56:45Z",
+      "inputHash": "739be4ef72ef18e9"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-09-11T13:21:18Z",
+    "settledAt": "2026-09-11T14:09:45Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 7,
+     "away": 27,
+     "margin": -20,
+     "total": 34,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false
+    },
+    "margin": {
+     "projected": 5,
+     "actual": -20,
+     "absError": 25,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 51,
+     "actual": 34,
+     "absError": 17,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 28,
+      "away": 23,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 25
+    },
+    "probabilistic": {
+     "brier": 0.338491,
+     "logLoss": 0.871795
+    }
+   },
+   "marketBenchmark": null
+  }
+ ],
+ "pending": [
   {
    "canonicalEventId": "nfl-401872658",
    "matchup": "ATL @ PIT",
@@ -105,23 +190,23 @@
  "quarantined": [],
  "accounting": {
   "receipts": 15,
-  "settled": 0,
-  "pending": 15,
+  "settled": 1,
+  "pending": 14,
   "quarantined": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
   "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerAccuracy": 0,
+  "marginMAE": 25,
+  "totalMAE": 17,
+  "marginInterval80Coverage": 0,
+  "totalInterval80Coverage": 1,
+  "brier": 0.3385,
+  "logLoss": 0.8718
  },
  "marketBenchmark": null,
  "comparison": null
