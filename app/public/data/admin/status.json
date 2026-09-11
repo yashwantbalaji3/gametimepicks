@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-11T14:48:24.637Z",
+  "generatedAt": "2026-09-11T14:51:16.052Z",
   "canonical": {
     "record": "27-22",
     "bankroll": 17865.4,
@@ -62,7 +62,7 @@
           "legs": 2,
           "combinedOdds": 120,
           "stake": 100,
-          "potentialReturn": 219.96,
+          "potentialReturn": 219.62,
           "selections": [
             "Los Angeles Dodgers to win",
             "Milwaukee Brewers to win"
@@ -73,12 +73,12 @@
           "status": "active",
           "step": 2,
           "legs": 2,
-          "combinedOdds": 201,
+          "combinedOdds": 203,
           "stake": 307.93,
-          "potentialReturn": 925.51,
+          "potentialReturn": 933.56,
           "selections": [
-            "San Diego Padres to win",
-            "Kansas City Royals +1.5"
+            "Washington Nationals to win",
+            "Over 8"
           ]
         }
       ]
@@ -95,8 +95,8 @@
           "stake": 25,
           "potentialReturn": 100.06,
           "selections": [
-            "Under 7.5",
-            "Boston Red Sox -1.5"
+            "Chicago Cubs -1.5",
+            "Under 7.5"
           ]
         },
         {
@@ -106,10 +106,10 @@
           "legs": 2,
           "combinedOdds": 300,
           "stake": 25,
-          "potentialReturn": 100.02,
+          "potentialReturn": 100.06,
           "selections": [
-            "Baltimore Orioles to win",
-            "Over 7.5"
+            "Under 7.5",
+            "Boston Red Sox -1.5"
           ]
         }
       ]
@@ -178,15 +178,15 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-11",
       "present": true,
-      "generatedAt": "2026-09-11T14:02:11Z",
+      "generatedAt": "2026-09-11T14:13:20Z",
       "watchdog": [],
       "states": {
         "bank-builder": {
-          "state": "NO_PLAY",
+          "state": "ACTIVE",
           "policyVersion": "bank-builder@1"
         },
         "moonshot": {
-          "state": "NO_PLAY",
+          "state": "ACTIVE",
           "policyVersion": "moonshot@2"
         },
         "end-zone-vault": {
@@ -221,16 +221,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-11T14:48:23.728Z",
+    "lastRunAt": "2026-09-11T14:48:25.625Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-11",
-    "etTime": "10:48",
+    "etTime": "10:51",
     "stages": [
       {
         "stage": "schedule",
