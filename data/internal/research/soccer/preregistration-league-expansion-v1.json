@@ -1,0 +1,34 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-league-expansion-preregistration",
+ "dataClass": "PRIVATE_RESEARCH",
+ "registeredAt": "2026-09-11T14:40:00Z",
+ "registeredBeforeAnyScoring": "Committed before a single LaLiga, Serie A, Bundesliga or Ligue 1 prediction was scored. EPL is scored only as the harness-parity control; its numbers were already public in reports/model-v1-evaluation.json.",
+ "purpose": "Decide, per league, whether the model EPL already publishes may publish model-only match forecasts for LaLiga, Serie A, Bundesliga and Ligue 1 — on exactly the evidence EPL was published on, no more and no less.",
+ "whatIsBeingTested": {
+  "model": "epl-model-v1-split-poisson — lib/sports/epl/strength-state.mjs fitEplStrength + scoreMatrix with committed defaults (no shrinkage, no Dixon-Coles, no time decay). Applied to each league unchanged; nothing is tuned.",
+  "harness": "lib/sports/soccer/walk-forward.mjs — EPL's protocol: walk forward by UTC calendar day, one pregame state per day fit on strictly earlier-dated matches, warm-up folded never scored, cold starts at league average.",
+  "data": "football-data.co.uk results + de-vigged market-average closing 1X2 (data/internal/research/soccer/<league>/corpus-football-data-v1.json)"
+ },
+ "seasons": { "warmup": "2022-23", "development": ["2023-24", "2024-25"], "holdout": "2025-26", "notScored": "2026-27 (in progress — live shadow only)" },
+ "baselines": {
+  "empirical": "running league H/D/A frequencies, Laplace +1",
+  "elo": "K=20, home advantage +60, P(draw) = running empirical draw rate",
+  "market": "de-vigged market-average closing 1X2 — a REFERENCE, never an input"
+ },
+ "acceptanceBars": {
+  "note": "ALL must hold, per league, on the 2025-26 HOLDOUT, for that league to publish model-only forecasts. Any failure is a rejection for this model version and is recorded, not retried with a new bar.",
+  "bars": [
+   { "id": "H0_harness_parity", "statement": "Before any league verdict counts: EPL run through this harness reproduces reports/baseline-evaluation-v1.json per season (2023-24, 2024-25, 2025-26) for empirical, elo and poisson within ±0.003 log loss. If it does not, every verdict below is VOID.", "reference": { "poisson": { "2023-24": 0.9601, "2024-25": 0.9999, "2025-26": 1.045 }, "elo": { "2023-24": 0.9744, "2024-25": 0.9968, "2025-26": 1.026 }, "empirical": { "2023-24": 1.0566, "2024-25": 1.0843, "2025-26": 1.0839 } } },
+   { "id": "L1_skill", "statement": "poisson holdout log loss ≤ empirical holdout log loss − 0.005", "why": "The model must know something real about the clubs, by a margin — EPL clears this by 0.039 on 2025-26." },
+   { "id": "L2_calibration", "statement": "poisson holdout ECE (10-bin, all outcome probabilities) ≤ 0.030", "why": "A public probability must mean what it says. EPL's draw ECE reference is 0.0262." },
+   { "id": "L3_development_consistency", "statement": "poisson log loss ≤ empirical log loss − 0.005 on EACH development season too", "why": "A single good season is not a model." }
+  ]
+ },
+ "reportedNotGating": {
+  "elo": "poisson vs elo holdout log loss is reported. EPL's published model does NOT beat Elo on 2025-26 (1.045 vs 1.026), so gating other leagues on it would hold them to a standard EPL itself does not meet; it stays a disclosed limitation, exactly as for EPL.",
+  "market": "model − market holdout log loss is reported. Every model in this repository has lost to the closing market; this comparison is never marketed as beating anything and never gates publication of a model-only forecast."
+ },
+ "stoppingRule": "One run per league for this version. A rejected league stays rejected for epl-model-v1-split-poisson; any variant (shrinkage, Dixon-Coles, decay, league-specific parameters) needs its own preregistration and a season nobody has looked at.",
+ "whatThisDoesNotTest": "Player markets (Phase C, separate preregistration), prices, cross-league competitions, or whether any forecast beats the market."
+}
