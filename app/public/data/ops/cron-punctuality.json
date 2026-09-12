@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "artifact": "cron-punctuality",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-12T13:49:35.000Z",
+  "generatedAt": "2026-09-12T17:22:32.000Z",
   "windowDays": 7,
   "bands": {
     "onTimeMaxMinutes": 60,
@@ -13,60 +13,12 @@
     "measurableWorkflows": 10,
     "unmeasurableWorkflows": 10,
     "fleetMedianDelayMinutes": 244,
-    "worstWorkflow": "sport-schedules.yml",
+    "worstWorkflow": "daily-products.yml",
     "missedTotal": 1,
     "underCoveredWorkflows": [],
     "state": "SEVERE"
   },
   "workflows": [
-    {
-      "workflow": "sport-schedules.yml",
-      "crons": [
-        "7 9 * * *"
-      ],
-      "minGapMinutes": 1440,
-      "attributable": true,
-      "judgedSlots": 6,
-      "servedSlots": 5,
-      "missedSlots": 1,
-      "observedRuns": 34,
-      "coverageRatio": 1,
-      "medianDelayMinutes": 457,
-      "maxDelayMinutes": 468,
-      "state": "SEVERE",
-      "samples": [
-        {
-          "slot": "2026-09-07T09:07:00.000Z",
-          "run": null,
-          "delayMinutes": null,
-          "state": "MISSED"
-        },
-        {
-          "slot": "2026-09-08T09:07:00.000Z",
-          "run": "2026-09-08T16:53:10.000Z",
-          "delayMinutes": 466,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-09-09T09:07:00.000Z",
-          "run": "2026-09-09T16:55:28.000Z",
-          "delayMinutes": 468,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-09-10T09:07:00.000Z",
-          "run": "2026-09-10T16:43:34.000Z",
-          "delayMinutes": 457,
-          "state": "SEVERE"
-        },
-        {
-          "slot": "2026-09-11T09:07:00.000Z",
-          "run": "2026-09-11T13:28:33.000Z",
-          "delayMinutes": 262,
-          "state": "SEVERE"
-        }
-      ]
-    },
     {
       "workflow": "daily-products.yml",
       "crons": [
@@ -77,7 +29,7 @@
       "judgedSlots": 6,
       "servedSlots": 6,
       "missedSlots": 0,
-      "observedRuns": 38,
+      "observedRuns": 39,
       "coverageRatio": 1,
       "medianDelayMinutes": 417,
       "maxDelayMinutes": 460,
@@ -111,6 +63,54 @@
           "slot": "2026-09-11T11:41:00.000Z",
           "run": "2026-09-11T15:10:24.000Z",
           "delayMinutes": 209,
+          "state": "SEVERE"
+        }
+      ]
+    },
+    {
+      "workflow": "sport-schedules.yml",
+      "crons": [
+        "7 9 * * *"
+      ],
+      "minGapMinutes": 1440,
+      "attributable": true,
+      "judgedSlots": 7,
+      "servedSlots": 6,
+      "missedSlots": 1,
+      "observedRuns": 34,
+      "coverageRatio": 1,
+      "medianDelayMinutes": 405,
+      "maxDelayMinutes": 468,
+      "state": "SEVERE",
+      "samples": [
+        {
+          "slot": "2026-09-08T09:07:00.000Z",
+          "run": "2026-09-08T16:53:10.000Z",
+          "delayMinutes": 466,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-09-09T09:07:00.000Z",
+          "run": "2026-09-09T16:55:28.000Z",
+          "delayMinutes": 468,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-09-10T09:07:00.000Z",
+          "run": "2026-09-10T16:43:34.000Z",
+          "delayMinutes": 457,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-09-11T09:07:00.000Z",
+          "run": "2026-09-11T13:28:33.000Z",
+          "delayMinutes": 262,
+          "state": "SEVERE"
+        },
+        {
+          "slot": "2026-09-12T09:07:00.000Z",
+          "run": "2026-09-12T12:48:33.000Z",
+          "delayMinutes": 222,
           "state": "SEVERE"
         }
       ]
@@ -218,8 +218,8 @@
       ],
       "minGapMinutes": 1440,
       "attributable": true,
-      "judgedSlots": 6,
-      "servedSlots": 6,
+      "judgedSlots": 7,
+      "servedSlots": 7,
       "missedSlots": 0,
       "observedRuns": 21,
       "coverageRatio": 1,
@@ -227,12 +227,6 @@
       "maxDelayMinutes": 364,
       "state": "SEVERE",
       "samples": [
-        {
-          "slot": "2026-09-07T08:00:00.000Z",
-          "run": "2026-09-07T14:04:27.000Z",
-          "delayMinutes": 364,
-          "state": "SEVERE"
-        },
         {
           "slot": "2026-09-08T08:00:00.000Z",
           "run": "2026-09-08T12:41:47.000Z",
@@ -256,6 +250,12 @@
           "run": "2026-09-11T12:41:14.000Z",
           "delayMinutes": 281,
           "state": "SEVERE"
+        },
+        {
+          "slot": "2026-09-12T08:00:00.000Z",
+          "run": "2026-09-12T12:01:21.000Z",
+          "delayMinutes": 241,
+          "state": "SEVERE"
         }
       ]
     },
@@ -269,7 +269,7 @@
       "judgedSlots": 6,
       "servedSlots": 6,
       "missedSlots": 0,
-      "observedRuns": 51,
+      "observedRuns": 52,
       "coverageRatio": 1,
       "medianDelayMinutes": 244,
       "maxDelayMinutes": 314,
@@ -417,7 +417,7 @@
       "judgedSlots": 1,
       "servedSlots": 1,
       "missedSlots": 0,
-      "observedRuns": 1,
+      "observedRuns": 2,
       "coverageRatio": 1,
       "medianDelayMinutes": 139,
       "maxDelayMinutes": 139,
@@ -508,7 +508,7 @@
       "judgedSlots": 16,
       "servedSlots": null,
       "missedSlots": null,
-      "observedRuns": 49,
+      "observedRuns": 50,
       "coverageRatio": 1,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
@@ -539,10 +539,10 @@
       ],
       "minGapMinutes": 30,
       "attributable": false,
-      "judgedSlots": 17,
+      "judgedSlots": 18,
       "servedSlots": null,
       "missedSlots": null,
-      "observedRuns": 58,
+      "observedRuns": 61,
       "coverageRatio": 1,
       "medianDelayMinutes": null,
       "maxDelayMinutes": null,
@@ -565,7 +565,7 @@
       ],
       "minGapMinutes": 60,
       "attributable": false,
-      "judgedSlots": 70,
+      "judgedSlots": 69,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 100,
@@ -585,7 +585,7 @@
       ],
       "minGapMinutes": 30,
       "attributable": false,
-      "judgedSlots": 56,
+      "judgedSlots": 55,
       "servedSlots": null,
       "missedSlots": null,
       "observedRuns": 100,
