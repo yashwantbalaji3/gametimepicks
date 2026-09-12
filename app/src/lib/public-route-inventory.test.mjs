@@ -126,6 +126,11 @@ const APPROVED_DESTINATIONS = new Set([
   "/research",
   "/system-status",
   "/about",
+  /* P266: the account surface. It is NOT in any nav surface yet and that is deliberate — until a
+     Supabase project is connected it renders one paragraph explaining that accounts are not open, and
+     a nav entry pointing at that would be an invitation to nothing. It joins the nav when the keys
+     land. Noindex either way: a personal record has no business in search results. */
+  "/account",
 ]);
 
 /** Nothing in a nav surface may point at any of these, however it is labelled. */

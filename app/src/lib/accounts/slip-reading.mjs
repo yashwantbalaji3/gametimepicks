@@ -14,6 +14,13 @@
  *     correlation. That is disclosed, not flagged as wrong.
  */
 
+/**
+ * The image rules, in ONE place: the browser refuses the same files the endpoint refuses, so a person
+ * never uploads something that is rejected only after it has been stored.
+ */
+export const ALLOWED_IMAGE_TYPES = Object.freeze(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+
 /** The exact JSON we ask for. Kept beside the validator so the two can never drift apart. */
 export const SLIP_READING_SCHEMA = Object.freeze({
   book: "string | null — the sportsbook's name if it is visible",
@@ -141,6 +148,9 @@ export function validateReading(raw) {
 /**
  * The row a CONFIRMED reading becomes. Refuses anything unconfirmed — the database's `confirmed_at`
  * is what separates a record from a guess, and it may only be set by the person who uploaded it.
+ *
+ * @param {Record<string, any> | null} normalised
+ * @param {{ userId: string, source: "screenshot" | "manual" | "book_sync", imagePath?: string | null, confirmedAt: string }} opts
  */
 export function toBetSlipRow(normalised, { userId, source, imagePath = null, confirmedAt }) {
   if (!normalised) throw new Error("no reading to save");

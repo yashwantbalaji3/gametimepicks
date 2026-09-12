@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-11T14:37:03Z",
+ "generatedAt": "2026-09-12T14:25:17Z",
  "totals": {
-  "routes": 69,
-  "public": 44,
+  "routes": 70,
+  "public": 45,
   "internal": 6,
   "redirects": 15,
   "archive": 2,
@@ -29,6 +29,15 @@
    "purpose": "what this is",
    "dataOwner": "static copy",
    "freshness": "static",
+   "built": true
+  },
+  {
+   "route": "/account",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "the reader's own bet record: add a slip, confirm what was read, see how it has gone",
+   "dataOwner": "the reader's own rows (RLS-scoped)",
+   "freshness": "per reader",
    "built": true
   },
   {
@@ -247,7 +256,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (112 generated page(s))"
+   "built": "FAMILY (113 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -457,7 +466,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (96 generated page(s))"
+   "built": "FAMILY (97 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -540,7 +549,7 @@
    "purpose": "one static page per in-window date — same selector, date as the route (P209)",
    "dataOwner": "lib/simulate/day-view over per-sport owners",
    "freshness": "each owner's own stamp",
-   "built": "FAMILY (24 generated page(s))"
+   "built": "FAMILY (25 generated page(s))"
   },
   {
    "route": "/soccer/ligue-1",

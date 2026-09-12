@@ -8,10 +8,11 @@
  * FAIL-CLOSED, like the morning trigger: with no keys the endpoint answers 503 and reads nothing.
  */
 
-/** Claude's vision input types. A slip photographed as a PDF or HEIC is converted client-side first. */
-export const ALLOWED_TYPES = Object.freeze(["image/png", "image/jpeg", "image/webp", "image/gif"]);
-/** Generous for a phone screenshot, far below the model's limit; a bigger file is a mistake, not a slip. */
-export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+/* ONE definition of the image rules, shared with the browser so both refuse the same files
+   (src/lib/accounts/slip-reading.mjs). A limit enforced in only one of two places is a limit that
+   rejects a file after it has already been stored. */
+export { ALLOWED_IMAGE_TYPES as ALLOWED_TYPES, MAX_IMAGE_BYTES } from "../src/lib/accounts/slip-reading.mjs";
+import { ALLOWED_IMAGE_TYPES as ALLOWED_TYPES, MAX_IMAGE_BYTES } from "../src/lib/accounts/slip-reading.mjs";
 export const REQUIRED_ENV = Object.freeze(["ANTHROPIC_API_KEY", "SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_SUPABASE_URL"]);
 
 /** Which required variables are absent. Names only — a value is never read into a message or a log. */
