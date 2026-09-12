@@ -601,7 +601,11 @@ export default function NflHubPage() {
                     >
                       <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 650 }}>{f.matchup}</span>
                       <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
-                        {f.kickoffUtc.slice(0, 10)} · {f.seasonType === 1 ? "preseason" : "regular season"} week {f.week}
+                        {/* ET, like every other date on this site. `kickoffUtc.slice(0,10)` printed the
+                            UTC calendar day, so every night game was listed a day late: the games
+                            list said "Mon, Sep 14 · 8:15 PM ET" for DEN at KC and this list said
+                            2026-09-15 for the same kickoff. */}
+                        {etDay(f.kickoffUtc)} · {f.seasonType === 1 ? "preseason" : "regular season"} week {f.week}
                       </span>
                       <span
                         className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"

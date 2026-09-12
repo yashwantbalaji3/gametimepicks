@@ -44,7 +44,13 @@ test("scheduled, reportable and read-bearing are counted SEPARATELY", () => {
     row({ id: "b", reportState: "NONE", reportHref: null }),
     row({ id: "c", started: true }),
   ];
-  assert.deepEqual(hubCounts(rows), { scheduled: 3, withReport: 2, withRead: 1, started: 1 });
+  /* REPOINTED 2026-09-12: `scheduled` counts what has NOT started. It used to be rows.length, so a
+     UFC card whose thirteen bouts had all begun printed "13 scheduled · 13 started or final" —
+     twenty-six on a thirteen-bout card, beside a promise of counts a reader can check. */
+  assert.deepEqual(hubCounts(rows), { scheduled: 2, withReport: 2, withRead: 1, started: 1 });
+  // The two halves partition the card: nothing is both upcoming and finished, nothing is neither.
+  const c = hubCounts(rows);
+  assert.equal(c.scheduled + c.started, rows.length, "scheduled + started must be the row count");
 });
 
 test("an empty slate counts to zero without throwing", () => {

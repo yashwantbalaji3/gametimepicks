@@ -105,7 +105,11 @@ export function orderRows(rows: HubGameRow[]): HubGameRow[] {
  *  DIFFERENT numbers, and conflating them is how a page comes to claim every game is simulated. */
 export function hubCounts(rows: HubGameRow[]): { scheduled: number; withReport: number; withRead: number; started: number } {
   return {
-    scheduled: rows.length,
+    /* NOT-YET-STARTED, because that is what the word means and what sits beside it. This counted
+       every row, so a UFC card whose thirteen bouts had all begun printed "13 scheduled · 13
+       started or final" — twenty-six on a thirteen-bout card, and the comment above promises counts
+       a reader can check against the rows in front of them. */
+    scheduled: rows.filter((r) => !r.started).length,
     withReport: rows.filter((r) => r.reportState !== "NONE").length,
     withRead: rows.filter((r) => r.read !== null).length,
     started: rows.filter((r) => r.started).length,
