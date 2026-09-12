@@ -14,6 +14,7 @@
 import Link from "next/link";
 import MatchupIdentity from "@/components/ui/matchup-identity";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
+import { firstOfRun, sharedValue } from "@/lib/ui/repeat-suppression";
 import type { SlateGameRow, SlateGroup, SlateSummary } from "@/lib/today/slate-games";
 
 const CHIP: Record<SlateGameRow["tone"], { color: string; bg: string }> = {
@@ -22,7 +23,7 @@ const CHIP: Record<SlateGameRow["tone"], { color: string; bg: string }> = {
   mute: { color: "var(--vault-text-mute)", bg: "var(--vault-wash)" },
 };
 
-function SlateRow({ g }: { g: SlateGameRow }) {
+function SlateRow({ g, showExplanation }: { g: SlateGameRow; showExplanation: boolean }) {
   const chip = CHIP[g.tone];
   const time = formatEtTime(g.firstPitchIso);
   const meta = [time ? `First pitch ${time}` : null, g.startState === "started" ? "Started" : null]
@@ -54,8 +55,12 @@ function SlateRow({ g }: { g: SlateGameRow }) {
           </span>
         </div>
       </div>
-      {/* Neutral "why open this game?" line — never a pick or a confidence claim. */}
-      <span style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.3 }}>{g.explanation}</span>
+      {/* Neutral "why open this game?" line — never a pick or a confidence claim. Hidden on the row
+          when the group above already states it for every game it covers; the aria-label keeps it
+          on the row either way, so a reader landing on one row alone is never short of it. */}
+      {showExplanation ? (
+        <span style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.3 }}>{g.explanation}</span>
+      ) : null}
       {/* Compact canonical prediction (Sprint 009) — the SAME decision the Game Report hero states. */}
       {g.predictionLine ? (
         <span className="font-mono" style={{ color: "var(--vault-gold)", fontSize: 10, letterSpacing: "0.02em" }}>
@@ -67,15 +72,44 @@ function SlateRow({ g }: { g: SlateGameRow }) {
   );
 }
 
+/*
+ * SAY IT ONCE FOR THE GROUP, NOT ONCE PER GAME (P287).
+ *
+ * The explanation is a property of the availability LEVEL, not of the game — every simulation-ready
+ * game that has kicked off carries the identical sentence. On a fifteen-game slate that printed
+ * "Game started — the pregame simulation and its uncertainty range are preserved for review." ten
+ * times and "Simulation report and uncertainty range are available." five more, under one heading,
+ * beside a chip and a "Started" stamp that already said the same thing. Around 1,100 characters of
+ * the board, repeating two facts.
+ *
+ * ONE RULE, in one place: a row never repeats the sentence the line above it already said. The rule
+ * itself lives in lib/ui/repeat-suppression so /results' per-date accounting collapses identically.
+ *
+ * When every game in the group says the same thing, that is the group's header — one sentence for
+ * the whole block. Otherwise the sentence prints at the head of each run of games that share it, so
+ * it still introduces the rows it describes and still distinguishes them from the rows that follow.
+ * A group of one always prints it: there is no line above to have said it.
+ *
+ * Nothing is dropped. The contract still carries `explanation` per game, and each row's aria-label
+ * still reads it, so a screen reader on one row hears exactly the words it always did.
+ */
 function Group({ group }: { group: SlateGroup }) {
+  const notes = group.games.map((g) => g.explanation);
+  const headerNote = sharedValue(notes);
+  const showOnRow = firstOfRun(notes);
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-baseline gap-2">
-        <h3 className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{group.heading}</h3>
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{group.games.length}</span>
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-baseline gap-2">
+          <h3 className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{group.heading}</h3>
+          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{group.games.length}</span>
+        </div>
+        {headerNote ? (
+          <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.35 }}>{headerNote}</p>
+        ) : null}
       </div>
-      {group.games.map((g) => (
-        <SlateRow key={g.slug} g={g} />
+      {group.games.map((g, i) => (
+        <SlateRow key={g.slug} g={g} showExplanation={headerNote === null && showOnRow[i]} />
       ))}
     </div>
   );

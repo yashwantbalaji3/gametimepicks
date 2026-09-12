@@ -26,36 +26,105 @@ export const GATE_PACKETS_VERSION = 1;
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
-/**
- * The NFL paid-odds renewal packet.
+/*
+ * A GATE THAT HAS BEEN ANSWERED IS NOT A GATE (P287).
  *
- * Program 171 authorised 3,000 credits for NFL only. It expired at program close — NOT at the
- * ceiling, which is the fact that changes what is being asked: the budget was barely touched, so
- * this is a renewal of permission rather than a request for more money.
+ * This packet hardcoded "Program 171's NFL odds authorization expired at program close" as its
+ * question and "NFL publishes no priced product today" as its evidence. The founder answered it on
+ * 2026-09-10 — docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md, NFL-only, team markets, 500-credit
+ * ceiling — and the capture has been running against it since. So this box asked the founder to
+ * decide something already decided, against a coverage claim the priced Week-1 slate contradicts.
+ *
+ * That is not a cosmetic staleness. A stale renewal prompt invites a SECOND authorization for spend
+ * that is already authorized, which is the one mistake this whole packet exists to prevent. (It
+ * misled a reader for real: it was quoted back to the founder in September as a live expiry.)
+ *
+ * So the packet now READS the live receipt rather than asserting its absence, and reports RESOLVED
+ * with the terms actually granted. Fail-closed in the honest direction: an unreadable or
+ * unrecognised receipt goes back to asking the question, because "we could not read it" must never
+ * render as "you are authorized".
  */
+const NFL_RECEIPTS = [
+  // Newest first — the first readable one wins, exactly as the capture resolves it.
+  "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md",
+  "docs/receipts/ODDS_AUTHORIZATION_P171.md",
+];
+
+/** The live NFL odds receipt's stated terms, or null when none can be read. */
+function nflAuthorization(root) {
+  for (const rel of NFL_RECEIPTS) {
+    let text;
+    try { text = fs.readFileSync(path.join(root, rel), "utf8"); } catch { continue; }
+    // A receipt that says it lapsed is not the live one, whatever its filename.
+    if (/\blapsed\b[^.]{0,80}\bclose\b/i.test(text) && !/## Operative terms/.test(text)) continue;
+    const term = (label) => {
+      const m = new RegExp(`^\\|\\s*${label}\\s*\\|\\s*(.+?)\\s*\\|\\s*$`, "im").exec(text);
+      return m ? m[1].replace(/\*\*/g, "").trim() : null;
+    };
+    const ceiling = term("Cumulative ceiling");
+    const markets = term("Markets");
+    const scope = term("Scope");
+    const expiry = term("Expiry");
+    const granted = /founder,?\s*(\d{4}-\d{2}-\d{2})/i.exec(text)?.[1] ?? null;
+    // Every term must be present, or we do not know what was authorized.
+    if (!ceiling || !markets || !scope || !expiry) continue;
+    return { receipt: rel, ceiling, markets, scope, expiry, granted };
+  }
+  return null;
+}
+
 function nflOddsPacket(root) {
   const ledger = readJson(path.join(root, "data/internal/research/odds/nfl/p171-ledger.json"));
   const used = ledger?.cumulativeCredits ?? null;
-  const CEILING = 3000; // from docs/receipts/ODDS_AUTHORIZATION_P171.md — a stated term, not derived
   const opening = ledger?.openingBalance ?? null;
   const requests = ledger?.requests ?? [];
   const paid = requests.filter((r) => (r.creditsUsed ?? 0) > 0);
   const lastPaid = paid.length ? paid[paid.length - 1] : null;
+  const auth = nflAuthorization(root);
+
+  const ledgerEvidence = [
+    used == null
+      ? "No credit ledger is committed — the spend figure cannot be stated, so nothing should be signed against it."
+      : `${used} credits spent across ${requests.length} recorded requests (${paid.length} of them paid).`,
+    opening
+      ? `Opening balance, provider-verified from response headers on ${opening.capturedAt}: ${opening.providerRequestsUsed} used, ${opening.providerRequestsRemaining} remaining on the account.`
+      : "No provider-verified opening balance is recorded.",
+    lastPaid ? `Last paid call: ${lastPaid.at} — ${lastPaid.purpose}.` : "No paid call is recorded under this authorization.",
+  ];
+
+  if (auth) {
+    return {
+      id: "gate-nfl-odds-renewal",
+      title: "NFL paid odds — authorized",
+      gate: "RESOLVED",
+      question: `Answered${auth.granted ? ` on ${auth.granted}` : ""}. Nothing is being asked; these are the terms in force.`,
+      evidence: [
+        `Live receipt: ${auth.receipt}. Scope ${auth.scope}. Markets ${auth.markets}. Ceiling ${auth.ceiling}. Expiry: ${auth.expiry}.`,
+        ...ledgerEvidence,
+      ],
+      scopeIfRenewed: null,
+      rules: [
+        "Bulk endpoints only where the provider charges per-market — a per-event loop costs ~20x for the same data.",
+        "No blind retry on a quota-bearing endpoint; a typed transient failure only, bounded.",
+        "Request/response metadata is redacted in every receipt; no provider key is ever logged or committed.",
+        "Every call appends to the authorization ledger before the data is used.",
+      ],
+      dryRun: "npx tsx app/scripts/nfl/capture-nfl-odds.mjs --dry-run — prints the request plan and credit estimate, issues nothing.",
+      answerTokens: [],
+      forbiddenWithoutToken: "any market outside the receipt's stated scope, any call whose worst case would breach the stated ceiling, and any new cron — a schedule is still a separate decision.",
+      neverShare: "These terms authorise SPEND. They are not a credential.",
+    };
+  }
 
   return {
     id: "gate-nfl-odds-renewal",
     title: "NFL paid odds — renew the authorization, or leave NFL on free data",
     gate: "FOUNDER",
-    question: "Program 171's NFL odds authorization expired at program close. Renew it, change its scope, or decline?",
+    question: "No readable NFL odds authorization receipt is committed. Authorize a scope and ceiling, or decline?",
     evidence: [
-      used == null
-        ? "No P171 ledger is committed — the spend figure cannot be stated, so no renewal should be signed against it."
-        : `${used} of ${CEILING} credits were used across ${requests.length} recorded requests (${paid.length} of them paid). It expired by PROGRAM CLOSE, not by exhausting the ceiling — ${CEILING - used} credits of the original grant were never spent.`,
-      opening
-        ? `Opening balance, provider-verified from response headers on ${opening.capturedAt}: ${opening.providerRequestsUsed} used, ${opening.providerRequestsRemaining} remaining on the account.`
-        : "No provider-verified opening balance is recorded.",
-      lastPaid ? `Last paid call: ${lastPaid.at} — ${lastPaid.purpose}.` : "No paid call is recorded under this authorization.",
-      "Current NFL coverage without it: 2 events in the offered window sit NOT_YET_CAPTURED. NFL publishes no priced product today.",
+      "No committed receipt states a scope, a ceiling and an expiry — so the capture refuses every call, and nothing here can say what is permitted.",
+      ...ledgerEvidence,
+      "NFL coverage without one: the offered window reports NOT_YET_CAPTURED with that reason, and no priced NFL product publishes.",
     ],
     scopeIfRenewed: {
       sport: "americanfootball_nfl only — every other sport key out of scope",
@@ -82,7 +151,7 @@ function nflOddsPacket(root) {
       { token: "AUTHORIZE:NFL:<market-scope>:<credit-ceiling>:<expiry>", does: "renews with the scope, cumulative ceiling and expiry YOU state — e.g. AUTHORIZE:NFL:team-markets:500:2026-10-01" },
       { token: "DEFER", does: "NFL stays on free data; the offered window keeps reporting NOT_YET_CAPTURED with that reason" },
     ],
-    forbiddenWithoutToken: "any paid call, any new cron, any broadening of the expired scope",
+    forbiddenWithoutToken: "any paid call, and any new cron",
     neverShare: "This decision authorises SPEND. It is not a credential and must not be answered by anyone who is not the account owner.",
   };
 }
@@ -170,9 +239,13 @@ function consoleDeliveryPacket(deployment) {
 export function buildGatePackets({ appDir, moonshotState = null, deployment = null }) {
   const root = path.join(appDir, "..");
   const packets = [consoleDeliveryPacket(deployment), nflOddsPacket(root), moonshotPacket(moonshotState)];
+  /* P287: `open` was packets.length, which was true only while every packet was permanently open.
+     A resolved gate counted as something still owed — the same flattery in reverse: a founder
+     reading "3 decisions waiting" makes time for three, and one of them is already made. */
+  const open = packets.filter((p) => p.gate !== "RESOLVED");
   return {
     version: GATE_PACKETS_VERSION,
     packets,
-    counts: { open: packets.length },
+    counts: { open: open.length, resolved: packets.length - open.length, total: packets.length },
   };
 }

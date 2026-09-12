@@ -256,10 +256,12 @@ export default function NflHubPage() {
     return "Coming up";
   })();
   const simulatedOnSlate = slateGames.filter((g) => eventById.get(g.providerEventId)?.projectedScore).length;
-  /* P246 §6: "Sportsbook prices for this slate" must mean THIS slate. The last authorized
-     capture is from August (authorization expired since); its rows are archived preseason
-     games, and rendering them under a Week-N heading called yesterday's data today's. The
-     section renders only rows belonging to the selected week. */
+  /* P246 §6: "Sportsbook prices for this slate" must mean THIS slate. When this was written the
+     newest authorized capture was an August one taken under a since-expired receipt, so its rows
+     were archived preseason games and rendering them under a Week-N heading called yesterday's data
+     today's. The receipt was renewed 2026-09-10 and current captures exist again — the filter is
+     what makes that safe rather than lucky, because the next gap between captures will look exactly
+     like the old one. The section renders only rows belonging to the selected week. */
   const slateMarketRows = marketRows.filter((r) => weekIds.has(String(r.providerEventId)));
 
   const forecastArtifact = read("nfl/forecasts/latest.json");
@@ -442,9 +444,12 @@ export default function NflHubPage() {
         />
         {/* P246 §3 (founder): the week reads as ONE COMPACT TABLE, not a wall of cards —
             kickoff, matchup, the model's winner, the derived score/total pair, readiness, one
-            action. Guard-held absence copy lives in the readiness cell. Prices carry their own
-            section below only from a current authorized capture — none exists (authorization
-            expired), so no price column pretends otherwise. */}
+            action. Guard-held absence copy lives in the readiness cell. Prices are NOT a column
+            here: they carry their own section below, rendered only from a current authorized
+            capture, so this table never mixes a book's number into a row of model output. (This
+            comment used to say no such capture existed because the authorization had expired; the
+            receipt was renewed 2026-09-10 and the price section does render. The reason for keeping
+            prices out of this table was never the absence of prices.) */}
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
             <thead>

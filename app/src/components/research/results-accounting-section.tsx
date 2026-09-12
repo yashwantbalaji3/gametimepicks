@@ -22,6 +22,7 @@ import {
   type DateAccounting,
   type OutcomeState,
 } from "@/lib/research/results-accounting";
+import { firstOfRun } from "@/lib/ui/repeat-suppression";
 
 const pct = (v: number | null): string => (v == null ? "—" : `${(v * 100).toFixed(2)}%`);
 
@@ -95,7 +96,7 @@ const BUCKETS: readonly { key: keyof DateAccounting; state: OutcomeState }[] = [
   { key: "passes", state: "PASS" },
 ];
 
-function Row({ a }: { a: DateAccounting }) {
+function Row({ a, showMeaning }: { a: DateAccounting; showMeaning: boolean }) {
   const integrity = INTEGRITY_COPY[a.integrity];
   const withheld = a.integrity === "QUARANTINED";
 
@@ -113,7 +114,10 @@ function Row({ a }: { a: DateAccounting }) {
           {integrity.label}
         </span>
       </div>
-      <p className="mt-1 text-[13px] text-[var(--text-mute)]">{integrity.meaning}</p>
+      {/* P287: the meaning belongs to the integrity STATE, not the date. Eight consecutive complete
+          slates printed it eight times beside eight "Complete" tags that already said it. It prints
+          at the head of each run of like dates, so it still introduces the run it explains. */}
+      {showMeaning ? <p className="mt-1 text-[13px] text-[var(--text-mute)]">{integrity.meaning}</p> : null}
 
       {withheld ? (
         <p className="mt-3 text-[14px] leading-relaxed text-[var(--text-mute)]">
@@ -182,7 +186,7 @@ function Row({ a }: { a: DateAccounting }) {
 }
 
 /** A date the accounting has nothing for, rendered as its own state rather than left as a gap. */
-function NotProducedRow({ date }: { date: string }) {
+function NotProducedRow({ date, showMeaning }: { date: string; showMeaning: boolean }) {
   return (
     <li
       className="rounded-[6px] border border-dashed p-4"
@@ -194,7 +198,7 @@ function NotProducedRow({ date }: { date: string }) {
           {NEVER_GENERATED.label}
         </span>
       </div>
-      <p className="mt-1 text-[13px] text-[var(--text-mute)]">{NEVER_GENERATED.meaning}</p>
+      {showMeaning ? <p className="mt-1 text-[13px] text-[var(--text-mute)]">{NEVER_GENERATED.meaning}</p> : null}
       <p className="mt-3 text-[14px] leading-relaxed text-[var(--text-mute)]">
         Nothing was generated for this date, so there are no rows, no outcomes and{" "}
         <strong className="text-[var(--text)]">no rate</strong>. This is different from a withheld
@@ -229,11 +233,20 @@ export default function ResultsAccountingSection({ rows }: { rows: readonly Date
         beside it.
       </p>
 
+      {/* One sentence per RUN of like states, not per date — the rule's owner is
+          lib/ui/repeat-suppression, shared with /today's slate board. A NotProducedRow carries its
+          own distinct copy, so it counts as its own state in the run. */}
       <ul className="mt-4 space-y-3">
-        {timeline.map((date) => {
-          const a = known.get(date);
-          return a ? <Row key={date} a={a} /> : <NotProducedRow key={date} date={date} />;
-        })}
+        {(() => {
+          const states = timeline.map((date) => known.get(date)?.integrity ?? "NEVER_GENERATED");
+          const showMeaning = firstOfRun(states);
+          return timeline.map((date, i) => {
+            const a = known.get(date);
+            return a
+              ? <Row key={date} a={a} showMeaning={showMeaning[i]} />
+              : <NotProducedRow key={date} date={date} showMeaning={showMeaning[i]} />;
+          });
+        })()}
       </ul>
 
       <details className="mt-4 rounded-[6px] border border-[var(--vault-border)] p-4">

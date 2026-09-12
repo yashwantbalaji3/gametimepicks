@@ -22,15 +22,40 @@ const APP = process.cwd();
 const ROOT = path.join(APP, "..");
 const built = buildGatePackets({ appDir: APP });
 
-test("all three actions are present and each is answerable", () => {
+/*
+ * REPOINTED 2026-09-12 (P287). These guards pinned "the NFL gate is an open question about an
+ * EXPIRED P171 authorization" — the state on the day they were written. The founder answered it on
+ * 2026-09-10 and the packet now derives itself from the live receipt, so the old assertions were
+ * holding the board at a stale state: they would have FAILED the honest packet and PASSED the one
+ * that asked the founder to re-authorize spend they had already authorized.
+ *
+ * The invariant underneath is unchanged, and it is what these now assert: an OPEN gate is a question
+ * with evidence and a closed set of answers; a RESOLVED gate asks nothing and states the terms in
+ * force. Neither may be silent about its reason.
+ */
+const isOpen = (p) => p.gate !== "RESOLVED";
+
+test("all three actions are present, and each is either answerable or settled", () => {
   const ids = built.packets.map((p) => p.id).sort();
   assert.deepEqual(ids, ["gate-console-redeploy", "gate-moonshot-disposition", "gate-nfl-odds-renewal"]);
   for (const p of built.packets) {
-    assert.ok(p.question.endsWith("?"), `${p.id}: a gate is a QUESTION`);
     assert.ok(p.evidence.length >= 3, `${p.id}: evidence, not an assertion`);
-    assert.ok(p.answerTokens.length >= 2, `${p.id}: a real choice, not a rubber stamp`);
     assert.ok(p.dryRun && p.forbiddenWithoutToken, `${p.id}: says what may not happen without an answer`);
+    if (isOpen(p)) {
+      assert.ok(p.question.endsWith("?"), `${p.id}: an open gate is a QUESTION`);
+      assert.ok(p.answerTokens.length >= 2, `${p.id}: a real choice, not a rubber stamp`);
+    } else {
+      assert.ok(!p.question.endsWith("?"), `${p.id}: a settled gate must not still be phrased as a question`);
+      assert.equal(p.answerTokens.length, 0, `${p.id}: a settled gate offers nothing to answer`);
+    }
   }
+});
+
+test("a settled gate is not counted as one still owed", () => {
+  assert.equal(built.counts.total, built.packets.length);
+  assert.equal(built.counts.open, built.packets.filter(isOpen).length);
+  assert.equal(built.counts.resolved, built.packets.length - built.counts.open);
+  assert.ok(built.counts.open <= built.packets.length, "open can never exceed the board");
 });
 
 test("THE SPEND FIGURES ARE DERIVED FROM THE LEDGER THE CALLS WROTE", () => {
@@ -56,15 +81,44 @@ test("THE SPEND FIGURES ARE DERIVED FROM THE LEDGER THE CALLS WROTE", () => {
   );
 });
 
-test("the packet states WHY the authorization ended — the fact that changes the ask", () => {
+test("the NFL packet states the authorization's actual standing, and never its opposite", () => {
   /*
-   * P171 expired at program close having used a fraction of its ceiling. "Renew permission" and
-   * "grant more money" are different questions, and only the evidence distinguishes them.
+   * The old shape of this asserted the P171 expiry wording verbatim. That text is now false: an
+   * authorization is in force. What must hold in EITHER state is that the packet names the terms it
+   * is describing — a receipt with its scope, ceiling and expiry when one is authorized, and the
+   * absence of one when it is not. A packet that says "expired" while the capture is spending, or
+   * "authorized" while no receipt is readable, is the defect in both directions.
    */
   const nfl = built.packets.find((p) => p.id === "gate-nfl-odds-renewal");
   const text = nfl.evidence.join(" ");
-  assert.match(text, /PROGRAM CLOSE/, "it says what expired it");
-  assert.match(text, /never spent/, "and that the budget was not the constraint");
+  if (isOpen(nfl)) {
+    assert.match(text, /No committed receipt|no readable/i, "an open gate says nothing is authorized");
+    assert.doesNotMatch(text, /Live receipt:/, "and must not also claim a live receipt");
+  } else {
+    assert.match(text, /Live receipt: \S+\.md\b/, "a settled gate names the receipt it is reading");
+    for (const term of [/Scope /, /Markets /, /Ceiling /, /Expiry: /]) {
+      assert.match(text, term, `the terms in force must be stated: ${term}`);
+    }
+    assert.doesNotMatch(text, /expired|no priced|NOT_YET_CAPTURED/i, "and must not carry the un-authorized copy");
+  }
+});
+
+test("the packet's standing agrees with the receipt on disk — neither is allowed to drift", () => {
+  /*
+   * The failure this catches is the one that actually happened: the packet asserting an expiry while
+   * a valid receipt sat committed beside it. Read the receipts independently and require agreement.
+   */
+  const readable = ["docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md", "docs/receipts/ODDS_AUTHORIZATION_P171.md"]
+    .map((rel) => { try { return fs.readFileSync(path.join(ROOT, rel), "utf8"); } catch { return null; } })
+    .filter(Boolean);
+  const anyLiveTerms = readable.some((t) => /## Operative terms/.test(t) && /\|\s*Cumulative ceiling\s*\|/i.test(t) && /\|\s*Expiry\s*\|/i.test(t));
+  const nfl = built.packets.find((p) => p.id === "gate-nfl-odds-renewal");
+  assert.equal(
+    !isOpen(nfl), anyLiveTerms,
+    anyLiveTerms
+      ? "a receipt states full terms on disk, so the gate must read RESOLVED — it is asking for an authorization that exists"
+      : "no receipt states full terms, so the gate must stay FOUNDER — silence must never render as permission",
+  );
 });
 
 test("answer tokens are a CLOSED set and no token is a credential", () => {
@@ -99,18 +153,24 @@ test("Moonshot's every branch preserves the record", () => {
   for (const t of ms.answerTokens) assert.match(t.token, /^MOONSHOT_REPAIR_PAUSE_OR_RETIRE:/, "the exact token, with the branch");
 });
 
-test("the NFL answer carries its OWN ceiling and expiry", () => {
+test("when the NFL gate is open, its answer carries its OWN ceiling and expiry", () => {
   /*
    * Three fixed tokens would have meant the ceiling and expiry were inferred from a receipt rather
    * than stated by the person authorising the spend. That is not a limit; it is a guess wearing one.
+   *
+   * Only reachable while the gate is open — a settled gate offers no tokens at all, which the
+   * answerable/settled guard above asserts. This still runs on the open branch, driven directly.
    */
   const nfl = built.packets.find((p) => p.id === "gate-nfl-odds-renewal");
-  const authorize = nfl.answerTokens.find((t) => t.token.startsWith("AUTHORIZE:"));
+  const openPacket = isOpen(nfl) ? nfl : buildGatePackets({ appDir: path.join(APP, "src/lib/launch/__no_receipts__") }).packets
+    .find((p) => p.id === "gate-nfl-odds-renewal");
+  assert.ok(isOpen(openPacket), "a tree with no committed receipt must produce an OPEN gate — silence is not permission");
+  const authorize = openPacket.answerTokens.find((t) => t.token.startsWith("AUTHORIZE:"));
   assert.ok(authorize, "there is an authorise answer");
   for (const field of ["market-scope", "credit-ceiling", "expiry"]) {
     assert.ok(authorize.token.includes(`<${field}>`), `the answer must state its own ${field}`);
   }
-  assert.ok(nfl.answerTokens.some((t) => t.token === "DEFER"), "and declining is one word");
+  assert.ok(openPacket.answerTokens.some((t) => t.token === "DEFER"), "and declining is one word");
 });
 
 test("THE CONSOLE PACKET CARRIES THE ADR'S DOMAIN WARNING", () => {
