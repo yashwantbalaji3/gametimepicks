@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823009,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T17:32:59.523Z",
+  "availableAt": "2026-09-12T17:32:59.523Z",
+  "eventStartTime": "2026-09-12T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 681517,
+      "name": "Kyle Leahy",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19.67,
+        "ipAvg": 3.93,
+        "kAvg": 5,
+        "bbAvg": 0.6,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 11.44,
+        "workloadIpLast5": 19.67
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 132,
+        "k": 124,
+        "bb": 38,
+        "er": 50,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 656794,
+      "name": "Sean Newcomb",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 20,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 4,
+        "ipSum": 8.33,
+        "ipAvg": 2.08,
+        "kAvg": 2.25,
+        "bbAvg": 0.75,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 9.72,
+        "workloadIpLast5": 8.33
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 8.33,
+        "k": 9,
+        "bb": 3,
+        "er": 0,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-12T17:32:59.523Z"
+  },
+  "recordHash": "3ad91c9e13b71b698d87d54d00b7b01bc10d07dab1bf07da25a8b421ef6e4cfa"
+}

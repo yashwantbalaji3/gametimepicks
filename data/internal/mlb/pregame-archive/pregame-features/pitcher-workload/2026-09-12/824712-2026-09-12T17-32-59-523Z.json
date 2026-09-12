@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824712,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T17:32:59.523Z",
+  "availableAt": "2026-09-12T17:32:59.523Z",
+  "eventStartTime": "2026-09-12T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 624133,
+      "name": "Ranger Suarez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 8,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 2.8,
+        "bbAvg": 2,
+        "erAvg": 2.4,
+        "hrAvg": 0.4,
+        "kPer9": 4.55,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 130.67,
+        "k": 122,
+        "bb": 40,
+        "er": 50,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 677976,
+      "name": "Randy Dobnak",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 6,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 4.8,
+        "bbAvg": 1.8,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 7.81,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 54,
+        "k": 39,
+        "bb": 19,
+        "er": 16,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-12T17:32:59.523Z"
+  },
+  "recordHash": "a9e7d717dd852f5cb9ceeff4feaba1cf566db231cf4aad549deb3acaa0311d48"
+}

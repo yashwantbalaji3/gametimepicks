@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824630,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T17:32:59.523Z",
+  "availableAt": "2026-09-12T17:32:59.523Z",
+  "eventStartTime": "2026-09-12T18:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605280,
+      "name": "Clay Holmes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 6,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 3.8,
+        "bbAvg": 2,
+        "erAvg": 1.8,
+        "hrAvg": 0.2,
+        "kPer9": 5.83,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 86,
+        "k": 65,
+        "bb": 30,
+        "er": 27,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 694973,
+      "name": "Paul Skenes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 6,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 3.8,
+        "bbAvg": 1.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 6.75,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 155,
+        "k": 181,
+        "bb": 45,
+        "er": 66,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-12T17:32:59.523Z"
+  },
+  "recordHash": "ef0492ae310ed6b232e29289bee028c4222e5580d54a5759744ecf60da9666a9"
+}
