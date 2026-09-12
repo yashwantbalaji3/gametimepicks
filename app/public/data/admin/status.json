@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-12T13:23:34.966Z",
+  "generatedAt": "2026-09-12T13:55:34.635Z",
   "canonical": {
     "record": "29-22",
     "bankroll": 17840.4,
@@ -117,7 +117,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-09-12",
-      "generatedAt": "2026-09-12T12:20:20Z",
+      "generatedAt": "2026-09-12T13:23:37Z",
       "sports": [
         {
           "sport": "epl",
@@ -149,14 +149,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 29,
-            "priced": 29,
+            "scheduled": 30,
+            "priced": 30,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:29 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:30 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -178,17 +178,12 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-12",
       "present": true,
-      "generatedAt": "2026-09-12T12:20:20Z",
+      "generatedAt": "2026-09-12T13:23:36Z",
       "watchdog": [
         {
           "product": "end-zone-vault",
           "kind": "INCIDENT_OPEN",
           "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-12"
-        },
-        {
-          "product": "epl-cards",
-          "kind": "STALE_ACTIVE_CARD",
-          "detail": "locked 2026-09-11T22:59:04Z, still ACTIVE"
         }
       ],
       "states": {
@@ -221,7 +216,7 @@
           "policyVersion": "mlb-cards@1"
         },
         "multi-cards": {
-          "state": "NO_PLAY",
+          "state": "ACTIVE",
           "policyVersion": "multi-cards@1"
         }
       }
@@ -232,16 +227,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-12T13:19:31.603Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-09-12T13:55:33.874Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-12",
-    "etTime": "09:23",
+    "etTime": "09:55",
     "stages": [
       {
         "stage": "schedule",
