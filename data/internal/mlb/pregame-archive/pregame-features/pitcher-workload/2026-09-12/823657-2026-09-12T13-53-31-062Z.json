@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823657,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T13:53:31.062Z",
+  "availableAt": "2026-09-12T13:53:31.062Z",
+  "eventStartTime": "2026-09-12T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687570,
+      "name": "Connor Prielipp",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 17,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 6,
+        "bbAvg": 2.6,
+        "erAvg": 4.6,
+        "hrAvg": 1,
+        "kPer9": 10.13,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 99,
+        "k": 106,
+        "bb": 39,
+        "er": 61,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 682982,
+      "name": "Daniel Espino",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-12T13:53:31.062Z"
+  },
+  "recordHash": "8a4176f71974f0330efde74e9d8159ea977129d9e5ade3fb7a2723f2de9a2226"
+}
