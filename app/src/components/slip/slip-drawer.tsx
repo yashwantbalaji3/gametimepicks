@@ -54,7 +54,7 @@ export default function SlipDrawer() {
           aria-label="Your slip"
           className="flex flex-col gap-2.5 rounded-[14px] p-3.5"
           style={{
-            background: "var(--vault-panel-elevated, color-mix(in srgb, var(--vault-scrim-base) 97%, transparent))",
+            background: "var(--vault-panel-elevated)",
             border: "1px solid var(--vault-border-strong)",
             boxShadow: "0 18px 50px -20px color-mix(in srgb, var(--vault-ink-black) 80%, transparent)",
             maxHeight: "min(72vh, 640px)",
@@ -90,7 +90,7 @@ export default function SlipDrawer() {
                   </span>
                 </span>
                 <label className="shrink-0 inline-flex items-center rounded-[6px]"
-                  style={{ background: "var(--gtp-card-sunken, color-mix(in srgb, var(--vault-ink-black) 30%, transparent))", border: "1px solid var(--vault-rule)" }}>
+                  style={{ background: "var(--gtp-card-sunken)", border: "1px solid var(--vault-rule)" }}>
                   <span className="sr-only">Paper stake for {l.player}</span>
                   <span aria-hidden className="pl-1.5 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>$</span>
                   <input
@@ -135,7 +135,7 @@ export default function SlipDrawer() {
       ) : (
         <button type="button" onClick={() => setOpen(true)}
           className="gtp-sim-cta flex items-center gap-2 rounded-[12px] px-3.5 py-2.5"
-          style={{ background: "var(--vault-panel-elevated, color-mix(in srgb, var(--vault-scrim-base) 97%, transparent))", border: "1px solid var(--vault-border-strong)", boxShadow: "0 12px 34px -18px color-mix(in srgb, var(--vault-ink-black) 80%, transparent)", cursor: "pointer" }}>
+          style={{ background: "var(--vault-panel-elevated)", border: "1px solid var(--vault-border-strong)", boxShadow: "0 12px 34px -18px color-mix(in srgb, var(--vault-ink-black) 80%, transparent)", cursor: "pointer" }}>
           <span aria-hidden style={{ fontSize: 14 }}>🧾</span>
           <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text)", fontSize: 10 }}>
             Your slip · {legs.length}

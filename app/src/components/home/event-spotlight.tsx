@@ -29,7 +29,7 @@ export default function EventSpotlight({ event }: { event: SpotlightEvent | null
       <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.14em]" style={{ background: "color-mix(in srgb, var(--vault-accent-deep) 16%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 42%, transparent)", color: "var(--gtp-success-on-dark, var(--vault-accent-mint))", fontSize: 9 }}>
+            <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.14em]" style={{ background: "color-mix(in srgb, var(--vault-accent-deep) 16%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 42%, transparent)", color: "var(--gtp-success-on-dark)", fontSize: 9 }}>
               <span aria-hidden>▶</span> {statusLabel}
             </span>
             <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{event.sport} · event spotlight</span>

@@ -69,7 +69,6 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
       "src/components/game/soccer-simulation-report-v2.tsx": 2,
       "src/components/world-cup/game-script-card.tsx": 2,
       "src/components/game/wc-simulation-result-summary.tsx": 1,
-      "src/components/world-cup/knockout-pick-board.tsx": 1,
       "src/components/specials/world-cup-specials-tracker.tsx": 1,
       "src/components/game/report-v2-shell.tsx": 1,
     },
@@ -79,7 +78,7 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
     owner: "operations",
     rationale: "Operator-only surfaces (pruned from the public export) with trading-ledger reds/ambers.",
     removal: "map when the console gets its own token pass",
-    files: { "src/app/launch/page.tsx": 1, "src/app/ops/adoption-panel.tsx": 1, "src/components/launch/board-filters.tsx": 2 },
+    files: { "src/app/ops/adoption-panel.tsx": 1, "src/components/launch/board-filters.tsx": 2 },
   },
   {
     id: "component-local-tints",

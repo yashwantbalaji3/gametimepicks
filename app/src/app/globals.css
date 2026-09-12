@@ -520,9 +520,9 @@
   border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
-  background: var(--vault-bg, #120b07);
-  color: var(--vault-text, #f6e9d8);
-  border: 2px solid var(--vault-gold, #d8a94a);
+  background: var(--vault-bg);
+  color: var(--vault-text);
+  border: 2px solid var(--vault-gold);
   transition: top 120ms ease-in-out;
 }
 .gtp-skip-link:focus {
@@ -4983,14 +4983,14 @@ body {
   --sport-theme-wash: rgba(99, 200, 242, 0.06);
 }
 [data-sport="nfl"] {
-  --sport-theme: var(--sport-nfl, #A78BFA);
+  --sport-theme: var(--sport-nfl);
   --sport-theme-ink: #C9B8FD;
   --sport-theme-glow: rgba(167, 139, 250, 0.20);
   --sport-theme-rule: rgba(167, 139, 250, 0.30);
   --sport-theme-wash: rgba(167, 139, 250, 0.06);
 }
 [data-sport="ufc"] {
-  --sport-theme: var(--sport-ufc, #FB923C);
+  --sport-theme: var(--sport-ufc);
   --sport-theme-ink: #FCC08A;
   --sport-theme-glow: rgba(251, 146, 60, 0.20);
   --sport-theme-rule: rgba(251, 146, 60, 0.30);
@@ -5172,9 +5172,9 @@ body {
 @keyframes gtp-sim-pulse { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } }
 @keyframes gtp-sim-blink { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
 @keyframes gtp-sim-trace { to { stroke-dashoffset: 0; } }
-.gtp-sim-pulse { animation: gtp-sim-pulse var(--motion-ambient-duration, 2.2s) ease-in-out infinite; }
-.gtp-sim-blink { animation: gtp-sim-blink var(--motion-ambient-duration, 1.6s) ease-in-out infinite; }
-.gtp-sim-trace { stroke-dashoffset: 300; animation: gtp-sim-trace var(--motion-chart-draw-duration, 1.1s) ease-out forwards; }
+.gtp-sim-pulse { animation: gtp-sim-pulse var(--motion-ambient-duration) ease-in-out infinite; }
+.gtp-sim-blink { animation: gtp-sim-blink var(--motion-ambient-duration) ease-in-out infinite; }
+.gtp-sim-trace { stroke-dashoffset: 300; animation: gtp-sim-trace var(--motion-chart-draw-duration) ease-out forwards; }
 .gtp-sim-paused * { animation-play-state: paused !important; }
 
 /* ── P251 · F10 — REPEATED DECLARATIONS BECOME CLASSES ────────────────────────────────────────

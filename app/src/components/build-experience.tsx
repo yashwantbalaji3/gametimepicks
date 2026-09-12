@@ -506,7 +506,7 @@ export default function BuildExperience({
         )}
         {slipOpen && (
           <div className="fixed inset-0 z-50 flex flex-col justify-end" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" }} onClick={() => setSlipOpen(false)}>
-            <div className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3" onClick={(e) => e.stopPropagation()} style={{ background: "var(--vault-bg, var(--vault-on-accent))", borderTop: "1px solid var(--vault-border-strong)" }}>
+            <div className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3" onClick={(e) => e.stopPropagation()} style={{ background: "var(--vault-bg)", borderTop: "1px solid var(--vault-border-strong)" }}>
               <div className="flex items-center justify-between gap-2 mb-2 px-1">
                 <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Your card &amp; paper stake</span>
                 <button type="button" onClick={() => setSlipOpen(false)} className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)", fontSize: 11, minHeight: 44, minWidth: 44 }}>Close ✕</button>

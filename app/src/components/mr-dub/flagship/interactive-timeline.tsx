@@ -49,7 +49,7 @@ function Row({ d, defaultOpen }: { d: TimelineDay; defaultOpen: boolean }) {
   const { md, wd } = fmt(d.date);
   const settled = (d.events ?? []).filter((e) => e.status === "settled" || e.status === "open" || e.status === "queued");
   return (
-    <div className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
+    <div className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card)" }}>
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left" style={{ cursor: "pointer", background: "transparent" }} aria-expanded={open}>
         <span aria-hidden className="shrink-0 rounded-md" style={{ width: 4, alignSelf: "stretch", background: tone(d.sign), minHeight: 34 }} />
         <div className="min-w-0 flex-1">

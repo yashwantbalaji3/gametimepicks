@@ -54,7 +54,7 @@ export default function Top10BoardSection({ board }: { board: Top10Board }) {
   const [tab, setTab] = useState<(typeof TABS)[number][0]>("overall");
   const picks = board[tab];
   return (
-    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
+    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card)" }}>
       <div className="flex flex-wrap gap-1.5">
         {TABS.map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className="gtp-pressable rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em]" style={{ cursor: "pointer", color: tab === id ? "var(--vault-bg)" : "var(--vault-text-mute)", background: tab === id ? "var(--vault-gold)" : "transparent", border: `1px solid ${tab === id ? "var(--vault-gold)" : "var(--vault-rule)"}` }}>{label}</button>

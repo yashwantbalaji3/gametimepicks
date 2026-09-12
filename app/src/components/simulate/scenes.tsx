@@ -119,7 +119,7 @@ function Octagon({ accent, accentSoft, phase }: SceneProps) {
       {/* corners lock during validation — red vs blue */}
       <g style={{ opacity: lit(phase, ["VALIDATING", ...AFTER_GATES]) }}>
         <circle cx="96" cy="62" r="9" fill="var(--vault-danger)" />
-        <circle cx="224" cy="62" r="9" fill="var(--vault-info, var(--vault-text-mute))" />
+        <circle cx="224" cy="62" r="9" fill="var(--vault-info)" />
       </g>
       {/* round lights resolve */}
       <g style={{ opacity: lit(phase, RESOLVING) }}>

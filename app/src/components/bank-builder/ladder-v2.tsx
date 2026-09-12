@@ -60,7 +60,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
   return (
     <section
       className={`bb-ladder-v2 gtp-fade-up overflow-hidden rounded-2xl ${className}`}
-      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, var(--vault-wash-faint))" }}
+      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel)" }}
       aria-label="Bank Builder 7-step profit-locking ladder"
     >
       {/* Header */}

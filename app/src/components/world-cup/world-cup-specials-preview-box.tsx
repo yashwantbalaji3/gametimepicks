@@ -11,7 +11,7 @@ import type { SpecialLeg, WorldCupSpecialCard } from "@/lib/world-cup/world-cup-
 import type { June20SpecialsPreview } from "@/lib/world-cup/world-cup-specials-preview";
 import PlayerAvatar from "@/components/ui/player-avatar";
 
-const GOLD = "var(--vault-gold, var(--vault-gold))";
+const GOLD = "var(--vault-gold)";
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
 const american = (o: number) => (o > 0 ? `+${o}` : `${o}`);
 const shortStart = (iso: string | null) => {

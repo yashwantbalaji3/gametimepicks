@@ -73,7 +73,7 @@ export function AdoptionPanel({ report }: { report: AdoptionReport }) {
   const byReason = isMeasured(r.dataQuality.byReason) ? r.dataQuality.byReason.value : null;
 
   return (
-    <section className="rounded-2xl p-4 sm:p-5" style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, var(--vault-wash-faint))" }}>
+    <section className="rounded-2xl p-4 sm:p-5" style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel)" }}>
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)" }}>Public-beta adoption (internal)</h2>
         <span className="rounded-full px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.08em]" style={{ border: `1px solid ${MODE_TONE[r.mode]}`, color: MODE_TONE[r.mode] }}>

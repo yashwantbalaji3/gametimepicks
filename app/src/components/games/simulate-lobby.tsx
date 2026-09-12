@@ -618,7 +618,7 @@ export default function SimulateLobby() {
                   >
                     <span
                       className="inline-flex items-center gap-1 font-mono font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full"
-                      style={{ color: "var(--gtp-success-on-dark, var(--vault-accent-mint))", background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fontSize: 9 }}
+                      style={{ color: "var(--gtp-success-on-dark)", background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fontSize: 9 }}
                     >
                       <span aria-hidden>▶</span> Simulation Ready
                     </span>

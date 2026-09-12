@@ -49,12 +49,17 @@ const CEILING = {
      sibling tokens instead). Everything that remains is individually registered in
      token-exception-registry.mjs with shrink-only per-file ceilings and its own corruption guard.
      Measured emission (baseline.mjs), never a hand edit. */
-  rawColorLiterals: 162,
-  filesWithRawColors: 37,
-  themeDrift: 68,
-  themeDriftReachable: 32,
+  /* Ratcheted 2026-09-12 (P270/P274): 75 dead `var(--token, #literal)` fallbacks removed. Each was a
+     snapshot of a retired palette that could never render — the token is defined, so the literal was
+     unreachable AND wrong (`var(--vault-bg, #120b07)` against a real #070B09). Two registered files
+     went fully clean and left the exception registry. maskStops was already measuring 0 against a
+     ceiling of 8; it is pinned at its real value now. Measured emission (baseline.mjs). */
+  rawColorLiterals: 160,
+  filesWithRawColors: 35,
+  themeDrift: 66,
+  themeDriftReachable: 31,
   identityData: 89,
-  maskStops: 8,
+  maskStops: 0,
   illustrationArt: 5,
 };
 

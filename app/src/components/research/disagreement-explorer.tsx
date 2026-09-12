@@ -51,7 +51,7 @@ type Props = {
 const CARD: React.CSSProperties = {
   border: "1px solid var(--vault-rule)",
   borderRadius: 10,
-  background: "var(--vault-panel, transparent)",
+  background: "var(--vault-panel)",
 };
 
 const pct = (p: number | null | undefined, digits = 1) =>

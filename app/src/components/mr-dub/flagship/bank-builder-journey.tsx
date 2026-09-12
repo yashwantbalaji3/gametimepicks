@@ -15,16 +15,16 @@ const odds = (n: number | null | undefined) => n == null ? "" : n > 0 ? `+${n}` 
 function CompletedLadder({ ladder }: { ladder: JourneyLadder }) {
   const [open, setOpen] = useState<number | null>(null);
   return (
-    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
+    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12.5px] font-semibold" style={{ color: "var(--vault-text)" }}>{ladder.label}</span>
-        <span className="font-mono text-[11px] rounded-full px-2 py-0.5" style={{ color: "var(--vault-success)", background: "var(--gtp-success-soft, color-mix(in srgb, var(--vault-success) 10%, transparent))", border: "1px solid var(--vault-success-dim)" }}>{ladder.result} · {usd(ladder.final)}</span>
+        <span className="font-mono text-[11px] rounded-full px-2 py-0.5" style={{ color: "var(--vault-success)", background: "var(--gtp-success-soft)", border: "1px solid var(--vault-success-dim)" }}>{ladder.result} · {usd(ladder.final)}</span>
       </div>
       <div className="mt-2.5 flex items-stretch gap-1">
         {ladder.steps.map((s: JourneyStep, i: number) => {
           const isOpen = open === s.step;
           return (
-            <button key={s.step} onClick={() => setOpen(isOpen ? null : s.step)} className="gtp-pressable group relative flex-1 rounded-lg px-1.5 py-2 text-center" style={{ border: `1px solid ${isOpen ? "var(--vault-success)" : "var(--vault-rule)"}`, background: isOpen ? "var(--gtp-success-soft, color-mix(in srgb, var(--vault-success) 12%, transparent))" : "color-mix(in srgb, var(--vault-success) 5%, transparent)", cursor: "pointer" }} aria-expanded={isOpen}>
+            <button key={s.step} onClick={() => setOpen(isOpen ? null : s.step)} className="gtp-pressable group relative flex-1 rounded-lg px-1.5 py-2 text-center" style={{ border: `1px solid ${isOpen ? "var(--vault-success)" : "var(--vault-rule)"}`, background: isOpen ? "var(--gtp-success-soft)" : "color-mix(in srgb, var(--vault-success) 5%, transparent)", cursor: "pointer" }} aria-expanded={isOpen}>
               <div className="font-mono text-[8.5px] uppercase tracking-[0.06em]" style={{ color: "var(--vault-text-faint)" }}>Step {s.step}</div>
               <div className="mt-0.5 font-display tabular text-[12px] font-bold" style={{ color: "var(--vault-success)" }}>✓</div>
               <div className="font-mono text-[8.5px]" style={{ color: "var(--vault-text-mute)" }}>{usd(s.after)}</div>
@@ -55,7 +55,7 @@ function CompletedLadder({ ladder }: { ladder: JourneyLadder }) {
 function ActiveLane({ lane }: { lane: JourneyActiveLane }) {
   const totalSteps = 5;
   return (
-    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-edge-gold, var(--vault-border))", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-warn) 8%, transparent), var(--vault-wash-faint))" }}>
+    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-edge-gold)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-warn) 8%, transparent), var(--vault-wash-faint))" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12.5px] font-semibold" style={{ color: "var(--vault-text)" }}>{lane.label}</span>
         <span className="gtp-active-glow font-mono text-[10px] rounded-full px-2 py-0.5" style={{ color: "var(--vault-gold)", border: "1px solid var(--vault-gold-dim)" }}>ACTIVE</span>

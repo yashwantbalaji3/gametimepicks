@@ -78,7 +78,7 @@ export default function TodayMarketCoverage({ coverage }: { coverage: MarketCove
   return (
     <section
       className="rounded-2xl p-4 sm:p-5"
-      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, var(--vault-wash-faint))" }}
+      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel)" }}
       aria-labelledby="market-coverage-heading"
     >
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">

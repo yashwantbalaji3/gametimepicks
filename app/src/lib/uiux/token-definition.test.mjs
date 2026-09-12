@@ -34,6 +34,26 @@ const walk = (dir, out = []) => {
   return out;
 };
 
+/**
+ * Every `var(--x, …)` in a text, with its fallback. Paren-balanced, because a fallback is very often
+ * `color-mix(…)` or `rgba(…)` and a lazy `[^)]*` stops at the first inner bracket.
+ */
+export function scanFallbacks(text) {
+  const out = [];
+  const open = /var\(\s*(--[A-Za-z0-9-]+)\s*,/g;
+  let m;
+  while ((m = open.exec(text))) {
+    let depth = 1, j = open.lastIndex;
+    while (j < text.length && depth) {
+      if (text[j] === "(") depth += 1;
+      else if (text[j] === ")") depth -= 1;
+      j += 1;
+    }
+    if (depth === 0) out.push({ token: m[1], fallback: text.slice(open.lastIndex, j - 1).trim() });
+  }
+  return out;
+}
+
 /** Every token a text reads with NO fallback. Exported shape so the probe below can exercise it. */
 export function scanText(text) {
   const out = new Set();
@@ -98,4 +118,34 @@ test("a planted undefined token would be caught", () => {
   const withFallback = scanText('style={{ color: "var(--gtp-probe-token, #fff)" }}');
   assert.deepEqual([...withoutFallback], ["--gtp-probe-token"], "a bare read must be reported");
   assert.deepEqual([...withFallback], [], "a read with a fallback must not be");
+});
+
+test("a token that exists does not also carry a literal snapshot of its old value", () => {
+  /* THE DEFECT: `var(--vault-bg, #120b07)` — the token resolves to #070B09, so the brown never
+     renders. It is a snapshot of a palette retired months ago, and the next reader believes it.
+     Seventy-five of these were removed; the check keeps them gone.
+
+     FONTS ARE EXEMPT ON PURPOSE. A font stack's later entries are what a machine without the first
+     face actually uses, and that is a real fallback rather than a dead colour. */
+  const { declared } = survey();
+  const offenders = [];
+  const walkAll = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { walkAll(p); continue; }
+      if (!/\.(tsx?|mjs|css)$/.test(e.name) || /\.test\.mjs$/.test(e.name)) continue;
+      for (const { token, fallback } of scanFallbacks(fs.readFileSync(p, "utf8"))) {
+        if (!declared.has(token) || token.startsWith("--font")) continue;
+        offenders.push(`${path.relative(SRC, p)}: var(${token}, ${fallback.slice(0, 40)})`);
+      }
+    }
+  };
+  walkAll(SRC);
+  assert.deepEqual(offenders.sort(), [], `these fallbacks can never render — the token is defined:\n  ${offenders.join("\n  ")}`);
+});
+
+test("the fallback scanner survives a nested fallback", () => {
+  const one = scanFallbacks('background: var(--gtp-card, color-mix(in srgb, var(--x) 40%, transparent));');
+  assert.deepEqual(one, [{ token: "--gtp-card", fallback: "color-mix(in srgb, var(--x) 40%, transparent)" }]);
+  assert.deepEqual(scanFallbacks("color: var(--only-a-token);"), [], "a bare read has no fallback to report");
 });

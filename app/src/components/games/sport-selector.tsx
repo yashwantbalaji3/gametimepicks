@@ -51,7 +51,7 @@ function toneChip(tone: SportStateTone, selected: boolean): { color: string; bac
   const base = (() => {
     switch (tone) {
       case "active":
-        return { color: "var(--gtp-success-on-dark, var(--vault-accent-mint))", accent: "color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fill: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)" };
+        return { color: "var(--gtp-success-on-dark)", accent: "color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fill: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)" };
       case "available":
         return { color: "var(--vault-gold-bright)", accent: "color-mix(in srgb, var(--vault-gold-bright) 42%, transparent)", fill: "var(--vault-gold-dim)" };
       default:
@@ -131,7 +131,7 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
                 </span>
                 <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                   {s.gameCount} game{s.gameCount === 1 ? "" : "s"}
-                  {s.simReadyCount > 0 ? <span style={{ color: "var(--gtp-success-on-dark, var(--vault-accent-mint))" }}> · {s.simReadyCount} ready</span> : ""}
+                  {s.simReadyCount > 0 ? <span style={{ color: "var(--gtp-success-on-dark)" }}> · {s.simReadyCount} ready</span> : ""}
                 </span>
               </span>
             </button>

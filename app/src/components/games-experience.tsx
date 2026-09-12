@@ -49,7 +49,7 @@ export interface GameRow {
 
 /** Confidence chip palette for the WC game-script read (High=green, Medium=gold, Low=muted). */
 function confChip(c: "High" | "Medium" | "Low"): { color: string; background: string; border: string } {
-  if (c === "High") return { color: "var(--gtp-success-on-dark, var(--vault-accent-mint))", background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)" };
+  if (c === "High") return { color: "var(--gtp-success-on-dark)", background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)" };
   if (c === "Medium") return { color: "var(--vault-gold-bright)", background: "var(--vault-gold-dim)", border: "1px solid color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" };
   return { color: "var(--vault-text-mute)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" };
 }
@@ -98,7 +98,7 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
                   <span className="flex items-center gap-1.5 shrink-0">
                     {g.simReady ? (
                       <span className="inline-flex items-center gap-1 font-mono font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 rounded-full"
-                        style={{ color: "var(--gtp-success-on-dark, var(--vault-accent-mint))", background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fontSize: 8.5 }}
+                        style={{ color: "var(--gtp-success-on-dark)", background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fontSize: 8.5 }}
                         title="A deterministic model simulation is ready for this game">
                         <span aria-hidden>▶</span> Simulation Ready
                       </span>

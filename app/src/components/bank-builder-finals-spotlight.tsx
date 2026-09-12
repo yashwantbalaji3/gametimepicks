@@ -29,7 +29,7 @@ export default function BankBuilderFeaturedCard({ card }: { card: FeaturedBuilde
       className="mt-6 rounded-[10px] p-4 sm:p-5 flex flex-col gap-3"
       style={{
         background: "linear-gradient(180deg, color-mix(in srgb, var(--vault-scrim-base) 92%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 62%, transparent) 100%)",
-        border: `1px solid ${hit ? "var(--vault-success)" : "var(--sport-nba, var(--vault-border))"}`,
+        border: `1px solid ${hit ? "var(--vault-success)" : "var(--sport-nba)"}`,
       }}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">

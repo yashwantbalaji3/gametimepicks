@@ -56,14 +56,14 @@ export default function June20PreviewPage() {
   const data = loadJune20SpecialsPreview();
   const d = data?.diagnostics;
   const par = previewParlays();
-  const HEAT = "var(--gtp-bank-heat)"; const OK = "var(--vault-success)"; const MOON = "var(--vault-moonshot)"; const GOLD = "var(--vault-gold, var(--vault-gold))";
+  const HEAT = "var(--gtp-bank-heat)"; const OK = "var(--vault-success)"; const MOON = "var(--vault-moonshot)"; const GOLD = "var(--vault-gold)";
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       {/* Internal preview banner */}
       <section
         className="rounded-[14px] px-4 py-3.5"
-        style={{ border: "1px solid var(--vault-gold, var(--vault-gold))", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-gold) 14%, transparent), color-mix(in srgb, var(--vault-scrim-base) 40%, transparent))" }}
+        style={{ border: "1px solid var(--vault-gold)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-gold) 14%, transparent), color-mix(in srgb, var(--vault-scrim-base) 40%, transparent))" }}
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>

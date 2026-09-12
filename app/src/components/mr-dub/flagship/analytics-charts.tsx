@@ -129,7 +129,7 @@ export default function AnalyticsCharts({ charts }: { charts: FlagshipCharts }) 
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("bankroll");
   const first = charts.bankroll[0]?.date, last = charts.bankroll[charts.bankroll.length - 1]?.date;
   return (
-    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
+    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card)" }}>
       <div className="flex flex-wrap gap-1.5">
         {TABS.map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)} className="gtp-pressable rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em]" style={{ cursor: "pointer", color: tab === t.id ? "var(--vault-bg)" : "var(--vault-text-mute)", background: tab === t.id ? "var(--vault-gold)" : "transparent", border: `1px solid ${tab === t.id ? "var(--vault-gold)" : "var(--vault-rule)"}` }}>{t.label}</button>

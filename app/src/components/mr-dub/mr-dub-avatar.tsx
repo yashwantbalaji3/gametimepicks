@@ -21,13 +21,13 @@ export default function MrDubAvatar({ size = 56, title = "Mr. Dub — paper-port
         </linearGradient>
       </defs>
       {/* badge ring */}
-      <circle cx="32" cy="32" r="31" fill="url(#mrdub-bg)" stroke="var(--vault-gold-bright, var(--vault-crown))" strokeWidth="1.5" />
+      <circle cx="32" cy="32" r="31" fill="url(#mrdub-bg)" stroke="var(--vault-gold-bright)" strokeWidth="1.5" />
       {/* head */}
       <circle cx="32" cy="24" r="9" fill="#f2d3a8" stroke="color-mix(in srgb, var(--vault-ink-black) 25%, transparent)" strokeWidth="0.6" />
       {/* hair */}
       <path d="M23 22c0-6 5-9 9-9s9 3 9 9c-3-2-6-3-9-3s-6 1-9 3z" fill="#3a2a1a" />
       {/* goggles */}
-      <g stroke="var(--gtp-bank-heat, var(--vault-lava-red))" strokeWidth="1.6" fill="color-mix(in srgb, var(--gtp-success-on-dark) 25%, transparent)">
+      <g stroke="var(--gtp-bank-heat)" strokeWidth="1.6" fill="color-mix(in srgb, var(--gtp-success-on-dark) 25%, transparent)">
         <circle cx="28" cy="24" r="3.2" />
         <circle cx="36" cy="24" r="3.2" />
         <path d="M31.2 24h1.6" />

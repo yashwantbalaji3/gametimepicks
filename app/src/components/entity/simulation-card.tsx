@@ -53,7 +53,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
         identityLine={[g.venue, card.firstPitchLabel].filter(Boolean).join(" · ") || null}
         status={
           <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1 whitespace-nowrap"
-            style={{ fontSize: 8.5, color: g.status === "ready" ? "var(--vault-success, var(--vault-accent-mint))" : "var(--vault-warn, var(--vault-risk))", border: "1px solid var(--vault-rule)" }}>
+            style={{ fontSize: 8.5, color: g.status === "ready" ? "var(--vault-success)" : "var(--vault-warn)", border: "1px solid var(--vault-rule)" }}>
             {g.runCount ? `${g.runCount.toLocaleString()} sims` : "No sim"}
           </span>
         }

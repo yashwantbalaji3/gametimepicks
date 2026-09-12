@@ -39,7 +39,7 @@ export function SourceModeBadge({ mode, label }: { mode: SimulationSourceMode; l
       style={{
         background: implied ? "color-mix(in srgb, var(--vault-crown) 12%, transparent)" : "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)",
         border: `1px solid ${implied ? "color-mix(in srgb, var(--vault-crown) 40%, transparent)" : "color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)"}`,
-        color: implied ? gold : "var(--gtp-success-on-dark, var(--vault-accent-mint))",
+        color: implied ? gold : "var(--gtp-success-on-dark)",
         fontSize: 9,
       }}
       data-source-mode={mode}

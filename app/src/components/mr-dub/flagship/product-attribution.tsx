@@ -27,7 +27,7 @@ export default function ProductAttribution({ wagers }: { wagers: WagerRow[] }) {
   const rows = filter === "all" ? wagers : wagers.filter((r) => r.productId === filter);
 
   return (
-    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
+    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card)" }}>
       <div className="flex flex-wrap gap-1.5">
         <button onClick={() => setFilter("all")} className="gtp-pressable rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em]" style={{ cursor: "pointer", color: filter === "all" ? "var(--vault-bg)" : "var(--vault-text-mute)", background: filter === "all" ? "var(--vault-gold)" : "transparent", border: `1px solid ${filter === "all" ? "var(--vault-gold)" : "var(--vault-rule)"}` }}>All · {wagers.length}</button>
         {products.map((p) => (

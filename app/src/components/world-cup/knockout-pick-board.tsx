@@ -152,7 +152,7 @@ export default function KnockoutPickBoard({ rows, serverToday }: { rows: Knockou
   return (
     <div className="flex flex-col gap-3">
       {/* Filters + sort — sticky on scroll so the board stays navigable. */}
-      <div className="sticky top-0 z-10 -mx-1 flex flex-wrap items-center gap-1.5 px-1 py-2" style={{ background: "var(--vault-bg, #100b08)" }}>
+      <div className="sticky top-0 z-10 -mx-1 flex flex-wrap items-center gap-1.5 px-1 py-2" style={{ background: "var(--vault-bg)" }}>
         {FILTERS.map((f) => (
           <button key={f.id} onClick={() => setFilter(f.id)} className="gtp-pressable rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.05em]" style={chip(filter === f.id)}>{f.label}</button>
         ))}
@@ -175,7 +175,7 @@ export default function KnockoutPickBoard({ rows, serverToday }: { rows: Knockou
         const sm = STATUS_META[r.status];
         const isOpen = open === r.slug;
         return (
-          <div key={r.slug} className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, color-mix(in srgb, var(--vault-scrim-base) 35%, transparent))" }}>
+          <div key={r.slug} className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card)" }}>
             <button onClick={() => setOpen(isOpen ? null : r.slug)} aria-expanded={isOpen} className="flex w-full flex-col gap-2 px-3.5 py-2.5 text-left lg:grid lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr_auto] lg:items-center lg:gap-3" style={{ cursor: "pointer", background: "transparent" }}>
               {/* Game / kickoff / status */}
               <span className="flex min-w-0 flex-col gap-1">

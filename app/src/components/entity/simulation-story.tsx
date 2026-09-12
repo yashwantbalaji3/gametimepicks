@@ -32,7 +32,7 @@ export default function SimulationStory({
     >
       <div
         className="font-mono uppercase tracking-[0.12em]"
-        style={{ color: "var(--vault-success, var(--vault-accent-mint))", fontSize: compact ? 8.5 : 9 }}
+        style={{ color: "var(--vault-success)", fontSize: compact ? 8.5 : 9 }}
       >
         Simulation story
       </div>
