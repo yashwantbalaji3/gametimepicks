@@ -151,3 +151,30 @@ export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyO
 export function coverageReconciles(coverage) {
   return coverage.priced + coverage.marketNotOpen + coverage.joinFailed === coverage.cardBouts;
 }
+
+/**
+ * WHICH PROVIDER EVENT THIS CARD ACTUALLY JOINED TO (P264).
+ *
+ * The authorised call is the BULK MMA endpoint, so the response carries every promotion's upcoming
+ * fights. The identity guard in `classifyCardCoverage` needs the odds side's event id, and the answer
+ * is the event that most of THIS card's matched bouts came from — not the first row in the payload.
+ *
+ * Written here rather than inline in the capture script because the capture script crashed on this
+ * exact value for three runs (a `matchedEvent` that was never defined), after the paid call and with
+ * the failure swallowed by the workflow. A value worth guarding is a value worth testing.
+ *
+ * @param {Iterable<string>} consumedKeys  bout keys that joined
+ * @param {Map<string, {providerEventId?: string}>} pricedByKey
+ * @returns {string|null}
+ */
+export function matchedProviderEventId(consumedKeys, pricedByKey) {
+  const tally = new Map();
+  for (const key of consumedKeys ?? []) {
+    const id = pricedByKey?.get?.(key)?.providerEventId;
+    if (id == null || id === "") continue;
+    tally.set(id, (tally.get(id) ?? 0) + 1);
+  }
+  if (tally.size === 0) return null;
+  // Most-claimed wins; ties resolve by id so the answer is stable run to run.
+  return [...tally.entries()].sort((a, b) => (b[1] - a[1]) || String(a[0]).localeCompare(String(b[0])))[0][0];
+}

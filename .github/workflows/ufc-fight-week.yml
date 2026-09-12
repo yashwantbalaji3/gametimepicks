@@ -121,8 +121,19 @@ jobs:
             echo "ODDS_API_KEY is not configured — skipping the priced step, card and model heads still refreshed"
             exit 0
           fi
-          node app/scripts/ufc/capture-ufc-odds.mjs --now "$NOW" --apply || \
-            echo "ufc odds: refused or unavailable this run — see the step log; nothing was spent beyond what the ledger records"
+          # EXIT CODES, not a blanket `|| echo`. The old form turned a crash into a green step: the
+          # script bought the prices, wrote its private snapshot, threw on an undefined variable, and
+          # this line printed a calm sentence about a refusal that never happened (2026-09-08, 09-10).
+          # 3 is the one honest "nothing to price"; anything else fails the step, because a paid call
+          # whose output never reached the product is an incident, not a quiet day.
+          rc=0
+          node app/scripts/ufc/capture-ufc-odds.mjs --now "$NOW" --apply || rc=$?
+          if [ "$rc" -eq 3 ]; then
+            echo "::notice::ufc odds: nothing to price this run (no scheduled card)"
+          elif [ "$rc" -ne 0 ]; then
+            echo "::error::ufc odds: the capture FAILED (exit $rc) — a paid call may have been spent without publishing prices"
+            exit "$rc"
+          fi
 
       - name: Settle any card that has now been fought
         run: |

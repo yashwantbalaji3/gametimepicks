@@ -6,6 +6,8 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
 import { classifyCardCoverage, coverageReconciles } from "./card-coverage.mjs";
 
@@ -189,4 +191,49 @@ test("LIVE ARTIFACT · the published snapshot reconciles against the card it nam
     assert.equal(odds.oddsReady, false, "a partly priced card must not publish as ready");
     assert.ok(odds.blockers?.length, "and must name what is missing");
   }
+});
+
+/* ── The provider event a card joined to (P264) ─────────────────────────────────────────────────
+ *
+ * The capture script crashed on this value for three runs — a `matchedEvent` that was never defined —
+ * after the paid call and with the workflow swallowing the failure. It now lives here, with tests.
+ */
+test("the matched provider event is the one most of the card's joined bouts came from", async () => {
+  const { matchedProviderEventId } = await import("./card-coverage.mjs");
+  const priced = new Map([
+    ["a|b", { providerEventId: "ours" }],
+    ["c|d", { providerEventId: "ours" }],
+    ["e|f", { providerEventId: "another-promotion" }],
+  ]);
+  // The bulk endpoint returns every promotion's fights; only the keys this card consumed count.
+  assert.equal(matchedProviderEventId(["a|b", "c|d"], priced), "ours");
+  assert.equal(matchedProviderEventId(["e|f"], priced), "another-promotion");
+});
+
+test("no joined bout means no event id — never a guess, and never a throw", async () => {
+  const { matchedProviderEventId } = await import("./card-coverage.mjs");
+  assert.equal(matchedProviderEventId([], new Map()), null);
+  assert.equal(matchedProviderEventId(["missing"], new Map()), null);
+  assert.equal(matchedProviderEventId(null, null), null);
+  assert.equal(matchedProviderEventId(["x"], new Map([["x", { providerEventId: "" }]])), null, "an empty id is not an id");
+});
+
+test("a tie resolves the same way on every run", async () => {
+  const { matchedProviderEventId } = await import("./card-coverage.mjs");
+  const priced = new Map([["a|b", { providerEventId: "zzz" }], ["c|d", { providerEventId: "aaa" }]]);
+  assert.equal(matchedProviderEventId(["a|b", "c|d"], priced), "aaa");
+  assert.equal(matchedProviderEventId(["c|d", "a|b"], priced), "aaa", "order in, same answer out");
+});
+
+test("the capture script uses it, and its caller can no longer swallow a crash", () => {
+  const script = fs.readFileSync(path.join(process.cwd(), "scripts/ufc/capture-ufc-odds.mjs"), "utf8");
+  assert.match(script, /const matchedEventId = matchedProviderEventId\(consumed, priced\)/);
+  assert.ok(!/matchedEvent\?\./.test(script), "the undefined identifier is gone");
+  assert.match(script, /process\.exit\(3\)/, "nothing-to-price has its own exit code");
+
+  const wf = fs.readFileSync(path.join(process.cwd(), "..", ".github/workflows/ufc-fight-week.yml"), "utf8");
+  const step = wf.slice(wf.indexOf("Refresh fight-winner prices"), wf.indexOf("Settle any card"));
+  assert.ok(!/capture-ufc-odds\.mjs[^\n]*\|\|\s*\\?\s*$/m.test(step), "no bare `|| echo` around a paid call");
+  assert.match(step, /rc=\$\?/, "the exit code is captured");
+  assert.match(step, /elif \[ "\$rc" -ne 0 \]/, "and anything that is not the honest refusal fails the step");
 });

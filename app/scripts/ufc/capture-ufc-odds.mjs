@@ -32,7 +32,7 @@ import {
   assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, LEDGER_RELPATH,
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { nameKey } from "./lib/fight-model.mjs";
-import { classifyCardCoverage, coverageReconciles } from "../../src/lib/sports/ufc/card-coverage.mjs";
+import { classifyCardCoverage, coverageReconciles, matchedProviderEventId } from "../../src/lib/sports/ufc/card-coverage.mjs";
 import { findLooseMatch } from "../../src/lib/sports/ufc/fighter-alias.mjs";
 import { writeAcquisition, readAcquisition } from "../../src/lib/sports/odds/acquisition-cache.mjs";
 import { buildUfcOddsSnapshot } from "../../src/lib/sports/ufc/odds-snapshot.mjs";
@@ -84,7 +84,9 @@ console.log(`authorization: ufc h2h/${REGIONS.join(",")} · ceiling ${auth.ceili
 const card = readJson(path.join(OUT, "card-latest.json"));
 if (card?.state !== "SCHEDULED_CARD") {
   console.error(`ufc odds: no scheduled card to price (state ${card?.state ?? "absent"}) — nothing to buy.`);
-  process.exit(1);
+  /* 3 = an honest "nothing to do": between events there is no card, and that is not a failure. Every
+     other non-zero exit is a real fault, and the caller must not swallow it. */
+  process.exit(3);
 }
 console.log(`card: ${card.event.name} · ${card.event.boutCount} bouts · ${card.event.slateDate}`);
 
@@ -320,13 +322,19 @@ console.log(`ufc odds: private per-book snapshot → ${shadowSnapshot.rows.lengt
 /* The per-book markets are the model's input, not the reader's — strip them from the public shape. */
 for (const b of bouts) delete b._books;
 
+/* The provider event this card joined to — derived in lib/sports/ufc/card-coverage.mjs. This read an
+   undefined `matchedEvent` and threw HERE, after the paid call and after the private snapshot was
+   written: 2026-09-08 and 09-10 each spent a credit and left odds-latest.json on the previous card,
+   while the workflow's `|| echo` reported the step as a success. */
+const matchedEventId = matchedProviderEventId(consumed, priced);
+
 const {
   coverage, unpriced, unmatchedProviderEvents, blockers, oddsReady, partiallyPriced,
 } = classifyCardCoverage({
   cardBouts: card.bouts ?? [],
   // Identity, so a capture for a DIFFERENT event can never be counted as coverage of this card.
   cardEventId: card.event?.providerEventId ?? null,
-  oddsEventId: matchedEvent?.id ?? matchedEvent?.providerEventId ?? card.event?.providerEventId ?? null,
+  oddsEventId: matchedEventId ?? card.event?.providerEventId ?? null,
   pricedByKey: priced,
   matchedKeys: consumed,
   // The keys a bout CLAIMED, which for an aliased join is the provider's spelling rather than the
