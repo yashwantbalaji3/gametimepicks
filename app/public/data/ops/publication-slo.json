@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-09-12",
-  "platformState": "PUBLISHING",
+  "platformState": "INCIDENT",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -27,8 +27,8 @@
       "missed": []
     },
     "ufc": {
-      "state": "PUBLISHING",
-      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "state": "INCIDENT",
+      "reason": "1 event(s) have no forecast and the earliest one's deadline (2026-09-12T19:30:00.000Z, 90 min before its start) has passed",
       "deadlineUtc": "2026-09-12T19:30:00.000Z",
       "counts": {
         "scheduled": 13,
@@ -49,23 +49,23 @@
       "reason": "10 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-09-18T17:30:00.000Z",
       "counts": {
-        "scheduled": 14,
-        "published": 4,
+        "scheduled": 13,
+        "published": 3,
         "missedCoverage": 0,
         "awaiting": 10
       },
       "missed": []
     }
   },
-  "checkedAt": "2026-09-12T18:33:20.026Z",
+  "checkedAt": "2026-09-12T19:32:37.397Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
   "reason": "board published with 658 rows",
   "publishDeadlineUtc": null,
   "scheduledGames": 15,
-  "pregameRemaining": 12,
-  "alreadyStarted": 3,
+  "pregameRemaining": 11,
+  "alreadyStarted": 4,
   "board": {
     "present": true,
     "leans": 658,
@@ -104,8 +104,8 @@
       "startUtc": "2026-09-12T19:07:00Z",
       "away": "Baltimore Orioles",
       "home": "Toronto Blue Jays",
-      "detailedState": "Pre-Game",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 822685,
@@ -152,7 +152,7 @@
       "startUtc": "2026-09-12T22:10:00Z",
       "away": "Houston Astros",
       "home": "Tampa Bay Rays",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
