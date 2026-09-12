@@ -28,6 +28,7 @@ import { totalsStateAt, NFL_TOTALS_HEAD_ID } from "../../src/lib/sports/nfl/tota
 import { fnv1a } from "../../src/lib/sports/research/replay-runner.mjs";
 import { strengthStateAt, ELO_PARAMS } from "../../src/lib/sports/nfl/strength-state.mjs";
 import { coherentDirection } from "../../src/lib/sports/nfl/coherence.mjs";
+import { rowCapturedAt } from "../../src/lib/sports/odds/capture-merge.mjs";
 import { publishedMarginInterval } from "../../src/lib/sports/nfl/margin-interval-shadow.mjs";
 
 /* A narrow root seam so tests can run THIS builder — not a copy of its rules — against a
@@ -253,11 +254,15 @@ for (const ev of events) {
   if (ev.seasonType == null) { refused.push({ providerEventId: ev.providerEventId, state: "PHASE_UNRESOLVED", reason: "no seasonType on the schedule row — the phase decides which evaluated model applies, and it is never guessed" }); continue; }
 
   const market = marketByEvent.get(ev.providerEventId) ?? null;
-  const marketFresh = market && markets.capturedAt < ev.dateUtc;
+  /* The ROW's own stamp, not the document's: rows outlive a single capture now (a game priced
+     before kickoff is carried forward when a later run no longer covers it), so the document's
+     stamp would be a claim about prices it did not take. */
+  const marketCapturedAt = rowCapturedAt(market, markets);
+  const marketFresh = market && marketCapturedAt && marketCapturedAt < ev.dateUtc;
   const marketComparison = marketFresh
     ? {
       state: "MARKET_VIEW",
-      capturedAt: markets.capturedAt,
+      capturedAt: marketCapturedAt,
       books: market.books.length,
       marketHomeWinPct: market.consensus.homeWinProbNoVig,
       marketSpreadHome: market.consensus.spreadHome,
@@ -473,7 +478,7 @@ for (const ev of events) {
     marketComparison: marketFresh
       ? {
         state: "MARKET_VIEW",
-        capturedAt: markets.capturedAt,
+        capturedAt: marketCapturedAt,
         books: market.books.length,
         marketHomeWinPct: market.consensus.homeWinProbNoVig,
         marketSpreadHome: market.consensus.spreadHome,

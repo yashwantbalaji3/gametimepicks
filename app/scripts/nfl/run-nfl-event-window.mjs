@@ -32,6 +32,7 @@ import { simulatePlayerProps, loadPlayerPropsFit } from "../../src/lib/sports/nf
 import { buildScorerBoard, loadScoringBridgeMapping, loadTdCalibrationReceipt, flattenPoolShares } from "../../src/lib/sports/nfl/td-engine.mjs";
 import { buildVault, validateVaultLedgerAppend, appendVaultCorrection } from "../../src/lib/sports/nfl/end-zone-vault.mjs";
 import { checkFreshness } from "../../src/lib/sports/nfl/season-context.mjs";
+import { rowCapturedAt } from "../../src/lib/sports/odds/capture-merge.mjs";
 import { validateCurrentEventArtifact } from "../../src/lib/sports/nfl/current-event-contract.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -118,9 +119,12 @@ if (!events.length) { console.log("NO_EVENTS: the correct unavailable state — 
 
 // market rows keyed by providerEventId (public capture is the display + settlement-target source)
 const marketByEvent = new Map((publicMarkets?.rows ?? []).map((r) => [r.providerEventId, r]));
-const marketFreshness = publicMarkets
-  ? checkFreshness("odds", { sourceAsOf: publicMarkets.capturedAt, fetchedAt: publicMarkets.capturedAt }, NOW)
-  : null;
+/* Freshness is per ROW now — a carried-forward price was taken earlier than the document says, and
+   judging it by the document's stamp would call a day-old price current. */
+const marketFreshnessFor = (m) => {
+  const at = rowCapturedAt(m, publicMarkets);
+  return at ? checkFreshness("odds", { sourceAsOf: at, fetchedAt: at }, NOW) : null;
+};
 
 // prop-market availability: the authorized probe's absence evidence covers the window
 const propProbe = oddsSnapshot?.propProbe ?? null;
@@ -237,7 +241,7 @@ for (const ev of events) {
 
   const market = marketByEvent.get(ev.providerEventId);
   const marketFamily = market
-    ? { state: marketFreshness?.state === "FRESH" ? "CAPTURED_FRESH" : "CAPTURED_STALE", capturedAt: publicMarkets.capturedAt, books: market.books.length, consensus: market.consensus }
+    ? { state: marketFreshnessFor(market)?.state === "FRESH" ? "CAPTURED_FRESH" : "CAPTURED_STALE", capturedAt: rowCapturedAt(market, publicMarkets), books: market.books.length, consensus: market.consensus }
     : { state: "NO_MARKET", reason: "no authorized capture row joined this event" };
 
   const artifact = {
@@ -256,7 +260,7 @@ for (const ev of events) {
       schedule: { asOf: schedule.generatedAt },
       rosters: { asOf: rosters.sourceAsOf ?? rosters.generatedAt },
       injuries: injuries ? { asOf: injuries.sourceAsOf ?? injuries.generatedAt } : null,
-      odds: publicMarkets ? { asOf: publicMarkets.capturedAt } : null,
+      odds: market ? { asOf: rowCapturedAt(market, publicMarkets) } : publicMarkets ? { asOf: publicMarkets.capturedAt } : null,
       strengthCutoff: NOW,
     },
     families: {
@@ -287,7 +291,7 @@ for (const ev of events) {
       moneylineNoVig: { home: market.consensus.homeWinProbNoVig, away: market.consensus.awayWinProbNoVig },
       spreadHome: market.consensus.spreadHome,
       total: market.consensus.total,
-      capturedAt: publicMarkets.capturedAt,
+      capturedAt: rowCapturedAt(market, publicMarkets),
       note: "the pre-start captured consensus this event settles against, exactly once, after the official final",
     } : null,
     publicActivation: "OFF",

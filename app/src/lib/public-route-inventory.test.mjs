@@ -377,7 +377,13 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
     if (st.market.state === "LIVE") assert.match(st.market.detail, /not GameTimePicks predictions/, "captured prices are attributed as market facts, never as our output");
   }
   assert.match(nflHub, /they describe the market, not a forecast of ours/, "the de-vigged percentages disclaim forecast status in words");
-  assert.match(nflHub, /markets\?\.capturedAt && r\.kickoffUtc && markets\.capturedAt < r\.kickoffUtc/, "only rows captured BEFORE their own kickoff render — a static truth that cannot rot into liveness theater");
+  /* REPOINTED 2026-09-12 (P278): the invariant is unchanged — only a row captured before ITS OWN
+     kickoff renders — but the stamp it is judged against moved from the document to the row, because
+     rows now outlive a single capture (a game priced before kickoff is carried forward when a later
+     window no longer covers it). Pinning the old expression would have forced the page back to
+     judging a carried price by the newest capture's clock. */
+  assert.match(nflHub, /r as \{ capturedAt\?: string \}\)\.capturedAt \?\? markets\?\.capturedAt/, "a row's own capture stamp is what it is judged by");
+  assert.match(nflHub, /at && r\.kickoffUtc && at < r\.kickoffUtc/, "only rows captured BEFORE their own kickoff render — a static truth that cannot rot into liveness theater");
   // REBASED P246: the gate got STRICTER — rows must also belong to the selected week, so an
   // archived capture (e.g. the Aug-29 preseason rows after authorization expired) can never
   // render under a current-week "prices for this slate" heading.

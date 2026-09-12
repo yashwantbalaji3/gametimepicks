@@ -36,6 +36,7 @@ import { joinOddsBatch } from "../../src/lib/sports/odds/event-join.mjs";
 import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordRequest, assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { buildPlayerRegistry, resolvePlayerRef } from "../../src/lib/sports/nfl/player-identity.mjs";
 import { twoWayConsensus, medianOf } from "../../src/lib/sports/odds/consensus.mjs";
+import { mergeCaptureRows } from "../../src/lib/sports/odds/capture-merge.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -338,6 +339,9 @@ const publicRows = [...byEvent.values()].map((ev) => {
   const books = [...ev.books.values()].sort((a, b) => (a.book < b.book ? -1 : 1));
   return {
     ...ev,
+    /* Each row carries the capture that produced IT, because rows outlive a single capture: a game
+       priced before kickoff keeps that price when a later run no longer sees it. */
+    capturedAt: NOW,
     books,
     /* P276: the two-way pair comes from ONE owner and is normalised there. Two independent medians
        are not a distribution — on 2026-09-12 ten of thirteen events summed outside the settlement
@@ -357,6 +361,28 @@ const publicRows = [...byEvent.values()].map((ev) => {
   };
 }).sort((a, b) => (a.kickoffUtc < b.kickoffUtc ? -1 : 1));
 
+// defence 2: never replace a non-empty public capture with an empty one, whatever the cause
+const publicPath = path.join(APP, "public/data/nfl/markets", "latest.json");
+const priorPublic = read(publicPath);
+if (!publicRows.length && (priorPublic?.eventCount ?? 0) > 0) {
+  fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
+  console.error(`REFUSED: this run joined 0 events but the committed capture holds ${priorPublic.eventCount} — refusing to overwrite a good artifact with an empty slate; the prior capture stands as the last known good`);
+  process.exit(9);
+}
+
+/*
+ * DEFENCE 3: a price captured before kickoff is not undone by a later run. The window is pre-start
+ * events only, so a Sunday capture after the early games start holds only the late ones — and
+ * writing that wholesale would delete prices those games were legitimately given the day before.
+ * The rule lives in lib/sports/odds/capture-merge.mjs, where it is tested against that exact case.
+ */
+{
+  const merged = mergeCaptureRows(priorPublic?.rows ?? [], publicRows, { priorCapturedAt: priorPublic?.capturedAt ?? null });
+  if (merged.carried) console.log(`carried forward ${merged.carried} pre-kickoff row(s) this window no longer covers`);
+  publicRows.length = 0;
+  publicRows.push(...merged.rows);
+}
+
 const publicArtifact = {
   schemaVersion: 1,
   artifact: "nfl-market-capture",
@@ -375,15 +401,6 @@ const publicArtifact = {
     ? { state: "PROBED", probedEventId: propProbe.canonicalEventId, offeredMarkets: Object.keys(propProbe.marketsSeen ?? {}), absentMarkets: propProbe.absentMarkets ?? [] }
     : { state: propProbe?.state ?? "NOT_PROBED", offeredMarkets: [], absentMarkets: [] },
 };
-
-// defence 2: never replace a non-empty public capture with an empty one, whatever the cause
-const publicPath = path.join(APP, "public/data/nfl/markets", "latest.json");
-const priorPublic = read(publicPath);
-if (!publicRows.length && (priorPublic?.eventCount ?? 0) > 0) {
-  fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
-  console.error(`REFUSED: this run joined 0 events but the committed capture holds ${priorPublic.eventCount} — refusing to overwrite a good artifact with an empty slate; the prior capture stands as the last known good`);
-  process.exit(9);
-}
 
 // leak-guard every artifact, then write
 const outputs = [

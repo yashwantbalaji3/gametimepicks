@@ -194,7 +194,9 @@ export default function NflHubPage() {
   // market rows are pre-kickoff facts by construction: keep only rows whose capture precedes
   // their own kickoff (a static truth that cannot rot), sorted by kickoff.
   const marketRows: MarketRow[] = ((markets?.rows ?? []) as MarketRow[])
-    .filter((r) => markets?.capturedAt && r.kickoffUtc && markets.capturedAt < r.kickoffUtc)
+    /* Per ROW: a carried-forward price was captured earlier than the document says, and a game
+       priced before its kickoff stays priced even once a later capture no longer covers it. */
+    .filter((r) => { const at = (r as { capturedAt?: string }).capturedAt ?? markets?.capturedAt; return at && r.kickoffUtc && at < r.kickoffUtc; })
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
   const pct = (p: number | null) => (typeof p === "number" ? `${(p * 100).toFixed(1)}%` : "—");
 

@@ -101,13 +101,16 @@ export function loadNflEvents(nowIso: string): CanonicalEvent[] {
   const sched = readJson("nfl", "schedule", "latest.json") as { rows?: Array<Record<string, unknown>> } | null;
   const forecasts = readJson("nfl", "forecasts", "latest.json") as { forecasts?: Array<{ providerEventId: string }> } | null;
   const graded = readJson("nfl", "graded-picks.json") as { rows?: Array<{ providerEventId?: string }> } | null;
-  const markets = readJson("nfl", "markets", "latest.json") as { rows?: Array<{ providerEventId?: string; kickoffUtc?: string }>; capturedAt?: string } | null;
+  const markets = readJson("nfl", "markets", "latest.json") as { rows?: Array<{ providerEventId?: string; kickoffUtc?: string; capturedAt?: string }>; capturedAt?: string } | null;
+  /* A row carries the capture that produced IT — rows outlive a single capture, so the document's
+     stamp is not a claim about every price in it. */
+  const capturedAtOf = (r: { capturedAt?: string }) => r.capturedAt ?? markets?.capturedAt ?? "";
   const nowMs = Date.parse(nowIso);
   const forecastIds = new Set((forecasts?.forecasts ?? []).map((f) => String(f.providerEventId)));
   const settledIds = new Set((graded?.rows ?? []).map((r) => String(r.providerEventId ?? "")));
   const pricedNow = new Set(
     (markets?.rows ?? [])
-      .filter((r) => r.kickoffUtc && Date.parse(String(r.kickoffUtc)) > nowMs && String(markets?.capturedAt ?? "") < String(r.kickoffUtc))
+      .filter((r) => r.kickoffUtc && Date.parse(String(r.kickoffUtc)) > nowMs && capturedAtOf(r) < String(r.kickoffUtc))
       .map((r) => String(r.providerEventId ?? "")),
   );
   const pricedArchived = new Set(
