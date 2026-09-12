@@ -3,16 +3,18 @@
  "artifact": "uiux-baseline",
  "program": "P184",
  "dataClass": "PRIVATE_INTERNAL",
- "generatedAt": "2026-08-26T11:03:01.580Z",
+ "generatedAt": "2026-09-12T16:47:43.722Z",
  "routes": {
-  "total": 62,
-  "dynamic": 8,
-  "exported": 50,
+  "total": 70,
+  "dynamic": 10,
+  "exported": 54,
   "notExported": [
    "/launch",
    "/ops",
    "/preview/epl",
-   "/preview/june20"
+   "/preview/june20",
+   "/privacy",
+   "/terms"
   ],
   "redirects": [
    "/board",
@@ -32,6 +34,7 @@
    "/world-cup"
   ],
   "noindex": [
+   "/account",
    "/board",
    "/events",
    "/games/[sport]/[gameId]",
@@ -60,9 +63,11 @@
    "/games/[sport]/[gameId]",
    "/mlb/board/[date]",
    "/nfl/game/[eventId]",
+   "/nfl/week/[key]",
    "/results/date/[date]",
    "/results/picks/[sport]",
-   "/simulate/d/[date]"
+   "/simulate/d/[date]",
+   "/ufc/bout/[boutId]"
   ],
   "all": [
    {
@@ -74,7 +79,18 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 365
+    "lines": 371
+   },
+   {
+    "route": "/account",
+    "file": "src/app/account/page.tsx",
+    "dynamic": false,
+    "exportedHtml": true,
+    "isRedirect": false,
+    "noindex": true,
+    "hasMetadata": true,
+    "clientComponent": false,
+    "lines": 50
    },
    {
     "route": "/bank-builder",
@@ -85,7 +101,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 385
+    "lines": 554
    },
    {
     "route": "/board",
@@ -96,7 +112,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 20
+    "lines": 21
    },
    {
     "route": "/bucket-blitz",
@@ -107,7 +123,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 34
+    "lines": 35
    },
    {
     "route": "/build/custom",
@@ -118,7 +134,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 120
+    "lines": 99
    },
    {
     "route": "/build",
@@ -129,7 +145,18 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 148
+    "lines": 198
+   },
+   {
+    "route": "/cage-chaos",
+    "file": "src/app/cage-chaos/page.tsx",
+    "dynamic": false,
+    "exportedHtml": true,
+    "isRedirect": false,
+    "noindex": false,
+    "hasMetadata": true,
+    "clientComponent": false,
+    "lines": 158
    },
    {
     "route": "/cards/[sport]",
@@ -140,7 +167,18 @@
     "noindex": false,
     "hasMetadata": false,
     "clientComponent": false,
-    "lines": 129
+    "lines": 157
+   },
+   {
+    "route": "/endzone-vault",
+    "file": "src/app/endzone-vault/page.tsx",
+    "dynamic": false,
+    "exportedHtml": true,
+    "isRedirect": false,
+    "noindex": false,
+    "hasMetadata": true,
+    "clientComponent": false,
+    "lines": 139
    },
    {
     "route": "/epl/match/[slug]",
@@ -151,7 +189,7 @@
     "noindex": false,
     "hasMetadata": false,
     "clientComponent": false,
-    "lines": 423
+    "lines": 478
    },
    {
     "route": "/epl",
@@ -162,7 +200,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 510
+    "lines": 619
    },
    {
     "route": "/events",
@@ -173,7 +211,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 17
+    "lines": 18
    },
    {
     "route": "/games/[sport]/[gameId]",
@@ -184,7 +222,7 @@
     "noindex": true,
     "hasMetadata": false,
     "clientComponent": false,
-    "lines": 103
+    "lines": 107
    },
    {
     "route": "/games",
@@ -195,7 +233,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 17
+    "lines": 18
    },
    {
     "route": "/goal-rush",
@@ -206,7 +244,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 34
+    "lines": 35
    },
    {
     "route": "/homer-nukes",
@@ -217,7 +255,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 155
+    "lines": 179
    },
    {
     "route": "/ipl",
@@ -228,7 +266,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 17
+    "lines": 18
    },
    {
     "route": "/launch",
@@ -239,7 +277,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 1578
+    "lines": 2032
    },
    {
     "route": "/learn",
@@ -250,7 +288,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 251
+    "lines": 256
    },
    {
     "route": "/market-guide",
@@ -261,7 +299,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 71
+    "lines": 72
    },
    {
     "route": "/markets",
@@ -272,7 +310,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 200
+    "lines": 234
    },
    {
     "route": "/methodology",
@@ -283,7 +321,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 571
+    "lines": 578
    },
    {
     "route": "/mlb/board/[date]",
@@ -294,7 +332,7 @@
     "noindex": false,
     "hasMetadata": false,
     "clientComponent": false,
-    "lines": 131
+    "lines": 132
    },
    {
     "route": "/mlb/board",
@@ -305,7 +343,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 53
+    "lines": 56
    },
    {
     "route": "/mlb",
@@ -316,7 +354,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 584
+    "lines": 609
    },
    {
     "route": "/mlb/parlays",
@@ -327,7 +365,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 17
+    "lines": 18
    },
    {
     "route": "/mlb/power",
@@ -338,7 +376,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 77
+    "lines": 80
    },
    {
     "route": "/mlb/results",
@@ -349,7 +387,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 538
+    "lines": 539
    },
    {
     "route": "/moonshot",
@@ -360,7 +398,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 127
+    "lines": 277
    },
    {
     "route": "/mr-dub",
@@ -371,7 +409,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 174
+    "lines": 212
    },
    {
     "route": "/nba",
@@ -382,7 +420,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 18
+    "lines": 19
    },
    {
     "route": "/nba/parlays",
@@ -393,7 +431,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 15
+    "lines": 16
    },
    {
     "route": "/nba/results",
@@ -404,7 +442,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 19
+    "lines": 20
    },
    {
     "route": "/nfl/game/[eventId]",
@@ -415,7 +453,7 @@
     "noindex": false,
     "hasMetadata": false,
     "clientComponent": false,
-    "lines": 329
+    "lines": 664
    },
    {
     "route": "/nfl",
@@ -426,7 +464,18 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 793
+    "lines": 956
+   },
+   {
+    "route": "/nfl/week/[key]",
+    "file": "src/app/nfl/week/[key]/page.tsx",
+    "dynamic": true,
+    "exportedHtml": false,
+    "isRedirect": false,
+    "noindex": false,
+    "hasMetadata": false,
+    "clientComponent": false,
+    "lines": 201
    },
    {
     "route": "/nhl",
@@ -437,7 +486,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 17
+    "lines": 18
    },
    {
     "route": "/ops",
@@ -448,7 +497,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 389
+    "lines": 464
    },
    {
     "route": "/",
@@ -459,7 +508,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 368
+    "lines": 421
    },
    {
     "route": "/parlay-lab",
@@ -470,7 +519,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 16
+    "lines": 17
    },
    {
     "route": "/parlays",
@@ -481,7 +530,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 16
+    "lines": 17
    },
    {
     "route": "/picks",
@@ -492,7 +541,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 27
+    "lines": 28
    },
    {
     "route": "/preview/epl",
@@ -503,7 +552,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 196
+    "lines": 199
    },
    {
     "route": "/preview/june20",
@@ -514,7 +563,18 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 221
+    "lines": 222
+   },
+   {
+    "route": "/privacy",
+    "file": "src/app/privacy/page.tsx",
+    "dynamic": false,
+    "exportedHtml": false,
+    "isRedirect": false,
+    "noindex": false,
+    "hasMetadata": true,
+    "clientComponent": false,
+    "lines": 15
    },
    {
     "route": "/projections",
@@ -525,7 +585,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 17
+    "lines": 18
    },
    {
     "route": "/research",
@@ -536,7 +596,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 71
+    "lines": 72
    },
    {
     "route": "/responsible-use",
@@ -547,7 +607,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 167
+    "lines": 173
    },
    {
     "route": "/results/date/[date]",
@@ -558,7 +618,7 @@
     "noindex": false,
     "hasMetadata": false,
     "clientComponent": false,
-    "lines": 857
+    "lines": 831
    },
    {
     "route": "/results/mlb",
@@ -569,7 +629,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 15
+    "lines": 16
    },
    {
     "route": "/results/model-audit",
@@ -580,7 +640,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 712
+    "lines": 785
    },
    {
     "route": "/results/nba",
@@ -591,7 +651,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 549
+    "lines": 550
    },
    {
     "route": "/results",
@@ -602,7 +662,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 854
+    "lines": 898
    },
    {
     "route": "/results/parlay-lab",
@@ -613,7 +673,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 183
+    "lines": 234
    },
    {
     "route": "/results/parlays",
@@ -624,7 +684,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 304
+    "lines": 305
    },
    {
     "route": "/results/picks/[sport]",
@@ -635,7 +695,7 @@
     "noindex": false,
     "hasMetadata": false,
     "clientComponent": false,
-    "lines": 146
+    "lines": 147
    },
    {
     "route": "/results/picks",
@@ -646,7 +706,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 130
+    "lines": 131
    },
    {
     "route": "/simulate/d/[date]",
@@ -657,7 +717,7 @@
     "noindex": false,
     "hasMetadata": false,
     "clientComponent": false,
-    "lines": 46
+    "lines": 48
    },
    {
     "route": "/simulate",
@@ -668,7 +728,18 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 47
+    "lines": 58
+   },
+   {
+    "route": "/soccer/ligue-1",
+    "file": "src/app/soccer/ligue-1/page.tsx",
+    "dynamic": false,
+    "exportedHtml": true,
+    "isRedirect": false,
+    "noindex": false,
+    "hasMetadata": true,
+    "clientComponent": false,
+    "lines": 13
    },
    {
     "route": "/sports",
@@ -679,7 +750,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 57
+    "lines": 59
    },
    {
     "route": "/system-status",
@@ -690,7 +761,18 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 216
+    "lines": 224
+   },
+   {
+    "route": "/terms",
+    "file": "src/app/terms/page.tsx",
+    "dynamic": false,
+    "exportedHtml": false,
+    "isRedirect": false,
+    "noindex": false,
+    "hasMetadata": true,
+    "clientComponent": false,
+    "lines": 15
    },
    {
     "route": "/today",
@@ -701,7 +783,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 385
+    "lines": 406
    },
    {
     "route": "/trends",
@@ -712,7 +794,18 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 17
+    "lines": 18
+   },
+   {
+    "route": "/ufc/bout/[boutId]",
+    "file": "src/app/ufc/bout/[boutId]/page.tsx",
+    "dynamic": true,
+    "exportedHtml": false,
+    "isRedirect": false,
+    "noindex": false,
+    "hasMetadata": false,
+    "clientComponent": false,
+    "lines": 304
    },
    {
     "route": "/ufc",
@@ -723,7 +816,7 @@
     "noindex": false,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 330
+    "lines": 364
    },
    {
     "route": "/world-cup",
@@ -734,7 +827,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 27
+    "lines": 28
    },
    {
     "route": "/world-cup-specials",
@@ -745,7 +838,7 @@
     "noindex": true,
     "hasMetadata": true,
     "clientComponent": false,
-    "lines": 68
+    "lines": 69
    }
   ]
  },
@@ -756,7 +849,9 @@
    "/launch",
    "/ops",
    "/preview/epl",
-   "/preview/june20"
+   "/preview/june20",
+   "/privacy",
+   "/terms"
   ],
   "deadLinks": [],
   "detail": [
@@ -798,9 +893,10 @@
    {
     "file": "src/components/footer.tsx",
     "importsSharedNav": true,
-    "hardcodedHrefs": 1,
+    "hardcodedHrefs": 2,
     "hrefs": [
-     "/"
+     "/",
+     "/about/"
     ]
    },
    {
@@ -880,14 +976,14 @@
  },
  "designSystem": {
   "semanticTokensDeclared": 201,
-  "rawColorLiterals": 162,
-  "filesWithRawColors": 37,
-  "themeDrift": 68,
+  "rawColorLiterals": 160,
+  "filesWithRawColors": 35,
+  "themeDrift": 66,
   "identityData": 89,
   "maskStops": 0,
   "illustrationArt": 5,
-  "themeDriftUnreachable": 36,
-  "themeDriftReachable": 32,
+  "themeDriftUnreachable": 35,
+  "themeDriftReachable": 31,
   "migrationQueue": [
    {
     "file": "src/components/mr-dub/flagship/analytics-charts.tsx",
@@ -956,15 +1052,6 @@
     "file": "src/components/world-cup/game-script-card.tsx",
     "rawColors": 2,
     "themeDrift": 2,
-    "identityData": 0,
-    "maskStops": 0,
-    "illustrationArt": 0,
-    "routeReachable": true
-   },
-   {
-    "file": "src/app/launch/page.tsx",
-    "rawColors": 1,
-    "themeDrift": 1,
     "identityData": 0,
     "maskStops": 0,
     "illustrationArt": 0,
@@ -1198,7 +1285,7 @@
     "routeReachable": true
    },
    {
-    "file": "src/app/launch/page.tsx",
+    "file": "src/app/methodology/page.tsx",
     "rawColors": 1,
     "themeDrift": 1,
     "identityData": 0,
@@ -1209,29 +1296,29 @@
   ]
  },
  "components": {
-  "total": 320,
-  "singleCallSite": 239,
-  "clientComponents": 92,
+  "total": 355,
+  "singleCallSite": 262,
+  "clientComponents": 118,
   "all": [
    {
     "file": "src/components/player-avatar.tsx",
     "name": "player-avatar",
-    "importers": 40,
-    "lines": 137,
+    "importers": 48,
+    "lines": 140,
     "clientComponent": true
    },
    {
     "file": "src/components/ui/player-avatar.tsx",
     "name": "player-avatar",
-    "importers": 40,
-    "lines": 54,
+    "importers": 48,
+    "lines": 57,
     "clientComponent": true
    },
    {
     "file": "src/components/team-logo.tsx",
     "name": "team-logo",
-    "importers": 31,
-    "lines": 139,
+    "importers": 37,
+    "lines": 145,
     "clientComponent": true
    },
    {
@@ -1244,7 +1331,7 @@
    {
     "file": "src/components/section-header.tsx",
     "name": "section-header",
-    "importers": 20,
+    "importers": 23,
     "lines": 69,
     "clientComponent": false
    },
@@ -1294,14 +1381,28 @@
     "file": "src/components/parlay-ticket-card.tsx",
     "name": "parlay-ticket-card",
     "importers": 8,
-    "lines": 772,
+    "lines": 801,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/ui/team-mark.tsx",
+    "name": "team-mark",
+    "importers": 8,
+    "lines": 54,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/parlays/lab/leg-record-list.tsx",
+    "name": "leg-record-list",
+    "importers": 7,
+    "lines": 85,
     "clientComponent": true
    },
    {
     "file": "src/components/slate-liveness-banner.tsx",
     "name": "slate-liveness-banner",
     "importers": 7,
-    "lines": 114,
+    "lines": 124,
     "clientComponent": true
    },
    {
@@ -1312,24 +1413,17 @@
     "clientComponent": false
    },
    {
-    "file": "src/components/ui/team-mark.tsx",
-    "name": "team-mark",
-    "importers": 7,
-    "lines": 45,
-    "clientComponent": false
-   },
-   {
     "file": "src/components/nav.tsx",
     "name": "nav",
     "importers": 6,
-    "lines": 163,
+    "lines": 166,
     "clientComponent": true
    },
    {
     "file": "src/components/sport-overview-hero.tsx",
     "name": "sport-overview-hero",
     "importers": 6,
-    "lines": 331,
+    "lines": 335,
     "clientComponent": false
    },
    {
@@ -1350,14 +1444,14 @@
     "file": "src/components/sports/graded-picks-section.tsx",
     "name": "graded-picks-section",
     "importers": 5,
-    "lines": 81,
+    "lines": 96,
     "clientComponent": false
    },
    {
     "file": "src/components/top-reads-panel.tsx",
     "name": "top-reads-panel",
     "importers": 5,
-    "lines": 97,
+    "lines": 116,
     "clientComponent": false
    },
    {
@@ -1378,7 +1472,7 @@
     "file": "src/components/picks-surface-header.tsx",
     "name": "picks-surface-header",
     "importers": 4,
-    "lines": 136,
+    "lines": 134,
     "clientComponent": false
    },
    {
@@ -1401,6 +1495,13 @@
     "importers": 4,
     "lines": 283,
     "clientComponent": true
+   },
+   {
+    "file": "src/components/sport-hub/hub-header.tsx",
+    "name": "hub-header",
+    "importers": 4,
+    "lines": 68,
+    "clientComponent": false
    },
    {
     "file": "src/components/sports/sport-hub-nav.tsx",
@@ -1427,7 +1528,7 @@
     "file": "src/components/brand-mark.tsx",
     "name": "brand-mark",
     "importers": 3,
-    "lines": 114,
+    "lines": 117,
     "clientComponent": true
    },
    {
@@ -1438,10 +1539,17 @@
     "clientComponent": true
    },
    {
+    "file": "src/components/distribution-chart.tsx",
+    "name": "distribution-chart",
+    "importers": 3,
+    "lines": 63,
+    "clientComponent": false
+   },
+   {
     "file": "src/components/mlb/homer-nukes-board.tsx",
     "name": "homer-nukes-board",
     "importers": 3,
-    "lines": 138,
+    "lines": 140,
     "clientComponent": false
    },
    {
@@ -1452,10 +1560,38 @@
     "clientComponent": false
    },
    {
+    "file": "src/components/parlays/lab/card-shape-list.tsx",
+    "name": "card-shape-list",
+    "importers": 3,
+    "lines": 74,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/parlays/lab/chance-meter.tsx",
+    "name": "chance-meter",
+    "importers": 3,
+    "lines": 76,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/parlays/parlays-explorer.tsx",
+    "name": "parlays-explorer",
+    "importers": 3,
+    "lines": 476,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/parlays/risk-ladder-board.tsx",
+    "name": "risk-ladder-board",
+    "importers": 3,
+    "lines": 320,
+    "clientComponent": true
+   },
+   {
     "file": "src/components/settled-game-detail.tsx",
     "name": "settled-game-detail",
     "importers": 3,
-    "lines": 288,
+    "lines": 293,
     "clientComponent": false
    },
    {
@@ -1469,7 +1605,14 @@
     "file": "src/components/sport-lab-cards.tsx",
     "name": "sport-lab-cards",
     "importers": 3,
-    "lines": 80,
+    "lines": 110,
+    "clientComponent": false
+   },
+   {
+    "file": "src/components/teams/matchup-crests.tsx",
+    "name": "matchup-crests",
+    "importers": 3,
+    "lines": 54,
     "clientComponent": false
    },
    {
@@ -1484,6 +1627,13 @@
     "name": "explain",
     "importers": 3,
     "lines": 45,
+    "clientComponent": false
+   },
+   {
+    "file": "src/components/ui/head-to-head.tsx",
+    "name": "head-to-head",
+    "importers": 3,
+    "lines": 112,
     "clientComponent": false
    },
    {
@@ -1518,7 +1668,7 @@
     "file": "src/components/bank-builder/climb-hero.tsx",
     "name": "climb-hero",
     "importers": 2,
-    "lines": 251,
+    "lines": 260,
     "clientComponent": false
    },
    {
@@ -1526,13 +1676,6 @@
     "name": "custom-parlay-grade-card",
     "importers": 2,
     "lines": 204,
-    "clientComponent": false
-   },
-   {
-    "file": "src/components/distribution-chart.tsx",
-    "name": "distribution-chart",
-    "importers": 2,
-    "lines": 63,
     "clientComponent": false
    },
    {
@@ -1557,13 +1700,6 @@
     "clientComponent": false
    },
    {
-    "file": "src/components/game/simulation-animation.tsx",
-    "name": "simulation-animation",
-    "importers": 2,
-    "lines": 524,
-    "clientComponent": true
-   },
-   {
     "file": "src/components/game/wc-game-center.tsx",
     "name": "wc-game-center",
     "importers": 2,
@@ -1581,14 +1717,21 @@
     "file": "src/components/home/suggested-parlays-preview.tsx",
     "name": "suggested-parlays-preview",
     "importers": 2,
-    "lines": 133,
+    "lines": 152,
+    "clientComponent": false
+   },
+   {
+    "file": "src/components/legal/legal-document.tsx",
+    "name": "legal-document",
+    "importers": 2,
+    "lines": 30,
     "clientComponent": false
    },
    {
     "file": "src/components/mlb/mlb-board-body.tsx",
     "name": "mlb-board-body",
     "importers": 2,
-    "lines": 491,
+    "lines": 492,
     "clientComponent": false
    },
    {
@@ -1602,7 +1745,7 @@
     "file": "src/components/mlb/props-board.tsx",
     "name": "props-board",
     "importers": 2,
-    "lines": 229,
+    "lines": 230,
     "clientComponent": true
    },
    {
@@ -1623,7 +1766,7 @@
     "file": "src/components/moonshot/moonshot-lane-tracker.tsx",
     "name": "moonshot-lane-tracker",
     "importers": 2,
-    "lines": 195,
+    "lines": 205,
     "clientComponent": false
    },
    {
@@ -1632,6 +1775,13 @@
     "importers": 2,
     "lines": 40,
     "clientComponent": false
+   },
+   {
+    "file": "src/components/nav/date-sport-controls.tsx",
+    "name": "date-sport-controls",
+    "importers": 2,
+    "lines": 251,
+    "clientComponent": true
    },
    {
     "file": "src/components/neon-stat-panel.tsx",
@@ -1648,18 +1798,11 @@
     "clientComponent": false
    },
    {
-    "file": "src/components/parlays/parlays-explorer.tsx",
-    "name": "parlays-explorer",
+    "file": "src/components/products/lifecycle-record.tsx",
+    "name": "lifecycle-record",
     "importers": 2,
-    "lines": 410,
-    "clientComponent": true
-   },
-   {
-    "file": "src/components/parlays/risk-ladder-board.tsx",
-    "name": "risk-ladder-board",
-    "importers": 2,
-    "lines": 308,
-    "clientComponent": true
+    "lines": 77,
+    "clientComponent": false
    },
    {
     "file": "src/components/products/product-in-development.tsx",
@@ -1676,11 +1819,32 @@
     "clientComponent": false
    },
    {
+    "file": "src/components/recap/yesterday-card.tsx",
+    "name": "yesterday-card",
+    "importers": 2,
+    "lines": 58,
+    "clientComponent": false
+   },
+   {
+    "file": "src/components/results/results-explorer.tsx",
+    "name": "results-explorer",
+    "importers": 2,
+    "lines": 563,
+    "clientComponent": true
+   },
+   {
     "file": "src/components/results-model-audit-notes.tsx",
     "name": "results-model-audit-notes",
     "importers": 2,
     "lines": 290,
     "clientComponent": false
+   },
+   {
+    "file": "src/components/search/site-search.tsx",
+    "name": "site-search",
+    "importers": 2,
+    "lines": 171,
+    "clientComponent": true
    },
    {
     "file": "src/components/settled-player-list.tsx",
@@ -1690,10 +1854,17 @@
     "clientComponent": false
    },
    {
+    "file": "src/components/simulate/scenes.tsx",
+    "name": "scenes",
+    "importers": 2,
+    "lines": 166,
+    "clientComponent": true
+   },
+   {
     "file": "src/components/simulate/simulate-day.tsx",
     "name": "simulate-day",
     "importers": 2,
-    "lines": 216,
+    "lines": 181,
     "clientComponent": true
    },
    {
@@ -1714,7 +1885,7 @@
     "file": "src/components/sports/upcoming-sports.tsx",
     "name": "upcoming-sports",
     "importers": 2,
-    "lines": 151,
+    "lines": 159,
     "clientComponent": false
    },
    {
@@ -1728,7 +1899,7 @@
     "file": "src/components/tickets/leg-row.tsx",
     "name": "leg-row",
     "importers": 2,
-    "lines": 71,
+    "lines": 78,
     "clientComponent": false
    },
    {
@@ -1739,17 +1910,10 @@
     "clientComponent": false
    },
    {
-    "file": "src/components/ui/head-to-head.tsx",
-    "name": "head-to-head",
-    "importers": 2,
-    "lines": 112,
-    "clientComponent": false
-   },
-   {
     "file": "src/components/ui/player-props-explorer.tsx",
     "name": "player-props-explorer",
     "importers": 2,
-    "lines": 140,
+    "lines": 143,
     "clientComponent": true
    },
    {
@@ -1770,7 +1934,14 @@
     "file": "src/components/ui/stake-payout-input.tsx",
     "name": "stake-payout-input",
     "importers": 2,
-    "lines": 106,
+    "lines": 124,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/vault-board.tsx",
+    "name": "vault-board",
+    "importers": 2,
+    "lines": 430,
     "clientComponent": true
    },
    {
@@ -1778,6 +1949,55 @@
     "name": "vault-sparkline",
     "importers": 2,
     "lines": 150,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/accounts/account-experience.tsx",
+    "name": "account-experience",
+    "importers": 1,
+    "lines": 116,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/accounts/my-bets-record.tsx",
+    "name": "my-bets-record",
+    "importers": 1,
+    "lines": 210,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/accounts/sign-in-panel.tsx",
+    "name": "sign-in-panel",
+    "importers": 1,
+    "lines": 69,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/accounts/slip-confirm.tsx",
+    "name": "slip-confirm",
+    "importers": 1,
+    "lines": 156,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/accounts/slip-read-panel.tsx",
+    "name": "slip-read-panel",
+    "importers": 1,
+    "lines": 65,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/accounts/slip-upload.tsx",
+    "name": "slip-upload",
+    "importers": 1,
+    "lines": 97,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/accounts/style-sync-panel.tsx",
+    "name": "style-sync-panel",
+    "importers": 1,
+    "lines": 116,
     "clientComponent": true
    },
    {
@@ -1819,7 +2039,7 @@
     "file": "src/components/bank-builder/vertical-ladder-climb.tsx",
     "name": "vertical-ladder-climb",
     "importers": 1,
-    "lines": 248,
+    "lines": 264,
     "clientComponent": false
    },
    {
@@ -1847,7 +2067,7 @@
     "file": "src/components/board-date-status-banner.tsx",
     "name": "board-date-status-banner",
     "importers": 1,
-    "lines": 180,
+    "lines": 181,
     "clientComponent": false
    },
    {
@@ -1861,14 +2081,14 @@
     "file": "src/components/build-experience.tsx",
     "name": "build-experience",
     "importers": 1,
-    "lines": 407,
+    "lines": 467,
     "clientComponent": true
    },
    {
     "file": "src/components/command-rail.tsx",
     "name": "command-rail",
     "importers": 1,
-    "lines": 153,
+    "lines": 159,
     "clientComponent": true
    },
    {
@@ -1890,13 +2110,6 @@
     "name": "daily-audit-banner",
     "importers": 1,
     "lines": 114,
-    "clientComponent": false
-   },
-   {
-    "file": "src/components/data-source-badge.tsx",
-    "name": "data-source-badge",
-    "importers": 1,
-    "lines": 150,
     "clientComponent": false
    },
    {
@@ -1942,6 +2155,20 @@
     "clientComponent": true
    },
    {
+    "file": "src/components/follow/follow-toggle.tsx",
+    "name": "follow-toggle",
+    "importers": 1,
+    "lines": 25,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/follow/your-teams.tsx",
+    "name": "your-teams",
+    "importers": 1,
+    "lines": 73,
+    "clientComponent": true
+   },
+   {
     "file": "src/components/footer-freshness.tsx",
     "name": "footer-freshness",
     "importers": 1,
@@ -1952,7 +2179,7 @@
     "file": "src/components/footer.tsx",
     "name": "footer",
     "importers": 1,
-    "lines": 225,
+    "lines": 233,
     "clientComponent": false
    },
    {
@@ -1966,35 +2193,35 @@
     "file": "src/components/game/game-dashboard-panels.tsx",
     "name": "game-dashboard-panels",
     "importers": 1,
-    "lines": 111,
+    "lines": 124,
     "clientComponent": false
    },
    {
     "file": "src/components/game/game-detail-page.tsx",
     "name": "game-detail-page",
     "importers": 1,
-    "lines": 944,
+    "lines": 963,
     "clientComponent": false
    },
    {
     "file": "src/components/game/game-simulation-runner.tsx",
     "name": "game-simulation-runner",
     "importers": 1,
-    "lines": 549,
+    "lines": 400,
     "clientComponent": true
    },
    {
     "file": "src/components/game/mlb-full-game-report.tsx",
     "name": "mlb-full-game-report",
     "importers": 1,
-    "lines": 599,
+    "lines": 614,
     "clientComponent": true
    },
    {
     "file": "src/components/game/mlb-game-center.tsx",
     "name": "mlb-game-center",
     "importers": 1,
-    "lines": 148,
+    "lines": 157,
     "clientComponent": false
    },
    {
@@ -2008,14 +2235,14 @@
     "file": "src/components/game/mlb-simulation-report-v2.tsx",
     "name": "mlb-simulation-report-v2",
     "importers": 1,
-    "lines": 725,
+    "lines": 761,
     "clientComponent": false
    },
    {
     "file": "src/components/game/mlb-simulation-result-summary.tsx",
     "name": "mlb-simulation-result-summary",
     "importers": 1,
-    "lines": 93,
+    "lines": 99,
     "clientComponent": false
    },
    {
@@ -2064,21 +2291,14 @@
     "file": "src/components/game/wc-simulation-runner.tsx",
     "name": "wc-simulation-runner",
     "importers": 1,
-    "lines": 156,
-    "clientComponent": true
+    "lines": 64,
+    "clientComponent": false
    },
    {
     "file": "src/components/game-card.tsx",
     "name": "game-card",
     "importers": 1,
     "lines": 40,
-    "clientComponent": false
-   },
-   {
-    "file": "src/components/game-outlook-card.tsx",
-    "name": "game-outlook-card",
-    "importers": 1,
-    "lines": 171,
     "clientComponent": false
    },
    {
@@ -2092,7 +2312,7 @@
     "file": "src/components/games/simulation-explorer.tsx",
     "name": "simulation-explorer",
     "importers": 1,
-    "lines": 53,
+    "lines": 74,
     "clientComponent": false
    },
    {
@@ -2113,7 +2333,7 @@
     "file": "src/components/home/featured-simulations.tsx",
     "name": "featured-simulations",
     "importers": 1,
-    "lines": 155,
+    "lines": 171,
     "clientComponent": false
    },
    {
@@ -2127,7 +2347,7 @@
     "file": "src/components/home/home-sections.tsx",
     "name": "home-sections",
     "importers": 1,
-    "lines": 154,
+    "lines": 151,
     "clientComponent": false
    },
    {
@@ -2141,7 +2361,7 @@
     "file": "src/components/home/landing-hero.tsx",
     "name": "landing-hero",
     "importers": 1,
-    "lines": 121,
+    "lines": 113,
     "clientComponent": false
    },
    {
@@ -2162,7 +2382,7 @@
     "file": "src/components/ladders/product-lanes-ladder.tsx",
     "name": "product-lanes-ladder",
     "importers": 1,
-    "lines": 269,
+    "lines": 285,
     "clientComponent": false
    },
    {
@@ -2183,14 +2403,14 @@
     "file": "src/components/market-center.tsx",
     "name": "market-center",
     "importers": 1,
-    "lines": 647,
+    "lines": 649,
     "clientComponent": true
    },
    {
     "file": "src/components/markets/how-to-read-markets.tsx",
     "name": "how-to-read-markets",
     "importers": 1,
-    "lines": 118,
+    "lines": 117,
     "clientComponent": false
    },
    {
@@ -2218,7 +2438,7 @@
     "file": "src/components/mlb/mlb-board-client.tsx",
     "name": "mlb-board-client",
     "importers": 1,
-    "lines": 127,
+    "lines": 136,
     "clientComponent": true
    },
    {
@@ -2232,7 +2452,7 @@
     "file": "src/components/mlb/mlb-flagship-sections.tsx",
     "name": "mlb-flagship-sections",
     "importers": 1,
-    "lines": 131,
+    "lines": 137,
     "clientComponent": false
    },
    {
@@ -2295,7 +2515,7 @@
     "file": "src/components/mlb/mlb-slate-availability.tsx",
     "name": "mlb-slate-availability",
     "importers": 1,
-    "lines": 70,
+    "lines": 73,
     "clientComponent": false
    },
    {
@@ -2323,7 +2543,7 @@
     "file": "src/components/moonshot/ladder-v2.tsx",
     "name": "ladder-v2",
     "importers": 1,
-    "lines": 89,
+    "lines": 108,
     "clientComponent": false
    },
    {
@@ -2337,7 +2557,7 @@
     "file": "src/components/mr-dub/daily-portfolio-section.tsx",
     "name": "daily-portfolio-section",
     "importers": 1,
-    "lines": 206,
+    "lines": 211,
     "clientComponent": false
    },
    {
@@ -2383,6 +2603,34 @@
     "clientComponent": true
    },
    {
+    "file": "src/components/nfl/endzone-vault-board.tsx",
+    "name": "endzone-vault-board",
+    "importers": 1,
+    "lines": 75,
+    "clientComponent": false
+   },
+   {
+    "file": "src/components/nfl/interval-calibration-panel.tsx",
+    "name": "interval-calibration-panel",
+    "importers": 1,
+    "lines": 132,
+    "clientComponent": false
+   },
+   {
+    "file": "src/components/nfl/player-board.tsx",
+    "name": "player-board",
+    "importers": 1,
+    "lines": 285,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/nfl/weekly-boards.tsx",
+    "name": "weekly-boards",
+    "importers": 1,
+    "lines": 165,
+    "clientComponent": true
+   },
+   {
     "file": "src/components/no-games-today.tsx",
     "name": "no-games-today",
     "importers": 1,
@@ -2407,7 +2655,7 @@
     "file": "src/components/parlay-results-date-section-v2.tsx",
     "name": "parlay-results-date-section-v2",
     "importers": 1,
-    "lines": 596,
+    "lines": 598,
     "clientComponent": true
    },
    {
@@ -2423,6 +2671,34 @@
     "importers": 1,
     "lines": 375,
     "clientComponent": false
+   },
+   {
+    "file": "src/components/parlays/lab/for-you-spotlight.tsx",
+    "name": "for-you-spotlight",
+    "importers": 1,
+    "lines": 212,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/parlays/lab/slip-gauges.tsx",
+    "name": "slip-gauges",
+    "importers": 1,
+    "lines": 212,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/parlays/lab/style-replay-chart.tsx",
+    "name": "style-replay-chart",
+    "importers": 1,
+    "lines": 129,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/parlays/lazy-parlays-explorer.tsx",
+    "name": "lazy-parlays-explorer",
+    "importers": 1,
+    "lines": 68,
+    "clientComponent": true
    },
    {
     "file": "src/components/parlays/leg-swap-panel.tsx",
@@ -2551,6 +2827,27 @@
     "clientComponent": false
    },
    {
+    "file": "src/components/results/candidate-readout.tsx",
+    "name": "candidate-readout",
+    "importers": 1,
+    "lines": 79,
+    "clientComponent": false
+   },
+   {
+    "file": "src/components/results/model-results-explorer.tsx",
+    "name": "model-results-explorer",
+    "importers": 1,
+    "lines": 293,
+    "clientComponent": true
+   },
+   {
+    "file": "src/components/results/results-trend.tsx",
+    "name": "results-trend",
+    "importers": 1,
+    "lines": 123,
+    "clientComponent": true
+   },
+   {
     "file": "src/components/results/risk-ladder-stream.tsx",
     "name": "risk-ladder-stream",
     "importers": 1,
@@ -2561,7 +2858,7 @@
     "file": "src/components/results/trust-center.tsx",
     "name": "trust-center",
     "importers": 1,
-    "lines": 505,
+    "lines": 520,
     "clientComponent": false
    },
    {
@@ -2621,17 +2918,17 @@
     "clientComponent": false
    },
    {
-    "file": "src/components/simulate/scenes.tsx",
-    "name": "scenes",
+    "file": "src/components/simulate/presentation-player.tsx",
+    "name": "presentation-player",
     "importers": 1,
-    "lines": 166,
+    "lines": 575,
     "clientComponent": true
    },
    {
     "file": "src/components/simulate/simulation-stage.tsx",
     "name": "simulation-stage",
     "importers": 1,
-    "lines": 144,
+    "lines": 146,
     "clientComponent": true
    },
    {
@@ -2663,6 +2960,13 @@
     "clientComponent": true
    },
    {
+    "file": "src/components/soccer/league-forecast-page.tsx",
+    "name": "league-forecast-page",
+    "importers": 1,
+    "lines": 156,
+    "clientComponent": false
+   },
+   {
     "file": "src/components/specials/daily-specials-section.tsx",
     "name": "daily-specials-section",
     "importers": 1,
@@ -2681,6 +2985,13 @@
     "name": "world-cup-specials-tracker",
     "importers": 1,
     "lines": 301,
+    "clientComponent": false
+   },
+   {
+    "file": "src/components/sport-hub/game-summary.tsx",
+    "name": "game-summary",
+    "importers": 1,
+    "lines": 126,
     "clientComponent": false
    },
    {
@@ -2708,7 +3019,7 @@
     "file": "src/components/sports/ufc-card.tsx",
     "name": "ufc-card",
     "importers": 1,
-    "lines": 249,
+    "lines": 259,
     "clientComponent": false
    },
    {
@@ -2736,14 +3047,14 @@
     "file": "src/components/today/at-a-glance.tsx",
     "name": "at-a-glance",
     "importers": 1,
-    "lines": 56,
+    "lines": 55,
     "clientComponent": false
    },
    {
     "file": "src/components/today/daily-slate-header.tsx",
     "name": "daily-slate-header",
     "importers": 1,
-    "lines": 97,
+    "lines": 99,
     "clientComponent": false
    },
    {
@@ -2792,7 +3103,7 @@
     "file": "src/components/today/today-mlb-brief.tsx",
     "name": "today-mlb-brief",
     "importers": 1,
-    "lines": 113,
+    "lines": 117,
     "clientComponent": false
    },
    {
@@ -2831,6 +3142,13 @@
     "clientComponent": false
    },
    {
+    "file": "src/components/ui/animated-number.tsx",
+    "name": "animated-number",
+    "importers": 1,
+    "lines": 39,
+    "clientComponent": true
+   },
+   {
     "file": "src/components/ui/player-prop-group.tsx",
     "name": "player-prop-group",
     "importers": 1,
@@ -2850,13 +3168,6 @@
     "importers": 1,
     "lines": 147,
     "clientComponent": false
-   },
-   {
-    "file": "src/components/vault-board.tsx",
-    "name": "vault-board",
-    "importers": 1,
-    "lines": 430,
-    "clientComponent": true
    },
    {
     "file": "src/components/vault-filters.tsx",
@@ -2887,13 +3198,6 @@
     "clientComponent": false
    },
    {
-    "file": "src/components/world-cup/structured-moonshot-section.tsx",
-    "name": "structured-moonshot-section",
-    "importers": 1,
-    "lines": 109,
-    "clientComponent": false
-   },
-   {
     "file": "src/components/world-cup/wc-bracket-impact-card.tsx",
     "name": "wc-bracket-impact-card",
     "importers": 1,
@@ -2904,21 +3208,21 @@
     "file": "src/components/world-cup/world-cup-specials-preview-box.tsx",
     "name": "world-cup-specials-preview-box",
     "importers": 1,
-    "lines": 177,
+    "lines": 176,
     "clientComponent": false
    },
    {
     "file": "src/components/yesterday-summary.tsx",
     "name": "yesterday-summary",
     "importers": 1,
-    "lines": 155,
+    "lines": 156,
     "clientComponent": false
    },
    {
     "file": "src/components/awaiting-settlement-table.tsx",
     "name": "awaiting-settlement-table",
     "importers": 0,
-    "lines": 357,
+    "lines": 351,
     "clientComponent": false
    },
    {
@@ -3041,6 +3345,13 @@
     "clientComponent": false
    },
    {
+    "file": "src/components/data-source-badge.tsx",
+    "name": "data-source-badge",
+    "importers": 0,
+    "lines": 150,
+    "clientComponent": false
+   },
+   {
     "file": "src/components/date-status-header.tsx",
     "name": "date-status-header",
     "importers": 0,
@@ -3069,6 +3380,13 @@
     "clientComponent": true
    },
    {
+    "file": "src/components/game/simulation-animation.tsx",
+    "name": "simulation-animation",
+    "importers": 0,
+    "lines": 524,
+    "clientComponent": true
+   },
+   {
     "file": "src/components/game/wc-simulation-result-summary.tsx",
     "name": "wc-simulation-result-summary",
     "importers": 0,
@@ -3079,7 +3397,7 @@
     "file": "src/components/games/simulate-lobby.tsx",
     "name": "simulate-lobby",
     "importers": 0,
-    "lines": 595,
+    "lines": 596,
     "clientComponent": false
    },
    {
@@ -3286,6 +3604,13 @@
     "clientComponent": true
    },
    {
+    "file": "src/components/simulate/presentation-launcher.tsx",
+    "name": "presentation-launcher",
+    "importers": 0,
+    "lines": 58,
+    "clientComponent": true
+   },
+   {
     "file": "src/components/sport-lobby-actions.tsx",
     "name": "sport-lobby-actions",
     "importers": 0,
@@ -3405,6 +3730,13 @@
     "clientComponent": false
    },
    {
+    "file": "src/components/world-cup/structured-moonshot-section.tsx",
+    "name": "structured-moonshot-section",
+    "importers": 0,
+    "lines": 109,
+    "clientComponent": false
+   },
+   {
     "file": "src/components/world-cup/wc-bracket-context.tsx",
     "name": "wc-bracket-context",
     "importers": 0,
@@ -3456,7 +3788,7 @@
   ]
  },
  "motion": {
-  "keyframes": 47,
+  "keyframes": 50,
   "keyframeNames": [
    "live-pulse",
    "reveal-up",
@@ -3504,9 +3836,12 @@
    "gtp-motif-arc-draw",
    "gtp-sim-pulse",
    "gtp-sim-blink",
-   "gtp-sim-trace"
+   "gtp-sim-trace",
+   "gtp-chance-fill",
+   "gtp-line-draw",
+   "gtp-disclose-open"
   ],
-  "reducedMotionBlocks": 78,
-  "componentsWithMotion": 10
+  "reducedMotionBlocks": 79,
+  "componentsWithMotion": 11
  }
 }

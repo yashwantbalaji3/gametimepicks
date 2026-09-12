@@ -16,10 +16,11 @@ Four things need you. They take about twenty minutes in total.
 2. Project Settings → API. You need two values:
    - **Project URL** — looks like `https://abcdefgh.supabase.co`
    - **anon public key** — a long string labelled `anon` `public`
-3. There is a third key on that page, **service_role**. Do not put it in Vercel yet and never paste it
-   anywhere public. It bypasses every security policy in the schema. When the upload endpoint needs it,
-   it goes in as a server-only variable (no `NEXT_PUBLIC_` prefix), and a guard in the test suite fails
-   the build if it is ever referenced from browser code.
+3. There is a third key on that page, **service_role**. Never paste it anywhere public: it bypasses
+   every security policy in the schema. It IS needed — the screenshot-reading endpoint fetches the
+   uploaded image with it — and it goes into Vercel as a server-only variable with **no**
+   `NEXT_PUBLIC_` prefix (step 3). A guard in the test suite fails the build if it is ever referenced
+   from browser code, so it cannot reach a reader by accident.
 
 ## 2 · Run the schema (~2 min)
 
@@ -75,11 +76,17 @@ destination is built only when `NEXT_PUBLIC_SUPABASE_URL` is present, so a build
 never offers a link to a page that could not work. No further code from me is needed to switch it on —
 the page is at `/account` either way if you want to look at it first.
 
-**For AI slip reading** (step 3 of the plan), one more, server-only, no `NEXT_PUBLIC_` prefix:
+**For AI slip reading**, two more — both server-only, both with **no** `NEXT_PUBLIC_` prefix:
 
 ```
-ANTHROPIC_API_KEY = <a key from console.anthropic.com>
+ANTHROPIC_API_KEY          = <a key from console.anthropic.com>
+SUPABASE_SERVICE_ROLE_KEY  = <the service_role key from step 1>
 ```
+
+The endpoint refuses to run without all three of `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and
+`NEXT_PUBLIC_SUPABASE_URL` — it answers 503 and says which are missing, rather than half-working.
+Accounts, sign-in and hand-entered slips all work without these two; only reading a screenshot needs
+them.
 
 Roughly a cent or two per screenshot read. Set a low monthly limit on the key while we're testing.
 
