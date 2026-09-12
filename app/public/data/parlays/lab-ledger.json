@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-12T13:23:37Z",
+ "generatedAt": "2026-09-12T13:59:38Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -18,7 +18,7 @@
    "evidence": {
     "pricedGames": 13,
     "pricesCapturedAt": "2026-09-12T09:30:04.541Z",
-    "priceAgeDays": 0.16,
+    "priceAgeDays": 0.19,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
@@ -79,7 +79,7 @@
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-08-29T17:50:39Z",
-    "priceAgeDays": 13.81,
+    "priceAgeDays": 13.84,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -135,12 +135,11 @@
   {
    "id": "ufc",
    "label": "UFC",
-   "live": false,
-   "blocked": "the last price capture is 7.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "live": true,
    "evidence": {
-    "pricedGames": 0,
-    "pricesCapturedAt": "2026-09-05T13:36:57Z",
-    "priceAgeDays": 6.99,
+    "pricedGames": 11,
+    "pricesCapturedAt": "2026-09-12T13:30:45Z",
+    "priceAgeDays": 0.02,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true
    },
@@ -200,7 +199,7 @@
    "evidence": {
     "pricedGames": 20,
     "pricesCapturedAt": "2026-09-12T13:01:15Z",
-    "priceAgeDays": 0.02,
+    "priceAgeDays": 0.04,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },
@@ -260,10 +259,12 @@
    "evidence": {
     "liveSports": [
      "mlb",
+     "ufc",
      "epl"
     ],
     "liveLabels": [
      "MLB",
+     "UFC",
      "Premier League"
     ]
    },

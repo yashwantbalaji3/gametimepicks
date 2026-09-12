@@ -2,12 +2,12 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-12T13:23:38Z",
+ "generatedAt": "2026-09-12T13:59:39Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 10,
-  "NO_PLAY": 2,
-  "LANE_CLOSED": 8,
+  "PUBLISHED": 12,
+  "NO_PLAY": 4,
+  "LANE_CLOSED": 4,
   "MISSING": 0
  },
  "rows": [
@@ -62,24 +62,24 @@
   {
    "lane": "ufc",
    "date": "2026-09-12",
-   "laneState": "CLOSED",
-   "laneReason": "the last price capture is 7.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "laneState": "LIVE",
+   "laneReason": null,
    "tiers": {
     "low": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 7.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "state": "PUBLISHED",
+     "slipId": "ufc-low-2026-09-12"
     },
     "medium": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 7.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "state": "PUBLISHED",
+     "slipId": "ufc-medium-2026-09-12"
     },
     "high": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 7.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "state": "NO_PLAY",
+     "reason": "no card priced into this band — 2 legs → +166 (medium)"
     },
     "longshot": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 7.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "state": "NO_PLAY",
+     "reason": "no card priced into this band — 2 legs → +166 (medium)"
     }
    }
   },
