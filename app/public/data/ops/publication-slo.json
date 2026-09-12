@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-09-12",
-  "platformState": "INCIDENT",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -27,16 +27,21 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "1 event(s) have no forecast and the earliest one's deadline (2026-09-12T19:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-09-12T19:30:00.000Z",
+      "state": "MISSED_COVERAGE",
+      "reason": "2 of 13 event(s) started with no pre-event forecast; nothing is still pending",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 13,
         "published": 11,
-        "missedCoverage": 1,
-        "awaiting": 1
+        "missedCoverage": 2,
+        "awaiting": 0
       },
       "missed": [
+        {
+          "id": "401914462",
+          "label": "Jean Silva vs Jose Miguel Delgado",
+          "startUtc": "2026-09-12T21:00Z"
+        },
         {
           "id": "401916463",
           "label": "Drakkar Klose vs Tommy Gantt",
@@ -57,7 +62,7 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-09-12T20:49:39.017Z",
+  "checkedAt": "2026-09-12T21:31:17.707Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
@@ -96,7 +101,7 @@
       "startUtc": "2026-09-12T18:20:00Z",
       "away": "Pittsburgh Pirates",
       "home": "Chicago Cubs",
-      "detailedState": "Game Over",
+      "detailedState": "Final",
       "pregameAtCheck": false
     },
     {
@@ -112,7 +117,7 @@
       "startUtc": "2026-09-12T20:05:00Z",
       "away": "Los Angeles Angels",
       "home": "Washington Nationals",
-      "detailedState": "In Progress",
+      "detailedState": "Manager challenge",
       "pregameAtCheck": false
     },
     {
@@ -144,7 +149,7 @@
       "startUtc": "2026-09-12T20:10:00Z",
       "away": "Los Angeles Dodgers",
       "home": "Miami Marlins",
-      "detailedState": "Player challenge",
+      "detailedState": "In Progress",
       "pregameAtCheck": false
     },
     {
@@ -184,7 +189,7 @@
       "startUtc": "2026-09-13T00:10:00Z",
       "away": "Texas Rangers",
       "home": "Arizona Diamondbacks",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
