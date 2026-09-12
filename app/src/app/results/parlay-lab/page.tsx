@@ -189,7 +189,7 @@ export default function ParlayLabRecordPage() {
           <SectionHeader
             eyebrow="Track record · By kind of leg"
             title="How the legs inside our published cards settled"
-            sub={`${legRecord.shown} legs across ${legRecord.days} graded days, in the kinds of leg with enough history to show (of ${legRecord.distinct} graded in all), from every card we publish — the band cards above and the wider daily suggested set, counted once per leg per day rather than once per card — the day's cards share legs, so counting card slots would weight a leg by how many cards happened to use it rather than by how it settled.`}
+            sub={`${legRecord.shown.toLocaleString("en-US")} legs across ${legRecord.days} graded days, in the kinds of leg with enough history to show (of ${legRecord.distinct.toLocaleString("en-US")} graded in all), from every card we publish — the band cards above and the wider daily suggested set, counted once per leg per day rather than once per card — the day's cards share legs, so counting card slots would weight a leg by how many cards happened to use it rather than by how it settled.`}
           />
           <div className="mt-3">
             <LegRecordList rows={legRecord.families} since={legRecord.since} heading="By kind of leg" max={legRecord.families.length} />
@@ -206,7 +206,7 @@ export default function ParlayLabRecordPage() {
           <SectionHeader
             eyebrow="Track record · By card size"
             title="Does one more leg change anything?"
-            sub={`${shapeRecord.cards} decided cards, grouped by how many legs actually settled on them.`}
+            sub={`${shapeRecord.cards.toLocaleString("en-US")} decided cards, grouped by how many legs actually settled on them.`}
           />
           <div className="mt-3">
             <CardShapeList rows={shapeRecord.sizes} heading="By card size" />

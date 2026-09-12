@@ -114,7 +114,7 @@ export default function ParlayCenterSuggestedPage() {
       {legRecord ? (
         <details className="gtp-disclose rounded-[10px]" style={{ border: "1px solid var(--vault-border-strong)" }}>
           <summary className="cursor-pointer px-4 py-3" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600, minHeight: 44 }}>
-            How our legs have settled — {legRecord.families.length} kinds of leg, {legRecord.shown} legs
+            How our legs have settled — {legRecord.families.length} kinds of leg, {legRecord.shown.toLocaleString("en-US")} legs
           </summary>
           <div className="px-4 pb-4">
             <LegRecordList rows={legRecord.families} since={legRecord.since} heading="By kind of leg" max={legRecord.families.length} />

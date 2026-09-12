@@ -38,6 +38,8 @@ export interface LegRecordView {
 }
 
 const pct = (v: number | null) => (v == null ? "—" : `${(v * 100).toFixed(0)}%`);
+/** 1853 reads as a code; 1,853 reads as a count. Fixed locale so the markup is the same everywhere. */
+export const count = (n: number) => n.toLocaleString("en-US");
 const signed = (v: number | null) => (v == null ? "—" : `${v < 0 ? "−" : "+"}${Math.abs(v * 100).toFixed(1)}%`);
 
 /** The families present in a set of legs, each once, in the order the legs appear. */
@@ -80,7 +82,7 @@ export default function LegRecordList({
               </span>
             ) : null}
             <span className="block tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 11, lineHeight: 1.5 }}>
-              {r.wins} of {r.decided} landed ({pct(r.hitRate)}) · their prices implied {pct(r.impliedMean)} ·{" "}
+              {count(r.wins)} of {count(r.decided)} landed ({pct(r.hitRate)}) · their prices implied {pct(r.impliedMean)} ·{" "}
               a flat stake on every one returned {signed(r.flatReturn)}
             </span>
             <span className="block" style={{ color: "var(--vault-text-faint)", fontSize: 10.5, lineHeight: 1.45 }}>{r.sample.text}</span>

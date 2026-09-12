@@ -11,6 +11,8 @@
  * caption, and the copy says whose cards these were.
  */
 
+import { count } from "./leg-record-list";
+
 export interface ShapeRow {
   readonly legs: number;
   readonly cards: number;
@@ -63,7 +65,7 @@ export default function CardShapeList({
                 }} />
               </span>
               <span className="tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>
-                {r.wins} of {r.cards} landed ({pct(r.hitRate)}) · flat stake {signed(r.flatReturn)}
+                {count(r.wins)} of {count(r.cards)} landed ({pct(r.hitRate)}) · flat stake {signed(r.flatReturn)}
               </span>
               <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{r.sample.text}</span>
               {here ? (
