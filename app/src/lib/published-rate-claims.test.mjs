@@ -75,11 +75,26 @@ test("every settle rate printed on a page still matches the ledger", async () =>
   const failures = [];
   let checked = 0;
 
-  for (const rel of SURFACES) {
+  /* THE OWNER IS WHAT IS CHECKED NOW (P279). Scanning each page for a literal meant every surface
+     carried its own transcription — and on 2026-09-12 /about and the market-guide glossary were
+     found stating two different triples for the same cohort, with a third truth in the ledger. The
+     pages render one object; this checks that object against the ledger, and still fails if a page
+     grows its own literal again. */
+  const owner = fs.readFileSync(path.join(APP, "src/lib/category-settled-rates.ts"), "utf8");
+  const ownerClaims = [
+    { category: "A", claimed: Number(owner.match(/\ba:\s*([\d.]+)/)[1]) },
+    { category: "B", claimed: Number(owner.match(/\bb:\s*([\d.]+)/)[1]) },
+    { category: "C", claimed: Number(owner.match(/\bc:\s*([\d.]+)/)[1]) },
+  ];
+  for (const rel of [...SURFACES, "src/lib/glossary.ts"]) {
     const file = path.join(APP, rel);
     if (!fs.existsSync(file)) continue;
     const src = fs.readFileSync(file, "utf8");
-    for (const { category, claimed } of claimsIn(src)) {
+    const strays = claimsIn(src);
+    assert.deepEqual(strays, [], `${rel} carries its own settle-rate literal — render CATEGORY_SETTLED_RATES instead`);
+  }
+  {
+    for (const { category, claimed } of ownerClaims) {
       const tier = CATEGORY_TIER[category];
       const actual = rates[tier];
       if (actual == null) continue;
@@ -87,7 +102,7 @@ test("every settle rate printed on a page still matches the ledger", async () =>
       const drift = Math.abs(claimed - actual);
       if (drift > TOLERANCE_PP) {
         failures.push(
-          `${rel}: Category ${category} (${tier}) claims ${claimed.toFixed(1)}% but the ledger says ` +
+          `category-settled-rates.ts: Category ${category} (${tier}) claims ${claimed.toFixed(1)}% but the ledger says ` +
             `${actual.toFixed(1)}% — drift ${drift.toFixed(2)}pp`,
         );
       }

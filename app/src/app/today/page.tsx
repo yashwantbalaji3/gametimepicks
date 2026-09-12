@@ -384,7 +384,11 @@ export default function TodayPage() {
       {/* 6 — Bank Builder status (derived; never hardcoded) */}
       <BankBuilderStatus
         statusValue={bbStatusValue}
-        stepLine={`${bbStepPhrase} · no active card`}
+        /* "· no active card" was a HARDCODED literal sitting beside a derived statusValue that
+           said "Active card", so the tile read "Active card … awaiting Step 1 · no active card".
+           This file's own header promises the state is derived and never asserted; this line was
+           the exception, and it contradicted the line above it. */
+        stepLine={bbHasActiveCard ? bbStepPhrase : `${bbStepPhrase} · no active card`}
         exposureLine={`Open exposure ${openExposureLabel}`}
         reason={bbReason}
       />

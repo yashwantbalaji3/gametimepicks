@@ -14,7 +14,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { buildSimulationStory, withinOneRunShare, CLOSE_GAME_THRESHOLD } from "./story.ts";
+import { buildSimulationStory, withinOneRunShare } from "./story.ts";
 
 /** Words that must never appear in public simulation copy (mirrors public-beta-safety.test.mjs). */
 const BANNED = ["edge", "value", "lock", "profitable", "guaranteed", "best bet"];
@@ -64,7 +64,7 @@ test("every beat restates a canonical value — nothing is invented", () => {
   assert.equal(by("winner"), "SF wins 58% of simulations.", "58% is winProbability.home, SF is the favored side");
   assert.equal(by("outcome"), "Most common outcome: LAA 3 – SF 4 (370 / 10,000 simulations).", "0.037 × 10,000");
   // 0.12 + 0.0 + 0.19 = 31% — the EXACT bins only; the two 10% range bins are excluded.
-  assert.equal(by("closeness"), "This matchup is relatively close: 31% of simulations finish within one run.");
+  assert.equal(by("closeness"), "31% of simulations finish within one run.");
   assert.equal(by("player"), "Biggest player factor: Logan Webb UNDER 5.5 Strikeouts — 8,400 / 10,000 simulations.");
 });
 
@@ -102,11 +102,18 @@ test("frequency is omitted rather than divided by a zero/absent run count", () =
   assert.ok(outcome.includes("0 / 1 simulations"), "rounds honestly at tiny counts instead of hiding the count");
 });
 
-test("the 'relatively close' lead is a documented threshold, not a vibe", () => {
+test("the closeness beat states the number and claims nothing about it", () => {
+  /* The lead used to read "This matchup is relatively close: …" above a documented 0.30 threshold.
+     Measured across 25 games on six slates the one-run share runs 28.9%–35.4%, median 31.6%, and
+     84% of games clear 0.30 — on 2026-09-12 it fired for eleven of fifteen. A descriptor that
+     applies to five games in six describes baseball, not the matchup, and no threshold inside that
+     range separates anything. The fact stays; the adjective is gone. */
   const justUnder = { ...GAME, runDifferential: { ...GAME.runDifferential, distribution: [bin(-1, 0.1), bin(0, 0.0), bin(1, 0.15)] } };
-  const text = buildSimulationStory(justUnder, null).find((b) => b.kind === "closeness").text;
-  assert.ok(0.25 < CLOSE_GAME_THRESHOLD);
-  assert.equal(text, "25% of simulations finish within one run.", "below the threshold → the bare fact, no adjective");
+  const low = buildSimulationStory(justUnder, null).find((b) => b.kind === "closeness").text;
+  const high = buildSimulationStory(GAME, null).find((b) => b.kind === "closeness").text;
+  assert.equal(low, "25% of simulations finish within one run.");
+  assert.match(high, /^\d+% of simulations finish within one run\.$/);
+  for (const t of [low, high]) assert.ok(!/relatively close|close matchup|tight/i.test(t), `no adjective: ${t}`);
 });
 
 test("deterministic: same input, same story, stable order", () => {

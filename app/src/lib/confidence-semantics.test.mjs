@@ -116,7 +116,12 @@ test("no surface ASSIGNS or RENDERS the old ranking labels as a tier label", () 
 test("the glossary no longer claims confidence gates data quality, and states the inversion", () => {
   const g = read("src/lib/glossary.ts");
   assert.match(g, /ANTI-PREDICTIVE/i, "the glossary must state the inversion plainly");
-  assert.match(g, /49\.3%|50\.6%|51\.7%/, "the glossary must quote the measured rates");
+  /* REPOINTED 2026-09-12: the glossary quoted its own literals (49.3/50.6/51.7) and /about quoted
+     different ones (49.3/50.0/51.0) for the same cohort — and the ledger said 49.35/50.20/50.94 over
+     41,007 rows, not the 21,192 both claimed. One owner now renders into both, checked against the
+     ledger by published-rate-claims.test.mjs. */
+  assert.match(g, /categoryRatesPhrase\(\)/, "the glossary must render the one owner, not a transcription");
+  assert.ok(!/49\.3%|50\.6%|51\.7%/.test(g), "and must not carry its own copy of the rates");
   assert.match(g, /does not up-weight/i, "the promise the code now keeps must stay stated");
 });
 

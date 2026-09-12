@@ -189,7 +189,13 @@ export function buildDailyBrief(
   const count = opts?.spotlightCount ?? 3;
   const spotlight = ranked[0] ? toBriefGame(ranked[0]) : null;
   const attention = ranked.slice(1, 1 + count).map(toBriefGame);
-  const gamesInProgress = [spotlight, ...attention].filter((g) => g?.started).length;
+  /* THE SLATE, NOT THE FOUR GAMES WE CHOSE TO FEATURE. This counted the spotlight plus the three
+     attention games, so at most four — and the sentence it feeds ("2 games are underway") names no
+     subset. On 2026-09-12 it read "2 games are underway" on a page that marked nine of fifteen as
+     started. A count over a sample, printed as a count over the slate, is simply a wrong number. */
+  const gamesInProgress = ranked.filter(
+    ({ d }) => deriveStartState(typeof d.gameCenter?.firstPitch === "string" ? d.gameCenter.firstPitch : null, opts?.nowMs) === "started",
+  ).length;
   /* A game on a PAST ET slate whose first pitch has passed is finished, not "underway" — the
      binary start-state has no "final", so the closed-slate framing is decided here from the real
      clock's own ET date (P241 · A12: "4 games are underway" rendered under a header that already

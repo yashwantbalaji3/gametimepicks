@@ -250,3 +250,13 @@ test("FUNCTIONAL · Top-10, featured sims, BB no-play, and open exposure derive 
   const moonActive = dp.cards.some((c) => c.product === "moonshot" && c.status === "active");
   assert.equal(typeof moonActive, "boolean", "Moonshot active state derives from the real portfolio");
 });
+
+test("the Bank Builder tile never says 'Active card' and 'no active card' in the same breath", () => {
+  /* THE DEFECT, 2026-09-12: `statusValue` was derived ("Active card") and the line beneath it
+     carried a HARDCODED "· no active card". The page's own header promises the state is derived
+     and never asserted; this was the one place that asserted it, and it contradicted itself. */
+  const page = fs.readFileSync(path.join(process.cwd(), "src", "app", "today", "page.tsx"), "utf8");
+  const hard = /stepLine=\{`\$\{bbStepPhrase\} · no active card`\}/.test(page);
+  assert.ok(!hard, "the no-active-card phrase must be conditional on bbHasActiveCard, not a literal");
+  assert.match(page, /stepLine=\{bbHasActiveCard \? bbStepPhrase : /, "and the condition is the same one statusValue uses");
+});

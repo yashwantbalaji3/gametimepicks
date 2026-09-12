@@ -64,7 +64,12 @@ test("unavailable rows absent from the ledger are recovered, and close the gap",
   assert.equal(withRecovery.unavailable, 1);
   assert.equal(withRecovery.pending, 0);
   assert.equal(withRecovery.gap, 0);
-  assert.match(withRecovery.notes.join(" "), /the ledger does not record them/);
+  /* REPOINTED: the per-slate note states the COUNT; where those rows come from is explained once
+     for the section, in the outcome vocabulary that already defines UNAVAILABLE. Five slates on
+     /results were each carrying the same fifteen words. The note must still name the rows. */
+  assert.match(withRecovery.notes.join(" "), /1 row\(s\) were generated and gradable but produced no stat/);
+  assert.doesNotMatch(withRecovery.notes.join(" "), /the ledger does not record them/, "the explanation belongs to the section, not to every slate");
+  assert.match(OUTCOME_MEANING.UNAVAILABLE, /recovered from the comparison report/, "and the section still explains it");
 });
 
 test("a missing row is never counted as a loss", () => {

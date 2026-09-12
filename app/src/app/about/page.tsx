@@ -7,6 +7,7 @@
  * on /methodology, /responsible-use, and /results/model-audit — this
  * page is the casual entry point.
  */
+import { CATEGORY_SETTLED_RATES } from "@/lib/category-settled-rates";
 import Link from "next/link";
 
 import PageHero from "@/components/page-hero";
@@ -77,20 +78,22 @@ export default function AboutPage() {
           <ul className="mt-3 space-y-1 list-disc pl-5">
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>Category A</strong>{" "}
-              · model and market differed by 5pp or more. Settled at 49.3%.
+              · model and market differed by 5pp or more. Settled at{" "}
+              {CATEGORY_SETTLED_RATES.a.toFixed(1)}%.
             </li>
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>Category B</strong>{" "}
-              · differed by 2.5&ndash;5pp. Settled at 50.0%.
+              · differed by 2.5&ndash;5pp. Settled at {CATEGORY_SETTLED_RATES.b.toFixed(1)}%.
             </li>
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>Category C</strong>{" "}
               · differed by under 2.5pp, or the row was anomaly-flagged. Settled
-              at 51.0%.
+              at {CATEGORY_SETTLED_RATES.c.toFixed(1)}%.
             </li>
           </ul>
           <p className="mt-3 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-            Those rates are measured over 21,192 settled outcomes, and they run in
+            Those rates are measured over{" "}
+            {CATEGORY_SETTLED_RATES.cohort.toLocaleString("en-US")} settled outcomes, and they run in
             the opposite direction to what the old labels implied. A larger
             disagreement with the market has historically settled{" "}
             <em>worse</em>, not better &mdash; which is why these are neutral

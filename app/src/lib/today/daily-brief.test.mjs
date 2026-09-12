@@ -146,3 +146,17 @@ test("only the presented slate contributes (stale days ignored)", () => {
   assert.equal(b.overview.games, 1);
   assert.equal(b.spotlight.slug, "today-2026-07-23");
 });
+
+test("games underway counts the SLATE, not the four games we chose to feature", () => {
+  /* THE DEFECT, 2026-09-12: the count ran over the spotlight plus three attention games, so it
+     could never exceed four — and the sentence it feeds ("2 games are underway") names no subset.
+     The page marked nine of fifteen games as started while the brief above it said two. */
+  const STARTED = "2026-07-23T18:00:00Z";
+  const LATER = "2026-07-24T02:00:00Z";
+  const details = ["a", "b", "c", "d", "e"].map((slug) => simGame({ slug: `${slug}-vs-home-2026-07-23`, firstPitch: STARTED }))
+    .concat([simGame({ slug: "f-vs-home-2026-07-23", firstPitch: LATER })]);
+  const b = buildDailyBrief(details, TODAY, { nowMs: Date.parse("2026-07-23T22:00:00Z") });
+  assert.ok(b.gamesInProgress > 4, `a count capped at four cannot describe a slate; got ${b.gamesInProgress}`);
+  assert.equal(b.gamesInProgress, 5);
+  assert.equal(b.attention.length + (b.spotlight ? 1 : 0), 4, "and the feature set is still four — the count is simply no longer taken from it");
+});

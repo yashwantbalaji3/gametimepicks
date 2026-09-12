@@ -69,7 +69,14 @@ export default function ResponsibleUsePage() {
         <Block
           icon="!"
           title="Age restrictions"
-          body="Sports wagering is restricted to legal-age adults in jurisdictions where it is permitted. This site is published in the United States; users under 21 should not engage with sportsbook products. Always verify the laws of your jurisdiction."
+          /* TWO AGES ON ONE PAGE READ AS A CONTRADICTION, AND THE SECOND WAS THE WRONG KIND OF CLAIM.
+             The section above sets ONE rule for this site: 18 or older. This section was setting a
+             second, different number (21) for sportsbooks — but the legal age to wager is not ours
+             to state: it is 18 in some US states and 21 in others, and naming one figure is both
+             wrong somewhere and, next to our own 18, reads as the site contradicting itself. The
+             age rule for THIS site stays in one place; this section says what it can actually
+             know, which is that the threshold varies and the reader must check it. */
+          body="Sports wagering is restricted to legal-age adults in jurisdictions where it is permitted, and the minimum age differs from state to state. This site does not take wagers and does not set that age; verify the law where you are before using any sportsbook. The rule for this site is the one above: 18 or older."
         />
         <Block
           icon="!"

@@ -168,7 +168,12 @@ export function reconcile(input: ReconcileInput): DateAccounting {
     notes.push(`${gap} generated row(s) could not be placed in any bucket — this is a defect, not a rounding difference.`);
   }
   if (unavailable > 0) {
-    notes.push(`${unavailable} row(s) were generated and gradable but produced no stat. They are recovered from the comparison report because the ledger does not record them.`);
+    /* THE COUNT IS THE DATA; THE EXPLANATION IS NOT. This note is emitted once per slate, and the
+       second sentence — where these rows come from — was identical on every one of them: five
+       slates on /results carried the same fifteen words. The per-day note now states only what
+       differs, and the section explains recovery once, beside the outcome vocabulary that already
+       defines UNAVAILABLE. */
+    notes.push(`${unavailable} row(s) were generated and gradable but produced no stat.`);
   }
   if (pending > 0 && input.slateComplete) {
     notes.push(`${pending} row(s) remain unresolved on a completed slate.`);
@@ -225,7 +230,7 @@ export const OUTCOME_MEANING: Readonly<Record<OutcomeState, string>> = {
   LOSS: "The official box score resolved against the side we took.",
   VOID: "The result landed exactly on the line, or the player never came to bat. Not a loss.",
   PENDING: "The event has not produced a gradable result yet. Not a loss.",
-  UNAVAILABLE: "The game finished but this row never produced a gradable stat. Not a loss.",
+  UNAVAILABLE: "The game finished but this row never produced a gradable stat. Not a loss. These are recovered from the comparison report, because the ledger does not record them.",
   PASS: "We generated no directional call here, so there is nothing to grade.",
   QUARANTINED: "Settlement was withheld because the data failed an integrity check. No outcome was published.",
 };

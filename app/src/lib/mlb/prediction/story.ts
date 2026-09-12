@@ -21,9 +21,19 @@
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { GamePredictionDecision } from "./types";
 
-/** Share of simulations at or above which the matchup is described as "relatively close". Documented so the
- *  adjective is a stated threshold rather than a vibe. */
-export const CLOSE_GAME_THRESHOLD = 0.3;
+/*
+ * THE ADJECTIVE IS GONE, BECAUSE IT DESCRIBED BASEBALL AND NOT THE MATCHUP.
+ *
+ * A documented 0.30 threshold made "relatively close" a stated rule rather than a vibe, which was
+ * the right instinct and still produced a label that said nothing. Measured across 25 games on six
+ * slates, the share of simulations finishing within one run runs 28.9% to 35.4% — a 6.5-point range
+ * with a median of 31.6%, and 84% of games clear 0.30. On the 2026-09-12 slate the phrase fired for
+ * eleven of fifteen games at 30, 31 or 32 per cent.
+ *
+ * A descriptor that applies to five games in six is a constant wearing the clothes of a finding. No
+ * threshold inside that range separates anything, so the fix is not a higher one: the beat states
+ * the number, which is a fact and varies a little, and makes no claim about how close the game is.
+ */
 
 export type StoryBeatKind = "winner" | "outcome" | "closeness" | "player";
 
@@ -93,9 +103,8 @@ function closenessBeat(game: FullGameSimGame): StoryBeat | null {
   const share = withinOneRunShare(game);
   if (share == null) return null;
   const pct = Math.round(share * 100);
-  const lead = share >= CLOSE_GAME_THRESHOLD ? "This matchup is relatively close: " : "";
   const phrase = (CLOSENESS[game.vocabulary?.sportCode ?? "MLB"] ?? CLOSENESS.MLB).phrase;
-  return { kind: "closeness", text: `${lead}${pct}% of simulations finish ${phrase}.` };
+  return { kind: "closeness", text: `${pct}% of simulations finish ${phrase}.` };
 }
 
 /** "Biggest player factor: Logan Webb UNDER 5.5 Strikeouts — 8,400 / 10,000 simulations." */
