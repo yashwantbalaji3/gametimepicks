@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 822927,
   "date": "2026-09-12",
-  "capturedAt": "2026-09-12T00:49:08.815Z",
-  "availableAt": "2026-09-12T00:49:08.815Z",
+  "capturedAt": "2026-09-12T05:24:13.257Z",
+  "availableAt": "2026-09-12T05:24:13.257Z",
   "eventStartTime": "2026-09-12T22:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,34 @@
     "teamId": 139,
     "teamName": "Tampa Bay Rays",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 24,
+      "relievers": [
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 669330,
+          "name": "Tyler Wells",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 96,
+      "appearances": 9,
+      "pitches": 120,
       "relievers": [
         {
           "id": 571927,
@@ -59,6 +80,16 @@
           ]
         },
         {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
           "id": 592155,
           "name": "Cam Booser",
           "appearances": 2,
@@ -67,6 +98,16 @@
           "dates": [
             "2026-09-09",
             "2026-09-10"
+          ]
+        },
+        {
+          "id": 669330,
+          "name": "Tyler Wells",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
           ]
         },
         {
@@ -97,14 +138,55 @@
     "teamId": 117,
     "teamName": "Houston Astros",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 103,
+      "relievers": [
+        {
+          "id": 814490,
+          "name": "Ethan Pecko",
+          "appearances": 1,
+          "pitches": 75,
+          "outs": 17,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 687911,
+          "name": "Bryan King",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 650556,
+          "name": "Bryan Abreu",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 1,
+          "dates": [
+            "2026-09-11"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 117,
+      "appearances": 10,
+      "pitches": 220,
       "relievers": [
+        {
+          "id": 814490,
+          "name": "Ethan Pecko",
+          "appearances": 1,
+          "pitches": 75,
+          "outs": 17,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
         {
           "id": 837227,
           "name": "Tatsuya Imai",
@@ -118,11 +200,23 @@
         {
           "id": 687911,
           "name": "Bryan King",
-          "appearances": 1,
-          "pitches": 20,
-          "outs": 0,
+          "appearances": 2,
+          "pitches": 39,
+          "outs": 4,
           "dates": [
-            "2026-09-09"
+            "2026-09-09",
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 650556,
+          "name": "Bryan Abreu",
+          "appearances": 2,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-09-10",
+            "2026-09-11"
           ]
         },
         {
@@ -140,16 +234,6 @@
           "name": "Bennett Sousa",
           "appearances": 1,
           "pitches": 14,
-          "outs": 3,
-          "dates": [
-            "2026-09-10"
-          ]
-        },
-        {
-          "id": 650556,
-          "name": "Bryan Abreu",
-          "appearances": 1,
-          "pitches": 10,
           "outs": 3,
           "dates": [
             "2026-09-10"
@@ -177,12 +261,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 814490,
+        "name": "Ethan Pecko",
+        "reason": "75 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-09,2026-09-10,2026-09-11) + feed/live box scores",
-    "capturedAt": "2026-09-12T00:49:08.815Z"
+    "capturedAt": "2026-09-12T05:24:13.257Z"
   },
-  "recordHash": "b68056e96d5984919533f62b9390b133f69c14c28bd49953b5622aad22309253"
+  "recordHash": "ed28058d02784d1db77c559296625b78b021b2b73a0a8ac846999644bf06cc34"
 }

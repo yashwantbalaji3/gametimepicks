@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823170,
   "date": "2026-09-12",
-  "capturedAt": "2026-09-12T00:49:08.815Z",
-  "availableAt": "2026-09-12T00:49:08.815Z",
+  "capturedAt": "2026-09-12T05:24:13.257Z",
+  "availableAt": "2026-09-12T05:24:13.257Z",
   "eventStartTime": "2026-09-12T20:05:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,45 @@
     "teamId": 137,
     "teamName": "San Francisco Giants",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 86,
+      "relievers": [
+        {
+          "id": 805074,
+          "name": "Yunior Marte",
+          "appearances": 1,
+          "pitches": 77,
+          "outs": 15,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 691769,
+          "name": "Philip Abner",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 3,
-      "pitches": 48,
+      "appearances": 5,
+      "pitches": 134,
       "relievers": [
+        {
+          "id": 805074,
+          "name": "Yunior Marte",
+          "appearances": 1,
+          "pitches": 77,
+          "outs": 15,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
         {
           "id": 683363,
           "name": "Matt Wilkinson",
@@ -41,11 +72,12 @@
         {
           "id": 691769,
           "name": "Philip Abner",
-          "appearances": 1,
-          "pitches": 16,
-          "outs": 6,
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 9,
           "dates": [
-            "2026-09-09"
+            "2026-09-09",
+            "2026-09-11"
           ]
         },
         {
@@ -60,20 +92,77 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 805074,
+        "name": "Yunior Marte",
+        "reason": "77 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 135,
     "teamName": "San Diego Padres",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 4,
+      "pitches": 73,
+      "relievers": [
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 76,
+      "appearances": 9,
+      "pitches": 149,
       "relievers": [
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
         {
           "id": 606996,
           "name": "Kyle Hart",
@@ -85,6 +174,17 @@
           ]
         },
         {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-09",
+            "2026-09-11"
+          ]
+        },
+        {
           "id": 593974,
           "name": "Wandy Peralta",
           "appearances": 1,
@@ -92,6 +192,26 @@
           "outs": 6,
           "dates": [
             "2026-09-09"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
           ]
         },
         {
@@ -113,16 +233,6 @@
           "dates": [
             "2026-09-09"
           ]
-        },
-        {
-          "id": 673513,
-          "name": "Yuki Matsui",
-          "appearances": 1,
-          "pitches": 8,
-          "outs": 3,
-          "dates": [
-            "2026-09-09"
-          ]
         }
       ]
     },
@@ -131,7 +241,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-09,2026-09-10,2026-09-11) + feed/live box scores",
-    "capturedAt": "2026-09-12T00:49:08.815Z"
+    "capturedAt": "2026-09-12T05:24:13.257Z"
   },
-  "recordHash": "02da230956d658a1a06f3203ce85628609cc67b4fd5de8c0ed927873b9352799"
+  "recordHash": "b5850bbd660ebc664f8bcc1846c61fe9a084a2bf64a034c1cf8d415bb1160b7c"
 }

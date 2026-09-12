@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823496,
   "date": "2026-09-12",
-  "capturedAt": "2026-09-12T00:49:08.815Z",
-  "availableAt": "2026-09-12T00:49:08.815Z",
+  "capturedAt": "2026-09-12T05:24:13.257Z",
+  "availableAt": "2026-09-12T05:24:13.257Z",
   "eventStartTime": "2026-09-12T17:35:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,44 @@
     "teamId": 147,
     "teamName": "New York Yankees",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 66,
+      "relievers": [
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 2,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 1,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 5,
+          "dates": [
+            "2026-09-11"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 8,
-      "pitches": 140,
+      "appearances": 11,
+      "pitches": 206,
       "relievers": [
         {
           "id": 661563,
@@ -36,6 +67,28 @@
           "outs": 6,
           "dates": [
             "2026-09-10"
+          ]
+        },
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 3,
+          "dates": [
+            "2026-09-10",
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 4,
+          "dates": [
+            "2026-09-09",
+            "2026-09-11"
           ]
         },
         {
@@ -71,41 +124,58 @@
           ]
         },
         {
-          "id": 621112,
-          "name": "Paul Blackburn",
+          "id": 670280,
+          "name": "David Bednar",
           "appearances": 1,
-          "pitches": 11,
-          "outs": 3,
+          "pitches": 15,
+          "outs": 5,
           "dates": [
-            "2026-09-09"
-          ]
-        },
-        {
-          "id": 687396,
-          "name": "Brent Headrick",
-          "appearances": 1,
-          "pitches": 8,
-          "outs": 1,
-          "dates": [
-            "2026-09-10"
+            "2026-09-11"
           ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 687396,
+        "name": "Brent Headrick",
+        "reason": "30 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 121,
     "teamName": "New York Mets",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 41,
+      "relievers": [
+        {
+          "id": 674073,
+          "name": "Jack Weisenburger",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 9,
+          "dates": [
+            "2026-09-11"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 121,
+      "appearances": 7,
+      "pitches": 162,
       "relievers": [
+        {
+          "id": 674073,
+          "name": "Jack Weisenburger",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 9,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
         {
           "id": 650960,
           "name": "Daniel Duarte",
@@ -168,12 +238,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 674073,
+        "name": "Jack Weisenburger",
+        "reason": "41 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-09,2026-09-10,2026-09-11) + feed/live box scores",
-    "capturedAt": "2026-09-12T00:49:08.815Z"
+    "capturedAt": "2026-09-12T05:24:13.257Z"
   },
-  "recordHash": "18affe7279d28b91471702464e0830dfc0c7e867d3c413bbad48d2fb98dcdd40"
+  "recordHash": "2a3c8836e0c20ae3ea996197ea42bdf5bb979b70136ad38ecb753a325df0b1c6"
 }

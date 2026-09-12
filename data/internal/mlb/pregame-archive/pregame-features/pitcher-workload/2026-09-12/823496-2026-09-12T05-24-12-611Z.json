@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823496,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T05:24:12.611Z",
+  "availableAt": "2026-09-12T05:24:12.611Z",
+  "eventStartTime": "2026-09-12T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 543037,
+      "name": "Gerrit Cole",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 5.2,
+        "bbAvg": 1,
+        "erAvg": 2.4,
+        "hrAvg": 1.2,
+        "kPer9": 7.71,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 111,
+        "k": 113,
+        "bb": 22,
+        "er": 42,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 804267,
+      "name": "Zac Thornton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 7,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 4.8,
+        "bbAvg": 0.6,
+        "erAvg": 3,
+        "hrAvg": 1.6,
+        "kPer9": 8,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 66.33,
+        "k": 51,
+        "bb": 15,
+        "er": 26,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-12T05:24:12.611Z"
+  },
+  "recordHash": "763d4ef17c4a711c42057da52df11f3ad13805e883117b17dd7db6dade3b37f7"
+}
