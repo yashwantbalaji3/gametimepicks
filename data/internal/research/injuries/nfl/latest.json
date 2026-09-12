@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "sport": "nfl",
  "dataClass": "PRIVATE_RESEARCH",
- "generatedAt": "2026-09-12T17:43:46Z",
- "sourceAsOf": "2026-09-12T17:44:11Z",
+ "generatedAt": "2026-09-12T22:51:21Z",
+ "sourceAsOf": "2026-09-12T22:51:44Z",
  "source": {
   "id": "espn_scoreboard",
   "name": "ESPN NFL public injuries feed",
@@ -12,58 +12,22 @@
  "contractVersion": 1,
  "reconciliation": {
   "sourceRows": 800,
-  "kept": 793,
-  "quarantined": 7,
+  "kept": 800,
+  "quarantined": 0,
   "exact": true
  },
  "carryForward": {
-  "carried": 63,
+  "carried": 64,
   "windowHours": 336,
-  "previousGeneratedAt": "2026-09-12T17:24:16Z",
+  "previousGeneratedAt": "2026-09-12T17:43:46Z",
   "skipped": {
-   "spokenInFeed": 197,
-   "gameWeekOut": 0,
-   "tooOld": 1,
+   "spokenInFeed": 189,
+   "gameWeekOut": 1,
+   "tooOld": 6,
    "undated": 0
   }
  },
- "quarantined": [
-  {
-   "reason": "UNKNOWN_STATUS \"Doubtful\" — outside the observed closed set, never guessed into a bucket",
-   "providerTeamId": "4",
-   "athleteId": "4685562"
-  },
-  {
-   "reason": "UNKNOWN_STATUS \"Doubtful\" — outside the observed closed set, never guessed into a bucket",
-   "providerTeamId": "20",
-   "athleteId": "5118340"
-  },
-  {
-   "reason": "UNKNOWN_STATUS \"Doubtful\" — outside the observed closed set, never guessed into a bucket",
-   "providerTeamId": "20",
-   "athleteId": "4035537"
-  },
-  {
-   "reason": "UNKNOWN_STATUS \"Doubtful\" — outside the observed closed set, never guessed into a bucket",
-   "providerTeamId": "26",
-   "athleteId": "3912547"
-  },
-  {
-   "reason": "UNKNOWN_STATUS \"Doubtful\" — outside the observed closed set, never guessed into a bucket",
-   "providerTeamId": "27",
-   "athleteId": "3915777"
-  },
-  {
-   "reason": "UNKNOWN_STATUS \"Doubtful\" — outside the observed closed set, never guessed into a bucket",
-   "providerTeamId": "27",
-   "athleteId": "4430834"
-  },
-  {
-   "reason": "UNKNOWN_STATUS \"Doubtful\" — outside the observed closed set, never guessed into a bucket",
-   "providerTeamId": "27",
-   "athleteId": "4430871"
-  }
- ],
+ "quarantined": [],
  "entries": [
   {
    "sport": "nfl",
@@ -270,8 +234,24 @@
    "providerTeamId": "1",
    "athleteId": "4685590",
    "athleteName": "Cameron Williams",
-   "status": "Out",
-   "statedAt": "2026-09-12T00:35Z"
+   "status": "Injured Reserve",
+   "statedAt": "2026-09-12T20:59Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "1",
+   "athleteId": "4249624",
+   "athleteName": "Nick Muse",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:35Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "1",
+   "athleteId": "2972515",
+   "athleteName": "Cooper Rush",
+   "status": "Questionable",
+   "statedAt": "2026-09-12T20:08Z"
   },
   {
    "sport": "nfl",
@@ -344,14 +324,6 @@
    "athleteName": "Michael Penix Jr.",
    "status": "Out",
    "statedAt": "2026-09-11T17:55Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "1",
-   "athleteId": "2972515",
-   "athleteName": "Cooper Rush",
-   "status": "Active",
-   "statedAt": "2026-09-11T17:44Z"
   },
   {
    "sport": "nfl",
@@ -459,11 +431,11 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "1",
-   "athleteId": "10621",
-   "athleteName": "Nick Folk",
+   "providerTeamId": "33",
+   "athleteId": "2576581",
+   "athleteName": "Chris Moore",
    "status": "Active",
-   "statedAt": "2026-08-22T20:28Z"
+   "statedAt": "2026-09-12T20:05Z"
   },
   {
    "sport": "nfl",
@@ -659,11 +631,19 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "33",
-   "athleteId": "4433887",
-   "athleteName": "Jahquez Robinson",
-   "status": "Injured Reserve",
-   "statedAt": "2026-08-20T00:15Z"
+   "providerTeamId": "2",
+   "athleteId": "4429805",
+   "athleteName": "Frank Gore Jr.",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:18Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "2",
+   "athleteId": "4037235",
+   "athleteName": "Greg Dortch",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:15Z"
   },
   {
    "sport": "nfl",
@@ -848,22 +828,6 @@
    "athleteName": "Jackson Hawes",
    "status": "Active",
    "statedAt": "2026-08-21T00:41Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "2",
-   "athleteId": "4241468",
-   "athleteName": "Phidarian Mathis",
-   "status": "Suspension",
-   "statedAt": "2026-08-19T12:07Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "2",
-   "athleteId": "4427843",
-   "athleteName": "Chase Lundt",
-   "status": "Active",
-   "statedAt": "2026-08-19T12:07Z"
   },
   {
    "sport": "nfl",
@@ -1068,6 +1032,22 @@
   {
    "sport": "nfl",
    "providerTeamId": "3",
+   "athleteId": "5065495",
+   "athleteName": "Kaden Davis",
+   "status": "Active",
+   "statedAt": "2026-09-12T17:39Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "3",
+   "athleteId": "4431580",
+   "athleteName": "Miller Moss",
+   "status": "Active",
+   "statedAt": "2026-09-12T17:37Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "3",
    "athleteId": "3040572",
    "athleteName": "Xavier Woods",
    "status": "Questionable",
@@ -1251,19 +1231,11 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "3",
-   "athleteId": "4429970",
-   "athleteName": "Ruben Hyppolite II",
-   "status": "Injured Reserve",
-   "statedAt": "2026-09-01T00:58Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "3",
-   "athleteId": "4245655",
-   "athleteName": "Tony Fields II",
-   "status": "Injured Reserve",
-   "statedAt": "2026-08-31T23:12Z"
+   "providerTeamId": "4",
+   "athleteId": "3050481",
+   "athleteName": "Tanner Hudson",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:08Z"
   },
   {
    "sport": "nfl",
@@ -1272,6 +1244,14 @@
    "athleteName": "DJ Turner II",
    "status": "Active",
    "statedAt": "2026-09-11T23:32Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "4",
+   "athleteId": "4685562",
+   "athleteName": "Shemar Stewart",
+   "status": "Doubtful",
+   "statedAt": "2026-09-11T23:10Z"
   },
   {
    "sport": "nfl",
@@ -1448,14 +1428,6 @@
    "athleteName": "Jonathan Allen",
    "status": "Active",
    "statedAt": "2026-07-30T20:04Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "4",
-   "athleteId": "4365319",
-   "athleteName": "Josh Newton",
-   "status": "Active",
-   "statedAt": "2026-07-30T01:37Z"
   },
   {
    "sport": "nfl",
@@ -1660,10 +1632,18 @@
   {
    "sport": "nfl",
    "providerTeamId": "6",
+   "athleteId": "4429202",
+   "athleteName": "Israel Abanikanda",
+   "status": "Active",
+   "statedAt": "2026-09-12T18:33Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "6",
    "athleteId": "4240603",
    "athleteName": "Malik Davis",
-   "status": "Out",
-   "statedAt": "2026-09-12T01:09Z"
+   "status": "Injured Reserve",
+   "statedAt": "2026-09-12T18:20Z"
   },
   {
    "sport": "nfl",
@@ -1847,14 +1827,6 @@
    "athleteId": "4242442",
    "athleteName": "Princeton Fant",
    "status": "Injured Reserve",
-   "statedAt": "2026-08-19T12:07Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "6",
-   "athleteId": "3929850",
-   "athleteName": "P.J. Locke",
-   "status": "Active",
    "statedAt": "2026-08-19T12:07Z"
   },
   {
@@ -2260,6 +2232,14 @@
   {
    "sport": "nfl",
    "providerTeamId": "9",
+   "athleteId": "4259305",
+   "athleteName": "Bo Melton",
+   "status": "Active",
+   "statedAt": "2026-09-12T19:17Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "9",
    "athleteId": "4572680",
    "athleteName": "Tucker Kraft",
    "status": "Active",
@@ -2451,11 +2431,11 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "9",
-   "athleteId": "4361423",
-   "athleteName": "Micah Parsons",
-   "status": "Out",
-   "statedAt": "2026-09-01T14:45Z"
+   "providerTeamId": "34",
+   "athleteId": "4432577",
+   "athleteName": "C.J. Stroud",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:30Z"
   },
   {
    "sport": "nfl",
@@ -2568,14 +2548,6 @@
    "athleteName": "David Montgomery",
    "status": "Active",
    "statedAt": "2026-09-03T16:12Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "34",
-   "athleteId": "4432577",
-   "athleteName": "C.J. Stroud",
-   "status": "Active",
-   "statedAt": "2026-09-03T16:01Z"
   },
   {
    "sport": "nfl",
@@ -2860,6 +2832,14 @@
   {
    "sport": "nfl",
    "providerTeamId": "30",
+   "athleteId": "3059989",
+   "athleteName": "Nick Mullens",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:21Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "30",
    "athleteId": "4035791",
    "athleteName": "Cole Van Lanen",
    "status": "Active",
@@ -3051,19 +3031,35 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "30",
-   "athleteId": "4684542",
-   "athleteName": "Garrett DiGiorgio",
-   "status": "Injured Reserve",
-   "statedAt": "2026-08-19T12:07Z"
+   "providerTeamId": "12",
+   "athleteId": "3044859",
+   "athleteName": "Chris Jones",
+   "status": "Active",
+   "statedAt": "2026-09-12T19:46Z"
   },
   {
    "sport": "nfl",
    "providerTeamId": "12",
-   "athleteId": "3044859",
-   "athleteName": "Chris Jones",
-   "status": "Questionable",
-   "statedAt": "2026-09-12T17:16Z"
+   "athleteId": "3139477",
+   "athleteName": "Patrick Mahomes",
+   "status": "Active",
+   "statedAt": "2026-09-12T19:45Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "12",
+   "athleteId": "4569659",
+   "athleteName": "Josh Simmons",
+   "status": "Out",
+   "statedAt": "2026-09-12T18:14Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "12",
+   "athleteId": "4361964",
+   "athleteName": "Chamarri Conner",
+   "status": "Out",
+   "statedAt": "2026-09-12T18:12Z"
   },
   {
    "sport": "nfl",
@@ -3112,30 +3108,6 @@
    "athleteName": "Alohi Gilman",
    "status": "Active",
    "statedAt": "2026-09-10T23:28Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "12",
-   "athleteId": "3139477",
-   "athleteName": "Patrick Mahomes",
-   "status": "Active",
-   "statedAt": "2026-09-10T20:57Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "12",
-   "athleteId": "4569659",
-   "athleteName": "Josh Simmons",
-   "status": "Questionable",
-   "statedAt": "2026-09-09T00:44Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "12",
-   "athleteId": "4361964",
-   "athleteName": "Chamarri Conner",
-   "status": "Questionable",
-   "statedAt": "2026-09-08T23:27Z"
   },
   {
    "sport": "nfl",
@@ -3256,6 +3228,22 @@
    "athleteName": "Jeff Caldwell",
    "status": "Injured Reserve",
    "statedAt": "2026-08-25T23:12Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "13",
+   "athleteId": "4241983",
+   "athleteName": "Cody White",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:02Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "13",
+   "athleteId": "3138744",
+   "athleteName": "Chris Myarick",
+   "status": "Active",
+   "statedAt": "2026-09-12T19:56Z"
   },
   {
    "sport": "nfl",
@@ -3440,22 +3428,6 @@
    "athleteName": "Caleb Rogers",
    "status": "Active",
    "statedAt": "2026-08-12T01:07Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "13",
-   "athleteId": "4698191",
-   "athleteName": "Chris Collier",
-   "status": "Injured Reserve",
-   "statedAt": "2026-08-02T23:52Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "13",
-   "athleteId": "2972342",
-   "athleteName": "Adam Butler",
-   "status": "Active",
-   "statedAt": "2026-07-28T18:45Z"
   },
   {
    "sport": "nfl",
@@ -4060,6 +4032,22 @@
   {
    "sport": "nfl",
    "providerTeamId": "16",
+   "athleteId": "16772",
+   "athleteName": "Kyle Van Noy",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:49Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "16",
+   "athleteId": "4240631",
+   "athleteName": "DeeJay Dallas",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:46Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "16",
    "athleteId": "4044540",
    "athleteName": "Isaiah Rodgers",
    "status": "Active",
@@ -4243,19 +4231,11 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "16",
-   "athleteId": "4046537",
-   "athleteName": "Joshua Metellus",
+   "providerTeamId": "17",
+   "athleteId": "16910",
+   "athleteName": "DaQuan Jones",
    "status": "Active",
-   "statedAt": "2026-08-19T12:07Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "16",
-   "athleteId": "4696782",
-   "athleteName": "Elijah Williams",
-   "status": "Active",
-   "statedAt": "2026-08-19T12:07Z"
+   "statedAt": "2026-09-12T20:56Z"
   },
   {
    "sport": "nfl",
@@ -4451,19 +4431,35 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "17",
-   "athleteId": "4240545",
-   "athleteName": "Bryce Baringer",
-   "status": "Injured Reserve",
-   "statedAt": "2026-09-01T04:27Z"
+   "providerTeamId": "18",
+   "athleteId": "5081999",
+   "athleteName": "CJ Donaldson",
+   "status": "Active",
+   "statedAt": "2026-09-12T18:29Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "18",
+   "athleteId": "4372758",
+   "athleteName": "Kevin Austin Jr.",
+   "status": "Active",
+   "statedAt": "2026-09-12T18:27Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "18",
+   "athleteId": "4430684",
+   "athleteName": "Treyton Welch",
+   "status": "Active",
+   "statedAt": "2026-09-12T18:23Z"
   },
   {
    "sport": "nfl",
    "providerTeamId": "18",
    "athleteId": "4569682",
    "athleteName": "Audric Estime",
-   "status": "Out",
-   "statedAt": "2026-09-11T23:33Z"
+   "status": "Injured Reserve",
+   "statedAt": "2026-09-12T18:18Z"
   },
   {
    "sport": "nfl",
@@ -4635,27 +4631,11 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "18",
-   "athleteId": "4698597",
-   "athleteName": "Barion Brown",
+   "providerTeamId": "19",
+   "athleteId": "3123075",
+   "athleteName": "Braxton Berrios",
    "status": "Active",
-   "statedAt": "2026-08-29T04:51Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "18",
-   "athleteId": "4879276",
-   "athleteName": "Bryce Lance",
-   "status": "Active",
-   "statedAt": "2026-08-29T04:47Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "18",
-   "athleteId": "4361259",
-   "athleteName": "Zach Wilson",
-   "status": "Active",
-   "statedAt": "2026-08-29T04:11Z"
+   "statedAt": "2026-09-12T20:46Z"
   },
   {
    "sport": "nfl",
@@ -4851,19 +4831,43 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "19",
-   "athleteId": "4040655",
-   "athleteName": "Darnell Mooney",
+   "providerTeamId": "20",
+   "athleteId": "4259619",
+   "athleteName": "Blake Grupe",
    "status": "Active",
-   "statedAt": "2026-08-26T13:15Z"
+   "statedAt": "2026-09-12T21:14Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "20",
+   "athleteId": "3124679",
+   "athleteName": "Jason Sanders",
+   "status": "Active",
+   "statedAt": "2026-09-12T19:06Z"
   },
   {
    "sport": "nfl",
    "providerTeamId": "20",
    "athleteId": "3134353",
    "athleteName": "Tim Patrick",
+   "status": "Injured Reserve",
+   "statedAt": "2026-09-12T18:56Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "20",
+   "athleteId": "4035537",
+   "athleteName": "Kene Nwangwu",
    "status": "Out",
-   "statedAt": "2026-09-11T23:08Z"
+   "statedAt": "2026-09-12T18:53Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "20",
+   "athleteId": "5118340",
+   "athleteName": "D'Angelo Ponds",
+   "status": "Doubtful",
+   "statedAt": "2026-09-11T23:18Z"
   },
   {
    "sport": "nfl",
@@ -5004,14 +5008,6 @@
   {
    "sport": "nfl",
    "providerTeamId": "20",
-   "athleteId": "4259619",
-   "athleteName": "Blake Grupe",
-   "status": "Active",
-   "statedAt": "2026-08-31T21:02Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "20",
    "athleteId": "4685413",
    "athleteName": "Cade Klubnik",
    "status": "Active",
@@ -5035,11 +5031,19 @@
   },
   {
    "sport": "nfl",
-   "providerTeamId": "20",
-   "athleteId": "4076803",
-   "athleteName": "Jordan Meredith",
+   "providerTeamId": "21",
+   "athleteId": "3926231",
+   "athleteName": "Britain Covey",
    "status": "Active",
-   "statedAt": "2026-08-30T22:36Z"
+   "statedAt": "2026-09-12T20:29Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "21",
+   "athleteId": "4431574",
+   "athleteName": "Eli Stowers",
+   "status": "Injured Reserve",
+   "statedAt": "2026-09-12T20:06Z"
   },
   {
    "sport": "nfl",
@@ -5048,14 +5052,6 @@
    "athleteName": "Jonathan Greenard",
    "status": "Out",
    "statedAt": "2026-09-11T23:59Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "21",
-   "athleteId": "4431574",
-   "athleteName": "Eli Stowers",
-   "status": "Questionable",
-   "statedAt": "2026-09-11T21:15Z"
   },
   {
    "sport": "nfl",
@@ -5232,14 +5228,6 @@
    "athleteName": "Cole Payton",
    "status": "Active",
    "statedAt": "2026-08-16T03:18Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "21",
-   "athleteId": "4241372",
-   "athleteName": "Hollywood Brown",
-   "status": "Active",
-   "statedAt": "2026-08-16T02:43Z"
   },
   {
    "sport": "nfl",
@@ -5732,6 +5720,14 @@
   {
    "sport": "nfl",
    "providerTeamId": "26",
+   "athleteId": "3912547",
+   "athleteName": "Sam Darnold",
+   "status": "Doubtful",
+   "statedAt": "2026-09-10T18:23Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "26",
    "athleteId": "4576297",
    "athleteName": "AJ Barner",
    "status": "Active",
@@ -5836,6 +5832,14 @@
   {
    "sport": "nfl",
    "providerTeamId": "27",
+   "athleteId": "4568024",
+   "athleteName": "Josh Williams",
+   "status": "Active",
+   "statedAt": "2026-09-12T20:32Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "27",
    "athleteId": "4870617",
    "athleteName": "Rueben Bain Jr.",
    "status": "Active",
@@ -5852,10 +5856,34 @@
   {
    "sport": "nfl",
    "providerTeamId": "27",
+   "athleteId": "3915777",
+   "athleteName": "Justin Skule",
+   "status": "Doubtful",
+   "statedAt": "2026-09-11T22:09Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "27",
    "athleteId": "4567750",
    "athleteName": "Emeka Egbuka",
    "status": "Active",
    "statedAt": "2026-09-11T18:44Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "27",
+   "athleteId": "4430834",
+   "athleteName": "Jalen McMillan",
+   "status": "Doubtful",
+   "statedAt": "2026-09-11T17:35Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "27",
+   "athleteId": "4430871",
+   "athleteName": "Sean Tucker",
+   "status": "Doubtful",
+   "statedAt": "2026-09-11T17:33Z"
   },
   {
    "sport": "nfl",
@@ -6000,14 +6028,6 @@
    "athleteName": "Vita Vea",
    "status": "Active",
    "statedAt": "2026-08-19T22:53Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "27",
-   "athleteId": "4566165",
-   "athleteName": "JJ Roberts",
-   "status": "Active",
-   "statedAt": "2026-08-19T12:07Z"
   },
   {
    "sport": "nfl",
@@ -6411,6 +6431,36 @@
   },
   {
    "sport": "nfl",
+   "providerTeamId": "3",
+   "athleteId": "4429970",
+   "athleteName": "Ruben Hyppolite II",
+   "status": "Injured Reserve",
+   "statedAt": "2026-09-01T00:58Z",
+   "carriedForward": true,
+   "absentFromFeedSince": "2026-09-12T22:51:21Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "3",
+   "athleteId": "4245655",
+   "athleteName": "Tony Fields II",
+   "status": "Injured Reserve",
+   "statedAt": "2026-08-31T23:12Z",
+   "carriedForward": true,
+   "absentFromFeedSince": "2026-09-12T22:51:21Z"
+  },
+  {
+   "sport": "nfl",
+   "providerTeamId": "17",
+   "athleteId": "4240545",
+   "athleteName": "Bryce Baringer",
+   "status": "Injured Reserve",
+   "statedAt": "2026-09-01T04:27Z",
+   "carriedForward": true,
+   "absentFromFeedSince": "2026-09-12T22:51:21Z"
+  },
+  {
+   "sport": "nfl",
    "providerTeamId": "14",
    "athleteId": "4038843",
    "athleteName": "Keir Thomas II",
@@ -6456,16 +6506,6 @@
    "athleteName": "Keagen Trost",
    "status": "Injured Reserve",
    "statedAt": "2026-08-31T23:31Z",
-   "carriedForward": true,
-   "absentFromFeedSince": "2026-09-11T13:21:21Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "14",
-   "athleteId": "4877717",
-   "athleteName": "Matthew Caldwell",
-   "status": "Injured Reserve",
-   "statedAt": "2026-08-29T22:20Z",
    "carriedForward": true,
    "absentFromFeedSince": "2026-09-11T13:21:21Z"
   },
@@ -6741,18 +6781,6 @@
    "status": "Injured Reserve",
    "statedAt": "2026-09-01T03:59Z",
    "absentFromFeedSince": "2026-09-08T16:54:09Z",
-   "carriedForward": true,
-   "backfilled": true,
-   "backfilledAt": "2026-09-10T21:41:32.610Z"
-  },
-  {
-   "sport": "nfl",
-   "providerTeamId": "1",
-   "athleteId": "4261606",
-   "athleteName": "Darren Hall",
-   "status": "Injured Reserve",
-   "statedAt": "2026-08-29T21:15Z",
-   "absentFromFeedSince": "2026-08-31T19:17:59Z",
    "carriedForward": true,
    "backfilled": true,
    "backfilledAt": "2026-09-10T21:41:32.610Z"
