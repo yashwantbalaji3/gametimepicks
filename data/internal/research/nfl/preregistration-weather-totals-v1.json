@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-weather-totals-v1-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "frozenAt": "2026-09-12T19:45:00Z",
+  "scoreGamesKickingOffFrom": "2026-09-13T00:00:00Z",
+  "frozenBy": "Written before a single NFL game of the 2026 season has been played and before any captured forecast has been joined to any result. The feature definition, population, metrics, bars and decision look may not change after frozenAt; a change is a new version with a new file.",
+  "researchOnly": "No public model, board, page or number changes under this registration. Weather publishes as CONTEXT beside the forecast (P277) and the input registry continues to declare it NOT INGESTED; only a scored ACCEPT could change that, under a separate promotion.",
+
+  "question": "Does the pregame wind at kickoff carry information about the game total that the model's current totals head does not already have?",
+
+  "motivation": "The NWS forecast for every stadium has been captured since the September pipeline review and feeds nothing. Folding it in untested is exactly what this repo's rules forbid, and the folklore that wind suppresses scoring is the kind of claim that survives on anecdote. Either it is in our own data or it is not, and the way to find out is to say in advance what would count.",
+
+  "whyNotTheHistoricalCorpus": "It could be scored on past seasons, and it would then be scored by someone who has already read those seasons' results. The forward test costs a season and buys a number nobody can talk themselves into. The historical fit may be run as a POWER CHECK only — to size the sample needed — and its estimate may not be quoted as a result.",
+
+  "feature": {
+    "id": "nfl-kickoff-wind-v1",
+    "definition": "windMph from the captured NWS hourly grid nearest kickoff for the stadium, from the LAST capture strictly before kickoff. Games in a roofed stadium (state DOME) are excluded entirely — there is no wind to test. Games whose roof the schedule does not carry (FORECAST_ROOF_UNKNOWN) are also excluded: an open-air forecast for a stadium that may have been closed is not the condition the game was played in.",
+    "source": "app/public/data/nfl/weather/latest.json and its private capture data/internal/research/nfl/weather/<week>.json, both written before kickoff",
+    "module": "app/src/lib/sports/weather/public-view.mjs (the same rows the site shows)"
+  },
+
+  "population": {
+    "games": "Every 2026 regular-season NFL game kicking off on or after scoreGamesKickingOffFrom that (a) has a published pre-kickoff total from the model, (b) has a pre-kickoff weather capture, (c) is not DOME or FORECAST_ROOF_UNKNOWN, and (d) reaches an official final.",
+    "exclusions": "A game with no pre-kickoff capture is excluded and COUNTED — a silently missing forecast must not become a quiet filter on which games are scored."
+  },
+
+  "test": {
+    "design": "Regress the actual combined score on the model's published total and the kickoff wind: actual ~ a + b·modelTotal + c·windMph. The model's total is in the regression so the question is strictly what wind adds AFTER the model has spoken; a bivariate wind-vs-score correlation would mostly rediscover that windy stadiums are cold-weather stadiums.",
+    "primary": "c, the wind coefficient, in points of combined score per mph.",
+    "secondary": "The change in mean absolute error of the total when c is applied, against the unadjusted published total, on the same games."
+  },
+
+  "bars": {
+    "minGames": 120,
+    "minWindSpread": "at least 25 games at 10+ mph, or the sample cannot separate wind from its absence",
+    "ACCEPTED": "c is negative, |c| >= 0.15 points per mph, its 95% interval excludes zero, AND the mean absolute error improves by at least 0.25 points. All four, on the first look.",
+    "REJECTED": "any of the four fails.",
+    "INCONCLUSIVE": "the sample bars are not met at the decision look; the registration expires rather than waiting for a number it likes."
+  },
+
+  "decisionLook": {
+    "when": "The first date on which minGames and minWindSpread are both met, or 2027-01-05 (the end of the 2026 regular season), whichever comes first.",
+    "howMany": "ONE. A second look under this registration is not permitted; a different look is a new version."
+  },
+
+  "ifAccepted": "The adjustment becomes eligible for a separately preregistered promotion, which must state how the published total changes and re-run the totals head's own calibration receipt. `regular-season-inputs.mjs` moves weather off `NONE — not ingested` in that same commit, or the model and its own registry disagree.",
+  "ifRejected": "Weather stays context-only, the rejection is recorded here, and it is not retried with a softer bar. The site keeps showing the conditions beside the forecast and keeps saying the model does not use them.",
+
+  "notes": [
+    "Temperature and precipitation are deliberately NOT in this registration. Testing three features and reporting the best of them is three chances to find nothing and call it something; wind is the one with a mechanism (it moves the ball in flight) and it goes first.",
+    "The model's totals head was itself adopted on a frozen bar (matchup-totals-v1-decayed-points, 44-52). This registration scores an ADDITION to it, not a replacement."
+  ]
+}

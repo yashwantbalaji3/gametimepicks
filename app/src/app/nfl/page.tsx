@@ -143,6 +143,10 @@ export default function NflHubPage() {
   const schedule = read("nfl/schedule/latest.json");
   const results = read("nfl/results/latest.json");
   const markets = read("nfl/markets/latest.json");
+  /* P277 · pregame conditions as CONTEXT. The model does not ingest weather — the input registry
+     says so and the totals head carries no weather term — so this renders beside the forecast and
+     never inside it, with the source attribution and that sentence both on the page. */
+  const weather = read("nfl/weather/latest.json");
   const index = read("nfl/index.json");
   // P180-A: how the last slate's frozen forecasts actually did. Published because a model that only
   // shows its predictions and never its grades is asking to be taken on trust.
@@ -224,6 +228,11 @@ export default function NflHubPage() {
   const weekCounts = periodCounts(weekEvents);
   const weekIds = new Set(weekEvents.map((e) => e.providerAliases[0]?.id));
   const weekLabel = weekEvents[0] ? `${weekEvents[0].period.label}${weekEvents[0].phase ? ` · ${weekEvents[0].phase} season` : ""}` : null;
+  const weatherByEvent = new Map(
+    ((weather?.rows ?? []) as Array<{ espnEventId?: string | null; summary?: string; indoors?: boolean; notableWind?: boolean }>)
+      .filter((r) => r.espnEventId)
+      .map((r) => [String(r.espnEventId), r]),
+  );
   const slateGames = weekIds.size
     ? allScheduled.filter((r) => weekIds.has(String(r.providerEventId)))
     : slateDay ? allScheduled.filter((r) => etDay(r.dateUtc) === slateDay) : [];
@@ -438,7 +447,7 @@ export default function NflHubPage() {
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
             <thead>
               <tr>
-                {["Kickoff (ET)", "Matchup", "Model winner", "Projected score", "Total", "Status", ""].map((h) => (
+                {["Kickoff (ET)", "Matchup", "Model winner", "Projected score", "Total", "Conditions", "Status", ""].map((h) => (
                   <th key={h || "action"} scope="col" style={{ textAlign: "left", padding: "7px 9px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
                 ))}
               </tr>
@@ -447,6 +456,7 @@ export default function NflHubPage() {
               {slateGames.map((g) => {
                 const e = eventById.get(g.providerEventId);
                 const sim = e?.projectedScore ?? null;
+                const wx = weatherByEvent.get(String(g.providerEventId)) ?? null;
                 /* P252: the EFFECTIVE lifecycle. The stamp is written when the event window runs
                    and not re-examined until the next one, so this table said "scheduled" beside a
                    game that had kicked off three hours earlier. */
@@ -472,6 +482,11 @@ export default function NflHubPage() {
                     <td className="font-mono" style={td()}>{fav ? `${fav.abbr} ${(fav.p * 100).toFixed(1)}%` : "—"}</td>
                     <td className="font-mono" style={td({ whiteSpace: "nowrap" })}>{sim ? `${g.away.abbr} ${sim.away} — ${sim.home} ${g.home.abbr}` : "—"}</td>
                     <td className="font-mono" style={td()}>{e?.total ? <>{e.total.median} <span style={{ color: "var(--vault-text-faint)" }}>({e.total.p10}–{e.total.p90})</span></> : "—"}</td>
+                    {/* Conditions, not an input: the summary carries its own caveats (an unknown
+                        roof says so inside the sentence), so the cell prints it whole. */}
+                    <td style={td({ fontSize: 11, color: wx?.notableWind ? "var(--vault-warn)" : "var(--vault-text-mute)", maxWidth: 200 })}>
+                      {wx?.summary ?? "—"}
+                    </td>
                     <td style={td({ fontSize: 11, color: "var(--vault-text-mute)", maxWidth: 220 })}>
                       {started
                         ? sim ? "Kicked off · forecast frozen" : "Kicked off before a forecast was published — missed coverage, never backfilled."
@@ -493,6 +508,13 @@ export default function NflHubPage() {
         <p style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
           Projected scores come from the median total and margin, so they add up to the printed total.
         </p>
+        {weather?.rows?.length ? (
+          <p style={{ margin: "6px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
+            Conditions are the forecast nearest kickoff, captured {String(weather.capturedAt).slice(0, 16).replace("T", " ")}Z.{" "}
+            <strong>The model does not use them</strong> — no weather term enters the total or the win chance, and these
+            are shown beside the forecast so you can see what it is not accounting for. {weather.attribution}
+          </p>
+        ) : null}
         {forecastArtifact?.generatedAt ? (
           <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
             Updated {etKickoff(forecastArtifact.generatedAt).replace(" ET", "")} ET · frozen pre-kickoff · <a href="#nfl-coverage" style={{ color: "var(--vault-gold-bright)" }}>Model details</a>

@@ -40,12 +40,19 @@ jobs:
         working-directory: app
         run: |
           set -euo pipefail
-          node scripts/nfl/capture-nfl-weather.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node scripts/nfl/capture-nfl-weather.mjs --now "$NOW"
+          # P277: the public view of that capture — conditions beside the forecast, never inside it.
+          # Zero network calls; it reads what the line above just wrote.
+          node scripts/nfl/build-nfl-weather-public.mjs --now "$NOW"
       - name: Commit the research tables
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/internal/research/mlb/weather/ data/internal/research/nfl/weather/ 2>/dev/null || true
-          GENERATED_PATHS="data/internal/research/mlb/weather/ data/internal/research/nfl/weather/" \
+          # ALLOWLIST EVERY FILE THIS JOB PRODUCES. The public view was added beside the private
+          # captures; leaving it out of both the add and GENERATED_PATHS would have written it in CI
+          # every run and committed it never — a page reading a file the pipeline keeps forgetting.
+          git add data/internal/research/mlb/weather/ data/internal/research/nfl/weather/ app/public/data/nfl/weather/ 2>/dev/null || true
+          GENERATED_PATHS="data/internal/research/mlb/weather/ data/internal/research/nfl/weather/ app/public/data/nfl/weather/" \
             bash scripts/ci/commit-generated.sh "auto: pregame weather capture [skip ci]"
