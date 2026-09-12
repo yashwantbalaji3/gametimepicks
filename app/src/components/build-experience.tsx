@@ -35,7 +35,7 @@ import { legKey, type SlipLegInput } from "@/lib/slip/leg-identity";
 import { SEARCH_PLAYERS_OR_TEAMS, SEARCH_PLAYERS_OR_TEAMS_LABEL } from "@/lib/ui/search-labels";
 import SlipGauges from "@/components/parlays/lab/slip-gauges";
 import type { LegRecordView } from "@/components/parlays/lab/leg-record-list";
-import type { ShapeRecordView } from "@/components/parlays/lab/card-shape-list";
+import CardShapeList, { type ShapeRecordView } from "@/components/parlays/lab/card-shape-list";
 
 // The 2026 World Cup is complete — not a selectable build sport (archive only). The SPORT_LABEL map below
 // keeps the "World Cup" label so any historical WC row still renders its badge.
@@ -274,6 +274,16 @@ export default function BuildExperience({
           <p style={{ color: "var(--vault-text-faint)", fontSize: 11, lineHeight: 1.5 }}>
             Or start from a suggested card — every card there has a Customize action that loads its legs here.
           </p>
+
+          {/* P271 · the decision being made RIGHT HERE is how big a card to build, and our own settled
+              cards answer it. It appears only while the draft is empty: once a leg is on, the same
+              record renders in the gauges below with the reader's own size marked, and showing it
+              twice on one page would be worse than not showing it at all. */}
+          {shapeRecord ? (
+            <div className="pt-1">
+              <CardShapeList rows={shapeRecord.sizes} heading="Before you start — how card size has gone for us" />
+            </div>
+          ) : null}
         </div>
       ) : (
         <>

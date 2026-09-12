@@ -98,7 +98,11 @@ test("no surface states a card-size rate without its caption, and every renderer
   assert.match(list, /not a forecast/i);
   assert.match(list, /r\.sample\.text/, "and every row prints its sample caption");
 
-  const consumers = ["components/parlays/lab/slip-gauges.tsx", "app/results/parlay-lab/page.tsx"];
+  const consumers = [
+    "components/parlays/lab/slip-gauges.tsx",
+    "components/build-experience.tsx",
+    "app/results/parlay-lab/page.tsx",
+  ];
   const renderers = [];
   const walk = (dir) => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
