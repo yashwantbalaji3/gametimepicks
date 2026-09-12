@@ -21,9 +21,11 @@ interface Reading {
 const num = (v: string) => (v.trim() === "" ? null : Number(v));
 
 export default function SlipConfirm({
-  userId, reading, review, imagePath, bandByTier, onSaved, onCancel,
+  userId, reading, review, imagePath, bandByTier, source = "screenshot", onSaved, onCancel,
 }: {
   userId: string;
+  /** Where the slip came from. A hand-entered slip runs the SAME confirm and save path as a read one. */
+  source?: "screenshot" | "manual";
   reading: Reading;
   review: string[];
   imagePath: string | null;
@@ -40,6 +42,8 @@ export default function SlipConfirm({
   const [error, setError] = useState<string | null>(null);
 
   const setLeg = (i: number, patch: Partial<Leg>) => setLegs((prev) => prev.map((l, j) => (j === i ? { ...l, ...patch } : l)));
+  const addLeg = () => setLegs((prev) => [...prev, { player: null, market: null, side: null, line: null, odds: null }]);
+  const removeLeg = (i: number) => setLegs((prev) => prev.filter((_, j) => j !== i));
   const missingOdds = legs.some((l) => l.odds == null);
   const stakeMissing = num(stake) == null;
 
@@ -51,7 +55,7 @@ export default function SlipConfirm({
     try {
       const row = toBetSlipRow(
         { ...reading, book: book.trim() || null, placedAt: placedAt ? new Date(`${placedAt}T12:00:00Z`).toISOString() : null, stake: num(stake), legs },
-        { userId, source: "screenshot", imagePath, confirmedAt: new Date().toISOString() },
+        { userId, source, imagePath, confirmedAt: new Date().toISOString() },
       );
       const { error: err } = await client.from("bet_slips").insert(row);
       if (err) { setError(`It did not save: ${err.message}`); return; }
@@ -69,7 +73,9 @@ export default function SlipConfirm({
     <section aria-label="Check the slip before saving" className="flex flex-col gap-3 rounded-[14px] p-4"
       style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border-strong)" }}>
       <div className="flex flex-col gap-1">
-        <h3 className="m-0" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>Check this against your slip</h3>
+        <h3 className="m-0" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>
+          {source === "manual" ? "Enter the bet you placed" : "Check this against your slip"}
+        </h3>
         <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
           Nothing is saved yet. Fix anything the reader got wrong — an empty field means it could not read that value,
           never that the value was zero.
@@ -114,11 +120,22 @@ export default function SlipConfirm({
             </label>
             <label className="flex flex-col gap-1" style={{ fontSize: 11, color: l.odds == null ? "var(--vault-warn)" : "var(--vault-text-faint)" }}>
               Odds
-              <input inputMode="numeric" value={l.odds == null ? "" : String(l.odds)} onChange={(e) => setLeg(i, { odds: num(e.target.value) })} className="rounded-[8px] px-2 font-mono tabular-nums" style={field} placeholder="—" />
+              <span className="flex items-center gap-1">
+                <input inputMode="numeric" value={l.odds == null ? "" : String(l.odds)} onChange={(e) => setLeg(i, { odds: num(e.target.value) })} className="rounded-[8px] px-2 font-mono tabular-nums w-full" style={field} placeholder="—" />
+                {legs.length > 1 ? (
+                  <button type="button" onClick={() => removeLeg(i)} aria-label={`Remove leg ${i + 1}`}
+                    style={{ background: "none", border: "none", color: "var(--vault-text-faint)", fontSize: 15, cursor: "pointer", lineHeight: 1 }}>×</button>
+                ) : null}
+              </span>
             </label>
           </li>
         ))}
       </ul>
+
+      <button type="button" onClick={addLeg} className="vault-press self-start rounded-full px-3"
+        style={{ minHeight: 36, border: "1px dashed var(--vault-rule)", color: "var(--vault-text-mute)", background: "transparent", fontSize: 12 }}>
+        + another leg
+      </button>
 
       {error ? <p className="m-0" role="alert" style={{ color: "var(--vault-danger)", fontSize: 12.5 }}>{error}</p> : null}
 

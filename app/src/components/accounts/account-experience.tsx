@@ -19,6 +19,9 @@ export default function AccountExperience({ bandByTier = null }: { bandByTier?: 
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [pending, setPending] = useState<SlipReadResult | null>(null);
+  /* A slip entered by hand runs the same confirm-and-save path as a read one — the error copy on the
+     uploader promises exactly this, so it has to exist. */
+  const [manual, setManual] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -74,13 +77,27 @@ export default function AccountExperience({ bandByTier = null }: { bandByTier?: 
           /* The validator's shape, handed straight through — the confirm screen edits it, nothing else does. */
           reading={pending.reading as never}
           review={pending.review}
-          imagePath={pending.imagePath}
+          imagePath={pending.imagePath || null}
           bandByTier={bandByTier}
+          source={manual ? "manual" : "screenshot"}
           onSaved={() => { setPending(null); setRefreshKey((k) => k + 1); }}
           onCancel={() => setPending(null)}
         />
       ) : (
-        <SlipUpload userId={user.id} onRead={setPending} />
+        <div className="flex flex-col gap-2">
+          <SlipUpload userId={user.id} onRead={(r) => { setManual(false); setPending(r); }} />
+          <button type="button" className="vault-press self-start rounded-full px-3.5"
+            style={{ minHeight: 40, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)", background: "transparent", fontSize: 12.5 }}
+            onClick={() => {
+              setManual(true);
+              setPending({
+                reading: { book: null, placedAt: null, stake: null, priceAmerican: null, legs: [{ player: null, market: null, side: null, line: null, odds: null }], confirmationRequired: true } as never,
+                review: [], errors: [], imagePath: "",
+              });
+            }}>
+            Or enter one by hand
+          </button>
+        </div>
       )}
 
       {pending && !pending.reading && pending.errors.length > 0 ? (

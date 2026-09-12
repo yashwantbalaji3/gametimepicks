@@ -83,3 +83,16 @@ test("the record's trend keeps quiet weeks visible", () => {
   assert.match(r, /a faint bar is a week with nothing settled/);
   assert.match(r, /aria-label=\{trend\.map/, "the bars are readable without sight");
 });
+
+test("the 'enter it by hand' the upload errors promise actually exists, on the same path", () => {
+  const up = code(UPLOAD);
+  assert.match(up, /enter the slip by hand|enter it by hand/i, "the uploader makes the promise");
+  const exp = code(EXPERIENCE);
+  assert.match(exp, /Or enter one by hand/, "and the surface offers it");
+  assert.match(exp, /source=\{manual \? "manual" : "screenshot"\}/, "hand-entered slips are recorded as manual");
+  assert.match(exp, /<SlipConfirm/, "through the SAME confirm-and-save step, not a second one");
+  const confirm = code(CONFIRM);
+  assert.match(confirm, /source,\s*imagePath,\s*confirmedAt/, "the row carries whichever source it came from");
+  assert.match(confirm, /\+ another leg/, "a hand-entered slip can have more than one leg");
+  assert.match(confirm, /removeLeg\(i\)/, "and a leg added by mistake can go");
+});
