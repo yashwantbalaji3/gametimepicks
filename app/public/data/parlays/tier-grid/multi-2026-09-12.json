@@ -5,10 +5,12 @@
  "moneyClass": "NON_MONEY",
  "sport": "multi",
  "date": "2026-09-12",
- "generatedAt": "2026-09-12T13:52:04Z",
+ "generatedAt": "2026-09-12T15:56:04Z",
  "state": "PUBLISHED",
- "bandsUnreachable": [],
- "calmestAvailable": "low",
+ "bandsUnreachable": [
+  "low"
+ ],
+ "calmestAvailable": "medium",
  "tiers": [
   {
    "id": "bronze",
@@ -18,9 +20,13 @@
    "bands": [
     "low"
    ],
-   "offered": 1,
-   "emptyToday": false,
-   "substitute": null
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": {
+    "band": "medium",
+    "slipId": "multi-medium-2026-09-12",
+    "reason": "Nothing on today's board priced in this range. The calmest card available is medium risk, which is a longer price than this bankroll is normally shown — its own record is attached."
+   }
   },
   {
    "id": "silver",
@@ -31,7 +37,7 @@
     "low",
     "medium"
    ],
-   "offered": 2,
+   "offered": 1,
    "emptyToday": false,
    "substitute": null
   },
@@ -45,7 +51,7 @@
     "medium",
     "high"
    ],
-   "offered": 3,
+   "offered": 2,
    "emptyToday": false,
    "substitute": null
   },
@@ -60,7 +66,7 @@
     "high",
     "longshot"
    ],
-   "offered": 4,
+   "offered": 3,
    "emptyToday": false,
    "substitute": null
   }
@@ -69,9 +75,9 @@
   {
    "tier": "bronze",
    "band": "low",
-   "state": "OFFERED",
-   "slipId": "multi-low-2026-09-12",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no cross-sport card priced into this band today — 2 legs → +139 (medium)"
   },
   {
    "tier": "bronze",
@@ -97,9 +103,9 @@
   {
    "tier": "silver",
    "band": "low",
-   "state": "OFFERED",
-   "slipId": "multi-low-2026-09-12",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no cross-sport card priced into this band today — 2 legs → +139 (medium)"
   },
   {
    "tier": "silver",
@@ -125,9 +131,9 @@
   {
    "tier": "gold",
    "band": "low",
-   "state": "OFFERED",
-   "slipId": "multi-low-2026-09-12",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no cross-sport card priced into this band today — 2 legs → +139 (medium)"
   },
   {
    "tier": "gold",
@@ -153,9 +159,9 @@
   {
    "tier": "diamond",
    "band": "low",
-   "state": "OFFERED",
-   "slipId": "multi-low-2026-09-12",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no cross-sport card priced into this band today — 2 legs → +139 (medium)"
   },
   {
    "tier": "diamond",
@@ -181,22 +187,22 @@
  ],
  "cards": [
   {
-   "band": "low",
-   "slipId": "multi-low-2026-09-12",
-   "combinedAmerican": -120,
-   "combinedDecimal": 1.832,
+   "band": "medium",
+   "slipId": "multi-medium-2026-09-12",
+   "combinedAmerican": 139,
+   "combinedDecimal": 2.39,
    "legs": [
     {
      "sport": "epl",
-     "eventId": "soccer:epl:chelsea-v-hull-city:20260912t1400",
+     "eventId": "soccer:epl:arsenal-v-sunderland:20260912t1900",
      "player": null,
      "market": "match_result",
-     "side": "home",
+     "side": "away",
      "line": null,
-     "odds": -460,
-     "decimal": 1.2173913043478262,
+     "odds": -170,
+     "decimal": 1.5882352941176472,
      "score": 0,
-     "team": "Chelsea",
+     "team": "Arsenal",
      "opponent": null,
      "marketLabel": "Match result"
     },
@@ -219,24 +225,24 @@
    "record": null
   },
   {
-   "band": "medium",
-   "slipId": "multi-medium-2026-09-12",
-   "combinedAmerican": 136,
-   "combinedDecimal": 2.362,
+   "band": "high",
+   "slipId": "multi-high-2026-09-12",
+   "combinedAmerican": 303,
+   "combinedDecimal": 4.034,
    "legs": [
     {
      "sport": "epl",
-     "eventId": "soccer:epl:fulham-v-liverpool:20260912t1400",
+     "eventId": "soccer:epl:everton-v-tottenham-hotspur:20260912t1630",
      "player": null,
-     "market": "match_result",
-     "side": "home",
-     "line": null,
-     "odds": -200,
-     "decimal": 1.5,
+     "market": "total_goals",
+     "side": "over",
+     "line": 2.5,
+     "odds": -136,
+     "decimal": 1.7352941176470589,
      "score": 0,
-     "team": "Liverpool",
+     "team": null,
      "opponent": null,
-     "marketLabel": "Match result"
+     "marketLabel": "Total goals 2.5"
     },
     {
      "sport": "mlb",
@@ -251,44 +257,6 @@
      "team": "TB",
      "opponent": "HOU",
      "marketLabel": "Hits + Runs + RBIs"
-    }
-   ],
-   "status": "pending",
-   "record": null
-  },
-  {
-   "band": "high",
-   "slipId": "multi-high-2026-09-12",
-   "combinedAmerican": 385,
-   "combinedDecimal": 4.853,
-   "legs": [
-    {
-     "sport": "epl",
-     "eventId": "soccer:epl:arsenal-v-sunderland:20260912t1900",
-     "player": null,
-     "market": "match_result",
-     "side": "away",
-     "line": null,
-     "odds": -170,
-     "decimal": 1.5882352941176472,
-     "score": 0,
-     "team": "Arsenal",
-     "opponent": null,
-     "marketLabel": "Match result"
-    },
-    {
-     "sport": "mlb",
-     "eventId": "7c083bc7ca5ace85fbfaee34ab962b91",
-     "player": "Walker Jenkins",
-     "market": "batter_hits",
-     "side": "Under",
-     "line": 0.5,
-     "odds": 107,
-     "decimal": 2.0700000000000003,
-     "score": 0,
-     "team": "MIN",
-     "opponent": "CLE",
-     "marketLabel": "Hits"
     },
     {
      "sport": "ufc",
@@ -311,35 +279,21 @@
   {
    "band": "longshot",
    "slipId": "multi-longshot-2026-09-12",
-   "combinedAmerican": 726,
-   "combinedDecimal": 8.263,
+   "combinedAmerican": 621,
+   "combinedDecimal": 7.21,
    "legs": [
     {
-     "sport": "epl",
-     "eventId": "soccer:epl:bournemouth-v-brentford:20260912t1400",
-     "player": null,
-     "market": "total_goals",
-     "side": "over",
-     "line": 2.5,
-     "odds": -168,
-     "decimal": 1.5952380952380953,
-     "score": 0,
-     "team": null,
-     "opponent": null,
-     "marketLabel": "Total goals 2.5"
-    },
-    {
      "sport": "mlb",
-     "eventId": "3b910a2e0ac0e7339bf6d0b3857bf1bc",
-     "player": "Oneil Cruz",
+     "eventId": "7c083bc7ca5ace85fbfaee34ab962b91",
+     "player": "Walker Jenkins",
      "market": "batter_hits",
-     "side": "Over",
+     "side": "Under",
      "line": 0.5,
-     "odds": -205,
-     "decimal": 1.4878048780487805,
+     "odds": 107,
+     "decimal": 2.0700000000000003,
      "score": 0,
-     "team": "PIT",
-     "opponent": "CHC",
+     "team": "MIN",
+     "opponent": "CLE",
      "marketLabel": "Hits"
     },
     {
@@ -357,18 +311,32 @@
      "marketLabel": "Fight winner"
     },
     {
-     "sport": "epl",
-     "eventId": "soccer:epl:everton-v-tottenham-hotspur:20260912t1630",
-     "player": null,
-     "market": "match_result",
-     "side": "home",
-     "line": null,
-     "odds": 100,
-     "decimal": 2,
+     "sport": "mlb",
+     "eventId": "3b910a2e0ac0e7339bf6d0b3857bf1bc",
+     "player": "Oneil Cruz",
+     "market": "batter_hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -205,
+     "decimal": 1.4878048780487805,
      "score": 0,
-     "team": "Tottenham Hotspur",
-     "opponent": null,
-     "marketLabel": "Match result"
+     "team": "PIT",
+     "opponent": "CHC",
+     "marketLabel": "Hits"
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401897736",
+     "player": "Regina Tarin",
+     "market": "fight_winner",
+     "side": "win",
+     "line": null,
+     "odds": -290,
+     "decimal": 1.3448275862068966,
+     "score": 0,
+     "team": null,
+     "opponent": "JJ Aldrich",
+     "marketLabel": "Fight winner"
     },
     {
      "sport": "mlb",
