@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-12",
- "generatedAt": "2026-09-12T12:20:20Z",
+ "generatedAt": "2026-09-12T13:23:36Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-2+bank-builder-lane-b-step-3",
-     "lockAt": "2026-09-12T12:20:16.892Z"
+     "lockAt": "2026-09-12T13:23:33.549Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-2+moonshot-lane-b-step-1",
-     "lockAt": "2026-09-12T12:20:16.892Z"
+     "lockAt": "2026-09-12T13:23:33.549Z"
     },
     "transitions": [
      {
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-12T12:13:24.000Z"
+     "lockAt": "2026-09-12T13:12:01.000Z"
     },
     "transitions": [
      {
@@ -358,8 +358,8 @@
     {
      "tier": "low",
      "slipId": "epl-low-2026-09-12",
-     "combinedAmerican": -127,
-     "combinedDecimal": 1.787,
+     "combinedAmerican": -121,
+     "combinedDecimal": 1.826,
      "legs": [
       {
        "sport": "epl",
@@ -372,8 +372,8 @@
        "marketLabel": "Match result",
        "side": "home",
        "line": null,
-       "odds": -425,
-       "decimal": 1.2352941176470589,
+       "odds": -460,
+       "decimal": 1.2173913043478262,
        "books": 11
       },
       {
@@ -387,8 +387,8 @@
        "marketLabel": "Match result",
        "side": "home",
        "line": null,
-       "odds": -224,
-       "decimal": 1.4464285714285714,
+       "odds": -200,
+       "decimal": 1.5,
        "books": 11
       }
      ],
@@ -398,8 +398,8 @@
     {
      "tier": "medium",
      "slipId": "epl-medium-2026-09-12",
-     "combinedAmerican": 136,
-     "combinedDecimal": 2.362,
+     "combinedAmerican": 153,
+     "combinedDecimal": 2.534,
      "legs": [
       {
        "sport": "epl",
@@ -412,8 +412,8 @@
        "marketLabel": "Match result",
        "side": "away",
        "line": null,
-       "odds": -208,
-       "decimal": 1.4807692307692308,
+       "odds": -170,
+       "decimal": 1.5882352941176472,
        "books": 11
       },
       {
@@ -438,9 +438,24 @@
     {
      "tier": "high",
      "slipId": "epl-high-2026-09-12",
-     "combinedAmerican": 355,
-     "combinedDecimal": 4.545,
+     "combinedAmerican": 330,
+     "combinedDecimal": 4.3,
      "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:everton-v-tottenham-hotspur:20260912t1630",
+       "player": null,
+       "matchup": "Tottenham Hotspur v Everton",
+       "kickoffUtc": "2026-09-12T16:30:00Z",
+       "team": "Tottenham Hotspur",
+       "market": "match_result",
+       "marketLabel": "Match result",
+       "side": "home",
+       "line": null,
+       "odds": 100,
+       "decimal": 2,
+       "books": 11
+      },
       {
        "sport": "epl",
        "eventId": "soccer:epl:crystal-palace-v-ipswich-town:20260912t1400",
@@ -452,24 +467,9 @@
        "marketLabel": "Total goals 2.5",
        "side": "under",
        "line": 2.5,
-       "odds": 102,
-       "decimal": 2.02,
+       "odds": 115,
+       "decimal": 2.15,
        "books": 7
-      },
-      {
-       "sport": "epl",
-       "eventId": "soccer:epl:aston-villa-v-nottingham-forest:20260912t1400",
-       "player": null,
-       "matchup": "Aston Villa v Nottingham Forest",
-       "kickoffUtc": "2026-09-12T14:00:00Z",
-       "team": "Aston Villa",
-       "market": "match_result",
-       "marketLabel": "Match result",
-       "side": "home",
-       "line": null,
-       "odds": 125,
-       "decimal": 2.25,
-       "books": 11
       }
      ],
      "status": "pending",
@@ -483,7 +483,7 @@
     "evidence": {
      "policyVersion": "epl-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-11T22:59:04Z"
+     "lockAt": "2026-09-12T13:01:29Z"
     },
     "transitions": [
      {
@@ -687,7 +687,7 @@
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-12T12:20:18Z"
+     "lockAt": "2026-09-12T13:23:35Z"
     },
     "transitions": [
      {
@@ -708,18 +708,214 @@
   {
    "product": "multi-cards",
    "label": "Multi-sport paper cards",
-   "state": "NO_PLAY",
-   "reason": "multi grid state PUBLISHED — the stream opens only when two single-sport streams are live",
-   "candidatesEvaluated": 0,
+   "state": "ACTIVE",
+   "reason": "4 multi-sport cards frozen for 2026-09-12",
+   "candidatesEvaluated": 4,
    "rejections": [],
-   "card": null,
+   "card": [
+    {
+     "band": "low",
+     "slipId": "multi-low-2026-09-12",
+     "combinedAmerican": -120,
+     "combinedDecimal": 1.832,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:chelsea-v-hull-city:20260912t1400",
+       "player": null,
+       "market": "match_result",
+       "side": "home",
+       "line": null,
+       "odds": -460,
+       "decimal": 1.2173913043478262,
+       "score": 0,
+       "team": "Chelsea",
+       "opponent": null,
+       "marketLabel": "Match result"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "964e45be7256059f585689e2580e6e87",
+       "player": "Javier Sanoja",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -198,
+       "decimal": 1.5050505050505052,
+       "score": 0,
+       "team": "MIA",
+       "opponent": "LAD",
+       "marketLabel": "Hits"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    },
+    {
+     "band": "medium",
+     "slipId": "multi-medium-2026-09-12",
+     "combinedAmerican": 136,
+     "combinedDecimal": 2.362,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:fulham-v-liverpool:20260912t1400",
+       "player": null,
+       "market": "match_result",
+       "side": "home",
+       "line": null,
+       "odds": -200,
+       "decimal": 1.5,
+       "score": 0,
+       "team": "Liverpool",
+       "opponent": null,
+       "marketLabel": "Match result"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "608d0aadfb410ccc31258f78ba3dd5fb",
+       "player": "Richie Palacios",
+       "market": "batter_hits_runs_rbis",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -174,
+       "decimal": 1.5747126436781609,
+       "score": 0,
+       "team": "TB",
+       "opponent": "HOU",
+       "marketLabel": "Hits + Runs + RBIs"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    },
+    {
+     "band": "high",
+     "slipId": "multi-high-2026-09-12",
+     "combinedAmerican": 424,
+     "combinedDecimal": 5.245,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:arsenal-v-sunderland:20260912t1900",
+       "player": null,
+       "market": "match_result",
+       "side": "away",
+       "line": null,
+       "odds": -170,
+       "decimal": 1.5882352941176472,
+       "score": 0,
+       "team": "Arsenal",
+       "opponent": null,
+       "marketLabel": "Match result"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "7c083bc7ca5ace85fbfaee34ab962b91",
+       "player": "Walker Jenkins",
+       "market": "batter_hits",
+       "side": "Under",
+       "line": 0.5,
+       "odds": 107,
+       "decimal": 2.0700000000000003,
+       "score": 0,
+       "team": "MIN",
+       "opponent": "CLE",
+       "marketLabel": "Hits"
+      },
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:bournemouth-v-brentford:20260912t1400",
+       "player": null,
+       "market": "total_goals",
+       "side": "over",
+       "line": 2.5,
+       "odds": -168,
+       "decimal": 1.5952380952380953,
+       "score": 0,
+       "team": null,
+       "opponent": null,
+       "marketLabel": "Total goals 2.5"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    },
+    {
+     "band": "longshot",
+     "slipId": "multi-longshot-2026-09-12",
+     "combinedAmerican": 807,
+     "combinedDecimal": 9.074,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:everton-v-tottenham-hotspur:20260912t1630",
+       "player": null,
+       "market": "match_result",
+       "side": "home",
+       "line": null,
+       "odds": 100,
+       "decimal": 2,
+       "score": 0,
+       "team": "Tottenham Hotspur",
+       "opponent": null,
+       "marketLabel": "Match result"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "3b910a2e0ac0e7339bf6d0b3857bf1bc",
+       "player": "Oneil Cruz",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -205,
+       "decimal": 1.4878048780487805,
+       "score": 0,
+       "team": "PIT",
+       "opponent": "CHC",
+       "marketLabel": "Hits"
+      },
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:crystal-palace-v-ipswich-town:20260912t1400",
+       "player": null,
+       "market": "total_goals",
+       "side": "under",
+       "line": 2.5,
+       "odds": 115,
+       "decimal": 2.15,
+       "score": 0,
+       "team": null,
+       "opponent": null,
+       "marketLabel": "Total goals 2.5"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "a34743d79cd5b394262c790c11e888a2",
+       "player": "Brett Bateman",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -239,
+       "decimal": 1.4184100418410042,
+       "score": 0,
+       "team": "TOR",
+       "opponent": "BAL",
+       "marketLabel": "Hits"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    }
+   ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "NO_PLAY",
+    "state": "ACTIVE",
     "policyVersion": "multi-cards@1",
     "evidence": {
      "policyVersion": "multi-cards@1",
-     "reason": "multi grid state PUBLISHED — the stream opens only when two single-sport streams are live"
+     "cardRef": "card+card+card+card",
+     "lockAt": "2026-09-12T13:01:29Z"
     },
     "transitions": [
      {
@@ -727,8 +923,8 @@
       "runId": "open:multi-cards:2026-09-12"
      },
      {
-      "to": "NO_PLAY",
-      "runId": "eval:2026-09-12:7e6acd98187e"
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-12:7e6acd98187e"
      }
     ]
    }
@@ -749,11 +945,6 @@
    "product": "end-zone-vault",
    "kind": "INCIDENT_OPEN",
    "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-12"
-  },
-  {
-   "product": "epl-cards",
-   "kind": "STALE_ACTIVE_CARD",
-   "detail": "locked 2026-09-11T22:59:04Z, still ACTIVE"
   }
  ],
  "authorities": {
