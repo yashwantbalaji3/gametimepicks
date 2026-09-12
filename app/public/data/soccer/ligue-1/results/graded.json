@@ -5,14 +5,36 @@
  "public": true,
  "league": "ligue-1",
  "competition": "Ligue 1",
- "generatedAt": "2026-09-11T19:33:34Z",
+ "generatedAt": "2026-09-12T12:26:49Z",
  "rule": "each match graded once, against the last forecast published before kickoff, from the official final score",
  "summary": {
-  "matches": 0,
-  "logLoss": null,
-  "brier": null,
+  "matches": 1,
+  "logLoss": 0.7599,
+  "brier": 0.4263,
   "uniformLogLoss": 1.0986,
-  "sampleState": "NONE"
+  "sampleState": "TOO_SMALL_TO_ASSESS"
  },
- "matches": []
+ "matches": [
+  {
+   "eventId": "soccer:ligue-1:401876459",
+   "matchup": "Stade Rennais v Marseille",
+   "homeClub": "Stade Rennais",
+   "awayClub": "Marseille",
+   "kickoffUtc": "2026-09-11T18:45:00.000Z",
+   "forecastAt": "2026-09-11T18:00:25Z",
+   "probs": {
+    "home": 0.467716,
+    "draw": 0.240911,
+    "away": 0.291373
+   },
+   "final": {
+    "home": 1,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.4677,
+   "logLoss": 0.7599,
+   "brier": 0.4263
+  }
+ ]
 }
