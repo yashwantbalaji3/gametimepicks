@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "artifact": "parlay-same-game-v1-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "frozenAt": "2026-09-12T16:30:00Z",
+  "scoreCardsGradedFrom": "2026-09-13",
+  "frozenBy": "Written after looking at the historical split and BEFORE any forward card was graded. The population, metrics, bars and decision look may not change after frozenAt; a change is a new version with a new file.",
+  "researchOnly": "No public model, board, page or copy changes under this registration. The builder continues to disclose a shared game as a link whose effect is NOT VALIDATED, which is what it is.",
+
+  "question": "Among the cards we publish, does a card containing two legs from the same game settle worse than a card of the same size whose legs are all from different games?",
+
+  "motivation": "The compatibility engine classifies a shared game as a link and says so on every card that has one, but has never been able to say what the link DOES. Our own graded receipts can answer it. It matters to a reader because the disclosure currently asks them to weigh something we have not measured.",
+
+  "alreadySeenAndThereforeUnusable": {
+    "lookedAt": "2026-09-12",
+    "corpus": "2,700 decided MLB cards graded 2026-05-22 to 2026-09-11, across both published streams",
+    "observed": {
+      "3 legs": { "apart": { "cards": 485, "hitRate": 0.161, "flatReturn": -0.135 }, "shared": { "cards": 208, "hitRate": 0.106, "flatReturn": -0.393 } },
+      "4 legs": { "apart": { "cards": 279, "hitRate": 0.082, "flatReturn": -0.314 }, "shared": { "cards": 222, "hitRate": 0.090, "flatReturn": -0.343 } },
+      "5 legs": { "apart": { "cards": 177, "hitRate": 0.062, "flatReturn": -0.155 }, "shared": { "cards": 397, "hitRate": 0.040, "flatReturn": -0.515 } }
+    },
+    "why_this_is_not_the_answer": "Three sizes, two of which show a large gap and one of which shows none. An effect that appears at three and five legs and vanishes at four is not an effect we can state; and having chosen the cut after seeing it, this corpus can no longer score the question. It is recorded here as the motivation and is excluded from scoring by `scoreCardsGradedFrom`.",
+    "flag_not_used": "Cards carry a `sameGame` field. On the risk-band producer it means 'every leg is from one game' and it disagrees with 'two legs share a game' on 532 of 2,700 cards. The split is derived from the legs' own gameIds; the field is ignored."
+  },
+
+  "population": {
+    "cards": "Every MLB card published on either stream (parlays/graded slips[], parlays/optimizer-graded publicRiskSections[tier].all[]) whose status settled to win or loss, graded on or after scoreCardsGradedFrom.",
+    "legs": "Only legs that settled win or loss. A voided leg leaves the card, so it changes both the card's size and its price — exactly as the card's published status already treats it.",
+    "exclusions": "A card with fewer than two surviving legs, or any surviving leg with no price, is excluded and counted."
+  },
+
+  "arms": {
+    "shared": "at least two surviving legs share a gameId",
+    "apart": "every surviving leg is from a different game"
+  },
+
+  "metrics": {
+    "primary": "flatReturnGap — shared minus apart, one unit staked per card, computed WITHIN each card size and combined as a card-weighted average over the sizes where both arms have at least 100 cards.",
+    "secondary": "hitRateGap, the same way."
+  },
+
+  "bars": {
+    "minCardsPerArmPerSize": 100,
+    "minComparableSizes": 2,
+    "minTotalCards": 800,
+    "ACCEPTED": "flatReturnGap <= -0.05 AND every comparable size points the same way (agree === true). Meaning: our shared-game cards lost at least five points more per card, consistently across sizes.",
+    "REJECTED": "flatReturnGap > -0.05, or the comparable sizes disagree in sign.",
+    "INCONCLUSIVE": "the sample bars are not met at the decision look; the registration then expires rather than waiting for a number it likes."
+  },
+
+  "decisionLook": {
+    "when": "The first day on which minTotalCards is reached with at least minComparableSizes comparable sizes, or 2026-12-31, whichever comes first.",
+    "howMany": "ONE. A second look under this registration is not permitted; a different look is a new version."
+  },
+
+  "ifAccepted": "The builder's linked-pair disclosure may state the measured difference, with its sample and its date range, still as a record of our own cards and never as a forecast. No automatic change to what the engine builds.",
+  "ifRejected": "The disclosure stays exactly as it is — a shared game is a link whose effect we looked for and did not find — and the rejection is recorded here, not retried with a softer bar.",
+
+  "scorer": "app/scripts/parlays/score-same-game.mjs (reads this file; refuses to score cards graded before scoreCardsGradedFrom)",
+  "engine": "app/src/lib/parlays/lab/same-game.mjs"
+}
