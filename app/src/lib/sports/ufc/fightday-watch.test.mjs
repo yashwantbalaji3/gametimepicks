@@ -51,3 +51,21 @@ test("no card, no claim", () => {
     assert.equal(w.shouldDispatch, false);
   }
 });
+
+/**
+ * P265 · the capture that succeeded and was lost at the commit. On 2026-09-12 the paid capture worked,
+ * the ladder built, and then `git pull --rebase` hit a conflict on the MLB tier-grid files this run
+ * rebuilds as a side effect while the morning chain was pushing the same files. Nothing retried, so a
+ * paid capture died at the last step. A job publishes its OWN sport, and pushes through the helper.
+ */
+test("the fight-week commit publishes only UFC's own artifacts, through the conflict-safe helper", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const wf = fs.readFileSync(path.join(process.cwd(), "..", ".github/workflows/ufc-fight-week.yml"), "utf8");
+  const step = wf.slice(wf.indexOf("- name: Commit if anything changed"));
+  assert.match(step, /git add "app\/public\/data\/parlays\/tier-grid\/ufc-"\*\.json/, "only UFC's grid is staged");
+  assert.match(step, /git restore --worktree -- app\/public\/data\/parlays\/tier-grid/, "another sport's regenerated copy is reverted, never published from here");
+  assert.ok(!/git add[^\n]*app\/public\/data\/parlays\/tier-grid\s/.test(step), "the whole grid directory is no longer staged");
+  assert.match(step, /commit-generated\.sh/, "the push retries and resolves inside its own generated paths");
+  assert.ok(!/git pull --rebase --autostash origin main\n\s+git push origin HEAD:main/.test(step), "the bare rebase-and-hope is gone");
+});
