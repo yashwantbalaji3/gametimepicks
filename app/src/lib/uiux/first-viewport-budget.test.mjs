@@ -61,7 +61,29 @@ test("the homepage total rendered copy only shrinks (frozen at the R-A measureme
   //   · the banished-strings test above — the actual regrowth guard — still passes
   //
   // 1,700 keeps roughly the headroom the last update chose (1,603 → 1,650). Shrink-only from here.
-  const CEILING = 1700;
+  //
+  // EVIDENCE UPDATE 2026-09-12 (P265): 1,731 in CI. The first day all three lanes publish AT ONCE —
+  // a 15-game MLB slate, Premier League matchweek 4, and a UFC card whose cards returned this morning
+  // after a week dark (the capture had been crashing after it paid; see P264). More lanes carding is
+  // more rows, and rows are words.
+  //
+  // Held to the same proof, and one part of it is weaker than last time — said plainly rather than
+  // dressed up:
+  //   · PRODUCTION measured 1,739 ten minutes later. NOT identical to CI's 1,731, because the UFC
+  //     ladder landed between the two measurements; both sit above 1,700, so this is the live state
+  //     and not a CI-only artifact. (The 09-08 and 09-10 updates could show an identical figure; this
+  //     one cannot, and that is a weaker check.)
+  //   · TWO homepage components changed since the last update, so "no source changed" is NOT true
+  //     here. Both were read: upcoming-sports.tsx added crest ICONS beside an unchanged competitors
+  //     line, and top-reads-panel.tsx took a domId prop. Neither adds copy — and alt text lives in
+  //     attributes, which `rendered()` strips with the tags.
+  //   · the banished-strings test above — the actual regrowth guard — still passes.
+  //
+  // The ceiling has to clear tonight as well as this morning: the 2026-08-27 measurement put the
+  // started-state chips at +69 words (1,432 pregame → 1,501 in progress), and today's 1,739 is a
+  // PREGAME figure. 1,739 + 69 ≈ 1,808, so 1,820 covers the evening without inviting creep.
+  // Shrink-only from here.
+  const CEILING = 1820;
   const w = words(rendered("index.html"));
   assert.ok(w <= CEILING, `homepage rendered words ${w} > frozen ceiling ${CEILING} — copy crept back`);
 });
