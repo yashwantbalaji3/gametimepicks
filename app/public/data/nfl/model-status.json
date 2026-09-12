@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-12T13:26:21Z",
+ "generatedAt": "2026-09-12T17:24:16Z",
  "windowSeasonType": "MIXED_OR_REGULAR",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
@@ -18,12 +18,11 @@
   }
  },
  "market": {
-  "state": "ARCHIVED_CAPTURE",
-  "headline": "No current sportsbook prices — the last capture covered games now played",
-  "detail": "The most recent authorized capture (2026-08-29) priced 1 game(s) whose kickoffs have all passed. Those prices live with their games in the archive; no current price is shown and none is invented.",
-  "capturedAt": "2026-08-29T17:50:39Z",
-  "events": 0,
-  "nextGate": "The next authorized market capture."
+  "state": "LIVE",
+  "headline": "Sportsbook prices are published for this slate",
+  "detail": "Captured before every kickoff shown, across up to 6 sportsbooks. These are the books' own numbers with attribution — not GameTimePicks predictions.",
+  "capturedAt": "2026-09-12T17:24:16Z",
+  "events": 13
  },
  "playerFamilies": [
   {
@@ -60,9 +59,9 @@
   }
  ],
  "anytimeTd": {
-  "state": "NO_MARKET",
+  "state": "ROLE_UNCERTAIN",
   "headline": "Anytime touchdown: held",
-  "detail": "The scoring model is calibrated, but the sportsbooks are not offering touchdown markets for these games in our current capture, and current role evidence for these games has not cleared its own bar. Both must change before anything publishes.",
+  "detail": "The scoring model is calibrated, but current role evidence for these games has not cleared its own bar, so no scorer is published.",
   "nextGate": "An offered anytime-touchdown market plus current role evidence."
  }
 }

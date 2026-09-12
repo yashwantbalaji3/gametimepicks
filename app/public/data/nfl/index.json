@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-12T13:26:21Z",
+ "generatedAt": "2026-09-12T17:24:16Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -21,19 +21,19 @@
   "forecastsTotal": 14,
   "forecastsUpcoming": 14,
   "forecastsStarted": 0,
-  "marketEvents": 1,
+  "marketEvents": 13,
   "settled": 0
  },
  "nextKickoffUtc": "2026-09-13T17:00Z",
  "nextMatchup": "TB @ CIN",
  "nextForecastUtc": "2026-09-13T17:00Z",
  "nextForecastMatchup": "TB @ CIN",
- "marketCapturedAt": "2026-08-29T17:50:39Z",
+ "marketCapturedAt": "2026-09-12T17:24:16Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-11T22:59:42Z",
+  "generatedAt": "2026-09-12T13:26:21Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -85,9 +85,13 @@
    "kickoffUtc": "2026-09-13T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -11.3,
+    "leansTo": "TB",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 26,
     "away": 24,
@@ -103,12 +107,12 @@
     "p90": 67,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "b0ce87791edd1bd4",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "b8161a0a20f68c50",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -126,9 +130,13 @@
    "kickoffUtc": "2026-09-13T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -6.9,
+    "leansTo": "NO",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 29,
     "away": 19,
@@ -144,12 +152,12 @@
     "p90": 65,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "0b3428c1a847f7ec",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "4eec0308be897fc8",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -185,12 +193,12 @@
     "p90": 65,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "f6d528e1ed20de1d",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "b0712f8e9be158b4",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -208,9 +216,13 @@
    "kickoffUtc": "2026-09-13T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": 10.9,
+    "leansTo": "IND",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 26,
     "away": 24,
@@ -226,12 +238,12 @@
     "p90": 67,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "39045659b042a163",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "dc86c9d209b785bc",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -249,9 +261,13 @@
    "kickoffUtc": "2026-09-13T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -10.7,
+    "leansTo": "ATL",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 26,
     "away": 21,
@@ -267,12 +283,12 @@
     "p90": 64,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "a3957befc9068bd6",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "04643b04fa6560fd",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -290,9 +306,13 @@
    "kickoffUtc": "2026-09-13T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": 8.3,
+    "leansTo": "CAR",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 24,
     "away": 24,
@@ -308,12 +328,12 @@
     "p90": 64,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "a230c1c1005045a5",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "09fee105c3e002bf",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -331,9 +351,13 @@
    "kickoffUtc": "2026-09-13T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -12.6,
+    "leansTo": "CLE",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 28,
     "away": 18,
@@ -349,12 +373,12 @@
     "p90": 62,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "0de5f781736fa97b",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "8c4e13c5976b3550",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -372,9 +396,13 @@
    "kickoffUtc": "2026-09-13T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": 6.6,
+    "leansTo": "HOU",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 26,
     "away": 22,
@@ -390,12 +418,12 @@
     "p90": 65,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "bbca6b6e12af1d13",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "f8d1702b5c33dedc",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -413,9 +441,13 @@
    "kickoffUtc": "2026-09-13T20:25Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -13.8,
+    "leansTo": "MIA",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 22,
     "away": 22,
@@ -431,12 +463,12 @@
     "p90": 62,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "c6c4123d90d81664",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "b2596e2c9879fe98",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -472,12 +504,12 @@
     "p90": 62,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "9f42efe5785aac3d",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "9a4ddbea6166dd96",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -513,12 +545,12 @@
     "p90": 64,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "c5604659f83f3f50",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "8a24dc59010f6abc",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -536,9 +568,13 @@
    "kickoffUtc": "2026-09-13T20:25Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -12.1,
+    "leansTo": "ARI",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 29,
     "away": 18,
@@ -554,12 +590,12 @@
     "p90": 63,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "e279dd86de8ecbf3",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "22a1517e4fef9d5a",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -577,9 +613,13 @@
    "kickoffUtc": "2026-09-14T00:20Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": 6.5,
+    "leansTo": "NYG",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 25,
     "away": 26,
@@ -595,12 +635,12 @@
     "p90": 68,
     "head": "matchup-totals-v1-decayed-points"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "3e88fe3ed03a1904",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "f57c4c4b7f54e32d",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   },
   {
@@ -640,8 +680,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "836c9963ecedc31f",
-    "generatedAt": "2026-09-12T13:26:21Z"
+    "inputHash": "87d346c17ff38542",
+    "generatedAt": "2026-09-12T17:24:16Z"
    }
   }
  ],
@@ -668,7 +708,7 @@
   }
  ],
  "anytimeTd": {
-  "state": "NO_MARKET",
+  "state": "ROLE_UNCERTAIN",
   "headline": "Anytime touchdown: held"
  },
  "contradictions": []

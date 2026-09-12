@@ -2,14 +2,14 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-09-12T13:26:21Z",
+ "generatedAt": "2026-09-12T17:24:16Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "TB @ CIN",
   "kickoffUtc": "2026-09-13T17:00Z",
   "seasonType": 2,
   "week": 1,
-  "hoursToKickoff": 27.56,
+  "hoursToKickoff": 23.6,
   "eventsInWindow": 30
  },
  "freshness": {
@@ -19,23 +19,21 @@
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-09-12T13:26:21Z (FRESH)"
+   "detail": "as of 2026-09-12T17:24:16Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-09-12T13:26:49Z (FRESH)"
+   "detail": "as of 2026-09-12T17:24:37Z (FRESH)"
   },
   "odds": {
-   "state": "STALE",
-   "detail": "as of 2026-08-29T17:50:39Z (STALE)"
+   "state": "FRESH",
+   "detail": "as of 2026-09-12T17:24:16Z (FRESH)"
   }
  },
  "regularSeason": {
   "verdict": {
-   "state": "OPERATIONAL_GAPS",
-   "operationalGaps": [
-    "prices:STALE"
-   ],
+   "state": "READY_WITH_DESIGN_CAPS",
+   "operationalGaps": [],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -56,12 +54,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-09-12T13:26:49Z"
+    "detail": "injuries as of 2026-09-12T17:24:37Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-09-12T13:26:21Z"
+    "detail": "rosters as of 2026-09-12T17:24:16Z"
    },
    {
     "id": "participationRoles",
@@ -90,42 +88,35 @@
    },
    {
     "id": "prices",
-    "state": "STALE",
-    "detail": "prices as of 2026-08-29T17:50:39Z"
+    "state": "AVAILABLE",
+    "detail": "prices as of 2026-09-12T17:24:16Z"
    }
   ]
  },
  "markets": {
   "state": "CAPTURED",
-  "events": 1,
-  "books": 9,
-  "capturedAt": "2026-08-29T17:50:39Z",
+  "events": 13,
+  "books": 6,
+  "capturedAt": "2026-09-12T17:24:16Z",
   "propMarkets": {
-   "state": "PROBED",
-   "probedEventId": "nfl-401874394",
+   "state": "NOT_PROBED",
    "offeredMarkets": [],
-   "absentMarkets": [
-    "player_anytime_td",
-    "player_pass_yds",
-    "player_rush_yds",
-    "player_reception_yds",
-    "player_receptions"
-   ]
+   "absentMarkets": []
   }
  },
  "credits": {
   "state": "UNKNOWN",
-  "programSpend": 69,
+  "programSpend": 72,
   "ceiling": null,
   "remainingProgram": null,
-  "providerRemaining": 8779,
+  "providerRemaining": 14945,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
    "providerRequestsUsed": 4342,
    "providerRequestsRemaining": 15658,
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
-  "requests": 107,
+  "requests": 110,
   "detail": "authorization receipt did not parse — no paid call may run"
  },
  "models": {
@@ -158,11 +149,11 @@
   }
  },
  "currentArtifacts": {
-  "total": 545,
-  "contractValid": 545,
-  "preStart": 378,
-  "settlementReady": 125,
-  "detail": "545/545 pass the current-event contract; 125 carry pinned settlement targets"
+  "total": 549,
+  "contractValid": 549,
+  "preStart": 382,
+  "settlementReady": 128,
+  "detail": "549/549 pass the current-event contract; 128 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
@@ -182,11 +173,6 @@
   "detail": "nfl-event-window.yml is deployed with two daily window passes, but a workflow file is not cadence proof — promotion waits for terminal scheduled receipts"
  },
  "blockers": [
-  {
-   "id": "player-markets-absent",
-   "state": "NO_MARKET",
-   "detail": "the authorized capture probed this window: the provider offers no NFL player-prop or anytime-TD market. Absence is evidence — not a retry target. Re-probe when the regular season opens."
-  },
   {
    "id": "ops-webhook",
    "state": "FOUNDER_ACTION",
