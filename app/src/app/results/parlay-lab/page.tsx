@@ -18,8 +18,9 @@ import SectionHeader from "@/components/section-header";
 import path from "node:path";
 
 import { loadLabRecord, labSampleCaption, labCounts } from "@/lib/parlays/lab-record";
-import { loadGradedLegRecord } from "@/lib/parlays/risk-ladder";
+import { loadGradedLegRecord, loadCardShapeRecord } from "@/lib/parlays/risk-ladder";
 import LegRecordList from "@/components/parlays/lab/leg-record-list";
+import CardShapeList from "@/components/parlays/lab/card-shape-list";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata: Metadata = withRouteMetadata("/results/parlay-lab/", {
@@ -32,7 +33,9 @@ const pctOrDash = (n: number | null) => (n == null ? "—" : `${(n * 100).toFixe
 
 export default function ParlayLabRecordPage() {
   const rec = loadLabRecord();
-  const legRecord = loadGradedLegRecord(path.join(process.cwd(), "public", "data"));
+  const dataRoot = path.join(process.cwd(), "public", "data");
+  const legRecord = loadGradedLegRecord(dataRoot);
+  const shapeRecord = loadCardShapeRecord(dataRoot);
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
@@ -190,6 +193,23 @@ export default function ParlayLabRecordPage() {
           />
           <div className="mt-3">
             <LegRecordList rows={legRecord.families} since={legRecord.since} heading="By kind of leg" max={legRecord.families.length} />
+          </div>
+        </section>
+      ) : null}
+
+      {/* ── AND BY HOW MANY LEGS (P271) ─────────────────────────────────────────────────────────────
+          The same receipts cut the other way. A scratched leg leaves a card, so the size and the
+          price both come from the legs that settled — and across 2,839 decided cards the published
+          status agrees with "every surviving leg won" in every case, which a test re-checks. */}
+      {shapeRecord ? (
+        <section className="mt-8">
+          <SectionHeader
+            eyebrow="Track record · By card size"
+            title="Does one more leg change anything?"
+            sub={`${shapeRecord.cards} decided cards, grouped by how many legs actually settled on them.`}
+          />
+          <div className="mt-3">
+            <CardShapeList rows={shapeRecord.sizes} heading="By card size" />
           </div>
         </section>
       ) : null}

@@ -13,6 +13,7 @@ import path from "node:path";
 import type { LadderCard, LadderSkip } from "@/components/parlays/risk-ladder-board";
 import type { BettorTier } from "@/components/parlays/parlay-lab-entry";
 import { buildLegRecord } from "@/lib/parlays/lab/leg-record.mjs";
+import { buildShapeRecord } from "@/lib/parlays/lab/card-shape.mjs";
 
 export interface TierRecord {
   readonly wins: number;
@@ -100,6 +101,27 @@ export function loadGradedLegRecord(root: string, sport = "mlb", minDecided = 30
   if (docs.length === 0) return null;
   const record = buildLegRecord(docs as never[], { sport, minDecided });
   return record.families.length ? record : null;
+}
+
+/**
+ * The card-shape record (P271) — our published cards by how many legs they carried.
+ *
+ * Same two streams and the same build-time read as the leg record: the page ships six rows, not
+ * seventy-three days of cards.
+ */
+export function loadCardShapeRecord(root: string, sport = "mlb", minCards = 30) {
+  const docs: unknown[] = [];
+  for (const stream of ["graded", "optimizer-graded"]) {
+    const dir = path.join(root, "parlays", stream);
+    let files: string[] = [];
+    try { files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)); } catch { continue; }
+    for (const f of files) {
+      try { docs.push(JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"))); } catch { /* a torn receipt is not a result */ }
+    }
+  }
+  if (docs.length === 0) return null;
+  const record = buildShapeRecord(docs as never[], { sport, minCards });
+  return record.sizes.length ? record : null;
 }
 
 export interface RiskLadder {

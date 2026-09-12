@@ -3,6 +3,7 @@ import type { BuildLeg } from "@/lib/build-legs";
 import { cardChance, bandRecord, linkedPairs, shorterAlternative, recordTrade, impliedFromAmerican } from "@/lib/parlays/lab/slip-insight.mjs";
 import ChanceMeter from "./chance-meter";
 import LegRecordList, { familiesFor, type LegRecordView } from "./leg-record-list";
+import CardShapeList, { type ShapeRecordView } from "./card-shape-list";
 
 /**
  * SLIP GAUGES (P261) — what the card being built actually is, updated as legs go on and come off.
@@ -94,7 +95,7 @@ const toCandidate = (l: BuildLeg): Candidate => ({
 });
 
 export default function SlipGauges({
-  draft, pool, byTier, legRecord = null, onSwap,
+  draft, pool, byTier, legRecord = null, shapeRecord = null, onSwap,
 }: {
   draft: readonly { readonly key: string; readonly engineLeg: BuildLeg }[];
   pool: readonly BuildLeg[];
@@ -102,6 +103,8 @@ export default function SlipGauges({
   byTier: Readonly<Record<string, { wins: number; losses: number; roi?: number | null }>> | null;
   /** P268: the settled record of the leg families our own cards have used. */
   legRecord?: LegRecordView | null;
+  /** P271: how our published cards did by how many legs they carried. */
+  shapeRecord?: ShapeRecordView | null;
   onSwap: (outgoingKey: string, incoming: BuildLeg) => void;
 }) {
   const priced = draft.filter((d) => Number.isFinite(d.engineLeg.americanOdds) && d.engineLeg.americanOdds !== 0);
@@ -142,7 +145,11 @@ export default function SlipGauges({
         </p>
       ) : null}
 
-      {/* P268 · the level the reader is actually choosing at. A card's band record answers "have cards
+      {/* P271 · the other question a builder is asking: does one more leg change anything? Our own
+          cards answer it by size, with the size being built marked. */}
+      {shapeRecord ? <CardShapeList rows={shapeRecord.sizes} highlight={priced.length} /> : null}
+
+            {/* P268 · the level the reader is actually choosing at. A card's band record answers "have cards
           at this price landed"; this answers "have legs like the ones I just picked landed". */}
       <LegRecordList
         rows={familiesFor(legRecord, engineLegs.map((l) => ({ market: l.market, side: l.slipLeg?.side ?? null, line: l.slipLeg?.line ?? null })))}
