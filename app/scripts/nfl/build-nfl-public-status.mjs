@@ -129,6 +129,31 @@ const market = marketFresh
 
 // ---------------------------------------------------------------- player families
 const probeFoundNothing = markets?.propMarkets?.state === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0;
+
+/*
+ * P286: THE BARS ARE THE DISTINCTION, SO THE COPY STATES THEM.
+ *
+ * Two families sat under two different state chips and read the same sentence. Rushing yards
+ * beats BOTH baselines and sizes its uncertainty ranges correctly, failing only the
+ * threshold-calibration bar, on 1,853 player-games. Passing yards fails all four bars, on 580.
+ * The reader was handed the state distinction with none of its content — and on top of that the
+ * near-bar chip said PRIVATE_SHADOW about numbers the public player board displays, which the
+ * board's own copy already admits. A state name that contradicts the artifact it describes is
+ * worse than no state at all.
+ *
+ * The evaluator already records which bars each family cleared. This says so.
+ */
+/* Bare infinitives, so one phrase serves both "it did …" and "it did not …". */
+const BAR_PROSE = {
+  beatsRolling: "beat a simple average of the player's recent games",
+  beatsShareVol: "beat a share-of-team-volume baseline",
+  coverOk: "size its uncertainty ranges correctly",
+  calOk: "call its own over/under rates accurately",
+};
+/** The bars whose recorded verdict is exactly `want` — an absent bar is neither passed nor failed. */
+const barsWhere = (evidence, want) => Object.keys(BAR_PROSE).filter((k) => evidence?.[k] === want).map((k) => BAR_PROSE[k]);
+const sentenceList = (xs, conj = "and") => (xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} ${conj} ${xs[xs.length - 1]}`);
+
 const familyState = (key, label) => {
   const promo = props?.promotion?.[key]?.state ?? null;
   if (!promo) return { key, label, state: "UNKNOWN", headline: `${label}: no evaluation on file`, detail: "No claim is made without an evaluation." };
@@ -146,17 +171,34 @@ const familyState = (key, label) => {
   }
   /* P250-GD2: a below-bar family whose distributions the engine computes DISPLAYS, labelled an
      unvalidated estimate with its failed bar — so "not published" became false copy for exactly
-     the families the reader can now see. The state vocabulary is unchanged (a shadow family is
-     still a shadow family); the headline stops claiming absence. */
+     the families the reader can now see. The headline stops claiming absence. */
   const displaysAsEstimate = promo === "SHADOW_ELIGIBLE" || promo === "RESEARCH_ONLY";
+  const evidence = props?.promotion?.[key]?.evidence ?? null;
+  const passed = barsWhere(evidence, true);
+  const failed = barsWhere(evidence, false);
+  const sample = Number.isFinite(evidence?.n) ? ` across ${Number(evidence.n).toLocaleString("en-US")} player-games` : "";
+  const displaysSuffix = (n) => ` Its numbers display for completeness, labelled an unvalidated estimate with the ${n === 1 ? "bar" : "bars"} it failed, and never enter a product card or the graded record.`;
+  const estimateDetail = failed.length
+    ? (passed.length
+      ? `Tested on a held-out 2025 season${sample}, this model did ${sentenceList(passed)} — but it did not ${sentenceList(failed, "or")}.`
+      : `Tested on a held-out 2025 season${sample}, this model failed every bar it was measured against: it did not ${sentenceList(failed, "or")}.`)
+      + displaysSuffix(failed.length)
+    // No per-bar verdicts on file (e.g. a component never separately evaluated).
+    : `This family has no per-bar evaluation of its own, so it cannot be promoted.${displaysSuffix(0)}`;
   return {
     key, label,
-    state: promo === "PUBLIC_ELIGIBLE" ? "MODEL_READY" : promo === "SHADOW_ELIGIBLE" ? "PRIVATE_SHADOW" : "RESEARCH_ONLY",
+    state: promo === "PUBLIC_ELIGIBLE"
+      ? "MODEL_READY"
+      : displaysAsEstimate
+        // Named for what the reader can see and how far it is from its bar — never "private",
+        // which the displayed board would contradict.
+        ? (promo === "SHADOW_ELIGIBLE" ? "ESTIMATE_NEAR_BAR" : "ESTIMATE_BELOW_BAR")
+        : "RESEARCH_ONLY",
     headline: `${label}: ${promo === "PUBLIC_ELIGIBLE" ? "model ready, awaiting live inputs" : "displayed as an unvalidated estimate"}`,
     detail: promo === "PUBLIC_ELIGIBLE"
       ? "The model meets its bar; publication still needs current role evidence and a current price."
       : displaysAsEstimate
-        ? "The model has not cleared its accuracy bar. Its numbers display for completeness, labelled an unvalidated estimate with the bar it failed, and never enter a product card or the graded record."
+        ? estimateDetail
         : "The model has not cleared its accuracy bar and stays private.",
     nextGate: "Current role evidence, a current offered line, and settlement support.",
   };

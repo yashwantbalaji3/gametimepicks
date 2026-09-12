@@ -401,9 +401,22 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
        invariant itself. */
     const stateBlob = JSON.stringify(st);
     assert.doesNotMatch(stateBlob, /AUTH_REQUIRED/, "the authorization exists — nothing may still claim it is missing");
-    const allowed = new Set(["NO_MARKET", "NOT_REQUESTED", "ROLE_UNCERTAIN", "RESEARCH_ONLY", "PRIVATE_SHADOW", "MODEL_READY", "PUBLIC"]);
+    /* REPOINTED 2026-09-12 (P286): PRIVATE_SHADOW left the set because it was false — the family
+       wearing it has its numbers on the public player board. A displaying family now reads
+       ESTIMATE_NEAR_BAR / ESTIMATE_BELOW_BAR, and "private" may not come back while it displays. */
+    const allowed = new Set(["NO_MARKET", "NOT_REQUESTED", "ROLE_UNCERTAIN", "RESEARCH_ONLY", "ESTIMATE_NEAR_BAR", "ESTIMATE_BELOW_BAR", "MODEL_READY", "PUBLIC"]);
     for (const fam of [...st.playerFamilies, st.anytimeTd]) {
       assert.ok(allowed.has(fam.state), `player-family state ${fam.state} outside the closed set`);
+    }
+    /* Two states must not be a distinction without content: any two displaying families that
+       differ in state must differ in what they SAY, or the chip is decoration. */
+    const estimates = st.playerFamilies.filter((f) => f.state.startsWith("ESTIMATE_"));
+    for (const a of estimates) {
+      for (const b of estimates) {
+        if (a.state === b.state) continue;
+        assert.notEqual(a.detail, b.detail, `${a.label} and ${b.label} wear different states but read identically`);
+      }
+      assert.ok(!/\bprivate(ly)?\b/i.test(`${a.headline} ${a.detail}`), `${a.label} displays on the board — it may not be called private`);
     }
     assert.ok(probed || st.anytimeTd.state !== "NO_MARKET", "NO_MARKET may only be claimed when a probe actually looked");
     assert.ok(holds, "any ready family still names the live-data gate it waits on");
