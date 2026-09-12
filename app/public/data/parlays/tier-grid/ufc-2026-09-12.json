@@ -5,16 +5,268 @@
  "moneyClass": "NON_MONEY",
  "sport": "ufc",
  "date": "2026-09-12",
- "generatedAt": "2026-09-12T13:01:29Z",
- "state": "NOT_ELIGIBLE",
- "reason": "the last price capture is 7.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
- "evidence": {
-  "pricedGames": 0,
-  "pricesCapturedAt": "2026-09-05T13:36:57Z",
-  "priceAgeDays": 6.98,
-  "settlementSource": "official UFC bout results through the lab's own settled receipts",
-  "settlementProven": true
- },
- "tiers": [],
- "cells": []
+ "generatedAt": "2026-09-12T13:31:17Z",
+ "state": "PUBLISHED",
+ "bandsUnreachable": [
+  "high",
+  "longshot"
+ ],
+ "calmestAvailable": "low",
+ "tiers": [
+  {
+   "id": "bronze",
+   "minBankroll": 0,
+   "maxBankroll": 50,
+   "cardsPerDay": 1,
+   "bands": [
+    "low"
+   ],
+   "offered": 1,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "silver",
+   "minBankroll": 50,
+   "maxBankroll": 100,
+   "cardsPerDay": 2,
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "gold",
+   "minBankroll": 100,
+   "maxBankroll": 250,
+   "cardsPerDay": 3,
+   "bands": [
+    "low",
+    "medium",
+    "high"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "diamond",
+   "minBankroll": 250,
+   "maxBankroll": null,
+   "cardsPerDay": 4,
+   "bands": [
+    "low",
+    "medium",
+    "high",
+    "longshot"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  }
+ ],
+ "cells": [
+  {
+   "tier": "bronze",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "ufc-low-2026-09-12",
+   "reason": null
+  },
+  {
+   "tier": "bronze",
+   "band": "medium",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "ufc-low-2026-09-12",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "ufc-medium-2026-09-12",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "gold",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "ufc-low-2026-09-12",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "ufc-medium-2026-09-12",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "high",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no card priced into this band — 2 legs → +166 (medium)"
+  },
+  {
+   "tier": "gold",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 3 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "diamond",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "ufc-low-2026-09-12",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "ufc-medium-2026-09-12",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "high",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no card priced into this band — 2 legs → +166 (medium)"
+  },
+  {
+   "tier": "diamond",
+   "band": "longshot",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no card priced into this band — 2 legs → +166 (medium)"
+  }
+ ],
+ "cards": [
+  {
+   "band": "low",
+   "slipId": "ufc-low-2026-09-12",
+   "combinedAmerican": -123,
+   "combinedDecimal": 1.812,
+   "legs": [
+    {
+     "sport": "ufc",
+     "eventId": "401897732",
+     "player": "Édgar Cháirez",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -210,
+     "decimal": 1.4761904761904763,
+     "modelProbability": 0.7759,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5076027.png",
+     "opponent": "Tim Elliott",
+     "team": null
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401905192",
+     "player": "David Martinez",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -440,
+     "decimal": 1.2272727272727273,
+     "modelProbability": 0.6507,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4503229.png",
+     "opponent": "Dan Ige",
+     "team": null
+    }
+   ],
+   "status": "pending",
+   "record": null
+  },
+  {
+   "band": "medium",
+   "slipId": "ufc-medium-2026-09-12",
+   "combinedAmerican": 103,
+   "combinedDecimal": 2.034,
+   "legs": [
+    {
+     "sport": "ufc",
+     "eventId": "401897736",
+     "player": "Regina Tarin",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -290,
+     "decimal": 1.3448275862068966,
+     "modelProbability": 0.6488,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5338118.png",
+     "opponent": "JJ Aldrich",
+     "team": null
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401897733",
+     "player": "Waldo Cortes Acosta",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -195,
+     "decimal": 1.5128205128205128,
+     "modelProbability": 0.5935,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4903365.png",
+     "opponent": "Curtis Blaydes",
+     "team": null
+    }
+   ],
+   "status": "pending",
+   "record": null
+  }
+ ],
+ "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
 }
