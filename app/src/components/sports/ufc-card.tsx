@@ -10,6 +10,7 @@
  *   · the R3+ round bar includes EVERY decision, not only round-3+ finishes;
  *   · "goes the distance" is the method head's decision probability, not a separate model.
  */
+import { roundPhrase } from "@/lib/sports/ufc/round-phrase.mjs";
 import HeadToHead from "@/components/ui/head-to-head";
 import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
 
@@ -152,7 +153,7 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                   label: "Model pick",
                   value: `${b.prediction.winner.name} · ${Math.round(b.prediction.winner.probability * 100)}%`,
                   sub: b.prediction.method && b.prediction.rounds
-                    ? `${METHOD_LABEL[b.prediction.method.most] ?? b.prediction.method.most} · ${b.prediction.rounds.endsIn === "3+" ? "round 3 or later" : `round ${b.prediction.rounds.endsIn}`}`
+                    ? `${METHOD_LABEL[b.prediction.method.most] ?? b.prediction.method.most} · ${roundPhrase(b.prediction.rounds)}`
                     : undefined,
                 } : null}
                 note={b.prediction?.reason ?? b.unmodelledReason ?? undefined}

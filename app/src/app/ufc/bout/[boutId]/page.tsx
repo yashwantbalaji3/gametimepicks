@@ -16,6 +16,7 @@
  *
  * A bout the model refuses to read still gets a page. It says why, in the producer's own words.
  */
+import { roundPhrase } from "@/lib/sports/ufc/round-phrase.mjs";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -156,7 +157,7 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
               label: "Model pick",
               value: `${p.winner.name} · ${pct(p.winner.probability)}`,
               sub: p.method && p.rounds
-                ? `${METHOD_LABEL[p.method.most] ?? p.method.most} · ${p.rounds.endsIn === "3+" ? "round 3 or later" : `round ${p.rounds.endsIn}`}`
+                ? `${METHOD_LABEL[p.method.most] ?? p.method.most} · ${roundPhrase(p.rounds)}`
                 : undefined,
             } : null}
             note={p?.reason ?? undefined}
