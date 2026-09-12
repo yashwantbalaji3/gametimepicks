@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825035,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T00:49:06.981Z",
+  "availableAt": "2026-09-12T00:49:06.981Z",
+  "eventStartTime": "2026-09-13T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694297,
+      "name": "Brandon Pfaadt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 7,
+      "lastStartDate": "2026-09-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.67,
+        "ipAvg": 6.33,
+        "kAvg": 4.6,
+        "bbAvg": 1,
+        "erAvg": 2.8,
+        "hrAvg": 1,
+        "kPer9": 6.54,
+        "workloadIpLast5": 31.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 96,
+        "k": 57,
+        "bb": 18,
+        "er": 32,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 677958,
+      "name": "Kumar Rocker",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 13,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 5.2,
+        "bbAvg": 3,
+        "erAvg": 3,
+        "hrAvg": 0.8,
+        "kPer9": 10.8,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 117,
+        "k": 108,
+        "bb": 52,
+        "er": 62,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-12T00:49:06.981Z"
+  },
+  "recordHash": "475069844da9027eac593c03d72a7ff512d4801805252aa8fdb03b9b78a72e15"
+}

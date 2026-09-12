@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824955,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T00:49:06.981Z",
+  "availableAt": "2026-09-12T00:49:06.981Z",
+  "eventStartTime": "2026-09-13T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 695611,
+      "name": "Gage Jump",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.4,
+        "bbAvg": 2.4,
+        "erAvg": 3.8,
+        "hrAvg": 0.6,
+        "kPer9": 8.25,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 96.67,
+        "k": 106,
+        "bb": 45,
+        "er": 55,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 693433,
+      "name": "Bryan Woo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 6.2,
+        "bbAvg": 1.2,
+        "erAvg": 1.8,
+        "hrAvg": 1,
+        "kPer9": 9.62,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 156.33,
+        "k": 158,
+        "bb": 33,
+        "er": 70,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-12T00:49:06.981Z"
+  },
+  "recordHash": "938c16b3e05f4b9f72a7c45c5e6d0203313448bb33218e9b1196ccae9f74cae8"
+}
