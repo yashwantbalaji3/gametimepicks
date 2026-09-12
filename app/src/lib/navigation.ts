@@ -246,6 +246,24 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     desc: "What the model is being tested against", surfaces: ["footer"] },
   { href: "/responsible-use", label: "Responsible use", group: "record",
     desc: "Paper-only, educational, no stake is ever filled", surfaces: ["footer"] },
+  /*
+   * P266 · THE ACCOUNT DESTINATION EXISTS ONLY IN A BUILD THAT HAS A PROJECT.
+   *
+   * Until the Supabase keys are set, /account renders one paragraph saying accounts are not open —
+   * and a nav item pointing at that is an invitation to nothing. The build that first carries the
+   * keys carries the link with it, so switching accounts on takes no second code change.
+   *
+   * The env read is LITERAL because Next inlines `process.env.NEXT_PUBLIC_*` only where it appears
+   * literally; through a variable this would be undefined in the export and the link would never
+   * appear, however many keys were set.
+   */
+  ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? [{
+        href: "/account", label: "Your bets", group: "record", glyph: "🧾",
+        desc: "The bets you placed, and how they have actually gone",
+        surfaces: ["rail", "footer"], bucket: "account",
+      } as NavDestination]
+    : []),
 ];
 
 /** Destinations carried by one surface, in canonical order. */

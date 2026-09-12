@@ -6,6 +6,7 @@ import SignInPanel from "./sign-in-panel";
 import SlipUpload, { type SlipReadResult } from "./slip-upload";
 import SlipConfirm from "./slip-confirm";
 import MyBetsRecord from "./my-bets-record";
+import StyleSyncPanel from "./style-sync-panel";
 
 /**
  * THE ACCOUNT SURFACE (P266) — sign in, add a slip, see your own record.
@@ -106,7 +107,11 @@ export default function AccountExperience({ bandByTier = null }: { bandByTier?: 
         </p>
       ) : null}
 
-      <MyBetsRecord refreshKey={refreshKey} />
+      {/* The style the reader already stated in the Parlay Center, reconciled with the copy their
+          account holds — shown before their record, because it is what decided which cards they saw. */}
+      <StyleSyncPanel userId={user.id} />
+
+      <MyBetsRecord userId={user.id} refreshKey={refreshKey} />
     </div>
   );
 }

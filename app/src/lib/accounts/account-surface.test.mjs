@@ -54,7 +54,17 @@ test("a blank field is never treated as a zero", () => {
 test("the record view only reads, and says the sample is small when it is", () => {
   const r = code(RECORD);
   assert.match(r, /\.select\("\*"\)/);
-  for (const write of [".insert(", ".update(", ".delete(", ".upsert("]) assert.ok(!r.includes(write), `the record view must not ${write}`);
+  /*
+   * NARROWED (P266d): this banned every write, which was right when the view only read. It now saves
+   * one thing — the limits the READER sets for themselves — and a guard that forbids the feature it
+   * is guarding gets deleted rather than fixed. What must stay true is that the record never writes a
+   * SLIP: a record that can edit its own evidence is not a record.
+   */
+  for (const write of [".insert(", ".delete("]) assert.ok(!r.includes(write), `the record view must not ${write}`);
+  const slipWrites = [...r.matchAll(/from\("bet_slips"\)([\s\S]{0,120})/g)].filter((m) => /\.(insert|update|upsert|delete)\(/.test(m[1]));
+  assert.deepEqual(slipWrites.map((m) => m[0].slice(0, 60)), [], "the record view may never write a slip");
+  const upserts = [...r.matchAll(/\.upsert\(\{([^}]*)/g)].map((m) => m[1]);
+  assert.ok(upserts.length > 0 && upserts.every((u) => /id: userId/.test(u)), "the only write is the reader's own profile row");
   assert.match(r, /MIN_DECIDED/, "the small-sample caption comes from the shared floor");
   assert.match(r, /never part of the site's published record/);
 });
@@ -64,8 +74,17 @@ test("the page is noindex and registered as a destination that is deliberately n
   assert.match(page, /robots: \{ index: false/);
   const inventory = read("src/lib/public-route-inventory.test.mjs");
   assert.match(inventory, /"\/account",/, "registered in APPROVED_DESTINATIONS with its reason");
-  for (const surface of ["src/lib/navigation.ts", "src/components/nav.tsx", "src/components/footer.tsx"]) {
-    assert.ok(!read(surface).includes('"/account"'), `${surface} must not link accounts until they open`);
+  /*
+   * The nav may MENTION /account, but only inside the build-time gate: the destination exists in a
+   * build that has a project and in no other. Asserting the bare absence of the string would have
+   * forbidden exactly the mechanism that makes switching accounts on a no-code change.
+   */
+  const nav = read("src/lib/navigation.ts");
+  const gated = /\.\.\.\(process\.env\.NEXT_PUBLIC_SUPABASE_URL[\s\S]{0,400}?href: "\/account"/.test(nav);
+  assert.ok(gated, "the account destination must sit inside the NEXT_PUBLIC_SUPABASE_URL gate");
+  assert.equal((nav.match(/"\/account"/g) ?? []).length, 1, "and appear exactly once, inside that gate");
+  for (const surface of ["src/components/nav.tsx", "src/components/footer.tsx"]) {
+    assert.ok(!read(surface).includes('"/account"'), `${surface} derives from navigation.ts — it must not hardcode the link`);
   }
 });
 
@@ -95,4 +114,14 @@ test("the 'enter it by hand' the upload errors promise actually exists, on the s
   assert.match(confirm, /source,\s*imagePath,\s*confirmedAt/, "the row carries whichever source it came from");
   assert.match(confirm, /\+ another leg/, "a hand-entered slip can have more than one leg");
   assert.match(confirm, /removeLeg\(i\)/, "and a leg added by mistake can go");
+});
+
+test("self-set limits are checked against the reader's own slips, and block nothing", () => {
+  const r = code(RECORD);
+  assert.match(r, /guardrailAlerts\(evaluateGuardrails\(rows, limits\)\)/, "the alerts come from the tested library");
+  assert.match(r, /Your own limits/, "and the reader can set them here");
+  assert.match(r, /Nothing here\s+blocks a bet/, "the panel says what it does not do");
+  assert.match(r, /upsert\(\{ id: userId/, "a limit is saved to the reader's own profile row");
+  // The record view still only READS slips — the limits row is the one thing it writes.
+  assert.ok(!/from\("bet_slips"\)[\s\S]{0,80}\.(insert|update|delete)\(/.test(r), "it never writes a slip");
 });

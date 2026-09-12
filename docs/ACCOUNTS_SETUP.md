@@ -30,7 +30,7 @@ What it creates:
 
 | Table | What it holds |
 |---|---|
-| `profiles` | one row per account: an optional display name, and your stated risk level, bankroll and unit size so the Parlay Center matches across devices |
+| `profiles` | one row per account: an optional display name, your stated risk level, bankroll and unit size (so the Parlay Center matches across devices), and any limits you set for yourself — most per slip, daily loss, monthly loss. All optional, all null by default; the site imposes none and blocks nothing. |
 | `bet_slips` | the slips you upload or enter: book, stake, price, legs, status, and where the image lives |
 | `slips` bucket | the screenshots themselves — **private**, one folder per person, no public URLs |
 
@@ -50,6 +50,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY  = <the anon public key>
 Both are public by design: they ship to every browser and authorise nothing on their own, because the
 policies above decide what a signed-in person can read. Redeploy, or wait for the next deploy.
 
+The **Your bets** link appears in the site's own navigation on that deploy and not before: the
+destination is built only when `NEXT_PUBLIC_SUPABASE_URL` is present, so a build without a project
+never offers a link to a page that could not work. No further code from me is needed to switch it on —
+the page is at `/account` either way if you want to look at it first.
+
 **For AI slip reading** (step 3 of the plan), one more, server-only, no `NEXT_PUBLIC_` prefix:
 
 ```
@@ -63,8 +68,7 @@ Roughly a cent or two per screenshot read. Set a low monthly limit on the key wh
 With the keys in your shell, run:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=… NEXT_PUBLIC_SUPABASE_ANON_KEY=… SUPABASE_SERVICE_ROLE_KEY=… \
-  node app/scripts/accounts/verify-setup.mjs
+cd app && NEXT_PUBLIC_SUPABASE_URL=… NEXT_PUBLIC_SUPABASE_ANON_KEY=… SUPABASE_SERVICE_ROLE_KEY=… npm run accounts:verify
 ```
 
 It reads only — creates nothing, signs in as nobody, prints no key — and answers the question the SQL

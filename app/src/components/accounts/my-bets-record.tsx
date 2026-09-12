@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { accountsClient } from "@/lib/accounts/client.mjs";
 import { summarise, findings, byLegCount, repeatedLegs, riskMix, weeklyTrend, MIN_DECIDED } from "@/lib/accounts/bet-insights.mjs";
+import { evaluateGuardrails, guardrailAlerts } from "@/lib/accounts/guardrails.mjs";
 
 /**
  * YOUR RECORD (P266) — what you have actually been doing, and how it has actually gone.
@@ -12,10 +13,18 @@ import { summarise, findings, byLegCount, repeatedLegs, riskMix, weeklyTrend, MI
  * dressing a small sample as a verdict.
  */
 type Row = Record<string, unknown>;
+const LIMIT_LABELS: Record<string, string> = {
+  max_stake_per_slip: "Most per slip",
+  daily_loss_limit: "Daily loss limit",
+  monthly_loss_limit: "Monthly loss limit",
+};
 const money = (v: number) => `${v < 0 ? "−" : ""}$${Math.abs(v).toFixed(2)}`;
 
-export default function MyBetsRecord({ refreshKey = 0 }: { refreshKey?: number }) {
+export default function MyBetsRecord({ userId, refreshKey = 0 }: { userId: string; refreshKey?: number }) {
   const [rows, setRows] = useState<Row[] | null>(null);
+  const [limits, setLimits] = useState<Record<string, number | null>>({});
+  const [savingLimits, setSavingLimits] = useState(false);
+  const [limitNote, setLimitNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -26,7 +35,34 @@ export default function MyBetsRecord({ refreshKey = 0 }: { refreshKey?: number }
     if (err) { setError(err.message); return; }
     setError(null);
     setRows(data ?? []);
+    /* The limits are the reader's own row; RLS means this can only ever return theirs. A missing row
+       is a reader who has set none — silence, not zeros. */
+    const { data: profile } = await client
+      .from("profiles").select("max_stake_per_slip, daily_loss_limit, monthly_loss_limit").limit(1).maybeSingle();
+    setLimits((profile as Record<string, number | null> | null) ?? {});
   }, []);
+
+  /* A typo must not quietly remove a limit. "abc" becomes NaN, NaN serialises as null, and the limit
+     the reader set would vanish with no message — so an unparseable entry is refused and said out loud
+     while the stored value stays exactly as it was. Blank is different: blank means "no limit", and
+     that is a choice the reader is allowed to make. */
+  async function saveLimits(key: string, raw: string) {
+    const client = accountsClient();
+    if (!client) return;
+    const blank = raw === "";
+    const value = blank ? null : Number(raw);
+    if (!blank && (!Number.isFinite(value) || (value as number) <= 0)) {
+      setLimitNote(`"${raw}" is not an amount — your ${LIMIT_LABELS[key]?.toLowerCase() ?? "limit"} is unchanged.`);
+      return;
+    }
+    const next = { ...limits, [key]: value };
+    setLimitNote(null);
+    setSavingLimits(true);
+    setLimits(next);
+    const { error: err } = await client.from("profiles").upsert({ id: userId, ...next });
+    setSavingLimits(false);
+    if (err) setLimitNote(`Could not save: ${err.message}`);
+  }
 
   useEffect(() => { void load(); }, [load, refreshKey]);
 
@@ -41,6 +77,7 @@ export default function MyBetsRecord({ refreshKey = 0 }: { refreshKey?: number }
     );
   }
 
+  const alerts = guardrailAlerts(evaluateGuardrails(rows, limits)) as Array<{ id: string; state: string; text: string }>;
   const s = summarise(rows);
   const fs = findings(rows);
   const legs = byLegCount(rows).slice(0, 5);
@@ -51,6 +88,17 @@ export default function MyBetsRecord({ refreshKey = 0 }: { refreshKey?: number }
 
   return (
     <div className="flex flex-col gap-4">
+      {alerts.length > 0 ? (
+        <ul className="flex flex-col gap-1.5 list-none m-0 p-0">
+          {alerts.map((a) => (
+            <li key={a.id} className="rounded-[8px] px-3 py-2" role="status"
+              style={{ background: a.state === "EXCEEDED" ? "var(--vault-danger-dim)" : "var(--vault-warn-dim)", border: `1px solid ${a.state === "EXCEEDED" ? "var(--vault-danger)" : "var(--vault-warn)"}`, color: "var(--vault-text)", fontSize: 13 }}>
+              {a.text}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <span className="font-display tabular-nums" style={{ color: "var(--vault-text)", fontSize: 26, fontWeight: 800 }}>
           {s.wins}–{s.losses}{s.pushes ? `–${s.pushes}` : ""}
@@ -137,6 +185,33 @@ export default function MyBetsRecord({ refreshKey = 0 }: { refreshKey?: number }
           </span>
         </div>
       ) : null}
+
+      <details className="gtp-disclose rounded-[10px]" style={{ border: "1px solid var(--vault-rule)" }}>
+        <summary className="cursor-pointer px-3 py-2" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, minHeight: 40 }}>
+          Your own limits {Object.values(limits).some((v) => v) ? "" : "— none set"}
+        </summary>
+        <div className="px-3 pb-3 flex flex-col gap-2">
+          <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.55 }}>
+            Numbers you choose, checked against your own settled slips and shown above when you pass them. Nothing here
+            blocks a bet — this site places nothing — and leaving them empty is a choice, not an omission.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {Object.entries(LIMIT_LABELS).map(([key, label]) => (
+              <label key={key} className="flex flex-col gap-1" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>
+                {label}
+                <input inputMode="decimal" defaultValue={limits[key] == null ? "" : String(limits[key])} disabled={savingLimits}
+                  onBlur={(e) => { void saveLimits(key, e.target.value.trim()); }}
+                  className="rounded-[8px] px-2.5 font-mono tabular-nums"
+                  style={{ minHeight: 40, background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }}
+                  placeholder="none" />
+              </label>
+            ))}
+          </div>
+          {limitNote ? (
+            <p className="m-0" role="alert" style={{ color: "var(--vault-warn)", fontSize: 12 }}>{limitNote}</p>
+          ) : null}
+        </div>
+      </details>
 
       <p className="m-0 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9, lineHeight: 1.6 }}>
         Your slips are yours · never part of the site's published record · nothing here is a recommendation to stake

@@ -23,6 +23,13 @@ create table if not exists public.profiles (
   risk         text check (risk in ('low', 'medium', 'high', 'longshot')),
   bankroll     numeric(12, 2) check (bankroll is null or bankroll > 0),
   unit_pct     numeric(4, 1) check (unit_pct is null or (unit_pct >= 1 and unit_pct <= 10)),
+  -- Limits the person sets FOR THEMSELVES. All optional and all null by default: the site does not
+  -- impose a ceiling on anybody, and an unset limit is never treated as zero. They are checked
+  -- against that person's own settled slips and reported to them — nothing here blocks anything,
+  -- because this is a paper research product and their money is their own business.
+  max_stake_per_slip  numeric(12, 2) check (max_stake_per_slip is null or max_stake_per_slip > 0),
+  daily_loss_limit    numeric(12, 2) check (daily_loss_limit is null or daily_loss_limit > 0),
+  monthly_loss_limit  numeric(12, 2) check (monthly_loss_limit is null or monthly_loss_limit > 0),
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
 );
