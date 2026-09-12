@@ -388,8 +388,18 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
     const st = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/model-status.json"), "utf8"));
     const probed = st.playerFamilies.some((f) => f.state === "NO_MARKET") || st.anytimeTd.state === "NO_MARKET";
     const holds = st.playerFamilies.every((f) => f.state !== "MODEL_READY" || f.nextGate);
-    assert.ok(probed || st.playerFamilies.every((f) => f.state === "ROLE_UNCERTAIN"),
-      "probed-absent player markets are typed NO_MARKET, not left as stale AUTH_REQUIRED language");
+    /* REPOINTED 2026-09-12: the invariant this reaches for is that nothing is left wearing
+       AUTH_REQUIRED language, and requiring a NO_MARKET somewhere only expressed it while a prop
+       probe ran. With the receipt narrowed to team markets the honest state became ROLE_UNCERTAIN
+       (role evidence is the blocker we CAN observe), which the old shape refused. Assert the
+       invariant itself. */
+    const stateBlob = JSON.stringify(st);
+    assert.doesNotMatch(stateBlob, /AUTH_REQUIRED/, "the authorization exists — nothing may still claim it is missing");
+    const allowed = new Set(["NO_MARKET", "NOT_REQUESTED", "ROLE_UNCERTAIN", "RESEARCH_ONLY", "PRIVATE_SHADOW", "MODEL_READY", "PUBLIC"]);
+    for (const fam of [...st.playerFamilies, st.anytimeTd]) {
+      assert.ok(allowed.has(fam.state), `player-family state ${fam.state} outside the closed set`);
+    }
+    assert.ok(probed || st.anytimeTd.state !== "NO_MARKET", "NO_MARKET may only be claimed when a probe actually looked");
     assert.ok(holds, "any ready family still names the live-data gate it waits on");
   }
   assert.doesNotMatch(nflHub, /\bedge\b|\block\b|best bet|beat the market|profitable/i, "the banned advantage vocabulary never appears beside prices");

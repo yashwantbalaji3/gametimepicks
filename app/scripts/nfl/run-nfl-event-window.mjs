@@ -125,9 +125,22 @@ const marketFreshness = publicMarkets
 // prop-market availability: the authorized probe's absence evidence covers the window
 const propProbe = oddsSnapshot?.propProbe ?? null;
 const anytimeTdAbsent = propProbe?.state === "PROBED" && (propProbe.absentMarkets ?? []).includes("player_anytime_td");
+/*
+ * THREE STATES, BECAUSE THERE ARE THREE. "AUTH_REQUIRED — no authorized current price" was the
+ * fallback for everything that was not a proved absence, and on 2026-09-12 it became false: the
+ * capture that morning WAS authorized (the founder's renewed receipt, 500-credit ceiling) and ran.
+ * What that receipt does not fund is props — `Markets | h2h, spreads, totals only` — so no
+ * touchdown price was requested. Blaming authorization for a scope decision sends a reader (and a
+ * founder) looking for a permission that already exists.
+ *
+ * The distinction that matters is between "we looked and there was nothing" and "we did not look".
+ * Only the first is evidence about the books.
+ */
 const scorerPriceState = anytimeTdAbsent
   ? "NO_MARKET — authorized capture probed this window and the provider offers no anytime-TD market"
-  : "AUTH_REQUIRED — no authorized current price";
+  : propProbe?.state === "PROBED"
+    ? "NO_MARKET — the authorized probe covered this window and returned no anytime-TD market"
+    : "NOT_REQUESTED — this authorization funds team markets only, so no touchdown price was asked for; whether the books offer one is unknown";
 
 // ---------------------------------------------------------------- per-team roleRates composition
 const THRESH = { qbShare: 0.3, carryShare: 0.05, targetShare: 0.05 };

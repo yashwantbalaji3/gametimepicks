@@ -90,6 +90,14 @@ test("anytime-TD family carries the NO_MARKET price truth from the authorized pr
   const boards = [...newest.values()].filter((a) => a.artifact.families.anytimeTd.state === "MODELLED_NOT_PUBLISHABLE");
   assert.ok(boards.length >= 6, `expected current boards, found ${boards.length}`);
   for (const { artifact } of boards) {
-    assert.match(artifact.families.anytimeTd.scorerPriceState, /NO_MARKET/, "the probe proved absence — AUTH_REQUIRED would be stale language");
+    /* REPOINTED 2026-09-12. Two states are honest here and they are not the same claim:
+       NO_MARKET means an authorized probe looked and the books offered nothing; NOT_REQUESTED
+       means this receipt funds team markets only, so nobody looked. What must never come back is
+       AUTH_REQUIRED — the capture IS authorized, and blaming a permission that exists sends a
+       reader hunting for the wrong thing. */
+    const st = artifact.families.anytimeTd.scorerPriceState;
+    assert.match(st, /^(NO_MARKET|NOT_REQUESTED) — /, `scorerPriceState must name which of the two it is; got "${st}"`);
+    assert.doesNotMatch(st, /AUTH_REQUIRED/, "the authorization exists — the missing thing is a probe, not a permission");
+    if (/^NOT_REQUESTED/.test(st)) assert.match(st, /unknown/, "not looking is never evidence the market is absent");
   }
 });

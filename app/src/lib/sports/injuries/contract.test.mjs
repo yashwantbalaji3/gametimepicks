@@ -87,7 +87,12 @@ test("STALENESS WIDENS · beyond the window even PRESENT entries read UNKNOWN", 
 
 test("closed surface: version 1, both sport taxonomies exactly as evaluated, unknown sport throws", () => {
   assert.equal(INJURY_CONTRACT_VERSION, 1);
-  assert.deepEqual([...INJURY_STATUSES.nfl], ["Active", "Out", "Questionable", "Injured Reserve", "Suspension"]);
+  /* AMENDED 2026-09-12: "Doubtful" joined the NFL vocabulary. The original probe was preseason,
+     when no game-status report is filed, so the string had never been seen — and quarantining it
+     meant the participation classifier's own `doubtful` branch could never fire, projecting seven
+     doubtful players as active on the opening Saturday. The pin moves with the observation, and the
+     evaluation doc records the amendment; it is still a closed set, still non-blocking. */
+  assert.deepEqual([...INJURY_STATUSES.nfl], ["Active", "Out", "Questionable", "Doubtful", "Injured Reserve", "Suspension"]);
   assert.deepEqual([...INJURY_STATUSES.nba], ["Day-To-Day", "Out"]);
   assert.throws(() => normalizeInjuryFeed({}, { sport: "nhl", nowIso: NOW }));
   assert.throws(() => normalizeInjuryFeed({}, { sport: "nfl" }), "clock is a parameter, never read");

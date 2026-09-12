@@ -56,8 +56,18 @@ test("blockers are typed and reality-gated, including the ones nobody can code a
     assert.equal(byId["preseason-participation"].state, "REALITY_GATED");
     assert.match(byId["preseason-participation"].detail, /^preseason:/);
   }
-  assert.equal(byId["player-markets-absent"].state, "NO_MARKET");
-  assert.match(byId["player-markets-absent"].detail, /not a retry target/);
+  /* REPOINTED 2026-09-12. The blocker follows the CONDITION (no player price is held), not the
+     evidence for its reason: when the receipt narrowed to team markets the probe stopped running
+     and the blocker vanished from the lane while the thing it describes was unchanged. Two honest
+     states, and they are different claims — NO_MARKET is evidence about the books, NOT_REQUESTED
+     is a fact about our own scope and evidence about nothing. */
+  const playerBlocker = byId["player-markets-absent"];
+  assert.ok(playerBlocker, "no player price is held, so the blocker must be present whatever the reason");
+  assert.ok(["NO_MARKET", "NOT_REQUESTED"].includes(playerBlocker.state), `unexpected state ${playerBlocker.state}`);
+  assert.match(playerBlocker.detail, /not a retry target/);
+  if (playerBlocker.state === "NOT_REQUESTED") {
+    assert.match(playerBlocker.detail, /no evidence about what the books offer/, "not looking is never evidence of absence");
+  }
   // P178: this pinned NOT_YET_OBSERVABLE, which was true until the first NFL forecast actually
   // settled — and then the guard failed for the best possible reason. A blocker that clears is the
   // system working, so the assertion is now tied to the EVIDENCE: the blocker may exist only while

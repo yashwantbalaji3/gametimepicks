@@ -13,7 +13,7 @@ Probe receipts (2026-08-11 ~20:52 UTC, one keyless request per sport, zero cost)
 | Property | NFL | NBA |
 |---|---|---|
 | Coverage at probe | 32 teams · 800 entries | 27 teams · 77 entries (off-season) |
-| Status taxonomy (closed set observed) | Active · Out · Questionable · Injured Reserve · Suspension | Day-To-Day · Out |
+| Status taxonomy (closed set observed) | Active · Out · Questionable · **Doubtful** · Injured Reserve · Suspension | Day-To-Day · Out |
 | Per-entry timestamp | 100% (`date`, e.g. `2026-08-11T17:54Z`) | 100% |
 | Feed-level timestamp | `timestamp` + `status: success` | same |
 | Team linkage | numeric team `id` — the SAME provider team-id space the schedule captures carry (`providerTeamId`) | same |
@@ -41,6 +41,16 @@ first-use receipt, exactly as the results captures did.
 Also observed and binding on any future contract: the taxonomy above is what the feed showed on
 one day — the contract must treat unknown status strings as UNKNOWN (closed-set discipline with a
 quarantine lane), and editorial prose must never be parsed for availability signals.
+
+**Amended 2026-09-12 — "Doubtful".** The probe above ran on 2026-08-11, in preseason, when no team
+files a game-status report; the vocabulary it observed had no `Doubtful` in it, and the contract
+quarantined the string as unknown. On the Saturday of the season's opening weekend the feed carried
+seven `Doubtful` rows, and quarantining them had a consequence the quarantine lane was never meant
+to have: `classifyParticipation` already routes `doubtful` to QUESTIONABLE, but a quarantined row
+reaches it as NO FACT AT ALL, so the most uncertain players on the slate classified as
+ACTIVE_PROJECTED. The status is added to the NFL vocabulary as observed, non-blocking (doubtful is
+not "cannot play"), and a guard now asserts the contract's vocabulary and the participation
+classifier's own word list cannot drift apart again.
 
 ## What this evaluation is NOT
 

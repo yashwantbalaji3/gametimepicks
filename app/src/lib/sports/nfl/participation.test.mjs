@@ -9,6 +9,7 @@ import path from "node:path";
 
 import { classifyParticipation, buildActivePool, validateAllocation, validateSnapScenario, validateOverride, PARTICIPATION_STATES } from "./participation.mjs";
 import { buildPlayerRegistry } from "./player-identity.mjs";
+import { INJURY_STATUSES, isBlockingStatus } from "../injuries/contract.mjs";
 
 const FRESH = { state: "FRESH" };
 const NOW = "2026-08-13T03:20:00Z";
@@ -103,4 +104,33 @@ test("REAL ARTIFACTS · the next event's pool builds from the real roster + inju
      */
     assert.equal(p.counts.ACTIVE_CONFIRMED ?? 0, 0, `${abbr}: ACTIVE_CONFIRMED is unreachable without an official actives source`);
   }
+});
+
+test("the contract's vocabulary and this classifier's own word list cannot drift apart", () => {
+  /* THE DEFECT THIS EXISTS TO PREVENT, found live on 2026-09-12: the classifier's QUESTION regex
+     has always read /^(questionable|doubtful)/i, but "Doubtful" was not in the injuries contract's
+     observed vocabulary — so the contract quarantined the row and the branch waiting for it was
+     unreachable. A quarantined row does not arrive as a bad fact; it arrives as NO fact, and the
+     classifier's final line returns ACTIVE_PROJECTED. Seven players listed Doubtful on the Saturday
+     of the opening weekend were projected active.
+
+     Two modules naming the same words in two places is the whole bug. Every status the classifier
+     knows by name must be a status the contract can actually deliver. */
+  const src = fs.readFileSync(new URL("./participation.mjs", import.meta.url), "utf8");
+  const named = [...src.matchAll(/\/\^\(([a-z|]+)\)\//g)].flatMap((m) => m[1].split("|"));
+  assert.ok(named.length >= 2, `the classifier's named statuses must be found; got ${named.join(",")}`);
+  const vocabulary = INJURY_STATUSES.nfl.map((v) => v.toLowerCase());
+  for (const word of named) {
+    assert.ok(
+      vocabulary.some((v) => v.startsWith(word)),
+      `the classifier routes "${word}" but the contract's NFL vocabulary cannot deliver it — it would be quarantined and arrive as no fact at all`,
+    );
+  }
+
+  // And the live consequence, stated directly.
+  const base = { rosterPlayer: { id: "1" }, injuriesFreshness: { state: "FRESH" }, seasonType: 2, nowIso: "2026-09-13T15:00:00Z" };
+  assert.equal(classifyParticipation({ ...base, injuryFact: { status: "Doubtful" } }).state, "QUESTIONABLE");
+  assert.equal(classifyParticipation({ ...base, injuryFact: { status: "Questionable" } }).state, "QUESTIONABLE");
+  assert.equal(classifyParticipation({ ...base, injuryFact: { status: "Out" } }).state, "INACTIVE");
+  assert.equal(isBlockingStatus("Doubtful"), false, "doubtful is not \"cannot play\" — that certainty is not in the designation");
 });

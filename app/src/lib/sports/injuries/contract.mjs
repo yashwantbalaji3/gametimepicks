@@ -20,9 +20,22 @@
 
 export const INJURY_CONTRACT_VERSION = 1;
 
-/** Observed taxonomies (docs/INJURY_SOURCE_EVALUATION.md, probes of 2026-08-11). */
+/**
+ * Observed taxonomies (docs/INJURY_SOURCE_EVALUATION.md, probes of 2026-08-11, amended 2026-09-12).
+ *
+ * "DOUBTFUL" WAS MISSING, AND THE QUARANTINE LANE HID IT. The original probe ran in preseason, when
+ * no team files a game-status report, so the observed set had no `Doubtful` in it and the contract
+ * quarantined the string as unknown — correct closed-set discipline, with a consequence nobody
+ * looked for. `classifyParticipation` already routes `doubtful` to QUESTIONABLE, but a quarantined
+ * row never reaches it: it arrives as NO FACT, and the classifier's last line returns
+ * ACTIVE_PROJECTED. On the Saturday of the opening weekend seven players listed Doubtful were
+ * therefore projected active — the most uncertain men on the slate, read as available.
+ *
+ * It is added as observed and NOT blocking: doubtful is not "cannot play", and asserting otherwise
+ * would invent a certainty the designation does not carry. QUESTIONABLE is exactly the state for it.
+ */
 export const INJURY_STATUSES = Object.freeze({
-  nfl: Object.freeze(["Active", "Out", "Questionable", "Injured Reserve", "Suspension"]),
+  nfl: Object.freeze(["Active", "Out", "Questionable", "Doubtful", "Injured Reserve", "Suspension"]),
   nba: Object.freeze(["Day-To-Day", "Out"]),
 });
 

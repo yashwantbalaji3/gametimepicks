@@ -1,0 +1,95 @@
+{
+ "providerEventId": "401872658",
+ "canonicalEventId": "nfl-401872658",
+ "matchup": "ATL @ PIT",
+ "home": {
+  "abbr": "PIT",
+  "name": "Pittsburgh Steelers"
+ },
+ "away": {
+  "abbr": "ATL",
+  "name": "Atlanta Falcons"
+ },
+ "kickoffUtc": "2026-09-13T17:00Z",
+ "seasonType": 2,
+ "week": 1,
+ "venue": "Acrisure Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "6247165351b1cd28",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v1-decayed-points",
+   "receipt": "matchup-totals-evaluation@2026-09-08T07:30:00Z",
+   "gamesFolded": 857,
+   "sigma": 13.2625
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the Elo-logistic win head over a 856-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-09-12T17:54:21Z",
+ "evidence": {
+  "schedule": "2026-09-12T12:49:22Z",
+  "strengthCutoff": "2026-09-12T17:54:21Z",
+  "strengthGamesFolded": 856,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 26,
+   "away": 21,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.5929,
+   "away": 0.3803,
+   "tieMass": 0.0268,
+   "homeUnrounded": 0.5929183546114173,
+   "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made."
+  },
+  "margin": {
+   "median": 5,
+   "p10": -12,
+   "p90": 23
+  },
+  "total": {
+   "median": 47,
+   "p10": 30,
+   "p90": 64,
+   "head": "matchup-totals-v1-decayed-points"
+  },
+  "scoreRange": {
+   "homeP10": 14,
+   "homeP90": 38,
+   "awayP10": 9,
+   "awayP90": 33
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-09-12T17:24:16Z",
+  "books": 6,
+  "marketHomeWinPct": 0.699965,
+  "marketSpreadHome": -6,
+  "marketTotal": 41,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market.",
+  "modelVsMarketTotal": 6
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401872658",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "revisionOf": "401872658.json",
+ "priorInputHash": "a3957befc9068bd6"
+}

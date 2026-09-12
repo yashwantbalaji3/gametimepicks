@@ -158,11 +158,15 @@ jobs:
           # ceiling, expiry at the ceiling). The P171 receipt lapsed at its program's close and refused
           # every capture since. Player props are OUT of this receipt's scope, so the per-event prop
           # probe is no longer requested.
+          # The capture's window follows the SAME input as the gate above, defaulting to 40h. Two
+          # separate numbers could disagree — a dispatch widening the gate to include Monday night
+          # still bought a 40h window and left that game unpriced — and the bulk call costs the same
+          # 3 credits whatever the window holds, so a wider one is free coverage, never extra spend.
           node scripts/nfl/capture-nfl-odds.mjs \
             --now "${{ steps.window.outputs.now }}" \
             --authorized \
             --receipt docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md \
-            --lookahead-hours 40
+            --lookahead-hours "${{ github.event.inputs.lookahead_hours || 40 }}"
 
       # `!cancelled()` (P265): these three need ROSTERS and INJURIES, which are captured above and did
       # not fail — but GitHub skips every later step once one fails, so a refused PAID odds capture took

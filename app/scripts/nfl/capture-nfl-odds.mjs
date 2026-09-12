@@ -35,6 +35,7 @@ import { MARKET_SCOPE, normalizeScopedOddsEvent } from "../../src/lib/sports/odd
 import { joinOddsBatch } from "../../src/lib/sports/odds/event-join.mjs";
 import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordRequest, assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { buildPlayerRegistry, resolvePlayerRef } from "../../src/lib/sports/nfl/player-identity.mjs";
+import { twoWayConsensus, medianOf } from "../../src/lib/sports/odds/consensus.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -332,19 +333,27 @@ for (const r of rowsJoined) {
     for (const o of r.outcomes) { const nm = String(o.name).toLowerCase(); if (nm === "over" || nm === "under") book.total.prices[nm] = o.price; }
   }
 }
-const median = (xs) => { const s = xs.filter((x) => Number.isFinite(x)).sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : null; };
+const median = medianOf;
 const publicRows = [...byEvent.values()].map((ev) => {
   const books = [...ev.books.values()].sort((a, b) => (a.book < b.book ? -1 : 1));
   return {
     ...ev,
     books,
-    consensus: {
-      homeWinProbNoVig: median(books.map((b) => b.noVigWinProb?.home)),
-      awayWinProbNoVig: median(books.map((b) => b.noVigWinProb?.away)),
-      spreadHome: median(books.map((b) => b.spread?.line)),
-      total: median(books.map((b) => b.total?.line)),
-      basis: "median across captured books; de-vig is proportional two-way per book",
-    },
+    /* P276: the two-way pair comes from ONE owner and is normalised there. Two independent medians
+       are not a distribution — on 2026-09-12 ten of thirteen events summed outside the settlement
+       contract's tolerance and were refused a settlement target. Spread and total are unconstrained
+       medians and stay as they were. */
+    consensus: (() => {
+      const two = twoWayConsensus(books);
+      return {
+        homeWinProbNoVig: two.homeWinProbNoVig,
+        awayWinProbNoVig: two.awayWinProbNoVig,
+        spreadHome: median(books.map((b) => b.spread?.line)),
+        total: median(books.map((b) => b.total?.line)),
+        basis: two.basis,
+        preNormalisedSum: two.preNormalisedSum,
+      };
+    })(),
   };
 }).sort((a, b) => (a.kickoffUtc < b.kickoffUtc ? -1 : 1));
 

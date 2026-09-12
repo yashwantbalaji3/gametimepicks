@@ -118,13 +118,31 @@ test("the hub CONSUMES canonical state and does not recompute lifecycle", () => 
    */
   assert.match(hub, /hasStarted\(/, "started-ness comes from the shared lifecycle owner");
   assert.doesNotMatch(hub, /\.lifecycle\s*(?:===|!==)\s*"/, "the hub must not compare the raw stamp itself");
+  /* `Date.now()` is one of two ways to read a clock, and the other one nearly shipped here: a
+     first draft of the capture label used `new Date()` to decide whether to print the date, which
+     on a static export freezes at BUILD time — a page built Saturday still says "today" on Sunday.
+     Both spellings are refused; the label prints the date unconditionally instead. */
   assert.doesNotMatch(hub, /Date\.now\(\)/, "a statically exported page must not compare against build-time now");
+  /* Scoped to the LABEL, not the file: the page deliberately takes one build instant for the whole
+     render (P252, so two rows are never judged against two clocks), and banning that outright would
+     be a detector that fires on the convention instead of the defect. What must never read a clock
+     is the capture stamp — "today" there is the build day, not the reader's. */
+  const labelFn = hub.slice(hub.indexOf("function capturedLabel"), hub.indexOf("function lastCaptureLabel"));
+  assert.ok(labelFn.length > 50, "the capture-label helper must be found for this check to mean anything");
+  assert.doesNotMatch(labelFn, /Date\.now\(\)|new Date\(/, "the capture stamp must not be decided from the build clock");
   // REBASED P246: the hero's price count is the WEEK's own (the index's counts block still
   // carried the archived Aug capture after authorization expired — "1" beside a slate with no
   // current prices). The count derives from rows scoped to the selected week, and the zero
   // state names why. The index still owns lifecycle; only this stat moved to the honest scope.
   assert.match(hub, /String\(slateMarketRows\.length\)/);
-  assert.match(hub, /none current — capture not authorized/);
+  /* REPOINTED 2026-09-12: the zero state said "capture not authorized", which stopped being true
+     on 2026-09-10 when the founder's renewed NFL receipt landed (500-credit ceiling, expiry at the
+     ceiling). What was missing was a RUN, not a permission — and a guard that pins a false reason
+     keeps it false. The copy now states only what is observable: the date of the last capture. */
+  assert.match(hub, /none current — last capture/);
+  assert.doesNotMatch(hub, /capture not authorized/, "the reason must not outlive the authorization it describes");
+  // And the capture stamp always carries its date: a bare clock reads as today whatever day it is.
+  assert.match(hub, /captured \$\{month\} \$\{Number\(iso\.slice\(8, 10\)\)\}/);
 });
 
 test("SHARED OWNERS · the five parity rows are closed by adoption, not by forking", () => {

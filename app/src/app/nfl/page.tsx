@@ -117,6 +117,28 @@ function etDaySlug(iso: string): string {
     .format(new Date(iso));
 }
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/**
+ * When a capture happened, said so a reader cannot misread it.
+ *
+ * A bare "17:45Z" is the right length for a dashboard and the wrong thing to print: it carries no
+ * day, so a price taken the afternoon before a Sunday slate wears Sunday's clock. The date is
+ * ALWAYS shown — "only when it isn't today" fails on a static export, where "today" is frozen at
+ * build time and a page built on Saturday is still being read on Sunday.
+ */
+function capturedLabel(capturedAt: string): string {
+  const iso = String(capturedAt ?? "");
+  const month = MONTHS[Number(iso.slice(5, 7)) - 1] ?? iso.slice(5, 7);
+  return `captured ${month} ${Number(iso.slice(8, 10))} · ${iso.slice(11, 16)}Z`;
+}
+
+/** The zero state names what is observable — the age of the last capture — and claims nothing else. */
+function lastCaptureLabel(capturedAt?: string | null): string {
+  const day = String(capturedAt ?? "").slice(0, 10);
+  return day ? `none current — last capture ${day}` : "none current — no capture on file";
+}
+
 export default function NflHubPage() {
   const schedule = read("nfl/schedule/latest.json");
   const results = read("nfl/results/latest.json");
@@ -352,7 +374,11 @@ export default function NflHubPage() {
           /* P246 §6: the hero counted the INDEX's market events — which still held the archived
              Aug-29 capture after authorization expired, advertising "1" beside a Week-1 slate with
              no current prices. The stat is the WEEK's own count, and zero says why. */
-          { label: "Sportsbook prices", value: String(slateMarketRows.length), sub: slateMarketRows.length ? `captured ${markets.capturedAt.slice(11, 16)}Z` : "none current — capture not authorized" },
+          /* The time alone said "captured 17:45Z", which reads as today whatever day it was — a
+             capture taken the day before a slate would have worn today's clock. And the zero state
+             blamed authorization, which has been valid since 2026-09-10: what is missing is a RUN,
+             not a permission, and a wrong reason is worse than none. Both now state what is true. */
+          { label: "Sportsbook prices", value: String(slateMarketRows.length), sub: slateMarketRows.length ? capturedLabel(markets.capturedAt) : lastCaptureLabel(markets?.capturedAt) },
         ]}
         ctas={[
           { href: "#nfl-slate", label: "See the slate", primary: true },

@@ -2,14 +2,14 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-09-12T17:43:46Z",
+ "generatedAt": "2026-09-12T17:54:21Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "TB @ CIN",
   "kickoffUtc": "2026-09-13T17:00Z",
   "seasonType": 2,
   "week": 1,
-  "hoursToKickoff": 23.27,
+  "hoursToKickoff": 23.09,
   "eventsInWindow": 30
  },
  "freshness": {
@@ -149,11 +149,11 @@
   }
  },
  "currentArtifacts": {
-  "total": 553,
-  "contractValid": 553,
-  "preStart": 386,
-  "settlementReady": 131,
-  "detail": "553/553 pass the current-event contract; 131 carry pinned settlement targets"
+  "total": 585,
+  "contractValid": 585,
+  "preStart": 418,
+  "settlementReady": 160,
+  "detail": "585/585 pass the current-event contract; 160 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
@@ -173,6 +173,11 @@
   "detail": "nfl-event-window.yml is deployed with two daily window passes, but a workflow file is not cadence proof — promotion waits for terminal scheduled receipts"
  },
  "blockers": [
+  {
+   "id": "player-markets-absent",
+   "state": "NOT_REQUESTED",
+   "detail": "no player price is held for this window, so no player family can publish. The current authorization funds team markets only (h2h, spreads, totals), so none was requested — this is a fact about our scope and not a retry target, and it is no evidence about what the books offer."
+  },
   {
    "id": "ops-webhook",
    "state": "FOUNDER_ACTION",

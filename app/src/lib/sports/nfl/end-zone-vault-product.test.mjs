@@ -32,7 +32,10 @@ test("ONLY ACTIVE is a card — a watchlist carries no card, no return, no instr
      * the vocabulary the producer actually uses. Pinning only the words "no card" failed a Vault
      * that was being perfectly clear. `isCard` is asserted above and remains the load-bearing check.
      */
-    assert.match(vault.reason, /not a card|no card|no upcoming .* event|no .* to evaluate|no .* market is captured/i,
+    /* "no current comparable touchdown price is available" joined the vocabulary on 2026-09-12,
+       when the capture stopped probing props (out of the renewed receipt's scope). It is the same
+       statement — nothing was published, and here is the blocker — in the producer's own words. */
+    assert.match(vault.reason, /not a card|no card|no upcoming .* event|no .* to evaluate|no .* market is captured|no current comparable .* price is available/i,
       `a non-active outcome must state that nothing was published; got "${vault.reason}"`);
   }
   const blob = JSON.stringify(vault);
@@ -117,7 +120,12 @@ test("today's real outcome is the honest one: candidates exist, a card does not"
     return;
   }
   assert.equal(vault.state, "WATCHLIST_ONLY");
-  assert.equal(vault.gates.tdMarketOffered, false, "the probe proved the market is absent");
+  /* false = an authorized probe looked and found nothing. null = no probe was requested, because
+     this receipt funds team markets only. Both block a card; only the first is evidence about the
+     books, and `true` must never appear while no card publishes. */
+  assert.notEqual(vault.gates.tdMarketOffered, true, "a card cannot be withheld while the market is offered");
+  assert.ok(vault.gates.tdMarketOffered === false || vault.gates.tdMarketOffered === null,
+    `the gate is proved-absent (false) or not-looked (null); got ${JSON.stringify(vault.gates.tdMarketOffered)}`);
   assert.equal(vault.gates.pricedCandidates, 0);
   /* P245: role-ready candidates EXIST now (the weekly population + the injuries-fed role
      evidence produce them) — pinning 0 was true only while the input chain was empty, and

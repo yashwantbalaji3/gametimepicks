@@ -1,0 +1,95 @@
+{
+ "providerEventId": "401872661",
+ "canonicalEventId": "nfl-401872661",
+ "matchup": "CHI @ CAR",
+ "home": {
+  "abbr": "CAR",
+  "name": "Carolina Panthers"
+ },
+ "away": {
+  "abbr": "CHI",
+  "name": "Chicago Bears"
+ },
+ "kickoffUtc": "2026-09-13T17:00Z",
+ "seasonType": 2,
+ "week": 1,
+ "venue": "Bank of America Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "45fe4ae2cd2a800b",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v1-decayed-points",
+   "receipt": "matchup-totals-evaluation@2026-09-08T07:30:00Z",
+   "gamesFolded": 857,
+   "sigma": 13.2625
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the Elo-logistic win head over a 856-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-09-12T17:54:21Z",
+ "evidence": {
+  "schedule": "2026-09-12T12:49:22Z",
+  "strengthCutoff": "2026-09-12T17:54:21Z",
+  "strengthGamesFolded": 856,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 24,
+   "away": 24,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.479,
+   "away": 0.4924,
+   "tieMass": 0.0286,
+   "homeUnrounded": 0.47899800210912513,
+   "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made."
+  },
+  "margin": {
+   "median": 0,
+   "p10": -18,
+   "p90": 17
+  },
+  "total": {
+   "median": 48,
+   "p10": 30,
+   "p90": 64,
+   "head": "matchup-totals-v1-decayed-points"
+  },
+  "scoreRange": {
+   "homeP10": 11,
+   "homeP90": 36,
+   "awayP10": 12,
+   "awayP90": 36
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-09-12T17:24:16Z",
+  "books": 6,
+  "marketHomeWinPct": 0.396021,
+  "marketSpreadHome": 3,
+  "marketTotal": 47,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market.",
+  "modelVsMarketTotal": 1
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401872661",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "revisionOf": "401872661.json",
+ "priorInputHash": "a230c1c1005045a5"
+}

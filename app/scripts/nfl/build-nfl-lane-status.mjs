@@ -117,7 +117,28 @@ const gaps = remainingPath(stages, SPORT_ASSESSMENTS.nfl);
 
 const blockers = [];
 if ((nextEvent?.seasonType ?? 0) === 1) blockers.push({ id: "preseason-participation", state: "REALITY_GATED", detail: "preseason: no dated+sourced snap scenarios exist, so every player market is ROLE_UNCERTAIN and the team model abstains by its model card. Clears when the regular season starts (or a participation source is authorized)." });
-if (markets?.propMarkets?.state === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0) blockers.push({ id: "player-markets-absent", state: "NO_MARKET", detail: "the authorized capture probed this window: the provider offers no NFL player-prop or anytime-TD market. Absence is evidence — not a retry target. Re-probe when the regular season opens." });
+/*
+ * A BLOCKER THAT VANISHES BECAUSE ITS REASON CHANGED HAS NOT CLEARED.
+ *
+ * This was emitted only when an authorized probe had proved the market absent. On 2026-09-12 the
+ * renewed receipt narrowed to team markets, so no probe ran — and the blocker disappeared from the
+ * lane while the thing it describes was exactly as true as before: no player price is held, so no
+ * player family can publish. The lane read as less blocked than it was.
+ *
+ * The blocker now follows the CONDITION (we hold no player price) and the state names which of the
+ * two reasons applies, because they are different claims about the world:
+ *   NO_MARKET    an authorized probe looked and the books offered nothing — evidence about them.
+ *   NOT_REQUESTED  this authorization funds team markets only — a fact about us, and no evidence
+ *                  at all about what the books offer.
+ */
+const propProbeState = markets?.propMarkets?.state ?? null;
+const probedAbsent = propProbeState === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0;
+const holdsPlayerPrice = (markets?.propMarkets?.offeredMarkets ?? []).length > 0;
+if (probedAbsent) {
+  blockers.push({ id: "player-markets-absent", state: "NO_MARKET", detail: "the authorized capture probed this window: the provider offers no NFL player-prop or anytime-TD market. Absence is evidence — not a retry target. Re-probe when the regular season opens." });
+} else if (!holdsPlayerPrice) {
+  blockers.push({ id: "player-markets-absent", state: "NOT_REQUESTED", detail: "no player price is held for this window, so no player family can publish. The current authorization funds team markets only (h2h, spreads, totals), so none was requested — this is a fact about our scope and not a retry target, and it is no evidence about what the books offer." });
+}
 if (!settleable.some((x) => Date.parse(x.a.kickoffUtc) < nowMs)) blockers.push({ id: "first-settlement", state: "NOT_YET_OBSERVABLE", detail: `no pre-start artifact has passed its kickoff yet; the first settleable event is ${settleable[0]?.a.matchup ?? "—"} at ${settleable[0]?.a.kickoffUtc ?? "—"}` });
 if (!process.env.OPS_WEBHOOK_URL) blockers.push({ id: "ops-webhook", state: "FOUNDER_ACTION", detail: "OPS_WEBHOOK_URL unset — NFL workflow failures land in the Actions tab only" });
 
