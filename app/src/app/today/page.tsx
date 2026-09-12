@@ -100,12 +100,16 @@ export default function TodayPage() {
   //    readiness (Simulations ready › Model reads › Market context › Reports) via the shared availability
   //    contract. Framed on `today` (the presented slate); a real clock (Date.now) drives honest start-state.
   //    Reads the same details; fabricates nothing. ──
-  const slate = slateGames(details, today, { nowMs: Date.now() });
+  /* ONE instant for the page (P252), so two sections cannot judge the same game against two
+     clocks — which is how the predictions table and the slate list came to print first pitches a
+     minute apart for every one of fifteen games. */
+  const nowMs = Date.now();
+  const slate = slateGames(details, today, { nowMs });
   // Explicit readiness for a CURRENT slate (ready vs still-filling-in); stale/no-games stay with the banner.
   const slateReadiness = slateReadinessNote(slate.summary, today >= serverToday);
   // ── Daily MLB intelligence brief — the executive digest ("what should I know about MLB today?"). Reuses
   //    the same details; factual signals only (markets simulated + simulated p10–p90 range), never a pick. ──
-  const brief = buildDailyBrief(details, today, { nowMs: Date.now() });
+  const brief = buildDailyBrief(details, today, { nowMs });
   // ── Sportsbook + model AVAILABILITY for the presented slate. Passes the WHOLE MLB slate (not a
   //    filtered subset) so the denominator stays honest and every gap is attributed. ──
   const marketCoverage = buildMarketCoverage(
@@ -119,7 +123,7 @@ export default function TodayPage() {
   const topReadsSet = loadTopReads();
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
-  const top10 = buildTop10Board(dataRoot, today, Date.now());
+  const top10 = buildTop10Board(dataRoot, today, nowMs);
   const topPicks = (top10.overall ?? []).slice(0, 6);
 
   // ── The Game Predictions table + Top Model Picks BY CATEGORY, both derived from the SAME canonical
@@ -137,7 +141,12 @@ export default function TodayPage() {
       awayTeamName: d.prediction!.awayTeamName,
       homeLogo: d.homeLogo ?? null,
       awayLogo: d.awayLogo ?? null,
-      firstPitchIso: d.fullGameSim!.firstPitch ?? null,
+      /* ONE FIRST PITCH PER GAME. Two artifacts carry it — the game centre (schedule truth) and a
+         copy stamped into the simulation when it was built — and they differ by up to a minute, so
+         the predictions table printed "1:35 PM ET" while the slate list below printed "1:36 PM ET"
+         for the same game, on every one of fifteen rows. The game centre is the owner; the
+         simulation's copy is the fallback so a game never loses its time entirely. */
+      firstPitchIso: d.gameCenter?.firstPitch ?? d.fullGameSim!.firstPitch ?? null,
       prediction: d.prediction!,
       playerPredictions: d.playerPredictions ?? [],
       simulationCount: d.fullGameSim!.runCount ?? null,
@@ -347,7 +356,7 @@ export default function TodayPage() {
       {/* 2b — Game Predictions table: the model's answer for every game, canonical + first-glance */}
       <TodaySimulationStories stories={slateStories} />
 
-      <TodayGamePredictions rows={predictionRows} />
+      <TodayGamePredictions rows={predictionRows} nowMs={nowMs} />
 
       {/* 3 — Top model picks: BY CATEGORY when the MLB slate supports it, else the cross-sport list */}
       {picksByCategory.length > 0 ? <TodayTopPicksByCategory categories={picksByCategory} /> : <TodayTopModelPicks picks={topPicks} />}

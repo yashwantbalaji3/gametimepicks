@@ -71,7 +71,9 @@ test("3 · sim-ready summary is sourced from featuredSimulations (real artifacts
 test("3b · every game gets a clear per-game action, grouped by readiness (full-slate board)", () => {
   // Wired on the hub from the same real details, framed on the presented slate, with a real clock.
   assert.match(todayPage, /import \{[^}]*\bslateGames\b[^}]*\} from "@\/lib\/today\/slate-games"/, "imports the slate-games selector");
-  assert.match(todayPage, /slateGames\(details, today, \{ nowMs: Date\.now\(\) \}\)/, "invokes it on real details, framed on the presented slate, with a real clock for start-state");
+  /* REPOINTED: the clock is read ONCE for the page and passed down, so two sections cannot judge
+     the same game against two instants — the same rule that fixed the first-pitch disagreement. */
+  assert.match(todayPage, /slateGames\(details, today, \{ nowMs \}\)/, "invokes it on real details, framed on the presented slate, with the page's one clock");
   assert.match(todayPage, /<TodayFullSlate\b/, "renders the every-game board");
   // The board itself: title, grouped rendering, per-game action, chip label + neutral explanation.
   assert.match(fullSlate, /Every game on the slate/, "board is titled 'Every game on the slate'");
@@ -91,7 +93,7 @@ test("3b · every game gets a clear per-game action, grouped by readiness (full-
 // 3c — Daily MLB intelligence brief: the executive digest, factual signals only (Sprint 004).
 test("3c · /today leads with the daily MLB intelligence brief (factual overview + spotlight, no picks)", () => {
   assert.match(todayPage, /import \{ buildDailyBrief \} from "@\/lib\/today\/daily-brief"/, "imports the brief selector");
-  assert.match(todayPage, /buildDailyBrief\(details, today, \{ nowMs: Date\.now\(\) \}\)/, "builds the brief from real details + a real clock");
+  assert.match(todayPage, /buildDailyBrief\(details, today, \{ nowMs \}\)/, "builds the brief from real details + the page's one clock");
   assert.match(todayPage, /<TodayMlbBrief\b/, "renders the brief");
   assert.match(mlbBrief, /Today&rsquo;s MLB brief|Today's MLB brief/, "brief is titled");
   assert.match(mlbBrief, /Simulation spotlight/, "has a simulation spotlight");
@@ -259,4 +261,20 @@ test("the Bank Builder tile never says 'Active card' and 'no active card' in the
   const hard = /stepLine=\{`\$\{bbStepPhrase\} · no active card`\}/.test(page);
   assert.ok(!hard, "the no-active-card phrase must be conditional on bbHasActiveCard, not a literal");
   assert.match(page, /stepLine=\{bbHasActiveCard \? bbStepPhrase : /, "and the condition is the same one statusValue uses");
+});
+
+test("one first pitch per game — the table and the slate list cannot print times a minute apart", () => {
+  /* THE DEFECT, 2026-09-12: the predictions table took first pitch from the SIMULATION artifact and
+     the slate list from the GAME CENTRE. The two differ by up to a minute, so every one of fifteen
+     rows showed two times for one game ("1:35 PM ET" / "1:36 PM ET"). Same page, same game, two
+     clocks — the /today page already takes one instant for exactly this reason. */
+  const page = fs.readFileSync(path.join(process.cwd(), "src", "app", "today", "page.tsx"), "utf8");
+  assert.ok(
+    !/firstPitchIso: d\.fullGameSim!\.firstPitch \?\? null/.test(page),
+    "the simulation's stamped copy must not be the primary source of first pitch",
+  );
+  assert.match(page, /firstPitchIso: d\.gameCenter\?\.firstPitch \?\?/, "the game centre owns it, with the simulation as fallback");
+  // And the page still takes ONE instant, so started-ness is judged by one clock too.
+  assert.match(page, /const nowMs = Date\.now\(\);/);
+  assert.ok((page.match(/Date\.now\(\)/g) ?? []).length === 1, "exactly one clock read on the page");
 });

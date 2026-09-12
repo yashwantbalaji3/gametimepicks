@@ -8,6 +8,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import MatchupIdentity from "@/components/ui/matchup-identity";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
+import { deriveStartState } from "@/lib/today/availability";
 import type { GamePredictionRow } from "@/lib/mlb/prediction/slate";
 
 const pct = (p: number): string => `${Math.round(p * 100)}%`;
@@ -20,7 +21,12 @@ function Cell({ children, muted, align = "left" }: { children: ReactNode; muted?
   );
 }
 
-export default function TodayGamePredictions({ rows }: { rows: GamePredictionRow[] }) {
+/**
+ * P280: the STATUS column. Without it this table could not say which games had started, so the page
+ * carried a second list of the same fifteen games whose only extra column was exactly that — and the
+ * two renderings then disagreed about the kickoff minute. One table, one clock.
+ */
+export default function TodayGamePredictions({ rows, nowMs }: { rows: GamePredictionRow[]; nowMs?: number }) {
   if (!rows.length) return null;
   return (
     <section aria-labelledby="game-predictions-h" className="flex flex-col gap-2">
@@ -34,7 +40,7 @@ export default function TodayGamePredictions({ rows }: { rows: GamePredictionRow
         <table className="w-full" style={{ borderCollapse: "collapse", minWidth: 620 }}>
           <thead>
             <tr style={{ color: "var(--vault-text-faint)" }}>
-              {["Matchup", "Time", "Moneyline", "Score", "Total", "Run line", ""].map((h, i) => (
+              {["Matchup", "Time", "Status", "Moneyline", "Score", "Total", "Run line", ""].map((h, i) => (
                 <th key={h || i} className="px-2.5 py-1.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, textAlign: i === 0 ? "left" : "left" }}>{h}</th>
               ))}
             </tr>
@@ -42,6 +48,9 @@ export default function TodayGamePredictions({ rows }: { rows: GamePredictionRow
           <tbody>
             {rows.map((r) => {
               const time = formatEtTime(r.firstPitchIso);
+              /* The same start rule the rest of the page uses, from the row's own first pitch —
+                 never a second clock, which is how two sections came to disagree by a minute. */
+              const started = deriveStartState(r.firstPitchIso, nowMs) === "started";
               return (
                 <tr key={r.gamePk} style={{ borderTop: "1px solid var(--vault-rule)" }}>
                   <Cell>
@@ -51,6 +60,11 @@ export default function TodayGamePredictions({ rows }: { rows: GamePredictionRow
                     </span>
                   </Cell>
                   <Cell muted><span className="font-mono" style={{ fontSize: 10.5 }}>{time ?? "—"}</span></Cell>
+                  <Cell muted>
+                    <span className="font-mono uppercase tracking-[0.08em]" style={{ fontSize: 9 }}>
+                      {started ? "Started" : "Pregame"}
+                    </span>
+                  </Cell>
                   <Cell>
                     {r.moneyline ? (
                       <span><strong style={{ color: "var(--vault-gold)" }}>{r.moneyline.team}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.moneyline.probability)}</span></span>
@@ -73,7 +87,7 @@ export default function TodayGamePredictions({ rows }: { rows: GamePredictionRow
         </table>
       </div>
       <p className="font-mono m-0" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-        Predictions are the simulation&rsquo;s directional read — not a bet, and not a claim to out-perform the book. Probabilities and distributions are in each game report.
+        Predictions are the simulation&rsquo;s directional read — not a bet, and not a claim to out-perform the book. Probabilities and distributions are in each game report. A started game keeps the read published before first pitch; nothing here is re-run once a game begins.
       </p>
     </section>
   );
