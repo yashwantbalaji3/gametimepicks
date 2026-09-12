@@ -74,3 +74,15 @@ test("the scripts are linted for identifiers that do not exist, and CI runs it",
   assert.match(QG, /run: npm run lint:scripts/);
   assert.ok(QG.indexOf("npm run lint:scripts") < QG.indexOf("npm run typecheck"), "cheapest check first");
 });
+
+test("the watchdog asks whether today's fight card is priced, and refuses to buy once it has started", () => {
+  const WD2 = read(".github/workflows/cron-watchdog.yml");
+  assert.match(WD2, /ufcFightdayWatch\(/, "the watch runs");
+  assert.match(WD2, /oddsEventId: odds\?\.event\?\.providerEventId \?\? null/, "it judges the ARTIFACT, not the schedule");
+  assert.match(WD2, /if: steps\.ufc_watch\.outputs\.dispatch == 'yes'/);
+  assert.match(WD2, /gh workflow run ufc-fight-week\.yml[\s\S]{0,220}ops_alert\.sh/, "a recovery that spends is announced");
+  // The refusal after the first bout lives in the library, where it is tested.
+  const lib = read("app/src/lib/sports/ufc/fightday-watch.mjs");
+  assert.match(lib, /state: priced \? "DONE" : "TOO_LATE"/);
+  assert.match(lib, /in-play prices/, "and says why buying late would be wrong");
+});

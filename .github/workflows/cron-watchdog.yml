@@ -244,6 +244,58 @@ jobs:
             echo "::warning::free data-feed health $STATE — $(grep '^FAIL' /tmp/feeds.txt | tr -s ' ' | cut -d' ' -f2 | paste -sd, -)"
           fi
 
+      # ── IS TODAY'S FIGHT CARD PRICED? ───────────────────────────────────────────────────────────
+      #
+      # P265. On 2026-09-12 the Saturday capture slot (11:00 UTC) had not fired by 13:12 UTC, the card
+      # was at 18:00 UTC, and the published odds still described the previous event. Nothing noticed:
+      # slot coverage only asks whether a run exists, failure alerts only fire on a failed run, and the
+      # matchday watch beside this one covers football only.
+      #
+      # It judges the ARTIFACT, not the schedule — a capture that ran and produced last week's prices is
+      # not coverage — and it refuses past the first bout, because the feed serves in-play prices then.
+      # The dispatch spends one credit against the UFC receipt, the same authorised capture the Tue/Thu/Sat
+      # schedule makes, and only on a fight day whose card is still unpriced inside the lead window.
+      - name: UFC fight-day watch
+        id: ufc_watch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RAN_TODAY="$(gh run list --workflow=ufc-fight-week --created "$(date -u +%F)" --json databaseId --jq 'length' || echo 0)"
+          export RAN_TODAY
+          node --input-type=module -e "
+            import fs from 'node:fs';
+            const { ufcFightdayWatch } = await import('./app/src/lib/sports/ufc/fightday-watch.mjs');
+            const read = (p) => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; } };
+            const card = read('app/public/data/ufc/card-latest.json');
+            const odds = read('app/public/data/ufc/odds-latest.json');
+            const out = ufcFightdayWatch({
+              card,
+              oddsEventId: odds?.event?.providerEventId ?? null,
+              nowIso: new Date().toISOString(),
+              ranToday: Number(process.env.RAN_TODAY || '0') > 0,
+            });
+            console.log('ufc-watch: ' + JSON.stringify(out));
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'state=' + out.state + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'dispatch=' + (out.shouldDispatch ? 'yes' : 'no') + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'reason=' + out.reason.replace(/[\r\n]+/g, ' ') + '\n');
+          "
+
+      - name: Dispatch the missed UFC capture and alert
+        if: steps.ufc_watch.outputs.dispatch == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          OPS_ALERT_KIND: warning
+          PHASE: ufc-fightday-watch
+          EXIT_STATUS: "0"
+          ERROR_LINE: "[${{ steps.ufc_watch.outputs.state }}] ${{ steps.ufc_watch.outputs.reason }}"
+        run: |
+          set -euo pipefail
+          gh workflow run ufc-fight-week.yml
+          echo "::notice::ufc-fightday-watch [${{ steps.ufc_watch.outputs.state }}] dispatched ufc-fight-week"
+          bash scripts/ops_alert.sh
+
       # ── Cross-sport cron-slot check (UFC / NFL / EPL / MLB) ──────────────────────────────────────
       #
       # The step above recovers the MLB chain and knows nothing about the other sports. This one asks

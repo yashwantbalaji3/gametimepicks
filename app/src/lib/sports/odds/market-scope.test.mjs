@@ -109,3 +109,43 @@ test("scoped normalization: EPL h2h routes through the three-way validator", () 
   assert.equal(res.rows.length, 0);
   assert.equal(res.quarantined.length, 1);
 });
+
+/**
+ * P265 · 2026-09-12: one book stamped a price after capturedAt, the contract's backstop refused the
+ * whole NFL capture AFTER the credit was spent, and role evidence plus the public forecasts were
+ * skipped behind it — the day before Sunday. The other normaliser already quarantined this shape;
+ * this one passed it through. Both now do the same thing with it.
+ */
+test("a future-stamped book row is quarantined, and the rest of the event still prices", () => {
+  const capturedAt = "2026-09-12T12:50:20Z";
+  const raw = {
+    id: "95c01d1bb797d6df14824b106c5a9130",
+    commence_time: "2026-09-14T00:20:00Z",
+    home_team: "Chicago Bears", away_team: "Detroit Lions",
+    bookmakers: [
+      { key: "betrivers", last_update: "2026-09-12T12:50:25Z",  // five seconds into the future
+        markets: [{ key: "h2h", outcomes: [{ name: "Chicago Bears", price: -110 }, { name: "Detroit Lions", price: -110 }] }] },
+      { key: "fanduel", last_update: "2026-09-12T12:49:00Z",
+        markets: [{ key: "h2h", outcomes: [{ name: "Chicago Bears", price: -120 }, { name: "Detroit Lions", price: 100 }] }] },
+    ],
+  };
+  const out = normalizeScopedOddsEvent(raw, { sport: "nfl", capturedAt, requestId: "r1" });
+  assert.equal(out.rows.length, 1, "the sane book still prices the game");
+  assert.equal(out.rows[0].bookmaker, "fanduel");
+  const q = out.quarantined.find((x) => x.bookmaker === "betrivers");
+  assert.ok(q, "the future-stamped book is quarantined, not dropped silently");
+  assert.match(q.reason, /future-stamped price/);
+  // Nothing that survives may trip the contract's backstop.
+  for (const r of out.rows) assert.ok(Date.parse(r.sourceAsOf) <= Date.parse(capturedAt), "no surviving row is stamped in the future");
+});
+
+test("a book stamped exactly at capturedAt is fine — the rule is AFTER, not at", () => {
+  const capturedAt = "2026-09-12T12:50:20Z";
+  const raw = {
+    id: "e1", commence_time: "2026-09-14T00:20:00Z", home_team: "A", away_team: "B",
+    bookmakers: [{ key: "book", last_update: capturedAt, markets: [{ key: "h2h", outcomes: [{ name: "A", price: -110 }, { name: "B", price: -110 }] }] }],
+  };
+  const out = normalizeScopedOddsEvent(raw, { sport: "nfl", capturedAt, requestId: "r1" });
+  assert.equal(out.rows.length, 1);
+  assert.equal(out.quarantined.length, 0);
+});

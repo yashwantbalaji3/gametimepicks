@@ -114,6 +114,26 @@ export function normalizeScopedOddsEvent(raw, { sport, capturedAt, requestId }) 
         quarantined.push({ providerEventId: raw.id, bookmaker: bk.key, market: mkt.key, reason: nv.reason });
         continue;
       }
+      /*
+       * FUTURE-STAMPED PRICE — ONE RULE, BOTH NORMALISERS (P265).
+       *
+       * snapshot-contract's normaliser quarantines a book row whose own timestamp is after the moment
+       * we captured it, and its validator keeps the same check as a BACKSTOP for "a row built by some
+       * other path". This was that other path. On 2026-09-12 one book (betrivers) stamped a price a
+       * moment after capturedAt: the backstop fired, the whole 13-event Sunday capture was refused
+       * AFTER the credit was spent, and the free work behind it — role evidence and the public
+       * forecasts — was skipped. A single book's clock is not a reason to lose the card.
+       */
+      const sourceAsOf = bk.last_update ?? mkt.last_update ?? capturedAt;
+      if (Date.parse(sourceAsOf) > Date.parse(capturedAt)) {
+        quarantined.push({
+          providerEventId: raw.id,
+          bookmaker: bk.key,
+          market: mkt.key,
+          reason: `sourceAsOf ${sourceAsOf} is after capturedAt ${capturedAt} — future-stamped price, quarantined rather than trusted`,
+        });
+        continue;
+      }
       rows.push({
         providerEventId: String(raw.id),
         sport,
@@ -128,7 +148,7 @@ export function normalizeScopedOddsEvent(raw, { sport, capturedAt, requestId }) 
         impliedSum: nv.impliedSum,
         noVig: nv.noVig,
         capturedAt,
-        sourceAsOf: bk.last_update ?? mkt.last_update ?? capturedAt,
+        sourceAsOf,
         requestId,
       });
     }

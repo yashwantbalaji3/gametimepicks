@@ -164,8 +164,13 @@ jobs:
             --receipt docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md \
             --lookahead-hours 40
 
+      # `!cancelled()` (P265): these three need ROSTERS and INJURIES, which are captured above and did
+      # not fail — but GitHub skips every later step once one fails, so a refused PAID odds capture took
+      # the free work down with it. On 2026-09-12 that left the published boards carrying last night's
+      # role evidence against injuries captured this morning, the day before Sunday. The odds step still
+      # fails the job and still alerts — that part was right — while the boards refresh regardless.
       - name: Event assembly + shadow simulations + current artifacts
-        if: steps.window.outputs.events != '0'
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
         working-directory: app
         run: |
           set -euo pipefail
@@ -178,7 +183,7 @@ jobs:
       # P175-A: event-bound role evidence. Runs BEFORE the forecasts so player families have a
       # per-player availability verdict to consume rather than an assumption.
       - name: Build NFL role evidence
-        if: steps.window.outputs.events != '0'
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
         working-directory: app
         run: |
           set -euo pipefail
@@ -190,7 +195,7 @@ jobs:
 
       - name: Generate public-beta NFL forecasts
         id: generate
-        if: steps.window.outputs.events != '0'
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
         working-directory: app
         run: |
           set -euo pipefail

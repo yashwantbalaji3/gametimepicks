@@ -270,3 +270,25 @@ test("P251 · A STALE FEED CANNOT UN-DESIGNATE A PLAYER", () => {
     }
   }
 });
+
+/**
+ * P265 · A REFUSED PAID CAPTURE MUST NOT TAKE THE FREE WORK WITH IT.
+ *
+ * Role evidence and the public forecasts are built from rosters and injuries, both captured before the
+ * odds step and both succeeding. GitHub skips every later step once one fails, so on 2026-09-12 a
+ * single book's future-stamped price refused the capture and left the published boards carrying last
+ * night's role evidence against this morning's injuries — the day before Sunday. The odds step still
+ * fails the job and still alerts; the boards refresh regardless.
+ */
+test("the NFL window rebuilds boards even when the paid odds capture refuses", () => {
+  const wf = fs.readFileSync(path.join(process.cwd(), "..", ".github/workflows/nfl-event-window.yml"), "utf8");
+  for (const step of ["Event assembly + shadow simulations + current artifacts", "Build NFL role evidence", "Generate public-beta NFL forecasts"]) {
+    const at = wf.indexOf(`- name: ${step}`);
+    assert.ok(at > 0, `${step} exists`);
+    const body = wf.slice(at, at + 400);
+    assert.match(body, /if: \$\{\{ !cancelled\(\) &&/, `${step} must survive an earlier failure`);
+  }
+  // The paid step keeps failing the job — that alert was the one thing that worked.
+  const odds = wf.slice(wf.indexOf("- name: Authorized odds capture"), wf.indexOf("- name: Event assembly"));
+  assert.ok(!/continue-on-error:\s*true/.test(odds), "a refused paid capture stays loud");
+});
