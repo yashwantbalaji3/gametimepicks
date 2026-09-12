@@ -200,6 +200,14 @@ test("both surfaces state the separation in words a reader sees", () => {
     const ledgerDoc = JSON.parse(read("public/data/parlays/lab-ledger.json"));
     assert.match(ledgerDoc.priorPolicy.note, /does not describe what the Lab publishes now/i, "the prior policy is labelled as prior");
     assert.match(read("src/components/parlays/parlay-lab-entry.tsx"), /ledger\.priorPolicy\.note/, "and the surface renders that label");
-    assert.match(stream, /Every tier is negative/i, "the stream states it plainly");
+    /* REPOINTED 2026-09-12: "Every tier is negative." was a hardcoded sentence under a table that
+       showed High risk at +6.8% — the page falsifying itself two lines apart. The claim is derived
+       from the rows now, so the guard checks the DERIVATION rather than the words: the all-negative
+       wording must still exist for the day it is true, and a positive tier must be named with its
+       hit rate so a low strike rate returning a positive number cannot read as an edge. */
+    assert.match(stream, /Every tier is negative/i, "the all-negative wording survives for when it is true");
+    assert.match(stream, /rows\.filter\(\(\{ r \}\) => \(r\.roi \?\? 0\) > 0\)/, "and which tiers are positive is counted, not assumed");
+    assert.match(stream, /on a \$\{pct\(r\.hitRate\)\} hit rate/, "a positive tier is named with the strike rate that produced it");
+    assert.match(stream, /not an edge/, "and is explicitly not presented as one");
   }
 });

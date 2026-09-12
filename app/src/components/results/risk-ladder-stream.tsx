@@ -95,9 +95,20 @@ export default function RiskLadderStream({ record }: { record: RiskLadder["recor
         </table>
       </div>
 
+      {/* DERIVED, BECAUSE IT IS A CLAIM ABOUT THE ROWS ABOVE IT. "Every tier is negative." was a
+          hardcoded sentence, and on 2026-09-12 the table beside it showed High risk at +6.8% — the
+          page falsifying itself two lines apart. What is published is what the rows say, and where
+          a tier is positive it is stated WITH its hit rate, so a 12.6% strike rate returning +6.8%
+          reads as the small-sample swing it is rather than as an edge. */}
       <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.6 }}>
-        Every tier is negative. Published because the record is the point — a card shown without it
-        is a claim, and this stream has not earned one.
+        {(() => {
+          const positive = rows.filter(({ r }) => (r.roi ?? 0) > 0);
+          if (positive.length === 0) return "Every tier is negative.";
+          const names = positive.map(({ tier, r }) => `${TIER_LABEL[tier] ?? tier} at ${signed(r.roi)} on a ${pct(r.hitRate)} hit rate`);
+          return `${rows.length - positive.length} of the ${rows.length} tiers are negative; ${names.join(" and ")}. A positive return on a strike rate that low is a handful of long cards landing, not an edge — the overall stream is ${signed(record.overall.roi)}.`;
+        })()}
+        {" "}Published because the record is the point — a card shown without it is a claim, and this
+        stream has not earned one.
       </p>
       <p className="m-0 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9, lineHeight: 1.6 }}>
         Paper only · separate ledger · never part of the settled product record or the bankroll
