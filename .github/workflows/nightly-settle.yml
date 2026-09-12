@@ -336,7 +336,9 @@ jobs:
       - name: Rebuild the risk-ladder record
         if: always()
         working-directory: app
-        run: node scripts/parlays/build-risk-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
+        # NO `|| true` (P264): the builder exits 0 when it refuses (no candidate pool yet), so a non-zero
+        # exit here is a real fault and must not be swallowed into a green run.
+        run: node scripts/parlays/build-risk-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
         continue-on-error: true
 
       # Homer Nukes — grade the day's five home-run picks from the official box score and rebuild

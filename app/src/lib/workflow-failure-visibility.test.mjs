@@ -126,3 +126,32 @@ test("the workflows still parse as YAML after editing", () => {
     assert.ok(yml.endsWith("\n"), `${f}: should end with a newline`);
   }
 });
+
+/**
+ * P264 · THE ARTIFACT THE PARLAY CENTER RENDERS MAY NOT FAIL QUIETLY.
+ *
+ * build-risk-ladder.mjs exits 0 for its ONE legitimate refusal — no candidate pool exists yet, so the
+ * published ladder stands — which means a non-zero exit is a real fault. Both callers wrapped it in
+ * `|| true`, so a crash would have left today's page rendering yesterday's cards under today's date,
+ * inside a green run. This is the same shape as the UFC capture that crashed after paying for prices.
+ */
+test("the risk-ladder build is never swallowed by its callers", () => {
+  for (const f of ["daily-products.yml", "nightly-settle.yml"]) {   // read() is rooted at .github/workflows
+    const yml = read(f);
+    const calls = yml.split("\n").filter((l) => l.includes("build-risk-ladder.mjs"));
+    assert.ok(calls.length > 0, `${f}: expected to build the ladder`);
+    for (const line of calls) {
+      assert.doesNotMatch(line, /\|\|\s*(true|echo)/, `${f}: a real ladder failure must not be swallowed — ${line.trim()}`);
+    }
+  }
+});
+
+test("a paid capture states its own 'nothing to do' rather than relying on a blanket swallow", () => {
+  const ufc = read("ufc-fight-week.yml");
+  const step = ufc.slice(ufc.indexOf("Refresh fight-winner prices"), ufc.indexOf("Settle any card"));
+  assert.match(step, /rc=\$\?/, "the exit code is captured");
+  assert.match(step, /-eq 3 \]/, "3 is the honest nothing-to-price");
+  assert.match(step, /::error::/, "and anything else is an error, not a calm sentence");
+  const capture = fs.readFileSync(path.join(REPO, "app/scripts/ufc/capture-ufc-odds.mjs"), "utf8");
+  assert.match(capture, /process\.exit\(3\)/, "the script emits that code");
+});
