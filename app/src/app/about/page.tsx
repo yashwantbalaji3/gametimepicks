@@ -8,10 +8,23 @@
  * page is the casual entry point.
  */
 import { CATEGORY_SETTLED_RATES } from "@/lib/category-settled-rates";
+import { glossaryTerm } from "@/lib/glossary";
 import Link from "next/link";
 
 import PageHero from "@/components/page-hero";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+
+/*
+ * The canonical `edge` term, resolved once at module scope so a missing one REFUSES THE BUILD rather
+ * than rendering a gap in the sentence. `glossaryTerm` is a lookup that can miss, and the failure
+ * mode of quietly rendering nothing is how a definition goes absent without anyone noticing — the
+ * same class of silence as the undefined token in P270.
+ */
+const EDGE_TERM = (() => {
+  const t = glossaryTerm("edge");
+  if (!t) throw new Error("REFUSED: /about renders the glossary's `edge` term and it is not defined");
+  return t;
+})();
 
 export const metadata = withRouteMetadata("/about/", {
   title: "About · GameTime Picks",
@@ -58,10 +71,36 @@ export default function AboutPage() {
               <strong style={{ color: "var(--vault-text)" }}>Projection</strong>{" "}
               · the model's estimate for that player tonight.
             </li>
+            {/*
+              P288: THIS ENTRY DEFINED A DIFFERENT QUANTITY THAN THE ONE IT NAMES.
+              It read "how much higher or lower the projection is vs. the line, in percentage
+              points". The Gap column the game reports actually render is model probability minus
+              market probability — lib/projection-framework.ts `edgePoints`, (model − market) × 100 —
+              which is not the same number and does not even share its sign. In the 2026-09-12 board
+              a hitter projected 1.37 against a 1.5 line (projection BELOW it) carried Gap +10.7, and
+              one projected 0.92 against 0.5 (ABOVE it) carried −2.3. A reader who learned the rule
+              from this page would have read both backwards on the page that shows them.
+
+              lib/glossary.ts calls itself "the single source of truth for every term the site shows
+              a user" and already had this right; /about was simply restating it from memory and
+              getting it wrong. So the entry now RENDERS the glossary term rather than paraphrasing
+              it, which is the same repair P279 made for the category settled rates: the only way a
+              second copy cannot drift is for there not to be one.
+            */}
             <li>
-              <strong style={{ color: "var(--vault-text)" }}>Gap / edge</strong>{" "}
-              · how much higher or lower the projection is vs. the line, in
-              percentage points.
+              <strong style={{ color: "var(--vault-text)" }}>
+                Gap / {EDGE_TERM.term}
+              </strong>{" "}
+              · {EDGE_TERM.short} It compares two probabilities, not
+              the projection and the line — so a projection below the line can
+              still show a positive gap, when the model thinks the Over is
+              likelier than the price implies.{" "}
+              {/* --gtp-bank-heat, not --gtp-bank-cta: the latter is the P270 token that fifteen
+                  files read and nothing ever declared, so it renders as body text. */}
+              <Link href="/market-guide/" style={{ color: "var(--gtp-bank-heat)" }}>
+                Market Guide
+              </Link>{" "}
+              carries the full definition and its caution.
             </li>
             <li>
               <strong style={{ color: "var(--vault-text)" }}>Side</strong> · Over
