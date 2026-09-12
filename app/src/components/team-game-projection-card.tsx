@@ -35,7 +35,7 @@ const CONFIDENCE_STYLE: Record<
 > = {
   high: { label: "Confidence: high", pill: "settled", accent: "var(--vault-gold-bright)" },
   medium: { label: "Confidence: medium", pill: "upcoming", accent: "var(--vault-info-bright)" },
-  low: { label: "Confidence: low", pill: "warn", accent: "var(--vault-warn-amber)" },
+  low: { label: "Confidence: low", pill: "warn", accent: "var(--vault-warn)" },
 };
 
 export default function TeamGameProjectionCard({ projection }: Props) {

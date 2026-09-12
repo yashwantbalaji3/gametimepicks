@@ -66,6 +66,16 @@ export default function LegRecordList({
         {rows.slice(0, max).map((r) => (
           <li key={r.label} className="rounded-[8px] px-2.5 py-1.5" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
             <span className="block font-semibold" style={{ color: "var(--vault-text)", fontSize: 11.5 }}>{r.label}</span>
+            {/* The same two numbers the sentence below states, on one 0–100% scale so the gap between
+                what landed and what the price implied is visible rather than arithmetic the reader has
+                to do. Decorative and NOT animated: these are settled, published figures, and a bar
+                that grows on load would dress a completed past as something happening now. */}
+            {r.hitRate != null && r.impliedMean != null ? (
+              <span aria-hidden="true" className="block relative" style={{ height: 6, margin: "4px 0 3px", borderRadius: 3, background: "var(--vault-scrim-base)", overflow: "hidden" }}>
+                <span className="absolute inset-y-0 left-0" style={{ width: `${Math.min(100, r.hitRate * 100)}%`, background: "var(--gtp-bank-heat)", opacity: 0.75, borderRadius: 3 }} />
+                <span className="absolute inset-y-0" style={{ left: `${Math.min(100, r.impliedMean * 100)}%`, width: 2, background: "var(--vault-text)", opacity: 0.85 }} />
+              </span>
+            ) : null}
             <span className="block tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 11, lineHeight: 1.5 }}>
               {r.wins} of {r.decided} landed ({pct(r.hitRate)}) · their prices implied {pct(r.impliedMean)} ·{" "}
               a flat stake on every one returned {signed(r.flatReturn)}
@@ -75,7 +85,7 @@ export default function LegRecordList({
         ))}
       </ul>
       <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 10.5, lineHeight: 1.5 }}>
-        These are the legs <strong>our own published cards used</strong>{since ? ` since ${since}` : ""}, settled from official
+        The bar is what landed; the upright mark is what the prices implied. These are the legs <strong>our own published cards used</strong>{since ? ` since ${since}` : ""}, settled from official
         results — one count per leg per day, not per card. They are not a record of the market, and not a forecast of the
         leg you are looking at.
       </p>

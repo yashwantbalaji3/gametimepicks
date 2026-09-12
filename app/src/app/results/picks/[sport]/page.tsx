@@ -133,7 +133,7 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
       ) : null}
 
       <nav className="mt-6 flex flex-wrap gap-3" style={{ fontSize: 12.5 }}>
-        <Link href={lane.hub} style={{ color: "var(--gtp-bank-cta)" }}>← {lane.label} hub</Link>
+        <Link href={lane.hub} style={{ color: "var(--gtp-bank-heat)" }}>← {lane.label} hub</Link>
         {PICK_SPORTS.filter((s) => s !== params.sport).map((s) => (
           <Link key={s} href={`/results/picks/${s}`} style={{ color: "var(--vault-text-mute)" }}>
             {HUBS[s].label} record →

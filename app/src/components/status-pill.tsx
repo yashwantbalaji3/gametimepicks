@@ -76,10 +76,10 @@ const KIND_COLOR: Record<
   },
   // lines pending = warm amber. Dim, calm.
   linesPending: {
-    fg: "var(--vault-warn-amber)",
+    fg: "var(--vault-warn)",
     bg: "color-mix(in srgb, var(--vault-warn-alt) 10%, transparent)",
     border: "color-mix(in srgb, var(--vault-warn-alt) 32%, transparent)",
-    dot: "var(--vault-warn-amber)",
+    dot: "var(--vault-warn)",
     pulse: false,
   },
   // upcoming = cool blue. Subtle.
@@ -106,10 +106,10 @@ const KIND_COLOR: Record<
     pulse: false,
   },
   warn: {
-    fg: "var(--vault-warn-amber)",
+    fg: "var(--vault-warn)",
     bg: "color-mix(in srgb, var(--vault-warn-alt) 12%, transparent)",
     border: "color-mix(in srgb, var(--vault-warn-alt) 34%, transparent)",
-    dot: "var(--vault-warn-amber)",
+    dot: "var(--vault-warn)",
     pulse: false,
   },
 };

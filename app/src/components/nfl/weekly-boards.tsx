@@ -154,7 +154,7 @@ export default function NflWeeklyBoards({ boards, teamNames = {} }: { boards: Bo
                             </td>
                             <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-mute)" }}>{r.team} vs {r.opponent}</td>
                             <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{etKickoff(r.kickoffUtc)}</td>
-                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 13, fontWeight: 700, color: "var(--gtp-bank-cta)" }}>
+                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 13, fontWeight: 700, color: "var(--gtp-bank-heat)" }}>
                               {b.id === "top_td" ? `${(r.value * 100).toFixed(1)}%` : r.median}
                             </td>
                             {b.id === "top_td" ? null : (

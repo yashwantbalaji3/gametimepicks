@@ -21,7 +21,7 @@ const SHOW_RATE = new Set(["ASSESSABLE", "EMERGING"]);
 
 function Outcome({ hit }: { hit: boolean | null }) {
   // A void is its own state and is never coloured or counted as a miss.
-  const [label, colour] = hit === true ? ["HIT", "var(--gtp-bank-cta)"]
+  const [label, colour] = hit === true ? ["HIT", "var(--gtp-bank-heat)"]
     : hit === false ? ["MISS", "var(--vault-text-mute)"]
     : ["VOID", "var(--vault-text-faint)"];
   return <span className="font-mono" style={{ fontSize: 10.5, color: colour, letterSpacing: "0.08em" }}>{label}</span>;

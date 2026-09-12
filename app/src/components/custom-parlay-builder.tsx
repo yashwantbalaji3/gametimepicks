@@ -110,7 +110,7 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
 
   return (
     <section
-      className="flex flex-col gap-4 rounded-lg border border-[color:var(--vault-divider)] p-4"
+      className="flex flex-col gap-4 rounded-lg border border-[color:var(--vault-rule)] p-4"
       aria-label="Build your own parlay"
     >
       <header className="flex flex-col gap-1">
@@ -125,7 +125,7 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
         </h3>
         <p
           className="text-sm"
-          style={{ color: "var(--vault-text-soft)" }}
+          style={{ color: "var(--vault-text-mute)" }}
         >
           Select players from available MLB and NBA model legs (mixed is
           allowed). This is a Custom evaluation — not officially tracked, no
@@ -134,7 +134,7 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
       </header>
 
       {pool.length === 0 ? (
-        <p className="text-sm" style={{ color: "var(--vault-text-soft)" }}>
+        <p className="text-sm" style={{ color: "var(--vault-text-mute)" }}>
           No leg pool available for this slate yet.
         </p>
       ) : (
@@ -167,7 +167,7 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
                 return (
                   <li
                     key={leg.leanId}
-                    className="flex items-center justify-between gap-3 rounded-md border border-[color:var(--vault-divider)] p-2.5 sm:p-3"
+                    className="flex items-center justify-between gap-3 rounded-md border border-[color:var(--vault-rule)] p-2.5 sm:p-3"
                     style={{ background: "var(--gtp-card)" }}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
@@ -184,7 +184,7 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
                           {leg.playerName}{" "}
                           <span
                             className="font-mono text-[11px]"
-                            style={{ color: "var(--vault-text-soft)" }}
+                            style={{ color: "var(--vault-text-mute)" }}
                           >
                             · {leg.market} {leg.side} {leg.line ?? "—"}
                           </span>
@@ -212,7 +212,7 @@ export default function CustomParlayBuilder({ snapshot }: Props) {
                       type="button"
                       onClick={() => removeLeg(leg.leanId)}
                       aria-label={`Remove ${leg.playerName} leg`}
-                      className="text-xs font-mono uppercase tracking-wider px-2 py-1 rounded border border-[color:var(--vault-divider)] hover:border-[color:var(--vault-text-soft)] shrink-0"
+                      className="text-xs font-mono uppercase tracking-wider px-2 py-1 rounded border border-[color:var(--vault-rule)] hover:border-[color:var(--vault-text-mute)] shrink-0"
                     >
                       Remove
                     </button>
@@ -273,7 +273,7 @@ function EvaluationCard({
   );
   return (
     <article
-      className="rounded-md border border-[color:var(--vault-divider)] bg-[color:var(--vault-surface-1,color-mix(in srgb, var(--vault-scrim-base) 45%, transparent))] p-3 flex flex-col gap-2"
+      className="rounded-md border border-[color:var(--vault-rule)] bg-[color:var(--vault-surface-1,color-mix(in srgb, var(--vault-scrim-base) 45%, transparent))] p-3 flex flex-col gap-2"
       aria-label="Custom evaluation"
     >
       <header className="flex items-center justify-between gap-2">
@@ -287,7 +287,7 @@ function EvaluationCard({
           type="button"
           onClick={onClearAll}
           className="text-[10px] font-mono uppercase tracking-wider"
-          style={{ color: "var(--vault-text-soft)" }}
+          style={{ color: "var(--vault-text-mute)" }}
         >
           Clear all
         </button>
@@ -354,7 +354,7 @@ function Chip({
       ? "var(--vault-warn)"
       : tone === "positive"
       ? "var(--vault-success)"
-      : "var(--vault-text-soft)";
+      : "var(--vault-text-mute)";
   return (
     <span
       className="text-[10px] font-mono uppercase tracking-[0.12em] px-2 py-0.5 rounded-[3px]"

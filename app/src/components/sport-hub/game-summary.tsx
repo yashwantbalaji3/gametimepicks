@@ -40,7 +40,7 @@ function Action({ row }: { row: HubGameRow }) {
     return <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{row.reportNote ?? "No report"}</span>;
   }
   return (
-    <Link href={row.reportHref} className="text-[13px] font-medium no-underline" style={{ color: "var(--vault-cta)" }}>
+    <Link href={row.reportHref} className="text-[13px] font-medium no-underline" style={{ color: "var(--gtp-bank-heat)" }}>
       {row.reportState === "ARCHIVE" ? "View record" : "View report"}
       <span className="sr-only"> for {row.matchup}</span>
     </Link>
@@ -84,7 +84,7 @@ export default function GameSummary({
       {/* Mobile: one card per row, same priority as the table. */}
       <ul className="md:hidden m-0 p-0 list-none flex flex-col gap-2">
         {list.map((r) => (
-          <li key={r.id} className="rounded-xl p-3" style={{ background: "var(--vault-surface)", border: "1px solid var(--vault-border)" }}>
+          <li key={r.id} className="rounded-xl p-3" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{r.startLabel}</span>
               <span className="text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{r.status}</span>

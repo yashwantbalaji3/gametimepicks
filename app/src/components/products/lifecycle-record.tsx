@@ -21,7 +21,7 @@ export default function LifecycleRecord({
   emptyReason: string;
 }) {
   return (
-    <section className="rounded-2xl p-5 md:p-6" style={{ background: "var(--vault-surface)", border: "1px solid var(--vault-border)" }}>
+    <section className="rounded-2xl p-5 md:p-6" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
       <h2 className="m-0 text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>Settled record</h2>
       {cards.length === 0 ? (
         <p className="mt-2 mb-0 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{emptyReason}</p>
@@ -34,7 +34,7 @@ export default function LifecycleRecord({
           )}
           <ul className="m-0 p-0 list-none flex flex-col gap-4">
             {cards.map((c) => (
-              <li key={c.id} className="rounded-xl p-4" style={{ background: "var(--vault-surface)", border: "1px solid var(--vault-border)" }}>
+              <li key={c.id} className="rounded-xl p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <span className="text-[13px] font-semibold" style={{ color: OUTCOME[c.result]?.tone ?? "var(--vault-text)" }}>
                     {OUTCOME[c.result]?.label ?? c.result}

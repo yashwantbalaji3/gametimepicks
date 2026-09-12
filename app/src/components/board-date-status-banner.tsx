@@ -200,7 +200,7 @@ const STATE_CONFIG = {
   // Lines pending = warm amber, calm.
   pending: {
     eyebrow: "Lines pending · projections arriving soon",
-    fg: "var(--vault-warn-amber)",
+    fg: "var(--vault-warn)",
     bg: "linear-gradient(155deg, color-mix(in srgb, var(--vault-warn-alt) 10%, transparent), color-mix(in srgb, var(--vault-warn-alt) 3%, transparent))",
     border: "color-mix(in srgb, var(--vault-warn-alt) 32%, transparent)",
     shadow: "0 6px 22px color-mix(in srgb, var(--vault-ink-black) 30%, transparent)",

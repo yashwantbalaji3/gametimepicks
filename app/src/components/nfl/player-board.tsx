@@ -201,7 +201,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
                       {ry?.median != null ? <>{yd(ry.median)} <span style={{ color: "var(--vault-text-faint)" }}>({yd(ry.p10)}–{yd(ry.p90)})</span></> : "—"}
                     </td>
                     {hasTd ? (
-                      <td className="font-mono" style={{ padding: "8px 9px", fontSize: 12.5, fontWeight: 700, color: "var(--gtp-bank-cta)" }}>
+                      <td className="font-mono" style={{ padding: "8px 9px", fontSize: 12.5, fontWeight: 700, color: "var(--gtp-bank-heat)" }}>
                         {at?.probability != null ? `${(at.probability * 100).toFixed(1)}%` : "—"}
                       </td>
                     ) : null}
@@ -215,7 +215,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
                   <td className="font-mono" style={{ padding: "8px 9px", fontSize: 11, color: "var(--vault-text-mute)" }}>{p.team}</td>
                   {avail}
                   {isProb ? (
-                    <td className="font-mono" style={{ padding: "8px 9px", fontSize: 13, fontWeight: 700, color: "var(--gtp-bank-cta)" }}>
+                    <td className="font-mono" style={{ padding: "8px 9px", fontSize: 13, fontWeight: 700, color: "var(--gtp-bank-heat)" }}>
                       {m.probability != null ? `${(m.probability * 100).toFixed(1)}%` : "—"}
                     </td>
                   ) : (

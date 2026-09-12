@@ -130,9 +130,9 @@ export default function ParlayCenterSuggestedPage() {
         <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
           Other lanes
         </span>
-        <Link href="/cards/epl" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>Premier League cards</Link>
-        <Link href="/cards/ufc" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>UFC cards</Link>
-        <Link href="/cards/nfl" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>NFL cards</Link>
+        <Link href="/cards/epl" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Premier League cards</Link>
+        <Link href="/cards/ufc" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>UFC cards</Link>
+        <Link href="/cards/nfl" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>NFL cards</Link>
         <span style={{ color: "var(--vault-text-faint)" }}>·</span>
         <Link href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)" }}>Every settled card (history)</Link>
       </section>

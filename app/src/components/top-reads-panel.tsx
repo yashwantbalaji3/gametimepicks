@@ -49,7 +49,7 @@ function ReadRow({ r }: { r: TopRead }) {
           </span>
         </span>
       </span>
-      <span className="font-mono" style={{ fontSize: 14, fontWeight: 800, color: "var(--gtp-bank-cta)", flexShrink: 0 }}>{pct(r.probability)}</span>
+      <span className="font-mono" style={{ fontSize: 14, fontWeight: 800, color: "var(--gtp-bank-heat)", flexShrink: 0 }}>{pct(r.probability)}</span>
     </>
   );
   const style = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, padding: "9px 12px", borderTop: "1px solid var(--vault-rule)" } as const;

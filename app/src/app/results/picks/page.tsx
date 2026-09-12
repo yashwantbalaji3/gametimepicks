@@ -64,7 +64,7 @@ export default function AllGradedPicksPage() {
                 {records.map((r) => (
                   <tr key={r.sport} style={{ borderTop: "1px solid var(--vault-rule)" }}>
                     <td className="py-2 pr-3" style={{ fontWeight: 600 }}>
-                      <Link href={`/results/picks/${r.sport}`} style={{ color: "var(--gtp-bank-cta)" }}>{r.label}</Link>
+                      <Link href={`/results/picks/${r.sport}`} style={{ color: "var(--gtp-bank-heat)" }}>{r.label}</Link>
                     </td>
                     <td className="font-mono py-2 pr-3">{r.counts.counted.toLocaleString()}</td>
                     <td className="font-mono py-2 pr-3">{r.counts.hits.toLocaleString()}</td>
@@ -113,7 +113,7 @@ export default function AllGradedPicksPage() {
                   .map(([m, f]) => `${m.replace("_", " ")} ${f.wins}–${f.losses}${f.pushes ? `–${f.pushes}` : ""}`)
                   .join(" · ")}
                 . Not comparable with the player-prop record above and never combined with it —{" "}
-                <Link href="/results/picks/mlb" style={{ color: "var(--gtp-bank-cta)" }}>full game-level record</Link>.
+                <Link href="/results/picks/mlb" style={{ color: "var(--gtp-bank-heat)" }}>full game-level record</Link>.
               </p>
             </div>
           ) : null}

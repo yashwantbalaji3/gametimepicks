@@ -147,7 +147,7 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
       ) : null}
 
       <nav className="mt-4 flex flex-wrap gap-3" style={{ fontSize: 12.5 }}>
-        <Link href={lane.hub} style={{ color: "var(--gtp-bank-cta)" }}>← {lane.hubLabel}</Link>
+        <Link href={lane.hub} style={{ color: "var(--gtp-bank-heat)" }}>← {lane.hubLabel}</Link>
         <Link href="/results" style={{ color: "var(--vault-text-mute)" }}>Settled track record → Results</Link>
         <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
       </nav>

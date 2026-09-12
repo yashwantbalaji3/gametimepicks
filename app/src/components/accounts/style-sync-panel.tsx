@@ -67,7 +67,7 @@ export default function StyleSyncPanel({ userId }: { userId: string }) {
       style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 40%, transparent)" }}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <span className="font-mono uppercase" style={label}>Your style</span>
-        <Link href="/build#lab-entry" style={{ color: "var(--gtp-bank-cta)", fontSize: 12, fontWeight: 600 }}>
+        <Link href="/build#lab-entry" style={{ color: "var(--gtp-bank-heat)", fontSize: 12, fontWeight: 600 }}>
           Change it in the Parlay Center
         </Link>
       </div>

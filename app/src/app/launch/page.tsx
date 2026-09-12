@@ -1135,11 +1135,11 @@ export default function LaunchCommandCenter() {
                 <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>Operating record</span>
                 {operatingRecord.state === "OK" ? (
                   <p style={{ margin: "4px 0 0" }}>
-                    <a href="https://claude.ai/code/artifact/fe4dba67-9441-48ff-a803-8c745a0aec6b" style={{ color: "var(--gtp-bank-cta)" }}>Published artifact</a>
+                    <a href="https://claude.ai/code/artifact/fe4dba67-9441-48ff-a803-8c745a0aec6b" style={{ color: "var(--gtp-bank-heat)" }}>Published artifact</a>
                     <span style={{ color: "var(--vault-text-mute)" }}> · generated {operatingRecord.generatedAt} · {operatingRecord.program} · {operatingRecord.releases} releases ({operatingRecord.first} → {operatingRecord.last})</span>
                     {" · "}
                     {operatingRecord.contentAddressed ? (
-                      <a href={`/data/admin/${operatingRecord.contentAddressed}`} style={{ color: "var(--gtp-bank-cta)" }}>verified PDF ({operatingRecord.pdfSha256}…)</a>
+                      <a href={`/data/admin/${operatingRecord.contentAddressed}`} style={{ color: "var(--gtp-bank-heat)" }}>verified PDF ({operatingRecord.pdfSha256}…)</a>
                     ) : (
                       <span style={{ color: "var(--vault-warn)" }}>pdf UNVERIFIED — run verify-operating-record-pdf</span>
                     )}

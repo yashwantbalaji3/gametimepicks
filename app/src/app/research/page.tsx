@@ -39,19 +39,19 @@ export default function ResearchPage() {
       />
 
       <div className="mt-8 flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-2)] text-[var(--text-mute)]">Simulation-powered analytics</span>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-2)] text-[var(--text-mute)]">10,000-run game simulations</span>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-2)] text-[var(--text-mute)]">Market comparison</span>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-2)] text-[var(--text-mute)]">Public beta</span>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">Simulation-powered analytics</span>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">10,000-run game simulations</span>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">Market comparison</span>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">Public beta</span>
       </div>
 
       <h2 className="mt-10 text-[13px] font-semibold uppercase tracking-wide text-[var(--text-mute)]">Research milestones</h2>
       <ol className="mt-4 space-y-4">
         {MILESTONES.map((m) => (
-          <li key={m.title} className="flex gap-3 rounded-[6px] border border-[var(--border)] bg-[var(--surface-1)] p-4">
+          <li key={m.title} className="flex gap-3 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] p-4">
             <span
               aria-hidden
-              className={`mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full text-[13px] font-bold ${m.done ? "bg-[var(--surface-2)] text-[var(--accent, var(--vault-loss-red))]" : "border border-dashed border-[var(--border)] text-[var(--text-mute)]"}`}
+              className={`mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full text-[13px] font-bold ${m.done ? "bg-[var(--surface-elevated)] text-[var(--accent, var(--vault-loss-red))]" : "border border-dashed border-[var(--border)] text-[var(--text-mute)]"}`}
             >
               {m.done ? "✓" : "→"}
             </span>

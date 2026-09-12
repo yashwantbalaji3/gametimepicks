@@ -259,11 +259,11 @@ export default function ResultsPage() {
         </div>
         <ul className="mt-2 flex flex-col gap-1.5" style={{ fontSize: 12.5, lineHeight: 1.55, listStyle: "none", padding: 0 }}>
           <li>
-            <Link href="/results/picks" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>Model picks</Link>
+            <Link href="/results/picks" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Model picks</Link>
             <span style={{ color: "var(--vault-text-mute)" }}> — every published per-sport model read vs the official outcome; graded from official results only.</span>
           </li>
           <li>
-            <Link href="/results/parlay-lab" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>Suggested parlays</Link>
+            <Link href="/results/parlay-lab" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Suggested parlays</Link>
             <span style={{ color: "var(--vault-text-mute)" }}> — the Lab&rsquo;s own daily cards, by sport and risk tier; a card grades only when every leg has an official result.</span>
           </li>
           <li>
@@ -271,7 +271,7 @@ export default function ResultsPage() {
             <span style={{ color: "var(--vault-text-mute)" }}> — cards readers built and kept (this page&rsquo;s per-date sections below); a different population from the Lab&rsquo;s suggestions.</span>
           </li>
           <li>
-            <Link href="/mr-dub" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>Paper products</Link>
+            <Link href="/mr-dub" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Paper products</Link>
             <span style={{ color: "var(--vault-text-mute)" }}> — the Bank Builder / Moonshot bankroll journeys, settled card by card in their own ledger.</span>
           </li>
         </ul>
@@ -615,7 +615,7 @@ export default function ResultsPage() {
             </p>
             <p style={{ margin: "6px 0 0", lineHeight: 2 }}>
               {dateSections.slice(3).map((s2) => (
-                <Link key={s2.date} href={surfaceHref("results", { date: s2.date }) ?? "/results/"} className="font-mono" style={{ color: "var(--gtp-bank-cta)", marginRight: 12, fontSize: 11.5, whiteSpace: "nowrap" }}>
+                <Link key={s2.date} href={surfaceHref("results", { date: s2.date }) ?? "/results/"} className="font-mono" style={{ color: "var(--gtp-bank-heat)", marginRight: 12, fontSize: 11.5, whiteSpace: "nowrap" }}>
                   {s2.date}
                 </Link>
               ))}

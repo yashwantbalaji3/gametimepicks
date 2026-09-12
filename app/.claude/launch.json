@@ -4,14 +4,33 @@
     {
       "name": "next-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
     },
     {
       "name": "static-out",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["scripts/serve-export.mjs", "4173", "out"],
+      "runtimeArgs": [
+        "scripts/serve-export.mjs",
+        "4173",
+        "out"
+      ],
       "port": 4173
+    },
+    {
+      "name": "static-export",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "serve@latest",
+        "out",
+        "-l",
+        "4321",
+        "--no-clipboard"
+      ],
+      "port": 4321
     }
   ]
 }

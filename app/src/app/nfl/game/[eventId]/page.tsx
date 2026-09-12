@@ -269,7 +269,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                 {tdTop(t.abbr).map((p) => (
                   <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
                     <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
-                    <span className="font-mono" style={{ color: "var(--gtp-bank-cta)", fontWeight: 700 }}>{(p.markets.anytime_td!.probability! * 100).toFixed(1)}%</span>
+                    <span className="font-mono" style={{ color: "var(--gtp-bank-heat)", fontWeight: 700 }}>{(p.markets.anytime_td!.probability! * 100).toFixed(1)}%</span>
                     <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{availMark(p)}</span>
                   </p>
                 ))}
@@ -567,7 +567,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                 <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
                   {top.map((p) => (
                     <li key={`out-${p.playerId}`} className="font-mono" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
-                      <strong style={{ color: "var(--gtp-bank-cta)" }}>{(p.markets.anytime_td!.probability! * 100).toFixed(1)}%</strong>{" "}
+                      <strong style={{ color: "var(--gtp-bank-heat)" }}>{(p.markets.anytime_td!.probability! * 100).toFixed(1)}%</strong>{" "}
                       <span style={{ color: "var(--vault-text)" }}>{p.name}</span> · {p.team}
                       {p.participation !== "ACTIVE_PROJECTED" ? <span style={{ color: "var(--vault-text-faint)" }}> · {p.participation.toLowerCase().replaceAll("_", " ")}</span> : null}
                     </li>

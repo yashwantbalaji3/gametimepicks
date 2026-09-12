@@ -159,7 +159,7 @@ export default function ParlayLabRecordPage() {
                         <td className="font-mono" style={{ padding: "7px 10px", color: "var(--vault-text-mute)" }}>
                           {c.legs.length ? c.legs.join(" · ") : "—"}
                         </td>
-                        <td className="font-mono" style={{ padding: "7px 10px", fontWeight: 700, color: c.result === "win" ? "var(--gtp-bank-cta)" : "var(--vault-text-mute)" }}>
+                        <td className="font-mono" style={{ padding: "7px 10px", fontWeight: 700, color: c.result === "win" ? "var(--gtp-bank-heat)" : "var(--vault-text-mute)" }}>
                           {c.result.toUpperCase()}
                         </td>
                       </tr>
@@ -204,7 +204,7 @@ export default function ParlayLabRecordPage() {
       </p>
 
       <nav className="mt-4 flex flex-wrap gap-3" style={{ fontSize: 12.5 }}>
-        <Link href="/results" style={{ color: "var(--gtp-bank-cta)" }}>← All results</Link>
+        <Link href="/results" style={{ color: "var(--gtp-bank-heat)" }}>← All results</Link>
         <Link href="/results/parlays" style={{ color: "var(--vault-text-mute)" }}>Saved slips (a different record)</Link>
         <Link href="/build" style={{ color: "var(--vault-text-mute)" }}>Build a card</Link>
       </nav>

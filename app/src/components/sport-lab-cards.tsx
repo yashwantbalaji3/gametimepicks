@@ -74,7 +74,7 @@ export default function SportLabCards({
           <div key={c.slipId} style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "12px 14px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
               <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: "var(--vault-text-mute)" }}>{c.tier}</span>
-              <span className="font-mono" style={{ fontSize: 15, fontWeight: 800, color: "var(--gtp-bank-cta)" }}>{fmtAmerican(c.combinedAmerican)}</span>
+              <span className="font-mono" style={{ fontSize: 15, fontWeight: 800, color: "var(--gtp-bank-heat)" }}>{fmtAmerican(c.combinedAmerican)}</span>
             </div>
             {/* Same rule one level down: each leg is a grid item and needs the same permission to shrink. */}
             <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 5 }}>
