@@ -12,6 +12,13 @@ import { LEGAL_CONTENT_MANIFEST } from "./content-manifest.mjs";
 const SRC = path.resolve(process.cwd(), "src");
 const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
 const SOURCE = walk(SRC).filter((f) => /\.(ts|tsx|mjs|js)$/.test(f) && !/\.test\./.test(f));
+/*
+ * READ DEFENSIVELY. The identity suite writes `settlement-lineage.mutation-probe.ts` into src and
+ * deletes it again, so a file listed by the walk above can be gone by the time this reads it — and a
+ * plain readFileSync then fails these tests with an ENOENT that looks like a privacy finding. A file
+ * that no longer exists ships nothing and can violate nothing; it is skipped, not excused.
+ */
+const readSource = (f) => { try { return fs.readFileSync(f, "utf8"); } catch { return ""; } };
 
 test("TODAY · neither document can publish, and each says exactly why", () => {
   for (const id of Object.keys(LEGAL_DOCUMENTS)) {
@@ -58,20 +65,20 @@ test("an unknown parameter in the text is an error, not a silent blank", () => {
 /* ── The privacy notice is only as good as its facts. Each claim below is checked against the code. ── */
 
 test("FACT · 'sets no cookies' — nothing in src sets a cookie", () => {
-  const hits = SOURCE.filter((f) => /document\.cookie\s*=|cookies\(\)\.set|Set-Cookie/i.test(fs.readFileSync(f, "utf8")));
+  const hits = SOURCE.filter((f) => /document\.cookie\s*=|cookies\(\)\.set|Set-Cookie/i.test(readSource(f)));
   assert.deepEqual(hits.map((f) => path.relative(SRC, f)), [], "a cookie now exists — the privacy notice must change first");
   assert.match(renderLegal("privacy").text, /sets no cookies/);
 });
 
 test("FACT · browser storage is exactly what the notice names (preferences, follows, slip, arrival)", () => {
-  const users = SOURCE.filter((f) => /\b(localStorage|sessionStorage)\.(setItem|getItem)/.test(fs.readFileSync(f, "utf8"))).map((f) => path.relative(SRC, f)).sort();
+  const users = SOURCE.filter((f) => /\b(localStorage|sessionStorage)\.(setItem|getItem)/.test(readSource(f))).map((f) => path.relative(SRC, f)).sort();
   assert.deepEqual(users, [
     "components/analytics-bootstrap.tsx",
     "lib/follow/follow-store.ts",
     "lib/prefs/reader-prefs.ts",
     "lib/slip/slip-store.ts",
   ], "a new browser-storage use exists — describe it in the privacy notice, then update this list");
-  assert.ok(!SOURCE.some((f) => /\bindexedDB\b/.test(fs.readFileSync(f, "utf8"))), "IndexedDB is not described");
+  assert.ok(!SOURCE.some((f) => /\bindexedDB\b/.test(readSource(f))), "IndexedDB is not described");
 });
 
 test("FACT · the email section is true: no newsletter or form collects addresses; support email is disclosed", () => {

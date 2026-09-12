@@ -58,6 +58,25 @@ ANTHROPIC_API_KEY = <a key from console.anthropic.com>
 
 Roughly a cent or two per screenshot read. Set a low monthly limit on the key while we're testing.
 
+## 4 · Prove it works (~1 min)
+
+With the keys in your shell, run:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=… NEXT_PUBLIC_SUPABASE_ANON_KEY=… SUPABASE_SERVICE_ROLE_KEY=… \
+  node app/scripts/accounts/verify-setup.mjs
+```
+
+It reads only — creates nothing, signs in as nobody, prints no key — and answers the question the SQL
+file cannot: does the project BEHAVE the way the schema says? It asks, as an anonymous stranger, for
+other people's rows. An empty answer is the pass. **If any row comes back it stops with STOP and says
+row-level security is off** — that is the one result you must not ignore, because it would mean every
+reader could read every reader's bets. It also checks both tables exist and that the `slips` bucket is
+private (that last one needs the service-role key in the shell; without it the check says so rather
+than assuming).
+
+Exit codes: 0 ready · 1 unsafe or incomplete · 2 could not prove · 3 no keys in the shell.
+
 ---
 
 ## What I build once those exist

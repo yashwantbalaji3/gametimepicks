@@ -19,7 +19,8 @@ const SRC = path.join(APP, "src");
 
 const built = (rel) => {
   const p = path.join(OUT, rel, "index.html");
-  return fs.existsSync(p) ? fs.readFileSync(p, "utf8") : null;
+  // exists-then-read is still a race when another suite deletes a probe file mid-run; read and catch.
+  try { return fs.readFileSync(p, "utf8"); } catch { return null; }
 };
 
 /**

@@ -15,6 +15,7 @@ import { accountsConfig, accountsReady, accountsNotice } from "./config.mjs";
 
 const REPO = path.join(process.cwd(), "..");
 const SQL = fs.readFileSync(path.join(REPO, "db/accounts-schema.sql"), "utf8");
+const readOrEmpty = (p) => { try { return fs.readFileSync(p, "utf8"); } catch { return ""; } };
 const tables = [...SQL.matchAll(/create table if not exists public\.([a-z_]+)/g)].map((m) => m[1]);
 
 test("the schema creates the tables the product needs, and nothing anonymous", () => {
@@ -90,7 +91,9 @@ test("the service-role key never appears in client source — it bypasses every 
       if (e.isDirectory()) walk(p);
       // Test files are excluded: this very file names the variable in order to ban it, and a guard
       // that flags its own text would have to be weakened to pass, which defeats the guard.
-      else if (/\.(ts|tsx|mjs|js)$/.test(e.name) && !/\.test\./.test(e.name) && /SUPABASE_SERVICE_ROLE/.test(fs.readFileSync(p, "utf8"))) hits.push(path.relative(process.cwd(), p));
+      // Read defensively: the identity suite writes and deletes a probe file inside src, so a path
+      // from this walk can vanish before it is read. A file that is gone ships nothing.
+      else if (/\.(ts|tsx|mjs|js)$/.test(e.name) && !/\.test\./.test(e.name) && /SUPABASE_SERVICE_ROLE/.test(readOrEmpty(p))) hits.push(path.relative(process.cwd(), p));
     }
   };
   walk(path.join(process.cwd(), "src"));

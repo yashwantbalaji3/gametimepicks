@@ -24,7 +24,10 @@ test("no browser-facing file reads a NEXT_PUBLIC_ variable through an alias of p
   const offenders = [];
   for (const f of walk(SRC).filter((f) => /\.(ts|tsx|mjs)$/.test(f) && !/\.test\./.test(f))) {
     // comments stripped (an explanatory comment quoting the bad form is not the bad form)
-    const s = fs.readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+    /* try/catch: a probe file written into src by another suite can vanish between the walk and this
+       read, and an ENOENT here would report as an analytics finding. */
+    let raw = ""; try { raw = fs.readFileSync(f, "utf8"); } catch { continue; }
+    const s = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
     // an alias bound to the BARE process.env object (not process.env.SOMETHING), then a NEXT_PUBLIC_ read off it
     const alias = /(?:const|let|var)\s+(\w+)\s*=\s*[^;\n]*\bprocess\.env\b(?!\.)/.exec(s);
     if (!alias) continue;
