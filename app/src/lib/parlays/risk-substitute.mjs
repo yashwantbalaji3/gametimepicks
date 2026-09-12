@@ -71,6 +71,12 @@ export function substituteOffer({ riskOrder, availableBands, emptyBand, measured
     offered,
     direction,
     measuredCause: measuredCause ?? null,
+    /* THE TWO HALVES, SEPARATELY. The cause is band-specific and varies; the pointer ("the calmest
+       card built today is medium — a shorter price…") names the SAME card for every empty band, so
+       with three empty bands it rendered three identical times. A surface can now print the cause
+       per band and the pointer once. `note` stays for any consumer that wants the whole sentence. */
+    cause: measuredCause ? `${measuredCause}.` : `Nothing on this slate priced into ${emptyBand}.`,
+    pointer: `The calmest card built today is ${offered} — ${directionSentence(direction)}.`,
     note: `${measuredCause ? `${measuredCause}. ` : `Nothing on this slate priced into ${emptyBand}. `}` +
       `The calmest card built today is ${offered} — ${directionSentence(direction)}.`,
   };

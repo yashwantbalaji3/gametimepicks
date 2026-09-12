@@ -70,6 +70,11 @@ export interface BandSubstitute {
   slipId: string | null;
   /** Reader-facing. States the DIRECTION of the swap, because that is the whole content of it. */
   note: string;
+  /** The band-specific half of `note` — why THIS band is empty. Varies per band. */
+  cause?: string;
+  /** The shared half — which card is offered instead. Identical for every empty band, so a surface
+   *  renders it once rather than repeating it under each. */
+  pointer?: string;
 }
 
 /*
@@ -99,7 +104,7 @@ export function deriveBandSubstitutes(ladder: SportLabLadder): BandSubstitute[] 
   const byBand = new Map(ladder.cards.map((c) => [c.tier, c]));
   const available = ladder.cards.map((c) => c.tier);
   return ladder.skipped
-    .map((s) => {
+    .map((s): BandSubstitute | null => {
       const offer = substituteOffer({ riskOrder: order, availableBands: available, emptyBand: s.tier, measuredCause: s.reason ?? null });
       if (!offer) return null;
       return {
@@ -107,6 +112,8 @@ export function deriveBandSubstitutes(ladder: SportLabLadder): BandSubstitute[] 
         offered: offer.offered,
         slipId: (byBand.get(offer.offered) as { slipId?: string } | undefined)?.slipId ?? null,
         note: offer.note,
+        cause: offer.cause,
+        pointer: offer.pointer,
       };
     })
     .filter((x): x is BandSubstitute => x !== null);

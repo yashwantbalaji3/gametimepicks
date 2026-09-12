@@ -147,13 +147,23 @@ export default function SportLabCards({
             which risk direction it sits. Relabelling it would be the dishonest version.
           */}
           {substitutes.length > 0 ? (
-            <ul className="mt-1" style={{ listStyle: "none", margin: "6px 0 0", padding: 0 }}>
-              {substitutes.map((sub) => (
-                <li key={sub.band} style={{ fontSize: 11.5, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
-                  {sub.note}
-                </li>
-              ))}
-            </ul>
+            <>
+              {/* The cause per band, the pointer once. Every empty band pointed at the same card, so
+                  the second sentence rendered identically three times on a slate with three empty
+                  bands — the reader learns "the calmest card today is medium" once. */}
+              <ul className="mt-1" style={{ listStyle: "none", margin: "6px 0 0", padding: 0 }}>
+                {substitutes.map((sub) => (
+                  <li key={sub.band} style={{ fontSize: 11.5, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
+                    <strong style={{ color: "var(--vault-text-mute)" }}>{sub.band}</strong>: {sub.cause ?? sub.note}
+                  </li>
+                ))}
+              </ul>
+              {substitutes[0]?.pointer ? (
+                <p className="m-0" style={{ fontSize: 11.5, color: "var(--vault-text-faint)", lineHeight: 1.6, marginTop: 4 }}>
+                  {substitutes[0].pointer}
+                </p>
+              ) : null}
+            </>
           ) : null}
         </div>
       ) : null}
