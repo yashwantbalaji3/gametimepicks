@@ -124,9 +124,14 @@ export default function StakePayoutInput({
             </div>
           </>
         ) : (
-          <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
-            Enter a paper stake to see the projected return — nothing is pre-filled.
-          </span>
+          /* THE SAME ARGUMENT AS THE DISCLAIMER BELOW, AND IT APPLIES HERE TOO (P281).
+             This empty state renders once per card, and nothing is ever pre-filled, so on /build it
+             printed EIGHTEEN times — under a field already labelled "Paper stake", beside quick-stake
+             chips that show what it does, under a section intro that already says "Enter any stake to
+             see the projected paper return … nothing here is placed". Eighteen copies of a sentence
+             whose job the label and the chips already do is the definition of wallpaper. The field
+             speaks for itself until a stake is entered. */
+          null
         )}
       </div>
       {/* No per-instance "Paper only — not betting advice." here.

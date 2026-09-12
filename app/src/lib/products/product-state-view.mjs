@@ -55,6 +55,10 @@ export function deriveBankBuilderState(dataRoot) {
         // P255: this used to call the choice of counter an open founder question. It is answered: the
         // generator and the board both follow the official daily receipts (products/ladder-position.mjs).
         // The store's counter is kept visible as history, not hidden.
+        /* The surface writes the sentence; this carries the FACT it needs. The note text stays for
+           any consumer that still reads it, but the date is now a field rather than a string a
+           reader has to parse out of a paragraph written for engineers. */
+        staleSince: "2026-08-17",
         note: "the lifecycle store's position comes from the 2026-08-17 card store, which nothing has written since; today's card and this board follow the official daily receipts, so the store's counter is history, not the rung",
       });
     }

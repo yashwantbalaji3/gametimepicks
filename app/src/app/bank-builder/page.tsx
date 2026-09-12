@@ -512,9 +512,16 @@ export default function BankBuilderPage() {
         </p>
         {bbDerived.divergences.length ? (
           <ul className="m-0 flex flex-col gap-1 pl-4">
-            {bbDerived.divergences.map((d: { lane: string; generated: number; lifecycleStore: number; note: string }) => (
+            {bbDerived.divergences.map((d: { lane: string; generated: number; lifecycleStore: number; note: string; staleSince?: string | null }) => (
               <li key={d.lane} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-                Lane {d.lane}: generator says step {d.generated}, the lifecycle store&rsquo;s rule-derived position says step {d.lifecycleStore} — {d.note}
+                {/* P281: said in the reader's words, not the pipeline's. The disclosure stays — a
+                    disagreement between record systems is never silently resolved here — but
+                    "the lifecycle store's rule-derived position" names a file, not a fact anyone
+                    outside this repository can act on. What a reader needs is which number the
+                    board follows and why the other one exists. */}
+                Lane {d.lane} is on <strong style={{ color: "var(--vault-text)" }}>step {d.generated}</strong>. An older store still
+                reads step {d.lifecycleStore}; nothing has written to it since {d.staleSince ?? "its last card"}, and it is kept
+                visible as history rather than hidden. Today&rsquo;s card and this board follow the official daily receipts.
               </li>
             ))}
           </ul>
