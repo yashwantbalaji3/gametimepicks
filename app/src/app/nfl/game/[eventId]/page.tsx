@@ -57,6 +57,9 @@ const readPublic = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
 };
 const forecastArtifact = () => readPublic("nfl/forecasts/latest.json");
+/* P277: pregame conditions, shown beside the forecast and never inside it — the model ingests no
+   weather term, and the line that renders this says so. */
+const weatherArtifact = () => readPublic("nfl/weather/latest.json");
 const indexArtifact = () => readPublic("nfl/index.json");
 
 const etTime = (iso: string) =>
@@ -130,6 +133,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     { lifecycle: idxEvent?.lifecycle, kickoffUtc: (idxEvent as { kickoffUtc?: string } | undefined)?.kickoffUtc ?? f.kickoffUtc },
     new Date().toISOString(),
   );
+  const wx = ((weatherArtifact()?.rows ?? []) as Array<{ espnEventId?: string; summary?: string }>)
+    .find((r) => String(r.espnEventId) === String(f.providerEventId)) ?? null;
   const started = lifecycle !== "UPCOMING";
   const s = f.forecastSummary;
   const mc = f.marketComparison;
@@ -173,6 +178,11 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-gold)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px" }}>EXPERIMENTAL</span>
         </h1>
         {f.venue ? <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{f.venue}</p> : null}
+        {wx ? (
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--vault-text-faint)", maxWidth: 720, lineHeight: 1.55 }}>
+            {wx.summary} — <strong>not used by the model</strong>; no weather term enters the numbers below.
+          </p>
+        ) : null}
         {started ? (
           <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
             This game has kicked off. Everything below is exactly what was published before kickoff and has not been changed since — that is the point of keeping it.

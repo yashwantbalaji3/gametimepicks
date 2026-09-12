@@ -83,6 +83,27 @@ test("the registry still declares weather un-ingested — this release publishes
   assert.match(reg, /totals carry no weather adjustment and say so/);
 });
 
+test("every surface that shows conditions also says the model does not use them", () => {
+  /* The artifact carries `modelUse`, but a surface renders a summary string — so the sentence has to
+     be on each page that shows one, or the fact travels without its qualification. */
+  const root = path.join(process.cwd(), "src");
+  const surfaces = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { walk(p); continue; }
+      if (!/\.tsx$/.test(e.name)) continue;
+      const src = fs.readFileSync(p, "utf8");
+      if (/nfl\/weather\/latest\.json/.test(src)) surfaces.push([path.relative(root, p), src]);
+    }
+  };
+  walk(root);
+  assert.ok(surfaces.length >= 2, `the walk must find the surfaces; found ${surfaces.map(([r]) => r).join(", ")}`);
+  for (const [rel, src] of surfaces) {
+    assert.match(src, /not use(d by)? (them|the model)|does not use/i, `${rel} renders conditions without saying the model ignores them`);
+  }
+});
+
 test("the registration that could change that is frozen, forward-scored, and single-look", () => {
   const p = path.join(process.cwd(), "..", "data", "internal", "research", "nfl", "preregistration-weather-totals-v1.json");
   if (!fs.existsSync(p)) return;
