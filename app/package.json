@@ -36,7 +36,7 @@
     "gate": "npm run typecheck && npm run suite && npm run build && npm run suite:built",
     "job": "scripts/ops/run-job.sh",
     "watch:gate": "scripts/ops/watch-gate.sh",
-    "lint:scripts": "eslint --no-eslintrc -c eslint-scripts.json \"scripts/**/*.mjs\""
+    "lint:scripts": "eslint --no-eslintrc -c eslint-scripts.json \"scripts/**/*.mjs\" \"api/**/*.mjs\""
   },
   "dependencies": {
     "@vercel/blob": "2.8.0",

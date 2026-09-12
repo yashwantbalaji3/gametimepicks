@@ -65,6 +65,8 @@ test("the Dixon-Coles v2 shadow runs daily in its own workflow, grades before it
 test("the scripts are linted for identifiers that do not exist, and CI runs it", () => {
   const pkg = JSON.parse(read("app/package.json"));
   assert.match(pkg.scripts["lint:scripts"], /eslint .*eslint-scripts\.json.*scripts\/\*\*\/\*\.mjs/, "the lint covers every script");
+  // The serverless functions run in production too — the slip-read endpoint is one of them.
+  assert.match(pkg.scripts["lint:scripts"], /api\/\*\*\/\*\.mjs/, "and every API function");
   assert.ok(pkg.devDependencies.eslint, "and the linter is a pinned dependency, not an npx download");
   const cfg = JSON.parse(read("app/eslint-scripts.json"));
   assert.equal(cfg.rules["no-undef"], "error", "the rule that catches a variable that was never defined");
