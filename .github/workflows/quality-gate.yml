@@ -62,6 +62,13 @@ jobs:
 
       - run: npm ci
 
+      # P264: `next lint` covers app/src only, so app/scripts — 385 files that run in CI and spend real
+      # money — had no check for an identifier that does not exist. capture-ufc-odds.mjs used an
+      # undefined `matchedEvent` and threw AFTER buying the prices, twice, inside a step whose failure
+      # was swallowed. no-undef over the scripts is the cheap check that would have caught it.
+      - name: Lint scripts for identifiers that do not exist
+        run: npm run lint:scripts
+
       - name: Typecheck
         run: npm run typecheck
 

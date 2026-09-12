@@ -61,3 +61,14 @@ test("the Dixon-Coles v2 shadow runs daily in its own workflow, grades before it
   assert.match(DC, /group: soccer-dc-shadow/, "never in the public writers' queue");
   assert.ok(!/dixon-coles/.test(read(".github/workflows/soccer-leagues.yml")), "the public job never waits on research");
 });
+
+test("the scripts are linted for identifiers that do not exist, and CI runs it", () => {
+  const pkg = JSON.parse(read("app/package.json"));
+  assert.match(pkg.scripts["lint:scripts"], /eslint .*eslint-scripts\.json.*scripts\/\*\*\/\*\.mjs/, "the lint covers every script");
+  assert.ok(pkg.devDependencies.eslint, "and the linter is a pinned dependency, not an npx download");
+  const cfg = JSON.parse(read("app/eslint-scripts.json"));
+  assert.equal(cfg.rules["no-undef"], "error", "the rule that catches a variable that was never defined");
+  const QG = read(".github/workflows/quality-gate.yml");
+  assert.match(QG, /run: npm run lint:scripts/);
+  assert.ok(QG.indexOf("npm run lint:scripts") < QG.indexOf("npm run typecheck"), "cheapest check first");
+});

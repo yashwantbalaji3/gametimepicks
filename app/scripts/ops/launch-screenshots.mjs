@@ -31,6 +31,9 @@ for (const { w, h, name } of WIDTHS) {
   await page.waitForTimeout(1200); // hydration settle — networkidle never fires on pages with long-poll assets
   await page.screenshot({ path: path.join(OUT, `launch-${name}.png`), fullPage: false });
   await page.screenshot({ path: path.join(OUT, `launch-${name}-full.png`), fullPage: true });
+  /* global document -- this arrow runs inside the PAGE, not in node: page.evaluate ships it to the
+     browser, where `document` is the whole point. The scripts lint checks node scope, so the browser
+     context is declared here rather than switching the whole file to a browser environment. */
   const hscroll = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   console.log(`${name}: captured · pageErrors=${errors.length} · horizontalScroll=${hscroll}`);
   if (errors.length) console.log(`  errors: ${errors.slice(0, 3).join(" | ")}`);
