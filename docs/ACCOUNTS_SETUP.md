@@ -5,7 +5,7 @@ site behaves exactly as it does today until the two values below exist; every ac
 `app/src/lib/accounts/config.mjs` first and renders "accounts are not open yet" rather than a broken
 control. Nothing here is live, and no account of yours has been created — I can't create one for you.
 
-Three things need you. They take about fifteen minutes in total.
+Four things need you. They take about twenty minutes in total.
 
 ---
 
@@ -37,6 +37,26 @@ What it creates:
 Every table has row-level security enabled with policies keyed to your own user id, so one person's
 rows are unreadable by anyone else, including other signed-in users. `app/src/lib/accounts/schema-contract.test.mjs`
 asserts exactly that against the SQL file, so a table added later without those policies fails CI.
+
+## 2b · Tell Supabase where the sign-in link may send people (~1 min)
+
+**Skip this and sign-in will not work**, in a way that looks like a bug in the site: the email
+arrives, the link opens, and it lands on `localhost:3000`. Supabase only honours a redirect it has
+been told to allow, and its default is a local development URL.
+
+Authentication → **URL Configuration**:
+
+```
+Site URL       https://gametimepicks.yashwantbalaji.com
+Redirect URLs  https://gametimepicks.yashwantbalaji.com/account/
+```
+
+Add `http://localhost:3000/account/` as a second redirect URL only if you want to try it against a
+local build; it is not needed for the live site.
+
+One more thing worth knowing before you test: Supabase's built-in email sender is rate-limited to a
+handful of messages an hour on the free tier. If the third link never arrives, that is the limit, not
+a fault — wait, or connect your own SMTP under Authentication → Emails.
 
 ## 3 · Add the two values to Vercel (~3 min)
 

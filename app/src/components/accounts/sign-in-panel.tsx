@@ -36,6 +36,13 @@ export default function SignInPanel({ onSent }: { onSent?: (email: string) => vo
           We sent a sign-in link to <strong>{email}</strong>. Opening it on this device signs you in — the link works once
           and expires.
         </p>
+        {/* The one setup mistake that fails silently: Supabase only honours a redirect URL it has been
+            told to allow, and its default is a local development address. The link then opens
+            somewhere that is not this site, which reads as a broken product rather than a setting. */}
+        <p className="m-0 mt-2" style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.55 }}>
+          If the link opens a page that is not this site, the project&rsquo;s allowed redirect URL has not been set to{" "}
+          <code style={{ fontSize: 11 }}>{typeof window === "undefined" ? "/account/" : `${window.location.origin}/account/`}</code>.
+        </p>
       </div>
     );
   }
