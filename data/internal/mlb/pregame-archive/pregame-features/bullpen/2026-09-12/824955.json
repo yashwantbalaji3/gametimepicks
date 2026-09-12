@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824955,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T00:31:21.850Z",
+  "availableAt": "2026-09-12T00:31:21.850Z",
+  "eventStartTime": "2026-09-13T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-09",
+    "2026-09-10",
+    "2026-09-11"
+  ],
+  "home": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 61,
+      "relievers": [
+        {
+          "id": 656240,
+          "name": "Scott Blewett",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 663687,
+          "name": "Hogan Harris",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 84,
+      "relievers": [
+        {
+          "id": 662253,
+          "name": "Andrés Muñoz",
+          "appearances": 2,
+          "pitches": 41,
+          "outs": 6,
+          "dates": [
+            "2026-09-09",
+            "2026-09-10"
+          ]
+        },
+        {
+          "id": 642100,
+          "name": "Gabe Speier",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-09-09",
+            "2026-09-10"
+          ]
+        },
+        {
+          "id": 622554,
+          "name": "Seranthony Domínguez",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-09,2026-09-10,2026-09-11) + feed/live box scores",
+    "capturedAt": "2026-09-12T00:31:21.850Z"
+  },
+  "recordHash": "e7da234bda42ef463218dc79fac9e10a1d16f049dfe508a8850168d1ac845232"
+}

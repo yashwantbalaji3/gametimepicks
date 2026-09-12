@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824224,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T00:31:21.850Z",
+  "availableAt": "2026-09-12T00:31:21.850Z",
+  "eventStartTime": "2026-09-12T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-09",
+    "2026-09-10",
+    "2026-09-11"
+  ],
+  "home": {
+    "teamId": 116,
+    "teamName": "Detroit Tigers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 82,
+      "relievers": [
+        {
+          "id": 663947,
+          "name": "Tyler Holton",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 640448,
+          "name": "Kyle Finnegan",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 641755,
+          "name": "Tyler Kinley",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 805427,
+          "name": "Drew Sommers",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 102,
+      "relievers": [
+        {
+          "id": 688642,
+          "name": "Zach Agnos",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 5,
+          "dates": [
+            "2026-09-10"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 4,
+          "dates": [
+            "2026-09-10"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-09,2026-09-10,2026-09-11) + feed/live box scores",
+    "capturedAt": "2026-09-12T00:31:21.850Z"
+  },
+  "recordHash": "7799738607043ca8d3feb60abdec09f6661562f55e0b6074b68225e8fe6309dd"
+}

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823170,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T00:31:21.850Z",
+  "availableAt": "2026-09-12T00:31:21.850Z",
+  "eventStartTime": "2026-09-12T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-09",
+    "2026-09-10",
+    "2026-09-11"
+  ],
+  "home": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 48,
+      "relievers": [
+        {
+          "id": 683363,
+          "name": "Matt Wilkinson",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 691769,
+          "name": "Philip Abner",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 76,
+      "relievers": [
+        {
+          "id": 606996,
+          "name": "Kyle Hart",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 7,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 593974,
+          "name": "Wandy Peralta",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 656288,
+          "name": "Griffin Canning",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 688158,
+          "name": "David Morgan",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 1,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-09,2026-09-10,2026-09-11) + feed/live box scores",
+    "capturedAt": "2026-09-12T00:31:21.850Z"
+  },
+  "recordHash": "02da230956d658a1a06f3203ce85628609cc67b4fd5de8c0ed927873b9352799"
+}

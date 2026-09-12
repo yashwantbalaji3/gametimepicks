@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822685,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T00:31:21.850Z",
+  "availableAt": "2026-09-12T00:31:21.850Z",
+  "eventStartTime": "2026-09-12T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-09",
+    "2026-09-10",
+    "2026-09-11"
+  ],
+  "home": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 103,
+      "relievers": [
+        {
+          "id": 691384,
+          "name": "Luis Perales",
+          "appearances": 1,
+          "pitches": 43,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 695418,
+          "name": "Brad Lord",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 678868,
+          "name": "Eddy Yean",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 54,
+      "relievers": [
+        {
+          "id": 690829,
+          "name": "Ben Joyce",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 696519,
+          "name": "Samy Natera Jr.",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 670245,
+          "name": "Ryan Watson",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 2,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 642048,
+          "name": "Tayler Saucedo",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-09,2026-09-10,2026-09-11) + feed/live box scores",
+    "capturedAt": "2026-09-12T00:31:21.850Z"
+  },
+  "recordHash": "adaf837629643380dbb105ee5224517576b8c16998894df68ad062067b537257"
+}

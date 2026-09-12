@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823496,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T00:31:22.630Z",
+  "availableAt": "2026-09-12T00:31:22.630Z",
+  "eventStartTime": "2026-09-12T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 543037,
+    "name": "Gerrit Cole",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 804267,
+    "name": "Zac Thornton",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-12T00:31:22.630Z"
+  },
+  "recordHash": "6fa32c75fce02dd3e33c4ec6f520284296fdc53bfd448fb378a76b1dc276e401"
+}

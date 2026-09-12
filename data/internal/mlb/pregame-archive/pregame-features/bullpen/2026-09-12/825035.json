@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 825035,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T00:31:21.850Z",
+  "availableAt": "2026-09-12T00:31:21.850Z",
+  "eventStartTime": "2026-09-13T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-09",
+    "2026-09-10",
+    "2026-09-11"
+  ],
+  "home": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 2,
+      "pitches": 69,
+      "relievers": [
+        {
+          "id": 647336,
+          "name": "Michael Soroka",
+          "appearances": 1,
+          "pitches": 58,
+          "outs": 12,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 571882,
+          "name": "Derek Law",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 99,
+      "relievers": [
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 2,
+          "pitches": 40,
+          "outs": 6,
+          "dates": [
+            "2026-09-09",
+            "2026-09-10"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 0,
+          "dates": [
+            "2026-09-10"
+          ]
+        },
+        {
+          "id": 676395,
+          "name": "Robert Garcia",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-10"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-09,2026-09-10,2026-09-11) + feed/live box scores",
+    "capturedAt": "2026-09-12T00:31:21.850Z"
+  },
+  "recordHash": "9035e0551dcebea8a70ebecd85996d0c010d2a42a9c7fc2370196fbb80a997a2"
+}

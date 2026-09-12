@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823657,
+  "date": "2026-09-12",
+  "capturedAt": "2026-09-12T00:31:21.850Z",
+  "availableAt": "2026-09-12T00:31:21.850Z",
+  "eventStartTime": "2026-09-12T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-09",
+    "2026-09-10",
+    "2026-09-11"
+  ],
+  "home": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 104,
+      "relievers": [
+        {
+          "id": 701519,
+          "name": "Travis Adams",
+          "appearances": 1,
+          "pitches": 42,
+          "outs": 8,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 667297,
+          "name": "Tommy Nance",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 4,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 681892,
+          "name": "Kody Funderburk",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 2,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 71,
+      "relievers": [
+        {
+          "id": 670036,
+          "name": "Matt Festa",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 7,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 680916,
+          "name": "Franco Aleman",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 7,
+          "dates": [
+            "2026-09-09"
+          ]
+        },
+        {
+          "id": 682982,
+          "name": "Daniel Espino",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-09,2026-09-10,2026-09-11) + feed/live box scores",
+    "capturedAt": "2026-09-12T00:31:21.850Z"
+  },
+  "recordHash": "72eb0e41226836b9ececc3a433ae79f4f6998e757103baca9c78e2a76262e83a"
+}
