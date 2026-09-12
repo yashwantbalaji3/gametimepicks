@@ -34,6 +34,18 @@ create table if not exists public.profiles (
   updated_at   timestamptz not null default now()
 );
 
+-- `create table if not exists` does NOTHING when the table already exists — including adding a column
+-- that was not in the version someone ran before. So every optional profile column is also stated as
+-- an `add column if not exists`, and a re-run converges instead of quietly leaving an older table in
+-- place while the app writes to a column that is not there.
+alter table public.profiles add column if not exists display_name        text;
+alter table public.profiles add column if not exists risk                text;
+alter table public.profiles add column if not exists bankroll            numeric(12, 2);
+alter table public.profiles add column if not exists unit_pct            numeric(4, 1);
+alter table public.profiles add column if not exists max_stake_per_slip  numeric(12, 2);
+alter table public.profiles add column if not exists daily_loss_limit    numeric(12, 2);
+alter table public.profiles add column if not exists monthly_loss_limit  numeric(12, 2);
+
 -- ── Bet slips ──────────────────────────────────────────────────────────────────────────────────────
 -- A slip the user actually placed, entered by hand or read from a screenshot they uploaded.
 --
