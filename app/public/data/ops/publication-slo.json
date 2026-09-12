@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-09-12",
-  "platformState": "PUBLISHING",
+  "platformState": "INCIDENT",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -27,8 +27,8 @@
       "missed": []
     },
     "ufc": {
-      "state": "PUBLISHING",
-      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
+      "state": "INCIDENT",
+      "reason": "2 event(s) have no forecast and the earliest one's deadline (2026-09-12T16:30:00.000Z, 90 min before its start) has passed",
       "deadlineUtc": "2026-09-12T16:30:00.000Z",
       "counts": {
         "scheduled": 13,
@@ -43,23 +43,23 @@
       "reason": "10 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-09-18T17:30:00.000Z",
       "counts": {
-        "scheduled": 15,
-        "published": 5,
+        "scheduled": 14,
+        "published": 4,
         "missedCoverage": 0,
         "awaiting": 10
       },
       "missed": []
     }
   },
-  "checkedAt": "2026-09-12T15:33:29.383Z",
+  "checkedAt": "2026-09-12T17:47:01.883Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
   "reason": "board published with 658 rows",
   "publishDeadlineUtc": null,
   "scheduledGames": 15,
-  "pregameRemaining": 15,
-  "alreadyStarted": 0,
+  "pregameRemaining": 13,
+  "alreadyStarted": 2,
   "board": {
     "present": true,
     "leans": 658,
@@ -74,23 +74,23 @@
       "startUtc": "2026-09-12T17:10:00Z",
       "away": "Colorado Rockies",
       "home": "Detroit Tigers",
-      "detailedState": "Pre-Game",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 823496,
       "startUtc": "2026-09-12T17:35:00Z",
       "away": "New York Mets",
       "home": "New York Yankees",
-      "detailedState": "Pre-Game",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 824630,
       "startUtc": "2026-09-12T18:20:00Z",
       "away": "Pittsburgh Pirates",
       "home": "Chicago Cubs",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -106,7 +106,7 @@
       "startUtc": "2026-09-12T20:05:00Z",
       "away": "Los Angeles Angels",
       "home": "Washington Nationals",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -114,7 +114,7 @@
       "startUtc": "2026-09-12T20:05:00Z",
       "away": "San Diego Padres",
       "home": "San Francisco Giants",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -122,7 +122,7 @@
       "startUtc": "2026-09-12T20:10:00Z",
       "away": "Kansas City Royals",
       "home": "Boston Red Sox",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -130,7 +130,7 @@
       "startUtc": "2026-09-12T20:10:00Z",
       "away": "Cleveland Guardians",
       "home": "Minnesota Twins",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -138,7 +138,7 @@
       "startUtc": "2026-09-12T20:10:00Z",
       "away": "Los Angeles Dodgers",
       "home": "Miami Marlins",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
