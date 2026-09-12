@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { accountsClient } from "@/lib/accounts/client.mjs";
-import { summarise, findings, byLegCount, repeatedLegs, riskMix, MIN_DECIDED } from "@/lib/accounts/bet-insights.mjs";
+import { summarise, findings, byLegCount, repeatedLegs, riskMix, weeklyTrend, MIN_DECIDED } from "@/lib/accounts/bet-insights.mjs";
 
 /**
  * YOUR RECORD (P266) — what you have actually been doing, and how it has actually gone.
@@ -46,6 +46,8 @@ export default function MyBetsRecord({ refreshKey = 0 }: { refreshKey?: number }
   const legs = byLegCount(rows).slice(0, 5);
   const repeats = repeatedLegs(rows).slice(0, 5);
   const mix = riskMix(rows);
+  const trend = weeklyTrend(rows, { weeks: 8 }) as Array<{ weekEnding: string; decided: number; net: number }>;
+  const peak = Math.max(1, ...trend.map((t) => Math.abs(t.net)));
 
   return (
     <div className="flex flex-col gap-4">
@@ -109,6 +111,30 @@ export default function MyBetsRecord({ refreshKey = 0 }: { refreshKey?: number }
               <span className="font-mono tabular-nums" style={{ width: 44, textAlign: "right" }}>{Math.round(m.share * 100)}%</span>
             </div>
           ))}
+        </div>
+      ) : null}
+
+      {trend.some((t) => t.decided > 0) ? (
+        <div className="flex flex-col gap-1">
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Last eight weeks</span>
+          {/* A quiet week is drawn as a quiet week — zero height, still listed — rather than closed up,
+              because a gap in betting is part of the trend. */}
+          <div className="flex items-end gap-1" style={{ height: 44 }} role="img"
+            aria-label={trend.map((t) => `${t.weekEnding}: ${t.decided} settled, net ${t.net.toFixed(2)}`).join("; ")}>
+            {trend.map((t) => (
+              <span key={t.weekEnding} className="flex-1 flex flex-col justify-end" style={{ height: "100%" }} title={`${t.weekEnding} · ${t.decided} settled · ${money(t.net)}`}>
+                <span style={{
+                  height: `${Math.max(2, (Math.abs(t.net) / peak) * 100)}%`,
+                  background: t.net >= 0 ? "var(--vault-success)" : "var(--vault-danger)",
+                  opacity: t.decided === 0 ? 0.25 : 1,
+                  borderRadius: 3,
+                }} />
+              </span>
+            ))}
+          </div>
+          <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+            {trend[0].weekEnding} → {trend[trend.length - 1].weekEnding} · a faint bar is a week with nothing settled
+          </span>
         </div>
       ) : null}
 

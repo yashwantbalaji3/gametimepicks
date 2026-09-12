@@ -8,8 +8,10 @@
  * NOINDEX. A personal surface has no business in search results, and signed out it shows nothing but
  * an explanation.
  */
+import path from "node:path";
 import AccountExperience from "@/components/accounts/account-experience";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { loadRiskLadderRecord } from "@/lib/parlays/risk-ladder";
 
 export const metadata = {
   ...withRouteMetadata("/account/", {
@@ -20,6 +22,13 @@ export const metadata = {
 };
 
 export default function AccountPage() {
+  /*
+   * The lab's settled record BY PRICE BAND, handed to the client so a slip you upload can be read
+   * against something real: what the lab's own published cards at that price actually did. It is not
+   * a prediction about YOUR slip — nobody has graded a bet that has not settled — and the panel says
+   * so in those words.
+   */
+  const bandByTier = loadRiskLadderRecord(path.join(process.cwd(), "public", "data"))?.byTier ?? null;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 flex flex-col gap-5" style={{ maxWidth: 860 }}>
       <header className="flex flex-col gap-1.5">
@@ -30,7 +39,7 @@ export default function AccountPage() {
           how it has gone. Your slips are visible only to you, and they never enter the site&rsquo;s published record.
         </p>
       </header>
-      <AccountExperience />
+      <AccountExperience bandByTier={bandByTier} />
     </div>
   );
 }

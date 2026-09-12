@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { accountsClient } from "@/lib/accounts/client.mjs";
 import { toBetSlipRow } from "@/lib/accounts/slip-reading.mjs";
+import SlipReadPanel from "./slip-read-panel";
 
 /**
  * CONFIRM WHAT WE READ (P266) — the step that turns a claim about a picture into your record.
@@ -20,12 +21,14 @@ interface Reading {
 const num = (v: string) => (v.trim() === "" ? null : Number(v));
 
 export default function SlipConfirm({
-  userId, reading, review, imagePath, onSaved, onCancel,
+  userId, reading, review, imagePath, bandByTier, onSaved, onCancel,
 }: {
   userId: string;
   reading: Reading;
   review: string[];
   imagePath: string | null;
+  /** The lab's settled record by price band, so your slip can be read against something real. */
+  bandByTier: Readonly<Record<string, { wins: number; losses: number; roi?: number | null }>> | null;
   onSaved: () => void;
   onCancel: () => void;
 }) {
@@ -95,6 +98,8 @@ export default function SlipConfirm({
           <input inputMode="decimal" value={stake} onChange={(e) => setStake(e.target.value)} className="rounded-[8px] px-2.5 font-mono tabular-nums" style={field} placeholder="0.00" />
         </label>
       </div>
+
+      <SlipReadPanel legs={legs} byTier={bandByTier} />
 
       <ul className="flex flex-col gap-2 list-none m-0 p-0">
         {legs.map((l, i) => (

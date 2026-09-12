@@ -68,3 +68,18 @@ test("the page is noindex and registered as a destination that is deliberately n
     assert.ok(!read(surface).includes('"/account"'), `${surface} must not link accounts until they open`);
   }
 });
+
+test("an uploaded slip is read by the SAME engine as our own cards, and claims nothing about itself", () => {
+  const panel = code("src/components/accounts/slip-read-panel.tsx");
+  assert.match(panel, /from "@\/lib\/parlays\/lab\/slip-insight\.mjs"/, "one engine, not a second implementation");
+  assert.match(panel, /not this slip, which has\s+not settled and which nothing here can predict/);
+  assert.match(code(CONFIRM), /<SlipReadPanel/, "the read is shown BEFORE saving");
+  assert.match(code("src/app/account/page.tsx"), /loadRiskLadderRecord/, "the band record comes from the published ladder");
+});
+
+test("the record's trend keeps quiet weeks visible", () => {
+  const r = code(RECORD);
+  assert.match(r, /weeklyTrend\(rows, \{ weeks: 8 \}\)/);
+  assert.match(r, /a faint bar is a week with nothing settled/);
+  assert.match(r, /aria-label=\{trend\.map/, "the bars are readable without sight");
+});

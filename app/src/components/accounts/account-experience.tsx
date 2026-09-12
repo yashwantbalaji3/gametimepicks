@@ -14,7 +14,7 @@ import MyBetsRecord from "./my-bets-record";
  * signed out, signed in. The first is not an error — the rest of the site works without an account,
  * and this page says so instead of showing a sign-in form that could not work.
  */
-export default function AccountExperience() {
+export default function AccountExperience({ bandByTier = null }: { bandByTier?: Readonly<Record<string, { wins: number; losses: number; roi?: number | null }>> | null }) {
   const cfg = accountsState();
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -75,6 +75,7 @@ export default function AccountExperience() {
           reading={pending.reading as never}
           review={pending.review}
           imagePath={pending.imagePath}
+          bandByTier={bandByTier}
           onSaved={() => { setPending(null); setRefreshKey((k) => k + 1); }}
           onCancel={() => setPending(null)}
         />
