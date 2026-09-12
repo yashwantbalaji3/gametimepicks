@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { cardChance, bandRecord, linkedPairs, shorterAlternative, impliedFromAmerican } from "./slip-insight.mjs";
+import { cardChance, bandRecord, linkedPairs, shorterAlternative, recordTrade, impliedFromAmerican } from "./slip-insight.mjs";
 
 const leg = (o) => ({ id: o.player, sport: "mlb", player: o.player, gameId: o.gameId ?? "g1", market: o.market ?? "batter_hits", side: o.side ?? "Over", line: o.line ?? 0.5, americanOdds: o.odds, riskTier: "low" });
 
@@ -57,4 +57,83 @@ test("no model probability, no advice, no projection", () => {
   const src = fs.readFileSync(new URL("./slip-insight.mjs", import.meta.url), "utf8");
   for (const banned of [/modelProb/i, /\bedge\b/i, /recommend/i, /expected value/i, /Math\.random/]) assert.doesNotMatch(src, banned);
   assert.match(src, /includes the sportsbook's margin/, "the implied chance is labelled");
+});
+
+/* ── P269 · the trade our own settled record can justify ─────────────────────────────────────────── */
+
+const famRow = (o) => ({
+  market: o.market, marketLabel: o.marketLabel, side: o.side ?? "Over", line: o.line ?? 0.5,
+  label: `${o.side ?? "Over"} ${o.line ?? 0.5} ${o.marketLabel}`,
+  decided: o.decided, wins: 0, losses: 0, cardUses: o.decided, hitRate: 0.5,
+  impliedMean: 0.5, flatReturn: o.flatReturn, standardError: 0.02,
+  sample: { id: o.decided >= 250 ? "substantial" : "accumulating", text: "caption" },
+});
+const REC = {
+  since: "2026-05-22", until: "2026-09-11", distinct: 1093,
+  families: [
+    famRow({ market: "batter_total_bases", marketLabel: "Total Bases", line: 1.5, decided: 298, flatReturn: -0.145 }),
+    famRow({ market: "batter_hits", marketLabel: "Hits", line: 0.5, decided: 365, flatReturn: -0.028 }),
+    famRow({ market: "batter_rbis", marketLabel: "RBIs", line: 0.5, decided: 40, flatReturn: 0.22 }),
+  ],
+};
+const cand = (o) => ({
+  player: o.player, market: o.market, marketLabel: o.marketLabel, gameId: o.gameId ?? "g1",
+  side: o.side ?? "Over", line: o.line ?? 0.5, americanOdds: o.odds,
+  photoUrl: null, teamAbbr: null, opponentAbbr: null, matchup: "", leg: { id: `${o.player}:${o.market}` },
+});
+
+test("the record trade stays on the same player and the same game", () => {
+  const draft = [{ ...leg({ player: "A", market: "batter_total_bases", line: 1.5, odds: 120 }), marketLabel: "Total Bases" }];
+  const pool = [
+    cand({ player: "A", market: "batter_hits", marketLabel: "Hits", line: 0.5, odds: -200 }),
+    cand({ player: "B", market: "batter_hits", marketLabel: "Hits", line: 0.5, odds: -200 }),
+    cand({ player: "A", market: "batter_hits", marketLabel: "Hits", line: 0.5, gameId: "g9", odds: -200 }),
+  ];
+  const t = recordTrade(pool, draft, REC);
+  assert.equal(t.incoming.player, "A");
+  assert.equal(t.incoming.gameId, "g1");
+  assert.equal(t.from.marketLabel, "Total Bases");
+  assert.equal(t.to.marketLabel, "Hits");
+  assert.ok(Math.abs(t.gap - 0.117) < 1e-6, `gap: ${t.gap}`);
+  assert.equal(t.beforeAmerican, 120, "a one-leg card is its own price");
+  assert.equal(t.afterAmerican, -200, "and the trade reprices it");
+});
+
+test("a thin family is never the evidence for a trade, however good it looks", () => {
+  /* RBIs shows +22% on forty legs. That is exactly the row a reader would act on and exactly the row
+     that cannot carry a claim, so the sample floor keeps it out in both directions. */
+  const draft = [{ ...leg({ player: "A", market: "batter_total_bases", line: 1.5, odds: 120 }), marketLabel: "Total Bases" }];
+  const toThin = recordTrade([cand({ player: "A", market: "batter_rbis", marketLabel: "RBIs", odds: -150 })], draft, REC);
+  assert.equal(toThin, null, "a forty-leg family cannot be the better kind");
+  const fromThin = recordTrade(
+    [cand({ player: "A", market: "batter_hits", marketLabel: "Hits", odds: -200 })],
+    [{ ...leg({ player: "A", market: "batter_rbis", line: 0.5, odds: 120 }), marketLabel: "RBIs" }],
+    REC,
+  );
+  assert.equal(fromThin, null, "and a forty-leg family cannot be the thing worth trading away");
+});
+
+test("a small gap is not a finding, and a leg already on the card is not an alternative", () => {
+  const draft = [{ ...leg({ player: "A", market: "batter_total_bases", line: 1.5, odds: 120 }), marketLabel: "Total Bases" }];
+  const pool = [cand({ player: "A", market: "batter_hits", marketLabel: "Hits", odds: -200 })];
+  assert.equal(recordTrade(pool, draft, REC, { minGap: 0.2 }), null, "11.7 points is not 20");
+  const both = [
+    { ...leg({ player: "A", market: "batter_total_bases", line: 1.5, odds: 120 }), marketLabel: "Total Bases" },
+    { ...leg({ player: "A", market: "batter_hits", line: 0.5, odds: -200 }), marketLabel: "Hits" },
+  ];
+  assert.equal(recordTrade(pool, both, REC), null, "the better kind is already on the card");
+  assert.equal(recordTrade(pool, draft, null), null, "no record, no trade");
+});
+
+test("the trade never claims either family made money", () => {
+  const src = fs.readFileSync(new URL("./slip-insight.mjs", import.meta.url), "utf8");
+  const block = src.slice(src.indexOf("A DIFFERENT KIND OF LEG"));
+  assert.match(block, /NEITHER family is presented as profitable/);
+  assert.match(block, /offered, never applied/i);
+  /* And the copy that renders it must not assert a direction both families happen to share today:
+     one family is already above break-even, so a hardcoded "both lost money" would be false. */
+  const ui = fs.readFileSync(new URL("../../../components/parlays/lab/slip-gauges.tsx", import.meta.url), "utf8");
+  const rendered = [...ui.matchAll(/>([^<>{}]{8,})</g)].map((m) => m[1]).join(" ");
+  assert.ok(!/both lost money/i.test(rendered), "the trade copy must be derived from the two numbers, not asserted");
+  assert.match(ui, /returnPhrase|sample\.text/, "and it must carry each family's own sample caption");
 });

@@ -15,6 +15,7 @@
  */
 import { classifyPair, RELATIONS } from "@/lib/build/compatibility.mjs";
 import { benchFor, bandFor, repriceCard, decimalOdds, toAmerican } from "@/lib/parlays/leg-swap";
+import { recordForLeg } from "@/lib/parlays/lab/leg-record.mjs";
 
 /** Chance a price implies — 1 / decimal. It includes the sportsbook's margin wherever it is shown. */
 export const impliedFromAmerican = (american) => {
@@ -105,5 +106,60 @@ export function shorterAlternative(pool, draft) {
     afterAmerican: after,
     beforeChance: impliedFromAmerican(toAmerican(priced.reduce((d, l) => d * decimalOdds(l.americanOdds), 1))),
     afterChance: impliedFromAmerican(after),
+  };
+}
+
+/**
+ * A DIFFERENT KIND OF LEG ON THE SAME PLAYER, where our own settled record separates the two (P269).
+ *
+ * The stand-in above trades price for implied chance. This trades KIND: the same batter, in the same
+ * game, offered in two families whose legs our cards have actually settled — and one family lost
+ * materially less than the other. That is the only comparison on this site that rests on results
+ * rather than on a price, so it is also the only one that has to be fenced in properly:
+ *
+ *   · BOTH families must have a substantial sample. A row with forty legs can sit twenty points from
+ *     another by chance alone, and a "better kind of leg" built on that is noise dressed as evidence.
+ *   · The gap must be material. A point of flat return between two families is not a finding.
+ *   · NEITHER family is presented as profitable. Most measured families lost money and one sits a
+ *     point above break-even on a hundred-odd legs, which is its own noise — so the copy states both
+ *     returns WITH their sample captions and asserts nothing about either. Hardcoding "both lost
+ *     money" would have shipped a false sentence the first time a family crossed zero.
+ *   · It is offered, never applied, and the price it moves the card to travels with it — a shorter
+ *     leg is a smaller payout, and the reader decides whether that trade is one they want.
+ */
+export function recordTrade(pool, draft, record, { minDecided = 100, minGap = 0.05 } = {}) {
+  const priced = draft.filter((l) => Number.isFinite(l.americanOdds) && l.americanOdds !== 0);
+  if (!priced.length || !pool?.length || !record?.families?.length) return null;
+  const onCard = new Set(priced.map((l) => `${l.player}|${l.market}|${l.side ?? ""}|${l.line ?? ""}`));
+
+  let best = null;
+  for (let i = 0; i < priced.length; i++) {
+    const leg = priced[i];
+    const from = recordForLeg(record, { market: leg.market, marketLabel: leg.marketLabel, side: leg.side, line: leg.line });
+    if (!from || from.decided < minDecided || from.flatReturn == null) continue;
+    for (const c of pool) {
+      if (c.player !== leg.player || c.gameId !== leg.gameId) continue;
+      if (onCard.has(`${c.player}|${c.market}|${c.side ?? ""}|${c.line ?? ""}`)) continue;
+      if (!Number.isFinite(c.americanOdds) || c.americanOdds === 0) continue;
+      const to = recordForLeg(record, { market: c.market, marketLabel: c.marketLabel, side: c.side, line: c.line });
+      if (!to || to.decided < minDecided || to.flatReturn == null) continue;
+      if (to.label === from.label) continue;
+      const gap = to.flatReturn - from.flatReturn;
+      if (gap < minGap) continue;
+      if (!best || gap > best.gap || (gap === best.gap && to.decided > best.to.decided)) {
+        best = { gap, index: i, outgoing: leg, incoming: c, from, to };
+      }
+    }
+  }
+  if (!best) return null;
+  const beforeAmerican = toAmerican(priced.reduce((d, l) => d * decimalOdds(l.americanOdds), 1));
+  return {
+    outgoing: best.outgoing,
+    incoming: best.incoming,
+    from: best.from,
+    to: best.to,
+    gap: best.gap,
+    beforeAmerican,
+    afterAmerican: repriceCard(priced, best.index, best.incoming.americanOdds),
   };
 }

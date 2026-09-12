@@ -11,7 +11,7 @@
 import path from "node:path";
 import AccountExperience from "@/components/accounts/account-experience";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import { loadRiskLadderRecord } from "@/lib/parlays/risk-ladder";
+import { loadRiskLadderRecord, loadGradedLegRecord } from "@/lib/parlays/risk-ladder";
 
 export const metadata = {
   ...withRouteMetadata("/account/", {
@@ -28,7 +28,11 @@ export default function AccountPage() {
    * a prediction about YOUR slip — nobody has graded a bet that has not settled — and the panel says
    * so in those words.
    */
-  const bandByTier = loadRiskLadderRecord(path.join(process.cwd(), "public", "data"))?.byTier ?? null;
+  const dataRoot = path.join(process.cwd(), "public", "data");
+  const bandByTier = loadRiskLadderRecord(dataRoot)?.byTier ?? null;
+  /* P268 · the same settled leg record the builder shows, so a slip someone uploaded is read against
+     exactly what our own cards did with legs of that kind. */
+  const legRecord = loadGradedLegRecord(dataRoot);
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 flex flex-col gap-5" style={{ maxWidth: 860 }}>
       <header className="flex flex-col gap-1.5">
@@ -39,7 +43,7 @@ export default function AccountPage() {
           how it has gone. Your slips are visible only to you, and they never enter the site&rsquo;s published record.
         </p>
       </header>
-      <AccountExperience bandByTier={bandByTier} />
+      <AccountExperience bandByTier={bandByTier} legRecord={legRecord} />
     </div>
   );
 }

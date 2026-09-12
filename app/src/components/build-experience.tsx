@@ -34,6 +34,7 @@ import { useSlip, type SlipLeg } from "@/lib/slip/slip-store";
 import { legKey, type SlipLegInput } from "@/lib/slip/leg-identity";
 import { SEARCH_PLAYERS_OR_TEAMS, SEARCH_PLAYERS_OR_TEAMS_LABEL } from "@/lib/ui/search-labels";
 import SlipGauges from "@/components/parlays/lab/slip-gauges";
+import type { LegRecordView } from "@/components/parlays/lab/leg-record-list";
 
 // The 2026 World Cup is complete — not a selectable build sport (archive only). The SPORT_LABEL map below
 // keeps the "World Cup" label so any historical WC row still renders its badge.
@@ -82,7 +83,7 @@ interface DraftLeg {
 }
 
 export default function BuildExperience({
-  pool: poolAtoms, productDate = null, cards = {}, bandByTier = null,
+  pool: poolAtoms, productDate = null, cards = {}, bandByTier = null, legRecord = null,
 }: {
   /* ATOMS, not display legs (P230 · Release 0). The server ships what cannot be recomputed and this
      component derives the rest, so the pool travels at 294 B/leg instead of 1010 and no longer needs
@@ -99,6 +100,8 @@ export default function BuildExperience({
    * have done, which is exactly what this record holds. Null simply omits the comparison.
    */
   bandByTier?: Readonly<Record<string, { wins: number; losses: number; roi?: number | null }>> | null;
+  /** P268: the settled leg-family record, read at build time and handed to the gauges. */
+  legRecord?: LegRecordView | null;
 }) {
   /* One hydration for the whole pool, memoised on the prop identity: `hydrateBuildLeg` is a pure
      total function of the atoms, so the legs below are byte-identical to what the server used to
@@ -297,6 +300,7 @@ export default function BuildExperience({
             draft={draft}
             pool={pool}
             byTier={bandByTier}
+            legRecord={legRecord}
             onSwap={(outgoingKey, incoming) => {
               if (!incoming.slipLeg) return;
               remove(outgoingKey);

@@ -7,6 +7,7 @@ import SlipUpload, { type SlipReadResult } from "./slip-upload";
 import SlipConfirm from "./slip-confirm";
 import MyBetsRecord from "./my-bets-record";
 import StyleSyncPanel from "./style-sync-panel";
+import type { LegRecordView } from "@/components/parlays/lab/leg-record-list";
 
 /**
  * THE ACCOUNT SURFACE (P266) — sign in, add a slip, see your own record.
@@ -15,7 +16,11 @@ import StyleSyncPanel from "./style-sync-panel";
  * signed out, signed in. The first is not an error — the rest of the site works without an account,
  * and this page says so instead of showing a sign-in form that could not work.
  */
-export default function AccountExperience({ bandByTier = null }: { bandByTier?: Readonly<Record<string, { wins: number; losses: number; roi?: number | null }>> | null }) {
+export default function AccountExperience({ bandByTier = null, legRecord = null }: {
+  bandByTier?: Readonly<Record<string, { wins: number; losses: number; roi?: number | null }>> | null;
+  /** P268: read at build time on the page below, so the reader's own slip is read against it. */
+  legRecord?: LegRecordView | null;
+}) {
   const cfg = accountsState();
   const [ready, setReady] = useState(false);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -80,6 +85,7 @@ export default function AccountExperience({ bandByTier = null }: { bandByTier?: 
           review={pending.review}
           imagePath={pending.imagePath || null}
           bandByTier={bandByTier}
+          legRecord={legRecord}
           source={manual ? "manual" : "screenshot"}
           onSaved={() => { setPending(null); setRefreshKey((k) => k + 1); }}
           onCancel={() => setPending(null)}

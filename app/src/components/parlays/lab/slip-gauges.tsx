@@ -1,7 +1,8 @@
 "use client";
 import type { BuildLeg } from "@/lib/build-legs";
-import { cardChance, bandRecord, linkedPairs, shorterAlternative, impliedFromAmerican } from "@/lib/parlays/lab/slip-insight.mjs";
+import { cardChance, bandRecord, linkedPairs, shorterAlternative, recordTrade, impliedFromAmerican } from "@/lib/parlays/lab/slip-insight.mjs";
 import ChanceMeter from "./chance-meter";
+import LegRecordList, { familiesFor, type LegRecordView } from "./leg-record-list";
 
 /**
  * SLIP GAUGES (P261) — what the card being built actually is, updated as legs go on and come off.
@@ -32,6 +33,15 @@ interface Candidate {
   readonly leg: BuildLeg;
 }
 
+interface RecordTrade {
+  readonly outgoing: Candidate;
+  readonly incoming: Candidate;
+  readonly from: { readonly label: string; readonly decided: number; readonly flatReturn: number; readonly sample: { readonly text: string } };
+  readonly to: { readonly label: string; readonly decided: number; readonly flatReturn: number; readonly sample: { readonly text: string } };
+  readonly beforeAmerican: number;
+  readonly afterAmerican: number;
+}
+
 interface Alternative {
   readonly outgoing: Candidate;
   readonly incoming: Candidate;
@@ -43,6 +53,19 @@ interface Alternative {
 
 const american = (n: number) => `${n > 0 ? "+" : ""}${n}`;
 const pct = (v: number | null) => (v == null ? "—" : `${(v * 100).toFixed(v < 0.1 ? 1 : 0)}%`);
+/** A return is signed, and a loss reads as a loss: −14.5%, never 14.5% with the sign left to the reader. */
+const signedPct = (v: number) => `${v < 0 ? "−" : "+"}${Math.abs(v * 100).toFixed(1)}%`;
+/**
+ * The sentence between the two numbers, derived FROM them.
+ *
+ * "Both lost money" was written as a constant and was true of every family on the day it shipped —
+ * one family has since crossed zero, which would have made it a false statement about our own data
+ * the first time a reader saw it. A claim about the numbers has to be computed from the numbers.
+ */
+const returnPhrase = (from: number, to: number) =>
+  to < 0 ? "Both are losses on our own legs — one is smaller."
+  : from < 0 ? "One is a loss and the other is barely above break-even; neither is a forecast."
+  : "Both are slightly above break-even on their samples, which is not a claim either will continue.";
 /**
  * A trade must never READ as no change. Rounding to whole percent turned a real move into
  * "13% → 13%" while the payout visibly dropped, which understates exactly what the reader is giving
@@ -71,12 +94,14 @@ const toCandidate = (l: BuildLeg): Candidate => ({
 });
 
 export default function SlipGauges({
-  draft, pool, byTier, onSwap,
+  draft, pool, byTier, legRecord = null, onSwap,
 }: {
   draft: readonly { readonly key: string; readonly engineLeg: BuildLeg }[];
   pool: readonly BuildLeg[];
   /** The risk-ladder record by price band — the published comparison for a built card's price. */
   byTier: Readonly<Record<string, { wins: number; losses: number; roi?: number | null }>> | null;
+  /** P268: the settled record of the leg families our own cards have used. */
+  legRecord?: LegRecordView | null;
   onSwap: (outgoingKey: string, incoming: BuildLeg) => void;
 }) {
   const priced = draft.filter((d) => Number.isFinite(d.engineLeg.americanOdds) && d.engineLeg.americanOdds !== 0);
@@ -91,6 +116,13 @@ export default function SlipGauges({
   const candidates = pool.filter((l) => l.slipLeg && Number.isFinite(l.americanOdds)).map(toCandidate);
   const alt = (priced.length >= 2 ? shorterAlternative(candidates, priced.map((d) => toCandidate(d.engineLeg))) : null) as Alternative | null;
   const outgoingKey = alt ? priced.find((d) => d.engineLeg.americanOdds === alt.outgoing.americanOdds && (d.engineLeg.slipLeg?.player ?? d.engineLeg.label) === alt.outgoing.player)?.key ?? null : null;
+
+  /* P269 · the one trade our own settled record can justify: same player, same game, a different
+     kind of leg whose family lost materially less over a substantial sample. */
+  const trade = recordTrade(candidates, priced.map((d) => toCandidate(d.engineLeg)), legRecord) as RecordTrade | null;
+  const tradeOutgoingKey = trade
+    ? priced.find((d) => (d.engineLeg.slipLeg?.player ?? d.engineLeg.label) === trade.outgoing.player && d.engineLeg.market === trade.outgoing.market)?.key ?? null
+    : null;
 
   const weakest = chance.weakestLegChance;
   const weakestLeg = weakest == null ? null : engineLegs.find((l) => impliedFromAmerican(l.americanOdds) === weakest) ?? null;
@@ -109,6 +141,13 @@ export default function SlipGauges({
           has never been graded.
         </p>
       ) : null}
+
+      {/* P268 · the level the reader is actually choosing at. A card's band record answers "have cards
+          at this price landed"; this answers "have legs like the ones I just picked landed". */}
+      <LegRecordList
+        rows={familiesFor(legRecord, engineLegs.map((l) => ({ market: l.market, side: l.slipLeg?.side ?? null, line: l.slipLeg?.line ?? null })))}
+        since={legRecord?.since ?? null}
+      />
 
       {weakestLeg && priced.length > 1 ? (
         <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 11.5, lineHeight: 1.5 }}>
@@ -139,6 +178,29 @@ export default function SlipGauges({
         <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
           No two legs here share a game — nothing on this card is linked by a rule the engine can prove.
         </p>
+      ) : null}
+
+      {trade && tradeOutgoingKey ? (
+        <div className="flex flex-col gap-2 rounded-[10px] px-3 py-2.5" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border-strong)" }}>
+          <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+            Same player, a different kind of leg
+          </span>
+          <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 11.5, lineHeight: 1.55 }}>
+            Our cards&rsquo; <strong style={{ color: "var(--vault-text)" }}>{trade.from.label}</strong> legs returned{" "}
+            {signedPct(trade.from.flatReturn)} over {trade.from.decided} ({trade.from.sample.text}); their{" "}
+            <strong style={{ color: "var(--vault-text)" }}>{trade.to.label}</strong> legs returned {signedPct(trade.to.flatReturn)} over{" "}
+            {trade.to.decided} ({trade.to.sample.text}). {returnPhrase(trade.from.flatReturn, trade.to.flatReturn)} Trading{" "}
+            {trade.outgoing.player}&rsquo;s leg moves the card {american(trade.beforeAmerican)} → {american(trade.afterAmerican)}.
+          </p>
+          <button
+            type="button"
+            onClick={() => onSwap(tradeOutgoingKey, trade.incoming.leg)}
+            className="vault-press self-start rounded-full px-3.5"
+            style={{ minHeight: 40, border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)", fontSize: 12, fontWeight: 700, background: "transparent" }}
+          >
+            Trade the kind of leg
+          </button>
+        </div>
       ) : null}
 
       {alt && outgoingKey ? (

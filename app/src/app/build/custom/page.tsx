@@ -20,7 +20,7 @@ import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import { buildSeedableCards } from "@/lib/parlays/seedable-cards";
-import { loadRiskLadderRecord } from "@/lib/parlays/risk-ladder";
+import { loadRiskLadderRecord, loadGradedLegRecord } from "@/lib/parlays/risk-ladder";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -56,6 +56,9 @@ export default function ParlayCenterCustomPage() {
   /* P261: the lab's settled record by price band. A built card has no record of its own; the published
      cards at the same price are the honest comparison, and the builder labels it as exactly that. */
   const bandByTier = loadRiskLadderRecord(dataRoot)?.byTier ?? null;
+  /* P268 · the settled record of the leg families our cards have used, aggregated at build time so
+     the page ships eight rows rather than 74 days of graded legs. */
+  const legRecord = loadGradedLegRecord(dataRoot);
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -75,7 +78,7 @@ export default function ParlayCenterCustomPage() {
           it, and both must survive an empty pool — late at night every leg has started and the pool
           is legitimately zero, but a Customize link or a saved draft still needs its surface. The
           pool column renders its own honest empty state. */}
-      <BuildExperience pool={pool} productDate={currentEtDate()} cards={seedableCards} bandByTier={bandByTier} />
+      <BuildExperience pool={pool} productDate={currentEtDate()} cards={seedableCards} bandByTier={bandByTier} legRecord={legRecord} />
 
       {/* ── OPTIMIZER COVERAGE & ELIGIBLE-LEG MARKETPLACE ────────────────────────────────────────
           The deepest research surface, kept with the builder it feeds: build a card, then inspect

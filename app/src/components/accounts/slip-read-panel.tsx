@@ -2,6 +2,7 @@
 import { readingToEngineLegs } from "@/lib/accounts/slip-insight-adapter.mjs";
 import { cardChance, bandRecord, linkedPairs } from "@/lib/parlays/lab/slip-insight.mjs";
 import ChanceMeter from "@/components/parlays/lab/chance-meter";
+import LegRecordList, { familiesFor, type LegRecordView } from "@/components/parlays/lab/leg-record-list";
 
 /**
  * WHAT THIS SLIP IS (P266) — your own ticket, read by the same engine that reads ours.
@@ -12,10 +13,12 @@ import ChanceMeter from "@/components/parlays/lab/chance-meter";
  * information rather than a verdict delivered afterwards.
  */
 export default function SlipReadPanel({
-  legs, byTier,
+  legs, byTier, legRecord = null,
 }: {
   legs: Array<{ player?: string | null; market?: string | null; side?: string | null; line?: number | null; odds?: number | null; event?: string | null }>;
   byTier: Readonly<Record<string, { wins: number; losses: number; roi?: number | null }>> | null;
+  /** P268: our own cards' settled record for the kinds of leg on this slip, joined by printed label. */
+  legRecord?: LegRecordView | null;
 }) {
   const { legs: engine, droppedUnpriced } = readingToEngineLegs(legs) as { legs: Array<Record<string, unknown>>; droppedUnpriced: number };
   if (engine.length === 0) return null;
@@ -34,6 +37,15 @@ export default function SlipReadPanel({
           not settled and which nothing here can predict.
         </p>
       ) : null}
+
+      {/* P268 · the closest thing to an honest read on someone else's bet: not a prediction about
+          their slip, but what our own cards did with legs of the same kind at the same line. */}
+      <LegRecordList
+        rows={familiesFor(legRecord, legs.map((l) => ({ market: l.market ?? null, side: l.side ?? null, line: l.line ?? null })))}
+        since={legRecord?.since ?? null}
+        heading="What our cards did with legs like these"
+        max={3}
+      />
 
       {links.length > 0 ? (
         <ul className="flex flex-col gap-1.5 list-none m-0 p-0">

@@ -12,6 +12,7 @@ import path from "node:path";
 
 import type { LadderCard, LadderSkip } from "@/components/parlays/risk-ladder-board";
 import type { BettorTier } from "@/components/parlays/parlay-lab-entry";
+import { buildLegRecord } from "@/lib/parlays/lab/leg-record.mjs";
 
 export interface TierRecord {
   readonly wins: number;
@@ -74,6 +75,31 @@ export function loadLabSettled(root: string): LabSettledDoc[] {
     } catch { /* a torn receipt is not a result */ }
   }
   return out;
+}
+
+/**
+ * The settled leg record (P268), read from the graded card receipts.
+ *
+ * Server-only and read at build time, so the page ships the aggregate rather than 74 days of legs.
+ * Dates the reader never sees are still needed for the dedupe — a leg counts once per day — so the
+ * whole corpus is parsed here and only the summary crosses into the component.
+ */
+export function loadGradedLegRecord(root: string, sport = "mlb", minDecided = 30) {
+  const docs: unknown[] = [];
+  /* BOTH graded streams: the daily suggested-card set and the risk-band cards. They are different
+     populations of card, but they are one population of LEG — and the band cards' own families are
+     only in the second file. buildLegRecord dedupes across them. */
+  for (const stream of ["graded", "optimizer-graded"]) {
+    const dir = path.join(root, "parlays", stream);
+    let files: string[] = [];
+    try { files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)); } catch { continue; }
+    for (const f of files) {
+      try { docs.push(JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"))); } catch { /* a torn receipt is not a result */ }
+    }
+  }
+  if (docs.length === 0) return null;
+  const record = buildLegRecord(docs as never[], { sport, minDecided });
+  return record.families.length ? record : null;
 }
 
 export interface RiskLadder {

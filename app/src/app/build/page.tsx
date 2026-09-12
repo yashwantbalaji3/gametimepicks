@@ -23,7 +23,8 @@ import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
-import { loadRiskLadder, loadLabLedger, loadTierGrid, loadLabSettled } from "@/lib/parlays/risk-ladder";
+import LegRecordList from "@/components/parlays/lab/leg-record-list";
+import { loadRiskLadder, loadLabLedger, loadTierGrid, loadLabSettled, loadGradedLegRecord } from "@/lib/parlays/risk-ladder";
 import { buildTierReplay } from "@/lib/parlays/lab/style-replay.mjs";
 import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
 import path from "node:path";
@@ -50,6 +51,8 @@ export default function ParlayCenterSuggestedPage() {
   /* P260: each tier's settled MLB cards since the last rule change — the same receipts the ledger is
      re-derived from — so the "for you" replay is a completed past, never a projection. */
   const replay = buildTierReplay(loadLabSettled(dataRoot), { sport: "mlb" });
+  /* P268: the settled record one level below a card — the leg families our own cards have used. */
+  const legRecord = loadGradedLegRecord(dataRoot);
   /* Substitution bench: the same eligible legs the boards render, so a swap can only reach a leg
      the site already publishes. */
   const swapPool = loadMlbPropsBoard(dataRoot, ladderDate).map((p) => ({
@@ -102,6 +105,22 @@ export default function ParlayCenterSuggestedPage() {
         replay={replay}
         recordSince={riskLadder?.record.firstDay ?? null}
       />
+
+      {/* ── HOW OUR LEGS HAVE SETTLED (P268) ───────────────────────────────────────────────────────
+          The tier records answer "have cards like this landed". This answers the question a person
+          actually acts on when they swap a leg: have legs like THIS one landed? It is folded away
+          because it is reference, not the page's headline — and because the first-viewport copy
+          budget is a ratchet that only shrinks. */}
+      {legRecord ? (
+        <details className="gtp-disclose rounded-[10px]" style={{ border: "1px solid var(--vault-border-strong)" }}>
+          <summary className="cursor-pointer px-4 py-3" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600, minHeight: 44 }}>
+            How our legs have settled — {legRecord.families.length} kinds of leg, {legRecord.distinct} legs graded
+          </summary>
+          <div className="px-4 pb-4">
+            <LegRecordList rows={legRecord.families} since={legRecord.since} heading="By kind of leg" max={legRecord.families.length} />
+          </div>
+        </details>
+      ) : null}
 
       {/* ── EVERY LANE, ONE DESTINATION (P201 · D2) ─────────────────────────────────────────────
           The board above is MLB's ladder. The other lanes publish their own cards (or typed

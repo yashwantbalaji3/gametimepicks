@@ -15,7 +15,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
+import path from "node:path";
+
 import { loadLabRecord, labSampleCaption, labCounts } from "@/lib/parlays/lab-record";
+import { loadGradedLegRecord } from "@/lib/parlays/risk-ladder";
+import LegRecordList from "@/components/parlays/lab/leg-record-list";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata: Metadata = withRouteMetadata("/results/parlay-lab/", {
@@ -28,6 +32,7 @@ const pctOrDash = (n: number | null) => (n == null ? "—" : `${(n * 100).toFixe
 
 export default function ParlayLabRecordPage() {
   const rec = loadLabRecord();
+  const legRecord = loadGradedLegRecord(path.join(process.cwd(), "public", "data"));
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
@@ -166,6 +171,28 @@ export default function ParlayLabRecordPage() {
           ) : null}
         </>
       )}
+
+      {/* ── ONE LEVEL BELOW A CARD (P268) ───────────────────────────────────────────────────────────
+          A card's record answers "did this card win". It cannot answer the question a reader acts on
+          when they swap a leg: have legs of THIS kind landed? The graded receipts carry it — market,
+          side, line, price and the official result — and this page is where a record belongs.
+
+          POPULATION: this spans the legs of BOTH published card streams — the band cards above and
+          the wider daily suggested set — deduped so a leg used by both is one observation. That is a
+          different population from the card table above, and the heading says so rather than
+          implying these are the legs of exactly those cards. */}
+      {legRecord ? (
+        <section className="mt-8">
+          <SectionHeader
+            eyebrow="Track record · By kind of leg"
+            title="How the legs inside our published cards settled"
+            sub={`${legRecord.distinct} distinct legs across ${legRecord.days} graded days, from every card we publish — the band cards above and the wider daily suggested set, counted once per leg per day rather than once per card — the day's cards share legs, so counting card slots would weight a leg by how many cards happened to use it rather than by how it settled.`}
+          />
+          <div className="mt-3">
+            <LegRecordList rows={legRecord.families} since={legRecord.since} heading="By kind of leg" max={legRecord.families.length} />
+          </div>
+        </section>
+      ) : null}
 
       <p className="mt-6" style={{ fontSize: 12, lineHeight: 1.7, color: "var(--vault-text-faint)" }}>
         Paper-only and educational. No stake is filled in anywhere on this site and nothing here is a pick
