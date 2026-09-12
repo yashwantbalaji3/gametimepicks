@@ -30,7 +30,10 @@ export interface LegFamilyRow {
 export interface LegRecordView {
   readonly since: string | null;
   readonly until: string | null;
+  /** Every distinct leg measured, including families too small to show. */
   readonly distinct: number;
+  /** What the rows below actually cover — the number a heading beside them may quote. */
+  readonly shown: number;
   readonly families: readonly LegFamilyRow[];
 }
 

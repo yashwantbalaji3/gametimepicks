@@ -100,6 +100,18 @@ test("both published card streams feed one record, and a leg in both is one obse
   assert.equal(onlyBands.distinct, 1, "a file with no `slips` key is still read");
 });
 
+test("the headline count is what the rows cover, not the whole corpus", () => {
+  /* `distinct` includes families too small to show. A heading pairing the family count with it
+     implies those families sum to a number they do not sum to. */
+  const r = buildLegRecord([doc("2026-09-01", [[
+    leg({ playerId: 1 }), leg({ playerId: 2 }),
+    leg({ playerId: 3, market: "batter_home_runs", marketLabel: "Home runs", line: 0.5, result: "loss" }),
+  ]])], { minDecided: 2 });
+  assert.equal(r.families.length, 1, "the one-leg family is below the floor");
+  assert.equal(r.shown, 2, "so the shown count is the two legs the row covers");
+  assert.equal(r.distinct, 3, "while the corpus is still reported honestly as three");
+});
+
 test("a leg the settler could not resolve is not a loss", () => {
   const r = buildLegRecord([{ date: "2026-09-01", slips: [{ legs: [leg({ result: "invalid", playerId: 3 }), leg({ playerId: 4 })] }] }], { minDecided: 1 });
   assert.equal(r.families[0].decided, 1);

@@ -189,7 +189,7 @@ export default function ParlayLabRecordPage() {
           <SectionHeader
             eyebrow="Track record · By kind of leg"
             title="How the legs inside our published cards settled"
-            sub={`${legRecord.distinct} distinct legs across ${legRecord.days} graded days, from every card we publish — the band cards above and the wider daily suggested set, counted once per leg per day rather than once per card — the day's cards share legs, so counting card slots would weight a leg by how many cards happened to use it rather than by how it settled.`}
+            sub={`${legRecord.shown} legs across ${legRecord.days} graded days, in the kinds of leg with enough history to show (of ${legRecord.distinct} graded in all), from every card we publish — the band cards above and the wider daily suggested set, counted once per leg per day rather than once per card — the day's cards share legs, so counting card slots would weight a leg by how many cards happened to use it rather than by how it settled.`}
           />
           <div className="mt-3">
             <LegRecordList rows={legRecord.families} since={legRecord.since} heading="By kind of leg" max={legRecord.families.length} />

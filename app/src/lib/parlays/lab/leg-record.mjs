@@ -152,6 +152,11 @@ export function buildLegRecord(docs, { sport = "mlb", minDecided = 30 } = {}) {
     days: dates.length,
     /** Distinct legs measured, and the number of card slots they filled. Both are facts; only the first is the sample. */
     distinct, slots, voided, unresolved,
+    /* What the rows below ACTUALLY cover. `distinct` includes families too small to show, so a
+       heading that pairs the family count with `distinct` tells a reader those families add up to a
+       number they do not add up to. Small, and exactly the kind of implied claim this site does not
+       get to make. */
+    shown: rows.reduce((t, r) => t + r.decided, 0),
     families: rows,
   };
 }
