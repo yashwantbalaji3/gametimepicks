@@ -33,3 +33,33 @@ test("the gate runner's --runs-only mode drops the board signal", () => {
   const runner = fs.readFileSync(path.join(process.cwd(), "scripts/ops/paid-run-gate.mjs"), "utf8");
   assert.match(runner, /newestBoardDate: runsOnly \? null : newestBoardDate\(\)/);
 });
+
+/**
+ * P264 · A TOLERATED STEP MUST STILL REPORT WHAT HAPPENED.
+ *
+ * The heartbeat names a tolerated failure by reading `steps.<id>.outcome`. That only works if the
+ * step's own shell exits non-zero when the work fails. Both PAID ingests had `continue-on-error: true`
+ * AND a trailing `|| echo`, so their shell exited 0, their outcome was always "success", and the
+ * report added the day before could never have named them — a guard that reads a value nothing can
+ * set. `continue-on-error` is what makes the step non-blocking; the exit status is what makes it true.
+ */
+test("no step the heartbeat inspects swallows its own failure", () => {
+  for (const id of ["odds_team", "odds_props", "sims", "fullsims", "preds"]) {
+    const at = WF.indexOf(`id: ${id}`);
+    assert.ok(at > 0, `step ${id} exists`);
+    const body = WF.slice(at, WF.indexOf("\n      - name:", at + 10));
+    const swallow = body.split("\n").filter((l) => /\.mjs/.test(l) && /\|\|\s*(true|echo\b)/.test(l));
+    assert.deepEqual(swallow, [], `${id}: its outcome cannot be true while it swallows — ${swallow.join(" / ")}`);
+  }
+});
+
+test("the paid ingests stay non-blocking, and say why they failed", () => {
+  for (const id of ["odds_team", "odds_props"]) {
+    const at = WF.indexOf(`id: ${id}`);
+    const body = WF.slice(at, WF.indexOf("\n      - name:", at + 10));
+    assert.match(body, /continue-on-error: true/, `${id} must not block the slate`);
+    assert.match(body, /::warning::/, `${id} must explain a failure`);
+    assert.match(body, /exit 1/, `${id} must still fail its own step`);
+    assert.match(body, /ODDS_API_KEY/, `${id} keeps its honest no-op when the key is absent`);
+  }
+});
