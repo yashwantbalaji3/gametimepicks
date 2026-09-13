@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-13T18:02:15Z",
+ "generatedAt": "2026-09-13T22:54:38Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 22,
-  "forecastsTotal": 6,
-  "forecastsUpcoming": 6,
+  "scheduledUpcoming": 18,
+  "forecastsTotal": 2,
+  "forecastsUpcoming": 2,
   "forecastsStarted": 0,
-  "marketEvents": 6,
+  "marketEvents": 2,
   "settled": 0
  },
- "nextKickoffUtc": "2026-09-13T20:25Z",
- "nextMatchup": "MIA @ LV",
- "nextForecastUtc": "2026-09-13T20:25Z",
- "nextForecastMatchup": "MIA @ LV",
- "marketCapturedAt": "2026-09-13T17:35:06Z",
+ "nextKickoffUtc": "2026-09-14T00:20Z",
+ "nextMatchup": "DAL @ NYG",
+ "nextForecastUtc": "2026-09-14T00:20Z",
+ "nextForecastMatchup": "DAL @ NYG",
+ "marketCapturedAt": "2026-09-13T22:54:38Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-13T17:35:06Z",
+  "generatedAt": "2026-09-13T18:02:15Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -71,178 +71,6 @@
  },
  "events": [
   {
-   "providerEventId": "401872928",
-   "canonicalEventId": "nfl-401872928",
-   "matchup": "MIA @ LV",
-   "home": {
-    "abbr": "LV",
-    "name": "Las Vegas Raiders"
-   },
-   "away": {
-    "abbr": "MIA",
-    "name": "Miami Dolphins"
-   },
-   "kickoffUtc": "2026-09-13T20:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -13.2,
-    "leansTo": "MIA",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
-   "projectedScore": {
-    "home": 22,
-    "away": 23,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.4647,
-    "away": 0.5108
-   },
-   "total": {
-    "median": 45,
-    "p10": 28,
-    "p90": 62,
-    "head": "matchup-totals-v1-decayed-points"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 1,
-    "inputHash": "92490de460b212ee",
-    "generatedAt": "2026-09-13T18:02:15Z"
-   }
-  },
-  {
-   "providerEventId": "401872927",
-   "canonicalEventId": "nfl-401872927",
-   "matchup": "GB @ MIN",
-   "home": {
-    "abbr": "MIN",
-    "name": "Minnesota Vikings"
-   },
-   "away": {
-    "abbr": "GB",
-    "name": "Green Bay Packers"
-   },
-   "kickoffUtc": "2026-09-13T20:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 25,
-    "away": 20,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.5734,
-    "away": 0.3985
-   },
-   "total": {
-    "median": 45,
-    "p10": 28,
-    "p90": 62,
-    "head": "matchup-totals-v1-decayed-points"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 1,
-    "inputHash": "3e92c62eebf90ed5",
-    "generatedAt": "2026-09-13T18:02:15Z"
-   }
-  },
-  {
-   "providerEventId": "401872929",
-   "canonicalEventId": "nfl-401872929",
-   "matchup": "WSH @ PHI",
-   "home": {
-    "abbr": "PHI",
-    "name": "Philadelphia Eagles"
-   },
-   "away": {
-    "abbr": "WSH",
-    "name": "Washington Commanders"
-   },
-   "kickoffUtc": "2026-09-13T20:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 28,
-    "away": 19,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6569,
-    "away": 0.3197
-   },
-   "total": {
-    "median": 47,
-    "p10": 31,
-    "p90": 64,
-    "head": "matchup-totals-v1-decayed-points"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 1,
-    "inputHash": "4049dbee4e953ae7",
-    "generatedAt": "2026-09-13T18:02:15Z"
-   }
-  },
-  {
-   "providerEventId": "401872926",
-   "canonicalEventId": "nfl-401872926",
-   "matchup": "ARI @ LAC",
-   "home": {
-    "abbr": "LAC",
-    "name": "Los Angeles Chargers"
-   },
-   "away": {
-    "abbr": "ARI",
-    "name": "Arizona Cardinals"
-   },
-   "kickoffUtc": "2026-09-13T20:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -11.8,
-    "leansTo": "ARI",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
-   "projectedScore": {
-    "home": 29,
-    "away": 18,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6818,
-    "away": 0.2986
-   },
-   "total": {
-    "median": 47,
-    "p10": 30,
-    "p90": 64,
-    "head": "matchup-totals-v1-decayed-points"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 1,
-    "inputHash": "452ac0e5ebee178e",
-    "generatedAt": "2026-09-13T18:02:15Z"
-   }
-  },
-  {
    "providerEventId": "401872930",
    "canonicalEventId": "nfl-401872930",
    "matchup": "DAL @ NYG",
@@ -260,7 +88,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": 7.2,
+    "gapPp": 7.5,
     "leansTo": "NYG",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -283,8 +111,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "b025e9d982190b77",
-    "generatedAt": "2026-09-13T18:02:15Z"
+    "inputHash": "cbd7502a361cc8d0",
+    "generatedAt": "2026-09-13T22:54:38Z"
    }
   },
   {
@@ -328,8 +156,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 1,
-    "inputHash": "b428ed9ebe2bd291",
-    "generatedAt": "2026-09-13T18:02:15Z"
+    "inputHash": "cf582bb3699073c0",
+    "generatedAt": "2026-09-13T22:54:38Z"
    }
   }
  ],
