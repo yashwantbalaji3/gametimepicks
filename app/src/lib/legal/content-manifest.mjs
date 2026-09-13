@@ -55,3 +55,51 @@ export function canPublishLegalSet(manifest) {
   }
   return { allowed: blocked.length === 0, blocked };
 }
+
+/**
+ * WHAT EACH GOVERNED SECTION'S ROUTE DOES BEFORE APPROVAL (P290).
+ *
+ * `REQUIRED_SECTIONS` lists three sections; `LEGAL_ROUTES` in texts.mjs lists two. The prune sweep
+ * derives what to withhold from `LEGAL_ROUTES`, so the third — `responsible-use` — was never
+ * considered and shipped publicly while its status is `LEGAL_COUNSEL_REQUIRED`, the strongest
+ * "engineering cannot decide this" status in the vocabulary. Meanwhile /terms and /privacy, marked
+ * only `DRAFT_FOR_REVIEW`, were correctly withheld. The gate was inverted, by omission.
+ *
+ * Keeping that page public is nonetheless the RIGHT outcome, and that is the point of writing it
+ * down: it carries the age guidance, the "not betting advice" and "no guarantees" disclaimers, the
+ * statement that no payment is collected, and the 1-800-GAMBLER / ncpgambling.org helpline. Removing
+ * it until counsel signs would strip a reader's protections to satisfy a registry. Its absence is
+ * more harmful than its presence.
+ *
+ * So a section's pre-approval disposition is now DECLARED rather than inferred from whether someone
+ * remembered to add it to a route map:
+ *
+ *   WITHHOLD_UNTIL_APPROVED — the section states terms the operator is bound by. Unapproved text
+ *                             making a contractual claim must not be reachable at all.
+ *   PUBLISH_AS_PROTECTIVE   — the section only warns, limits and signposts. Publishing it early is
+ *                             safe because it asks nothing of the reader and grants nothing to us;
+ *                             review sharpens the wording, it does not license the page.
+ *
+ * PUBLISH_AS_PROTECTIVE is not a bypass: a page carrying it must contain no contractual language,
+ * and `legal-route-gating.test.mjs` asserts that against the BUILT export. If a protective page ever
+ * starts saying "you agree", it has become a contract and must move to WITHHOLD_UNTIL_APPROVED.
+ */
+export const PRE_APPROVAL_DISPOSITION = Object.freeze({
+  terms: "WITHHOLD_UNTIL_APPROVED",
+  privacy: "WITHHOLD_UNTIL_APPROVED",
+  "responsible-use": "PUBLISH_AS_PROTECTIVE",
+});
+
+export const DISPOSITIONS = Object.freeze(["WITHHOLD_UNTIL_APPROVED", "PUBLISH_AS_PROTECTIVE"]);
+
+/** Language that makes a page a contract rather than a warning. Checked against rendered text. */
+export const CONTRACTUAL_PHRASES = Object.freeze([
+  "you agree",
+  "these terms",
+  "terms of service",
+  "governing law",
+  "binding arbitration",
+  "we may terminate",
+  "limitation of liability",
+  "by using this site you",
+]);

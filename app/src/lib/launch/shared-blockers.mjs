@@ -34,9 +34,15 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["nfl", "nba", "epl", "ufc"],
     unlocks: "no-vig market comparison — the last missing shadow input for NFL (READY_EXCEPT_ODDS) and one of several for NBA/EPL/UFC",
-    engineeringState: "FOUNDER_ACTION_PROVIDED",
+    /* P290: this read FOUNDER_ACTION_PROVIDED while its OWN evidence ends "CLOSED on the canary
+       receipt and the first authorized NFL capture", and its founderAction still asked the founder to
+       "authorize ONE canary run" — a thing they did on 2026-09-10, after which three receipts have
+       been issued and four sports have spent real credits against them. A register that asks for an
+       authorization already given is the same defect P287 fixed in the /launch gate packet: it costs
+       the founder time and invites a duplicate authorization for spend already authorized. */
+    engineeringState: "CLOSED",
     engineeringEvidence: "founder authorized credit spend on 2026-09-10 ('We are not even using 30-40% of the credit limit we get per month - so we can afford to be lavish on spending API credits'); the NFL capture's P171 receipt had lapsed at its program's close and refused every window since (AUTHORIZATION_EXPIRED; 69 of 3,000 credits ever used) — renewed as docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md (team markets only, 500-credit season ceiling, expiry at the ceiling; both receipt parsers accept it, the P171 file still refuses); nfl-event-window reads it without the prop probe (props are out of scope); the canary runs in CI via .github/workflows/odds-canary.yml because the local key is dead (401); provider balance 16,044 on 2026-09-10 — CLOSED on the canary receipt and the first authorized NFL capture",
-    founderAction: "confirm The Odds API plan covers NFL/NBA/EPL/UFC market reads within existing credits, then authorize ONE canary run (single sport, single event, hard credit ceiling)",
+    founderAction: "nothing outstanding — the canary ran and three per-sport receipts are in force (NFL team markets 500, UFC h2h 500, EPL h2h+totals 500; each with its own cumulative ledger). A NEW decision is needed only to raise a ceiling, add a sport, or bring player props into scope; none of those may be assumed from these receipts.",
     requiredValues: [
       { name: "ODDS_API_KEY", format: "existing repository-CI secret — already set for MLB; NO new secret needed", where: "GitHub Actions secrets (already present)", neverShare: "the key value itself — never in chat, commits, or logs" },
       { name: "canary authorization", format: "a yes plus the sport to canary first (recommended: NFL, the sport odds alone unlocks)", where: "reply in chat — authorization is a decision, not a secret", neverShare: "nothing sensitive in this half" },

@@ -100,3 +100,44 @@ test("PUBLIC BOUNDARY: the registry module is consumed only by internal /launch 
   walk(path.join(process.cwd(), "src"));
   assert.deepEqual(offenders, [], "founder packets never reach public surfaces");
 });
+
+/*
+ * A RECORD MAY NOT CONTRADICT ITS OWN EVIDENCE (P290).
+ *
+ * `blocker-odds` carried engineeringState FOUNDER_ACTION_PROVIDED while its own engineeringEvidence
+ * ended "CLOSED on the canary receipt and the first authorized NFL capture", and its founderAction
+ * still asked the founder to "authorize ONE canary run" — done on 2026-09-10, with three receipts
+ * issued and four sports spending against them since. The founder reading the register would have
+ * been asked to re-authorize spend that is already authorized, which is the specific harm P287 fixed
+ * in the /launch gate packet. Same defect, second surface.
+ *
+ * Nothing compared a record's narrative to its own state field. This does.
+ */
+test("a blocker whose evidence records itself CLOSED says so in its state", () => {
+  const list = Array.isArray(SHARED_BLOCKERS) ? SHARED_BLOCKERS : (SHARED_BLOCKERS?.blockers ?? []);
+  assert.ok(list.length > 0, "no blockers to check — this guard would pass vacuously");
+  for (const b of list) {
+    const declaresClosed = /\bCLOSED\b/.test(String(b.engineeringEvidence ?? ""));
+    if (!declaresClosed) continue;
+    assert.equal(
+      b.engineeringState, "CLOSED",
+      `${b.id}: its evidence says CLOSED but its state is ${b.engineeringState} — one of the two is wrong, and the founder reads both`,
+    );
+  }
+});
+
+test("no founder action asks for an authorization the register already records as given", () => {
+  /*
+   * The reader-facing half. A CLOSED blocker may still name an outstanding deployment step (analytics
+   * does: stand up the collector). What it may not do is ask again for the DECISION that closed it.
+   */
+  const list = Array.isArray(SHARED_BLOCKERS) ? SHARED_BLOCKERS : (SHARED_BLOCKERS?.blockers ?? []);
+  const ASKS_TO_AUTHORIZE = /\bauthorize\b|\bauthorise\b|\bconfirm the\b/i;
+  for (const b of list) {
+    if (b.engineeringState !== "CLOSED") continue;
+    assert.ok(
+      !ASKS_TO_AUTHORIZE.test(String(b.founderAction ?? "")),
+      `${b.id}: it is CLOSED yet its founderAction still asks for an authorization — "${b.founderAction}"`,
+    );
+  }
+});
