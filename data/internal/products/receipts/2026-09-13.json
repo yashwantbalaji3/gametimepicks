@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-13",
- "generatedAt": "2026-09-13T10:35:27Z",
+ "generatedAt": "2026-09-13T12:31:36Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-3+bank-builder-lane-b-step-1",
-     "lockAt": "2026-09-13T10:35:23.889Z"
+     "lockAt": "2026-09-13T12:31:33.255Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-3+moonshot-lane-b-step-1",
-     "lockAt": "2026-09-13T10:35:23.889Z"
+     "lockAt": "2026-09-13T12:31:33.255Z"
     },
     "transitions": [
      {
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-13T10:25:54.000Z"
+     "lockAt": "2026-09-13T12:23:44.000Z"
     },
     "transitions": [
      {
@@ -444,7 +444,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -186,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Rafael Devers",
@@ -458,7 +458,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -171,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -488,7 +488,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -121,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Bryson Stott",
@@ -502,7 +502,7 @@
        "side": "Under",
        "line": 0.5,
        "odds": 152,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Yainer Diaz",
@@ -516,7 +516,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -210,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -546,7 +546,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -207,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Christian Koss",
@@ -560,7 +560,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -132,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Max Clark",
@@ -574,7 +574,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -197,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Carson Benge",
@@ -588,7 +588,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -158,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Josh Lowe",
@@ -602,7 +602,7 @@
        "side": "Under",
        "line": 0.5,
        "odds": 121,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -616,12 +616,12 @@
    ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "ACTIVE",
+    "state": "AWAITING_RESULT",
     "policyVersion": "mlb-cards@1",
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-13T10:35:25Z"
+     "lockAt": "2026-09-13T12:31:35Z"
     },
     "transitions": [
      {
@@ -631,6 +631,10 @@
      {
       "to": "ACTIVE",
       "runId": "gen:2026-09-13:e6205803d8cd"
+     },
+     {
+      "to": "AWAITING_RESULT",
+      "runId": "await:2026-09-13:2026-09-13T10:24:30+00:00"
      }
     ]
    }
@@ -679,6 +683,11 @@
    "product": "end-zone-vault",
    "kind": "INCIDENT_OPEN",
    "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-13"
+  },
+  {
+   "product": "epl-cards",
+   "kind": "STALE_ACTIVE_CARD",
+   "detail": "locked 2026-09-12T22:44:08Z, still ACTIVE"
   }
  ],
  "authorities": {
