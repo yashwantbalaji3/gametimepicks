@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824628,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T00:10:55.395Z",
+  "availableAt": "2026-09-13T00:10:55.395Z",
+  "eventStartTime": "2026-09-13T18:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 571510,
+      "name": "Matthew Boyd",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 4,
+        "bbAvg": 2,
+        "erAvg": 3.6,
+        "hrAvg": 1.2,
+        "kPer9": 6.07,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 109.33,
+        "k": 86,
+        "bb": 33,
+        "er": 49,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 696149,
+      "name": "Bubba Chandler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 5,
+      "lastStartDate": "2026-09-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 5.2,
+        "bbAvg": 1.8,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 9.12,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 136.67,
+        "k": 122,
+        "bb": 69,
+        "er": 65,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-13T00:10:55.395Z"
+  },
+  "recordHash": "c377839d2fdc89318b9bb6ef74cee80f0f6b5aec64220320f98172a15e0309f6"
+}

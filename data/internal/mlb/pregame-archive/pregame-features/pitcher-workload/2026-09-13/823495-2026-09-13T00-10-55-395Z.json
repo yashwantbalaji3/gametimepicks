@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823495,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T00:10:55.395Z",
+  "availableAt": "2026-09-13T00:10:55.395Z",
+  "eventStartTime": "2026-09-13T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693645,
+      "name": "Cam Schlittler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 5,
+      "lastStartDate": "2026-09-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 7.6,
+        "bbAvg": 2.2,
+        "erAvg": 0.8,
+        "hrAvg": 0.4,
+        "kPer9": 10.69,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 178.67,
+        "k": 220,
+        "bb": 42,
+        "er": 40,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 681035,
+      "name": "Christian Scott",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 7,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 5.6,
+        "bbAvg": 2.4,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 10.08,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 99.33,
+        "k": 120,
+        "bb": 44,
+        "er": 42,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-13T00:10:55.395Z"
+  },
+  "recordHash": "41cc36946c716d16bee28498f63f57f84a8873fec52e7b485f882ad248d114f9"
+}

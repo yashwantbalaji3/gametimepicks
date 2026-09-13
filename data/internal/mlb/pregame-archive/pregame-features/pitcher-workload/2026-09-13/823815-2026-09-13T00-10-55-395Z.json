@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823815,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T00:10:55.395Z",
+  "availableAt": "2026-09-13T00:10:55.395Z",
+  "eventStartTime": "2026-09-13T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 691587,
+      "name": "Eury Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 4.4,
+        "bbAvg": 3.6,
+        "erAvg": 3.4,
+        "hrAvg": 0.8,
+        "kPer9": 8.74,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 139.33,
+        "k": 150,
+        "bb": 62,
+        "er": 61,
+        "hr": 17
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-13T00:10:55.395Z"
+  },
+  "recordHash": "b26f49885e9d3f97db4930039d83165cfc75fd9b991f0d71ed6e86ac0fbc0ca0"
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823734,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T00:10:55.395Z",
+  "availableAt": "2026-09-13T00:10:55.395Z",
+  "eventStartTime": "2026-09-13T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 695505,
+      "name": "Chase Burns",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 6.6,
+        "bbAvg": 1,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 12.21,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 148.33,
+        "k": 176,
+        "bb": 51,
+        "er": 45,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-13T00:10:55.395Z"
+  },
+  "recordHash": "367f7249d1d5ed6e2e86a963118856f0b26cbecdaef1d56003c944b6a3309a74"
+}

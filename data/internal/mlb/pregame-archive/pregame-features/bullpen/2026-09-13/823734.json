@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823734,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T00:10:56.978Z",
+  "availableAt": "2026-09-13T00:10:56.978Z",
+  "eventStartTime": "2026-09-13T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-10",
+    "2026-09-11",
+    "2026-09-12"
+  ],
+  "home": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 1,
+      "pitches": 30,
+      "relievers": [
+        {
+          "id": 668831,
+          "name": "Garrett Stallings",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 9,
+          "dates": [
+            "2026-09-11"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 113,
+    "teamName": "Cincinnati Reds",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 95,
+      "relievers": [
+        {
+          "id": 682825,
+          "name": "Luis Mey",
+          "appearances": 1,
+          "pitches": 38,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 670062,
+          "name": "Julian Garcia",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 5,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 624431,
+          "name": "Jose Trevino",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 6,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 656271,
+          "name": "Brock Burke",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-09-11"
+          ]
+        },
+        {
+          "id": 622088,
+          "name": "Tejay Antone",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-09-11"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-10,2026-09-11,2026-09-12) + feed/live box scores",
+    "capturedAt": "2026-09-13T00:10:56.978Z"
+  },
+  "recordHash": "32ed18460f90c6add72346afcb9c51ffb6742dbf6686f637bf84319b065a34bb"
+}

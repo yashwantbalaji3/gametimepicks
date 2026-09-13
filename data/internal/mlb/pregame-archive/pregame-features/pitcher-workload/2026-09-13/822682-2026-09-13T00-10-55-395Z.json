@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822682,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T00:10:55.395Z",
+  "availableAt": "2026-09-13T00:10:55.395Z",
+  "eventStartTime": "2026-09-13T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663623,
+      "name": "Jake Irvin",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 4.8,
+        "bbAvg": 2.8,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 8.31,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 91.33,
+        "k": 90,
+        "bb": 42,
+        "er": 56,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 680570,
+      "name": "Grayson Rodriguez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 5,
+        "bbAvg": 2.2,
+        "erAvg": 2.6,
+        "hrAvg": 1,
+        "kPer9": 8.44,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 81.67,
+        "k": 75,
+        "bb": 37,
+        "er": 57,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-13T00:10:55.395Z"
+  },
+  "recordHash": "ed1d45a01ab89b039a13fb987b078242d6f92ebeacb4b9304d90d530814d15d1"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822764,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T00:10:55.395Z",
+  "availableAt": "2026-09-13T00:10:55.395Z",
+  "eventStartTime": "2026-09-13T17:37:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656302,
+      "name": "Dylan Cease",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 7.2,
+        "bbAvg": 2.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 10.8,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 161.33,
+        "k": 227,
+        "bb": 67,
+        "er": 43,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 669432,
+      "name": "Trevor Rogers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 7.2,
+        "bbAvg": 0.6,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 10.13,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 151.67,
+        "k": 138,
+        "bb": 37,
+        "er": 70,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-13T00:10:55.395Z"
+  },
+  "recordHash": "b026865847b0ee485f57a5312969df53e6df47be9b2006fc65df25198d60b40c"
+}
