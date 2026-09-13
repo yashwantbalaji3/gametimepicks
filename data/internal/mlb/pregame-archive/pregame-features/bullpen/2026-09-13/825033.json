@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 825033,
   "date": "2026-09-13",
-  "capturedAt": "2026-09-13T00:30:49.626Z",
-  "availableAt": "2026-09-13T00:30:49.626Z",
+  "capturedAt": "2026-09-13T05:39:27.578Z",
+  "availableAt": "2026-09-13T05:39:27.578Z",
   "eventStartTime": "2026-09-13T20:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,55 @@
     "teamId": 109,
     "teamName": "Arizona Diamondbacks",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 43,
+      "relievers": [
+        {
+          "id": 571882,
+          "name": "Derek Law",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 5,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 1,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 4,
-      "pitches": 64,
+      "appearances": 7,
+      "pitches": 107,
       "relievers": [
+        {
+          "id": 571882,
+          "name": "Derek Law",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 5,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
         {
           "id": 642701,
           "name": "Dennis Santana",
@@ -67,23 +108,101 @@
           "dates": [
             "2026-09-11"
           ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 1,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 571882,
+        "name": "Derek Law",
+        "reason": "39 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 140,
     "teamName": "Texas Rangers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 79,
+      "relievers": [
+        {
+          "id": 543135,
+          "name": "Nathan Eovaldi",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 8,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 676395,
+          "name": "Robert Garcia",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 115,
+      "appearances": 10,
+      "pitches": 194,
       "relievers": [
+        {
+          "id": 543135,
+          "name": "Nathan Eovaldi",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 8,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 676395,
+          "name": "Robert Garcia",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-09-10",
+            "2026-09-12"
+          ]
+        },
         {
           "id": 656756,
           "name": "Jordan Montgomery",
@@ -136,23 +255,29 @@
           ]
         },
         {
-          "id": 676395,
-          "name": "Robert Garcia",
+          "id": 656641,
+          "name": "Jacob Latz",
           "appearances": 1,
-          "pitches": 9,
-          "outs": 3,
+          "pitches": 18,
+          "outs": 4,
           "dates": [
-            "2026-09-10"
+            "2026-09-12"
           ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 543135,
+        "name": "Nathan Eovaldi",
+        "reason": "45 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-10,2026-09-11,2026-09-12) + feed/live box scores",
-    "capturedAt": "2026-09-13T00:30:49.626Z"
+    "capturedAt": "2026-09-13T05:39:27.578Z"
   },
-  "recordHash": "18ef7d190e030b620814a2b107e8d2f79aa8de28afebdfee5f94cede64d22f01"
+  "recordHash": "562ad7e0592ac7c68c42e751fb836e4694ca6f36bedd3b07a46dc411231571de"
 }

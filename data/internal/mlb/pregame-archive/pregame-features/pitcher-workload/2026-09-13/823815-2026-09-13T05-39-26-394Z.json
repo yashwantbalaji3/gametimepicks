@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823815,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T05:39:26.394Z",
+  "availableAt": "2026-09-13T05:39:26.394Z",
+  "eventStartTime": "2026-09-13T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 691587,
+      "name": "Eury Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 4.4,
+        "bbAvg": 3.6,
+        "erAvg": 3.4,
+        "hrAvg": 0.8,
+        "kPer9": 8.74,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 139.33,
+        "k": 150,
+        "bb": 62,
+        "er": 61,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 686218,
+      "name": "Emmet Sheehan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 6.4,
+        "bbAvg": 1.2,
+        "erAvg": 3,
+        "hrAvg": 1.2,
+        "kPer9": 12,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 101,
+        "k": 118,
+        "bb": 31,
+        "er": 57,
+        "hr": 21
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-13T05:39:26.394Z"
+  },
+  "recordHash": "5c62369f427b733b29e62db9e98eb80c650b4e05ac976ab32e7a47666a3179c5"
+}

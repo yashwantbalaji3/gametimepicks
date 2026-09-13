@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823171,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T05:39:26.394Z",
+  "availableAt": "2026-09-13T05:39:26.394Z",
+  "eventStartTime": "2026-09-13T23:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 657277,
+      "name": "Logan Webb",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 4.8,
+        "bbAvg": 1.6,
+        "erAvg": 3.6,
+        "hrAvg": 0.6,
+        "kPer9": 9.53,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 155.67,
+        "k": 127,
+        "bb": 40,
+        "er": 71,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 601713,
+      "name": "Nick Pivetta",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21,
+        "ipAvg": 4.2,
+        "kAvg": 5.2,
+        "bbAvg": 1.2,
+        "erAvg": 1.6,
+        "hrAvg": 0,
+        "kPer9": 11.14,
+        "workloadIpLast5": 21
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 21,
+        "k": 26,
+        "bb": 6,
+        "er": 8,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-13T05:39:26.394Z"
+  },
+  "recordHash": "919482f6c2629063ae5447c9ba136b669790aaf19d54e412410981ff2d7017ed"
+}

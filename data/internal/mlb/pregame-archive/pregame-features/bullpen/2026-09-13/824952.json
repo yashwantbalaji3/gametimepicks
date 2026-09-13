@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824952,
   "date": "2026-09-13",
-  "capturedAt": "2026-09-13T00:30:49.626Z",
-  "availableAt": "2026-09-13T00:30:49.626Z",
+  "capturedAt": "2026-09-13T05:39:27.578Z",
+  "availableAt": "2026-09-13T05:39:27.578Z",
   "eventStartTime": "2026-09-13T20:05:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,95 @@
     "teamId": 133,
     "teamName": "Athletics",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 4,
+      "pitches": 139,
+      "relievers": [
+        {
+          "id": 683155,
+          "name": "Joey Estes",
+          "appearances": 1,
+          "pitches": 54,
+          "outs": 9,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 814305,
+          "name": "Yunior Tur",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 2,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 666126,
+          "name": "Carlos Cortes",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 686751,
+          "name": "Seth Johnson",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 69,
+      "appearances": 9,
+      "pitches": 208,
       "relievers": [
+        {
+          "id": 683155,
+          "name": "Joey Estes",
+          "appearances": 1,
+          "pitches": 54,
+          "outs": 9,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 814305,
+          "name": "Yunior Tur",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 2,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 666126,
+          "name": "Carlos Cortes",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 686751,
+          "name": "Seth Johnson",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
         {
           "id": 663687,
           "name": "Hogan Harris",
@@ -80,19 +161,61 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 683155,
+        "name": "Joey Estes",
+        "reason": "54 pitches yesterday"
+      },
+      {
+        "id": 814305,
+        "name": "Yunior Tur",
+        "reason": "37 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 136,
     "teamName": "Seattle Mariners",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 48,
+      "relievers": [
+        {
+          "id": 621074,
+          "name": "Michael Rucker",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 571948,
+          "name": "Hoby Milner",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 681867,
+          "name": "Cooper Criswell",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 86,
+      "appearances": 9,
+      "pitches": 134,
       "relievers": [
         {
           "id": 662253,
@@ -115,6 +238,16 @@
           ]
         },
         {
+          "id": 621074,
+          "name": "Michael Rucker",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
           "id": 672841,
           "name": "Carlos Vargas",
           "appearances": 1,
@@ -122,6 +255,26 @@
           "outs": 3,
           "dates": [
             "2026-09-11"
+          ]
+        },
+        {
+          "id": 571948,
+          "name": "Hoby Milner",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 681867,
+          "name": "Cooper Criswell",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
           ]
         },
         {
@@ -161,7 +314,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-10,2026-09-11,2026-09-12) + feed/live box scores",
-    "capturedAt": "2026-09-13T00:30:49.626Z"
+    "capturedAt": "2026-09-13T05:39:27.578Z"
   },
-  "recordHash": "2e665702fa5301eaec70ff0fa0b307fb5ede55ae7722edd7f54beb9ef8ba7af6"
+  "recordHash": "c18f353bca6e9f03950e3f69b946c2c273a57ba7f58e737e43636fe36dd427d4"
 }

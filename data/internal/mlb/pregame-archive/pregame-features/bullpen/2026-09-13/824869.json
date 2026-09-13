@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824869,
   "date": "2026-09-13",
-  "capturedAt": "2026-09-13T00:30:49.626Z",
-  "availableAt": "2026-09-13T00:30:49.626Z",
+  "capturedAt": "2026-09-13T05:39:27.578Z",
+  "availableAt": "2026-09-13T05:39:27.578Z",
   "eventStartTime": "2026-09-13T17:35:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,24 @@
     "teamId": 144,
     "teamName": "Atlanta Braves",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 24,
+      "relievers": [
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 85,
+      "appearances": 7,
+      "pitches": 109,
       "relievers": [
         {
           "id": 628452,
@@ -48,6 +59,16 @@
           "dates": [
             "2026-09-10",
             "2026-09-11"
+          ]
+        },
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-12"
           ]
         },
         {
@@ -78,14 +99,96 @@
     "teamId": 143,
     "teamName": "Philadelphia Phillies",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 5,
+      "pitches": 131,
+      "relievers": [
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 680880,
+          "name": "Grant Holman",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 548384,
+          "name": "Brooks Raley",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 2,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 663767,
+          "name": "Chase Shugart",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 596117,
+          "name": "Garrett Stubbs",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 99,
+      "appearances": 12,
+      "pitches": 230,
       "relievers": [
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 548384,
+          "name": "Brooks Raley",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 3,
+          "dates": [
+            "2026-09-11",
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 680880,
+          "name": "Grant Holman",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
         {
           "id": 621237,
           "name": "José Alvarado",
@@ -95,6 +198,17 @@
           "dates": [
             "2026-09-10",
             "2026-09-11"
+          ]
+        },
+        {
+          "id": 663767,
+          "name": "Chase Shugart",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 8,
+          "dates": [
+            "2026-09-11",
+            "2026-09-12"
           ]
         },
         {
@@ -128,33 +242,34 @@
           ]
         },
         {
-          "id": 663767,
-          "name": "Chase Shugart",
+          "id": 596117,
+          "name": "Garrett Stubbs",
           "appearances": 1,
-          "pitches": 9,
+          "pitches": 15,
           "outs": 4,
           "dates": [
-            "2026-09-11"
-          ]
-        },
-        {
-          "id": 548384,
-          "name": "Brooks Raley",
-          "appearances": 1,
-          "pitches": 9,
-          "outs": 1,
-          "dates": [
-            "2026-09-11"
+            "2026-09-12"
           ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 689147,
+        "name": "Orion Kerkering",
+        "reason": "39 pitches yesterday"
+      },
+      {
+        "id": 680880,
+        "name": "Grant Holman",
+        "reason": "34 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-10,2026-09-11,2026-09-12) + feed/live box scores",
-    "capturedAt": "2026-09-13T00:30:49.626Z"
+    "capturedAt": "2026-09-13T05:39:27.578Z"
   },
-  "recordHash": "e3c88781d7bf2246c7e067b8efc523dbc4d6e490cd5df74a44e70c44d556f94c"
+  "recordHash": "aa915acfdc707c47caedafd881ae36d922793ab3d098076954457f64985afa68"
 }
