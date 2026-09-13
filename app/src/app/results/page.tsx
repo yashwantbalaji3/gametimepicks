@@ -613,13 +613,25 @@ export default function ResultsPage() {
               Every older graded day has its own full page — slip by slip, nothing dropped; each still
               counts in the lifetime and by-profile records above.
             </p>
-            <p style={{ margin: "6px 0 0", lineHeight: 2 }}>
+            {/*
+              P291: THIS LIST COULD NOT WRAP, SO MOST OF IT WAS UNREACHABLE.
+              The links sat in a <p> and were spaced with `marginRight: 12`. A margin makes a visual
+              gap; it does not make a BREAK OPPORTUNITY. With no whitespace text node between them the
+              browser saw one unbreakable token — "2026-09-082026-09-072026-09-06…" — 67 dates long,
+              and `line-height: 2` waited for a wrap that could never happen. At 390px the row ran
+              past 5,000px and the page shell's `overflow-x: hidden` clipped it, so 59 of 63 archive
+              links were invisible AND unreachable on a phone; no horizontal scrollbar appeared to
+              hint otherwise.
+              A wrapping flex row with `gap` is the fix and the house convention: let layout own the
+              spacing instead of per-element margins.
+            */}
+            <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1.5">
               {dateSections.slice(3).map((s2) => (
-                <Link key={s2.date} href={surfaceHref("results", { date: s2.date }) ?? "/results/"} className="font-mono" style={{ color: "var(--gtp-bank-heat)", marginRight: 12, fontSize: 11.5, whiteSpace: "nowrap" }}>
+                <Link key={s2.date} href={surfaceHref("results", { date: s2.date }) ?? "/results/"} className="font-mono" style={{ color: "var(--gtp-bank-heat)", fontSize: 11.5, whiteSpace: "nowrap" }}>
                   {s2.date}
                 </Link>
               ))}
-            </p>
+            </div>
           </div>
         ) : null}
       </div>

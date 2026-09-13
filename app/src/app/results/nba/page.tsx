@@ -141,15 +141,29 @@ export default function NbaResultsPage() {
               boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
             }}
           />
-          <span
+          {/* This line already named the page; it is now the page's heading, so the visible heading
+              and the document heading are the same words rather than two different things. Styling
+              unchanged — it is an <h1> that happens to be set as an eyebrow. */}
+          <h1
             className="font-mono uppercase tracking-[0.18em]"
-            style={{ color: "var(--vault-gold)", fontSize: 10 }}
+            style={{ color: "var(--vault-gold)", fontSize: 10, margin: 0, fontWeight: "inherit" }}
           >
             NBA model audit · graded against final box scores
-          </span>
+          </h1>
         </div>
+        {/*
+          P291: THE PAGE'S ONLY TOP-LEVEL HEADING WAS THE NUMBER "49.1%".
+          A 96px glowing hit rate was the <h1>, so this page's NAME appeared nowhere in its heading
+          structure: a reader navigating by headings, a search result, and a shared link all got
+          "49.1%" as the title of an archived sport's audit. The eyebrow directly above it already
+          said "NBA model audit" — the identity existed, it just was not the heading.
+          The eyebrow above is now the h1 and the number keeps every pixel of its treatment in a
+          <div>. Visually identical; structurally a document whose title is the words a reader sees,
+          not a hidden duplicate of them.
+        */}
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
-          <h1
+          <div
+            aria-hidden
             className="font-display font-semibold tracking-tightest leading-[0.95]"
             style={{
               color: "var(--vault-gold-bright)",
@@ -159,7 +173,7 @@ export default function NbaResultsPage() {
             }}
           >
             {lifetime.hitRate !== null ? formatPercent(lifetime.hitRate) : "—"}
-          </h1>
+          </div>
           <span
             className="font-display tracking-tight"
             style={{
@@ -167,7 +181,13 @@ export default function NbaResultsPage() {
               fontSize: "clamp(18px, 2.6vw, 22px)",
             }}
           >
-            NBA hit rate · {lifetime.wins}–{lifetime.losses}
+            {/* The figure is aria-hidden above because it is read here, in a sentence that says what
+                it measures — a bare "49.1%" announced on its own tells a screen-reader user nothing. */}
+            NBA hit rate{" "}
+            <span className="sr-only">
+              {lifetime.hitRate !== null ? formatPercent(lifetime.hitRate) : "unavailable"},{" "}
+            </span>
+            · {lifetime.wins}–{lifetime.losses}
             {lifetime.pushes > 0 ? `–${lifetime.pushes}P` : ""} on{" "}
             <span style={{ color: "var(--vault-gold-bright)" }}>
               {lifetime.decisive}
