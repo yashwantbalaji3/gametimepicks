@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823008,
+  "date": "2026-09-13",
+  "capturedAt": "2026-09-13T17:48:00.765Z",
+  "availableAt": "2026-09-13T17:48:00.765Z",
+  "eventStartTime": "2026-09-13T18:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 700241,
+      "name": "Michael McGreevy",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 4.2,
+        "bbAvg": 2,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 6.75,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 154,
+        "k": 106,
+        "bb": 42,
+        "er": 67,
+        "hr": 20
+      }
+    },
+    "away": {
+      "id": 689818,
+      "name": "David Sandlin",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 79,
+      "lastStartDate": "2026-06-26",
+      "last5": {
+        "starts": 3,
+        "ipSum": 16,
+        "ipAvg": 5.33,
+        "kAvg": 4.67,
+        "bbAvg": 2.33,
+        "erAvg": 3.33,
+        "hrAvg": 0.67,
+        "kPer9": 7.88,
+        "workloadIpLast5": 16
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 16,
+        "k": 14,
+        "bb": 7,
+        "er": 10,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-13T17:48:00.765Z"
+  },
+  "recordHash": "63a4c26cb7756bd383034377a7f078b09f225247c06838cb69b4ad986b48b61d"
+}

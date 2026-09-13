@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "824628-4c9134af07286570f6f7dc1c6f3a4098",
+  "snapshotCreatedAt": "2026-09-13T17:48:00.664Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-09-13",
+  "eventId": "824628",
+  "gamePk": 824628,
+  "eventStartTime": "2026-09-13T18:20:00Z",
+  "homeTeam": "CHC",
+  "awayTeam": "PIT",
+  "venue": "Wrigley Field",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "b645de91c0e305f9955b5637d410fef5",
+  "normalizedPayloadHash": "98ca2668e90bb32040ccf4dfd73c5ad2",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          691718,
+          673548,
+          683737,
+          608324,
+          664023,
+          663538,
+          624424,
+          699393,
+          665804
+        ],
+        "away": [
+          804606,
+          665833,
+          668804,
+          804668,
+          693304,
+          656811,
+          663968,
+          669707,
+          680779
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-13T17:48:00.664Z",
+      "availableAt": "2026-09-13T17:48:00.664Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-13T17:48:00.664Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824628/feed/live",
+        "requestedAt": "2026-09-13T17:48:00.664Z",
+        "receivedAt": "2026-09-13T17:48:00.664Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Matthew Boyd",
+        "awayProbable": "Bubba Chandler",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-13T17:48:00.664Z",
+      "availableAt": "2026-09-13T17:48:00.664Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-13T17:48:00.664Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824628/feed/live",
+        "requestedAt": "2026-09-13T17:48:00.664Z",
+        "receivedAt": "2026-09-13T17:48:00.664Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "71",
+        "wind": "12 mph, In From LF",
+        "roofType": "Open",
+        "dayNight": "day",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-13T17:48:00.664Z",
+      "availableAt": "2026-09-13T17:48:00.664Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-13T17:48:00.664Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824628/feed/live",
+        "requestedAt": "2026-09-13T17:48:00.664Z",
+        "receivedAt": "2026-09-13T17:48:00.664Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Ryan Wills",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Will Little",
+            "type": "First Base"
+          },
+          {
+            "name": "Derek Thomas",
+            "type": "Second Base"
+          },
+          {
+            "name": "Lance Barksdale",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-13T17:48:00.664Z",
+      "availableAt": "2026-09-13T17:48:00.664Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-13T17:48:00.664Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824628/feed/live",
+        "requestedAt": "2026-09-13T17:48:00.664Z",
+        "receivedAt": "2026-09-13T17:48:00.664Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
