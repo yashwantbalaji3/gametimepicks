@@ -4,6 +4,7 @@ import {
   formatEdgePct,
   mlbMarketLabel,
 } from "@/lib/format-mlb";
+import { leanMatchup } from "@/lib/mlb/lean-matchup";
 import PlayerAvatar from "@/components/player-avatar";
 import MlbProjectionGap from "./mlb-projection-gap";
 import VaultSparkline from "../vault-sparkline";
@@ -116,8 +117,11 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
   const isAnomaly = (lean.riskFlags || []).includes("r5_model_anomaly");
   const isInsufficient = lean.confidence === "insufficient_data";
 
-  const teamAbbr = lean.playerTeamAbbr ?? "—";
-  const oppAbbr = lean.opponentAbbr ?? "—";
+  /* P289: this was `playerTeamAbbr ?? "—"` / `opponentAbbr ?? "—"`, which rendered "— vs —" on 3,989
+     rows across 100 players — everyone whose canonical name carries an accent, because the provider
+     spells them without one and the PLAYER join fails while the GAME join holds. One owner decides
+     what the row may honestly say; a null means omit, never a pair of dashes. */
+  const matchup = leanMatchup(lean);
   const bullets =
     lean.reasonBullets && lean.reasonBullets.length > 0
       ? lean.reasonBullets
@@ -163,12 +167,14 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
           >
             {lean.playerName}
           </span>
-          <span
-            className="font-mono uppercase tracking-[0.12em] text-[10px] shrink-0 hidden md:inline"
-            style={{ color: "var(--vault-text-faint)" }}
-          >
-            {teamAbbr} vs {oppAbbr}
-          </span>
+          {matchup ? (
+            <span
+              className="font-mono uppercase tracking-[0.12em] text-[10px] shrink-0 hidden md:inline"
+              style={{ color: "var(--vault-text-faint)" }}
+            >
+              {matchup.label}
+            </span>
+          ) : null}
           <span
             className="font-mono shrink-0 sm:hidden"
             style={{
@@ -352,12 +358,23 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
               className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-mono"
               style={{ color: "var(--vault-text-mute)" }}
             >
-              <span>{teamAbbr}</span>
-              <span style={{ color: "var(--vault-text-faint)" }}>vs</span>
-              <span>{oppAbbr}</span>
-              <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>
-                ·
-              </span>
+              {matchup ? (
+                <>
+                  {matchup.kind === "SIDED" ? (
+                    <>
+                      <span>{matchup.team}</span>
+                      <span style={{ color: "var(--vault-text-faint)" }}>vs</span>
+                      <span>{matchup.opponent}</span>
+                    </>
+                  ) : (
+                    /* The game, with no claim about which side the player is on. */
+                    <span>{matchup.label}</span>
+                  )}
+                  <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>
+                    ·
+                  </span>
+                </>
+              ) : null}
               <span
                 className="uppercase tracking-[0.12em]"
                 style={{ color: "var(--vault-text-faint)" }}
