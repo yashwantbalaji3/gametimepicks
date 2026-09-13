@@ -553,15 +553,24 @@ function BigCallsCard({
               <span style={{ color: "var(--vault-text-faint)" }}>
                 {r.side} {r.line} {r.market}
               </span>
-              <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>
-                ·
-              </span>
-              <span
-                className="font-mono tabular"
-                style={{ color: c, fontSize: 11 }}
-              >
-                {typeof r.edgePct === "number" ? `${r.edgePct >= 0 ? "+" : ""}${r.edgePct.toFixed(1)}pp edge` : ""}
-              </span>
+              {/* P293: the separator used to render unconditionally while the span below rendered ""
+                  for a missing edge, so a row with no edge read "Over 16.5 PTS··actual 3" — two
+                  separators with nothing between them. 15 of these across 5 archived NBA dates, all
+                  in "Biggest misses". A separator belongs INSIDE the conditional for the thing it
+                  separates, which is how the `actual` block just below already does it. */}
+              {typeof r.edgePct === "number" ? (
+                <>
+                  <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>
+                    ·
+                  </span>
+                  <span
+                    className="font-mono tabular"
+                    style={{ color: c, fontSize: 11 }}
+                  >
+                    {`${r.edgePct >= 0 ? "+" : ""}${r.edgePct.toFixed(1)}pp edge`}
+                  </span>
+                </>
+              ) : null}
               {typeof r.finalStat === "number" && (
                 <>
                   <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>
