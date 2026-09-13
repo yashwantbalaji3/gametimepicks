@@ -31,15 +31,34 @@ const text = () =>
 const money = (s) => Number(String(s).replace(/[$,]/g, ""));
 
 /** Each lane's rendered block. */
+/*
+ * A LANE ENDS WHERE THE NEXT LANE BEGINS — not 1,400 characters later (P294).
+ *
+ * This sliced a fixed 1,400-character window from each lane's heading. That held only while a lane's
+ * rendered block stayed under that length. On 2026-09-13 Lane A was carrying two legs with full
+ * matchup lines and kickoff times, so its window ran past its own rungs and into Lane B's — and Lane
+ * B was standing on step 1, so its "Upcoming Step 2" was read as an unfinished rung beneath Lane A's
+ * active step 3. The page was correct throughout:
+ *
+ *     Lane A   Upcoming 5 · Upcoming 4 · You are here 3 · Cleared 2 · Cleared 1
+ *     Lane B   Upcoming 5 · Upcoming 4 · Upcoming 3 · Upcoming 2 · You are here 1
+ *
+ * A false failure on a money surface is expensive in a way a false pass is not: it trains a reader of
+ * the gate to discount it, and the next real ladder defect arrives looking identical to this one.
+ * The boundary is structural, so it is read structurally.
+ */
 function lanes() {
   const t = text();
-  const out = [];
-  for (const label of ["Lane A", "Lane B"]) {
-    const i = t.indexOf(`${label} Active`);
-    if (i < 0) continue;
-    out.push({ label, seg: t.slice(i, i + 1400) });
-  }
-  return out;
+  const LABELS = ["Lane A", "Lane B"];
+  const starts = LABELS
+    .map((label) => ({ label, i: t.indexOf(`${label} Active`) }))
+    .filter((x) => x.i >= 0)
+    .sort((a, b) => a.i - b.i);
+  return starts.map((x, n) => ({
+    label: x.label,
+    /* To the next lane's heading, or to the end of the ladder's own block. */
+    seg: t.slice(x.i, n + 1 < starts.length ? starts[n + 1].i : x.i + 1400),
+  }));
 }
 
 test("BUILT · a lane never stakes the seed on a rung it did not enter at the seed", () => {

@@ -25,6 +25,7 @@
 import type { Metadata } from "next";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import { nflHub } from "@/lib/sport-hub/adapters";
+import { totalsSpread } from "@/lib/sports/nfl/totals-spread.mjs";
 import Explain from "@/components/ui/explain";
 import fs from "node:fs";
 import path from "node:path";
@@ -264,6 +265,24 @@ export default function NflHubPage() {
      like the old one. The section renders only rows belonging to the selected week. */
   const slateMarketRows = marketRows.filter((r) => weekIds.has(String(r.providerEventId)));
 
+  /* P294: how much our totals actually differentiate these games, measured on the slate being shown
+     and against the books' own medians for the same games. A column of plausible numbers hides its
+     own narrowness — spread is invisible one row at a time — so the page states it. */
+  /* The book count is identical on every priced row, so it belongs in one sentence rather than
+     repeated fourteen times — and repeating it is what put this page over its weight budget. Stated
+     as a range if a future capture ever differs row to row. */
+  const bookCounts = [...new Set(slateMarketRows.map((r) => r.books?.length ?? 0).filter((n) => n > 0))].sort((a, b) => a - b);
+  const bookCountNote = bookCounts.length === 0
+    ? ""
+    : bookCounts.length === 1
+      ? `Medians are taken across ${bookCounts[0]} books.`
+      : `Medians are taken across ${bookCounts[0]}\u2013${bookCounts[bookCounts.length - 1]} books, depending on the game.`;
+
+  const totalsBand = totalsSpread(
+    slateGames.map((g) => ({ providerEventId: g.providerEventId, total: eventById.get(g.providerEventId)?.total?.median ?? null })),
+    slateMarketRows.map((r) => ({ providerEventId: r.providerEventId, marketTotal: r.consensus?.total ?? null })),
+  );
+
   const forecastArtifact = read("nfl/forecasts/latest.json");
   const forecastCard = forecastArtifact?.modelCard ?? null;
   /* P246 §5: the weekly top boards render VERBATIM from the one canonical ranking owner
@@ -444,17 +463,26 @@ export default function NflHubPage() {
         />
         {/* P246 §3 (founder): the week reads as ONE COMPACT TABLE, not a wall of cards —
             kickoff, matchup, the model's winner, the derived score/total pair, readiness, one
-            action. Guard-held absence copy lives in the readiness cell. Prices are NOT a column
-            here: they carry their own section below, rendered only from a current authorized
-            capture, so this table never mixes a book's number into a row of model output. (This
-            comment used to say no such capture existed because the authorization had expired; the
-            receipt was renewed 2026-09-10 and the price section does render. The reason for keeping
-            prices out of this table was never the absence of prices.) */}
+            action. Guard-held absence copy lives in the readiness cell.
+
+            P294 — THE MARKET TOTAL IS NOW A COLUMN, reversing the rule above it.
+
+            That rule kept book numbers out of this table so a reader could never mistake one for
+            model output. The cost of the separation turned out to be larger than the risk it
+            avoided: with only our own totals on screen, nothing revealed that they sit in a
+            44–51 band while the eleven-book median for the same games spans 38.5–50.5, or that
+            ours run +2.5 points high. The founder caught it by eye from this table; the table
+            should have said it. On NYJ @ TEN we print 48 against a market 38.5.
+
+            The risk is handled by labelling rather than by omission — the column names the books,
+            the difference column says which way we differ, and both render in the market's own
+            muted tone, exactly as the per-game report already does under "Us versus the
+            sportsbooks". A blank cell means no current authorized price for that game, never zero. */}
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
             <thead>
               <tr>
-                {["Kickoff (ET)", "Matchup", "Model winner", "Projected score", "Total", "Conditions", "Status", ""].map((h) => (
+                {["Kickoff (ET)", "Matchup", "Model winner", "Projected score", "Our total", "Market (diff)", "Conditions", "Status", ""].map((h) => (
                   <th key={h || "action"} scope="col" style={{ textAlign: "left", padding: "7px 9px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
                 ))}
               </tr>
@@ -475,6 +503,11 @@ export default function NflHubPage() {
                     : { abbr: g.away.abbr, p: e.winProbability.away }
                   : null;
                 const td = (extra: Record<string, string | number> = {}) => ({ padding: "8px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, ...extra });
+                /* The eleven-book median for THIS game, or null when no current authorized capture
+                   covers it — never a zero, and never another game's price. */
+                const mkt = slateMarketRows.find((r) => String(r.providerEventId) === String(g.providerEventId)) ?? null;
+                const mktTotal = mkt?.consensus?.total ?? null;
+                const diff = e?.total && mktTotal != null ? e.total.median - mktTotal : null;
                 return (
                   <tr key={g.providerEventId}>
                     <td className="font-mono" style={td({ color: "var(--vault-text-mute)", fontSize: 11.5, whiteSpace: "nowrap" })}>{etKickoff(g.dateUtc)}</td>
@@ -489,6 +522,22 @@ export default function NflHubPage() {
                     <td className="font-mono" style={td()}>{fav ? `${fav.abbr} ${(fav.p * 100).toFixed(1)}%` : "—"}</td>
                     <td className="font-mono" style={td({ whiteSpace: "nowrap" })}>{sim ? `${g.away.abbr} ${sim.away} — ${sim.home} ${g.home.abbr}` : "—"}</td>
                     <td className="font-mono" style={td()}>{e?.total ? <>{e.total.median} <span style={{ color: "var(--vault-text-faint)" }}>({e.total.p10}–{e.total.p90})</span></> : "—"}</td>
+                    {/* The books' own number and how far ours sits from it, in ONE cell: two columns
+                        cost ~4KB of inline style across fourteen rows and put /nfl over its page-weight
+                        budget, and the difference reads better beside the number it is a difference
+                        from anyway. The books' muted tone — never styled as model output. */}
+                    <td className="font-mono" style={td({ color: "var(--vault-text-mute)", whiteSpace: "nowrap" })}>
+                      {mktTotal == null ? "—" : (
+                        <>
+                          {mktTotal}
+                          {diff != null ? (
+                            <span style={{ color: Math.abs(diff) >= 4 ? "var(--vault-warn)" : "var(--vault-text-faint)" }}>
+                              {" "}({diff > 0 ? "+" : ""}{diff.toFixed(1)})
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </td>
                     {/* Conditions, not an input: the summary carries its own caveats (an unknown
                         roof says so inside the sentence), so the cell prints it whole. */}
                     <td style={td({ fontSize: 11, color: wx?.notableWind ? "var(--vault-warn)" : "var(--vault-text-mute)", maxWidth: 200 })}>
@@ -514,7 +563,26 @@ export default function NflHubPage() {
         </div>
         <p style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
           Projected scores come from the median total and margin, so they add up to the printed total.
+          Where the margin is a single point the printed difference leans the way the margin leans
+          rather than showing a level score — the model always says who it favours.
         </p>
+        {slateMarketRows.length ? (
+          <p style={{ margin: "6px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
+            <strong style={{ color: "var(--vault-text-mute)" }}>Market (diff)</strong> is the median of
+            the books&rsquo; own posted totals for that game, with ours minus theirs in brackets —
+            their number, not ours, and not a GameTimePicks projection. {bookCountNote} It is shown because a difference is the most useful thing you can
+            know about a forecast: our totals vary far less game-to-game than the market&rsquo;s do,
+            so a large difference usually says more about the limits of our totals model than about
+            the game. A difference is not a recommendation, and this model has not been shown to beat
+            the market.
+          </p>
+        ) : null}
+        {totalsBand.sentence ? (
+          <p style={{ margin: "8px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760, borderLeft: "2px solid var(--vault-border-strong)", paddingLeft: 10 }}>
+            <strong style={{ color: "var(--vault-text-mute)" }}>How much these totals differentiate games:</strong>{" "}
+            {totalsBand.sentence}
+          </p>
+        ) : null}
         {weather?.rows?.length ? (
           <p style={{ margin: "6px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
             Conditions are the forecast nearest kickoff, captured {String(weather.capturedAt).slice(0, 16).replace("T", " ")}Z.{" "}

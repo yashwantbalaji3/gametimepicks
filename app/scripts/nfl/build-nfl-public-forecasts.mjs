@@ -54,10 +54,38 @@ const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -
  * printed total and their difference is within 1 of the printed margin. The marginal per-team
  * ranges stay marginal in scoreRange — only the two headline integers use this convention.
  */
+/*
+ * P294 · THE ROUNDING ERASED THE SIGN OF A ONE-POINT MARGIN.
+ *
+ * `home = round((total + margin) / 2)` cannot represent an odd difference against an even total, and
+ * it resolved the conflict by dropping the margin entirely. On the 2026 Week 1 slate that printed
+ * three TIES out of fourteen:
+ *
+ *     MIA @ LV   total 44, margin −1  →  22 — 22
+ *     DEN @ KC   total 44, margin −1  →  22 — 22
+ *
+ * A reader sees "DEN 22 — 22 KC" and reads a predicted tie. NFL games essentially never tie: the
+ * committed corpus has ONE in 855 games (0.12%). Worse, the model did say something — the away side
+ * is favoured by a point — and the display said dead level, which is the one thing the model did not
+ * say.
+ *
+ * Both integers cannot honour an odd margin on an even total, so the convention now spends its one
+ * point of slack on the SIGN rather than the magnitude: the printed difference always leans the way
+ * the margin leans. "DEN 23 — 21 KC" overstates a one-point edge by a point; "22 — 22" inverts a
+ * statement about who is favoured into a statement that nobody is.
+ *
+ * A margin of exactly 0 still prints a level score, because that is precisely what the model says.
+ */
 const SCORE_DISPLAY_CONVENTION = "scores-derived-from-total-and-margin-v1";
 function derivedProjectedScore(totalMedian, marginMedian) {
-  const home = Math.round((totalMedian + marginMedian) / 2);
-  return { home, away: totalMedian - home, convention: SCORE_DISPLAY_CONVENTION };
+  let home = Math.round((totalMedian + marginMedian) / 2);
+  let away = totalMedian - home;
+  if (marginMedian !== 0 && Math.sign(home - away) !== Math.sign(marginMedian)) {
+    /* One point, moved across the pair so the total is preserved exactly. */
+    home += Math.sign(marginMedian);
+    away = totalMedian - home;
+  }
+  return { home, away, convention: SCORE_DISPLAY_CONVENTION };
 }
 
 const NOW = arg("--now");

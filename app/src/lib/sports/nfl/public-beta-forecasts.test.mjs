@@ -211,11 +211,88 @@ test("P246 · projected scores are DERIVED from total+margin, so the pieces alwa
   assert.match(src, /scores-derived-from-total-and-margin-v1/, "the convention is named at the producer");
   assert.equal((src.match(/projectedScore: derivedProjectedScore\(/g) ?? []).length, 2, "BOTH regimes (regular + preseason) use the derivation");
   assert.doesNotMatch(src, /projectedScore: \{ home: sim\.scores/, "no marginal-median headline score survives");
-  // LIVE, stamp-conditional: binds on every artifact regenerated under the convention.
-  for (const f of pub?.forecasts ?? []) {
+  /*
+   * EVERY ARTIFACT THAT CARRIES THE CONVENTION, not just the one that computes it.
+   *
+   * P294: the sign fix was applied at the producer and the forecasts artifact regenerated — and the
+   * /nfl week table still printed "22 — 22", because it reads nfl/index.json, which COPIES
+   * projectedScore from the forecasts artifact and had not been rebuilt. This guard passed the whole
+   * time, because it only ever looked at forecasts/latest.json. A convention stamped into more than
+   * one artifact needs a check that finds all of them; otherwise it certifies the copy nobody reads.
+   */
+  const carriers = (pub?.forecasts ?? []).filter((f) => f.forecastSummary?.projectedScore && f.forecastSummary?.total && f.forecastSummary?.margin);
+  assert.ok(carriers.length > 0, "no forecast carries the convention — this guard would pass vacuously");
+
+  for (const f of carriers) {
     const ps = f.forecastSummary?.projectedScore;
     if (ps?.convention !== "scores-derived-from-total-and-margin-v1") continue;
     assert.equal(ps.home + ps.away, f.forecastSummary.total.median, `${f.matchup}: scores must sum to the printed total`);
     assert.ok(Math.abs((ps.home - ps.away) - f.forecastSummary.margin.median) <= 1, `${f.matchup}: score difference strays from the printed margin`);
+    /*
+     * P294: THE PRINTED DIFFERENCE MUST LEAN THE WAY THE MARGIN LEANS.
+     *
+     * `round((total + margin) / 2)` cannot represent an odd difference against an even total, and it
+     * used to resolve that by dropping the margin: three of fourteen Week-1 games printed a TIE
+     * (MIA @ LV and DEN @ KC both showed 22 — 22 for a −1 margin). The corpus has ONE tie in 855
+     * games — 0.12% — so a level scoreline reads as a prediction of the rarest result in the sport,
+     * and it inverts a statement about who is favoured into a statement that nobody is.
+     * Within-1 alone permitted that; the sign is the part that carries the meaning.
+     */
+    const margin = f.forecastSummary.margin.median;
+    const total = f.forecastSummary.total.median;
+    const diff = ps.home - ps.away;
+    if (margin === 0) {
+      /*
+       * A level score is only ARITHMETICALLY POSSIBLE on an even total. CHI @ CAR came through with
+       * margin 0 and total 47, where two integers summing to 47 can never be equal — 24–23 is the
+       * closest statement available, and `round` gives the extra point to the home side
+       * deterministically. The first version of this assertion demanded a level score for every zero
+       * margin and failed that game; the derivation was right and the guard was wrong.
+       */
+      const expected = total % 2 === 0 ? 0 : 1;
+      assert.equal(
+        Math.abs(diff), expected,
+        `${f.matchup}: margin 0 on a total of ${total} should print ${expected === 0 ? "level" : "a one-point split"}, got ${ps.away}–${ps.home}`,
+      );
+    } else {
+      assert.equal(
+        Math.sign(diff), Math.sign(margin),
+        `${f.matchup}: printed ${ps.away}–${ps.home} (difference ${diff}) against a margin of ${margin} — the display contradicts the model on who is favoured`,
+      );
+    }
   }
+});
+
+/**
+ * A COPY OF A DERIVED FIELD MUST MATCH ITS SOURCE (P294).
+ *
+ * The sign fix was applied at the producer and forecasts/latest.json regenerated — and the /nfl week
+ * table still printed "MIA 22 — 22 LV". The page reads nfl/index.json, which COPIES projectedScore
+ * from the forecast artifact and had not been rebuilt. The invariant guard above passed throughout,
+ * because it only ever read the artifact that COMPUTES the field, never the one the page renders.
+ *
+ * Widening that guard to "check index.json too" was itself vacuous on the first attempt: index events
+ * carry no `margin`, so the filter requiring one silently dropped every index row and the probe that
+ * should have failed did not. The invariant an index CAN be held to is the one that matters anyway —
+ * a copy equals its source, or it is stale.
+ */
+test("P294 · index.json's projected scores match the forecasts they are copied from", () => {
+  const idxPath = path.join(APP, "public/data/nfl/index.json");
+  if (!fs.existsSync(idxPath) || !pub?.forecasts?.length) return;
+  const idx = JSON.parse(fs.readFileSync(idxPath, "utf8"));
+  const source = new Map(pub.forecasts.map((f) => [String(f.providerEventId), f]));
+
+  let compared = 0;
+  for (const e of idx.events ?? []) {
+    const f = source.get(String(e.providerEventId));
+    if (!f || !e.projectedScore || !f.forecastSummary?.projectedScore) continue;
+    compared += 1;
+    const a = e.projectedScore;
+    const b = f.forecastSummary.projectedScore;
+    assert.deepEqual(
+      { home: a.home, away: a.away }, { home: b.home, away: b.away },
+      `${e.matchup}: index.json shows ${a.away}–${a.home} while the forecast says ${b.away}–${b.home} — the index is stale, and it is what /nfl renders`,
+    );
+  }
+  assert.ok(compared > 0, "no event was compared — the index and the forecasts share no ids, which is its own defect");
 });

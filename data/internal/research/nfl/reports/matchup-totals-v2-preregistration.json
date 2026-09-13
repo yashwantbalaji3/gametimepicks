@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "artifact": "matchup-totals-v2-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "294",
+  "charterSection": "4B-NFL",
+  "registeredAt": "2026-09-13T09:10:00Z",
+
+  "whyThisExists": "The incumbent totals head carries a systematic high bias that no bar tested for. Its feature is s = (R_home + R_away)/2 - meanRatingTrain, where meanRatingTrain = 42.3251 is FROZEN at the 2023-24 fit window while R_team tracks contemporaneous scoring. League scoring drifted (REG+POST mean total 43.80 in 2023, 46.02 in 2024, 45.96 in 2025), the ratings drifted with it (mean pair rating 42.33 across 2023-24 rows, 45.95 across 2025 rows), and the difference passes straight through a1 into every prediction as a constant lift of a1 * 3.62 = +2.84. Measured on the committed corpus: on held-out 2025 the incumbent predicted a mean total of 47.75 against an actual 45.96, a bias of +1.79 points; on the 2026 Week 1 slate it predicts a mean of 47.36 against an eleven-book market median of 45.12, a difference of +2.50. The defect is in the SPECIFICATION, not the implementation: the apply path (src/lib/sports/nfl/totals-rating.mjs) reproduces the fit path's recurrence exactly, and this preregistration's author reproduced meanRatingTrain = 42.3251 and the receipt's held-out MAE of 10.814 from the corpus before writing this.",
+
+  "incumbent": {
+    "id": "matchup-totals-v1-decayed-points",
+    "receipt": "data/internal/research/nfl/reports/matchup-totals-evaluation.json",
+    "verdict": "ELIGIBLE",
+    "measuredOnHeldOut2025": {
+      "meanPredicted": 47.75,
+      "meanActual": 45.96,
+      "bias": 1.79,
+      "sdPredicted": 2.068,
+      "sdActual": 13.82,
+      "mae": 10.814,
+      "coverage80": 0.786
+    },
+    "note": "It remains better than the constant it replaced (MAE 10.814 vs 10.997) even carrying this bias, so this is a correction, not a retraction. Nothing here rejects the incumbent; it stays published until a candidate clears the bars below."
+  },
+
+  "candidate": {
+    "id": "matchup-totals-v2-league-relative",
+    "form": "total ~ Normal(L(t) + a1 * (s_pair - L(t)), sigma). s_pair = (R_home + R_away)/2 with R_team the SAME exponentially decayed walk-forward mean of (points scored + points allowed) per game as v1, half-life unchanged at 8, REG+POST only, strictly pre-game. L(t) is the contemporaneous mean of all teams' current ratings, computed from the same strictly pre-game state.",
+    "whyThisFormAndNotAnother": "A matchup-strength feature must be RELATIVE to the league it is measured in. Centring on a frozen historical constant makes an intrinsically relative quantity absolute, so league-wide drift becomes prediction bias by construction. Replacing the fitted intercept a0 with L(t) makes the head predict the current league level adjusted toward this matchup, which is what it was always meant to mean. This argument does not depend on any observed result and was not derived from one: it is a statement about what the feature denotes.",
+    "parameters": "a1 and sigma only. a0 is DELETED — not refit. a1 is carried over from the v1 receipt (0.78364) rather than refit, so no parameter in this candidate is chosen with knowledge of any outcome it will be scored against.",
+    "whatIsNotAllowed": "No refit of a1 on any season. No selection over half-lives. No odds or market totals as inputs at any stage — the market is a comparison, never a feature. No per-game adjustment. The margin head, the win head and the player heads are untouched."
+  },
+
+  "heldOutSet": {
+    "set": "2026 REG+POST finals, from Week 1 2026 forward",
+    "whyNot2025": "2025 CANNOT serve as the held-out set for this candidate. It was examined in detail to diagnose the incumbent's bias — the bias figure, the rating drift and the de-biased MAE above were all computed on it. A set you have already looked at is not held out, and scoring a correction on the data that motivated it would measure the author's hindsight rather than the model. This is the whole reason the correction is registered forward instead of being applied today.",
+    "minimumSample": 96,
+    "scoringMoment": "ONE look, taken when the 2026 REG+POST sample first reaches 96 finals under this contract. Not before, not again."
+  },
+
+  "frozenBars": {
+    "centring": "|mean(predicted) - mean(actual)| <= 1.00 points. THE BAR THE INCUMBENT LACKED: it would have failed at +1.79 on 2025. A head that is systematically off-centre is wrong about every game in the same direction, which is the failure a reader notices first and the one MAE hides when sigma is 13.3.",
+    "mae": "candidate MAE <= incumbent MAE measured on the SAME 2026 games. A correction must not cost accuracy.",
+    "coverage80": "held-out 80% interval coverage in [0.72, 0.88], the same band v1 was held to.",
+    "noDiscriminationRegression": "sd(predicted) within 0.25 of the incumbent's sd(predicted) on the same games. Re-centring must not change how much the head differentiates games; if it does, something other than the centring changed."
+  },
+
+  "reportedDiagnostics": "sd(predicted) and sd(actual); the realised bias of BOTH heads; L(t) at the first and last scored game; per-game predicted-vs-market difference where a current authorized capture exists. Diagnostics are reported, never bars — except centring and discrimination-regression, which are bars HERE precisely because reporting them without a bar is how the incumbent shipped.",
+
+  "decisionRule": "ALL bars pass -> ELIGIBLE, and adoption is its own reviewed step (coherence guards, regime stamps, artifact regeneration), exactly as v1's receipt required. ANY bar fails -> REJECTED and RECORDED; the incumbent continues to publish and the public disclosure of its measured bias and discrimination stays on /nfl. A rejection is never retried by adjusting this candidate — a different candidate needs a different preregistration.",
+
+  "whatHappensMeanwhile": "The incumbent keeps publishing, because it is still better than the constant it replaced and because today's forecasts are frozen before kickoff and settle against official results. What changes immediately is DISCLOSURE: /nfl states the head's measured bias and how little it differentiates games, and the week table carries the market total beside ours so a reader can see the difference without being told.",
+
+  "output": "data/internal/research/nfl/reports/matchup-totals-v2-evaluation.json (new file, written once)",
+  "notes": "Registered BEFORE implementation; ordering proof is the commit sequence. The incumbent's own preregistration recorded sd-of-predictions as a diagnostic and said in terms that diagnostics are 'REPORTED, never bars'. That sentence is why a head explaining roughly 2% of the variance in game totals passed an honest review."
+}
