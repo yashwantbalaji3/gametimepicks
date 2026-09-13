@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-13",
-  "checkedAt": "2026-09-13T04:18:54.896Z",
-  "treeHead": "de90e3920",
+  "checkedAt": "2026-09-13T10:18:40.864Z",
+  "treeHead": "2332f12e1",
   "state": "NOT_DUE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 15,
@@ -55,13 +55,14 @@
     },
     {
       "id": "settlement",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-13T12:00:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-13T12:00:00.000Z",
+      "receiptAt": null,
       "label": "Nightly settlement (previous day)",
       "workflow": "nightly-settle",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "parlays/lab-settled/2026-09-12.json"
     },
     {
       "id": "schedules",
@@ -149,7 +150,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-09-13T12:00:00.000Z",
-      "receiptAt": "2026-09-12T13:09:37Z",
+      "receiptAt": "2026-09-13T10:18:33Z",
       "label": "Offered-window matrix (all sports)",
       "workflow": "nightly-settle",
       "dependsOn": [],
