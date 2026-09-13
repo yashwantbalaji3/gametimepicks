@@ -102,7 +102,13 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, qua
           honest words; a missing figure is omitted, never zero-padded. */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono" style={{ fontSize: 11.5 }}>
         <Stat value={String(activeSports)} label={activeSports === 1 ? "sport active" : "sports active"} />
-        <Stat value={String(eventsToday)} label="events today" />
+        {/* P293: this label read "events today", which is a claim about the DAY. The figure is not
+            that — app/page.tsx sums only product-days that are LIVE and dated today, so a sport in
+            season whose board has not been published yet contributes nothing. On the morning of
+            2026-09-13 it read "16 events today" (14 NFL + 2 EPL) while 15 MLB games were also being
+            played; the count was right about our board and wrong about the day. The number is the
+            honest one to show — it is what we have published — so the label says which. */}
+        <Stat value={String(eventsToday)} label="events on today’s board" />
         {readyCount > 0 ? <Stat value={String(readyCount)} label="simulation-ready" /> : null}
         {qualifiedPicks != null && qualifiedPicks > 0 ? <Stat value={String(qualifiedPicks)} label="top model picks" /> : null}
         <span style={{ color: "var(--vault-text-mute)" }}>

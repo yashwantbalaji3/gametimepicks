@@ -92,6 +92,11 @@ test("the hero's live-status row derives from owners — its figures are digits,
   if (!hasBuild) return;
   const t = rendered("index.html");
   assert.match(t, /\d+ sports? active/, "active-sports figure present");
-  assert.match(t, /\d+ events today|no events today/, "events figure present");
+  /* REPOINTED 2026-09-13 (P293): this pinned the literal words "events today". That label was a
+     claim about the DAY, while the figure counts only product-days that are LIVE and dated today —
+     so it read "16 events today" beside 15 unpublished MLB games. The invariant being protected is
+     that the row carries a DERIVED events figure, not that it is phrased any particular way. */
+  assert.match(t, /\d+ events\b|no events\b/, "events figure present and derived");
+  assert.doesNotMatch(t, /\d+ events today\b/, "the events figure counts our board, not the day — it may not claim the day");
   assert.match(t, /Settled through|See every settled result/, "the settled proof link anchors the row");
 });

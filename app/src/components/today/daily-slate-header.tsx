@@ -69,11 +69,19 @@ export default function TodayDailySlateHeader({
               className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]"
               style={{ fontSize: 10, color: "var(--vault-text)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-border)" }}
             >
-              {/* P250-GD: the chips are LIVE-NOW facts; the counts beside them describe the slate on
+              {/* P250-GD: the chips describe TODAY; the counts beside them describe the slate on
                   display. On a past-slate morning those are different days — a bare "NFL" chip next
                   to "15 MLB games · Tuesday" read as one contradictory sentence, so the chip names
-                  its own time base whenever the slate is not today's. */}
-              {s}{slateRelative ? " · live now" : ""}
+                  its own time base whenever the slate is not today's.
+
+                  P292: that time base used to read "· live now", which is a stronger claim than the
+                  data supports. These chips come from the product-day owner, where
+                  `state: kickDay === today ? "LIVE" : "EVENT_UPCOMING"` — LIVE means the event's DAY
+                  is today, not that anything has kicked off. At 3:31am ET on a Sunday the page told
+                  readers "Premier League · live now" and "NFL · live now" with first kickoffs 5.5 and
+                  9.5 hours away. "today" disambiguates the time base just as well and is true all
+                  day. */}
+              {s}{slateRelative ? " · today" : ""}
             </span>
           ))
         ) : (
