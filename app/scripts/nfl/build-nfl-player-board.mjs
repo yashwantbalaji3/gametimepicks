@@ -35,7 +35,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveNewArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
-import { SHARE_LEVEL_MODEL_ID, shareLevelAdoptedMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
+import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -149,7 +149,9 @@ const designationByPlayer = (() => {
 const SHARE_LEVEL_DIR = path.join(ROOT, "data/internal/research/nfl/replay/player-props-share-level-forward");
 const shareLevelSecondLook = read(path.join(ROOT, "data/internal/research/nfl/reports/player-props-share-level-second-look.json"));
 const shareLevelForward = read(path.join(SHARE_LEVEL_DIR, "receipt.json"));
-const shareLevelMarkets = shareLevelAdoptedMarkets({ secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward });
+/* P301: the blind touchdown replay receipt admits anytime TD to the same weekly forecast. */
+const shareLevelTdEvaluation = read(path.join(ROOT, "data/internal/research/nfl/reports/anytime-td-historical-replay-evaluation.json"));
+const shareLevelMarkets = shareLevelAdoptedMarkets({ secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward, tdEvaluation: shareLevelTdEvaluation });
 
 const outDir = path.join(APP, "public/data/nfl/player-board");
 fs.mkdirSync(outDir, { recursive: true });
@@ -199,13 +201,19 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     forecast: read(path.join(SHARE_LEVEL_DIR, `${seasonOfKickoff(doc.kickoffUtc)}-${String(doc.week).padStart(2, "0")}.json`)),
     matchup: doc.matchup, week: doc.week, seasonType: doc.seasonType, markets: shareLevelMarkets,
   });
-  for (const market of shareLevel?.markets ?? []) {
-    families[market] = { label: PROP_LABEL[market] ?? market, state: "PUBLISHED", basis: shareLevelBasis({ market, secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward }), model: SHARE_LEVEL_MODEL_ID };
-  }
   families.anytime_td = tdBeatsBaselines
     ? { label: "Anytime touchdown", state: "PUBLISHED", basis: `anytime-td-v1 calibration: held-out 2025 n=${tdReceipt.heldOut2025.n}, beats both baselines; DNP settles void, so probabilities condition on playing` }
     : { label: "Anytime touchdown", state: "WITHHELD", reason: "no calibration receipt beating its baselines" };
   families.ordered_td = { label: "First/last/2+ touchdown", state: "WITHHELD", reason: "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities" };
+  /* Share-level families replace their v1 counterparts (set last, so they win over the v1 gates above). */
+  for (const market of shareLevel?.markets ?? []) {
+    families[market] = {
+      label: market === "anytime_td" ? "Anytime touchdown" : PROP_LABEL[market] ?? market,
+      state: "PUBLISHED",
+      basis: shareLevelBasis({ market, secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward, tdEvaluation: shareLevelTdEvaluation }),
+      model: market === "anytime_td" ? SHARE_LEVEL_TD_MODEL_ID : SHARE_LEVEL_MODEL_ID,
+    };
+  }
 
   const publishedMarkets = new Set(Object.entries(families).filter(([, f]) => f.state === "PUBLISHED" || f.state === "ESTIMATE").map(([m]) => m));
 
@@ -260,7 +268,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
       }
     }
     const atd = tv.anytimeTdBoard;
-    if (publishedMarkets.has("anytime_td") && atd?.topRows?.length) {
+    if (publishedMarkets.has("anytime_td") && atd?.topRows?.length && !shareLevel?.markets.has("anytime_td")) {
       for (const row of atd.topRows) {
         if (gate(row.playerId, row.name, abbr)) continue;
         const existing = players.find((p) => p.playerId === row.playerId && p.team === abbr);

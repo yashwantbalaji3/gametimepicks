@@ -589,6 +589,15 @@ jobs:
           node app/scripts/ops-notify.mjs --status "$ST" --phase "nightly-settle" --date "$TARGET" --message "$MSG"
           npx --yes tsx app/scripts/build-admin-status.mjs || echo "admin status build skipped"
 
+      # P303 — every published model's LIVE record against its floor (coin flip, even odds, 80% coverage), judged
+      # with an interval so a small sample cannot raise a false alarm. Runs after the graders above; writes
+      # app/public/data/admin/model-health.json (committed by the admin/ allowlist line below) and prints a warning
+      # per WATCH/BREACHED family. An alarm, never a demotion. No `|| echo`: a crash must show as a failed step.
+      - name: Model health scorecard (live results vs baselines)
+        if: always()
+        continue-on-error: true
+        run: node app/scripts/ops/build-model-health.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
       - name: Show diff stat (informational)
         run: |
           echo "::group::git status"

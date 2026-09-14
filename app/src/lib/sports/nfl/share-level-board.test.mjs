@@ -30,6 +30,34 @@ test("LIVE · the committed receipts adopt receptions, receiving yards and rushi
   assert.deepEqual([...adopted].sort(), ["player_reception_yds", "player_receptions", "player_rush_yds"]);
 });
 
+test("P301 · anytime TD is admitted only by an ELIGIBLE touchdown replay receipt, and a forward breach demotes it", () => {
+  const tdEvaluation = { verdicts: { opportunityTd: "ELIGIBLE", tdShareLevel: "REJECTED" }, recommendation: "opportunityTd", results: { opportunityTd: { overall: { n: 35128 } } } };
+  assert.ok(shareLevelAdoptedMarkets({ secondLook, forwardReceipt: null, tdEvaluation }).has("anytime_td"));
+  assert.ok(!shareLevelAdoptedMarkets({ secondLook, forwardReceipt: null, tdEvaluation: { verdicts: { opportunityTd: "REJECTED" } } }).has("anytime_td"), "a rejected replay never publishes");
+  assert.ok(!shareLevelAdoptedMarkets({ secondLook, forwardReceipt: null }).has("anytime_td"), "no touchdown receipt, no adoption");
+  assert.ok(!shareLevelAdoptedMarkets({ secondLook, forwardReceipt: { families: { anytime_td: { state: "FORWARD_BREACHED", n: 1200 } } }, tdEvaluation }).has("anytime_td"), "a forward breach falls back to v1");
+  const b = shareLevelBasis({ market: "anytime_td", secondLook, forwardReceipt: null, tdEvaluation });
+  assert.match(b, /blind test of 2014–2021 \(35,128 player-games/);
+  assert.match(b, /settles void/);
+  for (const banned of ["data/internal", "PRIVATE_RESEARCH", "P301"]) assert.ok(!b.includes(banned), banned);
+});
+
+test("LIVE · the committed touchdown replay receipt admits anytime TD", () => {
+  const p = path.join(ROOT, "data/internal/research/nfl/reports/anytime-td-historical-replay-evaluation.json");
+  if (!fs.existsSync(p)) return;
+  assert.ok(shareLevelAdoptedMarkets({ secondLook: null, forwardReceipt: null, tdEvaluation: JSON.parse(fs.readFileSync(p, "utf8")) }).has("anytime_td"));
+});
+
+test("P301 · an anytime_td forecast row becomes a probability block, never a range", () => {
+  const fc = forecast([
+    { gameId: "2026_02_DET_BUF", team: "BUF", opponent: "DET", market: "anytime_td", espnId: "9", name: "T Scorer", mean: 0.41 },
+    { gameId: "2026_02_DET_BUF", team: "BUF", opponent: "DET", market: "player_rush_yds", espnId: "9", name: "T Scorer", ...q },
+  ]);
+  const out = shareLevelRowsForEvent({ forecast: fc, matchup: "DET @ BUF", week: 2, seasonType: 2, markets: new Set(["anytime_td", "player_rush_yds"]) });
+  assert.deepEqual(out.players[0].markets.anytime_td, { probability: 0.41 });
+  assert.equal(out.players[0].markets.player_rush_yds.median, 45);
+});
+
 test("rows map ESPN abbreviations (WSH/LAR) to nflverse and key players by ESPN id", () => {
   const fc = forecast([
     { gameId: "2026_02_WAS_LA", team: "LA", opponent: "WAS", market: "player_rush_yds", espnId: "111", name: "A Back", ...q },
@@ -81,4 +109,6 @@ test("SOURCE PIN · the board keeps a share-level row only for a player on the t
   assert.match(src, /for \(const row of shareLevel\?\.players \?\? \[\]\) \{\n\s+const roster = rosterByTeam\.get\(row\.team\);\n\s+if \(!roster \|\| !roster\.has\(row\.playerId\)\)/, "no roster, or not on it → no share-level row");
   assert.match(src, /if \(gate\(row\.playerId, row\.name, row\.team\)\) continue;/, "the injury gate applies to share-level rows");
   assert.match(src, /shareLevel\?\.markets\.has\(m\)/, "a share-level market replaces the v1 number, never duplicates it");
+  assert.match(src, /atd\?\.topRows\?\.length && !shareLevel\?\.markets\.has\("anytime_td"\)/, "share-level touchdown chances replace the v1 TD rows, never merge beside them");
+  assert.match(src, /families\.ordered_td = [\s\S]*?for \(const market of shareLevel\?\.markets \?\? \[\]\)/, "share-level families are set after the v1 TD gate, so they are not overwritten");
 });

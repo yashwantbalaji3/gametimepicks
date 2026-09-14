@@ -91,6 +91,32 @@ function loadPunctuality(): Punctuality | null {
   }
 }
 
+/** P303 — every published model's live record against its floor (scripts/ops/build-model-health.mjs). */
+type ModelHealth = {
+  generatedAt: string;
+  worst: string;
+  counts: Record<string, number>;
+  rules: { states: string; action: string };
+  families: Array<{ id: string; sport: string; label: string; baseline?: string; state: string; n: number; judgement: Record<string, unknown> | null; note?: string }>;
+};
+function loadModelHealth(): ModelHealth | null {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "admin", "model-health.json"), "utf8"));
+  } catch {
+    return null;
+  }
+}
+const HEALTH_TONE: Record<string, string> = { BREACHED: "var(--gtp-bank-heat)", WATCH: "var(--vault-gold)", HOLDING: "var(--vault-success)", INSUFFICIENT_SAMPLE: "var(--vault-text-faint)" };
+/** One line per family: the figure its state was judged on, in words. */
+function healthFigure(j: Record<string, unknown> | null): string {
+  if (!j) return "";
+  const n = (v: unknown) => (typeof v === "number" ? v : null);
+  if (n(j.meanDiff) != null) return `vs baseline ${n(j.meanDiff)! > 0 ? "+" : ""}${j.meanDiff}${n(j.lo95) != null ? ` (95%: ${j.lo95} to ${j.hi95})` : ""}`;
+  if (n(j.rate) != null) return `inside range ${Math.round(n(j.rate)! * 100)}%${j.direction ? ` · ${j.direction}` : ""}`;
+  if (n(j.expected) != null) return `expected ${j.expected} · actual ${j.actual}${j.direction ? ` · ${j.direction}` : ""}`;
+  return typeof j.receiptState === "string" ? j.receiptState : "";
+}
+
 // ── Growth-ops readers (internal repo artifacts; /ops is pruned from the public export) ──
 const REPO_ROOT = path.dirname(process.cwd()); // `next build` runs with cwd = app/
 function loadLatestSocialPack(): { pack: unknown; date: string | null } {
@@ -216,6 +242,38 @@ export default function OpsPage() {
         </div>
         <div className="mt-2 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>portfolio.json md5 {c.portfolioMd5?.slice(0, 12)} · crown − drawdown = bankroll: {String(s.moneyGate.crownMinusDrawdownEqualsBankroll)} · daily tracks canonical: {String(s.moneyGate.dailyTracksCanonical)}</div>
       </Card>
+
+      {/* P303 — model health: live results against each model's floor. An alarm surface, never a demotion. */}
+      {(() => {
+        const mh = loadModelHealth();
+        if (!mh) {
+          return (
+            <Card title="Model health · live results vs baselines">
+              <span className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
+                model-health.json not found — regenerate with <code>node app/scripts/ops/build-model-health.mjs --now &lt;ISO&gt;</code>. An absent measurement is not evidence that the models are healthy.
+              </span>
+            </Card>
+          );
+        }
+        return (
+          <Card title={`Model health · worst: ${mh.worst.replace("_", " ").toLowerCase()}`}>
+            <div className="flex flex-col gap-1.5">
+              {mh.families.map((f) => (
+                <div key={f.id} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+                  <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+                    {f.label} <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>n {f.n}</span>
+                  </span>
+                  <span className="font-mono text-[10.5px]" style={{ color: HEALTH_TONE[f.state] ?? "var(--vault-text-faint)" }}>
+                    {f.state.replace("_", " ")}{healthFigure(f.judgement) ? ` · ${healthFigure(f.judgement)}` : ""}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-[10.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>{mh.rules.states} {mh.rules.action}</p>
+            <p className="mt-1 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Generated {mh.generatedAt.slice(0, 16).replace("T", " ")}Z</p>
+          </Card>
+        );
+      })()}
 
       {/* Company health + product readiness */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
