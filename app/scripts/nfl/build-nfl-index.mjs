@@ -22,6 +22,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { classifyTeamOutput } from "../../src/lib/sports/nfl/output-state.mjs";
+import { unionFrozenForecasts } from "../../src/lib/sports/nfl/public-forecast-union.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -31,7 +32,12 @@ if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <
 const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
 const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
-const forecastsArtifact = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
+/* P295: this week's started games publish in frozen-latest.json, rebuilt from their pre-kickoff receipts
+   by the same run. Reading latest.json alone told /nfl that twelve covered games were "missed coverage". */
+const forecastsArtifact = unionFrozenForecasts(
+  read(path.join(APP, "public/data/nfl/forecasts/latest.json")),
+  read(path.join(APP, "public/data/nfl/forecasts/frozen-latest.json")),
+);
 const markets = read(path.join(APP, "public/data/nfl/markets/latest.json"));
 const results = read(path.join(APP, "public/data/nfl/results/latest.json"));
 const status = read(path.join(APP, "public/data/nfl/model-status.json"));

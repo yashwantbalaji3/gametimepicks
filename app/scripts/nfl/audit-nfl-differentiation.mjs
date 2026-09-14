@@ -147,11 +147,21 @@ const heads = [
      * declared-prior classification verbatim. The audit reads the stamp, never guesses from
      * the numbers — the earlier draft's mistake, in both directions.
      */
-    const matchupHead = events.length > 0 && events.every((e) => e.expected.totalHead === "matchup-totals-v1-decayed-points");
+    /* P295: v3 play-efficiency joined v1 as an adopted matchup head. The builder falls back to v1 per
+       game when v3's play data is incomplete, so a slate can carry both — each earned, each named. */
+    const TOTALS_HEAD_DRIVERS = {
+      "matchup-totals-v1-decayed-points": "matchup-totals-v1-decayed-points — decayed per-team combined-points ratings, adopted on an ELIGIBLE preregistered receipt (held-out 2025: NLL beat the shared prior, coverage in band)",
+      "matchup-totals-v3-play-efficiency": "matchup-totals-v3-play-efficiency — decayed per-team scoring plus play-by-play efficiency and pace, centred on the current league level, adopted on an ELIGIBLE preregistered receipt (historical replay, 5,878 held-out games 2000-2021: centred within a point in every era, lower error than the league-level baseline in every era and than v2 overall)",
+    };
+    const headIds = [...new Set(events.map((e) => e.expected.totalHead))];
+    const matchupHead = events.length > 0 && headIds.every((h) => h in TOTALS_HEAD_DRIVERS);
     if (matchupHead) {
       return {
         head: "total",
-        driver: "matchup-totals-v1-decayed-points — decayed per-team combined-points ratings, adopted on an ELIGIBLE preregistered receipt (held-out 2025: NLL beat the shared prior, coverage in band)",
+        headIds,
+        driver: headIds.length === 1
+          ? TOTALS_HEAD_DRIVERS[headIds[0]]
+          : `mixed matchup heads on this slate — ${headIds.map((h) => TOTALS_HEAD_DRIVERS[h]).join("; ")}`,
         eventSpecific: true,
         observedVariationIsNoise: false,
         distinctValues: distinct(totals),
@@ -278,7 +288,9 @@ const publicSummary = {
           ? `This part uses each team's own strength, so it differs from game to game — across this slate our win percentages range from ${(Math.min(...winProbs) * 100).toFixed(1)}% to ${(Math.max(...winProbs) * 100).toFixed(1)}%.`
           : "We tested whether this model can tell which of two preseason teams is better, and it cannot — the measurement is indistinguishable from no effect at all. So we switched that part off rather than publish a favourite we cannot justify. The small differences you see between games are the simulation's own randomness, not a view on the teams.")
       : totalIsMatchup
-        ? `This part now reads the two teams: each game's total comes from that matchup's own scoring ratings, and across this slate the published totals span ${Math.min(...totals)} to ${Math.max(...totals)} points. The head earned this by beating the old league-average prior on a season it had never seen, under bars that were frozen first.`
+        ? ((heads.find((x) => x.head === "total")?.headIds ?? []).every((id) => id === "matchup-totals-v3-play-efficiency")
+            ? `This part reads the two teams: each game's total comes from that matchup's own scoring ratings and from how efficiently both offences and defences have played, play by play, updated after every game. Across this slate the published totals span ${Math.min(...totals)} to ${Math.max(...totals)} points. It replaced the earlier totals model after doing better on 5,878 past games (2000–2021) it had never been tested on, under rules written down before the test.`
+            : `This part now reads the two teams: each game's total comes from that matchup's own scoring ratings, and across this slate the published totals span ${Math.min(...totals)} to ${Math.max(...totals)} points. The head earned this by beating the old league-average prior on a season it had never seen, under bars that were frozen first.`)
         : `This part does NOT look at the two teams. Every game draws its point total from the same league ${publishedRegular ? "scoring" : "preseason"} average, so if two games show a similar total that is not a claim about those teams — it is the same starting number in both.`,
   })),
   /* P244: the sentence names the regime it describes — "preseason" over a regular slate was a
@@ -290,8 +302,11 @@ const publicSummary = {
     : "Preseason games on this slate look similar to each other because, right now, this model genuinely cannot tell them apart. Scoring comes from one league-wide preseason average, and the team-strength input was measured and found to carry no usable signal, so it is switched off. Similar-looking numbers are the honest output of a model that knows very little — not a coincidence, and not a bug.",
   whatWeFoundAndFixed:
     "An earlier version of this page applied the team-strength input anyway. Because the measured effect pointed slightly the wrong way, it was quietly favouring the WEAKER side in every game. We caught it, tested the input properly, and switched it off.",
-  whatWouldChangeIt:
-    "A per-team scoring adapter built from the preseason corpus, which would have to beat a preregistered bar on a season it had never seen before it is allowed to move a published total.",
+  /* P295: this promised a per-team scoring adapter — which now exists, as the adopted matchup totals
+     head. A promise that has been kept, still printed as a promise, is stale copy. */
+  whatWouldChangeIt: totalIsMatchup
+    ? "Every part of this model is re-tested before it changes: a new totals or win model has to do better than the current one on games it has never seen, under rules written down before the test."
+    : "A per-team scoring adapter built from the preseason corpus, which would have to beat a preregistered bar on a season it had never seen before it is allowed to move a published total.",
 };
 fs.writeFileSync(path.join(APP, "public/data/nfl/model-differentiation.json"), JSON.stringify(publicSummary, null, 2) + "\n");
 

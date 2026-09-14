@@ -180,6 +180,10 @@ test("COHERENCE · the win side agrees with the margin sign, in every published 
   }
 });
 
+/* P295: two adopted matchup totals heads — v1, and v3 play-efficiency (which falls back to v1 per game
+   when its play data is incomplete). Each is earned on its own ELIGIBLE receipt. */
+const MATCHUP_TOTALS_HEADS = new Set(["matchup-totals-v1-decayed-points", "matchup-totals-v3-play-efficiency"]);
+
 test("THE TOTAL HEAD follows the artifact's own stamp — shared prior declared, or matchup head earned", () => {
   /*
    * REBASED P246: the total head is regime-scoped on the forecasts' total.head stamp. A
@@ -189,7 +193,7 @@ test("THE TOTAL HEAD follows the artifact's own stamp — shared prior declared,
    * classification off the numbers' variation in either direction.
    */
   const h = report.heads.find((x) => x.head === "total");
-  const matchup = pub.forecasts.every((f) => f.forecastSummary.total.head === "matchup-totals-v1-decayed-points");
+  const matchup = pub.forecasts.every((f) => MATCHUP_TOTALS_HEADS.has(f.forecastSummary.total.head));
   if (matchup) {
     assert.equal(h.classification, "EVENT_SPECIFIC");
     assert.equal(h.declaredSharedPrior, false);
@@ -218,7 +222,7 @@ test("the VERDICT is derived from the classifications and cannot contradict them
   // P244/P246: the honest answer is regime-dependent — preseason reads neither head; the
   // regular Elo head reads teams; and once the matchup totals head is stamped on every
   // forecast, BOTH heads read teams (FULLY). The stamp, not the calendar, decides.
-  const totalMatchup = pub.forecasts.every((f) => f.forecastSummary.total.head === "matchup-totals-v1-decayed-points");
+  const totalMatchup = pub.forecasts.every((f) => MATCHUP_TOTALS_HEADS.has(f.forecastSummary.total.head));
   assert.equal(report.verdict, REGULAR ? (totalMatchup ? "FULLY_EVENT_SPECIFIC" : "PARTIALLY_EVENT_SPECIFIC") : "NO_EVENT_SPECIFIC_SIGNAL");
 });
 
@@ -281,12 +285,12 @@ test("PUBLIC · the limitation is stated to readers in plain words, with no rese
   assert.equal(publicSummary.dataClass, "PUBLIC_DERIVED");
   const totals = publicSummary.heads.find((h) => /points are scored/i.test(h.head));
   // REBASED P246: the public totals sentence follows the artifact stamp like the internal head.
-  const totalMatchupPub = pub.forecasts.every((f) => f.forecastSummary.total.head === "matchup-totals-v1-decayed-points");
+  const totalMatchupPub = pub.forecasts.every((f) => MATCHUP_TOTALS_HEADS.has(f.forecastSummary.total.head));
   assert.equal(totals.state, totalMatchupPub ? "EVENT_SPECIFIC" : "LIMITED_INPUTS");
   assert.match(totals.plainEnglish, totalMatchupPub ? /reads the two teams/ : /does NOT look at the two teams/);
   const winner = publicSummary.heads.find((h) => /who wins/i.test(h.head));
   if (REGULAR) {
-    const totalMatchup2 = pub.forecasts.every((f) => f.forecastSummary.total.head === "matchup-totals-v1-decayed-points");
+    const totalMatchup2 = pub.forecasts.every((f) => MATCHUP_TOTALS_HEADS.has(f.forecastSummary.total.head));
     assert.match(publicSummary.headline, totalMatchup2 ? /Every part of this model reacts/ : /Part of this model reacts to the specific teams/);
     assert.equal(winner.state, "EVENT_SPECIFIC");
     assert.match(winner.plainEnglish, /each team's own strength/);

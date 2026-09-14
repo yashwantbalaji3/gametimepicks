@@ -6,7 +6,7 @@ Specifically locks in:
   - grade returns insufficient_data shape with contextTag=None when sigma
     is invalid (no projection)
 
-The audit reasoning is in SESSION_PROGRESS_PROJECTION_MODEL_UPGRADE.md.
+The audit reasoning is in docs/sessions/SESSION_PROGRESS_PROJECTION_MODEL_UPGRADE.md.
 """
 from __future__ import annotations
 

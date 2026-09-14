@@ -17,6 +17,11 @@
  * totals head must carry a bar on centring and a bar on differentiation, and may not declare
  * diagnostics categorically non-binding. If a future author wants to adopt a head that cannot
  * differentiate games, they must say so in a bar and let it fail, not in prose that cannot.
+ *
+ * P295: "the contract in force" was chosen by FILENAME (/v2|v3|v4/), so the historical-replay
+ * registration — the one that actually adopted v3 — was never the contract this file checked. It is
+ * now the most recently REGISTERED preregistration, and bars are read at any depth, because a
+ * registration with several candidates groups its bars per candidate.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -26,7 +31,7 @@ import path from "node:path";
 const APP = process.cwd();
 const REPORTS = path.join(APP, "..", "data", "internal", "research", "nfl", "reports");
 
-/** Every committed NFL totals preregistration, newest contract last. */
+/** Every committed NFL totals preregistration. */
 function preregistrations() {
   if (!fs.existsSync(REPORTS)) return [];
   return fs.readdirSync(REPORTS)
@@ -34,11 +39,16 @@ function preregistrations() {
     .map((f) => ({ file: f, doc: JSON.parse(fs.readFileSync(path.join(REPORTS, f), "utf8")) }));
 }
 
-/** The contract in force: the highest-versioned totals preregistration on disk. */
+/** The contract in force: the most recently registered totals preregistration. */
 function current() {
-  const all = preregistrations();
-  return all.find((p) => /v2|v3|v4/.test(p.file)) ?? all[all.length - 1] ?? null;
+  return [...preregistrations()]
+    .sort((a, b) => String(a.doc.registeredAt ?? "").localeCompare(String(b.doc.registeredAt ?? "")))
+    .at(-1) ?? null;
 }
+
+/** [name, text] for every bar at any depth. */
+const barEntries = (bars) => Object.entries(bars ?? {}).flatMap(([k, v]) =>
+  (v && typeof v === "object" && !Array.isArray(v) ? barEntries(v) : [[k, v]]));
 
 test("an NFL totals preregistration exists and is readable", () => {
   const all = preregistrations();
@@ -49,15 +59,22 @@ test("an NFL totals preregistration exists and is readable", () => {
   }
 });
 
+test("the contract in force is the newest registration, not whichever filename says v2", () => {
+  const c = current();
+  const dated = preregistrations().filter((p) => p.doc.registeredAt);
+  assert.ok(dated.length >= 2, "at least two dated totals registrations exist to choose between");
+  for (const p of dated) assert.ok(String(c.doc.registeredAt) >= String(p.doc.registeredAt), `${p.file} is newer than the contract in force`);
+});
+
 test("the contract in force bars CENTRING — the bar the incumbent lacked", () => {
   const c = current();
   assert.ok(c, "no current totals contract");
-  const barNames = Object.keys(c.doc.frozenBars).join(" ").toLowerCase();
-  assert.match(
-    barNames, /centring|centering|bias/,
+  const entries = barEntries(c.doc.frozenBars);
+  const centring = entries.find(([k]) => /centring|centering|bias/i.test(k));
+  assert.ok(
+    centring,
     `${c.file}: no centring bar. The incumbent ran +1.79 points high on held-out 2025 and passed every bar it had, because MAE at sigma 13.3 barely notices a two-point offset.`,
   );
-  const centring = Object.entries(c.doc.frozenBars).find(([k]) => /centring|centering|bias/i.test(k));
   assert.match(
     String(centring[1]), /\d/,
     `${c.file}: the centring bar states no threshold — a bar without a number cannot fail a candidate`,

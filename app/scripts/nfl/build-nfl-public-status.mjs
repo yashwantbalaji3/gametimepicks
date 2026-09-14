@@ -229,6 +229,28 @@ const anytimeTd = td
   }
   : { state: "UNKNOWN", headline: "Anytime touchdown: no calibration on file", detail: "No claim is made without a calibration receipt." };
 
+// ---------------------------------------------------------------- game totals
+/*
+ * P295: which totals model the forecasts use, and how far off totals typically are — ours AND the
+ * sportsbooks' — in plain numbers from the replay receipt. A new bettor reading "47 vs 44.5" needs to
+ * know that both numbers routinely miss by more than a touchdown; that is the most useful context the
+ * page can give, and it has to come from the measurement, not from a sentence someone typed.
+ */
+const replay = read(path.join(ROOT, "data/internal/research/nfl/reports/matchup-totals-historical-replay-evaluation.json"));
+const forecastsNow = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
+const totalsHeadsInUse = [...new Set((forecastsNow?.forecasts ?? []).map((f) => f.forecastSummary?.total?.head).filter(Boolean))];
+const v3Eligible = replay?.verdicts?.v3PlayEfficiency === "ELIGIBLE";
+const ourMiss = replay?.results?.v3PlayEfficiency?.overall?.mae;
+const bookMiss = replay?.results?.marketClose?.overall?.mae;
+const totals = v3Eligible && Number.isFinite(ourMiss) && Number.isFinite(bookMiss)
+  ? {
+    state: totalsHeadsInUse.includes("matchup-totals-v3-play-efficiency") ? "IN_USE" : "ELIGIBLE_AWAITING_DATA",
+    headline: "How far off game totals usually are",
+    detail: `Before it was allowed on this page, our totals model was tested on ${Number(replay.population.heldOutGames).toLocaleString("en-US")} past NFL games (${replay.population.heldOutSeasons[0]}–${replay.population.heldOutSeasons[1]}) it had never seen. Its projected total missed the real combined score by ${ourMiss.toFixed(1)} points on average; the sportsbooks' closing totals missed by ${bookMiss.toFixed(1)}. Game totals are hard to predict for everyone, so read any single total as the middle of a wide range.`,
+    checkable: { heldOutGames: replay.population.heldOutGames, heldOutSeasons: replay.population.heldOutSeasons, ourAverageMiss: Number(ourMiss.toFixed(2)), sportsbookAverageMiss: Number(bookMiss.toFixed(2)), headsInUse: totalsHeadsInUse },
+  }
+  : { state: "UNKNOWN", headline: "Totals model evaluation unavailable", detail: "No readable evaluation of the totals model is on file, so no accuracy claim is made." };
+
 const out = {
   schemaVersion: 1,
   artifact: "nfl-public-model-status",
@@ -237,6 +259,7 @@ const out = {
   windowSeasonType: windowIsPreseason ? "PRESEASON" : seasonTypes.size ? "MIXED_OR_REGULAR" : "NO_EVENTS",
   note: "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
   teamSimulation: teamSim,
+  totals,
   market,
   playerFamilies,
   anytimeTd,

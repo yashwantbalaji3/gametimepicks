@@ -177,3 +177,122 @@ test("missing regular-season receipts refuse the whole run — no fallback to th
   assert.equal(r.status, 2);
   assert.match(r.stderr, /regular-season events are in the window/);
 });
+
+// ── P295 · the v3 play-efficiency totals head, end to end on the real builder ─────────────────────
+
+const V3_FILES = [
+  "reports/matchup-totals-historical-replay-evaluation.json",
+  "reports/matchup-totals-historical-replay-preregistration.json",
+  "reports/matchup-totals-evaluation.json",
+  "replay/games-history-v1.json",
+  "replay/team-game-efficiency-v1.json",
+  "replay/current-season.json",
+];
+function withV3(root) {
+  const research = path.join(root, "data", "internal", "research", "nfl");
+  fs.mkdirSync(path.join(research, "replay"), { recursive: true });
+  for (const f of V3_FILES) fs.copyFileSync(path.join(REPO, "data/internal/research/nfl", f), path.join(research, f));
+}
+const latestOf = (app) => JSON.parse(fs.readFileSync(path.join(app, "public/data/nfl/forecasts/latest.json"), "utf8"));
+
+test("P295 · with its ELIGIBLE receipt and complete evidence, every Week 1 total comes from v3 — the fold that was scored", async () => {
+  const rows = realWeek1Rows();
+  const { app } = makeRoot({ scheduleRows: rows });
+  const root = path.resolve(app, "..");
+  withV3(root);
+  const r = runBuilder(app, NOW);
+  assert.equal(r.status, 0, r.stderr || r.stdout);
+  const artifact = latestOf(app);
+  assert.ok(artifact.forecasts.length >= 2);
+
+  const lib = await import("./totals-play-efficiency.mjs");
+  const read = (p) => JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/nfl", p), "utf8"));
+  const gate = lib.totalsV3Gate(read(V3_FILES[0]), read(V3_FILES[1]));
+  const history = read("replay/games-history-v1.json");
+  const current = read("replay/current-season.json");
+  const games = [...lib.gamesFromTable(history), ...lib.gamesFromTable(current).filter((g) => g.season > history.seasons[1])];
+  const efficiencyRows = [...read("replay/team-game-efficiency-v1.json").rows, ...current.efficiencyRows];
+
+  for (const f of artifact.forecasts) {
+    assert.equal(f.forecastSummary.total.head, lib.NFL_TOTALS_V3_HEAD_ID, `${f.matchup}: total head`);
+    assert.equal(f.model.totalsHead.id, lib.NFL_TOTALS_V3_HEAD_ID);
+    assert.match(f.model.totalsHead.receipt, /^matchup-totals-historical-replay-evaluation@/);
+    /* A forecast generated on Sep 9 folds nothing from Sep 9 onward, even though the store's capture
+       (taken Sep 13) carries later finals — the run's own day bounds the fold. */
+    assert.ok(f.model.totalsHead.foldedThrough < NOW.slice(0, 10), `${f.matchup}: folded through ${f.model.totalsHead.foldedThrough}`);
+    const beforeDate = [lib.etDateOf(f.kickoffUtc), lib.etDateOf(NOW)].sort()[0];
+    const fold = lib.foldTotalsV3({ games, efficiencyRows, frozen: gate.frozen, fit: gate.fit, beforeDate });
+    const mu = fold.muFor(lib.toNflverseAbbr(f.home.abbr), lib.toNflverseAbbr(f.away.abbr));
+    assert.ok(Math.abs(f.forecastSummary.total.median - mu) <= 1, `${f.matchup}: published median ${f.forecastSummary.total.median} vs the scored fold's mean ${mu.toFixed(2)}`);
+  }
+  /* The WSH/LAR spelling trap: those games must be on v3 too, not quietly on league means. */
+  const spelled = artifact.forecasts.filter((f) => ["WSH", "LAR"].includes(f.home.abbr) || ["WSH", "LAR"].includes(f.away.abbr));
+  for (const f of spelled) assert.equal(f.model.totalsHead.id, lib.NFL_TOTALS_V3_HEAD_ID, `${f.matchup}: ESPN spelling reached a rated franchise`);
+
+  const receiptsDir = path.join(root, "data/internal/nfl/forecast-receipts", NOW.slice(0, 10));
+  const before = Object.fromEntries(fs.readdirSync(receiptsDir).map((x) => [x, fs.readFileSync(path.join(receiptsDir, x), "utf8")]));
+  assert.equal(runBuilder(app, NOW).status, 0);
+  const after = Object.fromEntries(fs.readdirSync(receiptsDir).map((x) => [x, fs.readFileSync(path.join(receiptsDir, x), "utf8")]));
+  assert.deepEqual(after, before, "v3 is deterministic too: identical inputs rewrite no receipt");
+});
+
+test("P295 · an official final missing from the fold falls back to v1 — and the artifact says why", () => {
+  const { app } = makeRoot({ scheduleRows: realWeek1Rows() });
+  const root = path.resolve(app, "..");
+  withV3(root);
+  /* ESPN reports a regular-season final that nflverse has not published. Folding without it would
+     rate a team from an incomplete season, so v3 must stand aside for these games. */
+  fs.mkdirSync(path.join(app, "public/data/nfl/results"), { recursive: true });
+  fs.writeFileSync(path.join(app, "public/data/nfl/results/latest.json"), JSON.stringify({
+    rows: [{
+      providerEventId: "999000777", dateUtc: "2026-09-08T00:20Z", statusRaw: "STATUS_FINAL", seasonType: 2, week: 1,
+      home: { abbr: "DAL", name: "Dallas Cowboys" }, away: { abbr: "NYG", name: "New York Giants" }, ftHome: 24, ftAway: 20,
+    }],
+  }));
+  const r = runBuilder(app, NOW);
+  assert.equal(r.status, 0, r.stderr || r.stdout);
+  const artifact = latestOf(app);
+  assert.ok(artifact.forecasts.length >= 2);
+  for (const f of artifact.forecasts) {
+    assert.equal(f.forecastSummary.total.head, "matchup-totals-v1-decayed-points", `${f.matchup}: fell back to v1`);
+    assert.equal(f.model.totalsHead.fallbackFrom, "matchup-totals-v3-play-efficiency");
+    assert.match(f.model.totalsHead.fallbackReason, /1 official final\(s\) not yet published by nflverse/);
+  }
+});
+
+// ── P295 · a published forecast does not disappear at kickoff ─────────────────────────────────────
+
+test("P295 · a started game keeps its published forecast, byte-for-byte from its pre-kickoff receipt", async () => {
+  /* 2026-09-13: each later run published only unstarted games, so /nfl called twelve covered games
+     "missed coverage" and their reports 404'd. The started games now publish in frozen-latest.json. */
+  const { unionFrozenForecasts } = await import("./public-forecast-union.mjs");
+  const { app } = makeRoot({ scheduleRows: realWeek1Rows() });
+  const root = path.resolve(app, "..");
+  assert.equal(runBuilder(app, NOW).status, 0);
+  const first = latestOf(app).forecasts.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
+  const opener = first[0];
+  const later = new Date(Date.parse(opener.kickoffUtc) + 2 * 3.6e6).toISOString().replace(".000", "");
+  assert.ok(first.some((f) => f.kickoffUtc > later), "the week must still have unstarted games at the second run");
+
+  /* A receipt stamped AFTER its own kickoff must never be carried — that would be a backfill. */
+  const lateDir = path.join(root, "data/internal/nfl/forecast-receipts", later.slice(0, 10));
+  fs.mkdirSync(lateDir, { recursive: true });
+  fs.writeFileSync(path.join(lateDir, "999000555.json"), JSON.stringify({
+    ...opener, providerEventId: "999000555", kickoffUtc: opener.kickoffUtc, generatedAt: new Date(Date.parse(opener.kickoffUtc) + 60e3).toISOString(),
+  }));
+
+  const r = runBuilder(app, later);
+  assert.equal(r.status, 0, r.stderr || r.stdout);
+  const live = latestOf(app);
+  const frozen = JSON.parse(fs.readFileSync(path.join(app, "public/data/nfl/forecasts/frozen-latest.json"), "utf8"));
+  assert.ok(!live.forecasts.some((f) => f.providerEventId === opener.providerEventId), "the started game has left the live file");
+  const carried = frozen.forecasts.find((f) => f.providerEventId === opener.providerEventId);
+  assert.ok(carried, "…and is in the frozen file");
+  assert.deepEqual(carried.forecastSummary, opener.forecastSummary, "exactly the numbers that were published before kickoff");
+  assert.equal(carried.model.inputHash, opener.model.inputHash);
+  assert.ok(carried.generatedAt < carried.kickoffUtc, "only a genuinely pre-kickoff forecast is carried");
+  assert.ok(!frozen.forecasts.some((f) => f.providerEventId === "999000555"), "a receipt stamped after its kickoff is never carried");
+  assert.equal(frozen.generatedAt, live.generatedAt, "both files come from the same run");
+  const union = unionFrozenForecasts(live, frozen);
+  assert.ok(union.forecasts.some((f) => f.providerEventId === opener.providerEventId), "readers see the whole week");
+});

@@ -245,17 +245,20 @@ export function buildMlbGameLabReport(
     const proj = r.projection != null ? r.projection.toFixed(1) : "—";
     const lineTxt = r.line != null ? String(r.line) : "—";
     const mkt = r.marketLabel ?? "market";
-    const conf = r.confidence ?? "—";
-    const samp = r.samples != null ? `${r.samples} games` : "limited samples";
+    /* P295: no confidence TIER in reader copy. The MLB tiers were measured INVERTED (a "High" lean hit
+       less often than a "Medium" one — the Simpson's finding), so printing "at High confidence" beside a
+       gap told a new bettor the opposite of the evidence. The tier still drives the supported/neutral
+       classification internally; the sentence states only what is measured: the gap and its sample. */
+    const samp = r.samples != null ? `${r.samples} recent games` : "a limited sample";
     const parts = [
       `${r.playerName} — ${side} ${lineTxt} ${mkt}: projection ${proj} vs line ${lineTxt}`,
-      `model gap ${edge1(r.edgePct)} at ${conf} confidence over ${samp}`,
+      `model gap ${edge1(r.edgePct)}, based on ${samp}`,
     ];
     return parts.join(" · ");
   });
   if (whatModelLikes.length === 0) {
     whatModelLikes.push(
-      "No lean cleared the supported bar for this game (gap ≥ 5% at Medium+ confidence). The model reads this slate as close to the posted prices.",
+      "No lean cleared the bar this report uses to list one for this game. The model reads this slate as close to the posted prices.",
     );
   }
 

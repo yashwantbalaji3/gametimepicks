@@ -197,6 +197,17 @@ jobs:
           # rather than each surface assuming its own.
           node scripts/nfl/build-nfl-participation.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 48
 
+      # P295: the v3 totals head learns game by game from this season's nflverse finals and play-by-play
+      # (free, CC BY 4.0, no key, no credits). This step never fails the window: a failed download keeps
+      # the last good capture and records the attempt, and the forecast builder falls back to the
+      # incumbent totals head — naming why — whenever an official final is missing from what it folded.
+      - name: Capture this season's nflverse finals and play-by-play (free)
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/capture-nflverse-season.mjs --now "${{ steps.window.outputs.now }}"
+
       - name: Generate public-beta NFL forecasts
         id: generate
         if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
@@ -358,7 +369,8 @@ jobs:
           # threw the capture away — leaving the committed injury file hours older than the evidence
           # (Travis Bell and Ben Sims: IR in the file, Questionable in the feed the evidence used), and
           # leaving the carry-forward's "previous file" frozen in CI, so it could not accumulate memory.
-          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/
+          # P295: the nflverse season capture the v3 totals head folded is committed with the forecasts built from it.
+          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/ data/internal/research/nfl/replay/
           if git diff --cached --quiet; then
             echo "nothing changed — no commit"
             exit 0

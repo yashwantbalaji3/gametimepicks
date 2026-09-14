@@ -374,7 +374,8 @@ export default function MlbLandingPage() {
     { key: "overview", label: "Overview", content: overviewTab },
     { key: "projections", label: "Projections", badge: pitcherLeans.length || null, content: projectionsTab },
     { key: "player-props", label: "Player Props", badge: batterLeans.length || null, content: playerPropsTab },
-    { key: "cards", label: "Parlay Lab", badge: mlbCards.length || null, content: cardsTab },
+    /* "Parlay Lab" is a retired product name (P260); the game page already calls this tab "Suggested parlays". */
+    { key: "cards", label: "Suggested parlays", badge: mlbCards.length || null, content: cardsTab },
     { key: "results", label: "Results", badge: null, content: resultsTab },
     { key: "methodology", label: "Methodology", badge: null, content: methodologyTab },
   ];

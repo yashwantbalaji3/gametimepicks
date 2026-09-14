@@ -76,6 +76,10 @@ const totalsReceipt = integrationAdopted && fs.existsSync(totalsReceiptPath)
   ? JSON.parse(fs.readFileSync(totalsReceiptPath, "utf8"))
   : null;
 const useMatchupTotals = integrationAdopted && totalsReceipt?.verdict === "ELIGIBLE";
+/* P295 · A TYPED DIVERGENCE, RECORDED IN BOTH FILES. The public forecast builder now draws game totals
+   from v3 play-efficiency. This chain stays on v1 on purpose: the ACCEPTED integration verdict above
+   measured the player heads under v1 totals, and swapping their input without re-evaluating them would
+   publish an untested combination. It moves when the props chain is evaluated under v3. */
 const publicMarkets = readMaybe(path.join(APP, "public/data/nfl/markets/latest.json"));
 const snapFiles = fs.existsSync(path.join(ROOT, "data/internal/research/odds/nfl"))
   ? fs.readdirSync(path.join(ROOT, "data/internal/research/odds/nfl")).filter((f) => f.startsWith("capture-")).sort()

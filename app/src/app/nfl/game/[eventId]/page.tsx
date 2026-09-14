@@ -24,6 +24,7 @@ import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
+import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -56,7 +57,9 @@ type Forecast = {
 const readPublic = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
 };
-const forecastArtifact = () => readPublic("nfl/forecasts/latest.json");
+/* P295: a started game's forecast lives in frozen-latest.json (rebuilt from its pre-kickoff receipt by the
+   same run), so its report keeps rendering after kickoff instead of 404ing. */
+const forecastArtifact = () => unionFrozenForecasts(readPublic("nfl/forecasts/latest.json"), readPublic("nfl/forecasts/frozen-latest.json"));
 /* P277: pregame conditions, shown beside the forecast and never inside it — the model ingests no
    weather term, and the line that renders this says so. */
 const weatherArtifact = () => readPublic("nfl/weather/latest.json");
@@ -208,10 +211,12 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </p>
         ) : null}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 10, marginTop: 12 }}>
-          <Stat label="Projected score" value={`${f.away.abbr} ${s.projectedScore.away} — ${s.projectedScore.home} ${f.home.abbr}`} sub="from the median total and margin, so the pieces add up" />
-          <Stat label="Win chance" value={`${f.away.abbr} ${pct(s.winProbability.away)} · ${f.home.abbr} ${pct(s.winProbability.home)}`} sub={`ties ${pct(s.winProbability.tieMass)}`} />
-          <Stat label="Total points" value={`${s.total.median}`} sub={`usually between ${s.total.p10} and ${s.total.p90}`} />
-          <Stat label="Margin" value={`${s.margin.median > 0 ? "+" : ""}${s.margin.median}`} sub={`80% of games land ${s.margin.p10} to ${s.margin.p90}`} />
+          {/* P295 · labels a first-time bettor can read without a glossary: what each number is, which
+              team a signed number favours, and what the range means in simulations rather than "p10". */}
+          <Stat label="Projected score" value={`${f.away.abbr} ${s.projectedScore.away} — ${s.projectedScore.home} ${f.home.abbr}`} sub="the middle of our simulated outcomes, not a call on the exact final" />
+          <Stat label="Win chance" value={`${f.away.abbr} ${pct(s.winProbability.away)} · ${f.home.abbr} ${pct(s.winProbability.home)}`} sub={`how often each side won in ${f.model.simulations.toLocaleString()} simulations · ties ${pct(s.winProbability.tieMass)}`} />
+          <Stat label="Total points (both teams)" value={`${s.total.median}`} sub={`8 in 10 simulations landed between ${s.total.p10} and ${s.total.p90}`} />
+          <Stat label={`${f.home.abbr} winning margin`} value={`${s.margin.median > 0 ? "+" : ""}${s.margin.median}`} sub={`a minus means ${f.away.abbr} wins by that much · 8 in 10 between ${s.margin.p10} and ${s.margin.p90}`} />
         </div>
         {/* P246 (founder): the calibration paragraph left the browsing path — it lives in an
             optional disclosure here and in the artifact itself, not beside every number. */}
@@ -529,9 +534,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 10, marginTop: 12 }}>
               <Stat label="Our win chance" value={pct(s.winProbability.home)} sub={`${f.home.abbr} to win`} />
-              <Stat label="Sportsbook win chance" value={pct(mc.marketHomeWinPct)} sub={`median of ${mc.books} books, margin removed`} />
-              <Stat label="Difference" value={gapPp == null ? "—" : `${gapPp > 0 ? "+" : ""}${gapPp} pp`} sub="percentage points — a difference, not a recommendation" />
-              <Stat label="Totals" value={`${s.total.median} vs ${mc.marketTotal ?? "—"}`} sub="our median against the market total" />
+              <Stat label="Sportsbook win chance" value={pct(mc.marketHomeWinPct)} sub={`${f.home.abbr} to win, read from ${mc.books} sportsbooks' odds with their built-in margin removed`} />
+              <Stat label="Difference" value={gapPp == null ? "—" : `${gapPp > 0 ? "+" : ""}${gapPp} pp`} sub="ours minus the sportsbooks', in percentage points — not a recommendation" />
+              <Stat label="Total points: ours vs sportsbooks" value={`${s.total.median} vs ${mc.marketTotal ?? "—"}`} sub="our projected total against the sportsbooks' over/under line" />
             </div>
             <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 760, lineHeight: 1.6 }}>{mc.note}</p>
             <p style={{ margin: "6px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>Prices captured {mc.capturedAt} — before kickoff.</p>

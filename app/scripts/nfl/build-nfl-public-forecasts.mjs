@@ -25,6 +25,10 @@ import { fileURLToPath } from "node:url";
 
 import { mulberry32, snapScore, simulateNflGame } from "../../src/lib/sports/nfl/game-sim.mjs";
 import { totalsStateAt, NFL_TOTALS_HEAD_ID } from "../../src/lib/sports/nfl/totals-rating.mjs";
+import {
+  foldTotalsV3, totalsV3Gate, totalsV3Coverage, gamesFromTable, etDateOf, toNflverseAbbr, NFL_TOTALS_V3_HEAD_ID,
+  TOTALS_REPLAY_RECEIPT, TOTALS_REPLAY_PREREG, GAMES_HISTORY, EFFICIENCY_HISTORY, CURRENT_SEASON,
+} from "../../src/lib/sports/nfl/totals-play-efficiency.mjs";
 import { fnv1a } from "../../src/lib/sports/research/replay-runner.mjs";
 import { strengthStateAt, ELO_PARAMS } from "../../src/lib/sports/nfl/strength-state.mjs";
 import { coherentDirection } from "../../src/lib/sports/nfl/coherence.mjs";
@@ -207,6 +211,39 @@ const totalsReceipt = (() => {
   const p0 = path.join(ROOT, "data/internal/research/nfl/reports/matchup-totals-evaluation.json");
   return fs.existsSync(p0) ? read(p0) : null;
 })();
+/*
+ * P295 · THE TOTALS HEAD IS v3 PLAY-EFFICIENCY — WHEN ITS EVIDENCE IS COMPLETE.
+ *
+ * v1 carried a +1.8-point bias on every game (a centring constant frozen at its 2023-24 fit). The
+ * historical replay scored v3 once, on 5,878 held-out games (2000–2021), under a registration committed
+ * before scoring: ELIGIBLE — centred within a point in every era, lower error than the league-level
+ * baseline in every era and than v2 overall. totals-play-efficiency.test.mjs proves the fold used here
+ * reproduces that receipt season by season, so what publishes is what was scored.
+ *
+ * v3 folds this season's nflverse finals and play-by-play. Per game: if any official final before that
+ * game's date is missing from the fold (nflverse not yet updated, a failed capture), or either team has
+ * no rating, the forecast falls back to v1 and the artifact names why. v2 was REJECTED by the same
+ * receipt and is never used.
+ *
+ * STILL A TYPED DIVERGENCE: the player-props chain (run-nfl-event-window.mjs) draws game totals from v1,
+ * the head its ACCEPTED integration verdict measured. Moving it to v3 needs its own evaluation.
+ */
+const totalsV3 = (() => {
+  const gate = totalsV3Gate(read(path.join(ROOT, TOTALS_REPLAY_RECEIPT)), read(path.join(ROOT, TOTALS_REPLAY_PREREG)));
+  if (gate.state !== "READY") return gate;
+  const history = read(path.join(ROOT, GAMES_HISTORY));
+  const effHistory = read(path.join(ROOT, EFFICIENCY_HISTORY));
+  if (!history?.games?.length || !effHistory?.rows?.length) return { state: "REFUSED", reason: "the committed game or play-efficiency history is unreadable" };
+  const current = read(path.join(ROOT, CURRENT_SEASON));
+  const captured = current?.state === "CAPTURED";
+  const lastHistorySeason = history.seasons[1];
+  return {
+    ...gate,
+    games: [...gamesFromTable(history), ...(captured ? gamesFromTable(current).filter((g) => g.season > lastHistorySeason) : [])],
+    efficiencyRows: [...effHistory.rows, ...(captured ? current.efficiencyRows.filter((r) => r.season > lastHistorySeason) : [])],
+  };
+})();
+console.log(`totals head: ${totalsV3.state === "READY" ? `v3 ready (${totalsV3.games.length} finals on file)` : `v3 refused — ${totalsV3.reason}`}`);
 const rsCard = read(path.join(ROOT, "data/internal/research/nfl/regular-season-public-card-v1.json"));
 // Only RESOLVED phases join the window question: a row with no seasonType is refused per-event
 // below (PHASE_UNRESOLVED), and letting its absence into this set would turn one broken row into
@@ -311,13 +348,45 @@ for (const ev of events) {
     });
     // The ratings map is keyed by full team name (the corpus rows); the schedule row speaks abbr.
     const wrapped = { ...strength, ratingFor: (t) => strength.ratingFor(nameOf.get(t) ?? t) };
-    /* Matchup totals: ratings fold only finals strictly before THIS kickoff (walk-forward). */
-    const totalsState = totalsReceipt
-      ? totalsStateAt({ rows: mergedFinals, cutoffIso: ev.dateUtc, receipt: totalsReceipt })
-      : { state: "REFUSED", reason: "no totals receipt on file" };
-    const matchupTotals = totalsState.state === "READY"
-      ? { muTotal: totalsState.muFor(ev.home.name, ev.away.name), sigmaTotal: totalsState.sigma }
-      : null;
+    /*
+     * Matchup totals, walk-forward. P295: v3 play-efficiency when its gate is READY, every official final
+     * of this season before this game's Eastern date is folded with its play data, and both teams are
+     * rated; otherwise v1, with the reason carried into the artifact. v1 folds finals strictly before THIS
+     * kickoff; v3 folds whole game days strictly before this game's day, exactly as it was scored.
+     */
+    /* Fold whole days strictly before BOTH the game's day and the run's own day: a regeneration pinned to
+       an earlier --now must never fold a final that had not been played yet at that instant, even when a
+       later capture carries it. Live, the capture holds only what exists, so this changes nothing. */
+    const foldBefore = [etDateOf(ev.dateUtc), etDateOf(NOW)].sort()[0];
+    const homeV3 = toNflverseAbbr(ev.home.abbr);
+    const awayV3 = toNflverseAbbr(ev.away.abbr);
+    let v3State = null;
+    let v3FallbackReason = null;
+    if (totalsV3.state !== "READY") {
+      v3FallbackReason = totalsV3.reason;
+    } else {
+      const seasonFinals = mergedFinals.filter((r) => r.season === targetSeason && r.seasonType != null && r.seasonType !== 1 && /^STATUS_FINAL/.test(r.statusRaw ?? ""));
+      const coverage = totalsV3Coverage({ games: totalsV3.games, efficiencyRows: totalsV3.efficiencyRows, officialFinals: seasonFinals, beforeDate: foldBefore, frozen: totalsV3.frozen });
+      if (!coverage.complete) {
+        v3FallbackReason = `this season's play-by-play is incomplete before ${foldBefore}: ${coverage.missingGames.length} official final(s) not yet published by nflverse, ${coverage.missingEfficiency.length} without play data`;
+      } else {
+        const folded = foldTotalsV3({ games: totalsV3.games, efficiencyRows: totalsV3.efficiencyRows, frozen: totalsV3.frozen, fit: totalsV3.fit, beforeDate: foldBefore });
+        const unrated = [homeV3, awayV3].filter((t) => !folded.hasTeam(t));
+        if (unrated.length) v3FallbackReason = `no play-efficiency rating history for ${unrated.join(" and ")}`;
+        else v3State = folded;
+      }
+    }
+    const totalsState = v3State
+      ? null
+      : totalsReceipt
+        ? totalsStateAt({ rows: mergedFinals, cutoffIso: ev.dateUtc, receipt: totalsReceipt })
+        : { state: "REFUSED", reason: "no totals receipt on file" };
+    const matchupTotals = v3State
+      ? { muTotal: v3State.muFor(homeV3, awayV3), sigmaTotal: v3State.sigma }
+      : totalsState.state === "READY"
+        ? { muTotal: totalsState.muFor(ev.home.name, ev.away.name), sigmaTotal: totalsState.sigma }
+        : null;
+    const totalsHeadId = v3State ? NFL_TOTALS_V3_HEAD_ID : matchupTotals ? NFL_TOTALS_HEAD_ID : "shared-prior";
     const rsFit = { params: matchupTotals ? { ...rsEval.fitParams, ...matchupTotals } : rsEval.fitParams };
     const sim = simulateNflGame({ fit: rsFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS });
     if (sim.state !== "SIMULATED") {
@@ -332,6 +401,10 @@ for (const ev of events) {
       muTotal: rsEval.fitParams.muTotal, sigmaTotal: rsEval.fitParams.sigmaTotal,
       strengthCutoff: strength.cutoffIso, gamesFolded: strength.gamesFolded,
       regressedToSeason: strength.regressedToSeason, scheduleAsOf: schedule.generatedAt,
+      /* P295: a v3 total is an input like any other. When a new final moves it, the forecast is a
+         pre-kickoff REVISION with lineage, never a silent rewrite under an unchanged hash. (Absent for
+         v1 so its existing receipts stay byte-identical.) */
+      ...(v3State ? { totalsHead: totalsHeadId, muTotalHead: Number(matchupTotals.muTotal.toFixed(6)) } : {}),
     })).digest("hex").slice(0, 16);
 
     /*
@@ -374,9 +447,16 @@ for (const ev of events) {
         derivedFrom: rsCard.derivedFrom.map((d0) => `${d0.modelId}@v${d0.version}`),
         /* Provenance by receipt NAME + stamp — a public artifact never carries an internal
            path (the boundary scan below refuses "data/internal", and it caught exactly that). */
-        totalsHead: matchupTotals
-          ? { id: NFL_TOTALS_HEAD_ID, receipt: `${totalsReceipt.artifact}@${totalsReceipt.generatedAt}`, gamesFolded: totalsState.gamesFolded, sigma: totalsState.sigma }
-          : { id: "shared-prior", reason: totalsState.reason },
+        /* P295: which totals head moved this forecast, and — whenever v3 did NOT — why, in words. */
+        totalsHead: v3State
+          ? { id: NFL_TOTALS_V3_HEAD_ID, receipt: totalsV3.receiptStamp, gamesFolded: v3State.gamesFolded, foldedThrough: v3State.lastDateFolded, sigma: v3State.sigma }
+          : {
+            ...(matchupTotals
+              ? { id: NFL_TOTALS_HEAD_ID, receipt: `${totalsReceipt.artifact}@${totalsReceipt.generatedAt}`, gamesFolded: totalsState.gamesFolded, sigma: totalsState.sigma }
+              : { id: "shared-prior", reason: totalsState.reason }),
+            fallbackFrom: NFL_TOTALS_V3_HEAD_ID,
+            fallbackReason: v3FallbackReason,
+          },
       },
       teamSignal: {
         state: "APPLIED",
@@ -403,7 +483,7 @@ for (const ev of events) {
           // The source is named only when it is NOT the incumbent, so an unpromoted run publishes the same bytes.
           return { median: sim.marginQuantiles.p50, p10: iv.p10, p90: iv.p90, ...(iv.source !== "incumbent" ? { intervalSource: iv.source } : {}) };
         })(),
-        total: { median: sim.totalQuantiles.p50, p10: sim.totalQuantiles.p10, p90: sim.totalQuantiles.p90, head: matchupTotals ? NFL_TOTALS_HEAD_ID : "shared-prior" },
+        total: { median: sim.totalQuantiles.p50, p10: sim.totalQuantiles.p10, p90: sim.totalQuantiles.p90, head: totalsHeadId },
         scoreRange: { homeP10: sim.scores.home.quantiles.p10, homeP90: sim.scores.home.quantiles.p90, awayP10: sim.scores.away.quantiles.p10, awayP90: sim.scores.away.quantiles.p90 },
       },
       marketComparison: marketFresh
@@ -546,6 +626,60 @@ for (const ev of events) {
 // One window, one phase (refused above otherwise), one card. An EMPTY window keeps the phase of
 // the upcoming schedule so the artifact's self-description matches what the reader is waiting for.
 const publishPreseason = windowSeasonTypes.size > 0 ? windowIsPreseason : !scheduleHasRegularAhead;
+
+/*
+ * P295 · A PUBLISHED FORECAST DOES NOT DISAPPEAR AT KICKOFF.
+ *
+ * Each run publishes only games that have not started, and the index, /nfl, the week page and the game
+ * pages all read that one file. So on 2026-09-13 the 17:35Z run cut Week 1 from 14 forecasts to 6 and
+ * the 22:54Z run to 2: twelve games that HAD published pre-kickoff forecasts (13:48Z, receipts on disk)
+ * lost their game pages (404), and /nfl told readers they "kicked off before a forecast was published —
+ * missed coverage, never backfilled". A false statement about our own record.
+ *
+ * The started games of the current week are rebuilt here from their immutable receipts — the latest
+ * revision generated BEFORE its own kickoff — into forecasts/frozen-latest.json. Nothing is generated
+ * and nothing is backfilled: a receipt stamped at or after kickoff is never carried. It is a SEPARATE
+ * artifact on purpose: every producer downstream of this builder has only ever seen pre-kickoff
+ * forecasts in latest.json, so only the readers union the two (lib/sports/nfl/public-forecast-union.mjs).
+ */
+const frozenForecasts = (() => {
+  if (!currentPeriod) return [];
+  const receiptsRoot = path.join(ROOT, "data/internal/nfl/forecast-receipts");
+  if (!fs.existsSync(receiptsRoot)) return [];
+  const liveIds = new Set(published.map((f) => String(f.providerEventId)));
+  const horizon = new Date(nowMs - 14 * 864e5).toISOString().slice(0, 10);
+  const best = new Map();
+  for (const day of fs.readdirSync(receiptsRoot).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d >= horizon && d <= DATE).sort()) {
+    for (const file of fs.readdirSync(path.join(receiptsRoot, day)).filter((x) => x.endsWith(".json"))) {
+      const rec = read(path.join(receiptsRoot, day, file));
+      if (!rec?.providerEventId || !rec.kickoffUtc || !rec.generatedAt || !rec.forecastSummary) continue;
+      if (rec.seasonType !== currentPeriod.seasonType || rec.week !== currentPeriod.week) continue;
+      if (Date.parse(rec.kickoffUtc) > nowMs || liveIds.has(String(rec.providerEventId))) continue;
+      if (!(Date.parse(rec.generatedAt) < Date.parse(rec.kickoffUtc))) continue;
+      const id = String(rec.providerEventId);
+      if (!best.has(id) || rec.generatedAt > best.get(id).generatedAt) best.set(id, rec);
+    }
+  }
+  return [...best.values()]
+    .map((rec) => { const f = { ...rec }; delete f.revisionOf; delete f.priorInputHash; return f; })
+    .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
+})();
+const frozenPayload = JSON.stringify({
+  schemaVersion: 1,
+  artifact: "nfl-public-forecasts-frozen",
+  dataClass: "PUBLIC_DERIVED",
+  generatedAt: NOW,
+  period: currentPeriod ? { seasonType: currentPeriod.seasonType, week: currentPeriod.week } : null,
+  note: "This week's games that have kicked off, each shown exactly as its last pre-kickoff forecast was published. Frozen at kickoff and never regenerated.",
+  eventCount: frozenForecasts.length,
+  forecasts: frozenForecasts,
+}, null, 1);
+for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledger"]) {
+  if (frozenPayload.includes(banned)) { console.error(`REFUSED: frozen forecasts would carry "${banned}"`); process.exit(3); }
+}
+fs.mkdirSync(path.join(APP, "public/data/nfl/forecasts"), { recursive: true });
+fs.writeFileSync(path.join(APP, "public/data/nfl/forecasts", "frozen-latest.json"), frozenPayload);
+console.log(`frozen at kickoff: ${frozenForecasts.length} started game(s) of the current week carried from pre-kickoff receipts`);
 const publicArtifact = {
   schemaVersion: 1,
   artifact: "nfl-public-forecasts",

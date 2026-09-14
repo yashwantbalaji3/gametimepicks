@@ -482,7 +482,7 @@ export default function NflHubPage() {
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
             <thead>
               <tr>
-                {["Kickoff (ET)", "Matchup", "Model winner", "Projected score", "Our total", "Market (diff)", "Conditions", "Status", ""].map((h) => (
+                {["Kickoff (ET)", "Matchup", "Likely winner", "Projected score", "Our total (range)", "Sportsbook total", "Weather", "Status", ""].map((h) => (
                   <th key={h || "action"} scope="col" style={{ textAlign: "left", padding: "7px 9px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
                 ))}
               </tr>
@@ -561,25 +561,32 @@ export default function NflHubPage() {
             </tbody>
           </table>
         </div>
-        <p style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
-          Projected scores come from the median total and margin, so they add up to the printed total.
-          Where the margin is a single point the printed difference leans the way the margin leans
-          rather than showing a level score — the model always says who it favours.
-        </p>
-        {slateMarketRows.length ? (
-          <p style={{ margin: "6px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
-            <strong style={{ color: "var(--vault-text-mute)" }}>Market (diff)</strong> is the median of
-            the books&rsquo; own posted totals for that game, with ours minus theirs in brackets —
-            their number, not ours, and not a GameTimePicks projection. {bookCountNote} It is shown because a difference is the most useful thing you can
-            know about a forecast: our totals vary far less game-to-game than the market&rsquo;s do,
-            so a large difference usually says more about the limits of our totals model than about
-            the game. A difference is not a recommendation, and this model has not been shown to beat
-            the market.
+        {/* P295 · HOW TO READ THIS TABLE, FOR SOMEONE WHO HAS NEVER BET.
+            The founder's bar: a rookie bettor must be able to use this page without being confused. So
+            every column is named in plain words above, and explained once here — what it is, whose
+            number it is, and what the brackets mean. The sportsbook column is labelled as the books'
+            own number every time it is mentioned, and the "how far off totals usually are" sentence is
+            read from the model-status artifact (derived from the replay receipt), never typed here. */}
+        <div style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
+          <p style={{ margin: 0 }}>
+            <strong style={{ color: "var(--vault-text-mute)" }}>How to read this table.</strong>{" "}
+            <strong>Likely winner</strong> is the team that won more of our 10,000 simulated games, and how often.{" "}
+            <strong>Projected score</strong> is the middle of our simulated outcomes, not a call on the exact final; it adds up to our total and always leans toward the favourite, even by one point.{" "}
+            <strong>Our total</strong> is the points we expect both teams to score combined, with the range where 8 in 10 simulations landed.
+            {slateMarketRows.length ? (
+              <>
+                {" "}<strong>Sportsbook total</strong> is the over/under line: the middle of the totals the sportsbooks posted for that game. It is their number, not ours. The bracket is ours minus theirs, so +3 means we expect 3 more points. {bookCountNote}
+              </>
+            ) : null}
+            {" "}Nothing here is a bet recommendation.
           </p>
-        ) : null}
+          {modelStatus?.totals?.state && modelStatus.totals.state !== "UNKNOWN" ? (
+            <p style={{ margin: "6px 0 0" }}>{modelStatus.totals.detail}</p>
+          ) : null}
+        </div>
         {totalsBand.sentence ? (
           <p style={{ margin: "8px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760, borderLeft: "2px solid var(--vault-border-strong)", paddingLeft: 10 }}>
-            <strong style={{ color: "var(--vault-text-mute)" }}>How much these totals differentiate games:</strong>{" "}
+            <strong style={{ color: "var(--vault-text-mute)" }}>Ours next to the sportsbooks&rsquo;:</strong>{" "}
             {totalsBand.sentence}
           </p>
         ) : null}

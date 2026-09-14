@@ -12,6 +12,7 @@ import {
   parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordRequest, assertNoSecretLeak,
   classifyProviderResult, isDuplicateRequest,
 } from "./p171-authorization.mjs";
+import { rowCapturedAt } from "./capture-merge.mjs";
 
 const ROOT = path.join(process.cwd(), "..");
 const committedReceipt = fs.readFileSync(path.join(ROOT, "docs/receipts/ODDS_AUTHORIZATION_P171.md"), "utf8");
@@ -142,7 +143,11 @@ test("P173 REGRESSION · the committed public capture is non-empty and pre-kicko
   assert.ok(m.eventCount > 0, "an empty committed capture means the last-known-good was destroyed again");
   assert.equal(m.rows.length, m.eventCount, "eventCount must match the rows actually carried");
   for (const r of m.rows) {
-    assert.ok(m.capturedAt < r.kickoffUtc, `${r.away.abbr}@${r.home.abbr}: capture must precede its own kickoff`);
+    /* The ROW's own stamp. Rows carry forward across captures (a game priced before kickoff stays on
+       the slate after a later run stops covering it), so the document's stamp is when the LAST run
+       happened, not when this row's prices were taken. Compared against the document, the evening
+       22:54Z run on 2026-09-13 failed every afternoon game whose prices were taken that morning. */
+    assert.ok(rowCapturedAt(r, m) < r.kickoffUtc, `${r.away.abbr}@${r.home.abbr}: its prices (${rowCapturedAt(r, m)}) must precede its own kickoff`);
     assert.ok(r.books.length > 0, "a published row carries real book prices");
   }
 });
