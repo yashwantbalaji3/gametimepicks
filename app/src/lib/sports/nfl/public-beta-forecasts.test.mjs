@@ -105,8 +105,32 @@ test("MARKET INDEPENDENCE · odds are carried for comparison and are not an inpu
   assert.doesNotMatch(simBlock, /market|consensus/i, "the simulation loop cannot read a price");
   // The regular path simulates through the evaluated engine — its call carries model inputs only,
   // no lines and no prices (game-sim's own evaluation pins that engine's market independence).
-  assert.match(src, /simulateNflGame\(\{ fit: rsFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS \}\)/,
-    "the regular-season sim call passes model inputs only");
+  /*
+   * P298: this pinned the call's exact text, so passing the adopted win/margin heads (`heads` — the
+   * heads' own pHome, margin mean and sigma, computed from Elo ratings) failed it while the property it
+   * protects still held. The guard now asserts the PROPERTY: the regular sim call passes only named model
+   * inputs, and the code that chooses `heads` never reads a price. A mutant that slips a line or a market
+   * row into the call must fail it, so the check cannot pass by matching nothing.
+   */
+  const ALLOWED_SIM_ARGS = new Set(["fit: rsFit", "strengthState: wrapped", "event: ev", "artifactDate: DATE", "runs: RUNS", "heads"]);
+  const regularSimCallIsModelOnly = (source) => {
+    const calls = [...source.matchAll(/simulateNflGame\(\{([^}]*)\}\)/g)].map((m) => m[1]).filter((args) => /fit: rsFit/.test(args));
+    if (calls.length !== 1) return false;
+    const args = calls[0].split(",").map((a) => a.trim()).filter(Boolean);
+    if (!args.every((a) => ALLOWED_SIM_ARGS.has(a))) return false;
+    const start = source.indexOf("let heads = null");
+    const end = source.indexOf("const sim = simulateNflGame({ fit: rsFit");
+    if (start < 0 || end < 0 || end <= start) return false;
+    /* Identifier PREFIXES, not whole words: the builder's real price handles are marketByEvent,
+       marketComparison and marketFresh, and a whole-word \bmarket\b passes all three — the second
+       mutation probe below found exactly that hole. */
+    return !/\b(market\w*|consensus\w*|moneyline\w*|odds\w*|lines|books?)\b/i.test(source.slice(start, end));
+  };
+  assert.ok(regularSimCallIsModelOnly(src), "the regular-season sim call passes model inputs only, and its heads are chosen without a price");
+  assert.equal(regularSimCallIsModelOnly(src.replace("runs: RUNS, heads", "runs: RUNS, heads, lines: market")), false,
+    "mutation probe: a line slipped into the call must fail the guard");
+  assert.equal(regularSimCallIsModelOnly(src.replace("let heads = null;", "let heads = null; const peek = marketByEvent;")), false,
+    "mutation probe: a price read while choosing the heads must fail the guard");
   for (const f of pub.forecasts) {
     if (f.marketComparison.state === "MARKET_VIEW") {
       assert.match(f.marketComparison.note, /has not been shown to beat the market/);

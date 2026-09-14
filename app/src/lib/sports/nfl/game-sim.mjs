@@ -71,7 +71,12 @@ export const snapScore = (x) => {
  * @param {number} [p.runs]
  * @param {object|null} [p.lines]    optional { spread (home line, e.g. -3.5), total } for cover/over probabilities
  */
-export function simulateNflGame({ fit, strengthState, event, artifactDate, runs = 10_000, lines = null }) {
+/*
+ * P298 · `heads` (optional, regular season only): the adopted win and margin heads' pre-game numbers —
+ * { pHome, marginMean, sigmaMargin } — replacing the incumbent's Elo-derived values. Absent (every existing
+ * caller: the props chain, the TD and gamesim evaluations, the tests), the simulation is byte-identical.
+ */
+export function simulateNflGame({ fit, strengthState, event, artifactDate, runs = 10_000, lines = null, heads = null }) {
   const home = typeof event?.home === "string" ? event.home : event?.home?.abbr ?? event?.home?.name;
   const away = typeof event?.away === "string" ? event.away : event?.away?.abbr ?? event?.away?.name;
   if (!home || !away) return { state: "ABSTAIN", reason: "participants unresolved — identity is never guessed" };
@@ -84,8 +89,11 @@ export function simulateNflGame({ fit, strengthState, event, artifactDate, runs 
   const d = strengthState.ratingFor(home) + ELO_PARAMS.HOME_ADVANTAGE - strengthState.ratingFor(away);
   const shrink = preseason ? PRESEASON_VARIANT.marginShrink : 1;
   const widen = preseason ? PRESEASON_VARIANT.sigmaWiden : 1;
-  const marginMean = fit.params.marginSlope * d * shrink;
-  const sigmaM = fit.params.sigmaMargin * widen;
+  /* P298: the adopted heads replace the incumbent's margin mean, sigma and win probability — regular season
+     only, and only when all three numbers are present. */
+  const adopted = !preseason && heads && [heads.pHome, heads.marginMean, heads.sigmaMargin].every(Number.isFinite) ? heads : null;
+  const marginMean = adopted ? adopted.marginMean : fit.params.marginSlope * d * shrink;
+  const sigmaM = adopted ? adopted.sigmaMargin : fit.params.sigmaMargin * widen;
   const sigmaT = fit.params.sigmaTotal * widen;
 
   const seed = fnv1a(`${NFL_GAMESIM_ID}::${event.providerEventId}::${artifactDate}::${variant}`);
@@ -136,7 +144,7 @@ export function simulateNflGame({ fit, strengthState, event, artifactDate, runs 
   // heads DISAGREE by construction; the score-implied rate ships as a visible diagnostic instead
   // of silently replacing the validated model (found by this release's own evaluation).
   const pTie = ties / runs;
-  const analyticHome = 1 / (1 + 10 ** (-(d * shrink) / 400));
+  const analyticHome = adopted ? adopted.pHome : 1 / (1 + 10 ** (-(d * shrink) / 400));
   const pHome = analyticHome * (1 - pTie);
   const scoreImpliedHome = homeWins / runs;
   const halfGap = Math.abs(halfAWins / (runs / 2) - (homeWins - halfAWins) / (runs / 2));

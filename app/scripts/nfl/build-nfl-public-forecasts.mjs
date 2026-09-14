@@ -29,6 +29,10 @@ import {
   foldTotalsV3, totalsV3Gate, totalsV3Coverage, gamesFromTable, etDateOf, toNflverseAbbr, NFL_TOTALS_V3_HEAD_ID,
   TOTALS_REPLAY_RECEIPT, TOTALS_REPLAY_PREREG, GAMES_HISTORY, EFFICIENCY_HISTORY, CURRENT_SEASON,
 } from "../../src/lib/sports/nfl/totals-play-efficiency.mjs";
+import {
+  winMarginGate, rowsFromTable, foldWinMarginHeads, winMarginCoverage, adoptedHeadsFor,
+  NFL_WIN_HEAD_ID, NFL_MARGIN_HEAD_ID, WIN_MARGIN_RECEIPT, WIN_MARGIN_PREREG, GAMES_HISTORY_V2,
+} from "../../src/lib/sports/nfl/win-margin-heads.mjs";
 import { fnv1a } from "../../src/lib/sports/research/replay-runner.mjs";
 import { strengthStateAt, ELO_PARAMS } from "../../src/lib/sports/nfl/strength-state.mjs";
 import { coherentDirection } from "../../src/lib/sports/nfl/coherence.mjs";
@@ -244,6 +248,43 @@ const totalsV3 = (() => {
   };
 })();
 console.log(`totals head: ${totalsV3.state === "READY" ? `v3 ready (${totalsV3.games.length} finals on file)` : `v3 refused — ${totalsV3.reason}`}`);
+
+/*
+ * P298 · THE WIN AND MARGIN HEADS ADOPTED FROM THE P297 REPLAY.
+ *
+ * The published win head (cutoff Elo, K20, +48 home) scored 0.6420 on held-out 2006–2021 — 0.032 worse
+ * than the no-vig market, past the frozen contract's own 0.02 stop line. P297 scored three candidates once
+ * under a registration committed first: the margin-of-victory Elo WIN head was ELIGIBLE (0.6291, better in
+ * every era, calibration 0.018 vs 0.035) and the refit-home-advantage MARGIN head was ELIGIBLE (MAE 10.79,
+ * 80% coverage in band in every era). win-margin-heads.test.mjs proves the fold below reproduces both.
+ *
+ * Per game the pair publishes only when: both receipts' verdicts stand, every official final of this season
+ * before the game's day is folded, both teams are rated, the venue is known, and the two heads favour the
+ * same side. Otherwise the incumbent single-rating pair publishes and the artifact names why. The rejected
+ * halves (eloMov's margin, eloHfaRefit's win) are never used. Labelling stays PUBLIC_EXPERIMENTAL: the frozen
+ * regular-season contract owns every stronger label.
+ */
+const winMargin = (() => {
+  const gate = winMarginGate(read(path.join(ROOT, WIN_MARGIN_RECEIPT)), read(path.join(ROOT, WIN_MARGIN_PREREG)));
+  if (gate.win.state !== "READY" || gate.margin.state !== "READY") {
+    return { state: "REFUSED", reason: gate.win.state !== "READY" ? gate.win.reason : gate.margin.reason };
+  }
+  const history = read(path.join(ROOT, GAMES_HISTORY_V2));
+  if (!history?.games?.length) return { state: "REFUSED", reason: "the committed game history is unreadable" };
+  const current = read(path.join(ROOT, CURRENT_SEASON));
+  const captured = current?.state === "CAPTURED" && (current.columns ?? []).includes("homeScore");
+  const lastHistorySeason = history.seasons[1];
+  const currentRows = captured ? rowsFromTable(current).filter((g) => g.season > lastHistorySeason) : [];
+  return {
+    state: "READY",
+    gate,
+    games: [...rowsFromTable(history), ...currentRows],
+    /* ESPN's schedule carries no neutral flag; the season capture lists every neutral-site game by ESPN id.
+       Without a capture the venue is unknown, and an unknown venue is never guessed. */
+    neutralEspnIds: captured ? new Set((current.neutralEspnIds ?? []).map(String)) : null,
+  };
+})();
+console.log(`win/margin heads: ${winMargin.state === "READY" ? `ready (${winMargin.games.length} finals on file)` : `refused — ${winMargin.reason}`}`);
 const rsCard = read(path.join(ROOT, "data/internal/research/nfl/regular-season-public-card-v1.json"));
 // Only RESOLVED phases join the window question: a row with no seasonType is refused per-event
 // below (PHASE_UNRESOLVED), and letting its absence into this set would turn one broken row into
@@ -388,7 +429,30 @@ for (const ev of events) {
         : null;
     const totalsHeadId = v3State ? NFL_TOTALS_V3_HEAD_ID : matchupTotals ? NFL_TOTALS_HEAD_ID : "shared-prior";
     const rsFit = { params: matchupTotals ? { ...rsEval.fitParams, ...matchupTotals } : rsEval.fitParams };
-    const sim = simulateNflGame({ fit: rsFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS });
+
+    /* P298: the adopted win + margin pair for THIS game, or the incumbent single-rating pair and the reason.
+       Same fold bound as the totals head (strictly before both the game's day and the run's day). */
+    let heads = null;
+    let headsFallbackReason = null;
+    let headsFold = null;
+    if (winMargin.state !== "READY") {
+      headsFallbackReason = winMargin.reason;
+    } else if (!winMargin.neutralEspnIds) {
+      headsFallbackReason = "this season's venue list is unavailable, so whether the game is at a neutral site is unknown";
+    } else {
+      const seasonFinalsWM = mergedFinals.filter((r) => r.season === targetSeason && r.seasonType != null && r.seasonType !== 1 && /^STATUS_FINAL/.test(r.statusRaw ?? ""));
+      const cov = winMarginCoverage({ games: winMargin.games, officialFinals: seasonFinalsWM, beforeDate: foldBefore });
+      if (!cov.complete) {
+        headsFallbackReason = `this season's results are incomplete before ${foldBefore}: ${cov.missingGames.length} official final(s) not yet published by nflverse`;
+      } else {
+        headsFold = foldWinMarginHeads({ games: winMargin.games, gate: winMargin.gate, beforeDate: foldBefore, targetSeason });
+        const pick = adoptedHeadsFor({ fold: headsFold, home: ev.home.abbr, away: ev.away.abbr, neutral: winMargin.neutralEspnIds.has(String(ev.providerEventId)) });
+        if (pick.state === "READY") heads = pick;
+        else headsFallbackReason = pick.reason;
+      }
+    }
+
+    const sim = simulateNflGame({ fit: rsFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS, heads });
     if (sim.state !== "SIMULATED") {
       refused.push({ providerEventId: ev.providerEventId, state: "SIM_ABSTAINED", reason: sim.reason ?? "the simulation abstained" });
       continue;
@@ -405,6 +469,8 @@ for (const ev of events) {
          pre-kickoff REVISION with lineage, never a silent rewrite under an unchanged hash. (Absent for
          v1 so its existing receipts stay byte-identical.) */
       ...(v3State ? { totalsHead: totalsHeadId, muTotalHead: Number(matchupTotals.muTotal.toFixed(6)) } : {}),
+      /* P298: the adopted win + margin numbers are inputs too — a head switch or a new final is a revision. */
+      ...(heads ? { winHead: NFL_WIN_HEAD_ID, marginHead: NFL_MARGIN_HEAD_ID, pHomeHead: Number(heads.pHome.toFixed(6)), marginMeanHead: Number(heads.marginMean.toFixed(6)) } : {}),
     })).digest("hex").slice(0, 16);
 
     /*
@@ -457,10 +523,24 @@ for (const ev of events) {
             fallbackFrom: NFL_TOTALS_V3_HEAD_ID,
             fallbackReason: v3FallbackReason,
           },
+        /* P298: which win and margin heads moved this forecast — and, whenever the adopted pair did NOT, why. */
+        winHead: heads
+          ? { id: NFL_WIN_HEAD_ID, receipt: winMargin.gate.win.receiptStamp, gamesFolded: headsFold.win.gamesFolded, foldedThrough: headsFold.lastDateFolded }
+          : { id: "nfl-model-v1-elo-analytic", fallbackFrom: NFL_WIN_HEAD_ID, fallbackReason: headsFallbackReason },
+        marginHead: heads
+          ? { id: NFL_MARGIN_HEAD_ID, receipt: winMargin.gate.margin.receiptStamp, gamesFolded: headsFold.margin.gamesFolded, sigma: heads.sigmaMargin }
+          : { id: "nfl-model-v1-elo-analytic", fallbackFrom: NFL_MARGIN_HEAD_ID, fallbackReason: headsFallbackReason },
       },
       teamSignal: {
         state: "APPLIED",
-        note: `Team strength moves this forecast: the Elo-logistic win head over a ${strength.gamesFolded}-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market.`,
+        note: (() => {
+          const wm = heads ? read(path.join(ROOT, WIN_MARGIN_RECEIPT)) : null;
+          if (!wm?.results?.eloMov) {
+            return `Team strength moves this forecast: the Elo-logistic win head over a ${strength.gamesFolded}-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market.`;
+          }
+          const r3 = (x) => Number(x).toFixed(3);
+          return `Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on ${Number(wm.population.heldOutDecisive).toLocaleString("en-US")} past games it had never seen (2006–2021) — log loss ${r3(wm.results.eloMov.win.overall.logLoss)} against ${r3(wm.results.incumbent.win.overall.logLoss)} for our previous rating and ${r3(wm.results.market.win.overall.logLoss)} for the sportsbooks' own odds. It has not been shown to beat the sportsbook market.`;
+        })(),
       },
       generatedAt: NOW,
       evidence: {
@@ -476,7 +556,9 @@ for (const ev of events) {
           away: sim.winProbability.away,
           tieMass: sim.winProbability.tie,
           homeUnrounded: sim.winProbability.homeUnrounded,
-          calibration: "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made.",
+          calibration: heads
+            ? "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to beat the market is made."
+            : "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made.",
         },
         margin: (() => {
           const iv = publishedMarginInterval({ median: sim.marginQuantiles.p50, incumbentP10: sim.marginQuantiles.p10, incumbentP90: sim.marginQuantiles.p90, report: marginShadow });

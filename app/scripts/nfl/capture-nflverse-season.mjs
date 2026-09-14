@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 /**
- * nflverse CURRENT-SEASON CAPTURE (P295) — the free inputs the v3 totals head folds live.
+ * nflverse CURRENT-SEASON CAPTURE (P295; scores and venues added in P298) — the free inputs the live NFL
+ * heads fold.
  *
  * The v3 play-efficiency totals head learns game by game from two nflverse files (CC BY 4.0, no key,
  * no credits): the season's finals from nfldata games.csv, and per-team-game scrimmage-play efficiency
  * reduced from the season's play-by-play. The committed history covers 1999–2025; this adds the season
  * in progress.
+ *
+ * P298: the win and margin heads adopted from the P297 replay also fold each final's two scores and drop
+ * home advantage at neutral sites. ESPN's schedule carries no neutral flag, so the capture also records
+ * every neutral-site game of the season — including games not yet played — by ESPN event id.
  *
  * The reduction is the SAME play filter and the same sums as scripts/research/nfl/extract_pbp_efficiency.py,
  * which built the history the head was evaluated on (pass or rush play, EPA present, both teams present,
@@ -17,7 +22,7 @@
  * season with results missing. An unchanged capture is not rewritten, so quiet runs commit nothing.
  *
  * Usage: node scripts/nfl/capture-nflverse-season.mjs --now <iso> [--season 2026]
- *          [--games-csv <local file>] [--pbp <local .csv.gz>]   (local files: offline parity checks)
+ *          [--games-csv <local file>] [--pbp <local .csv.gz>] [--out <path>]   (local files: offline parity checks)
  * Writes: data/internal/research/nfl/replay/current-season.json
  */
 import fs from "node:fs";
@@ -43,6 +48,7 @@ const franchise = (t) => FRANCHISE[t] ?? t;
 const GAMES_URL = "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv";
 const PBP_URL = `https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_${SEASON}.csv.gz`;
 const ATTRIBUTION = "Data: nflverse (https://github.com/nflverse), licensed CC BY 4.0. Derived tables; raw files are not redistributed here.";
+const COLUMNS = ["gameId", "espnId", "season", "date", "home", "away", "total", "homeScore", "awayScore", "neutral"];
 
 function parseCsvLine(line) {
   const out = [];
@@ -76,22 +82,28 @@ async function load(localPath, url) {
   return { ...r, source: url };
 }
 
-function seasonFinals(csvBytes) {
+/** The season's finals (with both scores and the venue) and every neutral-site game's ESPN id. */
+function seasonGames(csvBytes) {
   const lines = csvBytes.toString("utf8").replace(/\r/g, "").trim().split("\n");
   const header = parseCsvLine(lines[0]);
   const col = Object.fromEntries(header.map((h, i) => [h, i]));
-  for (const k of ["game_id", "season", "gameday", "home_team", "away_team", "home_score", "away_score", "espn"]) {
+  for (const k of ["game_id", "season", "gameday", "home_team", "away_team", "home_score", "away_score", "espn", "location"]) {
     if (!(k in col)) throw new Error(`games.csv lacks column ${k}`);
   }
   const games = [];
+  const neutralEspnIds = [];
   for (const line of lines.slice(1)) {
     const r = parseCsvLine(line);
     if (r.length !== header.length) throw new Error(`games.csv row has ${r.length} fields, header ${header.length}`);
     if (Number(r[col.season]) !== SEASON) continue;
+    const neutral = r[col.location] === "Neutral";
+    if (neutral && !missing(r[col.espn])) neutralEspnIds.push(String(r[col.espn]));
     if (missing(r[col.home_score]) || missing(r[col.away_score])) continue;
-    games.push([r[col.game_id], missing(r[col.espn]) ? null : r[col.espn], SEASON, r[col.gameday], franchise(r[col.home_team]), franchise(r[col.away_team]), Number(r[col.home_score]) + Number(r[col.away_score])]);
+    const hs = Number(r[col.home_score]);
+    const as = Number(r[col.away_score]);
+    games.push([r[col.game_id], missing(r[col.espn]) ? null : r[col.espn], SEASON, r[col.gameday], franchise(r[col.home_team]), franchise(r[col.away_team]), hs + as, hs, as, neutral ? 1 : 0]);
   }
-  return games;
+  return { games, neutralEspnIds: neutralEspnIds.sort() };
 }
 
 async function seasonEfficiency(gzBytes) {
@@ -140,7 +152,7 @@ const previous = (() => { try { return JSON.parse(fs.readFileSync(OUT, "utf8"));
 try {
   const g = await load(arg("--games-csv"), GAMES_URL);
   if (!g.bytes) throw new Error("games.csv is unavailable");
-  const games = seasonFinals(g.bytes);
+  const { games, neutralEspnIds } = seasonGames(g.bytes);
 
   const p = await load(arg("--pbp"), PBP_URL);
   let efficiency = { efficiencyRows: [], counts: { playRows: 0, countedPlays: 0, malformedLines: 0 } };
@@ -151,16 +163,18 @@ try {
   const finalsWithEfficiency = games.filter((x) => withEff.has(`${x[0]}|${x[4]}`) && withEff.has(`${x[0]}|${x[5]}`)).length;
   const body = {
     season: SEASON,
-    columns: ["gameId", "espnId", "season", "date", "home", "away", "total"],
+    columns: COLUMNS,
     games,
+    neutralEspnIds,
     efficiencyRows: efficiency.efficiencyRows,
   };
-  if (previous?.state === "CAPTURED" && JSON.stringify({ season: previous.season, columns: previous.columns, games: previous.games, efficiencyRows: previous.efficiencyRows }) === JSON.stringify(body)) {
+  const same = (a) => a?.state === "CAPTURED" && JSON.stringify({ season: a.season, columns: a.columns, games: a.games, neutralEspnIds: a.neutralEspnIds, efficiencyRows: a.efficiencyRows }) === JSON.stringify(body);
+  if (same(previous)) {
     console.log(`nflverse ${SEASON}: unchanged (${games.length} finals, ${finalsWithEfficiency} with play data) — not rewritten`);
     process.exit(0);
   }
   const out = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     artifact: "nfl-nflverse-current-season",
     dataClass: "PRIVATE_RESEARCH",
     state: "CAPTURED",
@@ -171,18 +185,18 @@ try {
       { name: `play_by_play_${SEASON}.csv.gz`, source: p.source, bytes: p.bytes?.length ?? 0, sha256: p.bytes ? sha256(p.bytes) : null, status: p.status },
     ],
     playFilter: "pass==1 or rush==1; epa present; posteam and defteam present; not qb_kneel, qb_spike, two_point_attempt or play_deleted",
-    counts: { finals: games.length, finalsWithEfficiency, ...efficiency.counts },
+    counts: { finals: games.length, finalsWithEfficiency, neutralSiteGames: neutralEspnIds.length, ...efficiency.counts },
     ...body,
   };
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(OUT, JSON.stringify(out));
-  console.log(`nflverse ${SEASON}: ${games.length} finals, ${finalsWithEfficiency} with play data, ${efficiency.counts.countedPlays} counted plays`);
+  console.log(`nflverse ${SEASON}: ${games.length} finals, ${finalsWithEfficiency} with play data, ${neutralEspnIds.length} neutral-site games, ${efficiency.counts.countedPlays} counted plays`);
 } catch (err) {
   const reason = String(err?.message ?? err);
-  console.log(`::warning::nflverse ${SEASON} capture failed: ${reason}. The forecast builder checks coverage and falls back to the incumbent totals head if results are missing.`);
+  console.log(`::warning::nflverse ${SEASON} capture failed: ${reason}. The forecast builder checks coverage and falls back to the incumbent heads if results are missing.`);
   const record = previous?.state === "CAPTURED"
     ? { ...previous, lastAttempt: { at: NOW, state: "FAILED", reason } }
-    : { schemaVersion: 1, artifact: "nfl-nflverse-current-season", dataClass: "PRIVATE_RESEARCH", state: "UNAVAILABLE", season: SEASON, lastAttempt: { at: NOW, state: "FAILED", reason }, columns: [], games: [], efficiencyRows: [] };
+    : { schemaVersion: 2, artifact: "nfl-nflverse-current-season", dataClass: "PRIVATE_RESEARCH", state: "UNAVAILABLE", season: SEASON, lastAttempt: { at: NOW, state: "FAILED", reason }, columns: [], games: [], neutralEspnIds: [], efficiencyRows: [] };
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(OUT, JSON.stringify(record));
 }

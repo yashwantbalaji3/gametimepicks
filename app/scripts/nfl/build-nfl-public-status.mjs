@@ -78,11 +78,18 @@ if (!preseason || !regular) {
   const live = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
   const rsLive = live?.model?.id === "nfl-regular-season-public-v1" && (live?.forecasts ?? []).length > 0;
   const w = regular.metrics?.model ?? {};
+  /* P298: when the forecasts carry the adopted win head, the sentence describes THAT head from its own
+     receipt — including how far it still sits behind the sportsbooks. */
+  const wm = read(path.join(ROOT, "data/internal/research/nfl/reports/win-margin-historical-replay-evaluation.json"));
+  const adoptedWin = (live?.forecasts ?? []).filter((f) => f.model?.winHead?.id === "nfl-win-elo-mov-v1").length;
+  const r3 = (x) => Number(x).toFixed(3);
   teamSim = rsLive
     ? {
       state: "PUBLIC_EXPERIMENTAL",
       headline: "Experimental regular-season simulations are published",
-      detail: `We publish a simulated score range and win chance for every game, clearly marked experimental (${live.forecasts.length} games forecast today under ${live.model.id}). On a full held-out 2025 season the model behind it picked about 64% of winners (log loss ${w.logLoss ?? 0.6478} against a coin's 0.6931), and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.`,
+      detail: adoptedWin && wm?.results?.eloMov
+        ? `We publish a simulated score range and win chance for every game, clearly marked experimental (${live.forecasts.length} games forecast today under ${live.model.id}). The win chance comes from a team rating that weights margin of victory. Tested on ${Number(wm.population.heldOutDecisive).toLocaleString("en-US")} past games it had never seen (2006–2021), it scored ${r3(wm.results.eloMov.win.overall.logLoss)} on log loss (lower is better) against ${r3(wm.results.incumbent.win.overall.logLoss)} for our previous rating, 0.693 for a coin flip and ${r3(wm.results.market.win.overall.logLoss)} for the sportsbooks' own odds — so it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.`
+        : `We publish a simulated score range and win chance for every game, clearly marked experimental (${live.forecasts.length} games forecast today under ${live.model.id}). On a full held-out 2025 season the model behind it picked about 64% of winners (log loss ${w.logLoss ?? 0.6478} against a coin's 0.6931), and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.`,
       nextGate: "A validated pick additionally needs the frozen 2026 walk-forward evaluation to pass its own bars — 64 decisive games and 4 completed weeks before any reading counts.",
       checkable: { forecasts: live.forecasts.length, model: live.model.id, heldOutWinnerLogLoss: w.logLoss ?? null, coinLogLoss: 0.6931 },
     }

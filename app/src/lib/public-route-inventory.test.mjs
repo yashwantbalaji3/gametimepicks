@@ -328,7 +328,11 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   // coin-flip result; the regular-season card's is the held-out-2025 result plus the market
   // non-claim. Accepting either without checking which is live would let the wrong caveat ride.
   if (nflModel?.id === "nfl-regular-season-public-v1") {
-    assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /64% of winners/i, "the regular card states its held-out result");
+    /* P298: the regular card's held-out result moved from 2025 ("about 64% of winners") to the P297 replay
+       of 2006–2021 when the win head changed. Either is the card's own measurement, depending on which
+       card version the committed index was built from; both must state a number, never an adjective. */
+    assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /64% of winners|2006.2021/i, "the regular card states its held-out result");
+    assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /\d+%|\d\.\d{3}/, "and states it as a number");
     assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /NOT been shown to beat the sportsbook market/i, "and its market non-claim");
   } else {
     assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /coin flip/i, "the preseason honest limit states the coin-flip result");

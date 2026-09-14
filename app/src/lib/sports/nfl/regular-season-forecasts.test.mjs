@@ -296,3 +296,61 @@ test("P295 · a started game keeps its published forecast, byte-for-byte from it
   const union = unionFrozenForecasts(live, frozen);
   assert.ok(union.forecasts.some((f) => f.providerEventId === opener.providerEventId), "readers see the whole week");
 });
+
+// ── P298 · the adopted win + margin heads, end to end on the real builder ─────────────────────────
+
+const WM_FILES = [
+  "reports/win-margin-historical-replay-evaluation.json",
+  "reports/win-margin-historical-replay-preregistration.json",
+  "replay/games-history-v2.json",
+];
+
+test("P298 · every Week 1 forecast publishes the adopted pair exactly — or the incumbent pair with the helper's own reason", async () => {
+  const { app } = makeRoot({ scheduleRows: realWeek1Rows() });
+  const root = path.resolve(app, "..");
+  withV3(root);
+  for (const f of WM_FILES) fs.copyFileSync(path.join(REPO, "data/internal/research/nfl", f), path.join(root, "data/internal/research/nfl", f));
+  const r = runBuilder(app, NOW);
+  assert.equal(r.status, 0, r.stderr || r.stdout);
+  const artifact = latestOf(app);
+  assert.ok(artifact.forecasts.length >= 2);
+
+  const lib = await import("./win-margin-heads.mjs");
+  const read = (p) => JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/nfl", p), "utf8"));
+  const gate = lib.winMarginGate(read(WM_FILES[0]), read(WM_FILES[1]));
+  const history = read("replay/games-history-v2.json");
+  const current = read("replay/current-season.json");
+  const games = [...lib.rowsFromTable(history), ...lib.rowsFromTable(current).filter((g) => g.season > history.seasons[1])];
+  const neutral = new Set(current.neutralEspnIds.map(String));
+  const { etDateOf } = await import("./totals-play-efficiency.mjs");
+
+  let adopted = 0;
+  for (const f of artifact.forecasts) {
+    const beforeDate = [etDateOf(f.kickoffUtc), etDateOf(NOW)].sort()[0];
+    const fold = lib.foldWinMarginHeads({ games, gate, beforeDate, targetSeason: 2026 });
+    const pick = lib.adoptedHeadsFor({ fold, home: f.home.abbr, away: f.away.abbr, neutral: neutral.has(String(f.providerEventId)) });
+    if (pick.state === "READY") {
+      adopted += 1;
+      assert.equal(f.model.winHead.id, lib.NFL_WIN_HEAD_ID, `${f.matchup}: win head`);
+      assert.equal(f.model.marginHead.id, lib.NFL_MARGIN_HEAD_ID, `${f.matchup}: margin head`);
+      const wp = f.forecastSummary.winProbability;
+      assert.ok(Math.abs(wp.homeUnrounded - pick.pHome * (1 - wp.tieMass)) < 1e-9, `${f.matchup}: published win chance is the adopted head's`);
+      assert.ok(Math.abs(f.forecastSummary.margin.median - pick.marginMean) <= 1.5, `${f.matchup}: margin median ${f.forecastSummary.margin.median} vs head mean ${pick.marginMean.toFixed(2)}`);
+    } else {
+      assert.equal(f.model.winHead.fallbackFrom, lib.NFL_WIN_HEAD_ID, `${f.matchup}: fell back`);
+      assert.equal(f.model.winHead.fallbackReason, pick.reason, `${f.matchup}: the artifact names the helper's own reason`);
+    }
+  }
+  assert.ok(adopted >= Math.ceil(artifact.forecasts.length / 2), `the adopted pair should publish for most Week 1 games (${adopted}/${artifact.forecasts.length})`);
+});
+
+test("P298 · without the replay receipts every forecast keeps the incumbent pair, and says why", () => {
+  const { app } = makeRoot({ scheduleRows: realWeek1Rows() });
+  const r = runBuilder(app, NOW);
+  assert.equal(r.status, 0, r.stderr || r.stdout);
+  for (const f of latestOf(app).forecasts) {
+    assert.equal(f.model.winHead.id, "nfl-model-v1-elo-analytic");
+    assert.equal(f.model.winHead.fallbackFrom, "nfl-win-elo-mov-v1");
+    assert.match(f.model.winHead.fallbackReason, /no win\/margin historical replay evaluation on file/);
+  }
+});
