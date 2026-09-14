@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-14T15:53:09Z",
+ "generatedAt": "2026-09-14T19:33:42Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,28 +22,28 @@
   "forecastsUpcoming": 1,
   "forecastsStarted": 15,
   "marketEvents": 1,
-  "settled": 2
+  "settled": 15
  },
  "nextKickoffUtc": "2026-09-15T00:15Z",
  "nextMatchup": "DEN @ KC",
  "nextForecastUtc": "2026-09-15T00:15Z",
  "nextForecastMatchup": "DEN @ KC",
- "marketCapturedAt": "2026-09-14T15:53:09Z",
+ "marketCapturedAt": "2026-09-14T19:33:42Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-13T22:54:38Z",
+  "generatedAt": "2026-09-14T15:53:09Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 2,
-  "decisive": 2,
-  "winnerAccuracy": 0.5,
-  "marginMAE": 14,
-  "totalMAE": 20,
-  "marginInterval80Coverage": 0.5,
-  "totalInterval80Coverage": 0.5,
+  "settledForecasts": 15,
+  "decisive": 15,
+  "winnerAccuracy": 0.5333,
+  "marginMAE": 12.3333,
+  "totalMAE": 13.8667,
+  "marginInterval80Coverage": 0.7333,
+  "totalInterval80Coverage": 0.8,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 2,
-    "decisive": 2,
-    "winnerAccuracy": 0.5,
-    "marginMAE": 14,
-    "totalMAE": 20,
-    "marginInterval80Coverage": 0.5,
-    "totalInterval80Coverage": 0.5
+    "settledForecasts": 15,
+    "decisive": 15,
+    "winnerAccuracy": 0.5333,
+    "marginMAE": 12.3333,
+    "totalMAE": 13.8667,
+    "marginInterval80Coverage": 0.7333,
+    "totalInterval80Coverage": 0.8
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -88,7 +88,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -17.2,
+    "gapPp": -17.7,
     "leansTo": "DEN",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -111,8 +111,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "b30d9f216f651d86",
-    "generatedAt": "2026-09-14T15:53:09Z"
+    "inputHash": "7be7c6bcf8ef305b",
+    "generatedAt": "2026-09-14T19:33:42Z"
    }
   },
   {
@@ -210,10 +210,10 @@
     "name": "Atlanta Falcons"
    },
    "kickoffUtc": "2026-09-13T17:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 27,
@@ -251,10 +251,10 @@
     "name": "Baltimore Ravens"
    },
    "kickoffUtc": "2026-09-13T17:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 26,
@@ -292,10 +292,10 @@
     "name": "Buffalo Bills"
    },
    "kickoffUtc": "2026-09-13T17:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 25,
@@ -333,10 +333,10 @@
     "name": "Chicago Bears"
    },
    "kickoffUtc": "2026-09-13T17:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 24,
@@ -374,10 +374,10 @@
     "name": "Cleveland Browns"
    },
    "kickoffUtc": "2026-09-13T17:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 27,
@@ -415,10 +415,10 @@
     "name": "New Orleans Saints"
    },
    "kickoffUtc": "2026-09-13T17:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 29,
@@ -456,10 +456,10 @@
     "name": "New York Jets"
    },
    "kickoffUtc": "2026-09-13T17:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 25,
@@ -497,10 +497,10 @@
     "name": "Tampa Bay Buccaneers"
    },
    "kickoffUtc": "2026-09-13T17:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 26,
@@ -538,10 +538,10 @@
     "name": "Arizona Cardinals"
    },
    "kickoffUtc": "2026-09-13T20:25Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 29,
@@ -579,10 +579,10 @@
     "name": "Green Bay Packers"
    },
    "kickoffUtc": "2026-09-13T20:25Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 25,
@@ -620,10 +620,10 @@
     "name": "Miami Dolphins"
    },
    "kickoffUtc": "2026-09-13T20:25Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 22,
@@ -661,10 +661,10 @@
     "name": "Washington Commanders"
    },
    "kickoffUtc": "2026-09-13T20:25Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 28,
@@ -702,10 +702,10 @@
     "name": "Dallas Cowboys"
    },
    "kickoffUtc": "2026-09-14T00:20Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 25,
