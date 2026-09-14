@@ -7,7 +7,7 @@
  *   participation  observed offensive snap share per player-game (snap_counts). The NFL player families were
  *                  rejected (P182/P183) for lacking exactly this signal; ESPN gives a designation, not a share.
  *   game lines     the closing spread, total and moneylines for every game (nfldata games.csv) — a free market
- *                  benchmark for the NFL team model, as football-data.co.uk is for soccer. Weather/roof/surface
+ *                  benchmark for the NFL team model. Weather/roof/surface
  *                  ride along for later research; nothing here is a model input until a preregistration says so.
  *
  * IDS: snap counts are keyed by Pro-Football-Reference id; our boards by ESPN id. players.csv carries both

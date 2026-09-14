@@ -12,7 +12,7 @@
  *   elo        K=20, home advantage +60, P(draw) = the running empirical draw rate
  *   poisson    THE LIVE LIBRARY — fitEplStrength + scoreMatrix with their committed defaults (no shrinkage,
  *              no Dixon-Coles, no time decay): the model EPL publishes, applied to another league as is
- *   market     de-vigged market-average closing 1X2 (football-data.co.uk) — a reference, never a model input
+ *   market     de-vigged closing 1X2 when a corpus row carries one (the openfootball corpus carries none) — a reference, never a model input
  */
 import { fitEplStrength, scoreMatrix } from "../epl/strength-state.mjs";
 

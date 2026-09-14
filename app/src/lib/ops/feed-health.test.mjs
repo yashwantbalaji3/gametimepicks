@@ -1,14 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { feedTargets, footballDataSeason, judgeFeed, summarizeFeeds } from "./feed-health.mjs";
+import { feedTargets, openfootballSeason, judgeFeed, summarizeFeeds } from "./feed-health.mjs";
 
 const T = Object.fromEntries(feedTargets({ etDate: "2026-09-11" }).map((t) => [t.id, t]));
 
-test("football-data season rolls over in August", () => {
-  assert.equal(footballDataSeason("2026-09-11"), "2627");
-  assert.equal(footballDataSeason("2026-07-31"), "2526");
-  assert.equal(footballDataSeason("2027-01-15"), "2627");
-  assert.match(T["football-data-epl"].url, /mmz4281\/2627\/E0\.csv$/);
+test("openfootball season rolls over in August", () => {
+  assert.equal(openfootballSeason("2026-09-11"), "2026-27");
+  assert.equal(openfootballSeason("2026-07-31"), "2025-26");
+  assert.equal(openfootballSeason("2027-01-15"), "2026-27");
+  assert.match(T["openfootball-epl"].url, /football\.json\/master\/2026-27\/en\.1\.json$/);
 });
 
 test("every feed is covered once, and statsapi is asked for the ET date", () => {
@@ -28,7 +28,11 @@ test("CSV feeds check their header and row count", () => {
   assert.match(judgeFeed(nfl, { status: 200, body: "game_id,gameday\n1,2" }).detail, /header missing gametime, roof/);
   const rows = ["game_id,season,gameday,gametime,roof", ...Array.from({ length: 1200 }, (_, i) => `${i},2026,2026-09-10,20:20,dome`)].join("\n");
   assert.equal(judgeFeed(nfl, { status: 200, body: rows }).ok, true);
-  assert.equal(judgeFeed(T["football-data-epl"], { status: 200, body: "﻿Div,Date,HomeTeam,AwayTeam,FTR\nE0,1,A,B,H" }).ok, true, "BOM tolerated");
+});
+
+test("openfootball feeds need a non-empty matches array", () => {
+  assert.equal(judgeFeed(T["openfootball-ligue1"], { status: 200, body: '{"name":"Ligue 1","matches":[]}' }).ok, false);
+  assert.equal(judgeFeed(T["openfootball-ligue1"], { status: 200, body: '{"matches":[{"team1":"A","team2":"B"}]}' }).ok, true);
 });
 
 test("HTTP and network failures carry their cause", () => {

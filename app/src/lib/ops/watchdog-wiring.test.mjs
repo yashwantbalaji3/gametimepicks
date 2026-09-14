@@ -32,12 +32,15 @@ test("quality-gate runs the pipeline Python tests on pipeline changes", () => {
   assert.match(runner, /REFUSED: no python tests found/, "zero tests found must fail, not pass");
 });
 
-test("soccer-leagues builds the EPL closing-line benchmark and publishes it", () => {
+test("soccer-leagues refreshes the openfootball history before forecasting, commits it, and never touches football-data.co.uk", () => {
   const SL = read(".github/workflows/soccer-leagues.yml");
-  assert.match(SL, /node scripts\/soccer\/build-epl-closing-benchmark\.mjs/);
-  assert.match(SL, /capture-football-data\.mjs --leagues epl/, "the EPL history is refreshed before the join");
+  assert.match(SL, /node scripts\/soccer\/capture-openfootball\.mjs --leagues/);
+  assert.ok(SL.indexOf("capture-openfootball.mjs") < SL.indexOf("build-league-forecasts.mjs"), "the history is refreshed before the forecasts fit on it");
   const commit = SL.slice(SL.indexOf("- name: Commit and push"));
-  assert.match(commit, /data\/internal\/research\/soccer\/epl\/closing-benchmark-v1\.json/);
+  assert.match(commit, /corpus-openfootball-v1\.json/);
+  for (const f of [".github/workflows/soccer-leagues.yml", ".github/workflows/soccer-dc-shadow.yml"]) {
+    assert.doesNotMatch(read(f), /football-data\.co\.uk|capture-football-data/, `${f} still reaches football-data.co.uk (terms: private individuals only, no automated use)`);
+  }
 });
 
 test("nflverse-weekly captures snap counts for the participation preregistration and commits them", () => {

@@ -1,7 +1,7 @@
 # Soccer league expansion — v1 backtest results (2026-09-11)
 
 The model EPL publishes (`epl-model-v1-split-poisson`, unchanged, nothing tuned) was run walk-forward on four new
-leagues from free football-data.co.uk results and judged by bars committed **before** any of those leagues was scored —
+leagues from free results (football-data.co.uk at the time; openfootball, public domain, since 2026-09-14) and judged by bars committed **before** any of those leagues was scored —
 `data/internal/research/soccer/preregistration-league-expansion-v1.json`, final version 1.2. Both amendments were made
 after scoring only the already-public EPL control; each is recorded in the file with its reason.
 

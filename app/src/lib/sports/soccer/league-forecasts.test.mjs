@@ -38,7 +38,7 @@ test("every published row reconciles to the league's own history and the model",
   for (const l of accepted) {
     const a = artifact(l.key);
     if (!a) continue;
-    const corpus = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/soccer", l.key, "corpus-football-data-v1.json"), "utf8"));
+    const corpus = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/soccer", l.key, "corpus-openfootball-v1.json"), "utf8"));
     const clubs = new Set(corpus.rows.flatMap((r) => [r.home, r.away]));
     const ids = new Set();
     for (const r of a.rows) {

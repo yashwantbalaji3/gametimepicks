@@ -4,7 +4,7 @@
  *
  *   node scripts/soccer/backtest-league.mjs --league laliga --now <ISO>
  *
- * Reads data/internal/research/soccer/<league>/corpus-football-data-v1.json and
+ * Reads data/internal/research/soccer/<league>/corpus-openfootball-v1.json and
  * data/internal/research/soccer/preregistration-league-expansion-v1.json; writes
  * data/internal/research/soccer/<league>/reports/walk-forward-v1.json. For --league epl it also runs the
  * H0 harness-parity check against the committed EPL baseline report. $0, network-free, deterministic.
@@ -22,7 +22,7 @@ if (!KEY || !Number.isFinite(Date.parse(NOW ?? ""))) { console.error("usage: --l
 const L = league(KEY);
 const dir = path.join(ROOT, "data/internal/research/soccer", L.key);
 const prereg = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/soccer/preregistration-league-expansion-v1.json"), "utf8"));
-const corpus = JSON.parse(fs.readFileSync(path.join(dir, "corpus-football-data-v1.json"), "utf8"));
+const corpus = JSON.parse(fs.readFileSync(path.join(dir, "corpus-openfootball-v1.json"), "utf8"));
 const { warmup, development, holdout } = prereg.seasons;
 const preds = walkForward(corpus.rows, { warmupSeason: warmup, scoreSeasons: [...development, holdout] });
 const MODELS = ["empirical", "elo", "poisson", "uniform", "market"];

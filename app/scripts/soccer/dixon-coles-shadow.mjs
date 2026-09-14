@@ -8,7 +8,7 @@
  * Research only, under data/internal/research/soccer/preregistration-dixon-coles-v2.json. Nothing here is public:
  * no file under app/public/, no registry stage read or written, no promotion of any kind. Fixtures come from
  * ESPN's public scoreboard. The history the model is fit on, and the final scores it is graded against, are the
- * league's football-data.co.uk corpus — refresh it first (capture-football-data.mjs --leagues … --seasons 2627).
+ * league's openfootball corpus — refresh it first (capture-openfootball.mjs --leagues …). Source change recorded in dixon-coles-v2-source-amendment.json.
  *
  * FORECAST (default): refuses unless the registration, its pinned source files and the model parameters are
  * unaltered. Fits ONE Dixon-Coles state per league on corpus rows strictly before --now, then forecasts every
@@ -80,7 +80,7 @@ for (const k of LEAGUES) if (!prereg.leagues[k]) { console.error(`REFUSED: "${k}
 
 const leagueDir = (k) => path.join(ROOT, "data/internal/research/soccer", k);
 const shadowDir = (k) => path.join(leagueDir(k), "shadow-dc-v2");
-const corpusRows = (k) => readJson(path.join(leagueDir(k), "corpus-football-data-v1.json")).rows;
+const corpusRows = (k) => readJson(path.join(leagueDir(k), "corpus-openfootball-v1.json")).rows;
 const dayFiles = (k) => {
   const d = shadowDir(k);
   if (!fs.existsSync(d)) return [];
@@ -202,7 +202,7 @@ function gradeLeague(key) {
     schemaVersion: 1, artifact: "soccer-dc-v2-shadow-graded", dataClass: "PRIVATE_RESEARCH", public: false,
     league: key, season: SEASON, modelId: DC_V2_MODEL_ID,
     preregistration: DC_V2_PREREGISTRATION.path, preregistrationSha256: check.computed, frozenAt: prereg.frozenAt,
-    rule: "each forward match graded once, against its single pre-kickoff shadow forecast, from the football-data.co.uk final score",
+    rule: "each forward match graded once, against its single pre-kickoff shadow forecast, from the corpus final score (openfootball since 2026-09-14; football-data.co.uk before — identical scores on every joined match)",
     sampleState: g.summary.sampleState,
     summary: g.summary,
     decision: { ...decision, due, look: { seasonRowsInCorpus: seasonRows, seasonMatches: spec.seasonMatches, deadline }, stageChanged: false },

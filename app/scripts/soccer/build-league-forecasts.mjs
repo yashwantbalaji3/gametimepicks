@@ -6,10 +6,10 @@
  *
  * REFUSES unless the league's registry stage is ACCEPTED_V1 or LIVE — a league publishes only after its
  * preregistered backtest accepted it (docs/SOCCER_LEAGUE_EXPANSION.md). The model is the one EPL publishes
- * (lib/sports/epl/strength-state.mjs, committed defaults), fit on the league's own football-data.co.uk history
+ * (lib/sports/epl/strength-state.mjs, committed defaults), fit on the league's own openfootball (public domain) results history
  * strictly before --now. Fixtures come from ESPN's public scoreboard (next --days days, pre-kickoff only).
  *
- * CLUB NAMES: ESPN and football-data name clubs differently ("Paris Saint-Germain" / "Paris SG"). Every ESPN
+ * CLUB NAMES: ESPN and the corpus name clubs differently ("Paris Saint-Germain" / "Paris SG"). Every ESPN
  * club must map to a club in the corpus — through the league's alias table or an exact name — or its fixture
  * is REFUSED with the reason. A club silently treated as unseen would get league-average strength: a guess
  * dressed as a forecast. A genuinely new club (no corpus rows at all) is flagged coldStart, as EPL does.
@@ -31,7 +31,7 @@ if (!KEY || !Number.isFinite(Date.parse(NOW ?? ""))) { console.error("usage: --l
 const L = leagueOf(KEY);
 if (!["ACCEPTED_V1", "LIVE"].includes(L.stage)) { console.error(`REFUSED: ${L.name} is ${L.stage} — only an accepted league publishes forecasts`); process.exit(3); }
 
-const corpus = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/soccer", L.key, "corpus-football-data-v1.json"), "utf8"));
+const corpus = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/soccer", L.key, "corpus-openfootball-v1.json"), "utf8"));
 const report = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/soccer", L.key, "reports/walk-forward-v1.json"), "utf8"));
 const state = fitEplStrength({ rows: corpus.rows, cutoffIso: NOW });
 const known = new Set([...state.knownClubs]);
@@ -96,7 +96,7 @@ const artifact = {
       note: "Over the 2025-26 holdout the sportsbook closing line was more accurate than this model, and so was a plain Elo rating. These are model-only forecasts for research and entertainment — not betting advice.",
     },
   },
-  sources: { fixtures: "ESPN public scoreboard", history: "football-data.co.uk (results)" },
+  sources: { fixtures: "ESPN public scoreboard", history: "openfootball football.json (results, public domain)" },
   counts: { forecast: rows.length, refused: refused.length },
   rows, refused,
 };

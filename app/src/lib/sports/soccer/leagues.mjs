@@ -14,32 +14,31 @@
  *
  * Sources (all verified reachable 2026-09-11, $0):
  *   espn          site.api.espn.com/apis/site/v2/sports/soccer/<code>/  fixtures, results, per-player stats
- *   footballData  football-data.co.uk/mmz4281/<season>/<code>.csv      results + closing odds (Europe)
- *   footballDataExtra  football-data.co.uk/new/<code>.csv               results + Pinnacle closing (Americas/Asia)
+ *   results       openfootball football.json (public domain) via openfootball.mjs — see OPENFOOTBALL_LEAGUES
  *   oddsApiKey    The Odds API sport key — PAID; each league needs its own founder receipt before any capture
  */
 export const SOCCER_LEAGUES = Object.freeze([
-  { key: "epl", name: "Premier League", country: "England", espn: "eng.1", footballData: "E0", oddsApiKey: "soccer_epl", stage: "LIVE", wave: 0,
-    /* ESPN display name → football-data club name, where they differ (P258 closing-line benchmark join; the
-       nine in the 2026-27 graded ledger checked against the E0 file, the rest for promoted/relegated clubs). */
+  { key: "epl", name: "Premier League", country: "England", espn: "eng.1", oddsApiKey: "soccer_epl", stage: "LIVE", wave: 0,
+    /* ESPN display name → corpus club name, where they differ (checked against the 2026-27 graded ledger;
+       the rest for promoted/relegated clubs). The corpus keeps these names across the openfootball move. */
     aliases: { "AFC Bournemouth": "Bournemouth", "Brighton & Hove Albion": "Brighton", "Coventry City": "Coventry", "Hull City": "Hull",
       "Ipswich Town": "Ipswich", "Leeds United": "Leeds", "Leicester City": "Leicester", "Luton Town": "Luton", "Manchester City": "Man City",
       "Manchester United": "Man United", "Newcastle United": "Newcastle", "Nottingham Forest": "Nott'm Forest", "Tottenham Hotspur": "Tottenham",
       "West Ham United": "West Ham", "Wolverhampton Wanderers": "Wolves" } },
-  { key: "laliga", name: "LaLiga", country: "Spain", espn: "esp.1", footballData: "SP1", oddsApiKey: "soccer_spain_la_liga", stage: "REJECTED_V1", wave: 1 },
-  { key: "serie-a", name: "Serie A", country: "Italy", espn: "ita.1", footballData: "I1", oddsApiKey: "soccer_italy_serie_a", stage: "REJECTED_V1", wave: 1 },
-  { key: "bundesliga", name: "Bundesliga", country: "Germany", espn: "ger.1", footballData: "D1", oddsApiKey: "soccer_germany_bundesliga", stage: "REJECTED_V1", wave: 1 },
-  { key: "ligue-1", name: "Ligue 1", country: "France", espn: "fra.1", footballData: "F1", oddsApiKey: "soccer_france_ligue_one", stage: "ACCEPTED_V1", wave: 1,
-    /* ESPN display name → football-data club name, where they differ (checked club by club, 2026-09-11). */
+  { key: "laliga", name: "LaLiga", country: "Spain", espn: "esp.1", oddsApiKey: "soccer_spain_la_liga", stage: "REJECTED_V1", wave: 1 },
+  { key: "serie-a", name: "Serie A", country: "Italy", espn: "ita.1", oddsApiKey: "soccer_italy_serie_a", stage: "REJECTED_V1", wave: 1 },
+  { key: "bundesliga", name: "Bundesliga", country: "Germany", espn: "ger.1", oddsApiKey: "soccer_germany_bundesliga", stage: "REJECTED_V1", wave: 1 },
+  { key: "ligue-1", name: "Ligue 1", country: "France", espn: "fra.1", oddsApiKey: "soccer_france_ligue_one", stage: "ACCEPTED_V1", wave: 1,
+    /* ESPN display name → corpus club name, where they differ (checked club by club, 2026-09-11). */
     aliases: { "AJ Auxerre": "Auxerre", "AS Monaco": "Monaco", "Le Havre AC": "Le Havre", "Paris Saint-Germain": "Paris SG", "Stade Rennais": "Rennes" } },
-  { key: "championship", name: "Championship", country: "England", espn: "eng.2", footballData: "E1", oddsApiKey: "soccer_efl_champ", stage: "PLANNED", wave: 2 },
-  { key: "mls", name: "MLS", country: "USA", espn: "usa.1", footballDataExtra: "USA", oddsApiKey: "soccer_usa_mls", stage: "PLANNED", wave: 2 },
-  { key: "eredivisie", name: "Eredivisie", country: "Netherlands", espn: "ned.1", footballData: "N1", oddsApiKey: "soccer_netherlands_eredivisie", stage: "PLANNED", wave: 3 },
-  { key: "primeira", name: "Primeira Liga", country: "Portugal", espn: "por.1", footballData: "P1", oddsApiKey: "soccer_portugal_primeira_liga", stage: "PLANNED", wave: 3 },
+  { key: "championship", name: "Championship", country: "England", espn: "eng.2", oddsApiKey: "soccer_efl_champ", stage: "PLANNED", wave: 2 },
+  { key: "mls", name: "MLS", country: "USA", espn: "usa.1", oddsApiKey: "soccer_usa_mls", stage: "PLANNED", wave: 2 },
+  { key: "eredivisie", name: "Eredivisie", country: "Netherlands", espn: "ned.1", oddsApiKey: "soccer_netherlands_eredivisie", stage: "PLANNED", wave: 3 },
+  { key: "primeira", name: "Primeira Liga", country: "Portugal", espn: "por.1", oddsApiKey: "soccer_portugal_primeira_liga", stage: "PLANNED", wave: 3 },
 ]);
 
-/** football-data.co.uk season codes → our season labels. 2022-23 is warm-up (fit only, never scored). */
-export const FOOTBALL_DATA_SEASONS = Object.freeze({ "2223": "2022-23", "2324": "2023-24", "2425": "2024-25", "2526": "2025-26", "2627": "2026-27" });
+/** The seasons the operational soccer corpora carry (corpus-openfootball-v1.json). 2022-23 is warm-up (fit only, never scored). */
+export const CORPUS_SEASONS = Object.freeze(["2022-23", "2023-24", "2024-25", "2025-26", "2026-27"]);
 
 export function league(key) {
   const l = SOCCER_LEAGUES.find((x) => x.key === key);

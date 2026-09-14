@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "artifact": "dixon-coles-v2-source-amendment",
+  "dataClass": "PRIVATE_RESEARCH",
+  "amends": "data/internal/research/soccer/preregistration-dixon-coles-v2.json (frozen 2026-09-11; its frozen file and sourceHashes are untouched)",
+  "recordedAt": "2026-09-14",
+  "what": "The results corpus the shadow fits on and grades from moved from football-data.co.uk (corpus-football-data-v1.json) to openfootball football.json, public domain (corpus-openfootball-v1.json). Founder decision 2026-09-14: football-data.co.uk's own data page reserves its files for private individuals, not automated or commercial use.",
+  "whatDidNotChange": "The model (app/src/lib/sports/soccer/dixon-coles.mjs) and the ESPN club table (app/src/lib/sports/soccer/dixon-coles-aliases.mjs) are byte-identical, so the registration's sourceHashes still verify. The new corpus keeps the club names the alias table maps to. Fixtures still come from ESPN.",
+  "equivalenceCheck": {
+    "method": "Every openfootball result in 2022-23 to 2026-27 joined to the previous corpus by exact (season, home, away) pairing after name mapping.",
+    "laliga": "1551 of 1561 matched with identical scores; openfootball lacks ten 2024-25 results (history only — the forward population is 2026-27).",
+    "serie-a": "1540 of 1550 matched with identical scores; openfootball lacks ten 2024-25 results (history only).",
+    "bundesliga": "1242 of 1242 matched with identical scores.",
+    "2026-27": "Identical finished-match counts in all three leagues on 2026-09-14 (41, 30, 18).",
+    "kickoffs": "Median absolute kickoff difference 0 minutes."
+  },
+  "effect": "The fitted history for 2024-25 in LaLiga and Serie A has ten fewer matches each. Forward forecasts and grades use the same 2026-27 results. Graded rows written before this date were graded from football-data finals that the join shows to be identical."
+}

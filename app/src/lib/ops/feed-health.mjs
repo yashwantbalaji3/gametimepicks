@@ -2,7 +2,7 @@
  * FREE DATA-FEED HEALTH (P258).
  *
  * The prediction engines lean on free feeds nobody pays for and nobody watches: ESPN (injuries,
- * scoreboards), MLB StatsAPI, nflverse, football-data.co.uk, the National Weather Service. A feed
+ * scoreboards), MLB StatsAPI, nflverse, openfootball, the National Weather Service. A feed
  * that changes shape or goes dark does not fail loudly — the capture writes an empty file and the
  * model quietly runs on less. This names each feed, what it must contain, and whether it did.
  * Pure: the runner does the fetching.
@@ -10,12 +10,13 @@
 
 const ESPN = "https://site.api.espn.com/apis/site/v2/sports";
 
-/** football-data.co.uk season code: "2627" for the season that starts in August 2026. */
-export function footballDataSeason(etDate) {
+/** openfootball season folder: "2026-27" for the season that starts in August 2026. */
+export function openfootballSeason(etDate) {
   const [y, m] = etDate.split("-").map(Number);
   const start = m >= 8 ? y : y - 1;
-  return `${String(start).slice(2)}${String(start + 1).slice(2)}`;
+  return `${start}-${String(start + 1).slice(2)}`;
 }
+const OPENFOOTBALL = "https://raw.githubusercontent.com/openfootball/football.json/master";
 
 const json = (pred) => (body) => { let j; try { j = JSON.parse(body); } catch { return "not JSON"; } return pred(j); };
 const csv = (cols, minRows) => (body) => {
@@ -28,7 +29,7 @@ const csv = (cols, minRows) => (body) => {
 
 /** Each check returns null when the body is healthy, or a short reason. */
 export function feedTargets({ etDate }) {
-  const fd = footballDataSeason(etDate);
+  const of = openfootballSeason(etDate);
   return [
     { id: "mlb-statsapi-schedule", sport: "mlb", url: `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${etDate}`,
       check: json((j) => (Array.isArray(j.dates) ? null : "no dates array")) },
@@ -44,10 +45,10 @@ export function feedTargets({ etDate }) {
       check: json((j) => (Array.isArray(j.events) ? null : "no events array")) },
     { id: "espn-ligue1-scoreboard", sport: "soccer", url: `${ESPN}/soccer/fra.1/scoreboard`,
       check: json((j) => (Array.isArray(j.events) ? null : "no events array")) },
-    { id: "football-data-epl", sport: "soccer", url: `https://www.football-data.co.uk/mmz4281/${fd}/E0.csv`,
-      check: csv(["HomeTeam", "AwayTeam", "FTR"], 1) },
-    { id: "football-data-ligue1", sport: "soccer", url: `https://www.football-data.co.uk/mmz4281/${fd}/F1.csv`,
-      check: csv(["HomeTeam", "AwayTeam", "FTR"], 1) },
+    { id: "openfootball-epl", sport: "soccer", url: `${OPENFOOTBALL}/${of}/en.1.json`,
+      check: json((j) => (Array.isArray(j.matches) && j.matches.length ? null : "no matches")) },
+    { id: "openfootball-ligue1", sport: "soccer", url: `${OPENFOOTBALL}/${of}/fr.1.json`,
+      check: json((j) => (Array.isArray(j.matches) && j.matches.length ? null : "no matches")) },
     { id: "nws-points", sport: "weather", url: "https://api.weather.gov/points/39.0489,-94.4839", nws: true,
       check: json((j) => (typeof j?.properties?.forecastHourly === "string" ? null : "no forecastHourly link")) },
   ];

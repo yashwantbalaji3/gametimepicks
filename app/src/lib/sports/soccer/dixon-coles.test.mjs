@@ -161,7 +161,7 @@ test("the registration keeps v1.2's metric and bar, is forward-only, and changes
 
 test("the ESPN alias table maps every 2026-27 club of each corpus, and only to names the corpus uses", () => {
   for (const key of ["laliga", "serie-a", "bundesliga"]) {
-    const rows = readJson(`data/internal/research/soccer/${key}/corpus-football-data-v1.json`).rows;
+    const rows = readJson(`data/internal/research/soccer/${key}/corpus-openfootball-v1.json`).rows;
     const clubs2627 = new Set(rows.filter((r) => r.season === "2026-27").flatMap((r) => [r.home, r.away]));
     const targets = Object.values(DC_V2_ESPN_CLUBS[key]).map((e) => e.footballData);
     assert.equal(new Set(targets).size, targets.length, `${key}: no two ESPN ids map to one club`);

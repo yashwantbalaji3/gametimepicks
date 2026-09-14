@@ -10,7 +10,7 @@
  *     round-robin, and stable if ESPN re-issues an event id for a rescheduled match. The first forecast
  *     written is the forecast; a re-run adds nothing and rewrites nothing.
  *   · GRADING goes through grading.mjs (lastPreKickoffForecasts → gradeMatch → mergeGraded → summarize) against
- *     the football-data.co.uk final score in the league corpus, and metrics come from walk-forward.mjs
+ *     the final score in the league corpus (openfootball), and metrics come from walk-forward.mjs
  *     scorePredictions, so `drawEce` here is the exact statistic the v1.2 verdicts used.
  *   · Bars, sample floor, resampling settings and horizon are read from the registration's own text by the
  *     caller and passed in; none is typed twice.
