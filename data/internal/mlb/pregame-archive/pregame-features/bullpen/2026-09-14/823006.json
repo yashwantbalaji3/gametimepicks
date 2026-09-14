@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823006,
   "date": "2026-09-14",
-  "capturedAt": "2026-09-14T00:33:17.774Z",
-  "availableAt": "2026-09-14T00:33:17.774Z",
+  "capturedAt": "2026-09-14T05:47:13.829Z",
+  "availableAt": "2026-09-14T05:47:13.829Z",
   "eventStartTime": "2026-09-14T23:45:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -133,13 +133,34 @@
     "teamId": 137,
     "teamName": "San Francisco Giants",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 42,
+      "relievers": [
+        {
+          "id": 683363,
+          "name": "Matt Wilkinson",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 9,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 166,
+      "appearances": 9,
+      "pitches": 208,
       "relievers": [
         {
           "id": 805074,
@@ -149,6 +170,16 @@
           "outs": 15,
           "dates": [
             "2026-09-11"
+          ]
+        },
+        {
+          "id": 683363,
+          "name": "Matt Wilkinson",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 9,
+          "dates": [
+            "2026-09-13"
           ]
         },
         {
@@ -202,6 +233,16 @@
           ]
         },
         {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
           "id": 665665,
           "name": "Reiver Sanmartin",
           "appearances": 1,
@@ -213,12 +254,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 683363,
+        "name": "Matt Wilkinson",
+        "reason": "37 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-11,2026-09-12,2026-09-13) + feed/live box scores",
-    "capturedAt": "2026-09-14T00:33:17.774Z"
+    "capturedAt": "2026-09-14T05:47:13.829Z"
   },
-  "recordHash": "7ecae26bc0e3016a8d58527017924a8fe1565e6b5cbfcd64cd2be0cb08b80d5f"
+  "recordHash": "820b14bf63648338fbe517100312689e33d4e1bc8cf948bed0c5a24aeaa4ebd9"
 }
