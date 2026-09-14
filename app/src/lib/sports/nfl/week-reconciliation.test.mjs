@@ -98,6 +98,23 @@ test("the week summary: per prop and overall, voids excluded, sportsbook compari
   assert.deepEqual(s.context.touchdowns, { playersGraded: 3, expectedScorers: 0.9, actualScorers: 1 });
 });
 
+test("sharpness beside every range rate: typical miss, width and lean from the PRINTED numbers; winner shows expected hits", () => {
+  const graded = gradeGame({ forecast, board, official: officialFromEspnSummary(espn()) });
+  const pending = gradeGame({ forecast: { ...forecast, providerEventId: "901" }, board, official: { state: "PENDING" } });
+  const p = Object.fromEntries(summariseWeek([graded, pending]).props.map((x) => [x.id, x]));
+  // Total: middle 47, final 47, range 33–61.
+  assert.deepEqual([p.total_range.typicalMiss, p.total_range.rangeWidth, p.total_range.lean], [0, 28, 0]);
+  // Margin: middle 4, final +7, range -10–18.
+  assert.deepEqual([p.margin_range.typicalMiss, p.margin_range.rangeWidth, p.margin_range.lean], [3, 28, -3]);
+  // Rush: printed middle 70 (70.2), printed range 61–110, actual 61.
+  assert.deepEqual([p.player_rush_yds.typicalMiss, p.player_rush_yds.rangeWidth, p.player_rush_yds.lean], [9, 49, 9]);
+  // Receptions: WR Three graded (middle 4, 1–6, actual 6); TE Four void and never counted.
+  assert.deepEqual([p.player_receptions.typicalMiss, p.player_receptions.rangeWidth, p.player_receptions.lean], [2, 5, -2]);
+  assert.equal(p.winner.expectedHits, 0.6, "one graded pick at 60%");
+  assert.equal(p.winner.typicalMiss, undefined, "a winner pick has no range");
+  assert.equal(p.likeliest_scorer.rangeWidth, undefined);
+});
+
 test("a tie voids the winner check; a missing board is named, not silent", () => {
   const tie = espn({ comp: { competitors: [{ homeAway: "home", score: "20", team: { abbreviation: "KC" } }, { homeAway: "away", score: "20", team: { abbreviation: "DEN" } }] } });
   const g = gradeGame({ forecast, board: null, boardRefused: "the player board on file was generated at or after kickoff", official: officialFromEspnSummary(tie) });

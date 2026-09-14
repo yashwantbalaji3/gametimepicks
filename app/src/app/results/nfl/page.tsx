@@ -16,7 +16,7 @@
 import Link from "next/link";
 import SectionHeader from "@/components/section-header";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import { readNflWeekReports, pct, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
+import { readNflWeekReports, pct, unitFigure, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
 
 export const metadata = withRouteMetadata("/results/nfl/", {
   title: "NFL Week Report — Every Prediction Graded · GameTime Picks",
@@ -149,14 +149,15 @@ export default function NflWeekReportPage() {
           <li>{latest.howGraded.likeliestScorer}</li>
           <li>{latest.howGraded.voids}</li>
           <li>{latest.howGraded.estimates}</li>
+          {latest.howGraded.sharpness ? <li>{latest.howGraded.sharpness}</li> : null}
         </ul>
       </section>
 
       <section aria-labelledby="by-prop">
         <SectionHeader eyebrow={latest.period.label} title="Success rate by prediction" sub={`${s.gamesFinal} final game${s.gamesFinal === 1 ? "" : "s"} · void predictions are not counted`} />
         <div className="scroll">
-          <table style={{ minWidth: 640 }}>
-            <thead><tr><th scope="col">Prediction</th><th scope="col">Success rate</th><th scope="col">Hits</th><th scope="col">Void</th><th scope="col">What counts</th></tr></thead>
+          <table style={{ minWidth: 800 }}>
+            <thead><tr><th scope="col">Prediction</th><th scope="col">Success rate</th><th scope="col">Hits</th><th scope="col">Void</th><th scope="col">Typical miss</th><th scope="col">Range width</th><th scope="col">What counts</th></tr></thead>
             <tbody>
               {s.props.map((p) => (
                 <tr key={p.id}>
@@ -166,7 +167,15 @@ export default function NflWeekReportPage() {
                   <td className="k" style={{ fontSize: 14, color: "var(--vault-text)" }}>{pct(p.rate)}</td>
                   <td className="k m">{p.hits}/{p.checks}</td>
                   <td className="k v">{p.voids || "—"}</td>
-                  <td className="m" style={{ fontSize: 12, maxWidth: 320 }}>{PROP_MEANING[p.id] ?? ""}{p.target ? " Aim: about 8 in 10." : ""}</td>
+                  <td className="k m nw">
+                    {p.typicalMiss != null ? unitFigure(p.id, p.typicalMiss) : "—"}
+                    {p.lean != null && Math.abs(p.lean) >= 0.5 * (p.typicalMiss ?? Infinity) ? <div className="f">middle ran {p.lean < 0 ? "low" : "high"}</div> : null}
+                  </td>
+                  <td className="k m nw">{p.rangeWidth != null ? unitFigure(p.id, p.rangeWidth) : "—"}</td>
+                  <td className="m" style={{ fontSize: 12, maxWidth: 320 }}>
+                    {PROP_MEANING[p.id] ?? ""}{p.target ? " Aim: about 8 in 10." : ""}
+                    {p.expectedHits != null ? ` Our win chances expected about ${p.expectedHits} of ${p.checks} to come true.` : ""}
+                  </td>
                 </tr>
               ))}
               <tr>
@@ -174,11 +183,19 @@ export default function NflWeekReportPage() {
                 <td className="k" style={{ fontSize: 14, fontWeight: 700, color: "var(--vault-text)" }}>{pct(s.overall.rate)}</td>
                 <td className="k m">{s.overall.hits}/{s.overall.checks}</td>
                 <td />
+                <td />
+                <td />
                 <td className="m" style={{ fontSize: 12 }}>Every check above, added together.</td>
               </tr>
             </tbody>
           </table>
         </div>
+        <p className="note">
+          <strong style={{ color: "var(--vault-text)" }}>How we get better.</strong>{" "}
+          A range can always be made to land 8 in 10 times by making it wider, so a higher success rate alone is not
+          progress. Week over week we aim for a smaller typical miss and narrower ranges while about 8 in 10 still land
+          inside — and for more winners than our own win chances expected.
+        </p>
         <p className="note">
           <strong style={{ color: "var(--vault-text)" }}>For context, not counted above.</strong>{" "}
           On total points, our number was closer to the final than the sportsbooks&rsquo; in {c.oursCloser} game{c.oursCloser === 1 ? "" : "s"}, theirs was closer in {c.booksCloser}{c.even ? `, and ${c.even} were even` : ""}{c.noLine ? ` (${c.noLine} had no sportsbook total)` : ""}.

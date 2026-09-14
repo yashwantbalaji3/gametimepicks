@@ -17,6 +17,12 @@ export interface WeekProp {
   hits: number;
   voids: number;
   rate: number | null;
+  /** Range props: mean |printed middle − actual|, mean printed width, mean (middle − actual). Absent on older reports. */
+  typicalMiss?: number;
+  rangeWidth?: number;
+  lean?: number;
+  /** Winner: the sum of the published pick chances over graded games. */
+  expectedHits?: number;
 }
 
 export interface WeekGame {
@@ -78,3 +84,10 @@ export function readNflWeekReports(): { index: WeekIndex | null; latest: WeekRep
 }
 
 export const pct = (rate: number | null | undefined) => (rate == null ? "—" : `${(rate * 100).toFixed(1)}%`);
+
+/** A sharpness figure in the prop's own unit: catches to one decimal, points and yards to the whole number. */
+export const unitFigure = (id: string, v: number | undefined) => {
+  if (v == null || !Number.isFinite(v)) return "—";
+  const n = id === "player_receptions" ? (Math.round(v * 10) / 10).toString() : String(Math.round(v));
+  return `${n} ${id === "player_receptions" ? "catches" : id === "total_range" || id === "margin_range" ? "pts" : "yds"}`;
+};

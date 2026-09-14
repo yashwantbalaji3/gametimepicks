@@ -16,7 +16,8 @@
   "likeliestScorer": "In each game, the player we gave the best chance to score a touchdown. A hit if the official record credits him with a rushing, receiving or return touchdown — throwing one does not count.",
   "voids": "A player with no line at all in the official box score did not play, so his predictions are void, not misses. A game that is not final yet is pending.",
   "estimates": "Rushing and passing yards were shown as unvalidated estimates. They are graded the same way and labelled.",
-  "sportsbook": "For context only, not part of any success rate: whether our projected total or the sportsbooks' total was closer to the final."
+  "sportsbook": "For context only, not part of any success rate: whether our projected total or the sportsbooks' total was closer to the final.",
+  "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
   "gamesFinal": 15,
@@ -34,7 +35,8 @@
     "checks": 15,
     "hits": 8,
     "voids": 0,
-    "rate": 0.5333333333333333
+    "rate": 0.5333333333333333,
+    "expectedHits": 8.6
    },
    {
     "id": "total_range",
@@ -44,7 +46,10 @@
     "checks": 15,
     "hits": 12,
     "voids": 0,
-    "rate": 0.8
+    "rate": 0.8,
+    "typicalMiss": 13.9,
+    "rangeWidth": 33.7,
+    "lean": -2.3
    },
    {
     "id": "margin_range",
@@ -54,7 +59,10 @@
     "checks": 15,
     "hits": 11,
     "voids": 0,
-    "rate": 0.7333333333333333
+    "rate": 0.7333333333333333,
+    "typicalMiss": 12.3,
+    "rangeWidth": 34.8,
+    "lean": 4.7
    },
    {
     "id": "player_receptions",
@@ -65,7 +73,10 @@
     "hits": 118,
     "voids": 18,
     "rate": 0.8872180451127819,
-    "status": "PUBLISHED"
+    "status": "PUBLISHED",
+    "typicalMiss": 1.5,
+    "rangeWidth": 4.7,
+    "lean": -0.7
    },
    {
     "id": "player_reception_yds",
@@ -76,7 +87,10 @@
     "hits": 113,
     "voids": 18,
     "rate": 0.849624060150376,
-    "status": "PUBLISHED"
+    "status": "PUBLISHED",
+    "typicalMiss": 21.6,
+    "rangeWidth": 62.2,
+    "lean": -11.8
    },
    {
     "id": "player_rush_yds",
@@ -87,7 +101,10 @@
     "hits": 47,
     "voids": 22,
     "rate": 0.7121212121212122,
-    "status": "ESTIMATE"
+    "status": "ESTIMATE",
+    "typicalMiss": 21.9,
+    "rangeWidth": 51.8,
+    "lean": -17.1
    },
    {
     "id": "player_pass_yds",
@@ -98,7 +115,10 @@
     "hits": 18,
     "voids": 10,
     "rate": 0.72,
-    "status": "ESTIMATE"
+    "status": "ESTIMATE",
+    "typicalMiss": 91.2,
+    "rangeWidth": 233.4,
+    "lean": -73.9
    },
    {
     "id": "likeliest_scorer",
@@ -7147,5 +7167,5 @@
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-09-14T04:27:11Z"
+ "generatedAt": "2026-09-14T15:00:13Z"
 }

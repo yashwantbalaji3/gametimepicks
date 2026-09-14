@@ -26,7 +26,21 @@ export const RECONCILIATION_RULES = Object.freeze({
   voids: "A player with no line at all in the official box score did not play, so his predictions are void, not misses. A game that is not final yet is pending.",
   estimates: "Rushing and passing yards were shown as unvalidated estimates. They are graded the same way and labelled.",
   sportsbook: "For context only, not part of any success rate: whether our projected total or the sportsbooks' total was closer to the final.",
+  sharpness: "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside.",
 });
+
+const round1 = (v) => Math.round(v * 10) / 10;
+
+/**
+ * How close and how narrow a set of graded range rows was: typical miss (mean |middle − actual|), average width
+ * (high − low), and lean (mean middle − actual: negative means our middle ran low). Voids never count.
+ */
+export function rangeSharpness(rows) {
+  const graded = rows.filter((r) => r.outcome !== "VOID" && Number.isFinite(r.actual) && Number.isFinite(r.median) && Number.isFinite(r.low) && Number.isFinite(r.high));
+  if (!graded.length) return null;
+  const mean = (f) => graded.reduce((a, r) => a + f(r), 0) / graded.length;
+  return { typicalMiss: round1(mean((r) => Math.abs(r.median - r.actual))), rangeWidth: round1(mean((r) => r.high - r.low)), lean: round1(mean((r) => r.median - r.actual)) };
+}
 
 const num = (v) => {
   if (v == null) return null;
@@ -174,12 +188,25 @@ export function summariseWeek(games) {
     const playerRows = final.flatMap((g) => g.players.filter((r) => r.prop === id)).map((r) => r.outcome);
     return [...teamRows, ...playerRows];
   };
+  /* The rows a range prop's sharpness is measured on, in one shape: {median, low, high, actual, outcome}. */
+  const rangeRowsFor = (id) => {
+    if (id === "total_range" || id === "margin_range") {
+      const key = id === "total_range" ? "total" : "margin";
+      return final.map((g) => ({ ...g.published[key], actual: g.final[key], outcome: g.team.find((t) => t.prop === id)?.outcome }));
+    }
+    return final.flatMap((g) => g.players.filter((r) => r.prop === id));
+  };
   const props = PROPS.map((p) => {
     const o = outcomesFor(p.id);
     const hits = o.filter((x) => x === "HIT").length;
     const checks = hits + o.filter((x) => x === "MISS").length;
     const statuses = [...new Set(final.flatMap((g) => g.players.filter((r) => r.prop === p.id).map((r) => r.status)))];
-    return { ...p, checks, hits, voids: o.filter((x) => x === "VOID").length, rate: checks ? hits / checks : null, ...(statuses.length ? { status: statuses.includes("ESTIMATE") ? "ESTIMATE" : "PUBLISHED" } : {}) };
+    const sharpness = p.target ? rangeSharpness(rangeRowsFor(p.id)) : null;
+    /* Winner: how many picks the published chances expected to come true, so 8 of 15 reads against a real bar. */
+    const expected = p.id === "winner"
+      ? { expectedHits: round1(final.filter((g) => g.team.find((t) => t.prop === "winner")?.outcome !== "VOID").reduce((a, g) => a + g.published.pick.probability, 0)) }
+      : {};
+    return { ...p, checks, hits, voids: o.filter((x) => x === "VOID").length, rate: checks ? hits / checks : null, ...(statuses.length ? { status: statuses.includes("ESTIMATE") ? "ESTIMATE" : "PUBLISHED" } : {}), ...(sharpness ?? {}), ...expected };
   });
   const checks = props.reduce((a, p) => a + p.checks, 0);
   const hits = props.reduce((a, p) => a + p.hits, 0);
