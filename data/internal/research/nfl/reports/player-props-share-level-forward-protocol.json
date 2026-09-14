@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "artifact": "player-props-share-level-forward-protocol",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "300",
+  "registeredAt": "2026-09-14T06:45:00Z",
+  "supplements": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json (commit 8d2e24104), section forward2026. This file adds the operating details that section left open. It changes no model constant, scale, bar or decision rule. No 2026 Week 2+ outcome exists at registration.",
+
+  "rules": {
+    "model": "Exactly the model scored by the P300 second look (scripts/research/nfl/replay-player-props-v2.mjs): shrinkK 0, team-form volume, dispersion scales taken verbatim from devDispersionScales in data/internal/research/nfl/reports/player-props-share-level-second-look.json (fit on dev 2022-2025).",
+    "inputs": "The committed player-games-v1 table (2013-2025, hash-pinned) plus nflverse 2026 stats_player_week, snap_counts and roster_weekly, and nfldata games.csv for the schedule. Each is downloaded and validated by content (gzip, header, row widths, required columns) before use; the sha256 of every file used is recorded in each output.",
+    "stateCutoff": "A week's forecast folds only player-games dated strictly before that week's first game date.",
+    "participationWhileSnapsPending": "nflverse publishes snap counts days after stats. In a 2026 game with no snap sheet yet, a stat row is folded into player state as PLAYED_PENDING_SNAPS (a touch is participation, per the table builder), and the played-with-no-stat-row zeros for that game are not yet available. A game's zeros enter later forecasts once its sheet is published. Pending rows are never scored.",
+    "candidates": "As in the replay: players whose latest played game was for the team and whose share clears the family threshold. The 2026 roster file is used only for identity joins, never to add or remove candidates. A candidate with no row in that game is VOID when graded.",
+    "staleCandidates": "With shrinkK 0 a player's share is a ratio that never fades, so a player who left a team, or the league, stays its candidate forever and grades VOID. A dry run of this script on 2026 Week 1 (forced, graded only on the two games with snap sheets) found 435 of 710 receptions candidates whose last game was in 2013-2024. The P300 second look had the same behaviour. VOID rows are never scored, so its metrics are unaffected; only its void counts are inflated. The forward test keeps the scored mechanics unchanged: every candidate is written, and each forecast records how many last played before the prior season. CONSEQUENCE FOR ANY LIVE ADOPTION: removing the pull toward zero on the public board also removes its only mechanism for dropping departed players. An adoption must gate candidates on the current roster, and that gate is part of the reviewed app/ change.",
+    "timing": "The forecast runs when every earlier regular-season game has nflverse stat rows. If rows are still missing when the week's first kickoff is fallbackHoursBeforeFirstKickoff away or less, it runs anyway and lists the missing games. One forecast per week, never overwritten.",
+    "onTime": "A week counts only if the git commit that added its forecast file is dated before the week's first kickoff (nfldata gametime, America/New_York, converted to UTC). Late weeks are graded, marked late, and excluded from the receipt.",
+    "grading": "A week is graded when all its games are final in games.csv and every one has a snap sheet, using the P299 participation states: SCORED, VOID (no row), QUARANTINED (stat row without a snap match). MAE scores the forecast p50, coverage uses p10-p90 (mid-p for receptions), ECE uses P(over the rolling-4 line), level uses the mean.",
+    "receipt": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json, rebuilt from every on-time graded week. A family is ACCUMULATING below 300 scored player-games, then FORWARD_HOLDING or FORWARD_BREACHED against the preregistered forward bars.",
+    "automation": ".github/workflows/nfl-props-forward-shadow.yml runs grade then forecast, and commits only derived files. The push step merges, never rebases, so a forecast commit keeps its original date."
+  },
+
+  "frozen": {
+    "firstWeek": 2,
+    "fallbackHoursBeforeFirstKickoff": 12
+  }
+}
