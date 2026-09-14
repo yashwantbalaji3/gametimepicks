@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-history-replay-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "304",
+  "registeredAt": "2026-09-14T16:30:00Z",
+
+  "whyThisExists": "The live EPL match model (epl-model-v1-split-poisson) was fit and judged on four seasons (2022-23 to 2025-26) from api-football. The v2 bakeoff (reports/model-v2-bakeoff.json) found a plain Elo beat it out of sample (2025-26 log loss 1.0260 vs 1.0450) and concluded the corpus, not the specification, was the constraint; Elo was not shipped because it produces no score matrix, and the per-fixture product is built from scorelines, totals and both-teams-to-score. The founder approved openfootball (public domain) on 2026-09-14, which gives sixteen EPL seasons. Nine of them (2013-14 to 2021-22) have never been scored by any EPL model here. This registration tests one candidate that keeps the score matrix: goal-difference-weighted Elo sets the expected goal supremacy, a trailing league scoring rate sets the expected total, and independent Poisson gives every scoreline.",
+
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "Every committed EPL receipt: model-v1-evaluation.json, model-v2-bakeoff.json (2023-24 to 2025-26 figures for the split Poisson, its variants and plain Elo), baseline-evaluation-v1.json.",
+    "While migrating the results source (2026-09-14): per-season match counts and the exact join of openfootball against the previous corpus for 2022-23 to 2026-27 (scores and pairings only; no model was fit).",
+    "Warm-up seasons 2010-11 to 2012-13 only: 2.800 goals per match and a 0.274 draw rate (read after totalPrior 2.75 was set; totalPrior only seeds the scoring rate before the first match, which is never scored).",
+    "DEV SEASONS 2022-23 TO 2025-26 ONLY, one --validate run of this script with the frozen block below. Supremacy slope fit on the warm-up: 0.5851 goals per 100 rating points. Dev (n 1,520): eloPoisson log loss 0.9820, RPS 0.2016, ECE 0.0206, over-2.5 Brier 0.2443. poissonLive 1.0065, 0.2089, 0.0248, 0.2478. elo 0.9870, 0.2029, 0.0181. uniform 1.0986. By season, eloPoisson beat poissonLive in all four and plain Elo in three; it lost to plain Elo in 2025-26 (1.0411 vs 1.0285). Parity: poissonLive reproduced the committed v2 control on 2025-26 exactly (1.0450). No constant was changed after that run.",
+    "No 2013-14 to 2021-22 match has been compared with any prediction."
+  ],
+
+  "models": {
+    "eloPoisson (candidate)": "Elo from 2010-11: start 1500, K 20 scaled by the goal-difference multiplier (1 for a margin of 0-1, 1.5 for 2, (11 + margin) / 8 for 3+), home advantage 60. At each season start every club regresses 20% toward 1500, and a club not in the previous season enters at the mean end-of-season rating of the previous season's bottom three. Expected supremacy = slope x (home rating + 60 - away rating) / 100, the slope fit by least squares through the origin on warm-up matches only. Expected total = the league's goals per match over the previous 380 matches. lambda_home = (total + supremacy) / 2 and lambda_away = (total - supremacy) / 2, floored at 0.05; independent Poisson to 10 goals, renormalised.",
+    "poissonLive (control)": "The live library exactly (fitEplStrength + scoreMatrix, committed defaults) fit on the live rule's window: matches from the three previous seasons plus the current season, dated strictly before the match day.",
+    "elo (baseline)": "The league backtest's plain Elo (K 20, home +60, start 1500, draw probability = the running Laplace draw rate).",
+    "uniform (reference)": "1/3 each; reported, not a bar."
+  },
+
+  "heldOutSet": {
+    "seasons": "2013-14 to 2021-22 (3,420 matches)",
+    "eras": "2013-14 to 2017-18 and 2018-19 to 2021-22",
+    "scoringMoment": "ONE look: scripts/research/soccer/replay-epl-history.mjs --score, which refuses unless this file is committed and unmodified and refuses if the evaluation exists. The registered seasons' rows are hash-pinned; the file's current-season rows may refresh."
+  },
+
+  "frozenBars": {
+    "beatsControlAndElo": "log loss strictly below poissonLive and plain Elo, overall and in each era",
+    "improvementIsNotNoise": "season-block bootstrap (2000 resamples, seed 20260917) 95% upper bound of the per-match log-loss difference versus the better of poissonLive and Elo strictly below 0",
+    "calibration": "1X2 ECE (10 bins over every outcome probability) at most 0.03",
+    "totalsNotWorse": "over-2.5 Brier not worse than poissonLive",
+    "minimumN": "at least 1000 scored matches"
+  },
+
+  "decisionRule": "ELIGIBLE only if every bar passes, else REJECTED. Nothing publishes from the evaluation. Replacing the live EPL model is its own reviewed, founder-approved app/ step with a blind forward test. A REJECTED candidate is not retried by adjusting it.",
+
+  "whatIsNotAllowed": "No 2013-14 to 2021-22 outcome may choose a constant, window, bar or era. No second --score run. No market input.",
+
+  "frozen": {
+    "seasons": { "warmup": ["2010-11", "2012-13"], "heldOut": ["2013-14", "2021-22"], "dev": ["2022-23", "2025-26"] },
+    "eras": [["2013-14", "2017-18"], ["2018-19", "2021-22"]],
+    "elo": { "start": 1500, "K": 20, "homeAdvantage": 60, "seasonRegression": 0.2 },
+    "plainElo": { "K": 20, "homeAdvantage": 60 },
+    "control": { "previousSeasons": 3 },
+    "totalWindowMatches": 380,
+    "totalPrior": 2.75,
+    "lambdaFloor": 0.05,
+    "maxGoals": 10,
+    "bars": { "eceMax": 0.03, "minimumN": 1000 },
+    "bootstrap": { "unit": "season", "resamples": 2000, "seed": 20260917 },
+    "inputs": {
+      "history": "data/internal/research/soccer/epl/history-openfootball-v1.json",
+      "historyRowsSha256": "90a00cc80b3fbe614ad7d102243301ed0aa9fc4022b23f561e9d4b6f890c1b11",
+      "historyRowsScope": "rows of seasons 2010-11 through 2025-26 (6,080), serialized as the file stores them"
+    }
+  },
+
+  "output": "data/internal/research/epl/reports/epl-history-replay-evaluation.json (written once)"
+}
