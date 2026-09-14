@@ -26,6 +26,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { MOBILE_NAV_ITEMS } from "./nav-active-route.ts";
 import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
+import { loadEplForecasts } from "./sports/epl/forecast-view.ts";
 
 const APP = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
@@ -278,8 +279,17 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
     if (fs.existsSync(built)) {
       const text = fs.readFileSync(built, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
       // A published forecast carries its limitation in the reader's words, not in a data field.
-      assert.match(text, /not validated out of sample/i,
-        "/epl publishes forecasts, so the page must state that they are unvalidated");
+      // P304: when the blind-tested model publishes (the artifact's own validation says so), the words change to
+      // what that validation is — a blind historical test, with the live record still stated as ungraded below.
+      // Read through the EPL lane's own loader: EPL artifacts are reachable only through the lane (epl-closeout-guard).
+      const eplSet = loadEplForecasts();
+      if (eplSet?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY") {
+        assert.match(text, /tested blind on past seasons/i, "/epl must say what its validation is: a blind test on past seasons");
+        assert.doesNotMatch(text, /has not been validated out of sample/i, "the banner and the record line must not contradict each other");
+      } else {
+        assert.match(text, /not validated out of sample/i,
+          "/epl publishes forecasts, so the page must state that they are unvalidated");
+      }
       // P200: the page's graded-status line is DYNAMIC now ("8 ... matches have been graded under
       // this model — far too few ..."), so the pin accepts singular and plural forms of the same
       // claim. The invariant is unchanged: the page states its graded status in words, never

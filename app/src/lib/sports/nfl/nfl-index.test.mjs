@@ -7,10 +7,16 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { unionFrozenForecasts } from "./public-forecast-union.mjs";
 
 const APP = process.cwd();
 const idx = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/index.json"), "utf8"));
-const forecasts = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/forecasts/latest.json"), "utf8"));
+/* P295: the index summarises the live forecasts PLUS this week's frozen pre-kickoff forecasts of started games
+   (frozen-latest.json) — reconcile against that same union, or a week's last game reads as a 1-vs-16 mismatch. */
+const forecasts = unionFrozenForecasts(
+  JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/forecasts/latest.json"), "utf8")),
+  fs.existsSync(path.join(APP, "public/data/nfl/forecasts/frozen-latest.json")) ? JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/forecasts/frozen-latest.json"), "utf8")) : null,
+);
 const markets = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/markets/latest.json"), "utf8"));
 
 test("the index is public-derived and declares itself the single source", () => {

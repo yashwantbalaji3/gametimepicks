@@ -20,7 +20,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { fitEplStrength, sparseSplitFlags } from "../../src/lib/sports/epl/strength-state.mjs";
+import { sparseSplitFlags, scoreMatrix } from "../../src/lib/sports/epl/strength-state.mjs";
+import { selectEplMatchModel } from "../../src/lib/sports/epl/match-model.mjs";
 import { loadEplCorpus } from "../../src/lib/sports/epl/corpus.mjs";
 import { loadEplGradedRecord } from "../../src/lib/sports/epl/graded-record.ts";
 import { runEplShadow } from "../../src/lib/sports/epl/shadow-run.mjs";
@@ -75,7 +76,15 @@ const oddsSnapshot = fs.existsSync(oddsPath) ? readJson(oddsPath) : null;
  */
 const corpus = loadEplCorpus(REPO);
 /* Cutoff at NOW: the fit may never see a result from a match it is about to forecast. */
-const strengthState = fitEplStrength({ rows: corpus.rows, cutoffIso: NOW });
+/*
+ * P304 (founder-approved 2026-09-14): WHICH MODEL is read from receipts — the Elo-Poisson model while its blind
+ * replay is ELIGIBLE and its blind forward receipt has not breached, else the split Poisson. While adopted, the
+ * split Poisson is fit beside it as the control the grader scores on the same matches.
+ */
+const seasonClubs = [...new Set((season.rows ?? []).flatMap((f) => [f.homeClub, f.awayClub]))];
+const selection = selectEplMatchModel({ repoRoot: REPO, nowIso: NOW, seasonClubs });
+const strengthState = selection.state;
+console.log(`match model: ${strengthState.modelId} (${selection.adopted ? "adopted" : "previous"} — ${selection.reason})${selection.control ? ` · control ${selection.control.modelId}` : ""}`);
 console.log(`corpus: ${corpus.base} historical + ${corpus.current} from ${corpus.currentSeason ?? "the current season"} = ${corpus.rows.length} matches (fit cutoff ${NOW})`);
 
 const nowMs = Date.parse(NOW);
@@ -147,6 +156,10 @@ const rows = upcoming.map((fixture) => {
        modelOnly:false with null numbers while the shadow run had computed the whole grid. A field
        that was never copied reads exactly like one that was never produced. */
     modelOnly: out.modelOnly ?? null,
+    /* P304: the replaced model's probabilities for the same fixture — PRIVATE, scored by the grader as the paired control. */
+    control: selection.control && (out.state === "CURRENT_PRE_EVENT" || out.state === "READY_EXCEPT_ODDS")
+      ? (() => { const m = scoreMatrix(selection.control, fixture.homeClub, fixture.awayClub); return { modelId: m.modelId, probs: m.oneXTwo, over25: m.totals?.over25 ?? null }; })()
+      : null,
     /*
      * THE MARKET BASELINE, PERSISTED — PRIVATE ROWS ONLY.
      *
@@ -213,6 +226,7 @@ const artifact = {
   competition: "epl",
   generatedAt: NOW,
   lookaheadHours: LOOKAHEAD_H,
+  matchModel: { modelId: strengthState.modelId, adopted: selection.adopted, reason: selection.reason, forwardState: selection.forwardState, controlModelId: selection.control?.modelId ?? null },
   oddsCapturedAt: oddsSnapshot?.capturedAt ?? null,
   fixturesConsidered: upcoming.length,
   counts,
@@ -296,8 +310,12 @@ function trackRecordSentence() {
   if (n === 0) {
     return "No Premier League match has been graded under this model. There is no win/loss record, no accuracy figure, and no track record to cite.";
   }
+  /* P304: once the blind-tested model publishes, the out-of-sample claim belongs to validationNote; this sentence
+     speaks only about the LIVE record, so the two never contradict each other on one page. */
   return `${n} Premier League match${n === 1 ? " has" : "es have"} been graded under this model — far too few to support any accuracy claim. ` +
-    "No win rate or accuracy figure is quoted, and this model has not been validated out of sample.";
+    (selection.adopted
+      ? "No live win rate or accuracy figure is quoted until its season record is large enough to mean something."
+      : "No win rate or accuracy figure is quoted, and this model has not been validated out of sample.");
 }
 
 const publicArtifact = {
@@ -322,7 +340,11 @@ const publicArtifact = {
    * graded matches on this line is a validation. That is the calibration stage — a preregistered
    * backtest against a market baseline — and it is UNPROVEN for this competition.
    */
-  validation: "NOT_VALIDATED_OUT_OF_SAMPLE",
+  validation: selection.adopted ? "VALIDATED_OUT_OF_SAMPLE_HISTORY" : "NOT_VALIDATED_OUT_OF_SAMPLE",
+  /* P304: what the validation above rests on, in words — a blind historical test is not a live record. */
+  validationNote: selection.adopted
+    ? "Tested blind on nine past Premier League seasons (2013-14 to 2021-22, 3,420 matches) it was never fit on, where it beat the previous model and a plain rating system. Its total-goals numbers follow the league's recent scoring rate, so they are the same for every match — in that test they were more accurate than the previous model's team-by-team totals. Its live record this season is still being graded."
+    : null,
   trackRecord: trackRecordSentence(),
   note: "Model distributions only — not picks, not advice, and not compared against a price.",
   rows: publicRows,

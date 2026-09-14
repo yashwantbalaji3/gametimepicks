@@ -120,6 +120,12 @@ export function buildGradedRows({ forecasts, results, alreadyGraded = new Set() 
         }, 0)),
         over25: over25 == null ? null : { modelProbOver: over25, observedOver: overHit, brier: r6((over25 - (overHit ? 1 : 0)) ** 2) },
       },
+      /* P304 adoption: the model the published one replaced, scored on the same match — the paired forward test. */
+      ...(fc.row.control?.probs ? (() => {
+        const c = fc.row.control.probs;
+        const cActual = actual === "H" ? c.home : actual === "D" ? c.draw : c.away;
+        return { control: { modelId: fc.row.control.modelId ?? null, probs: c, probabilityOfActual: r6(cActual), logLoss: r6(-Math.log(clip(cActual))) } };
+      })() : {}),
     });
   }
   return { graded, skipped };

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-elo-poisson-forward-protocol",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "304",
+  "registeredAt": "2026-09-14T17:00:00Z",
+  "approval": "Founder, 2026-09-14: put the new EPL model live and proceed.",
+  "supplements": "data/internal/research/epl/reports/epl-history-replay-preregistration.json (2b8921861) and its one-look receipt (e8346033e: eloPoisson ELIGIBLE). This file registers the live adoption and its blind forward test before any adopted forecast exists. It changes no constant of the model.",
+
+  "rules": {
+    "model": "app/src/lib/sports/epl/elo-poisson.mjs reproduces the replay's arithmetic with the registration's frozen block; its warm-up supremacy slope is recomputed on every build and must match the receipt (0.5851) or the previous model publishes. A parity test re-scores dev season 2023-24 through the module.",
+    "data": "data/internal/research/soccer/epl/history-openfootball-v1.json (openfootball, public domain), refreshed by the EPL matchweek workflow before each forecast build. Fixture names resolve to history names through the EPL alias table in leagues.mjs.",
+    "whatPublishes": "Team forecasts (1X2, totals, both teams to score, scorelines, margins, clean sheets) and the score matrix the player projections allocate from — every rung of runEplShadow unchanged.",
+    "control": "While adopted, the previous split-Poisson model is fit on its own corpus at the same cutoff and its probabilities ride the private forecast row. The grader scores both on every graded match.",
+    "forwardTest": "Paired per-match log loss, new minus previous, over graded forecasts generated on or after adoptedAt. ACCUMULATING below minimumN; then FORWARD_BREACHED when the whole 95% event-bootstrap interval (resamples, seed below) is above zero, otherwise FORWARD_HOLDING (flagged watch when worse on the point estimate).",
+    "reversal": "A FORWARD_BREACHED receipt makes the next build publish the previous model (match-model.mjs). The receipt is rebuilt before the forecasts in every matchweek run.",
+    "population": "Exactly what the grader grades: pre-kickoff forecasts of record on the priced rung (CURRENT_PRE_EVENT), official full-time results."
+  },
+
+  "frozen": {
+    "adoptedAt": "2026-09-14T17:00:00Z",
+    "minimumN": 60,
+    "bootstrap": { "resamples": 2000, "seed": 20260918 }
+  }
+}

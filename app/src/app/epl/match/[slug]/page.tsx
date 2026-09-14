@@ -130,7 +130,11 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
       */}
       <section className="mt-5" style={{ ...PANEL, borderColor: "color-mix(in srgb, var(--sport-soccer) 40%, var(--vault-rule))" }}>
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6 }}>
-          <strong style={{ color: soccer }}>Not validated out of sample.</strong> {trackRecordLine} These are the
+          {set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY" && set.validationNote ? (
+            <><strong style={{ color: soccer }}>Tested blind on past seasons.</strong> {set.validationNote} {trackRecordLine} These are the</>
+          ) : (
+            <><strong style={{ color: soccer }}>Not validated out of sample.</strong> {trackRecordLine} These are the</>
+          )}
           model&apos;s own probability distributions, published so you can see what it says — not picks, not advice,
           and not compared against any price.
         </p>

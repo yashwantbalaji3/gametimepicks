@@ -86,6 +86,9 @@ export function fitEplStrength({ rows, cutoffIso, halfLifeDays = null }) {
 
 /** λ pair for one fixture under the state. Cold-start clubs use 1.0 multipliers, stated. */
 export function lambdasFor(state, homeClub, awayClub, { shrinkK = 0 } = {}) {
+  /* A state that carries its own λ rule (the P304 Elo-Poisson model, elo-poisson.mjs) supplies it; the score
+     matrix and everything read off it stay this module's, so both models publish the same shapes. */
+  if (typeof state?.lambdasFor === "function") return state.lambdasFor(homeClub, awayClub);
   const { LAMBDA_FLOOR, COLD_START_MULTIPLIER } = EPL_POISSON_PARAMS;
   const h = state.stats.get(normalizeClubName(homeClub));
   const a = state.stats.get(normalizeClubName(awayClub));

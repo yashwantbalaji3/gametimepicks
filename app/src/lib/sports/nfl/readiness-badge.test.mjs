@@ -53,7 +53,8 @@ test("THE DEFECT IS REPRODUCED FROM THE ARTIFACTS — not argued about", () => {
     assert.ok(pub.forecasts.every(sharedPrior), "every current preseason forecast is a declared shared prior");
   } else {
     assert.ok(pub.forecasts.every((f) => !sharedPrior(f)), "every regular forecast declares its applied team evidence");
-    assert.ok(distinct.size > 1, "regular forecasts are event-specific — one repeated score would be the old defect back");
+    /* A single live forecast (the week's last game) cannot repeat a score, so the check needs two to mean anything. */
+    if (pub.forecasts.length > 1) assert.ok(distinct.size > 1, "regular forecasts are event-specific — one repeated score would be the old defect back");
   }
 });
 

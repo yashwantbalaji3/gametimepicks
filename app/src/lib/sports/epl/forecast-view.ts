@@ -78,6 +78,8 @@ export interface EplForecastRow {
 export interface EplForecastSet {
   generatedAt: string;
   validation: string;
+  /** P304: what the validation rests on, in words — present when the blind-tested model publishes. */
+  validationNote?: string | null;
   trackRecord: string;
   note: string;
   counts: Record<string, number>;

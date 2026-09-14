@@ -26,7 +26,11 @@ const exists = (rel) => fs.existsSync(path.join(OUT, rel, "index.html"));
 test("BUILT · the NFL hub's ranked boards can be filtered", { skip: !exists("nfl") && "no export" }, () => {
   const main = mainOf(path.join(OUT, "nfl", "index.html"));
   const buttons = (main.match(/<button\b/g) ?? []).length;
-  assert.ok(buttons >= 8, `the NFL hub renders ${buttons} controls — a 45-row ranked board needs a way in`);
+  /* The team chips are one per club on the published boards, so the floor follows the boards: a full week's
+     45-row board offers ~30 clubs, the week's last game offers two. Every club must still be reachable. */
+  const wb = path.join(process.cwd(), "public/data/nfl/weekly-boards/latest.json");
+  const teams = fs.existsSync(wb) ? new Set(JSON.parse(fs.readFileSync(wb, "utf8")).boards.flatMap((b) => (b.rows ?? []).map((r) => r.team))).size : 7;
+  assert.ok(buttons >= 1 + teams, `the NFL hub renders ${buttons} controls for ${teams} clubs on its ranked boards — every club needs a way in`);
   assert.match(main, /All teams/, "a team filter is offered");
   assert.match(main, /type="search"/, "…and a player search beside it");
 });

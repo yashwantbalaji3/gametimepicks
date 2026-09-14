@@ -252,6 +252,22 @@ jobs:
       # probabilities, and that refusal must fail the run rather than be swallowed. A forecast set
       # that looks like coverage and carries no prediction is worse than an absent one.
       #
+      # P304 adoption (founder-approved 2026-09-14): the blind forward receipt is rebuilt from the graded ledger BEFORE the
+      # forecasts, so a breach (the new model significantly worse than the one it replaced) publishes the previous
+      # model in this same run.
+      - name: EPL blind forward receipt (new model vs the model it replaced)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/epl/build-epl-forward-receipt.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      # The Elo-Poisson model folds openfootball's EPL results (public domain). A failed refresh keeps the committed
+      # history — the step shows red, the forecasts still build from the last capture.
+      - name: Refresh the EPL results history (openfootball)
+        continue-on-error: true
+        working-directory: app
+        run: node scripts/soccer/capture-openfootball.mjs --leagues epl
+
       # tsx AND app/ as cwd: the builder now reads the corpus through lib/sports/epl/corpus.mjs and
       # derives its trackRecord sentence from graded-record.ts, which plain node cannot load and
       # which resolves its paths relative to app/. Caught by workflow-script-cwd.test.mjs before it
@@ -347,12 +363,14 @@ jobs:
                   data/internal/research/epl/model-read \
                   data/internal/research/epl/corpus-current-season.json \
                   data/internal/research/epl/learning \
+                  data/internal/research/epl/forward \
+                  data/internal/research/soccer/epl \
                   data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
           # P257: a same-day rebase conflict on these regenerated files failed this job twice (Sep 5, Sep 6).
           # The helper retries and resolves a conflict INSIDE these generated paths to this run's copy; any
           # other conflict fails loud.
-          GENERATED_PATHS="app/public/data/soccer/epl app/public/data/parlays/tier-grid app/public/data/admin/epl-lane.json app/public/data/parlays/risk-ladder-epl data/internal/research/epl/forecasts data/internal/research/epl/model-read data/internal/research/epl/corpus-current-season.json data/internal/research/epl/learning" \
+          GENERATED_PATHS="app/public/data/soccer/epl app/public/data/parlays/tier-grid app/public/data/admin/epl-lane.json app/public/data/parlays/risk-ladder-epl data/internal/research/epl/forecasts data/internal/research/epl/model-read data/internal/research/epl/corpus-current-season.json data/internal/research/epl/learning data/internal/research/epl/forward data/internal/research/soccer/epl" \
             bash scripts/ci/commit-generated.sh "auto: epl matchweek refresh $(date -u +%Y-%m-%d) [skip ci]"
 
       # Runs AFTER the commit, deliberately. It used to sit before, and a legitimate skip — the

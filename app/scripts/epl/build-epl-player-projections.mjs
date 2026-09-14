@@ -117,8 +117,12 @@ const SIM_FLOOR = simBacktest?.locked?.weightFloor ?? 0;
  */
 const { loadEplCorpus } = await import("../../src/lib/sports/epl/corpus.mjs");
 const matchCorpus = loadEplCorpus(REPO);
-const { fitEplStrength, scoreMatrix } = await import("../../src/lib/sports/epl/strength-state.mjs");
-const strengthState = fitEplStrength({ rows: matchCorpus.rows, cutoffIso: NOW });
+const { scoreMatrix } = await import("../../src/lib/sports/epl/strength-state.mjs");
+/* P304: the SAME model selection as the team forecasts, so scorer probabilities are allocated from the score
+   matrix the fixture's team card publishes. matchCorpus stays the previous model's corpus for the control fit. */
+const { selectEplMatchModel } = await import("../../src/lib/sports/epl/match-model.mjs");
+const strengthState = selectEplMatchModel({ repoRoot: REPO, nowIso: NOW }).state;
+void matchCorpus;
 
 /* Every measured-and-rejected market, gathered from the reports themselves. */
 const rejected = [];

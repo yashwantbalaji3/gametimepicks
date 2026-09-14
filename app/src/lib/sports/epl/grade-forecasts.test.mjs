@@ -27,6 +27,17 @@ const results = (rows, extra = {}) => ({
   seasonStart: "2026-08-21", completedCount: rows.filter((r) => r.status === "FT").length, ...extra,
 });
 
+test("P304 · a forecast row carrying the replaced model's probabilities grades that control on the same match", () => {
+  const { byEvent } = indexForecasts([artifact("forecasts/2026-08-21.json", "2026-08-21T09:00:00Z", [{ ...fcRow(), control: { modelId: "epl-model-v1-split-poisson", probs: { home: 0.5, draw: 0.3, away: 0.2 } } }])]);
+  const { graded } = buildGradedRows({ forecasts: byEvent, results: results([{ eventId: EV, status: "FT", homeGoalsFT: 2, awayGoalsFT: 0 }]) });
+  assert.equal(graded.length, 1);
+  assert.equal(graded[0].control.modelId, "epl-model-v1-split-poisson");
+  assert.equal(graded[0].control.probabilityOfActual, 0.5);
+  assert.ok(Math.abs(graded[0].control.logLoss - -Math.log(0.5)) < 1e-6);
+  const { byEvent: plain } = indexForecasts([artifact("forecasts/2026-08-21.json", "2026-08-21T09:00:00Z", [fcRow()])]);
+  assert.equal(buildGradedRows({ forecasts: plain, results: results([{ eventId: EV, status: "FT", homeGoalsFT: 2, awayGoalsFT: 0 }]) }).graded[0].control, undefined, "no control, no control block");
+});
+
 test("a forecast generated AT OR AFTER kickoff is refused, never graded", () => {
   const { byEvent, refused } = indexForecasts([
     artifact("forecasts/2026-08-21.json", "2026-08-21T19:00:00Z", [fcRow()]),   // exactly at kickoff

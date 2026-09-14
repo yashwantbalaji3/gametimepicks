@@ -281,7 +281,11 @@ export default function EplPage() {
           {/* SCOPE THE CLAIM TO ITS HEAD (P241 · A07): "not validated" here is about the TEAM
               match model; a validated player head renders further down with its own receipt.
               Unscoped, the two banners read as one model contradicting itself. */}
-          <strong style={{ color: "var(--sport-soccer)" }}>Team match model — not validated out of sample.</strong>{" "}
+          {set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY" && set.validationNote ? (
+            <><strong style={{ color: "var(--sport-soccer)" }}>Team match model — tested blind on past seasons.</strong>{" "}{set.validationNote}{" "}</>
+          ) : (
+            <><strong style={{ color: "var(--sport-soccer)" }}>Team match model — not validated out of sample.</strong>{" "}</>
+          )}
           {/* The FALLBACK fires only when the artifact is unreadable, so it must not assert a record
               either way. It used to claim no match had been graded, which was a statement about the
               world made from an inability to read a file — and it became false the night the first
