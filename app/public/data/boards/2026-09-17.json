@@ -1,0 +1,87 @@
+{
+  "generatedFor": "2026-09-17",
+  "generatedAt": "2026-09-14T10:45:11+00:00",
+  "dataSources": [],
+  "isDemo": false,
+  "leans": [],
+  "scheduleAvailable": false,
+  "propsAvailable": false,
+  "scheduleSource": "unavailable",
+  "oddsSource": "unavailable",
+  "games": [],
+  "dataMode": "ScheduleUnavailable",
+  "failureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
+  "emptySlateClassification": "PROVIDER_FAILURE",
+  "requestedDate": "2026-09-17",
+  "timezone": "America/New_York",
+  "scheduleProviderStatus": "failed",
+  "scheduleFetchAttempted": true,
+  "scheduleFetchSucceeded": false,
+  "scheduleFailureReason": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)",
+  "rawGameCountBeforeFiltering": 0,
+  "parsedGameCountAfterFiltering": 0,
+  "manualOverrideUsed": false,
+  "manualOverrideSource": null,
+  "endpointHistory": [
+    {
+      "endpoint": "scoreboardv2",
+      "status": "error",
+      "raw_count": 0,
+      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)"
+    },
+    {
+      "endpoint": "leaguegamefinder",
+      "status": "error",
+      "raw_count": 0,
+      "error": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)"
+    }
+  ],
+  "scheduleProviderHistory": [
+    {
+      "provider": "manual",
+      "status": "no_match",
+      "games": 0,
+      "error": null
+    },
+    {
+      "provider": "nba_api",
+      "status": "failed",
+      "games": 0,
+      "error": "scoreboardv2: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25); leaguegamefinder: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=25)"
+    },
+    {
+      "provider": "espn_scoreboard",
+      "status": "ok",
+      "games": 0,
+      "error": null
+    }
+  ],
+  "oddsProviderStatus": "not_configured",
+  "oddsFetchAttempted": false,
+  "oddsFetchSucceeded": false,
+  "oddsFailureReason": null,
+  "rawOddsEventCount": 0,
+  "matchedOddsEventCount": 0,
+  "attemptedOddsEventCount": 0,
+  "parsedPropCount": 0,
+  "oddsCacheStatus": "miss",
+  "oddsCachedAt": null,
+  "oddsQuotaRemaining": null,
+  "oddsQuotaUsed": null,
+  "oddsLastCallCost": null,
+  "oddsCostEstimatePerRun": 0,
+  "oddsBookmakers": [
+    "draftkings",
+    "fanduel"
+  ],
+  "oddsMarketsRequested": [
+    "player_points",
+    "player_rebounds",
+    "player_assists",
+    "player_threes",
+    "player_points_rebounds_assists",
+    "player_blocks",
+    "player_steals"
+  ],
+  "oddsRegions": "us"
+}

@@ -1,14 +1,14 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-13T15:09:14.094Z",
+  "generatedAt": "2026-09-14T13:35:34.076Z",
   "canonical": {
-    "record": "30-23",
-    "bankroll": 17715.4,
+    "record": "31-24",
+    "bankroll": 17565.4,
     "crown": 20465.4,
-    "drawdown": 2750,
-    "profit": 17615.4,
-    "roiMultiple": 176.15,
-    "portfolioMd5": "26efb305f3d38c7b78525bc0d8b1d9f8"
+    "drawdown": 2900,
+    "profit": 17465.4,
+    "roiMultiple": 174.65,
+    "portfolioMd5": "6503d6ae247bc85c712e1addfb2410b1"
   },
   "moneyGate": {
     "crownMinusDrawdownEqualsBankroll": true,
@@ -16,13 +16,13 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-09-13",
-    "dailyPortfolioDate": "2026-09-13",
-    "activeBankroll": 17715.4,
+    "date": "2026-09-14",
+    "dailyPortfolioDate": "2026-09-14",
+    "activeBankroll": 17565.4,
     "openExposure": 250,
     "worldCupGames": 0,
-    "mlbGames": 15,
-    "mlbSlate": "2026-09-13"
+    "mlbGames": 10,
+    "mlbSlate": "2026-09-14"
   },
   "sportsbook": {
     "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
@@ -30,15 +30,15 @@
       {
         "source": "mlb/team-markets",
         "state": "CURRENT",
-        "artifactDate": "2026-09-13",
-        "generatedAt": "2026-09-13T10:25:44.692Z",
+        "artifactDate": "2026-09-14",
+        "generatedAt": "2026-09-14T10:47:06.346Z",
         "ageDays": 0
       },
       {
         "source": "mlb/player-props",
         "state": "CURRENT",
-        "artifactDate": "2026-09-13",
-        "generatedAt": "2026-09-13T10:25:45.524Z",
+        "artifactDate": "2026-09-14",
+        "generatedAt": "2026-09-14T10:47:07.195Z",
         "ageDays": 0
       }
     ]
@@ -48,7 +48,7 @@
     "moonshot": "active · 2 lane(s)",
     "top10": "live",
     "worldCup": "dormant (no board)",
-    "mlb": "live · 15 game(s)",
+    "mlb": "live · 10 game(s)",
     "wcSpecials": "0 card(s)"
   },
   "products": {
@@ -58,27 +58,27 @@
         {
           "lane": "A",
           "status": "active",
-          "step": 3,
+          "step": 1,
           "legs": 2,
-          "combinedOdds": 124,
-          "stake": 712.7,
-          "potentialReturn": 1593.35,
+          "combinedOdds": 114,
+          "stake": 100,
+          "potentialReturn": 214.27,
           "selections": [
-            "Milwaukee Brewers to win",
-            "Los Angeles Angels +1.5"
+            "Los Angeles Dodgers to win",
+            "Baltimore Orioles +1.5"
           ]
         },
         {
           "lane": "B",
           "status": "active",
-          "step": 1,
+          "step": 2,
           "legs": 2,
-          "combinedOdds": 206,
-          "stake": 100,
-          "potentialReturn": 305.95,
+          "combinedOdds": 200,
+          "stake": 305.95,
+          "potentialReturn": 919.32,
           "selections": [
-            "Miami Marlins +1.5",
-            "San Diego Padres to win"
+            "Cleveland Guardians to win",
+            "San Diego Padres -1.5"
           ]
         }
       ]
@@ -89,14 +89,14 @@
         {
           "lane": "A",
           "status": "active",
-          "step": 3,
+          "step": 1,
           "legs": 2,
-          "combinedOdds": 150,
-          "stake": 400.22,
-          "potentialReturn": 1001.36,
+          "combinedOdds": 300,
+          "stake": 25,
+          "potentialReturn": 100,
           "selections": [
-            "Los Angeles Dodgers to win",
-            "Boston Red Sox to win"
+            "Over 8",
+            "Colorado Rockies +1.5"
           ]
         },
         {
@@ -104,28 +104,28 @@
           "status": "active",
           "step": 1,
           "legs": 2,
-          "combinedOdds": 300,
+          "combinedOdds": 301,
           "stake": 25,
-          "potentialReturn": 100.06,
+          "potentialReturn": 100.18,
           "selections": [
-            "Milwaukee Brewers -1.5",
-            "Over 10"
+            "Atlanta Braves +1.5",
+            "Arizona Diamondbacks -1.5"
           ]
         }
       ]
     },
     "forwardCoverage": {
       "present": true,
-      "date": "2026-09-13",
-      "generatedAt": "2026-09-13T14:54:04Z",
+      "date": "2026-09-14",
+      "generatedAt": "2026-09-14T10:56:46Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 12,
-            "priced": 12,
-            "generated": 2,
+            "scheduled": 11,
+            "priced": 11,
+            "generated": 1,
             "frozen": 0,
             "started": 0
           },
@@ -135,39 +135,39 @@
         },
         {
           "sport": "ufc",
-          "state": "STARTED",
+          "state": "DERIVED",
           "counts": {
-            "scheduled": 0,
+            "scheduled": 13,
             "priced": 0,
-            "generated": 0,
+            "generated": 11,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "CARD_STARTED:Noche UFC: Silva vs. Delgado started 2026-09-12T18:00Z — no longer forward coverage"
+            "SKIPPED_TYPED:1 bout(s) skipped with reasons (population-exact)"
           ]
         },
         {
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 30,
-            "priced": 30,
+            "scheduled": 17,
+            "priced": 17,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:30 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:17 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
           "sport": "mlb",
           "state": "DAILY_BY_CONTRACT",
           "counts": {
-            "scheduled": 15,
-            "priced": 15,
-            "generated": 15,
+            "scheduled": 10,
+            "priced": 10,
+            "generated": 10,
             "frozen": 0,
             "started": 0
           },
@@ -178,14 +178,14 @@
       ]
     },
     "dailyLifecycle": {
-      "receiptDate": "2026-09-13",
+      "receiptDate": "2026-09-14",
       "present": true,
-      "generatedAt": "2026-09-13T14:54:03Z",
+      "generatedAt": "2026-09-14T10:56:45Z",
       "watchdog": [
         {
-          "product": "epl-cards",
-          "kind": "STALE_ACTIVE_CARD",
-          "detail": "locked 2026-09-12T22:44:08Z, still ACTIVE"
+          "product": "end-zone-vault",
+          "kind": "INCIDENT_OPEN",
+          "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-14"
         }
       ],
       "states": {
@@ -198,7 +198,7 @@
           "policyVersion": "moonshot@2"
         },
         "end-zone-vault": {
-          "state": "NO_PLAY",
+          "state": "INCIDENT",
           "policyVersion": "end-zone-vault@1"
         },
         "homer-nukes": {
@@ -210,11 +210,11 @@
           "policyVersion": "ufc-cards@1"
         },
         "epl-cards": {
-          "state": "ACTIVE",
+          "state": "NO_PLAY",
           "policyVersion": "epl-cards@1"
         },
         "mlb-cards": {
-          "state": "AWAITING_RESULT",
+          "state": "ACTIVE",
           "policyVersion": "mlb-cards@1"
         },
         "multi-cards": {
@@ -229,16 +229,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-13T15:04:56.665Z",
-    "ageHours": 0.1,
+    "lastRunAt": "2026-09-14T13:33:32.257Z",
+    "ageHours": 0,
     "ok": false,
     "status": "fail",
     "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
-    "etDate": "2026-09-13",
-    "etTime": "11:09",
+    "etDate": "2026-09-14",
+    "etTime": "09:35",
     "stages": [
       {
         "stage": "schedule",
@@ -291,12 +291,12 @@
   },
   "learningLoop": {
     "signal": "GREEN",
-    "summary": "learning data complete through 2026-09-12 (43969 rows)",
+    "summary": "learning data complete through 2026-09-13 (44559 rows)",
     "freshness": {
       "healthy": true,
-      "asOfSettledDate": "2026-09-12",
-      "corpusRows": 43969,
-      "ledgerRows": 43969,
+      "asOfSettledDate": "2026-09-13",
+      "corpusRows": 44559,
+      "ledgerRows": 44559,
       "lagDays": 0,
       "problems": []
     },
@@ -345,9 +345,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-09-13",
-  "nextRefreshDate": "2026-09-14",
-  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-09-13's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
+  "nextSettlementDate": "2026-09-14",
+  "nextRefreshDate": "2026-09-15",
+  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-09-14's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }

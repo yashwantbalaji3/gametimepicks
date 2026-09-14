@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "event-identity-audit",
   "dataClass": "INTERNAL_DERIVED",
-  "generatedAt": "2026-09-13T13:54:41Z",
+  "generatedAt": "2026-09-14T13:24:40Z",
   "state": "FINDINGS",
   "note": "Identity and slug reconciliation across every sport's committed artifacts. NO_EVENTS means the checks were vacuous for that sport, which is a statement about the window rather than a pass.",
   "sports": [
     {
       "sport": "mlb",
       "verdict": "FINDINGS",
-      "rows": 2658,
+      "rows": 2688,
       "populations": [
         {
           "scope": "boards/2026-05-16",
@@ -1192,6 +1192,24 @@
           "rows": 15,
           "identified": 15,
           "findings": 0
+        },
+        {
+          "scope": "boards/2026-09-14",
+          "rows": 10,
+          "identified": 10,
+          "findings": 0
+        },
+        {
+          "scope": "full-game-simulations/2026-09-14",
+          "rows": 10,
+          "identified": 10,
+          "findings": 0
+        },
+        {
+          "scope": "predictions/2026-09-14",
+          "rows": 10,
+          "identified": 10,
+          "findings": 0
         }
       ],
       "findings": [
@@ -1249,7 +1267,7 @@
     {
       "sport": "nfl",
       "verdict": "OK",
-      "rows": 44,
+      "rows": 32,
       "populations": [
         {
           "scope": "schedule/latest",
@@ -1259,8 +1277,8 @@
         },
         {
           "scope": "index.events",
-          "rows": 14,
-          "identified": 14,
+          "rows": 2,
+          "identified": 2,
           "findings": 0
         }
       ],
@@ -1291,12 +1309,12 @@
     {
       "sport": "epl",
       "verdict": "OK",
-      "rows": 33,
+      "rows": 35,
       "populations": [
         {
           "scope": "graded-picks",
-          "rows": 33,
-          "identified": 33,
+          "rows": 35,
+          "identified": 35,
           "findings": 0
         }
       ],
@@ -1305,7 +1323,7 @@
     }
   ],
   "totals": {
-    "rows": 2759,
+    "rows": 2779,
     "findings": 8
   }
 }
