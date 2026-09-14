@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "artifact": "anytime-td-historical-replay-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "301",
+  "charterSection": "4B-NFL",
+  "registeredAt": "2026-09-14T15:30:00Z",
+
+  "whyThisExists": "The public anytime-touchdown probabilities (anytime-td-v1) come from scorer-touchdown shares shrunk hard toward zero (tdShrink 2, chosen on 2024 log loss), times a team touchdown rate. That is the same share rule P300 found biasing yardage projections low, applied more strongly. The committed held-out 2025 reliability table shows it: every bin up to 0.3 predicted too low (0.081 vs 0.109, 0.145 vs 0.188, 0.244 vs 0.295), with a mean predicted about 0.19 against 0.23 actual, and the receipt still passed its ECE bar (0.039). The 2026 Week 1 report shows the same thing: 168 graded players carried 37.6 expected scorers and 47 scored. This registration tests two replayable touchdown models on eight seasons whose touchdown outcomes have never been scored by any model or diagnostic (2014-2021), against a replay of the live rule and a recent-form baseline.",
+
+  "relationToExistingEvidence": {
+    "anytime-td-v1-calibration.json": "Untouched. The live engine keeps publishing; this file cannot change it. Its chain (Elo, game-sim score means, scoring bridge, pool flattening) needs inputs that do not exist before 2023, so it cannot be replayed exactly.",
+    "tdShareShrunk baseline": "A REPLAYABLE PROXY of the live rule, not the live engine: scorer-touchdown share with the live shrink (k 2) and the same half-life and boundary decay, times a team-form touchdown rate. It omits the live engine's pool flattening (beta 0.25) and its game-script scoring chain. A result against it is stated as a result against this proxy.",
+    "P299 and P300": "Those studies read the same player-game population for yardage and receptions on 2014-2021. They computed no touchdown figure; the touchdown columns did not exist in the table they used."
+  },
+
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "The committed anytime-td-v1 receipt (held-out 2025 reliability table, ECE, log loss) and its selection grid.",
+    "The public 2026 Week 1 reconciliation: 168 graded touchdown chances, mean 0.224 against a scored rate of 0.280; the likeliest scorer scored in 9 of 13 graded games.",
+    "Everything disclosed by P299 and P300 (yardage and receptions results on 2014-2021; no touchdown outcome).",
+    "While building data/internal/research/nfl/replay/player-games-v2.json.gz: identity and participation accounting per season only (identical to v1: 88,576 player-games).",
+    "DEV SEASONS 2022-2025 ONLY, one --validate run of this script with the frozen block below. League constants from the 2013 warm-up: rush TD per carry 0.02981, receiving TD per target 0.04505, team rushing TDs per game 0.81086, team receiving TDs per game 1.56554, other TDs per player-game 0.00296, anytime rate 0.21355. Dev (n 18,614): opportunityTd log loss 0.4880, ECE 0.013, level 1.044, likeliest-scorer hit 0.432. tdShareLevel 0.5913, ECE 0.081, level 0.942. tdShareShrunk 0.5973, ECE 0.080, level 0.668. rollingRate 0.5079, ECE 0.030, level 1.013. opportunityTd had the lowest log loss in every dev season, with level between 1.018 and 1.065; its 2022 level (1.065) and 2025 level (1.054) are inside the band but near its top. No constant was changed after that run.",
+    "No 2014-2021 touchdown outcome has been compared with any prediction."
+  ],
+
+  "data": {
+    "table": "player-games-v2 (hash-pinned): the P299 population and participation truth plus rushTd, recTd and otherTd (special-teams + own-fumble-recovery touchdowns) per player-game, and team rushing/receiving touchdown totals per team-game.",
+    "outcome": "A player-game scores when rushTd + recTd + otherTd >= 1, the way anytime-TD settles (a passing touchdown does not count).",
+    "population": "Before each team-game, players whose latest played game was for that team and whose no-pull carry share or target share is at least 0.05. No stat row in that game: VOID (did not play), counted, never scored. UNKNOWN participation: quarantined, counted. PLAYED_NO_ROW: scored as a real zero."
+  },
+
+  "models": {
+    "shared": "Walk-forward by game date; every prediction uses strictly earlier dates. Team touchdown form: decayed team rushing and receiving touchdowns per game (half-life 8 team games, season boundary 0.25), seeded at the 2013 league means. Shares restart when a player changes teams. P(anytime) = 1 - exp(-mu), clipped to [0.0001, 0.9999].",
+    "opportunityTd (candidate)": "mu = carryShare x teamRushTd x rushEfficiency + targetShare x teamRecTd x recEfficiency + otherTdPerPlayerGame. Shares are no-pull decayed shares (half-life 4, boundary 0.25). Efficiency = the player's decayed touchdown rate per carry (per target), shrunk toward the league rate with 100 prior carries (targets; rate half-life 8, boundary 0.25), divided by the league rate.",
+    "tdShareLevel (candidate)": "mu = (teamRushTd + teamRecTd) x scorer-touchdown share with no pull toward zero + otherTdPerPlayerGame. The share observation is the player's rush+receiving TDs / team rush+receiving TDs, recorded only in team-games with at least one.",
+    "tdShareShrunk (baseline)": "As tdShareLevel with the share shrunk toward zero by k 2: the replayable proxy of the live rule.",
+    "rollingRate (baseline)": "The player's anytime-scoring rate over his last 8 played games (all teams), with 4 pseudo-games at the league anytime rate."
+  },
+
+  "heldOutSet": {
+    "seasons": "2014-2021 REG+POST",
+    "eras": "2014-2017 and 2018-2021",
+    "scoringMoment": "ONE look: scripts/research/nfl/replay-anytime-td.mjs --score, which refuses unless this file is committed and unmodified, and refuses if the evaluation exists."
+  },
+
+  "frozenBars": {
+    "perCandidate": {
+      "beatsEveryBaseline": "log loss strictly below every baseline's, overall and in each era",
+      "improvementIsNotNoise": "season-block bootstrap (2000 resamples, seed 20260916) 95% upper bound of the mean per-player-game log-loss difference versus the better baseline strictly below 0",
+      "calibration": "ECE (10 equal-width bins) at most 0.03 overall and at most 0.04 in each era",
+      "level": "mean predicted / actual scoring rate within [0.92, 1.08] overall and in each era",
+      "minimumN": "at least 1000 scored player-games"
+    }
+  },
+
+  "decisionRule": "Each candidate is ELIGIBLE only if every bar passes, else REJECTED and recorded. If both are ELIGIBLE the recommendation is the lower held-out log loss, a disclosed choice between two registered finalists. Nothing publishes from the evaluation. Replacing the live anytime-TD probabilities is its own reviewed, founder-approved app/ step, and would also run a blind forward test like P300. A REJECTED candidate is not retried by adjusting it.",
+
+  "reportedDiagnostics": "Per model: overall, per-era and per-season log loss, Brier, ECE, level and the reliability table; the likeliest-scorer hit rate per team-game (the public report's check). Population: scored, positives, void, quarantined, played-with-no-stat-row scored per season.",
+
+  "whatIsNotAllowed": "No 2014-2021 outcome may choose a constant, gate, prior, grid value, bar or era. No second --score run. No sportsbook price or market input. No injury, depth-chart or game-script input.",
+
+  "frozen": {
+    "seasons": { "warmup": [2013, 2013], "heldOut": [2014, 2021], "dev": [2022, 2025] },
+    "eras": [[2014, 2017], [2018, 2021]],
+    "candidates": ["opportunityTd", "tdShareLevel"],
+    "baselines": ["tdShareShrunk", "rollingRate"],
+    "gate": { "carryShare": 0.05, "targetShare": 0.05 },
+    "share": { "halfLifeGames": 4, "boundaryDecay": 0.25 },
+    "rate": { "halfLifeGames": 8, "boundaryDecay": 0.25 },
+    "teamForm": { "halfLifeGames": 8, "boundaryDecay": 0.25 },
+    "opportunityTd": { "rushPriorCarries": 100, "recPriorTargets": 100 },
+    "baselineTdShrinkK": 2,
+    "rolling": { "games": 8, "pseudoGames": 4 },
+    "probabilityClip": 0.0001,
+    "bars": { "eceMax": 0.03, "eceEraMax": 0.04, "eceBins": 10, "levelBand": [0.92, 1.08], "minimumN": 1000 },
+    "bootstrap": { "unit": "season", "resamples": 2000, "seed": 20260916 },
+    "inputs": {
+      "playerGamesSha256": "a93c56c430c61a915a8be972c91698a33e2a897d4ca93fd19281fe066ef2230d",
+      "buildScriptSha256": "6f274a45b46b15f3a7704bd8830f660923894599cfabf74d4260cb366193fc39"
+    }
+  },
+
+  "output": "data/internal/research/nfl/reports/anytime-td-historical-replay-evaluation.json (written once)"
+}
