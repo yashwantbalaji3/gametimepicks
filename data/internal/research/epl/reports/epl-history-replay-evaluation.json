@@ -1,0 +1,445 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-history-replay-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "program": "304",
+ "generatedAt": "2026-09-14T16:12:46Z",
+ "preregistration": {
+  "path": "data/internal/research/epl/reports/epl-history-replay-preregistration.json",
+  "commit": "2b892186142cf4c74b538a27ae83b712db71fe22 2026-09-14T12:12:46-04:00"
+ },
+ "scriptSha256": "2f86505e6324f3b38b0cdd7ff8161140e363dffb09bc6b523382d606a8408075",
+ "supremacySlope": 0.5851,
+ "results": {
+  "eloPoisson": {
+   "overall": {
+    "n": 3420,
+    "logLoss": 0.97351,
+    "rps": 0.19997,
+    "ece": 0.01501,
+    "over25Brier": 0.25021
+   },
+   "eras": {
+    "2013-14..2017-18": {
+     "n": 1900,
+     "logLoss": 0.97527,
+     "rps": 0.19811,
+     "ece": 0.01861,
+     "over25Brier": 0.25043
+    },
+    "2018-19..2021-22": {
+     "n": 1520,
+     "logLoss": 0.9713,
+     "rps": 0.20229,
+     "ece": 0.01444,
+     "over25Brier": 0.24993
+    }
+   },
+   "seasons": {
+    "2013-14": {
+     "n": 380,
+     "logLoss": 0.9399,
+     "rps": 0.19466,
+     "ece": 0.03091,
+     "over25Brier": 0.2502
+    },
+    "2014-15": {
+     "n": 380,
+     "logLoss": 0.99554,
+     "rps": 0.20397,
+     "ece": 0.03948,
+     "over25Brier": 0.24989
+    },
+    "2015-16": {
+     "n": 380,
+     "logLoss": 1.03655,
+     "rps": 0.2102,
+     "ece": 0.04727,
+     "over25Brier": 0.25195
+    },
+    "2016-17": {
+     "n": 380,
+     "logLoss": 0.93505,
+     "rps": 0.19,
+     "ece": 0.02292,
+     "over25Brier": 0.24921
+    },
+    "2017-18": {
+     "n": 380,
+     "logLoss": 0.96932,
+     "rps": 0.19171,
+     "ece": 0.03004,
+     "over25Brier": 0.25092
+    },
+    "2018-19": {
+     "n": 380,
+     "logLoss": 0.90257,
+     "rps": 0.18915,
+     "ece": 0.01643,
+     "over25Brier": 0.24963
+    },
+    "2019-20": {
+     "n": 380,
+     "logLoss": 0.98341,
+     "rps": 0.20141,
+     "ece": 0.02877,
+     "over25Brier": 0.24962
+    },
+    "2020-21": {
+     "n": 380,
+     "logLoss": 1.04363,
+     "rps": 0.2229,
+     "ece": 0.03168,
+     "over25Brier": 0.25087
+    },
+    "2021-22": {
+     "n": 380,
+     "logLoss": 0.95559,
+     "rps": 0.19571,
+     "ece": 0.02113,
+     "over25Brier": 0.24961
+    }
+   }
+  },
+  "poissonLive": {
+   "overall": {
+    "n": 3420,
+    "logLoss": 0.99376,
+    "rps": 0.20409,
+    "ece": 0.01137,
+    "over25Brier": 0.25359
+   },
+   "eras": {
+    "2013-14..2017-18": {
+     "n": 1900,
+     "logLoss": 1.00036,
+     "rps": 0.20375,
+     "ece": 0.01065,
+     "over25Brier": 0.25434
+    },
+    "2018-19..2021-22": {
+     "n": 1520,
+     "logLoss": 0.98551,
+     "rps": 0.20451,
+     "ece": 0.0151,
+     "over25Brier": 0.25265
+    }
+   },
+   "seasons": {
+    "2013-14": {
+     "n": 380,
+     "logLoss": 0.97751,
+     "rps": 0.20321,
+     "ece": 0.02507,
+     "over25Brier": 0.25223
+    },
+    "2014-15": {
+     "n": 380,
+     "logLoss": 1.00126,
+     "rps": 0.20338,
+     "ece": 0.02302,
+     "over25Brier": 0.25578
+    },
+    "2015-16": {
+     "n": 380,
+     "logLoss": 1.07819,
+     "rps": 0.21976,
+     "ece": 0.05357,
+     "over25Brier": 0.26136
+    },
+    "2016-17": {
+     "n": 380,
+     "logLoss": 0.93628,
+     "rps": 0.19062,
+     "ece": 0.04578,
+     "over25Brier": 0.25384
+    },
+    "2017-18": {
+     "n": 380,
+     "logLoss": 1.00857,
+     "rps": 0.20176,
+     "ece": 0.02614,
+     "over25Brier": 0.24849
+    },
+    "2018-19": {
+     "n": 380,
+     "logLoss": 0.93409,
+     "rps": 0.19524,
+     "ece": 0.02137,
+     "over25Brier": 0.26218
+    },
+    "2019-20": {
+     "n": 380,
+     "logLoss": 1.0094,
+     "rps": 0.20385,
+     "ece": 0.03041,
+     "over25Brier": 0.24248
+    },
+    "2020-21": {
+     "n": 380,
+     "logLoss": 1.03527,
+     "rps": 0.22186,
+     "ece": 0.02626,
+     "over25Brier": 0.26073
+    },
+    "2021-22": {
+     "n": 380,
+     "logLoss": 0.96327,
+     "rps": 0.19709,
+     "ece": 0.02837,
+     "over25Brier": 0.24521
+    }
+   }
+  },
+  "elo": {
+   "overall": {
+    "n": 3420,
+    "logLoss": 0.98303,
+    "rps": 0.20234,
+    "ece": 0.03121,
+    "over25Brier": null
+   },
+   "eras": {
+    "2013-14..2017-18": {
+     "n": 1900,
+     "logLoss": 0.98728,
+     "rps": 0.20133,
+     "ece": 0.03823,
+     "over25Brier": null
+    },
+    "2018-19..2021-22": {
+     "n": 1520,
+     "logLoss": 0.97772,
+     "rps": 0.2036,
+     "ece": 0.02903,
+     "over25Brier": null
+    }
+   },
+   "seasons": {
+    "2013-14": {
+     "n": 380,
+     "logLoss": 0.9666,
+     "rps": 0.2021,
+     "ece": 0.07533,
+     "over25Brier": null
+    },
+    "2014-15": {
+     "n": 380,
+     "logLoss": 0.99903,
+     "rps": 0.20495,
+     "ece": 0.02887,
+     "over25Brier": null
+    },
+    "2015-16": {
+     "n": 380,
+     "logLoss": 1.03854,
+     "rps": 0.21006,
+     "ece": 0.02959,
+     "over25Brier": null
+    },
+    "2016-17": {
+     "n": 380,
+     "logLoss": 0.95442,
+     "rps": 0.19544,
+     "ece": 0.06582,
+     "over25Brier": null
+    },
+    "2017-18": {
+     "n": 380,
+     "logLoss": 0.97779,
+     "rps": 0.1941,
+     "ece": 0.04167,
+     "over25Brier": null
+    },
+    "2018-19": {
+     "n": 380,
+     "logLoss": 0.93059,
+     "rps": 0.19536,
+     "ece": 0.06054,
+     "over25Brier": null
+    },
+    "2019-20": {
+     "n": 380,
+     "logLoss": 0.98551,
+     "rps": 0.20076,
+     "ece": 0.01827,
+     "over25Brier": null
+    },
+    "2020-21": {
+     "n": 380,
+     "logLoss": 1.0276,
+     "rps": 0.22027,
+     "ece": 0.03215,
+     "over25Brier": null
+    },
+    "2021-22": {
+     "n": 380,
+     "logLoss": 0.9672,
+     "rps": 0.19803,
+     "ece": 0.02787,
+     "over25Brier": null
+    }
+   }
+  },
+  "uniform": {
+   "overall": {
+    "n": 3420,
+    "logLoss": 1.09861,
+    "rps": 0.23904,
+    "ece": 0,
+    "over25Brier": null
+   },
+   "eras": {
+    "2013-14..2017-18": {
+     "n": 1900,
+     "logLoss": 1.09861,
+     "rps": 0.23734,
+     "ece": 0,
+     "over25Brier": null
+    },
+    "2018-19..2021-22": {
+     "n": 1520,
+     "logLoss": 1.09861,
+     "rps": 0.24115,
+     "ece": 0,
+     "over25Brier": null
+    }
+   },
+   "seasons": {
+    "2013-14": {
+     "n": 380,
+     "logLoss": 1.09861,
+     "rps": 0.24357,
+     "ece": 0,
+     "over25Brier": null
+    },
+    "2014-15": {
+     "n": 380,
+     "logLoss": 1.09861,
+     "rps": 0.23699,
+     "ece": 0,
+     "over25Brier": null
+    },
+    "2015-16": {
+     "n": 380,
+     "logLoss": 1.09861,
+     "rps": 0.23085,
+     "ece": 0,
+     "over25Brier": null
+    },
+    "2016-17": {
+     "n": 380,
+     "logLoss": 1.09861,
+     "rps": 0.24094,
+     "ece": 0,
+     "over25Brier": null
+    },
+    "2017-18": {
+     "n": 380,
+     "logLoss": 1.09861,
+     "rps": 0.23436,
+     "ece": 0,
+     "over25Brier": null
+    },
+    "2018-19": {
+     "n": 380,
+     "logLoss": 1.09861,
+     "rps": 0.24664,
+     "ece": 0,
+     "over25Brier": null
+    },
+    "2019-20": {
+     "n": 380,
+     "logLoss": 1.09861,
+     "rps": 0.23743,
+     "ece": 0,
+     "over25Brier": null
+    },
+    "2020-21": {
+     "n": 380,
+     "logLoss": 1.09861,
+     "rps": 0.24137,
+     "ece": 0,
+     "over25Brier": null
+    },
+    "2021-22": {
+     "n": 380,
+     "logLoss": 1.09861,
+     "rps": 0.23918,
+     "ece": 0,
+     "over25Brier": null
+    }
+   }
+  }
+ },
+ "bars": {
+  "beatsControlAndElo": {
+   "pass": true,
+   "required": "log loss below the live-rule Poisson and plain Elo, overall and in each era",
+   "observed": {
+    "poissonLive": {
+     "overall": [
+      0.97351,
+      0.99376
+     ],
+     "eras": {
+      "2013-14..2017-18": [
+       0.97527,
+       1.00036
+      ],
+      "2018-19..2021-22": [
+       0.9713,
+       0.98551
+      ]
+     }
+    },
+    "elo": {
+     "overall": [
+      0.97351,
+      0.98303
+     ],
+     "eras": {
+      "2013-14..2017-18": [
+       0.97527,
+       0.98728
+      ],
+      "2018-19..2021-22": [
+       0.9713,
+       0.97772
+      ]
+     }
+    }
+   }
+  },
+  "improvementIsNotNoise": {
+   "pass": true,
+   "required": "season-bootstrap 95% upper bound of the per-match log-loss difference versus the better of the two < 0",
+   "observed": {
+    "versus": "elo",
+    "point": -0.00952,
+    "lo95": -0.01761,
+    "hi95": -0.001
+   }
+  },
+  "calibration": {
+   "pass": true,
+   "required": "1X2 ECE <= 0.03",
+   "observed": 0.01501
+  },
+  "totalsNotWorse": {
+   "pass": true,
+   "required": "over-2.5 Brier not worse than the live-rule Poisson",
+   "observed": [
+    0.25021,
+    0.25359
+   ]
+  },
+  "minimumN": {
+   "pass": true,
+   "required": "n >= 1000",
+   "observed": 3420
+  }
+ },
+ "verdict": "ELIGIBLE",
+ "consequence": "Nothing publishes from this receipt. Changing the live EPL model is its own reviewed, founder-approved app/ step."
+}
