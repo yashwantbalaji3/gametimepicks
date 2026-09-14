@@ -1,0 +1,2003 @@
+{
+ "schemaVersion": 1,
+ "artifact": "matchup-totals-historical-replay-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "program": "295",
+ "generatedAt": "2026-09-13T21:50:00Z",
+ "preregistration": {
+  "path": "data/internal/research/nfl/reports/matchup-totals-historical-replay-preregistration.json",
+  "commit": "e710abeb5857aecb159d1424ca7fceb8602c65a2 2026-09-13T21:12:38-04:00"
+ },
+ "scriptSha256": "a88f08211ec8158681e0a92c94849452e5bb03d8a96c8875a83f83e3396b3ae4",
+ "population": {
+  "heldOutSeasons": [
+   2000,
+   2021
+  ],
+  "heldOutGames": 5878,
+  "heldOutGamesMissingEfficiency": 1,
+  "devSeasons": [
+   2022,
+   2025
+  ],
+  "devGames": 1139
+ },
+ "devFits": {
+  "games": 1139,
+  "pricedGames": 1139,
+  "marketClose": {
+   "sigma": 13.03157
+  },
+  "v2MarketBlend": {
+   "w": 0.97157,
+   "sigma": 13.03127
+  },
+  "v3PlayEfficiency": {
+   "cS": 0.69026,
+   "cE": 10.16225,
+   "cPlays": 0.19513,
+   "stdErr": {
+    "cS": 0.23689,
+    "cE": 4.927,
+    "cPlays": 0.12991
+   },
+   "sigma": 13.32677
+  }
+ },
+ "results": {
+  "incumbentV1": {
+   "overall": {
+    "n": 5878,
+    "meanPredicted": 46.31341,
+    "meanActual": 44.23409,
+    "bias": 2.07931,
+    "mae": 11.15286,
+    "rmse": 13.91661,
+    "meanNll": 4.05442,
+    "coverage80": 0.77714,
+    "sdPredicted": 2.76471
+   },
+   "eras": {
+    "2000-2007": {
+     "n": 2120,
+     "meanPredicted": 44.65917,
+     "meanActual": 42.03774,
+     "bias": 2.62143,
+     "mae": 11.51024,
+     "rmse": 14.21056,
+     "meanNll": 4.07792,
+     "coverage80": 0.76179,
+     "sdPredicted": 2.52153
+    },
+    "2008-2014": {
+     "n": 1869,
+     "meanPredicted": 46.72726,
+     "meanActual": 44.8443,
+     "bias": 1.88296,
+     "mae": 10.84406,
+     "rmse": 13.62981,
+     "meanNll": 4.03196,
+     "coverage80": 0.78705,
+     "sdPredicted": 2.5256
+    },
+    "2015-2021": {
+     "n": 1889,
+     "meanPredicted": 47.76047,
+     "meanActual": 46.09529,
+     "bias": 1.66518,
+     "mae": 11.05731,
+     "rmse": 13.86396,
+     "meanNll": 4.05026,
+     "coverage80": 0.78454,
+     "sdPredicted": 2.238
+    }
+   },
+   "seasons": {
+    "2000": {
+     "n": 259,
+     "meanPredicted": 44.82233,
+     "meanActual": 41.09266,
+     "bias": 3.72966,
+     "mae": 12.3196,
+     "rmse": 15.13969,
+     "meanNll": 4.15544,
+     "coverage80": 0.73359,
+     "sdPredicted": 2.89308
+    },
+    "2001": {
+     "n": 259,
+     "meanPredicted": 43.79157,
+     "meanActual": 40.54054,
+     "bias": 3.25103,
+     "mae": 11.58857,
+     "rmse": 13.87502,
+     "meanNll": 4.05113,
+     "coverage80": 0.75676,
+     "sdPredicted": 2.71555
+    },
+    "2002": {
+     "n": 267,
+     "meanPredicted": 44.83867,
+     "meanActual": 43.65918,
+     "bias": 1.17949,
+     "mae": 11.66795,
+     "rmse": 14.55075,
+     "meanNll": 4.10573,
+     "coverage80": 0.76779,
+     "sdPredicted": 2.38631
+    },
+    "2003": {
+     "n": 267,
+     "meanPredicted": 45.00294,
+     "meanActual": 41.79026,
+     "bias": 3.21267,
+     "mae": 11.30406,
+     "rmse": 13.94886,
+     "meanNll": 4.05697,
+     "coverage80": 0.76779,
+     "sdPredicted": 2.29847
+    },
+    "2004": {
+     "n": 267,
+     "meanPredicted": 44.80643,
+     "meanActual": 43.14607,
+     "bias": 1.66036,
+     "mae": 11.46778,
+     "rmse": 14.34276,
+     "meanNll": 4.08865,
+     "coverage80": 0.77528,
+     "sdPredicted": 2.815
+    },
+    "2005": {
+     "n": 267,
+     "meanPredicted": 44.90686,
+     "meanActual": 41.10112,
+     "bias": 3.80574,
+     "mae": 10.83396,
+     "rmse": 13.19722,
+     "meanNll": 3.99897,
+     "coverage80": 0.79026,
+     "sdPredicted": 2.6516
+    },
+    "2006": {
+     "n": 267,
+     "meanPredicted": 44.15517,
+     "meanActual": 41.51311,
+     "bias": 2.64207,
+     "mae": 11.43815,
+     "rmse": 14.18732,
+     "meanNll": 4.07604,
+     "coverage80": 0.75655,
+     "sdPredicted": 1.95205
+    },
+    "2007": {
+     "n": 267,
+     "meanPredicted": 44.92825,
+     "meanActual": 43.38577,
+     "bias": 1.54249,
+     "mae": 11.48842,
+     "rmse": 14.38305,
+     "meanNll": 4.09194,
+     "coverage80": 0.74532,
+     "sdPredicted": 2.07736
+    },
+    "2008": {
+     "n": 267,
+     "meanPredicted": 46.00111,
+     "meanActual": 44.02622,
+     "bias": 1.9749,
+     "mae": 10.73302,
+     "rmse": 13.85473,
+     "meanNll": 4.04953,
+     "coverage80": 0.78277,
+     "sdPredicted": 2.12125
+    },
+    "2009": {
+     "n": 267,
+     "meanPredicted": 45.76278,
+     "meanActual": 43.16105,
+     "bias": 2.60173,
+     "mae": 10.91377,
+     "rmse": 13.62111,
+     "meanNll": 4.03128,
+     "coverage80": 0.77903,
+     "sdPredicted": 2.24978
+    },
+    "2010": {
+     "n": 267,
+     "meanPredicted": 45.86986,
+     "meanActual": 44.31835,
+     "bias": 1.5515,
+     "mae": 11.01474,
+     "rmse": 13.99928,
+     "meanNll": 4.06098,
+     "coverage80": 0.78652,
+     "sdPredicted": 2.29126
+    },
+    "2011": {
+     "n": 267,
+     "meanPredicted": 46.54321,
+     "meanActual": 44.49064,
+     "bias": 2.05257,
+     "mae": 9.96569,
+     "rmse": 12.61401,
+     "meanNll": 3.95618,
+     "coverage80": 0.82022,
+     "sdPredicted": 2.47787
+    },
+    "2012": {
+     "n": 267,
+     "meanPredicted": 47.11123,
+     "meanActual": 45.77528,
+     "bias": 1.33595,
+     "mae": 10.86208,
+     "rmse": 13.66528,
+     "meanNll": 4.03471,
+     "coverage80": 0.78277,
+     "sdPredicted": 2.60584
+    },
+    "2013": {
+     "n": 267,
+     "meanPredicted": 47.82361,
+     "meanActual": 46.86891,
+     "bias": 0.95469,
+     "mae": 11.22512,
+     "rmse": 14.12311,
+     "meanNll": 4.07088,
+     "coverage80": 0.77528,
+     "sdPredicted": 2.62096
+    },
+    "2014": {
+     "n": 267,
+     "meanPredicted": 47.97906,
+     "meanActual": 45.26966,
+     "bias": 2.7094,
+     "mae": 11.19399,
+     "rmse": 13.47659,
+     "meanNll": 4.02015,
+     "coverage80": 0.78277,
+     "sdPredicted": 2.24082
+    },
+    "2015": {
+     "n": 267,
+     "meanPredicted": 47.43085,
+     "meanActual": 45.46442,
+     "bias": 1.96643,
+     "mae": 10.91155,
+     "rmse": 13.58583,
+     "meanNll": 4.02856,
+     "coverage80": 0.78652,
+     "sdPredicted": 1.9342
+    },
+    "2016": {
+     "n": 267,
+     "meanPredicted": 47.25323,
+     "meanActual": 45.73783,
+     "bias": 1.5154,
+     "mae": 10.21401,
+     "rmse": 12.87156,
+     "meanNll": 3.97484,
+     "coverage80": 0.82022,
+     "sdPredicted": 2.16901
+    },
+    "2017": {
+     "n": 267,
+     "meanPredicted": 46.94006,
+     "meanActual": 43.62921,
+     "bias": 3.31085,
+     "mae": 11.8432,
+     "rmse": 14.90629,
+     "meanNll": 4.1355,
+     "coverage80": 0.74532,
+     "sdPredicted": 1.9014
+    },
+    "2018": {
+     "n": 267,
+     "meanPredicted": 47.44911,
+     "meanActual": 46.55056,
+     "bias": 0.89855,
+     "mae": 11.21023,
+     "rmse": 14.42818,
+     "meanNll": 4.09563,
+     "coverage80": 0.79026,
+     "sdPredicted": 2.29584
+    },
+    "2019": {
+     "n": 267,
+     "meanPredicted": 47.20022,
+     "meanActual": 45.70412,
+     "bias": 1.4961,
+     "mae": 10.93491,
+     "rmse": 13.62104,
+     "meanNll": 4.03128,
+     "coverage80": 0.78277,
+     "sdPredicted": 2.31158
+    },
+    "2020": {
+     "n": 269,
+     "meanPredicted": 49.09289,
+     "meanActual": 49.49071,
+     "bias": -0.39782,
+     "mae": 10.92571,
+     "rmse": 13.66,
+     "meanNll": 4.0343,
+     "coverage80": 0.78439,
+     "sdPredicted": 2.09656
+    },
+    "2021": {
+     "n": 285,
+     "meanPredicted": 48.872,
+     "meanActual": 46.06667,
+     "bias": 2.80533,
+     "mae": 11.34325,
+     "rmse": 13.8825,
+     "meanNll": 4.05172,
+     "coverage80": 0.78246,
+     "sdPredicted": 1.9043
+    }
+   }
+  },
+  "leagueLevelBaseline": {
+   "overall": {
+    "n": 5878,
+    "meanPredicted": 44.08713,
+    "meanActual": 44.23409,
+    "bias": -0.14696,
+    "mae": 11.22562,
+    "rmse": 14.12288,
+    "meanNll": 4.06889,
+    "coverage80": 0.77628,
+    "sdPredicted": 1.95582
+   },
+   "eras": {
+    "2000-2007": {
+     "n": 2120,
+     "meanPredicted": 41.98408,
+     "meanActual": 42.03774,
+     "bias": -0.05365,
+     "mae": 11.54199,
+     "rmse": 14.41181,
+     "meanNll": 4.09154,
+     "coverage80": 0.76462,
+     "sdPredicted": 0.70891
+    },
+    "2008-2014": {
+     "n": 1869,
+     "meanPredicted": 44.62049,
+     "meanActual": 44.8443,
+     "bias": -0.22381,
+     "mae": 11.00604,
+     "rmse": 13.93308,
+     "meanNll": 4.05426,
+     "coverage80": 0.78277,
+     "sdPredicted": 1.17433
+    },
+    "2015-2021": {
+     "n": 1889,
+     "meanPredicted": 45.91964,
+     "meanActual": 46.09529,
+     "bias": -0.17565,
+     "mae": 11.0878,
+     "rmse": 13.9811,
+     "meanNll": 4.05795,
+     "coverage80": 0.78295,
+     "sdPredicted": 1.17091
+    }
+   },
+   "seasons": {
+    "2000": {
+     "n": 259,
+     "meanPredicted": 42.22505,
+     "meanActual": 41.09266,
+     "bias": 1.13239,
+     "mae": 12.5945,
+     "rmse": 15.42508,
+     "meanNll": 4.17459,
+     "coverage80": 0.71815,
+     "sdPredicted": 0.4339
+    },
+    "2001": {
+     "n": 259,
+     "meanPredicted": 40.89182,
+     "meanActual": 40.54054,
+     "bias": 0.35128,
+     "mae": 11.44441,
+     "rmse": 13.97794,
+     "meanNll": 4.0577,
+     "coverage80": 0.7722,
+     "sdPredicted": 0.30879
+    },
+    "2002": {
+     "n": 267,
+     "meanPredicted": 42.23826,
+     "meanActual": 43.65918,
+     "bias": -1.42092,
+     "mae": 11.68338,
+     "rmse": 14.85604,
+     "meanNll": 4.12725,
+     "coverage80": 0.77528,
+     "sdPredicted": 0.50947
+    },
+    "2003": {
+     "n": 267,
+     "meanPredicted": 42.38142,
+     "meanActual": 41.79026,
+     "bias": 0.59116,
+     "mae": 11.08745,
+     "rmse": 14.01414,
+     "meanNll": 4.06049,
+     "coverage80": 0.75281,
+     "sdPredicted": 0.28029
+    },
+    "2004": {
+     "n": 267,
+     "meanPredicted": 42.18881,
+     "meanActual": 43.14607,
+     "bias": -0.95726,
+     "mae": 12.02192,
+     "rmse": 15.03427,
+     "meanNll": 4.14189,
+     "coverage80": 0.74157,
+     "sdPredicted": 0.78196
+    },
+    "2005": {
+     "n": 267,
+     "meanPredicted": 42.32125,
+     "meanActual": 41.10112,
+     "bias": 1.22013,
+     "mae": 10.58654,
+     "rmse": 13.14382,
+     "meanNll": 3.99556,
+     "coverage80": 0.82397,
+     "sdPredicted": 0.48304
+    },
+    "2006": {
+     "n": 267,
+     "meanPredicted": 41.28995,
+     "meanActual": 41.51311,
+     "bias": -0.22316,
+     "mae": 11.4016,
+     "rmse": 14.17683,
+     "meanNll": 4.07309,
+     "coverage80": 0.76404,
+     "sdPredicted": 0.31605
+    },
+    "2007": {
+     "n": 267,
+     "meanPredicted": 42.31058,
+     "meanActual": 43.38577,
+     "bias": -1.07518,
+     "mae": 11.54477,
+     "rmse": 14.55864,
+     "meanNll": 4.10322,
+     "coverage80": 0.76779,
+     "sdPredicted": 0.50715
+    },
+    "2008": {
+     "n": 267,
+     "meanPredicted": 43.74274,
+     "meanActual": 44.02622,
+     "bias": -0.28348,
+     "mae": 10.87036,
+     "rmse": 14.07398,
+     "meanNll": 4.0651,
+     "coverage80": 0.79775,
+     "sdPredicted": 0.39711
+    },
+    "2009": {
+     "n": 267,
+     "meanPredicted": 43.36273,
+     "meanActual": 43.16105,
+     "bias": 0.20168,
+     "mae": 10.93432,
+     "rmse": 13.81743,
+     "meanNll": 4.04545,
+     "coverage80": 0.78652,
+     "sdPredicted": 0.1842
+    },
+    "2010": {
+     "n": 267,
+     "meanPredicted": 43.58608,
+     "meanActual": 44.31835,
+     "bias": -0.73227,
+     "mae": 11.21028,
+     "rmse": 14.07062,
+     "meanNll": 4.06484,
+     "coverage80": 0.77154,
+     "sdPredicted": 0.71274
+    },
+    "2011": {
+     "n": 267,
+     "meanPredicted": 44.32361,
+     "meanActual": 44.49064,
+     "bias": -0.16703,
+     "mae": 10.30352,
+     "rmse": 13.31165,
+     "meanNll": 4.00776,
+     "coverage80": 0.79775,
+     "sdPredicted": 0.3603
+    },
+    "2012": {
+     "n": 267,
+     "meanPredicted": 45.0883,
+     "meanActual": 45.77528,
+     "bias": -0.68699,
+     "mae": 11.14302,
+     "rmse": 14.11187,
+     "meanNll": 4.06804,
+     "coverage80": 0.79401,
+     "sdPredicted": 0.23327
+    },
+    "2013": {
+     "n": 267,
+     "meanPredicted": 46.03851,
+     "meanActual": 46.86891,
+     "bias": -0.8304,
+     "mae": 11.34425,
+     "rmse": 14.49211,
+     "meanNll": 4.09791,
+     "coverage80": 0.7603,
+     "sdPredicted": 0.57867
+    },
+    "2014": {
+     "n": 267,
+     "meanPredicted": 46.20148,
+     "meanActual": 45.26966,
+     "bias": 0.93182,
+     "mae": 11.23651,
+     "rmse": 13.62239,
+     "meanNll": 4.03075,
+     "coverage80": 0.77154,
+     "sdPredicted": 0.44172
+    },
+    "2015": {
+     "n": 267,
+     "meanPredicted": 45.5616,
+     "meanActual": 45.46442,
+     "bias": 0.09719,
+     "mae": 10.77318,
+     "rmse": 13.53541,
+     "meanNll": 4.02426,
+     "coverage80": 0.79401,
+     "sdPredicted": 0.24842
+    },
+    "2016": {
+     "n": 267,
+     "meanPredicted": 45.29439,
+     "meanActual": 45.73783,
+     "bias": -0.44344,
+     "mae": 10.4927,
+     "rmse": 13.30521,
+     "meanNll": 4.00729,
+     "coverage80": 0.8015,
+     "sdPredicted": 0.26862
+    },
+    "2017": {
+     "n": 267,
+     "meanPredicted": 44.85137,
+     "meanActual": 43.62921,
+     "bias": 1.22215,
+     "mae": 11.47074,
+     "rmse": 14.48109,
+     "meanNll": 4.09704,
+     "coverage80": 0.7603,
+     "sdPredicted": 0.45232
+    },
+    "2018": {
+     "n": 267,
+     "meanPredicted": 45.49563,
+     "meanActual": 46.55056,
+     "bias": -1.05493,
+     "mae": 11.38862,
+     "rmse": 14.83269,
+     "meanNll": 4.12535,
+     "coverage80": 0.76779,
+     "sdPredicted": 0.81162
+    },
+    "2019": {
+     "n": 267,
+     "meanPredicted": 45.21273,
+     "meanActual": 45.70412,
+     "bias": -0.49139,
+     "mae": 11.13672,
+     "rmse": 13.92464,
+     "meanNll": 4.05362,
+     "coverage80": 0.77903,
+     "sdPredicted": 0.27253
+    },
+    "2020": {
+     "n": 269,
+     "meanPredicted": 47.62889,
+     "meanActual": 49.49071,
+     "bias": -1.86181,
+     "mae": 11.16385,
+     "rmse": 13.95186,
+     "meanNll": 4.0557,
+     "coverage80": 0.78067,
+     "sdPredicted": 0.74381
+    },
+    "2021": {
+     "n": 285,
+     "meanPredicted": 47.28783,
+     "meanActual": 46.06667,
+     "bias": 1.22116,
+     "mae": 11.18187,
+     "rmse": 13.79007,
+     "meanNll": 4.04337,
+     "coverage80": 0.79649,
+     "sdPredicted": 0.8621
+    }
+   }
+  },
+  "v2LeagueRelative": {
+   "overall": {
+    "n": 5878,
+    "meanPredicted": 44.11094,
+    "meanActual": 44.23409,
+    "bias": -0.12315,
+    "mae": 10.92074,
+    "rmse": 13.76085,
+    "meanNll": 4.04216,
+    "coverage80": 0.78343,
+    "sdPredicted": 3.02067
+   },
+   "eras": {
+    "2000-2007": {
+     "n": 2120,
+     "meanPredicted": 42.00168,
+     "meanActual": 42.03774,
+     "bias": -0.03605,
+     "mae": 11.17126,
+     "rmse": 13.97388,
+     "meanNll": 4.05896,
+     "coverage80": 0.77689,
+     "sdPredicted": 2.5598
+    },
+    "2008-2014": {
+     "n": 1869,
+     "meanPredicted": 44.6402,
+     "meanActual": 44.8443,
+     "bias": -0.20411,
+     "mae": 10.64077,
+     "rmse": 13.50723,
+     "meanNll": 4.0225,
+     "coverage80": 0.78919,
+     "sdPredicted": 2.62906
+    },
+    "2015-2021": {
+     "n": 1889,
+     "meanPredicted": 45.95448,
+     "meanActual": 46.09529,
+     "bias": -0.14081,
+     "mae": 10.91657,
+     "rmse": 13.76853,
+     "meanNll": 4.04276,
+     "coverage80": 0.78507,
+     "sdPredicted": 2.35296
+    }
+   },
+   "seasons": {
+    "2000": {
+     "n": 259,
+     "meanPredicted": 42.21698,
+     "meanActual": 41.09266,
+     "bias": 1.12432,
+     "mae": 11.90893,
+     "rmse": 14.72779,
+     "meanNll": 4.12047,
+     "coverage80": 0.76062,
+     "sdPredicted": 2.90372
+    },
+    "2001": {
+     "n": 259,
+     "meanPredicted": 40.89776,
+     "meanActual": 40.54054,
+     "bias": 0.35722,
+     "mae": 11.06061,
+     "rmse": 13.50359,
+     "meanNll": 4.02222,
+     "coverage80": 0.77606,
+     "sdPredicted": 2.72029
+    },
+    "2002": {
+     "n": 267,
+     "meanPredicted": 42.23618,
+     "meanActual": 43.65918,
+     "bias": -1.423,
+     "mae": 11.52513,
+     "rmse": 14.58755,
+     "meanNll": 4.10878,
+     "coverage80": 0.76404,
+     "sdPredicted": 2.40565
+    },
+    "2003": {
+     "n": 267,
+     "meanPredicted": 42.43142,
+     "meanActual": 41.79026,
+     "bias": 0.64116,
+     "mae": 10.84761,
+     "rmse": 13.59562,
+     "meanNll": 4.02931,
+     "coverage80": 0.77154,
+     "sdPredicted": 2.30365
+    },
+    "2004": {
+     "n": 267,
+     "meanPredicted": 42.19324,
+     "meanActual": 43.14607,
+     "bias": -0.95282,
+     "mae": 11.22729,
+     "rmse": 14.27807,
+     "meanNll": 4.08339,
+     "coverage80": 0.77903,
+     "sdPredicted": 2.8582
+    },
+    "2005": {
+     "n": 267,
+     "meanPredicted": 42.32233,
+     "meanActual": 41.10112,
+     "bias": 1.2212,
+     "mae": 10.3036,
+     "rmse": 12.70605,
+     "meanNll": 3.9628,
+     "coverage80": 0.83895,
+     "sdPredicted": 2.66924
+    },
+    "2006": {
+     "n": 267,
+     "meanPredicted": 41.34751,
+     "meanActual": 41.51311,
+     "bias": -0.1656,
+     "mae": 11.16748,
+     "rmse": 13.94605,
+     "meanNll": 4.05675,
+     "coverage80": 0.76404,
+     "sdPredicted": 1.96455
+    },
+    "2007": {
+     "n": 267,
+     "meanPredicted": 42.34141,
+     "meanActual": 43.38577,
+     "bias": -1.04435,
+     "mae": 11.34826,
+     "rmse": 14.34311,
+     "meanNll": 4.08868,
+     "coverage80": 0.7603,
+     "sdPredicted": 2.10668
+    },
+    "2008": {
+     "n": 267,
+     "meanPredicted": 43.72413,
+     "meanActual": 44.02622,
+     "bias": -0.30208,
+     "mae": 10.41421,
+     "rmse": 13.72597,
+     "meanNll": 4.03944,
+     "coverage80": 0.80524,
+     "sdPredicted": 2.13646
+    },
+    "2009": {
+     "n": 267,
+     "meanPredicted": 43.40358,
+     "meanActual": 43.16105,
+     "bias": 0.24253,
+     "mae": 10.59899,
+     "rmse": 13.37625,
+     "meanNll": 4.01249,
+     "coverage80": 0.79401,
+     "sdPredicted": 2.25354
+    },
+    "2010": {
+     "n": 267,
+     "meanPredicted": 43.55898,
+     "meanActual": 44.31835,
+     "bias": -0.75937,
+     "mae": 11.04221,
+     "rmse": 13.93973,
+     "meanNll": 4.05625,
+     "coverage80": 0.78277,
+     "sdPredicted": 2.33153
+    },
+    "2011": {
+     "n": 267,
+     "meanPredicted": 44.39191,
+     "meanActual": 44.49064,
+     "bias": -0.09873,
+     "mae": 9.68736,
+     "rmse": 12.45156,
+     "meanNll": 3.9446,
+     "coverage80": 0.82397,
+     "sdPredicted": 2.48745
+    },
+    "2012": {
+     "n": 267,
+     "meanPredicted": 45.12538,
+     "meanActual": 45.77528,
+     "bias": -0.6499,
+     "mae": 10.68386,
+     "rmse": 13.62363,
+     "meanNll": 4.03148,
+     "coverage80": 0.77528,
+     "sdPredicted": 2.6093
+    },
+    "2013": {
+     "n": 267,
+     "meanPredicted": 46.04334,
+     "meanActual": 46.86891,
+     "bias": -0.82557,
+     "mae": 11.07962,
+     "rmse": 14.12445,
+     "meanNll": 4.07098,
+     "coverage80": 0.76404,
+     "sdPredicted": 2.64969
+    },
+    "2014": {
+     "n": 267,
+     "meanPredicted": 46.23405,
+     "meanActual": 45.26966,
+     "bias": 0.96439,
+     "mae": 10.97915,
+     "rmse": 13.24117,
+     "meanNll": 4.00227,
+     "coverage80": 0.77903,
+     "sdPredicted": 2.25139
+    },
+    "2015": {
+     "n": 267,
+     "meanPredicted": 45.5474,
+     "meanActual": 45.46442,
+     "bias": 0.08298,
+     "mae": 10.64801,
+     "rmse": 13.44804,
+     "meanNll": 4.01797,
+     "coverage80": 0.79775,
+     "sdPredicted": 1.94121
+    },
+    "2016": {
+     "n": 267,
+     "meanPredicted": 45.31196,
+     "meanActual": 45.73783,
+     "bias": -0.42587,
+     "mae": 10.21013,
+     "rmse": 12.79443,
+     "meanNll": 3.96921,
+     "coverage80": 0.80899,
+     "sdPredicted": 2.17465
+    },
+    "2017": {
+     "n": 267,
+     "meanPredicted": 44.90294,
+     "meanActual": 43.62921,
+     "bias": 1.27373,
+     "mae": 11.48214,
+     "rmse": 14.59508,
+     "meanNll": 4.1094,
+     "coverage80": 0.74532,
+     "sdPredicted": 1.91555
+    },
+    "2018": {
+     "n": 267,
+     "meanPredicted": 45.55139,
+     "meanActual": 46.55056,
+     "bias": -0.99918,
+     "mae": 11.13858,
+     "rmse": 14.45393,
+     "meanNll": 4.09775,
+     "coverage80": 0.78277,
+     "sdPredicted": 2.34946
+    },
+    "2019": {
+     "n": 267,
+     "meanPredicted": 45.24129,
+     "meanActual": 45.70412,
+     "bias": -0.46283,
+     "mae": 10.86399,
+     "rmse": 13.54978,
+     "meanNll": 4.02577,
+     "coverage80": 0.77903,
+     "sdPredicted": 2.31904
+    },
+    "2020": {
+     "n": 269,
+     "meanPredicted": 47.65672,
+     "meanActual": 49.49071,
+     "bias": -1.83399,
+     "mae": 10.96194,
+     "rmse": 13.79779,
+     "meanNll": 4.04506,
+     "coverage80": 0.77323,
+     "sdPredicted": 2.15107
+    },
+    "2021": {
+     "n": 285,
+     "meanPredicted": 47.36203,
+     "meanActual": 46.06667,
+     "bias": 1.29537,
+     "mae": 11.09859,
+     "rmse": 13.66518,
+     "meanNll": 4.0347,
+     "coverage80": 0.80702,
+     "sdPredicted": 1.97206
+    }
+   }
+  },
+  "v3PlayEfficiency": {
+   "overall": {
+    "n": 5878,
+    "meanPredicted": 44.13731,
+    "meanActual": 44.23409,
+    "bias": -0.09678,
+    "mae": 10.87108,
+    "rmse": 13.68319,
+    "meanNll": 4.03582,
+    "coverage80": 0.78887,
+    "sdPredicted": 3.94828
+   },
+   "eras": {
+    "2000-2007": {
+     "n": 2120,
+     "meanPredicted": 42.0257,
+     "meanActual": 42.03774,
+     "bias": -0.01204,
+     "mae": 11.10618,
+     "rmse": 13.86884,
+     "meanNll": 4.05022,
+     "coverage80": 0.78208,
+     "sdPredicted": 3.76218
+    },
+    "2008-2014": {
+     "n": 1869,
+     "meanPredicted": 44.67079,
+     "meanActual": 44.8443,
+     "bias": -0.17351,
+     "mae": 10.58306,
+     "rmse": 13.41094,
+     "meanNll": 4.01505,
+     "coverage80": 0.79722,
+     "sdPredicted": 3.64642
+    },
+    "2015-2021": {
+     "n": 1889,
+     "meanPredicted": 45.97931,
+     "meanActual": 46.09529,
+     "bias": -0.11598,
+     "mae": 10.8922,
+     "rmse": 13.74,
+     "meanNll": 4.0402,
+     "coverage80": 0.78825,
+     "sdPredicted": 3.28647
+    }
+   },
+   "seasons": {
+    "2000": {
+     "n": 259,
+     "meanPredicted": 42.21111,
+     "meanActual": 41.09266,
+     "bias": 1.11844,
+     "mae": 11.81252,
+     "rmse": 14.64666,
+     "meanNll": 4.11266,
+     "coverage80": 0.76062,
+     "sdPredicted": 4.02451
+    },
+    "2001": {
+     "n": 259,
+     "meanPredicted": 40.90209,
+     "meanActual": 40.54054,
+     "bias": 0.36155,
+     "mae": 10.938,
+     "rmse": 13.38249,
+     "meanNll": 4.0129,
+     "coverage80": 0.7722,
+     "sdPredicted": 3.8408
+    },
+    "2002": {
+     "n": 267,
+     "meanPredicted": 42.27036,
+     "meanActual": 43.65918,
+     "bias": -1.38881,
+     "mae": 11.45931,
+     "rmse": 14.39952,
+     "meanNll": 4.09245,
+     "coverage80": 0.77528,
+     "sdPredicted": 3.56286
+    },
+    "2003": {
+     "n": 267,
+     "meanPredicted": 42.44472,
+     "meanActual": 41.79026,
+     "bias": 0.65446,
+     "mae": 10.91583,
+     "rmse": 13.51679,
+     "meanNll": 4.02307,
+     "coverage80": 0.78652,
+     "sdPredicted": 3.53917
+    },
+    "2004": {
+     "n": 267,
+     "meanPredicted": 42.2304,
+     "meanActual": 43.14607,
+     "bias": -0.91567,
+     "mae": 11.0194,
+     "rmse": 14.02947,
+     "meanNll": 4.06283,
+     "coverage80": 0.79775,
+     "sdPredicted": 4.36744
+    },
+    "2005": {
+     "n": 267,
+     "meanPredicted": 42.34227,
+     "meanActual": 41.10112,
+     "bias": 1.24115,
+     "mae": 10.23123,
+     "rmse": 12.59294,
+     "meanNll": 3.95516,
+     "coverage80": 0.84644,
+     "sdPredicted": 4.20399
+    },
+    "2006": {
+     "n": 267,
+     "meanPredicted": 41.40277,
+     "meanActual": 41.51311,
+     "bias": -0.11034,
+     "mae": 11.09496,
+     "rmse": 13.88003,
+     "meanNll": 4.05109,
+     "coverage80": 0.7603,
+     "sdPredicted": 3.06306
+    },
+    "2007": {
+     "n": 267,
+     "meanPredicted": 42.37376,
+     "meanActual": 43.38577,
+     "bias": -1.01201,
+     "mae": 11.39433,
+     "rmse": 14.39781,
+     "meanNll": 4.09231,
+     "coverage80": 0.75655,
+     "sdPredicted": 3.03857
+    },
+    "2008": {
+     "n": 267,
+     "meanPredicted": 43.69218,
+     "meanActual": 44.02622,
+     "bias": -0.33404,
+     "mae": 10.44584,
+     "rmse": 13.72975,
+     "meanNll": 4.03941,
+     "coverage80": 0.80524,
+     "sdPredicted": 2.85028
+    },
+    "2009": {
+     "n": 267,
+     "meanPredicted": 43.41781,
+     "meanActual": 43.16105,
+     "bias": 0.25676,
+     "mae": 10.56382,
+     "rmse": 13.3178,
+     "meanNll": 4.00804,
+     "coverage80": 0.78652,
+     "sdPredicted": 3.18256
+    },
+    "2010": {
+     "n": 267,
+     "meanPredicted": 43.57973,
+     "meanActual": 44.31835,
+     "bias": -0.73862,
+     "mae": 10.91149,
+     "rmse": 13.83617,
+     "meanNll": 4.04767,
+     "coverage80": 0.78277,
+     "sdPredicted": 3.35168
+    },
+    "2011": {
+     "n": 267,
+     "meanPredicted": 44.46045,
+     "meanActual": 44.49064,
+     "bias": -0.03019,
+     "mae": 9.72184,
+     "rmse": 12.31139,
+     "meanNll": 3.93543,
+     "coverage80": 0.8427,
+     "sdPredicted": 3.62548
+    },
+    "2012": {
+     "n": 267,
+     "meanPredicted": 45.17587,
+     "meanActual": 45.77528,
+     "bias": -0.59941,
+     "mae": 10.49404,
+     "rmse": 13.39107,
+     "meanNll": 4.01355,
+     "coverage80": 0.79401,
+     "sdPredicted": 3.93878
+    },
+    "2013": {
+     "n": 267,
+     "meanPredicted": 46.10038,
+     "meanActual": 46.86891,
+     "bias": -0.76853,
+     "mae": 11.14967,
+     "rmse": 14.14132,
+     "meanNll": 4.0717,
+     "coverage80": 0.76779,
+     "sdPredicted": 3.94716
+    },
+    "2014": {
+     "n": 267,
+     "meanPredicted": 46.26908,
+     "meanActual": 45.26966,
+     "bias": 0.99942,
+     "mae": 10.79471,
+     "rmse": 13.06884,
+     "meanNll": 3.98955,
+     "coverage80": 0.8015,
+     "sdPredicted": 3.31692
+    },
+    "2015": {
+     "n": 267,
+     "meanPredicted": 45.53273,
+     "meanActual": 45.46442,
+     "bias": 0.06831,
+     "mae": 10.64697,
+     "rmse": 13.44925,
+     "meanNll": 4.01795,
+     "coverage80": 0.79026,
+     "sdPredicted": 3.04573
+    },
+    "2016": {
+     "n": 267,
+     "meanPredicted": 45.33973,
+     "meanActual": 45.73783,
+     "bias": -0.3981,
+     "mae": 10.08633,
+     "rmse": 12.59116,
+     "meanNll": 3.95504,
+     "coverage80": 0.83146,
+     "sdPredicted": 3.12708
+    },
+    "2017": {
+     "n": 267,
+     "meanPredicted": 44.93863,
+     "meanActual": 43.62921,
+     "bias": 1.30942,
+     "mae": 11.54557,
+     "rmse": 14.70566,
+     "meanNll": 4.11753,
+     "coverage80": 0.75655,
+     "sdPredicted": 2.88417
+    },
+    "2018": {
+     "n": 267,
+     "meanPredicted": 45.61453,
+     "meanActual": 46.55056,
+     "bias": -0.93603,
+     "mae": 11.1342,
+     "rmse": 14.36714,
+     "meanNll": 4.08983,
+     "coverage80": 0.79026,
+     "sdPredicted": 3.49835
+    },
+    "2019": {
+     "n": 267,
+     "meanPredicted": 45.25095,
+     "meanActual": 45.70412,
+     "bias": -0.45317,
+     "mae": 10.81492,
+     "rmse": 13.55682,
+     "meanNll": 4.02612,
+     "coverage80": 0.77154,
+     "sdPredicted": 3.34593
+    },
+    "2020": {
+     "n": 269,
+     "meanPredicted": 47.66753,
+     "meanActual": 49.49071,
+     "bias": -1.82317,
+     "mae": 10.87759,
+     "rmse": 13.74054,
+     "meanNll": 4.04024,
+     "coverage80": 0.78067,
+     "sdPredicted": 3.08853
+    },
+    "2021": {
+     "n": 285,
+     "meanPredicted": 47.40249,
+     "meanActual": 46.06667,
+     "bias": 1.33582,
+     "mae": 11.12426,
+     "rmse": 13.67315,
+     "meanNll": 4.03504,
+     "coverage80": 0.79649,
+     "sdPredicted": 2.8754
+    }
+   }
+  },
+  "v2MarketBlend": {
+   "overall": {
+    "n": 5878,
+    "meanPredicted": 43.59324,
+    "meanActual": 44.23409,
+    "bias": -0.64086,
+    "mae": 10.6735,
+    "rmse": 13.47836,
+    "meanNll": 4.02119,
+    "coverage80": 0.79262,
+    "sdPredicted": 4.93359
+   },
+   "eras": {
+    "2000-2007": {
+     "n": 2120,
+     "meanPredicted": 41.15245,
+     "meanActual": 42.03774,
+     "bias": -0.88529,
+     "mae": 10.9064,
+     "rmse": 13.72347,
+     "meanNll": 4.04082,
+     "coverage80": 0.78302,
+     "sdPredicted": 4.86854
+    },
+    "2008-2014": {
+     "n": 1869,
+     "meanPredicted": 43.99689,
+     "meanActual": 44.8443,
+     "bias": -0.84741,
+     "mae": 10.48742,
+     "rmse": 13.3291,
+     "meanNll": 4.00941,
+     "coverage80": 0.79294,
+     "sdPredicted": 4.41439
+    },
+    "2015-2021": {
+     "n": 1889,
+     "meanPredicted": 45.93313,
+     "meanActual": 46.09529,
+     "bias": -0.16216,
+     "mae": 10.59622,
+     "rmse": 13.34698,
+     "meanNll": 4.01081,
+     "coverage80": 0.80307,
+     "sdPredicted": 4.18986
+    }
+   },
+   "seasons": {
+    "2000": {
+     "n": 259,
+     "meanPredicted": 41.43411,
+     "meanActual": 41.09266,
+     "bias": 0.34144,
+     "mae": 11.26535,
+     "rmse": 14.05825,
+     "meanNll": 4.06821,
+     "coverage80": 0.78378,
+     "sdPredicted": 5.55553
+    },
+    "2001": {
+     "n": 259,
+     "meanPredicted": 39.83796,
+     "meanActual": 40.54054,
+     "bias": -0.70258,
+     "mae": 10.77142,
+     "rmse": 13.35458,
+     "meanNll": 4.01141,
+     "coverage80": 0.79151,
+     "sdPredicted": 4.85565
+    },
+    "2002": {
+     "n": 267,
+     "meanPredicted": 41.53185,
+     "meanActual": 43.65918,
+     "bias": -2.12733,
+     "mae": 11.31131,
+     "rmse": 14.30117,
+     "meanNll": 4.08849,
+     "coverage80": 0.76404,
+     "sdPredicted": 4.44168
+    },
+    "2003": {
+     "n": 267,
+     "meanPredicted": 41.07527,
+     "meanActual": 41.79026,
+     "bias": -0.715,
+     "mae": 10.56479,
+     "rmse": 13.42737,
+     "meanNll": 4.01715,
+     "coverage80": 0.79026,
+     "sdPredicted": 4.18137
+    },
+    "2004": {
+     "n": 267,
+     "meanPredicted": 41.99822,
+     "meanActual": 43.14607,
+     "bias": -1.14785,
+     "mae": 10.78119,
+     "rmse": 13.84999,
+     "meanNll": 4.05109,
+     "coverage80": 0.80524,
+     "sdPredicted": 5.88821
+    },
+    "2005": {
+     "n": 267,
+     "meanPredicted": 41.15404,
+     "meanActual": 41.10112,
+     "bias": 0.05291,
+     "mae": 10.28439,
+     "rmse": 12.70099,
+     "meanNll": 3.96127,
+     "coverage80": 0.82022,
+     "sdPredicted": 4.69216
+    },
+    "2006": {
+     "n": 267,
+     "meanPredicted": 40.58959,
+     "meanActual": 41.51311,
+     "bias": -0.92351,
+     "mae": 11.02833,
+     "rmse": 13.84359,
+     "meanNll": 4.05057,
+     "coverage80": 0.74157,
+     "sdPredicted": 4.26691
+    },
+    "2007": {
+     "n": 267,
+     "meanPredicted": 41.56759,
+     "meanActual": 43.38577,
+     "bias": -1.81818,
+     "mae": 11.25112,
+     "rmse": 14.17987,
+     "meanNll": 4.07832,
+     "coverage80": 0.76779,
+     "sdPredicted": 4.55965
+    },
+    "2008": {
+     "n": 267,
+     "meanPredicted": 42.41654,
+     "meanActual": 44.02622,
+     "bias": -1.60968,
+     "mae": 10.09696,
+     "rmse": 13.48904,
+     "meanNll": 4.02204,
+     "coverage80": 0.8015,
+     "sdPredicted": 4.25396
+    },
+    "2009": {
+     "n": 267,
+     "meanPredicted": 42.86046,
+     "meanActual": 43.16105,
+     "bias": -0.30059,
+     "mae": 10.63017,
+     "rmse": 13.41702,
+     "meanNll": 4.01633,
+     "coverage80": 0.79775,
+     "sdPredicted": 4.21556
+    },
+    "2010": {
+     "n": 267,
+     "meanPredicted": 42.76299,
+     "meanActual": 44.31835,
+     "bias": -1.55536,
+     "mae": 10.964,
+     "rmse": 13.8427,
+     "meanNll": 4.0505,
+     "coverage80": 0.77154,
+     "sdPredicted": 3.55489
+    },
+    "2011": {
+     "n": 267,
+     "meanPredicted": 43.68729,
+     "meanActual": 44.49064,
+     "bias": -0.80335,
+     "mae": 9.41818,
+     "rmse": 12.06659,
+     "meanNll": 3.915,
+     "coverage80": 0.83521,
+     "sdPredicted": 4.77124
+    },
+    "2012": {
+     "n": 267,
+     "meanPredicted": 44.71974,
+     "meanActual": 45.77528,
+     "bias": -1.05555,
+     "mae": 10.57101,
+     "rmse": 13.40396,
+     "meanNll": 4.0153,
+     "coverage80": 0.77528,
+     "sdPredicted": 4.36019
+    },
+    "2013": {
+     "n": 267,
+     "meanPredicted": 45.47542,
+     "meanActual": 46.86891,
+     "bias": -1.39349,
+     "mae": 11.10078,
+     "rmse": 14.05978,
+     "meanNll": 4.06833,
+     "coverage80": 0.76779,
+     "sdPredicted": 4.35083
+    },
+    "2014": {
+     "n": 267,
+     "meanPredicted": 46.05578,
+     "meanActual": 45.26966,
+     "bias": 0.78612,
+     "mae": 10.63087,
+     "rmse": 12.92741,
+     "meanNll": 3.97835,
+     "coverage80": 0.8015,
+     "sdPredicted": 3.90331
+    },
+    "2015": {
+     "n": 267,
+     "meanPredicted": 45.06651,
+     "meanActual": 45.46442,
+     "bias": -0.39791,
+     "mae": 10.48544,
+     "rmse": 13.24449,
+     "meanNll": 4.00279,
+     "coverage80": 0.80524,
+     "sdPredicted": 3.24965
+    },
+    "2016": {
+     "n": 267,
+     "meanPredicted": 45.69661,
+     "meanActual": 45.73783,
+     "bias": -0.04122,
+     "mae": 9.79888,
+     "rmse": 12.27779,
+     "meanNll": 3.93014,
+     "coverage80": 0.82397,
+     "sdPredicted": 3.8231
+    },
+    "2017": {
+     "n": 267,
+     "meanPredicted": 44.14393,
+     "meanActual": 43.62921,
+     "bias": 0.51472,
+     "mae": 11.25651,
+     "rmse": 14.38642,
+     "meanNll": 4.09569,
+     "coverage80": 0.77528,
+     "sdPredicted": 3.93703
+    },
+    "2018": {
+     "n": 267,
+     "meanPredicted": 46.61676,
+     "meanActual": 46.55056,
+     "bias": 0.0662,
+     "mae": 10.71906,
+     "rmse": 13.644,
+     "meanNll": 4.03442,
+     "coverage80": 0.8015,
+     "sdPredicted": 4.92047
+    },
+    "2019": {
+     "n": 267,
+     "meanPredicted": 45.22337,
+     "meanActual": 45.70412,
+     "bias": -0.48075,
+     "mae": 10.78082,
+     "rmse": 13.39946,
+     "meanNll": 4.01494,
+     "coverage80": 0.8015,
+     "sdPredicted": 3.89923
+    },
+    "2020": {
+     "n": 269,
+     "meanPredicted": 48.15819,
+     "meanActual": 49.49071,
+     "bias": -1.33252,
+     "mae": 10.31067,
+     "rmse": 13.09417,
+     "meanNll": 3.99113,
+     "coverage80": 0.80297,
+     "sdPredicted": 4.12444
+    },
+    "2021": {
+     "n": 285,
+     "meanPredicted": 46.56712,
+     "meanActual": 46.06667,
+     "bias": 0.50045,
+     "mae": 10.80991,
+     "rmse": 13.29812,
+     "meanNll": 4.00698,
+     "coverage80": 0.81053,
+     "sdPredicted": 3.98258
+    }
+   }
+  },
+  "marketClose": {
+   "overall": {
+    "n": 5878,
+    "meanPredicted": 43.57809,
+    "meanActual": 44.23409,
+    "bias": -0.65601,
+    "mae": 10.67302,
+    "rmse": 13.47942,
+    "meanNll": 4.02127,
+    "coverage80": 0.79279,
+    "sdPredicted": 5.00315
+   },
+   "eras": {
+    "2000-2007": {
+     "n": 2120,
+     "meanPredicted": 41.12759,
+     "meanActual": 42.03774,
+     "bias": -0.91014,
+     "mae": 10.90495,
+     "rmse": 13.72642,
+     "meanNll": 4.04106,
+     "coverage80": 0.78302,
+     "sdPredicted": 4.94642
+    },
+    "2008-2014": {
+     "n": 1869,
+     "meanPredicted": 43.97806,
+     "meanActual": 44.8443,
+     "bias": -0.86624,
+     "mae": 10.48957,
+     "rmse": 13.33233,
+     "meanNll": 4.00966,
+     "coverage80": 0.79294,
+     "sdPredicted": 4.47977
+    },
+    "2015-2021": {
+     "n": 1889,
+     "meanPredicted": 45.9325,
+     "meanActual": 46.09529,
+     "bias": -0.16278,
+     "mae": 10.59423,
+     "rmse": 13.34374,
+     "meanNll": 4.01056,
+     "coverage80": 0.8036,
+     "sdPredicted": 4.26084
+    }
+   },
+   "seasons": {
+    "2000": {
+     "n": 259,
+     "meanPredicted": 41.4112,
+     "meanActual": 41.09266,
+     "bias": 0.31853,
+     "mae": 11.2529,
+     "rmse": 14.04952,
+     "meanNll": 4.06748,
+     "coverage80": 0.78378,
+     "sdPredicted": 5.64106
+    },
+    "2001": {
+     "n": 259,
+     "meanPredicted": 39.80695,
+     "meanActual": 40.54054,
+     "bias": -0.73359,
+     "mae": 10.76834,
+     "rmse": 13.35952,
+     "meanNll": 4.0118,
+     "coverage80": 0.79151,
+     "sdPredicted": 4.92614
+    },
+    "2002": {
+     "n": 267,
+     "meanPredicted": 41.51124,
+     "meanActual": 43.65918,
+     "bias": -2.14794,
+     "mae": 11.30899,
+     "rmse": 14.30123,
+     "meanNll": 4.08849,
+     "coverage80": 0.76404,
+     "sdPredicted": 4.51292
+    },
+    "2003": {
+     "n": 267,
+     "meanPredicted": 41.03558,
+     "meanActual": 41.79026,
+     "bias": -0.75468,
+     "mae": 10.55993,
+     "rmse": 13.43109,
+     "meanNll": 4.01744,
+     "coverage80": 0.79026,
+     "sdPredicted": 4.24482
+    },
+    "2004": {
+     "n": 267,
+     "meanPredicted": 41.99251,
+     "meanActual": 43.14607,
+     "bias": -1.15356,
+     "mae": 10.77903,
+     "rmse": 13.85222,
+     "meanNll": 4.05127,
+     "coverage80": 0.80524,
+     "sdPredicted": 5.98839
+    },
+    "2005": {
+     "n": 267,
+     "meanPredicted": 41.11985,
+     "meanActual": 41.10112,
+     "bias": 0.01873,
+     "mae": 10.28839,
+     "rmse": 12.71011,
+     "meanNll": 3.96195,
+     "coverage80": 0.82022,
+     "sdPredicted": 4.75891
+    },
+    "2006": {
+     "n": 267,
+     "meanPredicted": 40.56742,
+     "meanActual": 41.51311,
+     "bias": -0.94569,
+     "mae": 11.03184,
+     "rmse": 13.85029,
+     "meanNll": 4.05111,
+     "coverage80": 0.74157,
+     "sdPredicted": 4.34499
+    },
+    "2007": {
+     "n": 267,
+     "meanPredicted": 41.54494,
+     "meanActual": 43.38577,
+     "bias": -1.84082,
+     "mae": 11.25655,
+     "rmse": 14.186,
+     "meanNll": 4.07882,
+     "coverage80": 0.76779,
+     "sdPredicted": 4.64348
+    },
+    "2008": {
+     "n": 267,
+     "meanPredicted": 42.37828,
+     "meanActual": 44.02622,
+     "bias": -1.64794,
+     "mae": 10.09738,
+     "rmse": 13.49317,
+     "meanNll": 4.02236,
+     "coverage80": 0.8015,
+     "sdPredicted": 4.32917
+    },
+    "2009": {
+     "n": 267,
+     "meanPredicted": 42.84457,
+     "meanActual": 43.16105,
+     "bias": -0.31648,
+     "mae": 10.63858,
+     "rmse": 13.42698,
+     "meanNll": 4.01712,
+     "coverage80": 0.79775,
+     "sdPredicted": 4.28597
+    },
+    "2010": {
+     "n": 267,
+     "meanPredicted": 42.7397,
+     "meanActual": 44.31835,
+     "bias": -1.57865,
+     "mae": 10.96442,
+     "rmse": 13.8461,
+     "meanNll": 4.05077,
+     "coverage80": 0.77154,
+     "sdPredicted": 3.60589
+    },
+    "2011": {
+     "n": 267,
+     "meanPredicted": 43.66667,
+     "meanActual": 44.49064,
+     "bias": -0.82397,
+     "mae": 9.41948,
+     "rmse": 12.06855,
+     "meanNll": 3.91514,
+     "coverage80": 0.83521,
+     "sdPredicted": 4.85382
+    },
+    "2012": {
+     "n": 267,
+     "meanPredicted": 44.70787,
+     "meanActual": 45.77528,
+     "bias": -1.06742,
+     "mae": 10.57678,
+     "rmse": 13.40517,
+     "meanNll": 4.01539,
+     "coverage80": 0.77528,
+     "sdPredicted": 4.42384
+    },
+    "2013": {
+     "n": 267,
+     "meanPredicted": 45.4588,
+     "meanActual": 46.86891,
+     "bias": -1.41011,
+     "mae": 11.10674,
+     "rmse": 14.06516,
+     "meanNll": 4.06877,
+     "coverage80": 0.76779,
+     "sdPredicted": 4.41292
+    },
+    "2014": {
+     "n": 267,
+     "meanPredicted": 46.05056,
+     "meanActual": 45.26966,
+     "bias": 0.7809,
+     "mae": 10.6236,
+     "rmse": 12.92346,
+     "meanNll": 3.97805,
+     "coverage80": 0.8015,
+     "sdPredicted": 3.9587
+    },
+    "2015": {
+     "n": 267,
+     "meanPredicted": 45.05243,
+     "meanActual": 45.46442,
+     "bias": -0.41199,
+     "mae": 10.48315,
+     "rmse": 13.24404,
+     "meanNll": 4.00275,
+     "coverage80": 0.80524,
+     "sdPredicted": 3.30144
+    },
+    "2016": {
+     "n": 267,
+     "meanPredicted": 45.70787,
+     "meanActual": 45.73783,
+     "bias": -0.02996,
+     "mae": 9.79401,
+     "rmse": 12.27097,
+     "meanNll": 3.92965,
+     "coverage80": 0.82397,
+     "sdPredicted": 3.88762
+    },
+    "2017": {
+     "n": 267,
+     "meanPredicted": 44.12172,
+     "meanActual": 43.62921,
+     "bias": 0.49251,
+     "mae": 11.25655,
+     "rmse": 14.38961,
+     "meanNll": 4.09595,
+     "coverage80": 0.77903,
+     "sdPredicted": 4.01234
+    },
+    "2018": {
+     "n": 267,
+     "meanPredicted": 46.64794,
+     "meanActual": 46.55056,
+     "bias": 0.09738,
+     "mae": 10.7191,
+     "rmse": 13.63296,
+     "meanNll": 4.03353,
+     "coverage80": 0.8015,
+     "sdPredicted": 5.00898
+    },
+    "2019": {
+     "n": 267,
+     "meanPredicted": 45.22285,
+     "meanActual": 45.70412,
+     "bias": -0.48127,
+     "mae": 10.78464,
+     "rmse": 13.4022,
+     "meanNll": 4.01516,
+     "coverage80": 0.8015,
+     "sdPredicted": 3.96033
+    },
+    "2020": {
+     "n": 269,
+     "meanPredicted": 48.17286,
+     "meanActual": 49.49071,
+     "bias": -1.31784,
+     "mae": 10.30297,
+     "rmse": 13.08362,
+     "meanNll": 3.99032,
+     "coverage80": 0.80297,
+     "sdPredicted": 4.20053
+    },
+    "2021": {
+     "n": 285,
+     "meanPredicted": 46.54386,
+     "meanActual": 46.06667,
+     "bias": 0.47719,
+     "mae": 10.80702,
+     "rmse": 13.29747,
+     "meanNll": 4.00693,
+     "coverage80": 0.81053,
+     "sdPredicted": 4.05777
+    }
+   }
+  }
+ },
+ "comparisons": {
+  "v3PlayEfficiency": {
+   "point": -0.04966,
+   "lo95": -0.08587,
+   "hi95": -0.0145
+  },
+  "v2MarketBlend": {
+   "point": -0.24724,
+   "lo95": -0.32851,
+   "hi95": -0.17472
+  },
+  "marketCloseVsV2": {
+   "point": -0.24772,
+   "lo95": -0.33136,
+   "hi95": -0.17363
+  },
+  "v3VsMarketClose": {
+   "point": 0.19806,
+   "lo95": 0.1229,
+   "hi95": 0.27663
+  }
+ },
+ "bars": {
+  "v2LeagueRelative": {
+   "centringOverall": {
+    "pass": true,
+    "required": "|bias| <= 1",
+    "observed": -0.12315
+   },
+   "centringEachEra": {
+    "pass": true,
+    "required": "|bias| <= 1 in every era",
+    "observed": {
+     "2000-2007": -0.03605,
+     "2008-2014": -0.20411,
+     "2015-2021": -0.14081
+    }
+   },
+   "coverage80": {
+    "pass": true,
+    "required": "[0.72, 0.88]",
+    "observed": 0.78343
+   },
+   "maeBelowBaselineEachEra": {
+    "pass": true,
+    "required": "MAE < league-level baseline in every era",
+    "observed": {
+     "2000-2007": {
+      "candidate": 11.17126,
+      "baseline": 11.54199
+     },
+     "2008-2014": {
+      "candidate": 10.64077,
+      "baseline": 11.00604
+     },
+     "2015-2021": {
+      "candidate": 10.91657,
+      "baseline": 11.0878
+     }
+    }
+   },
+   "nllBelowBaseline": {
+    "pass": true,
+    "required": "< 4.0688916599280285",
+    "observed": 4.04216
+   },
+   "maeNotWorseThanIncumbent": {
+    "pass": true,
+    "required": "<= 11.152858329158242",
+    "observed": 10.92074
+   },
+   "noDiscriminationRegression": {
+    "pass": false,
+    "required": "within 0.25 of 2.764709673308886",
+    "observed": 3.02067
+   }
+  },
+  "v3PlayEfficiency": {
+   "centringOverall": {
+    "pass": true,
+    "required": "|bias| <= 1",
+    "observed": -0.09678
+   },
+   "centringEachEra": {
+    "pass": true,
+    "required": "|bias| <= 1 in every era",
+    "observed": {
+     "2000-2007": -0.01204,
+     "2008-2014": -0.17351,
+     "2015-2021": -0.11598
+    }
+   },
+   "coverage80": {
+    "pass": true,
+    "required": "[0.72, 0.88]",
+    "observed": 0.78887
+   },
+   "maeBelowBaselineEachEra": {
+    "pass": true,
+    "required": "MAE < league-level baseline in every era",
+    "observed": {
+     "2000-2007": {
+      "candidate": 11.10618,
+      "baseline": 11.54199
+     },
+     "2008-2014": {
+      "candidate": 10.58306,
+      "baseline": 11.00604
+     },
+     "2015-2021": {
+      "candidate": 10.8922,
+      "baseline": 11.0878
+     }
+    }
+   },
+   "nllBelowBaseline": {
+    "pass": true,
+    "required": "< 4.0688916599280285",
+    "observed": 4.03582
+   },
+   "beatsV2Mae": {
+    "pass": true,
+    "required": "season-bootstrap 95% upper bound of mean(|err| − |err v2|) < 0",
+    "observed": {
+     "point": -0.04966,
+     "lo95": -0.08587,
+     "hi95": -0.0145
+    }
+   },
+   "nllBelowV2": {
+    "pass": true,
+    "required": "< 4.0421606818359",
+    "observed": 4.03582
+   }
+  },
+  "v2MarketBlend": {
+   "centringOverall": {
+    "pass": true,
+    "required": "|bias| <= 1",
+    "observed": -0.64086
+   },
+   "centringEachEra": {
+    "pass": true,
+    "required": "|bias| <= 1 in every era",
+    "observed": {
+     "2000-2007": -0.88529,
+     "2008-2014": -0.84741,
+     "2015-2021": -0.16216
+    }
+   },
+   "coverage80": {
+    "pass": true,
+    "required": "[0.72, 0.88]",
+    "observed": 0.79262
+   },
+   "maeBelowBaselineEachEra": {
+    "pass": true,
+    "required": "MAE < league-level baseline in every era",
+    "observed": {
+     "2000-2007": {
+      "candidate": 10.9064,
+      "baseline": 11.54199
+     },
+     "2008-2014": {
+      "candidate": 10.48742,
+      "baseline": 11.00604
+     },
+     "2015-2021": {
+      "candidate": 10.59622,
+      "baseline": 11.0878
+     }
+    }
+   },
+   "nllBelowBaseline": {
+    "pass": true,
+    "required": "< 4.0688916599280285",
+    "observed": 4.02119
+   },
+   "beatsV2Mae": {
+    "pass": true,
+    "required": "season-bootstrap 95% upper bound of mean(|err| − |err v2|) < 0",
+    "observed": {
+     "point": -0.24724,
+     "lo95": -0.32851,
+     "hi95": -0.17472
+    }
+   },
+   "nllBelowV2": {
+    "pass": true,
+    "required": "< 4.0421606818359",
+    "observed": 4.02119
+   }
+  }
+ },
+ "verdicts": {
+  "v2LeagueRelative": "REJECTED",
+  "v3PlayEfficiency": "ELIGIBLE",
+  "v2MarketBlend": "ELIGIBLE"
+ },
+ "recommendation": "v2MarketBlend",
+ "recommendationRule": "Each candidate is ELIGIBLE only if every one of its bars passes, else REJECTED and recorded. If v3PlayEfficiency and v2MarketBlend are both ELIGIBLE, the recommendation is the one with lower held-out mean NLL — a disclosed selection between two registered finalists. Otherwise the recommendation is whichever of them is ELIGIBLE, else v2LeagueRelative if ELIGIBLE, else the incumbent stands. A REJECTED candidate is never retried by adjusting it; a different candidate needs a different registration. Nothing publishes from the evaluation: adoption is its own reviewed step and ships in a founder-approved, batched app/ commit (app/ commits trigger Vercel builds; this research lives outside app/ and triggers none).",
+ "consequence": "Nothing publishes from this receipt. Adopting any ELIGIBLE head is its own reviewed step (coherence guards, regime stamps, artifact regeneration) and ships in a batched app/ commit the founder approves, because app/ commits trigger Vercel builds."
+}
