@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822765,
+  "date": "2026-09-14",
+  "capturedAt": "2026-09-14T16:47:16.097Z",
+  "availableAt": "2026-09-14T16:47:16.097Z",
+  "eventStartTime": "2026-09-14T23:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 667755,
+      "name": "José Soriano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 6,
+      "lastStartDate": "2026-09-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 4,
+        "bbAvg": 1.8,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 6.14,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 163,
+        "k": 154,
+        "bb": 71,
+        "er": 63,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 675512,
+      "name": "Troy Melton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 7,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 3.6,
+        "bbAvg": 1.2,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 5.79,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 108,
+        "k": 87,
+        "bb": 30,
+        "er": 29,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-14&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-14T16:47:16.097Z"
+  },
+  "recordHash": "febec8871f888bea1936c4ccc0a0cd9f1ac8441bcd654fd34113841378b62fe7"
+}
