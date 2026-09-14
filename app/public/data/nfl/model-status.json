@@ -2,27 +2,44 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-13T22:54:38Z",
+ "generatedAt": "2026-09-14T15:53:09Z",
  "windowSeasonType": "MIXED_OR_REGULAR",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
   "state": "PUBLIC_EXPERIMENTAL",
   "headline": "Experimental regular-season simulations are published",
-  "detail": "We publish a simulated score range and win chance for every game, clearly marked experimental (2 games forecast today under nfl-regular-season-public-v1). On a full held-out 2025 season the model behind it picked about 64% of winners (log loss 0.6478 against a coin's 0.6931), and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.",
+  "detail": "We publish a simulated score range and win chance for every game, clearly marked experimental (1 games forecast today under nfl-regular-season-public-v1). The win chance comes from a team rating that weights margin of victory. Tested on 4,281 past games it had never seen (2006–2021), it scored 0.629 on log loss (lower is better) against 0.642 for our previous rating, 0.693 for a coin flip and 0.610 for the sportsbooks' own odds — so it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.",
   "nextGate": "A validated pick additionally needs the frozen 2026 walk-forward evaluation to pass its own bars — 64 decisive games and 4 completed weeks before any reading counts.",
   "checkable": {
-   "forecasts": 2,
+   "forecasts": 1,
    "model": "nfl-regular-season-public-v1",
    "heldOutWinnerLogLoss": 0.6478,
    "coinLogLoss": 0.6931
+  }
+ },
+ "totals": {
+  "state": "IN_USE",
+  "headline": "How far off game totals usually are",
+  "detail": "Before it was allowed on this page, our totals model was tested on 5,878 past NFL games (2000–2021) it had never seen. Its projected total missed the real combined score by 10.9 points on average; the sportsbooks' closing totals missed by 10.7. Game totals are hard to predict for everyone, so read any single total as the middle of a wide range.",
+  "checkable": {
+   "heldOutGames": 5878,
+   "heldOutSeasons": [
+    2000,
+    2021
+   ],
+   "ourAverageMiss": 10.87,
+   "sportsbookAverageMiss": 10.67,
+   "headsInUse": [
+    "matchup-totals-v3-play-efficiency"
+   ]
   }
  },
  "market": {
   "state": "LIVE",
   "headline": "Sportsbook prices are published for this slate",
   "detail": "Captured before every kickoff shown, across up to 11 sportsbooks. These are the books' own numbers with attribution — not GameTimePicks predictions.",
-  "capturedAt": "2026-09-13T22:54:38Z",
-  "events": 2
+  "capturedAt": "2026-09-14T15:53:09Z",
+  "events": 1
  },
  "playerFamilies": [
   {
