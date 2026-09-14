@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "artifact": "matchup-totals-historical-replay-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "295",
+  "charterSection": "4B-NFL",
+  "registeredAt": "2026-09-13T21:30:00Z",
+
+  "whyThisExists": "matchup-totals-v2-preregistration.json registered a correction for the incumbent totals head's +1.79-point bias and could only score it forward, from 2026 Week 1, at ONE look after 96 finals — because 2025 had been used to diagnose the bias and 2023-24 were the fit window. That is roughly half a season of publishing a head known to be off-centre. The founder asked (2026-09-13) for a model that keeps learning week by week and a verdict sooner. Seasons 2000-2021 have never been examined by any committed NFL research in this repo (searched: no report, corpus or model card references a season before 2022; the nflverse capture derived only 2022 onward). They are about 5,900 REG+POST games with scores and closing totals in the already-captured, hash-pinned nflverse games.csv. Replaying every candidate walk-forward through those seasons, exactly as it would have run live week to week, is a far larger and cleaner held-out test than 96 forward games — and it is available now.",
+
+  "founderDecisions": {
+    "date": "2026-09-13",
+    "historicalAndPlayByPlayData": "APPROVED: pull older free nflverse seasons and play-by-play (CC BY 4.0, same source already in use, no keys, no purchase).",
+    "marketAsInput": "Answered yes. Registered as its own candidate (v2MarketBlend) beside the independent candidates, so the replay measures what the market input buys rather than assuming it; which head the site publishes stays a founder product decision."
+  },
+
+  "relationToEarlierRegistrations": {
+    "matchup-totals-v2-preregistration.json": "The candidate v2LeagueRelative below is that registration's candidate, byte-for-byte in form and parameters. This registration replaces its forward ONE-look as the ADOPTION test with this larger held-out replay, and adds bars (every bar there is kept). Its forward scoring continues as MONITORING and is reported when 96 finals exist; it no longer gates adoption.",
+    "matchup-totals-preregistration.json / matchup-totals-evaluation.json": "The incumbent v1 and its parameters are unchanged and replayed as-is for comparison.",
+    "preregistration-weather-totals-v1.json": "Untouched. No weather input enters any candidate here, so that registration's test stays clean."
+  },
+
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "Dev seasons 2022-2025: the sportsbook closing total's MAE, bias and variance explained per season (market MAE 9.77-10.42; closing total explains 8.0-8.9% of the variance in actual totals); the incumbent's 2025 bias and MAE from its receipt and the v2 diagnosis.",
+    "All seasons 1999-2025: input COMPLETENESS counts only — finals with a score and a total_line per season, team codes per season, and counted plays per season from the play-by-play extraction. No accuracy figure, residual, rating or prediction for any season 2000-2021 has been computed or printed.",
+    "The replay script's --validate mode is run on dev seasons before this file is committed; it computes nothing for a held-out season."
+  ],
+
+  "data": {
+    "games": "data/internal/research/nfl/raw/nflverse/games.csv (nflverse nfldata games.csv; git-ignored raw; sha256 pinned below and equal to nflverse/manifest-v1.json).",
+    "playByPlay": "data/internal/research/nfl/raw/nflverse/pbp/play_by_play_{1999..2025}.csv.gz (nflverse-data release 'pbp', 27 files, ~450 MB, git-ignored; per-file sha256 in SHA256SUMS, whose own hash is pinned below).",
+    "efficiencyTable": "data/internal/research/nfl/replay/team-game-efficiency-v1.json, written by scripts/research/nfl/extract_pbp_efficiency.py: per team-game counted scrimmage plays and EPA sums on offence and allowed on defence. Play filter: pass==1 or rush==1; epa present; posteam and defteam present; not a kneel, spike, two-point attempt or deleted play.",
+    "population": "REG+POST (game_type REG, WC, DIV, CON, SB) finals. Games whose play-by-play is absent keep a zero efficiency deviation for the missing team (3 games, all in 1999-2000)."
+  },
+
+  "replayMechanics": {
+    "ordering": "Games sorted by gameday, gametime, game_id. A date's games are all predicted from state built on STRICTLY EARLIER dates, then that whole date folds in. This is stricter than the v1 fit path, which let a 1pm final inform a 4pm game on the same day; every candidate and baseline is replayed under the same rule.",
+    "warmup": "1999 is warm-up only: ratings start there and no 1999 game is scored.",
+    "pointsRating": "R_team: the v1 recurrence exactly — exponentially decayed mean of (points scored + points allowed) per game, half-life 8 games, a team with no history seeded at the running all-games league mean (44 before any game). Ratings carry across seasons.",
+    "leagueLevel": "L(t): mean of all rated teams' current R, from the same strictly-earlier state.",
+    "efficiencyRatings": "Per team, decayed with the same half-life: oE = offensive EPA per counted play, dE = EPA per counted play allowed, pl = counted offensive plays per game. A team's first observation is seeded at the current league means (or the observation itself on the very first date). League means LoE, LdE, Lpl are means over teams with ratings.",
+    "franchises": "Relocated franchises keep one rating stream (map below)."
+  },
+
+  "candidates": {
+    "incumbentV1": "REFERENCE, not a candidate. mu = 44.9088 + 0.78364 * (s - 42.3251), s = (R_home + R_away)/2, sigma 13.2625. The published head today.",
+    "leagueLevelBaseline": "REFERENCE. mu = L(t) for every game, sigma 13.4915 (the v1 receipt's refit shared prior). 'The same number for every game, at today's league level' — the floor any matchup head must clear.",
+    "marketClose": "REFERENCE, never a candidate. mu = closing total_line; sigma = RMS of (actual - close) on dev 2022-2025. Closing lines are set at kickoff with all information; the site's authorized capture is earlier in the week, so this is a best case for any market-informed head.",
+    "v2LeagueRelative": "CANDIDATE (matchup-totals-v2-league-relative). mu = L(t) + 0.78364 * (s - L(t)), sigma 13.2625. No parameter fit here.",
+    "v3PlayEfficiency": "CANDIDATE (matchup-totals-v3-play-efficiency). mu = L(t) + cS * (s - L(t)) + cE * E + cPlays * P, where E = (oE_home - LoE) + (dE_away - LdE) + (oE_away - LoE) + (dE_home - LdE) and P = (pl_home - Lpl) + (pl_away - Lpl). No intercept: the league level is the intercept, the v2 principle. cS, cE, cPlays by least squares through the origin of (actual - L) on dev 2022-2025 REG+POST; sigma = residual RMS on dev with 3 degrees of freedom removed. Half-life is NOT selected (8, as v1). Nothing else is tried: no feature search, no alternative filters, no per-era refit.",
+    "v2MarketBlend": "CANDIDATE (matchup-totals-v2-market-blend). mu = v2 + w * (close - v2); w by least squares through the origin on dev 2022-2025; sigma = residual RMS on dev. Exists because the founder answered yes to the market as an input."
+  },
+
+  "heldOutSet": {
+    "seasons": "2000-2021 REG+POST",
+    "eras": "2000-2007, 2008-2014, 2015-2021 — each must hold on its own so no single era can carry a verdict.",
+    "scoringMoment": "ONE look: scripts/research/nfl/replay-matchup-totals.mjs --score, which refuses unless this file is committed and unmodified, and refuses if the evaluation file already exists."
+  },
+
+  "frozenBars": {
+    "allCandidates": {
+      "centringOverall": "|mean(predicted) - mean(actual)| <= 1.00 over all held-out games",
+      "centringEachEra": "the same, in every era",
+      "coverage80": "80% interval coverage in [0.72, 0.88]",
+      "maeBelowBaselineEachEra": "MAE strictly below the league-level baseline's MAE in every era",
+      "nllBelowBaseline": "mean Gaussian NLL strictly below the league-level baseline's"
+    },
+    "v2LeagueRelativeAlso": {
+      "maeNotWorseThanIncumbent": "MAE <= incumbentV1 MAE on the same games (kept from the v2 registration)",
+      "noDiscriminationRegression": "sd(predicted) within 0.25 of incumbentV1's (kept from the v2 registration)"
+    },
+    "v3PlayEfficiencyAndV2MarketBlendAlso": {
+      "beatsV2Mae": "season-block bootstrap (resample the 22 held-out seasons with replacement, 2000 resamples, mulberry32 seed 20260913) 95% upper bound of mean(|error| - |error of v2|) strictly below 0",
+      "nllBelowV2": "mean NLL strictly below v2's"
+    }
+  },
+
+  "decisionRule": "Each candidate is ELIGIBLE only if every one of its bars passes, else REJECTED and recorded. If v3PlayEfficiency and v2MarketBlend are both ELIGIBLE, the recommendation is the one with lower held-out mean NLL — a disclosed selection between two registered finalists. Otherwise the recommendation is whichever of them is ELIGIBLE, else v2LeagueRelative if ELIGIBLE, else the incumbent stands. A REJECTED candidate is never retried by adjusting it; a different candidate needs a different registration. Nothing publishes from the evaluation: adoption is its own reviewed step and ships in a founder-approved, batched app/ commit (app/ commits trigger Vercel builds; this research lives outside app/ and triggers none).",
+
+  "whatIsNotAllowed": "No use of any 2000-2021 outcome to choose a parameter, feature, filter, half-life or bar. No second --score run. No weather, injury, QB or rest input in these candidates. The margin head, the win head and the player heads are untouched.",
+
+  "reportedDiagnostics": "Per season and per era: bias, MAE, RMSE, NLL, coverage and sd(predicted) for every predictor including the references; dev-fit coefficients with standard errors; season-bootstrap intervals for v3 vs v2, blend vs v2, market close vs v2, and v3 vs market close; the count of held-out games missing efficiency.",
+
+  "frozen": {
+    "seasons": { "warmup": [1999, 1999], "heldOut": [2000, 2021], "dev": [2022, 2025] },
+    "eras": [[2000, 2007], [2008, 2014], [2015, 2021]],
+    "halfLifeGames": 8,
+    "seedLeagueMean": 44,
+    "franchiseMap": { "STL": "LA", "SD": "LAC", "OAK": "LV", "JAC": "JAX", "LAR": "LA" },
+    "incumbent": { "a0": 44.9088, "a1": 0.78364, "sigma": 13.2625, "meanRatingTrain": 42.3251 },
+    "baselineSigma": 13.4915,
+    "z80": 1.2815515655446004,
+    "bootstrap": { "unit": "season", "resamples": 2000, "seed": 20260913 },
+    "bars": { "centringMaxAbsBias": 1.0, "coverage80Band": [0.72, 0.88], "sdPredictedTolerance": 0.25 },
+    "inputs": {
+      "gamesCsvSha256": "cf8632c85fdc82c8915c7866d0bd16465a88946052bccfbf83b44bee87d5d65e",
+      "efficiencyTableSha256": "803d0f1e652d18337fa8f2b91cf418910c924ed9f0bef27d36b4fc6554ac3828",
+      "pbpSha256SumsSha256": "6ffbff40bd1005a8ebdb41a53825057d2d64e7d188bf134db0e0946eacfaf1f7"
+    }
+  },
+
+  "implementationCheck": {
+    "purpose": "--validate replays the incumbent on dev 2025 and prints it beside the v1 receipt. Close agreement shows the recurrence is reproduced; small differences are expected (games.csv vs the ESPN corpus, and the stricter date-level folding).",
+    "meanPredicted2025": 47.75,
+    "bias2025": 1.79,
+    "mae2025": 10.814
+  },
+
+  "output": "data/internal/research/nfl/reports/matchup-totals-historical-replay-evaluation.json (written once)"
+}
