@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation-public",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-13T22:54:38Z",
-  "slateDate": "2026-09-13",
+  "generatedAt": "2026-09-14T15:53:09Z",
+  "slateDate": "2026-09-14",
   "headline": "Every part of this model reacts to the specific teams playing.",
   "heads": [
     {
       "head": "Who wins, and by how much",
       "state": "EVENT_SPECIFIC",
-      "plainEnglish": "This part uses each team's own strength, so it differs from game to game — across this slate our win percentages range from 47.0% to 47.3%."
+      "plainEnglish": "This part uses each team's own strength, so it differs from game to game — across this slate our win percentages range from 37.0% to 37.0%."
     },
     {
       "head": "How many points are scored",
       "state": "EVENT_SPECIFIC",
-      "plainEnglish": "This part now reads the two teams: each game's total comes from that matchup's own scoring ratings, and across this slate the published totals span 44 to 51 points. The head earned this by beating the old league-average prior on a season it had never seen, under bars that were frozen first."
+      "plainEnglish": "This part reads the two teams: each game's total comes from that matchup's own scoring ratings and from how efficiently both offences and defences have played, play by play, updated after every game. Across this slate the published totals span 41 to 41 points. It replaced the earlier totals model after doing better on 5,878 past games (2000–2021) it had never been tested on, under rules written down before the test."
     }
   ],
   "whyGamesLookAlike": "Win probabilities come from an evaluated strength rating; each game's total comes from that matchup's own scoring ratings.",
   "whatWeFoundAndFixed": "An earlier version of this page applied the team-strength input anyway. Because the measured effect pointed slightly the wrong way, it was quietly favouring the WEAKER side in every game. We caught it, tested the input properly, and switched it off.",
-  "whatWouldChangeIt": "A per-team scoring adapter built from the preseason corpus, which would have to beat a preregistered bar on a season it had never seen before it is allowed to move a published total."
+  "whatWouldChangeIt": "Every part of this model is re-tested before it changes: a new totals or win model has to do better than the current one on games it has never seen, under rules written down before the test."
 }
