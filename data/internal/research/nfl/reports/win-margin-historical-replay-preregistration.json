@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "artifact": "win-margin-historical-replay-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "297",
+  "charterSection": "4B-NFL",
+  "registeredAt": "2026-09-14T06:00:00Z",
+
+  "whyThisExists": "The founder asked (2026-09-13/14) to move every experimental model toward a ready product without waiting for games to settle, and approved starting with NFL. The win and margin heads published on /nfl are the cutoff-Elo head evaluated on held-out 2025 (log loss 0.6478) and its linear margin head. Their only remaining test under the frozen regular-season contract is a 2026 walk-forward sample of at least 64 games over 4 weeks. The P295 totals replay showed that never-examined past seasons are a larger and cleaner held-out set available now. This registration applies the same discipline to the win and margin heads: every candidate, parameter grid, bar and decision rule is fixed here, before any 2006-2021 winner or margin outcome is scored.",
+
+  "relationToTheFrozenContract": {
+    "contract": "data/internal/research/nfl/regular-season-evaluation-contract.json (frozen 2026-08-24, immutable for the 2026 season after its first fit).",
+    "whatThisDoesNotDo": "It does not amend that contract, and nothing here can grant PUBLIC_BETA or PICKS_ELIGIBLE labelling, which the contract reserves for its own 2026 walk-forward sample. Whether the founder wants to supersede that labelling rule with historical evidence is a founder decision, to be put to them with this evaluation in hand.",
+    "whatThisCanDo": "Choose which win and margin heads drive the PUBLIC_EXPERIMENTAL forecasts, exactly as the P295 replay chose the totals head. The bar shapes below are taken from the contract (win log-loss improvement of 0.005 with a market comparison and a 0.02 market hard stop; margin coverage as a 0.75-0.85 BAND and MAE within 0.5) so the historical test is no easier than the forward one.",
+    "forwardMonitoring": "The contract's 2026 walk-forward sample still accrues and is reported when it reaches its minimum, for whichever head is published."
+  },
+
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "Dev seasons 2022-2025: the model-v1 receipt's held-out 2025 figures, including its calibration bins (home win rate 34% in the 40-50% bucket), and the P295 totals diagnostics.",
+    "Seasons 2000-2021 in P295: game scores were loaded to fold TOTAL-points ratings and only total-points metrics were computed (bias, MAE, NLL, coverage, sd of predictions). No winner, margin, win-probability or moneyline metric for any season before 2022 has been computed by any committed research (searched: reports and research directories).",
+    "Seasons 2006-2025 (this session, before writing this file): LINE AND VENUE COLUMNS ONLY — per-season counts of games with both moneylines (5,295 of 5,431), neutral-site counts (85), and the agreement of spread_line's sign with the moneyline favourite (99.60%, confirming spread_line > 0 means the home side is favoured). No score, result or overtime column was read.",
+    "--validate on DEV seasons 2022-2025 only, run before this file was committed: the incumbent replayed from 2023 scores 2025 at log loss 0.6476 against the receipt's 0.6478 (the recurrence is reproduced). Dev fits: eloMov K=20 with home advantage 36; eloHfaRefit home advantage 36; marketBlend w=0. DISCLOSED CONSEQUENCE, grid left exactly as registered: at w=0 the marketBlend candidate IS the no-vig closing moneyline probability on every game that has both prices (the incumbent only where they are missing). Its verdict therefore answers whether to publish the sportsbooks' own win probability, not whether a model improved; any report of it must say so in those words, and publishing it is the founder's product decision."
+  ],
+
+  "data": {
+    "games": "data/internal/research/nfl/raw/nflverse/games.csv (the same hash-pinned file as the P295 registration).",
+    "population": "REG+POST finals. Win-head metrics are over DECISIVE games (a tie has no winner; ties are counted and reported). Margin metrics include ties.",
+    "market": "Home win probability from both closing moneylines with the overround removed proportionally — the method of lib/projection-framework.ts noVigTwoWay, mirrored in the replay. Games without both moneylines are outside every market comparison and stay inside every model-versus-model comparison."
+  },
+
+  "replayMechanics": {
+    "ordering": "Games sorted by gameday then game_id. A date's games are predicted from state built on strictly earlier dates, then that date folds in (the P295 rule; no team plays twice on a date, so this equals the live sequential fold within a date).",
+    "seasonBoundary": "Every rating regresses one third toward 1505 before the first date of a new nflverse season is predicted, exactly as walkForwardObservations does.",
+    "ties": "A tie is predicted and reported but updates no rating (the live rule).",
+    "warmup": "1999-2005 fold ratings and are never scored."
+  },
+
+  "candidates": {
+    "incumbent": "REFERENCE. The published head exactly: Elo K=20, home advantage +48 at every venue (the live code applies it at neutral sites too), mean 1505, one-third season regression; p(home) = 1/(1+10^(-d/400)); margin = 0.069322 * d with sigma 13.7007 (model-v1 receipt, fit on 2023-24). It is also the frozen contract's cutoff-Elo baseline, by construction.",
+    "market": "REFERENCE, never a candidate. No-vig closing moneyline home probability.",
+    "eloMov": "CANDIDATE. Elo with a margin-of-victory multiplier on every decisive update: K * ln(|MOV| + 1) * 2.2 / (winnerEloDiff * 0.001 + 2.2), where winnerEloDiff is the winner's pre-game rating edge including home advantage. Home advantage is 0 at neutral sites. K from {15, 20, 25, 30} and home advantage from {24, 36, 48, 60} chosen together by lowest mean log loss on dev 2022-2025. Margin slope (through the origin on the effective rating difference) and sigma (residual SD) refit on dev.",
+    "eloHfaRefit": "CANDIDATE. The incumbent's update rule (K=20, no margin multiplier) with home advantage chosen from {24, 36, 48, 60} by lowest dev log loss and set to 0 at neutral sites. It isolates the home-field question raised by the 2025 calibration bins. Margin slope and sigma refit on dev.",
+    "marketBlend": "CANDIDATE, WIN HEAD ONLY, MARKET-INFORMED. logit(p) = w * logit(p_incumbent) + (1 - w) * logit(p_market) with w from {0, 0.1, ..., 1} chosen by lowest dev log loss on games with both moneylines; where a held-out game lacks them, the incumbent's probability stands. Its margin head is the incumbent's, unchanged. Exists because the founder answered yes to the market as an input for totals; publishing a market-informed head is the founder's product decision."
+  },
+
+  "heldOutSet": {
+    "seasons": "2006-2021 REG+POST",
+    "eras": "2006-2011, 2012-2016, 2017-2021 — each must hold on its own.",
+    "scoringMoment": "ONE look: scripts/research/nfl/replay-win-margin.mjs --score, which refuses unless this file is committed and unmodified, and refuses if the evaluation file already exists."
+  },
+
+  "frozenBars": {
+    "winHead": {
+      "logLossImprovement": "held-out mean log loss at least 0.005 BELOW the incumbent's on the identical decisive games",
+      "improvementIsNotNoise": "season-block bootstrap (resample the 16 held-out seasons with replacement, 2000 resamples, mulberry32 seed 20260914) 95% upper bound of mean(candidate log loss - incumbent log loss) strictly below 0",
+      "everyEra": "candidate mean log loss strictly below the incumbent's in every era",
+      "marketHardStop": "on decisive games with both moneylines, candidate mean log loss less than 0.02 above the no-vig market's (the contract's STOP_AND_DEMOTE threshold)",
+      "calibration": "expected calibration error (10 equal-width bins of p(home)) no more than 0.01 above the incumbent's"
+    },
+    "marginHead": {
+      "coverageBand": "80% interval coverage (|margin - predicted| <= 1.2816 * sigma) inside the BAND [0.75, 0.85] overall and in every era",
+      "mae": "margin MAE not worse than the incumbent's by more than 0.5 points"
+    }
+  },
+
+  "decisionRule": "Each candidate receives a WIN-HEAD verdict and, where it has its own margin head, a MARGIN-HEAD verdict: ELIGIBLE only if every bar for that head passes, else REJECTED and recorded. Recommendation per head: among ELIGIBLE candidates, the lowest held-out log loss (win) or MAE (margin) — a disclosed selection between registered finalists — with marketBlend always labelled market-informed; otherwise the incumbent stands. A REJECTED candidate is never retried by adjusting it; a different candidate needs a different registration. Nothing publishes from the evaluation: adoption into the PUBLIC_EXPERIMENTAL forecasts is its own reviewed step in a founder-approved app/ commit, and labelling beyond PUBLIC_EXPERIMENTAL stays with the frozen contract unless the founder decides otherwise.",
+
+  "whatIsNotAllowed": "No 2006-2021 outcome may choose a parameter, grid value, candidate, bar or era. No second --score run. No injury, weather, rest, quarterback or roster input in these candidates. The totals head (P295) and the player heads are untouched.",
+
+  "reportedDiagnostics": "Per season and per era for every predictor: decisive games, ties, log loss, Brier and ECE for the win head; MAE and coverage for the margin head. Dev grid traces. Whether the INCUMBENT's own margin coverage lands in the band (the P180 finding said margins missed on blowouts). Season-bootstrap intervals for each candidate versus the incumbent and for the incumbent versus the market.",
+
+  "frozen": {
+    "seasons": { "warmup": [1999, 2005], "heldOut": [2006, 2021], "dev": [2022, 2025] },
+    "eras": [[2006, 2011], [2012, 2016], [2017, 2021]],
+    "franchiseMap": { "STL": "LA", "SD": "LAC", "OAK": "LV", "JAC": "JAX", "LAR": "LA" },
+    "incumbent": { "K": 20, "homeAdvantage": 48, "mean": 1505, "seasonRegression": 0.3333333333333333, "marginSlope": 0.069322, "sigmaMargin": 13.7007 },
+    "grids": { "K": [15, 20, 25, 30], "homeAdvantage": [24, 36, 48, 60], "blendW": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1] },
+    "z80": 1.2815515655446004,
+    "eceBins": 10,
+    "probabilityClamp": 0.000001,
+    "bootstrap": { "unit": "season", "resamples": 2000, "seed": 20260914 },
+    "bars": { "logLossImprovement": 0.005, "marketHardStop": 0.02, "coverageBand": [0.75, 0.85], "maeTolerance": 0.5, "eceTolerance": 0.01 },
+    "inputs": { "gamesCsvSha256": "cf8632c85fdc82c8915c7866d0bd16465a88946052bccfbf83b44bee87d5d65e" }
+  },
+
+  "implementationCheck": {
+    "purpose": "--validate replays the incumbent folding only seasons 2023 onward and scores 2025, beside the model-v1 receipt. Close agreement shows the recurrence is reproduced; small differences are expected (games.csv versus the ESPN corpus, and date-level folding).",
+    "logLoss2025": 0.6478
+  },
+
+  "output": "data/internal/research/nfl/reports/win-margin-historical-replay-evaluation.json (written once)"
+}
