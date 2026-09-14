@@ -3,7 +3,7 @@
   "nextEventDate": null,
   "scheduleReady": true,
   "oddsReady": false,
-  "fighterStatsReady": true,
+  "fighterStatsReady": false,
   "gradingReady": false,
   "backtestReady": false,
   "parlaySimReady": false,
@@ -21,13 +21,14 @@
   "publicLevel": "schedule-only",
   "blockers": [
     "odds provider not connected (Odds API MMA)",
+    "fighter-stat provider not connected",
     "results grading not implemented",
     "no historical backtest yet"
   ],
   "providerStatus": {
     "schedule": "espn_mma",
     "odds": "not_connected",
-    "fighterStats": "connected",
+    "fighterStats": "not_connected",
     "grading": "not_connected",
     "oddsapi": {
       "configured": true,
@@ -35,21 +36,25 @@
       "eventCount": 11,
       "marketCount": 11,
       "oddsReady": false,
-      "warnings": []
+      "warnings": [
+        "odds stale (49h)"
+      ]
     },
     "greco1899_ufcstats_csv": {
       "configured": true,
       "fighterCount": 2695,
       "fightCount": 17402,
       "latestFightDate": "2026-05-16",
-      "fighterStatsReady": true,
-      "warnings": []
+      "fighterStatsReady": false,
+      "warnings": [
+        "fighter data stale"
+      ]
     },
     "greco1899_results": {
       "configured": true,
       "eventCount": 126,
-      "finalBoutCount": 1532,
-      "latestEventDate": "2026-09-05",
+      "finalBoutCount": 1533,
+      "latestEventDate": "2026-09-12",
       "gradingReady": false,
       "warnings": [
         "grader produced no decisive grades to validate"
@@ -67,5 +72,5 @@
     }
   },
   "publicMessage": "UFC coverage is being built \u2014 schedule available; predictions publish only after odds, fighter stats, results grading, and backtesting are connected.",
-  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['odds provider not connected (Odds API MMA)', 'results grading not implemented', 'no historical backtest yet']"
+  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['odds provider not connected (Odds API MMA)', 'fighter-stat provider not connected', 'results grading not implemented', 'no historical backtest yet']"
 }
