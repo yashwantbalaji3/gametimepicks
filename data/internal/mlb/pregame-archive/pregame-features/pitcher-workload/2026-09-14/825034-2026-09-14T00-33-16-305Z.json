@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825034,
+  "date": "2026-09-14",
+  "capturedAt": "2026-09-14T00:33:16.305Z",
+  "availableAt": "2026-09-14T00:33:16.305Z",
+  "eventStartTime": "2026-09-15T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669203,
+      "name": "Corbin Burnes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 6,
+      "lastStartDate": "2026-09-08",
+      "last5": {
+        "starts": 1,
+        "ipSum": 3,
+        "ipAvg": 3,
+        "kAvg": 2,
+        "bbAvg": 2,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 6,
+        "workloadIpLast5": 3
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 3,
+        "k": 2,
+        "bb": 2,
+        "er": 0,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 645261,
+      "name": "Sandy Alcantara",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 6,
+      "lastStartDate": "2026-09-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 2.6,
+        "bbAvg": 1.8,
+        "erAvg": 3.8,
+        "hrAvg": 1,
+        "kPer9": 3.99,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 200,
+        "k": 143,
+        "bb": 55,
+        "er": 84,
+        "hr": 22
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-14&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-14T00:33:16.305Z"
+  },
+  "recordHash": "1c5abca58d8389cb435e0aa3a6e597df5b399e1f8bf58e52ecc6d313969034bf"
+}
