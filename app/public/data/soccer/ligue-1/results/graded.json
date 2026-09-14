@@ -5,12 +5,12 @@
  "public": true,
  "league": "ligue-1",
  "competition": "Ligue 1",
- "generatedAt": "2026-09-13T13:49:12Z",
+ "generatedAt": "2026-09-14T15:54:44Z",
  "rule": "each match graded once, against the last forecast published before kickoff, from the official final score",
  "summary": {
-  "matches": 6,
-  "logLoss": 1.2367,
-  "brier": 0.7482,
+  "matches": 9,
+  "logLoss": 1.077,
+  "brier": 0.6383,
   "uniformLogLoss": 1.0986,
   "sampleState": "TOO_SMALL_TO_ASSESS"
  },
@@ -140,6 +140,69 @@
    "probabilityOfResult": 0.2282,
    "logLoss": 1.4774,
    "brier": 0.895
+  },
+  {
+   "eventId": "soccer:ligue-1:401876462",
+   "matchup": "Lille v Troyes",
+   "homeClub": "Lille",
+   "awayClub": "Troyes",
+   "kickoffUtc": "2026-09-13T13:00:00.000Z",
+   "forecastAt": "2026-09-12T12:53:01Z",
+   "probs": {
+    "home": 0.764564,
+    "draw": 0.130768,
+    "away": 0.104668
+   },
+   "final": {
+    "home": 2,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.7646,
+   "logLoss": 0.2684,
+   "brier": 0.0835
+  },
+  {
+   "eventId": "soccer:ligue-1:401876463",
+   "matchup": "Le Mans v Lens",
+   "homeClub": "Le Mans",
+   "awayClub": "Lens",
+   "kickoffUtc": "2026-09-13T15:15:00.000Z",
+   "forecastAt": "2026-09-13T13:49:12Z",
+   "probs": {
+    "home": 0.244919,
+    "draw": 0.205728,
+    "away": 0.549352
+   },
+   "final": {
+    "home": 2,
+    "away": 2
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2057,
+   "logLoss": 1.5812,
+   "brier": 0.9926
+  },
+  {
+   "eventId": "soccer:ligue-1:401876465",
+   "matchup": "Brest v Paris Saint-Germain",
+   "homeClub": "Brest",
+   "awayClub": "Paris Saint-Germain",
+   "kickoffUtc": "2026-09-13T18:45:00.000Z",
+   "forecastAt": "2026-09-13T13:49:12Z",
+   "probs": {
+    "home": 0.150679,
+    "draw": 0.19459,
+    "away": 0.654731
+   },
+   "final": {
+    "home": 0,
+    "away": 1
+   },
+   "result": "A",
+   "probabilityOfResult": 0.6547,
+   "logLoss": 0.4235,
+   "brier": 0.1798
   }
  ]
 }
