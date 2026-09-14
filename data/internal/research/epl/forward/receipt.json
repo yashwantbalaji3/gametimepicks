@@ -1,0 +1,19 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-forward-receipt",
+ "dataClass": "PRIVATE_RESEARCH",
+ "program": "304",
+ "updatedAt": "2026-09-14T21:44:53Z",
+ "modelId": "epl-model-v2-elo-poisson",
+ "controlModelIds": [],
+ "state": "ACCUMULATING",
+ "watch": false,
+ "n": 0,
+ "needed": 60,
+ "modelLogLoss": null,
+ "controlLogLoss": null,
+ "meanDifference": null,
+ "lo95": null,
+ "hi95": null,
+ "rule": "Paired per-match log loss, new model minus the model it replaced, forecasts generated on or after adoptedAt. FORWARD_BREACHED when the whole 95% event-bootstrap interval is above zero; the previous model then publishes again."
+}

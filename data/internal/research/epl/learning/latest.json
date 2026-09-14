@@ -3,7 +3,7 @@
  "artifact": "epl-learning-report",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-09-14T00:43:45Z",
+ "generatedAt": "2026-09-14T21:44:49Z",
  "corpus": {
   "historical": 1520,
   "currentSeason": 39,
@@ -11,12 +11,12 @@
   "season": "2026-27"
  },
  "sample": {
-  "graded": 35,
-  "pairedWithMarket": 29,
+  "graded": 36,
+  "pairedWithMarket": 30,
   "minSampleForComparison": 30
  },
  "coverage": {
-  "paired": 29,
+  "paired": 30,
   "unpaired": {
    "total": 6,
    "byCause": {
@@ -29,28 +29,28 @@
   ]
  },
  "model": {
-  "n": 35,
-  "logLoss": 1.053473,
-  "brier": 0.650966
+  "n": 36,
+  "logLoss": 1.058552,
+  "brier": 0.65461
  },
  "comparison": {
-  "state": "SAMPLE_TOO_SMALL",
-  "detail": "29 of 30 matches needed before a difference means anything. The figures below are reported for transparency and support no conclusion in either direction.",
+  "state": "MODEL_AHEAD",
+  "detail": "the model's mean log loss is 0.007397 lower than the market's over 30 matches.",
   "onPairedMatches": {
    "model": {
-    "logLoss": 1.066053,
-    "brier": 0.664474
+    "logLoss": 1.071727,
+    "brier": 0.668397
    },
    "market": {
-    "logLoss": 1.085631,
-    "brier": 0.662167
+    "logLoss": 1.079124,
+    "brier": 0.657505
    },
-   "logLossDelta": -0.019578,
-   "brierDelta": 0.002307
+   "logLossDelta": -0.007397,
+   "brierDelta": 0.010892
   }
  },
  "stoppingRule": {
-  "state": "NOT_YET_ASSESSABLE",
-  "detail": "the rule applies from 30 paired matches; there are 29."
+  "state": "CONTINUE",
+  "detail": "the model is ahead of the market by more than the noise floor. Continue, and re-examine at every doubling of the sample."
  }
 }
