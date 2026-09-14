@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "artifact": "anytime-td-forward-protocol",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "301",
+  "registeredAt": "2026-09-14T15:45:00Z",
+  "supplements": "data/internal/research/nfl/reports/anytime-td-historical-replay-preregistration.json (commit cc77514dc) and its one-look receipt anytime-td-historical-replay-evaluation.json (commit 320361cf1: opportunityTd ELIGIBLE). This file registers a BLIND 2026 forward test of that exact model before any 2026 Week 2+ touchdown outcome exists. It changes no constant, gate or bar of the replay.",
+
+  "rules": {
+    "model": "opportunityTd exactly as registered: no-pull carry and target shares (half-life 4, boundary 0.25), team rushing/receiving touchdown form (half-life 8, boundary 0.25, seeded at the 2013 league means), per-touch touchdown efficiency shrunk toward the league rate with 100 prior carries/targets (rate half-life 8, boundary 0.25), plus the 2013 other-touchdown rate per player-game; P = 1 - exp(-mu), clipped to [0.0001, 0.9999]. League constants are recomputed from the 2013 warm-up rows of the hash-pinned player-games-v2 table.",
+    "inputs": "player-games-v2 (2013-2025, hash-pinned by the replay preregistration) plus the same nflverse 2026 files the P300 forward test downloads, with rushing_tds, receiving_tds, special_teams_tds and fumble_recovery_tds read from stats_player_week_2026.",
+    "vehicle": "The P300 forward script (scripts/research/nfl/forward-player-props-share-level.mjs) writes one extra row per candidate player per game, market 'anytime_td', mean = the probability, in the same weekly file committed before the week's first kickoff. The P300 timing, on-time, participation-while-snaps-pending, stale-candidate and grading rules apply unchanged.",
+    "population": "Players whose latest played game was for the team and whose no-pull carry share or target share is at least 0.05 (the replay gate). A candidate with no row in that game is VOID; UNKNOWN participation is quarantined.",
+    "outcome": "rushing + receiving + special-teams + own-fumble-recovery touchdowns >= 1 in that game.",
+    "receipt": "The forward receipt gains family 'anytime_td': ACCUMULATING below 1000 scored player-games, then FORWARD_HOLDING or FORWARD_BREACHED.",
+    "forwardBars": "ECE (10 equal-width bins) at most 0.04 and mean predicted / actual within [0.90, 1.10] — the replay bars widened for a single season, stated before any outcome exists. Log loss is reported beside the constant league-rate baseline for context.",
+    "publicUse": "If the founder approves, the public player board shows these probabilities for anytime touchdowns whenever the week's file exists and the receipts allow (replay ELIGIBLE, forward not FORWARD_BREACHED), with the same roster and injury gates as P300; otherwise the live anytime-td-v1 engine stays. A FORWARD_BREACHED receipt reverts the board automatically.",
+    "knownLimit": "The replay's reliability table over-predicts the top bins (predicted 0.543 vs 0.444 actual, 0.643 vs 0.547; n 1,220 and 433) while the overall level is 1.035 and ECE 0.020. The public likeliest-scorer figure is where that shows; it is reported, not corrected."
+  },
+
+  "frozen": {
+    "firstWeek": 2,
+    "minimumN": 1000,
+    "eceMax": 0.04,
+    "eceBins": 10,
+    "levelBand": [0.9, 1.1]
+  }
+}

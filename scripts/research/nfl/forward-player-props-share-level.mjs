@@ -32,6 +32,10 @@ const PREREG_PATH = "data/internal/research/nfl/reports/player-props-share-level
 const PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-share-level-forward-protocol.json";
 const SECOND_LOOK_PATH = "data/internal/research/nfl/reports/player-props-share-level-second-look.json";
 const TABLE_PATH = "data/internal/research/nfl/replay/player-games-v1.json.gz";
+/* P301 — anytime touchdowns ride in the same weekly file (anytime-td-forward-protocol.json). */
+const TD_PREREG_PATH = "data/internal/research/nfl/reports/anytime-td-historical-replay-preregistration.json";
+const TD_PROTOCOL_PATH = "data/internal/research/nfl/reports/anytime-td-forward-protocol.json";
+const TD_TABLE_PATH = "data/internal/research/nfl/replay/player-games-v2.json.gz";
 const RAW_DIR = "data/internal/research/nfl/raw/nflverse/forward-2026";
 const SEASON = 2026;
 const REL = "https://github.com/nflverse/nflverse-data/releases/download";
@@ -56,6 +60,9 @@ const secondLook = JSON.parse(fs.readFileSync(rel(SECOND_LOOK_PATH), "utf8"));
 const F = prereg.frozen;
 const P = protocol.frozen;
 if (sha(fs.readFileSync(rel(TABLE_PATH))) !== F.inputs.playerGamesSha256) refuse("player-games table does not match the registered hash");
+const TF = JSON.parse(fs.readFileSync(rel(TD_PREREG_PATH), "utf8")).frozen;
+const TP = JSON.parse(fs.readFileSync(rel(TD_PROTOCOL_PATH), "utf8")).frozen;
+if (sha(fs.readFileSync(rel(TD_TABLE_PATH))) !== TF.inputs.playerGamesSha256) refuse("player-games-v2 table does not match the P301 registered hash");
 const CAND = F.candidates[0];
 const scaleOf = (mkt) => {
   const s = secondLook.devDispersionScales[`${mkt}|${CAND}`];
@@ -89,7 +96,7 @@ function table(text, file, need) {
   return { col: Object.fromEntries(header.map((h, i) => [h, i])), rows };
 }
 const SOURCES = {
-  stats: { file: `stats_player_week_${SEASON}.csv.gz`, url: `${REL}/stats_player/stats_player_week_${SEASON}.csv.gz`, gz: true, need: ["game_id", "team", "opponent_team", "position", "player_id", "player_display_name", "targets", "receptions", "receiving_yards", "carries", "rushing_yards", "attempts", "completions", "passing_yards"] },
+  stats: { file: `stats_player_week_${SEASON}.csv.gz`, url: `${REL}/stats_player/stats_player_week_${SEASON}.csv.gz`, gz: true, need: ["game_id", "team", "opponent_team", "position", "player_id", "player_display_name", "targets", "receptions", "receiving_yards", "carries", "rushing_yards", "attempts", "completions", "passing_yards", "rushing_tds", "receiving_tds", "special_teams_tds", "fumble_recovery_tds"] },
   snaps: { file: `snap_counts_${SEASON}.csv.gz`, url: `${REL}/snap_counts/snap_counts_${SEASON}.csv.gz`, gz: true, need: ["game_id", "team", "opponent", "pfr_player_id", "player", "position", "offense_snaps"] },
   roster: { file: `roster_weekly_${SEASON}.csv`, url: `${REL}/weekly_rosters/roster_weekly_${SEASON}.csv`, gz: false, need: ["pfr_id", "gsis_id", "espn_id"] },
   players: { file: "players.csv", url: `${REL}/players/players.csv`, gz: false, need: ["gsis_id", "espn_id"] },
@@ -152,6 +159,8 @@ const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
 const norm = (s) => String(s ?? "").toLowerCase().replace(/\b(jr|sr|ii|iii|iv|v)\b\.?/g, "").replace(/[^a-z]/g, "");
 const lastName = (s) => (String(s ?? "").toLowerCase().replace(/\b(jr|sr|ii|iii|iv|v)\b\.?/g, "").trim().split(/\s+/).at(-1) ?? "").replace(/[^a-z]/g, "");
 
+/* Season rows use the player-games-v2 layout: the v1 columns, then rushTd, recTd, otherTd. */
+const SEASON_TD = Object.freeze({ rushTd: 20, recTd: 21, otherTd: 22 });
 function buildSeasonRows({ stats, snaps, roster, gameMeta }) {
   const pfrToGsis = new Map();
   for (const r of roster.rows) {
@@ -184,10 +193,12 @@ function buildSeasonRows({ stats, snaps, roster, gameMeta }) {
     if (!meta) continue;
     statGames.add(gameId);
     const team = fr(r[stats.col.team]);
-    const t = (teamTotals[`${gameId}|${team}`] ??= [0, 0, 0]);
+    const t = (teamTotals[`${gameId}|${team}`] ??= [0, 0, 0, 0, 0]);
     t[0] += num(r[stats.col.attempts]);
     t[1] += num(r[stats.col.carries]);
     t[2] += num(r[stats.col.targets]);
+    t[3] += num(r[stats.col.rushing_tds]);
+    t[4] += num(r[stats.col.receiving_tds]);
     const position = r[stats.col.position];
     if (!SKILL.has(position)) continue;
     acc.statRowsSkill += 1;
@@ -200,13 +211,14 @@ function buildSeasonRows({ stats, snaps, roster, gameMeta }) {
     else { acc.unknown += 1; participation = "UNKNOWN"; }
     rows.push([gameId, meta.season, meta.week, meta.date, meta.type, team, fr(r[stats.col.opponent_team]), gsis, name, position, participation, snap ? snap.offenseSnaps : null,
       num(r[stats.col.targets]), num(r[stats.col.receptions]), num(r[stats.col.receiving_yards]), num(r[stats.col.carries]), num(r[stats.col.rushing_yards]),
-      num(r[stats.col.attempts]), num(r[stats.col.completions]), num(r[stats.col.passing_yards])]);
+      num(r[stats.col.attempts]), num(r[stats.col.completions]), num(r[stats.col.passing_yards]),
+      num(r[stats.col.rushing_tds]), num(r[stats.col.receiving_tds]), num(r[stats.col.special_teams_tds]) + num(r[stats.col.fumble_recovery_tds])]);
   }
   for (const s of snapRows) {
     if (s.claimed || s.offenseSnaps <= 0 || !SKILL.has(s.position)) continue;
     const meta = gameMeta.get(s.gameId);
     acc.playedNoRow += 1;
-    rows.push([s.gameId, meta.season, meta.week, meta.date, meta.type, s.team, s.opponent, s.gsis ?? `pfr:${s.pfr}`, s.name, s.position, "PLAYED_NO_ROW", s.offenseSnaps, 0, 0, 0, 0, 0, 0, 0, 0]);
+    rows.push([s.gameId, meta.season, meta.week, meta.date, meta.type, s.team, s.opponent, s.gsis ?? `pfr:${s.pfr}`, s.name, s.position, "PLAYED_NO_ROW", s.offenseSnaps, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   }
   return { rows, teamTotals, sheetGames, statGames, accounting: acc };
 }
@@ -418,6 +430,73 @@ if (MODE === "forecast") {
     if (!folded.has(tk)) { folded.add(tk); foldTeam(r[C.team], r[C.season], totals); }
   }
 
+  /* P301 — anytime TD: the registered opportunityTd model on its own walk-forward state over the hash-pinned
+     player-games-v2 table plus this season's rows (same column layout: rushTd, recTd, otherTd at the end). */
+  const tdBase = JSON.parse(zlib.gunzipSync(fs.readFileSync(rel(TD_TABLE_PATH))));
+  const T = Object.fromEntries(tdBase.columns.map((c, i) => [c, i]));
+  if (T.rushTd !== SEASON_TD.rushTd || T.recTd !== SEASON_TD.recTd || T.otherTd !== SEASON_TD.otherTd) refuse("player-games-v2 touchdown columns moved — the season rows would be misread");
+  const tdIn = (r, [a, b]) => r[T.season] >= a && r[T.season] <= b;
+  const anyTdOf = (r) => (r[T.rushTd] + r[T.recTd] + r[T.otherTd] > 0 ? 1 : 0);
+  const warm = tdBase.rows.filter((r) => tdIn(r, TF.seasons.warmup) && r[T.participation] !== "UNKNOWN");
+  const warmTeam = Object.entries(tdBase.teamTotals).filter(([k]) => Number(k.slice(0, 4)) >= TF.seasons.warmup[0] && Number(k.slice(0, 4)) <= TF.seasons.warmup[1]).map(([, v]) => v);
+  const touched = warm.filter((r) => r[T.carries] + r[T.targets] > 0);
+  const tsum = (list, fn) => list.reduce((a, x) => a + fn(x), 0);
+  const TL = {
+    rushTdPerCarry: tsum(warm, (r) => r[T.rushTd]) / tsum(warm, (r) => r[T.carries]),
+    recTdPerTarget: tsum(warm, (r) => r[T.recTd]) / tsum(warm, (r) => r[T.targets]),
+    teamRushTd: tsum(warmTeam, (v) => v[3]) / warmTeam.length,
+    teamRecTd: tsum(warmTeam, (v) => v[4]) / warmTeam.length,
+    otherTdPerPlayerGame: tsum(touched, (r) => r[T.otherTd]) / touched.length,
+  };
+  const tdPlayers = new Map();
+  const tdByTeam = new Map();
+  const tdTeamForm = new Map();
+  const tw = (idxNow, idx, seasonNow, s, hl, bd) => 0.5 ** ((idxNow - idx) / hl) * bd ** Math.max(0, seasonNow - s);
+  const tdShare = (st, fam) => { let n = 0; let d = 0; for (const o of st.obs[fam]) { const w = tw(st.games, o.idx, SEASON, o.season, TF.share.halfLifeGames, TF.share.boundaryDecay); n += w * o.share; d += w; } return d > 0 ? n / d : 0; };
+  const tdRate = (st, key, league, prior) => { let n = 0; let d = 0; for (const o of st.rates[key]) { const w = tw(st.games, o.idx, SEASON, o.season, TF.rate.halfLifeGames, TF.rate.boundaryDecay); n += w * o.num; d += w * o.den; } return (n + prior * league) / (d + prior); };
+  const tdTeam = (team, s) => { const t = tdTeamForm.get(team); if (!t) return { rush: TL.teamRushTd, rec: TL.teamRecTd }; const bd = TF.teamForm.boundaryDecay ** Math.max(0, s - t.season); return { rush: TL.teamRushTd + (t.rush - TL.teamRushTd) * bd, rec: TL.teamRecTd + (t.rec - TL.teamRecTd) * bd }; };
+  const tdRows = [...tdBase.rows, ...season.rows].filter((r) => r[T.date] < next.firstDate)
+    .sort((a, b) => (a[T.date] !== b[T.date] ? (a[T.date] < b[T.date] ? -1 : 1) : a[T.gameId] < b[T.gameId] ? -1 : a[T.gameId] > b[T.gameId] ? 1 : 0));
+  const tdFolded = new Set();
+  for (const r of tdRows) {
+    if (r[T.participation] === "UNKNOWN") continue;
+    const id = String(r[T.playerId]);
+    if (!tdPlayers.has(id)) tdPlayers.set(id, { team: null, games: 0, obs: { rush: [], targets: [] }, rates: { rushTd: [], recTd: [] }, name: null, position: null, lastSeason: null });
+    const st = tdPlayers.get(id);
+    const totals = tdBase.teamTotals[`${r[T.gameId]}|${r[T.team]}`] ?? season.teamTotals[`${r[T.gameId]}|${r[T.team]}`] ?? [0, 0, 0, 0, 0];
+    if (st.team !== r[T.team]) {
+      if (st.team) tdByTeam.get(st.team)?.delete(id);
+      st.obs = { rush: [], targets: [] };
+      st.team = r[T.team];
+      if (!tdByTeam.has(st.team)) tdByTeam.set(st.team, new Set());
+      tdByTeam.get(st.team).add(id);
+    }
+    const idx = st.games + 1;
+    st.obs.rush.push({ share: totals[1] > 0 ? r[T.carries] / totals[1] : 0, idx, season: r[T.season] });
+    st.obs.targets.push({ share: totals[2] > 0 ? r[T.targets] / totals[2] : 0, idx, season: r[T.season] });
+    if (r[T.carries] > 0) st.rates.rushTd.push({ num: r[T.rushTd], den: r[T.carries], idx, season: r[T.season] });
+    if (r[T.targets] > 0) st.rates.recTd.push({ num: r[T.recTd], den: r[T.targets], idx, season: r[T.season] });
+    st.games = idx;
+    st.name = r[T.name];
+    st.position = r[T.position];
+    st.lastSeason = r[T.season];
+    const tk = `${r[T.gameId]}|${r[T.team]}`;
+    if (!tdFolded.has(tk)) {
+      tdFolded.add(tk);
+      const cur = tdTeam(r[T.team], r[T.season]);
+      const alpha = 1 - 0.5 ** (1 / TF.teamForm.halfLifeGames);
+      tdTeamForm.set(r[T.team], { rush: cur.rush + alpha * (totals[3] - cur.rush), rec: cur.rec + alpha * (totals[4] - cur.rec), season: r[T.season] });
+    }
+  }
+  const tdProbability = (st, team) => {
+    const lam = tdTeam(team, SEASON);
+    const mu = tdShare(st, "rush") * lam.rush * (tdRate(st, "rushTd", TL.rushTdPerCarry, TF.opportunityTd.rushPriorCarries) / TL.rushTdPerCarry)
+      + tdShare(st, "targets") * lam.rec * (tdRate(st, "recTd", TL.recTdPerTarget, TF.opportunityTd.recPriorTargets) / TL.recTdPerTarget)
+      + TL.otherTdPerPlayerGame;
+    return Math.min(1 - TF.probabilityClip, Math.max(TF.probabilityClip, 1 - Math.exp(-mu)));
+  };
+  const OUT_MARKETS = [...MARKETS, "anytime_td"];
+
   /* p25/p75/espnId are publication columns (the public board shows quartiles and keys players by ESPN id);
      they enter no metric. espnId comes from nflverse's all-time players crosswalk, overridden by the 2026 weekly
      roster where both name one (the roster is the newer statement). */
@@ -452,6 +531,12 @@ if (MODE === "forecast") {
           out.push([g.gameId, g.kickoffUtc, team, opponent, id, st.name, st.position, mkt, share, m.mean, e.p10, e.p50, e.p90, line, e.pOver, shareVol, st.lastSeason, e.p25, e.p75, espnOf.get(id) ?? null].map(r4));
         }
       }
+      /* P301: one anytime-TD row per gated candidate; `mean` carries the probability, the range columns stay null. */
+      for (const id of [...(tdByTeam.get(team) ?? [])].sort()) {
+        const st = tdPlayers.get(id);
+        if (tdShare(st, "rush") < TF.gate.carryShare && tdShare(st, "targets") < TF.gate.targetShare) continue;
+        out.push([g.gameId, g.kickoffUtc, team, opponent, id, st.name, st.position, "anytime_td", null, tdProbability(st, team), null, null, null, null, null, null, st.lastSeason, null, null, espnOf.get(id) ?? null].map(r4));
+      }
     }
   }
   const body = {
@@ -474,9 +559,10 @@ if (MODE === "forecast") {
       earlierGamesWithoutStatRows: missingStats,
       accounting2026: season.accounting,
     },
-    counts: Object.fromEntries(MARKETS.map((m) => [m, out.filter((r) => r[7] === m).length])),
+    tdModel: { candidate: "opportunityTd", preregistration: TD_PREREG_PATH, protocol: TD_PROTOCOL_PATH, league2013: TL },
+    counts: Object.fromEntries(OUT_MARKETS.map((m) => [m, out.filter((r) => r[7] === m).length])),
     /* With no pull toward zero a departed player's share never fades, so he stays a candidate and grades VOID. */
-    staleCandidates: Object.fromEntries(MARKETS.map((m) => [m, out.filter((r) => r[7] === m && r[16] < SEASON - 1).length])),
+    staleCandidates: Object.fromEntries(OUT_MARKETS.map((m) => [m, out.filter((r) => r[7] === m && r[16] < SEASON - 1).length])),
     columns: COLUMNS,
     rows: out,
   };
@@ -517,7 +603,11 @@ for (const f of forecastFiles) {
       const r = index.get(`${gameId}|${row[fcCol.team]}|${row[fcCol.playerId]}`);
       if (!r) state = "VOID";
       else if (r[C.participation] === "UNKNOWN") state = "QUARANTINED";
-      else { state = "SCORED"; actual = r[ACTUAL_COL[mkt]]; }
+      else {
+        state = "SCORED";
+        /* P301: anytime TD settles 1 when rushing + receiving + other touchdowns >= 1. */
+        actual = mkt === "anytime_td" ? (r[SEASON_TD.rushTd] + r[SEASON_TD.recTd] + r[SEASON_TD.otherTd] > 0 ? 1 : 0) : r[ACTUAL_COL[mkt]];
+      }
     }
     tally[state] += 1;
     graded.push([...row, state, actual]);
@@ -571,6 +661,34 @@ for (const mkt of MARKETS) {
     level: m.level != null && m.level >= B.levelBand[0] && m.level <= B.levelBand[1],
   };
   families[mkt] = { state: Object.values(bars).every(Boolean) ? "FORWARD_HOLDING" : "FORWARD_BREACHED", n: m.n, metrics: m, bars };
+}
+/* P301 anytime TD (anytime-td-forward-protocol.json): ECE and level against the forward bars; log loss beside a
+   constant at the observed rate, for context only. */
+{
+  const list = scored.filter((x) => x.mkt === "anytime_td" && Number.isFinite(x.mean));
+  const n = list.length;
+  let m = null;
+  if (n) {
+    const bins = Array.from({ length: TP.eceBins }, () => ({ n: 0, p: 0, y: 0 }));
+    let ll = 0;
+    let sp = 0;
+    let sy = 0;
+    for (const x of list) {
+      ll -= x.actual ? Math.log(x.mean) : Math.log(1 - x.mean);
+      sp += x.mean;
+      sy += x.actual;
+      const b = bins[Math.min(TP.eceBins - 1, Math.floor(x.mean * TP.eceBins))];
+      b.n += 1; b.p += x.mean; b.y += x.actual;
+    }
+    const rate = sy / n;
+    const constLl = rate > 0 && rate < 1 ? -(rate * Math.log(rate) + (1 - rate) * Math.log(1 - rate)) : null;
+    m = { n, logLoss: ll / n, constantRateLogLoss: constLl, meanPredicted: sp / n, actualRate: rate, level: sy > 0 ? sp / sy : null, ece: bins.reduce((a, b) => a + (b.n ? (b.n / n) * Math.abs(b.p / b.n - b.y / b.n) : 0), 0) };
+  }
+  if (!m || n < TP.minimumN) families.anytime_td = { state: "ACCUMULATING", n, needed: TP.minimumN, metrics: m };
+  else {
+    const bars = { calibration: m.ece <= TP.eceMax, level: m.level != null && m.level >= TP.levelBand[0] && m.level <= TP.levelBand[1] };
+    families.anytime_td = { state: Object.values(bars).every(Boolean) ? "FORWARD_HOLDING" : "FORWARD_BREACHED", n, metrics: m, bars };
+  }
 }
 const receipt = {
   schemaVersion: 1,
