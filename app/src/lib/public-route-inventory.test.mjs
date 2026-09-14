@@ -113,6 +113,7 @@ const APPROVED_DESTINATIONS = new Set([
   "/results/picks/ufc",
   "/results/picks/epl",
   "/results/nba",
+  "/results/nfl", // P296: the NFL week report — every published prediction graded against the official box score
   "/mlb",
   "/mlb/board",
   "/sports",

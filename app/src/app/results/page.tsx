@@ -48,6 +48,7 @@ import {
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
 import { currentEtDate } from "@/lib/freshness";
+import { readNflWeekReports, pct as pctRate } from "@/lib/sports/nfl/week-report-data";
 import { resultsMode } from "@/lib/sport-capability-registry";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { PUBLIC_PARLAY_RESULTS_START_DATE } from "@/lib/public-parlay-era";
@@ -120,6 +121,7 @@ function resultSources() {
 
 export default function ResultsPage() {
   const summary = getOptimizerSummary();
+  const nflWeek = readNflWeekReports();
 
   // Leg-level PROJECTION accuracy (the model-quality lead) — settled-only,
   // sourced from lifetime_summary.json (NBA = results/, MLB = mlb/results/).
@@ -249,18 +251,51 @@ export default function ResultsPage() {
           page's saved-slip grading from the Lab's own suggestions or the model-pick ledgers. Each
           line names its population and settlement policy; the destination carries the denominators
           and stamps. Links only — this section computes NOTHING and can never blend the records. */}
+      {/* P296 · the NFL week report, where a reader looks first. Numbers come from the same artifact
+          /results/nfl renders (one reader, week-report-data.ts), so the card and the page cannot disagree. */}
+      {nflWeek.latest ? (
+        <section
+          aria-label={`NFL ${nflWeek.latest.period.label} report`}
+          className="mt-4 rounded-[10px] px-4 py-3 flex flex-wrap items-center justify-between gap-3"
+          style={{ border: "1px solid var(--vault-border-strong)", background: "var(--gtp-card)" }}
+        >
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
+              NFL · {nflWeek.latest.period.label} report
+            </span>
+            <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 16, lineHeight: 1.3 }}>
+              {pctRate(nflWeek.latest.summary.overall.rate)} of our NFL predictions came true
+            </span>
+            <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
+              {nflWeek.latest.summary.overall.hits} of {nflWeek.latest.summary.overall.checks} checks across {nflWeek.latest.summary.gamesFinal} final games — every team and player prediction, graded against the official box score.
+            </span>
+          </div>
+          <Link
+            href="/results/nfl/"
+            className="font-mono uppercase tracking-[0.12em] px-3.5 py-2 rounded-full shrink-0"
+            style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", fontSize: 12, lineHeight: 1.1 }}
+          >
+            See every prediction →
+          </Link>
+        </section>
+      ) : null}
+
       <section
         aria-label="Which record is which"
         className="mt-4 rounded-[10px] px-4 py-3"
         style={{ border: "1px solid var(--vault-border-strong)" }}
       >
         <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
-          Four separate records · never blended
+          Five separate records · never blended
         </div>
         <ul className="mt-2 flex flex-col gap-1.5" style={{ fontSize: 12.5, lineHeight: 1.55, listStyle: "none", padding: 0 }}>
           <li>
             <Link href="/results/picks" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Model picks</Link>
             <span style={{ color: "var(--vault-text-mute)" }}> — every published per-sport model read vs the official outcome; graded from official results only.</span>
+          </li>
+          <li>
+            <Link href="/results/nfl/" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>NFL week report</Link>
+            <span style={{ color: "var(--vault-text-mute)" }}> — every team and player prediction from the week, hit or miss against the official box score, with a success rate per prediction.</span>
           </li>
           <li>
             <Link href="/results/parlay-lab" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Suggested parlays</Link>

@@ -4,6 +4,7 @@ export type ResultsSportTab =
   | "overview"
   | "nba"
   | "mlb"
+  | "nfl"
   | "parlays";
 
 /**
@@ -14,7 +15,7 @@ export type ResultsSportTab =
  * The NHL and IPL tabs are gone with their routes: both were permanent
  * "pending" placeholders for sports with no ingest and no settlement,
  * and a tab is a claim of coverage. Only sports with a real settled
- * record appear — MLB (live) and NBA (archive).
+ * record appear — MLB (live), NFL (the weekly report, P296) and NBA (archive).
  */
 export default function ResultsSportTabs({
   activeSport,
@@ -37,6 +38,12 @@ export default function ResultsSportTabs({
       label: "MLB",
       note: mlbHasData ? "live" : "pending",
       href: "/mlb/results",
+    },
+    {
+      id: "nfl",
+      label: "NFL",
+      note: "week report",
+      href: "/results/nfl/",
     },
     {
       id: "nba",

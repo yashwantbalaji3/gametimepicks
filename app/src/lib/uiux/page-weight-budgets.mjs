@@ -12,6 +12,9 @@ export const BUDGET_KB = Object.freeze({
      as compact lines that still name every leg and its graded result. The ceiling comes down with
      the emission, which is the rule this file states above. Shrink-only from here. */
   "results/index.html": 2300,
+  /* P296: the NFL week report renders every graded player prediction (~400 rows a week, collapsed per
+     game). Set from the first measured build; shrink-only like every other ceiling here. */
+  "results/nfl/index.html": 700,
   "index.html": 600,            // measured 189KB
   "today/index.html": 1200,     // measured 395KB
   /* P208 (Release H): the redesigned surfaces — measured 2026-08-26 on a 15-game MLB slate

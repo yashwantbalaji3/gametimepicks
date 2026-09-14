@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-12T14:25:17Z",
+ "generatedAt": "2026-09-14T04:43:15Z",
  "totals": {
-  "routes": 70,
-  "public": 45,
+  "routes": 71,
+  "public": 46,
   "internal": 6,
   "redirects": 15,
   "archive": 2,
@@ -256,7 +256,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (113 generated page(s))"
+   "built": "FAMILY (114 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -343,7 +343,7 @@
    "purpose": "NFL per-game experimental simulation report (P177-A): projected score, win chance, total and margin distributions with percentiles, the market read side by side, a reading key and the full provenance receipt — statically generated from the committed forecast artifact, dynamicParams=false",
    "dataOwner": "nfl/forecasts/latest.json + nfl/index.json + nfl/player-board/<eventId>.json + nfl/score-shape/latest.json (build-time reads)",
    "freshness": "each report carries its own generatedAt, kickoff and lifecycle",
-   "built": "FAMILY (14 generated page(s))"
+   "built": "FAMILY (2 generated page(s))"
   },
   {
    "route": "/nfl/week/[key]",
@@ -466,7 +466,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (97 generated page(s))"
+   "built": "FAMILY (98 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -493,6 +493,15 @@
    "purpose": "NBA settled archive (HISTORICAL_ONLY)",
    "dataOwner": "frozen archive",
    "freshness": "frozen — archive is dated by design",
+   "built": true
+  },
+  {
+   "route": "/results/nfl",
+   "classification": "public",
+   "owner": "settlement",
+   "purpose": "NFL week report (P296): every team and player prediction published before kickoff, graded against the official box score — hit/miss per prediction, success rate per prop and overall, voids and pending games named",
+   "dataOwner": "nfl/reconciliation/<week>.json + index.json (build-nfl-week-reconciliation)",
+   "freshness": "the artifact's own generatedAt, printed on the page",
    "built": true
   },
   {

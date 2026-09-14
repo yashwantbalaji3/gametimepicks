@@ -433,6 +433,16 @@ jobs:
           node scripts/nfl/evaluate-margin-interval-shadow.mjs --now "${{ steps.window.outputs.now }}" --write | tee /tmp/shadow.txt
           { echo "### NFL margin-interval shadow"; echo ""; echo '```'; cat /tmp/shadow.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
+      # P296: the public week report — every published team and player prediction graded against the
+      # official box score. Idempotent and quiet: an unchanged week is not rewritten, so a run with no new
+      # finals commits nothing and triggers no deploy. Non-blocking: a report must never fail settlement.
+      - name: Reconcile the NFL week against official box scores
+        working-directory: app
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          node scripts/nfl/build-nfl-week-reconciliation.mjs --now "${{ steps.window.outputs.now }}"
+
       - name: Commit settlement receipts
         run: |
           set -euo pipefail
@@ -441,6 +451,9 @@ jobs:
           git add data/internal/nfl/settlement/ data/internal/nfl/experimental-settlement/ \
                   app/public/data/nfl/interval-calibration.json \
                   data/internal/research/nfl/reports/margin-interval-shadow-latest.json
+          # P296: the week report and the official lines it graded (created on the first reconciled week).
+          if [ -d app/public/data/nfl/reconciliation ]; then git add app/public/data/nfl/reconciliation/; fi
+          if [ -d data/internal/nfl/official-stats ]; then git add data/internal/nfl/official-stats/; fi
           if git diff --cached --quiet; then echo "no settlement change"; exit 0; fi
           git commit -m "auto: nfl settlement receipts [skip ci]"
           git pull --rebase --autostash origin main
