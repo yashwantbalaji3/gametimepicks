@@ -7,8 +7,9 @@ name: nfl-props-forward-shadow
 
 on:
   schedule:
-    - cron: "0 15 * 9-12,1 *"   # daily 11:00 ET in season — grades when snap sheets land, forecasts once stats are in
-    - cron: "0 21 * 9-12,1 4"   # Thursday 17:00 ET — a second chance before Thursday Night Football
+    # Both run ahead of nfl-event-window (14:30/15:00/21:00 UTC), which builds the public player board from these files.
+    - cron: "30 13 * 9-12,1 *"  # daily 09:30 ET in season — grades when snap sheets land, forecasts once stats are in
+    - cron: "0 20 * 9-12,1 4"   # Thursday 16:00 ET — a second chance before Thursday Night Football
   workflow_dispatch: {}
 
 # OWN group: a shared group can silently cancel a pending run (P257).
@@ -59,7 +60,8 @@ jobs:
               exit 0
             fi
             echo "push rejected (attempt $a) — merging origin/main (never rebase: the forecast commit date is the on-time proof)"
-            git pull --no-rebase --no-edit origin main
+            git fetch origin main
+            git merge --no-edit origin/main
             sleep $((a * 5))
           done
           echo "::error::push never landed after 4 attempts"

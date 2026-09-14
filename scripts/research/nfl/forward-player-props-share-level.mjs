@@ -91,7 +91,8 @@ function table(text, file, need) {
 const SOURCES = {
   stats: { file: `stats_player_week_${SEASON}.csv.gz`, url: `${REL}/stats_player/stats_player_week_${SEASON}.csv.gz`, gz: true, need: ["game_id", "team", "opponent_team", "position", "player_id", "player_display_name", "targets", "receptions", "receiving_yards", "carries", "rushing_yards", "attempts", "completions", "passing_yards"] },
   snaps: { file: `snap_counts_${SEASON}.csv.gz`, url: `${REL}/snap_counts/snap_counts_${SEASON}.csv.gz`, gz: true, need: ["game_id", "team", "opponent", "pfr_player_id", "player", "position", "offense_snaps"] },
-  roster: { file: `roster_weekly_${SEASON}.csv`, url: `${REL}/weekly_rosters/roster_weekly_${SEASON}.csv`, gz: false, need: ["pfr_id", "gsis_id"] },
+  roster: { file: `roster_weekly_${SEASON}.csv`, url: `${REL}/weekly_rosters/roster_weekly_${SEASON}.csv`, gz: false, need: ["pfr_id", "gsis_id", "espn_id"] },
+  players: { file: "players.csv", url: `${REL}/players/players.csv`, gz: false, need: ["gsis_id", "espn_id"] },
   games: { file: "games.csv", url: "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv", gz: false, need: ["game_id", "season", "game_type", "week", "gameday", "gametime", "away_team", "home_team", "away_score", "home_score"] },
 };
 /** Download, validate by CONTENT (gzip, header, row widths, columns), and only then replace the cache. */
@@ -317,16 +318,16 @@ function moments(st, mkt, season, vol) {
 function evaluateRow(m, s, line) {
   if (m.count) {
     const d = countDist(m.mean, m.mean + s * Math.max(m.variance - m.mean, 0));
-    return { p10: countQuantile(d, 0.1), p50: countQuantile(d, 0.5), p90: countQuantile(d, 0.9), pOver: line > 0 ? 1 - countCdf(d, Math.floor(line)) : null };
+    return { p10: countQuantile(d, 0.1), p25: countQuantile(d, 0.25), p50: countQuantile(d, 0.5), p75: countQuantile(d, 0.75), p90: countQuantile(d, 0.9), pOver: line > 0 ? 1 - countCdf(d, Math.floor(line)) : null };
   }
   const p0 = countPmf(countDist(m.zeroCount.mean, m.zeroCount.variance), 0);
   const d = zeroGamma(m.mean, s * m.variance, p0);
-  return { p10: zgQuantile(d, 0.1), p50: zgQuantile(d, 0.5), p90: zgQuantile(d, 0.9), pOver: line > 0 ? 1 - zgCdf(d, line) : null };
+  return { p10: zgQuantile(d, 0.1), p25: zgQuantile(d, 0.25), p50: zgQuantile(d, 0.5), p75: zgQuantile(d, 0.75), p90: zgQuantile(d, 0.9), pOver: line > 0 ? 1 - zgCdf(d, line) : null };
 }
 
 // ── inputs ────────────────────────────────────────────────────────────────────────────────────────
-const [stats, snaps, roster, gamesCsv] = await Promise.all(["stats", "snaps", "roster", "games"].map((k) => load(k).catch((e) => refuse(e.message))));
-const inputs = [stats.source, snaps.source, roster.source, gamesCsv.source];
+const [stats, snaps, roster, gamesCsv, playersCsv] = await Promise.all(["stats", "snaps", "roster", "games", "players"].map((k) => load(k).catch((e) => refuse(e.message))));
+const inputs = [stats.source, snaps.source, roster.source, gamesCsv.source, playersCsv.source];
 const gameMeta = new Map();
 for (const r of gamesCsv.rows) {
   if (Number(r[gamesCsv.col.season]) !== SEASON) continue;
@@ -403,7 +404,21 @@ if (MODE === "forecast") {
     if (!folded.has(tk)) { folded.add(tk); foldTeam(r[C.team], r[C.season], totals); }
   }
 
-  const COLUMNS = ["gameId", "kickoffUtc", "team", "opponent", "playerId", "name", "position", "market", "share", "mean", "p10", "p50", "p90", "line", "pOverLine", "shareVol", "lastSeason"];
+  /* p25/p75/espnId are publication columns (the public board shows quartiles and keys players by ESPN id);
+     they enter no metric. espnId comes from nflverse's all-time players crosswalk, overridden by the 2026 weekly
+     roster where both name one (the roster is the newer statement). */
+  const COLUMNS = ["gameId", "kickoffUtc", "team", "opponent", "playerId", "name", "position", "market", "share", "mean", "p10", "p50", "p90", "line", "pOverLine", "shareVol", "lastSeason", "p25", "p75", "espnId"];
+  const espnOf = new Map();
+  for (const r of playersCsv.rows) {
+    const g = r[playersCsv.col.gsis_id];
+    const e = r[playersCsv.col.espn_id];
+    if (g && e && g !== "NA" && e !== "NA") espnOf.set(g, e);
+  }
+  for (const r of roster.rows) {
+    const g = r[roster.col.gsis_id];
+    const e = r[roster.col.espn_id];
+    if (g && e && g !== "NA" && e !== "NA") espnOf.set(g, e);
+  }
   const out = [];
   for (const g of next.games) {
     for (const [team, opponent] of [[g.home, g.away], [g.away, g.home]]) {
@@ -420,7 +435,7 @@ if (MODE === "forecast") {
           const e = evaluateRow(m, scaleOf(mkt), line);
           const volKey = mkt === "player_rush_yds" ? "carries" : mkt === "player_pass_yds" ? "passAtt" : "targets";
           const shareVol = decayedShare(st, fam, SEASON, F.share.baselineShrinkK) * INTERCEPT[volKey] * perOpp[mkt];
-          out.push([g.gameId, g.kickoffUtc, team, opponent, id, st.name, st.position, mkt, share, m.mean, e.p10, e.p50, e.p90, line, e.pOver, shareVol, st.lastSeason].map(r4));
+          out.push([g.gameId, g.kickoffUtc, team, opponent, id, st.name, st.position, mkt, share, m.mean, e.p10, e.p50, e.p90, line, e.pOver, shareVol, st.lastSeason, e.p25, e.p75, espnOf.get(id) ?? null].map(r4));
         }
       }
     }

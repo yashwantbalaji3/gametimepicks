@@ -35,6 +35,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveNewArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
+import { SHARE_LEVEL_MODEL_ID, shareLevelAdoptedMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -140,6 +141,16 @@ const designationByPlayer = (() => {
   return m;
 })();
 
+/*
+ * P300 — SHARE-LEVEL PROJECTIONS (founder-approved 2026-09-14). For the markets the committed receipts adopt,
+ * the board publishes the week's committed pre-kickoff forecast (the numbers the blind 2026 test grades) in
+ * place of the v1 engine's, whose share rule pulled every player toward zero. See share-level-board.mjs.
+ */
+const SHARE_LEVEL_DIR = path.join(ROOT, "data/internal/research/nfl/replay/player-props-share-level-forward");
+const shareLevelSecondLook = read(path.join(ROOT, "data/internal/research/nfl/reports/player-props-share-level-second-look.json"));
+const shareLevelForward = read(path.join(SHARE_LEVEL_DIR, "receipt.json"));
+const shareLevelMarkets = shareLevelAdoptedMarkets({ secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward });
+
 const outDir = path.join(APP, "public/data/nfl/player-board");
 fs.mkdirSync(outDir, { recursive: true });
 const index = [];
@@ -183,6 +194,13 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     } else {
       families[market] = { label: PROP_LABEL[market] ?? market, state: "WITHHELD", reason: `${promo.state}${bars ? ` — failed bar(s): ${bars}` : ""}`.trim() };
     }
+  }
+  const shareLevel = shareLevelRowsForEvent({
+    forecast: read(path.join(SHARE_LEVEL_DIR, `${seasonOfKickoff(doc.kickoffUtc)}-${String(doc.week).padStart(2, "0")}.json`)),
+    matchup: doc.matchup, week: doc.week, seasonType: doc.seasonType, markets: shareLevelMarkets,
+  });
+  for (const market of shareLevel?.markets ?? []) {
+    families[market] = { label: PROP_LABEL[market] ?? market, state: "PUBLISHED", basis: shareLevelBasis({ market, secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward }), model: SHARE_LEVEL_MODEL_ID };
   }
   families.anytime_td = tdBeatsBaselines
     ? { label: "Anytime touchdown", state: "PUBLISHED", basis: `anytime-td-v1 calibration: held-out 2025 n=${tdReceipt.heldOut2025.n}, beats both baselines; DNP settles void, so probabilities condition on playing` }
@@ -234,7 +252,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
         if (gate(pl.playerId, pl.name, abbr)) continue;
         const markets = {};
         for (const [m, dist] of Object.entries(pl.markets ?? {})) {
-          if (!publishedMarkets.has(m)) continue;
+          if (!publishedMarkets.has(m) || shareLevel?.markets.has(m)) continue;
           markets[m] = { mean: dist.mean, p10: dist.p10, p25: dist.p25, median: dist.median, p75: dist.p75, p90: dist.p90 };
         }
         if (Object.keys(markets).length === 0) continue;
@@ -262,6 +280,19 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
         else players.push({ playerId: row.playerId, name: row.name, team: abbr, participation: row.participation ?? "AVAILABLE_ROLE_UNCERTAIN", markets: { anytime_td: tdBlock } });
       }
     }
+  }
+
+  /* Share-level rows join AFTER the v1 and TD rows. Their gate is stricter than the v1 roster filter below
+     (which fails open on a missing roster): with no pull toward zero a departed player's share never fades,
+     so the forecast still lists players who left — no roster for the team, or not on it, means no row. */
+  let shareLevelRosterDropped = 0;
+  for (const row of shareLevel?.players ?? []) {
+    const roster = rosterByTeam.get(row.team);
+    if (!roster || !roster.has(row.playerId)) { shareLevelRosterDropped += 1; continue; }
+    if (gate(row.playerId, row.name, row.team)) continue;
+    const existing = players.find((p) => p.playerId === row.playerId && p.team === row.team);
+    if (existing) Object.assign(existing.markets, row.markets);
+    else players.push({ playerId: row.playerId, name: row.name, team: row.team, participation: "AVAILABLE_ROLE_UNCERTAIN", markets: { ...row.markets } });
   }
 
   /* Roster filter FIRST: a player who is not on this team's current roster gets no projection for
@@ -322,6 +353,8 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     newArrivals: newArrivalsByEvent.get(doc.providerEventId) ?? {},
     /* Rows removed because the player is no longer on that roster — counted, never silent. */
     departedFiltered,
+    /* Share-level forecast use for this board: rows joined, rows dropped by the roster gate, rows without an ESPN id. */
+    shareLevel: shareLevel ? { markets: [...shareLevel.markets].sort(), rows: shareLevel.players.length, rosterDropped: shareLevelRosterDropped, withoutEspnId: shareLevel.withoutEspnId } : null,
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
     disclaimer: "Model projections. Educational.",
   };
