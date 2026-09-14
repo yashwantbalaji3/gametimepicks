@@ -1,0 +1,1257 @@
+{
+ "schemaVersion": 1,
+ "artifact": "win-margin-historical-replay-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "program": "297",
+ "generatedAt": "2026-09-14T04:53:31Z",
+ "preregistration": {
+  "path": "data/internal/research/nfl/reports/win-margin-historical-replay-preregistration.json",
+  "commit": "a852fb74b590d4aed2a84a4bbb041d235296f080 2026-09-14T00:53:31-04:00"
+ },
+ "scriptSha256": "92f99e84a4f7f46ce24bb173eff33c17a6874e251f4ffba0695625491256872c",
+ "population": {
+  "heldOutSeasons": [
+   2006,
+   2021
+  ],
+  "heldOutGames": 4292,
+  "heldOutDecisive": 4281,
+  "heldOutTies": 11,
+  "heldOutWithBothMoneylines": 4156
+ },
+ "devFits": {
+  "eloMov": {
+   "K": 20,
+   "homeAdvantage": 36,
+   "marginSlope": 0.04053,
+   "sigmaMargin": 12.9211
+  },
+  "eloHfaRefit": {
+   "K": 20,
+   "homeAdvantage": 36,
+   "marginSlope": 0.06055,
+   "sigmaMargin": 13.03176
+  },
+  "marketBlend": {
+   "w": 0
+  }
+ },
+ "gridTraces": {
+  "eloMov": [
+   {
+    "K": 15,
+    "homeAdvantage": 24,
+    "devLogLoss": 0.63719
+   },
+   {
+    "K": 15,
+    "homeAdvantage": 36,
+    "devLogLoss": 0.63654
+   },
+   {
+    "K": 15,
+    "homeAdvantage": 48,
+    "devLogLoss": 0.63706
+   },
+   {
+    "K": 15,
+    "homeAdvantage": 60,
+    "devLogLoss": 0.63871
+   },
+   {
+    "K": 20,
+    "homeAdvantage": 24,
+    "devLogLoss": 0.63531
+   },
+   {
+    "K": 20,
+    "homeAdvantage": 36,
+    "devLogLoss": 0.63463
+   },
+   {
+    "K": 20,
+    "homeAdvantage": 48,
+    "devLogLoss": 0.63513
+   },
+   {
+    "K": 20,
+    "homeAdvantage": 60,
+    "devLogLoss": 0.63678
+   },
+   {
+    "K": 25,
+    "homeAdvantage": 24,
+    "devLogLoss": 0.63557
+   },
+   {
+    "K": 25,
+    "homeAdvantage": 36,
+    "devLogLoss": 0.63487
+   },
+   {
+    "K": 25,
+    "homeAdvantage": 48,
+    "devLogLoss": 0.63536
+   },
+   {
+    "K": 25,
+    "homeAdvantage": 60,
+    "devLogLoss": 0.63702
+   },
+   {
+    "K": 30,
+    "homeAdvantage": 24,
+    "devLogLoss": 0.63744
+   },
+   {
+    "K": 30,
+    "homeAdvantage": 36,
+    "devLogLoss": 0.63671
+   },
+   {
+    "K": 30,
+    "homeAdvantage": 48,
+    "devLogLoss": 0.63719
+   },
+   {
+    "K": 30,
+    "homeAdvantage": 60,
+    "devLogLoss": 0.63887
+   }
+  ],
+  "eloHfaRefit": [
+   {
+    "homeAdvantage": 24,
+    "devLogLoss": 0.64693
+   },
+   {
+    "homeAdvantage": 36,
+    "devLogLoss": 0.64625
+   },
+   {
+    "homeAdvantage": 48,
+    "devLogLoss": 0.64672
+   },
+   {
+    "homeAdvantage": 60,
+    "devLogLoss": 0.64832
+   }
+  ],
+  "marketBlend": [
+   {
+    "w": 0,
+    "devLogLoss": 0.60704
+   },
+   {
+    "w": 0.1,
+    "devLogLoss": 0.60823
+   },
+   {
+    "w": 0.2,
+    "devLogLoss": 0.60998
+   },
+   {
+    "w": 0.3,
+    "devLogLoss": 0.61231
+   },
+   {
+    "w": 0.4,
+    "devLogLoss": 0.61525
+   },
+   {
+    "w": 0.5,
+    "devLogLoss": 0.61881
+   },
+   {
+    "w": 0.6,
+    "devLogLoss": 0.623
+   },
+   {
+    "w": 0.7,
+    "devLogLoss": 0.62784
+   },
+   {
+    "w": 0.8,
+    "devLogLoss": 0.63335
+   },
+   {
+    "w": 0.9,
+    "devLogLoss": 0.63954
+   },
+   {
+    "w": 1,
+    "devLogLoss": 0.64641
+   }
+  ]
+ },
+ "results": {
+  "incumbent": {
+   "win": {
+    "overall": {
+     "decisive": 4281,
+     "ties": 11,
+     "logLoss": 0.64198,
+     "brier": 0.22545,
+     "ece": 0.03499
+    },
+    "eras": {
+     "2006-2011": {
+      "decisive": 1601,
+      "ties": 1,
+      "logLoss": 0.63978,
+      "brier": 0.22451,
+      "ece": 0.03284
+     },
+     "2012-2016": {
+      "decisive": 1330,
+      "ties": 5,
+      "logLoss": 0.63775,
+      "brier": 0.22339,
+      "ece": 0.03796
+     },
+     "2017-2021": {
+      "decisive": 1350,
+      "ties": 5,
+      "logLoss": 0.64876,
+      "brier": 0.22861,
+      "ece": 0.0495
+     }
+    },
+    "seasons": {
+     "2006": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.65416,
+      "brier": 0.23152,
+      "ece": 0.09604
+     },
+     "2007": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.63427,
+      "brier": 0.22216,
+      "ece": 0.06406
+     },
+     "2008": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.6384,
+      "brier": 0.22336,
+      "ece": 0.06462
+     },
+     "2009": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.61832,
+      "brier": 0.21409,
+      "ece": 0.05053
+     },
+     "2010": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.65939,
+      "brier": 0.23374,
+      "ece": 0.07998
+     },
+     "2011": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.63415,
+      "brier": 0.2222,
+      "ece": 0.04116
+     },
+     "2012": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.64533,
+      "brier": 0.22714,
+      "ece": 0.05364
+     },
+     "2013": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.63964,
+      "brier": 0.22441,
+      "ece": 0.03885
+     },
+     "2014": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.62112,
+      "brier": 0.21551,
+      "ece": 0.08099
+     },
+     "2015": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.64635,
+      "brier": 0.2271,
+      "ece": 0.08401
+     },
+     "2016": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.63628,
+      "brier": 0.22275,
+      "ece": 0.04042
+     },
+     "2017": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.64254,
+      "brier": 0.22583,
+      "ece": 0.08293
+     },
+     "2018": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.64815,
+      "brier": 0.22861,
+      "ece": 0.04135
+     },
+     "2019": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.65205,
+      "brier": 0.22987,
+      "ece": 0.05749
+     },
+     "2020": {
+      "decisive": 268,
+      "ties": 1,
+      "logLoss": 0.64493,
+      "brier": 0.22653,
+      "ece": 0.09992
+     },
+     "2021": {
+      "decisive": 284,
+      "ties": 1,
+      "logLoss": 0.65569,
+      "brier": 0.23202,
+      "ece": 0.10664
+     }
+    },
+    "onPricedGames": {
+     "decisive": 4145,
+     "ties": 11,
+     "logLoss": 0.64198,
+     "brier": 0.22548,
+     "ece": 0.03493
+    }
+   },
+   "margin": {
+    "overall": {
+     "n": 4292,
+     "mae": 10.86674,
+     "coverage80": 0.7945
+    },
+    "eras": {
+     "2006-2011": {
+      "n": 1602,
+      "mae": 11.15691,
+      "coverage80": 0.77715
+     },
+     "2012-2016": {
+      "n": 1335,
+      "mae": 10.58266,
+      "coverage80": 0.80449
+     },
+     "2017-2021": {
+      "n": 1355,
+      "mae": 10.80355,
+      "coverage80": 0.80517
+     }
+    }
+   }
+  },
+  "eloMov": {
+   "win": {
+    "overall": {
+     "decisive": 4281,
+     "ties": 11,
+     "logLoss": 0.62907,
+     "brier": 0.21977,
+     "ece": 0.01757
+    },
+    "eras": {
+     "2006-2011": {
+      "decisive": 1601,
+      "ties": 1,
+      "logLoss": 0.6289,
+      "brier": 0.22001,
+      "ece": 0.02848
+     },
+     "2012-2016": {
+      "decisive": 1330,
+      "ties": 5,
+      "logLoss": 0.62454,
+      "brier": 0.21787,
+      "ece": 0.03496
+     },
+     "2017-2021": {
+      "decisive": 1350,
+      "ties": 5,
+      "logLoss": 0.63375,
+      "brier": 0.22137,
+      "ece": 0.02068
+     }
+    },
+    "seasons": {
+     "2006": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.65546,
+      "brier": 0.2323,
+      "ece": 0.09903
+     },
+     "2007": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.61874,
+      "brier": 0.21579,
+      "ece": 0.07385
+     },
+     "2008": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.62822,
+      "brier": 0.21913,
+      "ece": 0.06632
+     },
+     "2009": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.60035,
+      "brier": 0.20668,
+      "ece": 0.04012
+     },
+     "2010": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.65701,
+      "brier": 0.23281,
+      "ece": 0.0758
+     },
+     "2011": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.61362,
+      "brier": 0.21334,
+      "ece": 0.02572
+     },
+     "2012": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.6281,
+      "brier": 0.21998,
+      "ece": 0.04389
+     },
+     "2013": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.62357,
+      "brier": 0.21819,
+      "ece": 0.07309
+     },
+     "2014": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.60204,
+      "brier": 0.20722,
+      "ece": 0.07333
+     },
+     "2015": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.64053,
+      "brier": 0.22396,
+      "ece": 0.06396
+     },
+     "2016": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.62839,
+      "brier": 0.21996,
+      "ece": 0.06223
+     },
+     "2017": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.62236,
+      "brier": 0.21707,
+      "ece": 0.07477
+     },
+     "2018": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.63882,
+      "brier": 0.22474,
+      "ece": 0.0579
+     },
+     "2019": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.63433,
+      "brier": 0.22162,
+      "ece": 0.05925
+     },
+     "2020": {
+      "decisive": 268,
+      "ties": 1,
+      "logLoss": 0.61871,
+      "brier": 0.21345,
+      "ece": 0.05828
+     },
+     "2021": {
+      "decisive": 284,
+      "ties": 1,
+      "logLoss": 0.65336,
+      "brier": 0.22951,
+      "ece": 0.08309
+     }
+    },
+    "onPricedGames": {
+     "decisive": 4145,
+     "ties": 11,
+     "logLoss": 0.62874,
+     "brier": 0.21967,
+     "ece": 0.01893
+    }
+   },
+   "margin": {
+    "overall": {
+     "n": 4292,
+     "mae": 10.69251,
+     "coverage80": 0.7705
+    },
+    "eras": {
+     "2006-2011": {
+      "n": 1602,
+      "mae": 11.08934,
+      "coverage80": 0.74532
+     },
+     "2012-2016": {
+      "n": 1335,
+      "mae": 10.40343,
+      "coverage80": 0.78577
+     },
+     "2017-2021": {
+      "n": 1355,
+      "mae": 10.50815,
+      "coverage80": 0.78524
+     }
+    }
+   }
+  },
+  "eloHfaRefit": {
+   "win": {
+    "overall": {
+     "decisive": 4281,
+     "ties": 11,
+     "logLoss": 0.64178,
+     "brier": 0.22527,
+     "ece": 0.03369
+    },
+    "eras": {
+     "2006-2011": {
+      "decisive": 1601,
+      "ties": 1,
+      "logLoss": 0.63979,
+      "brier": 0.22443,
+      "ece": 0.02495
+     },
+     "2012-2016": {
+      "decisive": 1330,
+      "ties": 5,
+      "logLoss": 0.63872,
+      "brier": 0.22376,
+      "ece": 0.04903
+     },
+     "2017-2021": {
+      "decisive": 1350,
+      "ties": 5,
+      "logLoss": 0.64717,
+      "brier": 0.22777,
+      "ece": 0.02971
+     }
+    },
+    "seasons": {
+     "2006": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.65243,
+      "brier": 0.23049,
+      "ece": 0.10777
+     },
+     "2007": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.63443,
+      "brier": 0.22214,
+      "ece": 0.03585
+     },
+     "2008": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.63895,
+      "brier": 0.22363,
+      "ece": 0.06039
+     },
+     "2009": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.61867,
+      "brier": 0.21417,
+      "ece": 0.0629
+     },
+     "2010": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.65976,
+      "brier": 0.23393,
+      "ece": 0.03767
+     },
+     "2011": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.63448,
+      "brier": 0.22219,
+      "ece": 0.04033
+     },
+     "2012": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.64564,
+      "brier": 0.22715,
+      "ece": 0.05256
+     },
+     "2013": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.64199,
+      "brier": 0.22548,
+      "ece": 0.05409
+     },
+     "2014": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.62139,
+      "brier": 0.21546,
+      "ece": 0.0742
+     },
+     "2015": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.64602,
+      "brier": 0.22696,
+      "ece": 0.09258
+     },
+     "2016": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.63854,
+      "brier": 0.22375,
+      "ece": 0.05317
+     },
+     "2017": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.64258,
+      "brier": 0.22586,
+      "ece": 0.08253
+     },
+     "2018": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.65009,
+      "brier": 0.22942,
+      "ece": 0.05026
+     },
+     "2019": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.64929,
+      "brier": 0.22856,
+      "ece": 0.06367
+     },
+     "2020": {
+      "decisive": 268,
+      "ties": 1,
+      "logLoss": 0.63999,
+      "brier": 0.22408,
+      "ece": 0.06125
+     },
+     "2021": {
+      "decisive": 284,
+      "ties": 1,
+      "logLoss": 0.65354,
+      "brier": 0.23077,
+      "ece": 0.09976
+     }
+    },
+    "onPricedGames": {
+     "decisive": 4145,
+     "ties": 11,
+     "logLoss": 0.64182,
+     "brier": 0.22531,
+     "ece": 0.0331
+    }
+   },
+   "margin": {
+    "overall": {
+     "n": 4292,
+     "mae": 10.78546,
+     "coverage80": 0.774
+    },
+    "eras": {
+     "2006-2011": {
+      "n": 1602,
+      "mae": 11.11127,
+      "coverage80": 0.75468
+     },
+     "2012-2016": {
+      "n": 1335,
+      "mae": 10.51222,
+      "coverage80": 0.78801
+     },
+     "2017-2021": {
+      "n": 1355,
+      "mae": 10.66948,
+      "coverage80": 0.78303
+     }
+    }
+   }
+  },
+  "marketBlend": {
+   "win": {
+    "overall": {
+     "decisive": 4281,
+     "ties": 11,
+     "logLoss": 0.61113,
+     "brier": 0.21186,
+     "ece": 0.0213
+    },
+    "eras": {
+     "2006-2011": {
+      "decisive": 1601,
+      "ties": 1,
+      "logLoss": 0.61303,
+      "brier": 0.21284,
+      "ece": 0.04246
+     },
+     "2012-2016": {
+      "decisive": 1330,
+      "ties": 5,
+      "logLoss": 0.61285,
+      "brier": 0.21276,
+      "ece": 0.0137
+     },
+     "2017-2021": {
+      "decisive": 1350,
+      "ties": 5,
+      "logLoss": 0.6072,
+      "brier": 0.20981,
+      "ece": 0.03429
+     }
+    },
+    "seasons": {
+     "2006": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.66775,
+      "brier": 0.23736,
+      "ece": 0.10956
+     },
+     "2007": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.5884,
+      "brier": 0.2029,
+      "ece": 0.04707
+     },
+     "2008": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.6094,
+      "brier": 0.21137,
+      "ece": 0.04669
+     },
+     "2009": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.58705,
+      "brier": 0.20063,
+      "ece": 0.05303
+     },
+     "2010": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.63243,
+      "brier": 0.22092,
+      "ece": 0.0646
+     },
+     "2011": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.59312,
+      "brier": 0.20385,
+      "ece": 0.08038
+     },
+     "2012": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.60228,
+      "brier": 0.20869,
+      "ece": 0.05533
+     },
+     "2013": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.59237,
+      "brier": 0.20274,
+      "ece": 0.06983
+     },
+     "2014": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.59908,
+      "brier": 0.20664,
+      "ece": 0.03836
+     },
+     "2015": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.64882,
+      "brier": 0.22867,
+      "ece": 0.03777
+     },
+     "2016": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.62157,
+      "brier": 0.21703,
+      "ece": 0.03412
+     },
+     "2017": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.59215,
+      "brier": 0.20257,
+      "ece": 0.04204
+     },
+     "2018": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.61354,
+      "brier": 0.21239,
+      "ece": 0.04307
+     },
+     "2019": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.6163,
+      "brier": 0.21412,
+      "ece": 0.05871
+     },
+     "2020": {
+      "decisive": 268,
+      "ties": 1,
+      "logLoss": 0.58995,
+      "brier": 0.20187,
+      "ece": 0.07519
+     },
+     "2021": {
+      "decisive": 284,
+      "ties": 1,
+      "logLoss": 0.62319,
+      "brier": 0.21766,
+      "ece": 0.09339
+     }
+    },
+    "onPricedGames": {
+     "decisive": 4145,
+     "ties": 11,
+     "logLoss": 0.61012,
+     "brier": 0.21143,
+     "ece": 0.02083
+    }
+   }
+  },
+  "market": {
+   "win": {
+    "overall": {
+     "decisive": 4145,
+     "ties": 11,
+     "logLoss": 0.61012,
+     "brier": 0.21143,
+     "ece": 0.02083
+    },
+    "eras": {
+     "2006-2011": {
+      "decisive": 1466,
+      "ties": 1,
+      "logLoss": 0.61014,
+      "brier": 0.21163,
+      "ece": 0.04324
+     },
+     "2012-2016": {
+      "decisive": 1330,
+      "ties": 5,
+      "logLoss": 0.61285,
+      "brier": 0.21276,
+      "ece": 0.0137
+     },
+     "2017-2021": {
+      "decisive": 1349,
+      "ties": 5,
+      "logLoss": 0.60742,
+      "brier": 0.20991,
+      "ece": 0.03412
+     }
+    },
+    "seasons": {
+     "2006": {
+      "decisive": 220,
+      "ties": 0,
+      "logLoss": 0.66941,
+      "brier": 0.23798,
+      "ece": 0.1085
+     },
+     "2007": {
+      "decisive": 266,
+      "ties": 0,
+      "logLoss": 0.58957,
+      "brier": 0.20344,
+      "ece": 0.04635
+     },
+     "2008": {
+      "decisive": 193,
+      "ties": 1,
+      "logLoss": 0.60027,
+      "brier": 0.20819,
+      "ece": 0.05487
+     },
+     "2009": {
+      "decisive": 253,
+      "ties": 0,
+      "logLoss": 0.58217,
+      "brier": 0.19837,
+      "ece": 0.0516
+     },
+     "2010": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.63243,
+      "brier": 0.22092,
+      "ece": 0.0646
+     },
+     "2011": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.59312,
+      "brier": 0.20385,
+      "ece": 0.08038
+     },
+     "2012": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.60228,
+      "brier": 0.20869,
+      "ece": 0.05533
+     },
+     "2013": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.59237,
+      "brier": 0.20274,
+      "ece": 0.06983
+     },
+     "2014": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.59908,
+      "brier": 0.20664,
+      "ece": 0.03836
+     },
+     "2015": {
+      "decisive": 267,
+      "ties": 0,
+      "logLoss": 0.64882,
+      "brier": 0.22867,
+      "ece": 0.03777
+     },
+     "2016": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.62157,
+      "brier": 0.21703,
+      "ece": 0.03412
+     },
+     "2017": {
+      "decisive": 266,
+      "ties": 0,
+      "logLoss": 0.59323,
+      "brier": 0.20307,
+      "ece": 0.04121
+     },
+     "2018": {
+      "decisive": 265,
+      "ties": 2,
+      "logLoss": 0.61354,
+      "brier": 0.21239,
+      "ece": 0.04307
+     },
+     "2019": {
+      "decisive": 266,
+      "ties": 1,
+      "logLoss": 0.6163,
+      "brier": 0.21412,
+      "ece": 0.05871
+     },
+     "2020": {
+      "decisive": 268,
+      "ties": 1,
+      "logLoss": 0.58995,
+      "brier": 0.20187,
+      "ece": 0.07519
+     },
+     "2021": {
+      "decisive": 284,
+      "ties": 1,
+      "logLoss": 0.62319,
+      "brier": 0.21766,
+      "ece": 0.09339
+     }
+    },
+    "onPricedGames": {
+     "decisive": 4145,
+     "ties": 11,
+     "logLoss": 0.61012,
+     "brier": 0.21143,
+     "ece": 0.02083
+    }
+   }
+  }
+ },
+ "comparisons": {
+  "incumbentVsMarket": {
+   "point": 0.03186,
+   "lo95": 0.02282,
+   "hi95": 0.03988
+  },
+  "eloMov": {
+   "point": -0.01291,
+   "lo95": -0.01672,
+   "hi95": -0.00918
+  },
+  "eloHfaRefit": {
+   "point": -0.0002,
+   "lo95": -0.00113,
+   "hi95": 0.00063
+  },
+  "marketBlend": {
+   "point": -0.03085,
+   "lo95": -0.03909,
+   "hi95": -0.0218
+  }
+ },
+ "incumbentMarginCoverageInBand": true,
+ "bars": {
+  "eloMov": {
+   "win": {
+    "logLossImprovement": {
+     "pass": true,
+     "required": "at least 0.005 below 0.641981928878766",
+     "observed": 0.62907
+    },
+    "improvementIsNotNoise": {
+     "pass": true,
+     "required": "season-bootstrap 95% upper bound < 0",
+     "observed": {
+      "point": -0.01291,
+      "lo95": -0.01672,
+      "hi95": -0.00918
+     }
+    },
+    "everyEra": {
+     "pass": true,
+     "required": "below the incumbent in every era",
+     "observed": {
+      "2006-2011": {
+       "candidate": 0.6289,
+       "incumbent": 0.63978
+      },
+      "2012-2016": {
+       "candidate": 0.62454,
+       "incumbent": 0.63775
+      },
+      "2017-2021": {
+       "candidate": 0.63375,
+       "incumbent": 0.64876
+      }
+     }
+    },
+    "marketHardStop": {
+     "pass": true,
+     "required": "less than 0.02 above the market's 0.610123272048758",
+     "observed": 0.62874
+    },
+    "calibration": {
+     "pass": true,
+     "required": "ECE <= 0.03498762676831873 + 0.01",
+     "observed": 0.01757
+    }
+   },
+   "margin": {
+    "coverageBand": {
+     "pass": false,
+     "required": "[0.75, 0.85] overall and in every era",
+     "observed": {
+      "overall": 0.7705,
+      "eras": {
+       "2006-2011": 0.74532,
+       "2012-2016": 0.78577,
+       "2017-2021": 0.78524
+      }
+     }
+    },
+    "mae": {
+     "pass": true,
+     "required": "<= 10.866737096278223 + 0.5",
+     "observed": 10.69251
+    }
+   }
+  },
+  "eloHfaRefit": {
+   "win": {
+    "logLossImprovement": {
+     "pass": false,
+     "required": "at least 0.005 below 0.641981928878766",
+     "observed": 0.64178
+    },
+    "improvementIsNotNoise": {
+     "pass": false,
+     "required": "season-bootstrap 95% upper bound < 0",
+     "observed": {
+      "point": -0.0002,
+      "lo95": -0.00113,
+      "hi95": 0.00063
+     }
+    },
+    "everyEra": {
+     "pass": false,
+     "required": "below the incumbent in every era",
+     "observed": {
+      "2006-2011": {
+       "candidate": 0.63979,
+       "incumbent": 0.63978
+      },
+      "2012-2016": {
+       "candidate": 0.63872,
+       "incumbent": 0.63775
+      },
+      "2017-2021": {
+       "candidate": 0.64717,
+       "incumbent": 0.64876
+      }
+     }
+    },
+    "marketHardStop": {
+     "pass": false,
+     "required": "less than 0.02 above the market's 0.610123272048758",
+     "observed": 0.64182
+    },
+    "calibration": {
+     "pass": true,
+     "required": "ECE <= 0.03498762676831873 + 0.01",
+     "observed": 0.03369
+    }
+   },
+   "margin": {
+    "coverageBand": {
+     "pass": true,
+     "required": "[0.75, 0.85] overall and in every era",
+     "observed": {
+      "overall": 0.774,
+      "eras": {
+       "2006-2011": 0.75468,
+       "2012-2016": 0.78801,
+       "2017-2021": 0.78303
+      }
+     }
+    },
+    "mae": {
+     "pass": true,
+     "required": "<= 10.866737096278223 + 0.5",
+     "observed": 10.78546
+    }
+   }
+  },
+  "marketBlend": {
+   "win": {
+    "logLossImprovement": {
+     "pass": true,
+     "required": "at least 0.005 below 0.641981928878766",
+     "observed": 0.61113
+    },
+    "improvementIsNotNoise": {
+     "pass": true,
+     "required": "season-bootstrap 95% upper bound < 0",
+     "observed": {
+      "point": -0.03085,
+      "lo95": -0.03909,
+      "hi95": -0.0218
+     }
+    },
+    "everyEra": {
+     "pass": true,
+     "required": "below the incumbent in every era",
+     "observed": {
+      "2006-2011": {
+       "candidate": 0.61303,
+       "incumbent": 0.63978
+      },
+      "2012-2016": {
+       "candidate": 0.61285,
+       "incumbent": 0.63775
+      },
+      "2017-2021": {
+       "candidate": 0.6072,
+       "incumbent": 0.64876
+      }
+     }
+    },
+    "marketHardStop": {
+     "pass": true,
+     "required": "less than 0.02 above the market's 0.610123272048758",
+     "observed": 0.61012
+    },
+    "calibration": {
+     "pass": true,
+     "required": "ECE <= 0.03498762676831873 + 0.01",
+     "observed": 0.0213
+    }
+   }
+  }
+ },
+ "verdicts": {
+  "eloMov": {
+   "win": "ELIGIBLE",
+   "margin": "REJECTED"
+  },
+  "eloHfaRefit": {
+   "win": "REJECTED",
+   "margin": "ELIGIBLE"
+  },
+  "marketBlend": {
+   "win": "ELIGIBLE",
+   "margin": "UNCHANGED_INCUMBENT"
+  }
+ },
+ "recommendation": {
+  "win": "marketBlend",
+  "margin": "eloHfaRefit",
+  "note": "the recommended win head is MARKET-INFORMED — publishing it is the founder's product decision"
+ },
+ "consequence": "Nothing publishes from this receipt. Adoption into PUBLIC_EXPERIMENTAL forecasts is its own reviewed step; labelling beyond that stays with the frozen regular-season contract unless the founder decides otherwise."
+}
