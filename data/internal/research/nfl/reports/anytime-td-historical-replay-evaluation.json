@@ -1,0 +1,2594 @@
+{
+ "schemaVersion": 1,
+ "artifact": "anytime-td-historical-replay-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "program": "301",
+ "generatedAt": "2026-09-14T15:05:50Z",
+ "preregistration": {
+  "path": "data/internal/research/nfl/reports/anytime-td-historical-replay-preregistration.json",
+  "commit": "cc77514dcb5f169e93ab8081446148379f5648f8 2026-09-14T11:05:50-04:00"
+ },
+ "scriptSha256": "a12bae75714116331ca73a3d863f40d54f0f26ae7b2945b0f457439ebee41aa9",
+ "league2013": {
+  "rushTdPerCarry": 0.02981,
+  "recTdPerTarget": 0.04505,
+  "teamRushTd": 0.81086,
+  "teamRecTd": 1.56554,
+  "otherTdPerPlayerGame": 0.00296,
+  "anytimeRate": 0.21355
+ },
+ "population": {
+  "heldOutSeasons": [
+   2014,
+   2021
+  ],
+  "scored": 35128,
+  "positives": 7931,
+  "void": {
+   "2014": 2772,
+   "2015": 3996,
+   "2016": 5101,
+   "2017": 6149,
+   "2018": 7411,
+   "2019": 8583,
+   "2020": 9681,
+   "2021": 11217,
+   "2022": 12072,
+   "2023": 12781,
+   "2024": 13568,
+   "2025": 14306
+  },
+  "quarantined": {
+   "2014": 3,
+   "2015": 6,
+   "2018": 1
+  },
+  "playedNoRowScored": {
+   "2014": 105,
+   "2015": 104,
+   "2016": 107,
+   "2017": 107,
+   "2018": 130,
+   "2019": 138,
+   "2020": 172,
+   "2021": 164,
+   "2022": 159,
+   "2023": 175,
+   "2024": 181,
+   "2025": 162
+  }
+ },
+ "results": {
+  "opportunityTd": {
+   "overall": {
+    "n": 35128,
+    "logLoss": 0.50435,
+    "brier": 0.1644,
+    "meanPredicted": 0.23366,
+    "actualRate": 0.22577,
+    "level": 1.03493,
+    "ece": 0.0203,
+    "reliability": [
+     {
+      "n": 5261,
+      "meanPredicted": 0.07544,
+      "actualRate": 0.09333
+     },
+     {
+      "n": 11884,
+      "meanPredicted": 0.14707,
+      "actualRate": 0.15433
+     },
+     {
+      "n": 8531,
+      "meanPredicted": 0.24691,
+      "actualRate": 0.25132
+     },
+     {
+      "n": 5112,
+      "meanPredicted": 0.3453,
+      "actualRate": 0.31318
+     },
+     {
+      "n": 2494,
+      "meanPredicted": 0.44339,
+      "actualRate": 0.38813
+     },
+     {
+      "n": 1220,
+      "meanPredicted": 0.54256,
+      "actualRate": 0.44426
+     },
+     {
+      "n": 433,
+      "meanPredicted": 0.64311,
+      "actualRate": 0.54734
+     },
+     {
+      "n": 157,
+      "meanPredicted": 0.73755,
+      "actualRate": 0.6051
+     },
+     {
+      "n": 36,
+      "meanPredicted": 0.829,
+      "actualRate": 0.52778
+     }
+    ]
+   },
+   "eras": {
+    "2014-2017": {
+     "n": 17383,
+     "logLoss": 0.49749,
+     "brier": 0.16188,
+     "meanPredicted": 0.22767,
+     "actualRate": 0.21947,
+     "level": 1.03738,
+     "ece": 0.0189,
+     "reliability": [
+      {
+       "n": 2746,
+       "meanPredicted": 0.07434,
+       "actualRate": 0.08886
+      },
+      {
+       "n": 5884,
+       "meanPredicted": 0.14653,
+       "actualRate": 0.14922
+      },
+      {
+       "n": 4302,
+       "meanPredicted": 0.24679,
+       "actualRate": 0.25546
+      },
+      {
+       "n": 2493,
+       "meanPredicted": 0.34481,
+       "actualRate": 0.31689
+      },
+      {
+       "n": 1179,
+       "meanPredicted": 0.44219,
+       "actualRate": 0.38168
+      },
+      {
+       "n": 561,
+       "meanPredicted": 0.54211,
+       "actualRate": 0.44029
+      },
+      {
+       "n": 168,
+       "meanPredicted": 0.64065,
+       "actualRate": 0.48214
+      },
+      {
+       "n": 49,
+       "meanPredicted": 0.7352,
+       "actualRate": 0.53061
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.8633,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2018-2021": {
+     "n": 17745,
+     "logLoss": 0.51108,
+     "brier": 0.16687,
+     "meanPredicted": 0.23953,
+     "actualRate": 0.23195,
+     "level": 1.03267,
+     "ece": 0.02166,
+     "reliability": [
+      {
+       "n": 2515,
+       "meanPredicted": 0.07665,
+       "actualRate": 0.09821
+      },
+      {
+       "n": 6000,
+       "meanPredicted": 0.1476,
+       "actualRate": 0.15933
+      },
+      {
+       "n": 4229,
+       "meanPredicted": 0.24702,
+       "actualRate": 0.2471
+      },
+      {
+       "n": 2619,
+       "meanPredicted": 0.34577,
+       "actualRate": 0.30966
+      },
+      {
+       "n": 1315,
+       "meanPredicted": 0.44446,
+       "actualRate": 0.39392
+      },
+      {
+       "n": 659,
+       "meanPredicted": 0.54294,
+       "actualRate": 0.44765
+      },
+      {
+       "n": 265,
+       "meanPredicted": 0.64467,
+       "actualRate": 0.58868
+      },
+      {
+       "n": 108,
+       "meanPredicted": 0.73862,
+       "actualRate": 0.63889
+      },
+      {
+       "n": 35,
+       "meanPredicted": 0.82802,
+       "actualRate": 0.54286
+      }
+     ]
+    }
+   },
+   "seasons": {
+    "2014": {
+     "n": 4365,
+     "logLoss": 0.48548,
+     "brier": 0.15746,
+     "meanPredicted": 0.23056,
+     "actualRate": 0.21283,
+     "level": 1.08333,
+     "ece": 0.01827,
+     "reliability": [
+      {
+       "n": 711,
+       "meanPredicted": 0.07432,
+       "actualRate": 0.07595
+      },
+      {
+       "n": 1440,
+       "meanPredicted": 0.14729,
+       "actualRate": 0.14444
+      },
+      {
+       "n": 1044,
+       "meanPredicted": 0.24671,
+       "actualRate": 0.23755
+      },
+      {
+       "n": 644,
+       "meanPredicted": 0.34554,
+       "actualRate": 0.32919
+      },
+      {
+       "n": 299,
+       "meanPredicted": 0.44089,
+       "actualRate": 0.33779
+      },
+      {
+       "n": 170,
+       "meanPredicted": 0.54503,
+       "actualRate": 0.44706
+      },
+      {
+       "n": 52,
+       "meanPredicted": 0.63858,
+       "actualRate": 0.51923
+      },
+      {
+       "n": 5,
+       "meanPredicted": 0.74007,
+       "actualRate": 0.6
+      }
+     ]
+    },
+    "2015": {
+     "n": 4375,
+     "logLoss": 0.49501,
+     "brier": 0.16111,
+     "meanPredicted": 0.226,
+     "actualRate": 0.2192,
+     "level": 1.03101,
+     "ece": 0.01888,
+     "reliability": [
+      {
+       "n": 688,
+       "meanPredicted": 0.07375,
+       "actualRate": 0.0814
+      },
+      {
+       "n": 1505,
+       "meanPredicted": 0.14419,
+       "actualRate": 0.14551
+      },
+      {
+       "n": 1022,
+       "meanPredicted": 0.24739,
+       "actualRate": 0.26614
+      },
+      {
+       "n": 654,
+       "meanPredicted": 0.34414,
+       "actualRate": 0.30581
+      },
+      {
+       "n": 347,
+       "meanPredicted": 0.44422,
+       "actualRate": 0.4121
+      },
+      {
+       "n": 132,
+       "meanPredicted": 0.53851,
+       "actualRate": 0.43939
+      },
+      {
+       "n": 21,
+       "meanPredicted": 0.63779,
+       "actualRate": 0.42857
+      },
+      {
+       "n": 6,
+       "meanPredicted": 0.74445,
+       "actualRate": 0.33333
+      }
+     ]
+    },
+    "2016": {
+     "n": 4356,
+     "logLoss": 0.51762,
+     "brier": 0.1697,
+     "meanPredicted": 0.23098,
+     "actualRate": 0.23347,
+     "level": 0.98932,
+     "ece": 0.02523,
+     "reliability": [
+      {
+       "n": 651,
+       "meanPredicted": 0.07494,
+       "actualRate": 0.10138
+      },
+      {
+       "n": 1497,
+       "meanPredicted": 0.14733,
+       "actualRate": 0.15832
+      },
+      {
+       "n": 1113,
+       "meanPredicted": 0.24734,
+       "actualRate": 0.27134
+      },
+      {
+       "n": 582,
+       "meanPredicted": 0.34391,
+       "actualRate": 0.32646
+      },
+      {
+       "n": 280,
+       "meanPredicted": 0.44165,
+       "actualRate": 0.4
+      },
+      {
+       "n": 146,
+       "meanPredicted": 0.54238,
+       "actualRate": 0.44521
+      },
+      {
+       "n": 59,
+       "meanPredicted": 0.64069,
+       "actualRate": 0.50847
+      },
+      {
+       "n": 27,
+       "meanPredicted": 0.73495,
+       "actualRate": 0.55556
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.8633,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2017": {
+     "n": 4287,
+     "logLoss": 0.49179,
+     "brier": 0.15922,
+     "meanPredicted": 0.22307,
+     "actualRate": 0.21227,
+     "level": 1.05088,
+     "ece": 0.01952,
+     "reliability": [
+      {
+       "n": 696,
+       "meanPredicted": 0.07437,
+       "actualRate": 0.0977
+      },
+      {
+       "n": 1442,
+       "meanPredicted": 0.14738,
+       "actualRate": 0.1484
+      },
+      {
+       "n": 1123,
+       "meanPredicted": 0.24579,
+       "actualRate": 0.24666
+      },
+      {
+       "n": 613,
+       "meanPredicted": 0.34559,
+       "actualRate": 0.30669
+      },
+      {
+       "n": 253,
+       "meanPredicted": 0.44155,
+       "actualRate": 0.37154
+      },
+      {
+       "n": 113,
+       "meanPredicted": 0.54155,
+       "actualRate": 0.42478
+      },
+      {
+       "n": 36,
+       "meanPredicted": 0.64525,
+       "actualRate": 0.41667
+      },
+      {
+       "n": 11,
+       "meanPredicted": 0.72856,
+       "actualRate": 0.54545
+      }
+     ]
+    },
+    "2018": {
+     "n": 4269,
+     "logLoss": 0.51128,
+     "brier": 0.16722,
+     "meanPredicted": 0.23893,
+     "actualRate": 0.23495,
+     "level": 1.01693,
+     "ece": 0.0219,
+     "reliability": [
+      {
+       "n": 601,
+       "meanPredicted": 0.07521,
+       "actualRate": 0.08985
+      },
+      {
+       "n": 1469,
+       "meanPredicted": 0.14862,
+       "actualRate": 0.15929
+      },
+      {
+       "n": 998,
+       "meanPredicted": 0.24672,
+       "actualRate": 0.26052
+      },
+      {
+       "n": 650,
+       "meanPredicted": 0.34491,
+       "actualRate": 0.3
+      },
+      {
+       "n": 292,
+       "meanPredicted": 0.44283,
+       "actualRate": 0.42123
+      },
+      {
+       "n": 150,
+       "meanPredicted": 0.54658,
+       "actualRate": 0.50667
+      },
+      {
+       "n": 68,
+       "meanPredicted": 0.63997,
+       "actualRate": 0.51471
+      },
+      {
+       "n": 30,
+       "meanPredicted": 0.73904,
+       "actualRate": 0.63333
+      },
+      {
+       "n": 11,
+       "meanPredicted": 0.823,
+       "actualRate": 0.63636
+      }
+     ]
+    },
+    "2019": {
+     "n": 4298,
+     "logLoss": 0.50664,
+     "brier": 0.16507,
+     "meanPredicted": 0.23582,
+     "actualRate": 0.22406,
+     "level": 1.05251,
+     "ece": 0.02675,
+     "reliability": [
+      {
+       "n": 647,
+       "meanPredicted": 0.07727,
+       "actualRate": 0.09428
+      },
+      {
+       "n": 1436,
+       "meanPredicted": 0.1468,
+       "actualRate": 0.16156
+      },
+      {
+       "n": 1020,
+       "meanPredicted": 0.24658,
+       "actualRate": 0.2451
+      },
+      {
+       "n": 657,
+       "meanPredicted": 0.3461,
+       "actualRate": 0.31811
+      },
+      {
+       "n": 317,
+       "meanPredicted": 0.44247,
+       "actualRate": 0.31546
+      },
+      {
+       "n": 130,
+       "meanPredicted": 0.54322,
+       "actualRate": 0.42308
+      },
+      {
+       "n": 54,
+       "meanPredicted": 0.64852,
+       "actualRate": 0.64815
+      },
+      {
+       "n": 30,
+       "meanPredicted": 0.74282,
+       "actualRate": 0.6
+      },
+      {
+       "n": 7,
+       "meanPredicted": 0.81239,
+       "actualRate": 0.42857
+      }
+     ]
+    },
+    "2020": {
+     "n": 4487,
+     "logLoss": 0.52555,
+     "brier": 0.17289,
+     "meanPredicted": 0.2461,
+     "actualRate": 0.24538,
+     "level": 1.00295,
+     "ece": 0.02352,
+     "reliability": [
+      {
+       "n": 561,
+       "meanPredicted": 0.0776,
+       "actualRate": 0.10873
+      },
+      {
+       "n": 1505,
+       "meanPredicted": 0.14896,
+       "actualRate": 0.16678
+      },
+      {
+       "n": 1116,
+       "meanPredicted": 0.24685,
+       "actualRate": 0.25269
+      },
+      {
+       "n": 675,
+       "meanPredicted": 0.3457,
+       "actualRate": 0.30667
+      },
+      {
+       "n": 326,
+       "meanPredicted": 0.44679,
+       "actualRate": 0.44785
+      },
+      {
+       "n": 181,
+       "meanPredicted": 0.54228,
+       "actualRate": 0.44199
+      },
+      {
+       "n": 81,
+       "meanPredicted": 0.64414,
+       "actualRate": 0.5679
+      },
+      {
+       "n": 33,
+       "meanPredicted": 0.73436,
+       "actualRate": 0.69697
+      },
+      {
+       "n": 9,
+       "meanPredicted": 0.83054,
+       "actualRate": 0.55556
+      }
+     ]
+    },
+    "2021": {
+     "n": 4691,
+     "logLoss": 0.50112,
+     "brier": 0.16243,
+     "meanPredicted": 0.23719,
+     "actualRate": 0.22362,
+     "level": 1.06069,
+     "ece": 0.02366,
+     "reliability": [
+      {
+       "n": 706,
+       "meanPredicted": 0.07656,
+       "actualRate": 0.10057
+      },
+      {
+       "n": 1590,
+       "meanPredicted": 0.14609,
+       "actualRate": 0.15031
+      },
+      {
+       "n": 1095,
+       "meanPredicted": 0.24788,
+       "actualRate": 0.23105
+      },
+      {
+       "n": 637,
+       "meanPredicted": 0.34636,
+       "actualRate": 0.31397
+      },
+      {
+       "n": 380,
+       "meanPredicted": 0.44538,
+       "actualRate": 0.39211
+      },
+      {
+       "n": 198,
+       "meanPredicted": 0.54062,
+       "actualRate": 0.42424
+      },
+      {
+       "n": 62,
+       "meanPredicted": 0.64719,
+       "actualRate": 0.64516
+      },
+      {
+       "n": 15,
+       "meanPredicted": 0.73871,
+       "actualRate": 0.6
+      },
+      {
+       "n": 8,
+       "meanPredicted": 0.84575,
+       "actualRate": 0.5
+      }
+     ]
+    }
+   },
+   "likeliestScorer": {
+    "teamGames": 4312,
+    "scored": 0.40863
+   }
+  },
+  "tdShareLevel": {
+   "overall": {
+    "n": 35128,
+    "logLoss": 0.61321,
+    "brier": 0.18034,
+    "meanPredicted": 0.21289,
+    "actualRate": 0.22577,
+    "level": 0.94295,
+    "ece": 0.08906,
+    "reliability": [
+     {
+      "n": 12524,
+      "meanPredicted": 0.02774,
+      "actualRate": 0.14508
+     },
+     {
+      "n": 6332,
+      "meanPredicted": 0.14925,
+      "actualRate": 0.19994
+     },
+     {
+      "n": 5586,
+      "meanPredicted": 0.24822,
+      "actualRate": 0.24705
+     },
+     {
+      "n": 4413,
+      "meanPredicted": 0.34693,
+      "actualRate": 0.28847
+     },
+     {
+      "n": 3107,
+      "meanPredicted": 0.44648,
+      "actualRate": 0.31316
+     },
+     {
+      "n": 1956,
+      "meanPredicted": 0.54464,
+      "actualRate": 0.37168
+     },
+     {
+      "n": 894,
+      "meanPredicted": 0.64528,
+      "actualRate": 0.41275
+     },
+     {
+      "n": 257,
+      "meanPredicted": 0.73508,
+      "actualRate": 0.41245
+     },
+     {
+      "n": 54,
+      "meanPredicted": 0.84554,
+      "actualRate": 0.35185
+     },
+     {
+      "n": 5,
+      "meanPredicted": 0.91143,
+      "actualRate": 0.2
+     }
+    ]
+   },
+   "eras": {
+    "2014-2017": {
+     "n": 17383,
+     "logLoss": 0.60792,
+     "brier": 0.17846,
+     "meanPredicted": 0.20916,
+     "actualRate": 0.21947,
+     "level": 0.95304,
+     "ece": 0.0924,
+     "reliability": [
+      {
+       "n": 6287,
+       "meanPredicted": 0.02789,
+       "actualRate": 0.14236
+      },
+      {
+       "n": 3176,
+       "meanPredicted": 0.14923,
+       "actualRate": 0.20372
+      },
+      {
+       "n": 2769,
+       "meanPredicted": 0.24752,
+       "actualRate": 0.24016
+      },
+      {
+       "n": 2131,
+       "meanPredicted": 0.34674,
+       "actualRate": 0.27687
+      },
+      {
+       "n": 1527,
+       "meanPredicted": 0.44685,
+       "actualRate": 0.31172
+      },
+      {
+       "n": 968,
+       "meanPredicted": 0.54484,
+       "actualRate": 0.36364
+      },
+      {
+       "n": 404,
+       "meanPredicted": 0.64733,
+       "actualRate": 0.37871
+      },
+      {
+       "n": 102,
+       "meanPredicted": 0.73139,
+       "actualRate": 0.30392
+      },
+      {
+       "n": 15,
+       "meanPredicted": 0.84856,
+       "actualRate": 0.33333
+      },
+      {
+       "n": 4,
+       "meanPredicted": 0.91015,
+       "actualRate": 0.25
+      }
+     ]
+    },
+    "2018-2021": {
+     "n": 17745,
+     "logLoss": 0.61839,
+     "brier": 0.18218,
+     "meanPredicted": 0.21655,
+     "actualRate": 0.23195,
+     "level": 0.9336,
+     "ece": 0.08735,
+     "reliability": [
+      {
+       "n": 6237,
+       "meanPredicted": 0.02758,
+       "actualRate": 0.14783
+      },
+      {
+       "n": 3156,
+       "meanPredicted": 0.14927,
+       "actualRate": 0.19613
+      },
+      {
+       "n": 2817,
+       "meanPredicted": 0.24891,
+       "actualRate": 0.25382
+      },
+      {
+       "n": 2282,
+       "meanPredicted": 0.34711,
+       "actualRate": 0.2993
+      },
+      {
+       "n": 1580,
+       "meanPredicted": 0.44611,
+       "actualRate": 0.31456
+      },
+      {
+       "n": 988,
+       "meanPredicted": 0.54444,
+       "actualRate": 0.37955
+      },
+      {
+       "n": 490,
+       "meanPredicted": 0.64359,
+       "actualRate": 0.44082
+      },
+      {
+       "n": 155,
+       "meanPredicted": 0.73751,
+       "actualRate": 0.48387
+      },
+      {
+       "n": 39,
+       "meanPredicted": 0.84438,
+       "actualRate": 0.35897
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.91652,
+       "actualRate": 0
+      }
+     ]
+    }
+   },
+   "seasons": {
+    "2014": {
+     "n": 4365,
+     "logLoss": 0.59606,
+     "brier": 0.174,
+     "meanPredicted": 0.20919,
+     "actualRate": 0.21283,
+     "level": 0.98288,
+     "ece": 0.08855,
+     "reliability": [
+      {
+       "n": 1626,
+       "meanPredicted": 0.02942,
+       "actualRate": 0.13961
+      },
+      {
+       "n": 773,
+       "meanPredicted": 0.1474,
+       "actualRate": 0.17594
+      },
+      {
+       "n": 659,
+       "meanPredicted": 0.24755,
+       "actualRate": 0.24127
+      },
+      {
+       "n": 532,
+       "meanPredicted": 0.3484,
+       "actualRate": 0.28571
+      },
+      {
+       "n": 368,
+       "meanPredicted": 0.4456,
+       "actualRate": 0.26359
+      },
+      {
+       "n": 269,
+       "meanPredicted": 0.54679,
+       "actualRate": 0.39405
+      },
+      {
+       "n": 114,
+       "meanPredicted": 0.64987,
+       "actualRate": 0.4386
+      },
+      {
+       "n": 23,
+       "meanPredicted": 0.72972,
+       "actualRate": 0.08696
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.89093,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2015": {
+     "n": 4375,
+     "logLoss": 0.61404,
+     "brier": 0.17826,
+     "meanPredicted": 0.20616,
+     "actualRate": 0.2192,
+     "level": 0.94051,
+     "ece": 0.09228,
+     "reliability": [
+      {
+       "n": 1588,
+       "meanPredicted": 0.02643,
+       "actualRate": 0.14484
+      },
+      {
+       "n": 835,
+       "meanPredicted": 0.14926,
+       "actualRate": 0.2
+      },
+      {
+       "n": 692,
+       "meanPredicted": 0.24617,
+       "actualRate": 0.22254
+      },
+      {
+       "n": 501,
+       "meanPredicted": 0.34518,
+       "actualRate": 0.29541
+      },
+      {
+       "n": 377,
+       "meanPredicted": 0.44718,
+       "actualRate": 0.33156
+      },
+      {
+       "n": 262,
+       "meanPredicted": 0.54432,
+       "actualRate": 0.36641
+      },
+      {
+       "n": 86,
+       "meanPredicted": 0.64118,
+       "actualRate": 0.31395
+      },
+      {
+       "n": 27,
+       "meanPredicted": 0.73235,
+       "actualRate": 0.37037
+      },
+      {
+       "n": 5,
+       "meanPredicted": 0.82632,
+       "actualRate": 0.4
+      },
+      {
+       "n": 2,
+       "meanPredicted": 0.90456,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2016": {
+     "n": 4356,
+     "logLoss": 0.62552,
+     "brier": 0.18612,
+     "meanPredicted": 0.2134,
+     "actualRate": 0.23347,
+     "level": 0.91404,
+     "ece": 0.0979,
+     "reliability": [
+      {
+       "n": 1536,
+       "meanPredicted": 0.02792,
+       "actualRate": 0.14844
+      },
+      {
+       "n": 799,
+       "meanPredicted": 0.14889,
+       "actualRate": 0.22528
+      },
+      {
+       "n": 694,
+       "meanPredicted": 0.24669,
+       "actualRate": 0.26225
+      },
+      {
+       "n": 556,
+       "meanPredicted": 0.34703,
+       "actualRate": 0.27518
+      },
+      {
+       "n": 382,
+       "meanPredicted": 0.44826,
+       "actualRate": 0.33508
+      },
+      {
+       "n": 230,
+       "meanPredicted": 0.54562,
+       "actualRate": 0.37391
+      },
+      {
+       "n": 121,
+       "meanPredicted": 0.64769,
+       "actualRate": 0.38843
+      },
+      {
+       "n": 33,
+       "meanPredicted": 0.73073,
+       "actualRate": 0.33333
+      },
+      {
+       "n": 5,
+       "meanPredicted": 0.87125,
+       "actualRate": 0.4
+      }
+     ]
+    },
+    "2017": {
+     "n": 4287,
+     "logLoss": 0.59588,
+     "brier": 0.1754,
+     "meanPredicted": 0.20789,
+     "actualRate": 0.21227,
+     "level": 0.97935,
+     "ece": 0.09589,
+     "reliability": [
+      {
+       "n": 1537,
+       "meanPredicted": 0.02775,
+       "actualRate": 0.13663
+      },
+      {
+       "n": 769,
+       "meanPredicted": 0.15138,
+       "actualRate": 0.21326
+      },
+      {
+       "n": 724,
+       "meanPredicted": 0.24956,
+       "actualRate": 0.23481
+      },
+      {
+       "n": 542,
+       "meanPredicted": 0.34626,
+       "actualRate": 0.25277
+      },
+      {
+       "n": 400,
+       "meanPredicted": 0.44635,
+       "actualRate": 0.315
+      },
+      {
+       "n": 207,
+       "meanPredicted": 0.54209,
+       "actualRate": 0.30918
+      },
+      {
+       "n": 83,
+       "meanPredicted": 0.64969,
+       "actualRate": 0.3494
+      },
+      {
+       "n": 19,
+       "meanPredicted": 0.7332,
+       "actualRate": 0.42105
+      },
+      {
+       "n": 4,
+       "meanPredicted": 0.83738,
+       "actualRate": 0.25
+      },
+      {
+       "n": 2,
+       "meanPredicted": 0.91574,
+       "actualRate": 0.5
+      }
+     ]
+    },
+    "2018": {
+     "n": 4269,
+     "logLoss": 0.63033,
+     "brier": 0.18325,
+     "meanPredicted": 0.21477,
+     "actualRate": 0.23495,
+     "level": 0.91412,
+     "ece": 0.08672,
+     "reliability": [
+      {
+       "n": 1506,
+       "meanPredicted": 0.02688,
+       "actualRate": 0.15206
+      },
+      {
+       "n": 775,
+       "meanPredicted": 0.14828,
+       "actualRate": 0.19355
+      },
+      {
+       "n": 686,
+       "meanPredicted": 0.24845,
+       "actualRate": 0.2551
+      },
+      {
+       "n": 539,
+       "meanPredicted": 0.34655,
+       "actualRate": 0.32096
+      },
+      {
+       "n": 350,
+       "meanPredicted": 0.44512,
+       "actualRate": 0.27143
+      },
+      {
+       "n": 234,
+       "meanPredicted": 0.54488,
+       "actualRate": 0.43162
+      },
+      {
+       "n": 126,
+       "meanPredicted": 0.64386,
+       "actualRate": 0.43651
+      },
+      {
+       "n": 45,
+       "meanPredicted": 0.73508,
+       "actualRate": 0.46667
+      },
+      {
+       "n": 8,
+       "meanPredicted": 0.84312,
+       "actualRate": 0.5
+      }
+     ]
+    },
+    "2019": {
+     "n": 4298,
+     "logLoss": 0.61156,
+     "brier": 0.18042,
+     "meanPredicted": 0.21521,
+     "actualRate": 0.22406,
+     "level": 0.96053,
+     "ece": 0.09372,
+     "reliability": [
+      {
+       "n": 1560,
+       "meanPredicted": 0.02828,
+       "actualRate": 0.14551
+      },
+      {
+       "n": 764,
+       "meanPredicted": 0.14983,
+       "actualRate": 0.19895
+      },
+      {
+       "n": 630,
+       "meanPredicted": 0.24821,
+       "actualRate": 0.2254
+      },
+      {
+       "n": 535,
+       "meanPredicted": 0.34715,
+       "actualRate": 0.31215
+      },
+      {
+       "n": 387,
+       "meanPredicted": 0.44482,
+       "actualRate": 0.31525
+      },
+      {
+       "n": 250,
+       "meanPredicted": 0.54314,
+       "actualRate": 0.324
+      },
+      {
+       "n": 127,
+       "meanPredicted": 0.6444,
+       "actualRate": 0.44882
+      },
+      {
+       "n": 33,
+       "meanPredicted": 0.73828,
+       "actualRate": 0.39394
+      },
+      {
+       "n": 12,
+       "meanPredicted": 0.84744,
+       "actualRate": 0.16667
+      }
+     ]
+    },
+    "2020": {
+     "n": 4487,
+     "logLoss": 0.6326,
+     "brier": 0.18815,
+     "meanPredicted": 0.2211,
+     "actualRate": 0.24538,
+     "level": 0.90108,
+     "ece": 0.091,
+     "reliability": [
+      {
+       "n": 1508,
+       "meanPredicted": 0.02929,
+       "actualRate": 0.16114
+      },
+      {
+       "n": 807,
+       "meanPredicted": 0.14957,
+       "actualRate": 0.19455
+      },
+      {
+       "n": 745,
+       "meanPredicted": 0.24901,
+       "actualRate": 0.28054
+      },
+      {
+       "n": 611,
+       "meanPredicted": 0.34763,
+       "actualRate": 0.28805
+      },
+      {
+       "n": 395,
+       "meanPredicted": 0.44804,
+       "actualRate": 0.3519
+      },
+      {
+       "n": 245,
+       "meanPredicted": 0.54461,
+       "actualRate": 0.35102
+      },
+      {
+       "n": 126,
+       "meanPredicted": 0.64264,
+       "actualRate": 0.49206
+      },
+      {
+       "n": 39,
+       "meanPredicted": 0.73534,
+       "actualRate": 0.61538
+      },
+      {
+       "n": 11,
+       "meanPredicted": 0.84014,
+       "actualRate": 0.45455
+      }
+     ]
+    },
+    "2021": {
+     "n": 4691,
+     "logLoss": 0.60017,
+     "brier": 0.17713,
+     "meanPredicted": 0.21504,
+     "actualRate": 0.22362,
+     "level": 0.96163,
+     "ece": 0.08474,
+     "reliability": [
+      {
+       "n": 1663,
+       "meanPredicted": 0.02601,
+       "actualRate": 0.1341
+      },
+      {
+       "n": 810,
+       "meanPredicted": 0.14939,
+       "actualRate": 0.19753
+      },
+      {
+       "n": 756,
+       "meanPredicted": 0.2498,
+       "actualRate": 0.25
+      },
+      {
+       "n": 597,
+       "meanPredicted": 0.34706,
+       "actualRate": 0.27973
+      },
+      {
+       "n": 448,
+       "meanPredicted": 0.4463,
+       "actualRate": 0.31473
+      },
+      {
+       "n": 259,
+       "meanPredicted": 0.54515,
+       "actualRate": 0.41313
+      },
+      {
+       "n": 111,
+       "meanPredicted": 0.64343,
+       "actualRate": 0.37838
+      },
+      {
+       "n": 38,
+       "meanPredicted": 0.74194,
+       "actualRate": 0.44737
+      },
+      {
+       "n": 8,
+       "meanPredicted": 0.84687,
+       "actualRate": 0.375
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.91652,
+       "actualRate": 0
+      }
+     ]
+    }
+   },
+   "likeliestScorer": {
+    "teamGames": 4312,
+    "scored": 0.34717
+   }
+  },
+  "tdShareShrunk": {
+   "overall": {
+    "n": 35128,
+    "logLoss": 0.61931,
+    "brier": 0.17721,
+    "meanPredicted": 0.1501,
+    "actualRate": 0.22577,
+    "level": 0.66482,
+    "ece": 0.08678,
+    "reliability": [
+     {
+      "n": 15805,
+      "meanPredicted": 0.03196,
+      "actualRate": 0.15388
+     },
+     {
+      "n": 8233,
+      "meanPredicted": 0.14764,
+      "actualRate": 0.23515
+     },
+     {
+      "n": 5594,
+      "meanPredicted": 0.24582,
+      "actualRate": 0.28262
+     },
+     {
+      "n": 3317,
+      "meanPredicted": 0.34473,
+      "actualRate": 0.3256
+     },
+     {
+      "n": 1544,
+      "meanPredicted": 0.44259,
+      "actualRate": 0.3886
+     },
+     {
+      "n": 551,
+      "meanPredicted": 0.53745,
+      "actualRate": 0.47368
+     },
+     {
+      "n": 80,
+      "meanPredicted": 0.63863,
+      "actualRate": 0.475
+     },
+     {
+      "n": 4,
+      "meanPredicted": 0.71406,
+      "actualRate": 0.75
+     }
+    ]
+   },
+   "eras": {
+    "2014-2017": {
+     "n": 17383,
+     "logLoss": 0.6122,
+     "brier": 0.17454,
+     "meanPredicted": 0.14719,
+     "actualRate": 0.21947,
+     "level": 0.67069,
+     "ece": 0.08432,
+     "reliability": [
+      {
+       "n": 7935,
+       "meanPredicted": 0.03206,
+       "actualRate": 0.15325
+      },
+      {
+       "n": 4100,
+       "meanPredicted": 0.14776,
+       "actualRate": 0.22927
+      },
+      {
+       "n": 2723,
+       "meanPredicted": 0.2456,
+       "actualRate": 0.26956
+      },
+      {
+       "n": 1616,
+       "meanPredicted": 0.34506,
+       "actualRate": 0.3354
+      },
+      {
+       "n": 749,
+       "meanPredicted": 0.44146,
+       "actualRate": 0.36716
+      },
+      {
+       "n": 239,
+       "meanPredicted": 0.5368,
+       "actualRate": 0.42678
+      },
+      {
+       "n": 21,
+       "meanPredicted": 0.62456,
+       "actualRate": 0.28571
+      }
+     ]
+    },
+    "2018-2021": {
+     "n": 17745,
+     "logLoss": 0.62628,
+     "brier": 0.17984,
+     "meanPredicted": 0.15294,
+     "actualRate": 0.23195,
+     "level": 0.65937,
+     "ece": 0.08919,
+     "reliability": [
+      {
+       "n": 7870,
+       "meanPredicted": 0.03186,
+       "actualRate": 0.15451
+      },
+      {
+       "n": 4133,
+       "meanPredicted": 0.14751,
+       "actualRate": 0.24099
+      },
+      {
+       "n": 2871,
+       "meanPredicted": 0.24603,
+       "actualRate": 0.29502
+      },
+      {
+       "n": 1701,
+       "meanPredicted": 0.34441,
+       "actualRate": 0.31628
+      },
+      {
+       "n": 795,
+       "meanPredicted": 0.44365,
+       "actualRate": 0.40881
+      },
+      {
+       "n": 312,
+       "meanPredicted": 0.53795,
+       "actualRate": 0.50962
+      },
+      {
+       "n": 59,
+       "meanPredicted": 0.64364,
+       "actualRate": 0.54237
+      },
+      {
+       "n": 4,
+       "meanPredicted": 0.71406,
+       "actualRate": 0.75
+      }
+     ]
+    }
+   },
+   "seasons": {
+    "2014": {
+     "n": 4365,
+     "logLoss": 0.59712,
+     "brier": 0.16938,
+     "meanPredicted": 0.14733,
+     "actualRate": 0.21283,
+     "level": 0.69222,
+     "ece": 0.08342,
+     "reliability": [
+      {
+       "n": 2055,
+       "meanPredicted": 0.0331,
+       "actualRate": 0.14209
+      },
+      {
+       "n": 951,
+       "meanPredicted": 0.14813,
+       "actualRate": 0.23239
+      },
+      {
+       "n": 695,
+       "meanPredicted": 0.24759,
+       "actualRate": 0.2777
+      },
+      {
+       "n": 393,
+       "meanPredicted": 0.34415,
+       "actualRate": 0.28499
+      },
+      {
+       "n": 205,
+       "meanPredicted": 0.44381,
+       "actualRate": 0.41463
+      },
+      {
+       "n": 64,
+       "meanPredicted": 0.54108,
+       "actualRate": 0.40625
+      },
+      {
+       "n": 2,
+       "meanPredicted": 0.6227,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2015": {
+     "n": 4375,
+     "logLoss": 0.61861,
+     "brier": 0.17457,
+     "meanPredicted": 0.14541,
+     "actualRate": 0.2192,
+     "level": 0.66335,
+     "ece": 0.08668,
+     "reliability": [
+      {
+       "n": 2015,
+       "meanPredicted": 0.03157,
+       "actualRate": 0.1598
+      },
+      {
+       "n": 1066,
+       "meanPredicted": 0.14706,
+       "actualRate": 0.20732
+      },
+      {
+       "n": 630,
+       "meanPredicted": 0.2449,
+       "actualRate": 0.27778
+      },
+      {
+       "n": 396,
+       "meanPredicted": 0.34674,
+       "actualRate": 0.36616
+      },
+      {
+       "n": 210,
+       "meanPredicted": 0.44084,
+       "actualRate": 0.3381
+      },
+      {
+       "n": 54,
+       "meanPredicted": 0.53802,
+       "actualRate": 0.44444
+      },
+      {
+       "n": 4,
+       "meanPredicted": 0.63772,
+       "actualRate": 0.25
+      }
+     ]
+    },
+    "2016": {
+     "n": 4356,
+     "logLoss": 0.63598,
+     "brier": 0.18388,
+     "meanPredicted": 0.15059,
+     "actualRate": 0.23347,
+     "level": 0.64502,
+     "ece": 0.09457,
+     "reliability": [
+      {
+       "n": 1947,
+       "meanPredicted": 0.03209,
+       "actualRate": 0.16127
+      },
+      {
+       "n": 1032,
+       "meanPredicted": 0.14735,
+       "actualRate": 0.24709
+      },
+      {
+       "n": 676,
+       "meanPredicted": 0.24389,
+       "actualRate": 0.28994
+      },
+      {
+       "n": 435,
+       "meanPredicted": 0.34506,
+       "actualRate": 0.34713
+      },
+      {
+       "n": 178,
+       "meanPredicted": 0.44208,
+       "actualRate": 0.37079
+      },
+      {
+       "n": 77,
+       "meanPredicted": 0.53185,
+       "actualRate": 0.4026
+      },
+      {
+       "n": 11,
+       "meanPredicted": 0.61988,
+       "actualRate": 0.36364
+      }
+     ]
+    },
+    "2017": {
+     "n": 4287,
+     "logLoss": 0.59685,
+     "brier": 0.17025,
+     "meanPredicted": 0.14543,
+     "actualRate": 0.21227,
+     "level": 0.68512,
+     "ece": 0.07993,
+     "reliability": [
+      {
+       "n": 1918,
+       "meanPredicted": 0.03144,
+       "actualRate": 0.15016
+      },
+      {
+       "n": 1051,
+       "meanPredicted": 0.14853,
+       "actualRate": 0.23121
+      },
+      {
+       "n": 722,
+       "meanPredicted": 0.24588,
+       "actualRate": 0.23546
+      },
+      {
+       "n": 392,
+       "meanPredicted": 0.34429,
+       "actualRate": 0.34184
+      },
+      {
+       "n": 156,
+       "meanPredicted": 0.4385,
+       "actualRate": 0.33974
+      },
+      {
+       "n": 44,
+       "meanPredicted": 0.53772,
+       "actualRate": 0.47727
+      },
+      {
+       "n": 4,
+       "meanPredicted": 0.62522,
+       "actualRate": 0.25
+      }
+     ]
+    },
+    "2018": {
+     "n": 4269,
+     "logLoss": 0.64092,
+     "brier": 0.18201,
+     "meanPredicted": 0.15165,
+     "actualRate": 0.23495,
+     "level": 0.64546,
+     "ece": 0.09223,
+     "reliability": [
+      {
+       "n": 1920,
+       "meanPredicted": 0.03185,
+       "actualRate": 0.15521
+      },
+      {
+       "n": 997,
+       "meanPredicted": 0.14704,
+       "actualRate": 0.24373
+      },
+      {
+       "n": 685,
+       "meanPredicted": 0.24547,
+       "actualRate": 0.30511
+      },
+      {
+       "n": 373,
+       "meanPredicted": 0.34374,
+       "actualRate": 0.30831
+      },
+      {
+       "n": 190,
+       "meanPredicted": 0.44795,
+       "actualRate": 0.44737
+      },
+      {
+       "n": 83,
+       "meanPredicted": 0.53579,
+       "actualRate": 0.49398
+      },
+      {
+       "n": 19,
+       "meanPredicted": 0.64553,
+       "actualRate": 0.52632
+      },
+      {
+       "n": 2,
+       "meanPredicted": 0.71652,
+       "actualRate": 1
+      }
+     ]
+    },
+    "2019": {
+     "n": 4298,
+     "logLoss": 0.61549,
+     "brier": 0.17636,
+     "meanPredicted": 0.15129,
+     "actualRate": 0.22406,
+     "level": 0.67525,
+     "ece": 0.09002,
+     "reliability": [
+      {
+       "n": 1966,
+       "meanPredicted": 0.0323,
+       "actualRate": 0.15412
+      },
+      {
+       "n": 944,
+       "meanPredicted": 0.14616,
+       "actualRate": 0.2214
+      },
+      {
+       "n": 683,
+       "meanPredicted": 0.24741,
+       "actualRate": 0.30454
+      },
+      {
+       "n": 421,
+       "meanPredicted": 0.34476,
+       "actualRate": 0.29929
+      },
+      {
+       "n": 200,
+       "meanPredicted": 0.4413,
+       "actualRate": 0.375
+      },
+      {
+       "n": 73,
+       "meanPredicted": 0.53788,
+       "actualRate": 0.49315
+      },
+      {
+       "n": 10,
+       "meanPredicted": 0.64171,
+       "actualRate": 0.5
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.72221,
+       "actualRate": 1
+      }
+     ]
+    },
+    "2020": {
+     "n": 4487,
+     "logLoss": 0.64438,
+     "brier": 0.1872,
+     "meanPredicted": 0.15689,
+     "actualRate": 0.24538,
+     "level": 0.6394,
+     "ece": 0.09333,
+     "reliability": [
+      {
+       "n": 1908,
+       "meanPredicted": 0.03295,
+       "actualRate": 0.16457
+      },
+      {
+       "n": 1087,
+       "meanPredicted": 0.14772,
+       "actualRate": 0.25575
+      },
+      {
+       "n": 750,
+       "meanPredicted": 0.24567,
+       "actualRate": 0.292
+      },
+      {
+       "n": 444,
+       "meanPredicted": 0.34542,
+       "actualRate": 0.35135
+      },
+      {
+       "n": 192,
+       "meanPredicted": 0.43992,
+       "actualRate": 0.39063
+      },
+      {
+       "n": 96,
+       "meanPredicted": 0.54205,
+       "actualRate": 0.5625
+      },
+      {
+       "n": 10,
+       "meanPredicted": 0.64101,
+       "actualRate": 0.5
+      }
+     ]
+    },
+    "2021": {
+     "n": 4691,
+     "logLoss": 0.60554,
+     "brier": 0.17401,
+     "meanPredicted": 0.15186,
+     "actualRate": 0.22362,
+     "level": 0.67908,
+     "ece": 0.08398,
+     "reliability": [
+      {
+       "n": 2076,
+       "meanPredicted": 0.03044,
+       "actualRate": 0.14499
+      },
+      {
+       "n": 1105,
+       "meanPredicted": 0.14889,
+       "actualRate": 0.24072
+      },
+      {
+       "n": 753,
+       "meanPredicted": 0.24567,
+       "actualRate": 0.28021
+      },
+      {
+       "n": 463,
+       "meanPredicted": 0.34368,
+       "actualRate": 0.30454
+      },
+      {
+       "n": 213,
+       "meanPredicted": 0.44539,
+       "actualRate": 0.42254
+      },
+      {
+       "n": 60,
+       "meanPredicted": 0.53446,
+       "actualRate": 0.46667
+      },
+      {
+       "n": 20,
+       "meanPredicted": 0.64412,
+       "actualRate": 0.6
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.701,
+       "actualRate": 0
+      }
+     ]
+    }
+   },
+   "likeliestScorer": {
+    "teamGames": 4312,
+    "scored": 0.3525
+   }
+  },
+  "rollingRate": {
+   "overall": {
+    "n": 35128,
+    "logLoss": 0.52034,
+    "brier": 0.16933,
+    "meanPredicted": 0.22659,
+    "actualRate": 0.22577,
+    "level": 1.00361,
+    "ece": 0.03516,
+    "reliability": [
+     {
+      "n": 6865,
+      "meanPredicted": 0.0725,
+      "actualRate": 0.12484
+     },
+     {
+      "n": 9822,
+      "meanPredicted": 0.15333,
+      "actualRate": 0.17817
+     },
+     {
+      "n": 8031,
+      "meanPredicted": 0.23832,
+      "actualRate": 0.22998
+     },
+     {
+      "n": 5334,
+      "meanPredicted": 0.3226,
+      "actualRate": 0.28028
+     },
+     {
+      "n": 4305,
+      "meanPredicted": 0.43336,
+      "actualRate": 0.37816
+     },
+     {
+      "n": 595,
+      "meanPredicted": 0.57005,
+      "actualRate": 0.44706
+     },
+     {
+      "n": 159,
+      "meanPredicted": 0.65336,
+      "actualRate": 0.51572
+     },
+     {
+      "n": 17,
+      "meanPredicted": 0.73785,
+      "actualRate": 0.35294
+     }
+    ]
+   },
+   "eras": {
+    "2014-2017": {
+     "n": 17383,
+     "logLoss": 0.51693,
+     "brier": 0.16772,
+     "meanPredicted": 0.22311,
+     "actualRate": 0.21947,
+     "level": 1.01658,
+     "ece": 0.03828,
+     "reliability": [
+      {
+       "n": 3459,
+       "meanPredicted": 0.0726,
+       "actualRate": 0.12576
+      },
+      {
+       "n": 4937,
+       "meanPredicted": 0.15329,
+       "actualRate": 0.17703
+      },
+      {
+       "n": 4018,
+       "meanPredicted": 0.23839,
+       "actualRate": 0.22797
+      },
+      {
+       "n": 2615,
+       "meanPredicted": 0.32282,
+       "actualRate": 0.27419
+      },
+      {
+       "n": 2021,
+       "meanPredicted": 0.43232,
+       "actualRate": 0.36418
+      },
+      {
+       "n": 278,
+       "meanPredicted": 0.56959,
+       "actualRate": 0.41367
+      },
+      {
+       "n": 50,
+       "meanPredicted": 0.65147,
+       "actualRate": 0.44
+      },
+      {
+       "n": 5,
+       "meanPredicted": 0.73785,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2018-2021": {
+     "n": 17745,
+     "logLoss": 0.52369,
+     "brier": 0.17091,
+     "meanPredicted": 0.23,
+     "actualRate": 0.23195,
+     "level": 0.99159,
+     "ece": 0.03211,
+     "reliability": [
+      {
+       "n": 3406,
+       "meanPredicted": 0.07241,
+       "actualRate": 0.1239
+      },
+      {
+       "n": 4885,
+       "meanPredicted": 0.15337,
+       "actualRate": 0.17932
+      },
+      {
+       "n": 4013,
+       "meanPredicted": 0.23825,
+       "actualRate": 0.232
+      },
+      {
+       "n": 2719,
+       "meanPredicted": 0.32238,
+       "actualRate": 0.28613
+      },
+      {
+       "n": 2284,
+       "meanPredicted": 0.43428,
+       "actualRate": 0.39054
+      },
+      {
+       "n": 317,
+       "meanPredicted": 0.57045,
+       "actualRate": 0.47634
+      },
+      {
+       "n": 109,
+       "meanPredicted": 0.65423,
+       "actualRate": 0.55046
+      },
+      {
+       "n": 12,
+       "meanPredicted": 0.73785,
+       "actualRate": 0.5
+      }
+     ]
+    }
+   },
+   "seasons": {
+    "2014": {
+     "n": 4365,
+     "logLoss": 0.50917,
+     "brier": 0.16422,
+     "meanPredicted": 0.22547,
+     "actualRate": 0.21283,
+     "level": 1.05939,
+     "ece": 0.04602,
+     "reliability": [
+      {
+       "n": 838,
+       "meanPredicted": 0.07289,
+       "actualRate": 0.1253
+      },
+      {
+       "n": 1281,
+       "meanPredicted": 0.15306,
+       "actualRate": 0.17564
+      },
+      {
+       "n": 979,
+       "meanPredicted": 0.23844,
+       "actualRate": 0.20838
+      },
+      {
+       "n": 656,
+       "meanPredicted": 0.32339,
+       "actualRate": 0.26372
+      },
+      {
+       "n": 493,
+       "meanPredicted": 0.43136,
+       "actualRate": 0.34077
+      },
+      {
+       "n": 99,
+       "meanPredicted": 0.56798,
+       "actualRate": 0.45455
+      },
+      {
+       "n": 17,
+       "meanPredicted": 0.65171,
+       "actualRate": 0.52941
+      },
+      {
+       "n": 2,
+       "meanPredicted": 0.73785,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2015": {
+     "n": 4375,
+     "logLoss": 0.51047,
+     "brier": 0.16525,
+     "meanPredicted": 0.21864,
+     "actualRate": 0.2192,
+     "level": 0.99747,
+     "ece": 0.03105,
+     "reliability": [
+      {
+       "n": 891,
+       "meanPredicted": 0.07281,
+       "actualRate": 0.12009
+      },
+      {
+       "n": 1279,
+       "meanPredicted": 0.15323,
+       "actualRate": 0.17435
+      },
+      {
+       "n": 1049,
+       "meanPredicted": 0.23838,
+       "actualRate": 0.22498
+      },
+      {
+       "n": 620,
+       "meanPredicted": 0.32231,
+       "actualRate": 0.29032
+      },
+      {
+       "n": 451,
+       "meanPredicted": 0.43395,
+       "actualRate": 0.38137
+      },
+      {
+       "n": 67,
+       "meanPredicted": 0.5704,
+       "actualRate": 0.50746
+      },
+      {
+       "n": 16,
+       "meanPredicted": 0.65125,
+       "actualRate": 0.4375
+      },
+      {
+       "n": 2,
+       "meanPredicted": 0.73785,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2016": {
+     "n": 4356,
+     "logLoss": 0.53662,
+     "brier": 0.17578,
+     "meanPredicted": 0.2261,
+     "actualRate": 0.23347,
+     "level": 0.96842,
+     "ece": 0.03996,
+     "reliability": [
+      {
+       "n": 853,
+       "meanPredicted": 0.07264,
+       "actualRate": 0.13482
+      },
+      {
+       "n": 1216,
+       "meanPredicted": 0.15336,
+       "actualRate": 0.19408
+      },
+      {
+       "n": 992,
+       "meanPredicted": 0.23837,
+       "actualRate": 0.23891
+      },
+      {
+       "n": 646,
+       "meanPredicted": 0.32257,
+       "actualRate": 0.27554
+      },
+      {
+       "n": 578,
+       "meanPredicted": 0.43324,
+       "actualRate": 0.38927
+      },
+      {
+       "n": 63,
+       "meanPredicted": 0.57068,
+       "actualRate": 0.38095
+      },
+      {
+       "n": 8,
+       "meanPredicted": 0.65452,
+       "actualRate": 0.25
+      }
+     ]
+    },
+    "2017": {
+     "n": 4287,
+     "logLoss": 0.51141,
+     "brier": 0.16559,
+     "meanPredicted": 0.22222,
+     "actualRate": 0.21227,
+     "level": 1.04686,
+     "ece": 0.03683,
+     "reliability": [
+      {
+       "n": 877,
+       "meanPredicted": 0.07205,
+       "actualRate": 0.12315
+      },
+      {
+       "n": 1161,
+       "meanPredicted": 0.15356,
+       "actualRate": 0.16365
+      },
+      {
+       "n": 998,
+       "meanPredicted": 0.23837,
+       "actualRate": 0.23948
+      },
+      {
+       "n": 693,
+       "meanPredicted": 0.32297,
+       "actualRate": 0.2684
+      },
+      {
+       "n": 499,
+       "meanPredicted": 0.43073,
+       "actualRate": 0.34269
+      },
+      {
+       "n": 49,
+       "meanPredicted": 0.57034,
+       "actualRate": 0.2449
+      },
+      {
+       "n": 9,
+       "meanPredicted": 0.64871,
+       "actualRate": 0.44444
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.73785,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2018": {
+     "n": 4269,
+     "logLoss": 0.52704,
+     "brier": 0.17223,
+     "meanPredicted": 0.22886,
+     "actualRate": 0.23495,
+     "level": 0.97408,
+     "ece": 0.03574,
+     "reliability": [
+      {
+       "n": 807,
+       "meanPredicted": 0.0725,
+       "actualRate": 0.12515
+      },
+      {
+       "n": 1251,
+       "meanPredicted": 0.15332,
+       "actualRate": 0.18385
+      },
+      {
+       "n": 917,
+       "meanPredicted": 0.23819,
+       "actualRate": 0.24755
+      },
+      {
+       "n": 643,
+       "meanPredicted": 0.32245,
+       "actualRate": 0.28616
+      },
+      {
+       "n": 532,
+       "meanPredicted": 0.43174,
+       "actualRate": 0.36842
+      },
+      {
+       "n": 84,
+       "meanPredicted": 0.57097,
+       "actualRate": 0.52381
+      },
+      {
+       "n": 30,
+       "meanPredicted": 0.65347,
+       "actualRate": 0.63333
+      },
+      {
+       "n": 5,
+       "meanPredicted": 0.73785,
+       "actualRate": 0.4
+      }
+     ]
+    },
+    "2019": {
+     "n": 4298,
+     "logLoss": 0.51851,
+     "brier": 0.16871,
+     "meanPredicted": 0.2256,
+     "actualRate": 0.22406,
+     "level": 1.0069,
+     "ece": 0.03316,
+     "reliability": [
+      {
+       "n": 862,
+       "meanPredicted": 0.07252,
+       "actualRate": 0.12413
+      },
+      {
+       "n": 1185,
+       "meanPredicted": 0.1532,
+       "actualRate": 0.173
+      },
+      {
+       "n": 967,
+       "meanPredicted": 0.23871,
+       "actualRate": 0.23061
+      },
+      {
+       "n": 669,
+       "meanPredicted": 0.32224,
+       "actualRate": 0.28999
+      },
+      {
+       "n": 533,
+       "meanPredicted": 0.43372,
+       "actualRate": 0.37523
+      },
+      {
+       "n": 67,
+       "meanPredicted": 0.56993,
+       "actualRate": 0.44776
+      },
+      {
+       "n": 15,
+       "meanPredicted": 0.65452,
+       "actualRate": 0.26667
+      }
+     ]
+    },
+    "2020": {
+     "n": 4487,
+     "logLoss": 0.53845,
+     "brier": 0.17684,
+     "meanPredicted": 0.23477,
+     "actualRate": 0.24538,
+     "level": 0.95679,
+     "ece": 0.03221,
+     "reliability": [
+      {
+       "n": 807,
+       "meanPredicted": 0.0725,
+       "actualRate": 0.13383
+      },
+      {
+       "n": 1196,
+       "meanPredicted": 0.15339,
+       "actualRate": 0.19231
+      },
+      {
+       "n": 1071,
+       "meanPredicted": 0.23803,
+       "actualRate": 0.22782
+      },
+      {
+       "n": 681,
+       "meanPredicted": 0.3227,
+       "actualRate": 0.29222
+      },
+      {
+       "n": 616,
+       "meanPredicted": 0.43443,
+       "actualRate": 0.42045
+      },
+      {
+       "n": 82,
+       "meanPredicted": 0.57118,
+       "actualRate": 0.52439
+      },
+      {
+       "n": 33,
+       "meanPredicted": 0.65452,
+       "actualRate": 0.54545
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.73785,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2021": {
+     "n": 4691,
+     "logLoss": 0.51127,
+     "brier": 0.16605,
+     "meanPredicted": 0.23051,
+     "actualRate": 0.22362,
+     "level": 1.0308,
+     "ece": 0.03141,
+     "reliability": [
+      {
+       "n": 930,
+       "meanPredicted": 0.07215,
+       "actualRate": 0.11398
+      },
+      {
+       "n": 1253,
+       "meanPredicted": 0.15355,
+       "actualRate": 0.1684
+      },
+      {
+       "n": 1058,
+       "meanPredicted": 0.23812,
+       "actualRate": 0.22401
+      },
+      {
+       "n": 726,
+       "meanPredicted": 0.32215,
+       "actualRate": 0.27686
+      },
+      {
+       "n": 603,
+       "meanPredicted": 0.43688,
+       "actualRate": 0.39303
+      },
+      {
+       "n": 84,
+       "meanPredicted": 0.56963,
+       "actualRate": 0.40476
+      },
+      {
+       "n": 31,
+       "meanPredicted": 0.65452,
+       "actualRate": 0.6129
+      },
+      {
+       "n": 6,
+       "meanPredicted": 0.73785,
+       "actualRate": 0.66667
+      }
+     ]
+    }
+   },
+   "likeliestScorer": {
+    "teamGames": 4312,
+    "scored": 0.36665
+   }
+  }
+ },
+ "bars": {
+  "opportunityTd": {
+   "beatsEveryBaseline": {
+    "pass": true,
+    "required": "log loss below every baseline overall and in every era",
+    "observed": {
+     "tdShareShrunk": {
+      "overall": [
+       0.50435,
+       0.61931
+      ],
+      "eras": {
+       "2014-2017": [
+        0.49749,
+        0.6122
+       ],
+       "2018-2021": [
+        0.51108,
+        0.62628
+       ]
+      }
+     },
+     "rollingRate": {
+      "overall": [
+       0.50435,
+       0.52034
+      ],
+      "eras": {
+       "2014-2017": [
+        0.49749,
+        0.51693
+       ],
+       "2018-2021": [
+        0.51108,
+        0.52369
+       ]
+      }
+     }
+    }
+   },
+   "improvementIsNotNoise": {
+    "pass": true,
+    "required": "season-bootstrap 95% upper bound of the per-player-game log-loss difference versus the better baseline < 0",
+    "observed": {
+     "versus": "rollingRate",
+     "point": -0.01599,
+     "lo95": -0.01909,
+     "hi95": -0.01319
+    }
+   },
+   "calibration": {
+    "pass": true,
+    "required": "ECE <= 0.03 overall and <= 0.04 in every era",
+    "observed": {
+     "overall": 0.0203,
+     "eras": {
+      "2014-2017": 0.0189,
+      "2018-2021": 0.02166
+     }
+    }
+   },
+   "level": {
+    "pass": true,
+    "required": "mean predicted / actual in [0.92, 1.08] overall and in every era",
+    "observed": {
+     "overall": 1.03493,
+     "eras": {
+      "2014-2017": 1.03738,
+      "2018-2021": 1.03267
+     }
+    }
+   },
+   "minimumN": {
+    "pass": true,
+    "required": "n >= 1000",
+    "observed": 35128
+   }
+  },
+  "tdShareLevel": {
+   "beatsEveryBaseline": {
+    "pass": false,
+    "required": "log loss below every baseline overall and in every era",
+    "observed": {
+     "tdShareShrunk": {
+      "overall": [
+       0.61321,
+       0.61931
+      ],
+      "eras": {
+       "2014-2017": [
+        0.60792,
+        0.6122
+       ],
+       "2018-2021": [
+        0.61839,
+        0.62628
+       ]
+      }
+     },
+     "rollingRate": {
+      "overall": [
+       0.61321,
+       0.52034
+      ],
+      "eras": {
+       "2014-2017": [
+        0.60792,
+        0.51693
+       ],
+       "2018-2021": [
+        0.61839,
+        0.52369
+       ]
+      }
+     }
+    }
+   },
+   "improvementIsNotNoise": {
+    "pass": false,
+    "required": "season-bootstrap 95% upper bound of the per-player-game log-loss difference versus the better baseline < 0",
+    "observed": {
+     "versus": "rollingRate",
+     "point": 0.09287,
+     "lo95": 0.08846,
+     "hi95": 0.09781
+    }
+   },
+   "calibration": {
+    "pass": false,
+    "required": "ECE <= 0.03 overall and <= 0.04 in every era",
+    "observed": {
+     "overall": 0.08906,
+     "eras": {
+      "2014-2017": 0.0924,
+      "2018-2021": 0.08735
+     }
+    }
+   },
+   "level": {
+    "pass": true,
+    "required": "mean predicted / actual in [0.92, 1.08] overall and in every era",
+    "observed": {
+     "overall": 0.94295,
+     "eras": {
+      "2014-2017": 0.95304,
+      "2018-2021": 0.9336
+     }
+    }
+   },
+   "minimumN": {
+    "pass": true,
+    "required": "n >= 1000",
+    "observed": 35128
+   }
+  }
+ },
+ "verdicts": {
+  "opportunityTd": "ELIGIBLE",
+  "tdShareLevel": "REJECTED"
+ },
+ "recommendation": "opportunityTd",
+ "consequence": "Nothing publishes from this receipt. The live anytime-TD engine keeps publishing; replacing it is its own reviewed, founder-approved app/ step."
+}
