@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "artifact": "player-props-share-level-estimate-adoption",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "300",
+  "approvedAt": "2026-09-14",
+  "approval": "Founder, 2026-09-14: proceed with the recommended passing-yards change. The label stays ESTIMATE; nothing is promoted to PUBLISHED.",
+  "markets": {
+    "player_pass_yds": {
+      "state": "ESTIMATE",
+      "why": "The live v1 passing-yards engine failed all four of its bars on held-out 2025, and on 2026 Week 1 its middle ran 74 yards low with a typical miss of 91 yards. The share-level candidate failed ONE bar on its 2014-2021 second look, threshold calibration (ECE 0.055 against 0.05). On the same 4,388 player-games it beat rolling-4 and share-times-volume on typical miss (66.97 vs 70.01 and 76.85), covered 82.5% of 80% ranges, and its level was 0.988. It replaces one unvalidated estimate with a better one and keeps the estimate label.",
+      "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+      "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
+      "revertsWhen": "its blind 2026 forward family reads FORWARD_BREACHED, or this file is removed"
+    }
+  }
+}

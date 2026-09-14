@@ -159,7 +159,10 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
       { label: "10th–90th", value: null, format: "text", text: `${tr.p10}–${tr.p90} runs` },
     ];
     const t = pred.total;
-    if (t && Number.isFinite(t.line)) {
+    if (t && Number.isFinite(t.line) && t.pausedReason) {
+      /* Live-record gate: the over/under call is paused; the simulated runs above stay as evidence. */
+      stats.push({ label: `Book total ${t.line}`, value: null, format: "text", text: "paused", note: t.unavailableReason });
+    } else if (t && Number.isFinite(t.line)) {
       stats.push({
         label: `Book total ${t.line}`,
         value: null,

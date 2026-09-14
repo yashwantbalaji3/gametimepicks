@@ -35,7 +35,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveNewArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
-import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
+import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelEstimateMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -151,7 +151,13 @@ const shareLevelSecondLook = read(path.join(ROOT, "data/internal/research/nfl/re
 const shareLevelForward = read(path.join(SHARE_LEVEL_DIR, "receipt.json"));
 /* P301: the blind touchdown replay receipt admits anytime TD to the same weekly forecast. */
 const shareLevelTdEvaluation = read(path.join(ROOT, "data/internal/research/nfl/reports/anytime-td-historical-replay-evaluation.json"));
-const shareLevelMarkets = shareLevelAdoptedMarkets({ secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward, tdEvaluation: shareLevelTdEvaluation });
+const shareLevelPublished = shareLevelAdoptedMarkets({ secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward, tdEvaluation: shareLevelTdEvaluation });
+/* Founder-approved ESTIMATE replacements (passing yards): a better-evidenced estimate in place of a worse one. */
+const shareLevelEstimates = shareLevelEstimateMarkets({
+  adoption: read(path.join(ROOT, "data/internal/research/nfl/reports/player-props-share-level-estimate-adoption.json")),
+  secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward,
+});
+const shareLevelMarkets = new Set([...shareLevelPublished, ...shareLevelEstimates.keys()]);
 
 const outDir = path.join(APP, "public/data/nfl/player-board");
 fs.mkdirSync(outDir, { recursive: true });
@@ -207,12 +213,15 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   families.ordered_td = { label: "First/last/2+ touchdown", state: "WITHHELD", reason: "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities" };
   /* Share-level families replace their v1 counterparts (set last, so they win over the v1 gates above). */
   for (const market of shareLevel?.markets ?? []) {
-    families[market] = {
-      label: market === "anytime_td" ? "Anytime touchdown" : PROP_LABEL[market] ?? market,
-      state: "PUBLISHED",
-      basis: shareLevelBasis({ market, secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward, tdEvaluation: shareLevelTdEvaluation }),
-      model: market === "anytime_td" ? SHARE_LEVEL_TD_MODEL_ID : SHARE_LEVEL_MODEL_ID,
-    };
+    const estimate = shareLevelEstimates.get(market);
+    families[market] = estimate
+      ? { label: PROP_LABEL[market] ?? market, state: "ESTIMATE", reason: estimate.reason, caveat: estimate.caveat, model: SHARE_LEVEL_MODEL_ID }
+      : {
+        label: market === "anytime_td" ? "Anytime touchdown" : PROP_LABEL[market] ?? market,
+        state: "PUBLISHED",
+        basis: shareLevelBasis({ market, secondLook: shareLevelSecondLook, forwardReceipt: shareLevelForward, tdEvaluation: shareLevelTdEvaluation }),
+        model: market === "anytime_td" ? SHARE_LEVEL_TD_MODEL_ID : SHARE_LEVEL_MODEL_ID,
+      };
   }
 
   const publishedMarkets = new Set(Object.entries(families).filter(([, f]) => f.state === "PUBLISHED" || f.state === "ESTIMATE").map(([m]) => m));

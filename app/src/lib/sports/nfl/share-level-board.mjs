@@ -43,6 +43,22 @@ export function shareLevelAdoptedMarkets({ secondLook, forwardReceipt, tdEvaluat
   return out;
 }
 
+/**
+ * Markets shown from the share-level forecast as ESTIMATE (numbers with their failed bar and a caveat, never
+ * PUBLISHED): only those a founder-approved adoption file names, whose second look was scored (a verdict exists),
+ * and whose blind forward family has not breached. Returns Map market → { reason, caveat }.
+ */
+export function shareLevelEstimateMarkets({ adoption, secondLook, forwardReceipt }) {
+  const out = new Map();
+  for (const [market, spec] of Object.entries(adoption?.markets ?? {})) {
+    if (spec?.state !== "ESTIMATE" || !spec.reason || !spec.caveat) continue;
+    if (!Object.keys(secondLook?.verdicts?.[market] ?? {}).length) continue;
+    if (forwardReceipt?.families?.[market]?.state === "FORWARD_BREACHED") continue;
+    out.set(market, { reason: spec.reason, caveat: spec.caveat });
+  }
+  return out;
+}
+
 /** NFL season of a kickoff: January/February games belong to the previous September's season. */
 export function seasonOfKickoff(kickoffUtc) {
   const d = new Date(kickoffUtc);

@@ -6,7 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { shareLevelAdoptedMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "./share-level-board.mjs";
+import { shareLevelAdoptedMarkets, shareLevelEstimateMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "./share-level-board.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "..");
@@ -46,6 +46,25 @@ test("LIVE · the committed touchdown replay receipt admits anytime TD", () => {
   const p = path.join(ROOT, "data/internal/research/nfl/reports/anytime-td-historical-replay-evaluation.json");
   if (!fs.existsSync(p)) return;
   assert.ok(shareLevelAdoptedMarkets({ secondLook: null, forwardReceipt: null, tdEvaluation: JSON.parse(fs.readFileSync(p, "utf8")) }).has("anytime_td"));
+});
+
+test("ESTIMATE replacements need the approval file, a scored second look, a reason and a caveat; a forward breach reverts", () => {
+  const adoption = { markets: { player_pass_yds: { state: "ESTIMATE", reason: "SECOND_LOOK_REJECTED — failed bar: threshold calibration", caveat: "read the range" } } };
+  const m = shareLevelEstimateMarkets({ adoption, secondLook, forwardReceipt: null });
+  assert.deepEqual([...m.keys()], ["player_pass_yds"]);
+  assert.equal(shareLevelEstimateMarkets({ adoption: null, secondLook, forwardReceipt: null }).size, 0, "no approval, no replacement");
+  assert.equal(shareLevelEstimateMarkets({ adoption: { markets: { player_pass_yds: { state: "PUBLISHED", reason: "x", caveat: "y" } } }, secondLook, forwardReceipt: null }).size, 0, "the file can never publish");
+  assert.equal(shareLevelEstimateMarkets({ adoption: { markets: { player_pass_yds: { state: "ESTIMATE", reason: "x" } } }, secondLook, forwardReceipt: null }).size, 0, "an estimate always carries its caveat");
+  assert.equal(shareLevelEstimateMarkets({ adoption, secondLook: { verdicts: {} }, forwardReceipt: null }).size, 0, "no scored second look, no replacement");
+  assert.equal(shareLevelEstimateMarkets({ adoption, secondLook, forwardReceipt: { families: { player_pass_yds: { state: "FORWARD_BREACHED" } } } }).size, 0);
+});
+
+test("LIVE · the committed estimate adoption names passing yards only, as an ESTIMATE", () => {
+  const p = path.join(ROOT, "data/internal/research/nfl/reports/player-props-share-level-estimate-adoption.json");
+  if (!fs.existsSync(p)) return;
+  const doc = JSON.parse(fs.readFileSync(p, "utf8"));
+  assert.deepEqual(Object.keys(doc.markets), ["player_pass_yds"]);
+  assert.ok(Object.values(doc.markets).every((s) => s.state === "ESTIMATE"));
 });
 
 test("P301 · an anytime_td forecast row becomes a probability block, never a range", () => {

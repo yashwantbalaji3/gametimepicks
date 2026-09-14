@@ -24,6 +24,7 @@
 import fs from "node:fs";
 
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
+import { pausedFamiliesFrom, MLB_TOTAL_FAMILY } from "@/lib/ops/live-record-gate.mjs";
 import path from "node:path";
 
 export interface TopRead {
@@ -160,6 +161,11 @@ export function loadTopReads(): TopReadsSet | null {
 
   /* ── MLB: game markets, from the deterministic prediction layer ─────────────────────────────── */
   const mlb = read(`public/data/mlb/predictions/${today}.json`);
+  /* Live-record gate: a BREACHED over/under call never enters the strongest reads, and the list says why. */
+  const mlbTotalPaused = pausedFamiliesFrom(read("public/data/admin/model-health.json"), Date.parse(nowIso)).has(MLB_TOTAL_FAMILY);
+  if (mlbTotalPaused && (mlb?.predictions ?? []).some((p: { total?: { overProbability?: number | null } }) => p.total?.overProbability != null)) {
+    excluded.push({ sport: "mlb", reason: "game totals paused — their live record is below a coin flip; still graded daily" });
+  }
   for (const p of mlb?.predictions ?? []) {
     const ml = p.moneyline;
     if (ml?.simulationProbability != null && p.slug) {
@@ -175,7 +181,7 @@ export function loadTopReads(): TopReadsSet | null {
       });
     }
     const tot = p.total;
-    if (tot?.overProbability != null && p.slug) {
+    if (!mlbTotalPaused && tot?.overProbability != null && p.slug) {
       const over = tot.pick === "OVER";
       push({
         sport: "mlb", sportLabel: "MLB", kind: "team", eventEtDate: today,

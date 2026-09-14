@@ -43,6 +43,7 @@ import { getWcGameCenter, type WcGameCenter } from "@/lib/wc-game-center";
 import { getWcExpandedMarkets, type WcExpandedMarkets } from "@/lib/wc-expanded-markets";
 import fs from "node:fs";
 import path from "node:path";
+import { pausedFamiliesFrom, pauseMlbTotal } from "@/lib/ops/live-record-gate.mjs";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
 import {
@@ -476,6 +477,11 @@ function mlbDetails(): PublicGameDetail[] {
   // frame two games in the same report set differently.
   const marketToday = currentEtDate();
   const marketNow = new Date().toISOString();
+  /* Live-record gate (founder-approved 2026-09-14): a call the nightly model-health scorecard marks BREACHED is
+     shown paused on every surface that reads this decision. Grading reads the prediction artifacts, not this. */
+  const livePauses = pausedFamiliesFrom((() => {
+    try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "admin", "model-health.json"), "utf8")); } catch { return null; }
+  })(), Date.parse(marketNow));
   return details.map((d) => {
     const sim = joinSim(d.matchId, d.slug);
     const fg = d.matchId ? fullGame?.byGamePk.get(String(d.matchId)) ?? null : null;
@@ -494,7 +500,7 @@ function mlbDetails(): PublicGameDetail[] {
         modelProbability: p.modelProbability,
         marketProbability: p.marketProbability ?? null,
       }));
-    const prediction = fg ? buildGamePredictionDecision(fg, playerPicks) : null;
+    const prediction = fg ? pauseMlbTotal(buildGamePredictionDecision(fg, playerPicks), livePauses) : null;
     // Enriched canonical player predictions (Sprint 010): join each pick to its board lean for the portrait
     // id + opponent, then re-use the SAME top-5 in the report hero so it matches /today exactly.
     const leanByKey = new Map<string, { playerId: number | null; team: string | null; opponent: string | null }>();

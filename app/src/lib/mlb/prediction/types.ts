@@ -37,6 +37,8 @@ export interface TotalPrediction {
   marketImpliedOver: number | null;
   strengthLabel: StrengthLabel | null;
   unavailableReason?: string;
+  /** Set by the live-record gate (lib/ops/live-record-gate.mjs) when this call's graded record is BREACHED. */
+  pausedReason?: string;
 }
 
 export interface RunLinePrediction {

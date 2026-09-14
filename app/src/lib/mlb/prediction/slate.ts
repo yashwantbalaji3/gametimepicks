@@ -44,6 +44,8 @@ export interface GamePredictionRow {
   moneyline: { team: string; probability: number; strength: StrengthLabel } | null;
   score: { away: number; home: number } | null;
   total: { pick: "OVER" | "UNDER"; line: number; probability: number } | null;
+  /** The over/under call is paused by the live-record gate (its graded record is below a coin flip). */
+  totalPaused?: boolean;
   runLine: { pick: string; coverProbability: number } | null;
 }
 
@@ -76,6 +78,7 @@ export function buildTodayPredictionRows(games: SlatePredictionGame[]): GamePred
       moneyline: p.moneyline ? { team: p.moneyline.team, probability: p.moneyline.simulationProbability, strength: p.moneyline.strengthLabel } : null,
       score: p.projectedScore ? { away: p.projectedScore.away, home: p.projectedScore.home } : null,
       total,
+      ...(p.total?.pausedReason ? { totalPaused: true } : {}),
       runLine: p.runLine ? { pick: p.runLine.pick, coverProbability: p.runLine.coverProbability } : null,
     });
   }

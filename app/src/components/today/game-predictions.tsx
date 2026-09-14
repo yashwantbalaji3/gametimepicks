@@ -72,7 +72,7 @@ export default function TodayGamePredictions({ rows, nowMs }: { rows: GamePredic
                   </Cell>
                   <Cell muted>{r.score ? <span className="font-mono">{r.awayTeam} {r.score.away}–{r.score.home} {r.homeTeam}</span> : "—"}</Cell>
                   <Cell>
-                    {r.total ? <span><strong>{r.total.pick} {r.total.line}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.total.probability)}</span></span> : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
+                    {r.total ? <span><strong>{r.total.pick} {r.total.line}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.total.probability)}</span></span> : r.totalPaused ? <span title="Its graded record is below a coin flip. Still made and graded daily; it returns when the record recovers." style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>paused</span> : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
                   </Cell>
                   <Cell>
                     {r.runLine ? <span><strong>{r.runLine.pick}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.runLine.coverProbability)}</span></span> : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
