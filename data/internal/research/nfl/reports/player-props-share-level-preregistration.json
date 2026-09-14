@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "artifact": "player-props-share-level-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "300",
+  "charterSection": "4B-NFL",
+  "registeredAt": "2026-09-14T06:10:00Z",
+
+  "whyThisExists": "P299 (receipt player-props-historical-replay-evaluation.json, commit 988326a3f) rejected every player family except receiving yards on the teamFormVolume candidate, mostly on threshold calibration. P299's registration blamed the failures on distribution skew. That diagnosis was WRONG, and this file corrects it. After scoring, a dev-only check (2022-2025) showed the forecasts were too LOW: mean forecast vs mean actual was passing yards 191 vs 215, rushing yards 29.2 vs 32.8, receiving yards 31.6 vs 34.1, receptions 2.83 vs 3.03. The cause is the committed share rule: decayedShare = sum(w*s) / (sum(w) + shrinkK) with shrinkK 0.5 pulls every named player's share toward ZERO, and the freed mass goes to nobody. The pull is heaviest after a season boundary, when boundaryDecay 0.25 cuts sum(w). The same rule and constant feed the LIVE board (role-shares-v1, chosen on allocation total-variation distance, a metric where mass left unassigned costs little). The live 2026 Week 1 shares show it: the median team's top passer was projected for 0.706 of pass attempts, 0.953 for the same player unshrunk, and named shares summed to 0.75-0.82 of team volume. On the 2026 Week 1 report, ranges missed HIGH far more often than low: rushing yards 16 high vs 3 low, receiving yards 13 vs 7, receptions 13 vs 2, passing yards 6 vs 1. This registration tests one change, a share with no pull toward zero (shrinkK 0), keeping everything else from P299's teamFormVolume candidate.",
+
+  "relationToExistingEvidence": {
+    "player-props-historical-replay-evaluation.json (P299)": "Untouched and final. Its verdicts stand; this file does not re-score or rename them.",
+    "player-props-v1-evaluation.json and role-shares-v1.json": "Untouched. The live board keeps publishing exactly as today. Changing the live share rule is its own reviewed, founder-approved app/ step. This registration only produces the evidence for it.",
+    "why a second look and not a clean held-out": "2014-2021 was scored once by P299, and its aggregate figures (MAE, coverage, ECE per family and era) are known to the author. Snap-count participation truth starts in 2013, so no untouched season with the same truth exists. The evidence here has two tiers: a DISCLOSED SECOND LOOK on 2014-2021 (large and out-of-sample for every fitted number, but not blind) and a BLIND FORWARD test on the 2026 season, predicted before kickoff each week."
+  },
+
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "Everything listed in P299's registration.",
+    "P299's held-out 2014-2021 receipt: all aggregate figures per family, candidate, era and season, and the season-bootstrap intervals. No per-player or per-game figure was inspected.",
+    "DEV SEASONS 2022-2025 ONLY, P299's teamFormVolume candidate with shrinkK set to 0, 0.1, 0.25 and 0.5 (the P299 value). Dev ECE: at 0, receptions 0.019, receiving yards 0.040, rushing yards 0.047, passing yards 0.047. At 0.1: 0.015, 0.028, 0.057, 0.065. At 0.25: 0.019, 0.017, 0.072, 0.099. At 0.5: 0.048, 0.032, 0.093, 0.145. Mean forecast / mean actual at 0: receptions 1.059, receiving yards 1.053, rushing yards 1.012, passing yards 1.016. At 0.1: 1.031, 1.025, 0.984, 0.987. At 0.25: 0.990, 0.985, 0.946, 0.946. Dev MAE at 0 beat rolling-4 and share-times-volume in every family (in that sweep the baseline share was also computed at the swept value; this registration fixes the baseline at 0.5, and its --validate run is the first to use that). 0 is the only value where all four families clear the ECE bar on dev. It is registered as a rule (no pull toward zero), not as a tuned optimum.",
+    "The live 2026 Week 1 role shares and the public Week 1 report figures quoted in whyThisExists.",
+    "DEV SEASONS 2022-2025 ONLY, the final --validate run of this registration's script (median-scored MAE, baseline shrinkK 0.5). Dev scales receptions 4, receiving yards 1, rushing yards 2.5, passing yards 1.25. Dev MAE / rolling-4 / share-times-volume: receptions 1.515 / 1.634 / 1.564, receiving yards 20.184 / 22.008 / 20.769, rushing yards 18.519 / 19.750 / 18.781, passing yards 65.336 / 69.755 / 69.962. Dev coverage 0.800-0.814. Dev ECE 0.019, 0.040, 0.047, 0.047. Dev level 1.057, 1.053, 1.012, 1.016. Per dev season: rushing yards lost MAE to share-times-volume in 2025 (18.494 vs 18.356); ECE exceeded 0.05 in some single dev seasons (receiving yards 2022 0.056 and 2025 0.051, rushing yards 2024 0.053 and 2025 0.055, passing yards 2023 0.070 and 2024 0.061). The era ECE clause (0.06) was written before this run and is not changed by it.",
+    "No 2014-2021 figure has been computed with shrinkK other than 0.5."
+  ],
+
+  "candidate": {
+    "id": "levelShareTeamForm",
+    "definition": "P299's teamFormVolume candidate verbatim (data, replay mechanics, rates, volumes, distributions, dev-fitted dispersion scale from the same grid) with ONE change: the player's share is the weighted mean of their share observations with no pull toward zero, sum(w*s) / sum(w). The candidate gate (share thresholds 0.30/0.05/0.05) reads this share.",
+    "pointForecasts": "MAE bars score the candidate's predictive MEDIAN (p50 of its registered distribution), the point that minimises absolute error and the number the public board shows as its median. The level bar scores the predictive MEAN. P299 scored MAE on the mean. With a right-skewed stat that penalises an unbiased forecast against a baseline biased low: in this registration's first --validate run (dev only, mean-scored) the unbiased candidate lost MAE to the v1-shrunk share-times-volume baseline for receptions (1.576 vs 1.564), receiving yards (21.067 vs 20.769) and rushing yards (18.798 vs 18.781), while beating rolling-4 in all four families and passing yards against both. That result is disclosed here, and the scoring rule was corrected before any second-look figure existed.",
+    "baselines": "rolling4 and shareVolume exactly as P299, with shareVolume keeping v1's committed shrinkK 0.5 so the baseline is unchanged from P299 and from v1."
+  },
+
+  "secondLook": {
+    "seasons": "2014-2021 REG+POST",
+    "eras": "2014-2017 and 2018-2021; each must hold on its own for the MAE bars",
+    "scoringMoment": "ONE run: scripts/research/nfl/replay-player-props-v2.mjs --score. It refuses unless this file is committed and unmodified, and refuses if the evaluation file already exists.",
+    "label": "Every figure in the evaluation is labelled SECOND_LOOK. It may support a proposal; it is never described as a blind held-out result."
+  },
+
+  "frozenBars": {
+    "perFamily": {
+      "beatsRolling4": "MAE strictly below rolling-4 overall and in every era",
+      "beatsShareVolume": "MAE strictly below share-times-volume overall and in every era",
+      "improvementIsNotNoise": "season-block bootstrap 95% upper bound of mean(|error| - |error of the better baseline|) strictly below 0 (2000 resamples, seed 20260915)",
+      "coverage80": "80% coverage in [0.72, 0.88] overall, mid-p for receptions",
+      "thresholdCalibration": "ECE at most 0.05 overall (10 equal-width bins, rolling-4 line proxy) AND at most 0.06 in every era",
+      "level": "mean forecast / mean actual within [0.92, 1.08] overall and in every era — the property P299's bars missed",
+      "minimumN": "at least 300 scored player-games"
+    }
+  },
+
+  "forward2026": {
+    "what": "The same candidate predicts every 2026 regular-season week from Week 2, with every input dated before that week's first kickoff. Predictions are written to data/internal/research/nfl/replay/player-props-share-level-forward/<week>.json and committed BEFORE that week's first kickoff. A week whose file is committed later is excluded and counted.",
+    "grading": "After nflverse publishes that week's weekly stats and snap counts, using the P299 participation states (VOID and UNKNOWN never scored as zero).",
+    "bars": "The frozen bars above except the era clauses and the bootstrap (a single season): MAE below both baselines, coverage80, ECE at most 0.05, level within [0.92, 1.08], evaluated per family once that family reaches 300 scored player-games, then re-read weekly.",
+    "noFitting": "No constant, scale or rule is refit on 2026 outcomes."
+  },
+
+  "decisionRule": "Per family: SECOND_LOOK_ELIGIBLE if every second-look bar passes, else SECOND_LOOK_REJECTED. For an eligible family the author may propose that the founder change the live share rule for that family, with the evidence tier stated. A proposal made before the forward test reaches 300 scored player-games says so plainly. When a family reaches 300 forward player-games and breaches any forward bar, the change is proposed for reversal that week. A rejected family is not retried by adjusting this candidate.",
+
+  "whatIsNotAllowed": "No 2014-2021 or 2026 outcome may choose a constant, scale, threshold, bar or era. No second --score run. No sportsbook line, price or market input. No change to the live board, the v1 receipts or the P299 receipt from this file.",
+
+  "frozen": {
+    "seasons": { "warmup": [2013, 2013], "heldOut": [2014, 2021], "dev": [2022, 2025] },
+    "eras": [[2014, 2017], [2018, 2021]],
+    "candidates": ["teamFormVolume"],
+    "share": { "halfLifeGames": 4, "shrinkK": 0, "baselineShrinkK": 0.5, "boundaryDecay": 0.25 },
+    "rate": { "halfLifeGames": 8, "boundaryDecay": 0.25, "priorTrials": 25 },
+    "teamForm": { "halfLifeGames": 8, "boundaryDecay": 0.25 },
+    "thresholds": { "passAttempts": 0.3, "rushAttempts": 0.05, "targets": 0.05 },
+    "league": { "catchRate": 0.68002, "yardsPerReception": 10.93, "yardsPerCarry": 4.3301, "completionRate": 0.64923, "yardsPerCompletion": 10.93 },
+    "intercepts": { "passAttempts": 33.1877, "carries": 26.9535 },
+    "dispersion": { "receivingShape": 1.3741, "rushingShape": 0.5619, "passingShape": 1.2593, "volumeSigmaPass": 7.4689, "volumeSigmaRush": 6.378 },
+    "dispersionScaleGrid": [0.6, 0.8, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
+    "bars": { "coverageBand": [0.72, 0.88], "eceMax": 0.05, "eceEraMax": 0.06, "levelBand": [0.92, 1.08], "eceBins": 10, "minimumN": 300 },
+    "bootstrap": { "unit": "season", "resamples": 2000, "seed": 20260915 },
+    "inputs": {
+      "playerGamesSha256": "81279aecfcc2fa4a26f93ebac764e075075ecf30a8375c92fe367fc3634d2f63",
+      "buildScriptSha256": "e7d2886e2710e2780882e94fe17fed9d053ccc5381739d2c97bb18b0aab4ce0f"
+    }
+  },
+
+  "output": "data/internal/research/nfl/reports/player-props-share-level-second-look.json (written once)"
+}
