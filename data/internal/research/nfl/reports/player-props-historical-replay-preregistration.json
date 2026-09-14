@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "artifact": "player-props-historical-replay-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "299",
+  "charterSection": "4B-NFL",
+  "registeredAt": "2026-09-14T06:40:00Z",
+
+  "whyThisExists": "The founder asked (2026-09-14) to move the experimental NFL products toward ready ones without waiting for games to settle, starting with NFL. The player families on /nfl come from player-props-v1, evaluated once on held-out 2025 (receptions and receiving yards PUBLIC_ELIGIBLE; rushing yards SHADOW, failing only threshold calibration; passing yards RESEARCH_ONLY, failing all four bars). That engine runs on ESPN-derived player events and a participation truth that exist only for 2023-2025, so it cannot be replayed on older seasons. This registration defines a replayable version built from free nflverse weekly player stats and snap counts, and tests it once on eight never-examined seasons (2014-2021) — every candidate, constant, population rule, bar and decision fixed here before any 2014-2021 player outcome is scored.",
+
+  "relationToExistingEvidence": {
+    "player-props-v1-evaluation.json": "Untouched. v1 keeps publishing exactly as today. This registration cannot promote, demote or relabel any v1 family; it evaluates new candidates whose adoption would be its own reviewed step.",
+    "player-family-contract-v1.json": "Its rules carry over where they apply: families promote alone, no synthesized sportsbook line, no fitting on the locked forward cohort (2026), quarantine stays in the denominator.",
+    "why not simply replay v1": "v1 conditions volume on a simulated game script and reads participation from a corpus that begins in 2023. Both inputs are unavailable before 2023; approximating them and calling the result v1 would be a claim this file refuses to make."
+  },
+
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "Dev seasons 2023-2025: v1's committed held-out 2025 table (MAE, baselines, coverage, ECE per family) and the population accounting; the P296 Week-1 2026 reconciliation (2026 is not in this study).",
+    "All seasons 2013-2025: IDENTITY AND STRUCTURE ONLY while building data/internal/research/nfl/replay/player-games-v1.json.gz — join coverage between weekly stats and snap counts per season (99.97% of 77,814 skill stat rows after franchise-mapping both files; 2012 snap counts are an empty upstream placeholder), per-season counts of matched, unknown and played-with-no-stat-row rows, duplicate-key and conservation checks (0 duplicates, 0 player sums above team totals, 0 receptions above targets).",
+    "Dev seasons 2023-2025 only: team receiving, rushing and passing yard totals from the new table compared with the ESPN corpus v1 used (1,710 team-games; identical in 97.5%, 98.5% and 99.1% of team-games, mean absolute differences 0.32, 0.12 and 0.15 yards).",
+    "DEV SEASONS 2022-2025 ONLY, a --validate run of an EARLIER DRAFT of this registration whose distributions treated each player's opportunities as fixed: point forecasts beat both baselines in every dev season for receptions, receiving and rushing yards, but 80% intervals covered far too little (receptions 0.71, receiving yards 0.68, rushing yards 0.57, passing yards 0.46) and threshold ECE exceeded 0.05 for every yardage family. The cause is a specification omission, not a fit: that draft dropped the opportunity-count uncertainty v1 carries through its game-script volume residuals. This registration restores it from v1's committed volume sigmas and adds one dev-fitted dispersion scale per family and candidate. No 2014-2021 figure was computed by that draft or by anything else.",
+    "DEV SEASONS 2022-2025 ONLY, one --validate run of THIS registration's final script, then one reliability table on the same dev rows: dev-chosen scales receptions 5, receiving yards 1, rushing yards 2.5, passing yards 1.5 (both candidates); dev 80% coverage 0.795-0.804 for every family; dev ECE receptions 0.035/0.048, receiving yards 0.029/0.032, rushing yards 0.092/0.093, passing yards 0.140/0.145 (interceptVolume/teamFormVolume). The reliability table shows rushing and passing yards are too right-skewed, not too narrow or too wide: players beat their rolling-4 line 41% (rushing) and 49% (passing) of the time against a mean forecast P(over) of 0.32 and 0.35, and the gap is similar in every bin. The author EXPECTS rushing and passing yards to fail thresholdCalibration on held-out, and does not change the distribution family to chase that. A less-skewed yardage distribution is a different candidate for a later registration.",
+    "No prediction, residual, MAE, coverage or calibration figure for any player-game in 2013-2021 has been computed by any committed research or by this author."
+  ],
+
+  "data": {
+    "table": "data/internal/research/nfl/replay/player-games-v1.json.gz, built by scripts/research/nfl/build-player-games-v1.mjs from nflverse stats_player_week, snap_counts and roster_weekly files (CC BY 4.0) plus the hash-pinned games.csv. Hashes pinned below.",
+    "participation": "PLAYED = the stat row matched a snap-count row; PLAYED_NO_ROW = offensive snaps with no stat row (zeros: a real zero, never dropped); UNKNOWN = a stat row with no snap match (20 rows in total — quarantined and counted). A candidate with no row in a game did not play: VOID, counted, never a zero.",
+    "identity": "Players are keyed by gsis id; a PLAYED_NO_ROW player with no gsis mapping carries a pfr-prefixed id and so starts a separate history — counted and reported.",
+    "teamVolume": "Team pass attempts, carries and targets per team-game are summed over every stat row of that team-game (all positions)."
+  },
+
+  "replayMechanics": {
+    "ordering": "Player-game rows sorted by gameday, then game_id. Every prediction for a date is made from state built on strictly earlier dates; that date then folds in.",
+    "warmup": "2013 folds into state and is never scored.",
+    "shares": "Per player and family (passAttempts, rushAttempts, targets), each game the player PLAYED for a team contributes an observation share = player count / team count (0 when the team count is 0). decayedShare = sum(w_i * s_i) / (sum(w_i) + shrinkK), w_i = 0.5^(gamesAgo / shareHalfLife) * boundaryDecay^(seasonsCrossed), gamesAgo counted along that player's own played games. Shares are specific to the current team: a player's history with another team does not carry.",
+    "rates": "Per player: catchRate (receptions/targets), yardsPerReception, yardsPerCarry, completionRate, yardsPerCompletion — shrunk toward the league rate: (sum(w_i * numerator_i) + priorTrials * leagueRate) / (sum(w_i * denominator_i) + priorTrials), w_i with rateHalfLife and boundaryDecay, all teams counted.",
+    "candidates": "Before each team-game, the team's candidates are players whose latest played game was for that team and whose decayed share clears the family threshold (passAttempts 0.30, rushAttempts 0.05, targets 0.05).",
+    "means": "targets = targetShare * teamTargets; receptions = targets * catchRate; receivingYards = receptions * yardsPerReception; carries = carryShare * teamCarries; rushingYards = carries * yardsPerCarry; passAttempts = qbShare * teamPassAttempts; completions = passAttempts * completionRate; passingYards = completions * yardsPerCompletion.",
+    "distributions": "Opportunities N (targets, carries or pass attempts) have mean share * volume and variance mean + share^2 * volumeSigma^2, volumeSigma being v1's committed game-script residual (pass 7.4689 for targets and attempts, rush 6.378 for carries). A binomial thinning step (catch or completion) gives the count K with mean N_mean * rate and variance N_mean * rate * (1 - rate) + rate^2 * Var(N). Yards are a sum of K per-play Gamma draws with v1's committed family shape: mean K_mean * yardsPerPlay, variance K_mean * yardsPerPlay^2 / shape + Var(K) * yardsPerPlay^2. For rushing, K is the carries count itself. Each family's variance is multiplied by its dev-fitted dispersion scale s. Receptions are then a negative binomial matched to that mean and scaled variance (Poisson when the variance does not exceed the mean). Yards are a point mass at 0 with the probability that K is 0 under the negative binomial matched to K's moments, and otherwise a Gamma matched to the remaining mean and scaled variance. Quantiles are computed exactly — nothing is sampled."
+  },
+
+  "candidates": {
+    "interceptVolume": "Team volume = the committed v1 intercepts: pass attempts 33.1877 and targets equal to pass attempts, carries 26.9535. It shares its volume with the share-times-volume baseline, so beating that baseline measures what the player-specific rates and the distribution add.",
+    "teamFormVolume": "Team volume = each team's decayed per-game pass attempts, carries and targets (halfLife 8 team games, boundaryDecay 0.25), seeded at the intercepts before a team's first game. A pre-game read of how much each offence actually throws and runs.",
+    "devFit": "For each candidate and family, the dispersion scale s is chosen on DEV 2022-2025 only from the frozen grid, as the value whose dev 80% coverage is closest to 0.80 (ties to the smaller s). No other parameter is fit; every v1 constant is carried verbatim."
+  },
+
+  "baselines": {
+    "rolling4": "the mean of the player's last four played games for that statistic, all teams (0 with no history) — v1's baseline, verbatim",
+    "shareVolume": "decayedShare * intercept volume * league per-opportunity rate (receiving yards 0.68002*10.93, receptions 0.68002, rushing yards 4.3301, passing yards 0.64923*10.93) — v1's baseline, verbatim"
+  },
+
+  "heldOutSet": {
+    "seasons": "2014-2021 REG+POST",
+    "eras": "2014-2017 and 2018-2021 — each must hold on its own.",
+    "scoringMoment": "ONE look: scripts/research/nfl/replay-player-props.mjs --score, which refuses unless this file is committed and unmodified, and refuses if the evaluation file already exists."
+  },
+
+  "frozenBars": {
+    "perFamilyPerCandidate": {
+      "beatsRolling4": "MAE strictly below the rolling-4 baseline's on the identical scored player-games, overall and in every era",
+      "beatsShareVolume": "MAE strictly below the share-times-volume baseline's on the identical scored player-games, overall and in every era",
+      "improvementIsNotNoise": "season-block bootstrap (resample the 8 held-out seasons with replacement, 2000 resamples, mulberry32 seed 20260915) 95% upper bound of mean(|error| - |error of the better baseline|) strictly below 0",
+      "coverage80": "80% interval coverage in [0.72, 0.88] overall; receptions use mid-p (an observation exactly on an interval endpoint counts one half), as v1's contract v2.1 does",
+      "thresholdCalibration": "expected calibration error at most 0.05 over 10 equal-width bins of P(over), where the threshold is the player's rolling-4 mean — a proxy line, never a sportsbook line, exactly as v1",
+      "minimumN": "at least 300 scored player-games"
+    }
+  },
+
+  "decisionRule": "Each (candidate, family) pair is ELIGIBLE only if every bar passes, else REJECTED and recorded. Families promote alone. Where both candidates are ELIGIBLE for a family, the recommendation is the lower held-out MAE — a disclosed selection between two registered finalists. Nothing publishes from the evaluation: v1 keeps publishing; replacing or adding a public family is its own reviewed step in a founder-approved app/ change. A REJECTED pair is never retried by adjusting it; a different candidate needs a different registration.",
+
+  "whatIsNotAllowed": "No 2014-2021 outcome may choose a constant, threshold, distribution, dispersion scale, candidate, bar or era. No second --score run. No sportsbook line, price or market input anywhere. No injury, depth-chart, weather or game-script input. No refit of any committed v1 constant.",
+
+  "reportedDiagnostics": "Per family and candidate, overall, per era and per season: scored, void and quarantined counts; MAE, both baseline MAEs, coverage, ECE; the season-bootstrap interval; the dev dispersion-scale trace. Played-with-no-stat-row share of scored player-games. Players starting a separate pfr-prefixed history.",
+
+  "frozen": {
+    "seasons": { "warmup": [2013, 2013], "heldOut": [2014, 2021], "dev": [2022, 2025] },
+    "eras": [[2014, 2017], [2018, 2021]],
+    "share": { "halfLifeGames": 4, "shrinkK": 0.5, "boundaryDecay": 0.25 },
+    "rate": { "halfLifeGames": 8, "boundaryDecay": 0.25, "priorTrials": 25 },
+    "teamForm": { "halfLifeGames": 8, "boundaryDecay": 0.25 },
+    "thresholds": { "passAttempts": 0.3, "rushAttempts": 0.05, "targets": 0.05 },
+    "league": { "catchRate": 0.68002, "yardsPerReception": 10.93, "yardsPerCarry": 4.3301, "completionRate": 0.64923, "yardsPerCompletion": 10.93 },
+    "intercepts": { "passAttempts": 33.1877, "carries": 26.9535 },
+    "dispersion": { "receivingShape": 1.3741, "rushingShape": 0.5619, "passingShape": 1.2593, "volumeSigmaPass": 7.4689, "volumeSigmaRush": 6.378 },
+    "dispersionScaleGrid": [0.6, 0.8, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
+    "bars": { "coverageBand": [0.72, 0.88], "eceMax": 0.05, "eceBins": 10, "minimumN": 300 },
+    "bootstrap": { "unit": "season", "resamples": 2000, "seed": 20260915 },
+    "inputs": {
+      "playerGamesSha256": "81279aecfcc2fa4a26f93ebac764e075075ecf30a8375c92fe367fc3634d2f63",
+      "buildScriptSha256": "e7d2886e2710e2780882e94fe17fed9d053ccc5381739d2c97bb18b0aab4ce0f"
+    }
+  },
+
+  "output": "data/internal/research/nfl/reports/player-props-historical-replay-evaluation.json (written once)"
+}
