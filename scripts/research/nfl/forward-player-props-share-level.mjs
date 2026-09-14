@@ -105,9 +105,23 @@ async function load(key) {
     return table(text, s.file, s.need);
   };
   if (!OFFLINE) {
-    const res = await fetch(s.url, { redirect: "follow" });
-    if (!res.ok) throw new Error(`${s.file}: HTTP ${res.status}`);
-    const buf = Buffer.from(await res.arrayBuffer());
+    /* GitHub release downloads return transient 5xx (a 504 failed the first CI run): retry those and network
+       errors with backoff; a 4xx or a content failure still fails at once. */
+    let buf = null;
+    for (let attempt = 1; ; attempt += 1) {
+      let status = null;
+      try {
+        const res = await fetch(s.url, { redirect: "follow" });
+        status = res.status;
+        if (res.ok) { buf = Buffer.from(await res.arrayBuffer()); break; }
+        if (status < 500) throw new Error(`${s.file}: HTTP ${status}`);
+      } catch (e) {
+        if (status != null && status < 500) throw e;
+      }
+      if (attempt >= 4) throw new Error(`${s.file}: ${status ? `HTTP ${status}` : "network error"} after ${attempt} attempts`);
+      console.log(`${s.file}: ${status ? `HTTP ${status}` : "network error"} — retrying (attempt ${attempt + 1} of 4)`);
+      await new Promise((r) => setTimeout(r, 10000 * attempt));
+    }
     decode(buf);
     fs.mkdirSync(path.dirname(p), { recursive: true });
     fs.writeFileSync(`${p}.tmp`, buf);
