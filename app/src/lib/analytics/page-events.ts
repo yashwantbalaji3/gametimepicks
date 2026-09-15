@@ -56,6 +56,10 @@ export function funnelEventsForPath(pathname: string, ctx: { dayBucket: string; 
     events.push({ event: "methodology_viewed", schemaVersion: SCHEMA_VERSION, dayBucket, surface: "methodology" });
   } else if (p === "/system-status") {
     events.push({ event: "status_viewed", schemaVersion: SCHEMA_VERSION, dayBucket, surface: "system_status" });
+  } else if (p === "/models") {
+    events.push({ event: "model_lab_opened", schemaVersion: SCHEMA_VERSION, dayBucket, surface: "model_lab" });
+  } else if (p === "/saved") {
+    events.push({ event: "saved_forecasts_viewed", schemaVersion: SCHEMA_VERSION, dayBucket, surface: "saved" });
   } else if (TRUST_ROUTES[p]) {
     const t = TRUST_ROUTES[p];
     events.push({ event: "learn_trust_open", schemaVersion: SCHEMA_VERSION, dayBucket, surface: t.surface, trustSurface: t.trustSurface });

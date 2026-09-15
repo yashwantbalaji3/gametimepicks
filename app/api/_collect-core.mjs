@@ -40,6 +40,13 @@ export const EVENT_NAMES = Object.freeze([
   "status_viewed",
   "sport_interest_selected",
   "feedback_submitted",
+  "forecast_saved",
+  "forecast_unsaved",
+  "simulation_story_started",
+  "simulation_chapter_viewed",
+  "simulation_skipped",
+  "model_lab_opened",
+  "saved_forecasts_viewed",
 ]);
 
 /** Allowlisted property keys — MUST equal ALLOWED_PROPERTY_KEYS in event-contract.ts (parity guard-tested). */
@@ -61,6 +68,7 @@ export const ALLOWED_KEYS = Object.freeze([
   "source",
   "marketFamily",
   "feedbackTopic",
+  "chapterKind",
 ]);
 
 /** PII/forbidden-shaped keys — rejected even if someone later widens the allowlist carelessly. */

@@ -196,6 +196,13 @@ const SAMPLES = {
     surface: "app",
     feedbackTopic: "clarity",
   },
+  forecast_saved: { event: "forecast_saved", schemaVersion: SCHEMA_VERSION, dayBucket: DAY, surface: "app", sport: "mlb" },
+  forecast_unsaved: { event: "forecast_unsaved", schemaVersion: SCHEMA_VERSION, dayBucket: DAY, surface: "app", sport: "mlb" },
+  simulation_story_started: { event: "simulation_story_started", schemaVersion: SCHEMA_VERSION, dayBucket: DAY, surface: "game_report", sport: "nfl" },
+  simulation_chapter_viewed: { event: "simulation_chapter_viewed", schemaVersion: SCHEMA_VERSION, dayBucket: DAY, surface: "game_report", sport: "nfl", chapterKind: "outcome" },
+  simulation_skipped: { event: "simulation_skipped", schemaVersion: SCHEMA_VERSION, dayBucket: DAY, surface: "game_report", sport: "epl" },
+  model_lab_opened: { event: "model_lab_opened", schemaVersion: SCHEMA_VERSION, dayBucket: DAY, surface: "model_lab" },
+  saved_forecasts_viewed: { event: "saved_forecasts_viewed", schemaVersion: SCHEMA_VERSION, dayBucket: DAY, surface: "saved" },
 };
 
 /* ---------------------------------------------------------------- *

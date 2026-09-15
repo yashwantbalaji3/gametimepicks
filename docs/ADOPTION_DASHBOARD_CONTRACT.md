@@ -212,6 +212,13 @@ the test.
 | `slate_filter_changed` | SCHEMA-ONLY | `/today` renders the full slate with no filter control |
 | `availability_explanation_opened` | SCHEMA-ONLY | No per-game "why this tier?" expander exists |
 | `social_package_generated` | SCHEMA-ONLY | An internal pipeline signal, not a browser event; it would be emitted by the generation script, never by the app |
+| `forecast_saved` | WIRED | `components/saved/save-forecast-button.tsx` on a save (P310); sport bucket only |
+| `forecast_unsaved` | WIRED | `components/saved/save-forecast-button.tsx` on an unsave (P310) |
+| `simulation_story_started` | WIRED | `components/simulate/simulation-story.tsx` on Play (P308) |
+| `simulation_chapter_viewed` | WIRED | `components/simulate/simulation-story.tsx` on every chapter reached while playing or stepping (P308); closed chapter kind |
+| `simulation_skipped` | WIRED | `components/simulate/simulation-story.tsx` on the skip-to-report link (P308) |
+| `model_lab_opened` | WIRED | page-view mapper for `/models` (P312) |
+| `saved_forecasts_viewed` | WIRED | page-view mapper for `/saved` (P310) |
 
 **The standing rule:** wire an event when its control ships, as a one-liner through `emitEvent`/`track`.
 Never build UI so that an event has something to fire on.

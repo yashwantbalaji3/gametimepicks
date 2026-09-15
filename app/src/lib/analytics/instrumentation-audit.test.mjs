@@ -23,7 +23,7 @@ const read = (p) => fs.readFileSync(p, "utf8");
 
 const DAY = "2026-07-29";
 /** Routes the page-view mapper instruments. The dynamic game report is the only pattern without a literal dir. */
-const INSTRUMENTED_ROUTES = ["/", "/today", "/mlb", "/results", "/results/mlb", "/markets", "/methodology", "/system-status", "/learn", "/market-guide", "/responsible-use"];
+const INSTRUMENTED_ROUTES = ["/", "/today", "/mlb", "/results", "/results/mlb", "/markets", "/methodology", "/system-status", "/learn", "/market-guide", "/responsible-use", "/models", "/saved"];
 const DYNAMIC_REPORT_ROUTE = "/games/mlb/kc-vs-det-2026-07-24";
 
 /** Builders whose NAME at a call site is the evidence of wiring (the event string never appears there). */

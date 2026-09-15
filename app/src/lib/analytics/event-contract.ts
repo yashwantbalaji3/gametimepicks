@@ -59,7 +59,7 @@ export const DAY_BUCKET_RE = /^\d{4}-\d{2}-\d{2}$/;
  * BEFORE any surface ships — the sport-demand signal that gates NBA/UFC/EPL
  * acceleration (see `docs/PUBLIC_BETA_ANALYTICS_CONTRACT.md`).
  */
-export const SPORTS = ["mlb", "nba", "nhl", "ipl", "ufc", "epl", "multi", "unknown"] as const;
+export const SPORTS = ["mlb", "nba", "nhl", "ipl", "ufc", "epl", "nfl", "multi", "unknown"] as const;
 export type Sport = (typeof SPORTS)[number];
 
 /** Which homepage CTA was clicked. */
@@ -183,6 +183,15 @@ export const EVENT_TYPES = [
   "status_viewed",
   "sport_interest_selected",
   "feedback_submitted",
+  // Phase 2 (2026-09-15) — the product surfaces P308/P310/P312 added. Closed buckets only: a sport, a chapter kind,
+  // a surface. The provider stays OFF; the vocabulary exists so the hooks can be wired without raw strings.
+  "forecast_saved",
+  "forecast_unsaved",
+  "simulation_story_started",
+  "simulation_chapter_viewed",
+  "simulation_skipped",
+  "model_lab_opened",
+  "saved_forecasts_viewed",
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
@@ -380,6 +389,21 @@ export interface FeedbackSubmittedEvent extends BaseEvent {
   feedbackTopic: FeedbackTopic;
 }
 
+/** The closed chapter vocabulary of the simulation story (lib/simulate/presentation/types ChapterKind). */
+export const STORY_CHAPTER_KINDS = ["event", "outcome", "distribution", "margin", "scores", "players", "limits", "closing"] as const;
+export type StoryChapterKind = (typeof STORY_CHAPTER_KINDS)[number];
+
+/** A reader saved a forecast card to their browser (P310). The sport bucket only — never which event. */
+export interface ForecastSavedEvent extends BaseEvent { event: "forecast_saved"; surface: "app"; sport: Sport }
+export interface ForecastUnsavedEvent extends BaseEvent { event: "forecast_unsaved"; surface: "app"; sport: Sport }
+/** The inline simulation story (P308) was started, stepped, or skipped on a report page. */
+export interface SimulationStoryStartedEvent extends BaseEvent { event: "simulation_story_started"; surface: "game_report"; sport: Sport }
+export interface SimulationChapterViewedEvent extends BaseEvent { event: "simulation_chapter_viewed"; surface: "game_report"; sport: Sport; chapterKind: StoryChapterKind }
+export interface SimulationSkippedEvent extends BaseEvent { event: "simulation_skipped"; surface: "game_report"; sport: Sport }
+/** The Model Lab (P312) and the saved page (P310) were viewed. */
+export interface ModelLabOpenedEvent extends BaseEvent { event: "model_lab_opened"; surface: "model_lab" }
+export interface SavedForecastsViewedEvent extends BaseEvent { event: "saved_forecasts_viewed"; surface: "saved" }
+
 /** The full set of product-adoption events. */
 export type AnalyticsEvent =
   | HomeCtaClickEvent
@@ -403,7 +427,14 @@ export type AnalyticsEvent =
   | MethodologyViewedEvent
   | StatusViewedEvent
   | SportInterestSelectedEvent
-  | FeedbackSubmittedEvent;
+  | FeedbackSubmittedEvent
+  | ForecastSavedEvent
+  | ForecastUnsavedEvent
+  | SimulationStoryStartedEvent
+  | SimulationChapterViewedEvent
+  | SimulationSkippedEvent
+  | ModelLabOpenedEvent
+  | SavedForecastsViewedEvent;
 
 /* ------------------------------------------------------------------ *
  * Program 058-061 name mapping (v2)
@@ -487,6 +518,13 @@ export const ADOPTION_QUESTIONS: Record<EventType, string> = {
   status_viewed: "Do visitors check the system-status honesty surface?",
   sport_interest_selected: "Which sport do visitors actually want next (NBA / UFC / EPL demand)?",
   feedback_submitted: "Are visitors giving feedback, and about what (closed topic only)?",
+  forecast_saved: "Do readers keep forecasts to come back to — and in which sport?",
+  forecast_unsaved: "Do saved forecasts get removed, and how often?",
+  simulation_story_started: "Is the inline simulation story worth its place on the report?",
+  simulation_chapter_viewed: "Which chapters do readers reach — does the story hold past the outcome?",
+  simulation_skipped: "How often is the story skipped straight to the report?",
+  model_lab_opened: "Do readers look at how the models are tested and paused?",
+  saved_forecasts_viewed: "Do readers return to see what happened to a saved forecast?",
 };
 
 /* ------------------------------------------------------------------ *
@@ -517,6 +555,8 @@ export const ALLOWED_PROPERTY_KEYS = [
   // v2 (Program 058-061) — both are coarse closed-enum buckets, never a raw payload or free text.
   "marketFamily",
   "feedbackTopic",
+  // Phase 2 — the story chapter kind, a closed enum (STORY_CHAPTER_KINDS).
+  "chapterKind",
 ] as const;
 export type AllowedPropertyKey = (typeof ALLOWED_PROPERTY_KEYS)[number];
 
@@ -577,6 +617,7 @@ const AVAILABILITY_LEVEL_SET: ReadonlySet<string> = new Set(AVAILABILITY_LEVELS)
 const SOURCE_BUCKET_SET: ReadonlySet<string> = new Set(SOURCE_BUCKETS);
 const MARKET_FAMILY_SET: ReadonlySet<string> = new Set(MARKET_FAMILIES);
 const FEEDBACK_TOPIC_SET: ReadonlySet<string> = new Set(FEEDBACK_TOPICS);
+const STORY_CHAPTER_KIND_SET: ReadonlySet<string> = new Set(STORY_CHAPTER_KINDS);
 const MARKET_RESEARCH_SURFACE_SET: ReadonlySet<string> = new Set(MARKET_RESEARCH_SURFACES);
 
 /* ------------------------------------------------------------------ *
@@ -738,6 +779,32 @@ export function validateEvent(input: unknown): ValidationResult {
     case "feedback_submitted":
       if (rec.surface !== "app") return err("feedback_submitted.surface must be 'app'");
       if (!FEEDBACK_TOPIC_SET.has(rec.feedbackTopic as string)) return err("feedback_submitted.feedbackTopic invalid");
+      return OK;
+
+    case "forecast_saved":
+    case "forecast_unsaved":
+      if (rec.surface !== "app") return err(`${type}.surface must be 'app'`);
+      if (!SPORT_SET.has(rec.sport as string)) return err(`${type}.sport invalid`);
+      return OK;
+
+    case "simulation_story_started":
+    case "simulation_skipped":
+      if (rec.surface !== "game_report") return err(`${type}.surface must be 'game_report'`);
+      if (!SPORT_SET.has(rec.sport as string)) return err(`${type}.sport invalid`);
+      return OK;
+
+    case "simulation_chapter_viewed":
+      if (rec.surface !== "game_report") return err("simulation_chapter_viewed.surface must be 'game_report'");
+      if (!SPORT_SET.has(rec.sport as string)) return err("simulation_chapter_viewed.sport invalid");
+      if (!STORY_CHAPTER_KIND_SET.has(rec.chapterKind as string)) return err("simulation_chapter_viewed.chapterKind invalid");
+      return OK;
+
+    case "model_lab_opened":
+      if (rec.surface !== "model_lab") return err("model_lab_opened.surface must be 'model_lab'");
+      return OK;
+
+    case "saved_forecasts_viewed":
+      if (rec.surface !== "saved") return err("saved_forecasts_viewed.surface must be 'saved'");
       return OK;
 
     default:

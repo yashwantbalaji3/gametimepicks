@@ -14,6 +14,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { apply, createPlayer } from "@/lib/simulate/presentation/player-machine.mjs";
 import { describeBars, holdFor, narrationFor, revealDuration } from "@/lib/simulate/presentation/story-controls.mjs";
 import type { PresentationBar, PresentationChapter, PresentationManifest, PresentationStat } from "@/lib/simulate/presentation/types";
+import { readSinkConfig, resolveSink, track } from "@/lib/analytics/sink";
+import { SCHEMA_VERSION, type Sport, type StoryChapterKind } from "@/lib/analytics/event-contract";
+import { currentEtDate } from "@/lib/freshness";
 
 /** The machine is untyped JS with an inferred literal return; the component widens it to the states it renders. */
 interface PlayerCtx { state: string; eventId: string; chapterCount: number; index: number; reason: string | null; run: number }
@@ -111,6 +114,15 @@ export default function SimulationStory({ manifest, skipHref = "#simulation-stor
   const timer = useRef<number | null>(null);
   const accent = SPORT_ACCENT[manifest.sport] ?? "var(--vault-accent)";
   const narration = useMemo(() => narrationFor(manifest), [manifest]);
+  /* Instrumentation (provider may be off — the sink resolves to a no-op): started, each chapter reached, skipped. */
+  const sink = useMemo(() => resolveSink(readSinkConfig()), []);
+  const sport = (manifest.sport === "board" ? "mlb" : manifest.sport) as Sport;
+  const emit = (event: "simulation_story_started" | "simulation_skipped") => track({ event, schemaVersion: SCHEMA_VERSION, dayBucket: currentEtDate(), surface: "game_report", sport }, sink);
+  useEffect(() => {
+    if (ctx.state === "IDLE") return;
+    const kind = chapters[Math.min(ctx.index, chapters.length - 1)]?.kind as StoryChapterKind | undefined;
+    if (kind) track({ event: "simulation_chapter_viewed", schemaVersion: SCHEMA_VERSION, dayBucket: currentEtDate(), surface: "game_report", sport, chapterKind: kind }, sink);
+  }, [ctx.index, ctx.state, chapters, sink, sport]);
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
@@ -154,13 +166,13 @@ export default function SimulationStory({ manifest, skipHref = "#simulation-stor
           <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{chapters.length} chapters · {manifest.readiness === "archived" ? "the forecast as it stood before the start" : "read from the published artifact"}{reduced ? " · reduced motion: step through by hand" : ""}</span>
         </div>
         <div className="flex items-center gap-1.5 flex-wrap" role="group" aria-label="Simulation story controls">
-          {idle ? <button type="button" style={btn(true)} onClick={() => act("START")}>Play</button> : null}
+          {idle ? <button type="button" style={btn(true)} onClick={() => { emit("simulation_story_started"); act("START"); }}>Play</button> : null}
           {playing ? <button type="button" style={btn(true)} onClick={() => act("PAUSE")}>Pause</button> : null}
           {ctx.state === "PAUSED" ? <button type="button" style={btn(true)} onClick={() => act("RESUME")}>Resume</button> : null}
           {!idle ? <button type="button" style={btn()} onClick={() => act("PREV")} disabled={ctx.index === 0} aria-label="Previous chapter">‹</button> : null}
           {!idle && !done ? <button type="button" style={btn()} onClick={() => act("NEXT")} aria-label="Next chapter">›</button> : null}
           {done ? <button type="button" style={btn()} onClick={() => act("REPLAY")}>Replay</button> : null}
-          <a href={skipHref} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 32, display: "inline-flex", alignItems: "center", padding: "0 6px" }}>Skip to the report ↓</a>
+          <a href={skipHref} onClick={() => emit("simulation_skipped")} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 32, display: "inline-flex", alignItems: "center", padding: "0 6px" }}>Skip to the report ↓</a>
         </div>
       </div>
 
