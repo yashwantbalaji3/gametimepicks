@@ -76,8 +76,10 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
     "components/analytics-bootstrap.tsx",
     "lib/follow/follow-store.ts",
     "lib/prefs/reader-prefs.ts",
+    "lib/saved/saved-store.ts",
     "lib/slip/slip-store.ts",
   ], "a new browser-storage use exists — describe it in the privacy notice, then update this list");
+  assert.match(renderLegal("privacy").text, /the forecasts you save/, "saved forecasts are described in the notice");
   assert.ok(!SOURCE.some((f) => /\bindexedDB\b/.test(readSource(f))), "IndexedDB is not described");
 });
 

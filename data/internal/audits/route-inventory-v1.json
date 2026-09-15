@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-15T05:33:17Z",
+ "generatedAt": "2026-09-15T05:52:17Z",
  "totals": {
-  "routes": 72,
-  "public": 47,
+  "routes": 73,
+  "public": 48,
   "internal": 6,
   "redirects": 15,
   "archive": 2,
@@ -549,6 +549,15 @@
    "dataOwner": "public/data/<sport>/graded-picks.json, built from each sport's own graded ledger",
    "freshness": "artifact generatedAt; rebuilt whenever a sport settles",
    "built": "FAMILY (4 generated page(s))"
+  },
+  {
+   "route": "/saved",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "saved forecasts: immutable snapshots the reader kept, with the graded result once it exists",
+   "dataOwner": "the reader's browser (localStorage) + the graded ledgers",
+   "freshness": "per reader",
+   "built": true
   },
   {
    "route": "/simulate",

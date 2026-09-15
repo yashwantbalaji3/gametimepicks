@@ -73,6 +73,7 @@ const REMOVED = {
 const APPROVED_DESTINATIONS = new Set([
   "/",
   "/models",
+  "/saved",
   "/today",
   "/simulate",
   "/markets",

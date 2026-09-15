@@ -73,6 +73,16 @@ export interface Freshness {
   ageHours: number | null;
 }
 
+/**
+ * How a saved copy of this card can learn what happened, from the canonical graded ledgers (lib/saved/results.mjs).
+ * Carried on the card so the save button needs no second derivation of identity.
+ */
+export type SettlementKey =
+  | { kind: "mlb-game"; gamePk: number; family: string }
+  | { kind: "nfl-event"; providerEventId: string; family: string }
+  | { kind: "epl-event"; eventId: string; family: string }
+  | { kind: "ufc-bout"; date: string; red: string; blue: string };
+
 export interface SettledResult {
   outcome: "HIT" | "MISS" | "VOID";
   actual: string;
@@ -106,6 +116,8 @@ export interface PredictionCardModel {
   freshness: Freshness;
   /** RESULT — present only once settled and graded. */
   result: SettledResult | null;
+  /** SETTLEMENT — the key a saved copy joins the graded ledgers with. */
+  settlement: SettlementKey;
 }
 
 export const PUBLIC_STATE_LABEL: Record<PublicModelState, string> = {

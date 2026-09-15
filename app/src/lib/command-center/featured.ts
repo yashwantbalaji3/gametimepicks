@@ -90,6 +90,7 @@ export function featuredMlb(input: FeaturedInput): Featured {
       away: { name: p.awayTeamName, code: p.awayTeam, favoured: ml?.side === "away" }, home: { name: p.homeTeamName, code: p.homeTeam, favoured: ml?.side === "home" },
       forecast, signal, why: ml ? `${ml.team} came out ahead in ${pct(ml.simulationProbability)} of the simulated games.` : null, risks,
       status: input.status, freshness: input.freshness, result: null,
+      settlement: { kind: "mlb-game", gamePk: p.gamePk, family: forecast.label },
     },
     reason: null,
   };
@@ -127,6 +128,7 @@ export function featuredNfl(input: FeaturedInput & { weekLabel?: string | null }
       signal: { kind: "PROBABILITY", probability: favProb, of: `${favAbbr} to win` },
       why: e.stateMeaning ?? null, risks,
       status: input.status, freshness: input.freshness, result: null,
+      settlement: { kind: "nfl-event", providerEventId: e.providerEventId, family: "Winner" },
     },
     reason: null,
   };
@@ -160,6 +162,7 @@ export function featuredEpl(input: FeaturedInput & { set: EplForecastSet | null 
       signal: { kind: "PROBABILITY", probability: favProb, of: `${favName} to win` },
       why: null, risks,
       status: input.status, freshness: input.freshness, result: null,
+      settlement: { kind: "epl-event", eventId: r.eventId, family: "Match result" },
     },
     reason: null,
   };
@@ -188,6 +191,7 @@ export function featuredUfc(input: FeaturedInput & { card: { event?: { name?: st
       signal: { kind: "PROBABILITY", probability: w.probability, of: `${w.name} to win` },
       why: main.prediction!.reason ?? null, risks,
       status: input.status, freshness: input.freshness, result: null,
+      settlement: { kind: "ufc-bout", date: String(start ?? "").slice(0, 10), red: main.red.name, blue: main.blue.name },
     },
     reason: null,
   };

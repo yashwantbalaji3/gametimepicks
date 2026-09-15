@@ -229,6 +229,9 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
      receipts that hold it, in reader words. The public face of the research discipline. */
   { href: "/models", label: "Model Lab", group: "record", glyph: "⚗", desc: "Which models are live, tested, or paused",
     surfaces: ["rail", "footer"] },
+  /* P310: the reader's saved forecasts — browser-local, an analytics shortlist, never a wager. */
+  { href: "/saved", label: "Saved Forecasts", shortLabel: "Saved", group: "now", glyph: "☆", desc: "Forecasts you saved, and what happened",
+    surfaces: ["rail", "footer"] },
   { href: "/about", label: "About", group: "record", glyph: "ⓘ", desc: "What this is",
     surfaces: ["rail", "footer"] },
 

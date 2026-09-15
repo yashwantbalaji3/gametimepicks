@@ -66,6 +66,9 @@ export const ROUTE_TABLE = Object.freeze({
   "/system-status": { classification: "public", owner: "ops", purpose: "pipeline stage status in words", dataOwner: "public research contract", freshness: "contract stamps" },
   /* P312 · the research discipline in public: every model's standing, the forward tests and shadows, and what the
      receipts decided — read from receipts and the health scorecard at build time, never restated. */
+  /* P310 · the reader's own saved forecasts: browser-local snapshots joined to the graded ledgers on the client. Nothing
+     here enters the published record; noindex. */
+  "/saved": { classification: "public", owner: "product", purpose: "saved forecasts: immutable snapshots the reader kept, with the graded result once it exists", dataOwner: "the reader's browser (localStorage) + the graded ledgers", freshness: "per reader" },
   "/models": { classification: "public", owner: "research", purpose: "Model Lab: which models are live, tested, paused; recent decisions", dataOwner: "receipts + health scorecard (lib/command-center/model-lab)", freshness: "build-time read of receipts" },
   "/about": { classification: "public", owner: "product", purpose: "what this is", dataOwner: "static copy", freshness: "static" },
   /* P266 · the only surface holding anything personal. Signed out (and until a Supabase project is
