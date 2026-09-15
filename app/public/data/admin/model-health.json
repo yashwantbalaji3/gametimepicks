@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-14T16:01:26Z",
+ "generatedAt": "2026-09-15T10:06:15Z",
  "worst": "BREACHED",
  "counts": {
-  "INSUFFICIENT_SAMPLE": 14,
+  "INSUFFICIENT_SAMPLE": 15,
   "HOLDING": 2,
   "WATCH": 1,
   "BREACHED": 1
@@ -21,20 +21,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 576,
+   "n": 586,
    "judgement": {
     "state": "BREACHED",
-    "n": 576,
+    "n": 586,
     "needed": 200,
-    "meanDiff": 0.0344,
-    "lo95": 0.0121,
-    "hi95": 0.0553
+    "meanDiff": 0.0353,
+    "lo95": 0.015,
+    "hi95": 0.0562
    },
    "context": {
-    "hitRate": 0.4878,
-    "meanPickProbability": 0.5866,
-    "modelMinusMarket": 0.0335,
-    "pairedWithMarket": 576
+    "hitRate": 0.4881,
+    "meanPickProbability": 0.5864,
+    "modelMinusMarket": 0.0344,
+    "pairedWithMarket": 586
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -44,20 +44,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 605,
+   "n": 615,
    "judgement": {
     "state": "WATCH",
-    "n": 605,
+    "n": 615,
     "needed": 200,
-    "meanDiff": 0.0106,
-    "lo95": -0.0031,
-    "hi95": 0.0245
+    "meanDiff": 0.0128,
+    "lo95": -0.0015,
+    "hi95": 0.0277
    },
    "context": {
-    "hitRate": 0.4992,
-    "meanPickProbability": 0.5719,
-    "modelMinusMarket": 0.0324,
-    "pairedWithMarket": 604
+    "hitRate": 0.4959,
+    "meanPickProbability": 0.5722,
+    "modelMinusMarket": 0.0352,
+    "pairedWithMarket": 614
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -67,18 +67,18 @@
    "label": "MLB run line picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 605,
+   "n": 615,
    "judgement": {
     "state": "HOLDING",
-    "n": 605,
+    "n": 615,
     "needed": 200,
-    "meanDiff": -0.0393,
-    "lo95": -0.0559,
-    "hi95": -0.0218
+    "meanDiff": -0.0395,
+    "lo95": -0.0565,
+    "hi95": -0.0221
    },
    "context": {
-    "hitRate": 0.6463,
-    "meanPickProbability": 0.5985,
+    "hitRate": 0.6488,
+    "meanPickProbability": 0.5983,
     "modelMinusMarket": null,
     "pairedWithMarket": 0
    },
@@ -104,36 +104,58 @@
    "source": "app/public/data/nfl/reconciliation/<week>.json"
   },
   {
+   "id": "epl_forward_match_model",
+   "sport": "epl",
+   "label": "EPL blind forward test · match model vs the one it replaced",
+   "baseline": "the previous model (split Poisson), paired per match",
+   "state": "INSUFFICIENT_SAMPLE",
+   "n": 0,
+   "judgement": {
+    "receiptState": "ACCUMULATING",
+    "watch": false,
+    "needed": 60,
+    "meanDiff": null,
+    "lo95": null,
+    "hi95": null,
+    "modelLogLoss": null,
+    "controlLogLoss": null,
+    "modelId": "epl-model-v2-elo-poisson"
+   },
+   "context": null,
+   "source": "data/internal/research/epl/forward/receipt.json",
+   "note": "Preregistered: a FORWARD_BREACHED receipt already makes the previous model publish on the next matchweek build."
+  },
+  {
    "id": "epl_result",
    "sport": "epl",
    "label": "EPL match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 35,
+   "n": 36,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 35,
+    "n": 36,
     "needed": 60,
-    "meanDiff": -0.0451,
+    "meanDiff": -0.0401,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "modelLogLoss": 1.0535,
+    "modelLogLoss": 1.0586,
     "market": {
      "model": {
-      "logLoss": 1.066053,
-      "brier": 0.664474
+      "logLoss": 1.071727,
+      "brier": 0.668397
      },
      "market": {
-      "logLoss": 1.085631,
-      "brier": 0.662167
+      "logLoss": 1.079124,
+      "brier": 0.657505
      },
-     "logLossDelta": -0.019578,
-     "brierDelta": 0.002307
+     "logLossDelta": -0.007397,
+     "brierDelta": 0.010892
     },
-    "marketComparisonState": "SAMPLE_TOO_SMALL",
-    "stoppingRule": "NOT_YET_ASSESSABLE"
+    "marketComparisonState": "MODEL_AHEAD",
+    "stoppingRule": "CONTINUE"
    },
    "source": "app/public/data/soccer/epl/results/graded-forecasts.jsonl"
   },
@@ -379,5 +401,6 @@
    },
    "source": "data/internal/research/ufc/model-vs-market/graded.jsonl"
   }
- ]
+ ],
+ "changes": []
 }
