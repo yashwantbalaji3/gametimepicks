@@ -18,6 +18,7 @@ import { gameInputsFromBoard } from "../src/lib/mlb/full-game/board-adapter.ts";
 import { selectConfirmedLineup } from "../src/lib/mlb/full-game/confirmed-lineup.ts";
 import { simulateFullGame } from "../src/lib/mlb/full-game/simulate.ts";
 import { stableHash } from "../src/lib/game-simulations/rng.ts";
+import { ENGINE_LEVEL_CANDIDATE_V1, engineParamsFor } from "../src/lib/mlb/full-game/engine-candidates.ts";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
@@ -129,8 +130,10 @@ if (teamMarkets && teamMarkets.games && typeof teamMarkets.games === "object") {
 
 const opts = { runCount: RUN_COUNT, modelVersion: MODEL_VERSION, simulationVersion: SIMULATION_VERSION, generatedAt: nowIso };
 
+let lastInputs = [];
 function build(generatedAt) {
   const inputs = gameInputsFromBoard(boundedBoard, marketByGamePk, confirmedByGamePk);
+  lastInputs = inputs;
   const games = inputs.map((input) => simulateFullGame(input, { ...opts, generatedAt }));
   return {
     sport: "mlb",
@@ -207,11 +210,52 @@ const degraded = artifact.games.filter((g) => g.status === "degraded").length;
 const unavailable = artifact.games.filter((g) => g.status === "unavailable").length;
 console.log(`\nreconciliation: ${artifact.games.length} games · ${ready} READY · ${degraded} DEGRADED · ${unavailable} UNAVAILABLE`);
 
+/*
+ * ── P317 ENGINE-LEVEL SHADOW (private research, never public) ──────────────────────────────────
+ *
+ * The registered candidate (engine-level-shadow-protocol.json) is run on EXACTLY the inputs and seed
+ * the public artifact just used, and its total-runs distribution is written beside the control's to
+ * data/internal/research/mlb/engine-level-shadow/<date>.json. A game's row is (re)written only while
+ * the game is pregame and regenerated in this run — a carried-forward game keeps the row that paired
+ * with its frozen public forecast — so the last row for a game always pairs with the forecast of
+ * record and nothing is ever written for a started game. The receipt builder grades the rows from
+ * committed linescores. Nothing here changes the public artifact: the candidate is a second run.
+ */
+const SHADOW_DIR = path.join(APP, "..", "data/internal/research/mlb/engine-level-shadow");
+const shadowCandidate = engineParamsFor(ENGINE_LEVEL_CANDIDATE_V1);
+const dist = (t) => ({ mean: t.mean, median: t.median, p10: t.p10, p90: t.p90, distribution: t.distribution.map((b) => ({ value: b.value, probability: b.probability })) });
+const shadowRows = [];
+for (const g of artifact.games) {
+  if (g.status === "unavailable" || startedByNow.has(g.gamePk)) continue;
+  const input = lastInputs.find((i) => i.gamePk === g.gamePk);
+  if (!input) continue;
+  const candidate = simulateFullGame(input, { ...opts, generatedAt: artifact.generatedAt, engine: shadowCandidate });
+  shadowRows.push({
+    gamePk: g.gamePk, slug: g.slug, date, firstPitch: g.firstPitch, generatedAt: artifact.generatedAt, status: g.status,
+    controlArtifactHash: g.artifactHash, candidateId: ENGINE_LEVEL_CANDIDATE_V1.id,
+    marketTotalLine: g.market?.total?.line ?? null,
+    control: dist(g.totalRuns), candidate: dist(candidate.totalRuns),
+    hitsPerTeam: { control: g.players.batters.reduce((s, b) => s + b.hits, 0) / 2, candidate: candidate.players.batters.reduce((s, b) => s + b.hits, 0) / 2 },
+    walksPerTeam: { control: g.players.batters.reduce((s, b) => s + b.walks, 0) / 2, candidate: candidate.players.batters.reduce((s, b) => s + b.walks, 0) / 2 },
+  });
+}
+
 if (write) {
   const outDir = path.join(DATA, "mlb", "full-game-simulations");
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, `${date}.json`), JSON.stringify(artifact, null, 2));
   console.log(`\n✓ wrote public/data/mlb/full-game-simulations/${date}.json`);
+  if (shadowRows.length) {
+    fs.mkdirSync(SHADOW_DIR, { recursive: true });
+    const shadowFile = path.join(SHADOW_DIR, `${date}.json`);
+    let prior = { rows: [] };
+    try { prior = JSON.parse(fs.readFileSync(shadowFile, "utf8")); } catch { /* first write of the day */ }
+    const regenerated = new Set(shadowRows.map((r) => r.gamePk));
+    const kept = (prior.rows ?? []).filter((r) => !regenerated.has(r.gamePk));
+    const rows = [...kept, ...shadowRows].sort((a, b) => a.gamePk - b.gamePk);
+    fs.writeFileSync(shadowFile, JSON.stringify({ schemaVersion: 1, artifact: "mlb-engine-level-shadow-rows", dataClass: "PRIVATE_RESEARCH", program: "317", protocol: ENGINE_LEVEL_CANDIDATE_V1.protocol, date, updatedAt: artifact.generatedAt, runCount: RUN_COUNT, rows }, null, 2));
+    console.log(`✓ shadow: ${shadowRows.length} pregame game(s) paired with the candidate (${kept.length} kept from earlier runs) → data/internal/research/mlb/engine-level-shadow/${date}.json`);
+  }
 } else {
   console.log(`\n(dry run — pass --write to persist)`);
 }

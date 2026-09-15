@@ -455,6 +455,13 @@ jobs:
           npx --yes tsx scripts/build-paper-track-record.mjs --write \
             || echo "::warning::paper track record failed — prior ledger retained"
 
+          # 4b) P317 engine-level shadow receipt (private research): the candidate-vs-control rows the
+          #     full-game generator wrote, graded from the linescores fetched in step 1. ACCUMULATING
+          #     until the registered minimum; one verdict, written once. Never public, never money.
+          npx --yes tsx scripts/research/build-mlb-engine-level-shadow-receipt.mjs --write \
+            --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            || echo "::warning::engine-level shadow receipt failed — prior receipt retained"
+
           # 5) Game-level prediction grading (P196 · Release B1) — moneyline/total/run line from the
           #    forecast of record (immutable per-run snapshots; per-game pre-first-pitch rule) to the
           #    linescores fetched in step 1. Append-only ledger; a date with no qualifying revision
@@ -643,6 +650,7 @@ jobs:
           git add data/internal/offered-window/ 2>/dev/null || true
           git add data/internal/products/ 2>/dev/null || true
           git add app/public/data/mlb/statsapi-schedule/ 2>/dev/null || true
+          git add data/internal/research/mlb/engine-level-shadow/ 2>/dev/null || true
           git add app/public/data/ops/offered-window.json 2>/dev/null || true
           git add pipeline/validation/mlb_settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/comparison_report_*.json 2>/dev/null || true

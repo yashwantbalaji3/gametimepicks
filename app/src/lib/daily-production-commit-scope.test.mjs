@@ -25,7 +25,9 @@ const GENERATOR_OUTPUT = {
   "ingest-mlb-team-markets.mjs": "app/public/data/mlb/team-markets/",
   "ingest-mlb-slate.mjs": "app/public/data/mlb/player-props/",
   "generate-mlb-game-simulations.mjs": "app/public/data/mlb/game-simulations/",
-  "generate-mlb-full-game-simulations.mjs": "app/public/data/mlb/full-game-simulations/",
+  // P317: the generator also writes the private engine-level shadow rows (research, never public); they must
+  // stage too or the registered forward test starves exactly the way the snapshots once did.
+  "generate-mlb-full-game-simulations.mjs": ["app/public/data/mlb/full-game-simulations/", "data/internal/research/mlb/engine-level-shadow/"],
   // P196: the predictions generator writes TWO paths — the public dated file AND the immutable
   // per-run snapshot the game grader needs (the dated file is a moving pointer). Both must stage,
   // or the snapshot silently never persists and the forward grading path starves.

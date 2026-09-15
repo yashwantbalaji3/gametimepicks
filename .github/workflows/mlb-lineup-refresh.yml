@@ -149,7 +149,7 @@ jobs:
           # Path-scoped: this job produces exactly two artifacts and must not carry anything else.
           # app/public/data/ops carries the publication-SLO verdict written by the step above. Without
           # it in scope the check would run eight times a day and its answer would never reach the site.
-          git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions app/public/data/ops data/internal/mlb/prediction-snapshots 2>/dev/null || true
+          git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions app/public/data/ops data/internal/mlb/prediction-snapshots data/internal/research/mlb/engine-level-shadow 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no lineup has changed the simulation since the last run"
             exit 0
