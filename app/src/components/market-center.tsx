@@ -329,6 +329,9 @@ function GameSection({ games }: { games: GameIntelligence[] }) {
               ) : (
                 <Muted>No comparable market</Muted>
               )}
+              {g.moneyline.intelligence.blockedBy.includes("MODEL_PAUSED") ? (
+                <Muted>Model side paused · its live record is below a coin flip · still graded daily</Muted>
+              ) : null}
             </MarketBox>
 
             <MarketBox label="Run line" mode={g.runLine.intelligence.mode}>
@@ -352,6 +355,9 @@ function GameSection({ games }: { games: GameIntelligence[] }) {
               {g.runLine.intelligence.blockedBy.includes("THRESHOLD_UNSUPPORTED") ? (
                 <Muted>Simulation did not publish this line</Muted>
               ) : null}
+              {g.runLine.intelligence.blockedBy.includes("MODEL_PAUSED") ? (
+                <Muted>Model side paused · its live record is below a coin flip · still graded daily</Muted>
+              ) : null}
             </MarketBox>
 
             <MarketBox label="Total" mode={g.total.intelligence.mode}>
@@ -374,6 +380,9 @@ function GameSection({ games }: { games: GameIntelligence[] }) {
               ) : (
                 <Muted>No comparable market</Muted>
               )}
+            {g.total.intelligence.blockedBy.includes("MODEL_PAUSED") ? (
+                <Muted>Model side paused · its live record is below a coin flip · still graded daily</Muted>
+              ) : null}
             </MarketBox>
           </div>
 

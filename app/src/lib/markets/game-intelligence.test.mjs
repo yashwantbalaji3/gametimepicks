@@ -89,6 +89,7 @@ const build = (over = {}) =>
     artifact: over.artifact ?? { date: TODAY, generatedAt: "2026-07-27T16:35:04.082Z" },
     todayEt: over.todayEt ?? TODAY,
     nowIso: over.nowIso ?? NOW,
+    pausedFamilies: over.pausedFamilies,
   });
 
 // ── Run-line sign convention, derived from the histogram ────────────────────────────────────────
@@ -263,4 +264,20 @@ test("agreement reads as agreement rather than a zero-point difference", () => {
 test("no team total appears anywhere in the object", () => {
   const g = build();
   assert.ok(!/teamTotal/i.test(JSON.stringify(g)), "the live artifact has no team total and neither may this");
+});
+
+// ── Live-record gate ────────────────────────────────────────────────────────────────────────────
+
+test("a paused family (scorecard id) withholds ONLY that family's model side, naming MODEL_PAUSED", () => {
+  const g = build({ pausedFamilies: new Set(["mlb_total"]) });
+  assert.equal(g.total.model, null, "no model probability for the paused total");
+  assert.equal(g.total.comparison, null);
+  assert.equal(g.total.intelligence.mode, "SPORTSBOOK_ONLY");
+  assert.ok(g.total.intelligence.blockedBy.includes("MODEL_PAUSED"));
+  assert.ok(g.total.sportsbook, "the price stays");
+  assert.ok(g.moneyline.model && g.runLine.model, "the other families are untouched");
+  const all = build({ pausedFamilies: new Set(["mlb_moneyline", "mlb_run_line", "mlb_total"]) });
+  assert.equal(all.moneyline.model, null);
+  assert.equal(all.runLine.model, null);
+  assert.deepEqual(build({ pausedFamilies: new Set(["nfl_total"]) }).total.model, build().total.model, "another sport's id pauses nothing here");
 });

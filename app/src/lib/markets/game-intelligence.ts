@@ -317,6 +317,12 @@ export interface GameIntelligenceInput {
   readonly todayEt: string;
   /** Current instant, for event phase only. Never used as a capture time. */
   readonly nowIso: string;
+  /**
+   * Families the live-record gate has paused (scorecard ids such as "mlb_total"), from
+   * lib/ops/live-record-gate.mjs pausedFamiliesFrom. A paused family's model side is withheld here too, with
+   * MODEL_PAUSED recorded, so /markets and the report's comparison block agree with the hero.
+   */
+  readonly pausedFamilies?: ReadonlySet<string>;
 }
 
 /**
@@ -341,6 +347,8 @@ export function buildGameIntelligence(input: GameIntelligenceInput): GameIntelli
     bookmaker: book.bookmaker ?? null,
   };
 
+  /* Scorecard family ids are `<sport>_<family>`: mlb_moneyline, mlb_run_line, mlb_total. */
+  const pausedFor = (family: GameMarketFamily) => input.pausedFamilies?.has(`${sport}_${family.toLowerCase()}`) ?? false;
   const modeFor = (
     family: GameMarketFamily,
     hasBook: boolean,
@@ -355,7 +363,7 @@ export function buildGameIntelligence(input: GameIntelligenceInput): GameIntelli
       kind: "game",
       family,
       sportsbook: { present: hasBook, americanOdds: odds, line, requiresLine },
-      model: { present: modelPresent, supportsThreshold: thresholdOk },
+      model: { present: modelPresent, supportsThreshold: thresholdOk, paused: pausedFor(family) },
       freshness,
       eventResolved: input.gamePk != null,
     });

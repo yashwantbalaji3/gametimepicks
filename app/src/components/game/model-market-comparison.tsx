@@ -148,6 +148,9 @@ export default function ModelMarketComparison({
           ) : (
             <Muted>No comparable market</Muted>
           )}
+          {moneyline.intelligence.blockedBy.includes("MODEL_PAUSED") ? (
+            <Muted>Model side paused: over its graded record this call has done worse than a coin flip. Still made and graded daily.</Muted>
+          ) : null}
         </Block>
 
         <Block title="Run line" mode={runLine.intelligence.mode}>
@@ -171,6 +174,9 @@ export default function ModelMarketComparison({
           {runLine.intelligence.blockedBy.includes("THRESHOLD_UNSUPPORTED") ? (
             <Muted>The simulation did not publish a cover probability at this line, so no comparison is shown.</Muted>
           ) : null}
+          {runLine.intelligence.blockedBy.includes("MODEL_PAUSED") ? (
+            <Muted>Model side paused: over its graded record this call has done worse than a coin flip. Still made and graded daily.</Muted>
+          ) : null}
         </Block>
 
         <Block title="Total" mode={total.intelligence.mode}>
@@ -193,6 +199,9 @@ export default function ModelMarketComparison({
           ) : (
             <Muted>No comparable market</Muted>
           )}
+        {total.intelligence.blockedBy.includes("MODEL_PAUSED") ? (
+            <Muted>Model side paused: over its graded record this call has done worse than a coin flip. Still made and graded daily.</Muted>
+          ) : null}
         </Block>
       </div>
 

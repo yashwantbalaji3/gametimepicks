@@ -345,3 +345,14 @@ test("census of an empty slate is zero, not a division error", () => {
   assert.equal(c.byMode.FULL_COMPARISON, 0);
   assert.deepEqual(c.byGate, {});
 });
+
+test("a family the live-record gate has paused loses its model side with MODEL_PAUSED named; the price stays", () => {
+  const base = { sport: "mlb", kind: "game", family: "TOTAL", sportsbook: { present: true, americanOdds: -110, line: 8.5, requiresLine: true }, freshness: CURRENT, eventResolved: true };
+  const open = getMarketIntelligenceMode({ ...base, model: { present: true, supportsThreshold: true } });
+  assert.equal(open.mode, "FULL_COMPARISON");
+  const paused = getMarketIntelligenceMode({ ...base, model: { present: true, supportsThreshold: true, paused: true } });
+  assert.equal(paused.mode, "SPORTSBOOK_ONLY");
+  assert.equal(paused.hasModel, false);
+  assert.deepEqual(paused.blockedBy, ["MODEL_PAUSED"], "the reason is the pause, not a missing artifact");
+  assert.equal(paused.hasSportsbook, true, "the sportsbook side is untouched");
+});

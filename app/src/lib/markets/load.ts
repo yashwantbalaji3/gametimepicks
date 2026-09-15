@@ -14,6 +14,7 @@ import path from "node:path";
 
 import { buildAliasIndex } from "@/lib/identity/event-identity";
 import { buildGameIntelligence, type GameIntelligence } from "./game-intelligence";
+import { pausedFamiliesFrom } from "@/lib/ops/live-record-gate.mjs";
 import {
   buildPlayerPropIntelligence,
   leanJoinKey,
@@ -201,6 +202,12 @@ export function loadMarketCenter(
   const simByPk = new Map((sims.games ?? []).map((g) => [g.gamePk as number, g]));
   const leanByKey = new Map(leans.map((l) => [leanJoinKey(l), l]));
 
+  /* Live-record gate: the same paused set the game report applies, so /markets cannot quote a model
+     probability the hero has withdrawn. A missing or stale scorecard pauses nothing. */
+  const pausedFamilies = pausedFamiliesFrom(
+    (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "admin", "model-health.json"), "utf8")); } catch { return null; } })(),
+    Date.parse(nowIso),
+  );
   // ── Games ─────────────────────────────────────────────────────────────────────────────────────
   const games: GameIntelligence[] = bookGames
     .map((g) => {
@@ -217,6 +224,7 @@ export function loadMarketCenter(
         artifact: { date: teamMarkets.date ?? null, generatedAt: teamMarkets.generatedAt ?? null },
         todayEt: reference,
         nowIso,
+        pausedFamilies,
       });
     })
     .sort((a, b) => String(a.startTime ?? "").localeCompare(String(b.startTime ?? "")));

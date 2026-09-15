@@ -546,6 +546,7 @@ function mlbDetails(): PublicGameDetail[] {
         artifact: { date: artifact?.date ?? null, generatedAt: artifact?.generatedAt ?? null },
         todayEt: reference,
         nowIso: marketNow,
+        pausedFamilies: livePauses,
       });
     })();
     return {

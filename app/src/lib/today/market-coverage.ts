@@ -54,6 +54,7 @@ export const GATE_EXPLANATION: Record<PairingGate, string> = {
   NO_MODEL_FAMILY: "GameTimePicks does not model this market.",
   MODEL_ARTIFACT_MISSING: "The simulation this comparison needs has not been produced for this game.",
   THRESHOLD_UNSUPPORTED: "The simulation cannot evaluate the exact line the sportsbook posted.",
+  MODEL_PAUSED: "This call is paused: over its graded record it has done worse than a coin flip. It is still made and graded daily.",
   ARTIFACT_NOT_CURRENT: "The captured snapshot is not current enough to sit beside a live line.",
   EVENT_UNRESOLVED: "This market could not be matched to a specific game.",
   TEAM_UNRESOLVED: "The player's team could not be established from the available evidence.",

@@ -69,6 +69,9 @@ export type PairingGate =
   | "MODEL_ARTIFACT_MISSING"
   /** The artifact exists but cannot evaluate the sportsbook's exact line/side. */
   | "THRESHOLD_UNSUPPORTED"
+  /** The family's live record is BREACHED on the model-health scorecard (lib/ops/live-record-gate.mjs): the model
+   *  side is paused everywhere, this comparison included, until the record recovers. The price stays. */
+  | "MODEL_PAUSED"
   /** Snapshot is not current, so it may not back a live comparison. */
   | "ARTIFACT_NOT_CURRENT"
   /** The row could not be attached to a canonical event. */
@@ -119,6 +122,8 @@ export interface ModelAvailability {
    * the artifact's credibility. Callers that evaluate a threshold must set this explicitly.
    */
   readonly supportsThreshold?: boolean;
+  /** The live-record gate has paused this family's call (its graded record is BREACHED). */
+  readonly paused?: boolean;
 }
 
 export interface PairingInput {
@@ -265,6 +270,12 @@ export function getMarketIntelligenceMode(input: PairingInput): MarketIntelligen
       blocked.push("NO_MODEL_FAMILY");
       hasModel = false;
     }
+  }
+  if (hasModel && input.model?.paused) {
+    // Same rule as every other surface: a paused call shows no model number anywhere, so the
+    // model-vs-market block cannot keep quoting a probability the hero has withdrawn.
+    blocked.push("MODEL_PAUSED");
+    hasModel = false;
   }
   if (hasModel) {
     if (!input.model || !input.model.present) {

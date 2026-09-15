@@ -105,6 +105,11 @@ test("SOURCE PIN · every MLB game-market surface goes through the gate", () => 
   assert.match(src("src/lib/simulate/presentation/mlb.ts"), /pausedReasons\?\.moneyline/, "the simulator's outcome chapter");
   assert.match(src("src/lib/simulate/presentation/mlb.ts"), /pausedReasons\?\.runLine/, "the simulator's margin chapter");
   assert.match(src("src/components/entity/simulation-card.tsx"), /pausedReasons\?\.moneyline/, "the entity simulation card");
+  assert.match(src("src/lib/game-detail.ts"), /pausedFamilies: livePauses/, "the report's model-vs-market block gets the same paused set");
+  assert.match(src("src/lib/markets/load.ts"), /pausedFamiliesFrom\(/, "and so does /markets");
+  for (const f of ["src/components/market-center.tsx", "src/components/game/model-market-comparison.tsx"]) {
+    assert.equal((src(f).match(/MODEL_PAUSED/g) ?? []).length, 3, `${f}: moneyline, run line and total each explain a paused model side`);
+  }
 });
 
 test("the PUBLISHED prediction artifacts never carry a pause — grading reads them, and a paused ledger could never lift its own pause", () => {
