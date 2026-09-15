@@ -1,0 +1,1570 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-totals-replay-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "program": "305",
+ "generatedAt": "2026-09-15T02:33:54Z",
+ "preregistration": {
+  "path": "data/internal/research/epl/reports/epl-totals-replay-preregistration.json",
+  "commit": "2608ff2bbcc121c75b1f9279dceeeecbc0ab0bc6 2026-09-14T22:33:27-04:00"
+ },
+ "scriptSha256": "55d4b2a3b26dbcaa7e6e7830b11841bda69b3ce3b5f57861606747ee56ff6193",
+ "supremacySlopes": {
+  "epl": 0.5851,
+  "bundesliga": 0.65523,
+  "laliga": 0.75338,
+  "serie-a": 0.56196,
+  "ligue-1": 0.65257
+ },
+ "controlParity": {
+  "pass": true,
+  "supremacySlope": [
+   0.5851,
+   0.5851
+  ],
+  "logLoss": [
+   0.97351,
+   0.97351
+  ],
+  "over25Brier": [
+   0.25021,
+   0.25021
+  ]
+ },
+ "population": {
+  "blind": {
+   "bundesliga": 2754,
+   "laliga": 2660,
+   "ligue-1": 1799,
+   "serie-a": 2280
+  },
+  "blindTotal": 9493,
+  "secondLook": 3420
+ },
+ "results": {
+  "goalRatios": {
+   "blind": {
+    "overall": {
+     "n": 9493,
+     "logLoss": 0.99672,
+     "ece": 0.03195,
+     "totalLogLoss": 1.88978,
+     "over15Brier": 0.17409,
+     "over25Brier": 0.24356,
+     "over35Brier": 0.20934,
+     "over15Ece": 0.0083,
+     "over25Ece": 0.00627,
+     "over35Ece": 0.01054,
+     "level": 1.00192,
+     "meanPredictedTotal": 2.81263,
+     "meanActualTotal": 2.80723,
+     "sdPredictedTotal": 0.2911
+    },
+    "byLeague": {
+     "bundesliga": {
+      "n": 2754,
+      "logLoss": 1.00088,
+      "ece": 0.03034,
+      "totalLogLoss": 1.92287,
+      "over15Brier": 0.15282,
+      "over25Brier": 0.24182,
+      "over35Brier": 0.22612,
+      "over15Ece": 0.01334,
+      "over25Ece": 0.01373,
+      "over35Ece": 0.00871,
+      "level": 1.00171,
+      "meanPredictedTotal": 2.99895,
+      "meanActualTotal": 2.99383,
+      "sdPredictedTotal": 0.25542
+     },
+     "laliga": {
+      "n": 2660,
+      "logLoss": 1.00739,
+      "ece": 0.05198,
+      "totalLogLoss": 1.86699,
+      "over15Brier": 0.19306,
+      "over25Brier": 0.2428,
+      "over35Brier": 0.19192,
+      "over15Ece": 0.02969,
+      "over25Ece": 0.02135,
+      "over35Ece": 0.02118,
+      "level": 1.00535,
+      "meanPredictedTotal": 2.65095,
+      "meanActualTotal": 2.63684,
+      "sdPredictedTotal": 0.26082
+     },
+     "ligue-1": {
+      "n": 1799,
+      "logLoss": 1.02106,
+      "ece": 0.03521,
+      "totalLogLoss": 1.85058,
+      "over15Brier": 0.18604,
+      "over25Brier": 0.24571,
+      "over35Brier": 0.20094,
+      "over15Ece": 0.00873,
+      "over25Ece": 0.01517,
+      "over35Ece": 0.02831,
+      "level": 0.9993,
+      "meanPredictedTotal": 2.68017,
+      "meanActualTotal": 2.68205,
+      "sdPredictedTotal": 0.21527
+     },
+     "serie-a": {
+      "n": 2280,
+      "logLoss": 0.96003,
+      "ece": 0.01229,
+      "totalLogLoss": 1.90734,
+      "over15Brier": 0.16821,
+      "over25Brier": 0.24487,
+      "over35Brier": 0.21604,
+      "over15Ece": 0.00464,
+      "over25Ece": 0.01729,
+      "over35Ece": 0.01328,
+      "level": 1.00046,
+      "meanPredictedTotal": 2.88071,
+      "meanActualTotal": 2.87939,
+      "sdPredictedTotal": 0.2592
+     }
+    }
+   },
+   "secondLook": {
+    "overall": {
+     "n": 3420,
+     "logLoss": 0.97404,
+     "ece": 0.01513,
+     "totalLogLoss": 1.87953,
+     "over15Brier": 0.18324,
+     "over25Brier": 0.24778,
+     "over35Brier": 0.20914,
+     "over15Ece": 0.00898,
+     "over25Ece": 0.00851,
+     "over35Ece": 0.01351,
+     "level": 0.99945,
+     "meanPredictedTotal": 2.72831,
+     "meanActualTotal": 2.72982,
+     "sdPredictedTotal": 0.19794
+    },
+    "eras": {
+     "2013-14..2017-18": {
+      "n": 1900,
+      "logLoss": 0.97595,
+      "ece": 0.01691,
+      "totalLogLoss": 1.89215,
+      "over15Brier": 0.19179,
+      "over25Brier": 0.24772,
+      "over35Brier": 0.21053,
+      "over15Ece": 0.01163,
+      "over25Ece": 0.01232,
+      "over35Ece": 0.02362,
+      "level": 0.9978,
+      "meanPredictedTotal": 2.69667,
+      "meanActualTotal": 2.70263,
+      "sdPredictedTotal": 0.19276
+     },
+     "2018-19..2021-22": {
+      "n": 1520,
+      "logLoss": 0.97165,
+      "ece": 0.01773,
+      "totalLogLoss": 1.86376,
+      "over15Brier": 0.17255,
+      "over25Brier": 0.24785,
+      "over35Brier": 0.20739,
+      "over15Ece": 0.02259,
+      "over25Ece": 0.00644,
+      "over35Ece": 0.00326,
+      "level": 1.00147,
+      "meanPredictedTotal": 2.76787,
+      "meanActualTotal": 2.76382,
+      "sdPredictedTotal": 0.19721
+     }
+    },
+    "seasons": {
+     "2013-14": {
+      "n": 380,
+      "logLoss": 0.94035,
+      "ece": 0.03354,
+      "totalLogLoss": 1.91658,
+      "over15Brier": 0.19446,
+      "over25Brier": 0.2451,
+      "over35Brier": 0.22196,
+      "over15Ece": 0.0326,
+      "over25Ece": 0.0142,
+      "over35Ece": 0.04787,
+      "level": 0.97275,
+      "meanPredictedTotal": 2.69298,
+      "meanActualTotal": 2.76842,
+      "sdPredictedTotal": 0.17803
+     },
+     "2014-15": {
+      "n": 380,
+      "logLoss": 0.99641,
+      "ece": 0.03352,
+      "totalLogLoss": 1.86252,
+      "over15Brier": 0.20314,
+      "over25Brier": 0.24822,
+      "over35Brier": 0.19468,
+      "over15Ece": 0.02863,
+      "over25Ece": 0.01797,
+      "over35Ece": 0.03869,
+      "level": 1.04252,
+      "meanPredictedTotal": 2.6749,
+      "meanActualTotal": 2.56579,
+      "sdPredictedTotal": 0.20201
+     },
+     "2015-16": {
+      "n": 380,
+      "logLoss": 1.03917,
+      "ece": 0.04957,
+      "totalLogLoss": 1.90967,
+      "over15Brier": 0.19628,
+      "over25Brier": 0.25282,
+      "over35Brier": 0.21463,
+      "over15Ece": 0.00631,
+      "over25Ece": 0.05177,
+      "over35Ece": 0.04882,
+      "level": 0.95737,
+      "meanPredictedTotal": 2.58491,
+      "meanActualTotal": 2.7,
+      "sdPredictedTotal": 0.14337
+     },
+     "2016-17": {
+      "n": 380,
+      "logLoss": 0.93355,
+      "ece": 0.02695,
+      "totalLogLoss": 1.89167,
+      "over15Brier": 0.17409,
+      "over25Brier": 0.24624,
+      "over35Brier": 0.2173,
+      "over15Ece": 0.00624,
+      "over25Ece": 0.0163,
+      "over35Ece": 0.01502,
+      "level": 1.00379,
+      "meanPredictedTotal": 2.8106,
+      "meanActualTotal": 2.8,
+      "sdPredictedTotal": 0.18434
+     },
+     "2017-18": {
+      "n": 380,
+      "logLoss": 0.97026,
+      "ece": 0.0329,
+      "totalLogLoss": 1.88031,
+      "over15Brier": 0.19097,
+      "over25Brier": 0.24621,
+      "over35Brier": 0.20409,
+      "over15Ece": 0.01364,
+      "over25Ece": 0.04972,
+      "over35Ece": 0.02414,
+      "level": 1.01531,
+      "meanPredictedTotal": 2.71997,
+      "meanActualTotal": 2.67895,
+      "sdPredictedTotal": 0.17958
+     },
+     "2018-19": {
+      "n": 380,
+      "logLoss": 0.90199,
+      "ece": 0.01899,
+      "totalLogLoss": 1.862,
+      "over15Brier": 0.16114,
+      "over25Brier": 0.24951,
+      "over35Brier": 0.21633,
+      "over15Ece": 0.03139,
+      "over25Ece": 0.00832,
+      "over35Ece": 0.02501,
+      "level": 0.99825,
+      "meanPredictedTotal": 2.81612,
+      "meanActualTotal": 2.82105,
+      "sdPredictedTotal": 0.17253
+     },
+     "2019-20": {
+      "n": 380,
+      "logLoss": 0.9798,
+      "ece": 0.0307,
+      "totalLogLoss": 1.80063,
+      "over15Brier": 0.1582,
+      "over25Brier": 0.24445,
+      "over35Brier": 0.19917,
+      "over15Ece": 0.02804,
+      "over25Ece": 0.03267,
+      "over35Ece": 0.03798,
+      "level": 1.04771,
+      "meanPredictedTotal": 2.85088,
+      "meanActualTotal": 2.72105,
+      "sdPredictedTotal": 0.16994
+     },
+     "2020-21": {
+      "n": 380,
+      "logLoss": 1.04671,
+      "ece": 0.02883,
+      "totalLogLoss": 1.91872,
+      "over15Brier": 0.19436,
+      "over25Brier": 0.25026,
+      "over35Brier": 0.19605,
+      "over15Ece": 0.01848,
+      "over25Ece": 0.02442,
+      "over35Ece": 0.02215,
+      "level": 0.979,
+      "meanPredictedTotal": 2.63814,
+      "meanActualTotal": 2.69474,
+      "sdPredictedTotal": 0.18184
+     },
+     "2021-22": {
+      "n": 380,
+      "logLoss": 0.9581,
+      "ece": 0.01607,
+      "totalLogLoss": 1.87368,
+      "over15Brier": 0.17651,
+      "over25Brier": 0.24719,
+      "over35Brier": 0.21802,
+      "over15Ece": 0.02132,
+      "over25Ece": 0.03404,
+      "over35Ece": 0.02776,
+      "level": 0.98152,
+      "meanPredictedTotal": 2.76633,
+      "meanActualTotal": 2.81842,
+      "sdPredictedTotal": 0.19444
+     }
+    }
+   }
+  },
+  "tempo": {
+   "blind": {
+    "overall": {
+     "n": 9493,
+     "logLoss": 0.99709,
+     "ece": 0.0322,
+     "totalLogLoss": 1.89059,
+     "over15Brier": 0.17421,
+     "over25Brier": 0.24381,
+     "over35Brier": 0.20951,
+     "over15Ece": 0.00649,
+     "over25Ece": 0.00598,
+     "over35Ece": 0.01083,
+     "level": 1.00035,
+     "meanPredictedTotal": 2.8082,
+     "meanActualTotal": 2.80723,
+     "sdPredictedTotal": 0.28547
+    },
+    "byLeague": {
+     "bundesliga": {
+      "n": 2754,
+      "logLoss": 1.00089,
+      "ece": 0.02999,
+      "totalLogLoss": 1.92306,
+      "over15Brier": 0.15293,
+      "over25Brier": 0.24191,
+      "over35Brier": 0.22618,
+      "over15Ece": 0.01419,
+      "over25Ece": 0.00878,
+      "over35Ece": 0.01057,
+      "level": 0.9997,
+      "meanPredictedTotal": 2.99294,
+      "meanActualTotal": 2.99383,
+      "sdPredictedTotal": 0.25038
+     },
+     "laliga": {
+      "n": 2660,
+      "logLoss": 1.00847,
+      "ece": 0.05218,
+      "totalLogLoss": 1.8683,
+      "over15Brier": 0.19311,
+      "over25Brier": 0.24304,
+      "over35Brier": 0.19222,
+      "over15Ece": 0.02463,
+      "over25Ece": 0.02123,
+      "over35Ece": 0.02004,
+      "level": 1.00288,
+      "meanPredictedTotal": 2.64443,
+      "meanActualTotal": 2.63684,
+      "sdPredictedTotal": 0.25314
+     },
+     "ligue-1": {
+      "n": 1799,
+      "logLoss": 1.02133,
+      "ece": 0.03621,
+      "totalLogLoss": 1.85095,
+      "over15Brier": 0.18612,
+      "over25Brier": 0.24587,
+      "over35Brier": 0.20102,
+      "over15Ece": 0.00816,
+      "over25Ece": 0.01295,
+      "over35Ece": 0.02712,
+      "level": 0.99825,
+      "meanPredictedTotal": 2.67736,
+      "meanActualTotal": 2.68205,
+      "sdPredictedTotal": 0.20968
+     },
+     "serie-a": {
+      "n": 2280,
+      "logLoss": 0.96012,
+      "ece": 0.01223,
+      "totalLogLoss": 1.90865,
+      "over15Brier": 0.16846,
+      "over25Brier": 0.24538,
+      "over35Brier": 0.21624,
+      "over15Ece": 0.00454,
+      "over25Ece": 0.01761,
+      "over35Ece": 0.01241,
+      "level": 0.99999,
+      "meanPredictedTotal": 2.87937,
+      "meanActualTotal": 2.87939,
+      "sdPredictedTotal": 0.2511
+     }
+    }
+   },
+   "secondLook": {
+    "overall": {
+     "n": 3420,
+     "logLoss": 0.97411,
+     "ece": 0.01534,
+     "totalLogLoss": 1.87983,
+     "over15Brier": 0.18325,
+     "over25Brier": 0.24781,
+     "over35Brier": 0.20927,
+     "over15Ece": 0.00804,
+     "over25Ece": 0.01049,
+     "over35Ece": 0.01382,
+     "level": 0.99853,
+     "meanPredictedTotal": 2.72581,
+     "meanActualTotal": 2.72982,
+     "sdPredictedTotal": 0.19213
+    },
+    "eras": {
+     "2013-14..2017-18": {
+      "n": 1900,
+      "logLoss": 0.97623,
+      "ece": 0.01735,
+      "totalLogLoss": 1.892,
+      "over15Brier": 0.19163,
+      "over25Brier": 0.2477,
+      "over35Brier": 0.21062,
+      "over15Ece": 0.01012,
+      "over25Ece": 0.01626,
+      "over35Ece": 0.02134,
+      "level": 0.99487,
+      "meanPredictedTotal": 2.68876,
+      "meanActualTotal": 2.70263,
+      "sdPredictedTotal": 0.18739
+     },
+     "2018-19..2021-22": {
+      "n": 1520,
+      "logLoss": 0.97146,
+      "ece": 0.01744,
+      "totalLogLoss": 1.86463,
+      "over15Brier": 0.17276,
+      "over25Brier": 0.24796,
+      "over35Brier": 0.20758,
+      "over15Ece": 0.01727,
+      "over25Ece": 0.00516,
+      "over35Ece": 0.00542,
+      "level": 1.00301,
+      "meanPredictedTotal": 2.77212,
+      "meanActualTotal": 2.76382,
+      "sdPredictedTotal": 0.18789
+     }
+    },
+    "seasons": {
+     "2013-14": {
+      "n": 380,
+      "logLoss": 0.94088,
+      "ece": 0.03202,
+      "totalLogLoss": 1.91751,
+      "over15Brier": 0.19444,
+      "over25Brier": 0.24536,
+      "over35Brier": 0.22247,
+      "over15Ece": 0.0264,
+      "over25Ece": 0.02535,
+      "over35Ece": 0.05022,
+      "level": 0.96724,
+      "meanPredictedTotal": 2.67771,
+      "meanActualTotal": 2.76842,
+      "sdPredictedTotal": 0.17328
+     },
+     "2014-15": {
+      "n": 380,
+      "logLoss": 0.99678,
+      "ece": 0.03399,
+      "totalLogLoss": 1.86207,
+      "over15Brier": 0.20281,
+      "over25Brier": 0.24854,
+      "over35Brier": 0.19488,
+      "over15Ece": 0.02794,
+      "over25Ece": 0.02021,
+      "over35Ece": 0.03209,
+      "level": 1.04074,
+      "meanPredictedTotal": 2.67032,
+      "meanActualTotal": 2.56579,
+      "sdPredictedTotal": 0.19487
+     },
+     "2015-16": {
+      "n": 380,
+      "logLoss": 1.03896,
+      "ece": 0.05056,
+      "totalLogLoss": 1.90899,
+      "over15Brier": 0.1961,
+      "over25Brier": 0.25251,
+      "over35Brier": 0.2144,
+      "over15Ece": 0.00869,
+      "over25Ece": 0.05226,
+      "over35Ece": 0.0536,
+      "level": 0.95659,
+      "meanPredictedTotal": 2.5828,
+      "meanActualTotal": 2.7,
+      "sdPredictedTotal": 0.13981
+     },
+     "2016-17": {
+      "n": 380,
+      "logLoss": 0.93339,
+      "ece": 0.02646,
+      "totalLogLoss": 1.8922,
+      "over15Brier": 0.17381,
+      "over25Brier": 0.24656,
+      "over35Brier": 0.21759,
+      "over15Ece": 0.00633,
+      "over25Ece": 0.0274,
+      "over35Ece": 0.02017,
+      "level": 1.00035,
+      "meanPredictedTotal": 2.80098,
+      "meanActualTotal": 2.8,
+      "sdPredictedTotal": 0.17799
+     },
+     "2017-18": {
+      "n": 380,
+      "logLoss": 0.97115,
+      "ece": 0.0331,
+      "totalLogLoss": 1.87924,
+      "over15Brier": 0.19101,
+      "over25Brier": 0.24552,
+      "over35Brier": 0.20375,
+      "over15Ece": 0.01574,
+      "over25Ece": 0.04789,
+      "over35Ece": 0.00729,
+      "level": 1.01232,
+      "meanPredictedTotal": 2.71196,
+      "meanActualTotal": 2.67895,
+      "sdPredictedTotal": 0.17754
+     },
+     "2018-19": {
+      "n": 380,
+      "logLoss": 0.90212,
+      "ece": 0.01795,
+      "totalLogLoss": 1.8635,
+      "over15Brier": 0.16158,
+      "over25Brier": 0.25002,
+      "over35Brier": 0.21658,
+      "over15Ece": 0.03368,
+      "over25Ece": 0.00846,
+      "over35Ece": 0.03077,
+      "level": 0.99645,
+      "meanPredictedTotal": 2.81102,
+      "meanActualTotal": 2.82105,
+      "sdPredictedTotal": 0.16024
+     },
+     "2019-20": {
+      "n": 380,
+      "logLoss": 0.98009,
+      "ece": 0.03195,
+      "totalLogLoss": 1.80077,
+      "over15Brier": 0.15813,
+      "over25Brier": 0.24421,
+      "over35Brier": 0.19909,
+      "over15Ece": 0.02404,
+      "over25Ece": 0.03844,
+      "over35Ece": 0.03795,
+      "level": 1.04766,
+      "meanPredictedTotal": 2.85073,
+      "meanActualTotal": 2.72105,
+      "sdPredictedTotal": 0.16524
+     },
+     "2020-21": {
+      "n": 380,
+      "logLoss": 1.04538,
+      "ece": 0.02839,
+      "totalLogLoss": 1.92014,
+      "over15Brier": 0.19506,
+      "over25Brier": 0.25059,
+      "over35Brier": 0.19624,
+      "over15Ece": 0.01247,
+      "over25Ece": 0.03024,
+      "over35Ece": 0.03058,
+      "level": 0.98771,
+      "meanPredictedTotal": 2.66161,
+      "meanActualTotal": 2.69474,
+      "sdPredictedTotal": 0.18433
+     },
+     "2021-22": {
+      "n": 380,
+      "logLoss": 0.95824,
+      "ece": 0.01752,
+      "totalLogLoss": 1.8741,
+      "over15Brier": 0.17628,
+      "over25Brier": 0.24702,
+      "over35Brier": 0.21843,
+      "over15Ece": 0.02515,
+      "over25Ece": 0.03265,
+      "over35Ece": 0.03408,
+      "level": 0.98109,
+      "meanPredictedTotal": 2.76512,
+      "meanActualTotal": 2.81842,
+      "sdPredictedTotal": 0.18521
+     }
+    }
+   }
+  },
+  "eloPoisson": {
+   "blind": {
+    "overall": {
+     "n": 9493,
+     "logLoss": 0.99789,
+     "ece": 0.03256,
+     "totalLogLoss": 1.90152,
+     "over15Brier": 0.17553,
+     "over25Brier": 0.24719,
+     "over35Brier": 0.21268,
+     "over15Ece": 0.00397,
+     "over25Ece": 0.0075,
+     "over35Ece": 0.00613,
+     "level": 0.99835,
+     "meanPredictedTotal": 2.80258,
+     "meanActualTotal": 2.80723,
+     "sdPredictedTotal": 0.20782
+    },
+    "byLeague": {
+     "bundesliga": {
+      "n": 2754,
+      "logLoss": 1.00099,
+      "ece": 0.02964,
+      "totalLogLoss": 1.93092,
+      "over15Brier": 0.15341,
+      "over25Brier": 0.24381,
+      "over35Brier": 0.22909,
+      "over15Ece": 0.01385,
+      "over25Ece": 0.01138,
+      "over35Ece": 0.01275,
+      "level": 0.99617,
+      "meanPredictedTotal": 2.98235,
+      "meanActualTotal": 2.99383,
+      "sdPredictedTotal": 0.15697
+     },
+     "laliga": {
+      "n": 2660,
+      "logLoss": 1.01061,
+      "ece": 0.05308,
+      "totalLogLoss": 1.885,
+      "over15Brier": 0.19514,
+      "over25Brier": 0.24824,
+      "over35Brier": 0.19615,
+      "over15Ece": 0.02004,
+      "over25Ece": 0.01314,
+      "over35Ece": 0.00719,
+      "level": 1.00782,
+      "meanPredictedTotal": 2.65747,
+      "meanActualTotal": 2.63684,
+      "sdPredictedTotal": 0.15786
+     },
+     "ligue-1": {
+      "n": 1799,
+      "logLoss": 1.02282,
+      "ece": 0.03637,
+      "totalLogLoss": 1.8648,
+      "over15Brier": 0.18831,
+      "over25Brier": 0.25031,
+      "over35Brier": 0.20521,
+      "over15Ece": 0.00352,
+      "over25Ece": 0.00948,
+      "over35Ece": 0.01103,
+      "level": 0.99304,
+      "meanPredictedTotal": 2.66337,
+      "meanActualTotal": 2.68205,
+      "sdPredictedTotal": 0.09226
+     },
+     "serie-a": {
+      "n": 2280,
+      "logLoss": 0.95963,
+      "ece": 0.01386,
+      "totalLogLoss": 1.91424,
+      "over15Brier": 0.16929,
+      "over25Brier": 0.2476,
+      "over35Brier": 0.21805,
+      "over15Ece": 0.00532,
+      "over25Ece": 0.02635,
+      "over35Ece": 0.02088,
+      "level": 0.99486,
+      "meanPredictedTotal": 2.86458,
+      "meanActualTotal": 2.87939,
+      "sdPredictedTotal": 0.1776
+     }
+    }
+   },
+   "secondLook": {
+    "overall": {
+     "n": 3420,
+     "logLoss": 0.97351,
+     "ece": 0.01501,
+     "totalLogLoss": 1.88654,
+     "over15Brier": 0.18483,
+     "over25Brier": 0.25021,
+     "over35Brier": 0.21078,
+     "over15Ece": 0.00069,
+     "over25Ece": 0.01101,
+     "over35Ece": 0.02206,
+     "level": 0.99854,
+     "meanPredictedTotal": 2.72584,
+     "meanActualTotal": 2.72982,
+     "sdPredictedTotal": 0.08758
+    },
+    "eras": {
+     "2013-14..2017-18": {
+      "n": 1900,
+      "logLoss": 0.97527,
+      "ece": 0.01861,
+      "totalLogLoss": 1.89923,
+      "over15Brier": 0.19355,
+      "over25Brier": 0.25043,
+      "over35Brier": 0.21174,
+      "over15Ece": 0.01448,
+      "over25Ece": 0.01247,
+      "over35Ece": 0.02063,
+      "level": 1.00313,
+      "meanPredictedTotal": 2.7111,
+      "meanActualTotal": 2.70263,
+      "sdPredictedTotal": 0.08812
+     },
+     "2018-19..2021-22": {
+      "n": 1520,
+      "logLoss": 0.9713,
+      "ece": 0.01444,
+      "totalLogLoss": 1.87067,
+      "over15Brier": 0.17392,
+      "over25Brier": 0.24993,
+      "over35Brier": 0.20957,
+      "over15Ece": 0.01679,
+      "over25Ece": 0.00919,
+      "over35Ece": 0.02385,
+      "level": 0.99292,
+      "meanPredictedTotal": 2.74426,
+      "meanActualTotal": 2.76382,
+      "sdPredictedTotal": 0.0833
+     }
+    },
+    "seasons": {
+     "2013-14": {
+      "n": 380,
+      "logLoss": 0.9399,
+      "ece": 0.03091,
+      "totalLogLoss": 1.92932,
+      "over15Brier": 0.19733,
+      "over25Brier": 0.2502,
+      "over35Brier": 0.2239,
+      "over15Ece": 0.02305,
+      "over25Ece": 0.0059,
+      "over35Ece": 0.04152,
+      "level": 0.98205,
+      "meanPredictedTotal": 2.71874,
+      "meanActualTotal": 2.76842,
+      "sdPredictedTotal": 0.03874
+     },
+     "2014-15": {
+      "n": 380,
+      "logLoss": 0.99554,
+      "ece": 0.03948,
+      "totalLogLoss": 1.86511,
+      "over15Brier": 0.20483,
+      "over25Brier": 0.24989,
+      "over35Brier": 0.19389,
+      "over15Ece": 0.04154,
+      "over25Ece": 0.0307,
+      "over35Ece": 0.03347,
+      "level": 1.06641,
+      "meanPredictedTotal": 2.73619,
+      "meanActualTotal": 2.56579,
+      "sdPredictedTotal": 0.0942
+     },
+     "2015-16": {
+      "n": 380,
+      "logLoss": 1.03655,
+      "ece": 0.04727,
+      "totalLogLoss": 1.90659,
+      "over15Brier": 0.19622,
+      "over25Brier": 0.25195,
+      "over35Brier": 0.21405,
+      "over15Ece": 0.00175,
+      "over25Ece": 0.05092,
+      "over35Ece": 0.04426,
+      "level": 0.95781,
+      "meanPredictedTotal": 2.58609,
+      "meanActualTotal": 2.7,
+      "sdPredictedTotal": 0.03948
+     },
+     "2016-17": {
+      "n": 380,
+      "logLoss": 0.93505,
+      "ece": 0.02292,
+      "totalLogLoss": 1.90048,
+      "over15Brier": 0.17566,
+      "over25Brier": 0.24921,
+      "over35Brier": 0.21956,
+      "over15Ece": 0.00797,
+      "over25Ece": 0.01587,
+      "over35Ece": 0.01949,
+      "level": 0.99375,
+      "meanPredictedTotal": 2.78249,
+      "meanActualTotal": 2.8,
+      "sdPredictedTotal": 0.06108
+     },
+     "2017-18": {
+      "n": 380,
+      "logLoss": 0.96932,
+      "ece": 0.03004,
+      "totalLogLoss": 1.89467,
+      "over15Brier": 0.1937,
+      "over25Brier": 0.25092,
+      "over35Brier": 0.20729,
+      "over15Ece": 0.01753,
+      "over25Ece": 0.0036,
+      "over35Ece": 0.01805,
+      "level": 1.0198,
+      "meanPredictedTotal": 2.73198,
+      "meanActualTotal": 2.67895,
+      "sdPredictedTotal": 0.03625
+     },
+     "2018-19": {
+      "n": 380,
+      "logLoss": 0.90257,
+      "ece": 0.01643,
+      "totalLogLoss": 1.86502,
+      "over15Brier": 0.16307,
+      "over25Brier": 0.24963,
+      "over35Brier": 0.21656,
+      "over15Ece": 0.03617,
+      "over25Ece": 0.01696,
+      "over35Ece": 0.0329,
+      "level": 0.97685,
+      "meanPredictedTotal": 2.75576,
+      "meanActualTotal": 2.82105,
+      "sdPredictedTotal": 0.03787
+     },
+     "2019-20": {
+      "n": 380,
+      "logLoss": 0.98341,
+      "ece": 0.02877,
+      "totalLogLoss": 1.81179,
+      "over15Brier": 0.1603,
+      "over25Brier": 0.24962,
+      "over35Brier": 0.2032,
+      "over15Ece": 0.02579,
+      "over25Ece": 0.01699,
+      "over35Ece": 0.03357,
+      "level": 1.0407,
+      "meanPredictedTotal": 2.8318,
+      "meanActualTotal": 2.72105,
+      "sdPredictedTotal": 0.0356
+     },
+     "2020-21": {
+      "n": 380,
+      "logLoss": 1.04363,
+      "ece": 0.03168,
+      "totalLogLoss": 1.92359,
+      "over15Brier": 0.19576,
+      "over25Brier": 0.25087,
+      "over35Brier": 0.19678,
+      "over15Ece": 0.0119,
+      "over25Ece": 0.02612,
+      "over35Ece": 0.01161,
+      "level": 0.99194,
+      "meanPredictedTotal": 2.67303,
+      "meanActualTotal": 2.69474,
+      "sdPredictedTotal": 0.07156
+     },
+     "2021-22": {
+      "n": 380,
+      "logLoss": 0.95559,
+      "ece": 0.02113,
+      "totalLogLoss": 1.88229,
+      "over15Brier": 0.17656,
+      "over25Brier": 0.24961,
+      "over35Brier": 0.22175,
+      "over15Ece": 0.0171,
+      "over25Ece": 0.02928,
+      "over35Ece": 0.03671,
+      "level": 0.96382,
+      "meanPredictedTotal": 2.71644,
+      "meanActualTotal": 2.81842,
+      "sdPredictedTotal": 0.07933
+     }
+    }
+   }
+  },
+  "clubMeans": {
+   "blind": {
+    "overall": {
+     "n": 9493,
+     "logLoss": 0.9979,
+     "ece": 0.03151,
+     "totalLogLoss": 1.89642,
+     "over15Brier": 0.17523,
+     "over25Brier": 0.24526,
+     "over35Brier": 0.21121,
+     "over15Ece": 0.01513,
+     "over25Ece": 0.01852,
+     "over35Ece": 0.01953,
+     "level": 0.99966,
+     "meanPredictedTotal": 2.80627,
+     "meanActualTotal": 2.80723,
+     "sdPredictedTotal": 0.3863
+    },
+    "byLeague": {
+     "bundesliga": {
+      "n": 2754,
+      "logLoss": 1.00181,
+      "ece": 0.03109,
+      "totalLogLoss": 1.92884,
+      "over15Brier": 0.15368,
+      "over25Brier": 0.2434,
+      "over35Brier": 0.22826,
+      "over15Ece": 0.02707,
+      "over25Ece": 0.03465,
+      "over35Ece": 0.02004,
+      "level": 0.99877,
+      "meanPredictedTotal": 2.99014,
+      "meanActualTotal": 2.99383,
+      "sdPredictedTotal": 0.36033
+     },
+     "laliga": {
+      "n": 2660,
+      "logLoss": 1.00882,
+      "ece": 0.05018,
+      "totalLogLoss": 1.87102,
+      "over15Brier": 0.19358,
+      "over25Brier": 0.24501,
+      "over35Brier": 0.19335,
+      "over15Ece": 0.02185,
+      "over25Ece": 0.02164,
+      "over35Ece": 0.02219,
+      "level": 1.00613,
+      "meanPredictedTotal": 2.653,
+      "meanActualTotal": 2.63684,
+      "sdPredictedTotal": 0.37205
+     },
+     "ligue-1": {
+      "n": 1799,
+      "logLoss": 1.02243,
+      "ece": 0.03291,
+      "totalLogLoss": 1.85697,
+      "over15Brier": 0.18783,
+      "over25Brier": 0.24676,
+      "over35Brier": 0.20209,
+      "over15Ece": 0.0162,
+      "over25Ece": 0.01713,
+      "over35Ece": 0.01683,
+      "level": 0.99651,
+      "meanPredictedTotal": 2.6727,
+      "meanActualTotal": 2.68205,
+      "sdPredictedTotal": 0.33985
+     },
+     "serie-a": {
+      "n": 2280,
+      "logLoss": 0.96107,
+      "ece": 0.01242,
+      "totalLogLoss": 1.91804,
+      "over15Brier": 0.16992,
+      "over25Brier": 0.24662,
+      "over35Brier": 0.21866,
+      "over15Ece": 0.01115,
+      "over25Ece": 0.02902,
+      "over35Ece": 0.0373,
+      "level": 0.99619,
+      "meanPredictedTotal": 2.86841,
+      "meanActualTotal": 2.87939,
+      "sdPredictedTotal": 0.35454
+     }
+    }
+   },
+   "secondLook": {
+    "overall": {
+     "n": 3420,
+     "logLoss": 0.97577,
+     "ece": 0.01322,
+     "totalLogLoss": 1.88607,
+     "over15Brier": 0.18508,
+     "over25Brier": 0.2501,
+     "over35Brier": 0.2106,
+     "over15Ece": 0.01962,
+     "over25Ece": 0.03454,
+     "over35Ece": 0.03279,
+     "level": 0.99668,
+     "meanPredictedTotal": 2.72077,
+     "meanActualTotal": 2.72982,
+     "sdPredictedTotal": 0.32332
+    },
+    "eras": {
+     "2013-14..2017-18": {
+      "n": 1900,
+      "logLoss": 0.97759,
+      "ece": 0.01317,
+      "totalLogLoss": 1.89903,
+      "over15Brier": 0.19339,
+      "over25Brier": 0.25039,
+      "over35Brier": 0.21259,
+      "over15Ece": 0.02306,
+      "over25Ece": 0.03115,
+      "over35Ece": 0.04495,
+      "level": 0.99392,
+      "meanPredictedTotal": 2.68619,
+      "meanActualTotal": 2.70263,
+      "sdPredictedTotal": 0.32416
+     },
+     "2018-19..2021-22": {
+      "n": 1520,
+      "logLoss": 0.97349,
+      "ece": 0.01615,
+      "totalLogLoss": 1.86987,
+      "over15Brier": 0.17469,
+      "over25Brier": 0.24974,
+      "over35Brier": 0.20812,
+      "over15Ece": 0.02222,
+      "over25Ece": 0.03917,
+      "over35Ece": 0.0216,
+      "level": 1.00006,
+      "meanPredictedTotal": 2.76399,
+      "meanActualTotal": 2.76382,
+      "sdPredictedTotal": 0.31701
+     }
+    },
+    "seasons": {
+     "2013-14": {
+      "n": 380,
+      "logLoss": 0.94563,
+      "ece": 0.03316,
+      "totalLogLoss": 1.9167,
+      "over15Brier": 0.19584,
+      "over25Brier": 0.24513,
+      "over35Brier": 0.22132,
+      "over15Ece": 0.02216,
+      "over25Ece": 0.05045,
+      "over35Ece": 0.04844,
+      "level": 0.97346,
+      "meanPredictedTotal": 2.69494,
+      "meanActualTotal": 2.76842,
+      "sdPredictedTotal": 0.35538
+     },
+     "2014-15": {
+      "n": 380,
+      "logLoss": 0.99751,
+      "ece": 0.03281,
+      "totalLogLoss": 1.87309,
+      "over15Brier": 0.20338,
+      "over25Brier": 0.25161,
+      "over35Brier": 0.19944,
+      "over15Ece": 0.03167,
+      "over25Ece": 0.0416,
+      "over35Ece": 0.06872,
+      "level": 1.02689,
+      "meanPredictedTotal": 2.63478,
+      "meanActualTotal": 2.56579,
+      "sdPredictedTotal": 0.30784
+     },
+     "2015-16": {
+      "n": 380,
+      "logLoss": 1.04247,
+      "ece": 0.05141,
+      "totalLogLoss": 1.92502,
+      "over15Brier": 0.20049,
+      "over25Brier": 0.25748,
+      "over35Brier": 0.21682,
+      "over15Ece": 0.06687,
+      "over25Ece": 0.06084,
+      "over35Ece": 0.06208,
+      "level": 0.96731,
+      "meanPredictedTotal": 2.61175,
+      "meanActualTotal": 2.7,
+      "sdPredictedTotal": 0.27343
+     },
+     "2016-17": {
+      "n": 380,
+      "logLoss": 0.93307,
+      "ece": 0.02933,
+      "totalLogLoss": 1.90146,
+      "over15Brier": 0.17668,
+      "over25Brier": 0.25222,
+      "over35Brier": 0.22024,
+      "over15Ece": 0.03342,
+      "over25Ece": 0.03973,
+      "over35Ece": 0.046,
+      "level": 0.99896,
+      "meanPredictedTotal": 2.79707,
+      "meanActualTotal": 2.8,
+      "sdPredictedTotal": 0.31606
+     },
+     "2017-18": {
+      "n": 380,
+      "logLoss": 0.96928,
+      "ece": 0.02794,
+      "totalLogLoss": 1.87885,
+      "over15Brier": 0.19058,
+      "over25Brier": 0.24551,
+      "over35Brier": 0.20512,
+      "over15Ece": 0.02096,
+      "over25Ece": 0.0199,
+      "over35Ece": 0.02291,
+      "level": 1.00503,
+      "meanPredictedTotal": 2.69242,
+      "meanActualTotal": 2.67895,
+      "sdPredictedTotal": 0.33028
+     },
+     "2018-19": {
+      "n": 380,
+      "logLoss": 0.90556,
+      "ece": 0.01474,
+      "totalLogLoss": 1.87143,
+      "over15Brier": 0.16327,
+      "over25Brier": 0.25373,
+      "over35Brier": 0.21698,
+      "over15Ece": 0.02865,
+      "over25Ece": 0.06493,
+      "over35Ece": 0.03691,
+      "level": 1.00099,
+      "meanPredictedTotal": 2.82386,
+      "meanActualTotal": 2.82105,
+      "sdPredictedTotal": 0.27964
+     },
+     "2019-20": {
+      "n": 380,
+      "logLoss": 0.98065,
+      "ece": 0.03195,
+      "totalLogLoss": 1.80654,
+      "over15Brier": 0.15933,
+      "over25Brier": 0.24572,
+      "over35Brier": 0.201,
+      "over15Ece": 0.0326,
+      "over25Ece": 0.03057,
+      "over35Ece": 0.03116,
+      "level": 1.03574,
+      "meanPredictedTotal": 2.81829,
+      "meanActualTotal": 2.72105,
+      "sdPredictedTotal": 0.29273
+     },
+     "2020-21": {
+      "n": 380,
+      "logLoss": 1.04659,
+      "ece": 0.02754,
+      "totalLogLoss": 1.92397,
+      "over15Brier": 0.19783,
+      "over25Brier": 0.25241,
+      "over35Brier": 0.19779,
+      "over15Ece": 0.02773,
+      "over25Ece": 0.05655,
+      "over35Ece": 0.05586,
+      "level": 0.98001,
+      "meanPredictedTotal": 2.64087,
+      "meanActualTotal": 2.69474,
+      "sdPredictedTotal": 0.34068
+     },
+     "2021-22": {
+      "n": 380,
+      "logLoss": 0.96117,
+      "ece": 0.02248,
+      "totalLogLoss": 1.87754,
+      "over15Brier": 0.17833,
+      "over25Brier": 0.24712,
+      "over35Brier": 0.21671,
+      "over15Ece": 0.03359,
+      "over25Ece": 0.04185,
+      "over35Ece": 0.03992,
+      "level": 0.98386,
+      "meanPredictedTotal": 2.77294,
+      "meanActualTotal": 2.81842,
+      "sdPredictedTotal": 0.31663
+     }
+    }
+   }
+  }
+ },
+ "verdicts": {
+  "goalRatios": {
+   "blind": {
+    "tier": "BLIND",
+    "verdict": "REJECTED",
+    "bars": {
+     "beatsConstantAndClubMeans": {
+      "pass": true,
+      "required": "total-goals log loss below the constant-total control and the club-means baseline, overall and in every league",
+      "observed": {
+       "eloPoisson": {
+        "overall": [
+         1.88978,
+         1.90152
+        ],
+        "league": {
+         "bundesliga": [
+          1.92287,
+          1.93092
+         ],
+         "laliga": [
+          1.86699,
+          1.885
+         ],
+         "ligue-1": [
+          1.85058,
+          1.8648
+         ],
+         "serie-a": [
+          1.90734,
+          1.91424
+         ]
+        }
+       },
+       "clubMeans": {
+        "overall": [
+         1.88978,
+         1.89642
+        ],
+        "league": {
+         "bundesliga": [
+          1.92287,
+          1.92884
+         ],
+         "laliga": [
+          1.86699,
+          1.87102
+         ],
+         "ligue-1": [
+          1.85058,
+          1.85697
+         ],
+         "serie-a": [
+          1.90734,
+          1.91804
+         ]
+        }
+       }
+      }
+     },
+     "improvementIsNotNoise": {
+      "pass": true,
+      "required": "league-season-block bootstrap 95% upper bound of the per-match total log-loss difference versus the better baseline < 0",
+      "observed": {
+       "versus": "clubMeans",
+       "blocks": 27,
+       "point": -0.00664,
+       "lo95": -0.00894,
+       "hi95": -0.00424
+      }
+     },
+     "overLinesCalibrated": {
+      "pass": true,
+      "required": "over 1.5 / 2.5 / 3.5 reliability ECE each <= 0.03",
+      "observed": {
+       "over15Ece": 0.0083,
+       "over25Ece": 0.00627,
+       "over35Ece": 0.01054
+      }
+     },
+     "level": {
+      "pass": true,
+      "required": "mean predicted total / mean actual total within [0.97,1.03]",
+      "observed": 1.00192
+     },
+     "oneXTwoNotWorse": {
+      "pass": false,
+      "required": "1X2 log loss at most 0.001 above the P304 control overall and 1X2 ECE <= 0.03",
+      "observed": {
+       "logLoss": [
+        0.99672,
+        0.99789
+       ],
+       "ece": 0.03195
+      }
+     },
+     "minimumN": {
+      "pass": true,
+      "required": "n >= 1000",
+      "observed": 9493
+     }
+    },
+    "failed": [
+     "oneXTwoNotWorse"
+    ]
+   },
+   "secondLook": {
+    "tier": "SECOND_LOOK",
+    "verdict": "SECOND_LOOK_ELIGIBLE",
+    "bars": {
+     "beatsConstantAndClubMeans": {
+      "pass": true,
+      "required": "total-goals log loss below the constant-total control and the club-means baseline, overall and in every era",
+      "observed": {
+       "eloPoisson": {
+        "overall": [
+         1.87953,
+         1.88654
+        ],
+        "era": {
+         "2013-14..2017-18": [
+          1.89215,
+          1.89923
+         ],
+         "2018-19..2021-22": [
+          1.86376,
+          1.87067
+         ]
+        }
+       },
+       "clubMeans": {
+        "overall": [
+         1.87953,
+         1.88607
+        ],
+        "era": {
+         "2013-14..2017-18": [
+          1.89215,
+          1.89903
+         ],
+         "2018-19..2021-22": [
+          1.86376,
+          1.86987
+         ]
+        }
+       }
+      }
+     },
+     "improvementIsNotNoise": {
+      "pass": true,
+      "required": "league-season-block bootstrap 95% upper bound of the per-match total log-loss difference versus the better baseline < 0",
+      "observed": {
+       "versus": "clubMeans",
+       "blocks": 9,
+       "point": -0.00654,
+       "lo95": -0.00975,
+       "hi95": -0.00313
+      }
+     },
+     "overLinesCalibrated": {
+      "pass": true,
+      "required": "over 1.5 / 2.5 / 3.5 reliability ECE each <= 0.03",
+      "observed": {
+       "over15Ece": 0.00898,
+       "over25Ece": 0.00851,
+       "over35Ece": 0.01351
+      }
+     },
+     "level": {
+      "pass": true,
+      "required": "mean predicted total / mean actual total within [0.97,1.03]",
+      "observed": 0.99945
+     },
+     "oneXTwoNotWorse": {
+      "pass": true,
+      "required": "1X2 log loss at most 0.001 above the P304 control overall and 1X2 ECE <= 0.03",
+      "observed": {
+       "logLoss": [
+        0.97404,
+        0.97351
+       ],
+       "ece": 0.01513
+      }
+     },
+     "minimumN": {
+      "pass": true,
+      "required": "n >= 1000",
+      "observed": 3420
+     }
+    },
+    "failed": []
+   }
+  },
+  "tempo": {
+   "blind": {
+    "tier": "BLIND",
+    "verdict": "REJECTED",
+    "bars": {
+     "beatsConstantAndClubMeans": {
+      "pass": true,
+      "required": "total-goals log loss below the constant-total control and the club-means baseline, overall and in every league",
+      "observed": {
+       "eloPoisson": {
+        "overall": [
+         1.89059,
+         1.90152
+        ],
+        "league": {
+         "bundesliga": [
+          1.92306,
+          1.93092
+         ],
+         "laliga": [
+          1.8683,
+          1.885
+         ],
+         "ligue-1": [
+          1.85095,
+          1.8648
+         ],
+         "serie-a": [
+          1.90865,
+          1.91424
+         ]
+        }
+       },
+       "clubMeans": {
+        "overall": [
+         1.89059,
+         1.89642
+        ],
+        "league": {
+         "bundesliga": [
+          1.92306,
+          1.92884
+         ],
+         "laliga": [
+          1.8683,
+          1.87102
+         ],
+         "ligue-1": [
+          1.85095,
+          1.85697
+         ],
+         "serie-a": [
+          1.90865,
+          1.91804
+         ]
+        }
+       }
+      }
+     },
+     "improvementIsNotNoise": {
+      "pass": true,
+      "required": "league-season-block bootstrap 95% upper bound of the per-match total log-loss difference versus the better baseline < 0",
+      "observed": {
+       "versus": "clubMeans",
+       "blocks": 27,
+       "point": -0.00584,
+       "lo95": -0.00817,
+       "hi95": -0.0034
+      }
+     },
+     "overLinesCalibrated": {
+      "pass": true,
+      "required": "over 1.5 / 2.5 / 3.5 reliability ECE each <= 0.03",
+      "observed": {
+       "over15Ece": 0.00649,
+       "over25Ece": 0.00598,
+       "over35Ece": 0.01083
+      }
+     },
+     "level": {
+      "pass": true,
+      "required": "mean predicted total / mean actual total within [0.97,1.03]",
+      "observed": 1.00035
+     },
+     "oneXTwoNotWorse": {
+      "pass": false,
+      "required": "1X2 log loss at most 0.001 above the P304 control overall and 1X2 ECE <= 0.03",
+      "observed": {
+       "logLoss": [
+        0.99709,
+        0.99789
+       ],
+       "ece": 0.0322
+      }
+     },
+     "minimumN": {
+      "pass": true,
+      "required": "n >= 1000",
+      "observed": 9493
+     }
+    },
+    "failed": [
+     "oneXTwoNotWorse"
+    ]
+   },
+   "secondLook": {
+    "tier": "SECOND_LOOK",
+    "verdict": "SECOND_LOOK_ELIGIBLE",
+    "bars": {
+     "beatsConstantAndClubMeans": {
+      "pass": true,
+      "required": "total-goals log loss below the constant-total control and the club-means baseline, overall and in every era",
+      "observed": {
+       "eloPoisson": {
+        "overall": [
+         1.87983,
+         1.88654
+        ],
+        "era": {
+         "2013-14..2017-18": [
+          1.892,
+          1.89923
+         ],
+         "2018-19..2021-22": [
+          1.86463,
+          1.87067
+         ]
+        }
+       },
+       "clubMeans": {
+        "overall": [
+         1.87983,
+         1.88607
+        ],
+        "era": {
+         "2013-14..2017-18": [
+          1.892,
+          1.89903
+         ],
+         "2018-19..2021-22": [
+          1.86463,
+          1.86987
+         ]
+        }
+       }
+      }
+     },
+     "improvementIsNotNoise": {
+      "pass": true,
+      "required": "league-season-block bootstrap 95% upper bound of the per-match total log-loss difference versus the better baseline < 0",
+      "observed": {
+       "versus": "clubMeans",
+       "blocks": 9,
+       "point": -0.00623,
+       "lo95": -0.00961,
+       "hi95": -0.00289
+      }
+     },
+     "overLinesCalibrated": {
+      "pass": true,
+      "required": "over 1.5 / 2.5 / 3.5 reliability ECE each <= 0.03",
+      "observed": {
+       "over15Ece": 0.00804,
+       "over25Ece": 0.01049,
+       "over35Ece": 0.01382
+      }
+     },
+     "level": {
+      "pass": true,
+      "required": "mean predicted total / mean actual total within [0.97,1.03]",
+      "observed": 0.99853
+     },
+     "oneXTwoNotWorse": {
+      "pass": true,
+      "required": "1X2 log loss at most 0.001 above the P304 control overall and 1X2 ECE <= 0.03",
+      "observed": {
+       "logLoss": [
+        0.97411,
+        0.97351
+       ],
+       "ece": 0.01534
+      }
+     },
+     "minimumN": {
+      "pass": true,
+      "required": "n >= 1000",
+      "observed": 3420
+     }
+    },
+    "failed": []
+   }
+  }
+ },
+ "proposed": null,
+ "consequence": "Nothing publishes from this receipt. Changing the live EPL totals is its own reviewed, founder-approved app/ step with a blind forward test; the P304 model stays the control."
+}
