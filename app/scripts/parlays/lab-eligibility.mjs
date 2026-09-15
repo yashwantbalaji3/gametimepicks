@@ -239,7 +239,7 @@ export function labEligibility(root, date, now) {
      * blocker sends whoever reads it looking in the wrong place.
      */
     if (!settle.proven) reasons.push(settle.blockedReason ?? settle.source ?? "no official settlement path has produced a graded result yet");
-    if (prices.games < MIN_GAMES) reasons.push(`only ${prices.games} priced game${prices.games === 1 ? "" : "s"} — a four-tier ladder needs at least ${MIN_GAMES} to build cards that never reuse one`);
+    if (prices.games < MIN_GAMES) reasons.push(`only ${prices.games} priced game${prices.games === 1 ? "" : "s"} — the ladder needs ${MIN_GAMES}`);
 
     out.push({
       id, label: src.label,

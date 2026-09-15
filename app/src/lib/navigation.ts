@@ -102,40 +102,40 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * six questions; Results closes the loop as proof, inside this block rather than the record
    * group, so every surface renders the six together.
    */
-  { href: "/", label: "Home", group: "now", glyph: "⌂", desc: "Start here — what can I do right now?",
+  { href: "/", label: "Home", group: "now", glyph: "⌂", desc: "Start here",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "home" },
   /* P243 · E: Sports is the second of the five primaries — the cross-sport directory, with each
      hub one click deeper in the Sports group below. */
-  { href: "/sports", label: "Sports", group: "now", glyph: "🗓", desc: "Every sport's schedule and hub",
+  { href: "/sports", label: "Sports", group: "now", glyph: "🗓", desc: "Schedules and hubs",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "sports" },
   /* P243 · E: the charter's five primaries are Home · Sports · Simulations · Picks & Parlays ·
      Results. Today stays a first-class route — Home leads with the current/upcoming choice and
      links it — but it leaves the top bar and the thumb bar. */
-  { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate at a glance",
+  { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate",
     surfaces: ["rail", "footer"], bucket: "today" },
   /* shortLabel: the bar's 9-char budget rejects "Simulations" (11) and WCAG 2.5.3 requires the
      painted word to appear within the accessible name — "Sim" is the contiguous prefix that fits. */
-  { href: "/simulate", label: "Simulations", group: "now", glyph: "▶", desc: "Pick a game, open its report",
+  { href: "/simulate", label: "Simulations", group: "now", glyph: "▶", desc: "Open a game report",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "games", shortLabel: "Sim" },
   /* "Picks" is the reader's word for this job; "Market Center" was ours. The route keeps its
      canonical URL — the label changes everywhere at once because every surface derives from here. */
-  { href: "/markets", label: "Picks", group: "now", glyph: "◈", desc: "Model picks beside the sportsbook price",
+  { href: "/markets", label: "Picks", group: "now", glyph: "◈", desc: "Model picks vs the price",
     surfaces: ["rail", "footer"], bucket: "markets" },
   /* One shared picks-and-parlays destination (charter E): /build keeps its two modes (suggested →
      custom) and links the ranked picks board; /markets stays a first-class deep route. */
-  { href: "/build", label: "Picks & Parlays", group: "now", glyph: "✎", desc: "Suggested cards, ranked picks, or build your own",
+  { href: "/build", label: "Picks & Parlays", group: "now", glyph: "✎", desc: "Cards, picks, or build your own",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab", shortLabel: "Parlays" },
   /* Sixth primary. Off the `mobile` bar by the charter's own bar spec (Home/Today/Simulate/Picks/
      Parlay + Menu); the mobile Menu sheet renders every rail destination the bar lacks. */
-  { href: "/results", label: "Results", group: "now", glyph: "≡", desc: "Settled track record",
+  { href: "/results", label: "Results", group: "now", glyph: "≡", desc: "Settled record",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "results" },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
   { href: "/mlb", label: "MLB", note: "live", group: "sports", glyph: "⚾", desc: "Baseball hub",
     surfaces: ["rail", "footer"] },
-  { href: "/nfl", label: "NFL", note: "experimental sims", group: "sports", glyph: "🏈", desc: "Football hub · experimental simulations",
+  { href: "/nfl", label: "NFL", note: "experimental sims", group: "sports", glyph: "🏈", desc: "Football hub",
     surfaces: ["rail", "footer"] },
-  { href: "/ufc", label: "UFC", note: "fight card + archive", group: "sports", glyph: "🥊", desc: "Fight card + settled archive",
+  { href: "/ufc", label: "UFC", note: "fight card + archive", group: "sports", glyph: "🥊", desc: "Fight card",
     surfaces: ["rail", "footer"] },
   /*
    * P185 published EPL forecasts on 2026-08-20; this entry still said "simulation pending" and
@@ -148,20 +148,20 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     /* P213 R-A: the limitation lives ONCE per surface — the note carries "not validated" (the P185
        contract, guard-pinned within the entry) and /epl states it in full; the desc repeating the
        whole sentence made the rail sublabel a methodology line. */
-    desc: "Soccer hub · matchweek forecasts",
+    desc: "Soccer hub",
     surfaces: ["rail", "footer"] },
   /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
      what a note that repeats its own label looks like. */
 
   // ── PRODUCTS ───────────────────────────────────────────────────────────────────────────────────
-  { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Conservative paper card",
+  { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Paper card",
     surfaces: ["rail", "footer"] },
-  { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "Fast ladder · $25 → $1,000",
+  { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "Fast paper ladder",
     surfaces: ["rail", "footer"] },
   // Revived 2026-08-17. The route was a retired redirect stub for six weeks because the provider
   // home-run feed it read had gone away; it now computes its own probability from StatsAPI, so it
   // is a destination again rather than a name in the archive.
-  { href: "/homer-nukes", label: "Homer Nukes", group: "products", glyph: "💣", desc: "Today's five likeliest home runs",
+  { href: "/homer-nukes", label: "Homer Nukes", group: "products", glyph: "💣", desc: "Five likeliest homers",
     surfaces: ["rail", "footer"] },
   /*
    * P251-F4: THE TWO LIVE SIGNATURE PRODUCTS THAT HAD NO DESTINATION.
@@ -173,10 +173,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * exist were the two hardest to reach, and this is what fixes that ordering.
    */
   { href: "/endzone-vault", label: "Endzone Vault", group: "products", glyph: "🏈",
-    desc: "Who reaches the end zone today", surfaces: ["rail", "footer"] },
+    desc: "Who scores today", surfaces: ["rail", "footer"] },
   { href: "/cage-chaos", label: "Cage Chaos", group: "products", glyph: "🥊",
-    desc: "How each fight ends, and in which round", surfaces: ["rail", "footer"] },
-  { href: "/mr-dub", label: "Mr. Dub's Portfolio", group: "products", glyph: "✓", desc: "Paper bankroll journey",
+    desc: "How each fight ends", surfaces: ["rail", "footer"] },
+  { href: "/mr-dub", label: "Mr. Dub's Portfolio", group: "products", glyph: "✓", desc: "Paper bankroll",
     surfaces: ["rail", "footer"] },
   /*
    * EVERY LIVE LANE'S SIGNATURE PRODUCT, not just baseball's.
@@ -221,18 +221,18 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     desc: "What each model predicted, and what happened", surfaces: ["footer"] },
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",
     surfaces: ["rail", "footer"] },
-  { href: "/methodology", label: "Methodology", group: "record", glyph: "◳", desc: "The model, in depth",
+  { href: "/methodology", label: "Methodology", group: "record", glyph: "◳", desc: "The model in depth",
     surfaces: ["rail", "footer"] },
-  { href: "/system-status", label: "System Status", group: "record", glyph: "◉", desc: "What is running right now",
+  { href: "/system-status", label: "System Status", group: "record", glyph: "◉", desc: "What is running",
     surfaces: ["rail", "footer"] },
   /* P312: every model's standing — validated, forward-testing, holding, watching, paused, research-only — from the
      receipts that hold it, in reader words. The public face of the research discipline. */
-  { href: "/models", label: "Model Lab", group: "record", glyph: "⚗", desc: "Which models are live, tested, or paused",
+  { href: "/models", label: "Model Lab", group: "record", glyph: "⚗", desc: "Live, tested, or paused",
     surfaces: ["rail", "footer"] },
   /* P310: the reader's saved forecasts — browser-local, an analytics shortlist, never a wager. */
-  { href: "/saved", label: "Saved Forecasts", shortLabel: "Saved", group: "now", glyph: "☆", desc: "Forecasts you saved, and what happened",
+  { href: "/saved", label: "Saved Forecasts", shortLabel: "Saved", group: "now", glyph: "☆", desc: "Your saved forecasts",
     surfaces: ["rail", "footer"] },
-  { href: "/about", label: "About", group: "record", glyph: "ⓘ", desc: "What this is",
+  { href: "/about", label: "About", group: "record", glyph: "ⓘ", desc: "About the site",
     surfaces: ["rail", "footer"] },
 
   // ── FOOTER-ONLY ────────────────────────────────────────────────────────────────────────────────

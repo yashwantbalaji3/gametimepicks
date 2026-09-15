@@ -34,7 +34,8 @@ test("functional: with --now after every priced kickoff, market.state is ARCHIVE
   const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "nfl-status-"));
   fs.mkdirSync(path.join(scratch, "scripts", "nfl"), { recursive: true });
   fs.cpSync(path.join(APP, "public", "data", "nfl"), path.join(scratch, "public", "data", "nfl"), { recursive: true });
-  for (const extra of ["scripts/nfl/build-nfl-public-status.mjs"]) {
+  // P330: the script's family rows come from an owner module; the scratch copy needs it beside the script.
+  for (const extra of ["scripts/nfl/build-nfl-public-status.mjs", "src/lib/sports/nfl/family-publication.mjs"]) {
     fs.cpSync(path.join(APP, extra), path.join(scratch, extra));
   }
   // The script may read siblings (data/internal receipts) — copy if present, tolerate absence.

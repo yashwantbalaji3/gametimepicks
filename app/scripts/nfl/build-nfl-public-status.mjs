@@ -14,6 +14,7 @@
  * Writes: app/public/data/nfl/model-status.json  (PUBLIC — derived, no research payload)
  */
 import fs from "node:fs";
+import { derivePlayerFamilyPublication } from "../../src/lib/sports/nfl/family-publication.mjs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -211,12 +212,28 @@ const familyState = (key, label) => {
   };
 };
 
-const playerFamilies = [
-  familyState("player_pass_yds", "Passing yards"),
-  familyState("player_rush_yds", "Rushing yards"),
-  familyState("player_reception_yds", "Receiving yards"),
-  familyState("player_receptions", "Receptions"),
-];
+/*
+ * P330 — PUBLICATION TRUTH. The evaluation-derived rows above are the FALLBACK copy; the per-game boards of
+ * this window's period are the owner of what actually publishes (state + model + basis). A family every
+ * constituent board publishes reads PUBLISHED with its model; an estimate stays an estimate with the board's
+ * own reason; a played week's frozen boards never speak for this week (period-scoped).
+ */
+/* The period the boards publish is the EARLIEST upcoming game's (seasonType, week) — the schedule window looks
+   further ahead than one week, and the boards are built for the next week only. */
+const nextUp = [...upcoming].filter((r) => Number.isFinite(r.seasonType) && Number.isFinite(r.week)).sort((a, b) => Date.parse(a.dateUtc) - Date.parse(b.dateUtc))[0] ?? null;
+const windowPeriod = nextUp ? { seasonType: nextUp.seasonType, week: nextUp.week } : null;
+const boardDir = path.join(APP, "public/data/nfl/player-board");
+const perGameBoards = fs.existsSync(boardDir) ? fs.readdirSync(boardDir).filter((f) => /^\d+\.json$/.test(f)).map((f) => read(path.join(boardDir, f))).filter(Boolean) : [];
+const playerFamilies = derivePlayerFamilyPublication({
+  boards: perGameBoards,
+  period: windowPeriod,
+  families: [
+    familyState("player_pass_yds", "Passing yards"),
+    familyState("player_rush_yds", "Rushing yards"),
+    familyState("player_reception_yds", "Receiving yards"),
+    familyState("player_receptions", "Receptions"),
+  ],
+});
 
 // ---------------------------------------------------------------- anytime TD
 // The playing-time sentence states the PHASE's actual reason (P240): "preseason playing time is
@@ -268,6 +285,8 @@ const out = {
   teamSimulation: teamSim,
   totals,
   market,
+  /* P330: the (seasonType, week) the family rows describe, so a reader of the status can scope the boards the same way. */
+  window: windowPeriod,
   playerFamilies,
   anytimeTd,
 };

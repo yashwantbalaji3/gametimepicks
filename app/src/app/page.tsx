@@ -404,7 +404,7 @@ export default function HomePage() {
         <CommandCenter
           lanes={secondaryLanes}
           heading="Other coverage"
-          subtitle="Archives and sports without a live daily product"
+          subtitle="Archives and quiet sports"
         />
       ) : null}
 

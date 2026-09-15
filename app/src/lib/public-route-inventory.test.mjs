@@ -421,7 +421,7 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
     /* REPOINTED 2026-09-12 (P286): PRIVATE_SHADOW left the set because it was false — the family
        wearing it has its numbers on the public player board. A displaying family now reads
        ESTIMATE_NEAR_BAR / ESTIMATE_BELOW_BAR, and "private" may not come back while it displays. */
-    const allowed = new Set(["NO_MARKET", "NOT_REQUESTED", "ROLE_UNCERTAIN", "RESEARCH_ONLY", "ESTIMATE_NEAR_BAR", "ESTIMATE_BELOW_BAR", "MODEL_READY", "PUBLIC"]);
+    const allowed = new Set(["NO_MARKET", "NOT_REQUESTED", "ROLE_UNCERTAIN", "RESEARCH_ONLY", "ESTIMATE_NEAR_BAR", "ESTIMATE_BELOW_BAR", "MODEL_READY", "PUBLIC", "PUBLISHED", "MIXED"]);
     for (const fam of [...st.playerFamilies, st.anytimeTd]) {
       assert.ok(allowed.has(fam.state), `player-family state ${fam.state} outside the closed set`);
     }

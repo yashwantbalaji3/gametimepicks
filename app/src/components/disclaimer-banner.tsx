@@ -43,7 +43,7 @@ export default function DisclaimerBanner() {
           className="hidden sm:inline truncate min-w-0"
           style={{ color: "var(--vault-text-faint)" }}
         >
-          Not betting advice. For modeling and research purposes only.
+          Not betting advice · research use only.
         </span>
         <span
           className="sm:hidden truncate min-w-0"

@@ -142,7 +142,7 @@ export function slateGames(
       sport: d.sport,
       sportLabel: (typeof d.sportLabel === "string" && d.sportLabel) || SPORT_LABEL[d.sport] || d.sport.toUpperCase(),
       teams: { home: d.homeTeam, away: d.awayTeam },
-      teamNames: { home: (d as { homeTeamName?: string }).homeTeamName ?? null, away: (d as { awayTeamName?: string }).awayTeamName ?? null },
+      teamNames: { home: (d as { homeTeamName?: string }).homeTeamName ?? (d as { prediction?: { homeTeamName?: string } }).prediction?.homeTeamName ?? null, away: (d as { awayTeamName?: string }).awayTeamName ?? (d as { prediction?: { awayTeamName?: string } }).prediction?.awayTeamName ?? null },
       homeLogo: d.homeLogo ?? null,
       awayLogo: d.awayLogo ?? null,
       date: d.date ?? "",

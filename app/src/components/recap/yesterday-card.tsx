@@ -64,7 +64,7 @@ export default function YesterdayCard({ recap }: { recap: Recap | null }) {
         {/* Short on purpose: the homepage's copy ratchet is a real budget, and the claim only needs
             one sentence. A card wins only if every leg does; a projection is graded alone. */}
         <p className="m-0" style={{ flexBasis: "100%", fontSize: 11, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
-          {`Never combined: a card needs every leg, a projection is graded alone. Official box scores${recap.sameDay ? "" : ` · model figures from ${recap.model?.date}`}.`}
+          {`Cards need every leg; projections grade alone. Official box scores${recap.sameDay ? "" : ` · model figures from ${recap.model?.date}`}.`}
         </p>
       </div>
     </section>

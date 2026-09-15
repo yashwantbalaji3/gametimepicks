@@ -92,7 +92,7 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent, toda
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-            Parlay Center · four risk evaluations per lane
+            Parlay Center
           </div>
           {/* NOT "Today's" (P232 · C). Lanes are event-driven: UFC and EPL carry the card for their
               next fight night or matchweek, and MLB carries the last published product day. On

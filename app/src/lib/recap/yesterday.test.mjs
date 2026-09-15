@@ -38,7 +38,7 @@ test("the two records are never combined", () => {
   const view = read("src/components/recap/yesterday-card.tsx");
   assert.ok(!/cards\.\w+\s*\+\s*model\.|model\.\w+\s*\+\s*cards\./.test(src), "the builder must not add across the two records");
   assert.ok(!/cards\.\w+\s*\+\s*model\.|model\.\w+\s*\+\s*cards\./.test(view), "and neither may the view");
-  assert.match(view, /never combined/i, "the page says so, where the two numbers are");
+  assert.match(view, /every leg; projections grade alone|never combined/i, "the page says so, where the two numbers are");
 });
 
 test("a verdict is the producer's, never re-derived from legs", () => {

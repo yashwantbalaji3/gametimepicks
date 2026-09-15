@@ -135,7 +135,7 @@ export function FooterCta() {
     <section aria-label="Get started" className="flex flex-col items-center gap-3 rounded-[16px] px-5 py-7 text-center"
       style={{ border: "1px solid var(--vault-border-strong)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-crown) 6%, transparent), color-mix(in srgb, var(--vault-scrim-base) 35%, transparent))" }}>
       <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px,4.4vw,28px)", fontWeight: 800, lineHeight: 1.08 }}>
-        Run a simulation. See the picks. Follow the results.
+        Simulate, pick, follow the results.
       </h2>
       <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
         {links.map((l) => (

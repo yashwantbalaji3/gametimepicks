@@ -101,11 +101,6 @@ function SimCard({ s, answer, archival = false }: { s: FeaturedSimulation; answe
         {/* Every card wears its event date — an August game must say August (P241 · A02). */}
         {s.date ? <span style={{ color: archival ? "var(--vault-gold)" : "var(--vault-text-mute)", fontWeight: archival ? 700 : 400 }}>{shortDate(s.date)}</span> : null}
         {s.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{s.runCountLabel}</span> : null}
-        {s.pickCount > 0 ? (
-          <span style={{ color: "var(--vault-text-mute)" }}>
-            <span style={{ color: "var(--vault-text-mute)", fontWeight: 600 }}>{s.pickCount} market{s.pickCount === 1 ? "" : "s"} simulated</span>
-          </span>
-        ) : null}
       </div>
       {/* ── What the simulation concluded (Sprint 015 · Phase 1). Each line renders only when the canonical
              objects carried it; a card with no answer keeps its original "a simulation exists" shape. ── */}
@@ -114,9 +109,6 @@ function SimCard({ s, answer, archival = false }: { s: FeaturedSimulation; answe
           style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
           {answer.prediction ? (
             <span className="text-[12px]" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{answer.prediction}</span>
-          ) : null}
-          {answer.frequency ? (
-            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{answer.frequency}</span>
           ) : null}
           {answer.mostLikelyScore ? (
             <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
