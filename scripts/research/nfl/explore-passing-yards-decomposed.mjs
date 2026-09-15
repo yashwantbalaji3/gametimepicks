@@ -88,7 +88,7 @@ for (const g of ordered) {
         const actual = played[C.passYds];
         const hist = best.st.played;
         const line = hist.length >= 4 ? [...hist.slice(-4)].sort((a, b) => a - b).slice(1, 3).reduce((a, b) => a + b, 0) / 2 : null;
-        scored.push({ season: g.season, week: g.week, team: g.team, pid: best.pid, attMean: attMean * best.share, ypa, actual, line, actualAtt: played[C.passAtt] });
+        scored.push({ season: g.season, week: g.week, team: g.team, pid: best.pid, attMean: attMean * best.share, ypa, actual, line, actualAtt: played[C.passAtt], shareN: best.st.shareDen });
       }
     }
   }
@@ -135,6 +135,59 @@ function evaluate(R, CV) {
   for (const o of out) { (bySeason[o.season] ??= []).push(o); }
   const blk = (list) => ({ n: list.length, maeP50: r4(meanOf(list.map((o) => Math.abs(o.p50 - o.actual)))), level: r4(meanOf(list.map((o) => o.mean)) / meanOf(list.map((o) => o.actual))), coverage: r4(meanOf(list.map((o) => (o.actual >= o.p10 && o.actual <= o.p90 ? 1 : 0)))), width: r4(meanOf(list.map((o) => o.p90 - o.p10))), coverP25P75: r4(meanOf(list.map((o) => (o.actual >= o.p25 && o.actual <= o.p75 ? 1 : 0)))) });
   return { R, CV, ...blk(out), ece: r4(ece), linedN: lined.length, maeRolling4: r4(meanOf(lined.map((o) => Math.abs(o.line - o.actual)))), maeP50OnLined: r4(meanOf(lined.map((o) => Math.abs(o.p50 - o.actual)))), attemptsMaeVsActual: r4(meanOf(out.map((o) => Math.abs(o.attMean - o.actualAtt)))), bySeason: Object.fromEntries(Object.entries(bySeason).map(([k, v]) => [k, blk(v)])) };
+}
+if (argOf("--design") === "v2") {
+  /* ── P318 v2 (passing-yards-decomposed-v2-design.md): the ONE authorised look. Conditional mean unchanged; attempts size
+     R(n) = R0·n/(n+4) from the QB's share history; Y/A family + dispersion fitted on 2022–2023 ONLY (coverage 0.80, family by
+     PIT tails); assessed ONCE on 2024–2025. ── */
+  const R0 = 40, FIT = [2022, 2023], ASSESS = [2024, 2025];
+  const fitRows = scored.filter((x) => x.season >= FIT[0] && x.season <= FIT[1]);
+  const assessRows = scored.filter((x) => x.season >= ASSESS[0] && x.season <= ASSESS[1]);
+  const Rn = (n) => R0 * n / (n + 4);
+  const drawYds = (x, family, disp) => {
+    const att = negBin(Math.max(x.attMean, 1), Rn(x.shareN));
+    const ypa = family === "gamma" ? gammaDraw(1 / (disp * disp), x.ypa * disp * disp) : Math.exp(Math.log(x.ypa) - disp * disp / 2 + disp * gaussian());
+    return att * ypa;
+  };
+  const scoreRows = (rowsIn, family, disp) => {
+    seed = 20260915;
+    return rowsIn.map((x) => {
+      const draws = new Array(DRAWS); for (let i = 0; i < DRAWS; i += 1) draws[i] = drawYds(x, family, disp);
+      const sorted = [...draws].sort((a, b) => a - b);
+      const q = (p) => sorted[Math.min(DRAWS - 1, Math.max(0, Math.round(p * (DRAWS - 1))))];
+      const pit = sorted.filter((y) => y <= x.actual).length / DRAWS;
+      const pOver = x.line != null ? draws.filter((y) => y > x.line).length / DRAWS : null;
+      return { ...x, p10: q(0.1), p50: q(0.5), p90: q(0.9), mean: meanOf(draws), pit, pOver, over: x.line != null ? (x.actual > x.line ? 1 : x.actual < x.line ? 0 : null) : null };
+    });
+  };
+  const coverageOf = (o) => meanOf(o.map((r) => (r.actual >= r.p10 && r.actual <= r.p90 ? 1 : 0)));
+  const fitDisp = (family) => { let lo = 0.05, hi = 0.8; for (let i = 0; i < 12; i += 1) { const mid = (lo + hi) / 2; if (coverageOf(scoreRows(fitRows, family, mid)) < 0.8) lo = mid; else hi = mid; } return (lo + hi) / 2; };
+  const fit = {};
+  for (const family of ["gamma", "lognormal"]) {
+    const disp = fitDisp(family);
+    const o = scoreRows(fitRows, family, disp);
+    const hist = Array.from({ length: 10 }, (_, i) => o.filter((r) => Math.min(9, Math.floor(r.pit * 10)) === i).length / o.length);
+    fit[family] = { disp: r4(disp), coverage: r4(coverageOf(o)), pitHistogram: hist.map(r4), tailDistance: r4(Math.abs(hist[0] - 0.1) + Math.abs(hist[9] - 0.1)), n: o.length };
+  }
+  const chosen = fit.lognormal.tailDistance < fit.gamma.tailDistance ? "lognormal" : "gamma";
+  const a = scoreRows(assessRows, chosen, fit[chosen].disp);
+  const lined = a.filter((r) => r.pOver != null && r.over != null);
+  const bins = Array.from({ length: 10 }, () => ({ n: 0, p: 0, o: 0 }));
+  for (const r of lined) { const b = bins[Math.min(9, Math.floor(r.pOver * 10))]; b.n += 1; b.p += r.pOver; b.o += r.over; }
+  const ece = bins.reduce((s2, b) => s2 + (b.n ? (b.n / lined.length) * Math.abs(b.p / b.n - b.o / b.n) : 0), 0);
+  const blk = (list) => ({ n: list.length, maeP50: r4(meanOf(list.map((o) => Math.abs(o.p50 - o.actual)))), level: r4(meanOf(list.map((o) => o.mean)) / meanOf(list.map((o) => o.actual))), coverage: r4(coverageOf(list)), width: r4(meanOf(list.map((o) => o.p90 - o.p10))) });
+  const assessment = { ...blk(a), ece: r4(ece), linedN: lined.length, maeRolling4: r4(meanOf(lined.map((o) => Math.abs(o.line - o.actual)))), maeP50OnLined: r4(meanOf(lined.map((o) => Math.abs(o.p50 - o.actual)))), reliabilityBins: bins.map((b, i) => ({ bin: i / 10, n: b.n, meanShown: b.n ? r4(b.p / b.n) : null, rate: b.n ? r4(b.o / b.n) : null })), bySeason: Object.fromEntries([2024, 2025].map((yr) => [yr, blk(a.filter((o) => o.season === yr))])) };
+  const bars = { ece: assessment.ece <= 0.05, coverage: assessment.coverage >= 0.72 && assessment.coverage <= 0.88, level: assessment.level >= 0.92 && assessment.level <= 1.08, maeBeatsRolling4: assessment.maeP50OnLined < assessment.maeRolling4, minimumN: assessment.n >= 300 };
+  const verdict = Object.values(bars).every(Boolean) ? "DEV_CLEARED" : "DEV_NOT_CLEARED";
+  const out = { schemaVersion: 1, artifact: "nfl-passing-yards-decomposed-v2-assessment", dataClass: "PRIVATE_RESEARCH", program: "318", generatedAt: new Date().toISOString(), design: "data/internal/research/nfl/reports/passing-yards-decomposed-v2-design.md", status: "DEV ONLY — one look, fit 2022–2023, assessed 2024–2025", constants: { R0, HL, SD, PRIOR_TEAM, PRIOR_YPA, MIN_SHARE, DRAWS }, fit, chosenFamily: chosen, assessment, bars, verdict };
+  const OUT2 = "data/internal/research/nfl/reports/passing-yards-decomposed-v2-assessment.json";
+  fs.writeFileSync(rel(OUT2), JSON.stringify(out, null, 2) + "\n");
+  console.log("FIT", JSON.stringify(fit));
+  console.log("chosen family", chosen);
+  console.log("ASSESS", JSON.stringify({ ...assessment, reliabilityBins: undefined }));
+  console.log("bins", JSON.stringify(assessment.reliabilityBins));
+  console.log("bars", JSON.stringify(bars), "→", verdict);
+  process.exit(0);
 }
 const results = [];
 for (const R of GRID.R) for (const CV of GRID.CV) results.push(evaluate(R, CV));
