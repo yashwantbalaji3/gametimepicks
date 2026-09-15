@@ -13,6 +13,7 @@
  *   NFL 80% ranges            public/data/nfl/reconciliation/*.json                      coverage vs 0.8, per prediction
  *   NFL touchdown chances     public/data/nfl/reconciliation/*.json                      expected vs actual scorers
  *   NFL share-level forward   data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json (its own states)
+ *   EPL match-model forward   data/internal/research/epl/forward/receipt.json (P304 Elo-Poisson vs the split Poisson it replaced)
  * The market's figure is carried beside a family wherever the ledger records it, as context — never the floor.
  *
  * Writes app/public/data/admin/model-health.json (read by /ops; /ops is pruned from the public export). A BREACHED
@@ -135,6 +136,20 @@ const missing = (id, sport, label, source) => add({ id, sport, label, state: "IN
     add({ id: `nfl_forward_${market}`, sport: "nfl", label: `NFL blind forward test · ${market.replace(/^player_/, "").replace(/_/g, " ")}`, baseline: "its preregistered forward bars",
       state: MAP[fam.state] ?? "INSUFFICIENT_SAMPLE", n: fam.n ?? 0, judgement: { receiptState: fam.state, bars: fam.bars ?? null, needed: fam.needed ?? null }, context: null, source,
       note: "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board." });
+  }
+}
+
+{
+  /* The EPL blind forward receipt (P304 adoption): the adopted Elo-Poisson against the model it replaced, paired per
+     match. FORWARD_BREACHED already makes match-model.mjs publish the previous model; here it is only shown. */
+  const source = "data/internal/research/epl/forward/receipt.json";
+  const receipt = readJson(path.join(ROOT, source));
+  if (!receipt) missing("epl_forward_match_model", "epl", "EPL blind forward test · match model vs the one it replaced", source);
+  else {
+    const state = receipt.state === "FORWARD_BREACHED" ? "BREACHED" : receipt.state === "FORWARD_HOLDING" ? (receipt.watch ? "WATCH" : "HOLDING") : "INSUFFICIENT_SAMPLE";
+    add({ id: "epl_forward_match_model", sport: "epl", label: "EPL blind forward test · match model vs the one it replaced", baseline: `the previous model (${(receipt.controlModelIds ?? []).join(", ") || "split Poisson"}), paired per match`,
+      state, n: receipt.n ?? 0, judgement: { receiptState: receipt.state, watch: receipt.watch ?? null, needed: receipt.needed ?? null, meanDiff: r4(receipt.meanDifference), lo95: r4(receipt.lo95), hi95: r4(receipt.hi95), modelLogLoss: r4(receipt.modelLogLoss), controlLogLoss: r4(receipt.controlLogLoss), modelId: receipt.modelId ?? null },
+      context: null, source, note: "Preregistered: a FORWARD_BREACHED receipt already makes the previous model publish on the next matchweek build." });
   }
 }
 

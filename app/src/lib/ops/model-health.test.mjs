@@ -66,3 +66,10 @@ test("SOURCE PIN · the nightly settle job builds model health AND commits what 
   assert.match(wf, /scripts\/ops\/build-model-health\.mjs/, "the builder runs");
   assert.match(wf, /git add app\/public\/data\/admin\/(?:model-health\.json)?\s/, "an artifact built and never committed is the 62-hour-outage shape");
 });
+
+test("SOURCE PIN · the scorecard builder reads both blind forward receipts, so a breach is visible on /ops", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/ops/build-model-health.mjs"), "utf8");
+  assert.match(src, /player-props-share-level-forward\/receipt\.json/, "NFL share-level forward receipt");
+  assert.match(src, /epl\/forward\/receipt\.json/, "EPL match-model forward receipt");
+  assert.match(src, /FORWARD_BREACHED/, "its BREACHED state is mapped, not dropped");
+});
