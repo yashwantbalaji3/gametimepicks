@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "artifact": "mlb-finals-history",
+  "dataClass": "PRIVATE_RESEARCH",
+  "date": "2024-09-30",
+  "season": "2024",
+  "source": "statsapi",
+  "sourceEndpoint": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2024-09-30",
+  "script": "backfill-mlb-finals-history@1",
+  "scheduledCount": 2,
+  "regularSeasonCount": 2,
+  "finalCount": 2,
+  "excludedNonRegular": 0,
+  "excludedOtherOfficialDate": 0,
+  "excludedNonFinal": 0,
+  "malformedRows": 0,
+  "games": [
+    {
+      "gamePk": 747139,
+      "officialDate": "2024-09-30",
+      "season": "2024",
+      "gameType": "R",
+      "doubleHeader": "Y",
+      "gameNumber": 1,
+      "home": {
+        "id": 144,
+        "name": "Atlanta Braves"
+      },
+      "away": {
+        "id": 121,
+        "name": "New York Mets"
+      },
+      "homeRuns": 7,
+      "awayRuns": 8,
+      "venue": {
+        "id": 4705,
+        "name": "Truist Park"
+      },
+      "isFinal": true,
+      "status": "Final",
+      "abstractState": "Final"
+    },
+    {
+      "gamePk": 747064,
+      "officialDate": "2024-09-30",
+      "season": "2024",
+      "gameType": "R",
+      "doubleHeader": "Y",
+      "gameNumber": 2,
+      "home": {
+        "id": 144,
+        "name": "Atlanta Braves"
+      },
+      "away": {
+        "id": 121,
+        "name": "New York Mets"
+      },
+      "homeRuns": 3,
+      "awayRuns": 0,
+      "venue": {
+        "id": 4705,
+        "name": "Truist Park"
+      },
+      "isFinal": true,
+      "status": "Final",
+      "abstractState": "Final"
+    }
+  ]
+}

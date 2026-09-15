@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "artifact": "mlb-finals-history-manifest",
+  "dataClass": "PRIVATE_RESEARCH",
+  "purpose": "Founder-approved (Phase 6) 2023-2025 regular-season finals + venue for FUTURE research. No model reads this yet.",
+  "source": "MLB StatsAPI (free, no key, no credits)",
+  "sourceEndpointPattern": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=<YYYY-MM-DD>",
+  "seasonBoundsEndpoint": "https://statsapi.mlb.com/api/v1/seasons?sportId=1&season=<YYYY>",
+  "script": "backfill-mlb-finals-history@1",
+  "firstAcquiredAt": "2026-09-15T23:42:02.279Z",
+  "lastAcquiredAt": "2026-09-15T23:52:19.090Z",
+  "runs": [
+    {
+      "startedAt": "2026-09-15T23:42:02.279Z",
+      "finishedAt": "2026-09-15T23:42:03.000Z",
+      "seasons": [
+        {
+          "season": "2024",
+          "regularSeasonStart": "2024-03-20",
+          "regularSeasonEnd": "2024-09-30",
+          "datesInSeason": 195,
+          "datesWritten": 3,
+          "datesSkipped": 0,
+          "finalsStoredThisRun": 2,
+          "failures": []
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-09-15T23:42:03.163Z",
+      "finishedAt": "2026-09-15T23:42:04.023Z",
+      "seasons": [
+        {
+          "season": "2024",
+          "regularSeasonStart": "2024-03-20",
+          "regularSeasonEnd": "2024-09-30",
+          "datesInSeason": 195,
+          "datesWritten": 3,
+          "datesSkipped": 3,
+          "finalsStoredThisRun": 0,
+          "failures": []
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-09-15T23:42:29.408Z",
+      "finishedAt": "2026-09-15T23:45:14.952Z",
+      "seasons": [
+        {
+          "season": "2023",
+          "regularSeasonStart": "2023-03-30",
+          "regularSeasonEnd": "2023-10-02",
+          "datesInSeason": 187,
+          "datesWritten": 187,
+          "datesSkipped": 0,
+          "finalsStoredThisRun": 2437,
+          "failures": []
+        },
+        {
+          "season": "2024",
+          "regularSeasonStart": "2024-03-20",
+          "regularSeasonEnd": "2024-09-30",
+          "datesInSeason": 195,
+          "datesWritten": 189,
+          "datesSkipped": 6,
+          "finalsStoredThisRun": 2430,
+          "failures": []
+        },
+        {
+          "season": "2025",
+          "regularSeasonStart": "2025-03-18",
+          "regularSeasonEnd": "2025-09-28",
+          "datesInSeason": 195,
+          "datesWritten": 195,
+          "datesSkipped": 0,
+          "finalsStoredThisRun": 2434,
+          "failures": []
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-09-15T23:49:30.702Z",
+      "finishedAt": "2026-09-15T23:52:19.090Z",
+      "seasons": [
+        {
+          "season": "2023",
+          "regularSeasonStart": "2023-03-30",
+          "regularSeasonEnd": "2023-10-02",
+          "datesInSeason": 187,
+          "datesWritten": 187,
+          "datesSkipped": 0,
+          "finalsStoredThisRun": 2430,
+          "failures": []
+        },
+        {
+          "season": "2024",
+          "regularSeasonStart": "2024-03-20",
+          "regularSeasonEnd": "2024-09-30",
+          "datesInSeason": 195,
+          "datesWritten": 195,
+          "datesSkipped": 0,
+          "finalsStoredThisRun": 2429,
+          "failures": []
+        },
+        {
+          "season": "2025",
+          "regularSeasonStart": "2025-03-18",
+          "regularSeasonEnd": "2025-09-28",
+          "datesInSeason": 195,
+          "datesWritten": 195,
+          "datesSkipped": 0,
+          "finalsStoredThisRun": 2430,
+          "failures": []
+        }
+      ]
+    }
+  ]
+}

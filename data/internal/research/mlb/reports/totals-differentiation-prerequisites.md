@@ -25,6 +25,38 @@ the P317 engine-level shadow is a separate question and cannot unpause it.
   shrunk toward league, park moves handled by venue id, no line as input) scored forward-only against the engine control — the
   first defensible between-game differentiation signal. Without it, differentiation research stays blocked.
 
+## 2b. STATUS 2026-09-15 (Phase 6 · P601) — the historical finals are ACQUIRED. P331 is still NOT run.
+
+The founder approved §2 in Phase 6 (§6.1), scoped to **data acquisition and validation only**. Done:
+
+| season | finals | dates | venue coverage | duplicate gamePks | missing scores | teams | venues |
+|---|---|---|---|---|---|---|---|
+| 2023 | 2,430 | 187 (03-30 → 10-02) | 1.00 | 0 | 0 | 30 | 33 |
+| 2024 | 2,429 | 195 (03-20 → 09-30) | 1.00 | 0 | 0 | 30 | 35 |
+| 2025 | 2,430 | 195 (03-18 → 09-28) | 1.00 | 0 | 0 | 30 | 33 |
+
+7,289 regular-season finals with venue id + name, team ids + names, doubleheader flag and official date.
+Acquired from the same free StatsAPI schedule endpoint named in §2 (no key, no credits, 577 requests).
+
+- **Storage — a deliberate deviation from §2.** §2 proposed `data/internal/mlb/linescores/<date>.json`. That directory is
+  a LIVE input, not an archive: `app/scripts/build-mlb-model-inputs.mjs` (`teamRunRatesBefore`, filters only
+  `fileDate < date` — and `"2023-05-04"` passes) and `app/scripts/ingest-mlb-independent-inputs.mjs` (`teamRunRates`,
+  no date filter at all) read the whole directory into team run rates that reach the PUBLIC full-game simulations.
+  Writing history there would have changed public numbers, which §6.1 forbids. The archive therefore lives at
+  `data/internal/mlb/linescores-history/<season>/<date>.json`, read by nothing, guarded by
+  `app/src/lib/mlb/finals-history-isolation.test.mjs`. `venue-run-environment.mjs`'s "season 2026 only" provenance
+  line stays true for the same reason.
+- **A defect found and fixed during acquisition.** The first pull stored 7,303 finals with 14 duplicate `gamePk`s —
+  a game suspended on day D and completed on D+1 appears in the D+1 payload still carrying `officialDate` D, so it was
+  filed twice. Each season was inflated by exactly its duplicate count. Games are now stored once, under their own
+  official date; the re-pull reproduces the true season totals above.
+- Owner: `scripts/research/mlb/backfill-mlb-finals-history.mjs` (idempotent, resumable, fails closed per date).
+  Receipt: `finals-history-validation.json`. Provenance: `linescores-history/manifest.json`.
+
+**What is still NOT done, by design:** no park table, no totals challenger, no registration, no scoring, no look.
+Public MLB over/under remains **PAUSED**. The next step is a preregistered walk-forward park-environment protocol
+declared BEFORE any scoring — a Fable-session decision, not an Opus one.
+
 ## 3. Starter run-prevention forward capture — contract (no historical values are fabricated)
 - **Source:** MLB StatsAPI (approved; free) — per-pitcher season stats as of the capture instant (`/api/v1/people/{id}/stats?
   stats=season&group=pitching&season=2026`: innings pitched, earned runs, runs, hits, walks, strikeouts, home runs allowed,

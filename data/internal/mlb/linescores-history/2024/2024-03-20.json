@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "artifact": "mlb-finals-history",
+  "dataClass": "PRIVATE_RESEARCH",
+  "date": "2024-03-20",
+  "season": "2024",
+  "source": "statsapi",
+  "sourceEndpoint": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2024-03-20",
+  "script": "backfill-mlb-finals-history@1",
+  "scheduledCount": 13,
+  "regularSeasonCount": 1,
+  "finalCount": 1,
+  "excludedNonRegular": 12,
+  "excludedOtherOfficialDate": 0,
+  "excludedNonFinal": 0,
+  "malformedRows": 0,
+  "games": [
+    {
+      "gamePk": 745444,
+      "officialDate": "2024-03-20",
+      "season": "2024",
+      "gameType": "R",
+      "doubleHeader": "N",
+      "gameNumber": 1,
+      "home": {
+        "id": 135,
+        "name": "San Diego Padres"
+      },
+      "away": {
+        "id": 119,
+        "name": "Los Angeles Dodgers"
+      },
+      "homeRuns": 2,
+      "awayRuns": 5,
+      "venue": {
+        "id": 5150,
+        "name": "Gocheok Sky Dome"
+      },
+      "isFinal": true,
+      "status": "Final",
+      "abstractState": "Final"
+    }
+  ]
+}
