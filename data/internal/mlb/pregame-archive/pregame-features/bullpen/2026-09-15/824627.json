@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824627,
   "date": "2026-09-15",
-  "capturedAt": "2026-09-15T00:50:51.657Z",
-  "availableAt": "2026-09-15T00:50:51.657Z",
+  "capturedAt": "2026-09-15T05:48:31.225Z",
+  "availableAt": "2026-09-15T05:48:31.225Z",
   "eventStartTime": "2026-09-15T23:40:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,44 @@
     "teamId": 112,
     "teamName": "Chicago Cubs",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 67,
+      "relievers": [
+        {
+          "id": 665871,
+          "name": "Javier Assad",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 666171,
+          "name": "Ryan Zeferjahn",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 122,
+      "appearances": 9,
+      "pitches": 189,
       "relievers": [
         {
           "id": 650644,
@@ -41,11 +72,33 @@
         {
           "id": 669020,
           "name": "Ryan Rolison",
-          "appearances": 1,
-          "pitches": 21,
-          "outs": 5,
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 8,
           "dates": [
-            "2026-09-12"
+            "2026-09-12",
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 666171,
+          "name": "Ryan Zeferjahn",
+          "appearances": 2,
+          "pitches": 30,
+          "outs": 4,
+          "dates": [
+            "2026-09-12",
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 665871,
+          "name": "Javier Assad",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
           ]
         },
         {
@@ -77,33 +130,50 @@
           "dates": [
             "2026-09-13"
           ]
-        },
-        {
-          "id": 666171,
-          "name": "Ryan Zeferjahn",
-          "appearances": 1,
-          "pitches": 6,
-          "outs": 1,
-          "dates": [
-            "2026-09-12"
-          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 665871,
+        "name": "Javier Assad",
+        "reason": "30 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 144,
     "teamName": "Atlanta Braves",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 81,
+      "relievers": [
+        {
+          "id": 700363,
+          "name": "AJ Smith-Shawver",
+          "appearances": 1,
+          "pitches": 81,
+          "outs": 15,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 109,
+      "appearances": 6,
+      "pitches": 190,
       "relievers": [
+        {
+          "id": 700363,
+          "name": "AJ Smith-Shawver",
+          "appearances": 1,
+          "pitches": 81,
+          "outs": 15,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
         {
           "id": 678061,
           "name": "Ray Kerr",
@@ -156,12 +226,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 700363,
+        "name": "AJ Smith-Shawver",
+        "reason": "81 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-12,2026-09-13,2026-09-14) + feed/live box scores",
-    "capturedAt": "2026-09-15T00:50:51.657Z"
+    "capturedAt": "2026-09-15T05:48:31.225Z"
   },
-  "recordHash": "2eae339a77ca02468e03bc84b12d636679bee88f7684e94120f3c6d79f1d8e2e"
+  "recordHash": "261890978d661b226d62cfdf19de0b1469e67242ae36cf78f2335d8376f19195"
 }
