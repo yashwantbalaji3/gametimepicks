@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822762,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T18:36:00.018Z",
+  "availableAt": "2026-09-15T18:36:00.018Z",
+  "eventStartTime": "2026-09-15T23:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 680755,
+      "name": "Braydon Fisher",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-09-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 5.67,
+        "ipAvg": 1.13,
+        "kAvg": 0.6,
+        "bbAvg": 1.2,
+        "erAvg": 0.2,
+        "hrAvg": 0,
+        "kPer9": 4.76,
+        "workloadIpLast5": 5.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 10,
+        "k": 10,
+        "bb": 8,
+        "er": 1,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 623454,
+      "name": "Drew Anderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 7,
+      "lastStartDate": "2026-09-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 4.6,
+        "bbAvg": 2.6,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 8.06,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 40.67,
+        "k": 39,
+        "bb": 20,
+        "er": 12,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-15T18:36:00.018Z"
+  },
+  "recordHash": "e7119084ef86bd7ebff5aef6754a0a2779487a130162d4dc8c3bcb14c00085f1"
+}

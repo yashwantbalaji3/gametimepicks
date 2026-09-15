@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823654,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T18:36:00.018Z",
+  "availableAt": "2026-09-15T18:36:00.018Z",
+  "eventStartTime": "2026-09-15T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641927,
+      "name": "Bailey Ober",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 9,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.4,
+        "bbAvg": 2,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 8.03,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 117.67,
+        "k": 85,
+        "bb": 34,
+        "er": 56,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 608331,
+      "name": "Max Fried",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-09-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 5.2,
+        "bbAvg": 1.6,
+        "erAvg": 0.8,
+        "hrAvg": 0.6,
+        "kPer9": 9.75,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 99,
+        "k": 94,
+        "bb": 31,
+        "er": 30,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-15T18:36:00.018Z"
+  },
+  "recordHash": "6274c87d6a03ef7848ab27a11d6f6decaaf24d40351ae67082da8d156589318a"
+}
