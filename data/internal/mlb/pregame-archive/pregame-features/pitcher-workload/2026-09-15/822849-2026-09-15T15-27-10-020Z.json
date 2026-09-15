@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822849,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T15:27:10.020Z",
+  "availableAt": "2026-09-15T15:27:10.020Z",
+  "eventStartTime": "2026-09-16T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 663776,
+      "name": "Patrick Sandoval",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 7,
+      "lastStartDate": "2026-09-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 5.6,
+        "bbAvg": 2.8,
+        "erAvg": 3.4,
+        "hrAvg": 0.6,
+        "kPer9": 10.08,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 55,
+        "k": 57,
+        "bb": 27,
+        "er": 28,
+        "hr": 6
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-15T15:27:10.020Z"
+  },
+  "recordHash": "3b6897feeaebc16d829385a9c4653feb62c8f229706c89e06824367d2a3ba9f7"
+}

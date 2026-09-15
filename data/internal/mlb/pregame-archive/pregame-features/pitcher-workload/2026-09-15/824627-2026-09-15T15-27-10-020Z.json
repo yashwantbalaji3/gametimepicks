@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824627,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T15:27:10.020Z",
+  "availableAt": "2026-09-15T15:27:10.020Z",
+  "eventStartTime": "2026-09-15T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 592332,
+      "name": "Kevin Gausman",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 6,
+      "lastStartDate": "2026-09-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 6.6,
+        "bbAvg": 1.6,
+        "erAvg": 3,
+        "hrAvg": 1.4,
+        "kPer9": 10.87,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 166.33,
+        "k": 171,
+        "bb": 46,
+        "er": 85,
+        "hr": 24
+      }
+    },
+    "away": {
+      "id": 527048,
+      "name": "Martín Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-09-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 3.6,
+        "bbAvg": 2.6,
+        "erAvg": 2,
+        "hrAvg": 0.4,
+        "kPer9": 6.39,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 122.33,
+        "k": 87,
+        "bb": 56,
+        "er": 43,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-15T15:27:10.020Z"
+  },
+  "recordHash": "5db866f7b3413aaf2ee34c823ccba92a687a6697bba65b4621346d16ac1e4abe"
+}
