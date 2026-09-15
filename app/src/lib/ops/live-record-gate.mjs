@@ -19,6 +19,8 @@
 export const MLB_TOTAL_FAMILY = "mlb_total";
 export const MLB_MONEYLINE_FAMILY = "mlb_moneyline";
 export const MLB_RUN_LINE_FAMILY = "mlb_run_line";
+/** The families a pause is WIRED for. A BREACHED family outside this set is an alarm on /ops, never a pause. */
+export const GATED_FAMILIES = Object.freeze(new Set([MLB_TOTAL_FAMILY, MLB_MONEYLINE_FAMILY, MLB_RUN_LINE_FAMILY]));
 export const PAUSED_TOTAL_SHORT = "Paused · its live record is below a coin flip";
 export const PAUSED_MONEYLINE_SHORT = PAUSED_TOTAL_SHORT;
 export const PAUSED_RUN_LINE_SHORT = PAUSED_TOTAL_SHORT;
@@ -32,7 +34,7 @@ export const PAUSED_RUN_LINE_REASON = pausedReason("run-line call");
 export function pausedFamiliesFrom(scorecard, nowMs, { maxAgeHours = 72 } = {}) {
   const at = Date.parse(scorecard?.generatedAt ?? "");
   if (!Number.isFinite(at) || !Number.isFinite(nowMs) || nowMs - at > maxAgeHours * 3600e3 || at - nowMs > 3600e3) return new Set();
-  return new Set((scorecard.families ?? []).filter((f) => f?.state === "BREACHED" && typeof f.id === "string").map((f) => f.id));
+  return new Set((scorecard.families ?? []).filter((f) => f?.state === "BREACHED" && typeof f.id === "string" && GATED_FAMILIES.has(f.id)).map((f) => f.id));
 }
 
 /**

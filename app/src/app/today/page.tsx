@@ -62,6 +62,8 @@ import {
 } from "@/components/today/status-modules";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import YourTeams from "@/components/follow/your-teams";
+import GameTimeBrief from "@/components/brief/gametime-brief";
+import { buildChangeLog } from "@/lib/command-center/changes";
 import YesterdayCard from "@/components/recap/yesterday-card";
 import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 
@@ -325,6 +327,11 @@ export default function TodayPage() {
         mlbGames={mlbGames}
         mlbLeans={mlbLeans}
       />
+
+      {/* P311 — the GameTime Brief: what changed since the last run (model states from the scorecard's own
+          transition record, MLB forecast moves between today's frozen snapshots) and the reader's own layer
+          (saved forecasts, followed teams). Nothing here is a "best bet". */}
+      <GameTimeBrief changes={buildChangeLog({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date(nowMs).toISOString() })} />
 
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed
               one, and only ever offers a destination the search index derived from a published

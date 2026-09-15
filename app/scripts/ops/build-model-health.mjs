@@ -23,6 +23,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { comparePairedLoss, judgeCoverage, judgeLevel, worstHealth, logLossOf, HEALTH_SEVERITY } from "../../src/lib/ops/model-health.mjs";
+import { healthTransitions } from "../../src/lib/ops/health-changes.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -168,6 +169,11 @@ const missing = (id, sport, label, source) => add({ id, sport, label, state: "IN
 
 // ── write ─────────────────────────────────────────────────────────────────────────────────────────
 families.sort((a, b) => HEALTH_SEVERITY[b.state] - HEALTH_SEVERITY[a.state] || a.sport.localeCompare(b.sport) || a.id.localeCompare(b.id));
+const outPath = path.join(APP, "public/data/admin/model-health.json");
+const previous = readJson(outPath);
+/* P311: every state transition against the artifact this run overwrites, carried for a window — the ONLY source a
+   "what changed" surface may cite for model states. */
+const changes = healthTransitions(previous, families, NOW);
 const body = {
   schemaVersion: 1,
   artifact: "model-health",
@@ -180,9 +186,8 @@ const body = {
     action: "An alarm, not a demotion. Only preregistered forward receipts change what publishes automatically.",
   },
   families,
+  changes,
 };
-const outPath = path.join(APP, "public/data/admin/model-health.json");
-const previous = readJson(outPath);
 const strip = (d) => (d ? JSON.stringify({ ...d, generatedAt: null }) : null);
 if (strip(previous) === strip(body)) console.log("model health unchanged");
 else {
