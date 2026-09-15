@@ -64,6 +64,8 @@ import { loadMlbSimCards } from "@/lib/mlb/full-game/hub-cards";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
+import ModelStatusPanel from "@/components/command-center/model-status-panel";
+import { modelStatusFor } from "@/lib/command-center/model-status";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import UpcomingSlateStrip, { type UpcomingSlateDay } from "@/components/upcoming-slate-strip";
@@ -410,6 +412,8 @@ export default function MlbLandingPage() {
         />
       </div>
       <section id="mlb-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
+      {/* P309: the live record of every game call against a coin flip — a paused call says paused here first. */}
+      <ModelStatusPanel sportLabel="MLB" items={modelStatusFor("mlb", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString() })} />
 
       {/* Slate liveness (real ET clock) — on an MLB no-games day (e.g. the All-Star break) this says so
           plainly instead of presenting the most-recent board as live. Hidden on a live day. */}

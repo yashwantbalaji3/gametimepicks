@@ -141,3 +141,12 @@ test("SOURCE PIN · the homepage renders both hub sections through the Command C
   }
   assert.match(src("src/app/methodology/page.tsx"), /id="model-status"/, "the glossary the chips link to exists");
 });
+
+test("SOURCE PIN · the MLB, EPL and UFC hubs mount the full status panel from the same adapter; NFL keeps its receipt table", () => {
+  const src = (p) => fs.readFileSync(path.join(process.cwd(), p), "utf8");
+  for (const [f, sport] of [["src/app/mlb/page.tsx", "mlb"], ["src/app/epl/page.tsx", "epl"], ["src/app/ufc/page.tsx", "ufc"]]) {
+    assert.match(src(f), new RegExp(`modelStatusFor\\("${sport}"`), `${f} reads the adapter`);
+    assert.match(src(f), /<ModelStatusPanel /, `${f} mounts the panel`);
+  }
+  assert.match(src("src/app/nfl/page.tsx"), /nfl\/model-status\.json/, "the NFL hub's own receipt-driven table stays the reference surface");
+});

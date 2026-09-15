@@ -33,6 +33,8 @@ import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { eventState, eventHeading, EVENT_STATE } from "@/lib/sports/event-lifecycle.mjs";
 import { loadSportLabLadder, loadSportLabStreamRecord } from "@/lib/parlays/sport-lab-cards";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import ModelStatusPanel from "@/components/command-center/model-status-panel";
+import { modelStatusFor } from "@/lib/command-center/model-status";
 
 export const metadata = withRouteMetadata("/ufc/", {
   /*
@@ -187,6 +189,9 @@ export default function UfcArchivePage() {
           <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
         </nav>
       </header>
+
+      {/* P309: backtest verdicts beside the live record, in the public status vocabulary. */}
+      <ModelStatusPanel sportLabel="UFC" items={modelStatusFor("ufc", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), ufcVerdicts: card?.model?.verdicts ?? null })} />
 
       <section id="ufc-card" className="flex flex-col gap-3 scroll-mt-24">
         <div className="flex flex-wrap items-center gap-2">

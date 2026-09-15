@@ -53,6 +53,9 @@ import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { loadCurrentSportLabLadder, ladderDayLabel, loadSportLabStreamRecord } from "@/lib/parlays/sport-lab-cards";
 import { loadEplPlayerProjections, topScorersAcross } from "@/lib/sports/epl/forecast-view";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import path from "node:path";
+import ModelStatusPanel from "@/components/command-center/model-status-panel";
+import { modelStatusFor } from "@/lib/command-center/model-status";
 
 export const metadata: Metadata = withRouteMetadata("/epl/", {
   title: "Premier League — Simulation Center · GameTime Picks",
@@ -304,6 +307,10 @@ export default function EplPage() {
           </p>
         </details>
       </section>
+
+      {/* P309: the model's standing in the public vocabulary every forecast card uses — validation, the blind
+          forward test against the model it replaced, and the live record — from receipts, never typed here. */}
+      <ModelStatusPanel sportLabel="Premier League" items={modelStatusFor("epl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), eplValidation: set?.validation ?? null })} />
       </section>
 
       {/* ── 1 · TEAM PREDICTIONS for the matchday ──────────────────────────────────────────────── */}
