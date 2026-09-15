@@ -56,7 +56,12 @@ test("LIVE · published boards obey the contract (skip-free when the artifact ex
 
 test("LIVE · a family publishes weekly ONLY when every constituent per-game board publishes it", () => {
   if (!wb || !perGame.length) return;
-  const famOf = (key) => new Set(perGame.map((g) => g.families?.[key]?.state));
+  /* CONSTITUENTS are the boards of the weekly artifact's own period. A played week's boards stay on disk, frozen at
+     their last pre-kickoff publication (P320), and a family a NEW model publishes this week was an ESTIMATE on them —
+     both true, neither a contradiction. Membership is (seasonType, week), the same rule the owner uses. */
+  const constituents = perGame.filter((g) => g && g.seasonType === wb.period?.seasonType && g.week === wb.period?.week);
+  if (!constituents.length) return;
+  const famOf = (key) => new Set(constituents.map((g) => g.families?.[key]?.state));
   for (const b of wb.boards) {
     const states = famOf(b.family);
     if (b.state === "PUBLISHED") {
