@@ -47,7 +47,8 @@ export const BUDGET_KB = Object.freeze({
    * Measured 2026-09-02 against the built export, ~2x headroom, which is the ratio the earlier
    * entries use (index 189→600, today 395→1200). Tight enough that doubling a payload fails.
    */
-  "simulate/index.html": 1000,        // measured 522KB — the scene bundle lives here
+  /* P308 (2026-09-15): measured 268KB after the explorer moved to on-open loading; ~2x headroom, shrink-only. */
+  "simulate/index.html": 600,         // measured 268KB
   "ufc/index.html": 1000,             // measured 514KB
   "nfl/index.html": 600,              // measured 279KB
   "methodology/index.html": 500,      // measured 236KB

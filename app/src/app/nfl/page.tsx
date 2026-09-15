@@ -286,6 +286,12 @@ export default function NflHubPage() {
 
   const forecastArtifact = read("nfl/forecasts/latest.json");
   const forecastCard = forecastArtifact?.modelCard ?? null;
+  /* P308 stage 0: the run count each forecast records (model.simulations) is the ONLY source of an "N runs" phrase
+     on this page. A uniform count reads once; a missing count reads as no claim. */
+  const simsByEvent = new Map<string, number>((forecastArtifact?.forecasts ?? []).flatMap((x: { providerEventId?: string; model?: { simulations?: number } }) =>
+    Number.isInteger(x.model?.simulations) && (x.model?.simulations as number) > 0 ? [[String(x.providerEventId), x.model?.simulations as number] as [string, number]] : []));
+  const uniformRuns = (() => { const v = [...new Set(simsByEvent.values())]; return v.length === 1 ? v[0] : null; })();
+  const runsPhrase = (eventId: string) => { const n = simsByEvent.get(String(eventId)); return n ? `${n.toLocaleString()} runs` : null; };
   /* P246 §5: the weekly top boards render VERBATIM from the one canonical ranking owner
      (scripts/nfl/build-nfl-weekly-boards.mjs). The hub never ranks players itself. */
   type WeeklyBoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; participation: string; value: number; p10?: number; median?: number; p90?: number; probability?: number };
@@ -403,7 +409,7 @@ export default function NflHubPage() {
         badge={<FreshnessBadge slateDate={slateDay} serverToday={currentEtDate()} noun="slate" />}
         stats={[
           { label: weekLabel ? "Games this week" : "Games on the slate", value: String(slateGames.length), sub: weekLabel ?? slateDay ?? "no capture" },
-          { label: "Simulated", value: String(simulatedOnSlate), sub: simulatedOnSlate > 0 ? "10,000 runs each" : "none published" },
+          { label: "Simulated", value: String(simulatedOnSlate), sub: simulatedOnSlate > 0 ? (uniformRuns ? `${uniformRuns.toLocaleString()} runs each` : "run count on each report") : "none published" },
           /* P246 §6: the hero counted the INDEX's market events — which still held the archived
              Aug-29 capture after authorization expired, advertising "1" beside a Week-1 slate with
              no current prices. The stat is the WEEK's own count, and zero says why. */
@@ -547,7 +553,7 @@ export default function NflHubPage() {
                     <td style={td({ fontSize: 11, color: "var(--vault-text-mute)", maxWidth: 220 })}>
                       {started
                         ? sim ? "Kicked off · forecast frozen" : "Kicked off before a forecast was published — missed coverage, never backfilled."
-                        : sim ? "Simulated · 10,000 runs" : "Simulation publishes closer to kickoff and says so here when it does."}
+                        : sim ? `Simulated${runsPhrase(g.providerEventId) ? ` · ${runsPhrase(g.providerEventId)}` : ""}` : "Simulation publishes closer to kickoff and says so here when it does."}
                     </td>
                     <td style={td({ whiteSpace: "nowrap" })}>
                       {sim ? (
@@ -571,7 +577,7 @@ export default function NflHubPage() {
         <div style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
           <p style={{ margin: 0 }}>
             <strong style={{ color: "var(--vault-text-mute)" }}>How to read this table.</strong>{" "}
-            <strong>Likely winner</strong> is the team that won more of our 10,000 simulated games, and how often.{" "}
+            <strong>Likely winner</strong> is the team that won more of our {uniformRuns ? `${uniformRuns.toLocaleString()} ` : ""}simulated games, and how often.{" "}
             <strong>Projected score</strong> is the middle of our simulated outcomes, not a call on the exact final; it adds up to our total and always leans toward the favourite, even by one point.{" "}
             <strong>Our total</strong> is the points we expect both teams to score combined, with the range where 8 in 10 simulations landed.
             {slateMarketRows.length ? (

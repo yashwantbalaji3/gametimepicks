@@ -675,7 +675,9 @@ function nflDetails(): PublicGameDetail[] {
         gameLabSimulation: buildGameSimulationView(result, {
           modelVersion: String(art?.modelVersion ?? "unknown"),
           simulationVersion: 1,
-          runCount: Number(art?.runCount ?? 10000),
+          /* P308 stage 0: a run count is EVIDENCE, never a default. An artifact that does not record one gets null,
+             and allowsRunCountClaim (game-lab-view) then forbids every "N-run" phrase downstream. */
+          runCount: Number.isInteger(art?.runCount) && (art?.runCount as number) > 0 ? (art?.runCount as number) : null,
           generatedAt: String(art?.generatedAt ?? ""),
         }),
       } as unknown as PublicGameDetail);

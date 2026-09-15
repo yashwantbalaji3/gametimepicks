@@ -35,6 +35,8 @@ import { loadSportLabLadder, loadSportLabStreamRecord } from "@/lib/parlays/spor
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import ModelStatusPanel from "@/components/command-center/model-status-panel";
 import { modelStatusFor } from "@/lib/command-center/model-status";
+import SimulationStorySection from "@/components/simulate/simulation-story-section";
+import { buildUfcPresentation } from "@/lib/simulate/presentation/ufc";
 
 export const metadata = withRouteMetadata("/ufc/", {
   /*
@@ -189,6 +191,10 @@ export default function UfcArchivePage() {
           <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
         </nav>
       </header>
+
+      {/* P308: the card's simulation story — the main event's winner, method and round chapters, from the same
+          artifact the card below renders. */}
+      <SimulationStorySection manifest={buildUfcPresentation(card)} />
 
       {/* P309: backtest verdicts beside the live record, in the public status vocabulary. */}
       <ModelStatusPanel sportLabel="UFC" items={modelStatusFor("ufc", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), ufcVerdicts: card?.model?.verdicts ?? null })} />

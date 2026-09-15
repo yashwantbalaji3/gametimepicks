@@ -29,6 +29,8 @@ import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
 import { loadEplForecasts, findEplForecastAnywhere, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture, reportableRows } from "@/lib/sports/epl/forecast-view";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import SimulationStorySection from "@/components/simulate/simulation-story-section";
+import { buildEplPresentation } from "@/lib/simulate/presentation/epl";
 
 /**
  * One page per fixture that EVER carried a distribution — enumerated from the dated archive, not
@@ -169,6 +171,11 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           <strong style={{ color: "var(--vault-warn)" }}>Small-sample input:</strong> {row.sparseInput.note.replace(/^Small-sample input: /, "")}
         </p>
       ) : null}
+
+      {/* P308: the inline simulation story for this fixture — the score matrix's chapters, the limitation carried. */}
+      <div className="mt-6">
+        <SimulationStorySection manifest={buildEplPresentation(row, { trackRecord: set?.trackRecord ?? null })} />
+      </div>
 
       {/* ── Match result ─────────────────────────────────────────────────────────────────────── */}
       <section className="mt-7">

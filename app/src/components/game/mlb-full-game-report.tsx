@@ -143,7 +143,7 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
     <section className="rounded-[16px] px-4 py-4 flex flex-col gap-3" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--vault-crown) 10%, transparent), color-mix(in srgb, var(--vault-crown) 3%, transparent))", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>GameTimePicks simulation read</span>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from 10,000 simulated games · not validated to out-predict the market</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from {runCount && runCount > 0 ? `${runCount.toLocaleString()} ` : ""}simulated games · not validated to out-predict the market</span>
       </div>
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <span className="font-display" style={{ color: p.predictedWinner ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: p.predictedWinner ? 26 : 18, fontWeight: 800, lineHeight: 1.05 }}>{winnerName}</span>
@@ -199,7 +199,7 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
               />
             ))}
           </div>
-          <span className="font-mono block mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Direction from simulated probability across 10,000 games · legacy prop engine · not a bet</span>
+          <span className="font-mono block mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Direction from simulated probability across {runCount && runCount > 0 ? `${runCount.toLocaleString()} ` : "the simulated "}games · legacy prop engine · not a bet</span>
         </div>
       ) : null}
     </section>
@@ -239,7 +239,7 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
   );
 }
 
-function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; awayCode: string; homeCode: string; awayLogo?: string | null; homeLogo?: string | null }) {
+function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, storySlot }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; awayCode: string; homeCode: string; awayLogo?: string | null; homeLogo?: string | null; storySlot?: ReactNode }) {
   const V = g.vocabulary ?? BASEBALL_VOCAB;
   if (!g.winProbability || !g.runs || !g.totalRuns) return null;
   const rl15 = g.runLine.find((r) => r.line === 1.5);
@@ -295,6 +295,8 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo }: { g
           same three numbers directly beneath itself. The honest "these teams project level" note it
           carried now rides on the head-to-head. */}
       {prediction ? <PredictionHero p={prediction} runCount={g.runCount} spreadLabel={(g.vocabulary ?? BASEBALL_VOCAB).spreadLabel} /> : null}
+      {/* P308: the inline simulation story — under the answer, never over it; the report below stays the record. */}
+      {storySlot ?? null}
 
       {/* Everything below is EVIDENCE for the prediction above. */}
       <div className="flex items-center gap-2 mt-1">
@@ -304,7 +306,7 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo }: { g
 
       {/* Win probability */}
       <section className="rounded-[14px] px-4 py-4" style={{ background: "color-mix(in srgb, var(--vault-crown) 5%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 25%, transparent)" }}>
-        <div className="font-mono uppercase tracking-[0.12em] mb-2.5" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Win probability · 10,000 simulated games</div>
+        <div className="font-mono uppercase tracking-[0.12em] mb-2.5" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Win probability · {g.runCount > 0 ? `${g.runCount.toLocaleString()} ` : ""}simulated games</div>
         <WinBar awayCode={awayCode} homeCode={homeCode} away={g.winProbability.away} home={g.winProbability.home} />
       </section>
 
@@ -444,7 +446,7 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-[11px] m-0" style={{ color: "var(--vault-text-faint)" }}>
-        Average per-game stat line across the 10,000 simulated games (same games that produced the score above).{" "}
+        Average per-game stat line across the {g.runCount > 0 ? `${g.runCount.toLocaleString()} ` : ""}simulated games (same games that produced the score above).{" "}
         {/* Lineup provenance for THIS run, read from the artifact — never a blanket claim about pregame lineups. */}
         {g.completeness.awayLineupSource === "confirmed" && g.completeness.homeLineupSource === "confirmed"
           ? "Both clubs' confirmed batting orders were used for this run."
@@ -558,6 +560,7 @@ export default function MlbFullGameReport({
   homeCode,
   awayLogo,
   homeLogo,
+  storySlot,
 }: {
   fullGame: FullGameSimGame;
   meta: FullGameArtifactMeta | null;
@@ -574,6 +577,8 @@ export default function MlbFullGameReport({
   marketNode?: ReactNode;
   awayCode: string;
   homeCode: string;
+  /** P308: the inline simulation story, built by the page from the same detail this report renders. */
+  storySlot?: ReactNode;
 }) {
   const [tab, setTab] = useState<TabKey>("overview");
   const tablistId = useId();
@@ -631,7 +636,7 @@ export default function MlbFullGameReport({
 
       {/* Panels */}
       <div role="tabpanel">
-        {tab === "overview" && (available ? <Overview g={g} prediction={prediction} awayCode={awayCode} homeCode={homeCode} awayLogo={awayLogo} homeLogo={homeLogo} /> : <UnavailableNote g={g} />)}
+        {tab === "overview" && (available ? <Overview g={g} prediction={prediction} awayCode={awayCode} homeCode={homeCode} awayLogo={awayLogo} homeLogo={homeLogo} storySlot={storySlot} /> : <UnavailableNote g={g} />)}
         {tab === "box" && (available ? <BoxScore g={g} /> : <UnavailableNote g={g} />)}
         {tab === "market" && <div>{marketNode}</div>}
         {tab === "players" && <div>{deepDive}</div>}

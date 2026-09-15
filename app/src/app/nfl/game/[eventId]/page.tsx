@@ -25,6 +25,9 @@ import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/playe
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
+import SimulationStorySection from "@/components/simulate/simulation-story-section";
+import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
+import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -79,7 +82,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   if (!f) return withRouteMetadata(`/nfl/game/${params.eventId}/`, { title: "NFL game · GameTime Picks" });
   return withRouteMetadata(`/nfl/game/${params.eventId}/`, {
     title: `${f.matchup} — experimental simulation · GameTime Picks`,
-    description: `A 10,000-run simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental model; educational and paper-only.`,
+    description: `A ${Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? `${f.model.simulations.toLocaleString()}-run ` : ""}simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental model; educational and paper-only.`,
     alternates: { canonical: `/nfl/game/${f.providerEventId}` },
   });
 }
@@ -106,6 +109,7 @@ type ScoreShapeGame = NonNullable<ScoreShapeArtifact["games"]>[number] & {
 };
 
 export default function NflGameReport({ params }: { params: { eventId: string } }) {
+  const storyNowIso = new Date().toISOString();
   const artifact = forecastArtifact();
   const f: Forecast | undefined = (artifact?.forecasts ?? []).find((x: Forecast) => x.providerEventId === params.eventId);
   if (!f) notFound();
@@ -192,6 +196,12 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </p>
         ) : null}
       </header>
+
+      {/* P308: the inline simulation story, from the same eligibility verdict the lobby uses; a started game is told
+          in the past tense by the adapter, and a refusal states its reason. */}
+      <div style={{ marginTop: 22 }}>
+        <SimulationStorySection manifest={buildNflPresentation(nflSimulateEligibility(storyNowIso).events.find((e) => e.providerEventId === params.eventId) ?? null, { indexGeneratedAt: nflSimulateEligibility(storyNowIso).indexGeneratedAt, runCount: Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? f.model.simulations : null, modelVersion: f.model?.id ?? null, nowIso: storyNowIso })} />
+      </div>
 
       <section aria-labelledby="sim-summary" style={{ marginTop: 26 }}>
         {/* P179-A0: the report states its OWN readiness before showing a number. A page that leads

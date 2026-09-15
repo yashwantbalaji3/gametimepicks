@@ -61,6 +61,8 @@ import {
 } from "@/lib/world-cup/game-model-picks";
 
 import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
+import SimulationStorySection from "@/components/simulate/simulation-story-section";
+import { buildMlbPresentation } from "@/lib/simulate/presentation/mlb";
 const RISK_LABEL: Record<string, string> = RISK_LABELS;
 const RISK_ORDER = ["low", "medium", "high", "longshot"] as const;
 const STATUS_LABEL: Record<string, string> = { live: "Live", pending: "Pending", unavailable: "Market unavailable", model_only: "Model only" };
@@ -722,6 +724,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       homeCode={detail.fullGameSim.homeTeam}
       awayLogo={detail.awayLogo ?? null}
       homeLogo={detail.homeLogo ?? null}
+      storySlot={<SimulationStorySection manifest={buildMlbPresentation(detail)} />}
     />
   ) : (
     mlbReportDetails
