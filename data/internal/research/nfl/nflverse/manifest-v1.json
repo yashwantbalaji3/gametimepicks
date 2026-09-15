@@ -2,22 +2,22 @@
  "schemaVersion": 1,
  "artifact": "nflverse-capture",
  "dataClass": "PRIVATE_RESEARCH",
- "capturedAt": "2026-09-11T14:49:23Z",
+ "capturedAt": "2026-09-15T15:38:48Z",
  "attribution": "Data: nflverse (https://github.com/nflverse), licensed CC BY 4.0. Derived tables; raw files are not redistributed here.",
  "sources": [
   {
    "name": "players.csv",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/players/players.csv",
    "status": 200,
-   "bytes": 7288059,
-   "sha256": "6f896e1134757efe09761ae81280f89d9604d8ce611a888a56d9e7d49e80eeb9"
+   "bytes": 7290797,
+   "sha256": "507f8cf03ffc8a82b841212582000163eb713ced15c9f83f851afb42da0af259"
   },
   {
    "name": "games.csv",
    "url": "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv",
    "status": 200,
-   "bytes": 2178393,
-   "sha256": "cf8632c85fdc82c8915c7866d0bd16465a88946052bccfbf83b44bee87d5d65e"
+   "bytes": 2177839,
+   "sha256": "1e37943afccb462d95b68e065e1481320faffd96f36368ff804a069da891e1a4"
   },
   {
    "name": "snap_counts_2022.csv",
@@ -51,14 +51,14 @@
    "name": "snap_counts_2026.csv",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2026.csv",
    "status": 200,
-   "bytes": 8397,
-   "sha256": "3e40ec0361391e8cc9ecf85ddecd316d5c800a1a56be7de51f8d3f4254d92d8d"
+   "bytes": 134005,
+   "sha256": "e995f21949eed665c189b931fd165dc38afd644565a507cd3ff117813304e785"
   }
  ],
  "tables": {
   "gameLines": {
    "games": 1411,
-   "withClose": 1242
+   "withClose": 1171
   },
   "participation": {
    "2022": {
@@ -91,9 +91,9 @@
    },
    "2026": {
     "file": "participation-2026.jsonl",
-    "rows": 36,
-    "unjoined": 0,
-    "joinRate": 1,
+    "rows": 588,
+    "unjoined": 3,
+    "joinRate": 0.9949,
     "published": true
    }
   }
