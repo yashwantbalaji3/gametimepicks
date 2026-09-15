@@ -302,7 +302,8 @@ for (const [key, L] of Object.entries(F.leagues)) {
 const p304 = JSON.parse(fs.readFileSync(rel(F.parity.p304Evaluation), "utf8"));
 const eplHeld = all.filter((p) => p.league === "epl");
 const eplControl = metrics(eplHeld, "eloPoisson", false);
-const parity = { supremacySlope: [slopes.epl, p304.supremacySlope], logLoss: [eplControl.logLoss, JSON.parse(p304.results).eloPoisson.overall.logLoss], over25Brier: [eplControl.over25Brier, JSON.parse(p304.results).eloPoisson.overall.over25Brier] };
+const p304Control = (typeof p304.results === "string" ? JSON.parse(p304.results) : p304.results).eloPoisson.overall;
+const parity = { supremacySlope: [slopes.epl, p304.supremacySlope], logLoss: [eplControl.logLoss, p304Control.logLoss], over25Brier: [eplControl.over25Brier, p304Control.over25Brier] };
 const parityOk = Object.values(parity).every(([a, b]) => Math.abs(a - b) < 1e-4);
 if (!parityOk) refuse(`the control does not reproduce the P304 receipt: ${JSON.stringify(parity)}`);
 
