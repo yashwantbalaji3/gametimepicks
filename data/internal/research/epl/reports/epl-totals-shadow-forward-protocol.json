@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-totals-shadow-forward-protocol",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "305-F",
+  "registeredAt": "2026-09-15T04:20:00Z",
+  "registeredBeforeAnyShadowForecast": "No shadow block exists on any forecast row at registration. The first shadow forecast is written by the next epl-matchweek run after this file is committed.",
+  "whyThisExists": "P305 (reports/epl-totals-replay-evaluation.json, a6bacbe57) found club-specific totals beat the live P304 constant total on every totals bar, blind on four leagues and on the EPL second look, and is formally REJECTED on the blind tier by the registered 1X2 ECE ceiling (0.03) that the P304 control itself fails there (0.0326). That verdict stands and is not reinterpreted. This protocol registers the discipline-preserving alternative: the candidate runs as a private shadow beside the live model on future EPL fixtures, and a receipt accumulates paired evidence for a later founder decision. Nothing public changes because the shadow exists.",
+  "candidate": {
+    "id": "epl-totals-shadow-v1-goal-ratios",
+    "replayName": "goalRatios",
+    "why": "the lower blind total log loss of the two P305 candidates (goalRatios 1.88978 vs tempo 1.89059)",
+    "constants": "the P305 registration's frozen block, read from that file at build time — no constant is restated here"
+  },
+  "rules": {
+    "model": "app/src/lib/sports/epl/totals-shadow.mjs: per-club decayed, shrunk attack/defence ratios (P305 goalRatios) give a multiplier on the live P304 state's own league rate; supremacy and floor are P304's; the score matrix is the product's own (strength-state.mjs scoreMatrix). A parity test re-scores dev season 2023-24 through the module against the replay's disclosed figure.",
+    "informationState": "Built inside build-epl-forecasts.mjs from the same history rows, the same cutoff (NOW) and the same fixture list as the live P304 forecast; written to the PRIVATE forecast row as `shadowTotals`. publicRows never copies it.",
+    "whenItRuns": "Only while P304 is the adopted live model (match-model.mjs selection adopted) and the P305 evaluation receipt is present; otherwise the row carries no shadow block and the run says why.",
+    "grading": "grade-forecasts.mjs scores both the P304 total distribution (row.model.totals.distribution) and the shadow's on the official total: total-goals log loss, over 1.5/2.5/3.5 probability and Brier, expected total, plus the shadow's 1X2 log loss and probabilities. Rows are graded once from the forecast of record; the ledger is append-only.",
+    "receipt": "app/scripts/epl/build-epl-totals-shadow-receipt.mjs → data/internal/research/epl/forward-totals/receipt.json, rebuilt in every matchweek run after grading. States ACCUMULATING / SHADOW_BETTER / SHADOW_WORSE / SHADOW_INCONCLUSIVE as defined in totals-shadow-receipt.mjs.",
+    "noHindsight": "A forecast row is written before kickoff and never regenerated for a started fixture (build-epl-forecasts.mjs pre-kickoff rule); the grader keeps the latest pre-kickoff revision. This file's constants and bars do not change after registration; a change is a new registration.",
+    "adoption": "SHADOW_BETTER changes nothing. Public adoption of a candidate whose historical blind receipt is REJECTED requires explicit founder approval and its own reviewed app/ change with a paired fallback."
+  },
+  "frozen": {
+    "startedAt": "2026-09-15T04:20:00Z",
+    "shadowModelId": "epl-totals-shadow-v1-goal-ratios",
+    "liveModelId": "epl-model-v2-elo-poisson",
+    "p305Registration": {
+      "path": "data/internal/research/epl/reports/epl-totals-replay-preregistration.json",
+      "totals": {
+        "halfLifeMatches": 19,
+        "priorMatches": 40,
+        "seasonRegression": 0.2
+      },
+      "lambdaFloor": 0.05,
+      "totalWindowMatches": 380,
+      "totalPrior": 2.75
+    },
+    "minimumN": 60,
+    "bars": {
+      "overEceMax": 0.03,
+      "levelBand": [
+        0.97,
+        1.03
+      ],
+      "oneXTwoTolerance": 0.001,
+      "oneXTwoEceTolerance": 0.005
+    },
+    "bootstrap": {
+      "resamples": 2000,
+      "seed": 20260919
+    }
+  }
+}
