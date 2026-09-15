@@ -1,0 +1,129 @@
+# P305 EPL DEV-ONLY constants sweep (2022-23 … 2025-26), disclosed before registration. Both candidates ran each grid point with the same constants.
+# Sweep 1 (2026-09-15, before the shrinkage prior range was extended):
+EPL DEV grid (constants → total log loss per candidate; lower is better; eloPoisson constant total shown once)
+  eloPoisson  n  1520 · 1X2 LL 0.9820 ECE 0.0206 · total LL 1.9004 · O2.5 Brier 0.2443 ECE 0.0115 · O1.5/O3.5 ECE 0.010/0.014 · level 1.005 · sd 0.177
+  clubMeans   n  1520 · 1X2 LL 0.9828 ECE 0.0201 · total LL 1.9021 · O2.5 Brier 0.2445 ECE 0.0459 · O1.5/O3.5 ECE 0.018/0.022 · level 0.998 · sd 0.339
+  HL  10 prior   5 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9838 ECE 0.0190 · total LL 1.9056 · O2.5 Brier 0.2453 ECE 0.0528 · O1.5/O3.5 ECE 0.034/0.044 · level 1.001 · sd 0.483
+  HL  10 prior   5 reg 0.2  tempo      n  1520 · 1X2 LL 0.9827 ECE 0.0193 · total LL 1.8964 · O2.5 Brier 0.2430 ECE 0.0167 · O1.5/O3.5 ECE 0.014/0.013 · level 1.003 · sd 0.289
+  HL  10 prior   5 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9840 ECE 0.0186 · total LL 1.9070 · O2.5 Brier 0.2458 ECE 0.0615 · O1.5/O3.5 ECE 0.034/0.045 · level 0.998 · sd 0.485
+  HL  10 prior   5 reg 0.5  tempo      n  1520 · 1X2 LL 0.9827 ECE 0.0194 · total LL 1.8967 · O2.5 Brier 0.2431 ECE 0.0176 · O1.5/O3.5 ECE 0.015/0.009 · level 1.001 · sd 0.289
+  HL  10 prior  10 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9832 ECE 0.0192 · total LL 1.8995 · O2.5 Brier 0.2437 ECE 0.0381 · O1.5/O3.5 ECE 0.019/0.026 · level 1.002 · sd 0.397
+  HL  10 prior  10 reg 0.2  tempo      n  1520 · 1X2 LL 0.9825 ECE 0.0196 · total LL 1.8960 · O2.5 Brier 0.2429 ECE 0.0103 · O1.5/O3.5 ECE 0.013/0.008 · level 1.003 · sd 0.256
+  HL  10 prior  10 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9833 ECE 0.0196 · total LL 1.9001 · O2.5 Brier 0.2440 ECE 0.0406 · O1.5/O3.5 ECE 0.026/0.026 · level 1.000 · sd 0.392
+  HL  10 prior  10 reg 0.5  tempo      n  1520 · 1X2 LL 0.9825 ECE 0.0196 · total LL 1.8962 · O2.5 Brier 0.2430 ECE 0.0167 · O1.5/O3.5 ECE 0.013/0.002 · level 1.002 · sd 0.253
+  HL  10 prior  20 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9827 ECE 0.0196 · total LL 1.8961 · O2.5 Brier 0.2429 ECE 0.0207 · O1.5/O3.5 ECE 0.015/0.012 · level 1.003 · sd 0.310
+  HL  10 prior  20 reg 0.2  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0194 · total LL 1.8964 · O2.5 Brier 0.2430 ECE 0.0118 · O1.5/O3.5 ECE 0.012/0.003 · level 1.004 · sd 0.224
+  HL  10 prior  20 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9827 ECE 0.0192 · total LL 1.8964 · O2.5 Brier 0.2430 ECE 0.0238 · O1.5/O3.5 ECE 0.017/0.012 · level 1.001 · sd 0.303
+  HL  10 prior  20 reg 0.5  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0199 · total LL 1.8966 · O2.5 Brier 0.2431 ECE 0.0145 · O1.5/O3.5 ECE 0.012/0.001 · level 1.003 · sd 0.220
+  HL  10 prior  40 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0195 · total LL 1.8957 · O2.5 Brier 0.2428 ECE 0.0112 · O1.5/O3.5 ECE 0.012/0.004 · level 1.003 · sd 0.244
+  HL  10 prior  40 reg 0.2  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0197 · total LL 1.8973 · O2.5 Brier 0.2434 ECE 0.0096 · O1.5/O3.5 ECE 0.011/0.003 · level 1.004 · sd 0.200
+  HL  10 prior  40 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0195 · total LL 1.8960 · O2.5 Brier 0.2429 ECE 0.0105 · O1.5/O3.5 ECE 0.012/0.009 · level 1.003 · sd 0.238
+  HL  10 prior  40 reg 0.5  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0202 · total LL 1.8975 · O2.5 Brier 0.2434 ECE 0.0092 · O1.5/O3.5 ECE 0.011/0.003 · level 1.004 · sd 0.197
+  HL  19 prior   5 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9834 ECE 0.0186 · total LL 1.9022 · O2.5 Brier 0.2439 ECE 0.0465 · O1.5/O3.5 ECE 0.024/0.030 · level 1.005 · sd 0.464
+  HL  19 prior   5 reg 0.2  tempo      n  1520 · 1X2 LL 0.9826 ECE 0.0195 · total LL 1.8957 · O2.5 Brier 0.2426 ECE 0.0110 · O1.5/O3.5 ECE 0.013/0.009 · level 1.004 · sd 0.283
+  HL  19 prior   5 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9837 ECE 0.0192 · total LL 1.9037 · O2.5 Brier 0.2446 ECE 0.0464 · O1.5/O3.5 ECE 0.034/0.033 · level 1.000 · sd 0.474
+  HL  19 prior   5 reg 0.5  tempo      n  1520 · 1X2 LL 0.9826 ECE 0.0196 · total LL 1.8959 · O2.5 Brier 0.2427 ECE 0.0171 · O1.5/O3.5 ECE 0.014/0.015 · level 1.002 · sd 0.286
+  HL  19 prior  10 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9831 ECE 0.0177 · total LL 1.8984 · O2.5 Brier 0.2431 ECE 0.0348 · O1.5/O3.5 ECE 0.018/0.020 · level 1.005 · sd 0.407
+  HL  19 prior  10 reg 0.2  tempo      n  1520 · 1X2 LL 0.9824 ECE 0.0195 · total LL 1.8956 · O2.5 Brier 0.2427 ECE 0.0115 · O1.5/O3.5 ECE 0.012/0.004 · level 1.004 · sd 0.261
+  HL  19 prior  10 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9832 ECE 0.0190 · total LL 1.8990 · O2.5 Brier 0.2434 ECE 0.0358 · O1.5/O3.5 ECE 0.023/0.027 · level 1.001 · sd 0.406
+  HL  19 prior  10 reg 0.5  tempo      n  1520 · 1X2 LL 0.9825 ECE 0.0194 · total LL 1.8956 · O2.5 Brier 0.2427 ECE 0.0081 · O1.5/O3.5 ECE 0.013/0.007 · level 1.002 · sd 0.260
+  HL  19 prior  20 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9827 ECE 0.0189 · total LL 1.8957 · O2.5 Brier 0.2425 ECE 0.0210 · O1.5/O3.5 ECE 0.015/0.016 · level 1.005 · sd 0.337
+  HL  19 prior  20 reg 0.2  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0192 · total LL 1.8959 · O2.5 Brier 0.2428 ECE 0.0075 · O1.5/O3.5 ECE 0.011/0.002 · level 1.004 · sd 0.235
+  HL  19 prior  20 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9828 ECE 0.0189 · total LL 1.8958 · O2.5 Brier 0.2426 ECE 0.0266 · O1.5/O3.5 ECE 0.015/0.015 · level 1.002 · sd 0.328
+  HL  19 prior  20 reg 0.5  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0196 · total LL 1.8960 · O2.5 Brier 0.2429 ECE 0.0084 · O1.5/O3.5 ECE 0.012/0.006 · level 1.003 · sd 0.231
+  HL  19 prior  40 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0191 · total LL 1.8950 · O2.5 Brier 0.2424 ECE 0.0111 · O1.5/O3.5 ECE 0.012/0.009 · level 1.005 · sd 0.270
+  HL  19 prior  40 reg 0.2  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0196 · total LL 1.8967 · O2.5 Brier 0.2431 ECE 0.0111 · O1.5/O3.5 ECE 0.011/0.001 · level 1.005 · sd 0.211
+  HL  19 prior  40 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0191 · total LL 1.8952 · O2.5 Brier 0.2425 ECE 0.0092 · O1.5/O3.5 ECE 0.013/0.002 · level 1.003 · sd 0.260
+  HL  19 prior  40 reg 0.5  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0200 · total LL 1.8969 · O2.5 Brier 0.2432 ECE 0.0075 · O1.5/O3.5 ECE 0.011/0.004 · level 1.004 · sd 0.206
+  HL  38 prior   5 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9830 ECE 0.0172 · total LL 1.9010 · O2.5 Brier 0.2431 ECE 0.0314 · O1.5/O3.5 ECE 0.020/0.027 · level 1.010 · sd 0.435
+  HL  38 prior   5 reg 0.2  tempo      n  1520 · 1X2 LL 0.9824 ECE 0.0195 · total LL 1.8960 · O2.5 Brier 0.2425 ECE 0.0107 · O1.5/O3.5 ECE 0.011/0.002 · level 1.007 · sd 0.270
+  HL  38 prior   5 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9833 ECE 0.0191 · total LL 1.9020 · O2.5 Brier 0.2437 ECE 0.0412 · O1.5/O3.5 ECE 0.028/0.027 · level 1.003 · sd 0.456
+  HL  38 prior   5 reg 0.5  tempo      n  1520 · 1X2 LL 0.9825 ECE 0.0194 · total LL 1.8957 · O2.5 Brier 0.2426 ECE 0.0130 · O1.5/O3.5 ECE 0.013/0.011 · level 1.003 · sd 0.279
+  HL  38 prior  10 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9828 ECE 0.0172 · total LL 1.8986 · O2.5 Brier 0.2427 ECE 0.0268 · O1.5/O3.5 ECE 0.017/0.024 · level 1.010 · sd 0.398
+  HL  38 prior  10 reg 0.2  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0196 · total LL 1.8959 · O2.5 Brier 0.2426 ECE 0.0108 · O1.5/O3.5 ECE 0.011/0.003 · level 1.007 · sd 0.257
+  HL  38 prior  10 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9831 ECE 0.0181 · total LL 1.8986 · O2.5 Brier 0.2430 ECE 0.0384 · O1.5/O3.5 ECE 0.020/0.023 · level 1.003 · sd 0.406
+  HL  38 prior  10 reg 0.5  tempo      n  1520 · 1X2 LL 0.9824 ECE 0.0191 · total LL 1.8956 · O2.5 Brier 0.2426 ECE 0.0110 · O1.5/O3.5 ECE 0.012/0.009 · level 1.004 · sd 0.260
+  HL  38 prior  20 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9826 ECE 0.0180 · total LL 1.8964 · O2.5 Brier 0.2423 ECE 0.0163 · O1.5/O3.5 ECE 0.013/0.013 · level 1.009 · sd 0.348
+  HL  38 prior  20 reg 0.2  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0193 · total LL 1.8960 · O2.5 Brier 0.2427 ECE 0.0078 · O1.5/O3.5 ECE 0.011/0.002 · level 1.007 · sd 0.238
+  HL  38 prior  20 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9827 ECE 0.0185 · total LL 1.8959 · O2.5 Brier 0.2424 ECE 0.0249 · O1.5/O3.5 ECE 0.015/0.018 · level 1.004 · sd 0.342
+  HL  38 prior  20 reg 0.5  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0193 · total LL 1.8958 · O2.5 Brier 0.2427 ECE 0.0063 · O1.5/O3.5 ECE 0.012/0.006 · level 1.004 · sd 0.236
+  HL  38 prior  40 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0185 · total LL 1.8952 · O2.5 Brier 0.2422 ECE 0.0106 · O1.5/O3.5 ECE 0.011/0.006 · level 1.008 · sd 0.290
+  HL  38 prior  40 reg 0.2  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0202 · total LL 1.8965 · O2.5 Brier 0.2429 ECE 0.0056 · O1.5/O3.5 ECE 0.010/0.002 · level 1.006 · sd 0.218
+  HL  38 prior  40 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0189 · total LL 1.8950 · O2.5 Brier 0.2423 ECE 0.0164 · O1.5/O3.5 ECE 0.013/0.016 · level 1.004 · sd 0.277
+  HL  38 prior  40 reg 0.5  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0201 · total LL 1.8966 · O2.5 Brier 0.2430 ECE 0.0109 · O1.5/O3.5 ECE 0.011/0.007 · level 1.004 · sd 0.213
+  HL  76 prior   5 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9827 ECE 0.0175 · total LL 1.9010 · O2.5 Brier 0.2429 ECE 0.0281 · O1.5/O3.5 ECE 0.021/0.023 · level 1.016 · sd 0.410
+  HL  76 prior   5 reg 0.2  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0198 · total LL 1.8965 · O2.5 Brier 0.2426 ECE 0.0089 · O1.5/O3.5 ECE 0.010/0.004 · level 1.010 · sd 0.258
+  HL  76 prior   5 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9831 ECE 0.0183 · total LL 1.9013 · O2.5 Brier 0.2433 ECE 0.0395 · O1.5/O3.5 ECE 0.026/0.026 · level 1.006 · sd 0.441
+  HL  76 prior   5 reg 0.5  tempo      n  1520 · 1X2 LL 0.9825 ECE 0.0192 · total LL 1.8958 · O2.5 Brier 0.2425 ECE 0.0141 · O1.5/O3.5 ECE 0.012/0.004 · level 1.005 · sd 0.272
+  HL  76 prior  10 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9826 ECE 0.0175 · total LL 1.8993 · O2.5 Brier 0.2426 ECE 0.0282 · O1.5/O3.5 ECE 0.018/0.019 · level 1.015 · sd 0.386
+  HL  76 prior  10 reg 0.2  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0198 · total LL 1.8963 · O2.5 Brier 0.2426 ECE 0.0052 · O1.5/O3.5 ECE 0.010/0.005 · level 1.009 · sd 0.249
+  HL  76 prior  10 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9830 ECE 0.0177 · total LL 1.8987 · O2.5 Brier 0.2428 ECE 0.0316 · O1.5/O3.5 ECE 0.017/0.026 · level 1.006 · sd 0.401
+  HL  76 prior  10 reg 0.5  tempo      n  1520 · 1X2 LL 0.9824 ECE 0.0192 · total LL 1.8957 · O2.5 Brier 0.2426 ECE 0.0084 · O1.5/O3.5 ECE 0.012/0.004 · level 1.005 · sd 0.257
+  HL  76 prior  20 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9825 ECE 0.0182 · total LL 1.8974 · O2.5 Brier 0.2423 ECE 0.0146 · O1.5/O3.5 ECE 0.017/0.015 · level 1.014 · sd 0.349
+  HL  76 prior  20 reg 0.2  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0196 · total LL 1.8963 · O2.5 Brier 0.2427 ECE 0.0059 · O1.5/O3.5 ECE 0.009/0.003 · level 1.009 · sd 0.237
+  HL  76 prior  20 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9827 ECE 0.0182 · total LL 1.8963 · O2.5 Brier 0.2423 ECE 0.0243 · O1.5/O3.5 ECE 0.014/0.015 · level 1.006 · sd 0.347
+  HL  76 prior  20 reg 0.5  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0193 · total LL 1.8959 · O2.5 Brier 0.2427 ECE 0.0056 · O1.5/O3.5 ECE 0.011/0.004 · level 1.005 · sd 0.238
+  HL  76 prior  40 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9823 ECE 0.0187 · total LL 1.8959 · O2.5 Brier 0.2421 ECE 0.0154 · O1.5/O3.5 ECE 0.012/0.010 · level 1.012 · sd 0.302
+  HL  76 prior  40 reg 0.2  tempo      n  1520 · 1X2 LL 0.9821 ECE 0.0202 · total LL 1.8966 · O2.5 Brier 0.2428 ECE 0.0047 · O1.5/O3.5 ECE 0.009/0.002 · level 1.008 · sd 0.220
+  HL  76 prior  40 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0184 · total LL 1.8952 · O2.5 Brier 0.2422 ECE 0.0153 · O1.5/O3.5 ECE 0.012/0.005 · level 1.006 · sd 0.287
+  HL  76 prior  40 reg 0.5  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0201 · total LL 1.8965 · O2.5 Brier 0.2429 ECE 0.0104 · O1.5/O3.5 ECE 0.011/0.004 · level 1.005 · sd 0.216
+
+# Sweep 2 (prior extended to 80 and 160; total log loss printed to 5 decimals):
+EPL DEV grid (constants → total log loss per candidate; lower is better; eloPoisson constant total shown once)
+  eloPoisson  n  1520 · 1X2 LL 0.9820 ECE 0.0206 · total LL 1.90037 · O2.5 Brier 0.2443 ECE 0.0115 · O1.5/O3.5 ECE 0.010/0.014 · level 1.005 · sd 0.177
+  clubMeans   n  1520 · 1X2 LL 0.9828 ECE 0.0201 · total LL 1.90208 · O2.5 Brier 0.2445 ECE 0.0459 · O1.5/O3.5 ECE 0.018/0.022 · level 0.998 · sd 0.339
+  HL  19 prior  10 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9831 ECE 0.0177 · total LL 1.89844 · O2.5 Brier 0.2431 ECE 0.0348 · O1.5/O3.5 ECE 0.018/0.020 · level 1.005 · sd 0.407
+  HL  19 prior  10 reg 0.2  tempo      n  1520 · 1X2 LL 0.9824 ECE 0.0195 · total LL 1.89560 · O2.5 Brier 0.2427 ECE 0.0115 · O1.5/O3.5 ECE 0.012/0.004 · level 1.004 · sd 0.261
+  HL  19 prior  10 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9832 ECE 0.0190 · total LL 1.89895 · O2.5 Brier 0.2434 ECE 0.0358 · O1.5/O3.5 ECE 0.023/0.027 · level 1.001 · sd 0.406
+  HL  19 prior  10 reg 0.5  tempo      n  1520 · 1X2 LL 0.9825 ECE 0.0194 · total LL 1.89563 · O2.5 Brier 0.2427 ECE 0.0081 · O1.5/O3.5 ECE 0.013/0.007 · level 1.002 · sd 0.260
+  HL  19 prior  40 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0191 · total LL 1.89496 · O2.5 Brier 0.2424 ECE 0.0111 · O1.5/O3.5 ECE 0.012/0.009 · level 1.005 · sd 0.270
+  HL  19 prior  40 reg 0.2  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0196 · total LL 1.89670 · O2.5 Brier 0.2431 ECE 0.0111 · O1.5/O3.5 ECE 0.011/0.001 · level 1.005 · sd 0.211
+  HL  19 prior  40 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0191 · total LL 1.89521 · O2.5 Brier 0.2425 ECE 0.0092 · O1.5/O3.5 ECE 0.013/0.002 · level 1.003 · sd 0.260
+  HL  19 prior  40 reg 0.5  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0200 · total LL 1.89688 · O2.5 Brier 0.2432 ECE 0.0075 · O1.5/O3.5 ECE 0.011/0.004 · level 1.004 · sd 0.206
+  HL  19 prior  80 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9822 ECE 0.0195 · total LL 1.89597 · O2.5 Brier 0.2428 ECE 0.0055 · O1.5/O3.5 ECE 0.011/0.005 · level 1.005 · sd 0.223
+  HL  19 prior  80 reg 0.2  tempo      n  1520 · 1X2 LL 0.9821 ECE 0.0202 · total LL 1.89781 · O2.5 Brier 0.2435 ECE 0.0102 · O1.5/O3.5 ECE 0.011/0.004 · level 1.005 · sd 0.194
+  HL  19 prior  80 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9822 ECE 0.0194 · total LL 1.89630 · O2.5 Brier 0.2430 ECE 0.0106 · O1.5/O3.5 ECE 0.011/0.003 · level 1.003 · sd 0.216
+  HL  19 prior  80 reg 0.5  tempo      n  1520 · 1X2 LL 0.9821 ECE 0.0204 · total LL 1.89801 · O2.5 Brier 0.2435 ECE 0.0091 · O1.5/O3.5 ECE 0.011/0.004 · level 1.004 · sd 0.191
+  HL  19 prior 160 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9821 ECE 0.0200 · total LL 1.89747 · O2.5 Brier 0.2434 ECE 0.0108 · O1.5/O3.5 ECE 0.011/0.004 · level 1.005 · sd 0.197
+  HL  19 prior 160 reg 0.2  tempo      n  1520 · 1X2 LL 0.9821 ECE 0.0207 · total LL 1.89881 · O2.5 Brier 0.2438 ECE 0.0098 · O1.5/O3.5 ECE 0.010/0.002 · level 1.005 · sd 0.185
+  HL  19 prior 160 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9821 ECE 0.0202 · total LL 1.89775 · O2.5 Brier 0.2435 ECE 0.0107 · O1.5/O3.5 ECE 0.011/0.006 · level 1.004 · sd 0.193
+  HL  19 prior 160 reg 0.5  tempo      n  1520 · 1X2 LL 0.9821 ECE 0.0205 · total LL 1.89896 · O2.5 Brier 0.2439 ECE 0.0097 · O1.5/O3.5 ECE 0.010/0.005 · level 1.004 · sd 0.183
+  HL  38 prior  10 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9828 ECE 0.0172 · total LL 1.89863 · O2.5 Brier 0.2427 ECE 0.0268 · O1.5/O3.5 ECE 0.017/0.024 · level 1.010 · sd 0.398
+  HL  38 prior  10 reg 0.2  tempo      n  1520 · 1X2 LL 0.9823 ECE 0.0196 · total LL 1.89587 · O2.5 Brier 0.2426 ECE 0.0108 · O1.5/O3.5 ECE 0.011/0.003 · level 1.007 · sd 0.257
+  HL  38 prior  10 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9831 ECE 0.0181 · total LL 1.89862 · O2.5 Brier 0.2430 ECE 0.0384 · O1.5/O3.5 ECE 0.020/0.023 · level 1.003 · sd 0.406
+  HL  38 prior  10 reg 0.5  tempo      n  1520 · 1X2 LL 0.9824 ECE 0.0191 · total LL 1.89558 · O2.5 Brier 0.2426 ECE 0.0110 · O1.5/O3.5 ECE 0.012/0.009 · level 1.004 · sd 0.260
+  HL  38 prior  40 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0185 · total LL 1.89518 · O2.5 Brier 0.2422 ECE 0.0106 · O1.5/O3.5 ECE 0.011/0.006 · level 1.008 · sd 0.290
+  HL  38 prior  40 reg 0.2  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0202 · total LL 1.89650 · O2.5 Brier 0.2429 ECE 0.0056 · O1.5/O3.5 ECE 0.010/0.002 · level 1.006 · sd 0.218
+  HL  38 prior  40 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9824 ECE 0.0189 · total LL 1.89502 · O2.5 Brier 0.2423 ECE 0.0164 · O1.5/O3.5 ECE 0.013/0.016 · level 1.004 · sd 0.277
+  HL  38 prior  40 reg 0.5  tempo      n  1520 · 1X2 LL 0.9822 ECE 0.0201 · total LL 1.89657 · O2.5 Brier 0.2430 ECE 0.0109 · O1.5/O3.5 ECE 0.011/0.007 · level 1.004 · sd 0.213
+  HL  38 prior  80 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9822 ECE 0.0193 · total LL 1.89553 · O2.5 Brier 0.2425 ECE 0.0082 · O1.5/O3.5 ECE 0.011/0.005 · level 1.007 · sd 0.240
+  HL  38 prior  80 reg 0.2  tempo      n  1520 · 1X2 LL 0.9821 ECE 0.0204 · total LL 1.89740 · O2.5 Brier 0.2433 ECE 0.0099 · O1.5/O3.5 ECE 0.010/0.002 · level 1.006 · sd 0.200
+  HL  38 prior  80 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9822 ECE 0.0197 · total LL 1.89580 · O2.5 Brier 0.2427 ECE 0.0095 · O1.5/O3.5 ECE 0.011/0.009 · level 1.004 · sd 0.228
+  HL  38 prior  80 reg 0.5  tempo      n  1520 · 1X2 LL 0.9821 ECE 0.0201 · total LL 1.89765 · O2.5 Brier 0.2434 ECE 0.0112 · O1.5/O3.5 ECE 0.011/0.005 · level 1.004 · sd 0.196
+  HL  38 prior 160 reg 0.2  goalRatios n  1520 · 1X2 LL 0.9821 ECE 0.0202 · total LL 1.89682 · O2.5 Brier 0.2430 ECE 0.0094 · O1.5/O3.5 ECE 0.010/0.009 · level 1.006 · sd 0.207
+  HL  38 prior 160 reg 0.2  tempo      n  1520 · 1X2 LL 0.9821 ECE 0.0206 · total LL 1.89840 · O2.5 Brier 0.2436 ECE 0.0108 · O1.5/O3.5 ECE 0.010/0.002 · level 1.005 · sd 0.188
+  HL  38 prior 160 reg 0.5  goalRatios n  1520 · 1X2 LL 0.9821 ECE 0.0199 · total LL 1.89725 · O2.5 Brier 0.2432 ECE 0.0120 · O1.5/O3.5 ECE 0.011/0.006 · level 1.004 · sd 0.200
+  HL  38 prior 160 reg 0.5  tempo      n  1520 · 1X2 LL 0.9821 ECE 0.0206 · total LL 1.89866 · O2.5 Brier 0.2437 ECE 0.0102 · O1.5/O3.5 ECE 0.010/0.001 · level 1.005 · sd 0.186
+
+# Final --validate with the frozen per-candidate constants:
+supremacy slope (EPL warm-up only): 0.5851 — P304 receipt 0.5851
+2022-23 goalRatios  n   380 · 1X2 LL 0.9748 ECE 0.0282 · total LL 1.93527 · O2.5 Brier 0.2436 ECE 0.0256 · O1.5/O3.5 ECE 0.022/0.025 · level 0.997 · sd 0.200
+2022-23 tempo       n   380 · 1X2 LL 0.9750 ECE 0.0282 · total LL 1.93741 · O2.5 Brier 0.2443 ECE 0.0238 · O1.5/O3.5 ECE 0.021/0.030 · level 0.997 · sd 0.189
+2022-23 eloPoisson  n   380 · 1X2 LL 0.9764 ECE 0.0253 · total LL 1.94816 · O2.5 Brier 0.2490 ECE 0.0103 · O1.5/O3.5 ECE 0.018/0.022 · level 0.991 · sd 0.042
+2022-23 clubMeans   n   380 · 1X2 LL 0.9733 ECE 0.0266 · total LL 1.94244 · O2.5 Brier 0.2435 ECE 0.0500 · O1.5/O3.5 ECE 0.024/0.028 · level 0.978 · sd 0.316
+2023-24 goalRatios  n   380 · 1X2 LL 0.9289 ECE 0.0141 · total LL 1.91256 · O2.5 Brier 0.2301 ECE 0.0556 · O1.5/O3.5 ECE 0.044/0.063 · level 0.955 · sd 0.271
+2023-24 tempo       n   380 · 1X2 LL 0.9290 ECE 0.0142 · total LL 1.91446 · O2.5 Brier 0.2305 ECE 0.0529 · O1.5/O3.5 ECE 0.045/0.060 · level 0.952 · sd 0.261
+2023-24 eloPoisson  n   380 · 1X2 LL 0.9267 ECE 0.0155 · total LL 1.92143 · O2.5 Brier 0.2327 ECE 0.0614 · O1.5/O3.5 ECE 0.054/0.074 · level 0.929 · sd 0.157
+2023-24 clubMeans   n   380 · 1X2 LL 0.9300 ECE 0.0137 · total LL 1.91479 · O2.5 Brier 0.2315 ECE 0.0820 · O1.5/O3.5 ECE 0.045/0.053 · level 0.959 · sd 0.325
+2024-25 goalRatios  n   380 · 1X2 LL 0.9837 ECE 0.0290 · total LL 1.87740 · O2.5 Brier 0.2450 ECE 0.0397 · O1.5/O3.5 ECE 0.006/0.042 · level 1.070 · sd 0.205
+2024-25 tempo       n   380 · 1X2 LL 0.9837 ECE 0.0299 · total LL 1.87634 · O2.5 Brier 0.2449 ECE 0.0389 · O1.5/O3.5 ECE 0.005/0.046 · level 1.068 · sd 0.192
+2024-25 eloPoisson  n   380 · 1X2 LL 0.9838 ECE 0.0292 · total LL 1.87981 · O2.5 Brier 0.2469 ECE 0.0473 · O1.5/O3.5 ECE 0.017/0.048 · level 1.080 · sd 0.093
+2024-25 clubMeans   n   380 · 1X2 LL 0.9833 ECE 0.0296 · total LL 1.88734 · O2.5 Brier 0.2482 ECE 0.0363 · O1.5/O3.5 ECE 0.005/0.060 · level 1.049 · sd 0.293
+2025-26 goalRatios  n   380 · 1X2 LL 1.0422 ECE 0.0472 · total LL 1.85461 · O2.5 Brier 0.2510 ECE 0.0354 · O1.5/O3.5 ECE 0.030/0.015 · level 1.002 · sd 0.140
+2025-26 tempo       n   380 · 1X2 LL 1.0421 ECE 0.0472 · total LL 1.85410 · O2.5 Brier 0.2507 ECE 0.0336 · O1.5/O3.5 ECE 0.035/0.014 · level 1.002 · sd 0.135
+2025-26 eloPoisson  n   380 · 1X2 LL 1.0411 ECE 0.0485 · total LL 1.85208 · O2.5 Brier 0.2486 ECE 0.0120 · O1.5/O3.5 ECE 0.015/0.037 · level 1.030 · sd 0.068
+2025-26 clubMeans   n   380 · 1X2 LL 1.0445 ECE 0.0469 · total LL 1.86376 · O2.5 Brier 0.2549 ECE 0.0722 · O1.5/O3.5 ECE 0.032/0.046 · level 1.012 · sd 0.250
+DEV     goalRatios  n  1520 · 1X2 LL 0.9824 ECE 0.0191 · total LL 1.89496 · O2.5 Brier 0.2424 ECE 0.0111 · O1.5/O3.5 ECE 0.012/0.009 · level 1.005 · sd 0.270
+DEV     tempo       n  1520 · 1X2 LL 0.9824 ECE 0.0191 · total LL 1.89558 · O2.5 Brier 0.2426 ECE 0.0110 · O1.5/O3.5 ECE 0.012/0.009 · level 1.004 · sd 0.260
+DEV     eloPoisson  n  1520 · 1X2 LL 0.9820 ECE 0.0206 · total LL 1.90037 · O2.5 Brier 0.2443 ECE 0.0115 · O1.5/O3.5 ECE 0.010/0.014 · level 1.005 · sd 0.177
+DEV     clubMeans   n  1520 · 1X2 LL 0.9828 ECE 0.0201 · total LL 1.90208 · O2.5 Brier 0.2445 ECE 0.0459 · O1.5/O3.5 ECE 0.018/0.022 · level 0.998 · sd 0.339

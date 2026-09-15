@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-totals-replay-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "305",
+  "registeredAt": "2026-09-15T02:35:00Z",
+  "whyThisExists": "The live EPL match model (P304 Elo-Poisson, epl-model-v2-elo-poisson) sets every fixture's expected total to the league's trailing 380-match goals per match, so the published probability of over 2.5 goals is the same number for every match of the day (0.523 on 2026-09-14) and every scoreline grid differs only by the Elo supremacy. That was what P304 tested and the page says so. This registration asks whether a club-specific total — built from each club's own decayed, shrunk scoring evidence — predicts the goals in a match better than that constant, while leaving the blind-tested 1X2 mechanism (goal-difference Elo supremacy, warm-up slope) untouched.",
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "Every committed EPL receipt, including the P304 registration and its one-look evaluation (reports/epl-history-replay-evaluation.json): 1X2 log loss, RPS, ECE and OVER-2.5 BRIER for eloPoisson, poissonLive, elo and uniform on EPL 2013-14 to 2021-22, overall, per era and per season. The EPL seasons 2013-14 to 2021-22 are therefore NOT blind for totals: the over-2.5 Brier of the constant-total control (0.25021 overall, 0.24921 to 0.25195 by season) has been seen. They are registered as a SECOND LOOK and every EPL figure from this study is labelled so.",
+    "The four other leagues' walk-forward reports (data/internal/research/soccer/<league>/reports/walk-forward-v1.json, 2026-09-11) scored ONLY 2023-24, 2024-25 and 2025-26 (Bundesliga 918, LaLiga 1140, Serie A 1140, Ligue 1 918 matches) for the split-Poisson v1; Dixon-Coles v2 (preregistration-dixon-coles-v2.json) scores only 2026-27 matches forward. No model in this repository has ever produced a prediction for a Bundesliga, LaLiga, Serie A or Ligue 1 match before 2022-23. Those seasons are the BLIND held-out set of this study. While migrating the results source (2026-09-14) the author saw per-season match counts and the join of openfootball against the old corpora for 2022-23 onward only.",
+    "EPL DEV SEASONS 2022-23 TO 2025-26 ONLY, two constants sweeps and one final --validate run of scripts/research/soccer/replay-totals-history.mjs, all in reports/epl-totals-replay-dev-grid.txt. Constant-total control on dev (n 1,520): total-goals log loss 1.90037, over-2.5 Brier 0.2443, 1X2 log loss 0.9820. Club-means naive baseline: 1.90208 (worse than the constant). goalRatios across the grid: 1.89496 (best, HL 19 / prior 40 / regression 0.2) to 1.9070 (HL 10 / prior 5); low shrinkage priors overfit and lose to the constant. tempo across the grid: 1.89558 (best, HL 38 / prior 10 / regression 0.5) to 1.8990 (prior 160); tempo is nearly flat in its constants. The frozen constants below are each candidate's dev minimum; the first sweep's best goalRatios cell sat at the edge of the prior range (40), so the range was extended to 80 and 160 in a second sweep, where the minimum stayed at 40.",
+    "With the frozen constants, dev per season (total log loss, candidate goalRatios / tempo / constant): 2022-23 1.93527 / 1.93741 / 1.94816; 2023-24 1.91256 / 1.91446 / 1.92143; 2024-25 1.87740 / 1.87634 / 1.87981; 2025-26 1.85461 / 1.85410 / 1.85208 — both candidates LOST to the constant in 2025-26. Dev over-2.5 Brier 0.2424 / 0.2426 / 0.2443; over-line ECE 0.012, 0.011, 0.009 (1.5 / 2.5 / 3.5) for goalRatios; level 1.005 / 1.004 / 1.005; sd of predicted totals 0.270 / 0.260 / 0.177 goals. Per-season over-2.5 ECE reached 0.056 (goalRatios, 2023-24) and 0.053 (tempo, 2023-24) — a season in which every model under-predicted the league's scoring jump (levels 0.929 to 0.955). 1X2 log loss: both candidates 0.9824 against the control's 0.9820 (+0.0004), 1X2 ECE 0.0191 against 0.0206. The 1X2 tolerance bar (0.001) was set after seeing these dev figures and is a tenth of P304's blind margin over plain Elo (0.0095).",
+    "Warm-up seasons: the EPL supremacy slope 0.5851 reproduces the P304 receipt in this script. No non-EPL league has been run in any mode; --validate loads the EPL only.",
+    "No 2013-14 to 2021-22 EPL match total, and no pre-2022-23 match of any other league, has been compared with any prediction from this script."
+  ],
+  "models": {
+    "goalRatios (candidate)": "Per club, decayed sums of attack evidence (goals for ÷ the league's per-side rate that stood before the match) and defence evidence (goals against ÷ the same), decay 0.5^(1/halfLifeMatches) per club match, each ratio shrunk toward 1 with priorMatches of prior weight: att = (prior + Σ) / (prior + Σw). At every season start each club's sums and weight are multiplied by (1 − seasonRegression); a new club starts at ratio 1. Expected total = league rate × (att_home × def_away + att_away × def_home) / 2, where the league rate is P304's trailing 380-match goals per match. Supremacy and split exactly as P304: λ_home = (total + supremacy) / 2, λ_away = (total − supremacy) / 2, floored at 0.05, independent Poisson to 10 goals a side, renormalised. The per-side normaliser for the EVIDENCE seeds the same 380-match window with the prior (2.75) for matches not yet played, so the first days of 2010-11 do not divide by a near-zero rate; the prediction-time league rate is P304's rule unchanged.",
+    "tempo (candidate)": "As goalRatios, but one ratio per club: decayed, shrunk (match total ÷ the league rate that stood before the match). Expected total = league rate × (tempo_home + tempo_away) / 2.",
+    "eloPoisson (control)": "P304 verbatim: the constant total (league trailing rate) with the same Elo supremacy. Its EPL held-out 1X2 log loss, over-2.5 Brier and supremacy slope must reproduce the committed P304 receipt to 1e-4 before any verdict is read; the script refuses otherwise.",
+    "clubMeans (baseline)": "Expected total = mean of the home club's last 19 match totals and the away club's last 19, unshrunk and undecayed (the league rate when a club has none); same supremacy and split. Registered so that 'beats the constant' is not the only thing tested: a club-specific total must beat the naive club average too."
+  },
+  "heldOutTiers": {
+    "BLIND": "Bundesliga 2013-14 to 2021-22 (warm-up 2010-11 to 2012-13, 2,754 matches), LaLiga 2015-16 to 2021-22 (warm-up 2012-13 to 2014-15, 2,660), Serie A 2016-17 to 2021-22 (warm-up 2013-14 to 2015-16, 2,280), Ligue 1 2017-18 to 2021-22 (warm-up 2014-15 to 2016-17, 1,799; 2019-20 stopped at 279 matches). 9,493 matches never scored by any model here. Each league's Elo supremacy slope is fit on that league's warm-up seasons only, exactly as P304 did for the EPL; the Elo constants (start 1500, K 20, home 60, 20% season regression) are P304's, not tuned per league. The 2022-23 and later seasons of these leagues are neither scored nor loaded.",
+    "SECOND_LOOK": "EPL 2013-14 to 2021-22 (3,420 matches; eras 2013-14 to 2017-18 and 2018-19 to 2021-22). The P304 receipt already reports the control's over-2.5 Brier and 1X2 metrics here, so every EPL figure is labelled SECOND_LOOK and can support a proposal, never be described as a blind result.",
+    "scoringMoment": "ONE look: scripts/research/soccer/replay-totals-history.mjs --score --now <ISO>, which refuses unless this file is committed and unmodified and refuses if the evaluation exists. All five leagues are scored in that single run. The registered seasons' rows of every league are hash-pinned; each file's current-season rows may refresh."
+  },
+  "frozenBars": {
+    "beatsConstantAndClubMeans": "total-goals log loss (the negative log probability the model's score matrix gives the match's actual goal count) strictly below both the constant-total control and the club-means baseline — overall and in every league (BLIND) / every era (SECOND_LOOK)",
+    "improvementIsNotNoise": "league-season block bootstrap (2000 resamples, seed 20260918) 95% upper bound of the per-match total log-loss difference versus the better of the two baselines strictly below 0",
+    "overLinesCalibrated": "reliability ECE (10 bins) of P(over 1.5), P(over 2.5) and P(over 3.5), each at most 0.03",
+    "level": "mean predicted total ÷ mean actual total within [0.97, 1.03]",
+    "oneXTwoNotWorse": "1X2 log loss at most 0.001 above the P304 control on the same matches, and 1X2 ECE at most 0.03 — the totals head may not damage the blind-tested result head",
+    "minimumN": "at least 1000 scored matches in the tier"
+  },
+  "decisionRule": "Per candidate and tier: BLIND is ELIGIBLE if every bar passes on the pooled four-league set, else REJECTED; the EPL second look is SECOND_LOOK_ELIGIBLE if every bar passes, else SECOND_LOOK_REJECTED. A candidate may be PROPOSED for the live EPL total only if its BLIND verdict is ELIGIBLE and its EPL verdict is SECOND_LOOK_ELIGIBLE; if both candidates qualify, the lower blind total log loss is proposed, ties to tempo (the simpler model). Nothing publishes from the evaluation. Adopting a proposed candidate is its own reviewed, founder-approved app/ change, gated by reading this receipt, with the P304 model kept as the paired control in a blind forward test and automatic fallback when the forward receipt breaches. A REJECTED candidate is not retried by adjusting it.",
+  "whatIsNotAllowed": "No held-out outcome of any league may choose a constant, window, bar, era or tier. No second --score run. No market input. No non-EPL league may be run before the --score run.",
+  "frozen": {
+    "leagues": {
+      "epl": {
+        "history": "data/internal/research/soccer/epl/history-openfootball-v1.json",
+        "warmup": [
+          "2010-11",
+          "2012-13"
+        ],
+        "heldOut": [
+          "2013-14",
+          "2021-22"
+        ],
+        "dev": [
+          "2022-23",
+          "2025-26"
+        ],
+        "eras": [
+          [
+            "2013-14",
+            "2017-18"
+          ],
+          [
+            "2018-19",
+            "2021-22"
+          ]
+        ],
+        "tier": "SECOND_LOOK",
+        "historyRowsSha256": "90a00cc80b3fbe614ad7d102243301ed0aa9fc4022b23f561e9d4b6f890c1b11",
+        "historyRowsScope": "rows of seasons 2010-11 through 2025-26 (6080), serialized as the file stores them"
+      },
+      "bundesliga": {
+        "history": "data/internal/research/soccer/bundesliga/history-openfootball-v1.json",
+        "warmup": [
+          "2010-11",
+          "2012-13"
+        ],
+        "heldOut": [
+          "2013-14",
+          "2021-22"
+        ],
+        "tier": "BLIND",
+        "historyRowsSha256": "f6c64d000dd0310332df6a70f96b492a1eb352751b6c63ce987e3db956d9dfe0",
+        "historyRowsScope": "rows of seasons 2010-11 through 2021-22 (3672), serialized as the file stores them"
+      },
+      "laliga": {
+        "history": "data/internal/research/soccer/laliga/history-openfootball-v1.json",
+        "warmup": [
+          "2012-13",
+          "2014-15"
+        ],
+        "heldOut": [
+          "2015-16",
+          "2021-22"
+        ],
+        "tier": "BLIND",
+        "historyRowsSha256": "82b9949444f0339ca6914c5c357e2381b0b216ac4ea63484a241438971d81635",
+        "historyRowsScope": "rows of seasons 2012-13 through 2021-22 (3800), serialized as the file stores them"
+      },
+      "serie-a": {
+        "history": "data/internal/research/soccer/serie-a/history-openfootball-v1.json",
+        "warmup": [
+          "2013-14",
+          "2015-16"
+        ],
+        "heldOut": [
+          "2016-17",
+          "2021-22"
+        ],
+        "tier": "BLIND",
+        "historyRowsSha256": "a7c9e7c7979cbeb24f7c4b48c0c8e52a0c5c7de19d4cdb0e4cbb49a93703e648",
+        "historyRowsScope": "rows of seasons 2013-14 through 2021-22 (3420), serialized as the file stores them"
+      },
+      "ligue-1": {
+        "history": "data/internal/research/soccer/ligue-1/history-openfootball-v1.json",
+        "warmup": [
+          "2014-15",
+          "2016-17"
+        ],
+        "heldOut": [
+          "2017-18",
+          "2021-22"
+        ],
+        "tier": "BLIND",
+        "historyRowsSha256": "c2869d31ab814f915bf1ac44bed807ceece8382419970d0f8f9a4f9785b23c3f",
+        "historyRowsScope": "rows of seasons 2014-15 through 2021-22 (2939), serialized as the file stores them"
+      }
+    },
+    "elo": {
+      "start": 1500,
+      "K": 20,
+      "homeAdvantage": 60,
+      "seasonRegression": 0.2
+    },
+    "totalWindowMatches": 380,
+    "totalPrior": 2.75,
+    "lambdaFloor": 0.05,
+    "maxGoals": 10,
+    "totals": {
+      "goalRatios": {
+        "halfLifeMatches": 19,
+        "priorMatches": 40,
+        "seasonRegression": 0.2
+      },
+      "tempo": {
+        "halfLifeMatches": 38,
+        "priorMatches": 10,
+        "seasonRegression": 0.5
+      }
+    },
+    "grid": {
+      "halfLifeMatches": [
+        10,
+        19,
+        38,
+        76
+      ],
+      "priorMatches": [
+        5,
+        10,
+        20,
+        40,
+        80,
+        160
+      ],
+      "seasonRegression": [
+        0.2,
+        0.5
+      ]
+    },
+    "naive": {
+      "window": 19
+    },
+    "bars": {
+      "levelBand": [
+        0.97,
+        1.03
+      ],
+      "overEceMax": 0.03,
+      "oneXTwoEceMax": 0.03,
+      "oneXTwoTolerance": 0.001,
+      "minimumN": 1000
+    },
+    "bootstrap": {
+      "unit": "league-season",
+      "resamples": 2000,
+      "seed": 20260918
+    },
+    "parity": {
+      "p304Evaluation": "data/internal/research/epl/reports/epl-history-replay-evaluation.json"
+    }
+  },
+  "output": "data/internal/research/epl/reports/epl-totals-replay-evaluation.json (written once)"
+}
