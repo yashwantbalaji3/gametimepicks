@@ -1,0 +1,568 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-15T14:19:41Z",
+ "sourceGeneratedAt": "2026-09-15T14:19:41Z",
+ "providerEventId": "401872943",
+ "matchup": "SEA @ ARI",
+ "kickoffUtc": "2026-09-20T20:25Z",
+ "seasonType": 2,
+ "week": 2,
+ "participationBasis": "Availability refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "newArrivals": {
+  "ARI": [
+   {
+    "playerId": "nfl-athlete-4373626",
+    "name": "Tyler Allgeier",
+    "position": "RB",
+    "team": "ARI",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "ATL",
+     "games": 17,
+     "targetsPg": 0.9,
+     "receptionsPg": 0.8,
+     "recYdsPg": 5.6,
+     "rushAttPg": 8.4,
+     "rushYdsPg": 30.2,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from ATL (17 games last season) — his role at ARI is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-3045523",
+    "name": "Kendrick Bourne",
+    "position": "WR",
+    "team": "ARI",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "SF",
+     "games": 15,
+     "targetsPg": 3.7,
+     "receptionsPg": 2.5,
+     "recYdsPg": 36.7,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from SF (15 games last season) — his role at ARI is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "SEA": [
+   {
+    "playerId": "nfl-athlete-4887558",
+    "name": "Emanuel Wilson",
+    "position": "RB",
+    "team": "SEA",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "GB",
+     "games": 20,
+     "targetsPg": 0.9,
+     "receptionsPg": 0.8,
+     "recYdsPg": 6.5,
+     "rushAttPg": 7,
+     "rushYdsPg": 28.5,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from GB (20 games last season) — his role at SEA is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
+ },
+ "departedFiltered": 0,
+ "shareLevel": null,
+ "players": [
+  {
+   "playerId": "nfl-athlete-4426385",
+   "name": "Zach Charbonnet",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 33.045,
+     "p10": 6.23,
+     "p25": 14.68,
+     "median": 28.6,
+     "p75": 45.47,
+     "p90": 66.54
+    },
+    "anytime_td": {
+     "probability": 0.538054,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360761",
+   "name": "Michael Wilson",
+   "team": "ARI",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 45.396,
+     "p10": 7.47,
+     "p25": 20.61,
+     "median": 39.33,
+     "p75": 64.56,
+     "p90": 91.06
+    },
+    "player_receptions": {
+     "mean": 3.852,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7
+    },
+    "anytime_td": {
+     "probability": 0.423965,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4576297",
+   "name": "AJ Barner",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 21.55,
+     "p10": 0,
+     "p25": 3.59,
+     "median": 15.74,
+     "p75": 32.19,
+     "p90": 51.34
+    },
+    "player_receptions": {
+     "mean": 1.996,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
+    "anytime_td": {
+     "probability": 0.381678,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4361307",
+   "name": "Trey McBride",
+   "team": "ARI",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 54.673,
+     "p10": 14.29,
+     "p25": 28.88,
+     "median": 49.44,
+     "p75": 74.72,
+     "p90": 100.94
+    },
+    "player_receptions": {
+     "mean": 5.281,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 7,
+     "p90": 9
+    },
+    "anytime_td": {
+     "probability": 0.329583,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430878",
+   "name": "Jaxon Smith-Njigba",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 66.413,
+     "p10": 18.91,
+     "p25": 36.19,
+     "median": 60.11,
+     "p75": 89.67,
+     "p90": 122.79
+    },
+    "player_receptions": {
+     "mean": 5.537,
+     "p10": 2,
+     "p25": 4,
+     "median": 5,
+     "p75": 7,
+     "p90": 9
+    },
+    "anytime_td": {
+     "probability": 0.32486,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4427728",
+   "name": "Bam Knight",
+   "team": "ARI",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 25.199,
+     "p10": 3.55,
+     "p25": 10.14,
+     "median": 21.15,
+     "p75": 35.69,
+     "p90": 52.01
+    },
+    "player_reception_yds": {
+     "mean": 12.929,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.89,
+     "p75": 19.95,
+     "p90": 35.45
+    },
+    "player_receptions": {
+     "mean": 1.23,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.249223,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432708",
+   "name": "Marvin Harrison Jr.",
+   "team": "ARI",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 30.805,
+     "p10": 0,
+     "p25": 9.62,
+     "median": 25.16,
+     "p75": 45.45,
+     "p90": 67.63
+    },
+    "player_receptions": {
+     "mean": 2.626,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.184065,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2977187",
+   "name": "Cooper Kupp",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 36.564,
+     "p10": 3.89,
+     "p25": 14.76,
+     "median": 30.93,
+     "p75": 52.75,
+     "p90": 75.24
+    },
+    "player_receptions": {
+     "mean": 3.284,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6
+    },
+    "anytime_td": {
+     "probability": 0.175836,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360405",
+   "name": "Jake Bobo",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.146256,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429835",
+   "name": "George Holani",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 6.738,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.52,
+     "p75": 9.45,
+     "p90": 20.84
+    },
+    "anytime_td": {
+     "probability": 0.131654,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4678006",
+   "name": "Elijah Arroyo",
+   "team": "SEA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 12.108,
+     "p10": 0,
+     "p25": 0,
+     "median": 5.04,
+     "p75": 18.83,
+     "p90": 35
+    },
+    "player_receptions": {
+     "mean": 1.083,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.100565,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2578570",
+   "name": "Jacoby Brissett",
+   "team": "ARI",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 166.77,
+     "p10": 52.03,
+     "p25": 100.88,
+     "median": 162.24,
+     "p75": 226.89,
+     "p90": 284.2
+    },
+    "player_rush_yds": {
+     "mean": 10.75,
+     "p10": 0,
+     "p25": 0.16,
+     "median": 5.49,
+     "p75": 15.45,
+     "p90": 29.73
+    },
+    "anytime_td": {
+     "probability": 0.089994,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429275",
+   "name": "Trey Benson",
+   "team": "ARI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 22.129,
+     "p10": 1.16,
+     "p25": 6.21,
+     "median": 16.91,
+     "p75": 32.06,
+     "p90": 50.44
+    },
+    "player_reception_yds": {
+     "mean": 18.043,
+     "p10": 0,
+     "p25": 1.38,
+     "median": 12.19,
+     "p75": 27.46,
+     "p90": 45.15
+    },
+    "player_receptions": {
+     "mean": 1.735,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 3,
+     "p90": 4
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4035693",
+   "name": "Velus Jones Jr.",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.334,
+     "p10": 0,
+     "p25": 0.03,
+     "median": 5.28,
+     "p75": 14.88,
+     "p90": 28.21
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3912547",
+   "name": "Sam Darnold",
+   "team": "SEA",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 184.796,
+     "p10": 65.66,
+     "p25": 116.95,
+     "median": 181.1,
+     "p75": 243.81,
+     "p90": 306.31
+    },
+    "player_rush_yds": {
+     "mean": 7.031,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.97,
+     "p75": 9.92,
+     "p90": 20.96
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4428943",
+   "name": "Jacardia Wright",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 6.231,
+     "p10": 0,
+     "p25": 0,
+     "median": 0.83,
+     "p75": 8.06,
+     "p90": 19.5
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426844",
+   "name": "Elijah Higgins",
+   "team": "ARI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 16.809,
+     "p10": 0,
+     "p25": 0,
+     "median": 10.4,
+     "p75": 25.64,
+     "p90": 44.59
+    },
+    "player_receptions": {
+     "mean": 1.555,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4032473",
+   "name": "Rashid Shaheed",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 17.751,
+     "p10": 0,
+     "p25": 0,
+     "median": 11.35,
+     "p75": 27.39,
+     "p90": 45.18
+    },
+    "player_receptions": {
+     "mean": 1.537,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    }
+   }
+  }
+ ],
+ "disclaimer": "Model projections. Educational."
+}

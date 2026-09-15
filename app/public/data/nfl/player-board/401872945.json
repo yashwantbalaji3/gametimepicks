@@ -1,0 +1,544 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-15T14:19:41Z",
+ "sourceGeneratedAt": "2026-09-15T14:19:41Z",
+ "providerEventId": "401872945",
+ "matchup": "IND @ KC",
+ "kickoffUtc": "2026-09-21T00:20Z",
+ "seasonType": 2,
+ "week": 2,
+ "participationBasis": "Availability refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "newArrivals": {
+  "KC": [
+   {
+    "playerId": "nfl-athlete-4567048",
+    "name": "Kenneth Walker III",
+    "position": "RB",
+    "team": "KC",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "SEA",
+     "games": 20,
+     "targetsPg": 2.4,
+     "receptionsPg": 2,
+     "recYdsPg": 19.3,
+     "rushAttPg": 14.3,
+     "rushYdsPg": 67,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from SEA (20 games last season) — his role at KC is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-4362887",
+    "name": "Justin Fields",
+    "position": "QB",
+    "team": "KC",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "NYJ",
+     "games": 11,
+     "targetsPg": 0.1,
+     "receptionsPg": 0,
+     "recYdsPg": 0,
+     "rushAttPg": 6.7,
+     "rushYdsPg": 36.5,
+     "passAttPg": 19.4,
+     "passYdsPg": 118.6
+    },
+    "note": "usage carried from NYJ (11 games last season) — his role at KC is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "IND": [
+   {
+    "playerId": "nfl-athlete-15818",
+    "name": "Keenan Allen",
+    "position": "WR",
+    "team": "IND",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "LAC",
+     "games": 18,
+     "targetsPg": 7.2,
+     "receptionsPg": 4.7,
+     "recYdsPg": 44.6,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from LAC (18 games last season) — his role at IND is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
+ },
+ "departedFiltered": 0,
+ "shareLevel": null,
+ "players": [
+  {
+   "playerId": "nfl-athlete-3139477",
+   "name": "Patrick Mahomes",
+   "team": "KC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 167.03,
+     "p10": 55.6,
+     "p25": 102.72,
+     "median": 162.34,
+     "p75": 225.63,
+     "p90": 282.3
+    },
+    "player_rush_yds": {
+     "mean": 15.597,
+     "p10": 0,
+     "p25": 1.63,
+     "median": 9.51,
+     "p75": 22.82,
+     "p90": 39.65
+    },
+    "anytime_td": {
+     "probability": 0.325647,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242335",
+   "name": "Jonathan Taylor",
+   "team": "IND",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 65.567,
+     "p10": 24.42,
+     "p25": 40.27,
+     "median": 60.71,
+     "p75": 86.45,
+     "p90": 112.63
+    },
+    "player_reception_yds": {
+     "mean": 20.733,
+     "p10": 0,
+     "p25": 3.68,
+     "median": 14.95,
+     "p75": 31.61,
+     "p90": 49.87
+    },
+    "player_receptions": {
+     "mean": 2.015,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
+    "anytime_td": {
+     "probability": 0.314767,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360078",
+   "name": "Alec Pierce",
+   "team": "IND",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 37.442,
+     "p10": 1.15,
+     "p25": 12.32,
+     "median": 30.19,
+     "p75": 55.23,
+     "p90": 82.36
+    },
+    "player_receptions": {
+     "mean": 2.753,
+     "p10": 1,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.296787,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4596602",
+   "name": "Brashard Smith",
+   "team": "KC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 11.169,
+     "p10": 0,
+     "p25": 0.38,
+     "median": 6.11,
+     "p75": 16.47,
+     "p90": 29.8
+    },
+    "player_reception_yds": {
+     "mean": 12.956,
+     "p10": 0,
+     "p25": 0,
+     "median": 7.07,
+     "p75": 19.94,
+     "p90": 35.62
+    },
+    "player_receptions": {
+     "mean": 1.302,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.281287,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4428331",
+   "name": "Rashee Rice",
+   "team": "KC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 51.34,
+     "p10": 11.76,
+     "p25": 25.8,
+     "median": 45.85,
+     "p75": 70.66,
+     "p90": 97.49
+    },
+    "player_receptions": {
+     "mean": 4.692,
+     "p10": 2,
+     "p25": 3,
+     "median": 4,
+     "p75": 6,
+     "p90": 8
+    },
+    "anytime_td": {
+     "probability": 0.273692,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4683423",
+   "name": "Riley Leonard",
+   "team": "IND",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.208832,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4688813",
+   "name": "Josh Downs",
+   "team": "IND",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 32.163,
+     "p10": 2.02,
+     "p25": 11.81,
+     "median": 26.54,
+     "p75": 46.48,
+     "p90": 68.95
+    },
+    "player_receptions": {
+     "mean": 2.971,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
+    "anytime_td": {
+     "probability": 0.196257,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-15847",
+   "name": "Travis Kelce",
+   "team": "KC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 39.054,
+     "p10": 5.88,
+     "p25": 16.79,
+     "median": 34,
+     "p75": 54.33,
+     "p90": 78.76
+    },
+    "player_receptions": {
+     "mean": 3.631,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
+    },
+    "anytime_td": {
+     "probability": 0.183713,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429084",
+   "name": "Anthony Richardson Sr.",
+   "team": "IND",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 8.598,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.19,
+     "p75": 12.49,
+     "p90": 24.31
+    },
+    "anytime_td": {
+     "probability": 0.145315,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3917792",
+   "name": "Daniel Jones",
+   "team": "IND",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 146.552,
+     "p10": 26.7,
+     "p25": 72.07,
+     "median": 137,
+     "p75": 210.91,
+     "p90": 275.22
+    },
+    "player_rush_yds": {
+     "mean": 8.667,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.35,
+     "p75": 12.61,
+     "p90": 24.47
+    },
+    "anytime_td": {
+     "probability": 0.142294,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2998565",
+   "name": "Mo Alie-Cox",
+   "team": "IND",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 12.293,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.01,
+     "p75": 18.98,
+     "p90": 34.53
+    },
+    "player_receptions": {
+     "mean": 1.147,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.131973,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4362921",
+   "name": "Tyquan Thornton",
+   "team": "KC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 14.323,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.99,
+     "p75": 22.26,
+     "p90": 40.16
+    },
+    "player_receptions": {
+     "mean": 1.159,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.124379,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4431459",
+   "name": "Tyler Warren",
+   "team": "IND",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 38.252,
+     "p10": 5.3,
+     "p25": 16.35,
+     "median": 32.6,
+     "p75": 54.34,
+     "p90": 78.08
+    },
+    "player_receptions": {
+     "mean": 3.628,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
+    },
+    "anytime_td": {
+     "probability": 0.115575,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4683062",
+   "name": "Xavier Worthy",
+   "team": "KC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 28.047,
+     "p10": 0,
+     "p25": 7.78,
+     "median": 21.5,
+     "p75": 41.69,
+     "p90": 63.45
+    },
+    "player_receptions": {
+     "mean": 2.448,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.082645,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4874509",
+   "name": "DJ Giddens",
+   "team": "IND",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 12.173,
+     "p10": 0,
+     "p25": 0.85,
+     "median": 6.96,
+     "p75": 18.03,
+     "p90": 32.22
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4240472",
+   "name": "Noah Gray",
+   "team": "KC",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 15.587,
+     "p10": 0,
+     "p25": 0,
+     "median": 9.41,
+     "p75": 23.76,
+     "p90": 40.82
+    },
+    "player_receptions": {
+     "mean": 1.473,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    }
+   }
+  }
+ ],
+ "disclaimer": "Model projections. Educational."
+}

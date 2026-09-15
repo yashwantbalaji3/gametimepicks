@@ -1,0 +1,495 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-15T14:19:41Z",
+ "sourceGeneratedAt": "2026-09-15T14:19:41Z",
+ "providerEventId": "401872941",
+ "matchup": "LV @ LAC",
+ "kickoffUtc": "2026-09-20T20:05Z",
+ "seasonType": 2,
+ "week": 2,
+ "participationBasis": "Availability refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "newArrivals": {
+  "LAC": [
+   {
+    "playerId": "nfl-athlete-3123076",
+    "name": "David Njoku",
+    "position": "TE",
+    "team": "LAC",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "CLE",
+     "games": 12,
+     "targetsPg": 4.2,
+     "receptionsPg": 2.9,
+     "recYdsPg": 26.1,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from CLE (12 games last season) — his role at LAC is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-4426535",
+    "name": "Theo Wease Jr.",
+    "position": "WR",
+    "team": "LAC",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "MIA",
+     "games": 6,
+     "targetsPg": 4.2,
+     "receptionsPg": 2.7,
+     "recYdsPg": 40.5,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from MIA (6 games last season) — his role at LAC is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "LV": [
+   {
+    "playerId": "nfl-athlete-4382466",
+    "name": "Jalen Nailor",
+    "position": "WR",
+    "team": "LV",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "MIN",
+     "games": 18,
+     "targetsPg": 3,
+     "receptionsPg": 1.7,
+     "recYdsPg": 25.2,
+     "rushAttPg": 0.1,
+     "rushYdsPg": 0.7,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from MIN (18 games last season) — his role at LV is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-14880",
+    "name": "Kirk Cousins",
+    "position": "QB",
+    "team": "LV",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "ATL",
+     "games": 10,
+     "targetsPg": 0,
+     "receptionsPg": 0,
+     "recYdsPg": 0,
+     "rushAttPg": 1.4,
+     "rushYdsPg": 0.7,
+     "passAttPg": 26.9,
+     "passYdsPg": 172.1
+    },
+    "note": "usage carried from ATL (10 games last season) — his role at LV is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
+ },
+ "departedFiltered": 0,
+ "shareLevel": null,
+ "players": [
+  {
+   "playerId": "nfl-athlete-4685382",
+   "name": "Omarion Hampton",
+   "team": "LAC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 42.566,
+     "p10": 11.66,
+     "p25": 21.87,
+     "median": 37.85,
+     "p75": 58.15,
+     "p90": 79.99
+    },
+    "player_reception_yds": {
+     "mean": 16.843,
+     "p10": 0,
+     "p25": 1.21,
+     "median": 11.45,
+     "p75": 25.74,
+     "p90": 41.52
+    },
+    "player_receptions": {
+     "mean": 1.693,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4
+    },
+    "anytime_td": {
+     "probability": 0.445583,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4890973",
+   "name": "Ashton Jeanty",
+   "team": "LV",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 53.67,
+     "p10": 19.51,
+     "p25": 31.34,
+     "median": 49.16,
+     "p75": 70.83,
+     "p90": 93.92
+    },
+    "player_reception_yds": {
+     "mean": 29.721,
+     "p10": 1.47,
+     "p25": 10.41,
+     "median": 24.11,
+     "p75": 42.42,
+     "p90": 64.42
+    },
+    "player_receptions": {
+     "mean": 2.96,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
+    "anytime_td": {
+     "probability": 0.291128,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429025",
+   "name": "Quentin Johnston",
+   "team": "LAC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 34.462,
+     "p10": 2.71,
+     "p25": 12.37,
+     "median": 28.68,
+     "p75": 49.42,
+     "p90": 73.24
+    },
+    "player_receptions": {
+     "mean": 2.971,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
+    "anytime_td": {
+     "probability": 0.284629,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4612826",
+   "name": "Ladd McConkey",
+   "team": "LAC",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 32.021,
+     "p10": 1.35,
+     "p25": 10.92,
+     "median": 26.19,
+     "p75": 46.68,
+     "p90": 70.26
+    },
+    "player_receptions": {
+     "mean": 2.824,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.275051,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430870",
+   "name": "KeAndre Lambert-Smith",
+   "team": "LAC",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.254543,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4595342",
+   "name": "Oronde Gadsden",
+   "team": "LAC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 23.677,
+     "p10": 0,
+     "p25": 4.2,
+     "median": 17.67,
+     "p75": 35.25,
+     "p90": 56.83
+    },
+    "player_receptions": {
+     "mean": 2.085,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    },
+    "anytime_td": {
+     "probability": 0.223369,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430968",
+   "name": "Kimani Vidal",
+   "team": "LAC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 34.658,
+     "p10": 7.65,
+     "p25": 16.48,
+     "median": 29.95,
+     "p75": 48.14,
+     "p90": 68.05
+    },
+    "anytime_td": {
+     "probability": 0.216768,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4038941",
+   "name": "Justin Herbert",
+   "team": "LAC",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 164.287,
+     "p10": 51.33,
+     "p25": 99.68,
+     "median": 158.93,
+     "p75": 222.11,
+     "p90": 283.43
+    },
+    "player_rush_yds": {
+     "mean": 25.973,
+     "p10": 1.91,
+     "p25": 8.69,
+     "median": 20.6,
+     "p75": 37.32,
+     "p90": 56.63
+    },
+    "anytime_td": {
+     "probability": 0.14592,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4428718",
+   "name": "Tre Tucker",
+   "team": "LV",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 36.388,
+     "p10": 3.97,
+     "p25": 14.76,
+     "median": 30.68,
+     "p75": 51.59,
+     "p90": 75.18
+    },
+    "player_receptions": {
+     "mean": 3.273,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
+    "anytime_td": {
+     "probability": 0.143825,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4260394",
+   "name": "Aidan O'Connell",
+   "team": "LV",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 99.271,
+     "p10": 5.01,
+     "p25": 32.2,
+     "median": 83.25,
+     "p75": 150.31,
+     "p90": 216.59
+    },
+    "anytime_td": {
+     "probability": 0.098895,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429086",
+   "name": "Michael Mayer",
+   "team": "LV",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 28.763,
+     "p10": 0,
+     "p25": 8.81,
+     "median": 22.75,
+     "p75": 41.6,
+     "p90": 64.05
+    },
+    "player_receptions": {
+     "mean": 2.676,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.075933,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4383351",
+   "name": "Trey Lance",
+   "team": "LAC",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 17.741,
+     "p10": 0,
+     "p25": 3.42,
+     "median": 12.34,
+     "p75": 26.37,
+     "p90": 43.21
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4686612",
+   "name": "Tre' Harris",
+   "team": "LAC",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 19.55,
+     "p10": 0,
+     "p25": 2.07,
+     "median": 13.24,
+     "p75": 29.63,
+     "p90": 48.94
+    },
+    "player_receptions": {
+     "mean": 1.774,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 3,
+     "p90": 4
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4603186",
+   "name": "Jack Bech",
+   "team": "LV",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 19.179,
+     "p10": 0,
+     "p25": 0.59,
+     "median": 13.12,
+     "p75": 29.49,
+     "p90": 47.79
+    },
+    "player_receptions": {
+     "mean": 1.716,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 3,
+     "p90": 4
+    }
+   }
+  }
+ ],
+ "disclaimer": "Model projections. Educational."
+}

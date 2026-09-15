@@ -1,0 +1,543 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-15T14:19:41Z",
+ "sourceGeneratedAt": "2026-09-15T14:19:41Z",
+ "providerEventId": "401872942",
+ "matchup": "MIA @ SF",
+ "kickoffUtc": "2026-09-20T20:25Z",
+ "seasonType": 2,
+ "week": 2,
+ "participationBasis": "Availability refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "newArrivals": {
+  "SF": [
+   {
+    "playerId": "nfl-athlete-16737",
+    "name": "Mike Evans",
+    "position": "WR",
+    "team": "SF",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "TB",
+     "games": 8,
+     "targetsPg": 7.6,
+     "receptionsPg": 3.8,
+     "recYdsPg": 46,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from TB (8 games last season) — his role at SF is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-3126486",
+    "name": "Deebo Samuel Sr.",
+    "position": "WR",
+    "team": "SF",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "WSH",
+     "games": 17,
+     "targetsPg": 5.8,
+     "receptionsPg": 4.2,
+     "recYdsPg": 42.8,
+     "rushAttPg": 1.1,
+     "rushYdsPg": 5.5,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from WSH (17 games last season) — his role at SF is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-3895856",
+    "name": "Christian Kirk",
+    "position": "WR",
+    "team": "SF",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "HOU",
+     "games": 14,
+     "targetsPg": 4.9,
+     "receptionsPg": 2.9,
+     "recYdsPg": 29.7,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from HOU (14 games last season) — his role at SF is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "MIA": [
+   {
+    "playerId": "nfl-athlete-4429435",
+    "name": "Brady Cook",
+    "position": "QB",
+    "team": "MIA",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "NYJ",
+     "games": 8,
+     "targetsPg": 0,
+     "receptionsPg": 0,
+     "recYdsPg": 0,
+     "rushAttPg": 2,
+     "rushYdsPg": 7.1,
+     "passAttPg": 23.9,
+     "passYdsPg": 121.8
+    },
+    "note": "usage carried from NYJ (8 games last season) — his role at MIA is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
+ },
+ "departedFiltered": 0,
+ "shareLevel": null,
+ "players": [
+  {
+   "playerId": "nfl-athlete-3117251",
+   "name": "Christian McCaffrey",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 53.325,
+     "p10": 18.8,
+     "p25": 31.52,
+     "median": 48.8,
+     "p75": 70.89,
+     "p90": 92.91
+    },
+    "player_reception_yds": {
+     "mean": 39.479,
+     "p10": 6.32,
+     "p25": 17.03,
+     "median": 33.94,
+     "p75": 54.9,
+     "p90": 80.54
+    },
+    "player_receptions": {
+     "mean": 3.901,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7
+    },
+    "anytime_td": {
+     "probability": 0.524941,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429160",
+   "name": "De'Von Achane",
+   "team": "MIA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 56.838,
+     "p10": 17.78,
+     "p25": 30.6,
+     "median": 51.17,
+     "p75": 77.11,
+     "p90": 103.69
+    },
+    "player_reception_yds": {
+     "mean": 30.106,
+     "p10": 1.53,
+     "p25": 10.48,
+     "median": 24.77,
+     "p75": 43.53,
+     "p90": 65.7
+    },
+    "player_receptions": {
+     "mean": 3.033,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
+    "anytime_td": {
+     "probability": 0.329832,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4569603",
+   "name": "Malik Washington",
+   "team": "MIA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 24.868,
+     "p10": 0,
+     "p25": 7.08,
+     "median": 19.5,
+     "p75": 36.35,
+     "p90": 55.92
+    },
+    "player_receptions": {
+     "mean": 2.456,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.285192,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3040151",
+   "name": "George Kittle",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 39.895,
+     "p10": 5.13,
+     "p25": 16.87,
+     "median": 34.54,
+     "p75": 56.04,
+     "p90": 81.54
+    },
+    "player_receptions": {
+     "mean": 3.627,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
+    },
+    "anytime_td": {
+     "probability": 0.273608,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4259147",
+   "name": "Jake Tonges",
+   "team": "SF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 24.335,
+     "p10": 0,
+     "p25": 5.82,
+     "median": 18.98,
+     "p75": 36,
+     "p90": 55.53
+    },
+    "player_receptions": {
+     "mean": 2.3,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.265703,
+     "participation": "QUESTIONABLE"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4361741",
+   "name": "Brock Purdy",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 165.542,
+     "p10": 48.22,
+     "p25": 97.99,
+     "median": 160.25,
+     "p75": 225.66,
+     "p90": 286.23
+    },
+    "player_rush_yds": {
+     "mean": 16.664,
+     "p10": 0,
+     "p25": 2.93,
+     "median": 11.42,
+     "p75": 24.61,
+     "p90": 40.2
+    },
+    "anytime_td": {
+     "probability": 0.195769,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3043116",
+   "name": "Demarcus Robinson",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 17.503,
+     "p10": 0,
+     "p25": 0,
+     "median": 11.49,
+     "p75": 26.51,
+     "p90": 44.5
+    },
+    "player_receptions": {
+     "mean": 1.555,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "anytime_td": {
+     "probability": 0.184351,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4711533",
+   "name": "Ollie Gordon II",
+   "team": "MIA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.785,
+     "p10": 0,
+     "p25": 0.67,
+     "median": 5.98,
+     "p75": 16.34,
+     "p90": 28.74
+    },
+    "anytime_td": {
+     "probability": 0.163761,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4367209",
+   "name": "Greg Dulcich",
+   "team": "MIA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 30.33,
+     "p10": 0,
+     "p25": 10.14,
+     "median": 24.57,
+     "p75": 44.24,
+     "p90": 66.67
+    },
+    "player_receptions": {
+     "mean": 2.717,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
+    "anytime_td": {
+     "probability": 0.14782,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4682745",
+   "name": "Jaylen Wright",
+   "team": "MIA",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 20.738,
+     "p10": 1.11,
+     "p25": 6.02,
+     "median": 16.07,
+     "p75": 30.2,
+     "p90": 46.11
+    },
+    "anytime_td": {
+     "probability": 0.130226,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-16002",
+   "name": "Kyle Juszczyk",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.128512,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4040612",
+   "name": "Luke Farrell",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.103178,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4372561",
+   "name": "Isaac Guerendo",
+   "team": "SF",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.086203,
+     "participation": "ACTIVE_PROJECTED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4685397",
+   "name": "Jordan James",
+   "team": "SF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 9.365,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.78,
+     "p75": 13.04,
+     "p90": 27.12
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241464",
+   "name": "Mac Jones",
+   "team": "SF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 71.784,
+     "p10": 0,
+     "p25": 10.45,
+     "median": 50.4,
+     "p75": 113.11,
+     "p90": 178.82
+    },
+    "player_rush_yds": {
+     "mean": 7.999,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.14,
+     "p75": 11.62,
+     "p90": 23.36
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4428209",
+   "name": "Ricky Pearsall",
+   "team": "SF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 29.935,
+     "p10": 0,
+     "p25": 8.91,
+     "median": 23.39,
+     "p75": 43.75,
+     "p90": 67.24
+    },
+    "player_receptions": {
+     "mean": 2.56,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360438",
+   "name": "Brandon Aiyuk",
+   "team": "SF",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 20.387,
+     "p10": 0,
+     "p25": 2.69,
+     "median": 14.63,
+     "p75": 30.93,
+     "p90": 49.99
+    },
+    "player_receptions": {
+     "mean": 1.814,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4
+    }
+   }
+  }
+ ],
+ "disclaimer": "Model projections. Educational."
+}
