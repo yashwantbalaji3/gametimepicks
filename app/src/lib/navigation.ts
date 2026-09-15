@@ -129,6 +129,11 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
      Parlay + Menu); the mobile Menu sheet renders every rail destination the bar lacks. */
   { href: "/results", label: "Results", group: "now", glyph: "≡", desc: "Settled record",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "results" },
+  /* P310: the reader's saved forecasts — browser-local, an analytics shortlist, never a wager. Phase 5O: listed INSIDE
+     the "now" block (it sat after the record group, so the rail and the phone Menu sheet painted a second "Main"
+     heading at the very bottom); the Menu sheet now shows it near the top — two taps from any phone screen. */
+  { href: "/saved", label: "Saved Forecasts", shortLabel: "Saved", group: "now", glyph: "☆", desc: "Your saved forecasts",
+    surfaces: ["rail", "footer"] },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
   { href: "/mlb", label: "MLB", note: "live", group: "sports", glyph: "⚾", desc: "Baseball hub",
@@ -228,9 +233,6 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   /* P312: every model's standing — validated, forward-testing, holding, watching, paused, research-only — from the
      receipts that hold it, in reader words. The public face of the research discipline. */
   { href: "/models", label: "Model Lab", group: "record", glyph: "⚗", desc: "Live, tested, or paused",
-    surfaces: ["rail", "footer"] },
-  /* P310: the reader's saved forecasts — browser-local, an analytics shortlist, never a wager. */
-  { href: "/saved", label: "Saved Forecasts", shortLabel: "Saved", group: "now", glyph: "☆", desc: "Your saved forecasts",
     surfaces: ["rail", "footer"] },
   { href: "/about", label: "About", group: "record", glyph: "ⓘ", desc: "About the site",
     surfaces: ["rail", "footer"] },

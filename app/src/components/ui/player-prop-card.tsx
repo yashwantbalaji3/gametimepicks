@@ -4,7 +4,7 @@
  *  reveals the player's REAL last-5 game log for this market when the artifact carries
  *  one, plus the model read. When no log exists the drawer says so honestly — recent
  *  stats are never fabricated. */
-import type { ExplorerProjection as PublicProjection } from "@/lib/ui/explorer-projection";
+import { decodeRecentGames, explorerPhoto, type ExplorerProjection as PublicProjection } from "@/lib/ui/explorer-projection";
 import { formatAmerican } from "@/lib/odds-math";
 import { friendlyStatusLabel } from "@/lib/public-visibility";
 import StatusChip from "@/components/ui/status-chip";
@@ -25,11 +25,11 @@ function hitSide(value: number, line: number | string | null | undefined, pickLa
 export default function PlayerPropCard({ p }: { p: PublicProjection }) {
   const pl = p.player;
   if (!pl) return null;
-  const recent = p.recentGames ?? [];
+  const recent = decodeRecentGames(p.recent);
   return (
     <details className="rounded-[7px] min-w-0 group" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <summary className="px-3 py-2.5 flex items-center gap-2.5 min-w-0 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-        <PlayerAvatar name={pl.name} photo={pl.photo} size={34} />
+        <PlayerAvatar name={pl.name} photo={explorerPhoto(pl)} size={34} />
         <div className="flex flex-col min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{pl.name}</span>

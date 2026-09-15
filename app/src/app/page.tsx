@@ -245,7 +245,7 @@ export default function HomePage() {
     {
       href: "/bank-builder",
       label: "Bank Builder",
-      blurb: "The disciplined paper ladder — structured cards only.",
+      blurb: "The disciplined paper ladder.",
       /* P250 · A01: an active placed lane leads; "no active card" is DERIVED, never a literal
          appended beside a live exposure figure. */
       status: bbHasActiveCard
@@ -258,7 +258,7 @@ export default function HomePage() {
     {
       href: "/moonshot",
       label: "Moonshot",
-      blurb: "The fast ladder: $25 → $100 → $400 → $1,000, two legs a day. Paper-only, its own record.",
+      blurb: "Fast paper ladder: $25 → $100 → $400 → $1,000, two legs a day.",
       status: moonshotStatus,
       statusSub: "high-variance",
       cta: "View Moonshot",
@@ -267,7 +267,7 @@ export default function HomePage() {
     {
       href: "/results",
       label: "Results",
-      blurb: "Receipts, settled + pending cards, and the official track record.",
+      blurb: "Settled and pending cards.",
       status: recordLabel ? `Record ${recordLabel}` : "Track record",
       statusSub: pendingLabel ? `${pendingLabel} · official settlement only` : "Official settlement only",
       cta: "View Results",
@@ -358,7 +358,7 @@ export default function HomePage() {
           title="The model's next reads — upcoming"
           /* Its own id: the today panel keeps "#top-reads", which the filter scrolls to. */
           domId="top-reads-upcoming"
-          sub="Future-dated reads, ranked by the model's own probability, each with its event date."
+          sub="Ranked by the model's own probability."
           /* Compact when today's panel already carried the provenance + paper-only block. */
           compact={topToday(topReads, 10).length > 0}
         />
@@ -376,7 +376,7 @@ export default function HomePage() {
       <FlagshipCards
         cards={productCards}
         heading="Flagship products"
-        subtitle="Bank Builder · Moonshot · Results — paper-only"
+        subtitle="Paper-only"
         ariaLabel="Flagship products"
       />
 

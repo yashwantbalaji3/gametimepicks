@@ -5,7 +5,23 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { BoardProp } from "@/components/mlb/props-board";
-import { mlbHeadshotUrl } from "@/lib/player-headshots";
+import type { SwapCandidate } from "@/lib/parlays/leg-swap";
+import { mlbHeadshotUrl, mlbPersonIdFromHeadshotUrl } from "@/lib/player-headshots";
+
+/**
+ * A board row as a substitution-bench candidate — the ONE mapping /mlb and /build hand the risk ladder (a client
+ * component, so every field is serialised per row). Phase 5O: an official StatsAPI headshot travels as its person id
+ * (the panel rebuilds the identical URL); any other portrait is kept verbatim.
+ */
+export function toSwapCandidate(p: BoardProp): SwapCandidate {
+  const mlbPersonId = mlbPersonIdFromHeadshotUrl(p.photoUrl);
+  return {
+    player: p.player, ...(mlbPersonId ? { mlbPersonId } : { photoUrl: p.photoUrl ?? null }),
+    teamAbbr: p.teamAbbr ?? null, opponentAbbr: p.opponentAbbr ?? null,
+    market: p.marketLabel, marketLabel: p.marketLabel, side: p.selection, line: p.point,
+    americanOdds: p.americanOdds, gameId: p.gameId, matchup: p.matchup,
+  };
+}
 
 /**
  * IDENTITY ENRICHMENT — where the faces and crests come from.

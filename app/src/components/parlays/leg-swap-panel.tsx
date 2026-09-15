@@ -2,6 +2,7 @@
 import { useState } from "react";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
+import { mlbHeadshotUrl } from "@/lib/player-headshots";
 import {
   benchFor, repriceCard, bandFor, decimalOdds, toAmerican,
   type SwapCandidate, type SwapTarget,
@@ -95,7 +96,7 @@ export default function LegSwapPanel({
                       style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)", cursor: "pointer" }}
                     >
                       <span className="relative shrink-0">
-                        <PlayerAvatar name={cand.player} photo={cand.photoUrl} size={20} />
+                        <PlayerAvatar name={cand.player} photo={cand.photoUrl ?? mlbHeadshotUrl(cand.mlbPersonId)} size={20} />
                         {cand.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={cand.teamAbbr} sport={sport} size="sm" /></span> : null}
                       </span>
                       <span className="min-w-0 flex-1">

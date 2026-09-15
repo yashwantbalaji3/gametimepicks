@@ -97,10 +97,10 @@ export function TrustStrip({ recordLabel, bankrollLabel, peakLabel, openExposure
 
 // ── 6 · How it works ─────────────────────────────────────────────────────────
 const STEPS: { n: string; title: string; body: string }[] = [
-  { n: "1", title: "Model artifacts generated", body: "Each slate is computed once into fixed model artifacts that everyone reads." },
-  { n: "2", title: "You run the same simulation", body: "Open a game and run it: the same output for every user, no re-rolling." },
-  { n: "3", title: "Picks + risks shown honestly", body: "Every pick shows its risk; on a thin slate the model holds rather than forcing a card." },
-  { n: "4", title: "Results settled officially", body: "Cards settle only against official finals; pending is never counted as a loss." },
+  { n: "1", title: "Model artifacts generated", body: "Each slate is computed once." },
+  { n: "2", title: "You run the same simulation", body: "Open any game — no re-rolling." },
+  { n: "3", title: "Picks + risks shown honestly", body: "Every pick shows its risk; a thin slate gets no card." },
+  { n: "4", title: "Results settled officially", body: "Official finals only; pending is never a loss." },
 ];
 
 export function HowItWorks() {

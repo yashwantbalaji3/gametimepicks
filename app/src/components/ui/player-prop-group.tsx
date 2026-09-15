@@ -8,7 +8,7 @@
  * Honesty: no new data — purely a regrouping of the same real projections. The edge chip
  * is the max of the player's real per-market edges; nothing is invented.
  */
-import type { ExplorerProjection as PublicProjection } from "@/lib/ui/explorer-projection";
+import { explorerPhoto, type ExplorerProjection as PublicProjection } from "@/lib/ui/explorer-projection";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import PlayerPropCard from "@/components/ui/player-prop-card";
 
@@ -25,7 +25,7 @@ export function groupByPlayer(props: PublicProjection[]): Array<{ name: string; 
       g.items.push(p);
       if (edge > g.bestEdge) g.bestEdge = edge;
     } else {
-      map.set(key, { name, team: p.player?.team ?? undefined, photo: p.player?.photo ?? null, bestEdge: edge, items: [p] });
+      map.set(key, { name, team: p.player?.team ?? undefined, photo: explorerPhoto(p.player), bestEdge: edge, items: [p] });
     }
   }
   // Each player's markets strongest-edge first; players strongest-best-edge first.

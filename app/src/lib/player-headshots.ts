@@ -18,6 +18,16 @@ export function mlbHeadshotUrl(playerId: number | string | null | undefined): st
   return `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${playerId}/headshot/67/current`;
 }
 
+/**
+ * The StatsAPI person id inside an official headshot URL — ONLY when `mlbHeadshotUrl(id)` rebuilds the exact same
+ * string (Phase 5O payload packing: a client prop can carry the id instead of ~150 bytes of URL, losslessly). Any
+ * other URL, or no URL, returns null and the caller keeps what it had.
+ */
+export function mlbPersonIdFromHeadshotUrl(url: string | null | undefined): string | null {
+  const id = url ? /\/people\/(\d+)\/headshot\//.exec(url)?.[1] : undefined;
+  return id && mlbHeadshotUrl(id) === url ? id : null;
+}
+
 /** Official NBA media CDN headshot. */
 export function nbaHeadshotUrl(playerId: number | string | null | undefined): string | null {
   if (playerId == null || playerId === "") return null;

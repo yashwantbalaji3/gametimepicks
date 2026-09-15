@@ -26,7 +26,7 @@ import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import LegRecordList from "@/components/parlays/lab/leg-record-list";
 import { loadRiskLadder, loadLabLedger, loadTierGrid, loadLabSettled, loadGradedLegRecord } from "@/lib/parlays/risk-ladder";
 import { buildTierReplay } from "@/lib/parlays/lab/style-replay.mjs";
-import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
+import { loadMlbPropsBoard, toSwapCandidate } from "@/lib/mlb/mlb-props";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -55,11 +55,7 @@ export default function ParlayCenterSuggestedPage() {
   const legRecord = loadGradedLegRecord(dataRoot);
   /* Substitution bench: the same eligible legs the boards render, so a swap can only reach a leg
      the site already publishes. */
-  const swapPool = loadMlbPropsBoard(dataRoot, ladderDate).map((p) => ({
-    player: p.player, photoUrl: p.photoUrl ?? null, teamAbbr: p.teamAbbr ?? null, opponentAbbr: p.opponentAbbr ?? null,
-    market: p.marketLabel, marketLabel: p.marketLabel, side: p.selection, line: p.point,
-    americanOdds: p.americanOdds, gameId: p.gameId, matchup: p.matchup,
-  }));
+  const swapPool = loadMlbPropsBoard(dataRoot, ladderDate).map(toSwapCandidate);
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">

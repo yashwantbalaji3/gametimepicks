@@ -25,7 +25,10 @@
 
 export interface SwapCandidate {
   readonly player: string;
-  readonly photoUrl: string | null;
+  /** A portrait URL verbatim; absent when `mlbPersonId` carries an official StatsAPI headshot instead. */
+  readonly photoUrl?: string | null;
+  /** Phase 5O payload packing: the StatsAPI person id whose official headshot this candidate shows. */
+  readonly mlbPersonId?: string;
   readonly teamAbbr: string | null;
   readonly opponentAbbr: string | null;
   readonly market: string;

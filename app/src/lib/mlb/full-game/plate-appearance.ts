@@ -37,9 +37,11 @@ export interface PaOutcomeProbs {
 /** Documented league-average priors (2020s MLB). Central, deliberately transparent constants. */
 export const LEAGUE = {
   /** Nominal plate appearances per starting batter per game — the divisor that turns a per-game projection
-   *  (E[hits], E[TB]) into a per-PA rate. Calibrated to the engine's REALIZED average PA/batter (~3.85 over
-   *  a 9-inning game once bottom-9 skips and walk-offs are accounted for) so simulated team hits reproduce
-   *  the summed board projections and total runs land in a realistic MLB range. */
+   *  (E[hits], E[TB]) into a per-PA rate. A tuned constant, NOT the engine's measured value: the realised
+   *  average in the simulation is ≈ 4.27 PA per lineup slot (measured in P317), so simulated hits per batter
+   *  run above the board projection (≈ 4.27 / 3.85 ≈ 1.11× before the rate clamps) rather than reproducing
+   *  it by construction. It stays 3.85 because changing it moves the engine's scoring level — the question
+   *  the P317 engine-level forward shadow owns — and public call eligibility never reads this constant. */
   PA_PER_GAME: 3.85,
   /** Nominal batters a starting pitcher faces (≈6 IP) — converts E[K] to a per-PA strikeout rate. Chosen to
    *  match the engine's batters-faced cap so realized starter strikeouts reproduce the K projection. */

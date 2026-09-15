@@ -93,9 +93,11 @@ export default function TopReadsPanel({
       <SectionHeader
         eyebrow={eyebrow}
         title={title}
-        sub={sub ?? (hasToday
-          ? "Ranked by each model's own probability, never by a gap against a sportsbook price. A watchlist, not a bet."
-          : "Nothing plays today — the model's next dated reads, ranked by its own probability. A watchlist, not a bet.")}
+        /* Phase 5O: "A watchlist, not a bet." only where the paper-only disclaimer below is hidden (compact) — the full
+           panel already says nothing here is a recommendation to wager. */
+        sub={sub ?? ((hasToday
+          ? "Ranked by each model's own probability, never by a gap against a sportsbook price."
+          : "Nothing plays today — the model's next dated reads, ranked by its own probability.") + (compact ? " A watchlist, not a bet." : ""))}
       />
       <div className="mt-3 rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
         {reads.map((r, i) => (

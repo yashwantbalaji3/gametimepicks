@@ -119,8 +119,7 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent, toda
       </div>
 
       <p style={{ fontSize: 13, lineHeight: 1.55, color: "var(--vault-text-mute)", maxWidth: 680 }}>
-        Each lane is evaluated at four risk tiers daily; a tier publishes only when enough legs qualify,
-        otherwise it says no play.
+        A tier publishes only when enough legs qualify; otherwise it says no play.
       </p>
 
       <div className="flex flex-col gap-2">

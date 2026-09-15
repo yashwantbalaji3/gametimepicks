@@ -28,6 +28,7 @@ import {
   type MobileNavBucket,
 } from "@/lib/nav-active-route";
 import { destinationsFor, NAV_GROUP_LABEL, groupChangedAt } from "@/lib/navigation";
+import { useSavedForecasts } from "@/lib/saved/saved-store";
 
 // Lightweight inline glyphs. Tiny SVGs keep the bundle slim and let
 // us use `currentColor` for active/inactive theming. Not branded icons.
@@ -159,6 +160,9 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
  */
 function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: string }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  /* Phase 5O: the Saved row carries the reader's own count, read from the browser-local store only (no account). */
+  const saved = useSavedForecasts();
+  const savedCount = saved.ready ? saved.items.length : 0;
   const barHrefs = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
   const items = destinationsFor("rail").filter((d) => !barHrefs.has(d.href));
   useEffect(() => {
@@ -202,6 +206,7 @@ function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: strin
                   {d.glyph ? <span aria-hidden style={{ width: 18, textAlign: "center", fontSize: 13 }}>{d.glyph}</span> : null}
                   <span style={{ fontSize: 14, fontWeight: 600 }}>{d.label}</span>
                   {d.note ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{d.note}</span> : null}
+                  {d.href === "/saved" && savedCount > 0 ? <span className="font-mono" style={{ color: "var(--vault-gold)", fontSize: 10 }}>{savedCount} on this device</span> : null}
                 </Link>
               </li>
             );
@@ -222,6 +227,17 @@ export default function MobileBottomNav() {
   const menuActive = activeBucket != null && !barBuckets.has(activeBucket);
 
   return (
+    <>
+    {/*
+      * THE SHEET RENDERS OUTSIDE THIS <nav>, and that is not a style preference.
+      *
+      * The bar paints itself with `backdrop-filter: blur(14px)`, and a filtered element becomes the
+      * CONTAINING BLOCK for any `position: fixed` descendant. So the sheet's `inset-0` resolved to the
+      * bar's own box — measured 375×56 at 375px — and the whole Menu (Results, the sport hubs, the paper
+      * products, the records, Saved Forecasts: 18 destinations, 999px of content) was squeezed into a
+      * 56px strip scrolling behind the bar. Everything the bar does not carry was unreachable on a phone.
+      * Moving the dialog out of the filtered subtree restores the viewport as its containing block.
+      */}
     <nav
       aria-label="Mobile bottom navigation"
       className="fixed inset-x-0 bottom-0 z-40 md:hidden"
@@ -304,7 +320,8 @@ export default function MobileBottomNav() {
           </button>
         </li>
       </ul>
-      {menuOpen ? <MenuSheet onClose={() => setMenuOpen(false)} pathname={pathname ?? "/"} /> : null}
     </nav>
+    {menuOpen ? <MenuSheet onClose={() => setMenuOpen(false)} pathname={pathname ?? "/"} /> : null}
+    </>
   );
 }

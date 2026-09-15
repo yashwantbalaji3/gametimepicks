@@ -41,6 +41,7 @@ import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
 import PlayerPropsExplorer from "@/components/ui/player-props-explorer";
 import PlayerPropCard from "@/components/ui/player-prop-card";
+import { toExplorerProjection } from "@/lib/ui/explorer-projection";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import StatusChip from "@/components/ui/status-chip";
 import { ParlayCard } from "@/components/parlays/parlays-explorer";
@@ -565,7 +566,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
             View full prop inventory · {detail.playerProps.length} ▾
           </summary>
           <div className="px-3 pb-3 pt-1">
-            <PlayerPropsExplorer props={detail.playerProps} />
+            {/* Phase 5O: the same canonical projection /mlb uses — the explorer is a client component. */}
+            <PlayerPropsExplorer props={detail.playerProps.map(toExplorerProjection)} />
           </div>
         </details>
       ) : null}

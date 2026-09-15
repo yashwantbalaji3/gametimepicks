@@ -66,7 +66,7 @@ function Crest({ team, abbr, logo, isWc, sport }: { team: string; abbr: string |
 const shortDate = (iso: string) =>
   new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
-function SimCard({ s, answer, archival = false }: { s: FeaturedSimulation; answer?: HomeGameAnswer; archival?: boolean }) {
+function SimCard({ s, answer, archival = false, showRunCount = true }: { s: FeaturedSimulation; answer?: HomeGameAnswer; archival?: boolean; showRunCount?: boolean }) {
   const away = s.teams?.away?.trim() || "—";
   const home = s.teams?.home?.trim() || "—";
   const isWc = s.sport === "world_cup";
@@ -100,7 +100,7 @@ function SimCard({ s, answer, archival = false }: { s: FeaturedSimulation; answe
         <span style={{ color: "var(--vault-text-faint)" }}>{sportLabel}</span>
         {/* Every card wears its event date — an August game must say August (P241 · A02). */}
         {s.date ? <span style={{ color: archival ? "var(--vault-gold)" : "var(--vault-text-mute)", fontWeight: archival ? 700 : 400 }}>{shortDate(s.date)}</span> : null}
-        {s.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{s.runCountLabel}</span> : null}
+        {showRunCount && s.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{s.runCountLabel}</span> : null}
       </div>
       {/* ── What the simulation concluded (Sprint 015 · Phase 1). Each line renders only when the canonical
              objects carried it; a card with no answer keeps its original "a simulation exists" shape. ── */}
@@ -137,6 +137,11 @@ export default function FeaturedSimulationsSection({ featured, readyCount, answe
      heading, on every badge and CTA, and never advertise a "+N more simulation-ready" queue of
      August games (P241 · A02). The archive stays reachable; it stops masquerading as today. */
   const archival = hasFeatured && !allCurrent;
+  /* Phase 5O · homepage headroom: when every card carries the SAME run-count claim it is said once, in the heading
+     row, instead of on each card. Any card without a claim (or a different count) keeps the per-card label. */
+  const sharedRunCount = hasFeatured && featured.every((s) => s.runCountLabel != null && s.runCountLabel === featured[0].runCountLabel)
+    ? featured[0].runCountLabel
+    : null;
   return (
     <section aria-label="Featured simulations" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -147,6 +152,10 @@ export default function FeaturedSimulationsSection({ featured, readyCount, answe
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             No current slate has a simulation yet — recent reports below
           </span>
+        ) : sharedRunCount ? (
+          <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+            Each: {sharedRunCount}
+          </span>
         ) : null}
       </div>
 
@@ -154,7 +163,7 @@ export default function FeaturedSimulationsSection({ featured, readyCount, answe
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
             {featured.map((s) => (
-              <SimCard key={s.slug} s={s} answer={answers?.[s.slug]} archival={archival} />
+              <SimCard key={s.slug} s={s} answer={answers?.[s.slug]} archival={archival} showRunCount={!sharedRunCount} />
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">

@@ -49,7 +49,7 @@ import { loadRiskLadder, loadLabLedger } from "@/lib/parlays/risk-ladder";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import DeferUntilVisible from "@/components/defer-until-visible";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
-import { loadMlbPropsBoard, latestMlbBoardDate } from "@/lib/mlb/mlb-props";
+import { loadMlbPropsBoard, latestMlbBoardDate, toSwapCandidate } from "@/lib/mlb/mlb-props";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
@@ -525,13 +525,7 @@ export default function MlbLandingPage() {
             slateDate={riskLadder.date ?? null}
             /* The whole eligible slate is the bench. benchFor narrows it to same-market,
                comparable-price, no-game-already-on-the-card candidates. */
-            pool={mlbProps.map((p) => ({
-              player: p.player, photoUrl: p.photoUrl ?? null,
-              teamAbbr: p.teamAbbr ?? null, opponentAbbr: p.opponentAbbr ?? null,
-              market: p.marketLabel, marketLabel: p.marketLabel,
-              side: p.selection, line: p.point, americanOdds: p.americanOdds,
-              gameId: p.gameId, matchup: p.matchup,
-            }))}
+            pool={mlbProps.map(toSwapCandidate)}
           />
         </div>
       ) : null}
