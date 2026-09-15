@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { fitEplStrength, sparseSplitFlags, scoreMatrix } from "./strength-state.mjs";
+import { fitEplStrength, sparseSplitFlags, scoreMatrix, EPL_MODEL_ID } from "./strength-state.mjs";
 import { loadEplCorpus } from "./corpus.mjs";
 
 const APP = process.cwd();
@@ -38,6 +38,13 @@ test("LIVE · every published forecast row labels its sparse splits — and only
   const state = fitEplStrength({ rows: corpus.rows, cutoffIso: artifact.generatedAt });
   for (const r of artifact.rows ?? []) {
     if (!r.probs) continue;
+    /* P304: a row published by the ratings model (Elo-Poisson) divides nothing by a home/away split, so the
+       sparse-split condition cannot arise and the label must be absent. The split-Poisson contract below applies
+       whenever that model publishes again (the forward receipt can bring it back). */
+    if (r.modelId && r.modelId !== EPL_MODEL_ID) {
+      assert.ok(!r.sparseInput, `${r.matchup}: labeled sparse under ${r.modelId}, which has no home/away splits`);
+      continue;
+    }
     const expected = sparseSplitFlags(state, r.homeClub, r.awayClub);
     if (expected) {
       assert.ok(r.sparseInput, `${r.matchup}: fit divided by a tiny split but the row carries no label`);
@@ -51,7 +58,7 @@ test("LIVE · every published forecast row labels its sparse splits — and only
 test("LIVE · the label never edits the number — probabilities are exactly the model's own", () => {
   const corpus = loadEplCorpus(REPO);
   const state = fitEplStrength({ rows: corpus.rows, cutoffIso: artifact.generatedAt });
-  const sparseRows = (artifact.rows ?? []).filter((r) => r.sparseInput && r.probs);
+  const sparseRows = (artifact.rows ?? []).filter((r) => r.sparseInput && r.probs && (!r.modelId || r.modelId === EPL_MODEL_ID));
   for (const r of sparseRows) {
     // Re-derive from the live model with shrinkK=0 (the recorded, unrepaired arithmetic): the
     // published number must match — a "suspect" label is a statement, not a correction.
