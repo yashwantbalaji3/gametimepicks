@@ -67,7 +67,12 @@ test("EQUIVALENCE · nfl day equals the index's own canonical counts; a PAST kic
   const nfl = productDayFor("nfl", dataRoot);
   const index = readJson("nfl", "index.json");
   const forecastsUpcoming = Number(index?.counts?.forecastsUpcoming ?? 0);
-  if (forecastsUpcoming > 0 && (index.nextForecastUtc || index.nextKickoffUtc)) {
+  /* The index counts "upcoming" as of ITS generation; between a kickoff and the next event-window run its
+     one remaining "upcoming" game has already started. The owner's rule — a PAST kickoff is never upcoming —
+     is what this test pins, so a window is expected only while the index's own next kickoff is still ahead. */
+  const nextIndexKick = Date.parse(index?.nextForecastUtc ?? index?.nextKickoffUtc ?? "");
+  const windowStillAhead = Number.isFinite(nextIndexKick) && nextIndexKick > Date.now();
+  if (forecastsUpcoming > 0 && windowStillAhead) {
     // P250: the regular-season lane is the product. The day derives from the index's OWN counts —
     // never from the retired preseason game-simulations lane — and the board stays today-only:
     // an upcoming week is eligible-but-zero-events, named in the note as week discovery.

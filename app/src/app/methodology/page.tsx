@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { PUBLIC_STATE_LABEL, PUBLIC_STATE_MEANING, type PublicModelState } from "@/lib/command-center/contract";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getMeta } from "@/lib/data";
@@ -325,6 +326,24 @@ export default function MethodologyPage() {
           </ul>
         </div>
       </Section>
+
+      {/* P309: the status vocabulary every forecast card carries, explained once, in reader words. The
+          labels and sentences are the contract's own (lib/command-center/contract.ts), so the chip on a
+          card and this glossary cannot drift apart. */}
+      <Section title="What a model status means" id="model-status">
+        <p className="text-[14px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
+          Every forecast carries the status of the model behind it. Health is an alarm, not a demotion: only a
+          preregistered forward test or the live-record gate changes what publishes.
+        </p>
+        <dl className="grid gap-3 sm:grid-cols-2">
+          {(Object.keys(PUBLIC_STATE_LABEL) as PublicModelState[]).filter((k) => k !== "UNKNOWN").map((k) => (
+            <div key={k} className="vault-deluxe-card p-4">
+              <dt className="font-mono text-[10px] tracking-[0.14em] uppercase mb-1.5" style={{ color: "var(--vault-gold)" }}>{PUBLIC_STATE_LABEL[k]}</dt>
+              <dd className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{PUBLIC_STATE_MEANING[k]}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
     </div>
   );
 }
@@ -332,9 +351,9 @@ export default function MethodologyPage() {
 // ---------------------------------------------------------------------------
 // Section + concept helpers
 // ---------------------------------------------------------------------------
-function Section({ title, children }: { title: ReactNode; children: ReactNode }) {
+function Section({ title, children, id }: { title: ReactNode; children: ReactNode; id?: string }) {
   return (
-    <section className="mt-12 reveal">
+    <section className="mt-12 reveal" id={id}>
       <h2 className="font-display text-[22px] md:text-[28px] font-semibold tracking-tight mb-4">
         {title}
       </h2>

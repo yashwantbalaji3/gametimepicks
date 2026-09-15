@@ -43,6 +43,8 @@ import RecentResultsStrip from "@/components/home/recent-results-strip";
 import { getOptimizerSettledDates } from "@/lib/parlay-results";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
+import CommandCenter from "@/components/command-center/command-center";
+import { buildCommandCenter } from "@/lib/command-center/command-center";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
 import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
@@ -230,6 +232,14 @@ export default function HomePage() {
   const { primary: primarySports, secondary: secondarySports } = partitionSports(allSports);
   const simHubCards: FlagshipCard[] = primarySports.map((s) => s.card as FlagshipCard);
   const coverageCards: FlagshipCard[] = secondarySports.map((s) => s.card as FlagshipCard);
+  /* P306: the four sports as lanes of ONE product — what is on, how fresh, whether the model may be trusted,
+     the next forecast through the universal card. Membership of the primary hub is STILL the shared rule
+     (partitionSports on the owner's typed state): a sport the rule keeps secondary renders under "Other
+     coverage" as the same lane, so nothing appears as a live simulation unless it is one. */
+  const commandLanes = buildCommandCenter({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date().toISOString(), days: { mlb: mlbDay, epl: eplDay, nfl: nflDay, ufc: ufcDay } });
+  const primaryLaneIds = new Set(primarySports.map((s) => s.id));
+  const primaryLanes = commandLanes.filter((l) => primaryLaneIds.has(l.sport));
+  const secondaryLanes = commandLanes.filter((l) => !primaryLaneIds.has(l.sport));
   // ── FLAGSHIP PRODUCTS — paper products powered BY the simulations (+ the track record) ──
   const productCards: FlagshipCard[] = [
     {
@@ -318,11 +328,10 @@ export default function HomePage() {
       {/* 2 — Simulation Hub: the per-sport simulation centers, directly under the hero (P200). This
           IS the live-sports strip — each card carries its sport's derived state, honest tier line and
           today's counts, so a first-time reader sees what is active before anything else. */}
-      <FlagshipCards
-        cards={simHubCards}
+      <CommandCenter
+        lanes={primaryLanes}
         heading="Simulation Hub"
-        subtitle="Sports with activity on today's slate"
-        ariaLabel="Sport simulation centers"
+        subtitle={`${simHubCards.length} sport${simHubCards.length === 1 ? "" : "s"} with activity on today's slate`}
       />
 
       {/*
@@ -392,11 +401,10 @@ export default function HomePage() {
       {/* Historical / not-yet-live coverage, kept reachable but clearly secondary. Nothing is hidden —
           it is simply no longer presented as something running today. */}
       {coverageCards.length ? (
-        <FlagshipCards
-          cards={coverageCards}
+        <CommandCenter
+          lanes={secondaryLanes}
           heading="Other coverage"
           subtitle="Archives and sports without a live daily product"
-          ariaLabel="Historical and upcoming sport coverage"
         />
       ) : null}
 
