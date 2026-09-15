@@ -126,6 +126,18 @@ export function buildGradedRows({ forecasts, results, alreadyGraded = new Set() 
         const cActual = actual === "H" ? c.home : actual === "D" ? c.draw : c.away;
         return { control: { modelId: fc.row.control.modelId ?? null, probs: c, probabilityOfActual: r6(cActual), logLoss: r6(-Math.log(clip(cActual))) } };
       })() : {}),
+      /* P305-F: the private totals shadow, scored on the same match beside the published model's own total
+         distribution. Evidence for a founder decision; nothing reads it to change what publishes. */
+      ...(fc.row.shadowTotals?.totals?.distribution && fc.row.model?.totals?.distribution ? (() => {
+        const scoreTotals = (dist, probs) => {
+          const k = Math.min(total, dist.length - 1);
+          const over = (line) => dist.reduce((s, q, j) => (j > line ? s + q : s), 0);
+          const line = (l) => { const prob = r6(over(l)); const observed = total > l; return { prob, observed, brier: r6((prob - (observed ? 1 : 0)) ** 2) }; };
+          const pa = probs ? (actual === "H" ? probs.home : actual === "D" ? probs.draw : probs.away) : null;
+          return { totalLogLoss: r6(-Math.log(clip(dist[k]))), expectedTotal: r6(dist.reduce((s, q, j) => s + q * j, 0)), over15: line(1), over25: line(2), over35: line(3), probs: probs ?? null, oneXTwoLogLoss: pa == null ? null : r6(-Math.log(clip(pa))) };
+        };
+        return { shadowTotals: { modelId: fc.row.shadowTotals.modelId ?? null, protocol: fc.row.shadowTotals.protocol ?? null, control: scoreTotals(fc.row.model.totals.distribution, p), shadow: scoreTotals(fc.row.shadowTotals.totals.distribution, fc.row.shadowTotals.probs ?? null) } };
+      })() : {}),
     });
   }
   return { graded, skipped };

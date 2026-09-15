@@ -261,6 +261,14 @@ jobs:
           set -euo pipefail
           node scripts/epl/build-epl-forward-receipt.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
+      # P305-F: the private totals SHADOW receipt (shadow candidate vs live P304, paired on totals). Evidence for a
+      # founder decision only — nothing reads it to change what publishes.
+      - name: EPL totals shadow receipt (private)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/epl/build-epl-totals-shadow-receipt.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
       # The Elo-Poisson model folds openfootball's EPL results (public domain). A failed refresh keeps the committed
       # history — the step shows red, the forecasts still build from the last capture.
       - name: Refresh the EPL results history (openfootball)
@@ -364,13 +372,14 @@ jobs:
                   data/internal/research/epl/corpus-current-season.json \
                   data/internal/research/epl/learning \
                   data/internal/research/epl/forward \
+                  data/internal/research/epl/forward-totals \
                   data/internal/research/soccer/epl \
                   data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
           # P257: a same-day rebase conflict on these regenerated files failed this job twice (Sep 5, Sep 6).
           # The helper retries and resolves a conflict INSIDE these generated paths to this run's copy; any
           # other conflict fails loud.
-          GENERATED_PATHS="app/public/data/soccer/epl app/public/data/parlays/tier-grid app/public/data/admin/epl-lane.json app/public/data/parlays/risk-ladder-epl data/internal/research/epl/forecasts data/internal/research/epl/model-read data/internal/research/epl/corpus-current-season.json data/internal/research/epl/learning data/internal/research/epl/forward data/internal/research/soccer/epl" \
+          GENERATED_PATHS="app/public/data/soccer/epl app/public/data/parlays/tier-grid app/public/data/admin/epl-lane.json app/public/data/parlays/risk-ladder-epl data/internal/research/epl/forecasts data/internal/research/epl/model-read data/internal/research/epl/corpus-current-season.json data/internal/research/epl/learning data/internal/research/epl/forward data/internal/research/epl/forward-totals data/internal/research/soccer/epl" \
             bash scripts/ci/commit-generated.sh "auto: epl matchweek refresh $(date -u +%Y-%m-%d) [skip ci]"
 
       # Runs AFTER the commit, deliberately. It used to sit before, and a legitimate skip — the

@@ -153,6 +153,19 @@ const missing = (id, sport, label, source) => add({ id, sport, label, state: "IN
   }
 }
 
+{
+  /* P305-F: the EPL totals SHADOW — a research candidate beside the live model, never public. Shown so the founder can
+     see the paired evidence accumulate; its states are its own and map to alarm levels only for the /ops chip. */
+  const source = "data/internal/research/epl/forward-totals/receipt.json";
+  const receipt = readJson(path.join(ROOT, source));
+  if (receipt) {
+    const state = receipt.state === "SHADOW_WORSE" ? "WATCH" : receipt.state === "SHADOW_BETTER" || receipt.state === "SHADOW_INCONCLUSIVE" ? "HOLDING" : "INSUFFICIENT_SAMPLE";
+    add({ id: "epl_shadow_totals", sport: "epl", label: "EPL totals SHADOW (research, not public) · club-specific total vs live P304", baseline: "live P304 constant total, paired per match",
+      state, n: receipt.n ?? 0, judgement: { receiptState: receipt.state, needed: receipt.needed ?? null, meanDiff: r4(receipt.pairedTotalLogLoss?.meanDifference), lo95: r4(receipt.pairedTotalLogLoss?.lo95), hi95: r4(receipt.pairedTotalLogLoss?.hi95), failedBars: receipt.failedBars ?? null, modelId: receipt.shadowModelId ?? null },
+      context: null, source, note: "SHADOW: publishes nothing. SHADOW_BETTER is evidence for a founder adoption decision, never an adoption (the P305 blind receipt is REJECTED)." });
+  }
+}
+
 // ── write ─────────────────────────────────────────────────────────────────────────────────────────
 families.sort((a, b) => HEALTH_SEVERITY[b.state] - HEALTH_SEVERITY[a.state] || a.sport.localeCompare(b.sport) || a.id.localeCompare(b.id));
 const body = {

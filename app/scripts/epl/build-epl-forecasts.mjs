@@ -21,6 +21,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { sparseSplitFlags, scoreMatrix } from "../../src/lib/sports/epl/strength-state.mjs";
+import { selectEplTotalsShadow } from "../../src/lib/sports/epl/match-model.mjs";
+import { shadowScoreMatrix, shadowTotalsRow } from "../../src/lib/sports/epl/totals-shadow.mjs";
 import { selectEplMatchModel } from "../../src/lib/sports/epl/match-model.mjs";
 import { loadEplCorpus } from "../../src/lib/sports/epl/corpus.mjs";
 import { loadEplGradedRecord } from "../../src/lib/sports/epl/graded-record.ts";
@@ -85,6 +87,12 @@ const seasonClubs = [...new Set((season.rows ?? []).flatMap((f) => [f.homeClub, 
 const selection = selectEplMatchModel({ repoRoot: REPO, nowIso: NOW, seasonClubs });
 const strengthState = selection.state;
 console.log(`match model: ${strengthState.modelId} (${selection.adopted ? "adopted" : "previous"} — ${selection.reason})${selection.control ? ` · control ${selection.control.modelId}` : ""}`);
+/*
+ * P305-F: the private totals SHADOW. Runs only while P304 is the adopted model and the protocol + P305 receipt exist;
+ * its numbers ride the PRIVATE row (publicRows never copies them). The public forecast is P304's, whatever it says.
+ */
+const shadow = selectEplTotalsShadow({ repoRoot: REPO, nowIso: NOW, selection, seasonClubs });
+console.log(`totals shadow: ${shadow.state ? shadow.state.modelId : "off"} — ${shadow.reason}`);
 console.log(`corpus: ${corpus.base} historical + ${corpus.current} from ${corpus.currentSeason ?? "the current season"} = ${corpus.rows.length} matches (fit cutoff ${NOW})`);
 
 const nowMs = Date.parse(NOW);
@@ -159,6 +167,10 @@ const rows = upcoming.map((fixture) => {
     /* P304: the replaced model's probabilities for the same fixture — PRIVATE, scored by the grader as the paired control. */
     control: selection.control && (out.state === "CURRENT_PRE_EVENT" || out.state === "READY_EXCEPT_ODDS")
       ? (() => { const m = scoreMatrix(selection.control, fixture.homeClub, fixture.awayClub); return { modelId: m.modelId, probs: m.oneXTwo, over25: m.totals?.over25 ?? null }; })()
+      : null,
+    /* P305-F: the totals shadow's grid for the same fixture — PRIVATE, scored by the grader beside P304's own total. */
+    shadowTotals: shadow.state && (out.state === "CURRENT_PRE_EVENT" || out.state === "READY_EXCEPT_ODDS")
+      ? shadowTotalsRow(shadowScoreMatrix(strengthState, shadow.state, fixture.homeClub, fixture.awayClub, shadow.frozen), shadow.protocolId)
       : null,
     /*
      * THE MARKET BASELINE, PERSISTED — PRIVATE ROWS ONLY.

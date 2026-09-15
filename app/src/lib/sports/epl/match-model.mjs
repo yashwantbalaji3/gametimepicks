@@ -16,6 +16,7 @@ import path from "node:path";
 import { fitEplStrength } from "./strength-state.mjs";
 import { loadEplCorpus } from "./corpus.mjs";
 import { fitEloPoissonState, EPL_ELO_POISSON_MODEL_ID } from "./elo-poisson.mjs";
+import { fitGoalRatiosState } from "./totals-shadow.mjs";
 import { league } from "../soccer/leagues.mjs";
 
 export const EPL_MATCH_MODEL_SOURCES = Object.freeze({
@@ -23,7 +24,37 @@ export const EPL_MATCH_MODEL_SOURCES = Object.freeze({
   preregistration: "data/internal/research/epl/reports/epl-history-replay-preregistration.json",
   forwardReceipt: "data/internal/research/epl/forward/receipt.json",
   history: "data/internal/research/soccer/epl/history-openfootball-v1.json",
+  /* P305-F: the private totals shadow — a protocol, the P305 registration it reads constants from, its receipt. */
+  totalsShadowProtocol: "data/internal/research/epl/reports/epl-totals-shadow-forward-protocol.json",
+  totalsRegistration: "data/internal/research/epl/reports/epl-totals-replay-preregistration.json",
+  totalsEvaluation: "data/internal/research/epl/reports/epl-totals-replay-evaluation.json",
 });
+
+/** Pure: whether the totals shadow may run beside the live model. It never affects what publishes. */
+export function eplTotalsShadowDecision({ selection, protocol, registration, evaluation }) {
+  if (!selection?.adopted || selection.modelId !== EPL_ELO_POISSON_MODEL_ID) return { run: false, reason: "the live model is not P304 Elo-Poisson — the shadow is defined against it" };
+  if (!protocol?.frozen?.shadowModelId) return { run: false, reason: "no totals shadow protocol registered" };
+  if (protocol.frozen.liveModelId !== EPL_ELO_POISSON_MODEL_ID) return { run: false, reason: "the protocol names a different live model" };
+  if (!registration?.frozen?.totals?.goalRatios) return { run: false, reason: "the P305 registration (constants) is missing" };
+  if (!evaluation?.results?.goalRatios) return { run: false, reason: "the P305 evaluation receipt is missing — the shadow only runs a scored candidate" };
+  return { run: true, reason: `protocol ${protocol.program} registered ${protocol.registeredAt}; candidate ${protocol.frozen.shadowModelId}` };
+}
+
+/**
+ * The totals shadow state for this build, or null with the reason. Fit on the same history at the same cutoff as the
+ * live model. @returns {{ state: object|null, frozen: object|null, protocolId: string|null, reason: string }}
+ */
+export function selectEplTotalsShadow({ repoRoot, nowIso, selection, seasonClubs = [] }) {
+  const protocol = readJson(path.join(repoRoot, EPL_MATCH_MODEL_SOURCES.totalsShadowProtocol));
+  const registration = readJson(path.join(repoRoot, EPL_MATCH_MODEL_SOURCES.totalsRegistration));
+  const evaluation = readJson(path.join(repoRoot, EPL_MATCH_MODEL_SOURCES.totalsEvaluation));
+  const decision = eplTotalsShadowDecision({ selection, protocol, registration, evaluation });
+  if (!decision.run) return { state: null, frozen: null, protocolId: null, reason: decision.reason };
+  const history = readJson(path.join(repoRoot, EPL_MATCH_MODEL_SOURCES.history));
+  if (!Array.isArray(history?.rows) || !history.rows.length) return { state: null, frozen: null, protocolId: null, reason: "the openfootball EPL history is missing" };
+  const state = fitGoalRatiosState({ rows: history.rows, cutoffIso: nowIso, frozen: registration.frozen, seasonClubs, aliases: league("epl").aliases ?? {} });
+  return { state, frozen: registration.frozen, protocolId: `${protocol.artifact}@${protocol.registeredAt}`, reason: decision.reason };
+}
 
 /** Pure decision from the three inputs. */
 export function eplAdoptionDecision({ evaluation, forwardReceipt, historyRows }) {
