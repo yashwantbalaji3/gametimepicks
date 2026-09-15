@@ -7,7 +7,7 @@
  */
 
 import { SeededRng, stableHash } from "../../game-simulations/rng";
-import { simulateGame, type GameResult } from "./engine";
+import { DEFAULT_ENGINE_PARAMS, simulateGame, type EngineParams, type GameResult } from "./engine";
 import type {
   DistributionSummary,
   FinalScore,
@@ -25,6 +25,8 @@ export interface SimulateOptions {
   modelVersion: string;
   simulationVersion: number;
   generatedAt: string;
+  /** Research only (P317): engine parameters to simulate under. Omitted = the published engine, byte for byte. */
+  engine?: EngineParams;
 }
 
 const pctl = (sorted: number[], q: number): number => {
@@ -178,7 +180,7 @@ export function simulateFullGame(input: GameInput, opts: SimulateOptions): FullG
   };
 
   for (let i = 0; i < n; i += 1) {
-    const r = simulateGame(input, rng);
+    const r = simulateGame(input, rng, opts.engine ?? DEFAULT_ENGINE_PARAMS);
     awayRuns[i] = r.awayRuns;
     homeRuns[i] = r.homeRuns;
     totalRuns[i] = r.awayRuns + r.homeRuns;

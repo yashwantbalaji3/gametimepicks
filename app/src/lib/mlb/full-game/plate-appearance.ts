@@ -29,6 +29,8 @@ export interface PaOutcomeProbs {
   double: number;
   triple: number;
   homeRun: number;
+  /** The batter reaches on a fielding error — an out turned into a baserunner. 0 in the published engine. */
+  reachOnError: number;
   fieldOut: number;
 }
 
@@ -57,7 +59,13 @@ export const LEAGUE = {
   MAX_HIT_RATE: 0.44,
   MIN_K_RATE: 0.09,
   MAX_K_RATE: 0.42,
+  /** Reach-on-error per PA. The published engine models no errors (0); a research candidate may set a
+   *  documented league rate through EngineParams (engine.ts). */
+  REACH_ON_ERROR_RATE: 0,
 } as const;
+
+/** The league constants as a plain numeric record, so a research candidate can override any of them. */
+export type LeagueParams = { -readonly [K in keyof typeof LEAGUE]: number };
 
 const clamp = (x: number, lo: number, hi: number): number => (x < lo ? lo : x > hi ? hi : x);
 
@@ -65,10 +73,10 @@ const clamp = (x: number, lo: number, hi: number): number => (x < lo ? lo : x > 
  * Per-PA strikeout rate for the pitcher currently on the mound. Starter rate is derived from the board's
  * `pitcher_strikeouts` projection over a nominal batters-faced; bullpen uses the documented league prior.
  */
-export function pitcherStrikeoutRate(expStrikeouts: number | null, isStarter: boolean): number {
-  if (!isStarter) return LEAGUE.BULLPEN_K_RATE;
+export function pitcherStrikeoutRate(expStrikeouts: number | null, isStarter: boolean, league: LeagueParams = LEAGUE): number {
+  if (!isStarter) return league.BULLPEN_K_RATE;
   if (expStrikeouts == null || !Number.isFinite(expStrikeouts) || expStrikeouts <= 0) return 0.205; // league starter K/PA
-  return clamp(expStrikeouts / LEAGUE.STARTER_BATTERS_FACED, LEAGUE.MIN_K_RATE, LEAGUE.MAX_K_RATE);
+  return clamp(expStrikeouts / league.STARTER_BATTERS_FACED, league.MIN_K_RATE, league.MAX_K_RATE);
 }
 
 /**
@@ -77,14 +85,14 @@ export function pitcherStrikeoutRate(expStrikeouts: number | null, isStarter: bo
  * singles↔home-run balance is then solved so the composition's expected bases equals `r` EXACTLY (when the
  * solution stays in range) — this is what makes simulated total bases match the board's TB projection.
  */
-export function hitTypeSplit(basesPerHit: number): {
+export function hitTypeSplit(basesPerHit: number, tripleShare: number = LEAGUE.TRIPLE_SHARE): {
   single: number;
   double: number;
   triple: number;
   homeRun: number;
 } {
   const r = clamp(basesPerHit, 1.05, 2.6);
-  const triple = LEAGUE.TRIPLE_SHARE;
+  const triple = tripleShare;
   // Doubles share grows gently with power (≈0.16 at r=1.3 → ≈0.22 at r=2.0), bounded.
   const dbl = clamp(0.16 + 0.09 * (r - 1.3), 0.11, 0.26);
   // Solve single + hr = S and single + 4·hr = B (bases from the single/HR bucket).
@@ -112,25 +120,26 @@ export function buildPaOutcome(params: {
   expHits: number | null;
   expTotalBases: number | null;
   pitcherKRate: number;
-}): PaOutcomeProbs {
+}, league: LeagueParams = LEAGUE): PaOutcomeProbs {
   const { expHits, expTotalBases, pitcherKRate } = params;
 
   // Per-PA hit rate from the hits projection (or a team-average fallback when the batter has no line).
   const rawHit =
     expHits != null && Number.isFinite(expHits) && expHits > 0
-      ? expHits / LEAGUE.PA_PER_GAME
-      : LEAGUE.HIT_RATE_FALLBACK;
-  const pHit = clamp(rawHit, LEAGUE.MIN_HIT_RATE, LEAGUE.MAX_HIT_RATE);
-  const pK = clamp(pitcherKRate, LEAGUE.MIN_K_RATE, LEAGUE.MAX_K_RATE);
-  const pBB = LEAGUE.WALK_RATE;
+      ? expHits / league.PA_PER_GAME
+      : league.HIT_RATE_FALLBACK;
+  const pHit = clamp(rawHit, league.MIN_HIT_RATE, league.MAX_HIT_RATE);
+  const pK = clamp(pitcherKRate, league.MIN_K_RATE, league.MAX_K_RATE);
+  const pBB = league.WALK_RATE;
+  const pRoe = league.REACH_ON_ERROR_RATE;
 
   // Field outs are the remainder. If the three explicit buckets overflow (rare: a big hitter vs a big-K
   // pitcher), scale hits + strikeouts down proportionally to leave a small field-out floor, keeping walks.
-  let field = 1 - pHit - pK - pBB;
+  let field = 1 - pHit - pK - pBB - pRoe;
   let hit = pHit;
   let k = pK;
   if (field < 0.02) {
-    const room = 1 - pBB - 0.02; // total mass available to hits + strikeouts
+    const room = 1 - pBB - pRoe - 0.02; // total mass available to hits + strikeouts
     const scale = room / (pHit + pK);
     hit = pHit * scale;
     k = pK * scale;
@@ -141,8 +150,8 @@ export function buildPaOutcome(params: {
   const basesPerHit =
     expTotalBases != null && expHits != null && expHits > 0
       ? expTotalBases / expHits
-      : LEAGUE.BASES_PER_HIT_FALLBACK;
-  const split = hitTypeSplit(basesPerHit);
+      : league.BASES_PER_HIT_FALLBACK;
+  const split = hitTypeSplit(basesPerHit, league.TRIPLE_SHARE);
 
   const probs: PaOutcomeProbs = {
     strikeout: k,
@@ -151,6 +160,7 @@ export function buildPaOutcome(params: {
     double: hit * split.double,
     triple: hit * split.triple,
     homeRun: hit * split.homeRun,
+    reachOnError: pRoe,
     fieldOut: field,
   };
 
@@ -162,6 +172,7 @@ export function buildPaOutcome(params: {
     probs.double +
     probs.triple +
     probs.homeRun +
+    probs.reachOnError +
     probs.fieldOut;
   const inv = total > 0 ? 1 / total : 0;
   return {
@@ -171,6 +182,7 @@ export function buildPaOutcome(params: {
     double: probs.double * inv,
     triple: probs.triple * inv,
     homeRun: probs.homeRun * inv,
+    reachOnError: probs.reachOnError * inv,
     fieldOut: probs.fieldOut * inv,
   };
 }
@@ -183,6 +195,7 @@ export const PA_OUTCOME_ORDER: (keyof PaOutcomeProbs)[] = [
   "double",
   "triple",
   "homeRun",
+  "reachOnError",
   "fieldOut",
 ];
 

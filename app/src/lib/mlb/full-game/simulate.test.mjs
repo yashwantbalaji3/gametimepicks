@@ -121,3 +121,16 @@ test("completeness (degraded lineup padding) survives into the artifact", () => 
   assert.match(g.completeness.notes[0], /padded/);
   assert.ok(g.completeness.missingFamilies.includes("confirmed_batting_order"));
 });
+
+/* ── P317: the research-only `engine` option ─────────────────────────────────────────────────────── */
+test("P317: omitting `engine` is the published engine, and a research parameter set changes the artifact", async () => {
+  const { DEFAULT_ENGINE_PARAMS } = await import("./engine.ts");
+  const a = simulateFullGame(input(), opts);
+  const b = simulateFullGame(input(), { ...opts, engine: DEFAULT_ENGINE_PARAMS });
+  assert.equal(a.artifactHash, b.artifactHash, "explicit defaults reproduce the published artifact byte for byte");
+  const research = { ...DEFAULT_ENGINE_PARAMS, league: { ...DEFAULT_ENGINE_PARAMS.league, REACH_ON_ERROR_RATE: 0.02 } };
+  const c = simulateFullGame(input(), { ...opts, engine: research });
+  assert.notEqual(c.artifactHash, a.artifactHash);
+  assert.ok(c.totalRuns.mean > a.totalRuns.mean, "errors add baserunners, so the research run scores more");
+  assert.equal(c.runCount, a.runCount);
+});

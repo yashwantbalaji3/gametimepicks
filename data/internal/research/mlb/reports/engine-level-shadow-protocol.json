@@ -1,0 +1,843 @@
+{
+  "schemaVersion": 1,
+  "artifact": "mlb-engine-level-shadow-protocol",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "317",
+  "registeredAt": "2026-09-15T14:44:10.078Z",
+  "status": "REGISTERED_FORWARD_ONLY",
+  "question": "Does an engine whose league approximations are set to documented 2020s league rates place the simulated total-runs distribution at the right level, without degrading its shape, on MLB games it has never seen?",
+  "scope": {
+    "covers": "the full-game simulation's total-runs DISTRIBUTION — its level (mean), its p10–p90 coverage and its PIT shape — which every game report prints as the median total and the p10–p90 line",
+    "doesNotCover": "the over/under CALL. The dev study shows the call fails because the engine's game-to-game level barely follows the posted line (simulated mean rises 0.21 runs per line point where actual rises 1.32); no level mechanism repairs that, and the candidate's fixed-side P(over) stays far from calibrated on dev (ECE 0.167, log loss 0.76 vs coin 0.693). mlb_total stays PAUSED under the live-record gate whatever this test finds. A differentiation candidate (pitcher run prevention beyond strikeouts, park, lineup quality) is a separate future registration."
+  },
+  "candidate": {
+    "id": "mlb-fullgame-engine-league-rates-v1",
+    "engineParamsOverride": {
+      "league": {
+        "WALK_RATE": 0.093,
+        "REACH_ON_ERROR_RATE": 0.009,
+        "BASES_PER_HIT_FALLBACK": 1.63
+      },
+      "advancement": {
+        "groundIntoDoublePlay": 0.12,
+        "freeAdvance": 0.013
+      }
+    },
+    "anchors": {
+      "WALK_RATE": "0.085 → 0.093: documented 2020s league walk ≈ 8.2% plus hit-by-pitch ≈ 1.1% of plate appearances",
+      "REACH_ON_ERROR_RATE": "0 → 0.009 per PA: documented ≈ 0.35 reached-on-error per team-game over ≈ 38 PA; every runner advances one base",
+      "BASES_PER_HIT_FALLBACK": "1.58 → 1.63: documented 2020s total bases per hit (slugging ÷ average); applies only to batters with no total-bases line",
+      "groundIntoDoublePlay": "0 → 0.12 per opportunity: documented ≈ 0.72 GIDP per team-game; LOWERS runs (included so the candidate is the documented rule set, not the subset that helps)",
+      "freeAdvance": "0 → 0.013 per PA with runners on: documented wild pitch + passed ball + balk ≈ 0.5 per team-game"
+    },
+    "constantsOrigin": "public 2020s league rates, not these outcomes. The one input-level constant that WAS fit on the seen record (H: hits ×1.037, total bases ×1.069) is disclosed below and is NOT part of the candidate.",
+    "implementation": "app/src/lib/mlb/full-game/engine.ts EngineParams through the published engine (lib/mlb/full-game/simulate.ts `engine` option); the control is DEFAULT_ENGINE_PARAMS, the seed per game is production's, the inputs are the same board, batting order and starters the public artifact used."
+  },
+  "control": "the published engine (DEFAULT_ENGINE_PARAMS) on the same inputs and seed",
+  "devEvidenceSeen": {
+    "disclosure": "SECOND LOOK. The 2026 graded record is SEEN (scorecard, /results, the totals diagnosis). The study re-simulated the 204 games (2026-08-23 → 2026-09-14) whose published inputs reproduce every simulated output of the committed artifact; 59 graded games could not be rebuilt (their in-job lineup capture was never committed) and were excluded, not approximated.",
+    "reference": "data/internal/research/mlb/reports/totals-engine-prior-sensitivity.json",
+    "leagueEnvironment2026": {
+      "runsPerGame2026": "committed StatsAPI linescores: July 8.848 (n 336) · August 8.703 (n 417) · September-to-date 9.624 (n 186); graded ledger all 614 totals: actual 8.894 vs posted line 8.338",
+      "note": "a level target is the season environment (≈ 8.7–8.9), not the hot September; the posted line itself ran ≈ 0.55 below actual this season"
+    },
+    "directions": "level = actual − simulated mean (0 is right; positive = the engine is low) · slope = how much the simulated mean rises per point of posted line (actual rises ≈ 1) · coverage p10–p90 targets 0.80 · PIT tail mass targets 0.20 (higher = too tight) · log loss and Brier lower is better · ECE lower is better",
+    "configs": [
+      {
+        "id": "C0",
+        "label": "control — the published engine",
+        "anchor": "as committed",
+        "simMean": 7.8141,
+        "level": 1.529,
+        "slopeSimMeanOnLine": 0.2102,
+        "meanSimSd": 3.9174,
+        "coverageP10P90": 0.7598,
+        "meanWidthP10P90": 10.0098,
+        "pitTailMass": 0.2794,
+        "logLossFixedOver": 0.7905,
+        "logLossChosenSide": 0.7598,
+        "eceFixedOver": 0.1854,
+        "eceChosenSide": 0.1645,
+        "chosenHitRate": 0.445,
+        "chosenMeanShown": 0.5863,
+        "hitsPerTeam": 8.3278,
+        "walksPerTeam": 3.2633,
+        "homeRunsPerTeam": 1.055,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 7.7627,
+            "actual": 8.8378,
+            "level": 1.0752
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 7.8434,
+            "actual": 9.6308,
+            "level": 1.7873
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 7.8376,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.2354
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 7.6023,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.0685
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.4143,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.2847
+          }
+        }
+      },
+      {
+        "id": "W",
+        "label": "walk + HBP rate 0.085 → 0.093",
+        "anchor": "documented 2020s league: BB ≈ 8.2% + HBP ≈ 1.1% of PA",
+        "simMean": 8.1464,
+        "level": 1.1967,
+        "slopeSimMeanOnLine": 0.2191,
+        "meanSimSd": 4.0294,
+        "coverageP10P90": 0.7794,
+        "meanWidthP10P90": 10.3971,
+        "pitTailMass": 0.2549,
+        "logLossFixedOver": 0.7703,
+        "logLossChosenSide": 0.7439,
+        "eceFixedOver": 0.1856,
+        "eceChosenSide": 0.1488,
+        "chosenHitRate": 0.4346,
+        "chosenMeanShown": 0.5702,
+        "hitsPerTeam": 8.4169,
+        "walksPerTeam": 3.6088,
+        "homeRunsPerTeam": 1.0652,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 8.0917,
+            "actual": 8.8378,
+            "level": 0.7462
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 8.1776,
+            "actual": 9.6308,
+            "level": 1.4532
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 8.1722,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.2152
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 7.9238,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.1054
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.7691,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.3342
+          }
+        }
+      },
+      {
+        "id": "E",
+        "label": "reach on error 0 → 0.009 per PA",
+        "anchor": "documented ≈ 0.35 reached-on-error per team-game over ≈ 38 PA",
+        "simMean": 8.2106,
+        "level": 1.1325,
+        "slopeSimMeanOnLine": 0.2207,
+        "meanSimSd": 4.0473,
+        "coverageP10P90": 0.7941,
+        "meanWidthP10P90": 10.4216,
+        "pitTailMass": 0.25,
+        "logLossFixedOver": 0.7698,
+        "logLossChosenSide": 0.7433,
+        "eceFixedOver": 0.1848,
+        "eceChosenSide": 0.1457,
+        "chosenHitRate": 0.4241,
+        "chosenMeanShown": 0.5678,
+        "hitsPerTeam": 8.4286,
+        "walksPerTeam": 3.3028,
+        "homeRunsPerTeam": 1.0678,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 8.1586,
+            "actual": 8.8378,
+            "level": 0.6792
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 8.2402,
+            "actual": 9.6308,
+            "level": 1.3906
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 8.2351,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.2028
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 7.9898,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.1446
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.8362,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.3307
+          }
+        }
+      },
+      {
+        "id": "B",
+        "label": "bases-per-hit fallback 1.58 → 1.63",
+        "anchor": "documented 2020s league TB/H (SLG ÷ AVG) ≈ 1.63; only batters with no total-bases line",
+        "simMean": 7.9301,
+        "level": 1.4131,
+        "slopeSimMeanOnLine": 0.1751,
+        "meanSimSd": 3.9465,
+        "coverageP10P90": 0.7696,
+        "meanWidthP10P90": 10.1275,
+        "pitTailMass": 0.2843,
+        "logLossFixedOver": 0.7834,
+        "logLossChosenSide": 0.7566,
+        "eceFixedOver": 0.1817,
+        "eceChosenSide": 0.1695,
+        "chosenHitRate": 0.466,
+        "chosenMeanShown": 0.5811,
+        "hitsPerTeam": 8.3253,
+        "walksPerTeam": 3.2617,
+        "homeRunsPerTeam": 1.1091,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 7.8715,
+            "actual": 8.8378,
+            "level": 0.9663
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 7.9634,
+            "actual": 9.6308,
+            "level": 1.6674
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 7.9494,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.236
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 7.7455,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.0922
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.4612,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.2804
+          }
+        }
+      },
+      {
+        "id": "D",
+        "label": "double plays 0 → 0.12 per opportunity",
+        "anchor": "documented ≈ 0.72 GIDP per team-game (≈ 12% of runner-on-first, <2-out outs); LOWERS runs",
+        "simMean": 7.4917,
+        "level": 1.8514,
+        "slopeSimMeanOnLine": 0.1964,
+        "meanSimSd": 3.8225,
+        "coverageP10P90": 0.7402,
+        "meanWidthP10P90": 9.701,
+        "pitTailMass": 0.3039,
+        "logLossFixedOver": 0.8156,
+        "logLossChosenSide": 0.7791,
+        "eceFixedOver": 0.2106,
+        "eceChosenSide": 0.1812,
+        "chosenHitRate": 0.4398,
+        "chosenMeanShown": 0.6089,
+        "hitsPerTeam": 8.1938,
+        "walksPerTeam": 3.2109,
+        "homeRunsPerTeam": 1.0377,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 7.4381,
+            "actual": 8.8378,
+            "level": 1.3998
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 7.5222,
+            "actual": 9.6308,
+            "level": 2.1086
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 7.5162,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.267
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 7.2899,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.0821
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.0472,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.3166
+          }
+        }
+      },
+      {
+        "id": "F",
+        "label": "free advance 0 → 0.013 per PA with runners on",
+        "anchor": "documented WP + PB + balk ≈ 0.5 per team-game over ≈ 38 PA",
+        "simMean": 7.9096,
+        "level": 1.4335,
+        "slopeSimMeanOnLine": 0.2091,
+        "meanSimSd": 3.9377,
+        "coverageP10P90": 0.7745,
+        "meanWidthP10P90": 10.0833,
+        "pitTailMass": 0.2794,
+        "logLossFixedOver": 0.7843,
+        "logLossChosenSide": 0.758,
+        "eceFixedOver": 0.1895,
+        "eceChosenSide": 0.1756,
+        "chosenHitRate": 0.4555,
+        "chosenMeanShown": 0.5812,
+        "hitsPerTeam": 8.3272,
+        "walksPerTeam": 3.2629,
+        "homeRunsPerTeam": 1.0553,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 7.855,
+            "actual": 8.8378,
+            "level": 0.9829
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 7.9407,
+            "actual": 9.6308,
+            "level": 1.6901
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 7.9309,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.2267
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 7.6997,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.1161
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.5186,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.2755
+          }
+        }
+      },
+      {
+        "id": "S",
+        "label": "PA divisor 3.85 → 4.27 (self-consistent)",
+        "anchor": "the engine's own realised PA per lineup slot; makes simulated hits equal the board's projections; LOWERS runs",
+        "simMean": 6.5416,
+        "level": 2.8015,
+        "slopeSimMeanOnLine": 0.1787,
+        "meanSimSd": 3.5164,
+        "coverageP10P90": 0.6765,
+        "meanWidthP10P90": 8.8088,
+        "pitTailMass": 0.3529,
+        "logLossFixedOver": 0.92,
+        "logLossChosenSide": 0.8633,
+        "eceFixedOver": 0.2883,
+        "eceChosenSide": 0.2488,
+        "chosenHitRate": 0.4503,
+        "chosenMeanShown": 0.6917,
+        "hitsPerTeam": 7.3162,
+        "walksPerTeam": 3.1801,
+        "homeRunsPerTeam": 0.9268,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 6.4977,
+            "actual": 8.8378,
+            "level": 2.3401
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 6.5666,
+            "actual": 9.6308,
+            "level": 3.0641
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 6.5664,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.3501
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 6.358,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.1483
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 7.0295,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.4093
+          }
+        }
+      },
+      {
+        "id": "P",
+        "label": "productive out scores from third 0.4 → 0.5",
+        "anchor": "sensitivity only — no documented anchor chosen",
+        "simMean": 7.88,
+        "level": 1.4631,
+        "slopeSimMeanOnLine": 0.2123,
+        "meanSimSd": 3.9276,
+        "coverageP10P90": 0.7696,
+        "meanWidthP10P90": 10.0588,
+        "pitTailMass": 0.2794,
+        "logLossFixedOver": 0.7872,
+        "logLossChosenSide": 0.7572,
+        "eceFixedOver": 0.1866,
+        "eceChosenSide": 0.1565,
+        "chosenHitRate": 0.445,
+        "chosenMeanShown": 0.5827,
+        "hitsPerTeam": 8.3258,
+        "walksPerTeam": 3.2616,
+        "homeRunsPerTeam": 1.0548,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 7.8303,
+            "actual": 8.8378,
+            "level": 1.0075
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 7.9083,
+            "actual": 9.6308,
+            "level": 1.7225
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 7.9055,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.2398
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 7.6623,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.1012
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.4863,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.2791
+          }
+        }
+      },
+      {
+        "id": "X",
+        "label": "starter pulled after 22 batters (was 25)",
+        "anchor": "documented 2020s starters ≈ 5.2 IP ≈ 22 BF; sensitivity",
+        "simMean": 7.8076,
+        "level": 1.5355,
+        "slopeSimMeanOnLine": 0.2104,
+        "meanSimSd": 3.9121,
+        "coverageP10P90": 0.7549,
+        "meanWidthP10P90": 9.9657,
+        "pitTailMass": 0.2794,
+        "logLossFixedOver": 0.7928,
+        "logLossChosenSide": 0.7613,
+        "eceFixedOver": 0.1965,
+        "eceChosenSide": 0.1548,
+        "chosenHitRate": 0.4346,
+        "chosenMeanShown": 0.5865,
+        "hitsPerTeam": 8.3253,
+        "walksPerTeam": 3.264,
+        "homeRunsPerTeam": 1.054,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 7.7525,
+            "actual": 8.8378,
+            "level": 1.0854
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 7.839,
+            "actual": 9.6308,
+            "level": 1.7917
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 7.8342,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.24
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 7.592,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.0857
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.3984,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.2867
+          }
+        }
+      },
+      {
+        "id": "H",
+        "label": "input level: hits ×1.037, total bases ×1.069",
+        "anchor": "SECOND-LOOK FIT: settled actual ÷ board projection on the seen 2026 record (calibration rows 08-23..09-14)",
+        "simMean": 8.3546,
+        "level": 0.9885,
+        "slopeSimMeanOnLine": 0.2612,
+        "meanSimSd": 4.0601,
+        "coverageP10P90": 0.7892,
+        "meanWidthP10P90": 10.5147,
+        "pitTailMass": 0.2451,
+        "logLossFixedOver": 0.7618,
+        "logLossChosenSide": 0.7382,
+        "eceFixedOver": 0.1595,
+        "eceChosenSide": 0.133,
+        "chosenHitRate": 0.4346,
+        "chosenMeanShown": 0.5655,
+        "hitsPerTeam": 8.6573,
+        "walksPerTeam": 3.2915,
+        "homeRunsPerTeam": 1.1496,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 8.3036,
+            "actual": 8.8378,
+            "level": 0.5343
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 8.3836,
+            "actual": 9.6308,
+            "level": 1.2471
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 8.3911,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.1891
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 8.0911,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.1096
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 9.0475,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.2632
+          }
+        }
+      },
+      {
+        "id": "R",
+        "label": "un-lined batters at 0.80 hits / 1.25 TB (was 0.70 / 1.10)",
+        "anchor": "sensitivity — a league bottom-third regular rather than replacement level",
+        "simMean": 8.1284,
+        "level": 1.2147,
+        "slopeSimMeanOnLine": 0.2253,
+        "meanSimSd": 4.0164,
+        "coverageP10P90": 0.7892,
+        "meanWidthP10P90": 10.3431,
+        "pitTailMass": 0.2549,
+        "logLossFixedOver": 0.7698,
+        "logLossChosenSide": 0.7424,
+        "eceFixedOver": 0.1815,
+        "eceChosenSide": 0.1455,
+        "chosenHitRate": 0.4241,
+        "chosenMeanShown": 0.5677,
+        "hitsPerTeam": 8.5797,
+        "walksPerTeam": 3.2847,
+        "homeRunsPerTeam": 1.0803,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 8.0794,
+            "actual": 8.8378,
+            "level": 0.7585
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 8.1563,
+            "actual": 9.6308,
+            "level": 1.4744
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 8.1425,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.2175
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 7.9196,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.0903
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.7866,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.3321
+          }
+        }
+      },
+      {
+        "id": "BUNDLE_LEAGUE",
+        "label": "W + E + B + D + F",
+        "anchor": "every mechanism with a documented league anchor, in both directions",
+        "simMean": 8.4289,
+        "level": 0.9143,
+        "slopeSimMeanOnLine": 0.1651,
+        "meanSimSd": 4.1094,
+        "coverageP10P90": 0.7941,
+        "meanWidthP10P90": 10.6176,
+        "pitTailMass": 0.2402,
+        "logLossFixedOver": 0.7595,
+        "logLossChosenSide": 0.7386,
+        "eceFixedOver": 0.1671,
+        "eceChosenSide": 0.1426,
+        "chosenHitRate": 0.4398,
+        "chosenMeanShown": 0.5632,
+        "hitsPerTeam": 8.3774,
+        "walksPerTeam": 3.5923,
+        "homeRunsPerTeam": 1.1156,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 8.3766,
+            "actual": 8.8378,
+            "level": 0.4613
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 8.4586,
+            "actual": 9.6308,
+            "level": 1.1721
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 8.4431,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.2046
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 8.2548,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.0932
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 8.9592,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.2932
+          }
+        }
+      },
+      {
+        "id": "BUNDLE_LEAGUE_H",
+        "label": "W + E + B + D + F + H",
+        "anchor": "the documented bundle plus the second-look input level",
+        "simMean": 8.9952,
+        "level": 0.348,
+        "slopeSimMeanOnLine": 0.2153,
+        "meanSimSd": 4.2422,
+        "coverageP10P90": 0.8039,
+        "meanWidthP10P90": 10.9853,
+        "pitTailMass": 0.2402,
+        "logLossFixedOver": 0.7435,
+        "logLossChosenSide": 0.7289,
+        "eceFixedOver": 0.1365,
+        "eceChosenSide": 0.1223,
+        "chosenHitRate": 0.466,
+        "chosenMeanShown": 0.5686,
+        "hitsPerTeam": 8.7122,
+        "walksPerTeam": 3.6239,
+        "homeRunsPerTeam": 1.2149,
+        "byMonth": {
+          "2026-08": {
+            "n": 74,
+            "simMean": 8.9366,
+            "actual": 8.8378,
+            "level": -0.0987
+          },
+          "2026-09": {
+            "n": 130,
+            "simMean": 9.0286,
+            "actual": 9.6308,
+            "level": 0.6022
+          }
+        },
+        "byLineBand": {
+          "8–9": {
+            "n": 125,
+            "simMean": 9.0197,
+            "actual": 9.576,
+            "line": 8.4,
+            "eceFixedOver": 0.1402
+          },
+          "≤7.5": {
+            "n": 62,
+            "simMean": 8.7735,
+            "actual": 8.1935,
+            "line": 7.3065,
+            "eceFixedOver": 0.1485
+          },
+          "≥9.5": {
+            "n": 17,
+            "simMean": 9.6231,
+            "actual": 11.8235,
+            "line": 10.0294,
+            "eceFixedOver": 0.2496
+          }
+        }
+      }
+    ],
+    "reading": [
+      "Control level: simulated mean 7.8141 vs actual 9.3431 (posted line 8.2034); August alone 7.7627 vs 8.8378.",
+      "Candidate level: 8.4289 overall (August 8.3766 vs actual 8.8378; September 8.4586 vs 9.6308); coverage 0.7941 (target 0.80), PIT tail mass 0.2402 (0.20 if well specified), width 10.6176 vs control 10.0098.",
+      "The self-consistent PA divisor (S) shows the published divisor 3.85 is a hidden level knob: the engine's realised PA per lineup slot is 4.27, so simulated hits run 11% above the board's summed projections; making it consistent drops the level to 6.54. The candidate keeps the divisor as published and says so.",
+      "Slope (simulated mean per point of posted line) stays ≈ 0.17–0.26 under every configuration; actual is 1.32. The over/under call's failure lives there."
+    ]
+  },
+  "pins": {
+    "app/src/lib/mlb/full-game/plate-appearance.ts": "52056c6da3369d04cb525175aadbaaa4e28067d6ec87c7a666fc0f2e334f6de8",
+    "app/src/lib/mlb/full-game/engine.ts": "be7ef29a4a5ce216baee8b6af8adf3096fe519c5e0a04e38e5ba04f5d64cb83e",
+    "app/src/lib/mlb/full-game/simulate.ts": "14aa1eb9c42806e9c96a6eb0267e84c0d70ae60547ee8fee224dc103eefed6fe",
+    "scripts/research/mlb/sensitivity-totals-engine-priors.mjs": "0c2bfd0f96c8aa3163cdd716c082f767bb532ea6c659935b505c50093dd46b6c",
+    "data/internal/research/mlb/reports/totals-engine-prior-sensitivity.json": "a07abb3ad005d7196b7d573c2c583a87466bc4baa87f3c145b6697c463a00677"
+  },
+  "forward": {
+    "population": "every MLB game with a published pregame simulation (status ready or degraded) from the first shadow file on; one row per game, written the first time the game is simulated pregame and never overwritten (a later lineup refresh does not rewrite it); a game with no pregame simulation is excluded, never approximated",
+    "outcomes": "committed StatsAPI linescores (final only, data/internal/mlb/linescores) joined by gamePk; a game with no final is pending",
+    "files": {
+      "rows": "data/internal/research/mlb/engine-level-shadow/<date>.json",
+      "receipt": "data/internal/research/mlb/engine-level-shadow/receipt.json"
+    },
+    "minimumGames": 200,
+    "metricsPerArm": [
+      "meanActualMinusSimMean (level)",
+      "coverageP10P90",
+      "pitTailMass",
+      "meanWidthP10P90",
+      "fixedOverLogLoss where a posted line was captured",
+      "hitsPerTeam / walksPerTeam sanity"
+    ],
+    "bars": {
+      "levelAbsError": "|mean(actual − candidate mean)| ≤ 0.5 runs",
+      "improvesLevel": "|candidate level| < |control level|",
+      "coverageP10P90": "in [0.76, 0.86]",
+      "pitTailMass": "≤ 0.25",
+      "noWorseFixedOverLogLoss": "candidate ≤ control + 0.005 on games with a captured line (a level repair may not degrade the probability it feeds)",
+      "widthGuard": "candidate p10–p90 width ≤ control width × 1.15 (level is not to be bought with absurd intervals)"
+    },
+    "oneLook": "the receipt accumulates nightly with state ACCUMULATING; the VERDICT (ENGINE_LEVEL_PASS / ENGINE_LEVEL_FAIL) is written once, the first receipt at n ≥ 200, and never rewritten. A FAIL retires this candidate; it is not retried by tweaking a constant.",
+    "consequence": "PASS proposes — it does not perform — a founder-approved adoption of the candidate parameters for the public simulation, with a paired forward test continuing after adoption. Neither verdict touches the over/under pause; the live-record gate alone lifts it."
+  },
+  "publicBehaviour": "Nothing public changes. The shadow is private (data/internal/research); /models and /ops may name it as research-only if a vocabulary for that exists."
+}

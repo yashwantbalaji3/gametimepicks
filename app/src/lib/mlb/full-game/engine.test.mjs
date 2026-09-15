@@ -97,3 +97,59 @@ test("a missing starter still simulates (degraded) against the bullpen aggregate
   assert.ok(r.awayRuns >= 0 && r.homeRuns >= 0);
   assert.equal(r.homeStarter.battersFaced, 0, "no starter → no starter batters faced");
 });
+
+/* ── P317 engine parameters: the defaults ARE the published engine; each mechanism moves runs the documented way ── */
+import { DEFAULT_ENGINE_PARAMS } from "./engine.ts";
+
+const meanRuns = (params, games = 3000) => {
+  const g = fixture();
+  let total = 0;
+  for (let i = 0; i < games; i += 1) {
+    const r = simulateGame(g, new SeededRng(`p317|${i}`), params);
+    total += r.awayRuns + r.homeRuns;
+  }
+  return total / games;
+};
+const withParams = (over) => ({
+  league: { ...DEFAULT_ENGINE_PARAMS.league, ...(over.league ?? {}) },
+  advancement: { ...DEFAULT_ENGINE_PARAMS.advancement, ...(over.advancement ?? {}) },
+  starter: { ...DEFAULT_ENGINE_PARAMS.starter, ...(over.starter ?? {}) },
+});
+
+test("P317: omitting params, passing the defaults, and passing an equal copy all produce the identical game", () => {
+  const g = fixture();
+  const a = simulateGame(g, new SeededRng("params-identity"));
+  const b = simulateGame(g, new SeededRng("params-identity"), DEFAULT_ENGINE_PARAMS);
+  const c = simulateGame(g, new SeededRng("params-identity"), withParams({}));
+  assert.deepEqual(a, b);
+  assert.deepEqual(a, c);
+});
+
+test("P317: the published defaults carry the S008 literals and model no errors, double plays or free advances", () => {
+  const d = DEFAULT_ENGINE_PARAMS;
+  assert.equal(d.league.WALK_RATE, 0.085);
+  assert.equal(d.league.PA_PER_GAME, 3.85);
+  assert.equal(d.league.REACH_ON_ERROR_RATE, 0);
+  assert.deepEqual(d.advancement, { doubleScoresRunnerFromFirst: 0.6, singleScoresRunnerFromSecond: 0.7, singleFirstToThird: 0.32, productiveOutScoresFromThird: 0.4, groundIntoDoublePlay: 0, freeAdvance: 0 });
+  assert.deepEqual(d.starter, { maxBattersFaced: 25, chaseRuns: 7 });
+});
+
+test("P317: each research mechanism moves total runs in its documented direction and keeps every state legal", () => {
+  const base = meanRuns(DEFAULT_ENGINE_PARAMS);
+  assert.ok(meanRuns(withParams({ league: { REACH_ON_ERROR_RATE: 0.03 } })) > base + 0.15, "reach on error adds baserunners → more runs");
+  assert.ok(meanRuns(withParams({ league: { WALK_RATE: 0.12 } })) > base + 0.15, "more walks → more runs");
+  assert.ok(meanRuns(withParams({ advancement: { freeAdvance: 0.05 } })) > base + 0.1, "free advancement → more runs");
+  assert.ok(meanRuns(withParams({ advancement: { groundIntoDoublePlay: 0.3 } })) < base - 0.15, "double plays → fewer runs");
+  assert.ok(meanRuns(withParams({ league: { PA_PER_GAME: 4.6 } })) < base - 0.3, "a larger PA divisor lowers the per-PA hit rate → fewer runs");
+  const g = fixture();
+  const p = withParams({ league: { REACH_ON_ERROR_RATE: 0.02, WALK_RATE: 0.1 }, advancement: { freeAdvance: 0.03, groundIntoDoublePlay: 0.15 } });
+  for (let i = 0; i < 1500; i += 1) {
+    const r = simulateGame(g, new SeededRng(`legal|${i}`), p);
+    assert.ok(r.awayRuns >= 0 && r.homeRuns >= 0 && Number.isInteger(r.awayRuns) && Number.isInteger(r.homeRuns));
+    assert.ok(r.innings >= 9 && r.innings <= 30 && r.awayRuns !== r.homeRuns);
+    const hits = r.awayBatters.reduce((s, b) => s + b.hits, 0);
+    const runs = r.awayBatters.reduce((s, b) => s + b.runs, 0);
+    assert.equal(runs, r.awayRuns, "every away run is credited to a batter (errors and free advances included)");
+    assert.ok(hits <= r.awayBatters.reduce((s, b) => s + b.pa, 0), "hits never exceed plate appearances");
+  }
+});

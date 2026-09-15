@@ -1,0 +1,5721 @@
+{
+  "schemaVersion": 1,
+  "artifact": "mlb-totals-engine-prior-sensitivity",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "317",
+  "generatedAt": "2026-09-15T14:40:35.113Z",
+  "status": "DEV_ONLY · SECOND_LOOK — the 2026 graded record is SEEN; nothing here is a candidate score, a bar, or an adoption. Constants marked 'documented' come from public 2020s league rates, not from these outcomes; 'H' is fit on this seen record and says so.",
+  "method": "Each graded total row's forecast of record (the cited prediction snapshot) names an artifactHash; the git revision that first carried it supplies the board, team-markets comparison and lineup snapshots; inputs are rebuilt with the production adapter; the control reproduces every committed hash (parity gate) and every configuration re-simulates with the production seed per game (common random numbers).",
+  "runsPerGame": 10000,
+  "population": {
+    "ledgerTotalRows": 263,
+    "joined": 263,
+    "unjoined": {
+      "noSnapshot": 0,
+      "noRevision": 0,
+      "noInputs": 0
+    },
+    "dates": [
+      "2026-08-24",
+      "2026-08-25",
+      "2026-08-26",
+      "2026-08-27",
+      "2026-08-28",
+      "2026-08-29",
+      "2026-08-30",
+      "2026-08-31",
+      "2026-09-01",
+      "2026-09-02",
+      "2026-09-03",
+      "2026-09-04",
+      "2026-09-05",
+      "2026-09-06",
+      "2026-09-07",
+      "2026-09-08",
+      "2026-09-09",
+      "2026-09-10",
+      "2026-09-11",
+      "2026-09-12",
+      "2026-09-13",
+      "2026-09-14"
+    ],
+    "parity": {
+      "outputsReproduced": 204,
+      "byteIdenticalHashes": 166,
+      "lineupTwins": 159,
+      "of": 263,
+      "outputFields": [
+        "status",
+        "runCount",
+        "winProbability",
+        "runs",
+        "totalRuns",
+        "runDifferential",
+        "runLine",
+        "teamTotals",
+        "finalScores",
+        "extraInningsProbability",
+        "players"
+      ],
+      "excluded": [
+        {
+          "date": "2026-08-24",
+          "gamePk": 823183,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-26",
+          "gamePk": 823988,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-26",
+          "gamePk": 824963,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-27",
+          "gamePk": 823179,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-28",
+          "gamePk": 823178,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-29",
+          "gamePk": 823177,
+          "fields": [
+            "status",
+            "runCount",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-29",
+          "gamePk": 824961,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-29",
+          "gamePk": 823986,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-31",
+          "gamePk": 822689,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-31",
+          "gamePk": 824635,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-31",
+          "gamePk": 824314,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-31",
+          "gamePk": 823982,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-08-31",
+          "gamePk": 825040,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-01",
+          "gamePk": 824313,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-01",
+          "gamePk": 823984,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-01",
+          "gamePk": 825038,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-01",
+          "gamePk": 823908,
+          "fields": [
+            "status",
+            "runCount",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-02",
+          "gamePk": 823983,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-02",
+          "gamePk": 823906,
+          "fields": [
+            "status",
+            "runCount",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-03",
+          "gamePk": 823095,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-03",
+          "gamePk": 823907,
+          "fields": [
+            "status",
+            "runCount",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 824387,
+          "fields": [
+            "status",
+            "runCount",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 824471,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 823418,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 823338,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 824797,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 824554,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 822852,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 824146,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 824067,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 824311,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 823256,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 823905,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-04",
+          "gamePk": 823093,
+          "fields": [
+            "status",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-05",
+          "gamePk": 823577,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-05",
+          "gamePk": 823904,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-06",
+          "gamePk": 823822,
+          "fields": [
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-06",
+          "gamePk": 823091,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-06",
+          "gamePk": 823903,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-07",
+          "gamePk": 823254,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-07",
+          "gamePk": 823902,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-07",
+          "gamePk": 824958,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-08",
+          "gamePk": 824063,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-08",
+          "gamePk": 823250,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-08",
+          "gamePk": 823092,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-08",
+          "gamePk": 824957,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-08",
+          "gamePk": 823174,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-08",
+          "gamePk": 823901,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-09",
+          "gamePk": 823251,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-09",
+          "gamePk": 823900,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-11",
+          "gamePk": 823817,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-11",
+          "gamePk": 824954,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-11",
+          "gamePk": 825036,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-11",
+          "gamePk": 823173,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-12",
+          "gamePk": 825035,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-12",
+          "gamePk": 824955,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-13",
+          "gamePk": 825033,
+          "fields": [
+            "status",
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-14",
+          "gamePk": 824386,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        },
+        {
+          "date": "2026-09-14",
+          "gamePk": 822765,
+          "fields": [
+            "winProbability",
+            "runs",
+            "totalRuns",
+            "runDifferential",
+            "runLine",
+            "teamTotals",
+            "finalScores",
+            "extraInningsProbability",
+            "players"
+          ]
+        }
+      ]
+    },
+    "studied": 204
+  },
+  "leagueReference": {
+    "runsPerGame2026": "committed StatsAPI linescores: July 8.848 (n 336) · August 8.703 (n 417) · September-to-date 9.624 (n 186); graded ledger all 614 totals: actual 8.894 vs posted line 8.338",
+    "note": "a level target is the season environment (≈ 8.7–8.9), not the hot September; the posted line itself ran ≈ 0.55 below actual this season"
+  },
+  "directions": "level = actual − simulated mean (0 is right; positive = the engine is low) · slope = how much the simulated mean rises per point of posted line (actual rises ≈ 1) · coverage p10–p90 targets 0.80 · PIT tail mass targets 0.20 (higher = too tight) · log loss and Brier lower is better · ECE lower is better",
+  "configs": [
+    {
+      "id": "C0",
+      "label": "control — the published engine",
+      "anchor": "as committed",
+      "paramsOverride": {},
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 1.529,
+          "meanActualMinusMedian": 2.0392,
+          "meanActual": 9.3431,
+          "meanSimMean": 7.8141,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.2102,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 3.9174,
+          "sdOfActualMinusMean": 4.8277,
+          "coverageP10P90": 0.7598,
+          "meanWidthP10P90": 10.0098,
+          "pitHistogram": [
+            0.0784,
+            0.0343,
+            0.0931,
+            0.1029,
+            0.0686,
+            0.0833,
+            0.1078,
+            0.1029,
+            0.1275,
+            0.201
+          ],
+          "pitTailMass": 0.2794
+        },
+        "selection": {
+          "fixedOverEce": 0.1854,
+          "chosenSideEce": 0.1645,
+          "overRate": 0.5497,
+          "meanPOver": 0.3954,
+          "chosenHitRate": 0.445,
+          "chosenMeanShown": 0.5863,
+          "logLoss": {
+            "fixedOver": 0.7905,
+            "chosenSide": 0.7598,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2944,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.3278,
+          "walksPerTeam": 3.2633,
+          "homeRunsPerTeam": 1.055,
+          "paPerBatter": 4.2644,
+          "extraInningsRate": 0.109
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.7384,
+            "meanActualMinusMedian": 2.216,
+            "meanActual": 9.576,
+            "meanSimMean": 7.8376,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1364,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 3.9173,
+            "sdOfActualMinusMean": 4.6099,
+            "coverageP10P90": 0.776,
+            "meanWidthP10P90": 10.016,
+            "pitHistogram": [
+              0.072,
+              0.016,
+              0.104,
+              0.088,
+              0.056,
+              0.08,
+              0.12,
+              0.112,
+              0.152,
+              0.2
+            ],
+            "pitTailMass": 0.272
+          },
+          "selection": {
+            "fixedOverEce": 0.2354,
+            "chosenSideEce": 0.2073,
+            "overRate": 0.5913,
+            "meanPOver": 0.378,
+            "chosenHitRate": 0.4087,
+            "chosenMeanShown": 0.5843,
+            "logLoss": {
+              "fixedOver": 0.8143,
+              "chosenSide": 0.7706,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.3058,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3025,
+            "walksPerTeam": 3.261,
+            "homeRunsPerTeam": 1.0785,
+            "paPerBatter": 4.2606,
+            "extraInningsRate": 0.1086
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.5912,
+            "meanActualMinusMedian": 1.129,
+            "meanActual": 8.1935,
+            "meanSimMean": 7.6023,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.6799,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.8705,
+            "sdOfActualMinusMean": 5.0436,
+            "coverageP10P90": 0.7419,
+            "meanWidthP10P90": 9.8226,
+            "pitHistogram": [
+              0.0968,
+              0.0806,
+              0.0645,
+              0.1613,
+              0.0806,
+              0.0968,
+              0.1129,
+              0.0806,
+              0.0645,
+              0.1613
+            ],
+            "pitTailMass": 0.2581
+          },
+          "selection": {
+            "fixedOverEce": 0.0685,
+            "chosenSideEce": 0.0646,
+            "overRate": 0.4576,
+            "meanPOver": 0.4559,
+            "chosenHitRate": 0.5254,
+            "chosenMeanShown": 0.5655,
+            "logLoss": {
+              "fixedOver": 0.7112,
+              "chosenSide": 0.7175,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2583,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.2695,
+            "walksPerTeam": 3.26,
+            "homeRunsPerTeam": 0.9841,
+            "paPerBatter": 4.2608,
+            "extraInningsRate": 0.1111
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 3.4092,
+            "meanActualMinusMedian": 4.0588,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.4143,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": -0.0015,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.0891,
+            "sdOfActualMinusMean": 5.1493,
+            "coverageP10P90": 0.7059,
+            "meanWidthP10P90": 10.6471,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.1176,
+              0,
+              0.1176,
+              0.0588,
+              0,
+              0.1176,
+              0.1765,
+              0.3529
+            ],
+            "pitTailMass": 0.4118
+          },
+          "selection": {
+            "fixedOverEce": 0.2847,
+            "chosenSideEce": 0.3854,
+            "overRate": 0.5882,
+            "meanPOver": 0.3035,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.6711,
+            "logLoss": {
+              "fixedOver": 0.9044,
+              "chosenSide": 0.8339,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3427,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.7265,
+            "walksPerTeam": 3.2926,
+            "homeRunsPerTeam": 1.1415,
+            "paPerBatter": 4.3051,
+            "extraInningsRate": 0.1038
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 1.0752,
+            "meanActualMinusMedian": 1.5676,
+            "meanActual": 8.8378,
+            "meanSimMean": 7.7627,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.25,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 3.9026,
+            "sdOfActualMinusMean": 4.7394,
+            "coverageP10P90": 0.7432,
+            "meanWidthP10P90": 9.9459,
+            "pitHistogram": [
+              0.0946,
+              0.0541,
+              0.1081,
+              0.1216,
+              0.0405,
+              0.0676,
+              0.0946,
+              0.1216,
+              0.0811,
+              0.2162
+            ],
+            "pitTailMass": 0.3108
+          },
+          "selection": {
+            "fixedOverEce": 0.2057,
+            "chosenSideEce": 0.2088,
+            "overRate": 0.5147,
+            "meanPOver": 0.4015,
+            "chosenHitRate": 0.3971,
+            "chosenMeanShown": 0.5868,
+            "logLoss": {
+              "fixedOver": 0.8006,
+              "chosenSide": 0.7656,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.2997,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3094,
+            "walksPerTeam": 3.2664,
+            "homeRunsPerTeam": 1.0385,
+            "paPerBatter": 4.2642,
+            "extraInningsRate": 0.11
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.7873,
+            "meanActualMinusMedian": 2.3077,
+            "meanActual": 9.6308,
+            "meanSimMean": 7.8434,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.1863,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 3.9258,
+            "sdOfActualMinusMean": 4.8764,
+            "coverageP10P90": 0.7692,
+            "meanWidthP10P90": 10.0462,
+            "pitHistogram": [
+              0.0692,
+              0.0231,
+              0.0846,
+              0.0923,
+              0.0846,
+              0.0923,
+              0.1154,
+              0.0923,
+              0.1538,
+              0.1923
+            ],
+            "pitTailMass": 0.2615
+          },
+          "selection": {
+            "fixedOverEce": 0.2076,
+            "chosenSideEce": 0.14,
+            "overRate": 0.5691,
+            "meanPOver": 0.3921,
+            "chosenHitRate": 0.4715,
+            "chosenMeanShown": 0.586,
+            "logLoss": {
+              "fixedOver": 0.7849,
+              "chosenSide": 0.7567,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2915,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3383,
+            "walksPerTeam": 3.2616,
+            "homeRunsPerTeam": 1.0645,
+            "paPerBatter": 4.2644,
+            "extraInningsRate": 0.1084
+          }
+        }
+      },
+      "seconds": 16
+    },
+    {
+      "id": "W",
+      "label": "walk + HBP rate 0.085 → 0.093",
+      "anchor": "documented 2020s league: BB ≈ 8.2% + HBP ≈ 1.1% of PA",
+      "paramsOverride": {
+        "league": {
+          "WALK_RATE": 0.093
+        }
+      },
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 1.1967,
+          "meanActualMinusMedian": 1.7157,
+          "meanActual": 9.3431,
+          "meanSimMean": 8.1464,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.2191,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 4.0294,
+          "sdOfActualMinusMean": 4.8289,
+          "coverageP10P90": 0.7794,
+          "meanWidthP10P90": 10.3971,
+          "pitHistogram": [
+            0.0784,
+            0.0343,
+            0.1127,
+            0.0931,
+            0.0931,
+            0.0735,
+            0.1275,
+            0.0931,
+            0.1176,
+            0.1765
+          ],
+          "pitTailMass": 0.2549
+        },
+        "selection": {
+          "fixedOverEce": 0.1856,
+          "chosenSideEce": 0.1488,
+          "overRate": 0.5497,
+          "meanPOver": 0.4271,
+          "chosenHitRate": 0.4346,
+          "chosenMeanShown": 0.5702,
+          "logLoss": {
+            "fixedOver": 0.7703,
+            "chosenSide": 0.7439,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2859,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.4169,
+          "walksPerTeam": 3.6088,
+          "homeRunsPerTeam": 1.0652,
+          "paPerBatter": 4.3104,
+          "extraInningsRate": 0.1055
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.4038,
+            "meanActualMinusMedian": 1.928,
+            "meanActual": 9.576,
+            "meanSimMean": 8.1722,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1323,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 4.0326,
+            "sdOfActualMinusMean": 4.6086,
+            "coverageP10P90": 0.808,
+            "meanWidthP10P90": 10.384,
+            "pitHistogram": [
+              0.072,
+              0.016,
+              0.128,
+              0.08,
+              0.072,
+              0.088,
+              0.112,
+              0.112,
+              0.144,
+              0.176
+            ],
+            "pitTailMass": 0.248
+          },
+          "selection": {
+            "fixedOverEce": 0.2152,
+            "chosenSideEce": 0.1619,
+            "overRate": 0.5913,
+            "meanPOver": 0.41,
+            "chosenHitRate": 0.4,
+            "chosenMeanShown": 0.5619,
+            "logLoss": {
+              "fixedOver": 0.786,
+              "chosenSide": 0.7469,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.2934,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3909,
+            "walksPerTeam": 3.6068,
+            "homeRunsPerTeam": 1.0889,
+            "paPerBatter": 4.3069,
+            "extraInningsRate": 0.1055
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.2697,
+            "meanActualMinusMedian": 0.7742,
+            "meanActual": 8.1935,
+            "meanSimMean": 7.9238,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.6965,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.9767,
+            "sdOfActualMinusMean": 5.0572,
+            "coverageP10P90": 0.7419,
+            "meanWidthP10P90": 10.2742,
+            "pitHistogram": [
+              0.0968,
+              0.0806,
+              0.0806,
+              0.1452,
+              0.129,
+              0.0484,
+              0.1774,
+              0.0484,
+              0.0323,
+              0.1613
+            ],
+            "pitTailMass": 0.2581
+          },
+          "selection": {
+            "fixedOverEce": 0.1054,
+            "chosenSideEce": 0.0916,
+            "overRate": 0.4576,
+            "meanPOver": 0.4871,
+            "chosenHitRate": 0.5085,
+            "chosenMeanShown": 0.565,
+            "logLoss": {
+              "fixedOver": 0.7144,
+              "chosenSide": 0.7209,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2601,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3581,
+            "walksPerTeam": 3.6041,
+            "homeRunsPerTeam": 0.9929,
+            "paPerBatter": 4.3064,
+            "extraInningsRate": 0.1072
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 3.0544,
+            "meanActualMinusMedian": 3.5882,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.7691,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0078,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.1976,
+            "sdOfActualMinusMean": 5.1397,
+            "coverageP10P90": 0.7059,
+            "meanWidthP10P90": 10.9412,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.1176,
+              0,
+              0.1176,
+              0.0588,
+              0.0588,
+              0.1176,
+              0.2353,
+              0.2353
+            ],
+            "pitTailMass": 0.2941
+          },
+          "selection": {
+            "fixedOverEce": 0.3342,
+            "chosenSideEce": 0.3125,
+            "overRate": 0.5882,
+            "meanPOver": 0.3346,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.6442,
+            "logLoss": {
+              "fixedOver": 0.8585,
+              "chosenSide": 0.8034,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3248,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.8224,
+            "walksPerTeam": 3.641,
+            "homeRunsPerTeam": 1.1551,
+            "paPerBatter": 4.3511,
+            "extraInningsRate": 0.0988
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 0.7462,
+            "meanActualMinusMedian": 1.2838,
+            "meanActual": 8.8378,
+            "meanSimMean": 8.0917,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2689,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 4.0171,
+            "sdOfActualMinusMean": 4.7462,
+            "coverageP10P90": 0.7568,
+            "meanWidthP10P90": 10.3514,
+            "pitHistogram": [
+              0.0946,
+              0.0541,
+              0.1216,
+              0.1081,
+              0.0676,
+              0.0676,
+              0.1216,
+              0.1081,
+              0.0676,
+              0.1892
+            ],
+            "pitTailMass": 0.2838
+          },
+          "selection": {
+            "fixedOverEce": 0.2114,
+            "chosenSideEce": 0.2048,
+            "overRate": 0.5147,
+            "meanPOver": 0.433,
+            "chosenHitRate": 0.3676,
+            "chosenMeanShown": 0.5725,
+            "logLoss": {
+              "fixedOver": 0.7851,
+              "chosenSide": 0.7498,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.2935,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3971,
+            "walksPerTeam": 3.6104,
+            "homeRunsPerTeam": 1.0482,
+            "paPerBatter": 4.3097,
+            "extraInningsRate": 0.1058
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.4532,
+            "meanActualMinusMedian": 1.9615,
+            "meanActual": 9.6308,
+            "meanSimMean": 8.1776,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.1899,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 4.0363,
+            "sdOfActualMinusMean": 4.8749,
+            "coverageP10P90": 0.7923,
+            "meanWidthP10P90": 10.4231,
+            "pitHistogram": [
+              0.0692,
+              0.0231,
+              0.1077,
+              0.0846,
+              0.1077,
+              0.0769,
+              0.1308,
+              0.0846,
+              0.1462,
+              0.1692
+            ],
+            "pitTailMass": 0.2385
+          },
+          "selection": {
+            "fixedOverEce": 0.1774,
+            "chosenSideEce": 0.1486,
+            "overRate": 0.5691,
+            "meanPOver": 0.4239,
+            "chosenHitRate": 0.4715,
+            "chosenMeanShown": 0.569,
+            "logLoss": {
+              "fixedOver": 0.7622,
+              "chosenSide": 0.7407,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2817,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.4281,
+            "walksPerTeam": 3.6079,
+            "homeRunsPerTeam": 1.0749,
+            "paPerBatter": 4.3108,
+            "extraInningsRate": 0.1053
+          }
+        }
+      },
+      "seconds": 16
+    },
+    {
+      "id": "E",
+      "label": "reach on error 0 → 0.009 per PA",
+      "anchor": "documented ≈ 0.35 reached-on-error per team-game over ≈ 38 PA",
+      "paramsOverride": {
+        "league": {
+          "REACH_ON_ERROR_RATE": 0.009
+        }
+      },
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 1.1325,
+          "meanActualMinusMedian": 1.652,
+          "meanActual": 9.3431,
+          "meanSimMean": 8.2106,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.2207,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 4.0473,
+          "sdOfActualMinusMean": 4.8348,
+          "coverageP10P90": 0.7941,
+          "meanWidthP10P90": 10.4216,
+          "pitHistogram": [
+            0.0784,
+            0.049,
+            0.1029,
+            0.0931,
+            0.098,
+            0.0735,
+            0.1176,
+            0.098,
+            0.1176,
+            0.1716
+          ],
+          "pitTailMass": 0.25
+        },
+        "selection": {
+          "fixedOverEce": 0.1848,
+          "chosenSideEce": 0.1457,
+          "overRate": 0.5497,
+          "meanPOver": 0.4333,
+          "chosenHitRate": 0.4241,
+          "chosenMeanShown": 0.5678,
+          "logLoss": {
+            "fixedOver": 0.7698,
+            "chosenSide": 0.7433,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2857,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.4286,
+          "walksPerTeam": 3.3028,
+          "homeRunsPerTeam": 1.0678,
+          "paPerBatter": 4.3164,
+          "extraInningsRate": 0.1052
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.3409,
+            "meanActualMinusMedian": 1.88,
+            "meanActual": 9.576,
+            "meanSimMean": 8.2351,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1398,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 4.0502,
+            "sdOfActualMinusMean": 4.6148,
+            "coverageP10P90": 0.824,
+            "meanWidthP10P90": 10.416,
+            "pitHistogram": [
+              0.072,
+              0.04,
+              0.112,
+              0.072,
+              0.08,
+              0.088,
+              0.104,
+              0.12,
+              0.144,
+              0.168
+            ],
+            "pitTailMass": 0.24
+          },
+          "selection": {
+            "fixedOverEce": 0.2028,
+            "chosenSideEce": 0.1586,
+            "overRate": 0.5913,
+            "meanPOver": 0.4159,
+            "chosenHitRate": 0.4,
+            "chosenMeanShown": 0.5586,
+            "logLoss": {
+              "fixedOver": 0.784,
+              "chosenSide": 0.7448,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.2925,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.4024,
+            "walksPerTeam": 3.3013,
+            "homeRunsPerTeam": 1.0909,
+            "paPerBatter": 4.3128,
+            "extraInningsRate": 0.1051
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.2038,
+            "meanActualMinusMedian": 0.6935,
+            "meanActual": 8.1935,
+            "meanSimMean": 7.9898,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.673,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.9944,
+            "sdOfActualMinusMean": 5.0644,
+            "coverageP10P90": 0.7581,
+            "meanWidthP10P90": 10.3065,
+            "pitHistogram": [
+              0.0968,
+              0.0806,
+              0.0806,
+              0.1613,
+              0.129,
+              0.0484,
+              0.1613,
+              0.0484,
+              0.0323,
+              0.1613
+            ],
+            "pitTailMass": 0.2581
+          },
+          "selection": {
+            "fixedOverEce": 0.1446,
+            "chosenSideEce": 0.1251,
+            "overRate": 0.4576,
+            "meanPOver": 0.4942,
+            "chosenHitRate": 0.4746,
+            "chosenMeanShown": 0.565,
+            "logLoss": {
+              "fixedOver": 0.7169,
+              "chosenSide": 0.7238,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2614,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3704,
+            "walksPerTeam": 3.2974,
+            "homeRunsPerTeam": 0.9965,
+            "paPerBatter": 4.3121,
+            "extraInningsRate": 0.1069
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 2.9874,
+            "meanActualMinusMedian": 3.4706,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.8362,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0099,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.2184,
+            "sdOfActualMinusMean": 5.1387,
+            "coverageP10P90": 0.7059,
+            "meanWidthP10P90": 10.8824,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.1176,
+              0,
+              0.1176,
+              0.0588,
+              0.0588,
+              0.1176,
+              0.2353,
+              0.2353
+            ],
+            "pitTailMass": 0.2941
+          },
+          "selection": {
+            "fixedOverEce": 0.3307,
+            "chosenSideEce": 0.3088,
+            "overRate": 0.5882,
+            "meanPOver": 0.3401,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.64,
+            "logLoss": {
+              "fixedOver": 0.8577,
+              "chosenSide": 0.8012,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3246,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.8332,
+            "walksPerTeam": 3.3329,
+            "homeRunsPerTeam": 1.1584,
+            "paPerBatter": 4.3582,
+            "extraInningsRate": 0.1001
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 0.6792,
+            "meanActualMinusMedian": 1.1892,
+            "meanActual": 8.8378,
+            "meanSimMean": 8.1586,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2625,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 4.0356,
+            "sdOfActualMinusMean": 4.7563,
+            "coverageP10P90": 0.7973,
+            "meanWidthP10P90": 10.3649,
+            "pitHistogram": [
+              0.0946,
+              0.0541,
+              0.1216,
+              0.1081,
+              0.0811,
+              0.0676,
+              0.1081,
+              0.1081,
+              0.0676,
+              0.1892
+            ],
+            "pitTailMass": 0.2838
+          },
+          "selection": {
+            "fixedOverEce": 0.2225,
+            "chosenSideEce": 0.2161,
+            "overRate": 0.5147,
+            "meanPOver": 0.4392,
+            "chosenHitRate": 0.3529,
+            "chosenMeanShown": 0.5691,
+            "logLoss": {
+              "fixedOver": 0.7847,
+              "chosenSide": 0.7487,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.2936,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.4095,
+            "walksPerTeam": 3.3027,
+            "homeRunsPerTeam": 1.0518,
+            "paPerBatter": 4.3157,
+            "extraInningsRate": 0.106
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.3906,
+            "meanActualMinusMedian": 1.9154,
+            "meanActual": 9.6308,
+            "meanSimMean": 8.2402,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.1959,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 4.054,
+            "sdOfActualMinusMean": 4.8783,
+            "coverageP10P90": 0.7923,
+            "meanWidthP10P90": 10.4538,
+            "pitHistogram": [
+              0.0692,
+              0.0462,
+              0.0923,
+              0.0846,
+              0.1077,
+              0.0769,
+              0.1231,
+              0.0923,
+              0.1462,
+              0.1615
+            ],
+            "pitTailMass": 0.2308
+          },
+          "selection": {
+            "fixedOverEce": 0.1686,
+            "chosenSideEce": 0.1306,
+            "overRate": 0.5691,
+            "meanPOver": 0.4301,
+            "chosenHitRate": 0.4634,
+            "chosenMeanShown": 0.5672,
+            "logLoss": {
+              "fixedOver": 0.7616,
+              "chosenSide": 0.7404,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2814,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.4395,
+            "walksPerTeam": 3.3028,
+            "homeRunsPerTeam": 1.077,
+            "paPerBatter": 4.3167,
+            "extraInningsRate": 0.1048
+          }
+        }
+      },
+      "seconds": 16
+    },
+    {
+      "id": "B",
+      "label": "bases-per-hit fallback 1.58 → 1.63",
+      "anchor": "documented 2020s league TB/H (SLG ÷ AVG) ≈ 1.63; only batters with no total-bases line",
+      "paramsOverride": {
+        "league": {
+          "BASES_PER_HIT_FALLBACK": 1.63
+        }
+      },
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 1.4131,
+          "meanActualMinusMedian": 1.8971,
+          "meanActual": 9.3431,
+          "meanSimMean": 7.9301,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.1751,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 3.9465,
+          "sdOfActualMinusMean": 4.8322,
+          "coverageP10P90": 0.7696,
+          "meanWidthP10P90": 10.1275,
+          "pitHistogram": [
+            0.0784,
+            0.0343,
+            0.1029,
+            0.0931,
+            0.0784,
+            0.0784,
+            0.1275,
+            0.0882,
+            0.1127,
+            0.2059
+          ],
+          "pitTailMass": 0.2843
+        },
+        "selection": {
+          "fixedOverEce": 0.1817,
+          "chosenSideEce": 0.1695,
+          "overRate": 0.5497,
+          "meanPOver": 0.4063,
+          "chosenHitRate": 0.466,
+          "chosenMeanShown": 0.5811,
+          "logLoss": {
+            "fixedOver": 0.7834,
+            "chosenSide": 0.7566,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2912,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.3253,
+          "walksPerTeam": 3.2617,
+          "homeRunsPerTeam": 1.1091,
+          "paPerBatter": 4.2631,
+          "extraInningsRate": 0.1076
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.6266,
+            "meanActualMinusMedian": 2.112,
+            "meanActual": 9.576,
+            "meanSimMean": 7.9494,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.0935,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 3.9477,
+            "sdOfActualMinusMean": 4.6104,
+            "coverageP10P90": 0.792,
+            "meanWidthP10P90": 10.152,
+            "pitHistogram": [
+              0.072,
+              0.016,
+              0.112,
+              0.08,
+              0.056,
+              0.088,
+              0.128,
+              0.104,
+              0.144,
+              0.2
+            ],
+            "pitTailMass": 0.272
+          },
+          "selection": {
+            "fixedOverEce": 0.236,
+            "chosenSideEce": 0.2008,
+            "overRate": 0.5913,
+            "meanPOver": 0.3882,
+            "chosenHitRate": 0.4348,
+            "chosenMeanShown": 0.5766,
+            "logLoss": {
+              "fixedOver": 0.8049,
+              "chosenSide": 0.7663,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.3015,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3015,
+            "walksPerTeam": 3.2594,
+            "homeRunsPerTeam": 1.1294,
+            "paPerBatter": 4.2595,
+            "extraInningsRate": 0.1073
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.448,
+            "meanActualMinusMedian": 0.9194,
+            "meanActual": 8.1935,
+            "meanSimMean": 7.7455,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.7452,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.9021,
+            "sdOfActualMinusMean": 5.0492,
+            "coverageP10P90": 0.7419,
+            "meanWidthP10P90": 9.9516,
+            "pitHistogram": [
+              0.0968,
+              0.0806,
+              0.0806,
+              0.1452,
+              0.1129,
+              0.0645,
+              0.1613,
+              0.0484,
+              0.0484,
+              0.1613
+            ],
+            "pitTailMass": 0.2581
+          },
+          "selection": {
+            "fixedOverEce": 0.0922,
+            "chosenSideEce": 0.0773,
+            "overRate": 0.4576,
+            "meanPOver": 0.4699,
+            "chosenHitRate": 0.5254,
+            "chosenMeanShown": 0.5652,
+            "logLoss": {
+              "fixedOver": 0.7098,
+              "chosenSide": 0.7163,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2578,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.2638,
+            "walksPerTeam": 3.2582,
+            "homeRunsPerTeam": 1.0522,
+            "paPerBatter": 4.2591,
+            "extraInningsRate": 0.1096
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 3.3623,
+            "meanActualMinusMedian": 3.8824,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.4612,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": -0.0169,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.0997,
+            "sdOfActualMinusMean": 5.1304,
+            "coverageP10P90": 0.7059,
+            "meanWidthP10P90": 10.5882,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.1176,
+              0,
+              0.1176,
+              0.0588,
+              0,
+              0.1176,
+              0.1176,
+              0.4118
+            ],
+            "pitTailMass": 0.4706
+          },
+          "selection": {
+            "fixedOverEce": 0.2804,
+            "chosenSideEce": 0.3844,
+            "overRate": 0.5882,
+            "meanPOver": 0.3078,
+            "chosenHitRate": 0.4706,
+            "chosenMeanShown": 0.6672,
+            "logLoss": {
+              "fixedOver": 0.8926,
+              "chosenSide": 0.8307,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3378,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.7239,
+            "walksPerTeam": 3.2911,
+            "homeRunsPerTeam": 1.1675,
+            "paPerBatter": 4.3035,
+            "extraInningsRate": 0.1022
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 0.9663,
+            "meanActualMinusMedian": 1.4459,
+            "meanActual": 8.8378,
+            "meanSimMean": 7.8715,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2204,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 3.9345,
+            "sdOfActualMinusMean": 4.7409,
+            "coverageP10P90": 0.7432,
+            "meanWidthP10P90": 10.0676,
+            "pitHistogram": [
+              0.0946,
+              0.0541,
+              0.1081,
+              0.1216,
+              0.0405,
+              0.0676,
+              0.1486,
+              0.0811,
+              0.0541,
+              0.2297
+            ],
+            "pitTailMass": 0.3243
+          },
+          "selection": {
+            "fixedOverEce": 0.2259,
+            "chosenSideEce": 0.2035,
+            "overRate": 0.5147,
+            "meanPOver": 0.4115,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.5825,
+            "logLoss": {
+              "fixedOver": 0.7938,
+              "chosenSide": 0.7605,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.2968,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3041,
+            "walksPerTeam": 3.2644,
+            "homeRunsPerTeam": 1.0891,
+            "paPerBatter": 4.2622,
+            "extraInningsRate": 0.1083
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.6674,
+            "meanActualMinusMedian": 2.1538,
+            "meanActual": 9.6308,
+            "meanSimMean": 7.9634,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.1475,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 3.9534,
+            "sdOfActualMinusMean": 4.8832,
+            "coverageP10P90": 0.7846,
+            "meanWidthP10P90": 10.1615,
+            "pitHistogram": [
+              0.0692,
+              0.0231,
+              0.1,
+              0.0769,
+              0.1,
+              0.0846,
+              0.1154,
+              0.0923,
+              0.1462,
+              0.1923
+            ],
+            "pitTailMass": 0.2615
+          },
+          "selection": {
+            "fixedOverEce": 0.2002,
+            "chosenSideEce": 0.1562,
+            "overRate": 0.5691,
+            "meanPOver": 0.4034,
+            "chosenHitRate": 0.4959,
+            "chosenMeanShown": 0.5803,
+            "logLoss": {
+              "fixedOver": 0.7776,
+              "chosenSide": 0.7544,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2881,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3373,
+            "walksPerTeam": 3.2601,
+            "homeRunsPerTeam": 1.1205,
+            "paPerBatter": 4.2635,
+            "extraInningsRate": 0.1071
+          }
+        }
+      },
+      "seconds": 16
+    },
+    {
+      "id": "D",
+      "label": "double plays 0 → 0.12 per opportunity",
+      "anchor": "documented ≈ 0.72 GIDP per team-game (≈ 12% of runner-on-first, <2-out outs); LOWERS runs",
+      "paramsOverride": {
+        "advancement": {
+          "groundIntoDoublePlay": 0.12
+        }
+      },
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 1.8514,
+          "meanActualMinusMedian": 2.3186,
+          "meanActual": 9.3431,
+          "meanSimMean": 7.4917,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.1964,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 3.8225,
+          "sdOfActualMinusMean": 4.8162,
+          "coverageP10P90": 0.7402,
+          "meanWidthP10P90": 9.701,
+          "pitHistogram": [
+            0.0637,
+            0.049,
+            0.0588,
+            0.0931,
+            0.0735,
+            0.1127,
+            0.0833,
+            0.1078,
+            0.1176,
+            0.2402
+          ],
+          "pitTailMass": 0.3039
+        },
+        "selection": {
+          "fixedOverEce": 0.2106,
+          "chosenSideEce": 0.1812,
+          "overRate": 0.5497,
+          "meanPOver": 0.3638,
+          "chosenHitRate": 0.4398,
+          "chosenMeanShown": 0.6089,
+          "logLoss": {
+            "fixedOver": 0.8156,
+            "chosenSide": 0.7791,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.3046,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.1938,
+          "walksPerTeam": 3.2109,
+          "homeRunsPerTeam": 1.0377,
+          "paPerBatter": 4.1957,
+          "extraInningsRate": 0.1127
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 2.0598,
+            "meanActualMinusMedian": 2.528,
+            "meanActual": 9.576,
+            "meanSimMean": 7.5162,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1211,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 3.827,
+            "sdOfActualMinusMean": 4.5986,
+            "coverageP10P90": 0.768,
+            "meanWidthP10P90": 9.688,
+            "pitHistogram": [
+              0.048,
+              0.04,
+              0.072,
+              0.096,
+              0.056,
+              0.096,
+              0.088,
+              0.104,
+              0.16,
+              0.24
+            ],
+            "pitTailMass": 0.288
+          },
+          "selection": {
+            "fixedOverEce": 0.267,
+            "chosenSideEce": 0.2224,
+            "overRate": 0.5913,
+            "meanPOver": 0.3467,
+            "chosenHitRate": 0.3913,
+            "chosenMeanShown": 0.6118,
+            "logLoss": {
+              "fixedOver": 0.8466,
+              "chosenSide": 0.7944,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.3193,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.1693,
+            "walksPerTeam": 3.2086,
+            "homeRunsPerTeam": 1.0607,
+            "paPerBatter": 4.192,
+            "extraInningsRate": 0.1128
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.9036,
+            "meanActualMinusMedian": 1.3387,
+            "meanActual": 8.1935,
+            "meanSimMean": 7.2899,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.6461,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.7686,
+            "sdOfActualMinusMean": 5.0285,
+            "coverageP10P90": 0.7419,
+            "meanWidthP10P90": 9.5806,
+            "pitHistogram": [
+              0.0968,
+              0.0806,
+              0.0323,
+              0.0968,
+              0.1129,
+              0.1613,
+              0.0806,
+              0.1129,
+              0.0484,
+              0.1774
+            ],
+            "pitTailMass": 0.2742
+          },
+          "selection": {
+            "fixedOverEce": 0.0821,
+            "chosenSideEce": 0.0643,
+            "overRate": 0.4576,
+            "meanPOver": 0.4238,
+            "chosenHitRate": 0.5424,
+            "chosenMeanShown": 0.5757,
+            "logLoss": {
+              "fixedOver": 0.7152,
+              "chosenSide": 0.721,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2598,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.1392,
+            "walksPerTeam": 3.2098,
+            "homeRunsPerTeam": 0.968,
+            "paPerBatter": 4.1936,
+            "extraInningsRate": 0.1144
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 3.7763,
+            "meanActualMinusMedian": 4.3529,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.0472,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0053,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 3.9853,
+            "sdOfActualMinusMean": 5.1231,
+            "coverageP10P90": 0.5294,
+            "meanWidthP10P90": 10.2353,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.0588,
+              0.0588,
+              0.0588,
+              0.0588,
+              0.0588,
+              0.1176,
+              0.0588,
+              0.4706
+            ],
+            "pitTailMass": 0.5294
+          },
+          "selection": {
+            "fixedOverEce": 0.3166,
+            "chosenSideEce": 0.3086,
+            "overRate": 0.5882,
+            "meanPOver": 0.2716,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.7043,
+            "logLoss": {
+              "fixedOver": 0.9549,
+              "chosenSide": 0.8779,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.361,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.5729,
+            "walksPerTeam": 3.2319,
+            "homeRunsPerTeam": 1.1228,
+            "paPerBatter": 4.2303,
+            "extraInningsRate": 0.106
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 1.3998,
+            "meanActualMinusMedian": 1.8514,
+            "meanActual": 8.8378,
+            "meanSimMean": 7.4381,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2404,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 3.8086,
+            "sdOfActualMinusMean": 4.719,
+            "coverageP10P90": 0.7297,
+            "meanWidthP10P90": 9.6486,
+            "pitHistogram": [
+              0.0811,
+              0.0676,
+              0.0541,
+              0.1081,
+              0.0811,
+              0.0946,
+              0.0676,
+              0.1216,
+              0.0811,
+              0.2432
+            ],
+            "pitTailMass": 0.3243
+          },
+          "selection": {
+            "fixedOverEce": 0.233,
+            "chosenSideEce": 0.2018,
+            "overRate": 0.5147,
+            "meanPOver": 0.3696,
+            "chosenHitRate": 0.4412,
+            "chosenMeanShown": 0.6082,
+            "logLoss": {
+              "fixedOver": 0.8167,
+              "chosenSide": 0.7818,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.3055,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.1713,
+            "walksPerTeam": 3.2109,
+            "homeRunsPerTeam": 1.0207,
+            "paPerBatter": 4.1947,
+            "extraInningsRate": 0.1136
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 2.1086,
+            "meanActualMinusMedian": 2.5846,
+            "meanActual": 9.6308,
+            "meanSimMean": 7.5222,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.17,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 3.8303,
+            "sdOfActualMinusMean": 4.8699,
+            "coverageP10P90": 0.7462,
+            "meanWidthP10P90": 9.7308,
+            "pitHistogram": [
+              0.0538,
+              0.0385,
+              0.0615,
+              0.0846,
+              0.0692,
+              0.1231,
+              0.0923,
+              0.1,
+              0.1385,
+              0.2385
+            ],
+            "pitTailMass": 0.2923
+          },
+          "selection": {
+            "fixedOverEce": 0.2188,
+            "chosenSideEce": 0.1725,
+            "overRate": 0.5691,
+            "meanPOver": 0.3606,
+            "chosenHitRate": 0.439,
+            "chosenMeanShown": 0.6093,
+            "logLoss": {
+              "fixedOver": 0.815,
+              "chosenSide": 0.7777,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.3041,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.2066,
+            "walksPerTeam": 3.2109,
+            "homeRunsPerTeam": 1.0474,
+            "paPerBatter": 4.1962,
+            "extraInningsRate": 0.1123
+          }
+        }
+      },
+      "seconds": 16
+    },
+    {
+      "id": "F",
+      "label": "free advance 0 → 0.013 per PA with runners on",
+      "anchor": "documented WP + PB + balk ≈ 0.5 per team-game over ≈ 38 PA",
+      "paramsOverride": {
+        "advancement": {
+          "freeAdvance": 0.013
+        }
+      },
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 1.4335,
+          "meanActualMinusMedian": 1.9167,
+          "meanActual": 9.3431,
+          "meanSimMean": 7.9096,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.2091,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 3.9377,
+          "sdOfActualMinusMean": 4.8238,
+          "coverageP10P90": 0.7745,
+          "meanWidthP10P90": 10.0833,
+          "pitHistogram": [
+            0.0784,
+            0.0343,
+            0.1029,
+            0.0931,
+            0.0833,
+            0.0686,
+            0.1176,
+            0.1078,
+            0.1127,
+            0.201
+          ],
+          "pitTailMass": 0.2794
+        },
+        "selection": {
+          "fixedOverEce": 0.1895,
+          "chosenSideEce": 0.1756,
+          "overRate": 0.5497,
+          "meanPOver": 0.4045,
+          "chosenHitRate": 0.4555,
+          "chosenMeanShown": 0.5812,
+          "logLoss": {
+            "fixedOver": 0.7843,
+            "chosenSide": 0.758,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2918,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.3272,
+          "walksPerTeam": 3.2629,
+          "homeRunsPerTeam": 1.0553,
+          "paPerBatter": 4.2635,
+          "extraInningsRate": 0.1082
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.6451,
+            "meanActualMinusMedian": 2.112,
+            "meanActual": 9.576,
+            "meanSimMean": 7.9309,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1187,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 3.9393,
+            "sdOfActualMinusMean": 4.6036,
+            "coverageP10P90": 0.8,
+            "meanWidthP10P90": 10.088,
+            "pitHistogram": [
+              0.072,
+              0.016,
+              0.112,
+              0.08,
+              0.064,
+              0.072,
+              0.128,
+              0.12,
+              0.136,
+              0.2
+            ],
+            "pitTailMass": 0.272
+          },
+          "selection": {
+            "fixedOverEce": 0.2267,
+            "chosenSideEce": 0.1937,
+            "overRate": 0.5913,
+            "meanPOver": 0.387,
+            "chosenHitRate": 0.4348,
+            "chosenMeanShown": 0.5775,
+            "logLoss": {
+              "fixedOver": 0.8055,
+              "chosenSide": 0.7678,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.302,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3009,
+            "walksPerTeam": 3.2609,
+            "homeRunsPerTeam": 1.0784,
+            "paPerBatter": 4.2598,
+            "extraInningsRate": 0.1081
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.4939,
+            "meanActualMinusMedian": 1,
+            "meanActual": 8.1935,
+            "meanSimMean": 7.6997,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.694,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.8862,
+            "sdOfActualMinusMean": 5.0431,
+            "coverageP10P90": 0.7419,
+            "meanWidthP10P90": 9.9355,
+            "pitHistogram": [
+              0.0968,
+              0.0806,
+              0.0806,
+              0.1452,
+              0.1129,
+              0.0645,
+              0.129,
+              0.0645,
+              0.0645,
+              0.1613
+            ],
+            "pitTailMass": 0.2581
+          },
+          "selection": {
+            "fixedOverEce": 0.1161,
+            "chosenSideEce": 0.1122,
+            "overRate": 0.4576,
+            "meanPOver": 0.4651,
+            "chosenHitRate": 0.4915,
+            "chosenMeanShown": 0.5649,
+            "logLoss": {
+              "fixedOver": 0.7105,
+              "chosenSide": 0.7169,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2581,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.2706,
+            "walksPerTeam": 3.2592,
+            "homeRunsPerTeam": 0.9844,
+            "paPerBatter": 4.2597,
+            "extraInningsRate": 0.1097
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 3.3049,
+            "meanActualMinusMedian": 3.8235,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.5186,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0141,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.1136,
+            "sdOfActualMinusMean": 5.1501,
+            "coverageP10P90": 0.7059,
+            "meanWidthP10P90": 10.5882,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.1176,
+              0,
+              0.1176,
+              0.0588,
+              0,
+              0.1765,
+              0.1176,
+              0.3529
+            ],
+            "pitTailMass": 0.4118
+          },
+          "selection": {
+            "fixedOverEce": 0.2755,
+            "chosenSideEce": 0.383,
+            "overRate": 0.5882,
+            "meanPOver": 0.3127,
+            "chosenHitRate": 0.4706,
+            "chosenMeanShown": 0.6627,
+            "logLoss": {
+              "fixedOver": 0.8966,
+              "chosenSide": 0.834,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3395,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.7275,
+            "walksPerTeam": 3.2912,
+            "homeRunsPerTeam": 1.1444,
+            "paPerBatter": 4.3043,
+            "extraInningsRate": 0.1029
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 0.9829,
+            "meanActualMinusMedian": 1.4189,
+            "meanActual": 8.8378,
+            "meanSimMean": 7.855,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2493,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 3.9207,
+            "sdOfActualMinusMean": 4.7345,
+            "coverageP10P90": 0.7568,
+            "meanWidthP10P90": 10.0135,
+            "pitHistogram": [
+              0.0946,
+              0.0541,
+              0.1081,
+              0.1216,
+              0.0541,
+              0.0541,
+              0.1216,
+              0.1081,
+              0.0676,
+              0.2162
+            ],
+            "pitTailMass": 0.3108
+          },
+          "selection": {
+            "fixedOverEce": 0.2159,
+            "chosenSideEce": 0.1896,
+            "overRate": 0.5147,
+            "meanPOver": 0.4099,
+            "chosenHitRate": 0.3971,
+            "chosenMeanShown": 0.5827,
+            "logLoss": {
+              "fixedOver": 0.7954,
+              "chosenSide": 0.7622,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.2976,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3044,
+            "walksPerTeam": 3.2635,
+            "homeRunsPerTeam": 1.0389,
+            "paPerBatter": 4.2622,
+            "extraInningsRate": 0.1089
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.6901,
+            "meanActualMinusMedian": 2.2,
+            "meanActual": 9.6308,
+            "meanSimMean": 7.9407,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.1847,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 3.9474,
+            "sdOfActualMinusMean": 4.8734,
+            "coverageP10P90": 0.7846,
+            "meanWidthP10P90": 10.1231,
+            "pitHistogram": [
+              0.0692,
+              0.0231,
+              0.1,
+              0.0769,
+              0.1,
+              0.0769,
+              0.1154,
+              0.1077,
+              0.1385,
+              0.1923
+            ],
+            "pitTailMass": 0.2615
+          },
+          "selection": {
+            "fixedOverEce": 0.1985,
+            "chosenSideEce": 0.168,
+            "overRate": 0.5691,
+            "meanPOver": 0.4015,
+            "chosenHitRate": 0.4878,
+            "chosenMeanShown": 0.5804,
+            "logLoss": {
+              "fixedOver": 0.7781,
+              "chosenSide": 0.7556,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2886,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3402,
+            "walksPerTeam": 3.2626,
+            "homeRunsPerTeam": 1.0647,
+            "paPerBatter": 4.2643,
+            "extraInningsRate": 0.1078
+          }
+        }
+      },
+      "seconds": 16
+    },
+    {
+      "id": "S",
+      "label": "PA divisor 3.85 → 4.27 (self-consistent)",
+      "anchor": "the engine's own realised PA per lineup slot; makes simulated hits equal the board's projections; LOWERS runs",
+      "paramsOverride": {
+        "league": {
+          "PA_PER_GAME": 4.27
+        }
+      },
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 2.8015,
+          "meanActualMinusMedian": 3.2451,
+          "meanActual": 9.3431,
+          "meanSimMean": 6.5416,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.1787,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 3.5164,
+          "sdOfActualMinusMean": 4.7878,
+          "coverageP10P90": 0.6765,
+          "meanWidthP10P90": 8.8088,
+          "pitHistogram": [
+            0.0539,
+            0.0294,
+            0.0294,
+            0.0735,
+            0.0931,
+            0.0539,
+            0.1225,
+            0.0931,
+            0.152,
+            0.299
+          ],
+          "pitTailMass": 0.3529
+        },
+        "selection": {
+          "fixedOverEce": 0.2883,
+          "chosenSideEce": 0.2488,
+          "overRate": 0.5497,
+          "meanPOver": 0.2713,
+          "chosenHitRate": 0.4503,
+          "chosenMeanShown": 0.6917,
+          "logLoss": {
+            "fixedOver": 0.92,
+            "chosenSide": 0.8633,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.3431,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 7.3162,
+          "walksPerTeam": 3.1801,
+          "homeRunsPerTeam": 0.9268,
+          "paPerBatter": 4.1544,
+          "extraInningsRate": 0.1256
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 3.0096,
+            "meanActualMinusMedian": 3.448,
+            "meanActual": 9.576,
+            "meanSimMean": 6.5664,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1167,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 3.5218,
+            "sdOfActualMinusMean": 4.5755,
+            "coverageP10P90": 0.688,
+            "meanWidthP10P90": 8.808,
+            "pitHistogram": [
+              0.032,
+              0.04,
+              0.016,
+              0.096,
+              0.08,
+              0.048,
+              0.104,
+              0.104,
+              0.16,
+              0.32
+            ],
+            "pitTailMass": 0.352
+          },
+          "selection": {
+            "fixedOverEce": 0.3501,
+            "chosenSideEce": 0.31,
+            "overRate": 0.5913,
+            "meanPOver": 0.2552,
+            "chosenHitRate": 0.4,
+            "chosenMeanShown": 0.7009,
+            "logLoss": {
+              "fixedOver": 0.9782,
+              "chosenSide": 0.9021,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.369,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 7.294,
+            "walksPerTeam": 3.1796,
+            "homeRunsPerTeam": 0.9466,
+            "paPerBatter": 4.151,
+            "extraInningsRate": 0.1251
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 1.8356,
+            "meanActualMinusMedian": 2.3065,
+            "meanActual": 8.1935,
+            "meanSimMean": 6.358,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.5417,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.4654,
+            "sdOfActualMinusMean": 4.9753,
+            "coverageP10P90": 0.7097,
+            "meanWidthP10P90": 8.7097,
+            "pitHistogram": [
+              0.0968,
+              0.0161,
+              0.0645,
+              0.0323,
+              0.129,
+              0.0806,
+              0.1613,
+              0.0806,
+              0.129,
+              0.2097
+            ],
+            "pitTailMass": 0.3065
+          },
+          "selection": {
+            "fixedOverEce": 0.1483,
+            "chosenSideEce": 0.0983,
+            "overRate": 0.4576,
+            "meanPOver": 0.3264,
+            "chosenHitRate": 0.5593,
+            "chosenMeanShown": 0.6449,
+            "logLoss": {
+              "fixedOver": 0.7456,
+              "chosenSide": 0.7377,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2718,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 7.2695,
+            "walksPerTeam": 3.176,
+            "homeRunsPerTeam": 0.8654,
+            "paPerBatter": 4.1528,
+            "extraInningsRate": 0.1287
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 4.794,
+            "meanActualMinusMedian": 5.1765,
+            "meanActual": 11.8235,
+            "meanSimMean": 7.0295,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0214,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 3.6621,
+            "sdOfActualMinusMean": 5.1037,
+            "coverageP10P90": 0.4706,
+            "meanWidthP10P90": 9.1765,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0,
+              0.0588,
+              0.0588,
+              0,
+              0.1176,
+              0.0588,
+              0.1765,
+              0.4706
+            ],
+            "pitTailMass": 0.5294
+          },
+          "selection": {
+            "fixedOverEce": 0.4093,
+            "chosenSideEce": 0.389,
+            "overRate": 0.5882,
+            "meanPOver": 0.1886,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.7911,
+            "logLoss": {
+              "fixedOver": 1.132,
+              "chosenSide": 1.037,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.4152,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 7.6498,
+            "walksPerTeam": 3.199,
+            "homeRunsPerTeam": 1.005,
+            "paPerBatter": 4.1852,
+            "extraInningsRate": 0.1183
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 2.3401,
+            "meanActualMinusMedian": 2.8243,
+            "meanActual": 8.8378,
+            "meanSimMean": 6.4977,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2152,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 3.5033,
+            "sdOfActualMinusMean": 4.684,
+            "coverageP10P90": 0.6892,
+            "meanWidthP10P90": 8.7703,
+            "pitHistogram": [
+              0.0541,
+              0.0541,
+              0.0405,
+              0.0811,
+              0.1081,
+              0.0405,
+              0.1081,
+              0.0811,
+              0.1757,
+              0.2568
+            ],
+            "pitTailMass": 0.3108
+          },
+          "selection": {
+            "fixedOverEce": 0.2898,
+            "chosenSideEce": 0.2807,
+            "overRate": 0.5147,
+            "meanPOver": 0.2768,
+            "chosenHitRate": 0.5,
+            "chosenMeanShown": 0.6892,
+            "logLoss": {
+              "fixedOver": 0.9042,
+              "chosenSide": 0.8552,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.3359,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 7.2997,
+            "walksPerTeam": 3.1803,
+            "homeRunsPerTeam": 0.913,
+            "paPerBatter": 4.154,
+            "extraInningsRate": 0.1265
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 3.0641,
+            "meanActualMinusMedian": 3.4846,
+            "meanActual": 9.6308,
+            "meanSimMean": 6.5666,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.157,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 3.5238,
+            "sdOfActualMinusMean": 4.8441,
+            "coverageP10P90": 0.6692,
+            "meanWidthP10P90": 8.8308,
+            "pitHistogram": [
+              0.0538,
+              0.0154,
+              0.0231,
+              0.0692,
+              0.0846,
+              0.0615,
+              0.1308,
+              0.1,
+              0.1385,
+              0.3231
+            ],
+            "pitTailMass": 0.3769
+          },
+          "selection": {
+            "fixedOverEce": 0.3107,
+            "chosenSideEce": 0.2716,
+            "overRate": 0.5691,
+            "meanPOver": 0.2682,
+            "chosenHitRate": 0.4228,
+            "chosenMeanShown": 0.693,
+            "logLoss": {
+              "fixedOver": 0.9288,
+              "chosenSide": 0.8678,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.3471,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 7.3255,
+            "walksPerTeam": 3.18,
+            "homeRunsPerTeam": 0.9346,
+            "paPerBatter": 4.1546,
+            "extraInningsRate": 0.1251
+          }
+        }
+      },
+      "seconds": 16
+    },
+    {
+      "id": "P",
+      "label": "productive out scores from third 0.4 → 0.5",
+      "anchor": "sensitivity only — no documented anchor chosen",
+      "paramsOverride": {
+        "advancement": {
+          "productiveOutScoresFromThird": 0.5
+        }
+      },
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 1.4631,
+          "meanActualMinusMedian": 1.9363,
+          "meanActual": 9.3431,
+          "meanSimMean": 7.88,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.2123,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 3.9276,
+          "sdOfActualMinusMean": 4.8292,
+          "coverageP10P90": 0.7696,
+          "meanWidthP10P90": 10.0588,
+          "pitHistogram": [
+            0.0784,
+            0.0343,
+            0.098,
+            0.098,
+            0.0784,
+            0.0735,
+            0.1176,
+            0.0931,
+            0.1275,
+            0.201
+          ],
+          "pitTailMass": 0.2794
+        },
+        "selection": {
+          "fixedOverEce": 0.1866,
+          "chosenSideEce": 0.1565,
+          "overRate": 0.5497,
+          "meanPOver": 0.4015,
+          "chosenHitRate": 0.445,
+          "chosenMeanShown": 0.5827,
+          "logLoss": {
+            "fixedOver": 0.7872,
+            "chosenSide": 0.7572,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.293,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.3258,
+          "walksPerTeam": 3.2616,
+          "homeRunsPerTeam": 1.0548,
+          "paPerBatter": 4.2635,
+          "extraInningsRate": 0.1083
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.6705,
+            "meanActualMinusMedian": 2.112,
+            "meanActual": 9.576,
+            "meanSimMean": 7.9055,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1219,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 3.931,
+            "sdOfActualMinusMean": 4.6113,
+            "coverageP10P90": 0.792,
+            "meanWidthP10P90": 10.064,
+            "pitHistogram": [
+              0.072,
+              0.016,
+              0.112,
+              0.08,
+              0.056,
+              0.08,
+              0.128,
+              0.104,
+              0.152,
+              0.2
+            ],
+            "pitTailMass": 0.272
+          },
+          "selection": {
+            "fixedOverEce": 0.2398,
+            "chosenSideEce": 0.1705,
+            "overRate": 0.5913,
+            "meanPOver": 0.3843,
+            "chosenHitRate": 0.4087,
+            "chosenMeanShown": 0.5792,
+            "logLoss": {
+              "fixedOver": 0.8094,
+              "chosenSide": 0.7653,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.3036,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3007,
+            "walksPerTeam": 3.2598,
+            "homeRunsPerTeam": 1.0779,
+            "paPerBatter": 4.2599,
+            "extraInningsRate": 0.1081
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.5312,
+            "meanActualMinusMedian": 1.0484,
+            "meanActual": 8.1935,
+            "meanSimMean": 7.6623,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.6891,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.8762,
+            "sdOfActualMinusMean": 5.0463,
+            "coverageP10P90": 0.7419,
+            "meanWidthP10P90": 9.8871,
+            "pitHistogram": [
+              0.0968,
+              0.0806,
+              0.0645,
+              0.1613,
+              0.1129,
+              0.0645,
+              0.129,
+              0.0645,
+              0.0645,
+              0.1613
+            ],
+            "pitTailMass": 0.2581
+          },
+          "selection": {
+            "fixedOverEce": 0.1012,
+            "chosenSideEce": 0.0971,
+            "overRate": 0.4576,
+            "meanPOver": 0.4615,
+            "chosenHitRate": 0.5085,
+            "chosenMeanShown": 0.5654,
+            "logLoss": {
+              "fixedOver": 0.7112,
+              "chosenSide": 0.7178,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2585,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.2672,
+            "walksPerTeam": 3.2573,
+            "homeRunsPerTeam": 0.9839,
+            "paPerBatter": 4.2598,
+            "extraInningsRate": 0.1106
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 3.3372,
+            "meanActualMinusMedian": 3.8824,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.4863,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0045,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.09,
+            "sdOfActualMinusMean": 5.1543,
+            "coverageP10P90": 0.7059,
+            "meanWidthP10P90": 10.6471,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.1176,
+              0,
+              0.1176,
+              0.0588,
+              0,
+              0.1176,
+              0.1765,
+              0.3529
+            ],
+            "pitTailMass": 0.4118
+          },
+          "selection": {
+            "fixedOverEce": 0.2791,
+            "chosenSideEce": 0.3859,
+            "overRate": 0.5882,
+            "meanPOver": 0.3091,
+            "chosenHitRate": 0.4706,
+            "chosenMeanShown": 0.6659,
+            "logLoss": {
+              "fixedOver": 0.901,
+              "chosenSide": 0.8393,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3415,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.7247,
+            "walksPerTeam": 3.2908,
+            "homeRunsPerTeam": 1.1436,
+            "paPerBatter": 4.3038,
+            "extraInningsRate": 0.1023
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 1.0075,
+            "meanActualMinusMedian": 1.4324,
+            "meanActual": 8.8378,
+            "meanSimMean": 7.8303,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2555,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 3.9145,
+            "sdOfActualMinusMean": 4.7454,
+            "coverageP10P90": 0.7432,
+            "meanWidthP10P90": 9.9595,
+            "pitHistogram": [
+              0.0946,
+              0.0541,
+              0.1081,
+              0.1216,
+              0.0405,
+              0.0676,
+              0.1216,
+              0.0946,
+              0.0811,
+              0.2162
+            ],
+            "pitTailMass": 0.3108
+          },
+          "selection": {
+            "fixedOverEce": 0.2168,
+            "chosenSideEce": 0.2013,
+            "overRate": 0.5147,
+            "meanPOver": 0.4078,
+            "chosenHitRate": 0.3824,
+            "chosenMeanShown": 0.5836,
+            "logLoss": {
+              "fixedOver": 0.798,
+              "chosenSide": 0.7611,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.2988,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.307,
+            "walksPerTeam": 3.2634,
+            "homeRunsPerTeam": 1.04,
+            "paPerBatter": 4.263,
+            "extraInningsRate": 0.109
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.7225,
+            "meanActualMinusMedian": 2.2231,
+            "meanActual": 9.6308,
+            "meanSimMean": 7.9083,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.187,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 3.9351,
+            "sdOfActualMinusMean": 4.8753,
+            "coverageP10P90": 0.7846,
+            "meanWidthP10P90": 10.1154,
+            "pitHistogram": [
+              0.0692,
+              0.0231,
+              0.0923,
+              0.0846,
+              0.1,
+              0.0769,
+              0.1154,
+              0.0923,
+              0.1538,
+              0.1923
+            ],
+            "pitTailMass": 0.2615
+          },
+          "selection": {
+            "fixedOverEce": 0.2117,
+            "chosenSideEce": 0.15,
+            "overRate": 0.5691,
+            "meanPOver": 0.398,
+            "chosenHitRate": 0.4797,
+            "chosenMeanShown": 0.5821,
+            "logLoss": {
+              "fixedOver": 0.7813,
+              "chosenSide": 0.755,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2899,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3365,
+            "walksPerTeam": 3.2606,
+            "homeRunsPerTeam": 1.0632,
+            "paPerBatter": 4.2638,
+            "extraInningsRate": 0.108
+          }
+        }
+      },
+      "seconds": 16
+    },
+    {
+      "id": "X",
+      "label": "starter pulled after 22 batters (was 25)",
+      "anchor": "documented 2020s starters ≈ 5.2 IP ≈ 22 BF; sensitivity",
+      "paramsOverride": {
+        "starter": {
+          "maxBattersFaced": 22
+        }
+      },
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 1.5355,
+          "meanActualMinusMedian": 2.0343,
+          "meanActual": 9.3431,
+          "meanSimMean": 7.8076,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.2104,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 3.9121,
+          "sdOfActualMinusMean": 4.8268,
+          "coverageP10P90": 0.7549,
+          "meanWidthP10P90": 9.9657,
+          "pitHistogram": [
+            0.0735,
+            0.0392,
+            0.0931,
+            0.1029,
+            0.0686,
+            0.0784,
+            0.1176,
+            0.0931,
+            0.1275,
+            0.2059
+          ],
+          "pitTailMass": 0.2794
+        },
+        "selection": {
+          "fixedOverEce": 0.1965,
+          "chosenSideEce": 0.1548,
+          "overRate": 0.5497,
+          "meanPOver": 0.3942,
+          "chosenHitRate": 0.4346,
+          "chosenMeanShown": 0.5865,
+          "logLoss": {
+            "fixedOver": 0.7928,
+            "chosenSide": 0.7613,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2954,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.3253,
+          "walksPerTeam": 3.264,
+          "homeRunsPerTeam": 1.054,
+          "paPerBatter": 4.2642,
+          "extraInningsRate": 0.1087
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.7418,
+            "meanActualMinusMedian": 2.224,
+            "meanActual": 9.576,
+            "meanSimMean": 7.8342,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1345,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 3.9141,
+            "sdOfActualMinusMean": 4.6108,
+            "coverageP10P90": 0.776,
+            "meanWidthP10P90": 9.976,
+            "pitHistogram": [
+              0.064,
+              0.024,
+              0.104,
+              0.088,
+              0.056,
+              0.08,
+              0.128,
+              0.096,
+              0.16,
+              0.2
+            ],
+            "pitTailMass": 0.264
+          },
+          "selection": {
+            "fixedOverEce": 0.24,
+            "chosenSideEce": 0.1845,
+            "overRate": 0.5913,
+            "meanPOver": 0.3773,
+            "chosenHitRate": 0.4,
+            "chosenMeanShown": 0.5845,
+            "logLoss": {
+              "fixedOver": 0.8177,
+              "chosenSide": 0.7722,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.3073,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.301,
+            "walksPerTeam": 3.2622,
+            "homeRunsPerTeam": 1.0775,
+            "paPerBatter": 4.2605,
+            "extraInningsRate": 0.108
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.6015,
+            "meanActualMinusMedian": 1.129,
+            "meanActual": 8.1935,
+            "meanSimMean": 7.592,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.6772,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.8634,
+            "sdOfActualMinusMean": 5.0415,
+            "coverageP10P90": 0.7419,
+            "meanWidthP10P90": 9.7903,
+            "pitHistogram": [
+              0.0968,
+              0.0806,
+              0.0645,
+              0.1613,
+              0.0806,
+              0.0968,
+              0.1129,
+              0.0806,
+              0.0645,
+              0.1613
+            ],
+            "pitTailMass": 0.2581
+          },
+          "selection": {
+            "fixedOverEce": 0.0857,
+            "chosenSideEce": 0.0818,
+            "overRate": 0.4576,
+            "meanPOver": 0.4539,
+            "chosenHitRate": 0.5085,
+            "chosenMeanShown": 0.5651,
+            "logLoss": {
+              "fixedOver": 0.7112,
+              "chosenSide": 0.7175,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2582,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.2673,
+            "walksPerTeam": 3.2605,
+            "homeRunsPerTeam": 0.9828,
+            "paPerBatter": 4.261,
+            "extraInningsRate": 0.1118
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 3.4252,
+            "meanActualMinusMedian": 3.9412,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.3984,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0057,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.0744,
+            "sdOfActualMinusMean": 5.1405,
+            "coverageP10P90": 0.6471,
+            "meanWidthP10P90": 10.5294,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.1176,
+              0,
+              0.1176,
+              0,
+              0.0588,
+              0.1176,
+              0.1176,
+              0.4118
+            ],
+            "pitTailMass": 0.4706
+          },
+          "selection": {
+            "fixedOverEce": 0.2867,
+            "chosenSideEce": 0.3864,
+            "overRate": 0.5882,
+            "meanPOver": 0.3015,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.6736,
+            "logLoss": {
+              "fixedOver": 0.9082,
+              "chosenSide": 0.8392,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3442,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.7163,
+            "walksPerTeam": 3.29,
+            "homeRunsPerTeam": 1.1411,
+            "paPerBatter": 4.3027,
+            "extraInningsRate": 0.1027
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 1.0854,
+            "meanActualMinusMedian": 1.5676,
+            "meanActual": 8.8378,
+            "meanSimMean": 7.7525,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2613,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 3.8967,
+            "sdOfActualMinusMean": 4.7338,
+            "coverageP10P90": 0.7432,
+            "meanWidthP10P90": 9.9189,
+            "pitHistogram": [
+              0.0811,
+              0.0676,
+              0.1081,
+              0.1216,
+              0.0405,
+              0.0676,
+              0.1081,
+              0.1081,
+              0.0811,
+              0.2162
+            ],
+            "pitTailMass": 0.2973
+          },
+          "selection": {
+            "fixedOverEce": 0.203,
+            "chosenSideEce": 0.1799,
+            "overRate": 0.5147,
+            "meanPOver": 0.4003,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.5872,
+            "logLoss": {
+              "fixedOver": 0.8009,
+              "chosenSide": 0.7663,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.2998,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3037,
+            "walksPerTeam": 3.2659,
+            "homeRunsPerTeam": 1.0376,
+            "paPerBatter": 4.2633,
+            "extraInningsRate": 0.1094
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.7917,
+            "meanActualMinusMedian": 2.3,
+            "meanActual": 9.6308,
+            "meanSimMean": 7.839,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.1805,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 3.9208,
+            "sdOfActualMinusMean": 4.8785,
+            "coverageP10P90": 0.7615,
+            "meanWidthP10P90": 9.9923,
+            "pitHistogram": [
+              0.0692,
+              0.0231,
+              0.0846,
+              0.0923,
+              0.0846,
+              0.0846,
+              0.1231,
+              0.0846,
+              0.1538,
+              0.2
+            ],
+            "pitTailMass": 0.2692
+          },
+          "selection": {
+            "fixedOverEce": 0.1994,
+            "chosenSideEce": 0.1414,
+            "overRate": 0.5691,
+            "meanPOver": 0.3908,
+            "chosenHitRate": 0.4472,
+            "chosenMeanShown": 0.5861,
+            "logLoss": {
+              "fixedOver": 0.7884,
+              "chosenSide": 0.7585,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.293,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3377,
+            "walksPerTeam": 3.2629,
+            "homeRunsPerTeam": 1.0633,
+            "paPerBatter": 4.2646,
+            "extraInningsRate": 0.1084
+          }
+        }
+      },
+      "seconds": 16
+    },
+    {
+      "id": "H",
+      "label": "input level: hits ×1.037, total bases ×1.069",
+      "anchor": "SECOND-LOOK FIT: settled actual ÷ board projection on the seen 2026 record (calibration rows 08-23..09-14)",
+      "paramsOverride": {},
+      "inputTransform": "input level: hits ×1.037, total bases ×1.069",
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 0.9885,
+          "meanActualMinusMedian": 1.451,
+          "meanActual": 9.3431,
+          "meanSimMean": 8.3546,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.2612,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 4.0601,
+          "sdOfActualMinusMean": 4.8422,
+          "coverageP10P90": 0.7892,
+          "meanWidthP10P90": 10.5147,
+          "pitHistogram": [
+            0.0833,
+            0.0637,
+            0.0882,
+            0.098,
+            0.098,
+            0.0735,
+            0.1127,
+            0.1029,
+            0.1176,
+            0.1618
+          ],
+          "pitTailMass": 0.2451
+        },
+        "selection": {
+          "fixedOverEce": 0.1595,
+          "chosenSideEce": 0.133,
+          "overRate": 0.5497,
+          "meanPOver": 0.4472,
+          "chosenHitRate": 0.4346,
+          "chosenMeanShown": 0.5655,
+          "logLoss": {
+            "fixedOver": 0.7618,
+            "chosenSide": 0.7382,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2821,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.6573,
+          "walksPerTeam": 3.2915,
+          "homeRunsPerTeam": 1.1496,
+          "paPerBatter": 4.3005,
+          "extraInningsRate": 0.1036
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.1849,
+            "meanActualMinusMedian": 1.656,
+            "meanActual": 9.576,
+            "meanSimMean": 8.3911,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1906,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 4.067,
+            "sdOfActualMinusMean": 4.6268,
+            "coverageP10P90": 0.824,
+            "meanWidthP10P90": 10.504,
+            "pitHistogram": [
+              0.072,
+              0.064,
+              0.096,
+              0.08,
+              0.08,
+              0.088,
+              0.096,
+              0.128,
+              0.144,
+              0.152
+            ],
+            "pitTailMass": 0.224
+          },
+          "selection": {
+            "fixedOverEce": 0.1891,
+            "chosenSideEce": 0.1447,
+            "overRate": 0.5913,
+            "meanPOver": 0.4312,
+            "chosenHitRate": 0.4087,
+            "chosenMeanShown": 0.5534,
+            "logLoss": {
+              "fixedOver": 0.772,
+              "chosenSide": 0.7372,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.2869,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.6321,
+            "walksPerTeam": 3.2899,
+            "homeRunsPerTeam": 1.1785,
+            "paPerBatter": 4.2968,
+            "extraInningsRate": 0.1032
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.1025,
+            "meanActualMinusMedian": 0.5806,
+            "meanActual": 8.1935,
+            "meanSimMean": 8.0911,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.7083,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.9989,
+            "sdOfActualMinusMean": 5.0757,
+            "coverageP10P90": 0.7419,
+            "meanWidthP10P90": 10.3387,
+            "pitHistogram": [
+              0.1129,
+              0.0645,
+              0.0806,
+              0.1613,
+              0.129,
+              0.0484,
+              0.1613,
+              0.0484,
+              0.0323,
+              0.1613
+            ],
+            "pitTailMass": 0.2742
+          },
+          "selection": {
+            "fixedOverEce": 0.1096,
+            "chosenSideEce": 0.0962,
+            "overRate": 0.4576,
+            "meanPOver": 0.5039,
+            "chosenHitRate": 0.4915,
+            "chosenMeanShown": 0.5707,
+            "logLoss": {
+              "fixedOver": 0.7197,
+              "chosenSide": 0.7267,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2626,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.5957,
+            "walksPerTeam": 3.2864,
+            "homeRunsPerTeam": 1.0577,
+            "paPerBatter": 4.2966,
+            "extraInningsRate": 0.1061
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 2.776,
+            "meanActualMinusMedian": 3.1176,
+            "meanActual": 11.8235,
+            "meanSimMean": 9.0475,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0453,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.2329,
+            "sdOfActualMinusMean": 5.1595,
+            "coverageP10P90": 0.7059,
+            "meanWidthP10P90": 11.2353,
+            "pitHistogram": [
+              0.0588,
+              0.0588,
+              0.0588,
+              0,
+              0.1176,
+              0.0588,
+              0.0588,
+              0.1176,
+              0.2353,
+              0.2353
+            ],
+            "pitTailMass": 0.2941
+          },
+          "selection": {
+            "fixedOverEce": 0.2632,
+            "chosenSideEce": 0.2998,
+            "overRate": 0.5882,
+            "meanPOver": 0.3584,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.629,
+            "logLoss": {
+              "fixedOver": 0.8393,
+              "chosenSide": 0.7853,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3169,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 9.0673,
+            "walksPerTeam": 3.3214,
+            "homeRunsPerTeam": 1.2718,
+            "paPerBatter": 4.3412,
+            "extraInningsRate": 0.0975
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 0.5343,
+            "meanActualMinusMedian": 0.9595,
+            "meanActual": 8.8378,
+            "meanSimMean": 8.3036,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.3212,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 4.0492,
+            "sdOfActualMinusMean": 4.771,
+            "coverageP10P90": 0.7838,
+            "meanWidthP10P90": 10.4324,
+            "pitHistogram": [
+              0.1081,
+              0.0676,
+              0.1081,
+              0.0946,
+              0.0946,
+              0.0676,
+              0.1081,
+              0.0946,
+              0.0811,
+              0.1757
+            ],
+            "pitTailMass": 0.2838
+          },
+          "selection": {
+            "fixedOverEce": 0.2333,
+            "chosenSideEce": 0.2049,
+            "overRate": 0.5147,
+            "meanPOver": 0.4533,
+            "chosenHitRate": 0.3676,
+            "chosenMeanShown": 0.5671,
+            "logLoss": {
+              "fixedOver": 0.7812,
+              "chosenSide": 0.7508,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.292,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.6353,
+            "walksPerTeam": 3.2926,
+            "homeRunsPerTeam": 1.1345,
+            "paPerBatter": 4.2996,
+            "extraInningsRate": 0.1042
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.2471,
+            "meanActualMinusMedian": 1.7308,
+            "meanActual": 9.6308,
+            "meanSimMean": 8.3836,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.2275,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 4.0663,
+            "sdOfActualMinusMean": 4.8816,
+            "coverageP10P90": 0.7923,
+            "meanWidthP10P90": 10.5615,
+            "pitHistogram": [
+              0.0692,
+              0.0615,
+              0.0769,
+              0.1,
+              0.1,
+              0.0769,
+              0.1154,
+              0.1077,
+              0.1385,
+              0.1538
+            ],
+            "pitTailMass": 0.2231
+          },
+          "selection": {
+            "fixedOverEce": 0.1477,
+            "chosenSideEce": 0.0963,
+            "overRate": 0.5691,
+            "meanPOver": 0.4438,
+            "chosenHitRate": 0.4715,
+            "chosenMeanShown": 0.5646,
+            "logLoss": {
+              "fixedOver": 0.7511,
+              "chosenSide": 0.7313,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2766,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.6698,
+            "walksPerTeam": 3.2908,
+            "homeRunsPerTeam": 1.1582,
+            "paPerBatter": 4.3009,
+            "extraInningsRate": 0.1033
+          }
+        }
+      },
+      "seconds": 17
+    },
+    {
+      "id": "R",
+      "label": "un-lined batters at 0.80 hits / 1.25 TB (was 0.70 / 1.10)",
+      "anchor": "sensitivity — a league bottom-third regular rather than replacement level",
+      "paramsOverride": {},
+      "inputTransform": "un-lined batters at 0.80 hits / 1.25 TB (was 0.70 / 1.10)",
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 1.2147,
+          "meanActualMinusMedian": 1.7059,
+          "meanActual": 9.3431,
+          "meanSimMean": 8.1284,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.2253,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 4.0164,
+          "sdOfActualMinusMean": 4.809,
+          "coverageP10P90": 0.7892,
+          "meanWidthP10P90": 10.3431,
+          "pitHistogram": [
+            0.0735,
+            0.0441,
+            0.1127,
+            0.0833,
+            0.098,
+            0.0588,
+            0.1275,
+            0.098,
+            0.1225,
+            0.1814
+          ],
+          "pitTailMass": 0.2549
+        },
+        "selection": {
+          "fixedOverEce": 0.1815,
+          "chosenSideEce": 0.1455,
+          "overRate": 0.5497,
+          "meanPOver": 0.4257,
+          "chosenHitRate": 0.4241,
+          "chosenMeanShown": 0.5677,
+          "logLoss": {
+            "fixedOver": 0.7698,
+            "chosenSide": 0.7424,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2858,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.5797,
+          "walksPerTeam": 3.2847,
+          "homeRunsPerTeam": 1.0803,
+          "paPerBatter": 4.2929,
+          "extraInningsRate": 0.1062
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.4335,
+            "meanActualMinusMedian": 1.928,
+            "meanActual": 9.576,
+            "meanSimMean": 8.1425,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1432,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 4.0182,
+            "sdOfActualMinusMean": 4.5878,
+            "coverageP10P90": 0.816,
+            "meanWidthP10P90": 10.344,
+            "pitHistogram": [
+              0.064,
+              0.032,
+              0.12,
+              0.072,
+              0.088,
+              0.056,
+              0.128,
+              0.12,
+              0.136,
+              0.184
+            ],
+            "pitTailMass": 0.248
+          },
+          "selection": {
+            "fixedOverEce": 0.2175,
+            "chosenSideEce": 0.1793,
+            "overRate": 0.5913,
+            "meanPOver": 0.4071,
+            "chosenHitRate": 0.3826,
+            "chosenMeanShown": 0.5619,
+            "logLoss": {
+              "fixedOver": 0.7876,
+              "chosenSide": 0.7466,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.2942,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.5452,
+            "walksPerTeam": 3.2828,
+            "homeRunsPerTeam": 1.1028,
+            "paPerBatter": 4.2881,
+            "extraInningsRate": 0.1061
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": 0.274,
+            "meanActualMinusMedian": 0.7903,
+            "meanActual": 8.1935,
+            "meanSimMean": 7.9196,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.5646,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 3.9651,
+            "sdOfActualMinusMean": 5.0376,
+            "coverageP10P90": 0.7581,
+            "meanWidthP10P90": 10.1935,
+            "pitHistogram": [
+              0.0968,
+              0.0806,
+              0.0968,
+              0.129,
+              0.1129,
+              0.0645,
+              0.1452,
+              0.0484,
+              0.0806,
+              0.1452
+            ],
+            "pitTailMass": 0.2419
+          },
+          "selection": {
+            "fixedOverEce": 0.0903,
+            "chosenSideEce": 0.0862,
+            "overRate": 0.4576,
+            "meanPOver": 0.4875,
+            "chosenHitRate": 0.5085,
+            "chosenMeanShown": 0.5582,
+            "logLoss": {
+              "fixedOver": 0.7095,
+              "chosenSide": 0.7165,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.258,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.5283,
+            "walksPerTeam": 3.2795,
+            "homeRunsPerTeam": 1.0095,
+            "paPerBatter": 4.2895,
+            "extraInningsRate": 0.1076
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 3.0369,
+            "meanActualMinusMedian": 3.4118,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.7866,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0024,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.1909,
+            "sdOfActualMinusMean": 5.1196,
+            "coverageP10P90": 0.7059,
+            "meanWidthP10P90": 10.8824,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.1176,
+              0,
+              0.1176,
+              0.0588,
+              0.0588,
+              0.1176,
+              0.1765,
+              0.2941
+            ],
+            "pitTailMass": 0.3529
+          },
+          "selection": {
+            "fixedOverEce": 0.3321,
+            "chosenSideEce": 0.31,
+            "overRate": 0.5882,
+            "meanPOver": 0.3365,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.6404,
+            "logLoss": {
+              "fixedOver": 0.859,
+              "chosenSide": 0.804,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3254,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 9.0212,
+            "walksPerTeam": 3.318,
+            "homeRunsPerTeam": 1.1732,
+            "paPerBatter": 4.3404,
+            "extraInningsRate": 0.1014
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 0.7585,
+            "meanActualMinusMedian": 1.2297,
+            "meanActual": 8.8378,
+            "meanSimMean": 8.0794,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2207,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 4.0031,
+            "sdOfActualMinusMean": 4.711,
+            "coverageP10P90": 0.7838,
+            "meanWidthP10P90": 10.2838,
+            "pitHistogram": [
+              0.0811,
+              0.0676,
+              0.1216,
+              0.1081,
+              0.0676,
+              0.0541,
+              0.1216,
+              0.1216,
+              0.0946,
+              0.1622
+            ],
+            "pitTailMass": 0.2432
+          },
+          "selection": {
+            "fixedOverEce": 0.2307,
+            "chosenSideEce": 0.217,
+            "overRate": 0.5147,
+            "meanPOver": 0.4325,
+            "chosenHitRate": 0.3529,
+            "chosenMeanShown": 0.57,
+            "logLoss": {
+              "fixedOver": 0.7805,
+              "chosenSide": 0.7461,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.2913,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.5633,
+            "walksPerTeam": 3.287,
+            "homeRunsPerTeam": 1.0644,
+            "paPerBatter": 4.292,
+            "extraInningsRate": 0.1068
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.4744,
+            "meanActualMinusMedian": 1.9769,
+            "meanActual": 9.6308,
+            "meanSimMean": 8.1563,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.2246,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 4.024,
+            "sdOfActualMinusMean": 4.8627,
+            "coverageP10P90": 0.7923,
+            "meanWidthP10P90": 10.3769,
+            "pitHistogram": [
+              0.0692,
+              0.0308,
+              0.1077,
+              0.0692,
+              0.1154,
+              0.0615,
+              0.1308,
+              0.0846,
+              0.1385,
+              0.1923
+            ],
+            "pitTailMass": 0.2615
+          },
+          "selection": {
+            "fixedOverEce": 0.1849,
+            "chosenSideEce": 0.1062,
+            "overRate": 0.5691,
+            "meanPOver": 0.4219,
+            "chosenHitRate": 0.4634,
+            "chosenMeanShown": 0.5665,
+            "logLoss": {
+              "fixedOver": 0.7639,
+              "chosenSide": 0.7403,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2828,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.5891,
+            "walksPerTeam": 3.2834,
+            "homeRunsPerTeam": 1.0894,
+            "paPerBatter": 4.2934,
+            "extraInningsRate": 0.1058
+          }
+        }
+      },
+      "seconds": 17
+    },
+    {
+      "id": "BUNDLE_LEAGUE",
+      "label": "W + E + B + D + F",
+      "anchor": "every mechanism with a documented league anchor, in both directions",
+      "paramsOverride": {
+        "league": {
+          "WALK_RATE": 0.093,
+          "REACH_ON_ERROR_RATE": 0.009,
+          "BASES_PER_HIT_FALLBACK": 1.63
+        },
+        "advancement": {
+          "groundIntoDoublePlay": 0.12,
+          "freeAdvance": 0.013
+        }
+      },
+      "inputTransform": null,
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 0.9143,
+          "meanActualMinusMedian": 1.4167,
+          "meanActual": 9.3431,
+          "meanSimMean": 8.4289,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.1651,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 4.1094,
+          "sdOfActualMinusMean": 4.844,
+          "coverageP10P90": 0.7941,
+          "meanWidthP10P90": 10.6176,
+          "pitHistogram": [
+            0.0784,
+            0.0735,
+            0.1029,
+            0.0735,
+            0.1127,
+            0.0784,
+            0.1029,
+            0.1029,
+            0.1127,
+            0.1618
+          ],
+          "pitTailMass": 0.2402
+        },
+        "selection": {
+          "fixedOverEce": 0.1671,
+          "chosenSideEce": 0.1426,
+          "overRate": 0.5497,
+          "meanPOver": 0.4536,
+          "chosenHitRate": 0.4398,
+          "chosenMeanShown": 0.5632,
+          "logLoss": {
+            "fixedOver": 0.7595,
+            "chosenSide": 0.7386,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2812,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.3774,
+          "walksPerTeam": 3.5923,
+          "homeRunsPerTeam": 1.1156,
+          "paPerBatter": 4.2896,
+          "extraInningsRate": 0.1031
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 1.1329,
+            "meanActualMinusMedian": 1.648,
+            "meanActual": 9.576,
+            "meanSimMean": 8.4431,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.0623,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 4.1099,
+            "sdOfActualMinusMean": 4.6173,
+            "coverageP10P90": 0.824,
+            "meanWidthP10P90": 10.568,
+            "pitHistogram": [
+              0.072,
+              0.064,
+              0.112,
+              0.056,
+              0.088,
+              0.096,
+              0.096,
+              0.128,
+              0.136,
+              0.152
+            ],
+            "pitTailMass": 0.224
+          },
+          "selection": {
+            "fixedOverEce": 0.2046,
+            "chosenSideEce": 0.1604,
+            "overRate": 0.5913,
+            "meanPOver": 0.4357,
+            "chosenHitRate": 0.4087,
+            "chosenMeanShown": 0.5495,
+            "logLoss": {
+              "fixedOver": 0.768,
+              "chosenSide": 0.7376,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.2853,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3521,
+            "walksPerTeam": 3.5892,
+            "homeRunsPerTeam": 1.1349,
+            "paPerBatter": 4.2855,
+            "extraInningsRate": 0.103
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": -0.0612,
+            "meanActualMinusMedian": 0.4516,
+            "meanActual": 8.1935,
+            "meanSimMean": 8.2548,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.7968,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 4.0732,
+            "sdOfActualMinusMean": 5.0685,
+            "coverageP10P90": 0.7581,
+            "meanWidthP10P90": 10.5968,
+            "pitHistogram": [
+              0.0968,
+              0.1129,
+              0.0806,
+              0.129,
+              0.1613,
+              0.0484,
+              0.129,
+              0.0484,
+              0.0323,
+              0.1613
+            ],
+            "pitTailMass": 0.2581
+          },
+          "selection": {
+            "fixedOverEce": 0.0932,
+            "chosenSideEce": 0.0791,
+            "overRate": 0.4576,
+            "meanPOver": 0.5181,
+            "chosenHitRate": 0.5085,
+            "chosenMeanShown": 0.5701,
+            "logLoss": {
+              "fixedOver": 0.718,
+              "chosenSide": 0.7253,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.262,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3228,
+            "walksPerTeam": 3.5915,
+            "homeRunsPerTeam": 1.0599,
+            "paPerBatter": 4.288,
+            "extraInningsRate": 0.1048
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 2.8643,
+            "meanActualMinusMedian": 3.2353,
+            "meanActual": 11.8235,
+            "meanSimMean": 8.9592,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0006,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.2381,
+            "sdOfActualMinusMean": 5.1413,
+            "coverageP10P90": 0.7059,
+            "meanWidthP10P90": 11.0588,
+            "pitHistogram": [
+              0.0588,
+              0,
+              0.1176,
+              0,
+              0.1176,
+              0.0588,
+              0.0588,
+              0.1176,
+              0.2353,
+              0.2353
+            ],
+            "pitTailMass": 0.2941
+          },
+          "selection": {
+            "fixedOverEce": 0.2932,
+            "chosenSideEce": 0.2744,
+            "overRate": 0.5882,
+            "meanPOver": 0.3505,
+            "chosenHitRate": 0.4118,
+            "chosenMeanShown": 0.6317,
+            "logLoss": {
+              "fixedOver": 0.8465,
+              "chosenSide": 0.7918,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.3203,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.7624,
+            "walksPerTeam": 3.6178,
+            "homeRunsPerTeam": 1.1766,
+            "paPerBatter": 4.3256,
+            "extraInningsRate": 0.0976
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": 0.4613,
+            "meanActualMinusMedian": 0.973,
+            "meanActual": 8.8378,
+            "meanSimMean": 8.3766,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2121,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 4.1042,
+            "sdOfActualMinusMean": 4.7574,
+            "coverageP10P90": 0.7973,
+            "meanWidthP10P90": 10.5811,
+            "pitHistogram": [
+              0.0946,
+              0.0946,
+              0.1081,
+              0.0811,
+              0.1081,
+              0.0676,
+              0.0946,
+              0.0946,
+              0.0811,
+              0.1757
+            ],
+            "pitTailMass": 0.2703
+          },
+          "selection": {
+            "fixedOverEce": 0.2009,
+            "chosenSideEce": 0.1818,
+            "overRate": 0.5147,
+            "meanPOver": 0.4592,
+            "chosenHitRate": 0.3824,
+            "chosenMeanShown": 0.5642,
+            "logLoss": {
+              "fixedOver": 0.7785,
+              "chosenSide": 0.7488,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.291,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3577,
+            "walksPerTeam": 3.594,
+            "homeRunsPerTeam": 1.0972,
+            "paPerBatter": 4.2893,
+            "extraInningsRate": 0.1041
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 1.1721,
+            "meanActualMinusMedian": 1.6692,
+            "meanActual": 9.6308,
+            "meanSimMean": 8.4586,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.1371,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 4.1124,
+            "sdOfActualMinusMean": 4.8921,
+            "coverageP10P90": 0.7923,
+            "meanWidthP10P90": 10.6385,
+            "pitHistogram": [
+              0.0692,
+              0.0615,
+              0.1,
+              0.0692,
+              0.1154,
+              0.0846,
+              0.1077,
+              0.1077,
+              0.1308,
+              0.1538
+            ],
+            "pitTailMass": 0.2231
+          },
+          "selection": {
+            "fixedOverEce": 0.1525,
+            "chosenSideEce": 0.1419,
+            "overRate": 0.5691,
+            "meanPOver": 0.4504,
+            "chosenHitRate": 0.4715,
+            "chosenMeanShown": 0.5626,
+            "logLoss": {
+              "fixedOver": 0.749,
+              "chosenSide": 0.733,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2758,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.3886,
+            "walksPerTeam": 3.5913,
+            "homeRunsPerTeam": 1.126,
+            "paPerBatter": 4.2897,
+            "extraInningsRate": 0.1026
+          }
+        }
+      },
+      "seconds": 18
+    },
+    {
+      "id": "BUNDLE_LEAGUE_H",
+      "label": "W + E + B + D + F + H",
+      "anchor": "the documented bundle plus the second-look input level",
+      "paramsOverride": {
+        "league": {
+          "WALK_RATE": 0.093,
+          "REACH_ON_ERROR_RATE": 0.009,
+          "BASES_PER_HIT_FALLBACK": 1.63
+        },
+        "advancement": {
+          "groundIntoDoublePlay": 0.12,
+          "freeAdvance": 0.013
+        }
+      },
+      "inputTransform": "W + E + B + D + F + H",
+      "overall": {
+        "n": 204,
+        "decided": 191,
+        "level": {
+          "meanActualMinusMean": 0.348,
+          "meanActualMinusMedian": 0.7794,
+          "meanActual": 9.3431,
+          "meanSimMean": 8.9952,
+          "meanLine": 8.2034,
+          "slopeSimMeanOnLine": 0.2153,
+          "slopeActualOnLine": 1.3194
+        },
+        "dispersion": {
+          "actualSd": 4.7072,
+          "meanSimSd": 4.2422,
+          "sdOfActualMinusMean": 4.8626,
+          "coverageP10P90": 0.8039,
+          "meanWidthP10P90": 10.9853,
+          "pitHistogram": [
+            0.098,
+            0.0882,
+            0.1127,
+            0.0882,
+            0.0784,
+            0.1225,
+            0.0784,
+            0.0735,
+            0.1176,
+            0.1422
+          ],
+          "pitTailMass": 0.2402
+        },
+        "selection": {
+          "fixedOverEce": 0.1365,
+          "chosenSideEce": 0.1223,
+          "overRate": 0.5497,
+          "meanPOver": 0.5062,
+          "chosenHitRate": 0.466,
+          "chosenMeanShown": 0.5686,
+          "logLoss": {
+            "fixedOver": 0.7435,
+            "chosenSide": 0.7289,
+            "coin": 0.6931,
+            "marketOver": 0.6947
+          },
+          "brier": {
+            "fixedOver": 0.2737,
+            "marketOver": 0.2508
+          }
+        },
+        "teamSanity": {
+          "hitsPerTeam": 8.7122,
+          "walksPerTeam": 3.6239,
+          "homeRunsPerTeam": 1.2149,
+          "paPerBatter": 4.3273,
+          "extraInningsRate": 0.0982
+        }
+      },
+      "byLineBand": {
+        "8–9": {
+          "n": 125,
+          "decided": 115,
+          "level": {
+            "meanActualMinusMean": 0.5563,
+            "meanActualMinusMedian": 0.976,
+            "meanActual": 9.576,
+            "meanSimMean": 9.0197,
+            "meanLine": 8.4,
+            "slopeSimMeanOnLine": 0.1285,
+            "slopeActualOnLine": 0.1222
+          },
+          "dispersion": {
+            "actualSd": 4.4888,
+            "meanSimSd": 4.244,
+            "sdOfActualMinusMean": 4.6422,
+            "coverageP10P90": 0.808,
+            "meanWidthP10P90": 11,
+            "pitHistogram": [
+              0.08,
+              0.096,
+              0.104,
+              0.064,
+              0.08,
+              0.12,
+              0.096,
+              0.096,
+              0.144,
+              0.12
+            ],
+            "pitTailMass": 0.2
+          },
+          "selection": {
+            "fixedOverEce": 0.1402,
+            "chosenSideEce": 0.0947,
+            "overRate": 0.5913,
+            "meanPOver": 0.4894,
+            "chosenHitRate": 0.487,
+            "chosenMeanShown": 0.5504,
+            "logLoss": {
+              "fixedOver": 0.7403,
+              "chosenSide": 0.7203,
+              "coin": 0.6931,
+              "marketOver": 0.6951
+            },
+            "brier": {
+              "fixedOver": 0.2721,
+              "marketOver": 0.251
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.6876,
+            "walksPerTeam": 3.6203,
+            "homeRunsPerTeam": 1.2406,
+            "paPerBatter": 4.3232,
+            "extraInningsRate": 0.098
+          }
+        },
+        "≤7.5": {
+          "n": 62,
+          "decided": 59,
+          "level": {
+            "meanActualMinusMean": -0.58,
+            "meanActualMinusMedian": -0.129,
+            "meanActual": 8.1935,
+            "meanSimMean": 8.7735,
+            "meanLine": 7.3065,
+            "slopeSimMeanOnLine": -0.835,
+            "slopeActualOnLine": 3.1526
+          },
+          "dispersion": {
+            "actualSd": 4.7696,
+            "meanSimSd": 4.1973,
+            "sdOfActualMinusMean": 5.0994,
+            "coverageP10P90": 0.8065,
+            "meanWidthP10P90": 10.8387,
+            "pitHistogram": [
+              0.1452,
+              0.0645,
+              0.1613,
+              0.1452,
+              0.0645,
+              0.1613,
+              0.0323,
+              0.0323,
+              0.0323,
+              0.1613
+            ],
+            "pitTailMass": 0.3065
+          },
+          "selection": {
+            "fixedOverEce": 0.1485,
+            "chosenSideEce": 0.1589,
+            "overRate": 0.4576,
+            "meanPOver": 0.5669,
+            "chosenHitRate": 0.4576,
+            "chosenMeanShown": 0.5978,
+            "logLoss": {
+              "fixedOver": 0.7373,
+              "chosenSide": 0.7449,
+              "coin": 0.6931,
+              "marketOver": 0.6967
+            },
+            "brier": {
+              "fixedOver": 0.2709,
+              "marketOver": 0.2518
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.6515,
+            "walksPerTeam": 3.623,
+            "homeRunsPerTeam": 1.137,
+            "paPerBatter": 4.3249,
+            "extraInningsRate": 0.1
+          }
+        },
+        "≥9.5": {
+          "n": 17,
+          "decided": 17,
+          "level": {
+            "meanActualMinusMean": 2.2005,
+            "meanActualMinusMedian": 2.6471,
+            "meanActual": 11.8235,
+            "meanSimMean": 9.6231,
+            "meanLine": 10.0294,
+            "slopeSimMeanOnLine": 0.0299,
+            "slopeActualOnLine": 2.9202
+          },
+          "dispersion": {
+            "actualSd": 5.1141,
+            "meanSimSd": 4.3926,
+            "sdOfActualMinusMean": 5.149,
+            "coverageP10P90": 0.7647,
+            "meanWidthP10P90": 11.4118,
+            "pitHistogram": [
+              0.0588,
+              0.1176,
+              0,
+              0.0588,
+              0.1176,
+              0,
+              0.1176,
+              0.0588,
+              0.2353,
+              0.2353
+            ],
+            "pitTailMass": 0.2941
+          },
+          "selection": {
+            "fixedOverEce": 0.2496,
+            "chosenSideEce": 0.2662,
+            "overRate": 0.5882,
+            "meanPOver": 0.4096,
+            "chosenHitRate": 0.3529,
+            "chosenMeanShown": 0.5907,
+            "logLoss": {
+              "fixedOver": 0.7864,
+              "chosenSide": 0.7315,
+              "coin": 0.6931,
+              "marketOver": 0.6852
+            },
+            "brier": {
+              "fixedOver": 0.2945,
+              "marketOver": 0.246
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 9.1147,
+            "walksPerTeam": 3.6529,
+            "homeRunsPerTeam": 1.3101,
+            "paPerBatter": 4.3663,
+            "extraInningsRate": 0.0935
+          }
+        }
+      },
+      "byMonth": {
+        "2026-08": {
+          "n": 74,
+          "decided": 68,
+          "level": {
+            "meanActualMinusMean": -0.0987,
+            "meanActualMinusMedian": 0.3514,
+            "meanActual": 8.8378,
+            "meanSimMean": 8.9366,
+            "meanLine": 8.1216,
+            "slopeSimMeanOnLine": 0.2763,
+            "slopeActualOnLine": 1.5126
+          },
+          "dispersion": {
+            "actualSd": 4.5451,
+            "meanSimSd": 4.232,
+            "sdOfActualMinusMean": 4.7876,
+            "coverageP10P90": 0.7973,
+            "meanWidthP10P90": 10.9459,
+            "pitHistogram": [
+              0.1216,
+              0.0946,
+              0.1351,
+              0.0811,
+              0.0541,
+              0.1351,
+              0.0811,
+              0.0541,
+              0.1216,
+              0.1216
+            ],
+            "pitTailMass": 0.2432
+          },
+          "selection": {
+            "fixedOverEce": 0.234,
+            "chosenSideEce": 0.1904,
+            "overRate": 0.5147,
+            "meanPOver": 0.5114,
+            "chosenHitRate": 0.3824,
+            "chosenMeanShown": 0.5689,
+            "logLoss": {
+              "fixedOver": 0.7729,
+              "chosenSide": 0.7512,
+              "coin": 0.6931,
+              "marketOver": 0.6971
+            },
+            "brier": {
+              "fixedOver": 0.2885,
+              "marketOver": 0.252
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.6903,
+            "walksPerTeam": 3.6244,
+            "homeRunsPerTeam": 1.1964,
+            "paPerBatter": 4.3266,
+            "extraInningsRate": 0.0985
+          }
+        },
+        "2026-09": {
+          "n": 130,
+          "decided": 123,
+          "level": {
+            "meanActualMinusMean": 0.6022,
+            "meanActualMinusMedian": 1.0231,
+            "meanActual": 9.6308,
+            "meanSimMean": 9.0286,
+            "meanLine": 8.25,
+            "slopeSimMeanOnLine": 0.1799,
+            "slopeActualOnLine": 1.1802
+          },
+          "dispersion": {
+            "actualSd": 4.7904,
+            "meanSimSd": 4.248,
+            "sdOfActualMinusMean": 4.9048,
+            "coverageP10P90": 0.8077,
+            "meanWidthP10P90": 11.0077,
+            "pitHistogram": [
+              0.0846,
+              0.0846,
+              0.1,
+              0.0923,
+              0.0923,
+              0.1154,
+              0.0769,
+              0.0846,
+              0.1154,
+              0.1538
+            ],
+            "pitTailMass": 0.2385
+          },
+          "selection": {
+            "fixedOverEce": 0.1084,
+            "chosenSideEce": 0.0846,
+            "overRate": 0.5691,
+            "meanPOver": 0.5033,
+            "chosenHitRate": 0.5122,
+            "chosenMeanShown": 0.5685,
+            "logLoss": {
+              "fixedOver": 0.7272,
+              "chosenSide": 0.7166,
+              "coin": 0.6931,
+              "marketOver": 0.6934
+            },
+            "brier": {
+              "fixedOver": 0.2656,
+              "marketOver": 0.2501
+            }
+          },
+          "teamSanity": {
+            "hitsPerTeam": 8.7247,
+            "walksPerTeam": 3.6236,
+            "homeRunsPerTeam": 1.2254,
+            "paPerBatter": 4.3277,
+            "extraInningsRate": 0.0981
+          }
+        }
+      },
+      "seconds": 18
+    }
+  ]
+}
