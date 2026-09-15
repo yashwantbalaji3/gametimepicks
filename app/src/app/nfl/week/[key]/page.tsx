@@ -15,6 +15,7 @@ import SectionHeader from "@/components/section-header";
 import TeamLogo from "@/components/team-logo";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
+import { availableWeekKeys } from "@/lib/sports/nfl/week-keys";
 
 const read = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
@@ -35,16 +36,6 @@ type WeeklyBoards = {
   scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number };
   boards: Array<{ id: string; title: string; state: string; reason?: string; caveat?: string; topN: number; rows?: BoardRow[] }>;
 };
-
-/** Every period with a committed weekly-boards artifact — the register routes derive from. */
-function availableWeekKeys(): string[] {
-  try {
-    return fs.readdirSync(path.join(process.cwd(), "public/data/nfl/weekly-boards"))
-      .filter((f) => /^\d+-\d{2}\.json$/.test(f))
-      .map((f) => f.replace(/\.json$/, ""))
-      .sort();
-  } catch { return []; }
-}
 
 export function generateStaticParams() {
   return availableWeekKeys().map((key) => ({ key }));

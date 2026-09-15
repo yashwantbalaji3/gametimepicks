@@ -50,6 +50,7 @@ import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NflWeeklyBoards from "@/components/nfl/weekly-boards";
 import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
+import { availableWeekKeys, weekKeyOf } from "@/lib/sports/nfl/week-keys";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -600,7 +601,8 @@ export default function NflHubPage() {
         {forecastArtifact?.generatedAt ? (
           <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
             Updated {etKickoff(forecastArtifact.generatedAt).replace(" ET", "")} ET · frozen pre-kickoff · <a href="#nfl-coverage" style={{ color: "var(--vault-gold-bright)" }}>Model details</a>
-            {slateGames[0] ? <> · <Link href={`/nfl/week/${slateGames[0].seasonType}-${String(slateGames[0].week).padStart(2, "0")}/`} style={{ color: "var(--vault-gold-bright)" }}>Week permalink</Link></> : null}
+            {/* Only a week that HAS a page: the slate reads next week before its boards (and page) exist. */}
+            {slateGames[0] && availableWeekKeys().includes(weekKeyOf(slateGames[0].seasonType, slateGames[0].week)) ? <> · <Link href={`/nfl/week/${weekKeyOf(slateGames[0].seasonType, slateGames[0].week)}/`} style={{ color: "var(--vault-gold-bright)" }}>Week permalink</Link></> : null}
           </p>
         ) : null}
       </section>
