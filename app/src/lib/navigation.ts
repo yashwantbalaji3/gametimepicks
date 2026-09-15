@@ -225,6 +225,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["rail", "footer"] },
   { href: "/system-status", label: "System Status", group: "record", glyph: "◉", desc: "What is running right now",
     surfaces: ["rail", "footer"] },
+  /* P312: every model's standing — validated, forward-testing, holding, watching, paused, research-only — from the
+     receipts that hold it, in reader words. The public face of the research discipline. */
+  { href: "/models", label: "Model Lab", group: "record", glyph: "⚗", desc: "Which models are live, tested, or paused",
+    surfaces: ["rail", "footer"] },
   { href: "/about", label: "About", group: "record", glyph: "ⓘ", desc: "What this is",
     surfaces: ["rail", "footer"] },
 

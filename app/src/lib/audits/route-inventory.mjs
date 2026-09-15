@@ -64,6 +64,9 @@ export const ROUTE_TABLE = Object.freeze({
   "/responsible-use": { classification: "public", owner: "product", purpose: "responsible-use commitments", dataOwner: "static copy", freshness: "static" },
   "/research": { classification: "public", owner: "research", purpose: "public research terminal (fail-closed adapter)", dataOwner: "public research contract", freshness: "contract stamps" },
   "/system-status": { classification: "public", owner: "ops", purpose: "pipeline stage status in words", dataOwner: "public research contract", freshness: "contract stamps" },
+  /* P312 · the research discipline in public: every model's standing, the forward tests and shadows, and what the
+     receipts decided — read from receipts and the health scorecard at build time, never restated. */
+  "/models": { classification: "public", owner: "research", purpose: "Model Lab: which models are live, tested, paused; recent decisions", dataOwner: "receipts + health scorecard (lib/command-center/model-lab)", freshness: "build-time read of receipts" },
   "/about": { classification: "public", owner: "product", purpose: "what this is", dataOwner: "static copy", freshness: "static" },
   /* P266 · the only surface holding anything personal. Signed out (and until a Supabase project is
      connected) it renders one paragraph saying accounts are not open; signed in it is the reader's own

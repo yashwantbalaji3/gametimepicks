@@ -43,7 +43,7 @@ const EPL_MATCH_DIR = path.join(OUT, "epl", "match");
 const firstEplMatch = fs.existsSync(EPL_MATCH_DIR)
   ? fs.readdirSync(EPL_MATCH_DIR).filter((d) => /-v-.+-\d{4}-\d{2}-\d{2}$/.test(d)).sort()[0]
   : null;
-const ROUTES = ["", "today", "markets", "results", "methodology", "learn", "moonshot", "bank-builder", "mlb", "nfl", "simulate", "sports",
+const ROUTES = ["", "models", "today", "markets", "results", "methodology", "learn", "moonshot", "bank-builder", "mlb", "nfl", "simulate", "sports",
   "ufc", "goal-rush", "bucket-blitz", "epl",   // kept in sync with ROUTES in e2e/accessibility.spec.ts
   "build/custom",                              // P208: Parlay Center Build Your Own mode
   // The picks-vs-outcomes record — the widest tabular content on the site, and tables are what fail

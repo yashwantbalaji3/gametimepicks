@@ -72,6 +72,7 @@ const REMOVED = {
 /** The complete set of destinations any nav surface is allowed to link. */
 const APPROVED_DESTINATIONS = new Set([
   "/",
+  "/models",
   "/today",
   "/simulate",
   "/markets",

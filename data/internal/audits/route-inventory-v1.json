@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-15T04:18:17Z",
+ "generatedAt": "2026-09-15T04:42:52Z",
  "totals": {
-  "routes": 71,
-  "public": 46,
+  "routes": 72,
+  "public": 47,
   "internal": 6,
   "redirects": 15,
   "archive": 2,
@@ -282,6 +282,15 @@
    "purpose": "MLB results view",
    "dataOwner": "settlement artifacts",
    "freshness": "settled-through",
+   "built": true
+  },
+  {
+   "route": "/models",
+   "classification": "public",
+   "owner": "research",
+   "purpose": "Model Lab: which models are live, tested, paused; recent decisions",
+   "dataOwner": "receipts + health scorecard (lib/command-center/model-lab)",
+   "freshness": "build-time read of receipts",
    "built": true
   },
   {
