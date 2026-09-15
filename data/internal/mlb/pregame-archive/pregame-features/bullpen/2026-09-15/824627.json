@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824627,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T00:50:51.657Z",
+  "availableAt": "2026-09-15T00:50:51.657Z",
+  "eventStartTime": "2026-09-15T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-12",
+    "2026-09-13",
+    "2026-09-14"
+  ],
+  "home": {
+    "teamId": 112,
+    "teamName": "Chicago Cubs",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 122,
+      "relievers": [
+        {
+          "id": 650644,
+          "name": "Aaron Civale",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 6,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 5,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 657097,
+          "name": "Jacob Webb",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 694037,
+          "name": "Daniel Palencia",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 573204,
+          "name": "Caleb Thielbar",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 666171,
+          "name": "Ryan Zeferjahn",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 109,
+      "relievers": [
+        {
+          "id": 678061,
+          "name": "Ray Kerr",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 9,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 663559,
+          "name": "Bailey Falter",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 0,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-12,2026-09-13,2026-09-14) + feed/live box scores",
+    "capturedAt": "2026-09-15T00:50:51.657Z"
+  },
+  "recordHash": "2eae339a77ca02468e03bc84b12d636679bee88f7684e94120f3c6d79f1d8e2e"
+}

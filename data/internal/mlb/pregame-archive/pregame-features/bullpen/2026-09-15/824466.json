@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824466,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T00:50:51.657Z",
+  "availableAt": "2026-09-15T00:50:51.657Z",
+  "eventStartTime": "2026-09-15T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-12",
+    "2026-09-13",
+    "2026-09-14"
+  ],
+  "home": {
+    "teamId": 113,
+    "teamName": "Cincinnati Reds",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 152,
+      "relievers": [
+        {
+          "id": 682227,
+          "name": "Brandon Williamson",
+          "appearances": 1,
+          "pitches": 47,
+          "outs": 12,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 668933,
+          "name": "Graham Ashcraft",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 641941,
+          "name": "Emilio Pagán",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-09-12",
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 663574,
+          "name": "Tony Santillan",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 656271,
+          "name": "Brock Burke",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 572955,
+          "name": "Pierce Johnson",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 622088,
+          "name": "Tejay Antone",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 91,
+      "relievers": [
+        {
+          "id": 680736,
+          "name": "Justin Wrobleski",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 656945,
+          "name": "Tanner Scott",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 1,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 681911,
+          "name": "Alex Vesia",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 676263,
+          "name": "Jack Dreyer",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 678020,
+          "name": "Seth Halvorsen",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 592779,
+          "name": "Brock Stewart",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 0,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-12,2026-09-13,2026-09-14) + feed/live box scores",
+    "capturedAt": "2026-09-15T00:50:51.657Z"
+  },
+  "recordHash": "0550c7de47bd62e2eeefb2771bd2972ff620e6f3d2a2f3a233429e0db686ac56"
+}

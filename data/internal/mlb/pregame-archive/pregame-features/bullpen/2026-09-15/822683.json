@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822683,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T00:50:51.657Z",
+  "availableAt": "2026-09-15T00:50:51.657Z",
+  "eventStartTime": "2026-09-15T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-12",
+    "2026-09-13",
+    "2026-09-14"
+  ],
+  "home": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 173,
+      "relievers": [
+        {
+          "id": 663623,
+          "name": "Jake Irvin",
+          "appearances": 1,
+          "pitches": 76,
+          "outs": 15,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 695378,
+          "name": "Jack Sinclair",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 7,
+          "dates": [
+            "2026-09-12",
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 680899,
+          "name": "Erik Tolman",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 695418,
+          "name": "Brad Lord",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 702021,
+          "name": "Will Dion",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 143,
+    "teamName": "Philadelphia Phillies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 201,
+      "relievers": [
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 621383,
+          "name": "Tanner Banks",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 680880,
+          "name": "Grant Holman",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 548384,
+          "name": "Brooks Raley",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 2,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 621237,
+          "name": "José Alvarado",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 663767,
+          "name": "Chase Shugart",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 596117,
+          "name": "Garrett Stubbs",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 686934,
+          "name": "Alex McFarlane",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-12,2026-09-13,2026-09-14) + feed/live box scores",
+    "capturedAt": "2026-09-15T00:50:51.657Z"
+  },
+  "recordHash": "d2b73dbdb1970a0e755b72c4dfe27ae13c994a1805d34bebbdececc57485a6bd"
+}

@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823333,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T00:50:51.657Z",
+  "availableAt": "2026-09-15T00:50:51.657Z",
+  "eventStartTime": "2026-09-15T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-12",
+    "2026-09-13",
+    "2026-09-14"
+  ],
+  "home": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 73,
+      "relievers": [
+        {
+          "id": 642397,
+          "name": "Gregory Soto",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 669387,
+          "name": "Carmen Mlodzinski",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 5,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 596133,
+          "name": "Luke Weaver",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 682254,
+          "name": "Mason Montgomery",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 10,
+      "pitches": 164,
+      "relievers": [
+        {
+          "id": 682842,
+          "name": "Abner Uribe",
+          "appearances": 2,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-09-12",
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 669084,
+          "name": "DL Hall",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-09-12",
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 694477,
+          "name": "Chad Patrick",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 622608,
+          "name": "Antonio Senzatela",
+          "appearances": 2,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-09-12",
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 676879,
+          "name": "Aaron Ashby",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 690986,
+          "name": "Kyle Harrison",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 0,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 668941,
+          "name": "JoJo Romero",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 5,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-12,2026-09-13,2026-09-14) + feed/live box scores",
+    "capturedAt": "2026-09-15T00:50:51.657Z"
+  },
+  "recordHash": "34fc4bf5d5b91167e89bdc05d5dc9a6498c682492545380f365bdaad059e3a3a"
+}

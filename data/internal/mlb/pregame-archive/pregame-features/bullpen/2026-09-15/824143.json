@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824143,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T00:50:51.657Z",
+  "availableAt": "2026-09-15T00:50:51.657Z",
+  "eventStartTime": "2026-09-16T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-12",
+    "2026-09-13",
+    "2026-09-14"
+  ],
+  "home": {
+    "teamId": 117,
+    "teamName": "Houston Astros",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 130,
+      "relievers": [
+        {
+          "id": 669854,
+          "name": "Ronel Blanco",
+          "appearances": 1,
+          "pitches": 62,
+          "outs": 13,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 805123,
+          "name": "AJ Blubaugh",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 660853,
+          "name": "Enyel De Los Santos",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 656986,
+          "name": "Bennett Sousa",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 687911,
+          "name": "Bryan King",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 118,
+    "teamName": "Kansas City Royals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 100,
+      "relievers": [
+        {
+          "id": 656638,
+          "name": "Alex Lange",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 663878,
+          "name": "Nate Pearson",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 668834,
+          "name": "Easton McGee",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-12"
+          ]
+        },
+        {
+          "id": 518886,
+          "name": "Craig Kimbrel",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 1,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 671162,
+          "name": "Connor Thomas",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 543238,
+          "name": "Anthony Gose",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 1,
+          "dates": [
+            "2026-09-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-12,2026-09-13,2026-09-14) + feed/live box scores",
+    "capturedAt": "2026-09-15T00:50:51.657Z"
+  },
+  "recordHash": "0576b8fa64d9e9f0fedeff917ca0bc985515ca46ebc0fc3e3bf1b2c9dc5a4303"
+}

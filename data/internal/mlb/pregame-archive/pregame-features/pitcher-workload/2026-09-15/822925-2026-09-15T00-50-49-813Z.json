@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822925,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T00:50:49.813Z",
+  "availableAt": "2026-09-15T00:50:49.813Z",
+  "eventStartTime": "2026-09-15T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 643377,
+      "name": "Griffin Jax",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-09-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 5.2,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 0.4,
+        "kPer9": 9.62,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 90.33,
+        "k": 93,
+        "bb": 26,
+        "er": 36,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 678022,
+      "name": "Jack Perkins",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 7,
+      "lastStartDate": "2026-09-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21,
+        "ipAvg": 4.2,
+        "kAvg": 4,
+        "bbAvg": 2.6,
+        "erAvg": 3.8,
+        "hrAvg": 1,
+        "kPer9": 8.57,
+        "workloadIpLast5": 21
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 63.67,
+        "k": 74,
+        "bb": 32,
+        "er": 54,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-15T00:50:49.813Z"
+  },
+  "recordHash": "3d2211a2d6589dddf5a7d5d7f6bb2730d0837f5bc9da0fbeca9b42f66c25a112"
+}

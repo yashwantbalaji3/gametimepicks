@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824307,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T00:50:53.354Z",
+  "availableAt": "2026-09-15T00:50:53.354Z",
+  "eventStartTime": "2026-09-16T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 607536,
+    "name": "Kyle Freeland",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 621111,
+    "name": "Walker Buehler",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-15T00:50:53.354Z"
+  },
+  "recordHash": "ea9a966a354d70b9439163f82d53add9579deb82944764665f0fb6f596500662"
+}
