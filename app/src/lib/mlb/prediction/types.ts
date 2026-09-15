@@ -113,4 +113,7 @@ export interface GamePredictionDecision {
   unavailableReasons: string[];
   /** The market snapshot the decision compared against (threshold + comparison only). */
   market: MarketComparison | null;
+  /** Set by the live-record gate (lib/ops/live-record-gate.mjs): a call whose graded record is BREACHED is
+   *  withdrawn (moneyline + predictedWinner, or runLine set to null) and the reason recorded here. */
+  pausedReasons?: { moneyline?: string; runLine?: string };
 }

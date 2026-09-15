@@ -46,7 +46,11 @@ export interface GamePredictionRow {
   total: { pick: "OVER" | "UNDER"; line: number; probability: number } | null;
   /** The over/under call is paused by the live-record gate (its graded record is below a coin flip). */
   totalPaused?: boolean;
+  /** The winner call is paused by the live-record gate. */
+  moneylinePaused?: boolean;
   runLine: { pick: string; coverProbability: number } | null;
+  /** The run-line call is paused by the live-record gate. */
+  runLinePaused?: boolean;
 }
 
 /** Build the Game Predictions table rows, chronological by first pitch. */
@@ -79,7 +83,9 @@ export function buildTodayPredictionRows(games: SlatePredictionGame[]): GamePred
       score: p.projectedScore ? { away: p.projectedScore.away, home: p.projectedScore.home } : null,
       total,
       ...(p.total?.pausedReason ? { totalPaused: true } : {}),
+      ...(p.pausedReasons?.moneyline ? { moneylinePaused: true } : {}),
       runLine: p.runLine ? { pick: p.runLine.pick, coverProbability: p.runLine.coverProbability } : null,
+      ...(p.pausedReasons?.runLine ? { runLinePaused: true } : {}),
     });
   }
   return rows.sort((a, b) => (a.firstPitchIso ?? "").localeCompare(b.firstPitchIso ?? ""));

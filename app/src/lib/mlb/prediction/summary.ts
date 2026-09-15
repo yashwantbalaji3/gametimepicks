@@ -10,9 +10,12 @@ import type { GamePredictionDecision } from "./types";
  * directional prediction (unavailable). Never invents a market family that is unavailable.
  */
 export function compactPredictionLine(d: GamePredictionDecision | null | undefined): string | null {
-  if (!d || !d.predictedWinner) return null;
-  const parts: string[] = [d.predictedWinner.team];
+  if (!d) return null;
+  /* A paused winner call (live-record gate) leaves the other calls standing; without a pause, no winner means
+     no directional prediction at all, as before. */
+  if (!d.predictedWinner && !d.pausedReasons?.moneyline) return null;
+  const parts: string[] = d.predictedWinner ? [d.predictedWinner.team] : [];
   if (d.total && d.total.pick !== "UNAVAILABLE") parts.push(`${d.total.pick} ${d.total.line}`);
   if (d.runLine) parts.push(d.runLine.pick);
-  return parts.join(" · ");
+  return parts.length ? parts.join(" · ") : null;
 }

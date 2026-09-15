@@ -12,6 +12,9 @@ import { deriveStartState } from "@/lib/today/availability";
 import type { GamePredictionRow } from "@/lib/mlb/prediction/slate";
 
 const pct = (p: number): string => `${Math.round(p * 100)}%`;
+const PAUSED_TITLE = "Its graded record is below a coin flip. Still made and graded daily; it returns when the record recovers.";
+/** The live-record gate's state for a call: the same word, the same explanation, in every column. */
+const Paused = () => <span title={PAUSED_TITLE} style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>paused</span>;
 
 function Cell({ children, muted, align = "left" }: { children: ReactNode; muted?: boolean; align?: "left" | "right" | "center" }) {
   return (
@@ -68,14 +71,14 @@ export default function TodayGamePredictions({ rows, nowMs }: { rows: GamePredic
                   <Cell>
                     {r.moneyline ? (
                       <span><strong style={{ color: "var(--vault-gold)" }}>{r.moneyline.team}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.moneyline.probability)}</span></span>
-                    ) : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
+                    ) : r.moneylinePaused ? <Paused /> : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
                   </Cell>
                   <Cell muted>{r.score ? <span className="font-mono">{r.awayTeam} {r.score.away}–{r.score.home} {r.homeTeam}</span> : "—"}</Cell>
                   <Cell>
-                    {r.total ? <span><strong>{r.total.pick} {r.total.line}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.total.probability)}</span></span> : r.totalPaused ? <span title="Its graded record is below a coin flip. Still made and graded daily; it returns when the record recovers." style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>paused</span> : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
+                    {r.total ? <span><strong>{r.total.pick} {r.total.line}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.total.probability)}</span></span> : r.totalPaused ? <Paused /> : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
                   </Cell>
                   <Cell>
-                    {r.runLine ? <span><strong>{r.runLine.pick}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.runLine.coverProbability)}</span></span> : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
+                    {r.runLine ? <span><strong>{r.runLine.pick}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.runLine.coverProbability)}</span></span> : r.runLinePaused ? <Paused /> : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
                   </Cell>
                   <Cell align="right">
                     <Link href={r.href} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Open →</Link>

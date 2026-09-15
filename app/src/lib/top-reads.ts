@@ -24,7 +24,7 @@
 import fs from "node:fs";
 
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
-import { pausedFamiliesFrom, MLB_TOTAL_FAMILY } from "@/lib/ops/live-record-gate.mjs";
+import { pausedFamiliesFrom, MLB_TOTAL_FAMILY, MLB_MONEYLINE_FAMILY } from "@/lib/ops/live-record-gate.mjs";
 import path from "node:path";
 
 export interface TopRead {
@@ -162,12 +162,17 @@ export function loadTopReads(): TopReadsSet | null {
   /* ── MLB: game markets, from the deterministic prediction layer ─────────────────────────────── */
   const mlb = read(`public/data/mlb/predictions/${today}.json`);
   /* Live-record gate: a BREACHED over/under call never enters the strongest reads, and the list says why. */
-  const mlbTotalPaused = pausedFamiliesFrom(read("public/data/admin/model-health.json"), Date.parse(nowIso)).has(MLB_TOTAL_FAMILY);
+  const mlbPaused = pausedFamiliesFrom(read("public/data/admin/model-health.json"), Date.parse(nowIso));
+  const mlbTotalPaused = mlbPaused.has(MLB_TOTAL_FAMILY);
+  const mlbMoneylinePaused = mlbPaused.has(MLB_MONEYLINE_FAMILY);
   if (mlbTotalPaused && (mlb?.predictions ?? []).some((p: { total?: { overProbability?: number | null } }) => p.total?.overProbability != null)) {
     excluded.push({ sport: "mlb", reason: "game totals paused — their live record is below a coin flip; still graded daily" });
   }
+  if (mlbMoneylinePaused && (mlb?.predictions ?? []).some((p: { moneyline?: { simulationProbability?: number | null } | null }) => p.moneyline?.simulationProbability != null)) {
+    excluded.push({ sport: "mlb", reason: "winner calls paused — their live record is below a coin flip; still graded daily" });
+  }
   for (const p of mlb?.predictions ?? []) {
-    const ml = p.moneyline;
+    const ml = mlbMoneylinePaused ? null : p.moneyline;
     if (ml?.simulationProbability != null && p.slug) {
       push({
         sport: "mlb", sportLabel: "MLB", kind: "team",

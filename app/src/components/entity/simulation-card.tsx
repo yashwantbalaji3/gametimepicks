@@ -80,6 +80,11 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
                 {winnerFreq ? <span className="font-mono block" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{winnerFreq}</span> : null}
               </div>
             </div>
+          ) : p?.pausedReasons?.moneyline ? (
+            <div className="rounded-[10px] px-3 py-2.5 flex flex-col" style={{ border: "1px solid var(--vault-rule)" }}>
+              <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Prediction</span>
+              <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>Winner call paused · its live record is below a coin flip · still graded daily</span>
+            </div>
           ) : null}
 
           {/* ── Starting pitchers (from the simulated box score — the same games that produced the score) ── */}

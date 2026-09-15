@@ -60,7 +60,7 @@ for (const p of predictions) {
   if (p.status === "unavailable") { console.log(`${p.slug.padEnd(28)} UNAVAILABLE — ${p.unavailableReasons[0] ?? ""}`); continue; }
   const tot = p.total.pick === "UNAVAILABLE" ? "n/a" : `${p.total.pick} ${p.total.line}`;
   console.log(
-    `${p.slug.padEnd(28)} ${p.status.toUpperCase().padEnd(9)} ${p.predictedWinner.team.padEnd(5)} ` +
+    `${p.slug.padEnd(28)} ${p.status.toUpperCase().padEnd(9)} ${(p.predictedWinner?.team ?? "n/a").padEnd(5)} ` +
       `${p.awayTeam} ${p.projectedScore.away}-${p.projectedScore.home} ${p.homeTeam}`.padEnd(15) +
       ` ${tot.padEnd(11)} ${(p.runLine?.pick ?? "n/a").padEnd(12)} ${p.topPlayerPredictions.length}`,
   );

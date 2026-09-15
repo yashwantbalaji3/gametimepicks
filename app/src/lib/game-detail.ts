@@ -43,7 +43,7 @@ import { getWcGameCenter, type WcGameCenter } from "@/lib/wc-game-center";
 import { getWcExpandedMarkets, type WcExpandedMarkets } from "@/lib/wc-expanded-markets";
 import fs from "node:fs";
 import path from "node:path";
-import { pausedFamiliesFrom, pauseMlbTotal } from "@/lib/ops/live-record-gate.mjs";
+import { pausedFamiliesFrom, pauseMlbMarkets } from "@/lib/ops/live-record-gate.mjs";
 import { loadWorldCupSpecials } from "@/lib/world-cup/world-cup-specials";
 import { getBoardForDate, getAvailableBoardDates } from "@/lib/data";
 import {
@@ -500,7 +500,7 @@ function mlbDetails(): PublicGameDetail[] {
         modelProbability: p.modelProbability,
         marketProbability: p.marketProbability ?? null,
       }));
-    const prediction = fg ? pauseMlbTotal(buildGamePredictionDecision(fg, playerPicks), livePauses) : null;
+    const prediction = fg ? pauseMlbMarkets(buildGamePredictionDecision(fg, playerPicks), livePauses) : null;
     // Enriched canonical player predictions (Sprint 010): join each pick to its board lean for the portrait
     // id + opponent, then re-use the SAME top-5 in the report hero so it matches /today exactly.
     const leanByKey = new Map<string, { playerId: number | null; team: string | null; opponent: string | null }>();

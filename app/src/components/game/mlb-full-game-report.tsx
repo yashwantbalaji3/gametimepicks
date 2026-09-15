@@ -10,6 +10,7 @@
  */
 
 import { useId, useState, type ReactNode } from "react";
+import { PAUSED_MONEYLINE_SHORT, PAUSED_RUN_LINE_SHORT } from "@/lib/ops/live-record-gate.mjs";
 import HeadToHead from "@/components/ui/head-to-head";
 import PlayerAvatar from "@/components/player-avatar";
 import { PlayerCard } from "@/components/entity";
@@ -129,8 +130,12 @@ function PredictionCard({ label, pick, prob, strength, unavailable }: { label: s
 
 /** The prediction-first hero: the direct answers the simulation gives, before any probability evidence. */
 function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecision; runCount?: number | null , spreadLabel: string }) {
-  if (!p.predictedWinner || !p.projectedScore) return null;
-  const winnerName = p.predictedWinner.side === "home" ? p.homeTeamName : p.awayTeamName;
+  if (!p.projectedScore) return null;
+  /* Live-record gate: a paused winner call has no predictedWinner; the hero says so instead of naming a side.
+     Without a pause and without a winner there is nothing to lead with, as before. */
+  const moneylinePaused = Boolean(p.pausedReasons?.moneyline);
+  if (!p.predictedWinner && !moneylinePaused) return null;
+  const winnerName = p.predictedWinner ? (p.predictedWinner.side === "home" ? p.homeTeamName : p.awayTeamName) : "Winner call paused";
   const ml = p.moneyline;
   const total = p.total;
   const rl = p.runLine;
@@ -141,7 +146,7 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from 10,000 simulated games · not validated to out-predict the market</span>
       </div>
       <div className="flex items-end justify-between gap-3 flex-wrap">
-        <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 26, fontWeight: 800, lineHeight: 1.05 }}>{winnerName}</span>
+        <span className="font-display" style={{ color: p.predictedWinner ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: p.predictedWinner ? 26 : 18, fontWeight: 800, lineHeight: 1.05 }}>{winnerName}</span>
         <div className="text-right">
           <div className="font-display" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>
             {p.homeTeam} {p.projectedScore.home} – {p.awayTeam} {p.projectedScore.away}
@@ -150,7 +155,11 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2">
-        <PredictionCard label="Moneyline" pick={ml ? ml.team : "—"} prob={ml ? `${Math.round(ml.simulationProbability * 100)}% simulations` : ""} strength={shortStrength(ml?.strengthLabel)} />
+        {ml ? (
+          <PredictionCard label="Moneyline" pick={ml.team} prob={`${Math.round(ml.simulationProbability * 100)}% simulations`} strength={shortStrength(ml.strengthLabel)} />
+        ) : (
+          <PredictionCard label="Moneyline" pick="" prob="" strength="" unavailable={moneylinePaused ? PAUSED_MONEYLINE_SHORT : "No winner call"} />
+        )}
         {total && total.pick !== "UNAVAILABLE" ? (
           <PredictionCard
             label="Total"
@@ -167,7 +176,7 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
         {rl ? (
           <PredictionCard label={spreadLabel} pick={rl.pick} prob={`${Math.round(rl.coverProbability * 100)}% cover`} strength={shortStrength(rl.strengthLabel)} />
         ) : (
-          <PredictionCard label={spreadLabel} pick="" prob="" strength="" unavailable="Unavailable" />
+          <PredictionCard label={spreadLabel} pick="" prob="" strength="" unavailable={p.pausedReasons?.runLine ? PAUSED_RUN_LINE_SHORT : "Unavailable"} />
         )}
       </div>
       {p.topPlayerPredictions.length ? (

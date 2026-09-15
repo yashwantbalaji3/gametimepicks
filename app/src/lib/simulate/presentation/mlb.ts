@@ -117,13 +117,17 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
 
   /* ── 2 · who wins ──────────────────────────────────────────────────────────────────────────── */
   const wp = fg.winProbability;
+  /* Live-record gate: a paused winner call shows no win probabilities and names no side; the median final stays. */
+  const moneylinePaused = Boolean(pred.pausedReasons?.moneyline);
   if (wp && Number.isFinite(wp.home) && Number.isFinite(wp.away)) {
-    const winner = pred.predictedWinner;
+    const winner = moneylinePaused ? null : pred.predictedWinner;
     const score = pred.projectedScore;
-    const stats: PresentationStat[] = [
-      { label: `${awayAbbr} win`, value: wp.away, format: "probability" },
-      { label: `${homeAbbr} win`, value: wp.home, format: "probability" },
-    ];
+    const stats: PresentationStat[] = moneylinePaused
+      ? [{ label: "Winner call", value: null, format: "text", text: "paused", note: "its live record is below a coin flip" }]
+      : [
+          { label: `${awayAbbr} win`, value: wp.away, format: "probability" },
+          { label: `${homeAbbr} win`, value: wp.home, format: "probability" },
+        ];
     if (score && Number.isFinite(score.away) && Number.isFinite(score.home)) {
       stats.push({
         label: "Median final",
@@ -137,14 +141,18 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
       id: "outcome",
       kind: "outcome",
       title: "Who the simulation favours",
-      line: winner?.team
-        ? `Across ${runsPhrase}, ${winner.team} came out ahead more often than not.`
-        : `Across ${runsPhrase}, neither side separated.`,
+      line: moneylinePaused
+        ? "The winner call is paused: over its graded record it has done worse than a coin flip. It is still made and graded every day."
+        : winner?.team
+          ? `Across ${runsPhrase}, ${winner.team} came out ahead more often than not.`
+          : `Across ${runsPhrase}, neither side separated.`,
       stats,
-      bars: [
-        { label: awayAbbr, p: wp.away },
-        { label: homeAbbr, p: wp.home, highlight: winner?.side === "home" },
-      ],
+      bars: moneylinePaused
+        ? []
+        : [
+            { label: awayAbbr, p: wp.away },
+            { label: homeAbbr, p: wp.home, highlight: winner?.side === "home" },
+          ],
       rows: [],
       holdMs: HOLD.normal,
     });
@@ -204,7 +212,19 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
 
   /* ── 4 · the margin ────────────────────────────────────────────────────────────────────────── */
   const rl = pred.runLine;
-  if (rl && rl.pick && Number.isFinite(rl.coverProbability)) {
+  if (pred.pausedReasons?.runLine) {
+    /* Live-record gate: the run-line call is paused; the chapter says so rather than vanishing. */
+    chapters.push({
+      id: "margin",
+      kind: "margin",
+      title: "The margin",
+      line: "The run-line call is paused: over its graded record it has done worse than a coin flip. It is still made and graded every day.",
+      stats: [{ label: "Run line", value: null, format: "text", text: "paused", note: "its live record is below a coin flip" }],
+      bars: [],
+      rows: [],
+      holdMs: HOLD.light,
+    });
+  } else if (rl && rl.pick && Number.isFinite(rl.coverProbability)) {
     chapters.push({
       id: "margin",
       kind: "margin",
