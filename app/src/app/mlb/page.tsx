@@ -73,6 +73,7 @@ import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
 import PlayerPropsExplorer from "@/components/ui/player-props-explorer";
+import { toExplorerProjection } from "@/lib/ui/explorer-projection";
 import StatusChip from "@/components/ui/status-chip";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -313,7 +314,8 @@ export default function MlbLandingPage() {
         <>
           {/* Same guided explorer as fixture pages: top picks default, market tabs,
               team filter, player search, expandable last-5 drawer per row. */}
-          <PlayerPropsExplorer props={batterLeans} />
+          {/* Phase 5F: the explorer is a client component — hand it only the fields it renders (lib/ui/explorer-projection). */}
+          <PlayerPropsExplorer props={batterLeans.map(toExplorerProjection)} />
           {boardCta}
         </>
       ) : (

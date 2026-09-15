@@ -10,7 +10,7 @@
  * PlayerPropCard (portrait, book badge, model vs market, last-5 drawer).
  */
 import { useMemo, useState } from "react";
-import type { PublicProjection } from "@/lib/normalize";
+import type { ExplorerProjection as PublicProjection } from "@/lib/ui/explorer-projection";
 import PlayerPropCard from "@/components/ui/player-prop-card";
 import PlayerPropGroup, { groupByPlayer } from "@/components/ui/player-prop-group";
 import { worldCupPlayerModelPicks } from "@/lib/world-cup/player-model-picks";

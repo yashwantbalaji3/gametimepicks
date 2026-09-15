@@ -4,7 +4,7 @@
  *  reveals the player's REAL last-5 game log for this market when the artifact carries
  *  one, plus the model read. When no log exists the drawer says so honestly — recent
  *  stats are never fabricated. */
-import type { PublicProjection } from "@/lib/normalize";
+import type { ExplorerProjection as PublicProjection } from "@/lib/ui/explorer-projection";
 import { formatAmerican } from "@/lib/odds-math";
 import { friendlyStatusLabel } from "@/lib/public-visibility";
 import StatusChip from "@/components/ui/status-chip";

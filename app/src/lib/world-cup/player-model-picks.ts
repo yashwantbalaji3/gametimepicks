@@ -8,7 +8,7 @@
  * side) so the list reads as picks, not a both-sides inventory. Pure + deterministic → unit-tested.
  * Never fabricates: only odds-backed props with a named player are eligible.
  */
-import type { PublicProjection } from "@/lib/normalize";
+import type { ExplorerProjection as PublicProjection } from "@/lib/ui/explorer-projection";
 
 const CONF_RANK: Record<string, number> = { High: 3, Medium: 2, Low: 1 };
 
@@ -45,10 +45,10 @@ function cmp(a: PublicProjection, b: PublicProjection): number {
  * @param props fixture-scoped player projections (already joined to this game)
  * @param limit max picks to return (default 8)
  */
-export function worldCupPlayerModelPicks(props: PublicProjection[], limit = 8): PublicProjection[] {
+export function worldCupPlayerModelPicks<T extends PublicProjection>(props: T[], limit = 8): T[] {
   const eligible = props.filter(isModelPickEligible);
   // Keep the stronger side per player+market so we surface a pick, not both Over and Under.
-  const bestByKey = new Map<string, PublicProjection>();
+  const bestByKey = new Map<string, T>();
   for (const p of eligible) {
     const key = `${p.player?.name ?? ""}|${p.market}`;
     const prev = bestByKey.get(key);

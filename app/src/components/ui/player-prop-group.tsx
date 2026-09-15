@@ -8,7 +8,7 @@
  * Honesty: no new data — purely a regrouping of the same real projections. The edge chip
  * is the max of the player's real per-market edges; nothing is invented.
  */
-import type { PublicProjection } from "@/lib/normalize";
+import type { ExplorerProjection as PublicProjection } from "@/lib/ui/explorer-projection";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import PlayerPropCard from "@/components/ui/player-prop-card";
 
