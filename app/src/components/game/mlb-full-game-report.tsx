@@ -239,7 +239,7 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
   );
 }
 
-function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, storySlot }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; awayCode: string; homeCode: string; awayLogo?: string | null; homeLogo?: string | null; storySlot?: ReactNode }) {
+function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, storySlot, saveSlot }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; awayCode: string; homeCode: string; awayLogo?: string | null; homeLogo?: string | null; storySlot?: ReactNode; saveSlot?: ReactNode }) {
   const V = g.vocabulary ?? BASEBALL_VOCAB;
   if (!g.winProbability || !g.runs || !g.totalRuns) return null;
   const rl15 = g.runLine.find((r) => r.line === 1.5);
@@ -295,6 +295,8 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
           same three numbers directly beneath itself. The honest "these teams project level" note it
           carried now rides on the head-to-head. */}
       {prediction ? <PredictionHero p={prediction} runCount={g.runCount} spreadLabel={(g.vocabulary ?? BASEBALL_VOCAB).spreadLabel} /> : null}
+      {/* P319: save exactly this forecast — the same card the homepage would feature for this game. */}
+      {saveSlot ? <div style={{ display: "flex", justifyContent: "flex-end" }}>{saveSlot}</div> : null}
       {/* P308: the inline simulation story — under the answer, never over it; the report below stays the record. */}
       {storySlot ?? null}
 
@@ -561,6 +563,7 @@ export default function MlbFullGameReport({
   awayLogo,
   homeLogo,
   storySlot,
+  saveSlot,
 }: {
   fullGame: FullGameSimGame;
   meta: FullGameArtifactMeta | null;
@@ -579,6 +582,8 @@ export default function MlbFullGameReport({
   homeCode: string;
   /** P308: the inline simulation story, built by the page from the same detail this report renders. */
   storySlot?: ReactNode;
+  /** P319: the Save control for this game's forecast, built by the page from the canonical card builder. */
+  saveSlot?: ReactNode;
 }) {
   const [tab, setTab] = useState<TabKey>("overview");
   const tablistId = useId();
@@ -636,7 +641,7 @@ export default function MlbFullGameReport({
 
       {/* Panels */}
       <div role="tabpanel">
-        {tab === "overview" && (available ? <Overview g={g} prediction={prediction} awayCode={awayCode} homeCode={homeCode} awayLogo={awayLogo} homeLogo={homeLogo} storySlot={storySlot} /> : <UnavailableNote g={g} />)}
+        {tab === "overview" && (available ? <Overview g={g} prediction={prediction} awayCode={awayCode} homeCode={homeCode} awayLogo={awayLogo} homeLogo={homeLogo} storySlot={storySlot} saveSlot={saveSlot} /> : <UnavailableNote g={g} />)}
         {tab === "box" && (available ? <BoxScore g={g} /> : <UnavailableNote g={g} />)}
         {tab === "market" && <div>{marketNode}</div>}
         {tab === "players" && <div>{deepDive}</div>}

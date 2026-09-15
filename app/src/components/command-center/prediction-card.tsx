@@ -12,6 +12,7 @@ import type { CardSide, PredictionCardModel } from "@/lib/command-center/contrac
 import { PUBLIC_STATE_LABEL } from "@/lib/command-center/contract";
 import ModelStatusChip from "./model-status-chip";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
+import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
 
 const LOGO_SPORT: Record<string, "mlb" | "nfl" | "soccer" | null> = { mlb: "mlb", nfl: "nfl", epl: "soccer", ufc: null };
 
@@ -74,8 +75,8 @@ export default function PredictionCard({ card, variant = "compact" }: { card: Pr
         {card.context ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{card.context}</span> : <span />}
         <span className="inline-flex items-center gap-2">
           {/* P310: saving keeps THIS card as it reads now; the saved page adds the result when it exists. */}
-          <SaveForecastButton card={card} />
-          <Link href={card.href} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 28, display: "inline-flex", alignItems: "center" }}>Open report →</Link>
+          <SaveForecastButton card={saveCardOf(card)} />
+          <Link href={card.href} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 36, display: "inline-flex", alignItems: "center" }}>Open report →</Link>
         </span>
       </div>
     </article>

@@ -140,11 +140,14 @@ test("currentPeriodKey picks the period of the next unfinished event; eventsInPe
   }
 });
 
-test("NFL current period at NOW is regular-season Week 1, not the settled preseason", () => {
+test("NFL current period at NOW is a regular-season week, never the settled preseason", () => {
+  /* LIVE artifact under a pinned NOW: the week number rolls with the season (Week 1 → Week 2 on 2026-09-15), so
+     the contract is the KIND of period — a regular-season week — not which week the calendar has reached. */
   const events = loadNflEvents(NOW);
   if (!events.length) return;
   const key = currentPeriodKey(events, NOW);
-  assert.ok(key && /regular-w1$/.test(key), `current period must be regular w1, got ${key}`);
+  assert.ok(key && /regular-w\d+$/.test(key), `current period must be a regular-season week, got ${key}`);
+  assert.ok(!/pre/i.test(key), `current period must not be the settled preseason, got ${key}`);
 });
 
 // ── FIXTURE · dimension separation cannot collapse ──────────────────────────────────────────────

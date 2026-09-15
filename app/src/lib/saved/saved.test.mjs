@@ -83,7 +83,7 @@ test("SOURCE PIN · /saved is registered, noindexed, reachable, and the card off
   assert.match(src("src/lib/public-route-inventory.test.mjs"), /"\/saved",/);
   assert.match(src("scripts/audit-accessibility.mjs"), /"saved",/);
   assert.match(src("e2e/accessibility.spec.ts"), /"\/saved\/"/);
-  assert.match(src("src/components/command-center/prediction-card.tsx"), /<SaveForecastButton card=\{card\} \/>/);
+  assert.match(src("src/components/command-center/prediction-card.tsx"), /<SaveForecastButton card=\{saveCardOf\(card\)\} \/>/, "the card hands the control the lean save card (P319)");
   assert.match(src("src/components/saved/save-forecast-button.tsx"), /aria-pressed=\{saved\}/, "the control states its own state");
   assert.match(src("src/components/saved/saved-list.tsx"), /LEDGER_URLS/, "the page fetches the ledgers by their literal paths so the prune keeps them");
 });

@@ -48,7 +48,7 @@ export default function ModelLabPage() {
         </p>
         <nav aria-label="Model Lab sections" className="flex flex-wrap gap-2 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10 }}>
           {[["#live", "Live models"], ["#experiments", "Experiments"], ["#decisions", "Recent decisions"], ["#paused", "Why a model pauses"], ["#glossary", "The words we use"]].map(([href, label]) => (
-            <a key={href} href={href} className="rounded-full px-2.5 py-1" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", minHeight: 28, display: "inline-flex", alignItems: "center" }}>{label}</a>
+            <a key={href} href={href} className="rounded-full px-2.5 py-1" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", minHeight: 36, display: "inline-flex", alignItems: "center" }}>{label}</a>
           ))}
         </nav>
       </header>

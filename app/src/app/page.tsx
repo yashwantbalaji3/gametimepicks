@@ -358,7 +358,7 @@ export default function HomePage() {
           title="The model's next reads — upcoming"
           /* Its own id: the today panel keeps "#top-reads", which the filter scrolls to. */
           domId="top-reads-upcoming"
-          sub="Future-dated reads, ranked by the model's own probability. Each row wears its event date."
+          sub="Future-dated reads, ranked by the model's own probability, each with its event date."
           /* Compact when today's panel already carried the provenance + paper-only block. */
           compact={topToday(topReads, 10).length > 0}
         />

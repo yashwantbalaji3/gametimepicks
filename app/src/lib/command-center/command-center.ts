@@ -59,9 +59,7 @@ function emptyLineFor(sport: CardSport, day: ProductDay | null | undefined, reas
   }
 }
 
-/** The lead status for a featured card: the family the headline rests on. */
-const leadStatus = (items: ModelStatusItem[], preferId: string): ModelStatusItem =>
-  items.find((s) => s.id === preferId) ?? items[0] ?? { id: "unknown", family: "Model", state: "UNKNOWN", headline: "Status unknown", detail: "", n: null, source: "" };
+import { leadStatus } from "./report-card";
 
 export function buildCommandCenter(input: CommandCenterInput): CommandCenterLane[] {
   const { dataRoot, repoRoot, today, nowIso, days } = input;

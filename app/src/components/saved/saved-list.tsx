@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSavedForecasts, type SavedForecast } from "@/lib/saved/saved-store";
 import { LEDGER_URLS, parseLedger, resolveResult } from "@/lib/saved/results.mjs";
+import { savedAfterStart } from "@/lib/saved/saved-schema.mjs";
 import { PUBLIC_STATE_LABEL, type PublicModelState } from "@/lib/command-center/contract";
 import ModelStatusChip from "@/components/command-center/model-status-chip";
 
@@ -31,9 +32,9 @@ function Row({ s, r, onRemove }: { s: SavedForecast; r: Resolved; onRemove: () =
         <span className="font-mono" style={{ color: tone, fontSize: 10.5 }}>
           {r.state === "FINAL" ? `Final${r.actual ? ` ${r.actual}` : ""} · ${r.outcome === "HIT" ? "the forecast landed" : r.outcome === "MISS" ? "the forecast missed" : "no result (void)"}` : r.state === "PENDING" ? "Started · result not graded yet" : "Upcoming"}
         </span>
-        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>saved {etStamp(s.savedAt)}{s.updatedAt ? ` · numbers as of ${etStamp(s.updatedAt)}` : ""}</span>
+        <span className="font-mono" style={{ color: savedAfterStart(s) ? "var(--vault-warn)" : "var(--vault-text-faint)", fontSize: 9.5 }}>saved {etStamp(s.savedAt)}{savedAfterStart(s) ? " · after the start, so not a pre-event pick" : ""}{s.updatedAt ? ` · numbers as of ${etStamp(s.updatedAt)}` : ""}</span>
       </div>
-      <button type="button" onClick={onRemove} className="self-start font-mono uppercase tracking-[0.08em]" style={{ minHeight: 28, padding: "0 8px", borderRadius: 999, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text-faint)", fontSize: 9.5, cursor: "pointer" }}>Remove</button>
+      <button type="button" onClick={onRemove} className="self-start font-mono uppercase tracking-[0.08em]" style={{ minHeight: 36, padding: "0 12px", borderRadius: 999, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text-faint)", fontSize: 9.5, cursor: "pointer" }}>Remove</button>
     </li>
   );
 }
@@ -85,10 +86,10 @@ export default function SavedList() {
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex flex-wrap gap-1" role="group" aria-label="Filter by sport">
           {["all", ...sports].map((k) => (
-            <button key={k} type="button" onClick={() => setSport(k)} aria-pressed={sport === k} className="font-mono uppercase tracking-[0.08em]" style={{ minHeight: 30, padding: "0 10px", borderRadius: 999, border: `1px solid ${sport === k ? "var(--vault-border-active)" : "var(--vault-rule)"}`, background: sport === k ? "var(--vault-panel-elevated)" : "transparent", color: sport === k ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: 9.5, cursor: "pointer" }}>{k === "all" ? "All" : SPORT_LABEL[k] ?? k}</button>
+            <button key={k} type="button" onClick={() => setSport(k)} aria-pressed={sport === k} className="font-mono uppercase tracking-[0.08em]" style={{ minHeight: 36, padding: "0 12px", borderRadius: 999, border: `1px solid ${sport === k ? "var(--vault-border-active)" : "var(--vault-rule)"}`, background: sport === k ? "var(--vault-panel-elevated)" : "transparent", color: sport === k ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: 9.5, cursor: "pointer" }}>{k === "all" ? "All" : SPORT_LABEL[k] ?? k}</button>
           ))}
         </div>
-        <button type="button" onClick={() => { if (window.confirm("Remove every saved forecast from this browser?")) clear(); }} className="font-mono uppercase tracking-[0.08em]" style={{ minHeight: 30, padding: "0 10px", borderRadius: 999, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text-faint)", fontSize: 9.5, cursor: "pointer" }}>Clear all</button>
+        <button type="button" onClick={() => { if (window.confirm("Remove every saved forecast from this browser?")) clear(); }} className="font-mono uppercase tracking-[0.08em]" style={{ minHeight: 36, padding: "0 12px", borderRadius: 999, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text-faint)", fontSize: 9.5, cursor: "pointer" }}>Clear all</button>
       </div>
       {ledgerError ? <p className="m-0 font-mono" style={{ color: "var(--vault-warn)", fontSize: 10.5 }}>Some result ledgers could not be loaded, so a graded result may show as pending. Nothing is guessed.</p> : null}
       {!ledgers && items.length ? <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>Checking results…</p> : null}

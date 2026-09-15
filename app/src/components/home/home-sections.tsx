@@ -97,10 +97,10 @@ export function TrustStrip({ recordLabel, bankrollLabel, peakLabel, openExposure
 
 // ── 6 · How it works ─────────────────────────────────────────────────────────
 const STEPS: { n: string; title: string; body: string }[] = [
-  { n: "1", title: "Model artifacts generated", body: "Each slate's games are turned into deterministic, precomputed model artifacts — committed once, read by everyone." },
-  { n: "2", title: "You run the same simulation", body: "Open a game and run the precomputed simulation. It's deterministic — the same output for every user, no re-rolling." },
-  { n: "3", title: "Picks + risks shown honestly", body: "Every model pick shows why it could hit and what the risk is. On a thin slate the model holds — no-play discipline over forcing a card." },
-  { n: "4", title: "Results settled officially", body: "Cards settle only against official finals. Wins and losses both stay on the page; pending is never counted as a loss." },
+  { n: "1", title: "Model artifacts generated", body: "Each slate is computed once into fixed model artifacts that everyone reads." },
+  { n: "2", title: "You run the same simulation", body: "Open a game and run it: the same output for every user, no re-rolling." },
+  { n: "3", title: "Picks + risks shown honestly", body: "Every pick shows its risk; on a thin slate the model holds rather than forcing a card." },
+  { n: "4", title: "Results settled officially", body: "Cards settle only against official finals; pending is never counted as a loss." },
 ];
 
 export function HowItWorks() {
@@ -108,7 +108,6 @@ export function HowItWorks() {
     <section aria-label="How it works" className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>How it works</h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Deterministic artifacts · same output for every user</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {STEPS.map((s) => (

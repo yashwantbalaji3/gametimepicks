@@ -104,7 +104,8 @@ function Rows({ rows }: { rows: PresentationChapter["rows"] }) {
   );
 }
 
-const btn = (active = false): React.CSSProperties => ({ minHeight: 32, minWidth: 32, padding: "0 10px", borderRadius: 999, border: `1px solid ${active ? "var(--vault-border-active)" : "var(--vault-rule)"}`, background: active ? "var(--vault-panel-elevated)" : "transparent", color: active ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-mono)", cursor: "pointer" });
+/* P321: 44px targets — a thumb-sized control on a phone, without shrinking the label. */
+const btn = (active = false): React.CSSProperties => ({ minHeight: 44, minWidth: 44, padding: "0 12px", borderRadius: 999, border: `1px solid ${active ? "var(--vault-border-active)" : "var(--vault-rule)"}`, background: active ? "var(--vault-panel-elevated)" : "transparent", color: active ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-mono)", cursor: "pointer" });
 
 export default function SimulationStory({ manifest, skipHref = "#simulation-story-end" }: { manifest: PresentationManifest; skipHref?: string }) {
   const chapters = manifest.chapters;
@@ -172,7 +173,7 @@ export default function SimulationStory({ manifest, skipHref = "#simulation-stor
           {!idle ? <button type="button" style={btn()} onClick={() => act("PREV")} disabled={ctx.index === 0} aria-label="Previous chapter">‹</button> : null}
           {!idle && !done ? <button type="button" style={btn()} onClick={() => act("NEXT")} aria-label="Next chapter">›</button> : null}
           {done ? <button type="button" style={btn()} onClick={() => act("REPLAY")}>Replay</button> : null}
-          <a href={skipHref} onClick={() => emit("simulation_skipped")} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 32, display: "inline-flex", alignItems: "center", padding: "0 6px" }}>Skip to the report ↓</a>
+          <a href={skipHref} onClick={() => emit("simulation_skipped")} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 8px" }}>Skip to the report ↓</a>
         </div>
       </div>
 

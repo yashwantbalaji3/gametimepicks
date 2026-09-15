@@ -94,8 +94,8 @@ export default function TopReadsPanel({
         eyebrow={eyebrow}
         title={title}
         sub={sub ?? (hasToday
-          ? "What each simulation is most confident about today, ranked by the model's own probability — not by any gap against a sportsbook price. A watchlist, not a bet."
-          : "Nothing plays today — these are the model's next dated reads, ranked by its own probability. Not a gap against any sportsbook price; a watchlist, not a bet.")}
+          ? "Ranked by each model's own probability, never by a gap against a sportsbook price. A watchlist, not a bet."
+          : "Nothing plays today — the model's next dated reads, ranked by its own probability. A watchlist, not a bet.")}
       />
       <div className="mt-3 rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
         {reads.map((r, i) => (

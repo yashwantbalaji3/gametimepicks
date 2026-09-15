@@ -6,7 +6,16 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { SAVED_CHANNEL, SAVED_STORAGE_KEY, parseStore, serializeStore, snapshotFromCard, upsert, remove } from "./saved-schema.mjs";
-import type { PredictionCardModel } from "@/lib/command-center/contract";
+import type { ConfidenceSignal, PredictionCardModel, SettlementKey } from "@/lib/command-center/contract";
+
+/** What the control receives (saved-schema saveCardOf): the snapshot's inputs, nothing a page keeps server-side. */
+export interface SaveCard {
+  id: string; sport: PredictionCardModel["sport"]; href: string; lifecycle: PredictionCardModel["lifecycle"]; startUtc: string | null;
+  away: { name: string }; home: { name: string }; context: string | null;
+  forecast: { label: string; value: string; sub: string | null };
+  signal: ConfidenceSignal; status: { state: PredictionCardModel["status"]["state"]; family: string | null };
+  freshness: { updatedAt: string | null }; settlement: SettlementKey;
+}
 
 export interface SavedForecast {
   schemaVersion: number;
@@ -53,7 +62,7 @@ export function useSavedForecasts() {
     publish();
   }, []);
 
-  const save = useCallback((card: PredictionCardModel) => {
+  const save = useCallback((card: SaveCard) => {
     const snapshot = snapshotFromCard(card, { savedAt: new Date().toISOString(), sourceRoute: typeof window !== "undefined" ? window.location.pathname : "/" }) as SavedForecast;
     write(upsert(read(), snapshot) as SavedForecast[]);
   }, [write]);

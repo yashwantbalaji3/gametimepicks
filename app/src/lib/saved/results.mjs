@@ -26,8 +26,11 @@ export function resolveResult(saved, ledgers, nowIso) {
   const fromHit = (hit, actual, gradedAt) => final(hit === true ? "HIT" : hit === false ? "MISS" : "VOID", actual, gradedAt);
 
   if (k.kind === "mlb-game") {
-    const market = k.family === "Winner" || k.family === "Winner call paused" ? "moneyline" : k.family === "Total" ? "total" : k.family === "Run line" ? "run_line" : null;
-    const row = (ledgers.mlbGames ?? []).find((r) => r.gamePk === k.gamePk && (market ? r.market === market : true));
+    /* Only an ACTIVE call has a market to settle. "Winner call paused" / "No winner call" carried a projected score,
+       not a pick, so they join nothing (P319) — before this they matched the first row of any market for the game. */
+    const market = k.family === "Winner" ? "moneyline" : k.family === "Total" ? "total" : k.family === "Run line" ? "run_line" : null;
+    if (!market) return none;
+    const row = (ledgers.mlbGames ?? []).find((r) => r.gamePk === k.gamePk && r.market === market);
     if (!row) return none;
     const actual = row.actual ? `${row.actual.awayRuns}–${row.actual.homeRuns}` : null;
     if (row.outcome === "WIN") return final("HIT", actual, row.gradedAt);

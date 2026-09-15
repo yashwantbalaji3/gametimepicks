@@ -26,6 +26,11 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
+import SaveForecastButton from "@/components/saved/save-forecast-button";
+import { cardFromNflEvent, type NflEvent } from "@/lib/command-center/featured";
+import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
+import { reportCardContext } from "@/lib/command-center/report-card";
+import { archivedEventFrom, archivedEventIds, archivedForecastFor } from "@/lib/sports/nfl/archived-forecast";
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 
@@ -71,14 +76,20 @@ const indexArtifact = () => readPublic("nfl/index.json");
 const etTime = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(iso)) + " ET";
 
+/* P320: a played game keeps its page. The live union carries this week; every reconciled game whose frozen
+   pre-kickoff revision is committed is added, so a saved forecast's link and a shared link never age out. */
+const DATA_ROOT = path.join(process.cwd(), "public", "data");
+const archivedFor = (eventId: string) => archivedForecastFor(DATA_ROOT, eventId);
 export function generateStaticParams() {
-  return (forecastArtifact()?.forecasts ?? []).map((f: Forecast) => ({ eventId: f.providerEventId }));
+  const live = (forecastArtifact()?.forecasts ?? []).map((f: Forecast) => f.providerEventId as string);
+  const ids = new Set<string>([...live, ...archivedEventIds(DATA_ROOT)]);
+  return [...ids].map((eventId) => ({ eventId }));
 }
 
 export const dynamicParams = false;
 
 export function generateMetadata({ params }: { params: { eventId: string } }): Metadata {
-  const f = (forecastArtifact()?.forecasts ?? []).find((x: Forecast) => x.providerEventId === params.eventId);
+  const f = (forecastArtifact()?.forecasts ?? []).find((x: Forecast) => x.providerEventId === params.eventId) ?? (archivedFor(params.eventId)?.forecast as unknown as Forecast | undefined);
   if (!f) return withRouteMetadata(`/nfl/game/${params.eventId}/`, { title: "NFL game · GameTime Picks" });
   return withRouteMetadata(`/nfl/game/${params.eventId}/`, {
     title: `${f.matchup} — experimental simulation · GameTime Picks`,
@@ -111,7 +122,9 @@ type ScoreShapeGame = NonNullable<ScoreShapeArtifact["games"]>[number] & {
 export default function NflGameReport({ params }: { params: { eventId: string } }) {
   const storyNowIso = new Date().toISOString();
   const artifact = forecastArtifact();
-  const f: Forecast | undefined = (artifact?.forecasts ?? []).find((x: Forecast) => x.providerEventId === params.eventId);
+  /* P320: a played game whose week has rolled reads its FROZEN pre-kickoff revision, named by the graded record. */
+  const archived = (artifact?.forecasts ?? []).some((x: Forecast) => x.providerEventId === params.eventId) ? null : archivedFor(params.eventId);
+  const f: Forecast | undefined = (artifact?.forecasts ?? []).find((x: Forecast) => x.providerEventId === params.eventId) ?? (archived?.forecast as unknown as Forecast | undefined);
   if (!f) notFound();
   const playerBoard = ((): PlayerBoardArtifact | null => {
     try {
@@ -136,7 +149,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
   /* P252: the EFFECTIVE lifecycle. The stamp is written when the event window runs, so a game
      that kicked off after the last run still reported UPCOMING here and the page framed a played
      game as a forecast. The clock may advance the stamp; it may never rewind it. */
-  const lifecycle: string = effectiveLifecycle(
+  const lifecycle: string = archived ? "SETTLED" : effectiveLifecycle(
     { lifecycle: idxEvent?.lifecycle, kickoffUtc: (idxEvent as { kickoffUtc?: string } | undefined)?.kickoffUtc ?? f.kickoffUtc },
     new Date().toISOString(),
   );
@@ -190,17 +203,30 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             {wx.summary} — <strong>not used by the model</strong>; no weather term enters the numbers below.
           </p>
         ) : null}
-        {started ? (
+        {archived ? (
+          <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
+            <strong style={{ color: "var(--vault-text)" }}>Archived pregame read · published before kickoff.</strong> Everything below is the forecast revision the graded record names, read from its committed file and not regenerated.
+            {archived.reconciliation.final ? <> The final was <span style={{ fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text)" }}>{f.away.abbr} {archived.reconciliation.final.away} – {archived.reconciliation.final.home} {f.home.abbr}</span>, from the {archived.weekLabel} record.</> : null}
+          </p>
+        ) : started ? (
           <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
             This game has kicked off. Everything below is exactly what was published before kickoff and has not been changed since — that is the point of keeping it.
           </p>
         ) : null}
       </header>
 
+      {/* P319: save exactly this forecast — the card the homepage would feature for this game, same identity and
+          settlement key; the control itself refuses once the game has kicked off. */}
+      {idxEvent && (idxEvent as NflEvent).winProbability ? (
+        <div style={{ marginTop: 14 }}>
+          <SaveForecastButton placement="report" compact={false} card={saveCardOf(cardFromNflEvent(idxEvent as NflEvent, { ...reportCardContext("nfl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: storyNowIso }), weekLabel: (idx as { counts?: { weekLabel?: string } } | null)?.counts?.weekLabel ?? null }))} />
+        </div>
+      ) : null}
+
       {/* P308: the inline simulation story, from the same eligibility verdict the lobby uses; a started game is told
           in the past tense by the adapter, and a refusal states its reason. */}
       <div style={{ marginTop: 22 }}>
-        <SimulationStorySection manifest={buildNflPresentation(nflSimulateEligibility(storyNowIso).events.find((e) => e.providerEventId === params.eventId) ?? null, { indexGeneratedAt: nflSimulateEligibility(storyNowIso).indexGeneratedAt, runCount: Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? f.model.simulations : null, modelVersion: f.model?.id ?? null, nowIso: storyNowIso })} />
+        <SimulationStorySection manifest={buildNflPresentation(nflSimulateEligibility(storyNowIso).events.find((e) => e.providerEventId === params.eventId) ?? (archived ? archivedEventFrom(archived) : null), { indexGeneratedAt: nflSimulateEligibility(storyNowIso).indexGeneratedAt, runCount: Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? f.model.simulations : null, modelVersion: f.model?.id ?? null, nowIso: storyNowIso })} />
       </div>
 
       <section aria-labelledby="sim-summary" style={{ marginTop: 26 }}>

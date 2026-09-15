@@ -137,8 +137,10 @@ function capturedLabel(capturedAt: string): string {
 
 /** The zero state names what is observable — the age of the last capture — and claims nothing else. */
 function lastCaptureLabel(capturedAt?: string | null): string {
-  const day = String(capturedAt ?? "").slice(0, 10);
-  return day ? `none current — last capture ${day}` : "none current — no capture on file";
+  const ms = Date.parse(String(capturedAt ?? ""));
+  if (!Number.isFinite(ms)) return "none current — no capture on file";
+  const day = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric" }).format(new Date(ms));
+  return `none current — last capture ${day} ET`;
 }
 
 export default function NflHubPage() {

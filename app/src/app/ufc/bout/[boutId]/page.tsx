@@ -25,6 +25,11 @@ import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
 import HeadToHead from "@/components/ui/head-to-head";
 import SectionHeader from "@/components/section-header";
 import { findUfcBout, ufcBoutIds, boutPositionLabel } from "@/lib/sports/ufc/bout";
+import SaveForecastButton from "@/components/saved/save-forecast-button";
+import { cardFromUfcBout, type UfcBout as UfcCardBout, type UfcCardDoc } from "@/lib/command-center/featured";
+import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
+import { reportCardContext } from "@/lib/command-center/report-card";
+import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const dynamicParams = false;
@@ -121,6 +126,12 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
           {card.event?.name ? ` · ${card.event.name}` : ""}
           {card.event?.venue ? ` · ${card.event.venue}` : ""}
         </p>
+        {/* P319: save exactly this bout's read — the card the homepage would feature for it. */}
+        {p?.winner ? (
+          <div className="mt-3">
+            <SaveForecastButton placement="report" compact={false} card={saveCardOf(cardFromUfcBout(bout as unknown as UfcCardBout, card as unknown as UfcCardDoc, reportCardContext("ufc", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), ufcVerdicts: (card as { model?: { verdicts?: Record<string, string> } }).model?.verdicts ?? null })))} />
+          </div>
+        ) : null}
       </header>
 
       {/*

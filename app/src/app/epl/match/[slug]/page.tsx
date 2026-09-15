@@ -30,6 +30,11 @@ import SectionHeader from "@/components/section-header";
 import { loadEplForecasts, findEplForecastAnywhere, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture, reportableRows } from "@/lib/sports/epl/forecast-view";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
+import SaveForecastButton from "@/components/saved/save-forecast-button";
+import { cardFromEplRow } from "@/lib/command-center/featured";
+import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
+import { reportCardContext } from "@/lib/command-center/report-card";
+import path from "node:path";
 import { buildEplPresentation } from "@/lib/simulate/presentation/epl";
 
 /**
@@ -123,6 +128,12 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
         <p className="font-mono mt-2" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
           {ET(row.kickoffUtc)} ET{row.matchweek ? ` · Matchweek ${row.matchweek}` : ""} · Premier League
         </p>
+        {/* P319: save exactly this forecast — the card the homepage would feature for this fixture. */}
+        {row.probs && row.homeClub && row.awayClub ? (
+          <div className="mt-3">
+            <SaveForecastButton placement="report" compact={false} card={saveCardOf(cardFromEplRow(row, reportCardContext("epl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), eplValidation: set?.validation ?? null })))} />
+          </div>
+        ) : null}
       </header>
 
       {/*

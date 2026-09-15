@@ -14,6 +14,8 @@
  * with a style object per cell measured 1,160KB, most of it the same few declarations repeated per cell.
  */
 import Link from "next/link";
+import path from "node:path";
+import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import SectionHeader from "@/components/section-header";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { readNflWeekReports, pct, unitFigure, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
@@ -112,6 +114,8 @@ function GamePlayers({ game }: { game: WeekGame }) {
 
 export default function NflWeekReportPage() {
   const { index, latest } = readNflWeekReports();
+  /* P320: a row links to its archived pregame read only when that page is generated (the frozen revision exists). */
+  const archived = new Set(archivedEventIds(path.join(process.cwd(), "public", "data")));
 
   if (!latest) {
     return (
@@ -211,7 +215,7 @@ export default function NflWeekReportPage() {
             <tbody>
               {latest.games.map((g) => (
                 <tr key={g.providerEventId}>
-                  <td className="nw">{g.away.abbr} at {g.home.abbr}<div className="f">{etKickoff(g.kickoffUtc)}</div></td>
+                  <td className="nw">{archived.has(g.providerEventId) ? <Link href={`/nfl/game/${g.providerEventId}/`} style={{ color: "var(--vault-text)", textDecoration: "none" }}>{g.away.abbr} at {g.home.abbr}</Link> : <>{g.away.abbr} at {g.home.abbr}</>}<div className="f">{etKickoff(g.kickoffUtc)}{archived.has(g.providerEventId) ? <> · <Link href={`/nfl/game/${g.providerEventId}/`} style={{ color: "var(--vault-gold-bright)" }}>archived read →</Link></> : null}</div></td>
                   <td className="k nw">{g.final ? `${g.away.abbr} ${g.final.away} — ${g.final.home} ${g.home.abbr}` : "not final"}</td>
                   <td className="nw"><span className="k">{g.published.pick.abbr} {(g.published.pick.probability * 100).toFixed(0)}%</span> {g.final ? <Mark outcome={team(g, "winner")?.outcome} /> : null}</td>
                   <td className="nw"><span className="k">{g.published.total.median} ({g.published.total.low}–{g.published.total.high})</span> {g.final ? <Mark outcome={team(g, "total_range")?.outcome} /> : null}</td>

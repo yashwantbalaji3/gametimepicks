@@ -150,7 +150,7 @@ export function isEligibleForLobby(e: IndexEvent, indexGeneratedAt: string, nowI
  * applied has not earned the badge, and defaulting the other way is how the badge got detached from
  * the evidence in the first place.
  */
-function readinessOf(signal: { state: string; note?: string } | null): { readiness: NflReadiness; simulationReady: boolean; readinessReason: string } {
+export function readinessOf(signal: { state: string; note?: string } | null): { readiness: NflReadiness; simulationReady: boolean; readinessReason: string } {
   if (signal?.state === "APPLIED") {
     return {
       readiness: "SIMULATION_READY",

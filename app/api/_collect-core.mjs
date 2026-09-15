@@ -69,6 +69,7 @@ export const ALLOWED_KEYS = Object.freeze([
   "marketFamily",
   "feedbackTopic",
   "chapterKind",
+  "placement",
 ]);
 
 /** PII/forbidden-shaped keys — rejected even if someone later widens the allowlist carelessly. */

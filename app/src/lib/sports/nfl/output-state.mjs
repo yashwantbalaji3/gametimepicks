@@ -20,7 +20,7 @@ export const OUTPUT_STATES = Object.freeze([
 /** Reader-facing meaning. Never says "edge", "value", or anything about profit. */
 export const STATE_MEANING = Object.freeze({
   MARKET_VIEW: "What sportsbooks imply — their numbers, not ours.",
-  PUBLIC_EXPERIMENTAL: "An early model forecast. Not proven to beat the market.",
+  PUBLIC_EXPERIMENTAL: "An early model forecast, not validated to out-predict the sportsbook market.",
   EXPERIMENTAL_LEAN: "The direction our experimental model leans, with its uncertainty and record.",
   PROJECTION_ONLY: "A projected range. No comparable line exists, so there is nothing to compare it to.",
   VALIDATED_PICK: "A qualified pick under a named, performance-tested model version.",

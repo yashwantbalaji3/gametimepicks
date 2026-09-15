@@ -41,6 +41,39 @@ export function isSavedForecast(x) {
     && isSettlementKey(x.settlement);
 }
 
+/**
+ * Whether a card may be saved NOW (P319). Two refusals, both fail-closed: a card with no active call (a paused or
+ * withdrawn winner call has nothing to settle — the projected score is evidence, not a pick) and an event that has
+ * started (a save after the start is not a pre-event forecast). Checked on the client at click time, so a page
+ * built before kickoff cannot offer a save after it.
+ */
+export function saveEligibility(card, nowIso) {
+  if (!card || typeof card !== "object") return { ok: false, reason: "NO_CARD" };
+  if (!card.signal || card.signal.kind === "NONE") return { ok: false, reason: "NO_CALL" };
+  const start = Date.parse(card.startUtc ?? "");
+  if (Number.isFinite(start) && start <= Date.parse(nowIso)) return { ok: false, reason: "STARTED" };
+  if (card.lifecycle && card.lifecycle !== "PREGAME") return { ok: false, reason: "STARTED" };
+  return { ok: true, reason: null };
+}
+/** A saved snapshot whose save instant is after the event's start — shown as such, never as a pre-event pick. */
+export function savedAfterStart(saved) {
+  const start = Date.parse(saved?.startUtc ?? ""), at = Date.parse(saved?.savedAt ?? "");
+  return Number.isFinite(start) && Number.isFinite(at) && at > start;
+}
+/**
+ * The subset of a card the Save control needs (P319). A client component's props travel in the page payload, so
+ * the server hands it only the fields a snapshot and the eligibility rule read — never `why`, `risks` or a status
+ * detail, which are pipeline sentences the page renders where and how it chooses.
+ */
+export function saveCardOf(card) {
+  return {
+    id: card.id, sport: card.sport, href: card.href, lifecycle: card.lifecycle ?? "PREGAME", startUtc: card.startUtc ?? null,
+    away: { name: card.away.name }, home: { name: card.home.name }, context: card.context ?? null,
+    forecast: { label: card.forecast.label, value: card.forecast.value, sub: card.forecast.sub ?? null },
+    signal: card.signal, status: { state: card.status?.state ?? "UNKNOWN", family: card.status?.family ?? null },
+    freshness: { updatedAt: card.freshness?.updatedAt ?? null }, settlement: card.settlement,
+  };
+}
 /** Build the snapshot from a card (lib/command-center/contract PredictionCardModel) at save time. */
 export function snapshotFromCard(card, { savedAt, sourceRoute }) {
   const signal = card.signal?.kind === "SIM_STRENGTH" ? `Simulation strength: ${String(card.signal.label).toLowerCase()}`

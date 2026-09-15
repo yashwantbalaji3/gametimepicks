@@ -393,9 +393,12 @@ export interface FeedbackSubmittedEvent extends BaseEvent {
 export const STORY_CHAPTER_KINDS = ["event", "outcome", "distribution", "margin", "scores", "players", "limits", "closing"] as const;
 export type StoryChapterKind = (typeof STORY_CHAPTER_KINDS)[number];
 
-/** A reader saved a forecast card to their browser (P310). The sport bucket only — never which event. */
-export interface ForecastSavedEvent extends BaseEvent { event: "forecast_saved"; surface: "app"; sport: Sport }
-export interface ForecastUnsavedEvent extends BaseEvent { event: "forecast_unsaved"; surface: "app"; sport: Sport }
+/** Where a Save control lives (P319): the homepage lanes or a deeper report/game/match/bout page. Closed bucket. */
+export const SAVE_PLACEMENTS = ["homepage", "report"] as const;
+export type SavePlacement = (typeof SAVE_PLACEMENTS)[number];
+/** A reader saved a forecast card to their browser (P310). The sport bucket and the placement only — never which event. */
+export interface ForecastSavedEvent extends BaseEvent { event: "forecast_saved"; surface: "app"; sport: Sport; placement: SavePlacement }
+export interface ForecastUnsavedEvent extends BaseEvent { event: "forecast_unsaved"; surface: "app"; sport: Sport; placement: SavePlacement }
 /** The inline simulation story (P308) was started, stepped, or skipped on a report page. */
 export interface SimulationStoryStartedEvent extends BaseEvent { event: "simulation_story_started"; surface: "game_report"; sport: Sport }
 export interface SimulationChapterViewedEvent extends BaseEvent { event: "simulation_chapter_viewed"; surface: "game_report"; sport: Sport; chapterKind: StoryChapterKind }
@@ -557,6 +560,7 @@ export const ALLOWED_PROPERTY_KEYS = [
   "feedbackTopic",
   // Phase 2 — the story chapter kind, a closed enum (STORY_CHAPTER_KINDS).
   "chapterKind",
+  "placement",
 ] as const;
 export type AllowedPropertyKey = (typeof ALLOWED_PROPERTY_KEYS)[number];
 
@@ -785,6 +789,7 @@ export function validateEvent(input: unknown): ValidationResult {
     case "forecast_unsaved":
       if (rec.surface !== "app") return err(`${type}.surface must be 'app'`);
       if (!SPORT_SET.has(rec.sport as string)) return err(`${type}.sport invalid`);
+      if (!(SAVE_PLACEMENTS as readonly string[]).includes(rec.placement as string)) return err(`${type}.placement invalid`);
       return OK;
 
     case "simulation_story_started":

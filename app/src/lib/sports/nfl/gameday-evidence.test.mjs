@@ -209,10 +209,15 @@ test("LIVE · ONE ANSWER PER PLAYER — no surface calls a designated-out player
     }
   }
 
+  /* Only the boards of the events THIS evidence window covers. A played game's board is frozen at its last
+     pre-kickoff publication (P320) and must not be rewritten by a designation published for the NEXT week —
+     Tory Horton was Questionable on the frozen Week 1 board and Out in the Week 2 evidence, and both are true. */
+  const covered = new Set((role.events ?? []).map((ev) => String(ev.providerEventId)));
   const dir = path.join(APP, "public/data/nfl/player-board");
   if (!fs.existsSync(dir)) return;
   for (const f of fs.readdirSync(dir).filter((x) => /^\d+\.json$/.test(x))) {
     const b = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    if (!covered.has(String(b.providerEventId ?? f.replace(/\.json$/, "")))) continue;
     for (const p of b.players ?? []) {
       if (!outByPlayer.has(`${p.team}:${p.playerId}`)) continue;
       assert.equal(p.participation, "INACTIVE", `${p.name} is designated out and the board calls him ${p.participation}`);

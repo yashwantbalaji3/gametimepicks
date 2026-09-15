@@ -62,6 +62,10 @@ import {
 
 import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
+import SaveForecastButton from "@/components/saved/save-forecast-button";
+import { cardFromMlbPrediction } from "@/lib/command-center/featured";
+import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
+import { reportCardContext } from "@/lib/command-center/report-card";
 import { buildMlbPresentation } from "@/lib/simulate/presentation/mlb";
 const RISK_LABEL: Record<string, string> = RISK_LABELS;
 const RISK_ORDER = ["low", "medium", "high", "longshot"] as const;
@@ -725,6 +729,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       awayLogo={detail.awayLogo ?? null}
       homeLogo={detail.homeLogo ?? null}
       storySlot={<SimulationStorySection manifest={buildMlbPresentation(detail)} />}
+      saveSlot={detail.prediction && detail.prediction.status !== "unavailable"
+        ? <SaveForecastButton placement="report" compact={false} card={saveCardOf(cardFromMlbPrediction(detail.prediction, detail.fullGameSim.firstPitch ?? null, reportCardContext("mlb", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString() })))} />
+        : null}
     />
   ) : (
     mlbReportDetails

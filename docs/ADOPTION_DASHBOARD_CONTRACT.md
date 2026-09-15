@@ -212,8 +212,8 @@ the test.
 | `slate_filter_changed` | SCHEMA-ONLY | `/today` renders the full slate with no filter control |
 | `availability_explanation_opened` | SCHEMA-ONLY | No per-game "why this tier?" expander exists |
 | `social_package_generated` | SCHEMA-ONLY | An internal pipeline signal, not a browser event; it would be emitted by the generation script, never by the app |
-| `forecast_saved` | WIRED | `components/saved/save-forecast-button.tsx` on a save (P310); sport bucket only |
-| `forecast_unsaved` | WIRED | `components/saved/save-forecast-button.tsx` on an unsave (P310) |
+| `forecast_saved` | WIRED | `components/saved/save-forecast-button.tsx` on a save (P310); sport bucket plus a closed `placement` bucket — `homepage` (the lanes) or `report` (MLB report, NFL game, EPL match, UFC bout pages, P319) |
+| `forecast_unsaved` | WIRED | `components/saved/save-forecast-button.tsx` on an unsave (P310); same `placement` bucket |
 | `simulation_story_started` | WIRED | `components/simulate/simulation-story.tsx` on Play (P308) |
 | `simulation_chapter_viewed` | WIRED | `components/simulate/simulation-story.tsx` on every chapter reached while playing or stepping (P308); closed chapter kind |
 | `simulation_skipped` | WIRED | `components/simulate/simulation-story.tsx` on the skip-to-report link (P308) |
