@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-15T10:06:15Z",
+ "generatedAt": "2026-09-15T14:29:48Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 15,
@@ -90,14 +90,14 @@
    "label": "NFL touchdown chances",
    "baseline": "expected scorers = actual scorers",
    "state": "HOLDING",
-   "n": 168,
+   "n": 180,
    "judgement": {
     "state": "HOLDING",
-    "n": 168,
+    "n": 180,
     "needed": 150,
-    "expected": 37.6755,
-    "actual": 47,
-    "z": 1.7817,
+    "expected": 39.9277,
+    "actual": 49,
+    "z": 1.6805,
     "direction": null
    },
    "context": null,
@@ -249,12 +249,12 @@
    "label": "NFL winning margin 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 15,
+   "n": 16,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 15,
+    "n": 16,
     "needed": 48,
-    "rate": 0.7333,
+    "rate": 0.6875,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -268,12 +268,12 @@
    "label": "NFL passing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 25,
+   "n": 27,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 25,
+    "n": 27,
     "needed": 150,
-    "rate": 0.72,
+    "rate": 0.7407,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -287,12 +287,12 @@
    "label": "NFL receiving yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 133,
+   "n": 144,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 133,
+    "n": 144,
     "needed": 150,
-    "rate": 0.8496,
+    "rate": 0.8611,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -306,12 +306,12 @@
    "label": "NFL receptions 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 133,
+   "n": 144,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 133,
+    "n": 144,
     "needed": 150,
-    "rate": 0.8872,
+    "rate": 0.8958,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -325,12 +325,12 @@
    "label": "NFL rushing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 66,
+   "n": 70,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 66,
+    "n": 70,
     "needed": 150,
-    "rate": 0.7121,
+    "rate": 0.7286,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -344,12 +344,12 @@
    "label": "NFL total points 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 15,
+   "n": 16,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 15,
+    "n": 16,
     "needed": 48,
-    "rate": 0.8,
+    "rate": 0.8125,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -363,18 +363,18 @@
    "label": "NFL winner",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 15,
+   "n": 16,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 15,
+    "n": 16,
     "needed": 48,
-    "meanDiff": -0.0392,
+    "meanDiff": -0.0229,
     "lo95": null,
     "hi95": null
    },
    "context": {
     "hits": 8,
-    "expectedHits": 8.6403
+    "expectedHits": 9.2396
    },
    "source": "app/public/data/nfl/reconciliation/<week>.json"
   },
