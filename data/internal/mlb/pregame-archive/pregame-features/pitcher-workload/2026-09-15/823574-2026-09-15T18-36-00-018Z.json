@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823574,
+  "date": "2026-09-15",
+  "capturedAt": "2026-09-15T18:36:00.018Z",
+  "availableAt": "2026-09-15T18:36:00.018Z",
+  "eventStartTime": "2026-09-15T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 640455,
+      "name": "Sean Manaea",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 7,
+      "lastStartDate": "2026-09-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 4,
+        "bbAvg": 1.2,
+        "erAvg": 4.6,
+        "hrAvg": 1.4,
+        "kPer9": 6.28,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 90.33,
+        "k": 81,
+        "bb": 24,
+        "er": 47,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 669358,
+      "name": "Shane Baz",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 6,
+      "lastStartDate": "2026-09-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 5.6,
+        "bbAvg": 2.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 8.49,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 169,
+        "k": 150,
+        "bb": 58,
+        "er": 76,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-15T18:36:00.018Z"
+  },
+  "recordHash": "f11b301f2799638255f00315dbc24225c344e6575e6d84341af27f18047d9977"
+}
