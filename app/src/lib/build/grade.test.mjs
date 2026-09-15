@@ -60,7 +60,7 @@ test("band boundaries are exact: 0.60 ⇒ A, 0.52 ⇒ B, below ⇒ C", () => {
 test("THE CAVEAT · every eligible explanation carries the no-profit line, verbatim", () => {
   const g = gradeLeg(leg(), { productDate: TODAY });
   assert.match(g.explanation, /not a prediction of profit/);
-  assert.match(g.explanation, /does not beat the market overall/);
+  assert.match(g.explanation, /does not out-predict the market overall/);
   assert.equal(g.rubricVersion, GRADE_RUBRIC_VERSION);
 });
 

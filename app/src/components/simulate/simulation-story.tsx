@@ -118,7 +118,7 @@ export default function SimulationStory({ manifest, skipHref = "#simulation-stor
   /* Instrumentation (provider may be off — the sink resolves to a no-op): started, each chapter reached, skipped. */
   const sink = useMemo(() => resolveSink(readSinkConfig()), []);
   const sport = (manifest.sport === "board" ? "mlb" : manifest.sport) as Sport;
-  const emit = (event: "simulation_story_started" | "simulation_skipped") => track({ event, schemaVersion: SCHEMA_VERSION, dayBucket: currentEtDate(), surface: "game_report", sport }, sink);
+  const emit = (event: "simulation_story_started" | "simulation_skipped" | "archived_story_opened") => track({ event, schemaVersion: SCHEMA_VERSION, dayBucket: currentEtDate(), surface: "game_report", sport }, sink);
   useEffect(() => {
     if (ctx.state === "IDLE") return;
     const kind = chapters[Math.min(ctx.index, chapters.length - 1)]?.kind as StoryChapterKind | undefined;
@@ -167,7 +167,7 @@ export default function SimulationStory({ manifest, skipHref = "#simulation-stor
           <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{chapters.length} chapters · {manifest.readiness === "archived" ? "the forecast as it stood before the start" : "read from the published artifact"}{reduced ? " · reduced motion: step through by hand" : ""}</span>
         </div>
         <div className="flex items-center gap-1.5 flex-wrap" role="group" aria-label="Simulation story controls">
-          {idle ? <button type="button" style={btn(true)} onClick={() => { emit("simulation_story_started"); act("START"); }}>Play</button> : null}
+          {idle ? <button type="button" style={btn(true)} onClick={() => { emit("simulation_story_started"); if (manifest.readiness === "archived") emit("archived_story_opened");; act("START"); }}>Play</button> : null}
           {playing ? <button type="button" style={btn(true)} onClick={() => act("PAUSE")}>Pause</button> : null}
           {ctx.state === "PAUSED" ? <button type="button" style={btn(true)} onClick={() => act("RESUME")}>Resume</button> : null}
           {!idle ? <button type="button" style={btn()} onClick={() => act("PREV")} disabled={ctx.index === 0} aria-label="Previous chapter">‹</button> : null}

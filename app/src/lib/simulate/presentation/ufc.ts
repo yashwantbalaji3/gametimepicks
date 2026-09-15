@@ -16,7 +16,7 @@
  */
 /* The canonical artifact type, not a second copy of it — two copies had already disagreed about
    whether `venue` may be null. */
-import type { UfcCardArtifact } from "@/components/sports/ufc-card";
+import type { UfcBout, UfcCardArtifact } from "@/components/sports/ufc-card";
 import type { ChapterKind, PresentationChapter, PresentationManifest, PresentationResult } from "./types";
 
 const HOLD = { light: 4200, normal: 5200, dense: 6400 } as const;
@@ -189,6 +189,88 @@ export function buildUfcPresentation(card: UfcCardArtifact | null | undefined): 
     supportedChapters: chapters.map((c) => c.kind) as ChapterKind[],
     chapters,
     reportHref,
+  };
+  return manifest;
+}
+
+/**
+ * ONE BOUT (P325). The bout page already addresses a single fight, so its story is that fight's own read: the
+ * winner probability, then the method and the round ONLY where the card's model verdicts publish them, then the
+ * limits. Derived from the same bout object the card walkthrough reads — no new data, no new route — and refused,
+ * with the artifact's own reason, when the model did not read the bout.
+ */
+export function buildUfcBoutPresentation(bout: UfcBout | null | undefined, card: UfcCardArtifact | null | undefined): PresentationResult {
+  const boutId = bout?.boutId ?? "unknown";
+  const reportHref = `/ufc/bout/${boutId}/`;
+  const eventId = `ufc-bout:${boutId}`;
+  const refuse = (reason: string): PresentationResult => ({ schema: 1, sport: "ufc", eventId, unavailable: true, reason, reportHref });
+  if (!bout || !card?.event) return refuse("No UFC bout artifact is published for this page.");
+  const w = bout.prediction?.winner;
+  if (!w || !Number.isFinite(w.probability)) return refuse(bout.unmodelledReason ?? "The model did not read this bout: not enough fighter history in the corpus.");
+
+  const red = bout.red?.name ?? "Red corner", blue = bout.blue?.name ?? "Blue corner";
+  const title = `${red} vs ${blue}`;
+  const byFighter = Object.entries(w.byFighter ?? {});
+  const chapters: PresentationChapter[] = [];
+
+  chapters.push({
+    id: "event", kind: "event",
+    title,
+    line: `${bout.weightClass ? `${bout.weightClass}, ` : ""}${bout.scheduledRounds ? `${bout.scheduledRounds} rounds` : "scheduled"}${card.event.name ? ` on ${card.event.name}` : ""}${bout.titleFight ? " — a title fight" : ""}. The model read both fighters' histories.`,
+    stats: [], bars: [], rows: [], holdMs: HOLD.light,
+  });
+  chapters.push({
+    id: "outcome", kind: "outcome",
+    title: "Who the model favours",
+    line: `${w.name} is the model's side at ${pctOf(w.probability as number)}% — ${(w.probability as number) < 0.55 ? "close to a coin flip" : (w.probability as number) < 0.7 ? "a clear but not decisive read" : "a strong read, still one clean strike from wrong"}.`,
+    stats: byFighter.map(([name, p]) => ({ label: name, value: p as number, format: "probability" as const })),
+    bars: byFighter.map(([name, p]) => ({ label: name, p: p as number, highlight: name === w.name })),
+    rows: [], holdMs: HOLD.normal,
+  });
+  const method = bout.prediction?.method;
+  if (method?.probabilities && card.model?.verdicts?.method === "PASS" && card.model?.publishes?.includes("method")) {
+    chapters.push({
+      id: "distribution", kind: "distribution",
+      title: "How it ends",
+      line: `The model's most likely finish is ${METHOD_LABEL[String(method.most).toLowerCase()] ?? method.most}.`,
+      stats: [], axisCaption: "Finish type · model probability",
+      bars: Object.entries(method.probabilities).map(([k, p]) => ({ label: METHOD_LABEL[k] ?? k, p, highlight: k === String(method.most).toLowerCase() })),
+      rows: [], holdMs: HOLD.normal,
+    });
+  }
+  const rounds = bout.prediction?.rounds;
+  if (rounds?.probabilities && card.model?.verdicts?.round === "PASS" && card.model?.publishes?.includes("rounds")) {
+    chapters.push({
+      id: "margin", kind: "margin",
+      title: "How long it lasts",
+      line: Number.isFinite(rounds.goesTheDistance) ? `It goes the distance in ${pctOf(rounds.goesTheDistance as number)}% of reads.` : `The model's most likely ending is ${rounds.endsIn}.`,
+      stats: Number.isFinite(rounds.goesTheDistance) ? [{ label: "Goes the distance", value: rounds.goesTheDistance as number, format: "probability" as const }] : [],
+      bars: Object.entries(rounds.probabilities).map(([k, p]) => ({ label: ROUND_LABEL[k] ?? k, p, highlight: k.includes(String(rounds.endsIn ?? "").replace("+", "plus")) })),
+      rows: [], holdMs: HOLD.normal,
+    });
+  }
+  const limits: { label: string; detail: string }[] = [];
+  if (bout.prediction?.basisNote) limits.push({ label: "Weaker basis", detail: bout.prediction.basisNote });
+  limits.push({ label: "No market here", detail: "This frame shows the model's own probability with no price beside it. The posted fight-winner prices, and how the model has scored against the de-vigged line, are on the UFC page." });
+  const ev = card.model?.evidence?.winner;
+  if (ev && Number.isFinite(ev.accuracy) && Number.isFinite(ev.n)) {
+    limits.push({ label: "Held-out record", detail: `Winner calls were right ${pctOf(ev.accuracy as number)}% of the time on ${(ev.n as number).toLocaleString()} fights the model never trained on${Number.isFinite(ev.baselineAccuracy) ? `, against a ${pctOf(ev.baselineAccuracy as number)}% baseline` : ""}.` });
+  }
+  chapters.push({ id: "limits", kind: "limits", title: "What this does not know", line: "A fight read is a probability, not a prediction of what will happen.", stats: [], bars: [], rows: limits.slice(0, 5), holdMs: HOLD.dense });
+  chapters.push({ id: "closing", kind: "closing", title, line: "No sequence of the fight is simulated and none is shown — the model publishes probabilities for the winner, the method and the round, and nothing beyond them.", stats: [], bars: [], rows: card.model?.id ? [{ label: "Model", detail: card.model.id }] : [], holdMs: HOLD.normal });
+
+  const manifest: PresentationManifest = {
+    schema: 1, sport: "ufc", eventId,
+    slug: boutId, title,
+    displayDate: card.event.slateDate ?? (bout.startUtc ?? card.event.startUtc ?? "").slice(0, 10),
+    startUtc: bout.startUtc ?? card.event.startUtc ?? null,
+    venue: card.event.venue ?? null,
+    home: { name: blue, abbr: blue, logo: bout.blue?.photoUrl ?? null },
+    away: { name: red, abbr: red, logo: bout.red?.photoUrl ?? null },
+    readiness: bout.prediction?.basisNote ? "degraded" : "ready",
+    provenance: { artifactHash: null, modelVersion: card.model?.id ?? null, simulationVersion: null, runCount: null, generatedAt: card.generatedAt ?? null, marketCapturedAt: null, bookmaker: null },
+    supportedChapters: chapters.map((c) => c.kind),
+    chapters, reportHref,
   };
   return manifest;
 }

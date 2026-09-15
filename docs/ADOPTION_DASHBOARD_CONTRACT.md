@@ -217,6 +217,8 @@ the test.
 | `simulation_story_started` | WIRED | `components/simulate/simulation-story.tsx` on Play (P308) |
 | `simulation_chapter_viewed` | WIRED | `components/simulate/simulation-story.tsx` on every chapter reached while playing or stepping (P308); closed chapter kind |
 | `simulation_skipped` | WIRED | `components/simulate/simulation-story.tsx` on the skip-to-report link (P308) |
+| `archived_story_opened` | WIRED | `components/simulate/simulation-story.tsx` on Play when the manifest's readiness is `archived` — a played game's frozen read (P320) |
+| `following_filter_used` | WIRED | `components/today/following-filter.tsx` when the reader switches the slate to followed teams only (P323); no team or count is sent |
 | `model_lab_opened` | WIRED | page-view mapper for `/models` (P312) |
 | `saved_forecasts_viewed` | WIRED | page-view mapper for `/saved` (P310) |
 

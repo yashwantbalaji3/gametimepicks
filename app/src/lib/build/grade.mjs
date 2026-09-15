@@ -72,6 +72,6 @@ export function gradeLeg(leg, { productDate }) {
     ungradedReason: null,
     explanation:
       `Model confidence ${band.grade}: ${band.meaning} (${(leg.modelProbability * 100).toFixed(1)}% on fresh, complete inputs). ` +
-      "Confidence is not a prediction of profit — the settled record shows the model does not beat the market overall.",
+      "Confidence is not a prediction of profit — the settled record shows the model does not out-predict the market overall.",
   };
 }

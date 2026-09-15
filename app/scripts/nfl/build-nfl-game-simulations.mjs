@@ -414,7 +414,7 @@ const buildArtifact = (day, dayGames) => ({
     teamModel: "the team score distribution is BASELINE_ONLY — no measured signal separates these teams, so it reflects league-wide preseason context and home field only.",
     playerModel: "player distributions come from a joint simulation of team opportunity, participation share and preseason efficiency measured from 739 passing / 1,817 rushing / 3,768 receiving preseason player-games. They are RESEARCH ESTIMATES: none of the four families beat a simple role baseline when tested, and the ranges are wide because preseason playing time genuinely is.",
     market: "team markets carry a real captured line and a real comparison. Player markets are not offered by the provider for these games, so player rows carry model probability only and no line is invented.",
-    notAdvice: "educational and paper-only; not betting advice, and not shown to beat the market.",
+    notAdvice: "educational and paper-only; not betting advice, and not validated to out-predict the sportsbook market.",
   },
 });
 

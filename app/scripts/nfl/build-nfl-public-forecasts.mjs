@@ -373,7 +373,7 @@ for (const ev of events) {
       marketHomeWinPct: market.consensus.homeWinProbNoVig,
       marketSpreadHome: market.consensus.spreadHome,
       marketTotal: market.consensus.total,
-      note: "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market.",
+      note: "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
     }
     : { state: "NO_MARKET", note: "No current sportsbook capture covers this game." };
 
@@ -557,8 +557,8 @@ for (const ev of events) {
           tieMass: sim.winProbability.tie,
           homeUnrounded: sim.winProbability.homeUnrounded,
           calibration: heads
-            ? "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to beat the market is made."
-            : "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made.",
+            ? "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+            : "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made.",
         },
         margin: (() => {
           const iv = publishedMarginInterval({ median: sim.marginQuantiles.p50, incumbentP10: sim.marginQuantiles.p10, incumbentP90: sim.marginQuantiles.p90, report: marginShadow });
@@ -674,7 +674,7 @@ for (const ev of events) {
         marketSpreadHome: market.consensus.spreadHome,
         marketTotal: market.consensus.total,
         modelVsMarketTotal: Number((q(tS, 0.5) - (market.consensus.total ?? 0)).toFixed(1)),
-        note: "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market.",
+        note: "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
       }
       : { state: "NO_MARKET", note: "No current sportsbook capture covers this game." },
     settlementKey: { canonicalEventId: `nfl-${ev.providerEventId}`, settlesAgainst: "official final score", ledger: "experimental-forecast" },

@@ -45,6 +45,8 @@ export const EVENT_NAMES = Object.freeze([
   "simulation_story_started",
   "simulation_chapter_viewed",
   "simulation_skipped",
+  "archived_story_opened",
+  "following_filter_used",
   "model_lab_opened",
   "saved_forecasts_viewed",
 ]);

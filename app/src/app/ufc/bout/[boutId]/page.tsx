@@ -29,6 +29,8 @@ import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { cardFromUfcBout, type UfcBout as UfcCardBout, type UfcCardDoc } from "@/lib/command-center/featured";
 import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
 import { reportCardContext } from "@/lib/command-center/report-card";
+import SimulationStorySection from "@/components/simulate/simulation-story-section";
+import { buildUfcBoutPresentation } from "@/lib/simulate/presentation/ufc";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -133,6 +135,12 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
           </div>
         ) : null}
       </header>
+
+      {/* P325: this bout's own story — the same read the card walkthrough carries, told for one fight; refused
+          with the artifact's reason when the model did not read it. */}
+      <div className="mt-5">
+        <SimulationStorySection manifest={buildUfcBoutPresentation(bout, card)} id="bout-story" />
+      </div>
 
       {/*
         ── What this read rests on, ABOVE the first number ─────────────────────────────────────

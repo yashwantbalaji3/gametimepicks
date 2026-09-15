@@ -190,6 +190,9 @@ export const EVENT_TYPES = [
   "simulation_story_started",
   "simulation_chapter_viewed",
   "simulation_skipped",
+  // Phase 3 (2026-09-15) — P320 archived story, P323 following filter. Closed buckets only; provider stays OFF.
+  "archived_story_opened",
+  "following_filter_used",
   "model_lab_opened",
   "saved_forecasts_viewed",
 ] as const;
@@ -403,6 +406,10 @@ export interface ForecastUnsavedEvent extends BaseEvent { event: "forecast_unsav
 export interface SimulationStoryStartedEvent extends BaseEvent { event: "simulation_story_started"; surface: "game_report"; sport: Sport }
 export interface SimulationChapterViewedEvent extends BaseEvent { event: "simulation_chapter_viewed"; surface: "game_report"; sport: Sport; chapterKind: StoryChapterKind }
 export interface SimulationSkippedEvent extends BaseEvent { event: "simulation_skipped"; surface: "game_report"; sport: Sport }
+/** An ARCHIVED pregame story (a played game's frozen read, P320) was played on a report page. */
+export interface ArchivedStoryOpenedEvent extends BaseEvent { event: "archived_story_opened"; surface: "game_report"; sport: Sport }
+/** The reader narrowed the daily slate to the teams they follow (P323). No team, no count — the act only. */
+export interface FollowingFilterUsedEvent extends BaseEvent { event: "following_filter_used"; surface: "daily_hub" }
 /** The Model Lab (P312) and the saved page (P310) were viewed. */
 export interface ModelLabOpenedEvent extends BaseEvent { event: "model_lab_opened"; surface: "model_lab" }
 export interface SavedForecastsViewedEvent extends BaseEvent { event: "saved_forecasts_viewed"; surface: "saved" }
@@ -436,6 +443,8 @@ export type AnalyticsEvent =
   | SimulationStoryStartedEvent
   | SimulationChapterViewedEvent
   | SimulationSkippedEvent
+  | ArchivedStoryOpenedEvent
+  | FollowingFilterUsedEvent
   | ModelLabOpenedEvent
   | SavedForecastsViewedEvent;
 
@@ -526,6 +535,8 @@ export const ADOPTION_QUESTIONS: Record<EventType, string> = {
   simulation_story_started: "Is the inline simulation story worth its place on the report?",
   simulation_chapter_viewed: "Which chapters do readers reach — does the story hold past the outcome?",
   simulation_skipped: "How often is the story skipped straight to the report?",
+  archived_story_opened: "Do readers replay a played game's frozen read — is the archive worth keeping alive?",
+  following_filter_used: "Does following teams change how readers use the slate?",
   model_lab_opened: "Do readers look at how the models are tested and paused?",
   saved_forecasts_viewed: "Do readers return to see what happened to a saved forecast?",
 };
@@ -793,6 +804,14 @@ export function validateEvent(input: unknown): ValidationResult {
       return OK;
 
     case "simulation_story_started":
+    case "archived_story_opened":
+      if (rec.surface !== "game_report") return err(`${type}.surface must be 'game_report'`);
+      if (!SPORT_SET.has(rec.sport as string)) return err(`${type}.sport invalid`);
+      return OK;
+    case "following_filter_used":
+      if (rec.surface !== "daily_hub") return err(`${type}.surface must be 'daily_hub'`);
+      return OK;
+
     case "simulation_skipped":
       if (rec.surface !== "game_report") return err(`${type}.surface must be 'game_report'`);
       if (!SPORT_SET.has(rec.sport as string)) return err(`${type}.sport invalid`);
