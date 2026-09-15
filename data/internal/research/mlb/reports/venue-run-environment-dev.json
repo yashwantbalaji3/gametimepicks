@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "artifact": "mlb-venue-run-environment-dev",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "331",
+  "generatedAt": "2026-09-15T17:08:54.615Z",
+  "status": "DEV_ONLY · SECOND_LOOK — raw signal of a walk-forward venue factor on the seen 2026 record; no candidate, no bar, no engine scoring",
+  "method": "factor = ((Σ venue totals before the date) + K·league mean before the date) / (n + K) / league mean; K = 20; season 2026 only (linescores from 2026-07-04); venue from the committed boards",
+  "population": {
+    "finals": 939,
+    "withVenue": 817,
+    "usable": 784,
+    "venues": 32,
+    "withPostedLine": 612
+  },
+  "overall": {
+    "n": 784,
+    "corrFactorActual": 0.0059,
+    "slopeActualOnFactorRuns": -0.0571,
+    "meanFactor": 0.9993,
+    "sdFactor": 0.0518,
+    "meanVenueN": 13.7564
+  },
+  "byMonth": {
+    "2026-07": {
+      "n": 213,
+      "corrFactorActual": -0.0651,
+      "slopeActualOnFactorRuns": -0.3094,
+      "meanFactor": 0.9969,
+      "sdFactor": 0.0397,
+      "meanVenueN": 4.7465
+    },
+    "2026-08": {
+      "n": 385,
+      "corrFactorActual": 0.0485,
+      "slopeActualOnFactorRuns": 0.4106,
+      "meanFactor": 0.999,
+      "sdFactor": 0.0537,
+      "meanVenueN": 14.0494
+    },
+    "2026-09": {
+      "n": 186,
+      "corrFactorActual": -0.0296,
+      "slopeActualOnFactorRuns": -0.332,
+      "meanFactor": 1.0026,
+      "sdFactor": 0.0593,
+      "meanVenueN": 23.4677
+    }
+  },
+  "lined": {
+    "n": 612,
+    "corrFactorLine": 0.3764,
+    "corrFactorActual": 0.0314,
+    "corrLineActual": 0.1912,
+    "slopeActualOnLine": 0.9643,
+    "slopeActualOnFactorRuns": 0.2092,
+    "partialCorrLineGivenFactor": 0.1937
+  },
+  "topVenues": [
+    {
+      "venue": "Coors Field",
+      "n": 21,
+      "meanTotal": 11.4286
+    },
+    {
+      "venue": "Sutter Health Park",
+      "n": 24,
+      "meanTotal": 10.7083
+    },
+    {
+      "venue": "Nationals Park",
+      "n": 31,
+      "meanTotal": 10.4839
+    },
+    {
+      "venue": "Wrigley Field",
+      "n": 26,
+      "meanTotal": 10.1923
+    },
+    {
+      "venue": "Fenway Park",
+      "n": 26,
+      "meanTotal": 9.8846
+    },
+    {
+      "venue": "American Family Field",
+      "n": 26,
+      "meanTotal": 9.7692
+    }
+  ],
+  "bottomVenues": [
+    {
+      "venue": "Journey Bank Ballpark",
+      "n": 1,
+      "meanTotal": 6
+    },
+    {
+      "venue": "Oriole Park at Camden Yards",
+      "n": 25,
+      "meanTotal": 7.48
+    },
+    {
+      "venue": "Angel Stadium",
+      "n": 24,
+      "meanTotal": 7.5
+    },
+    {
+      "venue": "Rogers Centre",
+      "n": 21,
+      "meanTotal": 7.7143
+    },
+    {
+      "venue": "Petco Park",
+      "n": 27,
+      "meanTotal": 7.7778
+    },
+    {
+      "venue": "Comerica Park",
+      "n": 29,
+      "meanTotal": 7.8966
+    }
+  ],
+  "reading": "corr(factor, actual) is the walk-forward signal; slopeActualOnFactorRuns near 1 would mean the venue mean is calibrated; corr(factor, line) says how much of the venue the books already price; partialCorrLineGivenFactor says how much the line knows beyond the venue (pitchers, lineups, weather)."
+}

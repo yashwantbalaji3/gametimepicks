@@ -1,0 +1,583 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-passing-yards-decomposed-dev",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "318",
+  "generatedAt": "2026-09-15T19:13:40.363Z",
+  "status": "DEV_ONLY — seasons 2022–2025 of player-games-v1; no registration, no held-out or forward look",
+  "constants": {
+    "HL": 6,
+    "SD": 0.85,
+    "PRIOR_TEAM": 4,
+    "PRIOR_YPA": 150,
+    "MIN_SHARE": 0.5,
+    "DRAWS": 2000,
+    "GRID": {
+      "R": [
+        15,
+        25,
+        40
+      ],
+      "CV": [
+        0.25,
+        0.3,
+        0.35
+      ]
+    }
+  },
+  "population": {
+    "devTeamGames": 2174,
+    "scored": 1816,
+    "voids": 347,
+    "teamGamesWithoutCandidate": 11
+  },
+  "bars": {
+    "maeBeatsRolling4": "maeP50OnLined < maeRolling4",
+    "maeBeatsEstimate": "maeP50 < 65.3 (the live ESTIMATE's dev MAE, design note)",
+    "coverageBand": [
+      0.72,
+      0.88
+    ],
+    "eceMax": 0.05,
+    "levelBand": [
+      0.92,
+      1.08
+    ],
+    "minimumN": 300
+  },
+  "results": [
+    {
+      "R": 15,
+      "CV": 0.25,
+      "n": 1816,
+      "maeP50": 60.9721,
+      "level": 1.0068,
+      "coverage": 0.8645,
+      "width": 229.4538,
+      "coverP25P75": 0.5771,
+      "ece": 0.056,
+      "linedN": 1767,
+      "maeRolling4": 65.1933,
+      "maeP50OnLined": 60.9705,
+      "attemptsMaeVsActual": 6.8727,
+      "bySeason": {
+        "2022": {
+          "n": 452,
+          "maeP50": 55.6779,
+          "level": 1.0206,
+          "coverage": 0.8872,
+          "width": 236.0362,
+          "coverP25P75": 0.6394
+        },
+        "2023": {
+          "n": 456,
+          "maeP50": 64.8939,
+          "level": 0.9997,
+          "coverage": 0.8333,
+          "width": 229.1585,
+          "coverP25P75": 0.5395
+        },
+        "2024": {
+          "n": 454,
+          "maeP50": 61.5648,
+          "level": 0.995,
+          "coverage": 0.8744,
+          "width": 227.3914,
+          "coverP25P75": 0.5639
+        },
+        "2025": {
+          "n": 454,
+          "maeP50": 61.7113,
+          "level": 1.0121,
+          "coverage": 0.8634,
+          "width": 225.2594,
+          "coverP25P75": 0.5661
+        }
+      }
+    },
+    {
+      "R": 15,
+      "CV": 0.3,
+      "n": 1816,
+      "maeP50": 61.3849,
+      "level": 1.0069,
+      "coverage": 0.8899,
+      "width": 247.1057,
+      "coverP25P75": 0.609,
+      "ece": 0.062,
+      "linedN": 1767,
+      "maeRolling4": 65.1933,
+      "maeP50OnLined": 61.4064,
+      "attemptsMaeVsActual": 6.8727,
+      "bySeason": {
+        "2022": {
+          "n": 452,
+          "maeP50": 55.9529,
+          "level": 1.0209,
+          "coverage": 0.9071,
+          "width": 254.533,
+          "coverP25P75": 0.6748
+        },
+        "2023": {
+          "n": 456,
+          "maeP50": 65.5289,
+          "level": 0.9996,
+          "coverage": 0.8596,
+          "width": 246.8125,
+          "coverP25P75": 0.5636
+        },
+        "2024": {
+          "n": 454,
+          "maeP50": 61.9547,
+          "level": 0.9952,
+          "coverage": 0.8943,
+          "width": 244.8267,
+          "coverP25P75": 0.5925
+        },
+        "2025": {
+          "n": 454,
+          "maeP50": 62.0608,
+          "level": 1.012,
+          "coverage": 0.8987,
+          "width": 242.2846,
+          "coverP25P75": 0.6057
+        }
+      }
+    },
+    {
+      "R": 15,
+      "CV": 0.35,
+      "n": 1816,
+      "maeP50": 61.9484,
+      "level": 1.007,
+      "coverage": 0.9113,
+      "width": 266.1319,
+      "coverP25P75": 0.6476,
+      "ece": 0.0716,
+      "linedN": 1767,
+      "maeRolling4": 65.1933,
+      "maeP50OnLined": 61.9953,
+      "attemptsMaeVsActual": 6.8727,
+      "bySeason": {
+        "2022": {
+          "n": 452,
+          "maeP50": 56.5706,
+          "level": 1.021,
+          "coverage": 0.9226,
+          "width": 274.24,
+          "coverP25P75": 0.7102
+        },
+        "2023": {
+          "n": 456,
+          "maeP50": 66.065,
+          "level": 0.9997,
+          "coverage": 0.8925,
+          "width": 265.9619,
+          "coverP25P75": 0.5965
+        },
+        "2024": {
+          "n": 454,
+          "maeP50": 62.6347,
+          "level": 0.9952,
+          "coverage": 0.9119,
+          "width": 263.5432,
+          "coverP25P75": 0.6256
+        },
+        "2025": {
+          "n": 454,
+          "maeP50": 62.4817,
+          "level": 1.0123,
+          "coverage": 0.9185,
+          "width": 260.8191,
+          "coverP25P75": 0.6586
+        }
+      }
+    },
+    {
+      "R": 25,
+      "CV": 0.25,
+      "n": 1816,
+      "maeP50": 60.651,
+      "level": 1.0067,
+      "coverage": 0.8359,
+      "width": 210.2988,
+      "coverP25P75": 0.5413,
+      "ece": 0.0499,
+      "linedN": 1767,
+      "maeRolling4": 65.1933,
+      "maeP50OnLined": 60.6304,
+      "attemptsMaeVsActual": 6.8727,
+      "bySeason": {
+        "2022": {
+          "n": 452,
+          "maeP50": 55.4476,
+          "level": 1.0201,
+          "coverage": 0.865,
+          "width": 216.2911,
+          "coverP25P75": 0.6018
+        },
+        "2023": {
+          "n": 456,
+          "maeP50": 64.5892,
+          "level": 0.9999,
+          "coverage": 0.8004,
+          "width": 210.1003,
+          "coverP25P75": 0.5066
+        },
+        "2024": {
+          "n": 454,
+          "maeP50": 61.0824,
+          "level": 0.9948,
+          "coverage": 0.8392,
+          "width": 208.7073,
+          "coverP25P75": 0.522
+        },
+        "2025": {
+          "n": 454,
+          "maeP50": 61.4445,
+          "level": 1.0119,
+          "coverage": 0.8392,
+          "width": 206.1237,
+          "coverP25P75": 0.5352
+        }
+      }
+    },
+    {
+      "R": 25,
+      "CV": 0.3,
+      "n": 1816,
+      "maeP50": 60.988,
+      "level": 1.0067,
+      "coverage": 0.8651,
+      "width": 229.8355,
+      "coverP25P75": 0.5837,
+      "ece": 0.0568,
+      "linedN": 1767,
+      "maeRolling4": 65.1933,
+      "maeP50OnLined": 60.9871,
+      "attemptsMaeVsActual": 6.8727,
+      "bySeason": {
+        "2022": {
+          "n": 452,
+          "maeP50": 55.603,
+          "level": 1.0201,
+          "coverage": 0.885,
+          "width": 236.3503,
+          "coverP25P75": 0.6482
+        },
+        "2023": {
+          "n": 456,
+          "maeP50": 65.0408,
+          "level": 0.9998,
+          "coverage": 0.8333,
+          "width": 229.415,
+          "coverP25P75": 0.5482
+        },
+        "2024": {
+          "n": 454,
+          "maeP50": 61.5169,
+          "level": 0.9949,
+          "coverage": 0.8789,
+          "width": 228.1494,
+          "coverP25P75": 0.5705
+        },
+        "2025": {
+          "n": 454,
+          "maeP50": 61.7496,
+          "level": 1.0118,
+          "coverage": 0.8634,
+          "width": 225.458,
+          "coverP25P75": 0.5683
+        }
+      }
+    },
+    {
+      "R": 25,
+      "CV": 0.35,
+      "n": 1816,
+      "maeP50": 61.4825,
+      "level": 1.0065,
+      "coverage": 0.8954,
+      "width": 250.5702,
+      "coverP25P75": 0.6217,
+      "ece": 0.0639,
+      "linedN": 1767,
+      "maeRolling4": 65.1933,
+      "maeP50OnLined": 61.5163,
+      "attemptsMaeVsActual": 6.8727,
+      "bySeason": {
+        "2022": {
+          "n": 452,
+          "maeP50": 55.993,
+          "level": 1.02,
+          "coverage": 0.9093,
+          "width": 257.6702,
+          "coverP25P75": 0.6881
+        },
+        "2023": {
+          "n": 456,
+          "maeP50": 65.6331,
+          "level": 0.9998,
+          "coverage": 0.8706,
+          "width": 250.4261,
+          "coverP25P75": 0.5724
+        },
+        "2024": {
+          "n": 454,
+          "maeP50": 62.0346,
+          "level": 0.9946,
+          "coverage": 0.9009,
+          "width": 248.5721,
+          "coverP25P75": 0.6079
+        },
+        "2025": {
+          "n": 454,
+          "maeP50": 62.2266,
+          "level": 1.0116,
+          "coverage": 0.9009,
+          "width": 245.6444,
+          "coverP25P75": 0.6189
+        }
+      }
+    },
+    {
+      "R": 40,
+      "CV": 0.25,
+      "n": 1816,
+      "maeP50": 60.4712,
+      "level": 1.0068,
+      "coverage": 0.815,
+      "width": 198.5882,
+      "coverP25P75": 0.5127,
+      "ece": 0.0512,
+      "linedN": 1767,
+      "maeRolling4": 65.1933,
+      "maeP50OnLined": 60.4525,
+      "attemptsMaeVsActual": 6.8727,
+      "bySeason": {
+        "2022": {
+          "n": 452,
+          "maeP50": 55.4363,
+          "level": 1.0195,
+          "coverage": 0.8496,
+          "width": 203.6215,
+          "coverP25P75": 0.5597
+        },
+        "2023": {
+          "n": 456,
+          "maeP50": 64.3242,
+          "level": 1,
+          "coverage": 0.7851,
+          "width": 198.7308,
+          "coverP25P75": 0.4912
+        },
+        "2024": {
+          "n": 454,
+          "maeP50": 60.9322,
+          "level": 0.9952,
+          "coverage": 0.815,
+          "width": 197.0491,
+          "coverP25P75": 0.4956
+        },
+        "2025": {
+          "n": 454,
+          "maeP50": 61.1528,
+          "level": 1.0124,
+          "coverage": 0.8106,
+          "width": 194.9729,
+          "coverP25P75": 0.5044
+        }
+      }
+    },
+    {
+      "R": 40,
+      "CV": 0.3,
+      "n": 1816,
+      "maeP50": 60.7496,
+      "level": 1.0068,
+      "coverage": 0.853,
+      "width": 219.2793,
+      "coverP25P75": 0.5606,
+      "ece": 0.0541,
+      "linedN": 1767,
+      "maeRolling4": 65.1933,
+      "maeP50OnLined": 60.7503,
+      "attemptsMaeVsActual": 6.8727,
+      "bySeason": {
+        "2022": {
+          "n": 452,
+          "maeP50": 55.5564,
+          "level": 1.0194,
+          "coverage": 0.8783,
+          "width": 225.1832,
+          "coverP25P75": 0.615
+        },
+        "2023": {
+          "n": 456,
+          "maeP50": 64.6839,
+          "level": 1.0001,
+          "coverage": 0.8202,
+          "width": 219.3966,
+          "coverP25P75": 0.5285
+        },
+        "2024": {
+          "n": 454,
+          "maeP50": 61.2967,
+          "level": 0.9952,
+          "coverage": 0.8612,
+          "width": 217.3384,
+          "coverP25P75": 0.5485
+        },
+        "2025": {
+          "n": 454,
+          "maeP50": 61.4213,
+          "level": 1.0125,
+          "coverage": 0.8524,
+          "width": 215.2244,
+          "coverP25P75": 0.5507
+        }
+      }
+    },
+    {
+      "R": 40,
+      "CV": 0.35,
+      "n": 1816,
+      "maeP50": 61.1437,
+      "level": 1.0066,
+      "coverage": 0.8783,
+      "width": 241.0882,
+      "coverP25P75": 0.6118,
+      "ece": 0.0579,
+      "linedN": 1767,
+      "maeRolling4": 65.1933,
+      "maeP50OnLined": 61.1693,
+      "attemptsMaeVsActual": 6.8727,
+      "bySeason": {
+        "2022": {
+          "n": 452,
+          "maeP50": 55.8338,
+          "level": 1.0193,
+          "coverage": 0.896,
+          "width": 247.8045,
+          "coverP25P75": 0.6726
+        },
+        "2023": {
+          "n": 456,
+          "maeP50": 65.1413,
+          "level": 1,
+          "coverage": 0.8509,
+          "width": 241.1359,
+          "coverP25P75": 0.5724
+        },
+        "2024": {
+          "n": 454,
+          "maeP50": 61.7475,
+          "level": 0.995,
+          "coverage": 0.8877,
+          "width": 238.8125,
+          "coverP25P75": 0.5991
+        },
+        "2025": {
+          "n": 454,
+          "maeP50": 61.8113,
+          "level": 1.0123,
+          "coverage": 0.8789,
+          "width": 236.6294,
+          "coverP25P75": 0.6035
+        }
+      }
+    }
+  ],
+  "verdicts": [
+    {
+      "R": 15,
+      "CV": 0.25,
+      "maeBeatsRolling4": true,
+      "maeBeatsEstimate": true,
+      "coverageOk": true,
+      "eceOk": false,
+      "levelOk": true,
+      "nOk": true
+    },
+    {
+      "R": 15,
+      "CV": 0.3,
+      "maeBeatsRolling4": true,
+      "maeBeatsEstimate": true,
+      "coverageOk": false,
+      "eceOk": false,
+      "levelOk": true,
+      "nOk": true
+    },
+    {
+      "R": 15,
+      "CV": 0.35,
+      "maeBeatsRolling4": true,
+      "maeBeatsEstimate": true,
+      "coverageOk": false,
+      "eceOk": false,
+      "levelOk": true,
+      "nOk": true
+    },
+    {
+      "R": 25,
+      "CV": 0.25,
+      "maeBeatsRolling4": true,
+      "maeBeatsEstimate": true,
+      "coverageOk": true,
+      "eceOk": true,
+      "levelOk": true,
+      "nOk": true
+    },
+    {
+      "R": 25,
+      "CV": 0.3,
+      "maeBeatsRolling4": true,
+      "maeBeatsEstimate": true,
+      "coverageOk": true,
+      "eceOk": false,
+      "levelOk": true,
+      "nOk": true
+    },
+    {
+      "R": 25,
+      "CV": 0.35,
+      "maeBeatsRolling4": true,
+      "maeBeatsEstimate": true,
+      "coverageOk": false,
+      "eceOk": false,
+      "levelOk": true,
+      "nOk": true
+    },
+    {
+      "R": 40,
+      "CV": 0.25,
+      "maeBeatsRolling4": true,
+      "maeBeatsEstimate": true,
+      "coverageOk": true,
+      "eceOk": false,
+      "levelOk": true,
+      "nOk": true
+    },
+    {
+      "R": 40,
+      "CV": 0.3,
+      "maeBeatsRolling4": true,
+      "maeBeatsEstimate": true,
+      "coverageOk": true,
+      "eceOk": false,
+      "levelOk": true,
+      "nOk": true
+    },
+    {
+      "R": 40,
+      "CV": 0.35,
+      "maeBeatsRolling4": true,
+      "maeBeatsEstimate": true,
+      "coverageOk": true,
+      "eceOk": false,
+      "levelOk": true,
+      "nOk": true
+    }
+  ]
+}
