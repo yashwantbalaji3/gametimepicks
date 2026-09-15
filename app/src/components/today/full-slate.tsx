@@ -37,7 +37,7 @@ function SlateRow({ g, showExplanation }: { g: SlateGameRow; showExplanation: bo
       aria-label={`${g.teams.away} at ${g.teams.home} — ${g.label}. ${g.explanation}`}
       className="vault-glow-hover vault-press flex flex-col gap-1.5 rounded-[12px] px-3.5 py-3"
       style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
-      data-teams={`${g.teams.away}|${g.teams.home}`}
+      data-teams={[g.teams.away, g.teams.home, g.teamNames?.away, g.teamNames?.home].filter(Boolean).join("|")}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -47,7 +47,7 @@ function SlateRow({ g, showExplanation }: { g: SlateGameRow; showExplanation: bo
               {g.teams.away} @ {g.teams.home}
             </span>
             {meta ? <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{meta}</span> : null}
-            <FollowedMark teams={[g.teams.away, g.teams.home]} />
+            <FollowedMark teams={[g.teams.away, g.teams.home, g.teamNames?.away ?? "", g.teamNames?.home ?? ""].filter(Boolean)} />
           </div>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">

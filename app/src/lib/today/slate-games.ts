@@ -36,6 +36,8 @@ export interface SlateGameRow extends GameAvailability {
   sport: string;
   sportLabel: string;
   teams: { home: string; away: string };
+  /** Full club names where the row's source carries them (P323: the follow store keys FULL names, the row shows codes). */
+  teamNames: { home: string | null; away: string | null };
   homeLogo: string | null;
   awayLogo: string | null;
   date: string;
@@ -140,6 +142,7 @@ export function slateGames(
       sport: d.sport,
       sportLabel: (typeof d.sportLabel === "string" && d.sportLabel) || SPORT_LABEL[d.sport] || d.sport.toUpperCase(),
       teams: { home: d.homeTeam, away: d.awayTeam },
+      teamNames: { home: (d as { homeTeamName?: string }).homeTeamName ?? null, away: (d as { awayTeamName?: string }).awayTeamName ?? null },
       homeLogo: d.homeLogo ?? null,
       awayLogo: d.awayLogo ?? null,
       date: d.date ?? "",
