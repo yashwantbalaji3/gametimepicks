@@ -2,14 +2,14 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-09-15T23:25:17Z",
+ "generatedAt": "2026-09-16T14:11:22Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "DET @ BUF",
   "kickoffUtc": "2026-09-18T00:15Z",
   "seasonType": 2,
   "week": 2,
-  "hoursToKickoff": 48.83,
+  "hoursToKickoff": 34.06,
   "eventsInWindow": 17
  },
  "freshness": {
@@ -19,11 +19,11 @@
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-09-15T23:25:17Z (FRESH)"
+   "detail": "as of 2026-09-16T14:11:22Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-09-15T23:25:34Z (FRESH)"
+   "detail": "as of 2026-09-16T14:11:37Z (FRESH)"
   },
   "odds": {
    "state": "STALE",
@@ -32,8 +32,10 @@
  },
  "regularSeason": {
   "verdict": {
-   "state": "READY_WITH_DESIGN_CAPS",
-   "operationalGaps": [],
+   "state": "OPERATIONAL_GAPS",
+   "operationalGaps": [
+    "prices:STALE"
+   ],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -54,12 +56,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-09-15T23:25:34Z"
+    "detail": "injuries as of 2026-09-16T14:11:37Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-09-15T23:25:17Z"
+    "detail": "rosters as of 2026-09-16T14:11:22Z"
    },
    {
     "id": "participationRoles",
@@ -88,7 +90,7 @@
    },
    {
     "id": "prices",
-    "state": "AVAILABLE",
+    "state": "STALE",
     "detail": "prices as of 2026-09-14T23:42:04Z"
    }
   ]
@@ -149,16 +151,16 @@
   }
  },
  "currentArtifacts": {
-  "total": 741,
-  "contractValid": 741,
-  "preStart": 96,
+  "total": 757,
+  "contractValid": 757,
+  "preStart": 112,
   "settlementReady": 217,
-  "detail": "741/741 pass the current-event contract; 217 carry pinned settlement targets"
+  "detail": "757/757 pass the current-event contract; 217 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
-  "date": "2026-09-15",
-  "entries": 23,
+  "date": "2026-09-16",
+  "entries": 24,
   "corrections": 0
  },
  "gate": {
