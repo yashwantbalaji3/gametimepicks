@@ -107,3 +107,29 @@ test("unknown project slug → falls through to diff logic (fail open)", () => {
   });
   assert.equal(r.status, 1, "an unrecognized project identity must BUILD, never skip");
 });
+
+test("⚠ VERCEL_FORCE_BUILD=1 → BUILD even with no app/ diff (env-var activation hatch)", () => {
+  /*
+   * The case this exists for: Vercel binds env vars at BUILD time, so a variable set in the
+   * dashboard only takes effect on a new build. A same-commit redeploy reaches this script, finds no
+   * app/ diff, and SKIPS — the redeploy succeeds and delivers nothing. Observed 2026-09-16 during the
+   * Live activation: both flags were set, production was redeployed, and build-info.json came back
+   * byte-identical because no build ran.
+   */
+  const noDiff = { VERCEL_GIT_PREVIOUS_SHA: shas["app-change"] ?? shas["base"] };
+  // Same inputs, hatch off: the normal skip still happens (so the hatch is what changes the answer).
+  const skipped = runIgnore(noDiff);
+  const forced = runIgnore({ ...noDiff, VERCEL_FORCE_BUILD: "1" });
+  assert.equal(forced.status, 1, "the hatch must build");
+  assert.match(forced.stdout, /VERCEL_FORCE_BUILD/);
+  assert.notEqual(forced.status, skipped.status, "the hatch must actually change the outcome");
+});
+
+test("the hatch is opt-in — any other value leaves the diff logic untouched", () => {
+  const base = { VERCEL_GIT_PREVIOUS_SHA: shas["app-change"] ?? shas["base"] };
+  const off = runIgnore(base);
+  for (const v of ["", "0", "false", "true", "yes"]) {
+    assert.equal(runIgnore({ ...base, VERCEL_FORCE_BUILD: v }).status, off.status,
+      `VERCEL_FORCE_BUILD=${JSON.stringify(v)} must not change the decision — only "1" opts in`);
+  }
+});

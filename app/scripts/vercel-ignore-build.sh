@@ -42,6 +42,22 @@ case "$DUP_HOST" in
         ;;
 esac
 
+# ── Force hatch (2026-09-16) ────────────────────────────────────────────────────────────────
+# ⚠ A BUILD-SKIP MAKES AN ENVIRONMENT-VARIABLE CHANGE UNDELIVERABLE.
+# Vercel binds env vars to a deployment when it is BUILT. A dashboard "Redeploy" of the same commit
+# reaches this script, finds no app/ diff, and skips — so the redeploy succeeds, changes nothing, and
+# the new variable never takes effect. Observed during the v1.1 Stage 2 Live activation: both
+# LIVE_GATEWAY_ENABLED and NEXT_PUBLIC_LIVE_ENABLED were set, production was redeployed, and
+# build-info.json came back byte-identical (builtAt 2026-09-16T04:18:30Z) because no build ran.
+#
+# This hatch makes that recoverable WITHOUT inventing a commit whose only purpose is to touch app/.
+# It can only ever cause MORE building, never less, which is the safety direction this whole script
+# is written in. Set VERCEL_FORCE_BUILD=1, redeploy, then unset it.
+if [ "${VERCEL_FORCE_BUILD:-}" = "1" ]; then
+    echo "[ignore-build] VERCEL_FORCE_BUILD=1 — building regardless of the diff"
+    exit 1
+fi
+
 BASE="${VERCEL_GIT_PREVIOUS_SHA:-}"
 
 if [ -z "$BASE" ]; then
