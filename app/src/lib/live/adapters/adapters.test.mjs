@@ -301,3 +301,30 @@ test("MLB 10 · a genuine 0 DURING play is still reported — the fix must not h
   assert.equal(f.competitors.home.score, 0, "a shutout is a real 0");
   assert.equal(f.competitors.away.score, 5);
 });
+
+test("MLB 11 · ⚠ Warmup is NOT live: coded state P outranks abstract 'Live' — no score, no inning, no LIVE", () => {
+  /*
+   * The exact status observed in production on 2026-09-16 for LAD @ CIN (824467) at 22:14Z, 26 minutes
+   * before its 22:40Z first pitch: abstractGameState "Live", codedGameState "P", detailedState "Warmup",
+   * with the linescore already at Top 1st and 0–0. Before this fix it normalized to LIVE, and Since Your
+   * Last Visit would have told a reader the game was "Now live".
+   */
+  const warmup = {
+    gamePk: 824467,
+    gameDate: "2026-09-16T22:40:00Z",
+    status: { abstractGameState: "Live", codedGameState: "P", detailedState: "Warmup", statusCode: "PW" },
+    teams: { home: { team: { id: 113, abbreviation: "CIN" }, score: 0 }, away: { team: { id: 119, abbreviation: "LAD" }, score: 0 } },
+    linescore: { currentInning: 1, currentInningOrdinal: "1st", inningState: "Top", outs: 0, teams: { home: { runs: 0 }, away: { runs: 0 } } },
+  };
+  const e = normalizeMlbGame(warmup, FETCHED);
+  assert.equal(e.state, "PRE");
+  assert.equal(e.competitors.home.score, null);
+  assert.equal(e.competitors.away.score, null);
+  assert.equal(e.period, null, "no 'Top 1st' before a pitch");
+  assert.equal(mapMlbState({ abstractGameState: "Preview", codedGameState: "S" }), "PRE");
+  // Positive control: once play begins (coded I) the same game is LIVE and keeps its genuine zeroes.
+  const started = normalizeMlbGame({ ...warmup, status: { abstractGameState: "Live", codedGameState: "I", detailedState: "In Progress" } }, FETCHED);
+  assert.equal(started.state, "LIVE");
+  assert.equal(started.competitors.home.score, 0);
+  assert.equal(started.period?.label, "Top 1st");
+});

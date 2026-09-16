@@ -20,11 +20,20 @@
  */
 import { makeCompetitor, makeEnvelope } from "../contract.mjs";
 
-/** StatsAPI coded states that are NOT a played-to-a-result final, decided before abstract state. */
+/** StatsAPI coded states decided BEFORE the abstract state. */
 const CODED_STATE_MAP = Object.freeze({
   C: "CANCELLED",
   D: "POSTPONED",
   U: "DELAYED", // suspended — the game exists and may resume; never a final
+  /*
+   * ⚠ PRE-GAME AND WARMUP ARE NOT LIVE. StatsAPI reports detailedState "Warmup" with abstractGameState
+   * "Live" but codedGameState "P" — the same coded state as "Pre-Game". Observed in production
+   * 2026-09-16: LAD @ CIN (824467) read LIVE · "Top 1st" · 0–0 at 22:14Z for a 22:40Z first pitch, so
+   * /live, the game page and Since Your Last Visit ("Now live") all claimed a game was under way before
+   * a pitch was thrown. The coded state is the provider's own statement that play has not begun.
+   */
+  P: "PRE",
+  S: "PRE", // Scheduled
 });
 
 const num = (x) => (typeof x === "number" && Number.isFinite(x) ? x : null);
@@ -82,8 +91,9 @@ export function normalizeMlbGame(game, fetchedAt) {
   const homeRuns = scored ? (num(ls?.teams?.home?.runs) ?? num(game?.teams?.home?.score)) : null;
   const awayRuns = scored ? (num(ls?.teams?.away?.runs) ?? num(game?.teams?.away?.score)) : null;
 
-  const inning = num(ls?.currentInning);
-  const phase = inningPhase(ls?.inningState);
+  // A game that has not started has no inning either (a Warmup payload already says "Top 1st").
+  const inning = state === "PRE" ? null : num(ls?.currentInning);
+  const phase = state === "PRE" ? null : inningPhase(ls?.inningState);
   const period =
     inning === null && phase === null
       ? null
