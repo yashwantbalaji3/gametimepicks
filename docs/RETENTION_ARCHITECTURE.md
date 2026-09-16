@@ -5,7 +5,7 @@ personalization program — Follow Teams/Players, then My GameTime, then Since Y
 build on decisions already made instead of re-deriving them and minting a second identity system.
 
 **Status (2026-09-16):** §3 Following is **BUILT (v1.1.2)**. §5 My GameTime is **BUILT (v1.1.3) — PUBLIC AND VERIFIED** (`4f2dda004`; CI `35139580684` success on `97a0811d2`; production serves `97a0811d2`, verified 19:40Z).
-§5a Since Your Last Visit is **BUILT (v1.1.4)** — not yet verified in CI or production.
+§5a Since Your Last Visit is **BUILT (v1.1.4) — PUBLIC AND VERIFIED** (`32868f101` + Warmup fix `a0966a142`; CI `35153253690` attempt 2 success on `32868f101`, `35157557170` success on `283a55bf4`; production serves `283a55bf4`; a natural `GAME_STARTED` observed on production 2026-09-16 22:41Z).
 
 ---
 
@@ -231,7 +231,7 @@ network call (SI1).
   saved: Record<savedId, { settled: boolean, observedAt: string }> }
 ```
 
-- **Stage evidence:** `PRE` = a scheduled start still in the future on the reader's clock, or provider PRE ·
+- **Stage evidence:** `PRE` = a scheduled start still in the future on the reader's clock, or provider PRE (⚠ including StatsAPI Pre-Game **and Warmup**: codedGameState `P` outranks abstractGameState `Live` — fixed in `a0966a142` after Warmup read LIVE on production) ·
   `LIVE` = provider LIVE/DELAYED · `FINAL` = provider FINAL (MLB Live only) · `SETTLED` = the canonical result
   owner has the game. POSTPONED/CANCELLED produce no fact; UNKNOWN proves nothing; a past or unknown start is not PRE.
 - **Parse:** missing ⇒ `EMPTY` (first visit) · unreadable / not v1 ⇒ `CORRUPT`, recovered to empty and writable
