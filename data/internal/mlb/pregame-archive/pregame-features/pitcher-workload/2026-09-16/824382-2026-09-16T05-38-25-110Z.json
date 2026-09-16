@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824382,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T05:38:25.110Z",
+  "availableAt": "2026-09-16T05:38:25.110Z",
+  "eventStartTime": "2026-09-16T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 800048,
+      "name": "Parker Messick",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 5,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 7.2,
+        "bbAvg": 1.4,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 10.8,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 172.33,
+        "k": 178,
+        "bb": 47,
+        "er": 48,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 641743,
+      "name": "Anthony Kay",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 4,
+        "bbAvg": 1.4,
+        "erAvg": 3.8,
+        "hrAvg": 0.8,
+        "kPer9": 7.61,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 138,
+        "k": 117,
+        "bb": 48,
+        "er": 70,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-16&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-16T05:38:25.110Z"
+  },
+  "recordHash": "7fe86635783c8341cb87151177d07ba3639c197cfac2abdc6d3b6562a3917b6f"
+}
