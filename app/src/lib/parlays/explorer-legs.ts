@@ -34,6 +34,37 @@ export interface OmittedLegDisplay {
   legId: string;
   sport: string;
   detailOmitted: true;
+  /**
+   * Carried even though this row is never rendered, because it is still COUNTED — and a count that
+   * includes a game already under way overstates what the reader can act on. Without it the start
+   * gate below would have to fail closed on every omitted row and silently zero the pool.
+   */
+  startTime: string | null;
+}
+
+/**
+ * Has this leg's event started as of `nowIso`? THE ONE START RULE, shared by every surface.
+ *
+ * `eligible-leg.ts` resolves eligibility with it when the pool is generated; the explorer and the
+ * builder re-apply it against the READER's clock, because a static export ages. Measured on
+ * production 2026-09-16: the artifact generated 00:06:36Z still listed 40 legs whose games began at
+ * 00:10:00Z, and at 00:23Z the explorer rendered them as actionable. Generation-time eligibility is
+ * a claim about the moment of generation; only the reader's clock can say whether it still holds.
+ *
+ * FAIL CLOSED: an unknown or unparseable start counts as STARTED. A leg that cannot be proven
+ * pre-event must not be offered — that is the failure this rule exists to prevent, not an edge case.
+ */
+export function legHasStarted(startTime: string | null | undefined, nowIso: string): boolean {
+  if (!startTime) return true;
+  const start = Date.parse(startTime);
+  const now = Date.parse(nowIso);
+  if (Number.isNaN(start) || Number.isNaN(now)) return true;
+  return start <= now;
+}
+
+/** The legs still pre-event at `nowIso`, by the one rule above. Order is preserved. */
+export function pregameOnly<T extends { startTime?: string | null }>(legs: readonly T[], nowIso: string): T[] {
+  return legs.filter((l) => !legHasStarted(l.startTime, nowIso));
 }
 
 /**

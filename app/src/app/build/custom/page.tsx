@@ -14,6 +14,7 @@
 import { buildEngineLegAtoms } from "@/lib/build-legs";
 import type { BuildLegAtoms } from "@/lib/build/leg-atoms";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
+import { buildAsOfIso } from "@/lib/build-asof";
 import BuildExperience, { type SeedableCard } from "@/components/build-experience";
 import LazyParlaysExplorer from "@/components/parlays/lazy-parlays-explorer";
 import { currentEtDate } from "@/lib/freshness";
@@ -33,7 +34,12 @@ export const metadata = withRouteMetadata("/build/custom/", {
 export default function ParlayCenterCustomPage() {
   // Canonical methodology engine — the SAME gated, not-started, leakage-safe eligible-leg pool that
   // /today, /markets and /build use (team markets + MLB pitcher/hitter props). No stale source.
-  const engineSlateForLegs = loadTodaySlate();
+  /* ONE `asOf` FOR THE BUILD (Phase 6). This page and the explorer artifact are rendered by separate
+     `next build` workers, so each calling `new Date()` produced two different "now"s: the page stated
+     137 legs over a file carrying 177 when first pitches fell between the renders. Both now resolve
+     the pool at the build's stamped instant, so the two numbers describe the same moment. */
+  const asOf = buildAsOfIso();
+  const engineSlateForLegs = loadTodaySlate(undefined, asOf);
   /* P210 · Release B (World Cup disposition): the WC player-prop producer left ACTIVE composition.
      The 2026 tournament is complete, so its future-kickoff gate had made the call permanently
      return [] — dead weight presenting as an active source. The archive keeps everything: settled

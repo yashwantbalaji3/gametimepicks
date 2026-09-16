@@ -70,6 +70,14 @@ export interface BuildLegAtoms {
   /** Identity kind. Omitted for the common "player" case. */
   kind?: "player" | "team" | "fighter";
   sourceDate?: string | null;
+  /**
+   * Event start (ISO), carried so the builder can re-check the start gate on the READER's clock.
+   *
+   * The pool is resolved when the static page is built; a first pitch an hour later does not rebuild
+   * it. Without this field the builder can only trust a claim about the build instant, which is how
+   * the explorer came to offer legs for games already under way (Phase 6).
+   */
+  startTime?: string | null;
   prelineup?: boolean;
   regulationOnly?: boolean;
   bankBuilderEligible?: boolean;
@@ -110,6 +118,10 @@ export function hydrateBuildLeg(a: BuildLegAtoms): BuildLeg {
     americanOdds: a.americanOdds,
     modelProbability: a.modelProbability ?? null,
     sourceDate: a.sourceDate ?? null,
+    /* Hydration is field-by-field, so an atom the constructor does not list is DROPPED. The builder's
+       start gate is fail-closed, which means forgetting this line would not show stale legs — it would
+       silently empty the entire pool. Carried explicitly for that reason (Phase 6). */
+    startTime: a.startTime ?? null,
     photo,
     prelineup: a.prelineup ?? false,
     regulationOnly: a.regulationOnly ?? false,

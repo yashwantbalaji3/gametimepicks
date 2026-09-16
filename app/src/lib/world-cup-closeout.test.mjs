@@ -52,7 +52,22 @@ test("World Cup is NOT a current filter chip on /simulate or /picks (archived �
     "if current World Cup fixtures ever exist again the chip returns with them — the gate is the rows, not a list");
   // /picks parlay selector: WC tab is gated out when it has no eligible cards.
   const parlays = read("src/components/parlays/parlays-explorer.tsx");
-  assert.match(parlays, /filter\(\(s\) => s\.sport !== "WORLD_CUP" \|\| s\.eligibleCount > 0\)/, "parlays-explorer gates archived WC out of the sport selector");
+  /*
+   * THE GATE GOT STRICTER, SO THE PIN MOVED WITH IT (Phase 6).
+   *
+   * This asserted the literal `s.eligibleCount > 0` — the count the ARTIFACT was built with. The
+   * explorer now gates on `liveCountFor(s.sport)`, the same pool re-filtered against the reader's
+   * clock (`pregameOnly`), because a static artifact ages: production listed 40 legs whose games had
+   * already started and rendered them as actionable.
+   *
+   * This is not a weakening, and the difference is one-directional: the live set is a SUBSET of
+   * `eligibleCount` (it can only remove legs whose game began), so a World Cup chip can appear in
+   * strictly fewer situations than before and never in more. The invariant this test protects — an
+   * archived competition with no eligible cards shows no chip — is enforced more tightly, not less.
+   * `explorer-start-gate.test.mjs` pins the filtering itself against injected instants.
+   */
+  assert.match(parlays, /filter\(\(s\) => s\.sport !== "WORLD_CUP" \|\| liveCountFor\(s\.sport\) > 0\)/, "parlays-explorer gates archived WC out of the sport selector");
+  assert.match(parlays, /const liveCountFor = \(s: string\) => liveLegs\.filter/, "and that count is the pregame-filtered set, not the artifact's build-time total");
 });
 
 test("World-Cup-only products are RETIRED in the registry (ids retained for history)", () => {

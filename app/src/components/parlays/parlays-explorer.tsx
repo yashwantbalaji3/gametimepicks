@@ -4,8 +4,8 @@
  * sport + risk level, game-specific parlays, the eligible-leg marketplace, and honest no-qualified
  * states. Reads engine display data (props) — never fabricates a card.
  */
-import { isDetailOmitted, EXPLORER_LEG_RENDER_CAP } from "@/lib/parlays/explorer-legs";
-import { useState } from "react";
+import { isDetailOmitted, EXPLORER_LEG_RENDER_CAP, pregameOnly } from "@/lib/parlays/explorer-legs";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
@@ -275,14 +275,36 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
   /* Only legs that carry detail can be resolved into a card. Identity-only rows exist so counts stay
      exact (see projectEligibleLegs); they are never rendered, and indexing them would put a row of
      blanks on the page the first time the render cap moved. */
+  /*
+   * THE READER'S CLOCK DECIDES WHAT IS STILL OFFERABLE (Phase 6).
+   *
+   * `slate.eligibleLegs` is a claim about the build instant, and this is a static export: the
+   * artifact generated at 00:06Z still listed 40 legs whose games began at 00:10Z, and at 00:23Z
+   * production rendered them as actionable rows. Eligibility is re-applied here with the ONE shared
+   * rule (`legHasStarted`, fail-closed on an unknown start), against the reader's own clock, and
+   * re-ticked each minute so a row cannot survive its own first pitch while the tab sits open.
+   *
+   * Lazily initialised rather than set in an effect because this component mounts ONLY after
+   * `lazy-parlays-explorer` fetches the artifact on the client — there is no server render to
+   * mismatch. `explorer-start-gate.test.mjs` pins that mounting precondition.
+   */
+  const [nowIso, setNowIso] = useState<string>(() => new Date().toISOString());
+  useEffect(() => {
+    const id = setInterval(() => setNowIso(new Date().toISOString()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  /** Every surface below reads THIS list — counts included — so a stated number is always offerable. */
+  const liveLegs = useMemo(() => pregameOnly(slate.eligibleLegs, nowIso), [slate.eligibleLegs, nowIso]);
+  const liveCountFor = (s: string) => liveLegs.filter((l) => l.sport === s).length;
+
   const legsById = new Map<string, ParlayLegDisplay>(
-    [...slate.eligibleLegs.filter((l): l is ParlayLegDisplay => !isDetailOmitted(l)), ...(slate.extraLegs ?? [])].map((l) => [l.legId, l]),
+    [...liveLegs.filter((l): l is ParlayLegDisplay => !isDetailOmitted(l)), ...(slate.extraLegs ?? [])].map((l) => [l.legId, l]),
   );
   const legsOf = (card: ExplorerCardView): ParlayLegDisplay[] => card.legIds.map((id) => legsById.get(id)).filter((l): l is ParlayLegDisplay => Boolean(l));
-  const sportsWithLegs = slate.sports.filter((s) => s.eligibleCount > 0);
+  const sportsWithLegs = slate.sports.filter((s) => liveCountFor(s.sport) > 0);
   const mixedTotal = RISK_ORDER.reduce((n, lvl) => n + (slate.mixedByRisk[lvl]?.length ?? 0), 0);
   // Default to World Cup when it has cards (the slate's headline sport), else the first sport with legs.
-  const wcHasCards = (sportsWithLegs.find((s) => s.sport === "WORLD_CUP")?.eligibleCount ?? 0) > 0;
+  const wcHasCards = liveCountFor("WORLD_CUP") > 0;
   const firstSport = wcHasCards ? "WORLD_CUP" : (sportsWithLegs[0] ?? slate.sports[0])?.sport ?? "MLB";
   const [sport, setSport] = useState<string>(firstSport);
   const [view, setView] = useState<"suggested" | "game" | "legs">("suggested");
@@ -293,7 +315,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
   const gameGroups = slate.gameSpecific.filter((g) => g.sport === sport);
   /* COUNTS include every eligible leg — identity-only rows included — so "Legs (N)" and "+N more"
      are unchanged by the payload projection. Only the RENDERED slice needs detail. */
-  const sportLegs = slate.eligibleLegs.filter((l) => l.sport === sport);
+  const sportLegs = liveLegs.filter((l) => l.sport === sport);
   const sportLegsWithDetail = sportLegs.filter((l): l is ParlayLegDisplay => !isDetailOmitted(l));
   /* The marketplace's own reveal state. `shown` resets to one window whenever the query or the
      sport changes, so pagination can never carry an offset from a different result set — that is
@@ -348,7 +370,8 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
       {/* sport selector (+ Mixed when cross-sport cards exist). The completed 2026 World Cup is archived —
           it is omitted as a current tab when it has no eligible cards (a future WC with cards returns automatically). */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }}>
-        {slate.sports.filter((s) => s.sport !== "WORLD_CUP" || s.eligibleCount > 0).map((s) => (
+        {/* Tab counts come from the LIVE set (Phase 6): a tab may not advertise legs whose games began. */}
+        {slate.sports.filter((s) => s.sport !== "WORLD_CUP" || liveCountFor(s.sport) > 0).map((s) => (
           <button key={s.sport} onClick={() => selectSport(s.sport)}
             className="shrink-0 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
             style={{
@@ -356,7 +379,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
               color: s.sport === sport ? "var(--vault-on-accent)" : "var(--vault-text-mute)",
               border: "1px solid var(--vault-border)",
             }}>
-            {SPORT_LABEL[s.sport] ?? s.sport}{s.eligibleCount > 0 ? ` · ${s.eligibleCount}` : ""}
+            {SPORT_LABEL[s.sport] ?? s.sport}{liveCountFor(s.sport) > 0 ? ` · ${liveCountFor(s.sport)}` : ""}
           </button>
         ))}
         {mixedTotal > 0 && (
@@ -392,7 +415,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
             );
           })}
         </div>
-      ) : !active || active.eligibleCount === 0 ? (
+      ) : !active || liveCountFor(active.sport) === 0 ? (
         active ? <NoQualified status={active} /> : null
       ) : (
         <>

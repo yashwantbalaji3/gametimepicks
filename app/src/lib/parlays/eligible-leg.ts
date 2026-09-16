@@ -7,6 +7,11 @@
 import type { AdaptedPrediction, SportExtractionResult, MarketScope } from "../methodology/adapter";
 import type { EligibleLeg, LegContext, RiskTier, Sport } from "./types";
 import { scoreLeg } from "./leg-scoring";
+/* THE START RULE HAS ONE HOME (Phase 6). It used to live here as a private `eventStarted`, which
+   meant the client surfaces that re-check it against the reader's clock had no way to share it —
+   and the explorer therefore did not check at all. It now lives in the node-free contract module
+   both runtimes can load; this file keeps using it, unchanged, at generation time. */
+import { legHasStarted } from "./explorer-legs";
 
 export function riskTierOf(riskScore: number): RiskTier {
   return riskScore >= 0.6 ? "high" : riskScore >= 0.35 ? "elevated" : "low";
@@ -33,14 +38,6 @@ export function normalizeSide(raw: string | null | undefined, marketType: string
   return null;
 }
 
-function eventStarted(startTime: string | null, nowIso: string): boolean {
-  if (!startTime) return true; // unknown start = treat as ineligible (cannot prove pre-event)
-  const s = Date.parse(startTime);
-  const n = Date.parse(nowIso);
-  if (Number.isNaN(s) || Number.isNaN(n)) return true;
-  return s <= n;
-}
-
 export function toEligibleLeg(adapted: AdaptedPrediction, ctx: LegContext): EligibleLeg {
   const o = adapted.output;
   const snap = adapted.snapshot;
@@ -52,7 +49,7 @@ export function toEligibleLeg(adapted: AdaptedPrediction, ctx: LegContext): Elig
   const staleCritical = o.staleDataFlags.length > 0; // any stale feed treated as critical for legs
   const smallSample = o.smallSampleFlags.length > 0;
   const dnpRisk = o.missingDataFlags.some((f) => f.field === "confirmed_lineup");
-  const started = eventStarted(startTime, ctx.nowIso);
+  const started = legHasStarted(startTime, ctx.nowIso);
   const validOdds = !ctx.marketAware || (o.marketOdds != null && o.marketImpliedProbability != null);
 
   // ── Eligibility gates ──────────────────────────────────────────────────────────────────────

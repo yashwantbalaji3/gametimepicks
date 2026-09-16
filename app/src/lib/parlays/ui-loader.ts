@@ -282,7 +282,10 @@ function projectEligibleLegs(
     const n = (seenPerSport.get(l.sport) ?? 0) + 1;
     seenPerSport.set(l.sport, n);
     if (n <= EXPLORER_LEG_RENDER_CAP || referenced.has(l.legId)) return l;
-    return { legId: l.legId, sport: l.sport, detailOmitted: true as const };
+    /* `startTime` travels even on a row nobody renders: the row is still COUNTED, and the reader's
+       clock re-checks every leg (explorer-legs.legHasStarted). Without it the start gate would have
+       to fail closed on each omitted row and silently zero a pool that is merely un-rendered. */
+    return { legId: l.legId, sport: l.sport, detailOmitted: true as const, startTime: l.startTime ?? null };
   });
 }
 

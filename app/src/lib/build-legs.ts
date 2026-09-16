@@ -33,6 +33,9 @@ export interface BuildLeg {
   /** The slate date the leg's source artifact was generated for. Freshness for grading: a leg from
    *  an older slate is never grade-eligible, whatever its model probability says. */
   sourceDate?: string | null;
+  /** Event start (ISO). The builder re-applies the start gate on the READER's clock (Phase 6), so this
+   *  must survive hydration — a hydrated leg without it fails closed and would empty the whole pool. */
+  startTime?: string | null;
   photo?: string | null;
   prelineup: boolean;
   regulationOnly: boolean;
@@ -237,6 +240,9 @@ export function buildEngineLegAtoms(
     }
     if (l.identity.kind !== "player") a.kind = l.identity.kind;
     if (sourceDate != null) a.sourceDate = sourceDate;
+    /* The start gate travels with the leg (Phase 6): eligibility was resolved at build time, and the
+       reader opens the page later. `build-experience` re-applies `legHasStarted` on their clock. */
+    if (l.startTime != null) a.startTime = l.startTime;
     // Bank-Builder eligibility mirrors the survival floor (team markets only; player props never).
     if ((l.survivalScore ?? 0) >= 80 && l.identity.kind !== "player") a.bankBuilderEligible = true;
     out.push(a);

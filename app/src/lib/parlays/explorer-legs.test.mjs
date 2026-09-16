@@ -101,8 +101,27 @@ test("LIVE · every eligible leg still travels — now in the explorer file — 
   const pool = body?.slate?.eligibleLegs;
   const legs = Array.isArray(pool) ? pool : Object.values(pool ?? {}).flat();
   const total = legs.length;
+  /*
+   * ONE EVALUATION, NOT TWO (Phase 6). This compared a number the PAGE resolved with `new Date()` to a
+   * number the ARTIFACT resolved with its own `new Date()`, in a different `next build` worker — so a
+   * first pitch landing between the two renders failed it honestly: 137 stated over 177 carried. Both
+   * now resolve at `buildAsOfIso()`, so the equality is a statement about one instant and the assertion
+   * is deterministic rather than a race against the evening's kickoffs.
+   */
   assert.equal(total, Number(stated[1]), `the page states ${stated[1]} legs; the explorer file carries ${total}`);
+  assert.ok(typeof body.asOf === "string" && !Number.isNaN(Date.parse(body.asOf)), "the artifact publishes the instant its gate was resolved");
   if (total === 0) return; // the ordinary overnight regime: an empty pool, stated as such
+  /*
+   * THE START GATE HELD AT THE ARTIFACT'S OWN INSTANT, and every row can be re-checked later. A reader
+   * opens this file minutes or hours after it was written, so each leg must carry its start for the
+   * client gate (`explorer-start-gate.test.mjs`); a row without one fails closed and vanishes.
+   */
+  for (const l of legs) {
+    assert.ok("startTime" in l, `${l.legId}: every row carries its start so the reader's clock can re-check it`);
+    if (l.startTime) {
+      assert.ok(Date.parse(l.startTime) > Date.parse(body.asOf), `${l.legId} had already started at the artifact's asOf — the generator's gate did not hold`);
+    }
+  }
   const bySport = new Map();
   for (const l of legs) { const k = l?.sport ?? l?.sportKey ?? "?"; bySport.set(k, [...(bySport.get(k) ?? []), l]); }
   for (const [sport, rows] of bySport) {

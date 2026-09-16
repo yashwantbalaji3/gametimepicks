@@ -9,6 +9,7 @@
  */
 import { useCallback, useRef, useState, type ComponentProps } from "react";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
+import { pregameOnly } from "@/lib/parlays/explorer-legs";
 
 export const EXPLORER_SLATE_URL = "/data/build/explorer-slate.json";
 
@@ -18,6 +19,12 @@ type LoadState = "idle" | "loading" | "ready" | "error";
 export default function LazyParlaysExplorer({ eligibleCount }: { eligibleCount: number }) {
   const [state, setState] = useState<LoadState>("idle");
   const [data, setData] = useState<ExplorerProps | null>(null);
+  /*
+   * The summary states a number before anything loads, and that number was resolved when the page was
+   * BUILT. Once the artifact is here the reader's clock can be applied, so the stated count becomes the
+   * count of legs still offerable — the same set the explorer renders (Phase 6).
+   */
+  const [liveCount, setLiveCount] = useState<number | null>(null);
   const started = useRef(false);
 
   const load = useCallback(async () => {
@@ -28,11 +35,14 @@ export default function LazyParlaysExplorer({ eligibleCount }: { eligibleCount: 
       const body = await res.json();
       if (!body?.slate) throw new Error("no slate in the explorer file");
       setData({ slate: body.slate, coverage: body.coverage ?? undefined });
+      setLiveCount(pregameOnly(body.slate.eligibleLegs ?? [], new Date().toISOString()).length);
       setState("ready");
     } catch {
       setState("error");
     }
   }, []);
+  /** Before the artifact loads, the build-time count; after it, what the reader can actually act on. */
+  const statedCount = liveCount ?? eligibleCount;
 
   return (
     <details
@@ -46,7 +56,7 @@ export default function LazyParlaysExplorer({ eligibleCount }: { eligibleCount: 
       }}
     >
       <summary className="cursor-pointer select-none px-4 py-3 text-[13px]" style={{ color: "var(--vault-text-mute)", minHeight: 44 }}>
-        Advanced — card-builder coverage &amp; the full eligible-leg pool ({eligibleCount} {eligibleCount === 1 ? "leg" : "legs"}, by risk). Tap to expand.
+        Advanced — card-builder coverage &amp; the full eligible-leg pool ({statedCount} {statedCount === 1 ? "leg" : "legs"}, by risk). Tap to expand.
       </summary>
       <div className="px-1 pb-2 pt-1">
         {state === "idle" || state === "loading" ? (

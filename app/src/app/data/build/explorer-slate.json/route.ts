@@ -13,18 +13,28 @@
 import { loadTodaySlate, explorerSlateView } from "@/lib/parlays/ui-loader";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
+import { buildAsOfIso } from "@/lib/build-asof";
 
 export const dynamic = "force-static";
 
 export function GET() {
-  const slate = loadTodaySlate();
-  const now = new Date().toISOString();
+  /*
+   * ONE `asOf` FOR THE WHOLE BUILD (Phase 6). This used to call `new Date()` while /build/custom
+   * called its own, in a different `next build` worker — so a first pitch landing between the two
+   * renders left the page stating 137 legs over an artifact carrying 177. Both now resolve the pool
+   * at the build's stamped instant, and the artifact SAYS which instant, because a reader's clock
+   * has moved on by the time they open it.
+   */
+  const asOf = buildAsOfIso();
+  const slate = loadTodaySlate(undefined, asOf);
   return Response.json({
     schemaVersion: 1,
     artifact: "build-explorer-slate",
-    generatedAt: now,
+    generatedAt: asOf,
+    /** The instant the eligibility gate was resolved. Clients re-check each leg's start against their own clock. */
+    asOf,
     date: slate.date ?? null,
     slate: explorerSlateView(slate),
-    coverage: buildCoverageMatrix(slate, loadMoonshotLane(), now),
+    coverage: buildCoverageMatrix(slate, loadMoonshotLane(), asOf),
   });
 }

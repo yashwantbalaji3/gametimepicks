@@ -19,6 +19,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { BuildLeg } from "@/lib/build-legs";
 import { hydrateBuildLegs, type BuildLegAtoms } from "@/lib/build/leg-atoms";
+import { pregameOnly } from "@/lib/parlays/explorer-legs";
 
 /** Rows mounted per reveal. Data is never limited by this — only the DOM window is. */
 const POOL_RENDER_WINDOW = 60;
@@ -109,7 +110,20 @@ export default function BuildExperience({
   /* One hydration for the whole pool, memoised on the prop identity: `hydrateBuildLeg` is a pure
      total function of the atoms, so the legs below are byte-identical to what the server used to
      serialize. Deriving is not compressing — no displayed value changes. */
-  const pool = useMemo(() => hydrateBuildLegs(poolAtoms), [poolAtoms]);
+  /*
+   * THE POOL IS RE-GATED ON THE READER'S CLOCK (Phase 6).
+   *
+   * `poolAtoms` was resolved when this static page was built. A reader who opens it an hour later was
+   * being offered legs for games already under way — the builder is the MORE actionable surface of the
+   * two (legs here go onto a card), so it re-applies the one shared start rule, fail-closed on an
+   * unknown start, and re-ticks so a leg cannot outlive its own first pitch in an open tab.
+   */
+  const [nowIso, setNowIso] = useState<string>(() => new Date().toISOString());
+  useEffect(() => {
+    const id = setInterval(() => setNowIso(new Date().toISOString()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  const pool = useMemo(() => pregameOnly(hydrateBuildLegs(poolAtoms), nowIso), [poolAtoms, nowIso]);
   /* The sport chips the pool can actually satisfy — see SPORT_ORDER above. */
   const sportChips = useMemo(() => {
     const present = new Set(pool.map((l) => String(l.sport)));
