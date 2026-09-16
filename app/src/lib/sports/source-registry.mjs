@@ -23,8 +23,8 @@ export const SOURCES = Object.freeze({
     terms: "MLB StatsAPI public endpoints; attribution not required; used since project start for schedule + official results",
     authorization: "PUBLIC_DISPLAY",
     sports: ["mlb"],
-    roles: ["schedule", "official-results"],
-    failureBehavior: "postponed games can report Final without scores — quarantine rule encoded in settlement",
+    roles: ["schedule", "official-results", "live-state"],
+    failureBehavior: "postponed games can report Final without scores — quarantine rule encoded in settlement, and again in the live adapter (coded C/D/U decided BEFORE abstractGameState, so a postponed game can never render as a 0-0 final)",
   },
   odds_api: {
     owner: "FOUNDER (billing) / AUTOMATION (usage)",
@@ -73,8 +73,8 @@ export const SOURCES = Object.freeze({
     terms: "site.api.espn.com public scoreboard JSON, no key; point-in-time snapshots with attribution — the same usage class as the retired event hub's hand-verified ESPN snapshots. First captures: NFL preseason week (P148, 16 events), NBA confirmed 2026-27 events (P150, 42), UFC forward cards+bouts (P150, 16/82). eng.1 also served the EPL membership cross-check",
     authorization: "PUBLIC_DISPLAY",
     sports: ["nfl", "nba", "ufc", "epl"],
-    roles: ["schedule-candidate", "results-candidate", "injuries-facts"],
-    failureBehavior: "capture script refuses zero-event windows (an empty capture would render as an empty slate); adapter treats a missing capture as NO SOURCE, a stale one as STALE — never as no games",
+    roles: ["schedule-candidate", "results-candidate", "injuries-facts", "live-state"],
+    failureBehavior: "capture script refuses zero-event windows (an empty capture would render as an empty slate); adapter treats a missing capture as NO SOURCE, a stale one as STALE — never as no games. LIVE-STATE (v1.1): the payload publishes no source timestamp, so a live envelope's sourceUpdatedAt is null and freshness is stated from fetch age only — a weaker claim, made as the weaker claim",
   },
   espn_site_api_nfl: {
     owner: "AUTOMATION",
@@ -84,7 +84,7 @@ export const SOURCES = Object.freeze({
     authorization: "PUBLIC_DISPLAY",
     sports: ["nfl"],
     roles: ["roster-player-identity", "box-score-candidate", "play-by-play-candidate"],
-    failureBehavior: "roster capture quarantines rows missing durable athlete ids (identity is never minted from names); a per-team fetch failure preserves that team's last-known-good roster as STALE and never writes an empty team; box-score/play-by-play roles are EVALUATED_NOT_CAPTURED until a corpus release exercises them under the walk-forward rights review",
+    failureBehavior: "roster capture quarantines rows missing durable athlete ids (identity is never minted from names); a per-team fetch failure preserves that team's last-known-good roster as STALE and never writes an empty team; play-by-play stays EVALUATED_NOT_CAPTURED until a corpus release exercises it under the walk-forward rights review. BOX SCORE is exercised from v1.1 by the live gateway for DISPLAY ONLY — read per-event on demand (~570 KB upstream, never batched), mapped by column LABEL so an inserted column cannot shift a value, and never written to any artifact or used to settle anything",
   },
   nfl_weather_unsourced: {
     owner: "ENGINEERING (evaluation)",

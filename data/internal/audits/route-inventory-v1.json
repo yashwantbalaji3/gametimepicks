@@ -2,11 +2,11 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-15T21:30:37Z",
+ "generatedAt": "2026-09-16T03:02:11Z",
  "totals": {
-  "routes": 73,
+  "routes": 74,
   "public": 48,
-  "internal": 6,
+  "internal": 7,
   "redirects": 15,
   "archive": 2,
   "findings": 0,
@@ -421,6 +421,15 @@
    "purpose": "dated preview fixture (pruned)",
    "dataOwner": "fixtures",
    "freshness": "frozen",
+   "built": false
+  },
+  {
+   "route": "/preview/live",
+   "classification": "internal",
+   "owner": "engineering",
+   "purpose": "GameTime Live v1.1 preview — live feed beside the frozen pregame forecast (pruned)",
+   "dataOwner": "live gateway (read-time) + committed nfl/mlb forecast artifacts (build-time)",
+   "freshness": "live half per gateway TTL; forecast half per artifact",
    "built": false
   },
   {
