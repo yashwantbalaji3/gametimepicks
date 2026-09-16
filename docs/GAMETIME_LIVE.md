@@ -14,6 +14,7 @@ slice. Everything stated as verified here was measured in that session and the m
 | **EPL / UFC Live** | **NOT BUILT** |
 | **MLB totals** | **PAUSED** — absent from every Live surface |
 | **MLB player Live rows** | **NONE** — MLB publishes no per-player forecast range to compare against |
+| **Following** | **PUBLIC** (v1.1.2) — `/following`; MLB teams, NFL teams, NFL players by canonical id. `/live` marks followed clubs, never reorders or refetches |
 
 ⚠ **Everything below is the record of how this was built, in order.** Sections describing Stage 1
 ("preview only") and Stage 2 ("awaiting env vars") are HISTORICAL SNAPSHOTS, preserved because their
