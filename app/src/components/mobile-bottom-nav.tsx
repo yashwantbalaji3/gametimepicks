@@ -166,10 +166,23 @@ function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: strin
   const barHrefs = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
   const items = destinationsFor("rail").filter((d) => !barHrefs.has(d.href));
   useEffect(() => {
+    /*
+     * FOCUS GOES IN, AND IT COMES BACK (Phase 6 · P605).
+     *
+     * Opening the sheet moved focus to Close, which is right. Closing it moved focus nowhere — the dialog
+     * unmounted and focus fell to <body>, so a keyboard or screen-reader user who dismissed the menu lost their
+     * place in the bar entirely and had to tab from the top of the page. The element that opened the sheet is the
+     * Menu button itself, so remembering the active element at mount and restoring it on unmount returns focus to
+     * exactly the control the reader pressed, whether they left via Close, Escape, or the scrim.
+     */
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      opener?.focus();
+    };
   }, [onClose]);
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" }} onClick={onClose}>

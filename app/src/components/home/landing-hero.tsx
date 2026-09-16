@@ -52,6 +52,19 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, qua
         Today&rsquo;s games, picks and results.
       </h1>
 
+      {/*
+        * WHAT THIS SITE IS, in the first viewport (Phase 6 · P602).
+        *
+        * The headline is the charter's action-first launchpad line, and it stays. But a first-time visitor read
+        * "picks" and had nothing telling them the product is forecasts, simulations and model transparency across
+        * four sports — that framing lived only in the Command Center subtitle below the fold and in an unmounted
+        * component. One line, no claim beyond what ships: no live scores, no player database, no advice.
+        */}
+      <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 13.5, lineHeight: 1.5, maxWidth: 640 }}>
+        Model forecasts, simulations and graded results for NFL, MLB, Premier League and UFC &mdash; each shown with
+        its model&rsquo;s current status.
+      </p>
+
       {/* The three primary jobs. Labels and destinations are guard-pinned (P208 J1). */}
       <div className="flex flex-wrap gap-2.5">
         <Link

@@ -24,8 +24,10 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata: Metadata = withRouteMetadata("/markets/", {
   title: "Picks · GameTimePicks",
+  /* Phase 6 · P606: this page names every in-season sport from the product-day owner, not just MLB — the
+     description said "the current MLB slate" while the page itself lists the other hubs. */
   description:
-    "Sportsbook prices alongside GameTimePicks simulations for the current MLB slate, with every market labelled by what we can honestly show.",
+    "Sportsbook prices alongside GameTimePicks model reads for the sports on today's board, with every market labelled by what we can honestly show.",
 });
 
 export default function MarketsPage() {

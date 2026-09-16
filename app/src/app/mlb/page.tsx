@@ -78,9 +78,12 @@ import StatusChip from "@/components/ui/status-chip";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/mlb/", {
-  title: "MLB · GameTime Picks",
+  /* Phase 6 · P606: the description still called this page "player-prop analytics" — the shape it had before the
+     full-game simulations, the model-status panel and the graded record landed on it. A search result and a link
+     preview are public claims, so they say what the page is now, including the paused market. */
+  title: "MLB — Game Simulations, Model Status & Player Props · GameTime Picks",
   description:
-    "Educational MLB player-prop analytics — transparent model leans on pitcher strikeouts and batter markets, plus suggested paper cards. Educational, paper-only.",
+    "Every game on the MLB slate with its full-game simulation, player-prop model leans, and each market's current model status — game totals are paused. Educational and paper-only, graded from official box scores.",
 });
 
 const PROPS_PER_MARKET = 9;
