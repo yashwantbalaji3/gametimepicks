@@ -12,8 +12,32 @@
  */
 import { TTL_SECONDS } from "../src/lib/live/freshness.mjs";
 
-/** Sports the gateway will call upstream for. Anything else is refused before a socket is opened. */
+/** Sports an adapter EXISTS for. Being here is a capability, not a permission — see PUBLIC_SPORTS. */
 export const SUPPORTED_SPORTS = Object.freeze(["nfl", "mlb"]);
+
+/**
+ * Sports this deployment may actually call upstream for. **Default: MLB only.**
+ *
+ * Stage 2 is an MLB-only public Live beta. NFL Live is fully built — adapter, fixtures, identity
+ * join, player-stat mapping — and stays OFF in public until the ESPN usage posture is separately
+ * approved. Capability and permission are therefore kept in DIFFERENT lists: deleting the NFL
+ * adapter to keep it off would throw away proven work, and leaving it merely "not linked" would be
+ * a permission that exists but is not written down anywhere.
+ *
+ * This is the SERVER half of the gate and the one that actually holds. The client will not render
+ * an NFL panel, but a client gate only governs the page we ship; this governs the endpoint. A
+ * hand-crafted `/api/live?sport=nfl` in production is refused here, before a socket is opened — so
+ * no reader, and no page we did not write, can reach the ESPN-backed surface.
+ *
+ * To enable NFL later: set `LIVE_PUBLIC_SPORTS=mlb,nfl`. Nothing else changes.
+ */
+export function publicSports(env = process.env) {
+  const raw = env.LIVE_PUBLIC_SPORTS;
+  if (raw === undefined || raw === "") return ["mlb"];
+  const asked = String(raw).split(",").map((s) => s.trim().toLowerCase());
+  // An unknown name is dropped rather than trusted, so a typo cannot widen the allowlist.
+  return SUPPORTED_SPORTS.filter((s) => asked.includes(s));
+}
 
 /** Hard caps. A bounded read can neither hang a function nor be used to pull an arbitrary payload. */
 export const UPSTREAM_TIMEOUT_MS = 6_000;
@@ -47,9 +71,11 @@ const ET_DATE = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
  * Modes: `scoreboard` (one batch call covering a whole slate — the cheap default) and `event` (one
  * event, plus the heavy NFL summary only when player stats are asked for).
  */
-export function planRequest(query) {
+export function planRequest(query, allowed = publicSports()) {
   const sport = String(query?.sport ?? "").toLowerCase();
-  if (!SUPPORTED_SPORTS.includes(sport)) return { ok: false, reason: "UNSUPPORTED_SPORT" };
+  // Permission first. A sport we CAN serve but may not is indistinguishable, to a caller, from one
+  // we have no adapter for — the refusal deliberately reveals nothing about what else exists.
+  if (!allowed.includes(sport)) return { ok: false, reason: "UNSUPPORTED_SPORT" };
 
   const eventRaw = query?.event === undefined || query?.event === null ? "" : String(query.event);
   const date = query?.date === undefined || query?.date === null ? "" : String(query.date);
@@ -147,4 +173,51 @@ export function scoreboardTtl(envelopes) {
     if (t < ttl) ttl = t;
   }
   return ttl;
+}
+
+
+/**
+ * UPSTREAM MEMO — one provider refresh serves every reader of the same upstream URL.
+ *
+ * WHY IT IS NEEDED IN ADDITION TO THE CDN. The CDN caches by REQUEST url, and every MLB game has its
+ * own (`?sport=mlb&event=824307`, `…&event=823980`, …). Each of those resolves to the SAME upstream
+ * slate call, so on a 15-game night a CDN-only design would pull the full ~90 KB schedule fifteen
+ * times per TTL to answer fifteen questions one call already answers. Measured before the memo: 10
+ * game views = 10 upstream calls, 899 KB. After: 0 additional calls.
+ *
+ * ⚠ THE STORED INSTANT TRAVELS WITH THE DATA. `fetchedAt` is when the PAYLOAD was fetched, never when
+ * the request arrived — otherwise a reader served from this memo would get a fresh-looking stamp on an
+ * older observation and the freshness badge would lie in exactly the way Rule B exists to prevent. A
+ * memo hit is therefore indistinguishable, to a reader, from a slightly older direct fetch: which is
+ * precisely what it is.
+ *
+ * Deliberately tiny and process-local: it lives only as long as a warm function instance, needs no
+ * service, and a cold start simply fetches. An optimisation, never a source of truth.
+ */
+export const MEMO_TTL_MS = 20_000;
+const MEMO_MAX_ENTRIES = 16;
+const memo = new Map();
+
+/** The stored payload for this upstream URL, or null when absent or older than the memo TTL. */
+export function memoGet(url, nowMs) {
+  const hit = memo.get(url);
+  if (!hit) return null;
+  if (nowMs - hit.storedMs > MEMO_TTL_MS) {
+    memo.delete(url);
+    return null;
+  }
+  return hit;
+}
+
+/** Store a payload with the instant it was actually fetched. Bounded; stale entries drop on write. */
+export function memoPut(url, json, fetchedAt, nowMs) {
+  for (const [k, v] of memo) if (nowMs - v.storedMs > MEMO_TTL_MS) memo.delete(k);
+  if (memo.size > MEMO_MAX_ENTRIES) memo.clear();
+  memo.set(url, { json, fetchedAt, storedMs: nowMs });
+  return memo.size;
+}
+
+/** Test seam: forget everything. Never called by the handler. */
+export function memoReset() {
+  memo.clear();
 }

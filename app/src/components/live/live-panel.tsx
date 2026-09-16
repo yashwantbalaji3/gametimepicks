@@ -13,7 +13,7 @@
  *
  * The panel renders nothing when the flag is off: no markup, no request, no cost.
  */
-import { etDateOf, liveEnabled } from "@/lib/live/client";
+import { etDateOf, liveReadyFor } from "@/lib/live/client";
 import { comparisonSentence, joinNflPlayerBoard } from "@/lib/live/forecast-join.mjs";
 import { useLiveEvent } from "./use-live-event";
 import {
@@ -21,6 +21,24 @@ import {
 } from "./live-primitives";
 
 const MONO = "var(--font-mono)";
+
+/**
+ * The frozen-at instant, in ET.
+ *
+ * Formatted HERE rather than by each caller: "frozen at 2026-09-16T01:35:10.000Z" is a checkable
+ * claim that reads like a machine identifier, and a caller that forgets to format it publishes that
+ * string. An unparseable instant returns null and the panel falls back to the timeless sentence —
+ * never a half-rendered date.
+ */
+function frozenStamp(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", month: "short", day: "numeric",
+    hour: "numeric", minute: "2-digit", hour12: true,
+  }).format(new Date(t)) + " ET";
+}
 
 function Region({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
@@ -44,26 +62,28 @@ export interface LivePanelProps {
   playerBoard?: any | null;
   /** The frozen MLB per-team run bands (never a combined total — MLB totals are PAUSED). */
   mlbForecast?: { runs: { home: any; away: any }; generatedAt: string | null } | null;
-  /** When the pregame forecast was frozen. Shown verbatim so "frozen" is a checkable claim. */
+  /** When the pregame forecast was frozen, as a UTC ISO instant. Rendered in ET by this component. */
   forecastGeneratedAt?: string | null;
   /** The event's scheduled start (UTC ISO), used ONLY to scope the provider slate to its ET date. */
   startTime?: string | null;
+  /** Render the "Live beta" heading strip. Off on the internal preview, which says so already. */
+  showBetaHeading?: boolean;
 }
 
-export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, forecastGeneratedAt, startTime }: LivePanelProps) {
+export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, forecastGeneratedAt, startTime, showBetaHeading }: LivePanelProps) {
   const players = sport === "nfl" && Boolean(playerBoard);
   const { envelope, unavailable, freshness, loading } = useLiveEvent(sport, eventId, {
     players,
     etDate: etDateOf(startTime),
   });
 
-  if (!liveEnabled()) return null;
+  if (!liveReadyFor(sport)) return null;
 
   const join = playerBoard ? joinNflPlayerBoard(playerBoard, envelope?.playerStats ?? []) : { rows: [] };
   // Rows a reader would learn nothing from are hidden until the game starts producing them.
   const visibleRows = envelope && envelope.state !== "PRE" ? join.rows.filter((r: any) => r.value !== null) : [];
 
-  return (
+  const grid = (
     <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
       <Region
         title="Live now"
@@ -105,8 +125,8 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, fo
       <Region
         title="Pregame GameTime · frozen"
         note={
-          forecastGeneratedAt
-            ? `Forecast frozen at ${forecastGeneratedAt}. It does not change during the game.`
+          frozenStamp(forecastGeneratedAt)
+            ? `Forecast frozen at ${frozenStamp(forecastGeneratedAt)}. It does not change during the game.`
             : "This forecast does not change during the game."
         }
       >
@@ -154,5 +174,32 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, fo
         )}
       </Region>
     </div>
+  );
+
+  if (!showBetaHeading) return grid;
+
+  return (
+    <section aria-label="Live game state and frozen pregame forecast" style={{ marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+        <h2 style={{ fontFamily: "var(--font-headline)", fontSize: 15, color: "var(--vault-text)", margin: 0 }}>
+          Live game state
+        </h2>
+        {/* Labelled a beta because it is one: a new provider path, publicly readable for the first time. */}
+        <span
+          style={{
+            fontFamily: MONO, fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase",
+            color: "var(--vault-text-faint)", border: "1px solid var(--vault-border)",
+            borderRadius: 3, padding: "2px 6px",
+          }}
+        >
+          Live beta
+        </span>
+      </div>
+      <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: "0 0 10px", maxWidth: 620, lineHeight: 1.55 }}>
+        The left side is what the live source reports right now. The right side is the GameTime
+        forecast made before first pitch — it is frozen and does not change while the game is played.
+      </p>
+      {grid}
+    </section>
   );
 }

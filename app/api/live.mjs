@@ -21,6 +21,8 @@
  */
 import {
   MAX_UPSTREAM_BYTES,
+  memoGet,
+  memoPut,
   UPSTREAM_TIMEOUT_MS,
   cacheHeaderFor,
   gatewayDisabled,
@@ -74,10 +76,21 @@ export default async function handler(req, res) {
   if (!plan.ok) return refuse(res, plan.reason);
 
   const urls = upstreamUrls(plan);
-  const board = await getJson(urls.scoreboard);
-  if (!board.ok) return refuse(res, board.reason, { sport: plan.sport, eventId: plan.eventId });
+  const nowMs = Date.now();
 
-  const fetchedAt = new Date().toISOString();
+  // The scoreboard is the memoized read: it is the call many different event requests share.
+  const cached = memoGet(urls.scoreboard, nowMs);
+  let board;
+  let fetchedAt;
+  if (cached) {
+    board = { ok: true, json: cached.json };
+    fetchedAt = cached.fetchedAt; // the payload's own instant — never refreshed on a memo hit
+  } else {
+    board = await getJson(urls.scoreboard);
+    if (!board.ok) return refuse(res, board.reason, { sport: plan.sport, eventId: plan.eventId });
+    fetchedAt = new Date().toISOString();
+    memoPut(urls.scoreboard, board.json, fetchedAt, nowMs);
+  }
   let envelopes;
   try {
     envelopes =

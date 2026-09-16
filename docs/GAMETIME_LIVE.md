@@ -3,7 +3,8 @@
 One document, seven sections. Written 2026-09-15/16, the session that built the first Live vertical
 slice. Everything stated as verified here was measured in that session and the measurement is named.
 
-**Status: Stage 1 — internal preview. Public rollout is OFF and needs a founder decision (§7).**
+**Status: Stage 2 — MLB-only public Live beta, built and gated. NFL Live stays internal.**
+Founder decision 2026-09-16: proceed with MLB only; ESPN-backed NFL Live is preserved but not public.
 
 ---
 
@@ -202,9 +203,27 @@ returned the event. A stale refusal is indistinguishable from a real one.
 
 | path | upstream | served to a reader |
 |---|---|---|
-| MLB slate (15 games) | 86 KB | **8.6 KB** (10×) |
+| MLB slate (15 games) | 89,785 B | **7,948 B** (11.3×) |
+| MLB single game | (shared with the slate call) | **665 B** |
 | NFL slate (16 events) | 158 KB | **8.3 KB** (19×) |
 | NFL event + player stats | 567 KB | **6.2 KB** (92×) |
+
+### ⚠ The upstream memo — measured, and the reason it exists
+
+The CDN caches by REQUEST url, and every MLB game has its own (`…&event=824307`, `…&event=823980`).
+All of them resolve to the **same** upstream slate call, so a CDN-only design pulls the full ~90 KB
+schedule once per game per TTL to answer a question one call already answers.
+
+Measured on the real handler, 10 different games requested individually:
+
+| | upstream calls | upstream bytes |
+|---|---|---|
+| before the memo | 10 | 898,700 B |
+| after the memo | **0** | **0** |
+
+The memo is process-local and lives only as long as a warm function instance. ⚠ A memo hit carries
+the **payload's own** `fetchedAt`, never a fresh one — refreshing it would hand an older observation
+a fresh-looking age and the freshness badge would lie in exactly the way Rule B exists to prevent.
 
 ### Worst-plausible daily upstream volume
 
@@ -246,15 +265,53 @@ traffic before any public rollout.
 | live UI must disappear entirely | — | unset `NEXT_PUBLIC_LIVE_ENABLED` and rebuild — no model artifact is regenerated |
 | gateway entirely down | v1.0 is unaffected: forecasts, reports and results are static and never call it | none |
 
-### Open founder decisions — public rollout is blocked on these
+### Stage 2 flag configuration — the EXACT settings
 
-1. **ESPN usage posture for a public live surface.** Technical access is proven and the repository
-   already uses this source class for schedules, results, rosters and injuries. Whether a
-   continuously polled PUBLIC live surface is a posture the founder wants to adopt on an
-   uncontracted endpoint is a business call, not an engineering one. MLB StatsAPI carries no such
-   question. **This is why Stage 2 is one sport (MLB) if the founder prefers the narrow path.**
-2. **Where Live appears.** No navigation entry was added and none should be until (1) is answered.
-3. **Cost re-measurement under real traffic** before enabling NFL per-event player stats publicly.
+Four controls. Every one defaults closed, so a forgotten variable yields less capability, never more.
+
+| variable | where | MLB-only public beta | internal NFL preview | meaning |
+|---|---|---|---|---|
+| `LIVE_GATEWAY_ENABLED` | Vercel env (function) | `1` | `1` | unset/`0`/`false` → every request answers `FEATURE_DISABLED`, no upstream call |
+| `LIVE_PUBLIC_SPORTS` | Vercel env (function) | **unset** (= `mlb`) | `mlb,nfl` | the server allowlist — the gate that actually holds |
+| `NEXT_PUBLIC_LIVE_ENABLED` | Vercel env (build) | `1` | `1` | unset → `LivePanel` renders `null`: no markup, no polling |
+| `NEXT_PUBLIC_LIVE_SPORTS` | Vercel env (build) | **unset** (= `mlb`) | `mlb,nfl` | which sports the build may render a panel for |
+
+**To enable the MLB public beta: set `LIVE_GATEWAY_ENABLED=1` and `NEXT_PUBLIC_LIVE_ENABLED=1`, and
+leave both `*_SPORTS` variables unset.** Unset means MLB; writing `mlb` explicitly is equivalent, and
+neither opens NFL.
+
+**To roll back:** unset `LIVE_GATEWAY_ENABLED`. Effective on the next invocation — no rebuild, no
+model artifact regenerated. To remove the UI too, unset `NEXT_PUBLIC_LIVE_ENABLED` and rebuild.
+
+**To enable NFL later (needs decision 1 below):** set both `*_SPORTS` to `mlb,nfl`. Nothing else
+changes — adapter, fixtures, identity join and player-stat mapping are all in place and still tested.
+
+### Why NFL cannot be reached while the allowlist says MLB
+
+- The gateway refuses `sport=nfl` with `UNSUPPORTED_SPORT` **before a socket is opened**, so a
+  hand-crafted `/api/live?sport=nfl` in production contacts nobody. Verified against the real handler.
+- A refused sport is indistinguishable from an unsupported one — the refusal reveals nothing about
+  what else exists.
+- The ESPN **adapter** is not in the client bundle: a built-export guard proves ESPN's own vocabulary
+  (`STATUS_RAIN_DELAY`, `shortDownDistanceText`, …) appears in no shipped file, and that no shipped
+  **script** contains a provider host.
+- ⚠ Honest scope note: a few NFL **constants** from the shared join module do ship (market keys, the
+  `espn-public` source label), because `LivePanel` serves both sports. They are inert strings — no
+  URL, no adapter, no capability. The gate is the server allowlist, not the bundle.
+- ⚠ Provider hosts DO appear in shipped **prose**: `/ufc` cites "Settled from ESPN MMA scoreboard
+  (site.api.espn.com…)" as provenance, and that predates Live. A citation is not a call, which is why
+  the guard is scoped to scripts.
+
+### Open founder decisions
+
+1. **ESPN usage posture for a public, continuously polled live surface** — the only thing gating NFL
+   Live. Technical access is proven and the repository already uses this source class for schedules,
+   results, rosters and injuries, but a public live surface on an uncontracted endpoint is a business
+   call, not an engineering one. MLB StatsAPI carries no such question, which is why Stage 2 shipped
+   MLB.
+2. **A top-level `/live` hub.** Not built; Stage 2 forbids a nav entry. The gateway's batch
+   `scoreboard` mode already exists and is tested, so this is a surface, not new architecture.
+3. **Re-measure cost under real public traffic** once the beta has run a full slate day (§6).
 
 **Not decided by this session, deliberately:** no model was promoted, MLB totals remain PAUSED, no
 paid provider was contacted, and no public surface changed.

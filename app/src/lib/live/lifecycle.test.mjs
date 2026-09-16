@@ -20,7 +20,16 @@ import {
 import { makeEnvelope, makeCompetitor, isTerminal } from "./contract.mjs";
 import * as joinModule from "./forecast-join.mjs";
 import { compareToRange, comparisonSentence, joinNflPlayerBoard, projectMlbForecast, COMPARABLE_STATES } from "./forecast-join.mjs";
-import { cacheHeaderFor, gatewayDisabled, planRequest, scoreboardTtl, upstreamUrls } from "../../../api/_live-core.mjs";
+import { MEMO_TTL_MS, cacheHeaderFor, gatewayDisabled, memoGet, memoPut, memoReset, planRequest as planWithAllowlist, scoreboardTtl, upstreamUrls } from "../../../api/_live-core.mjs";
+
+/*
+ * These tests exercise CAPABILITY — adapters, URLs, TTLs, validation — so they plan against both
+ * sports explicitly. PERMISSION is a separate axis: production allows MLB only, and `rollout.test.mjs`
+ * owns that. Keeping them apart matters, because a capability test that silently started passing
+ * because NFL got refused would tell us nothing about the NFL adapter.
+ */
+const BOTH_SPORTS = ["nfl", "mlb"];
+const planRequest = (query) => planWithAllowlist(query, BOTH_SPORTS);
 import { normalizeNflPlayerStats } from "./adapters/espn-nfl.mjs";
 
 const here = path.dirname(new URL(import.meta.url).pathname);
@@ -333,4 +342,54 @@ test("SCOPE 3 · a malformed date never reaches a provider URL", () => {
     assert.equal(planRequest({ sport: "nfl", date: bad }).ok, false, `${bad} must be refused`);
   }
   assert.equal(planRequest({ sport: "nfl", date: "2026-09-17" }).ok, true);
+});
+
+/* ───────────── upstream memo (one provider refresh serves many event requests) ───────────── */
+
+test("MEMO 1 · ⚠ a memo hit carries the PAYLOAD's instant, never a fresh one", () => {
+  memoReset();
+  const url = "https://statsapi.mlb.com/slate";
+  const fetchedAt = "2026-09-16T02:00:00.000Z";
+  memoPut(url, { games: 1 }, fetchedAt, T0);
+
+  // 15 seconds later a different reader hits the memo. The stamp must still be the payload's own —
+  // refreshing it here would hand an older observation a fresh-looking age, and the badge that says
+  // "updated 2 sec ago" would be describing a fetch that never happened.
+  const hit = memoGet(url, T0 + 15_000);
+  assert.equal(hit.fetchedAt, fetchedAt);
+  // Which means freshness, measured on the reader's clock, correctly reports the REAL age.
+  const envelope = envelopeAt("LIVE", hit.fetchedAt);
+  assert.equal(freshnessOf(envelope, T0 + 15_000).ageMs, 15_000, "the reader sees the true age of the data");
+});
+
+test("MEMO 2 · the memo expires, and an expired entry is a miss rather than stale data", () => {
+  memoReset();
+  const url = "https://statsapi.mlb.com/slate";
+  memoPut(url, { games: 1 }, "2026-09-16T02:00:00.000Z", T0);
+  assert.ok(memoGet(url, T0 + MEMO_TTL_MS - 1), "inside the window it is a hit");
+  assert.equal(memoGet(url, T0 + MEMO_TTL_MS + 1), null, "past the window it is a MISS, not old data");
+  assert.equal(memoGet("https://statsapi.mlb.com/other", T0), null, "a different URL never hits");
+});
+
+test("MEMO 3 · the memo is bounded — it cannot grow without limit", () => {
+  memoReset();
+  for (let i = 0; i < 100; i++) memoPut(`https://statsapi.mlb.com/${i}`, {}, "x", T0);
+  let live = 0;
+  for (let i = 0; i < 100; i++) if (memoGet(`https://statsapi.mlb.com/${i}`, T0)) live++;
+  assert.ok(live <= 17, `memo grew to ${live} entries`);
+});
+
+test("MEMO 4 · MEASURED — many event requests share ONE upstream slate call", async () => {
+  memoReset();
+  const { upstreamUrls, planRequest: plan } = await import("../../../api/_live-core.mjs");
+  // Every MLB event request resolves to the SAME upstream URL: that identity is what the memo
+  // exploits, and it is the property that would silently break if MLB ever went per-event upstream.
+  const urls = ["824307", "823980", "825030"].map((id) => upstreamUrls(plan({ sport: "mlb", event: id }, BOTH_SPORTS)).scoreboard);
+  assert.equal(new Set(urls).size, 1, "all MLB event requests share one upstream call");
+
+  let fetches = 0;
+  for (const u of urls) {
+    if (!memoGet(u, T0)) { fetches++; memoPut(u, { dates: [] }, "2026-09-16T02:00:00.000Z", T0); }
+  }
+  assert.equal(fetches, 1, "three game views, one upstream fetch");
 });

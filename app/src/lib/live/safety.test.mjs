@@ -11,6 +11,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
+import { codeOnly, partition, renderedStrings } from "./testing/source-scan.mjs";
+
 const here = path.dirname(new URL(import.meta.url).pathname);
 const APP = path.join(here, "..", "..", "..");
 
@@ -32,62 +34,6 @@ const LIVE_SOURCES = [
 ];
 
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
-
-/**
- * Split a source file into executable CODE and rendered STRING literals, with comments discarded.
- *
- * Written as a scanner rather than a regex because both halves have a false-positive mode that would
- * quietly break these guards: a regex over raw text finds banned words inside the very comments that
- * DOCUMENT the ban (every failure on the first run of this suite was exactly that), while naive
- * comment-stripping eats the "//" inside a URL string. Only tracking string state gets both right.
- */
-function partition(source) {
-  let code = "";
-  const strings = [];
-  let i = 0;
-  while (i < source.length) {
-    const c = source[i];
-    const next = source[i + 1];
-    if (c === "/" && next === "*") {
-      const end = source.indexOf("*/", i + 2);
-      i = end === -1 ? source.length : end + 2;
-      continue;
-    }
-    if (c === "/" && next === "/") {
-      const end = source.indexOf("\n", i);
-      i = end === -1 ? source.length : end;
-      continue;
-    }
-    if (c === '"' || c === "'" || c === "`") {
-      const quote = c;
-      let j = i + 1;
-      let lit = "";
-      while (j < source.length) {
-        if (source[j] === "\\") { lit += source[j + 1] ?? ""; j += 2; continue; }
-        if (source[j] === quote) break;
-        lit += source[j];
-        j += 1;
-      }
-      strings.push(lit);
-      code += quote + quote; // an empty placeholder keeps surrounding code shape intact
-      i = j + 1;
-      continue;
-    }
-    code += c;
-    i += 1;
-  }
-  return { code, strings: strings.join("\n") };
-}
-
-/** Rendered copy only — string and template literals, comments excluded. */
-function renderedStrings(source) {
-  return partition(source).strings;
-}
-
-/** Executable code only — comments and string contents excluded. */
-function codeOnly(source) {
-  return partition(source).code;
-}
 
 test("SAFETY 0 · every scanned file exists and is non-trivial (the anti-vacuity check)", () => {
   for (const rel of LIVE_SOURCES) {
@@ -185,13 +131,16 @@ test("SAFETY 5 · the client bundle reads NEXT_PUBLIC_* only, and only as a lite
   }
 });
 
-test("SAFETY 6 · the gateway is OFF by default and its flag is the whole rollback", () => {
+test("SAFETY 6 · the gateway is OFF by default and the flags are the whole rollback", () => {
   const core = read("api/_live-core.mjs");
   assert.match(core, /LIVE_GATEWAY_ENABLED/);
   const client = read("src/lib/live/client.ts");
   assert.match(client, /NEXT_PUBLIC_LIVE_ENABLED/);
   // Two independent switches: the server stops spending, the client stops rendering and polling.
-  assert.match(read("src/components/live/live-panel.tsx"), /liveEnabled\(\)/);
+  // Stage 2 added a third axis — the per-sport allowlist — so the panel's gate is liveReadyFor(sport)
+  // rather than the sport-blind master flag. `rollout.test.mjs` owns that dimension in full.
+  assert.match(read("src/components/live/live-panel.tsx"), /liveReadyFor\(\s*sport\s*\)/);
+  assert.match(core, /LIVE_PUBLIC_SPORTS/);
 });
 
 test("SAFETY 7 · ⚠ MLB totals stay PAUSED — no live surface mentions a combined total or over/under", () => {

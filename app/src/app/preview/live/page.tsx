@@ -82,7 +82,7 @@ export default function LivePreviewPage() {
             eventId={e.eventId}
             playerBoard={e.playerBoard}
             mlbForecast={e.mlbForecast}
-            forecastGeneratedAt={etStamp(e.forecastGeneratedAt)}
+            forecastGeneratedAt={e.forecastGeneratedAt}
             startTime={e.startTime}
           />
         </section>

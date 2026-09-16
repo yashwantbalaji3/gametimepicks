@@ -63,6 +63,8 @@ import {
 
 import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
+import LivePanel from "@/components/live/live-panel";
+import { projectMlbForecast } from "@/lib/live/forecast-join.mjs";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { cardFromMlbPrediction } from "@/lib/command-center/featured";
 import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
@@ -739,6 +741,31 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     mlbReportDetails
   );
 
+  /*
+   * LIVE BETA (v1.1 Stage 2, MLB only) — the provider's current game state beside this report's own
+   * frozen pregame forecast.
+   *
+   * It reads the SAME `fullGameSim` this page already renders, projected to per-team run bands by
+   * `projectMlbForecast` — which deliberately omits `totalRuns`, because MLB totals are PAUSED. So
+   * the live module cannot show a number the report is not already allowed to show.
+   *
+   * `LivePanel` self-gates on `liveReadyFor("mlb")` and renders null when the flags are off, so this
+   * costs nothing and shows nothing until the rollout controls say otherwise. NFL is refused by the
+   * gateway's own allowlist regardless of what any page asks for.
+   */
+  const mlbLiveForecast = detail.sport === "mlb" ? projectMlbForecast(detail.fullGameSim ?? null) : null;
+  const mlbLivePanel =
+    detail.sport === "mlb" && detail.fullGameSim?.gamePk ? (
+      <LivePanel
+        sport="mlb"
+        eventId={String(detail.fullGameSim.gamePk)}
+        mlbForecast={mlbLiveForecast}
+        forecastGeneratedAt={detail.fullGameSimMeta?.generatedAt ?? null}
+        startTime={detail.fullGameSim.firstPitch ?? null}
+        showBetaHeading
+      />
+    ) : null;
+
   // ── Game-to-artifact reconciliation gate: if the joined artifacts disagree on which game this is (a
   // doubleheader mis-join), NEVER render a partially-mismatched report — show a safe, honest state instead.
   // No internal paths / errors / reasons are exposed to the user. ──
@@ -867,6 +894,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
 
         {/* The full dashboard renders directly (P242) — no generate card, no staged reveal, no
             presentation modal. The numbers are precomputed and deterministic; the page shows them. */}
+        {mlbLivePanel}
+
         <GameSimulationRunner
           view={sim}
           homeLogo={detail.homeLogo}
@@ -1010,6 +1039,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <Link href={SPORT_HUB_HREF[detail.sport] ?? `/${detail.sport}`} className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 42 }}>View {detail.sportLabel}</Link>
         </div>
       </section>
+
+      {/* Live beta (MLB) — also on this path, so an MLB game WITHOUT a simulation still shows live
+          state. Null for every other sport and whenever the rollout flags are off. */}
+      {mlbLivePanel}
 
       {/* MLB Game Lab report — the deeper per-game model report (model-vs-market, biggest leans, recent
           form, product-mapping links + honest "not yet simulated" placeholders). Shown directly here for

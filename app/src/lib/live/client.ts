@@ -12,6 +12,27 @@ export function liveEnabled(): boolean {
 }
 
 /**
+ * Sports this BUILD may render a live panel for. **Default: MLB only.**
+ *
+ * The client half of the Stage 2 gate. The server half (`LIVE_PUBLIC_SPORTS` in the gateway) is the
+ * one that actually holds; this one keeps us from shipping a panel that would only ever be refused.
+ * Both default closed, so forgetting either still yields MLB-only.
+ *
+ * ⚠ Read as a LITERAL member expression — Next inlines only literal `process.env.NEXT_PUBLIC_*`.
+ * A computed read compiles to `undefined` in the browser and would silently disable every sport.
+ */
+export function liveSportEnabled(sport: "nfl" | "mlb"): boolean {
+  const raw = process.env.NEXT_PUBLIC_LIVE_SPORTS;
+  const allowed = raw === undefined || raw === "" ? ["mlb"] : raw.split(",").map((s) => s.trim().toLowerCase());
+  return allowed.includes(sport);
+}
+
+/** The single predicate every live surface asks before rendering or fetching anything. */
+export function liveReadyFor(sport: "nfl" | "mlb"): boolean {
+  return liveEnabled() && liveSportEnabled(sport);
+}
+
+/**
  * The gateway origin. Same-origin by default — the function is deployed beside the static export, so
  * no cross-origin request and no CORS surface exists in the normal case.
  */

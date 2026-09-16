@@ -18,7 +18,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { liveEnabled, liveUrl } from "@/lib/live/client";
+import { liveReadyFor, liveUrl } from "@/lib/live/client";
 import { effectiveIntervalMs, freshnessOf, refreshPolicyFor } from "@/lib/live/freshness.mjs";
 import { isUnavailable } from "@/lib/live/contract.mjs";
 
@@ -103,7 +103,7 @@ export function useLiveEvent(
   }, [sport, eventId, players, etDate, envelope]);
 
   useEffect(() => {
-    if (!liveEnabled() || !eventId) {
+    if (!liveReadyFor(sport) || !eventId) {
       setLoading(false);
       return;
     }
@@ -121,7 +121,7 @@ export function useLiveEvent(
 
   // Returning to the tab re-checks at once rather than waiting out a backed-off interval.
   useEffect(() => {
-    if (!liveEnabled() || !eventId) return;
+    if (!liveReadyFor(sport) || !eventId) return;
     const onVisible = () => {
       if (document.hidden || stopped.current) return;
       if (envelope && refreshPolicyFor(envelope, Date.now()).clientIntervalMs === null) return;
@@ -130,7 +130,7 @@ export function useLiveEvent(
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [poll, clearTimer, envelope, eventId]);
+  }, [poll, clearTimer, envelope, eventId, sport]);
 
   // The age ticker. Runs only while an in-play envelope is on screen, so a finished game is idle.
   useEffect(() => {
