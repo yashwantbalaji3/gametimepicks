@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824626,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T18:34:03.655Z",
+  "availableAt": "2026-09-16T18:34:03.655Z",
+  "eventStartTime": "2026-09-16T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 684007,
+      "name": "Shota Imanaga",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 5,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 5.2,
+        "bbAvg": 1.6,
+        "erAvg": 2.6,
+        "hrAvg": 1.2,
+        "kPer9": 9.36,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 162.33,
+        "k": 156,
+        "bb": 37,
+        "er": 70,
+        "hr": 34
+      }
+    },
+    "away": {
+      "id": 702275,
+      "name": "JR Ritchie",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 45,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 4.6,
+        "bbAvg": 2.8,
+        "erAvg": 3.4,
+        "hrAvg": 0.6,
+        "kPer9": 9.27,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 39.67,
+        "k": 36,
+        "bb": 26,
+        "er": 24,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-16&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-16T18:34:03.655Z"
+  },
+  "recordHash": "6e3d5aa0a4dab4a27be23777915f47a790ed1010b0130dd05b5602d0452f56c4"
+}
