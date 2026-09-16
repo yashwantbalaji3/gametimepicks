@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-16",
- "generatedAt": "2026-09-16T13:42:20Z",
+ "generatedAt": "2026-09-16T14:37:00Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-1+bank-builder-lane-b-step-1",
-     "lockAt": "2026-09-16T13:42:17.876Z"
+     "lockAt": "2026-09-16T14:36:56.324Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-1+moonshot-lane-b-step-2",
-     "lockAt": "2026-09-16T13:42:17.876Z"
+     "lockAt": "2026-09-16T14:36:56.324Z"
     },
     "transitions": [
      {
@@ -144,18 +144,18 @@
   {
    "product": "end-zone-vault",
    "label": "End Zone Vault",
-   "state": "NOT_RUN",
-   "reason": "the Vault ledger holds no entry for 2026-09-16",
+   "state": "NO_PLAY",
+   "reason": "scorerPrice: FAIL(NOT_REQUESTED — this authorization funds team markets only, so no touchdown price was asked for; whether the books offer one is unknown) · participation: FAIL(QUESTIONABLE) · participation: FAIL(INACTIVE)",
    "candidatesEvaluated": 0,
    "rejections": [],
    "card": null,
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "INCIDENT",
+    "state": "NO_PLAY",
     "policyVersion": "end-zone-vault@1",
     "evidence": {
      "policyVersion": "end-zone-vault@1",
-     "incidentRef": "NOT_RUN: the Vault ledger holds no entry for 2026-09-16"
+     "reason": "scorerPrice: FAIL(NOT_REQUESTED — this authorization funds team markets only, so no touchdown price was asked for; whether the books offer one is unknown) · participation: FAIL(QUESTIONABLE) · participation: FAIL(INACTIVE)"
     },
     "transitions": [
      {
@@ -163,8 +163,8 @@
       "runId": "open:end-zone-vault:2026-09-16"
      },
      {
-      "to": "INCIDENT",
-      "runId": "eval:2026-09-16:NOT_RUN"
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-16:ab878657edc5"
      }
     ]
    }
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-16T13:33:44.000Z"
+     "lockAt": "2026-09-16T14:26:10.000Z"
     },
     "transitions": [
      {
@@ -593,7 +593,7 @@
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-16T13:42:19Z"
+     "lockAt": "2026-09-16T14:36:58Z"
     },
     "transitions": [
      {
@@ -650,13 +650,7 @@
    "ledgerOwned": false
   }
  ],
- "watchdog": [
-  {
-   "product": "end-zone-vault",
-   "kind": "INCIDENT_OPEN",
-   "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-16"
-  }
- ],
+ "watchdog": [],
  "authorities": {
   "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
   "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
