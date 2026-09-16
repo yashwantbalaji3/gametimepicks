@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823004,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T15:19:59.582Z",
+  "availableAt": "2026-09-16T15:19:59.582Z",
+  "eventStartTime": "2026-09-16T17:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669461,
+      "name": "Matthew Liberatore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 5,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 6,
+        "bbAvg": 1.6,
+        "erAvg": 4.2,
+        "hrAvg": 1.4,
+        "kPer9": 11.1,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 143.33,
+        "k": 146,
+        "bb": 52,
+        "er": 88,
+        "hr": 27
+      }
+    },
+    "away": {
+      "id": 683627,
+      "name": "Anthony Molina",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 5,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 3,
+        "ipSum": 13,
+        "ipAvg": 4.33,
+        "kAvg": 5.33,
+        "bbAvg": 1,
+        "erAvg": 3.33,
+        "hrAvg": 0.67,
+        "kPer9": 11.08,
+        "workloadIpLast5": 13
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 13,
+        "k": 16,
+        "bb": 3,
+        "er": 10,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-16&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-16T15:19:59.582Z"
+  },
+  "recordHash": "c7497043dae99bab476fbd676f1e4d3a93f3cd2156e51918ccda50055da78c70"
+}
