@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-15T14:29:48Z",
+ "generatedAt": "2026-09-16T09:59:14Z",
  "worst": "BREACHED",
  "counts": {
-  "INSUFFICIENT_SAMPLE": 15,
+  "INSUFFICIENT_SAMPLE": 16,
   "HOLDING": 2,
   "WATCH": 1,
   "BREACHED": 1
@@ -21,20 +21,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 586,
+   "n": 601,
    "judgement": {
     "state": "BREACHED",
-    "n": 586,
+    "n": 601,
     "needed": 200,
-    "meanDiff": 0.0353,
-    "lo95": 0.015,
-    "hi95": 0.0562
+    "meanDiff": 0.0371,
+    "lo95": 0.0172,
+    "hi95": 0.0577
    },
    "context": {
-    "hitRate": 0.4881,
+    "hitRate": 0.4859,
     "meanPickProbability": 0.5864,
-    "modelMinusMarket": 0.0344,
-    "pairedWithMarket": 586
+    "modelMinusMarket": 0.0361,
+    "pairedWithMarket": 601
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -44,20 +44,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 615,
+   "n": 630,
    "judgement": {
     "state": "WATCH",
-    "n": 615,
+    "n": 630,
     "needed": 200,
-    "meanDiff": 0.0128,
-    "lo95": -0.0015,
-    "hi95": 0.0277
+    "meanDiff": 0.0139,
+    "lo95": -0.0003,
+    "hi95": 0.0287
    },
    "context": {
-    "hitRate": 0.4959,
-    "meanPickProbability": 0.5722,
-    "modelMinusMarket": 0.0352,
-    "pairedWithMarket": 614
+    "hitRate": 0.4952,
+    "meanPickProbability": 0.5721,
+    "modelMinusMarket": 0.0351,
+    "pairedWithMarket": 629
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -67,18 +67,18 @@
    "label": "MLB run line picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 615,
+   "n": 630,
    "judgement": {
     "state": "HOLDING",
-    "n": 615,
+    "n": 630,
     "needed": 200,
     "meanDiff": -0.0395,
-    "lo95": -0.0565,
-    "hi95": -0.0221
+    "lo95": -0.0558,
+    "hi95": -0.0228
    },
    "context": {
-    "hitRate": 0.6488,
-    "meanPickProbability": 0.5983,
+    "hitRate": 0.6476,
+    "meanPickProbability": 0.5982,
     "modelMinusMarket": null,
     "pairedWithMarket": 0
    },
@@ -178,6 +178,22 @@
     "modelLogLoss": 1.077
    },
    "source": "app/public/data/soccer/ligue-1/results/graded.json"
+  },
+  {
+   "id": "nfl_forward_anytime_td",
+   "sport": "nfl",
+   "label": "NFL blind forward test · anytime td",
+   "baseline": "its preregistered forward bars",
+   "state": "INSUFFICIENT_SAMPLE",
+   "n": 0,
+   "judgement": {
+    "receiptState": "ACCUMULATING",
+    "bars": null,
+    "needed": 1000
+   },
+   "context": null,
+   "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
+   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board."
   },
   {
    "id": "nfl_forward_player_pass_yds",

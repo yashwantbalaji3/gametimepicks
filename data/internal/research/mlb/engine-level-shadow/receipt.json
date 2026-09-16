@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "artifact": "mlb-engine-level-shadow-receipt",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "317",
+  "protocol": "data/internal/research/mlb/reports/engine-level-shadow-protocol.json",
+  "candidateId": "mlb-fullgame-engine-league-rates-v1",
+  "updatedAt": "2026-09-16T09:58:41Z",
+  "rowsSeen": 15,
+  "pending": 0,
+  "graded": 15,
+  "needed": 200,
+  "dates": [
+    "2026-09-15"
+  ],
+  "control": {
+    "n": 15,
+    "level": 0.056,
+    "coverageP10P90": 0.8667,
+    "meanWidthP10P90": 10.0667,
+    "pitTailMass": 0.2,
+    "fixedOverLogLoss": 0.8261,
+    "linedGames": 15
+  },
+  "candidate": {
+    "n": 15,
+    "level": -0.56,
+    "coverageP10P90": 0.8667,
+    "meanWidthP10P90": 10.7333,
+    "pitTailMass": 0.2667,
+    "fixedOverLogLoss": 0.8056,
+    "linedGames": 15
+  },
+  "directions": "level = actual − simulated mean (0 is right); coverage targets 0.80; PIT tail mass 0.20 if well specified; log loss lower is better; width is the mean p10–p90 span",
+  "state": "ACCUMULATING",
+  "verdict": null,
+  "decidedAt": null,
+  "decidedOn": null,
+  "consequence": "PASS proposes — it does not perform — a founder-approved adoption of the candidate parameters for the public simulation, with a paired forward test continuing after adoption. Neither verdict touches the over/under pause; the live-record gate alone lifts it."
+}
