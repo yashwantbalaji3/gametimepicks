@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824382,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T00:43:29.584Z",
+  "availableAt": "2026-09-16T00:43:29.584Z",
+  "eventStartTime": "2026-09-16T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-13",
+    "2026-09-14",
+    "2026-09-15"
+  ],
+  "home": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 119,
+      "relievers": [
+        {
+          "id": 677944,
+          "name": "Slade Cecconi",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 7,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 670036,
+          "name": "Matt Festa",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 682120,
+          "name": "Tim Herrin",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 641401,
+          "name": "Connor Brogdon",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 682982,
+          "name": "Daniel Espino",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 1,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 683769,
+          "name": "Hunter Gaddis",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 681870,
+          "name": "Erik Sabrowski",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 176,
+      "relievers": [
+        {
+          "id": 680732,
+          "name": "Sean Burke",
+          "appearances": 1,
+          "pitches": 94,
+          "outs": 15,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 669684,
+          "name": "Chris Murphy",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 4,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 696146,
+          "name": "Hagen Smith",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 670950,
+          "name": "Trevor Richards",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-09-13",
+            "2026-09-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-13,2026-09-14,2026-09-15) + feed/live box scores",
+    "capturedAt": "2026-09-16T00:43:29.584Z"
+  },
+  "recordHash": "8e62bdd1449dfc7679216a83219fae270a804fbd65aeea70195fa3bc3d3046bf"
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822846,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T00:43:29.584Z",
+  "availableAt": "2026-09-16T00:43:29.584Z",
+  "eventStartTime": "2026-09-17T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-13",
+    "2026-09-14",
+    "2026-09-15"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 56,
+      "relievers": [
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 676395,
+          "name": "Robert Garcia",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 61,
+      "relievers": [
+        {
+          "id": 547973,
+          "name": "Aroldis Chapman",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 1,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 676477,
+          "name": "Garrett Whitlock",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-13,2026-09-14,2026-09-15) + feed/live box scores",
+    "capturedAt": "2026-09-16T00:43:29.584Z"
+  },
+  "recordHash": "475b70d6e94dce7e41cd09a7aa88f66cea3ac9ff48e24b9dfa79bb23c7e7996d"
+}

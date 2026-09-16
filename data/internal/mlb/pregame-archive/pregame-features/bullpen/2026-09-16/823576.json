@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823576,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T00:43:29.584Z",
+  "availableAt": "2026-09-16T00:43:29.584Z",
+  "eventStartTime": "2026-09-16T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-13",
+    "2026-09-14",
+    "2026-09-15"
+  ],
+  "home": {
+    "teamId": 121,
+    "teamName": "New York Mets",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 79,
+      "relievers": [
+        {
+          "id": 673540,
+          "name": "Kodai Senga",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 681810,
+          "name": "Austin Warren",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 702752,
+          "name": "Jonathan Pintaro",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 673380,
+          "name": "Dedniel Núñez",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 681320,
+          "name": "Nate Lavender",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 111,
+      "relievers": [
+        {
+          "id": 682274,
+          "name": "Yaramil Hiraldo",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 5,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 677020,
+          "name": "Josh Walker",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 5,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 664991,
+          "name": "Grant Wolfram",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 676742,
+          "name": "Cam Sanders",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 1,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-13,2026-09-14,2026-09-15) + feed/live box scores",
+    "capturedAt": "2026-09-16T00:43:29.584Z"
+  },
+  "recordHash": "1b7ca7d19e95ff11d90a143e8c8196ede29563809673e56fe48cad67a4fa941f"
+}

@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823004,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T00:43:29.584Z",
+  "availableAt": "2026-09-16T00:43:29.584Z",
+  "eventStartTime": "2026-09-16T17:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-13",
+    "2026-09-14",
+    "2026-09-15"
+  ],
+  "home": {
+    "teamId": 138,
+    "teamName": "St. Louis Cardinals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 107,
+      "relievers": [
+        {
+          "id": 666277,
+          "name": "George Soriano",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 700669,
+          "name": "Gordon Graceffo",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 592773,
+          "name": "Ryne Stanek",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 676617,
+          "name": "Riley O'Brien",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 677865,
+          "name": "Justin Bruihl",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 100,
+      "relievers": [
+        {
+          "id": 683363,
+          "name": "Matt Wilkinson",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 9,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 669270,
+          "name": "Joel Kuhnel",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 5,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 2,
+          "pitches": 18,
+          "outs": 6,
+          "dates": [
+            "2026-09-13",
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 0,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-13,2026-09-14,2026-09-15) + feed/live box scores",
+    "capturedAt": "2026-09-16T00:43:29.584Z"
+  },
+  "recordHash": "f6befbab1062bfced6d26fec702c7b1a33dec90992c46b4aa074aa178c03d203"
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822926,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T00:43:29.584Z",
+  "availableAt": "2026-09-16T00:43:29.584Z",
+  "eventStartTime": "2026-09-16T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-13",
+    "2026-09-14",
+    "2026-09-15"
+  ],
+  "home": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 72,
+      "relievers": [
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 811315,
+          "name": "Brody Hopkins",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 642121,
+          "name": "Cole Sulser",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 94,
+      "relievers": [
+        {
+          "id": 664129,
+          "name": "Geoff Hartlieb",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 656240,
+          "name": "Scott Blewett",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 663687,
+          "name": "Hogan Harris",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-13,2026-09-14,2026-09-15) + feed/live box scores",
+    "capturedAt": "2026-09-16T00:43:29.584Z"
+  },
+  "recordHash": "d71d4ccf5feb112f4a26c6f8d8bb8f8a99caa01ae43609300865327bbe04dc7c"
+}

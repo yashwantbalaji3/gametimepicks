@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822846,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T00:43:28.082Z",
+  "availableAt": "2026-09-16T00:43:28.082Z",
+  "eventStartTime": "2026-09-17T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669022,
+      "name": "MacKenzie Gore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 5,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22,
+        "ipAvg": 4.4,
+        "kAvg": 3.6,
+        "bbAvg": 3,
+        "erAvg": 2.8,
+        "hrAvg": 0,
+        "kPer9": 7.36,
+        "workloadIpLast5": 22
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 161.67,
+        "k": 172,
+        "bb": 66,
+        "er": 83,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 687562,
+      "name": "Jake Bennett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 7,
+      "lastStartDate": "2026-09-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 5.6,
+        "bbAvg": 0.6,
+        "erAvg": 3.2,
+        "hrAvg": 1.4,
+        "kPer9": 8.89,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 105,
+        "k": 83,
+        "bb": 19,
+        "er": 43,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-16&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-16T00:43:28.082Z"
+  },
+  "recordHash": "bf0246ba266ad9669068bf65a592ab642c5aedd4acda942cc4548a8c43657c92"
+}

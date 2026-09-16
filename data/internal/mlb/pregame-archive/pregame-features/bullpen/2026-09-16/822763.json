@@ -1,0 +1,207 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822763,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T00:43:29.584Z",
+  "availableAt": "2026-09-16T00:43:29.584Z",
+  "eventStartTime": "2026-09-16T19:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-13",
+    "2026-09-14",
+    "2026-09-15"
+  ],
+  "home": {
+    "teamId": 141,
+    "teamName": "Toronto Blue Jays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 123,
+      "relievers": [
+        {
+          "id": 686973,
+          "name": "Louis Varland",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 5,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 694357,
+          "name": "Ricky Tiedemann",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 573009,
+          "name": "Joe Mantiply",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 1,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 547179,
+          "name": "Michael Lorenzen",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 689254,
+          "name": "Mason Fluharty",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 643511,
+          "name": "Tyler Rogers",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 680755,
+          "name": "Braydon Fisher",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 623149,
+          "name": "Paul Sewald",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 2,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 116,
+    "teamName": "Detroit Tigers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 141,
+      "relievers": [
+        {
+          "id": 689225,
+          "name": "Beau Brieske",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 6,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 640448,
+          "name": "Kyle Finnegan",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 700270,
+          "name": "Yilber Díaz",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 5,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 663947,
+          "name": "Tyler Holton",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 676428,
+          "name": "Brant Hurter",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 445276,
+          "name": "Kenley Jansen",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 641755,
+          "name": "Tyler Kinley",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-13,2026-09-14,2026-09-15) + feed/live box scores",
+    "capturedAt": "2026-09-16T00:43:29.584Z"
+  },
+  "recordHash": "272d1ac1a17ed7d7aeb0f56bd2f419876d5a85d692285490b14cccc9b515d3a5"
+}

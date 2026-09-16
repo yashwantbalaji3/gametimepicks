@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823655,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T00:43:29.584Z",
+  "availableAt": "2026-09-16T00:43:29.584Z",
+  "eventStartTime": "2026-09-16T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-13",
+    "2026-09-14",
+    "2026-09-15"
+  ],
+  "home": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 146,
+      "relievers": [
+        {
+          "id": 667297,
+          "name": "Tommy Nance",
+          "appearances": 2,
+          "pitches": 43,
+          "outs": 8,
+          "dates": [
+            "2026-09-13",
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 701519,
+          "name": "Travis Adams",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 9,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 621345,
+          "name": "A.J. Minter",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 0,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 656546,
+          "name": "Jeff Hoffman",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 702193,
+          "name": "Andrew Morris",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 1,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 681892,
+          "name": "Kody Funderburk",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 103,
+      "relievers": [
+        {
+          "id": 605242,
+          "name": "Michael Fulmer",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        },
+        {
+          "id": 657612,
+          "name": "Tim Hill",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-13,2026-09-14,2026-09-15) + feed/live box scores",
+    "capturedAt": "2026-09-16T00:43:29.584Z"
+  },
+  "recordHash": "8fc123c93d924b5d79f5939b1a3aa92dcacb6f698f86edd9b7728b5be8ebe5b1"
+}
