@@ -20,6 +20,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
+import TeamFollowRow from "@/components/follow/team-follow-row";
+import { nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
 import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
@@ -198,6 +200,10 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-gold)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px" }}>EXPERIMENTAL</span>
         </h1>
         {f.venue ? <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{f.venue}</p> : null}
+        {/* v1.1.2: follow either club by its ESPN team id, from the game the reader is already on. */}
+        <div style={{ marginTop: 10 }}>
+          <TeamFollowRow away={nflTeamRefByAbbr(f.away.abbr)} home={nflTeamRefByAbbr(f.home.abbr)} />
+        </div>
         {wx ? (
           <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--vault-text-faint)", maxWidth: 720, lineHeight: 1.55 }}>
             {wx.summary} — <strong>not used by the model</strong>; no weather term enters the numbers below.

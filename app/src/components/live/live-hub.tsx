@@ -28,6 +28,7 @@ import {
 } from "@/lib/live/lifecycle.mjs";
 import type { HubRoster, HubRosterGame } from "@/lib/live/hub-data";
 import { useLiveSlate } from "./use-live-slate";
+import FollowedMark from "@/components/today/followed-mark";
 
 const MONO = "var(--font-mono)";
 
@@ -99,6 +100,9 @@ function GameCard({ game, envelope }: { game: HubRosterGame; envelope: any }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
           <StateChip state={life.state} label={life.label} />
+          {/* v1.1.2: a LOCAL marker for a club the reader follows. It never refetches the slate and never
+              reorders the hub — personalized ordering belongs to My GameTime, which does not exist yet. */}
+          <FollowedMark entities={[game.awayRef, game.homeRef].filter((r): r is NonNullable<typeof r> => r !== null)} />
           {life.state === "PRE" && start ? (
             <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)" }}>{start}</span>
           ) : period ? (

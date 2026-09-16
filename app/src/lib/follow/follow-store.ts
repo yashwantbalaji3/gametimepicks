@@ -1,70 +1,138 @@
 "use client";
 /**
- * FOLLOWED TEAMS (P251 · F9).
+ * FOLLOWING — the browser hook (v1.1.2). Reads, writes and syncs; every RULE lives in
+ * `follow-schema.mjs` and every storage interaction in `follow-browser.mjs`.
  *
- * Nothing a reader did on this site survived the visit. The parlay slip persisted; everything else
- * was stateless, so every arrival started from the same cold homepage whether the visitor was a
- * Seahawks fan who came for one game or a first-timer. This is the one persistence feature that
- * changes whether they come back, and it does not need an account to work.
+ * Originally P251 · F9, which keyed follows on a club's display name. v1.1.2 keys them on canonical
+ * ids and migrates the old names forward without deleting them (see follow-schema.mjs).
  *
- * BROWSER-LOCAL, LIKE THE SLIP, AND FOR THE SAME REASONS: nothing is transmitted, so a reader's
- * interests are not a data-collection surface; and nothing here can reach a record — following a
- * club changes what is shown FIRST, never what is published, evaluated or settled. A page that
- * reordered its own numbers around a reader's preferences would be a different product.
- *
- * The identity is the club's own published name, because that is what every artifact and the
- * search index already agree on. No id space is invented for this.
+ * WHAT HAS NOT CHANGED, AND MUST NOT:
+ *   - nothing is transmitted. A reader's interests are never a data-collection surface.
+ *   - nothing here can reach a record. Following changes what a reader is shown FIRST — never what is
+ *     published, forecast, evaluated or settled.
+ *   - the page starts EMPTY on the server and on the first client render, and loads in an effect, so
+ *     static HTML is identical for every reader and hydration cannot disagree.
  */
 import { useCallback, useEffect, useState } from "react";
 
-const STORAGE_KEY = "gtp.follow.v1";
-/** A shortlist, not a subscription list. Past this it stops being "your teams". */
-export const FOLLOW_MAX = 12;
+import { FOLLOW_CHANNEL, emptyDocument, isFollowing as isFollowingPure, listFollowed } from "./follow-schema.mjs";
+import { applyFollowing, isFollowingStorageEvent, readFollowing } from "./follow-browser.mjs";
 
-const CHANNEL = "gtp:follow";
-const publish = () => { if (typeof window !== "undefined") window.dispatchEvent(new Event(CHANNEL)); };
+export type FollowSport = "MLB" | "NFL";
+export type FollowEntityType = "team" | "player";
 
-function read(): string[] {
-  if (typeof window === "undefined") return [];
+export interface FollowRef {
+  sport: FollowSport;
+  entityType: FollowEntityType;
+  id: string;
+  /** Display HINT only — never identity. */
+  label?: string;
+}
+
+/** OK/EMPTY/CORRUPT are usable. UNAVAILABLE and UNSUPPORTED_VERSION disable writes, honestly. */
+export type FollowStatus = "LOADING" | "OK" | "EMPTY" | "CORRUPT" | "UNAVAILABLE" | "UNSUPPORTED_VERSION";
+
+interface Doc {
+  schemaVersion: number;
+  followed: FollowRef[];
+  updatedAt: string | null;
+}
+
+const publish = () => {
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(FOLLOW_CHANNEL));
+};
+
+/** localStorage, or null when even ACCESSING it throws (some sandboxed iframes do). */
+function storage(): Storage | null {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return [...new Set(parsed.filter((x): x is string => typeof x === "string" && x.length > 0))].slice(0, FOLLOW_MAX);
+    return typeof window !== "undefined" ? window.localStorage : null;
   } catch {
-    return [];
+    return null;
   }
 }
 
-export function useFollowedTeams() {
-  /* Starts EMPTY on the server and on the first client render, then loads after mount — reading
-     localStorage during render makes the two markups disagree and throws on hydration. */
-  const [teams, setTeams] = useState<string[]>([]);
-  const [ready, setReady] = useState(false);
+export interface UseFollowing {
+  followed: FollowRef[];
+  /** False until the first read completes — render neutral, not "Follow", before then. */
+  ready: boolean;
+  status: FollowStatus;
+  /** Can a follow/unfollow succeed right now? False when storage is blocked or the schema is newer. */
+  writable: boolean;
+  /** P251 names that could not be resolved to a canonical id on this page. Reported, never dropped. */
+  unresolvedLegacy: number;
+  isFollowing: (ref: FollowRef | null | undefined) => boolean;
+  toggle: (ref: FollowRef | null | undefined) => void;
+  unfollow: (ref: FollowRef | null | undefined) => void;
+  clear: () => void;
+  list: (filter?: { sport?: FollowSport; entityType?: FollowEntityType }) => FollowRef[];
+}
+
+/**
+ * @param legacyMap P251 display name → canonical ref. Pass it on pages where legacy follows were
+ *                  created or are managed; without it, legacy names are counted and left alone.
+ */
+export function useFollowing({ legacyMap }: { legacyMap?: Record<string, FollowRef> | null } = {}): UseFollowing {
+  const [doc, setDoc] = useState<Doc>(emptyDocument() as Doc);
+  const [status, setStatus] = useState<FollowStatus>("LOADING");
+  const [unresolvedLegacy, setUnresolvedLegacy] = useState(0);
+
+  const load = useCallback(() => {
+    const s = storage();
+    if (!s) {
+      setStatus("UNAVAILABLE");
+      return;
+    }
+    const r = readFollowing(s, { legacyMap: legacyMap ?? null, nowIso: new Date().toISOString() });
+    setDoc(r.doc as Doc);
+    setStatus(r.status as FollowStatus);
+    setUnresolvedLegacy(r.unresolvedLegacy ?? 0);
+    if (r.migrated) publish(); // other mounted consumers pick up the migrated document
+  }, [legacyMap]);
 
   useEffect(() => {
-    setTeams(read());
-    setReady(true);
-    const sync = () => setTeams(read());
-    window.addEventListener(CHANNEL, sync);
-    window.addEventListener("storage", sync);
-    return () => { window.removeEventListener(CHANNEL, sync); window.removeEventListener("storage", sync); };
-  }, []);
+    load();
+    const onChannel = () => load();
+    const onStorage = (e: StorageEvent) => {
+      // The event's newValue is never trusted — it only tells us to re-read through the contract.
+      if (isFollowingStorageEvent(e)) load();
+    };
+    window.addEventListener(FOLLOW_CHANNEL, onChannel);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(FOLLOW_CHANNEL, onChannel);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [load]);
 
-  const write = useCallback((next: string[]) => {
-    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* private mode or quota — following is best-effort by design */ }
-    setTeams(next);
-    publish();
-  }, []);
+  const run = useCallback((op: "follow" | "unfollow" | "clear", ref?: FollowRef | null) => {
+    const s = storage();
+    if (!s) {
+      setStatus("UNAVAILABLE");
+      return;
+    }
+    const r = applyFollowing(s, op, { ref: ref ?? null, nowIso: new Date().toISOString(), legacyMap: legacyMap ?? null });
+    setDoc(r.doc as Doc);
+    setStatus(r.status as FollowStatus);
+    if (r.changed) publish();
+  }, [legacyMap]);
 
-  const toggle = useCallback((team: string) => {
-    const cur = read();
-    const next = cur.includes(team) ? cur.filter((t) => t !== team) : [...cur, team].slice(0, FOLLOW_MAX);
-    write(next);
-  }, [write]);
+  const isFollowing = useCallback((ref: FollowRef | null | undefined) => (ref ? isFollowingPure(doc, ref) : false), [doc]);
 
-  const isFollowed = useCallback((team: string) => teams.includes(team), [teams]);
+  const toggle = useCallback((ref: FollowRef | null | undefined) => {
+    if (!ref) return;
+    run(isFollowingPure(doc, ref) ? "unfollow" : "follow", ref);
+  }, [doc, run]);
 
-  return { teams, ready, toggle, isFollowed, clear: () => write([]) };
+  return {
+    followed: doc.followed,
+    ready: status !== "LOADING",
+    status,
+    writable: status === "OK" || status === "EMPTY" || status === "CORRUPT",
+    unresolvedLegacy,
+    isFollowing,
+    toggle,
+    unfollow: (ref) => { if (ref) run("unfollow", ref); },
+    clear: () => run("clear"),
+    list: (filter) => listFollowed(doc, filter ?? {}) as FollowRef[],
+  };
 }

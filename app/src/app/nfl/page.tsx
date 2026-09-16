@@ -49,6 +49,8 @@ import IntervalCalibrationPanel, { loadIntervalCalibration } from "@/components/
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NflWeeklyBoards from "@/components/nfl/weekly-boards";
+import FollowLegacyMigration from "@/components/follow/follow-legacy-migration";
+import { legacyNameMap, nflTeamRefsByAbbr } from "@/lib/follow/entity-registry";
 import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { availableWeekKeys, weekKeyOf } from "@/lib/sports/nfl/week-keys";
 
@@ -652,7 +654,12 @@ export default function NflHubPage() {
                and the search index both key on the name, and no second identity space is made. */
             teamNames={Object.fromEntries((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string; name?: string }; away?: { abbr?: string; name?: string } }) =>
               [x.home, x.away].filter((t): t is { abbr: string; name: string } => !!t?.abbr && !!t?.name).map((t) => [t.abbr, t.name])))}
+            /* v1.1.2: canonical ESPN team ids for the follow stars, resolved server-side from published
+               artifacts. An abbreviation that does not resolve is absent, and its chip gets no star. */
+            teamRefs={nflTeamRefsByAbbr((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string }; away?: { abbr?: string } }) => [x.home?.abbr, x.away?.abbr]))}
           />
+          {/* P251 follows were created on THIS board, so this is where they migrate forward. */}
+          <FollowLegacyMigration legacyMap={legacyNameMap()} />
         </section>
       ) : null}
 

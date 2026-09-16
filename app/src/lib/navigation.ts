@@ -150,6 +150,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
      heading at the very bottom); the Menu sheet now shows it near the top — two taps from any phone screen. */
   { href: "/saved", label: "Saved Forecasts", shortLabel: "Saved", group: "now", glyph: "☆", desc: "Your saved forecasts",
     surfaces: ["rail", "footer"] },
+  /* v1.1.2: follows made on this device. A SECONDARY destination beside Saved — rail + footer, reachable
+     on phones through the Menu sheet (rail-minus-bar). Never a primary: P243 charter E fixes those at five. */
+  { href: "/following", label: "Following", group: "now", glyph: "★", desc: "Teams and players you follow",
+    surfaces: ["rail", "footer"] },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
   { href: "/mlb", label: "MLB", note: "live", group: "sports", glyph: "⚾", desc: "Baseball hub",

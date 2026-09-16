@@ -17,6 +17,7 @@ import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
 import FollowToggle from "@/components/follow/follow-toggle";
+import type { FollowRef } from "@/lib/follow/follow-store";
 
 export interface BoardRow {
   playerId: string;
@@ -60,7 +61,12 @@ const etKickoff = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
     .format(new Date(iso));
 
-export default function NflWeeklyBoards({ boards, teamNames = {} }: { boards: Board[]; teamNames?: Record<string, string> }) {
+export default function NflWeeklyBoards({ boards, teamNames = {}, teamRefs = {} }: {
+  boards: Board[];
+  teamNames?: Record<string, string>;
+  /** abbreviation → canonical team ref, resolved on the server. An abbreviation absent here gets no star. */
+  teamRefs?: Record<string, FollowRef>;
+}) {
   /* The follow store keys on a club's own published NAME, which is what every artifact and the
      search index already agree on. The boards carry abbreviations, so the page passes the
      abbreviation→name map the forecast artifact publishes rather than a second identity space
@@ -94,9 +100,10 @@ export default function NflWeeklyBoards({ boards, teamNames = {} }: { boards: Bo
           {teams.map((t) => (
             <span key={t} className="inline-flex items-center gap-0.5 shrink-0">
               <Chip on={team === t} onClick={() => setTeam(t)}>{t}</Chip>
-              {/* P251-F9: follow from where a reader is already looking at their club. The star
-                  changes what /today shows them first; it never changes a number here. */}
-              <FollowToggle team={fullName(t)} size={13} />
+              {/* P251-F9 → v1.1.2: follow from where a reader is already looking at their club — now by
+                  canonical ESPN team id, not by display name. The star changes what /today shows first;
+                  it never changes a number here. Compact, because this is a dense chip row. */}
+              <FollowToggle entity={teamRefs[t] ?? null} variant="compact" size={13} />
             </span>
           ))}
         </div>

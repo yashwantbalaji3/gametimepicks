@@ -27,6 +27,11 @@ export default function SavedForecastsPage() {
         <p className="m-0 max-w-2xl text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
           Each saved forecast is the card exactly as it read when you saved it — the number, the model&rsquo;s status and the time its numbers were produced. It never changes afterwards; the result is added beside it from the official grading. Saved in this browser only, nothing is sent anywhere, and this is not a bet slip: no stake, no odds, no return. Model status words are explained in the <Link href="/models/" style={{ color: "var(--vault-gold-bright)" }}>Model Lab</Link>.
         </p>
+        {/* v1.1.2: the other thing this device remembers. Saving keeps ONE forecast; following a team or
+            player is a separate, general preference — they share a page link, never a store. */}
+        <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-faint)" }}>
+          Teams and players you follow are separate from saved forecasts — <Link href="/following/" style={{ color: "var(--vault-gold-bright)" }}>manage following</Link>.
+        </p>
       </header>
       <SavedList />
     </div>

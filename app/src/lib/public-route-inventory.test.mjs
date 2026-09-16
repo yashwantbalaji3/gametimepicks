@@ -82,6 +82,11 @@ const APPROVED_DESTINATIONS = new Set([
    * one sport the server allowlist permits. Its nav label says "MLB · beta" for that reason.
    */
   "/live",
+  /*
+   * v1.1.2: follow management. Founder-approved as a secondary personal destination. It renders only
+   * this browser's own preference list and publishes no sports data of its own.
+   */
+  "/following",
   "/simulate",
   "/markets",
   "/picks",

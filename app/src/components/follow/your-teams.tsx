@@ -12,13 +12,20 @@
  */
 import { useEffect, useState } from "react";
 
-import { useFollowedTeams } from "@/lib/follow/follow-store";
+import { type FollowRef, useFollowing } from "@/lib/follow/follow-store";
 
 interface Row { k: number; l: string; s: string; h: string }
 interface Index { kinds: string[]; rows: Row[] }
 
-export default function YourTeams() {
-  const { teams, ready } = useFollowedTeams();
+/**
+ * v1.1.2: identity is the canonical id; the strip finds a DESTINATION by the ref's name against the same
+ * published search index as before, disambiguated by sport so "Arizona Cardinals" and "Arizona
+ * Diamondbacks" can never be confused. A stale name hint only degrades to "No game in the current
+ * window" — it never follows or links the wrong club.
+ */
+export default function YourTeams({ legacyMap }: { legacyMap?: Record<string, FollowRef> | null } = {}) {
+  const { list, ready } = useFollowing({ legacyMap });
+  const teams = list({ entityType: "team" });
   const [index, setIndex] = useState<Index | null>(null);
 
   useEffect(() => {
@@ -34,7 +41,7 @@ export default function YourTeams() {
   if (!ready || teams.length === 0) return null;
 
   const teamKind = index?.kinds.indexOf("team") ?? -1;
-  const byTeam = new Map((index?.rows ?? []).filter((r) => r.k === teamKind).map((r) => [r.l, r]));
+  const byTeam = new Map((index?.rows ?? []).filter((r) => r.k === teamKind).map((r) => [`${r.s.split(" ·")[0]}|${r.l}`, r]));
 
   return (
     <section aria-labelledby="your-teams" className="reveal" style={{ marginTop: 18 }}>
@@ -46,11 +53,12 @@ export default function YourTeams() {
         Your teams
       </h2>
       <div className="flex flex-wrap gap-2">
-        {teams.map((t) => {
-          const row = byTeam.get(t);
+        {teams.map((ref) => {
+          const t = ref.label ?? "Followed team";
+          const row = ref.label ? byTeam.get(`${ref.sport}|${ref.label}`) : undefined;
           return row ? (
             <a
-              key={t}
+              key={ref.id}
               href={row.h}
               style={{
                 display: "inline-flex", flexDirection: "column", gap: 2, textDecoration: "none",
@@ -63,7 +71,7 @@ export default function YourTeams() {
             </a>
           ) : (
             <span
-              key={t}
+              key={ref.id}
               style={{
                 display: "inline-flex", flexDirection: "column", gap: 2,
                 border: "1px dashed var(--vault-rule)", borderRadius: 10, padding: "8px 12px", minWidth: 170,

@@ -71,7 +71,17 @@ test("FACT · 'sets no cookies' — nothing in src sets a cookie", () => {
 });
 
 test("FACT · browser storage is exactly what the notice names (preferences, follows, slip, arrival)", () => {
-  const users = SOURCE.filter((f) => /\b(localStorage|sessionStorage)\.(setItem|getItem)/.test(readSource(f))).map((f) => path.relative(SRC, f)).sort();
+  /*
+   * v1.1.2 · DETECTOR STRENGTHENED, LIST UNCHANGED. This used to find storage users only by a literal
+   * `localStorage.getItem`/`setItem` call. The Following store moved to an INJECTED-storage design (the
+   * hook hands `window.localStorage` to a pure adapter that calls `storage.getItem`), which made it
+   * invisible to this guard — a new browser-storage use written that way would have evaded the privacy
+   * notice entirely. The detector now also recognises `window.localStorage` access. The expected list
+   * below did not change: the same five files use browser storage, now all actually detected.
+   */
+  const usesStorage = (src) =>
+    /\b(localStorage|sessionStorage)\.(setItem|getItem)/.test(src) || /\bwindow\.(localStorage|sessionStorage)\b/.test(src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""));
+  const users = SOURCE.filter((f) => usesStorage(readSource(f))).map((f) => path.relative(SRC, f)).sort();
   assert.deepEqual(users, [
     "components/analytics-bootstrap.tsx",
     "lib/follow/follow-store.ts",
@@ -80,6 +90,8 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
     "lib/slip/slip-store.ts",
   ], "a new browser-storage use exists — describe it in the privacy notice, then update this list");
   assert.match(renderLegal("privacy").text, /the forecasts you save/, "saved forecasts are described in the notice");
+  // v1.1.2: NFL players are followable, so the notice must say players — "teams you follow" became incomplete.
+  assert.match(renderLegal("privacy").text, /the teams and players you follow/, "followed players are described in the notice");
   assert.ok(!SOURCE.some((f) => /\bindexedDB\b/.test(readSource(f))), "IndexedDB is not described");
 });
 

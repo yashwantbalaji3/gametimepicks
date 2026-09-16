@@ -66,6 +66,8 @@ import SimulationStorySection from "@/components/simulate/simulation-story-secti
 import LivePanel from "@/components/live/live-panel";
 import { projectMlbForecast } from "@/lib/live/forecast-join.mjs";
 import { settlementForGamePk } from "@/lib/live/hub-data";
+import TeamFollowRow from "@/components/follow/team-follow-row";
+import { mlbTeamRefByName } from "@/lib/follow/entity-registry";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { cardFromMlbPrediction } from "@/lib/command-center/featured";
 import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
@@ -759,6 +761,16 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
      provider FINAL into a settled game and unlocks the descriptive forecast review. */
   const mlbSettlement =
     detail.sport === "mlb" ? settlementForGamePk(detail.fullGameSim?.gamePk ?? null, detail.date ?? null) : null;
+  /* v1.1.2: follow either club from the game a reader is already looking at. Resolved by the club's
+     full name against the StatsAPI schedule — the persisted follow is the StatsAPI team id. */
+  const mlbFollowRow =
+    detail.sport === "mlb" ? (
+      <TeamFollowRow
+        away={mlbTeamRefByName(detail.fullGameSim?.awayTeamName ?? null)}
+        home={mlbTeamRefByName(detail.fullGameSim?.homeTeamName ?? null)}
+      />
+    ) : null;
+
   const mlbLivePanel =
     detail.sport === "mlb" && detail.fullGameSim?.gamePk ? (
       <LivePanel
@@ -900,6 +912,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
 
         {/* The full dashboard renders directly (P242) — no generate card, no staged reveal, no
             presentation modal. The numbers are precomputed and deterministic; the page shows them. */}
+        {mlbFollowRow}
         {mlbLivePanel}
 
         <GameSimulationRunner
@@ -1048,6 +1061,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
 
       {/* Live beta (MLB) — also on this path, so an MLB game WITHOUT a simulation still shows live
           state. Null for every other sport and whenever the rollout flags are off. */}
+      {mlbFollowRow}
       {mlbLivePanel}
 
       {/* MLB Game Lab report — the deeper per-game model report (model-vs-market, biggest leans, recent

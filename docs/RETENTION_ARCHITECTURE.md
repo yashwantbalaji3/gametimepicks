@@ -4,7 +4,8 @@ Written 2026-09-16 alongside v1.1.1 (`/live` hub + game lifecycle). It exists so
 personalization program — Follow Teams/Players, then My GameTime, then Since Your Last Visit — can
 build on decisions already made instead of re-deriving them and minting a second identity system.
 
-**Nothing in this document is built yet** beyond what v1.1.1 needed. It is a contract, not a feature.
+**Status (2026-09-16):** §3 Following is **BUILT (v1.1.2)**. My GameTime and Since Your Last Visit are
+still contracts only.
 
 ---
 
@@ -61,31 +62,73 @@ no consumer is a guess. Add it with its first real user.
 
 ---
 
-## 3. Local preference contract (for the NEXT session)
+## 3. Following — BUILT in v1.1.2
 
-Device-local, versioned, id-based. No account, no sync, no server.
+### Owners
+
+| concern | owner |
+|---|---|
+| pure contract (schema, parse, migrate, dedupe, ops) | `lib/follow/follow-schema.mjs` |
+| storage adapter (injected Storage — testable failures) | `lib/follow/follow-browser.mjs` |
+| React hook (read / write / cross-tab sync) | `lib/follow/follow-store.ts` → `useFollowing()` |
+| canonical ids + labels from published artifacts (server) | `lib/follow/entity-registry.ts` |
+| control | `components/follow/follow-toggle.tsx` (`compact` / `labeled`) |
+| management | `/following` → `components/follow/following-manager.tsx` |
+
+### The document
 
 ```ts
-interface GameTimePreferences {
-  schemaVersion: 1;
-  followedTeams: EntityRef[];
-  followedPlayers: EntityRef[];
-  /** Saved forecasts REUSE the existing owner (lib/saved/*). Do not duplicate that store. */
-  lastSeen: Record<string /* EntityRef id */, { state: string; at: string }>;
-  updatedAt: string;
+// localStorage key: gtp.follow.v2
+{
+  schemaVersion: 2,
+  followed: Array<{ sport: "MLB" | "NFL"; entityType: "team" | "player"; id: string; label?: string }>,
+  updatedAt: string | null   // PREFERENCE time only — never evidence that sports data changed
 }
 ```
 
-Rules:
-- **Stable ids only**, never display names — a renamed team must not orphan a follow.
-- **Versioned with a migration path**; an unreadable or future version resets to empty rather than
-  throwing, and a reset is visible to the reader.
-- **Clear/reset must exist** and must actually clear.
-- **"This device" semantics.** Never imply sync. The copy must not say "your account".
-- `localStorage` can throw or return empty (private windows, cleared site data) — every read and
-  write is wrapped, and the product works with none of it.
+`schemaVersion: 2` because P251's unversioned name array under `gtp.follow.v1` was generation 1.
 
----
+### Identity — canonical ids, never display names
+
+| kind | id | source of truth |
+|---|---|---|
+| MLB team | `mlb-team-<statsapiTeamId>` | `mlb/statsapi-schedule/*.json` (30 clubs) |
+| NFL team | `nfl-team-<espnTeamId>` | `nfl/rosters/latest.json` `providerTeamId` (32 clubs) |
+| NFL player | `nfl-athlete-<espnAthleteId>` | `nfl/player-board/<event>.json` `playerId` |
+| **MLB player** | **not supported** | MLB publishes no canonical public player id |
+
+The prefix namespaces an EXISTING provider id; nothing is minted. Unique key is `(sport, entityType, id)`,
+casing canonicalized at the boundary, stored in canonical order. `label` is a display HINT: never identity,
+never used to dedupe; `/following` prefers the current name from the registry.
+
+⚠ **NFL team ids are ESPN's numeric ids, not abbreviations.** Abbreviations differ between sources
+(ESPN `WSH`/`LAR` vs nflverse `WAS`/`LA`); the registry resolves ESPN's and refuses `WAS`.
+
+### Policies
+
+- **Migration.** P251 names under `gtp.follow.v1` are migrated into v2 where a name resolves to exactly
+  one id (the 32 NFL clubs — the old board's only write path). The v1 key is **never written or
+  deleted**, so a rollback to older code finds its own data intact. Unresolvable names are reported, not
+  dropped. Migration runs on `/today`, `/nfl` and `/following`; every other page reads v2 directly.
+- **Future schema.** A `schemaVersion` above 2 reads as `UNSUPPORTED_VERSION`: not interpreted, **never
+  overwritten**, controls disabled with an honest message.
+- **Corruption.** Malformed JSON or wrong shapes recover to empty; the next follow repairs the store.
+- **Storage failure.** A read or write that throws reports `UNAVAILABLE`. A failed write does NOT
+  advance state, so the UI never shows "Following" for something that would vanish on refresh.
+- **Cap.** No product cap (P251's 12 silently dropped the 13th). A structural bound of 500 only.
+- **Cross-tab.** `storage` events re-read the store — their `newValue` is never trusted as data. Every
+  operation re-reads before writing, so a stale tab cannot overwrite a fresh follow. Same-tab consumers
+  sync through the `gtp:follow` event.
+- **Hydration.** Every reader starts from `LOADING`; storage is read in an effect, never during render,
+  so static HTML is identical for everyone.
+- **Privacy.** Nothing is transmitted. The privacy notice (draft) says "the teams and players you
+  follow", and the storage-disclosure guard detects the injected-storage style.
+
+### Where Follow appears
+
+MLB game pages (both clubs) · NFL game pages (both clubs) · NFL weekly boards (team chips) · NFL
+per-game player board (each player once per tab) · `/following`. `/live` and `/today` **mark** followed
+clubs; nothing reorders.
 
 ## 4. "Since your last visit" — what it may truthfully say
 
@@ -111,7 +154,26 @@ The rule in one line: **a delta needs two observations, and one of them has to b
 
 ---
 
-## 5. What v1.1.1 actually left in place
+## 5. Future My GameTime — composition (architecture only, NOT built)
+
+```text
+MY GAME TIME
+  ├─ Following        lib/follow (this device's refs)
+  ├─ Live Now         Live owner (useLiveSlate) filtered by followed TEAM ids
+  ├─ Up Next          schedule / forecast owners filtered by followed ids
+  ├─ Saved Forecasts  lib/saved (separate owner — never merged)
+  └─ Recent Results   settlement owner filtered by followed ids
+```
+
+**No new truth owner.** My GameTime aggregates; it does not store. Following says WHICH entities matter
+— it never proves what changed. Follow and Saved stay separate owners: following never saves a forecast,
+saving never follows a team.
+
+⚠ A followed team's live games are found by joining on the envelope's `teamId`, which is the same
+StatsAPI / ESPN id the follow stores — so the join is exact. Reuse `useLiveSlate` (one batch request);
+never add a per-entity poller, because the CDN caches by request URL and per-entity URLs do not collapse.
+
+## 6. What v1.1.1 actually left in place
 
 - `lib/live/lifecycle.mjs` — the shared state machine. A followed-team card should render from this
   rather than re-deriving "is it live" from a score.

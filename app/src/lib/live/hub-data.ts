@@ -21,6 +21,7 @@ import path from "node:path";
 import { currentEtDate } from "@/lib/freshness";
 import { gameHrefByMatchId } from "@/lib/game-detail";
 import { projectMlbForecast } from "./forecast-join.mjs";
+import { type FollowRef, mlbTeamRefByName } from "@/lib/follow/entity-registry";
 
 export interface HubRosterGame {
   /** StatsAPI gamePk as a string — the join key to the live envelope's eventId. */
@@ -38,6 +39,9 @@ export interface HubRosterGame {
   /** Frozen per-team run bands, or null when no publishable simulation exists for this game. */
   forecast: { runs: { home: any; away: any } } | null;
   forecastGeneratedAt: string | null;
+  /** Canonical team refs (v1.1.2) — for a LOCAL followed marker only. Never used to fetch or reorder. */
+  awayRef: FollowRef | null;
+  homeRef: FollowRef | null;
   /** The canonical graded result, when the settlement owner has produced one. */
   settlement: { actual: { homeRuns: number; awayRuns: number; winner?: string }; gradedAt: string | null } | null;
 }
@@ -127,6 +131,8 @@ export function buildHubRoster(nowIso?: string): HubRoster {
       firstPitch: g.firstPitch ?? null,
       forecast: forecast ? { runs: forecast.runs } : null,
       forecastGeneratedAt: slate?.generatedAt ?? null,
+      awayRef: mlbTeamRefByName(g.awayTeamName ?? null),
+      homeRef: mlbTeamRefByName(g.homeTeamName ?? null),
       settlement: settlements.get(gamePk) ?? null,
     });
   }

@@ -6,13 +6,19 @@
  */
 import Link from "next/link";
 import { useSavedForecasts } from "@/lib/saved/saved-store";
-import { useFollowedTeams } from "@/lib/follow/follow-store";
+import { useFollowing } from "@/lib/follow/follow-store";
 
 const DAY_MS = 86_400_000;
 
 export default function YourBrief() {
   const { items, ready } = useSavedForecasts();
-  const { teams, ready: teamsReady } = useFollowedTeams();
+  const { list, ready: teamsReady } = useFollowing();
+  /* Teams only in this sentence — it is about their GAMES on the slate, which a player does not have.
+     v1.1.2 copy fix: this used to say followed teams' games "lead the lists below". Nothing in the product
+     reorders by follows (the /today slate MARKS them and offers an opt-in filter), so the sentence promised
+     personalized ordering that does not exist. My GameTime will own ordering; until then the copy says
+     what actually happens. */
+  const teams = list({ entityType: "team" }).map((f) => f.label ?? "a team");
   if (!ready || !teamsReady) return null;
   if (!items.length && !teams.length) return null;
   const now = Date.now();
@@ -24,7 +30,7 @@ export default function YourBrief() {
       {soon.length ? <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>{soon.length} saved forecast{soon.length === 1 ? "" : "s"} start{soon.length === 1 ? "s" : ""} in the next 24 hours: {soon.slice(0, 3).map((s) => s.matchup).join(" · ")}{soon.length > 3 ? " · …" : ""}</span> : null}
       {started.length ? <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>{started.length} saved forecast{started.length === 1 ? " has" : "s have"} started — the result appears on <Link href="/saved/" style={{ color: "var(--vault-gold-bright)" }}>your saved page</Link> once graded.</span> : null}
       {!soon.length && !started.length && items.length ? <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>{items.length} saved forecast{items.length === 1 ? "" : "s"}, none starting in the next day. <Link href="/saved/" style={{ color: "var(--vault-gold-bright)" }}>Open saved →</Link></span> : null}
-      {teams.length ? <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>Following {teams.slice(0, 4).join(", ")}{teams.length > 4 ? ` and ${teams.length - 4} more` : ""} — their games lead the lists below when they play.</span> : null}
+      {teams.length ? <span className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>Following {teams.slice(0, 4).join(", ")}{teams.length > 4 ? ` and ${teams.length - 4} more` : ""} — their games are marked ★ on today&rsquo;s slate. <Link href="/following/" style={{ color: "var(--vault-gold-bright)" }}>Manage</Link></span> : null}
     </div>
   );
 }

@@ -17,6 +17,25 @@
  */
 import { useMemo, useState } from "react";
 import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
+import FollowToggle from "@/components/follow/follow-toggle";
+import { nflPlayerRef } from "@/lib/follow/follow-schema.mjs";
+
+/**
+ * v1.1.2: the player's name cell, with a follow star keyed on the board's own `nfl-athlete-<id>` —
+ * the lineage Live already uses. A row whose id is not in that lineage gets no star; a player is never
+ * followed by display name.
+ */
+function PlayerNameCell({ playerId, name }: { playerId: string; name: string }) {
+  const ref = nflPlayerRef(playerId, name);
+  return (
+    <td style={{ padding: "8px 9px", fontSize: 13, color: "var(--vault-text)", fontWeight: 600 }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+        {name}
+        {ref ? <FollowToggle entity={ref} variant="compact" size={12} /> : null}
+      </span>
+    </td>
+  );
+}
 
 export interface PlayerBoardRow {
   playerId: string;
@@ -191,7 +210,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
                 const at = p.markets.anytime_td;
                 return (
                   <tr key={`${p.playerId}-combined`} style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                    <td style={{ padding: "8px 9px", fontSize: 13, color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</td>
+                    <PlayerNameCell playerId={p.playerId} name={p.name} />
                     <td className="font-mono" style={{ padding: "8px 9px", fontSize: 11, color: "var(--vault-text-mute)" }}>{p.team}</td>
                     {avail}
                     <td className="font-mono" style={{ padding: "8px 9px", fontSize: 12.5 }}>
@@ -211,7 +230,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
               const m = p.markets[family]!;
               return (
                 <tr key={`${p.playerId}-${family}`} style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                  <td style={{ padding: "8px 9px", fontSize: 13, color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</td>
+                  <PlayerNameCell playerId={p.playerId} name={p.name} />
                   <td className="font-mono" style={{ padding: "8px 9px", fontSize: 11, color: "var(--vault-text-mute)" }}>{p.team}</td>
                   {avail}
                   {isProb ? (

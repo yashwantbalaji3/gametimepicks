@@ -18,6 +18,7 @@ import { firstOfRun, sharedValue } from "@/lib/ui/repeat-suppression";
 import type { SlateGameRow, SlateGroup, SlateSummary } from "@/lib/today/slate-games";
 import FollowedMark from "./followed-mark";
 import FollowingFilter from "./following-filter";
+import { teamRefsForGame } from "@/lib/follow/entity-registry";
 
 const CHIP: Record<SlateGameRow["tone"], { color: string; bg: string }> = {
   success: { color: "var(--vault-success)", bg: "var(--vault-success-dim)" },
@@ -37,7 +38,7 @@ function SlateRow({ g, showExplanation }: { g: SlateGameRow; showExplanation: bo
       aria-label={`${g.teams.away} at ${g.teams.home} — ${g.label}. ${g.explanation}`}
       className="vault-glow-hover vault-press flex flex-col gap-1.5 rounded-[12px] px-3.5 py-3"
       style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
-      data-teams={[g.teams.away, g.teams.home, g.teamNames?.away, g.teamNames?.home].filter(Boolean).join("|")}
+      data-team-ids={teamRefsForGame(g.sport, g.teams, g.teamNames).map((r) => r.id).join("|")}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -47,7 +48,7 @@ function SlateRow({ g, showExplanation }: { g: SlateGameRow; showExplanation: bo
               {g.teams.away} @ {g.teams.home}
             </span>
             {meta ? <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{meta}</span> : null}
-            <FollowedMark teams={[g.teams.away, g.teams.home, g.teamNames?.away ?? "", g.teamNames?.home ?? ""].filter(Boolean)} />
+            <FollowedMark entities={teamRefsForGame(g.sport, g.teams, g.teamNames)} />
           </div>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">

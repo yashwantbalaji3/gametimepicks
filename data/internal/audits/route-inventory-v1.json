@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-16T15:12:53Z",
+ "generatedAt": "2026-09-16T17:06:00Z",
  "totals": {
-  "routes": 75,
-  "public": 49,
+  "routes": 76,
+  "public": 50,
   "internal": 7,
   "redirects": 15,
   "archive": 2,
@@ -139,6 +139,15 @@
    "owner": "product",
    "purpose": "retired event hub",
    "redirectTo": "/today",
+   "built": true
+  },
+  {
+   "route": "/following",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "Following management (v1.1.2) — the teams and players this device follows, with unfollow and clear-all. Browser-local, account-free",
+   "dataOwner": "lib/follow (localStorage gtp.follow.v2) + build-time team label registry",
+   "freshness": "static page; the list is read from this browser after load",
    "built": true
   },
   {

@@ -66,6 +66,7 @@ import GameTimeBrief from "@/components/brief/gametime-brief";
 import { buildChangeLog } from "@/lib/command-center/changes";
 import YesterdayCard from "@/components/recap/yesterday-card";
 import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
+import { legacyNameMap } from "@/lib/follow/entity-registry";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -336,7 +337,8 @@ export default function TodayPage() {
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed
               one, and only ever offers a destination the search index derived from a published
               artifact — so it cannot promise a page that does not exist. */}
-      <YourTeams />
+      {/* v1.1.2: the strip is the main place P251 follows were READ, so it migrates them forward here. */}
+      <YourTeams legacyMap={legacyNameMap()} />
 
       {/* 1b2 — P251: the daily loop closes here. Everything settles overnight from official box
               scores and that record lived only on /results; this puts it where a reader already
