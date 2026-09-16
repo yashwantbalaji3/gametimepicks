@@ -131,9 +131,15 @@ test("MARKET INDEPENDENCE · odds are carried for comparison and are not an inpu
     "mutation probe: a line slipped into the call must fail the guard");
   assert.equal(regularSimCallIsModelOnly(src.replace("let heads = null;", "let heads = null; const peek = marketByEvent;")), false,
     "mutation probe: a price read while choosing the heads must fail the guard");
+  // P325 moved the producer to the approved wording ("beat the market" is banned public copy). This loop was
+  // vacuous until the first MARKET_VIEW row was published (2026-09-16 capture), which is when the stale
+  // pattern surfaced — so the wording is pinned to the producer's literal as well as to the artifact.
+  const APPROVED = /not validated to out-predict the sportsbook market/;
+  assert.match(src, APPROVED, "producer carries the approved wording");
   for (const f of pub.forecasts) {
     if (f.marketComparison.state === "MARKET_VIEW") {
-      assert.match(f.marketComparison.note, /has not been shown to beat the market/);
+      assert.match(f.marketComparison.note, APPROVED);
+      assert.doesNotMatch(f.marketComparison.note, /beat the market/);
     }
   }
 });
