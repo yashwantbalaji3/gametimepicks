@@ -112,7 +112,7 @@ LiveEventEnvelope
 | fields verified | gamePk · abstract/coded/detailed status · gameDate · inning + ordinal + inningState · outs/balls/strikes · runs/hits/errors · batter/pitcher · bases | event id · date · status.type.{state,name,detail,completed} · period · displayClock · competitors{homeAway,score,team} · situation (live only) · boxscore.players[].statistics[].athletes[] |
 | identity join | `gamePk` **is** the GameTime MLB event id | ESPN event id **is** `/nfl/game/[eventId]`; ESPN athlete id **is** `nfl-athlete-<id>` |
 | batch? | ONE call serves the whole slate, in both scoreboard and single-event mode | scoreboard is one call per slate; `summary` is per event and opt-in |
-| player stats | not in v1.1 (the schedule payload carries none; the per-game feed was not verified) | rushing / receiving yards / receptions, mapped by column LABEL |
+| player stats | **none in v1.1 — deferred on principle, see below** | rushing / receiving yards / receptions, mapped by column LABEL |
 | production enabled | **NO** — Stage 1 preview only | **NO** — Stage 1 preview only |
 
 ### Caveats, stated rather than smoothed over
@@ -131,6 +131,13 @@ LiveEventEnvelope
   states C/D/U are mapped to CANCELLED/POSTPONED/DELAYED **before** the abstract state is consulted,
   so a postponed game can never render as a 0–0 final. (The same trap was already paid for once in
   settlement, PIT/MIL 2026-07-10.)
+- ⚠ **MLB has no live player stats because it has no published per-player FORECAST, not because the
+  feed is missing.** A comparison needs a GameTime range on the other side, and MLB has none:
+  `full-game-simulations/<date>.json` emits no per-player output even on a `ready` game (verified
+  2026-09-15, gamePk 824307), and `player-props/<date>.json` is a **bookmaker price list** — American
+  odds, provider names, the player identified by NAME with `team: null` and an opaque hashed gameId.
+  A live MLB player stat would therefore sit beside nothing, or beside a market price dressed as a
+  GameTime projection. A test pins both facts and fails if per-player simulation output ever appears.
 - ESPN's `situation` block is absent on finished games — read defensively, never defaulted.
 - No secret, key or credential exists anywhere on the live path (asserted over every file).
 

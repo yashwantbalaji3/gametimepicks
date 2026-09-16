@@ -25,6 +25,7 @@ import { LIVE_SCHEMA_VERSION, isTerminal, isUnavailable, makeUnavailable } from 
 
 const here = path.dirname(new URL(import.meta.url).pathname);
 const fixture = (name) => JSON.parse(fs.readFileSync(path.join(here, "..", "fixtures", name), "utf8"));
+const APP_PUBLIC = path.join(here, "..", "..", "..", "..", "public/data");
 const FETCHED = "2026-09-16T02:00:00.000Z";
 
 /* ────────────────────────────── MLB ────────────────────────────── */
@@ -229,4 +230,32 @@ test("CONTRACT · a refusal is envelope-shaped and recognizable without duck typ
   const u = makeUnavailable({ reason: "PROVIDER_ERROR", fetchedAt: FETCHED });
   assert.equal(isUnavailable(u), true);
   assert.equal(isUnavailable(normalizeMlbSchedule(fixture("mlb-schedule.json"), FETCHED)[0]), false);
+});
+
+test("MLB 8 · ⚠ MLB carries NO live player stats — and the reason is a missing FORECAST, not a missing feed", () => {
+  /*
+   * Deferred on principle, so a future author does not "complete" it by reaching for the wrong join.
+   *
+   * A live comparison needs a published GameTime range on the other side. MLB has none per player:
+   *   - `mlb/full-game-simulations/<date>.json` emits NO per-player output even on a `ready` game
+   *     (verified 2026-09-15: `players` is undefined on gamePk 824307).
+   *   - `mlb/player-props/<date>.json` is a BOOKMAKER PRICE LIST — American odds, provider names,
+   *     the player identified by NAME with `team: null` and an opaque hashed gameId. It is not a
+   *     GameTime forecast and it carries no person id to join on.
+   *
+   * So a live MLB player stat would sit either beside nothing, or beside a market price dressed as a
+   * GameTime projection. Both are worse than the honest absence below.
+   */
+  const [live] = normalizeMlbSchedule(fixture("mlb-schedule.json"), FETCHED);
+  assert.equal(live.playerStats, null);
+
+  const simDate = path.join(APP_PUBLIC, "mlb/full-game-simulations");
+  const newest = fs.readdirSync(simDate).filter((f) => f.endsWith(".json")).sort().pop();
+  const slate = JSON.parse(fs.readFileSync(path.join(simDate, newest), "utf8"));
+  const ready = slate.games.filter((g) => g.status === "ready");
+  assert.ok(ready.length > 0, "the newest slate has a ready simulation — otherwise this proves nothing");
+  for (const g of ready) {
+    assert.ok(!Array.isArray(g.players) || g.players.length === 0,
+      `gamePk ${g.gamePk} now emits per-player output — revisit the MLB live player slice`);
+  }
 });
