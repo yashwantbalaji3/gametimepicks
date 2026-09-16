@@ -3,7 +3,8 @@
 One document, seven sections. Written 2026-09-15/16, the session that built the first Live vertical
 slice. Everything stated as verified here was measured in that session and the measurement is named.
 
-**Status: Stage 2 — MLB-only public Live beta, built and gated. NFL Live stays internal.**
+**Status: MLB LIVE BETA — PUBLIC AND VERIFIED.** Activated in production **2026-09-16T05:03:35Z**
+(build `7190ee9b9`), verified 05:14–05:30Z. NFL Live remains built, tested and internal-only.
 Founder decision 2026-09-16: proceed with MLB only; ESPN-backed NFL Live is preserved but not public.
 
 ---
@@ -251,6 +252,47 @@ derived from the repository, only from the live plan, and this is the number to 
 traffic before any public rollout.
 
 ---
+
+## 6a. Production activation — evidence (2026-09-16)
+
+**Activated:** production build `7190ee9b9`, `builtAt 2026-09-16T05:03:35.641Z`. All twelve checks pass.
+
+| # | check | evidence |
+|---|---|---|
+| 1 | gateway returns real MLB data | `/api/live/?sport=mlb` → **15 events**, 14 FINAL + 1 LIVE, 7,841 B |
+| 2 | NFL refused, no ESPN contacted | `sport=nfl`, `NFL`, `+event`, `+players&date`, `nba`, `epl` → **all `UNSUPPORTED_SPORT`**; refusal precedes URL construction, and the browser contacted no ESPN host |
+| 3 | game page renders Live beta | `/games/mlb/mia-vs-az-2026-09-15/` renders "Live game state · LIVE BETA" |
+| 4 | LIVE vs PREGAME visibly separate | three aria regions — wrapper, **"Live now"**, **"Pregame GameTime · frozen"** — distinct DOM nodes |
+| 5 | MLB totals stay PAUSED | `totalRuns` / `over/under` / `Total runs` absent from the live chunk **and** from the rendered module |
+| 6 | no MLB player projection UI | rendered module contains no "pregame range" row and no "on pace"/"on track" |
+| 7 | FINAL stops polling | **58 s elapsed, exactly 1 request, at t=0**; per-event policy `{ttl 3600, clientIntervalMs null, TERMINAL}` |
+| 8 | freshness truthful | LIVE showed "updated 5 sec ago"; while the tab was hidden it **aged to "1 min ago"** rather than claiming currency; no freshness line on FINAL |
+| 9 | v1.0 healthy | 13/13 routes **200** |
+| 10 | responsive QA | 375 / 390 / 768 / 1024 — no horizontal overflow, **no console errors** |
+| 11 | provider isolation | browser contacted only our origin; the two external hosts are pre-existing image CDNs (`mlbstatic.com/team-logos`, `midfield.mlbstatic.com` headshots). Gateway contacts `statsapi.mlb.com` only |
+| 12 | no preview, no `/live` | `/preview/live/` **404**, `/live/` **404**, **0** `/live` nav entries |
+
+### First production sample — measured
+
+| measurement | value |
+|---|---|
+| gateway response, whole slate | **7,841 B** (15 games) |
+| gateway response, single game | **761 B** LIVE · **667 B** FINAL · 300 B on the wire (compressed) |
+| ✅ CDN behaviour | 6 rapid requests → **1 MISS then 5 HITs**; an earlier probe held `age` 14–15 s across 6 HITs — **one origin invocation serves many readers** |
+| polling cadence | LIVE `clientIntervalMs 30000` · FINAL `null` |
+| terminal stop | **1 request in 58 s** on a FINAL game |
+| hidden-tab backoff | 0 requests in 40 s while hidden |
+| upstream hosts | `statsapi.mlb.com` only |
+
+⚠ **No monthly Vercel cost is claimed.** Production evidence covers a single late-evening slate whose
+games were nearly all final; it does not support a monthly figure. Re-measure across a full daytime
+slate before making one.
+
+⚠ **The activation itself had a blocker worth remembering.** Vercel binds env vars at BUILD time, and
+`vercel-ignore-build.sh` skips builds with no `app/` diff — so a dashboard redeploy of the same commit
+bound the *function* env but reused the static export, leaving `NEXT_PUBLIC_LIVE_ENABLED` un-inlined
+and the UI dark. Diagnosed by the deployed chunk still containing the literal variable NAME (it is
+absent once inlined). `VERCEL_FORCE_BUILD=1` now exists for exactly this.
 
 ## 7. Runbook, and what is NOT decided
 
