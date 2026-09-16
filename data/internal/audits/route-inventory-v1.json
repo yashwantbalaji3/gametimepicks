@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-16T17:06:00Z",
+ "generatedAt": "2026-09-16T18:54:03Z",
  "totals": {
-  "routes": 76,
-  "public": 50,
+  "routes": 77,
+  "public": 51,
   "internal": 7,
   "redirects": 15,
   "archive": 2,
@@ -144,6 +144,7 @@
   {
    "route": "/following",
    "classification": "public",
+   "indexable": false,
    "owner": "product",
    "purpose": "Following management (v1.1.2) — the teams and players this device follows, with unfollow and clear-all. Browser-local, account-free",
    "dataOwner": "lib/follow (localStorage gtp.follow.v2) + build-time team label registry",
@@ -327,6 +328,16 @@
    "purpose": "trust center: complete paper-bankroll journey + receipts",
    "dataOwner": "protected portfolio + ledger",
    "freshness": "settlement cutoff shown beside current-ops marker",
+   "built": true
+  },
+  {
+   "route": "/my",
+   "classification": "public",
+   "indexable": false,
+   "owner": "product",
+   "purpose": "My GameTime (v1.1.3) — live games, upcoming matchups, saved forecasts, results and followed players for what THIS device follows. A view over existing owners, never a truth owner; noindex because a crawler has no follows",
+   "dataOwner": "build-time public read model (schedules, canonical results) + /data/my/nfl-players.json + the Follow and Saved stores + the /live batch slate",
+   "freshness": "per module: live on the reader clock; schedules/results per artifact",
    "built": true
   },
   {
@@ -580,6 +591,7 @@
   {
    "route": "/saved",
    "classification": "public",
+   "indexable": false,
    "owner": "product",
    "purpose": "saved forecasts: immutable snapshots the reader kept, with the graded result once it exists",
    "dataOwner": "the reader's browser (localStorage) + the graded ledgers",
@@ -673,7 +685,7 @@
    "purpose": "UFC per-bout model report (P251 · F3): the winner split over the two fighters, the method distribution (KO / submission / decision, read among fights that end with a winner), the round distribution with goes-the-distance stated as the method head's decision probability rather than a separate model, both fighters' tracked corpus profiles, and the three heads' held-out evidence printed WITH its denominator. Every figure is read from card-latest.json — nothing is computed here. Statically generated for every bout on the current card including the ones the model refuses to read, which render the producer's own refusal instead of a fabricated read. dynamicParams=false",
    "dataOwner": "public/data/ufc/card-latest.json via lib/sports/ufc/bout (build-time read)",
    "freshness": "the card artifact's own generatedAt, printed in the method section",
-   "built": "FAMILY (13 generated page(s))"
+   "built": "FAMILY (12 generated page(s))"
   },
   {
    "route": "/world-cup",

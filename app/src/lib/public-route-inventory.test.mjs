@@ -87,6 +87,11 @@ const APPROVED_DESTINATIONS = new Set([
    * this browser's own preference list and publishes no sports data of its own.
    */
   "/following",
+  /*
+   * v1.1.3: My GameTime. A personal secondary destination composed only from existing owners — it
+   * publishes no sports data of its own, and it is noindex like /saved and /following.
+   */
+  "/my",
   "/simulate",
   "/markets",
   "/picks",

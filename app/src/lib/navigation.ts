@@ -152,6 +152,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["rail", "footer"] },
   /* v1.1.2: follows made on this device. A SECONDARY destination beside Saved — rail + footer, reachable
      on phones through the Menu sheet (rail-minus-bar). Never a primary: P243 charter E fixes those at five. */
+  /* v1.1.3: the personal destination — what matters to THIS device now. Secondary (rail + footer, and the
+     phone Menu sheet via rail-minus-bar). Never a primary: P243 charter E fixes those at five. */
+  { href: "/my", label: "My GameTime", group: "now", glyph: "◎", desc: "What you follow, now",
+    surfaces: ["rail", "footer"] },
   { href: "/following", label: "Following", group: "now", glyph: "★", desc: "Teams and players you follow",
     surfaces: ["rail", "footer"] },
 

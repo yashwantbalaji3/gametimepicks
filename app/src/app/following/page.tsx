@@ -4,6 +4,7 @@
  * Statically exported like every route: the initial HTML is identical for every reader and says
  * nothing about what anyone follows. The list is read from this browser after load.
  */
+import Link from "next/link";
 import FollowingManager from "@/components/follow/following-manager";
 import { legacyNameMap, teamLabelMap } from "@/lib/follow/entity-registry";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
@@ -12,6 +13,9 @@ export const metadata = withRouteMetadata("/following/", {
   title: "Following · GameTime Picks",
   description: "The teams and players you follow on this device. Saved in this browser only — no account.",
   alternates: { canonical: "/following" },
+  /* v1.1.3 fix: a crawler follows nothing, so every indexed copy of this page is the same empty shell.
+     Matches /saved. (v1.1.2 shipped this route with no robots directive.) */
+  robots: { index: false, follow: false },
 });
 
 export default function FollowingPage() {
@@ -25,6 +29,9 @@ export default function FollowingPage() {
         It changes what GameTimePicks shows you first — never a forecast, a score, or a result.
       </p>
       <FollowingManager legacyMap={legacyNameMap()} teamLabels={teamLabelMap()} />
+      <p style={{ fontSize: 12.5, color: "var(--vault-text-faint)", marginTop: 24 }}>
+        See what these teams and players are doing now on <Link href="/my/" style={{ color: "var(--vault-gold-bright)" }}>My GameTime</Link>.
+      </p>
     </main>
   );
 }

@@ -4,8 +4,8 @@ Written 2026-09-16 alongside v1.1.1 (`/live` hub + game lifecycle). It exists so
 personalization program — Follow Teams/Players, then My GameTime, then Since Your Last Visit — can
 build on decisions already made instead of re-deriving them and minting a second identity system.
 
-**Status (2026-09-16):** §3 Following is **BUILT (v1.1.2)**. My GameTime and Since Your Last Visit are
-still contracts only.
+**Status (2026-09-16):** §3 Following is **BUILT (v1.1.2)**. §5 My GameTime is **BUILT (v1.1.3)**.
+Since Your Last Visit (§4) is still a contract only.
 
 ---
 
@@ -154,24 +154,48 @@ The rule in one line: **a delta needs two observations, and one of them has to b
 
 ---
 
-## 5. Future My GameTime — composition (architecture only, NOT built)
+## 5. My GameTime — BUILT in v1.1.3
 
-```text
-MY GAME TIME
-  ├─ Following        lib/follow (this device's refs)
-  ├─ Live Now         Live owner (useLiveSlate) filtered by followed TEAM ids
-  ├─ Up Next          schedule / forecast owners filtered by followed ids
-  ├─ Saved Forecasts  lib/saved (separate owner — never merged)
-  └─ Recent Results   settlement owner filtered by followed ids
-```
+**Route `/my`** · title "My GameTime" · `noindex` (like `/saved` and `/following` — a crawler has no follows)
+· secondary nav (rail + footer + Menu sheet) and links from `/following` and `/saved`. Five primaries unchanged.
 
-**No new truth owner.** My GameTime aggregates; it does not store. Following says WHICH entities matter
-— it never proves what changed. Follow and Saved stay separate owners: following never saves a forecast,
-saving never follows a team.
+A **view, not a truth owner**. If `/my` disappeared, every underlying surface would be unaffected.
 
-⚠ A followed team's live games are found by joining on the envelope's `teamId`, which is the same
-StatsAPI / ESPN id the follow stores — so the join is exact. Reuse `useLiveSlate` (one batch request);
-never add a per-entity poller, because the CDN caches by request URL and per-entity URLs do not collapse.
+### Module owner matrix
+
+| module | truth / persistence owner | sports | include | order | empty / failure |
+|---|---|---|---|---|---|
+| Live now | `useLiveSlate` (the `/live` batch owner) + Follow | MLB | envelope `competitors.*.teamId` → `mlb-team-<id>` is followed, state LIVE/DELAYED | start, then event id | *mounts only for an MLB team follow*; "none of your teams is playing" ≠ "no MLB games live" ≠ "live data unavailable" |
+| Up next | build-time read model: `mlb/statsapi-schedule`, `nfl/schedule/latest.json` | MLB, NFL | followed team id on either side AND known start **> reader's now** | start, then game id · max 4 | "no upcoming games … in the published schedule"; unknown start excluded |
+| Your NFL players | `/data/my/nfl-players.json` (from `nfl/player-board`, PUBLISHED families only) | NFL | `nfl-athlete-<id>` followed | kickoff, name, id | absent player → "no current published forecast", never zeroes; fetch failure isolated |
+| Saved forecasts | `useSavedForecasts` (the Saved owner) | all | the owner's items | the owner's own order · max 4 | omitted when none |
+| Recent results | MLB `mlb/results/game-predictions-graded.jsonl` (settlement) · NFL `loadCurrentNflResults` (FINAL-only settlement adapter) | MLB, NFL | followed team id AND integer scores | newest first (unknown last), then id · max 4 | "no recent final results yet" |
+| Following | `useFollowing` (`gtp.follow.v2`) | — | counts by kind | — | hidden if the follow store is unavailable / newer schema |
+
+### Invariants — pinned in `lib/my/*.test.mjs`
+
+- **Request count.** Zero MLB team follows ⇒ the Live module never mounts ⇒ **0 Live requests**. One or
+  twenty followed MLB teams ⇒ the same **one** batch request. Following, unfollowing and saving never
+  refetch Live. NFL follows never create a Live request (public NFL Live stays impossible).
+- **Exact ids only.** Every inclusion is a canonical-id join. NFL result team ids are attached from the
+  capture rows **by provider event id**, never via the abbreviation. Rows without ids are counted
+  (`coverage.*Unidentified`, 0 today), never matched by name.
+- **Provider FINAL is not a result.** Recent Results reads only canonical owners; the Live feed never
+  reaches it.
+- **Public read model.** The static page carries public product data only — no preference, no
+  present-tense flag. "Upcoming" is decided on the reader's clock (re-ticked each minute).
+- **Payload.** Inline read model ~35 KB. Player rows (~104 KB) moved to `/data/my/nfl-players.json`,
+  fetched only for a reader who follows an NFL player (measured: inline they were 108 KB of a 142 KB
+  payload).
+- **Isolation.** A broken Follow store hides team modules but not Saved; a failed player fetch does not
+  blank Up Next; nothing renders "empty" until both local stores have been read.
+- **MLB totals stay PAUSED** — `projectMlbForecast` omits them; no totals anywhere on the page.
+
+### Why Since Your Last Visit is still separate
+
+My GameTime shows **current state only**. It stores nothing, so it holds no "before" — and §4's rule is
+that a delta needs two observations, one of them ours. v1.1.4 must add an explicit, versioned local
+snapshot owner (a new key, never inside `gtp.follow.v2` or `gtp.saved.v1`) before any "changed" claim.
 
 ## 6. What v1.1.1 actually left in place
 

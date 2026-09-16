@@ -13,8 +13,11 @@ export const dynamic = "force-static";
 const BASE = "https://gametimepicks.yashwantbalaji.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return Object.entries(ROUTE_TABLE as Record<string, { classification: string }>)
-    .filter(([, v]) => v.classification === "public")
+  return Object.entries(ROUTE_TABLE as Record<string, { classification: string; indexable?: boolean }>)
+    /* v1.1.3: `indexable: false` routes (the personal family — /saved, /following, /my) are noindex, so
+       listing them here told crawlers "index this" and "don't index this" at once. /saved had carried
+       that contradiction since P310; /following had no robots directive at all. */
+    .filter(([, v]) => v.classification === "public" && v.indexable !== false)
     .map(([route]) => ({
       url: `${BASE}${route === "/" ? "" : route}/`.replace(/\/\/$/, "/"),
       changeFrequency: route === "/" || route === "/today" ? ("daily" as const) : ("weekly" as const),

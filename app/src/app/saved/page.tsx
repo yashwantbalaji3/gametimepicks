@@ -30,7 +30,7 @@ export default function SavedForecastsPage() {
         {/* v1.1.2: the other thing this device remembers. Saving keeps ONE forecast; following a team or
             player is a separate, general preference — they share a page link, never a store. */}
         <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-faint)" }}>
-          Teams and players you follow are separate from saved forecasts — <Link href="/following/" style={{ color: "var(--vault-gold-bright)" }}>manage following</Link>.
+          Teams and players you follow are separate from saved forecasts — <Link href="/following/" style={{ color: "var(--vault-gold-bright)" }}>manage following</Link>, or see both together on <Link href="/my/" style={{ color: "var(--vault-gold-bright)" }}>My GameTime</Link>.
         </p>
       </header>
       <SavedList />
