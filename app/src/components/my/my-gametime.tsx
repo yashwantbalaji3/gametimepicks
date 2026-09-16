@@ -22,10 +22,13 @@
  * HYDRATION. Nothing renders an empty or first-run state until BOTH local stores have been read —
  * "not read yet" is not "empty".
  *
- * NO "SINCE YOUR LAST VISIT". Every module shows current state only; nothing here infers change.
+ * SINCE YOUR LAST VISIT (v1.1.4). The one module that talks about change. It compares what THIS device last
+ * observed (lib/my/observation-*) with what the owners above say now, and shows only typed, proven transitions
+ * (lib/my/since.mjs). It adds no Live request (it reads the slate the Live module already fetched) and no player
+ * request; its only request is the saved-settlement projection, made only when a forecast is saved.
  */
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useFollowing, type FollowRef } from "@/lib/follow/follow-store";
 import { useSavedForecasts } from "@/lib/saved/saved-store";
@@ -38,12 +41,18 @@ import { ageSeconds } from "@/lib/live/freshness.mjs";
 import { liveReadyFor } from "@/lib/live/client";
 import { useLiveSlate } from "@/components/live/use-live-slate";
 import type { MyGame, MyPlayerRow, MyReadModel, MyResult } from "@/lib/my/read-model";
+import { useObservation } from "@/lib/my/observation-store";
+import { commitGate, computeSinceDeltas, currentGameEvidence, freshGameFacts, groupDeltas, pendingOwner, uncheckedSlices } from "@/lib/my/since.mjs";
+import { expandLedgers } from "@/lib/my/saved-settlements.mjs";
+import { resolveResult } from "@/lib/saved/results.mjs";
 
 const MONO = "var(--font-mono)";
 const PREVIEW = 4;
 
 /** The Players file path, as a LITERAL — which is also what keeps the post-build /data sweep from pruning it. */
 const PLAYERS_URL = "/data/my/nfl-players.json";
+/** The saved-settlement projection, as a LITERAL for the same reason. Fetched only when a forecast is saved. */
+const SETTLEMENTS_URL = "/data/my/saved-settlements.json";
 
 const etDateTime = (iso: string | null) => {
   if (!iso) return null;
@@ -96,12 +105,21 @@ const grid: React.CSSProperties = { display: "grid", gap: 8, gridTemplateColumns
 
 /* ─────────────────────────── Live Now (MLB) ─────────────────────────── */
 
+interface LiveSlice { settled: boolean; failed: boolean; byGamePk: Record<string, any> | null }
+
 /**
  * Mounted ONLY when the reader follows an MLB team. Mounting it is what issues the one batch request;
  * not mounting it is what makes the no-MLB-follow case cost nothing.
  */
-function LiveNowModule({ followed, upcomingMlbToday }: { followed: FollowRef[]; upcomingMlbToday: MyGame[] }) {
+function LiveNowModule({ followed, upcomingMlbToday, onSlate }: { followed: FollowRef[]; upcomingMlbToday: MyGame[]; onSlate: (s: LiveSlice) => void }) {
   const { byGamePk, unavailable, loading, freshness } = useLiveSlate("mlb");
+  // Share the ONE slate this module already fetched with Since Your Last Visit — never a second request.
+  useEffect(() => {
+    const has = Object.keys(byGamePk).length > 0;
+    // "failed" only when the feed refused AND no slate is held; an empty slate (no games today) is not a failure.
+    onSlate({ settled: !loading, failed: !loading && !!unavailable && !has, byGamePk: has ? byGamePk : null });
+  }, [loading, byGamePk, unavailable, onSlate]);
+  useEffect(() => () => onSlate({ settled: false, failed: false, byGamePk: null }), [onSlate]);
   const { events } = selectFollowedLiveEvents(byGamePk, followed);
   const slateHasLive = Object.values(byGamePk).some((e: any) => e?.state === "LIVE" || e?.state === "DELAYED");
   const hrefByPk = new Map(upcomingMlbToday.map((g) => [g.gameId, g.href]));
@@ -325,11 +343,112 @@ function FollowingSummary({ list }: { list: ReturnType<typeof useFollowing>["lis
   );
 }
 
+/* ─────────────────────────── Since your last visit ─────────────────────────── */
+
+type SettlementsState = { status: "IDLE" | "LOADING" | "READY" | "ERROR"; ledgers: ReturnType<typeof expandLedgers> };
+
+/** Fetches the saved-settlement projection ONLY when enabled (at least one saved forecast), once per page. */
+function useSavedSettlements(enabled: boolean): SettlementsState {
+  const [state, setState] = useState<SettlementsState>({ status: "IDLE", ledgers: null });
+  const started = useRef(false);
+  useEffect(() => {
+    // ⚠ Depends on `enabled` only. A first version also depended on its own status, so setting LOADING re-ran the
+    // effect, whose cleanup marked the in-flight fetch stale — the answer was discarded and it stayed LOADING forever.
+    if (!enabled || started.current) return;
+    started.current = true;
+    let alive = true;
+    setState({ status: "LOADING", ledgers: null });
+    fetch(SETTLEMENTS_URL)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((j) => {
+        const ledgers = expandLedgers(j);
+        if (alive) setState(ledgers ? { status: "READY", ledgers } : { status: "ERROR", ledgers: null });
+      })
+      .catch(() => { if (alive) setState({ status: "ERROR", ledgers: null }); });
+    return () => { alive = false; };
+  }, [enabled]);
+  return state;
+}
+
+function SinceCard({ d }: { d: any }) {
+  const g = d.game;
+  const matchup = g ? `${g.names?.away ?? "Away"} at ${g.names?.home ?? "Home"}` : "";
+  let kicker = "", body: React.ReactNode = null, label = "", href: string | null = null, extra: React.ReactNode = null;
+  if (d.type === "RESULT_SETTLED") {
+    kicker = `Final result available · ${etDate(g.result?.gameAt) ?? ""}`;
+    body = `${g.names?.away} ${g.result.awayScore}, ${g.names?.home} ${g.result.homeScore}`;
+    label = `Final result available: ${body}. ${d.sport}.`;
+    href = g.href;
+    if (d.savedAlso?.length) extra = <div style={{ fontSize: 12, color: "var(--vault-text-mute)", marginTop: 4 }}>Your saved forecast for this game has been graded.</div>;
+  } else if (d.type === "SAVED_FORECAST_SETTLED") {
+    kicker = "Saved forecast graded";
+    body = d.saved.matchup;
+    label = `Saved forecast graded: ${d.saved.matchup}, ${d.saved.family}. See Saved forecasts.`;
+    href = "/saved";
+    extra = <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-mute)", marginTop: 4 }}>{d.saved.family} · see the result in Saved</div>;
+  } else if (d.type === "FINAL_REPORTED_PENDING_SETTLEMENT") {
+    kicker = "Final score reported · grading pending";
+    body = g.reported ? `${g.reported.away.abbr} ${g.reported.away.score}, ${g.reported.home.abbr} ${g.reported.home.score}` : matchup;
+    label = `${matchup}: final score reported by MLB StatsAPI${g.reported ? `, ${body}` : ""}. Grading pending.`;
+    href = g.href;
+    if (g.reported) extra = <div style={{ fontSize: 12, color: "var(--vault-text-mute)", marginTop: 4 }}>{matchup}</div>;
+  } else if (d.type === "GAME_STARTED") {
+    kicker = "Now live";
+    body = matchup;
+    label = `Now live: ${matchup}.`;
+    href = g.href;
+  }
+  return (
+    <MaybeLink href={href} label={label}>
+      <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold-bright)", marginBottom: 4 }}>{d.sport} · {kicker}</div>
+      <div style={{ fontSize: 13.5, color: "var(--vault-text)" }}>{body}</div>
+      {extra}
+    </MaybeLink>
+  );
+}
+
+const UNCHECKED_COPY: Record<string, string> = {
+  FOLLOWING: "your follows can't be read in this browser",
+  LIVE: "live data is unavailable right now, so games in progress couldn't be checked",
+  SAVED_RESULTS: "saved-forecast results couldn't be loaded",
+};
+
+function SinceModule({ status, writeFailed, checking, since, unchecked }: {
+  status: string; writeFailed: boolean; checking: boolean; since: { mode: string; deltas: any[] } | null; unchecked: string[];
+}) {
+  const gap = unchecked.map((k) => UNCHECKED_COPY[k]).join("; ");
+  let content: React.ReactNode;
+  if (status === "UNAVAILABLE") content = <Quiet>Update history isn&apos;t available in this browser, so changes since your last visit can&apos;t be shown. Everything below is current.</Quiet>;
+  else if (status === "UNSUPPORTED_VERSION") content = <Quiet>Your update history was saved by a newer version of GameTimePicks, so it&apos;s left untouched here. Reload to pick up the latest version. Everything below is current.</Quiet>;
+  else if (checking || !since) content = <Quiet>Checking what changed…</Quiet>;
+  else if (since.mode === "BASELINE") content = <Quiet>We&apos;ll show meaningful updates here after your next visit.</Quiet>;
+  else if (since.deltas.length === 0) {
+    // Unknown is not unchanged: "up to date" only when every owner this page needed actually answered.
+    content = gap ? <Quiet>Nothing new could be confirmed — {gap}.</Quiet> : <Quiet>You&apos;re up to date.</Quiet>;
+  }
+  else {
+    const cards = groupDeltas(since.deltas);
+    content = (
+      <ul style={grid}>
+        {cards.map((d: any) => <li key={d.key} style={{ listStyle: "none" }}><SinceCard d={d} /></li>)}
+      </ul>
+    );
+  }
+  return (
+    <Module id="since" title="Since your last visit">
+      {content}
+      {gap && since?.mode === "COMPARED" && since.deltas.length > 0 ? <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)", margin: "6px 0 0" }}>Not everything could be checked: {gap}.</p> : null}
+      {writeFailed ? <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)", margin: "6px 0 0" }}>This visit couldn&apos;t be recorded in this browser, so these updates may show again next time.</p> : null}
+    </Module>
+  );
+}
+
 /* ─────────────────────────── the page ─────────────────────────── */
 
 export default function MyGameTime({ model }: { model: MyReadModel }) {
   const follow = useFollowing();
   const saved = useSavedForecasts();
+  const observation = useObservation();
   // The reader's clock, re-ticked each minute so a game that starts leaves Up Next without a rebuild.
   const [nowMs, setNowMs] = useState(() => Date.now());
   useEffect(() => {
@@ -337,13 +456,62 @@ export default function MyGameTime({ model }: { model: MyReadModel }) {
     return () => clearInterval(id);
   }, []);
 
+  const followed = follow.followed;
+  const followStoreBroken = follow.status === "UNAVAILABLE" || follow.status === "UNSUPPORTED_VERSION";
+  const followUsable = follow.ready && !followStoreBroken;
+  const followsMlb = followUsable && followsAnyMlbTeam(followed);
+
+  /* ── Since your last visit: current evidence from READY owners only (lib/my/since.mjs). ── */
+  const [live, setLive] = useState<LiveSlice>({ settled: false, failed: false, byGamePk: null });
+  const onSlate = useCallback((s: LiveSlice) => setLive(s), []);
+  const settlements = useSavedSettlements(saved.ready && saved.items.length > 0);
+  const followedIds = followUsable ? followed.map((f) => f.id) : null;
+  const evidence = followedIds
+    ? currentGameEvidence({ upcoming: model.upcoming, results: model.results, envelopesByGamePk: followsMlb && live.settled ? live.byGamePk : null, followedIds, nowMs })
+    : [];
+  const nowIso = new Date(nowMs).toISOString();
+  const savedSettled: Map<string, boolean> | null = !saved.ready
+    ? null
+    : saved.items.length === 0
+      ? new Map()
+      : settlements.status === "READY" && settlements.ledgers
+        ? new Map(saved.items.map((s) => [s.id, resolveResult(s, settlements.ledgers as any, nowIso).state === "FINAL"]))
+        : null;
+  const fresh = {
+    followedIds,
+    games: followedIds ? freshGameFacts(evidence) : null,
+    savedIds: saved.ready ? saved.items.map((s) => s.id) : null,
+    saved: saved.ready && savedSettled ? saved.items.map((s) => ({ id: s.id, settled: savedSettled.get(s.id) === true })) : null,
+  };
+  const owners = {
+    followSettled: follow.ready,
+    savedSettledOwner: saved.ready,
+    liveRequired: followsMlb,
+    liveSettled: live.settled,
+    settlementsRequired: saved.ready && saved.items.length > 0,
+    settlementsSettled: settlements.status === "READY" || settlements.status === "ERROR",
+  };
+  const gate = commitGate({ visible: observation.visible, observationStatus: observation.status, ...owners });
+  const freshKey = JSON.stringify(fresh);
+  const { commit } = observation;
+  useEffect(() => {
+    // The next baseline is written only from a visible session whose mounted owners have all settled.
+    if (gate.allowed) commit(JSON.parse(freshKey));
+  }, [gate.allowed, freshKey, commit]);
+  const ownersLoading = pendingOwner(owners) !== null; // independent of visibility — a hidden tab still waits for every owner
+  const unchecked = uncheckedSlices({
+    followBroken: followStoreBroken, liveRequired: followsMlb, liveFailed: live.failed,
+    settlementsRequired: owners.settlementsRequired, settlementsFailed: settlements.status === "ERROR",
+  });
+  const since = observation.status === "LOADING" || ownersLoading
+    ? null
+    : computeSinceDeltas({ prior: observation.prior, followedIds, games: evidence, savedItems: saved.ready ? saved.items : null, savedSettled });
+
   // "Not read yet" is not "empty": render nothing personal until BOTH stores have been read.
   if (!follow.ready || !saved.ready) {
     return <p style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)" }}>Reading this device…</p>;
   }
 
-  const followed = follow.followed;
-  const followStoreBroken = follow.status === "UNAVAILABLE" || follow.status === "UNSUPPORTED_VERSION";
   const state = pageStateFor({ followedCount: followed.length, savedCount: saved.items.length });
 
   if (state === "FIRST_RUN" && !followStoreBroken) {
@@ -378,9 +546,12 @@ export default function MyGameTime({ model }: { model: MyReadModel }) {
         </p>
       ) : null}
 
+      {/* 0 · Since your last visit — proven changes only; reads the owners the modules below already load. */}
+      <SinceModule status={observation.status} writeFailed={observation.writeFailed} checking={observation.status === "LOADING" || ownersLoading} since={since} unchecked={unchecked} />
+
       {/* 1 · Live — mounted only for an MLB team follow (zero requests otherwise). */}
-      {followsAnyMlbTeam(followed) ? (
-        <LiveNowModule followed={followed} upcomingMlbToday={model.upcoming.filter((g) => g.sport === "MLB")} />
+      {followsMlb ? (
+        <LiveNowModule followed={followed} upcomingMlbToday={model.upcoming.filter((g) => g.sport === "MLB")} onSlate={onSlate} />
       ) : null}
 
       {/* 2 · Up next */}

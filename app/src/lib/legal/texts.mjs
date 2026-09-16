@@ -114,7 +114,7 @@ const PRIVACY = {
       ] },
     ]),
     { heading: "What is stored on your device", paragraphs: [
-      "To remember your reading preferences, the teams and players you follow, the picks in your slip, and the forecasts you save, the Site saves small settings in your browser's local storage. A saved forecast is a copy of a forecast card as it read when you saved it; it stays in your browser and is never sent to us. One session value records how you arrived, such as from a shared link.",
+      "To remember your reading preferences, the teams and players you follow, the picks in your slip, and the forecasts you save, the Site saves small settings in your browser's local storage. A saved forecast is a copy of a forecast card as it read when you saved it; it stays in your browser and is never sent to us. When you open My GameTime, it also keeps a short record of how far the games of the teams you follow, and your saved forecasts, had got (scheduled, live, final or graded), so the next visit can show what has changed since; it holds no scores, pages or browsing history, stays in your browser and is never sent to us. One session value records how you arrived, such as from a shared link.",
       "These stay on your device, and you can clear them at any time in your browser's site-data settings. When analytics is on, the arrival value is sent as one of the fixed labels described above.",
     ] },
     { heading: "Services your browser contacts", paragraphs: [

@@ -123,7 +123,10 @@ test("RM6 · ⚠ player rows carry PUBLISHED families only, read from each board
 
 test("REQ1 · ⚠ zero MLB team follows ⇒ the Live module never mounts ⇒ zero Live requests", () => {
   const src = code(PAGE);
-  assert.match(src, /\{followsAnyMlbTeam\(followed\) \? \(\s*<LiveNowModule/, "the only mount is gated on an MLB TEAM follow");
+  // v1.1.4: the gate is named once (followsMlb) because Since Your Last Visit reads the same slate.
+  assert.match(src, /const followsMlb = followUsable && followsAnyMlbTeam\(followed\);/, "the gate is an MLB TEAM follow");
+  assert.match(src, /\{followsMlb \? \(\s*<LiveNowModule/, "the only mount is gated on it");
+  assert.equal((src.match(/<LiveNowModule/g) || []).length, 1, "exactly one mount site");
   // useLiveSlate is called inside the child only — never in the page body, where it would always run.
   const page = src.slice(src.indexOf("export default function MyGameTime"));
   assert.equal(/useLiveSlate\(/.test(page), false, "the page body must not call the Live hook unconditionally");
@@ -262,15 +265,25 @@ test("SAFE1 · ⚠ no forecast, settlement or file writes anywhere in My GameTim
   }
 });
 
-test("SAFE2 · ⚠ no Since-Your-Last-Visit capability or vocabulary ships", () => {
-  const SYLV = /since (your )?last visit|since you were away|new since|unread|lastVisit|lastSeen/i;
-  for (const rel of MY_SOURCES) {
-    const src = code(rel) + "\n" + renderedStrings(read(rel));
-    assert.equal(SYLV.test(src), false, `${rel} carries SYLV`);
+test("SAFE2 · ⚠ change vocabulary ships ONLY as the Since module's approved copy — never urgency, never a count", () => {
+  /*
+   * v1.1.4 · THIS GUARD CHANGED SIDES, DELIBERATELY. Until v1.1.3 it forbade any Since-Your-Last-Visit capability,
+   * because nothing could prove a change. v1.1.4 ships one, built on evidence (lib/my/since.mjs). What stays
+   * forbidden is the vocabulary of manufactured urgency, and any update count or badge.
+   */
+  const URGENCY = /you missed|don't miss|dont miss|breaking|big update|trending|\bhot\b|\balert|notification|we noticed|\bunread\b|new since/i;
+  const SINCE_SOURCES = [...MY_SOURCES, "src/lib/my/since.mjs", "src/lib/my/observation-schema.mjs", "src/lib/my/observation-browser.mjs", "src/lib/my/observation-store.ts"];
+  for (const rel of SINCE_SOURCES) {
+    assert.equal(URGENCY.test(renderedStrings(read(rel))), false, `${rel} renders urgency copy`);
   }
-  // Positive control: the scan DOES catch it in code or rendered copy.
-  assert.equal(SYLV.test(renderedStrings('const x = "3 new since your last visit";')), true);
-  assert.equal(SYLV.test("const lastSeen = 1;"), true);
+  const rendered = renderedStrings(read(PAGE));
+  for (const approved of ["Since your last visit", "You're up to date", "Now live", "Final result available", "Final score reported · grading pending", "Saved forecast graded", "after your next visit"]) {
+    assert.ok(rendered.includes(approved) || read(PAGE).includes(approved.replace("'", "&apos;")), `approved copy present: ${approved}`);
+  }
+  assert.equal(/\{\s*(since\.)?deltas\.length\s*\}|cards\.length\s*\}/.test(code(PAGE)), false, "no update count is rendered");
+  // Positive controls: the scan catches urgency in rendered copy, and the count probe catches a rendered count.
+  assert.equal(URGENCY.test(renderedStrings('const x = "You missed 3 updates";')), true);
+  assert.equal(/\{\s*(since\.)?deltas\.length\s*\}/.test("<b>{since.deltas.length}</b>"), true);
 });
 
 test("SAFE3 · no recommendation, alert, account or sync claim", () => {

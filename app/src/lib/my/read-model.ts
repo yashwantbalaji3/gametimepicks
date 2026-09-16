@@ -29,6 +29,8 @@ import { projectMlbForecast } from "@/lib/live/forecast-join.mjs";
 import { loadCurrentNflResults } from "@/lib/sports/nfl/current-results.mjs";
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
+import { LEDGER_URLS, parseLedger } from "@/lib/saved/results.mjs";
+import { compactLedgers } from "@/lib/my/saved-settlements.mjs";
 
 export interface MyGame {
   sport: "MLB" | "NFL";
@@ -280,4 +282,20 @@ export function buildMyPlayerRows(): MyPlayerRow[] {
   }
 
   return players;
+}
+
+/**
+ * The Saved owner's four ledgers, compacted for My GameTime (v1.1.4 · saved-settlements.mjs). The SAME files
+ * /saved fetches (LEDGER_URLS), parsed by the Saved owner's own parser — a missing ledger degrades to no rows,
+ * which resolveResult reads as "not graded yet", never as a loss.
+ */
+export function buildMySavedSettlements() {
+  const read = (kind: keyof typeof LEDGER_URLS) => {
+    try {
+      return parseLedger(kind, fs.readFileSync(path.join(process.cwd(), "public", LEDGER_URLS[kind]), "utf8")) as any[];
+    } catch {
+      return [];
+    }
+  };
+  return compactLedgers({ mlbGames: read("mlbGames"), nfl: read("nfl"), epl: read("epl"), ufc: read("ufc") });
 }

@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-16T18:54:03Z",
+ "generatedAt": "2026-09-16T21:35:03Z",
  "totals": {
   "routes": 77,
   "public": 51,
@@ -336,7 +336,7 @@
    "indexable": false,
    "owner": "product",
    "purpose": "My GameTime (v1.1.3) — live games, upcoming matchups, saved forecasts, results and followed players for what THIS device follows. A view over existing owners, never a truth owner; noindex because a crawler has no follows",
-   "dataOwner": "build-time public read model (schedules, canonical results) + /data/my/nfl-players.json + the Follow and Saved stores + the /live batch slate",
+   "dataOwner": "build-time public read model (schedules, canonical results) + /data/my/nfl-players.json + /data/my/saved-settlements.json (only with a saved forecast) + the Follow and Saved stores + the /live batch slate + the device observation record (localStorage gtp.observation.v1, v1.1.4 Since your last visit)",
    "freshness": "per module: live on the reader clock; schedules/results per artifact",
    "built": true
   },

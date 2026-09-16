@@ -77,7 +77,8 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
    * hook hands `window.localStorage` to a pure adapter that calls `storage.getItem`), which made it
    * invisible to this guard — a new browser-storage use written that way would have evaded the privacy
    * notice entirely. The detector now also recognises `window.localStorage` access. The expected list
-   * below did not change: the same five files use browser storage, now all actually detected.
+   * below did not change: the same five files use browser storage, now all actually detected. (v1.1.4 added a
+   * sixth — the My GameTime observation record — and the notice with it.)
    */
   const usesStorage = (src) =>
     /\b(localStorage|sessionStorage)\.(setItem|getItem)/.test(src) || /\bwindow\.(localStorage|sessionStorage)\b/.test(src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""));
@@ -85,6 +86,7 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
   assert.deepEqual(users, [
     "components/analytics-bootstrap.tsx",
     "lib/follow/follow-store.ts",
+    "lib/my/observation-store.ts",
     "lib/prefs/reader-prefs.ts",
     "lib/saved/saved-store.ts",
     "lib/slip/slip-store.ts",
@@ -92,6 +94,9 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
   assert.match(renderLegal("privacy").text, /the forecasts you save/, "saved forecasts are described in the notice");
   // v1.1.2: NFL players are followable, so the notice must say players — "teams you follow" became incomplete.
   assert.match(renderLegal("privacy").text, /the teams and players you follow/, "followed players are described in the notice");
+  // v1.1.4: My GameTime's observation record (lib/my/observation-*) is a sixth use, and the notice must name it.
+  assert.match(renderLegal("privacy").text, /short record of how far the games of the teams you follow, and your saved forecasts, had got/, "the observation record is described in the notice");
+  assert.match(renderLegal("privacy").text, /holds no scores, pages or browsing history, stays in your browser and is never sent to us/);
   assert.ok(!SOURCE.some((f) => /\bindexedDB\b/.test(readSource(f))), "IndexedDB is not described");
 });
 

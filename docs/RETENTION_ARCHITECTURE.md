@@ -5,7 +5,7 @@ personalization program — Follow Teams/Players, then My GameTime, then Since Y
 build on decisions already made instead of re-deriving them and minting a second identity system.
 
 **Status (2026-09-16):** §3 Following is **BUILT (v1.1.2)**. §5 My GameTime is **BUILT (v1.1.3) — PUBLIC AND VERIFIED** (`4f2dda004`; CI `35139580684` success on `97a0811d2`; production serves `97a0811d2`, verified 19:40Z).
-Since Your Last Visit (§4) is still a contract only.
+§5a Since Your Last Visit is **BUILT (v1.1.4)** — not yet verified in CI or production.
 
 ---
 
@@ -191,11 +191,117 @@ A **view, not a truth owner**. If `/my` disappeared, every underlying surface wo
   blank Up Next; nothing renders "empty" until both local stores have been read.
 - **MLB totals stay PAUSED** — `projectMlbForecast` omits them; no totals anywhere on the page.
 
-### Why Since Your Last Visit is still separate
+### Why Since Your Last Visit is a separate owner
 
-My GameTime shows **current state only**. It stores nothing, so it holds no "before" — and §4's rule is
-that a delta needs two observations, one of them ours. v1.1.4 must add an explicit, versioned local
-snapshot owner (a new key, never inside `gtp.follow.v2` or `gtp.saved.v1`) before any "changed" claim.
+My GameTime's other modules show **current state only** and store nothing, so they hold no "before" — and
+§4's rule is that a delta needs two observations, one of them ours. v1.1.4 therefore added its own
+versioned device owner (§5a) instead of hanging history off `gtp.follow.v2` or `gtp.saved.v1`.
+
+---
+
+## 5a. Since Your Last Visit — BUILT in v1.1.4
+
+**KPI: truthfulness, not the number of updates.** Zero updates is a correct result whenever zero changes can
+be proven.
+
+### The fifth owner: DEVICE OBSERVATION
+
+```
+PRE-GAME FORECAST   LIVE EVENT STATE   FINAL RESULT       USER PREFERENCES     DEVICE OBSERVATION
+model-owned         provider-owned     settlement-owned   device-owned         device-owned
+immutable           ephemeral          canonical          what matters         what this device last saw
+```
+
+It answers **"what did this device previously observe?"** and never **"what is true now?"**. It owns no sports,
+forecast, Live or settlement truth, imports no forecast/settlement/model module (pinned: SI6), and makes no
+network call (SI1).
+
+### Storage contract — `localStorage` key `gtp.observation.v1` (`lib/my/observation-schema.mjs`)
+
+```ts
+{ schemaVersion: 1,
+  committedAt: string | null,            // DEVICE time of the last commit — never shown, never sports time
+  followedIds: string[],                 // canonical follow ids at that commit (sorted)
+  savedIds: string[],                    // Saved owner ids at that commit (sorted)
+  games: Record<"MLB:<gamePk>" | "NFL:<ESPN event id>", {
+    sport, eventId, teamIds: string[],   // canonical team ids (the eligibility link)
+    stage: "PRE" | "LIVE" | "FINAL" | "SETTLED",   // furthest stage this device has seen
+    startUtc: string | null,             // the owner's scheduled start (pruning only)
+    observedAt: string }>,               // DEVICE time the stage was first seen
+  saved: Record<savedId, { settled: boolean, observedAt: string }> }
+```
+
+- **Stage evidence:** `PRE` = a scheduled start still in the future on the reader's clock, or provider PRE ·
+  `LIVE` = provider LIVE/DELAYED · `FINAL` = provider FINAL (MLB Live only) · `SETTLED` = the canonical result
+  owner has the game. POSTPONED/CANCELLED produce no fact; UNKNOWN proves nothing; a past or unknown start is not PRE.
+- **Parse:** missing ⇒ `EMPTY` (first visit) · unreadable / not v1 ⇒ `CORRUPT`, recovered to empty and writable
+  (the `gtp.follow.v2` precedent) · a higher `schemaVersion` ⇒ `UNSUPPORTED_VERSION`: never written, cleared or
+  downgraded · `getItem` throws ⇒ `UNAVAILABLE`. Untrustworthy pieces (unknown sport, non-numeric event id, a
+  display name where an id belongs, a key that disagrees with its fact) are dropped, never guessed.
+- **Merge (multi-tab):** a commit re-reads storage immediately before writing and merges into what it finds.
+  Stages only move forward; `settled` never un-sets; `observedAt` moves only when a stage advances; `committedAt`
+  never moves back. An older tab therefore cannot regress newer facts. Storage events only trigger a re-read.
+- **Partial failure:** a slice from an owner that is loading, failed or broken is `null` and leaves the stored
+  slice untouched — unknown is never "unchanged" or "ended".
+- **Pruning / bound:** games survive only while one of their teams is followed; saved facts only while saved;
+  games whose start is > 10 days old are dropped; the game map is capped at 300. Measured serialized size:
+  **ordinary 1.8 KB · 10 MLB teams 13.0 KB · mixed MLB/NFL + players + saves 8.6 KB · structural maximum
+  (all 62 teams, 438 players, 60 saves, 300 games) 70.0 KB**.
+- **No write storms:** a commit whose facts equal what is stored does not write (except a session's first
+  commit); a failed write stops attempts for the session and says so; it never pretends the baseline moved.
+
+### Derivation (`lib/my/since.mjs`, pure)
+
+```
+previous observation + current canonical owners + current eligibility = typed, evidence-backed deltas
+```
+
+| Delta | Shipped | Prior evidence | Current truth owner | Notes |
+|---|---|---|---|---|
+| `RESULT_SETTLED` | yes | game stage < SETTLED | MLB graded rows · NFL FINAL-only adapter (read model) | "Final result available", dated by the GAME time (v1.1.3 RM7) |
+| `SAVED_FORECAST_SETTLED` | yes | saved then, `settled:false` recorded from a READY ledger | the Saved owner's `resolveResult` over `/data/my/saved-settlements.json` | "Saved forecast graded"; folded into the result card when the same game also settled |
+| `FINAL_REPORTED_PENDING_SETTLEMENT` | yes (MLB) | stage < FINAL | provider FINAL via the one Live batch slate | never called graded; superseded by `RESULT_SETTLED` |
+| `GAME_STARTED` | yes (MLB) | stage = PRE | provider LIVE/DELAYED via the Live slate | "Now live"; no start time is claimed from device time |
+| `NEW_PUBLISHED_FORECAST` | **deferred** | — | — | no forecast carries a version identity: artifacts regenerate with a new `generatedAt` whether or not a number moved, and absence is not publication |
+| `NFL_PLAYER_FORECAST_CHANGED` | **deferred** | — | — | board rows have player/event/family identity but no per-projection version; board `generatedAt` changes on every event-window run |
+
+- **Baseline:** no trustworthy prior (EMPTY, CORRUPT, UNAVAILABLE) ⇒ zero deltas and "We'll show meaningful
+  updates here after your next visit."
+- **Follow eligibility:** a game counts only if one of its teams was followed at the prior commit **and** now.
+  A new follow is a new baseline; an unfollow prunes that team's facts, so a later re-follow cannot resurrect an
+  old era. ⚠ Known limit: an unfollow **and** re-follow that both happen between two `/my` visits cannot be seen —
+  the Follow owner keeps no per-entity timestamp, and this program does not change another owner's schema.
+- **Saved eligibility:** saved at the prior commit and now, prior `settled:false` (recorded only when the ledger
+  was READY), current resolution FINAL. A new save of an already-graded forecast is a baseline.
+- **One card per game;** both teams followed ⇒ one delta; strongest truth wins.
+- **Order:** result settled → saved graded → final pending → now live; then the game's own start; then key.
+  Device time never orders or dates anything.
+
+### When is an update "seen"? (commit gate, `commitGate`)
+
+A delta is seen when the Since module has rendered in a **visible** `/my` session and the baseline commit
+succeeds. The gate refuses while the document is hidden (a background tab never consumes updates), while the
+observation is loading/unavailable/newer-schema, and while any mounted owner (Follow, Saved, the Live slate when
+an MLB team is followed, the settlement projection when something is saved) has not settled. No `beforeunload`,
+no dwell timer, no click requirement. The session's prior is re-read at the first commit and then frozen, so the
+reader keeps seeing what changed while the page stays open, and a second tab that commits later judges against
+the first tab's baseline.
+
+### Cost
+
+- **Live:** +0 requests — Since reads the slate the Live module already fetched (SI2). No MLB team follow ⇒ still 0.
+- **Players:** +0 — the players file is still fetched only by the players module (SI3).
+- **Saved settlement:** one static `/data/my/saved-settlements.json` (~14.7 KB, a compaction of the four ledgers
+  `/saved` reads, ~950 KB) fetched once, **only when a forecast is saved** (SI4). Its equivalence to the full
+  ledgers under `resolveResult` is pinned for every graded event (SS1–SS3).
+- No new provider, endpoint, server function or personalized server route. Observation state never enters a URL
+  or the static HTML (SB2).
+
+### Privacy
+
+Local only; never transmitted. Holds stages and ids — no scores, no page views, no browsing history, no provider or
+model payloads. The storage detector (`legal/texts.test.mjs`) lists `lib/my/observation-store.ts`, and the draft
+privacy notice describes the record.
 
 ## 6. What v1.1.1 actually left in place
 
