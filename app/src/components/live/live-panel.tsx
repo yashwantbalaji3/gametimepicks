@@ -15,6 +15,7 @@
  */
 import { etDateOf, liveReadyFor } from "@/lib/live/client";
 import { comparisonSentence, joinNflPlayerBoard } from "@/lib/live/forecast-join.mjs";
+import { derivePresentationState, postgameRunComparison } from "@/lib/live/lifecycle.mjs";
 import { useLiveEvent } from "./use-live-event";
 import {
   FreshnessLine, LiveBadge, LivePeriodLine, LiveRangeRow, LiveScoreStrip, LiveUnavailable,
@@ -66,11 +67,19 @@ export interface LivePanelProps {
   forecastGeneratedAt?: string | null;
   /** The event's scheduled start (UTC ISO), used ONLY to scope the provider slate to its ET date. */
   startTime?: string | null;
+  /**
+   * The CANONICAL graded result from the settlement owner, or null.
+   *
+   * ⚠ This is the ONLY thing that can make a game read as settled. A provider FINAL cannot: the two
+   * arrive hours apart (last night: FINAL 05:14Z, graded 09:58Z) and in that window the honest
+   * answer is "Final · grading pending", which is its own state rather than a rounding of either.
+   */
+  settlement?: { actual: { homeRuns: number; awayRuns: number }; gradedAt: string | null } | null;
   /** Render the "Live beta" heading strip. Off on the internal preview, which says so already. */
   showBetaHeading?: boolean;
 }
 
-export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, forecastGeneratedAt, startTime, showBetaHeading }: LivePanelProps) {
+export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, forecastGeneratedAt, startTime, showBetaHeading, settlement }: LivePanelProps) {
   const players = sport === "nfl" && Boolean(playerBoard);
   const { envelope, unavailable, freshness, loading } = useLiveEvent(sport, eventId, {
     players,
@@ -79,6 +88,10 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, fo
 
   if (!liveReadyFor(sport)) return null;
 
+  const life = derivePresentationState({ envelope, settlement });
+  const review = mlbForecast ? postgameRunComparison({ settlement, forecast: mlbForecast }) : null;
+  /** Is there actually a forecast to stamp? A board with zero comparable rows is not one. */
+  const hasForecast = Boolean(mlbForecast) || Boolean(playerBoard);
   const join = playerBoard ? joinNflPlayerBoard(playerBoard, envelope?.playerStats ?? []) : { rows: [] };
   // Rows a reader would learn nothing from are hidden until the game starts producing them.
   const visibleRows = envelope && envelope.state !== "PRE" ? join.rows.filter((r: any) => r.value !== null) : [];
@@ -109,6 +122,13 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, fo
                 <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)" }}>{envelope.stateDetail}</span>
               )}
             </div>
+            {/* ⚠ The gap state, stated rather than rounded away. The feed says the game is over; the
+                settlement owner has not graded it yet, and those are different claims. */}
+            {life.state === "FINAL_PENDING_SETTLEMENT" && (
+              <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-mute)", margin: "0 0 6px" }}>
+                Final score reported · grading pending
+              </p>
+            )}
             <LiveScoreStrip envelope={envelope} />
             <LivePeriodLine envelope={envelope} />
             <FreshnessLine state={envelope.state} freshness={freshness} />
@@ -123,11 +143,19 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, fo
       </Region>
 
       <Region
-        title="Pregame GameTime · frozen"
+        title={life.showsPostgameReview ? "Pregame GameTime · frozen · reviewed" : "Pregame GameTime · frozen"}
+        /*
+         * ⚠ The stamp describes a forecast, so it may only appear when one exists. Caught in QA: a
+         * game with no publishable simulation rendered "No GameTime pregame forecast for this game"
+         * and then, directly beneath it, "Forecast frozen at 9:33 AM ET" — a timestamp for a thing
+         * the line above correctly says does not exist.
+         */
         note={
-          frozenStamp(forecastGeneratedAt)
-            ? `Forecast frozen at ${frozenStamp(forecastGeneratedAt)}. It does not change during the game.`
-            : "This forecast does not change during the game."
+          !hasForecast
+            ? undefined
+            : frozenStamp(forecastGeneratedAt)
+              ? `Forecast frozen at ${frozenStamp(forecastGeneratedAt)}. It does not change during the game.`
+              : "This forecast does not change during the game."
         }
       >
         {mlbForecast ? (
@@ -171,6 +199,39 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, fo
           <p style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)", margin: 0 }}>
             No GameTime pregame forecast for this game.
           </p>
+        )}
+
+        {/*
+          FORECAST REVIEW — only once the settlement owner has graded this game, and only ever
+          descriptive. Where each team's ACTUAL runs landed relative to its published frozen band:
+          the same BELOW/INSIDE/ABOVE vocabulary used elsewhere. No accuracy score, no grade, no
+          expected value, no "beat the line" — §5.4 forbids inventing any of them, and there is no
+          prop or field here through which one could be passed.
+        */}
+        {life.showsPostgameReview && review && (
+          <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--vault-border)" }}>
+            <p style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--vault-text-faint)", margin: "0 0 6px" }}>
+              Forecast review
+            </p>
+            {(["away", "home"] as const).map((side) => {
+              const r = review[side];
+              const where =
+                r.position === "INSIDE" ? "inside the pregame range"
+                : r.position === "BELOW" ? "below the pregame range"
+                : "above the pregame range";
+              return (
+                <div key={side} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "3px 0" }}>
+                  <span style={{ fontSize: 12, color: "var(--vault-text-mute)", textTransform: "capitalize" }}>{side} runs</span>
+                  <span style={{ fontFamily: MONO, fontSize: 12, color: "var(--vault-text)", fontVariantNumeric: "tabular-nums" }}>
+                    {r.actual} <span style={{ color: "var(--vault-text-faint)" }}>/ {r.rangeLow}–{r.rangeHigh} · {where.replace(" the pregame range", "")}</span>
+                  </span>
+                  <span className="sr-only">
+                    {side === "away" ? "Away" : "Home"} team finished with {r.actual} runs; GameTime pregame range {r.rangeLow} to {r.rangeHigh}; the final value is {where}. This is a description of the frozen forecast, not a score or grade of it.
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         )}
       </Region>
     </div>

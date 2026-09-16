@@ -22,6 +22,7 @@ export type MobileNavBucket =
   | "moonshot"
   | "mrdub"
   | "results"
+  | "live"
   | "sports";
 
 export interface MobileNavItem {
@@ -100,6 +101,9 @@ export function resolveMobileNavBucket(
   // P208: Home is a real destination — the root highlights it; Today owns its own bucket.
   if (p === "" || p === "/") return "home";
   if (p === "/today" || p.startsWith("/today/")) return "today";
+  // v1.1.1: the Live hub owns its own slot. It is a destination about NOW, distinct from Today
+  // (the slate) and from Simulations (the reports), so folding it into either would mis-highlight.
+  if (p === "/live" || p.startsWith("/live/")) return "live";
   // Picks Lab is retired (Program 143): /picks and the older /parlays + /parlay-lab aliases all
   // redirect to /build#suggested-cards, so they highlight the Build (lab) bucket mid-redirect
   // rather than leaving no active item. The "picks" bucket no longer has a nav item.

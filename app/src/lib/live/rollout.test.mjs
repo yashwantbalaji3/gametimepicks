@@ -119,12 +119,33 @@ test("ROLLOUT 9 · ⚠ MLB totals stay PAUSED on the public page — no combined
     "handing the raw artifact would carry totalRuns and its full distribution into the live module");
 });
 
-test("ROLLOUT 10 · no public top-level /live navigation entry exists", () => {
+test("ROLLOUT 10 · the Live nav entry exists, is truthful about scope, and resolves", () => {
+  /*
+   * ⚠ THIS RULE CHANGED BY FOUNDER DECISION, and the guard changed WITH it rather than being
+   * deleted. Stage 2 forbade a /live nav entry because the route did not exist; v1.1.1 ships the
+   * hub and approves the entry. What must never change is the claim it makes: the label may not
+   * promise sports the server allowlist will refuse.
+   */
   const nav = read("src/lib/navigation.ts");
   assert.ok(nav.length > 400, "navigation.ts was read — otherwise this scan proves nothing");
-  assert.equal(/href:\s*["'`]\/live/.test(nav), false, "a /live nav entry was added; Stage 2 forbids one");
-  // And no /live route exists to link to.
-  assert.equal(fs.existsSync(path.join(APP, "src/app/live")), false, "a /live route was created");
+  assert.match(nav, /href: "\/live"/, "the Live destination exists");
+  // Truthful scope: the note says MLB, because NFL Live is internal-only.
+  const entry = /\{ href: "\/live"[^}]*\}/.exec(nav);
+  assert.ok(entry, "the Live entry parses");
+  assert.match(entry[0], /note: "MLB/, "the nav must not imply sports the allowlist refuses");
+  assert.equal(/nfl|epl|ufc/i.test(entry[0]), false, "the Live entry must not name an unavailable sport");
+
+  /*
+   * ⚠ RAIL + FOOTER, not the thumb bar. P243 charter E fixes the primaries at FIVE and requires the
+   * same set on every surface; making Live a sixth is a founder product decision, not a side effect
+   * of shipping the route. Phones still reach it — the Menu sheet derives rail-minus-bar.
+   */
+  assert.match(entry[0], /surfaces: \["rail", "footer"\]/, "Live must not silently become a sixth primary");
+
+  // It points at a route that actually exists in source.
+  assert.ok(fs.existsSync(path.join(APP, "src/app/live/page.tsx")), "/live has a real page");
+  // And the route is registered with the inventory owner rather than smuggled in.
+  assert.match(read("src/lib/audits/route-inventory.mjs"), /"\/live": \{ classification: "public"/);
 });
 
 test("ROLLOUT 11 · the frozen-at stamp is rendered in ET, never as a raw ISO instant", () => {

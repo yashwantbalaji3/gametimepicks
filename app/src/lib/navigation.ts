@@ -111,6 +111,22 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   /* P243 · E: the charter's five primaries are Home · Sports · Simulations · Picks & Parlays ·
      Results. Today stays a first-class route — Home leads with the current/upcoming choice and
      links it — but it leaves the top bar and the thumb bar. */
+  /*
+   * v1.1.1: LIVE is a first-class destination — the PRESENT layer of the product, beside Today (the
+   * slate) and Simulations (the reports).
+   *
+   * ⚠ RAIL + FOOTER, DELIBERATELY NOT THE THUMB BAR OR TOP BAR. P243 charter E fixes the primaries
+   * at FIVE and requires them to be the SAME set on every surface; a sixth would change both bars
+   * and break that invariant, which is a product decision belonging to the founder rather than a
+   * side effect of shipping a route. Live still reaches phones: the mobile Menu sheet derives
+   * rail-minus-bar, so a rail destination appears there automatically.
+   *
+   * `note` says MLB rather than implying every sport is tracked live: NFL Live is built but
+   * internal-only, and a nav label promising more than the server allowlist delivers would be the
+   * kind of claim this codebase keeps closing.
+   */
+  { href: "/live", label: "Live", note: "MLB · beta", group: "now", glyph: "◉", desc: "Scores now, beside frozen forecasts",
+    surfaces: ["rail", "footer"], bucket: "live" },
   { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate",
     surfaces: ["rail", "footer"], bucket: "today" },
   /* shortLabel: the bar's 9-char budget rejects "Simulations" (11) and WCAG 2.5.3 requires the

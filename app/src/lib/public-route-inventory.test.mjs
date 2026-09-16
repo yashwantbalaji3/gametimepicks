@@ -75,6 +75,13 @@ const APPROVED_DESTINATIONS = new Set([
   "/models",
   "/saved",
   "/today",
+  /*
+   * v1.1.1: the Live hub, founder-approved 2026-09-16. It clears the bar this list exists to hold —
+   * it renders only artifacts and provider facts that already exist (the slate's frozen forecasts,
+   * the normalized live envelope, the canonical graded result), and it publicly tracks exactly the
+   * one sport the server allowlist permits. Its nav label says "MLB · beta" for that reason.
+   */
+  "/live",
   "/simulate",
   "/markets",
   "/picks",

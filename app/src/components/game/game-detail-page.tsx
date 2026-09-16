@@ -65,6 +65,7 @@ import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
 import LivePanel from "@/components/live/live-panel";
 import { projectMlbForecast } from "@/lib/live/forecast-join.mjs";
+import { settlementForGamePk } from "@/lib/live/hub-data";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { cardFromMlbPrediction } from "@/lib/command-center/featured";
 import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
@@ -754,6 +755,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
    * gateway's own allowlist regardless of what any page asks for.
    */
   const mlbLiveForecast = detail.sport === "mlb" ? projectMlbForecast(detail.fullGameSim ?? null) : null;
+  /* The canonical graded result, read from the settlement owner — the ONLY thing that turns a
+     provider FINAL into a settled game and unlocks the descriptive forecast review. */
+  const mlbSettlement =
+    detail.sport === "mlb" ? settlementForGamePk(detail.fullGameSim?.gamePk ?? null, detail.date ?? null) : null;
   const mlbLivePanel =
     detail.sport === "mlb" && detail.fullGameSim?.gamePk ? (
       <LivePanel
@@ -762,6 +767,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         mlbForecast={mlbLiveForecast}
         forecastGeneratedAt={detail.fullGameSimMeta?.generatedAt ?? null}
         startTime={detail.fullGameSim.firstPitch ?? null}
+        settlement={mlbSettlement}
         showBetaHeading
       />
     ) : null;

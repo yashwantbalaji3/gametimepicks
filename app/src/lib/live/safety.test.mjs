@@ -25,6 +25,11 @@ const LIVE_SOURCES = [
   "src/lib/live/preview-data.ts",
   "src/lib/live/adapters/mlb-statsapi.mjs",
   "src/lib/live/adapters/espn-nfl.mjs",
+  "src/lib/live/lifecycle.mjs",
+  "src/lib/live/hub-data.ts",
+  "src/components/live/live-hub.tsx",
+  "src/components/live/use-live-slate.ts",
+  "src/app/live/page.tsx",
   "src/components/live/live-panel.tsx",
   "src/components/live/live-primitives.tsx",
   "src/components/live/use-live-event.ts",
@@ -40,7 +45,7 @@ test("SAFETY 0 · every scanned file exists and is non-trivial (the anti-vacuity
     const body = read(rel);
     assert.ok(body.length > 400, `${rel} is too small to be the real file — a scan over it proves nothing`);
   }
-  assert.equal(LIVE_SOURCES.length, 13);
+  assert.equal(LIVE_SOURCES.length, 18);
 });
 
 /**
@@ -154,12 +159,42 @@ test("SAFETY 7 · ⚠ MLB totals stay PAUSED — no live surface mentions a comb
   }
 });
 
-test("SAFETY 8 · the live path never writes a file, and never settles anything", () => {
+test("SAFETY 8 · the live path never writes a file, and never CREATES a settlement", async () => {
+  /*
+   * ⚠ THIS GUARD WAS A BRITTLE PIN AND IS NOW A BEHAVIOURAL ONE.
+   *
+   * It used to ban the WORD "settle" anywhere on the live path. v1.1.1 made that wrong: the
+   * lifecycle must READ the canonical graded result to tell SETTLED apart from a provider FINAL,
+   * so the noun now appears legitimately in three files. Banning the noun would have forced the
+   * feature to launder its own vocabulary — the opposite of clarity.
+   *
+   * The protected behaviour was never "don't say settlement". It is: the live path must not WRITE
+   * one, and must not be able to MANUFACTURE one. Both are asserted directly below, and the second
+   * is a behavioural probe rather than a text scan — much harder to fool than the pin it replaces.
+   */
   for (const rel of LIVE_SOURCES) {
     const body = codeOnly(read(rel));
     assert.equal(/writeFileSync|writeFile\(|appendFileSync|mkdirSync|rmSync/.test(body), false, `${rel} writes to disk`);
-    assert.equal(/\bsettle|isGradeable|gradeGame/i.test(body), false, `${rel} reaches into settlement — a live FINAL is not a graded result`);
+    // Nothing on the live path may call a grader or a settlement writer.
+    assert.equal(/\b(gradeGame|isGradeable|settleGame|writeSettlement|gradeResults)\s*\(/.test(body), false,
+      `${rel} calls a settlement/grading function`);
+    assert.equal(/scripts\/settle|product-settlement\//.test(body), false, `${rel} imports a settlement writer`);
   }
+
+  // BEHAVIOURAL: a game can only ever read as graded when a settlement was HANDED IN. No provider
+  // state, and no absence of one, can produce that verdict on its own.
+  const { derivePresentationState } = await import("./lifecycle.mjs");
+  for (const state of ["PRE", "LIVE", "DELAYED", "FINAL", "POSTPONED", "CANCELLED", "UNKNOWN"]) {
+    const d = derivePresentationState({ envelope: { state }, settlement: null });
+    assert.equal(d.isCanonicallyGraded, false, `${state} manufactured a graded verdict`);
+  }
+  assert.equal(derivePresentationState({}).isCanonicallyGraded, false);
+  // And the positive control, so the probe is not vacuous.
+  assert.equal(
+    derivePresentationState({ envelope: { state: "FINAL" }, settlement: { actual: { homeRuns: 1, awayRuns: 2 } } }).isCanonicallyGraded,
+    true,
+    "a real settlement DOES grade — otherwise this test would pass on a broken derivation",
+  );
 });
 
 test("SAFETY 9 · every refusal reason the gateway can emit has reader-facing copy", () => {

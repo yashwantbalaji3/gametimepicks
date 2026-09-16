@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-16T05:01:46Z",
+ "generatedAt": "2026-09-16T14:41:22Z",
  "totals": {
-  "routes": 74,
-  "public": 48,
+  "routes": 75,
+  "public": 49,
   "internal": 7,
   "redirects": 15,
   "archive": 2,
@@ -204,6 +204,15 @@
    "built": true
   },
   {
+   "route": "/live",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "Live hub (v1.1.1) — today's MLB games grouped Live now / Starting soon / Final today, each beside its frozen pregame forecast",
+   "dataOwner": "build-time roster (full-game sims + graded results + canonical hrefs) joined at read time to ONE batch /api/live scoreboard call",
+   "freshness": "roster per slate artifact; live half per gateway TTL, aged on the reader clock",
+   "built": true
+  },
+  {
    "route": "/market-guide",
    "classification": "public",
    "owner": "product",
@@ -256,7 +265,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (116 generated page(s))"
+   "built": "FAMILY (117 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -484,7 +493,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (100 generated page(s))"
+   "built": "FAMILY (101 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -585,7 +594,7 @@
    "purpose": "one static page per in-window date — same selector, date as the route (P209)",
    "dataOwner": "lib/simulate/day-view over per-sport owners",
    "freshness": "each owner's own stamp",
-   "built": "FAMILY (25 generated page(s))"
+   "built": "FAMILY (26 generated page(s))"
   },
   {
    "route": "/soccer/ligue-1",
