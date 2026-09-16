@@ -259,3 +259,45 @@ test("MLB 8 · ⚠ MLB carries NO live player stats — and the reason is a miss
       `gamePk ${g.gamePk} now emits per-player output — revisit the MLB live player slice`);
   }
 });
+
+test("MLB 9 · ⚠ a PRE game carries NO score — StatsAPI zeroes it an hour before first pitch", () => {
+  /*
+   * The exact payload observed in production on 2026-09-16: abstractGameState "Preview",
+   * detailedState "Pre-Game", and BOTH the schedule score and the linescore runs already at 0.
+   * Rendering that as 0–0 tells a reader the game is under way and scoreless.
+   */
+  const preGame = {
+    gamePk: 824382,
+    gameDate: "2026-09-16T17:10:00Z",
+    status: { abstractGameState: "Preview", codedGameState: "P", detailedState: "Pre-Game" },
+    teams: { home: { team: { id: 114, abbreviation: "CLE" }, score: 0 }, away: { team: { id: 145, abbreviation: "CWS" }, score: 0 } },
+    linescore: { teams: { home: { runs: 0, hits: 0, errors: 0 }, away: { runs: 0, hits: 0, errors: 0 } } },
+  };
+  const e = normalizeMlbGame(preGame, FETCHED);
+  assert.equal(e.state, "PRE");
+  assert.equal(e.competitors.home.score, null, "a scheduled game has no score, not a zero");
+  assert.equal(e.competitors.away.score, null);
+});
+
+test("MLB 10 · a genuine 0 DURING play is still reported — the fix must not hide real zeroes", () => {
+  // The inverse of MLB 9. Suppressing zeroes wholesale would be a worse bug than showing them early.
+  const scorelessLive = {
+    gamePk: 999100,
+    gameDate: "2026-09-16T17:10:00Z",
+    status: { abstractGameState: "Live", codedGameState: "I", detailedState: "In Progress" },
+    teams: { home: { team: { id: 1, abbreviation: "AAA" }, score: 0 }, away: { team: { id: 2, abbreviation: "BBB" }, score: 0 } },
+    linescore: { currentInning: 3, inningState: "Top", outs: 1, teams: { home: { runs: 0 }, away: { runs: 0 } } },
+  };
+  const e = normalizeMlbGame(scorelessLive, FETCHED);
+  assert.equal(e.state, "LIVE");
+  assert.equal(e.competitors.home.score, 0, "a scoreless third inning IS 0, not absent");
+  assert.equal(e.competitors.away.score, 0);
+
+  // And a real final keeps a shutout.
+  const shutout = structuredClone(scorelessLive);
+  shutout.status = { abstractGameState: "Final", codedGameState: "F", detailedState: "Final" };
+  shutout.linescore.teams.away.runs = 5;
+  const f = normalizeMlbGame(shutout, FETCHED);
+  assert.equal(f.competitors.home.score, 0, "a shutout is a real 0");
+  assert.equal(f.competitors.away.score, 5);
+});

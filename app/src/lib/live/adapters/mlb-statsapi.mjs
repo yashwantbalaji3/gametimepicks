@@ -63,9 +63,22 @@ export function normalizeMlbGame(game, fetchedAt) {
 
   const state = mapMlbState(game?.status);
   const ls = game?.linescore ?? {};
-  // Scores are read from the linescore, falling back to the schedule's team score. A postponed or
-  // cancelled game is given NO score at all, however the payload is shaped.
-  const scored = state !== "POSTPONED" && state !== "CANCELLED";
+  /*
+   * WHICH STATES MAY CARRY A SCORE AT ALL.
+   *
+   * ⚠ PRE IS EXCLUDED, and that is not cosmetic. StatsAPI populates `linescore.teams.*.runs` and
+   * `teams.*.score` with 0 as soon as a game reaches detailedState "Pre-Game" — roughly an hour
+   * before first pitch. Observed in production 2026-09-16: two scheduled games rendered "CWS 0 @
+   * CLE 0" on the hub while the rest correctly showed an em dash, which reads as a game under way
+   * and scoreless rather than a game that has not started.
+   *
+   * A postponed or cancelled game is likewise given no score however the payload is shaped.
+   *
+   * A genuine 0 during play is NOT suppressed: a scoreless third inning is a fact the feed is
+   * entitled to report, and LIVE/FINAL keep their zeroes. Only states that cannot have a score yet
+   * are stripped of one.
+   */
+  const scored = state !== "POSTPONED" && state !== "CANCELLED" && state !== "PRE";
   const homeRuns = scored ? (num(ls?.teams?.home?.runs) ?? num(game?.teams?.home?.score)) : null;
   const awayRuns = scored ? (num(ls?.teams?.away?.runs) ?? num(game?.teams?.away?.score)) : null;
 

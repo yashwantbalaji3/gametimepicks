@@ -3,9 +3,21 @@
 One document, seven sections. Written 2026-09-15/16, the session that built the first Live vertical
 slice. Everything stated as verified here was measured in that session and the measurement is named.
 
-**Status: MLB LIVE BETA — PUBLIC AND VERIFIED.** Activated in production **2026-09-16T05:03:35Z**
-(build `7190ee9b9`), verified 05:14–05:30Z. NFL Live remains built, tested and internal-only.
-Founder decision 2026-09-16: proceed with MLB only; ESPN-backed NFL Live is preserved but not public.
+## CURRENT STATE — read this before any older section
+
+| | |
+|---|---|
+| **MLB Live** | **PUBLIC AND VERIFIED.** Activated 2026-09-16T05:03:35Z (build `7190ee9b9`), verified 05:14–05:30Z |
+| **`/live` hub** | **PUBLIC** (v1.1.1) — today's MLB games grouped Live now / Starting soon / Final today |
+| **Game lifecycle** | **PUBLIC** (v1.1.1) — the same MLB URL serves PRE, LIVE, FINAL-pending-settlement and SETTLED |
+| **NFL Live** | **INTERNAL ONLY.** Built, tested, refused publicly by the server allowlist |
+| **EPL / UFC Live** | **NOT BUILT** |
+| **MLB totals** | **PAUSED** — absent from every Live surface |
+| **MLB player Live rows** | **NONE** — MLB publishes no per-player forecast range to compare against |
+
+⚠ **Everything below is the record of how this was built, in order.** Sections describing Stage 1
+("preview only") and Stage 2 ("awaiting env vars") are HISTORICAL SNAPSHOTS, preserved because their
+incident write-ups are still useful. The table above is the only current-state claim.
 
 ---
 
@@ -115,7 +127,7 @@ LiveEventEnvelope
 | identity join | `gamePk` **is** the GameTime MLB event id | ESPN event id **is** `/nfl/game/[eventId]`; ESPN athlete id **is** `nfl-athlete-<id>` |
 | batch? | ONE call serves the whole slate, in both scoreboard and single-event mode | scoreboard is one call per slate; `summary` is per event and opt-in |
 | player stats | **none in v1.1 — deferred on principle, see below** | rushing / receiving yards / receptions, mapped by column LABEL |
-| production enabled | **NO** — Stage 1 preview only | **NO** — Stage 1 preview only |
+| production enabled | **YES** — public since 2026-09-16 (this row was "NO" at Stage 1; see CURRENT STATE at the top) | **NO** — internal only, refused by the server allowlist |
 
 ### Caveats, stated rather than smoothed over
 
