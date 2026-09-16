@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823979,
+  "date": "2026-09-16",
+  "capturedAt": "2026-09-16T00:54:28.740Z",
+  "availableAt": "2026-09-16T00:54:28.740Z",
+  "eventStartTime": "2026-09-17T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 579328,
+      "name": "Yusei Kikuchi",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 5,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.4,
+        "bbAvg": 2,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 8.25,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 53,
+        "k": 54,
+        "bb": 23,
+        "er": 28,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 669923,
+      "name": "George Kirby",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 4.8,
+        "bbAvg": 1.6,
+        "erAvg": 3.8,
+        "hrAvg": 0.8,
+        "kPer9": 7.53,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 165.33,
+        "k": 138,
+        "bb": 39,
+        "er": 78,
+        "hr": 21
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-16&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-16T00:54:28.740Z"
+  },
+  "recordHash": "b3ae067afbee3a87d5ae3128e9e3b820c509b1d32182b82aca562d6f6f8cde6c"
+}
