@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823978,
+  "date": "2026-09-17",
+  "capturedAt": "2026-09-17T18:42:10.368Z",
+  "availableAt": "2026-09-17T18:42:10.368Z",
+  "eventStartTime": "2026-09-18T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 700712,
+      "name": "Walbert Ureña",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 5,
+      "lastStartDate": "2026-09-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 5.8,
+        "bbAvg": 2,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 8.8,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 135.67,
+        "k": 129,
+        "bb": 64,
+        "er": 44,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 671737,
+      "name": "Taj Bradley",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 6,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 7.8,
+        "bbAvg": 2.6,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 11.83,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 165.33,
+        "k": 190,
+        "bb": 72,
+        "er": 70,
+        "hr": 23
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-17T18:42:10.368Z"
+  },
+  "recordHash": "e17c3c9493f71860bbacb8297eaf75e23f360c01d8ed2c5e63a8b859f9d0fef2"
+}
