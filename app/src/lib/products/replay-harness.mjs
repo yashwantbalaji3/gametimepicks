@@ -26,6 +26,89 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
+/**
+ * CHILD PROCESS BOUNDS (v1.1.4.2).
+ *
+ * ⚠ The settlers used to run as `spawnSync("npx", ["tsx", ...])` with no timeout. On 2026-09-17 a CI unit phase went
+ * silent for 21 minutes at the vault replay suite and the 25-minute job was cancelled (run 35180754910; the rerun's
+ * unit phase took 198 s). Two measured facts make that launch unboundable, whatever caused the stall:
+ *   - tsx is not a dependency of this repo, so `npx tsx` resolves through npm's npx cache — package-resolution
+ *     machinery on every spawn;
+ *   - `npx` → tsx CLI → node is a three-process chain, and a spawnSync timeout signals only the direct child:
+ *     measured locally, `timeout: 1500` on an `npx tsx` sleeper returned after 4,792 ms and the grandchild survived.
+ *
+ * So the child now runs as ONE node process with the SAME tsx loader flags this test process was started with
+ * (tsx's own preflight + loader, read from process.execArgv) — exactly what the tsx CLI would have spawned, without
+ * npx and without the wrapper process — under an explicit timeout that SIGKILLs it.
+ *
+ * Timeout: measured 2026-09-17, 32 settler children across both replay suites, mean 584 ms, slowest 633 ms (local,
+ * warm). 60 s is ~95× the slowest — a stalled child, not a slow runner — and fails a single stall far inside the
+ * 25-minute job. It bounds EACH child; it is not a claim that nothing else can make CI slow.
+ */
+export const REPLAY_CHILD_TIMEOUT_MS = 60_000;
+
+const TSX_PREFLIGHT = /[\\/]tsx[\\/]dist[\\/]preflight\.cjs$/;
+const TSX_LOADER = /[\\/]tsx[\\/]dist[\\/]loader\.mjs$/;
+
+/**
+ * The node flags tsx put on this process, so a child can run TypeScript exactly as this process does. Null when this
+ * process was not started by tsx — then there is deliberately NO npx fallback.
+ * @param {string[]} [execArgv]
+ * @returns {string[]|null}
+ */
+export function tsxNodeFlags(execArgv = process.execArgv) {
+  const out = [];
+  let loader = false;
+  for (let i = 0; i < execArgv.length; i++) {
+    const a = execArgv[i];
+    const [flag, inline] = a.includes("=") ? [a.slice(0, a.indexOf("=")), a.slice(a.indexOf("=") + 1)] : [a, null];
+    const value = inline ?? execArgv[i + 1];
+    if ((flag === "--require" || flag === "-r") && TSX_PREFLIGHT.test(value ?? "")) {
+      out.push("--require", value); if (inline === null) i++;
+    } else if ((flag === "--loader" || flag === "--experimental-loader" || flag === "--import") && TSX_LOADER.test(value ?? "")) {
+      out.push(flag, value); loader = true; if (inline === null) i++;
+    } else if (a === "--enable-source-maps") {
+      out.push(a);
+    }
+  }
+  return loader ? out : null;
+}
+
+const tail = (text, max = 800) => {
+  const t = String(text ?? "").trim();
+  return t.length > max ? `…${t.slice(-max)}` : t;
+};
+
+/**
+ * Run a TypeScript/ESM script in a bounded child process.
+ *
+ * Success and ordinary failure keep the harness's existing contract — `{ status, stdout, stderr }`, a nonzero status
+ * is returned for the caller to assert on. A child that exceeds the timeout, or cannot be started, THROWS one concise
+ * message naming the operation, the limit and the command, with a short stderr tail.
+ *
+ * @param {string[]} scriptArgs   the script path followed by its arguments
+ * @param {{ cwd: string, label: string, timeoutMs?: number, execArgv?: string[], env?: Record<string, string|undefined> }} options
+ * @returns {{ status: number, stdout: string, stderr: string, durationMs: number }}
+ */
+export function runReplayChild(scriptArgs, { cwd, label, timeoutMs = REPLAY_CHILD_TIMEOUT_MS, execArgv = process.execArgv, env = process.env }) {
+  const flags = tsxNodeFlags(execArgv);
+  const shown = `tsx ${scriptArgs.map((x) => path.basename(String(x)) === String(x) ? x : path.relative(cwd, String(x)) || x).join(" ")}`;
+  if (!flags) {
+    throw new Error(`Replay subprocess could not start (${label}): this test process was not started by tsx, so there is no tsx loader to reuse. Run the suite with \`npx tsx --test\`; the harness never falls back to npx.\n  ${shown}`);
+  }
+  const started = Date.now();
+  const r = spawnSync(process.execPath, [...flags, ...scriptArgs], {
+    cwd, encoding: "utf8", env: { ...env }, timeout: timeoutMs, killSignal: "SIGKILL", maxBuffer: 64 * 1024 * 1024,
+  });
+  const durationMs = Date.now() - started;
+  if (r.error?.code === "ETIMEDOUT") {
+    const secs = timeoutMs >= 1000 ? `${Math.round(timeoutMs / 100) / 10}s` : `${timeoutMs}ms`;
+    throw new Error(`Replay subprocess timed out after ${secs} (${label}), killed with ${r.signal ?? "SIGKILL"}:\n  ${shown}${tail(r.stderr) ? `\n  stderr tail: ${tail(r.stderr)}` : ""}`);
+  }
+  if (r.error) throw new Error(`Replay subprocess could not start (${label}): ${r.error.code ?? r.error.message}\n  ${shown}`);
+  return { status: r.status ?? 1, stdout: r.stdout ?? "", stderr: r.stderr ?? "", durationMs };
+}
+
 /** The settler, addressed the way the scheduled job addresses it. */
 export const SETTLE_LAB_CARDS = "scripts/parlays/settle-lab-cards.mjs";
 
@@ -109,8 +192,8 @@ export function runSettler(store, { now, date, apply = true, appDir }) {
   const args = [path.join(appDir, SETTLE_LAB_CARDS), "--now", now, "--app-root", store];
   if (date) args.push("--date", date);
   if (apply) args.push("--apply");
-  const r = spawnSync("npx", ["tsx", ...args], { cwd: store, encoding: "utf8", env: { ...process.env } });
-  return { status: r.status ?? 1, stdout: r.stdout ?? "", stderr: r.stderr ?? "" };
+  const r = runReplayChild(args, { cwd: store, label: "parlay lab settler" });
+  return { status: r.status, stdout: r.stdout, stderr: r.stderr };
 }
 
 /**
@@ -150,8 +233,8 @@ export function runVaultSettler(store, { now, date, repoDir }) {
   if (!now) throw new Error("replay-harness: a controlled clock (`now`) is required");
   const args = [path.join(repoDir, SETTLE_NFL_EXPERIMENTAL), "--now", now, "--repo-root", store];
   if (date) args.push("--date", date);
-  const r = spawnSync("npx", ["tsx", ...args], { cwd: path.join(store, "app"), encoding: "utf8", env: { ...process.env } });
-  return { status: r.status ?? 1, stdout: r.stdout ?? "", stderr: r.stderr ?? "" };
+  const r = runReplayChild(args, { cwd: path.join(store, "app"), label: "End Zone Vault settler" });
+  return { status: r.status, stdout: r.stdout, stderr: r.stderr };
 }
 
 /** A repo-shaped store: the vault settler reads `<root>/data` and `<root>/app/public`. */
