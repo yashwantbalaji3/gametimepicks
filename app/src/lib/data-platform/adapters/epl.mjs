@@ -12,7 +12,7 @@
  *   player           epl-athlete-<ESPN athlete id> — new in v1.2 (graded player projections carry the bare id)
  *
  * The one cross-provider join is EPL_CLUBS below: a reviewed table from ESPN team id to the product's
- * canonical club (lib/soccer/epl-clubs.ts) and its shipped slug. It is verified in epl-adapter.test.mjs to
+ * canonical club (lib/soccer/epl-clubs.ts) and its shipped slug. It is verified in adapters.test.mjs (EPL-1…EPL-4) to
  * be a bijection whose ESPN names are exact aliases in EPL_CLUB_ALIASES — so fixtures (which carry only the
  * canonical club name) join to ESPN ids through a fixed, tested table, never through name similarity.
  *

@@ -12,7 +12,7 @@
  *                                      id claimed twice in either direction resolves to nobody
  *   nflverse team code → ESPN team id: NFLVERSE_TEAM_TO_ESPN_TEAM_ID below — a reviewed 32-row table,
  *                                      proven against ESPN's own (abbr, id) pairs and a by-event-id join
- *                                      in nfl-adapter.test.mjs. Codes are nflverse's franchise-mapped codes
+ *                                      in adapters.test.mjs (NFL-1, NFL-7) and committed-store.test.mjs (CS5). Codes are nflverse's franchise-mapped codes
  *                                      (STL→LA, SD→LAC, OAK→LV already applied upstream).
  *   ESPN abbreviation → ESPN team id : ESPN's own pairs from the committed roster capture (same provider)
  *
@@ -43,7 +43,7 @@ export const NFL_SOURCES = Object.freeze({
 });
 const S = NFL_SOURCES;
 
-/** Reviewed table: nflverse franchise code → ESPN team id. Proven in nfl-adapter.test.mjs; never extended by guessing. */
+/** Reviewed table: nflverse franchise code → ESPN team id. Proven in adapters.test.mjs (NFL-1, NFL-7) and committed-store.test.mjs (CS5); never extended by guessing. */
 export const NFLVERSE_TEAM_TO_ESPN_TEAM_ID = Object.freeze({
   ARI: "22", ATL: "1", BAL: "33", BUF: "2", CAR: "29", CHI: "3", CIN: "4", CLE: "5", DAL: "6", DEN: "7", DET: "8",
   GB: "9", HOU: "34", IND: "11", JAX: "30", KC: "12", LA: "14", LAC: "24", LV: "13", MIA: "15", MIN: "16", NE: "17",
