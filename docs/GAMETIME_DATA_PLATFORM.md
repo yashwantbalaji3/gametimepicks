@@ -7,6 +7,11 @@ Since Your Last Visit). Written 2026-09-17.
 **Status: v1.2 FOUNDATION.** Internal only. **No public consumer reads the platform** (pinned by
 `boundary.test.mjs` B1), no route was added, nothing is exported to the browser.
 
+> **v1.3 (2026-09-17) — first consumer.** Exactly one app module reads the store: the build-time research projection
+> builder `app/scripts/research/build-research-projections.mjs` (B1 `PLATFORM_CONSUMERS`, plus its verification test).
+> It writes the public-safe projection `data/research-projection/v1`, which Team/Player research pages read. Pages,
+> components and client code still never import the platform. See `docs/TEAM_PLAYER_RESEARCH.md` §2–3.
+
 ---
 
 ## 1. Purpose
@@ -132,7 +137,7 @@ future SQLite/Postgres/warehouse backend can replace them without changing a can
 |---|---|---|
 | raw / source | existing committed captures and research tables (never edited by the platform) | source-shaped, preserved |
 | canonical normalized | `data/internal/platform/v1` | stable schema, canonical ids, deterministic order, provenance, explicit missingness, no UI copy, no model judgment |
-| public projection | **none in v1.2** | a future projection must be compact, id-only for provenance, and pass the export leak guard (`export-leak.test.mjs`) |
+| public projection | **v1.3:** `data/research-projection/v1` (research pages only; `docs/TEAM_PLAYER_RESEARCH.md`) | compact, no provenance paths or provider aliases, own schemaVersion; built only by the allowlisted builder; passes `export-leak.test.mjs` and `research-pages/boundary.test.mjs` RB5 |
 
 ## 8. Source matrix
 
@@ -326,7 +331,8 @@ artifacts carry no model-judgment copy ("validated", "high confidence", "edge") 
 - **Is it stale?** `build.mjs --all --check`. Staleness is expected between refreshes (bots commit captures daily)
   and is never a CI failure: `committed-store.test.mjs` checks preservation only against source artifacts whose
   sha256 still matches `sources.json`.
-- **No scheduled job** refreshes the store in v1.2 (adding one is an ops decision). **CI:** the unit phase runs the
+- **No scheduled job** refreshes the store in v1.2 (adding one is an ops decision). **v1.3:** after a refresh, also run
+  `node scripts/research/build-research-projections.mjs` — the research unit test fails while the projection is not the rebuild of the committed store. **CI:** the unit phase runs the
   platform suites (core, adapters, validate, committed-store, boundary ≈ 6 s); post-build runs the export leak guard.
   The quality gate is path-filtered to `app/**`, so a data-only commit of `data/internal/platform` does not trigger
   it — run `validate.mjs` before pushing such a commit.
