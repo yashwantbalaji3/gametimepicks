@@ -1,0 +1,44 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-totals-shadow-receipt",
+ "dataClass": "PRIVATE_RESEARCH",
+ "program": "305-F",
+ "updatedAt": "2026-09-17T23:30:50Z",
+ "shadowModelId": "epl-totals-shadow-v1-goal-ratios",
+ "liveModelId": "epl-model-v2-elo-poisson",
+ "state": "ACCUMULATING",
+ "n": 0,
+ "needed": 60,
+ "pairedTotalLogLoss": {
+  "meanDifference": null,
+  "lo95": null,
+  "hi95": null
+ },
+ "shadow": {
+  "totalLogLoss": null,
+  "over15Brier": null,
+  "over25Brier": null,
+  "over35Brier": null,
+  "over15Ece": null,
+  "over25Ece": null,
+  "over35Ece": null,
+  "level": null,
+  "oneXTwoLogLoss": null,
+  "oneXTwoEce": null
+ },
+ "control": {
+  "totalLogLoss": null,
+  "over15Brier": null,
+  "over25Brier": null,
+  "over35Brier": null,
+  "over15Ece": null,
+  "over25Ece": null,
+  "over35Ece": null,
+  "level": null,
+  "oneXTwoLogLoss": null,
+  "oneXTwoEce": null
+ },
+ "bars": null,
+ "failedBars": null,
+ "rule": "Paired per-match total-goals log loss, shadow minus live P304, over graded P304 forecasts that carried the shadow block, made on or after startedAt. SHADOW_BETTER needs the whole 95% event-bootstrap interval below zero and every bar; SHADOW_WORSE the whole interval above zero. Nothing publishes from this receipt; public adoption is a founder decision."
+}
