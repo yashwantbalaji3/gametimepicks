@@ -67,6 +67,7 @@ import LivePanel from "@/components/live/live-panel";
 import { projectMlbForecast } from "@/lib/live/forecast-join.mjs";
 import { settlementForGamePk } from "@/lib/live/hub-data";
 import TeamFollowRow from "@/components/follow/team-follow-row";
+import { hrefsFor } from "@/lib/research-pages/projection-store";
 import { mlbTeamRefByName } from "@/lib/follow/entity-registry";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { cardFromMlbPrediction } from "@/lib/command-center/featured";
@@ -768,6 +769,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       <TeamFollowRow
         away={mlbTeamRefByName(detail.fullGameSim?.awayTeamName ?? null)}
         home={mlbTeamRefByName(detail.fullGameSim?.homeTeamName ?? null)}
+        researchHrefs={hrefsFor([mlbTeamRefByName(detail.fullGameSim?.awayTeamName ?? null)?.id, mlbTeamRefByName(detail.fullGameSim?.homeTeamName ?? null)?.id])}
       />
     ) : null;
 

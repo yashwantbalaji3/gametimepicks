@@ -21,6 +21,7 @@ import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
 import TeamFollowRow from "@/components/follow/team-follow-row";
+import { hrefsFor } from "@/lib/research-pages/projection-store";
 import { nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
 import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
@@ -202,7 +203,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         {f.venue ? <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{f.venue}</p> : null}
         {/* v1.1.2: follow either club by its ESPN team id, from the game the reader is already on. */}
         <div style={{ marginTop: 10 }}>
-          <TeamFollowRow away={nflTeamRefByAbbr(f.away.abbr)} home={nflTeamRefByAbbr(f.home.abbr)} />
+          <TeamFollowRow away={nflTeamRefByAbbr(f.away.abbr)} home={nflTeamRefByAbbr(f.home.abbr)} researchHrefs={hrefsFor([nflTeamRefByAbbr(f.away.abbr)?.id, nflTeamRefByAbbr(f.home.abbr)?.id])} />
         </div>
         {wx ? (
           <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--vault-text-faint)", maxWidth: 720, lineHeight: 1.55 }}>
@@ -602,7 +603,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
               one filter scope, every eligible player reachable, availability on every row, one
               display-precision policy, no silent cap. The separate server-rendered copy of the same
               numbers is gone. */}
-          <NflPlayerBoard board={playerBoard} teams={[f.away.abbr, f.home.abbr]} />
+          <NflPlayerBoard board={playerBoard} teams={[f.away.abbr, f.home.abbr]} researchHrefs={hrefsFor((playerBoard.players ?? []).map((p) => p.playerId))} />
 
           {/* P249 §8 — scoring outlook: the game's TD candidates with their availability states.
               A deliberately-sized shortlist; the FULL list lives in the board's TD-chance tab. */}

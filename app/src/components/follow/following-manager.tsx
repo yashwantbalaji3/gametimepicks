@@ -13,6 +13,7 @@ import { useState } from "react";
 
 import FollowToggle from "./follow-toggle";
 import { type FollowRef, useFollowing } from "@/lib/follow/follow-store";
+import { followResearchHref } from "@/lib/research-pages/follow-links.mjs";
 
 const MONO = "var(--font-mono)";
 
@@ -25,9 +26,12 @@ const SECTIONS: Array<{ key: string; title: string; filter: { sport: "MLB" | "NF
 export default function FollowingManager({
   legacyMap,
   teamLabels,
+  researchMap = {},
 }: {
   legacyMap: Record<string, FollowRef>;
   teamLabels: Record<string, string>;
+  /** v1.3: compact map of followable ids that have a research page (lib/research-pages/follow-links.mjs). */
+  researchMap?: Record<string, Record<string, string>>;
 }) {
   const f = useFollowing({ legacyMap });
   const [confirming, setConfirming] = useState(false);
@@ -101,7 +105,12 @@ export default function FollowingManager({
             <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
               {rows.map((ref) => (
                 <li key={ref.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "6px 0", borderTop: "1px solid var(--vault-border)" }}>
-                  <span style={{ fontSize: 14, color: "var(--vault-text)" }}>{ref.label}</span>
+                  {followResearchHref(researchMap, ref.id) ? (
+                    /* v1.3: the label opens the research page; Unfollow stays its own control. */
+                    <Link href={followResearchHref(researchMap, ref.id)!} style={{ fontSize: 14, color: "var(--vault-text)", textDecoration: "underline", textDecorationColor: "var(--vault-border-strong)", textUnderlineOffset: 3, minHeight: 44, display: "inline-flex", alignItems: "center" }}>{ref.label}</Link>
+                  ) : (
+                    <span style={{ fontSize: 14, color: "var(--vault-text)" }}>{ref.label}</span>
+                  )}
                   <FollowToggle entity={ref} variant="labeled" />
                 </li>
               ))}

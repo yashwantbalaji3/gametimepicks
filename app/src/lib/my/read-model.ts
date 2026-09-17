@@ -32,6 +32,7 @@ import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs
 import { LEDGER_URLS, parseLedger } from "@/lib/saved/results.mjs";
 import { compactLedgers } from "@/lib/my/saved-settlements.mjs";
 import { buildSavedRouteManifest, type SavedRouteManifest } from "@/lib/saved/saved-routes";
+import { researchHref } from "@/lib/research-pages/projection-store";
 
 export interface MyGame {
   sport: "MLB" | "NFL";
@@ -70,6 +71,8 @@ export interface MyPlayerRow {
   kickoffUtc: string | null;
   matchup: string;
   href: string | null;
+  /** v1.3: this athlete's Player Research page, when the exact id has one (never by name). */
+  researchHref: string | null;
   /** PUBLISHED families only, each as its frozen p10–median–p90. */
   markets: Array<{ key: string; label: string; median: number; p10: number; p90: number }>;
 }
@@ -109,7 +112,7 @@ function bandsOf(proj: any): MyGame["forecast"] {
 const round1 = (x: number) => Math.round(x * 10) / 10;
 
 /** NFL event ids that actually have a generated `/nfl/game/[id]` page — the same rule as that route. */
-function nflPageIds(): Set<string> {
+export function nflPageIds(): Set<string> {
   const live = unionFrozenForecasts(readJson("nfl/forecasts/latest.json"), readJson("nfl/forecasts/frozen-latest.json"));
   const ids = new Set<string>(((live?.forecasts ?? []) as Array<{ providerEventId?: string }>).map((f) => String(f.providerEventId)));
   try {
@@ -280,6 +283,7 @@ export function buildMyPlayerRows(): MyPlayerRow[] {
         playerId: p.playerId, name: String(p.name ?? ""), team: String(p.team ?? ""),
         kickoffUtc: board.kickoffUtc ?? null, matchup: String(board.matchup ?? b.matchup ?? ""),
         href: pageIds.has(String(b.providerEventId)) ? `/nfl/game/${b.providerEventId}/` : null,
+        researchHref: researchHref(p.playerId),
         markets,
       });
     }

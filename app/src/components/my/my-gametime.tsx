@@ -257,6 +257,12 @@ function PlayersModule({ followed }: { followed: FollowRef[] }) {
                         </dl>
                       ) : <Quiet>No current published forecast.</Quiet>}
                     </MaybeLink>
+                    {/* v1.3: a sibling link, never nested inside the row link. */}
+                    {p.researchHref ? (
+                      <Link href={p.researchHref} style={{ fontFamily: MONO, fontSize: 10.5, color: "var(--vault-gold-bright)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>
+                        {p.name} game log →
+                      </Link>
+                    ) : null}
                   </li>
                 ))}
               </ul>

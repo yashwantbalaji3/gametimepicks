@@ -17,6 +17,7 @@
  */
 import { useMemo, useState } from "react";
 import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
+import Link from "next/link";
 import FollowToggle from "@/components/follow/follow-toggle";
 import { nflPlayerRef } from "@/lib/follow/follow-schema.mjs";
 
@@ -25,12 +26,13 @@ import { nflPlayerRef } from "@/lib/follow/follow-schema.mjs";
  * the lineage Live already uses. A row whose id is not in that lineage gets no star; a player is never
  * followed by display name.
  */
-function PlayerNameCell({ playerId, name }: { playerId: string; name: string }) {
+/** v1.3: the name links to Player Research when that exact athlete id has a page; the Follow star stays a sibling. */
+function PlayerNameCell({ playerId, name, href }: { playerId: string; name: string; href?: string }) {
   const ref = nflPlayerRef(playerId, name);
   return (
     <td style={{ padding: "8px 9px", fontSize: 13, color: "var(--vault-text)", fontWeight: 600 }}>
       <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
-        {name}
+        {href ? <Link href={href} style={{ color: "var(--vault-text)", textDecoration: "underline", textDecorationColor: "var(--vault-border-strong)", textUnderlineOffset: 3 }}>{name}</Link> : name}
         {ref ? <FollowToggle entity={ref} variant="compact" size={12} /> : null}
       </span>
     </td>
@@ -81,7 +83,7 @@ const ct = (v: number | undefined) => (v != null && Number.isFinite(v) ? (Math.r
 
 const COMBINED = "combined";
 
-export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArtifact; teams: [string, string] }) {
+export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { board: PlayerBoardArtifact; teams: [string, string]; researchHrefs?: Record<string, string> }) {
   /* P250-GD2: two display tiers. PUBLISHED families cleared their bars; ESTIMATE families carry
      real computed numbers WITH the failed bar and a caveat on the tab — the owner's display
      decision, rendered without ever dressing an estimate as a validated forecast. */
@@ -210,7 +212,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
                 const at = p.markets.anytime_td;
                 return (
                   <tr key={`${p.playerId}-combined`} style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                    <PlayerNameCell playerId={p.playerId} name={p.name} />
+                    <PlayerNameCell playerId={p.playerId} name={p.name} href={researchHrefs[p.playerId]} />
                     <td className="font-mono" style={{ padding: "8px 9px", fontSize: 11, color: "var(--vault-text-mute)" }}>{p.team}</td>
                     {avail}
                     <td className="font-mono" style={{ padding: "8px 9px", fontSize: 12.5 }}>
@@ -230,7 +232,7 @@ export default function NflPlayerBoard({ board, teams }: { board: PlayerBoardArt
               const m = p.markets[family]!;
               return (
                 <tr key={`${p.playerId}-${family}`} style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                  <PlayerNameCell playerId={p.playerId} name={p.name} />
+                  <PlayerNameCell playerId={p.playerId} name={p.name} href={researchHrefs[p.playerId]} />
                   <td className="font-mono" style={{ padding: "8px 9px", fontSize: 11, color: "var(--vault-text-mute)" }}>{p.team}</td>
                   {avail}
                   {isProb ? (

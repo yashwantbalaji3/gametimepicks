@@ -29,6 +29,7 @@ import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
 import { loadEplForecasts, findEplForecastAnywhere, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture, reportableRows } from "@/lib/sports/epl/forecast-view";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { researchTeamsForGame } from "@/lib/research-pages/projection-store";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { cardFromEplRow } from "@/lib/command-center/featured";
@@ -128,6 +129,17 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
         <p className="font-mono mt-2" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
           {ET(row.kickoffUtc)} ET{row.matchweek ? ` · Matchweek ${row.matchweek}` : ""} · Premier League
         </p>
+        {/* v1.3: club research, joined by this fixture's exact event id to the research registry (never by club name). */}
+        {(() => {
+          const clubs = researchTeamsForGame("EPL", String(row.eventId)).sort((a, b) => (a.ha === "H" ? -1 : b.ha === "H" ? 1 : 0));
+          if (!clubs.length) return null;
+          return (
+            <p className="font-mono" style={{ margin: "6px 0 0", fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+              Club research:{" "}
+              {clubs.map((c, i) => <span key={c.id}>{i ? " · " : ""}<Link href={c.path} style={{ color: "var(--vault-gold-bright)" }}>{c.name}</Link></span>)}
+            </p>
+          );
+        })()}
         {/* P319: save exactly this forecast — the card the homepage would feature for this fixture. */}
         {row.probs && row.homeClub && row.awayClub ? (
           <div className="mt-3">

@@ -8,6 +8,8 @@ import Link from "next/link";
 import FollowingManager from "@/components/follow/following-manager";
 import { legacyNameMap, teamLabelMap } from "@/lib/follow/entity-registry";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { compactFollowResearchMap } from "@/lib/research-pages/follow-links.mjs";
+import { researchIndex } from "@/lib/research-pages/projection-store";
 
 export const metadata = withRouteMetadata("/following/", {
   title: "Following · GameTime Picks",
@@ -28,7 +30,7 @@ export default function FollowingPage() {
         Following is saved on this device. There is no account, and it does not sync to other devices.
         It changes what GameTimePicks shows you first — never a forecast, a score, or a result.
       </p>
-      <FollowingManager legacyMap={legacyNameMap()} teamLabels={teamLabelMap()} />
+      <FollowingManager legacyMap={legacyNameMap()} teamLabels={teamLabelMap()} researchMap={compactFollowResearchMap(researchIndex())} />
       <p style={{ fontSize: 12.5, color: "var(--vault-text-faint)", marginTop: 24 }}>
         See what these teams and players are doing now on <Link href="/my/" style={{ color: "var(--vault-gold-bright)" }}>My GameTime</Link>.
       </p>

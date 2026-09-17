@@ -33,6 +33,7 @@ import SimulationStorySection from "@/components/simulate/simulation-story-secti
 import { buildUfcBoutPresentation } from "@/lib/simulate/presentation/ufc";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { researchHref } from "@/lib/research-pages/projection-store";
 
 export const dynamicParams = false;
 
@@ -128,6 +129,20 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
           {card.event?.name ? ` · ${card.event.name}` : ""}
           {card.event?.venue ? ` · ${card.event.venue}` : ""}
         </p>
+        {/* v1.3: fighter research, by exact ESPN athlete id → ufc-athlete-<id>; a fighter without a page gets no link. */}
+        {(() => {
+          const r = researchHref(`ufc-athlete-${bout.red.athleteId}`);
+          const b = researchHref(`ufc-athlete-${bout.blue.athleteId}`);
+          if (!r && !b) return null;
+          return (
+            <p className="font-mono" style={{ margin: "6px 0 0", fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+              Fight history:{" "}
+              {r ? <Link href={r} style={{ color: "var(--vault-gold-bright)" }}>{bout.red.name}</Link> : null}
+              {r && b ? " · " : null}
+              {b ? <Link href={b} style={{ color: "var(--vault-gold-bright)" }}>{bout.blue.name}</Link> : null}
+            </p>
+          );
+        })()}
         {/* P319: save exactly this bout's read — the card the homepage would feature for it. */}
         {p?.winner ? (
           <div className="mt-3">

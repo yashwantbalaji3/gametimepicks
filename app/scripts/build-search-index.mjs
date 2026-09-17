@@ -172,6 +172,24 @@ for (const r of read("soccer/epl/forecasts/latest.json")?.rows ?? []) {
   addTeam(r.awayClub, null, `Premier League · ${r.matchup}`, href, ["epl", "soccer"]);
 }
 
+// ── RESEARCH (v1.3) ────────────────────────────────────────────────────────────────────────────
+/* Team and player research pages, from the committed research PROJECTION registry (never the Data Platform store).
+   Every entry is a page the export generates from that same registry (dynamicParams=false), so the promise holds.
+   Kept small: label, sport and the team hint only — no stats. Measured: all 1,853 research pages took the index from
+   121 KB to 365 KB, past its 260 KB fetch-on-demand budget, so only TEAM pages and INDEXABLE NFL PLAYER pages are indexed here (209 KB measured); MLB/EPL/UFC player pages are reached from their team, bout and match pages. */
+const researchIndex = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data", "research-projection", "v1", "index.json"), "utf8")); } catch { return null; }
+})();
+if (researchIndex && researchIndex.schemaVersion === 1) {
+  const SPORT = { MLB: ["MLB", "mlb"], NFL: ["NFL", "nfl"], EPL: ["Premier League", "epl"], UFC: ["UFC", "ufc"] };
+  for (const e of researchIndex.entries) {
+    if (!(e.kind === "team" || (e.sport === "NFL" && e.indexable))) continue;
+    const [name, terms] = SPORT[e.sport] ?? [e.sport, ""];
+    const what = e.kind === "team" ? "Team research" : e.sport === "UFC" ? "Fighter research" : "Player research";
+    add(e.kind, e.label, `${what} · ${name}${e.hint ? ` · ${e.hint}` : ""}`, e.path, [e.hint, ...terms.split(" ")].filter(Boolean));
+  }
+}
+
 // ── PAGES ──────────────────────────────────────────────────────────────────────────────────────
 for (const [label, sub, href, terms] of [
   ["Today's Picks", "The day's model reads", "/today/", ["slate", "daily"]],
