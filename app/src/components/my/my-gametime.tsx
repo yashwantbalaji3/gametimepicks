@@ -45,6 +45,7 @@ import { useObservation } from "@/lib/my/observation-store";
 import { commitGate, computeSinceDeltas, currentGameEvidence, freshGameFacts, groupDeltas, pendingOwner, uncheckedSlices } from "@/lib/my/since.mjs";
 import { expandLedgers } from "@/lib/my/saved-settlements.mjs";
 import { resolveResult } from "@/lib/saved/results.mjs";
+import { resolveSavedDestination } from "@/lib/saved/saved-destination.mjs";
 
 const MONO = "var(--font-mono)";
 const PREVIEW = 4;
@@ -275,20 +276,25 @@ function PlayersModule({ followed }: { followed: FollowRef[] }) {
 
 /* ─────────────────────────── Saved (preview only) ─────────────────────────── */
 
-function SavedModule({ items }: { items: ReturnType<typeof useSavedForecasts>["items"] }) {
+function SavedModule({ items, routes }: { items: ReturnType<typeof useSavedForecasts>["items"]; routes: MyReadModel["savedRoutes"] }) {
   const shown = items.slice(0, PREVIEW); // the Saved owner's own order — not re-ranked here
   return (
     <Module id="saved" title="Saved forecasts" cta={{ href: "/saved", label: "Manage saved →" }}>
       <ul style={grid}>
-        {shown.map((s) => (
+        {shown.map((s) => {
+          // v1.1.4.1: the same destination rule /saved uses — derived from exported routes, never the stored href.
+          const dest = resolveSavedDestination(s, routes);
+          return (
           <li key={s.id}>
-            <MaybeLink href={s.href || null} label={`Saved forecast: ${s.matchup}. ${s.family}: ${s.value}.`}>
+            <MaybeLink href={dest.href} label={`Saved forecast: ${s.matchup}. ${s.family}: ${s.value}.${dest.label ? ` ${dest.label}.` : ""}`}>
               <div style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", marginBottom: 4 }}>{s.sport?.toUpperCase?.()} · {etDateTime(s.startUtc) ?? "time unknown"}</div>
               <div style={{ fontSize: 13.5, color: "var(--vault-text)" }}>{s.matchup}</div>
               <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-mute)", marginTop: 4 }}>{s.family}: {s.value}</div>
+              {dest.kind === "BOARD" ? <div style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-gold-bright)", marginTop: 4 }}>{dest.label} →</div> : null}
             </MaybeLink>
           </li>
-        ))}
+          );
+        })}
       </ul>
       {items.length > shown.length ? <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)", margin: "6px 0 0" }}>Showing {shown.length} of {items.length}.</p> : null}
     </Module>
@@ -561,7 +567,7 @@ export default function MyGameTime({ model }: { model: MyReadModel }) {
       {followsPlayers ? <PlayersModule followed={followed} /> : null}
 
       {/* 4 · Saved forecasts — the Saved owner's items, previewed. */}
-      {saved.items.length ? <SavedModule items={saved.items} /> : null}
+      {saved.items.length ? <SavedModule items={saved.items} routes={model.savedRoutes} /> : null}
 
       {/* 5 · Recent results */}
       {followsTeams ? <ResultsModule results={results.results} total={results.total} /> : null}

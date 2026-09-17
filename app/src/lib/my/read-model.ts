@@ -31,6 +31,7 @@ import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import { LEDGER_URLS, parseLedger } from "@/lib/saved/results.mjs";
 import { compactLedgers } from "@/lib/my/saved-settlements.mjs";
+import { buildSavedRouteManifest, type SavedRouteManifest } from "@/lib/saved/saved-routes";
 
 export interface MyGame {
   sport: "MLB" | "NFL";
@@ -75,6 +76,8 @@ export interface MyPlayerRow {
 
 export interface MyReadModel {
   etDate: string;
+  /** v1.1.4.1: exported routes the Saved destination resolver checks (lib/saved/saved-routes). */
+  savedRoutes: SavedRouteManifest;
   upcoming: MyGame[];
   results: MyResult[];
   /** Coverage receipts: how many source rows could not be joined to canonical ids. */
@@ -241,6 +244,7 @@ export function buildMyReadModel({ nowIso }: { nowIso?: string } = {}): MyReadMo
 
   return {
     etDate,
+    savedRoutes: buildSavedRouteManifest(),
     upcoming,
     results,
     coverage: { upcomingUnidentified, resultsUnidentified, nflResultsState: String(nfl.state) },

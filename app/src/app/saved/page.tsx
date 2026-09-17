@@ -8,6 +8,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SavedList from "@/components/saved/saved-list";
+import { buildSavedRouteManifest } from "@/lib/saved/saved-routes";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata: Metadata = {
@@ -33,7 +34,7 @@ export default function SavedForecastsPage() {
           Teams and players you follow are separate from saved forecasts — <Link href="/following/" style={{ color: "var(--vault-gold-bright)" }}>manage following</Link>, or see both together on <Link href="/my/" style={{ color: "var(--vault-gold-bright)" }}>My GameTime</Link>.
         </p>
       </header>
-      <SavedList />
+      <SavedList routes={buildSavedRouteManifest()} />
     </div>
   );
 }

@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useSavedForecasts, type SavedForecast } from "@/lib/saved/saved-store";
 import { LEDGER_URLS, parseLedger, resolveResult } from "@/lib/saved/results.mjs";
 import { savedAfterStart } from "@/lib/saved/saved-schema.mjs";
+import { resolveSavedDestination } from "@/lib/saved/saved-destination.mjs";
+import type { SavedRouteManifest } from "@/lib/saved/saved-routes";
 import { PUBLIC_STATE_LABEL, type PublicModelState } from "@/lib/command-center/contract";
 import ModelStatusChip from "@/components/command-center/model-status-chip";
 
@@ -17,7 +19,9 @@ type Resolved = { state: "UPCOMING" | "PENDING" | "FINAL"; outcome: "HIT" | "MIS
 const SPORT_LABEL: Record<string, string> = { mlb: "MLB", nfl: "NFL", epl: "Premier League", ufc: "UFC" };
 const etStamp = (iso: string | null) => (iso && Number.isFinite(Date.parse(iso)) ? new Date(iso).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " ET" : null);
 
-function Row({ s, r, onRemove }: { s: SavedForecast; r: Resolved; onRemove: () => void }) {
+function Row({ s, r, onRemove, routes }: { s: SavedForecast; r: Resolved; onRemove: () => void; routes: SavedRouteManifest }) {
+  // v1.1.4.1: the link is derived from this deploy's exported routes, never the href stored at save time.
+  const dest = resolveSavedDestination(s, routes);
   const tone = r.outcome === "HIT" ? "var(--vault-success)" : r.outcome === "MISS" ? "var(--vault-danger)" : "var(--vault-text-faint)";
   return (
     <li className="flex flex-col gap-1.5 rounded-[12px] px-3 py-2.5" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)" }}>
@@ -25,7 +29,13 @@ function Row({ s, r, onRemove }: { s: SavedForecast; r: Resolved; onRemove: () =
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{SPORT_LABEL[s.sport] ?? s.sport}{s.context ? ` · ${s.context}` : ""}{s.startUtc ? ` · ${etStamp(s.startUtc)}` : ""}</span>
         <ModelStatusChip state={s.modelState as PublicModelState} label={PUBLIC_STATE_LABEL[s.modelState as PublicModelState] ?? s.modelState} family={s.modelFamily ?? undefined} />
       </div>
-      <Link href={s.href} className="font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800, textDecoration: "none" }}>{s.matchup}</Link>
+      {dest.href && dest.kind !== "BOARD" ? (
+        <Link href={dest.href} className="font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800, textDecoration: "none" }}>{s.matchup}</Link>
+      ) : (
+        <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800 }}>{s.matchup}</span>
+      )}
+      {dest.kind === "BOARD" ? <Link href={dest.href as string} className="font-mono self-start" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>{dest.label} →</Link> : null}
+      {dest.kind === "NONE" ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>No game page is published for this date any more — the saved forecast and its result stay here.</span> : null}
       <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}><span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{s.family} </span><strong style={{ color: "var(--vault-text)" }}>{s.value}</strong>{s.sub ? ` · ${s.sub}` : ""}</span>
       {s.signal ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{s.signal}</span> : null}
       <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -39,7 +49,7 @@ function Row({ s, r, onRemove }: { s: SavedForecast; r: Resolved; onRemove: () =
   );
 }
 
-export default function SavedList() {
+export default function SavedList({ routes }: { routes: SavedRouteManifest }) {
   const { items, ready, unsave, clear } = useSavedForecasts();
   const [ledgers, setLedgers] = useState<Ledgers | null>(null);
   const [ledgerError, setLedgerError] = useState(false);
@@ -97,7 +107,7 @@ export default function SavedList() {
         <section key={key} aria-labelledby={`saved-${key}-h`} className="flex flex-col gap-2">
           <h2 id={`saved-${key}-h`} className="font-mono uppercase tracking-[0.14em] m-0" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{label} · {list.length}</h2>
           <ul className="m-0 p-0 list-none flex flex-col gap-2">
-            {list.map(({ s, r }) => <Row key={s.id} s={s} r={r} onRemove={() => unsave(s.id)} />)}
+            {list.map(({ s, r }) => <Row key={s.id} s={s} r={r} routes={routes} onRemove={() => unsave(s.id)} />)}
           </ul>
         </section>
       ) : null)}
