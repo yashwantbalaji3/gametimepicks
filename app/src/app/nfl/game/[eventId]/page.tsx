@@ -20,7 +20,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
+import CompareCta from "@/components/compare/compare-cta";
 import TeamFollowRow from "@/components/follow/team-follow-row";
+import { matchupHref } from "@/lib/compare/compare-store";
 import { hrefsFor } from "@/lib/research-pages/projection-store";
 import { nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
 import SectionHeader from "@/components/section-header";
@@ -205,6 +207,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         <div style={{ marginTop: 10 }}>
           <TeamFollowRow away={nflTeamRefByAbbr(f.away.abbr)} home={nflTeamRefByAbbr(f.home.abbr)} researchHrefs={hrefsFor([nflTeamRefByAbbr(f.away.abbr)?.id, nflTeamRefByAbbr(f.home.abbr)?.id])} />
         </div>
+        {/* v1.4: factual matchup research for this exact event id — shown only when that page exists. */}
+        {matchupHref("NFL", params.eventId) ? <div style={{ marginTop: 8 }}><CompareCta href={matchupHref("NFL", params.eventId)!}>Research matchup</CompareCta></div> : null}
         {wx ? (
           <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--vault-text-faint)", maxWidth: 720, lineHeight: 1.55 }}>
             {wx.summary} — <strong>not used by the model</strong>; no weather term enters the numbers below.

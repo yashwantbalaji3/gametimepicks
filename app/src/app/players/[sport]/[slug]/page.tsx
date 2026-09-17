@@ -13,6 +13,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import CompareCta from "@/components/compare/compare-cta";
 import FollowToggle from "@/components/follow/follow-toggle";
 import PlayerResearchView from "@/components/research-pages/player-research-view";
 import { CoverageStrip, EntityLink, Eyebrow, MONO, PANEL, ResearchShell, ResultBadge, Section, StatTile } from "@/components/research-pages/research-primitives";
@@ -22,6 +23,8 @@ import type { FollowRef } from "@/lib/follow/follow-store";
 import { nflPlayerForecasts, ufcFighterForecast } from "@/lib/research-pages/forecast-join";
 import { boutOutcomeLabel, formatFightRecord, formatGameDate, formatKickoff } from "@/lib/research-pages/format.mjs";
 import { gameHrefs } from "@/lib/research-pages/game-links";
+import { comparePath } from "@/lib/compare/contract.mjs";
+import { playerHasComparablePeer } from "@/lib/compare/compare-store";
 import { SPORT_SEGMENTS, hrefsFor, playerBySlug, staticParams, teamLabels, type PlayerProjection, type ResearchSport } from "@/lib/research-pages/projection-store";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -88,6 +91,7 @@ export default function PlayerResearchPage({ params }: { params: { sport: string
           </p>
         </div>
         {followRef ? <FollowToggle entity={followRef} variant="labeled" /> : null}
+        {playerHasComparablePeer(sport, p.id) ? <CompareCta href={comparePath("player", sport, { a: p.slug })}>Compare player</CompareCta> : null}
       </header>
 
       <CoverageStrip coverage={p.coverage} period={period ? `Recorded history: ${period}` : null} />

@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 import { ROUTE_TABLE } from "@/lib/audits/route-inventory.mjs";
+import { PLAYER_COMPARE_SPORTS, TEAM_COMPARE_SPORTS, comparePath } from "@/lib/compare/contract.mjs";
+import { matchupEntries } from "@/lib/compare/compare-store";
 import { researchIndex } from "@/lib/research-pages/projection-store";
 
 /**
@@ -31,5 +33,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const research = researchIndex()
     .filter((e) => e.indexable)
     .map((e) => ({ url: `${BASE}${e.path}`, changeFrequency: "weekly" as const }));
-  return [...routes, ...research];
+  /* v1.4 Compare: the indexable tool SHELLS only (never a pair query — every query state shares its shell's canonical;
+     the EPL team shell is a noindex blocked state) and the Matchup Explorer pages the registry marks indexable. */
+  const compare = [
+    ...TEAM_COMPARE_SPORTS.map((s) => comparePath("team", s)),
+    ...PLAYER_COMPARE_SPORTS.map((s) => comparePath("player", s)),
+  ].map((p) => ({ url: `${BASE}${p}`, changeFrequency: "weekly" as const }));
+  const matchups = (["NFL", "MLB"] as const)
+    .flatMap((s) => matchupEntries(s))
+    .filter((e) => e.indexable)
+    .map((e) => ({ url: `${BASE}${e.path}`, changeFrequency: "weekly" as const }));
+  return [...routes, ...research, ...compare, ...matchups];
 }

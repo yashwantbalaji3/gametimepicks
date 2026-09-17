@@ -66,7 +66,9 @@ import SimulationStorySection from "@/components/simulate/simulation-story-secti
 import LivePanel from "@/components/live/live-panel";
 import { projectMlbForecast } from "@/lib/live/forecast-join.mjs";
 import { settlementForGamePk } from "@/lib/live/hub-data";
+import CompareCta from "@/components/compare/compare-cta";
 import TeamFollowRow from "@/components/follow/team-follow-row";
+import { matchupHref } from "@/lib/compare/compare-store";
 import { hrefsFor } from "@/lib/research-pages/projection-store";
 import { mlbTeamRefByName } from "@/lib/follow/entity-registry";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
@@ -772,6 +774,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         researchHrefs={hrefsFor([mlbTeamRefByName(detail.fullGameSim?.awayTeamName ?? null)?.id, mlbTeamRefByName(detail.fullGameSim?.homeTeamName ?? null)?.id])}
       />
     ) : null;
+  /* v1.4: factual matchup research for this exact gamePk — shown only when that Matchup page exists. */
+  const mlbMatchupHref = detail.sport === "mlb" ? matchupHref("MLB", detail.fullGameSim?.gamePk ?? detail.matchId ?? null) : null;
 
   const mlbLivePanel =
     detail.sport === "mlb" && detail.fullGameSim?.gamePk ? (
@@ -915,6 +919,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         {/* The full dashboard renders directly (P242) — no generate card, no staged reveal, no
             presentation modal. The numbers are precomputed and deterministic; the page shows them. */}
         {mlbFollowRow}
+        {mlbMatchupHref ? <div style={{ marginTop: 8 }}><CompareCta href={mlbMatchupHref}>Research matchup</CompareCta></div> : null}
         {mlbLivePanel}
 
         <GameSimulationRunner
@@ -1064,6 +1069,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       {/* Live beta (MLB) — also on this path, so an MLB game WITHOUT a simulation still shows live
           state. Null for every other sport and whenever the rollout flags are off. */}
       {mlbFollowRow}
+      {mlbMatchupHref ? <div style={{ marginTop: 8 }}><CompareCta href={mlbMatchupHref}>Research matchup</CompareCta></div> : null}
       {mlbLivePanel}
 
       {/* MLB Game Lab report — the deeper per-game model report (model-vs-market, biggest leans, recent

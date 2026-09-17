@@ -43,6 +43,8 @@ const EPL_MATCH_DIR = path.join(OUT, "epl", "match");
 const firstEplMatch = fs.existsSync(EPL_MATCH_DIR)
   ? fs.readdirSync(EPL_MATCH_DIR).filter((d) => /-v-.+-\d{4}-\d{2}-\d{2}$/.test(d)).sort()[0]
   : null;
+const MATCHUP_DIR = path.join(OUT, "matchups", "nfl");
+const firstNflMatchup = fs.existsSync(MATCHUP_DIR) ? fs.readdirSync(MATCHUP_DIR).filter((d) => /^\d+$/.test(d)).sort()[0] : null;
 const ROUTES = ["", "models", "saved", "today", "markets", "results", "methodology", "learn", "moonshot", "bank-builder", "mlb", "nfl", "simulate", "sports",
   "ufc", "goal-rush", "bucket-blitz", "epl",   // kept in sync with ROUTES in e2e/accessibility.spec.ts
   "build/custom",                              // P208: Parlay Center Build Your Own mode
@@ -50,7 +52,10 @@ const ROUTES = ["", "models", "saved", "today", "markets", "results", "methodolo
   // reflow at 320px. Added to BOTH lists in the same change: they have drifted apart before.
   "results/picks", "results/picks/mlb", "results/picks/ufc",
   ...(firstNflGame ? [`nfl/game/${firstNflGame}`] : []),
-  ...(firstEplMatch ? [`epl/match/${firstEplMatch}`] : [])];
+  ...(firstEplMatch ? [`epl/match/${firstEplMatch}`] : []),
+  // v1.4: the Compare shells (static HTML; the pair is composed after mount) and one discovered Matchup page.
+  "compare", "compare/teams/nfl", "compare/players/nfl", "compare/teams/epl",
+  ...(firstNflMatchup ? [`matchups/nfl/${firstNflMatchup}`] : [])];
 
 const strip = (h) => h.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
 const textOf = (s) => s.replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();

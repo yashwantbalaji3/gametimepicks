@@ -73,7 +73,7 @@ test("SM1 sitemap lists exactly the indexable research pages and never a templat
   const entries = sitemap();
   const urls = entries.map((e) => e.url);
   assert.ok(!urls.some((u) => u.includes("[")), "a dynamic family pattern is not a URL");
-  const research = urls.filter((u) => /\/(teams|players)\//.test(u)).map((u) => u.replace(/^https:\/\/[^/]+/, "")).sort();
+  const research = urls.filter((u) => /^https:\/\/[^/]+\/(teams|players)\//.test(u)).map((u) => u.replace(/^https:\/\/[^/]+/, "")).sort();
   const indexable = researchIndex().filter((e) => e.indexable).map((e) => e.path).sort();
   assert.deepEqual(research, indexable);
   const noindex = researchIndex().filter((e) => !e.indexable);

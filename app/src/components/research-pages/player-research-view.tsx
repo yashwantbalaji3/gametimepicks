@@ -63,7 +63,7 @@ export default function PlayerResearchView({ player, labels, teamHrefs, gameHref
 
       <section aria-labelledby="recent-windows" style={{ ...PANEL }}>
         <h3 id="recent-windows" style={{ margin: "0 0 8px", fontSize: 15, fontWeight: 700 }}>Last 3 / 5 / 10 recorded games</h3>
-        <div data-scroll-x style={{ overflowX: "auto" }} role="region" aria-label="Recent windows" tabIndex={0}>
+        <div data-scroll-x style={{ position: "relative", overflowX: "auto" }} role="region" aria-label="Recent windows" tabIndex={0}>
           <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 380 }}>
             <thead>
               <tr>
@@ -125,7 +125,7 @@ export default function PlayerResearchView({ player, labels, teamHrefs, gameHref
             </span>
           ) : null}
         </div>
-        <div data-scroll-x style={{ overflowX: "auto" }} role="region" aria-label={`${player.name} game log`} tabIndex={0}>
+        <div data-scroll-x style={{ position: "relative", overflowX: "auto" }} role="region" aria-label={`${player.name} game log`} tabIndex={0}>
           <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 520 }}>
             <caption className="sr-only">{player.name} game log, {selected?.label ?? ""}, newest first. A dash means the stat was not recorded for that game.</caption>
             <thead>

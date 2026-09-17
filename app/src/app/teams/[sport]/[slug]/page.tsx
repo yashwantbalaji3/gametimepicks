@@ -13,6 +13,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import CompareCta from "@/components/compare/compare-cta";
 import FollowToggle from "@/components/follow/follow-toggle";
 import TeamLogo from "@/components/team-logo";
 import { CoverageStrip, EntityLink, Eyebrow, MONO, PANEL, ResearchShell, ResultBadge, Section, StatTile } from "@/components/research-pages/research-primitives";
@@ -20,6 +21,8 @@ import TeamSeasonLog from "@/components/research-pages/team-season-log";
 import UpcomingList, { type UpcomingItem } from "@/components/research-pages/upcoming-list";
 import { normalizeRef } from "@/lib/follow/follow-schema.mjs";
 import type { FollowRef } from "@/lib/follow/follow-store";
+import { comparePath } from "@/lib/compare/contract.mjs";
+import { teamInCompare } from "@/lib/compare/compare-store";
 import { formatGameDate, formatRecord, recentFormSentence } from "@/lib/research-pages/format.mjs";
 import { gameHrefs } from "@/lib/research-pages/game-links";
 import { SPORT_SEGMENTS, hrefsFor, playerBySlug, researchIndex, staticParams, teamBySlug, teamLabels, type ResearchSport } from "@/lib/research-pages/projection-store";
@@ -97,6 +100,7 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
           </p>
         </div>
         {followRef ? <FollowToggle entity={followRef} variant="labeled" /> : null}
+        {(sport === "MLB" || sport === "NFL") && teamInCompare(sport, t.id) ? <CompareCta href={comparePath("team", sport, { a: t.slug })}>Compare team</CompareCta> : null}
       </header>
 
       <CoverageStrip coverage={t.coverage} period={period} />

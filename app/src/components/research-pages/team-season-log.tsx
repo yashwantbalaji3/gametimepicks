@@ -62,7 +62,7 @@ export default function TeamSeasonLog({ teamName, seasons, defaultSeason, games,
           </span>
         ) : null}
       </div>
-      <div data-scroll-x style={{ overflowX: "auto" }} role="region" aria-label={`${teamName} ${selected?.label ?? ""} games`} tabIndex={0}>
+      <div data-scroll-x style={{ position: "relative", overflowX: "auto" }} role="region" aria-label={`${teamName} ${selected?.label ?? ""} games`} tabIndex={0}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 420 }}>
           <caption className="sr-only">{teamName} games, {selected?.label ?? ""} season, newest first</caption>
           <thead>

@@ -37,6 +37,9 @@ const EPL_MATCH_DIR = path.join(__dirname, "..", "out", "epl", "match");
 const FIRST_EPL_MATCH = fs.existsSync(EPL_MATCH_DIR)
   ? fs.readdirSync(EPL_MATCH_DIR).filter((d) => /-v-.+-\d{4}-\d{2}-\d{2}$/.test(d)).sort()[0]
   : null;
+/* v1.4: a Matchup Explorer page, discovered like the NFL game report — game ids change every week. */
+const MATCHUP_DIR = path.join(__dirname, "..", "out", "matchups", "nfl");
+const FIRST_NFL_MATCHUP = fs.existsSync(MATCHUP_DIR) ? fs.readdirSync(MATCHUP_DIR).filter((d) => /^\d+$/.test(d)).sort()[0] : null;
 const ROUTES = ["/", "/models/", "/saved/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/nfl/", "/simulate/", "/sports/",
   // P196: /ufc/ gained the skipped-card disclosure; the two in-development product pages are new
   // public routes and introduce their own status palette, which is exactly what contrast catches.
@@ -53,7 +56,18 @@ const ROUTES = ["/", "/models/", "/saved/", "/today/", "/markets/", "/results/",
   ...(FIRST_EPL_MATCH ? [`/epl/match/${FIRST_EPL_MATCH}/`] : []),
   // v1.3 Team + Player Research: the widest research table (an NFL team's season log) and a player page with the
   // stat-group buttons, season select, chart and 12-column game log. Stable slugs from the research registry.
-  "/teams/nfl/kansas-city-chiefs/", "/players/nfl/travis-kelce/"];
+  "/teams/nfl/kansas-city-chiefs/", "/players/nfl/travis-kelce/",
+  // v1.4 Matchup Explorer + Compare: the Player Compare shell with a real pair composed in the browser (selectors, stat
+  // and season selects, window buttons, bars, two tables) and one Matchup page (team panels + the meetings table the
+  // Team Compare shell shares). Two routes, not three, to hold the CI budget; Team Compare is covered by browser QA.
+  "/compare/players/nfl/?a=keenan-allen&b=travis-kelce",
+  ...(FIRST_NFL_MATCHUP ? [`/matchups/nfl/${FIRST_NFL_MATCHUP}/`] : [])];
+
+/** A Compare shell composes its pair after mount from static assets; audit the composed state, not the loading line. */
+async function gotoAudited(page: import("@playwright/test").Page, route: string) {
+  await page.goto(route, { waitUntil: "domcontentloaded" });
+  if (route.startsWith("/compare/") && route.includes("?a=")) await page.waitForSelector("#cmp-season-summary", { timeout: 15000 });
+}
 
 const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844 },
@@ -148,7 +162,7 @@ test.describe("contrast — real used colour at every launch viewport", () => {
     for (const vp of VIEWPORTS) {
       test(`${route} @ ${vp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
-        await page.goto(route, { waitUntil: "domcontentloaded" });
+        await gotoAudited(page, route);
         const failures = await contrastFailures(page);
         expect(
           failures,
@@ -316,7 +330,7 @@ test.describe("reflow", () => {
   for (const route of ROUTES) {
     test(`${route} — no horizontal scrolling at 320px`, async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 800 });
-      await page.goto(route, { waitUntil: "domcontentloaded" });
+      await gotoAudited(page, route);
       const overflow = await page.evaluate(() => {
         const de = document.documentElement;
         const offenders: string[] = [];
@@ -334,6 +348,13 @@ test.describe("reflow", () => {
         return { scrollWidth: de.scrollWidth, clientWidth: de.clientWidth, offenders: [...new Set(offenders)].slice(0, 8) };
       });
       expect(overflow.offenders, `elements forcing 2-D scrolling on ${route} (${overflow.scrollWidth}px in ${overflow.clientWidth}px)`).toEqual([]);
+      /* v1.4: an absolutely positioned descendant (an sr-only table header) escapes a NON-positioned scroller, so the
+         document grows wider than the screen while no element reports as an offender — a phone then zooms the whole
+         page out. The offender scan above cannot see that; the document width can. Pinned for the research + compare
+         families that found it (other routes keep the offender check alone until audited). */
+      if (/^\/(compare|matchups|teams|players)\//.test(route)) {
+        expect(overflow.scrollWidth, `document wider than the screen on ${route}`).toBeLessThanOrEqual(overflow.clientWidth + 1);
+      }
     });
   }
 });

@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-17T15:09:27Z",
+ "generatedAt": "2026-09-17T16:17:53Z",
  "totals": {
-  "routes": 79,
-  "public": 53,
+  "routes": 83,
+  "public": 57,
   "internal": 7,
   "redirects": 15,
   "archive": 2,
@@ -102,6 +102,35 @@
    "purpose": "per-sport paper card ladder — one card per price band, from real posted prices",
    "dataOwner": "parlays/risk-ladder-<sport> artifacts",
    "freshness": "ladder generatedAt; dated by its own slate/card",
+   "built": "FAMILY (3 generated page(s))"
+  },
+  {
+   "route": "/compare",
+   "classification": "public",
+   "owner": "research",
+   "purpose": "Compare tools directory (v1.4): links to Team Compare (MLB, NFL; EPL shown as blocked) and Player Compare (NFL, EPL, MLB) with what each sport supports, read from the compare readiness receipt",
+   "dataOwner": "data/compare-projection/v1/readiness.json (build-time read)",
+   "freshness": "the compare projection's research content hash",
+   "built": true
+  },
+  {
+   "route": "/compare/players/[sport]",
+   "classification": "public",
+   "owner": "research",
+   "family": true,
+   "purpose": "Player Compare shell (v1.4): one static page per sport (nfl, epl, mlb; UFC has no comparable stat family and no route). Two players on one exact shared stat family with n, missing never zero; composed in the browser from two static entity assets — no page per pair",
+   "dataOwner": "public/data/compare/v1/players/<sport>/{index,<slug>}.json emitted from data/compare-projection/v1",
+   "freshness": "recorded-from/through dates printed per player",
+   "built": "FAMILY (3 generated page(s))"
+  },
+  {
+   "route": "/compare/teams/[sport]",
+   "classification": "public",
+   "owner": "research",
+   "family": true,
+   "purpose": "Team Compare shell (v1.4): one static page per sport (mlb, nfl; epl renders only the blocked state, noindex). The pair is URL query state composed in the browser from static assets by the pure lib/compare selectors — no page per pair; every query state shares the shell canonical",
+   "dataOwner": "public/data/compare/v1/teams/<sport>/{index,<slug>}.json emitted from data/compare-projection/v1",
+   "freshness": "results recorded-through dates printed per team",
    "built": "FAMILY (3 generated page(s))"
   },
   {
@@ -239,6 +268,16 @@
    "dataOwner": "market intelligence artifacts",
    "freshness": "capture stamps",
    "built": true
+  },
+  {
+   "route": "/matchups/[sport]/[gameId]",
+   "classification": "public",
+   "owner": "research",
+   "family": true,
+   "purpose": "Matchup Explorer (v1.4): one durable page per game in the bounded compare registry (MLB from 2026-09-17, NFL 2026 from Week 1), keyed by exact canonical game id — both teams entering the game, recorded meetings, a recorded final once it exists, and a SEPARATE link to the forecast owner's report joined by exact id. Scheduled vs started on the reader's clock; no Live request. NFL pages with recorded meetings are indexable, MLB pages noindex. dynamicParams=false",
+   "dataOwner": "data/compare-projection/v1 (teams + matchups registry) + (forecast link only) nflPageIds / detailByMatchId",
+   "freshness": "results through each team's newest recorded final; the builder refuses to drop a published game",
+   "built": "FAMILY (2 generated page(s))"
   },
   {
    "route": "/methodology",
