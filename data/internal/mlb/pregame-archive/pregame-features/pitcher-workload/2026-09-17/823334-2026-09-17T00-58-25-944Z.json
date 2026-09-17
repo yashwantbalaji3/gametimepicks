@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823334,
+  "date": "2026-09-17",
+  "capturedAt": "2026-09-17T00:58:25.944Z",
+  "availableAt": "2026-09-17T00:58:25.944Z",
+  "eventStartTime": "2026-09-17T16:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 690986,
+      "name": "Kyle Harrison",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 11,
+      "lastStartDate": "2026-09-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22,
+        "ipAvg": 4.4,
+        "kAvg": 4.6,
+        "bbAvg": 2.4,
+        "erAvg": 3.4,
+        "hrAvg": 2,
+        "kPer9": 9.41,
+        "workloadIpLast5": 22
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 110.67,
+        "k": 134,
+        "bb": 33,
+        "er": 45,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-17T00:58:25.944Z"
+  },
+  "recordHash": "7a9822ff1ccf9eb54bf70a29c307630f1c9d7beb42bc0cd5f1aa911145b1221b"
+}
