@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-09-17",
-  "generatedAt": "2026-09-17T19:09:06.000Z",
+  "generatedAt": "2026-09-17T19:47:21.000Z",
   "modelVersion": "mlb-fullgame-2026.08-pa-v2",
   "simulationVersion": 1,
   "runCount": 10000,
@@ -18,10 +18,11 @@
       "venue": "PNC Park",
       "firstPitch": "2026-09-17T16:35:00Z",
       "completeness": {
-        "level": "ready",
+        "level": "unavailable",
         "notes": [
           "MIL confirmed batting order used; 4 of 9 have no posted prop line and are priced at replacement level.",
-          "PIT confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level."
+          "PIT confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
+          "First pitch was at or before this slate's generation time, so no pregame simulation exists for this game. It stays counted as scheduled."
         ],
         "awayLineupSource": "confirmed",
         "homeLineupSource": "confirmed",
@@ -31,11 +32,12 @@
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
-        "startedBeforeGeneration": false,
+        "startedBeforeGeneration": true,
         "missingFamilies": [
           "park_run_factors",
           "weather",
-          "batter_handedness_splits"
+          "batter_handedness_splits",
+          "pre_event_window"
         ]
       },
       "market": {
@@ -54,693 +56,22 @@
           "homeCover": 0.5511
         }
       },
-      "status": "ready",
-      "runCount": 10000,
-      "winProbability": {
-        "away": 0.625,
-        "home": 0.375
-      },
-      "runs": {
-        "away": {
-          "mean": 4.72,
-          "median": 4,
-          "p10": 1,
-          "p90": 9
-        },
-        "home": {
-          "mean": 3.33,
-          "median": 3,
-          "p10": 0,
-          "p90": 7
-        }
-      },
-      "totalRuns": {
-        "mean": 8.05,
-        "median": 8,
-        "p10": 3,
-        "p90": 13,
-        "distribution": [
-          {
-            "value": 0,
-            "label": "0",
-            "count": 0,
-            "probability": 0
-          },
-          {
-            "value": 1,
-            "label": "1",
-            "count": 252,
-            "probability": 0.0252
-          },
-          {
-            "value": 2,
-            "label": "2",
-            "count": 261,
-            "probability": 0.0261
-          },
-          {
-            "value": 3,
-            "label": "3",
-            "count": 693,
-            "probability": 0.0693
-          },
-          {
-            "value": 4,
-            "label": "4",
-            "count": 600,
-            "probability": 0.06
-          },
-          {
-            "value": 5,
-            "label": "5",
-            "count": 1108,
-            "probability": 0.1108
-          },
-          {
-            "value": 6,
-            "label": "6",
-            "count": 874,
-            "probability": 0.0874
-          },
-          {
-            "value": 7,
-            "label": "7",
-            "count": 1174,
-            "probability": 0.1174
-          },
-          {
-            "value": 8,
-            "label": "8",
-            "count": 834,
-            "probability": 0.0834
-          },
-          {
-            "value": 9,
-            "label": "9",
-            "count": 1043,
-            "probability": 0.1043
-          },
-          {
-            "value": 10,
-            "label": "10",
-            "count": 649,
-            "probability": 0.0649
-          },
-          {
-            "value": 11,
-            "label": "11",
-            "count": 726,
-            "probability": 0.0726
-          },
-          {
-            "value": 12,
-            "label": "12",
-            "count": 400,
-            "probability": 0.04
-          },
-          {
-            "value": 13,
-            "label": "13",
-            "count": 470,
-            "probability": 0.047
-          },
-          {
-            "value": 14,
-            "label": "14",
-            "count": 261,
-            "probability": 0.0261
-          },
-          {
-            "value": 15,
-            "label": "15",
-            "count": 232,
-            "probability": 0.0232
-          },
-          {
-            "value": 16,
-            "label": "16",
-            "count": 121,
-            "probability": 0.0121
-          },
-          {
-            "value": 17,
-            "label": "17",
-            "count": 108,
-            "probability": 0.0108
-          },
-          {
-            "value": 18,
-            "label": "18",
-            "count": 56,
-            "probability": 0.0056
-          },
-          {
-            "value": 19,
-            "label": "19",
-            "count": 55,
-            "probability": 0.0055
-          },
-          {
-            "value": 20,
-            "label": "20",
-            "count": 29,
-            "probability": 0.0029
-          },
-          {
-            "value": 21,
-            "label": "21+",
-            "count": 54,
-            "probability": 0.0054
-          }
-        ]
-      },
-      "runDifferential": {
-        "mean": -1.39,
-        "median": -1,
-        "p10": -6,
-        "p90": 3,
-        "distribution": [
-          {
-            "value": -13,
-            "label": "≤-13",
-            "count": 63,
-            "probability": 0.0063
-          },
-          {
-            "value": -12,
-            "label": "-12",
-            "count": 31,
-            "probability": 0.0031
-          },
-          {
-            "value": -11,
-            "label": "-11",
-            "count": 70,
-            "probability": 0.007
-          },
-          {
-            "value": -10,
-            "label": "-10",
-            "count": 93,
-            "probability": 0.0093
-          },
-          {
-            "value": -9,
-            "label": "-9",
-            "count": 145,
-            "probability": 0.0145
-          },
-          {
-            "value": -8,
-            "label": "-8",
-            "count": 218,
-            "probability": 0.0218
-          },
-          {
-            "value": -7,
-            "label": "-7",
-            "count": 306,
-            "probability": 0.0306
-          },
-          {
-            "value": -6,
-            "label": "-6",
-            "count": 425,
-            "probability": 0.0425
-          },
-          {
-            "value": -5,
-            "label": "-5",
-            "count": 580,
-            "probability": 0.058
-          },
-          {
-            "value": -4,
-            "label": "-4",
-            "count": 787,
-            "probability": 0.0787
-          },
-          {
-            "value": -3,
-            "label": "-3",
-            "count": 967,
-            "probability": 0.0967
-          },
-          {
-            "value": -2,
-            "label": "-2",
-            "count": 1151,
-            "probability": 0.1151
-          },
-          {
-            "value": -1,
-            "label": "-1",
-            "count": 1418,
-            "probability": 0.1418
-          },
-          {
-            "value": 0,
-            "label": "0",
-            "count": 0,
-            "probability": 0
-          },
-          {
-            "value": 1,
-            "label": "1",
-            "count": 1539,
-            "probability": 0.1539
-          },
-          {
-            "value": 2,
-            "label": "2",
-            "count": 816,
-            "probability": 0.0816
-          },
-          {
-            "value": 3,
-            "label": "3",
-            "count": 494,
-            "probability": 0.0494
-          },
-          {
-            "value": 4,
-            "label": "4",
-            "count": 353,
-            "probability": 0.0353
-          },
-          {
-            "value": 5,
-            "label": "5",
-            "count": 228,
-            "probability": 0.0228
-          },
-          {
-            "value": 6,
-            "label": "6",
-            "count": 138,
-            "probability": 0.0138
-          },
-          {
-            "value": 7,
-            "label": "7",
-            "count": 71,
-            "probability": 0.0071
-          },
-          {
-            "value": 8,
-            "label": "8",
-            "count": 52,
-            "probability": 0.0052
-          },
-          {
-            "value": 9,
-            "label": "9",
-            "count": 26,
-            "probability": 0.0026
-          },
-          {
-            "value": 10,
-            "label": "10",
-            "count": 16,
-            "probability": 0.0016
-          },
-          {
-            "value": 11,
-            "label": "11",
-            "count": 4,
-            "probability": 0.0004
-          },
-          {
-            "value": 12,
-            "label": "12",
-            "count": 4,
-            "probability": 0.0004
-          },
-          {
-            "value": 13,
-            "label": "13+",
-            "count": 5,
-            "probability": 0.0005
-          }
-        ]
-      },
-      "runLine": [
-        {
-          "line": 1.5,
-          "homeCover": 0.221,
-          "awayCover": 0.484
-        },
-        {
-          "line": 2.5,
-          "homeCover": 0.139,
-          "awayCover": 0.369
-        }
-      ],
-      "teamTotals": {
-        "away": [
-          {
-            "line": 4.5,
-            "over": 0.48,
-            "under": 0.52
-          },
-          {
-            "line": 5.5,
-            "over": 0.358,
-            "under": 0.642
-          }
-        ],
-        "home": [
-          {
-            "line": 2.5,
-            "over": 0.572,
-            "under": 0.428
-          },
-          {
-            "line": 3.5,
-            "over": 0.417,
-            "under": 0.583
-          }
-        ]
-      },
-      "finalScores": [
-        {
-          "away": 3,
-          "home": 2,
-          "probability": 0.031
-        },
-        {
-          "away": 3,
-          "home": 4,
-          "probability": 0.031
-        },
-        {
-          "away": 2,
-          "home": 3,
-          "probability": 0.03
-        },
-        {
-          "away": 4,
-          "home": 3,
-          "probability": 0.025
-        },
-        {
-          "away": 3,
-          "home": 1,
-          "probability": 0.024
-        },
-        {
-          "away": 4,
-          "home": 2,
-          "probability": 0.024
-        }
-      ],
-      "extraInningsProbability": 0.107,
-      "players": {
-        "batters": [
-          {
-            "playerId": 668930,
-            "name": "Brice Turang",
-            "team": "MIL",
-            "battingOrder": 1,
-            "plateAppearances": 4.954,
-            "hits": 1.499,
-            "totalBases": 2.581,
-            "homeRuns": 0.244,
-            "runs": 0.835,
-            "rbi": 0.629,
-            "walks": 0.427,
-            "strikeouts": 0.736
-          },
-          {
-            "playerId": 800325,
-            "name": "Luis Lara",
-            "team": "MIL",
-            "battingOrder": 2,
-            "plateAppearances": 4.854,
-            "hits": 1.04,
-            "totalBases": 1.286,
-            "homeRuns": 0.018,
-            "runs": 0.535,
-            "rbi": 0.302,
-            "walks": 0.419,
-            "strikeouts": 0.725
-          },
-          {
-            "playerId": 694192,
-            "name": "Jackson Chourio",
-            "team": "MIL",
-            "battingOrder": 3,
-            "plateAppearances": 4.734,
-            "hits": 1.647,
-            "totalBases": 2.695,
-            "homeRuns": 0.226,
-            "runs": 0.721,
-            "rbi": 0.818,
-            "walks": 0.401,
-            "strikeouts": 0.703
-          },
-          {
-            "playerId": 683734,
-            "name": "Andrew Vaughn",
-            "team": "MIL",
-            "battingOrder": 4,
-            "plateAppearances": 4.639,
-            "hits": 1.143,
-            "totalBases": 1.815,
-            "homeRuns": 0.139,
-            "runs": 0.507,
-            "rbi": 0.667,
-            "walks": 0.403,
-            "strikeouts": 0.671
-          },
-          {
-            "playerId": 596142,
-            "name": "Gary Sánchez",
-            "team": "MIL",
-            "battingOrder": 5,
-            "plateAppearances": 4.529,
-            "hits": 0.815,
-            "totalBases": 1.296,
-            "homeRuns": 0.101,
-            "runs": 0.418,
-            "rbi": 0.501,
-            "walks": 0.39,
-            "strikeouts": 0.65
-          },
-          {
-            "playerId": 687401,
-            "name": "Joey Ortiz",
-            "team": "MIL",
-            "battingOrder": 6,
-            "plateAppearances": 4.41,
-            "hits": 1.298,
-            "totalBases": 2.039,
-            "homeRuns": 0.153,
-            "runs": 0.505,
-            "rbi": 0.638,
-            "walks": 0.388,
-            "strikeouts": 0.614
-          },
-          {
-            "playerId": 686217,
-            "name": "Sal Frelick",
-            "team": "MIL",
-            "battingOrder": 7,
-            "plateAppearances": 4.308,
-            "hits": 0.781,
-            "totalBases": 1.231,
-            "homeRuns": 0.092,
-            "runs": 0.366,
-            "rbi": 0.417,
-            "walks": 0.374,
-            "strikeouts": 0.597
-          },
-          {
-            "playerId": 666310,
-            "name": "Bo Naylor",
-            "team": "MIL",
-            "battingOrder": 8,
-            "plateAppearances": 4.195,
-            "hits": 0.764,
-            "totalBases": 1.197,
-            "homeRuns": 0.089,
-            "runs": 0.391,
-            "rbi": 0.379,
-            "walks": 0.347,
-            "strikeouts": 0.703
-          },
-          {
-            "playerId": 666152,
-            "name": "David Hamilton",
-            "team": "MIL",
-            "battingOrder": 9,
-            "plateAppearances": 4.071,
-            "hits": 0.737,
-            "totalBases": 1.169,
-            "homeRuns": 0.093,
-            "runs": 0.438,
-            "rbi": 0.366,
-            "walks": 0.342,
-            "strikeouts": 0.688
-          },
-          {
-            "playerId": 804606,
-            "name": "Konnor Griffin",
-            "team": "PIT",
-            "battingOrder": 1,
-            "plateAppearances": 4.561,
-            "hits": 1.142,
-            "totalBases": 1.678,
-            "homeRuns": 0.099,
-            "runs": 0.578,
-            "rbi": 0.306,
-            "walks": 0.384,
-            "strikeouts": 0.829
-          },
-          {
-            "playerId": 665833,
-            "name": "Oneil Cruz",
-            "team": "PIT",
-            "battingOrder": 2,
-            "plateAppearances": 4.449,
-            "hits": 1.3,
-            "totalBases": 2.161,
-            "homeRuns": 0.19,
-            "runs": 0.61,
-            "rbi": 0.532,
-            "walks": 0.376,
-            "strikeouts": 0.797
-          },
-          {
-            "playerId": 668804,
-            "name": "Bryan Reynolds",
-            "team": "PIT",
-            "battingOrder": 3,
-            "plateAppearances": 4.346,
-            "hits": 1.066,
-            "totalBases": 1.878,
-            "homeRuns": 0.188,
-            "runs": 0.481,
-            "rbi": 0.581,
-            "walks": 0.374,
-            "strikeouts": 0.785
-          },
-          {
-            "playerId": 804668,
-            "name": "Rafael Flores Jr.",
-            "team": "PIT",
-            "battingOrder": 4,
-            "plateAppearances": 4.244,
-            "hits": 0.771,
-            "totalBases": 1.212,
-            "homeRuns": 0.09,
-            "runs": 0.331,
-            "rbi": 0.417,
-            "walks": 0.366,
-            "strikeouts": 0.757
-          },
-          {
-            "playerId": 664040,
-            "name": "Brandon Lowe",
-            "team": "PIT",
-            "battingOrder": 5,
-            "plateAppearances": 4.148,
-            "hits": 0.751,
-            "totalBases": 1.173,
-            "homeRuns": 0.085,
-            "runs": 0.32,
-            "rbi": 0.378,
-            "walks": 0.353,
-            "strikeouts": 0.73
-          },
-          {
-            "playerId": 693304,
-            "name": "Nick Gonzales",
-            "team": "PIT",
-            "battingOrder": 6,
-            "plateAppearances": 4.047,
-            "hits": 1.078,
-            "totalBases": 1.395,
-            "homeRuns": 0.035,
-            "runs": 0.282,
-            "rbi": 0.338,
-            "walks": 0.338,
-            "strikeouts": 0.717
-          },
-          {
-            "playerId": 682927,
-            "name": "Ronny Simon",
-            "team": "PIT",
-            "battingOrder": 7,
-            "plateAppearances": 3.948,
-            "hits": 0.721,
-            "totalBases": 1.132,
-            "homeRuns": 0.085,
-            "runs": 0.263,
-            "rbi": 0.353,
-            "walks": 0.347,
-            "strikeouts": 0.677
-          },
-          {
-            "playerId": 669707,
-            "name": "Jared Triolo",
-            "team": "PIT",
-            "battingOrder": 8,
-            "plateAppearances": 3.83,
-            "hits": 0.501,
-            "totalBases": 0.791,
-            "homeRuns": 0.061,
-            "runs": 0.238,
-            "rbi": 0.264,
-            "walks": 0.321,
-            "strikeouts": 0.746
-          },
-          {
-            "playerId": 680779,
-            "name": "Henry Davis",
-            "team": "PIT",
-            "battingOrder": 9,
-            "plateAppearances": 3.701,
-            "hits": 0.319,
-            "totalBases": 0.501,
-            "homeRuns": 0.038,
-            "runs": 0.227,
-            "rbi": 0.159,
-            "walks": 0.32,
-            "strikeouts": 0.712
-          }
-        ],
-        "pitchers": [
-          {
-            "playerId": 690986,
-            "name": "Kyle Harrison",
-            "team": "MIL",
-            "role": "starter",
-            "battersFaced": 24.886,
-            "strikeouts": 3.791,
-            "hitsAllowed": 5.203,
-            "runsAllowed": 2.125,
-            "outsRecorded": 17.561
-          },
-          {
-            "playerId": 696062,
-            "name": "Wilber Dotel",
-            "team": "PIT",
-            "role": "starter",
-            "battersFaced": 24.739,
-            "strikeouts": 2.231,
-            "hitsAllowed": 5.979,
-            "runsAllowed": 2.747,
-            "outsRecorded": 16.627
-          }
-        ]
-      },
+      "status": "unavailable",
+      "runCount": 0,
+      "winProbability": null,
+      "runs": null,
+      "totalRuns": null,
+      "runDifferential": null,
+      "runLine": [],
+      "teamTotals": null,
+      "finalScores": [],
+      "extraInningsProbability": null,
+      "players": null,
       "gameStory": [
-        "Across 10,000 simulated games, MIL won 63% of the time — a clear lean in the simulation.",
-        "The simulation's median final was MIL 4 — PIT 3, with a median of 8 total runs (10th–90th percentile 3–13).",
-        "About 11% of simulated games went to extra innings."
+        "This game had already started when the slate was generated, so no pregame simulation exists for it.",
+        "It stays counted as a scheduled game rather than being dropped from the day."
       ],
-      "artifactHash": "68ee7e50f69527ca2e05d895bd8714ddf0f733e96fc5023074d33bdf6328f6cb"
+      "artifactHash": "7aa97a926e958ceb12f1c3f69075283b13796ee28a70ca3e310a18765d5cb1f3"
     },
     {
       "gamePk": 824464,
@@ -753,10 +84,11 @@
       "venue": "Great American Ball Park",
       "firstPitch": "2026-09-17T16:40:00Z",
       "completeness": {
-        "level": "ready",
+        "level": "unavailable",
         "notes": [
           "LAD confirmed batting order used; 4 of 9 have no posted prop line and are priced at replacement level.",
-          "CIN confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level."
+          "CIN confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
+          "First pitch was at or before this slate's generation time, so no pregame simulation exists for this game. It stays counted as scheduled."
         ],
         "awayLineupSource": "confirmed",
         "homeLineupSource": "confirmed",
@@ -766,11 +98,12 @@
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
-        "startedBeforeGeneration": false,
+        "startedBeforeGeneration": true,
         "missingFamilies": [
           "park_run_factors",
           "weather",
-          "batter_handedness_splits"
+          "batter_handedness_splits",
+          "pre_event_window"
         ]
       },
       "market": {
@@ -789,693 +122,22 @@
           "homeCover": 0.5108
         }
       },
-      "status": "ready",
-      "runCount": 10000,
-      "winProbability": {
-        "away": 0.329,
-        "home": 0.671
-      },
-      "runs": {
-        "away": {
-          "mean": 2.92,
-          "median": 2,
-          "p10": 0,
-          "p90": 6
-        },
-        "home": {
-          "mean": 4.2,
-          "median": 4,
-          "p10": 1,
-          "p90": 8
-        }
-      },
-      "totalRuns": {
-        "mean": 7.12,
-        "median": 7,
-        "p10": 3,
-        "p90": 12,
-        "distribution": [
-          {
-            "value": 0,
-            "label": "0",
-            "count": 0,
-            "probability": 0
-          },
-          {
-            "value": 1,
-            "label": "1",
-            "count": 393,
-            "probability": 0.0393
-          },
-          {
-            "value": 2,
-            "label": "2",
-            "count": 359,
-            "probability": 0.0359
-          },
-          {
-            "value": 3,
-            "label": "3",
-            "count": 999,
-            "probability": 0.0999
-          },
-          {
-            "value": 4,
-            "label": "4",
-            "count": 751,
-            "probability": 0.0751
-          },
-          {
-            "value": 5,
-            "label": "5",
-            "count": 1329,
-            "probability": 0.1329
-          },
-          {
-            "value": 6,
-            "label": "6",
-            "count": 947,
-            "probability": 0.0947
-          },
-          {
-            "value": 7,
-            "label": "7",
-            "count": 1166,
-            "probability": 0.1166
-          },
-          {
-            "value": 8,
-            "label": "8",
-            "count": 786,
-            "probability": 0.0786
-          },
-          {
-            "value": 9,
-            "label": "9",
-            "count": 935,
-            "probability": 0.0935
-          },
-          {
-            "value": 10,
-            "label": "10",
-            "count": 541,
-            "probability": 0.0541
-          },
-          {
-            "value": 11,
-            "label": "11",
-            "count": 590,
-            "probability": 0.059
-          },
-          {
-            "value": 12,
-            "label": "12",
-            "count": 317,
-            "probability": 0.0317
-          },
-          {
-            "value": 13,
-            "label": "13",
-            "count": 316,
-            "probability": 0.0316
-          },
-          {
-            "value": 14,
-            "label": "14",
-            "count": 168,
-            "probability": 0.0168
-          },
-          {
-            "value": 15,
-            "label": "15",
-            "count": 163,
-            "probability": 0.0163
-          },
-          {
-            "value": 16,
-            "label": "16",
-            "count": 70,
-            "probability": 0.007
-          },
-          {
-            "value": 17,
-            "label": "17",
-            "count": 65,
-            "probability": 0.0065
-          },
-          {
-            "value": 18,
-            "label": "18",
-            "count": 30,
-            "probability": 0.003
-          },
-          {
-            "value": 19,
-            "label": "19",
-            "count": 23,
-            "probability": 0.0023
-          },
-          {
-            "value": 20,
-            "label": "20",
-            "count": 15,
-            "probability": 0.0015
-          },
-          {
-            "value": 21,
-            "label": "21+",
-            "count": 37,
-            "probability": 0.0037
-          }
-        ]
-      },
-      "runDifferential": {
-        "mean": 1.28,
-        "median": 1,
-        "p10": -3,
-        "p90": 6,
-        "distribution": [
-          {
-            "value": -13,
-            "label": "≤-13",
-            "count": 3,
-            "probability": 0.0003
-          },
-          {
-            "value": -12,
-            "label": "-12",
-            "count": 2,
-            "probability": 0.0002
-          },
-          {
-            "value": -11,
-            "label": "-11",
-            "count": 4,
-            "probability": 0.0004
-          },
-          {
-            "value": -10,
-            "label": "-10",
-            "count": 16,
-            "probability": 0.0016
-          },
-          {
-            "value": -9,
-            "label": "-9",
-            "count": 18,
-            "probability": 0.0018
-          },
-          {
-            "value": -8,
-            "label": "-8",
-            "count": 37,
-            "probability": 0.0037
-          },
-          {
-            "value": -7,
-            "label": "-7",
-            "count": 56,
-            "probability": 0.0056
-          },
-          {
-            "value": -6,
-            "label": "-6",
-            "count": 124,
-            "probability": 0.0124
-          },
-          {
-            "value": -5,
-            "label": "-5",
-            "count": 227,
-            "probability": 0.0227
-          },
-          {
-            "value": -4,
-            "label": "-4",
-            "count": 325,
-            "probability": 0.0325
-          },
-          {
-            "value": -3,
-            "label": "-3",
-            "count": 531,
-            "probability": 0.0531
-          },
-          {
-            "value": -2,
-            "label": "-2",
-            "count": 792,
-            "probability": 0.0792
-          },
-          {
-            "value": -1,
-            "label": "-1",
-            "count": 1156,
-            "probability": 0.1156
-          },
-          {
-            "value": 0,
-            "label": "0",
-            "count": 0,
-            "probability": 0
-          },
-          {
-            "value": 1,
-            "label": "1",
-            "count": 2071,
-            "probability": 0.2071
-          },
-          {
-            "value": 2,
-            "label": "2",
-            "count": 1329,
-            "probability": 0.1329
-          },
-          {
-            "value": 3,
-            "label": "3",
-            "count": 1010,
-            "probability": 0.101
-          },
-          {
-            "value": 4,
-            "label": "4",
-            "count": 699,
-            "probability": 0.0699
-          },
-          {
-            "value": 5,
-            "label": "5",
-            "count": 523,
-            "probability": 0.0523
-          },
-          {
-            "value": 6,
-            "label": "6",
-            "count": 400,
-            "probability": 0.04
-          },
-          {
-            "value": 7,
-            "label": "7",
-            "count": 235,
-            "probability": 0.0235
-          },
-          {
-            "value": 8,
-            "label": "8",
-            "count": 177,
-            "probability": 0.0177
-          },
-          {
-            "value": 9,
-            "label": "9",
-            "count": 107,
-            "probability": 0.0107
-          },
-          {
-            "value": 10,
-            "label": "10",
-            "count": 62,
-            "probability": 0.0062
-          },
-          {
-            "value": 11,
-            "label": "11",
-            "count": 47,
-            "probability": 0.0047
-          },
-          {
-            "value": 12,
-            "label": "12",
-            "count": 20,
-            "probability": 0.002
-          },
-          {
-            "value": 13,
-            "label": "13+",
-            "count": 29,
-            "probability": 0.0029
-          }
-        ]
-      },
-      "runLine": [
-        {
-          "line": 1.5,
-          "homeCover": 0.464,
-          "awayCover": 0.214
-        },
-        {
-          "line": 2.5,
-          "homeCover": 0.331,
-          "awayCover": 0.134
-        }
-      ],
-      "teamTotals": {
-        "away": [
-          {
-            "line": 2.5,
-            "over": 0.496,
-            "under": 0.504
-          },
-          {
-            "line": 3.5,
-            "over": 0.348,
-            "under": 0.652
-          }
-        ],
-        "home": [
-          {
-            "line": 3.5,
-            "over": 0.551,
-            "under": 0.449
-          },
-          {
-            "line": 4.5,
-            "over": 0.399,
-            "under": 0.601
-          }
-        ]
-      },
-      "finalScores": [
-        {
-          "away": 2,
-          "home": 3,
-          "probability": 0.043
-        },
-        {
-          "away": 1,
-          "home": 2,
-          "probability": 0.043
-        },
-        {
-          "away": 3,
-          "home": 4,
-          "probability": 0.037
-        },
-        {
-          "away": 1,
-          "home": 3,
-          "probability": 0.032
-        },
-        {
-          "away": 2,
-          "home": 4,
-          "probability": 0.031
-        },
-        {
-          "away": 1,
-          "home": 4,
-          "probability": 0.027
-        }
-      ],
-      "extraInningsProbability": 0.11,
-      "players": {
-        "batters": [
-          {
-            "playerId": 669242,
-            "name": "Tommy Edman",
-            "team": "LAD",
-            "battingOrder": 1,
-            "plateAppearances": 4.556,
-            "hits": 0.702,
-            "totalBases": 1.017,
-            "homeRuns": 0.058,
-            "runs": 0.344,
-            "rbi": 0.219,
-            "walks": 0.38,
-            "strikeouts": 0.884
-          },
-          {
-            "playerId": 518692,
-            "name": "Freddie Freeman",
-            "team": "LAD",
-            "battingOrder": 2,
-            "plateAppearances": 4.441,
-            "hits": 0.974,
-            "totalBases": 1.471,
-            "homeRuns": 0.097,
-            "runs": 0.413,
-            "rbi": 0.32,
-            "walks": 0.379,
-            "strikeouts": 0.87
-          },
-          {
-            "playerId": 663656,
-            "name": "Kyle Tucker",
-            "team": "LAD",
-            "battingOrder": 3,
-            "plateAppearances": 4.346,
-            "hits": 0.91,
-            "totalBases": 1.882,
-            "homeRuns": 0.243,
-            "runs": 0.452,
-            "rbi": 0.587,
-            "walks": 0.378,
-            "strikeouts": 0.836
-          },
-          {
-            "playerId": 606192,
-            "name": "Teoscar Hernández",
-            "team": "LAD",
-            "battingOrder": 4,
-            "plateAppearances": 4.251,
-            "hits": 0.774,
-            "totalBases": 1.212,
-            "homeRuns": 0.088,
-            "runs": 0.293,
-            "rbi": 0.346,
-            "walks": 0.357,
-            "strikeouts": 0.822
-          },
-          {
-            "playerId": 571970,
-            "name": "Max Muncy",
-            "team": "LAD",
-            "battingOrder": 5,
-            "plateAppearances": 4.154,
-            "hits": 0.768,
-            "totalBases": 1.212,
-            "homeRuns": 0.092,
-            "runs": 0.293,
-            "rbi": 0.349,
-            "walks": 0.359,
-            "strikeouts": 0.791
-          },
-          {
-            "playerId": 800543,
-            "name": "Josue De Paula",
-            "team": "LAD",
-            "battingOrder": 6,
-            "plateAppearances": 4.047,
-            "hits": 0.347,
-            "totalBases": 0.902,
-            "homeRuns": 0.151,
-            "runs": 0.27,
-            "rbi": 0.326,
-            "walks": 0.34,
-            "strikeouts": 0.763
-          },
-          {
-            "playerId": 676439,
-            "name": "Hunter Feduccia",
-            "team": "LAD",
-            "battingOrder": 7,
-            "plateAppearances": 3.918,
-            "hits": 0.716,
-            "totalBases": 1.132,
-            "homeRuns": 0.083,
-            "runs": 0.289,
-            "rbi": 0.253,
-            "walks": 0.337,
-            "strikeouts": 0.739
-          },
-          {
-            "playerId": 690976,
-            "name": "Alex Freeland",
-            "team": "LAD",
-            "battingOrder": 8,
-            "plateAppearances": 3.8,
-            "hits": 0.655,
-            "totalBases": 1.033,
-            "homeRuns": 0.077,
-            "runs": 0.277,
-            "rbi": 0.247,
-            "walks": 0.317,
-            "strikeouts": 0.789
-          },
-          {
-            "playerId": 500743,
-            "name": "Miguel Rojas",
-            "team": "LAD",
-            "battingOrder": 9,
-            "plateAppearances": 3.679,
-            "hits": 0.685,
-            "totalBases": 1.083,
-            "homeRuns": 0.081,
-            "runs": 0.293,
-            "rbi": 0.278,
-            "walks": 0.306,
-            "strikeouts": 0.747
-          },
-          {
-            "playerId": 667472,
-            "name": "Dane Myers",
-            "team": "CIN",
-            "battingOrder": 1,
-            "plateAppearances": 4.574,
-            "hits": 1.141,
-            "totalBases": 1.626,
-            "homeRuns": 0.083,
-            "runs": 0.679,
-            "rbi": 0.335,
-            "walks": 0.39,
-            "strikeouts": 0.882
-          },
-          {
-            "playerId": 682829,
-            "name": "Elly De La Cruz",
-            "team": "CIN",
-            "battingOrder": 2,
-            "plateAppearances": 4.462,
-            "hits": 1.514,
-            "totalBases": 3.369,
-            "homeRuns": 0.476,
-            "runs": 0.918,
-            "rbi": 1.074,
-            "walks": 0.38,
-            "strikeouts": 0.837
-          },
-          {
-            "playerId": 701398,
-            "name": "Sal Stewart",
-            "team": "CIN",
-            "battingOrder": 3,
-            "plateAppearances": 4.359,
-            "hits": 1.204,
-            "totalBases": 1.64,
-            "homeRuns": 0.062,
-            "runs": 0.431,
-            "rbi": 0.443,
-            "walks": 0.365,
-            "strikeouts": 0.826
-          },
-          {
-            "playerId": 663886,
-            "name": "Tyler Stephenson",
-            "team": "CIN",
-            "battingOrder": 4,
-            "plateAppearances": 4.261,
-            "hits": 0.831,
-            "totalBases": 1.227,
-            "homeRuns": 0.074,
-            "runs": 0.359,
-            "rbi": 0.423,
-            "walks": 0.368,
-            "strikeouts": 0.793
-          },
-          {
-            "playerId": 682877,
-            "name": "Juan Brito",
-            "team": "CIN",
-            "battingOrder": 5,
-            "plateAppearances": 4.165,
-            "hits": 1.186,
-            "totalBases": 1.889,
-            "homeRuns": 0.146,
-            "runs": 0.429,
-            "rbi": 0.628,
-            "walks": 0.363,
-            "strikeouts": 0.764
-          },
-          {
-            "playerId": 680574,
-            "name": "Matt McLain",
-            "team": "CIN",
-            "battingOrder": 6,
-            "plateAppearances": 4.066,
-            "hits": 0.588,
-            "totalBases": 0.927,
-            "homeRuns": 0.069,
-            "runs": 0.27,
-            "rbi": 0.335,
-            "walks": 0.355,
-            "strikeouts": 0.754
-          },
-          {
-            "playerId": 699302,
-            "name": "Héctor Rodríguez",
-            "team": "CIN",
-            "battingOrder": 7,
-            "plateAppearances": 3.951,
-            "hits": 0.72,
-            "totalBases": 1.15,
-            "homeRuns": 0.09,
-            "runs": 0.34,
-            "rbi": 0.347,
-            "walks": 0.334,
-            "strikeouts": 0.736
-          },
-          {
-            "playerId": 663647,
-            "name": "Ke'Bryan Hayes",
-            "team": "CIN",
-            "battingOrder": 8,
-            "plateAppearances": 3.823,
-            "hits": 0.703,
-            "totalBases": 1.111,
-            "homeRuns": 0.083,
-            "runs": 0.372,
-            "rbi": 0.317,
-            "walks": 0.329,
-            "strikeouts": 0.761
-          },
-          {
-            "playerId": 670770,
-            "name": "TJ Friedl",
-            "team": "CIN",
-            "battingOrder": 9,
-            "plateAppearances": 3.7,
-            "hits": 0.662,
-            "totalBases": 1.048,
-            "homeRuns": 0.082,
-            "runs": 0.402,
-            "rbi": 0.299,
-            "walks": 0.317,
-            "strikeouts": 0.738
-          }
-        ],
-        "pitchers": [
-          {
-            "playerId": 680736,
-            "name": "Justin Wrobleski",
-            "team": "LAD",
-            "role": "starter",
-            "battersFaced": 24.764,
-            "strikeouts": 4.076,
-            "hitsAllowed": 5.673,
-            "runsAllowed": 2.612,
-            "outsRecorded": 16.965
-          },
-          {
-            "playerId": 663903,
-            "name": "Brady Singer",
-            "team": "CIN",
-            "role": "starter",
-            "battersFaced": 24.937,
-            "strikeouts": 4.298,
-            "hitsAllowed": 4.365,
-            "runsAllowed": 1.839,
-            "outsRecorded": 18.463
-          }
-        ]
-      },
+      "status": "unavailable",
+      "runCount": 0,
+      "winProbability": null,
+      "runs": null,
+      "totalRuns": null,
+      "runDifferential": null,
+      "runLine": [],
+      "teamTotals": null,
+      "finalScores": [],
+      "extraInningsProbability": null,
+      "players": null,
       "gameStory": [
-        "Across 10,000 simulated games, CIN won 67% of the time — a clear lean in the simulation.",
-        "The simulation's median final was LAD 2 — CIN 4, with a median of 7 total runs (10th–90th percentile 3–12).",
-        "About 11% of simulated games went to extra innings."
+        "This game had already started when the slate was generated, so no pregame simulation exists for it.",
+        "It stays counted as a scheduled game rather than being dropped from the day."
       ],
-      "artifactHash": "1a2563d4140465271025c1ebd607cd9ed2e79b1123eb1b9eabd68c134ed7ca08"
+      "artifactHash": "fbdf1e6f4dde2030afa8e343b58c082400589b19fd7926164762865a7b94d338"
     },
     {
       "gamePk": 822924,
@@ -1488,10 +150,11 @@
       "venue": "Tropicana Field",
       "firstPitch": "2026-09-17T17:10:00Z",
       "completeness": {
-        "level": "ready",
+        "level": "unavailable",
         "notes": [
           "ATH confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
-          "TB confirmed batting order used; 6 of 9 have no posted prop line and are priced at replacement level."
+          "TB confirmed batting order used; 6 of 9 have no posted prop line and are priced at replacement level.",
+          "First pitch was at or before this slate's generation time, so no pregame simulation exists for this game. It stays counted as scheduled."
         ],
         "awayLineupSource": "confirmed",
         "homeLineupSource": "confirmed",
@@ -1501,11 +164,12 @@
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
-        "startedBeforeGeneration": false,
+        "startedBeforeGeneration": true,
         "missingFamilies": [
           "park_run_factors",
           "weather",
-          "batter_handedness_splits"
+          "batter_handedness_splits",
+          "pre_event_window"
         ]
       },
       "market": {
@@ -1524,693 +188,22 @@
           "homeCover": 0.5248
         }
       },
-      "status": "ready",
-      "runCount": 10000,
-      "winProbability": {
-        "away": 0.487,
-        "home": 0.513
-      },
-      "runs": {
-        "away": {
-          "mean": 3.45,
-          "median": 3,
-          "p10": 0,
-          "p90": 7
-        },
-        "home": {
-          "mean": 3.35,
-          "median": 3,
-          "p10": 0,
-          "p90": 7
-        }
-      },
-      "totalRuns": {
-        "mean": 6.8,
-        "median": 6,
-        "p10": 3,
-        "p90": 12,
-        "distribution": [
-          {
-            "value": 0,
-            "label": "0",
-            "count": 0,
-            "probability": 0
-          },
-          {
-            "value": 1,
-            "label": "1",
-            "count": 492,
-            "probability": 0.0492
-          },
-          {
-            "value": 2,
-            "label": "2",
-            "count": 377,
-            "probability": 0.0377
-          },
-          {
-            "value": 3,
-            "label": "3",
-            "count": 1084,
-            "probability": 0.1084
-          },
-          {
-            "value": 4,
-            "label": "4",
-            "count": 824,
-            "probability": 0.0824
-          },
-          {
-            "value": 5,
-            "label": "5",
-            "count": 1330,
-            "probability": 0.133
-          },
-          {
-            "value": 6,
-            "label": "6",
-            "count": 968,
-            "probability": 0.0968
-          },
-          {
-            "value": 7,
-            "label": "7",
-            "count": 1250,
-            "probability": 0.125
-          },
-          {
-            "value": 8,
-            "label": "8",
-            "count": 731,
-            "probability": 0.0731
-          },
-          {
-            "value": 9,
-            "label": "9",
-            "count": 884,
-            "probability": 0.0884
-          },
-          {
-            "value": 10,
-            "label": "10",
-            "count": 538,
-            "probability": 0.0538
-          },
-          {
-            "value": 11,
-            "label": "11",
-            "count": 493,
-            "probability": 0.0493
-          },
-          {
-            "value": 12,
-            "label": "12",
-            "count": 270,
-            "probability": 0.027
-          },
-          {
-            "value": 13,
-            "label": "13",
-            "count": 292,
-            "probability": 0.0292
-          },
-          {
-            "value": 14,
-            "label": "14",
-            "count": 146,
-            "probability": 0.0146
-          },
-          {
-            "value": 15,
-            "label": "15",
-            "count": 129,
-            "probability": 0.0129
-          },
-          {
-            "value": 16,
-            "label": "16",
-            "count": 60,
-            "probability": 0.006
-          },
-          {
-            "value": 17,
-            "label": "17",
-            "count": 58,
-            "probability": 0.0058
-          },
-          {
-            "value": 18,
-            "label": "18",
-            "count": 29,
-            "probability": 0.0029
-          },
-          {
-            "value": 19,
-            "label": "19",
-            "count": 24,
-            "probability": 0.0024
-          },
-          {
-            "value": 20,
-            "label": "20",
-            "count": 4,
-            "probability": 0.0004
-          },
-          {
-            "value": 21,
-            "label": "21+",
-            "count": 17,
-            "probability": 0.0017
-          }
-        ]
-      },
-      "runDifferential": {
-        "mean": -0.11,
-        "median": 1,
-        "p10": -4,
-        "p90": 4,
-        "distribution": [
-          {
-            "value": -13,
-            "label": "≤-13",
-            "count": 11,
-            "probability": 0.0011
-          },
-          {
-            "value": -12,
-            "label": "-12",
-            "count": 15,
-            "probability": 0.0015
-          },
-          {
-            "value": -11,
-            "label": "-11",
-            "count": 14,
-            "probability": 0.0014
-          },
-          {
-            "value": -10,
-            "label": "-10",
-            "count": 35,
-            "probability": 0.0035
-          },
-          {
-            "value": -9,
-            "label": "-9",
-            "count": 53,
-            "probability": 0.0053
-          },
-          {
-            "value": -8,
-            "label": "-8",
-            "count": 89,
-            "probability": 0.0089
-          },
-          {
-            "value": -7,
-            "label": "-7",
-            "count": 157,
-            "probability": 0.0157
-          },
-          {
-            "value": -6,
-            "label": "-6",
-            "count": 254,
-            "probability": 0.0254
-          },
-          {
-            "value": -5,
-            "label": "-5",
-            "count": 371,
-            "probability": 0.0371
-          },
-          {
-            "value": -4,
-            "label": "-4",
-            "count": 585,
-            "probability": 0.0585
-          },
-          {
-            "value": -3,
-            "label": "-3",
-            "count": 733,
-            "probability": 0.0733
-          },
-          {
-            "value": -2,
-            "label": "-2",
-            "count": 1112,
-            "probability": 0.1112
-          },
-          {
-            "value": -1,
-            "label": "-1",
-            "count": 1444,
-            "probability": 0.1444
-          },
-          {
-            "value": 0,
-            "label": "0",
-            "count": 0,
-            "probability": 0
-          },
-          {
-            "value": 1,
-            "label": "1",
-            "count": 2023,
-            "probability": 0.2023
-          },
-          {
-            "value": 2,
-            "label": "2",
-            "count": 1062,
-            "probability": 0.1062
-          },
-          {
-            "value": 3,
-            "label": "3",
-            "count": 721,
-            "probability": 0.0721
-          },
-          {
-            "value": 4,
-            "label": "4",
-            "count": 472,
-            "probability": 0.0472
-          },
-          {
-            "value": 5,
-            "label": "5",
-            "count": 321,
-            "probability": 0.0321
-          },
-          {
-            "value": 6,
-            "label": "6",
-            "count": 231,
-            "probability": 0.0231
-          },
-          {
-            "value": 7,
-            "label": "7",
-            "count": 137,
-            "probability": 0.0137
-          },
-          {
-            "value": 8,
-            "label": "8",
-            "count": 56,
-            "probability": 0.0056
-          },
-          {
-            "value": 9,
-            "label": "9",
-            "count": 46,
-            "probability": 0.0046
-          },
-          {
-            "value": 10,
-            "label": "10",
-            "count": 28,
-            "probability": 0.0028
-          },
-          {
-            "value": 11,
-            "label": "11",
-            "count": 18,
-            "probability": 0.0018
-          },
-          {
-            "value": 12,
-            "label": "12",
-            "count": 5,
-            "probability": 0.0005
-          },
-          {
-            "value": 13,
-            "label": "13+",
-            "count": 7,
-            "probability": 0.0007
-          }
-        ]
-      },
-      "runLine": [
-        {
-          "line": 1.5,
-          "homeCover": 0.31,
-          "awayCover": 0.343
-        },
-        {
-          "line": 2.5,
-          "homeCover": 0.204,
-          "awayCover": 0.232
-        }
-      ],
-      "teamTotals": {
-        "away": [
-          {
-            "line": 2.5,
-            "over": 0.586,
-            "under": 0.414
-          },
-          {
-            "line": 3.5,
-            "over": 0.43,
-            "under": 0.57
-          }
-        ],
-        "home": [
-          {
-            "line": 2.5,
-            "over": 0.583,
-            "under": 0.417
-          },
-          {
-            "line": 3.5,
-            "over": 0.415,
-            "under": 0.586
-          }
-        ]
-      },
-      "finalScores": [
-        {
-          "away": 2,
-          "home": 3,
-          "probability": 0.044
-        },
-        {
-          "away": 1,
-          "home": 2,
-          "probability": 0.042
-        },
-        {
-          "away": 3,
-          "home": 4,
-          "probability": 0.037
-        },
-        {
-          "away": 3,
-          "home": 2,
-          "probability": 0.033
-        },
-        {
-          "away": 0,
-          "home": 1,
-          "probability": 0.031
-        },
-        {
-          "away": 2,
-          "home": 1,
-          "probability": 0.031
-        }
-      ],
-      "extraInningsProbability": 0.122,
-      "players": {
-        "batters": [
-          {
-            "playerId": 703607,
-            "name": "Henry Bolte",
-            "team": "ATH",
-            "battingOrder": 1,
-            "plateAppearances": 4.725,
-            "hits": 1.188,
-            "totalBases": 1.884,
-            "homeRuns": 0.144,
-            "runs": 0.563,
-            "rbi": 0.435,
-            "walks": 0.402,
-            "strikeouts": 1.096
-          },
-          {
-            "playerId": 643446,
-            "name": "Jeff McNeil",
-            "team": "ATH",
-            "battingOrder": 2,
-            "plateAppearances": 4.618,
-            "hits": 1.209,
-            "totalBases": 1.911,
-            "homeRuns": 0.144,
-            "runs": 0.489,
-            "rbi": 0.494,
-            "walks": 0.396,
-            "strikeouts": 1.065
-          },
-          {
-            "playerId": 671732,
-            "name": "Lawrence Butler",
-            "team": "ATH",
-            "battingOrder": 3,
-            "plateAppearances": 4.52,
-            "hits": 0.838,
-            "totalBases": 1.314,
-            "homeRuns": 0.096,
-            "runs": 0.34,
-            "rbi": 0.405,
-            "walks": 0.382,
-            "strikeouts": 1.073
-          },
-          {
-            "playerId": 680869,
-            "name": "Zack Gelof",
-            "team": "ATH",
-            "battingOrder": 4,
-            "plateAppearances": 4.406,
-            "hits": 0.807,
-            "totalBases": 1.292,
-            "homeRuns": 0.102,
-            "runs": 0.339,
-            "rbi": 0.419,
-            "walks": 0.378,
-            "strikeouts": 1.006
-          },
-          {
-            "playerId": 622268,
-            "name": "Donovan Walton",
-            "team": "ATH",
-            "battingOrder": 5,
-            "plateAppearances": 4.297,
-            "hits": 0.798,
-            "totalBases": 1.257,
-            "homeRuns": 0.093,
-            "runs": 0.347,
-            "rbi": 0.388,
-            "walks": 0.369,
-            "strikeouts": 0.987
-          },
-          {
-            "playerId": 695720,
-            "name": "Tommy White",
-            "team": "ATH",
-            "battingOrder": 6,
-            "plateAppearances": 4.191,
-            "hits": 0.766,
-            "totalBases": 1.192,
-            "homeRuns": 0.088,
-            "runs": 0.326,
-            "rbi": 0.343,
-            "walks": 0.358,
-            "strikeouts": 0.972
-          },
-          {
-            "playerId": 675961,
-            "name": "Alika Williams",
-            "team": "ATH",
-            "battingOrder": 7,
-            "plateAppearances": 4.076,
-            "hits": 0.749,
-            "totalBases": 1.181,
-            "homeRuns": 0.088,
-            "runs": 0.341,
-            "rbi": 0.323,
-            "walks": 0.352,
-            "strikeouts": 0.926
-          },
-          {
-            "playerId": 641680,
-            "name": "Jonah Heim",
-            "team": "ATH",
-            "battingOrder": 8,
-            "plateAppearances": 3.964,
-            "hits": 0.734,
-            "totalBases": 1.165,
-            "homeRuns": 0.089,
-            "runs": 0.357,
-            "rbi": 0.328,
-            "walks": 0.335,
-            "strikeouts": 0.931
-          },
-          {
-            "playerId": 672016,
-            "name": "Denzel Clarke",
-            "team": "ATH",
-            "battingOrder": 9,
-            "plateAppearances": 3.847,
-            "hits": 0.694,
-            "totalBases": 1.099,
-            "homeRuns": 0.083,
-            "runs": 0.352,
-            "rbi": 0.319,
-            "walks": 0.32,
-            "strikeouts": 0.897
-          },
-          {
-            "playerId": 650490,
-            "name": "Yandy Díaz",
-            "team": "TB",
-            "battingOrder": 1,
-            "plateAppearances": 4.514,
-            "hits": 0.816,
-            "totalBases": 1.299,
-            "homeRuns": 0.1,
-            "runs": 0.435,
-            "rbi": 0.315,
-            "walks": 0.398,
-            "strikeouts": 0.849
-          },
-          {
-            "playerId": 666018,
-            "name": "Jonathan Aranda",
-            "team": "TB",
-            "battingOrder": 2,
-            "plateAppearances": 4.397,
-            "hits": 0.801,
-            "totalBases": 1.25,
-            "homeRuns": 0.092,
-            "runs": 0.419,
-            "rbi": 0.312,
-            "walks": 0.366,
-            "strikeouts": 0.837
-          },
-          {
-            "playerId": 691406,
-            "name": "Junior Caminero",
-            "team": "TB",
-            "battingOrder": 3,
-            "plateAppearances": 4.29,
-            "hits": 1.152,
-            "totalBases": 2.463,
-            "homeRuns": 0.333,
-            "runs": 0.613,
-            "rbi": 0.751,
-            "walks": 0.358,
-            "strikeouts": 0.809
-          },
-          {
-            "playerId": 689414,
-            "name": "Liam Hicks",
-            "team": "TB",
-            "battingOrder": 4,
-            "plateAppearances": 4.193,
-            "hits": 0.77,
-            "totalBases": 1.209,
-            "homeRuns": 0.09,
-            "runs": 0.343,
-            "rbi": 0.353,
-            "walks": 0.36,
-            "strikeouts": 0.78
-          },
-          {
-            "playerId": 676356,
-            "name": "Jonny DeLuca",
-            "team": "TB",
-            "battingOrder": 5,
-            "plateAppearances": 4.098,
-            "hits": 0.746,
-            "totalBases": 1.175,
-            "homeRuns": 0.089,
-            "runs": 0.343,
-            "rbi": 0.337,
-            "walks": 0.346,
-            "strikeouts": 0.758
-          },
-          {
-            "playerId": 802415,
-            "name": "Chandler Simpson",
-            "team": "TB",
-            "battingOrder": 6,
-            "plateAppearances": 3.988,
-            "hits": 1.255,
-            "totalBases": 1.491,
-            "homeRuns": 0,
-            "runs": 0.32,
-            "rbi": 0.291,
-            "walks": 0.336,
-            "strikeouts": 0.739
-          },
-          {
-            "playerId": 668723,
-            "name": "Ryan Vilade",
-            "team": "TB",
-            "battingOrder": 7,
-            "plateAppearances": 3.889,
-            "hits": 0.603,
-            "totalBases": 0.948,
-            "homeRuns": 0.069,
-            "runs": 0.264,
-            "rbi": 0.32,
-            "walks": 0.333,
-            "strikeouts": 0.707
-          },
-          {
-            "playerId": 680700,
-            "name": "Richie Palacios",
-            "team": "TB",
-            "battingOrder": 8,
-            "plateAppearances": 3.762,
-            "hits": 0.687,
-            "totalBases": 1.09,
-            "homeRuns": 0.084,
-            "runs": 0.302,
-            "rbi": 0.347,
-            "walks": 0.315,
-            "strikeouts": 0.76
-          },
-          {
-            "playerId": 670764,
-            "name": "Taylor Walls",
-            "team": "TB",
-            "battingOrder": 9,
-            "plateAppearances": 3.636,
-            "hits": 0.669,
-            "totalBases": 1.05,
-            "homeRuns": 0.077,
-            "runs": 0.309,
-            "rbi": 0.321,
-            "walks": 0.311,
-            "strikeouts": 0.716
-          }
-        ],
-        "pitchers": [
-          {
-            "playerId": 605488,
-            "name": "Jeffrey Springs",
-            "team": "ATH",
-            "role": "starter",
-            "battersFaced": 24.899,
-            "strikeouts": 4.101,
-            "hitsAllowed": 5.11,
-            "runsAllowed": 2.117,
-            "outsRecorded": 17.668
-          },
-          {
-            "playerId": 656876,
-            "name": "Drew Rasmussen",
-            "team": "TB",
-            "role": "starter",
-            "battersFaced": 24.874,
-            "strikeouts": 5.633,
-            "hitsAllowed": 5.005,
-            "runsAllowed": 2.05,
-            "outsRecorded": 17.744
-          }
-        ]
-      },
+      "status": "unavailable",
+      "runCount": 0,
+      "winProbability": null,
+      "runs": null,
+      "totalRuns": null,
+      "runDifferential": null,
+      "runLine": [],
+      "teamTotals": null,
+      "finalScores": [],
+      "extraInningsProbability": null,
+      "players": null,
       "gameStory": [
-        "Across 10,000 simulated games, TB won 51% of the time — essentially a coin flip.",
-        "The simulation's median final was ATH 3 — TB 3, with a median of 6 total runs (10th–90th percentile 3–12).",
-        "About 12% of simulated games went to extra innings."
+        "This game had already started when the slate was generated, so no pregame simulation exists for it.",
+        "It stays counted as a scheduled game rather than being dropped from the day."
       ],
-      "artifactHash": "d4c7c898394b7f1061d18d54554afe5f8149e747a709c9fa80a8e64809ee68bc"
+      "artifactHash": "d3f2d0d71d932f0b62d1b214bffc6dec80b720630f0c346a3f4734656906da24"
     },
     {
       "gamePk": 824305,
@@ -2959,15 +952,15 @@
       "completeness": {
         "level": "degraded",
         "notes": [
-          "HOU lineup padded: 7/9 batters have a posted line and the rest are at replacement level; HOU have not posted a batting order yet, and this refreshes hourly until they do.",
+          "HOU confirmed batting order used; 4 of 9 have no posted prop line and are priced at replacement level.",
           "HOU has no posted probable starter — simulated vs a league bullpen aggregate."
         ],
         "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
-        "homeRatedCount": 7,
+        "homeRatedCount": 5,
         "awayLineupCount": 9,
-        "homeLineupCount": 7,
+        "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": false,
         "startedBeforeGeneration": false,
@@ -2998,28 +991,28 @@
       "status": "degraded",
       "runCount": 10000,
       "winProbability": {
-        "away": 0.54,
-        "home": 0.46
+        "away": 0.516,
+        "home": 0.484
       },
       "runs": {
         "away": {
-          "mean": 3.95,
+          "mean": 4,
           "median": 4,
           "p10": 1,
           "p90": 8
         },
         "home": {
-          "mean": 3.4,
+          "mean": 3.62,
           "median": 3,
           "p10": 1,
           "p90": 7
         }
       },
       "totalRuns": {
-        "mean": 7.35,
+        "mean": 7.62,
         "median": 7,
         "p10": 3,
-        "p90": 12,
+        "p90": 13,
         "distribution": [
           {
             "value": 0,
@@ -3030,133 +1023,133 @@
           {
             "value": 1,
             "label": "1",
-            "count": 326,
-            "probability": 0.0326
+            "count": 282,
+            "probability": 0.0282
           },
           {
             "value": 2,
             "label": "2",
-            "count": 346,
-            "probability": 0.0346
+            "count": 297,
+            "probability": 0.0297
           },
           {
             "value": 3,
             "label": "3",
-            "count": 940,
-            "probability": 0.094
+            "count": 826,
+            "probability": 0.0826
           },
           {
             "value": 4,
             "label": "4",
-            "count": 737,
-            "probability": 0.0737
+            "count": 707,
+            "probability": 0.0707
           },
           {
             "value": 5,
             "label": "5",
-            "count": 1254,
-            "probability": 0.1254
+            "count": 1270,
+            "probability": 0.127
           },
           {
             "value": 6,
             "label": "6",
-            "count": 912,
-            "probability": 0.0912
+            "count": 921,
+            "probability": 0.0921
           },
           {
             "value": 7,
             "label": "7",
-            "count": 1204,
-            "probability": 0.1204
+            "count": 1232,
+            "probability": 0.1232
           },
           {
             "value": 8,
             "label": "8",
-            "count": 791,
-            "probability": 0.0791
+            "count": 746,
+            "probability": 0.0746
           },
           {
             "value": 9,
             "label": "9",
-            "count": 942,
-            "probability": 0.0942
+            "count": 967,
+            "probability": 0.0967
           },
           {
             "value": 10,
             "label": "10",
-            "count": 598,
-            "probability": 0.0598
+            "count": 594,
+            "probability": 0.0594
           },
           {
             "value": 11,
             "label": "11",
-            "count": 621,
-            "probability": 0.0621
+            "count": 609,
+            "probability": 0.0609
           },
           {
             "value": 12,
             "label": "12",
-            "count": 333,
-            "probability": 0.0333
+            "count": 386,
+            "probability": 0.0386
           },
           {
             "value": 13,
             "label": "13",
-            "count": 345,
-            "probability": 0.0345
+            "count": 404,
+            "probability": 0.0404
           },
           {
             "value": 14,
             "label": "14",
-            "count": 187,
-            "probability": 0.0187
+            "count": 193,
+            "probability": 0.0193
           },
           {
             "value": 15,
             "label": "15",
-            "count": 177,
-            "probability": 0.0177
+            "count": 211,
+            "probability": 0.0211
           },
           {
             "value": 16,
             "label": "16",
-            "count": 89,
-            "probability": 0.0089
+            "count": 105,
+            "probability": 0.0105
           },
           {
             "value": 17,
             "label": "17",
-            "count": 73,
-            "probability": 0.0073
+            "count": 77,
+            "probability": 0.0077
           },
           {
             "value": 18,
             "label": "18",
-            "count": 39,
-            "probability": 0.0039
+            "count": 47,
+            "probability": 0.0047
           },
           {
             "value": 19,
             "label": "19",
-            "count": 28,
-            "probability": 0.0028
+            "count": 53,
+            "probability": 0.0053
           },
           {
             "value": 20,
             "label": "20",
-            "count": 23,
-            "probability": 0.0023
+            "count": 25,
+            "probability": 0.0025
           },
           {
             "value": 21,
             "label": "21+",
-            "count": 35,
-            "probability": 0.0035
+            "count": 48,
+            "probability": 0.0048
           }
         ]
       },
       "runDifferential": {
-        "mean": -0.55,
+        "mean": -0.39,
         "median": -1,
         "p10": -5,
         "p90": 4,
@@ -3164,80 +1157,80 @@
           {
             "value": -13,
             "label": "≤-13",
-            "count": 25,
-            "probability": 0.0025
+            "count": 20,
+            "probability": 0.002
           },
           {
             "value": -12,
             "label": "-12",
-            "count": 22,
-            "probability": 0.0022
+            "count": 19,
+            "probability": 0.0019
           },
           {
             "value": -11,
             "label": "-11",
-            "count": 31,
-            "probability": 0.0031
+            "count": 28,
+            "probability": 0.0028
           },
           {
             "value": -10,
             "label": "-10",
-            "count": 65,
-            "probability": 0.0065
+            "count": 52,
+            "probability": 0.0052
           },
           {
             "value": -9,
             "label": "-9",
-            "count": 81,
-            "probability": 0.0081
+            "count": 82,
+            "probability": 0.0082
           },
           {
             "value": -8,
             "label": "-8",
-            "count": 144,
-            "probability": 0.0144
+            "count": 131,
+            "probability": 0.0131
           },
           {
             "value": -7,
             "label": "-7",
-            "count": 180,
-            "probability": 0.018
+            "count": 201,
+            "probability": 0.0201
           },
           {
             "value": -6,
             "label": "-6",
-            "count": 305,
-            "probability": 0.0305
+            "count": 293,
+            "probability": 0.0293
           },
           {
             "value": -5,
             "label": "-5",
-            "count": 458,
-            "probability": 0.0458
+            "count": 446,
+            "probability": 0.0446
           },
           {
             "value": -4,
             "label": "-4",
-            "count": 653,
-            "probability": 0.0653
+            "count": 588,
+            "probability": 0.0588
           },
           {
             "value": -3,
             "label": "-3",
-            "count": 860,
-            "probability": 0.086
+            "count": 821,
+            "probability": 0.0821
           },
           {
             "value": -2,
             "label": "-2",
-            "count": 1113,
-            "probability": 0.1113
+            "count": 1111,
+            "probability": 0.1111
           },
           {
             "value": -1,
             "label": "-1",
-            "count": 1464,
-            "probability": 0.1464
+            "count": 1372,
+            "probability": 0.1372
           },
           {
             "value": 0,
@@ -3248,93 +1241,93 @@
           {
             "value": 1,
             "label": "1",
-            "count": 1735,
-            "probability": 0.1735
+            "count": 1800,
+            "probability": 0.18
           },
           {
             "value": 2,
             "label": "2",
-            "count": 1046,
-            "probability": 0.1046
+            "count": 1041,
+            "probability": 0.1041
           },
           {
             "value": 3,
             "label": "3",
-            "count": 669,
-            "probability": 0.0669
+            "count": 730,
+            "probability": 0.073
           },
           {
             "value": 4,
             "label": "4",
-            "count": 413,
-            "probability": 0.0413
+            "count": 480,
+            "probability": 0.048
           },
           {
             "value": 5,
             "label": "5",
-            "count": 259,
-            "probability": 0.0259
+            "count": 296,
+            "probability": 0.0296
           },
           {
             "value": 6,
             "label": "6",
-            "count": 203,
-            "probability": 0.0203
+            "count": 200,
+            "probability": 0.02
           },
           {
             "value": 7,
             "label": "7",
-            "count": 124,
-            "probability": 0.0124
+            "count": 119,
+            "probability": 0.0119
           },
           {
             "value": 8,
             "label": "8",
-            "count": 67,
-            "probability": 0.0067
+            "count": 81,
+            "probability": 0.0081
           },
           {
             "value": 9,
             "label": "9",
-            "count": 42,
-            "probability": 0.0042
+            "count": 38,
+            "probability": 0.0038
           },
           {
             "value": 10,
             "label": "10",
-            "count": 18,
-            "probability": 0.0018
+            "count": 22,
+            "probability": 0.0022
           },
           {
             "value": 11,
             "label": "11",
-            "count": 9,
-            "probability": 0.0009
+            "count": 12,
+            "probability": 0.0012
           },
           {
             "value": 12,
             "label": "12",
-            "count": 7,
-            "probability": 0.0007
+            "count": 8,
+            "probability": 0.0008
           },
           {
             "value": 13,
             "label": "13+",
-            "count": 7,
-            "probability": 0.0007
+            "count": 9,
+            "probability": 0.0009
           }
         ]
       },
       "runLine": [
         {
           "line": 1.5,
-          "homeCover": 0.286,
-          "awayCover": 0.394
+          "homeCover": 0.304,
+          "awayCover": 0.379
         },
         {
           "line": 2.5,
-          "homeCover": 0.182,
-          "awayCover": 0.282
+          "homeCover": 0.2,
+          "awayCover": 0.268
         }
       ],
       "teamTotals": {
@@ -3346,20 +1339,20 @@
           },
           {
             "line": 4.5,
-            "over": 0.372,
-            "under": 0.628
+            "over": 0.375,
+            "under": 0.625
           }
         ],
         "home": [
           {
-            "line": 2.5,
-            "over": 0.588,
-            "under": 0.412
+            "line": 3.5,
+            "over": 0.461,
+            "under": 0.539
           },
           {
-            "line": 3.5,
-            "over": 0.423,
-            "under": 0.577
+            "line": 4.5,
+            "over": 0.319,
+            "under": 0.681
           }
         ]
       },
@@ -3367,35 +1360,35 @@
         {
           "away": 2,
           "home": 3,
-          "probability": 0.041
-        },
-        {
-          "away": 1,
-          "home": 2,
-          "probability": 0.034
+          "probability": 0.038
         },
         {
           "away": 3,
           "home": 4,
-          "probability": 0.031
+          "probability": 0.034
+        },
+        {
+          "away": 1,
+          "home": 2,
+          "probability": 0.032
         },
         {
           "away": 3,
           "home": 2,
-          "probability": 0.03
-        },
-        {
-          "away": 2,
-          "home": 1,
-          "probability": 0.029
+          "probability": 0.031
         },
         {
           "away": 4,
           "home": 3,
           "probability": 0.028
+        },
+        {
+          "away": 2,
+          "home": 4,
+          "probability": 0.026
         }
       ],
-      "extraInningsProbability": 0.115,
+      "extraInningsProbability": 0.112,
       "players": {
         "batters": [
           {
@@ -3404,251 +1397,251 @@
             "team": "KC",
             "battingOrder": 1,
             "plateAppearances": 4.804,
-            "hits": 1.175,
-            "totalBases": 1.908,
-            "homeRuns": 0.156,
-            "runs": 0.617,
-            "rbi": 0.424,
-            "walks": 0.398,
-            "strikeouts": 1.159
+            "hits": 1.174,
+            "totalBases": 1.875,
+            "homeRuns": 0.144,
+            "runs": 0.614,
+            "rbi": 0.416,
+            "walks": 0.413,
+            "strikeouts": 1.143
           },
           {
             "playerId": 695506,
             "name": "Jac Caglianone",
             "team": "KC",
             "battingOrder": 2,
-            "plateAppearances": 4.694,
-            "hits": 0.925,
-            "totalBases": 1.579,
-            "homeRuns": 0.147,
-            "runs": 0.526,
-            "rbi": 0.423,
-            "walks": 0.401,
-            "strikeouts": 1.121
+            "plateAppearances": 4.69,
+            "hits": 0.93,
+            "totalBases": 1.573,
+            "homeRuns": 0.143,
+            "runs": 0.528,
+            "rbi": 0.417,
+            "walks": 0.399,
+            "strikeouts": 1.119
           },
           {
             "playerId": 672580,
             "name": "Maikel Garcia",
             "team": "KC",
             "battingOrder": 3,
-            "plateAppearances": 4.579,
-            "hits": 1.234,
-            "totalBases": 1.945,
-            "homeRuns": 0.148,
-            "runs": 0.557,
-            "rbi": 0.514,
-            "walks": 0.392,
-            "strikeouts": 1.112
+            "plateAppearances": 4.58,
+            "hits": 1.256,
+            "totalBases": 1.994,
+            "homeRuns": 0.154,
+            "runs": 0.567,
+            "rbi": 0.537,
+            "walks": 0.376,
+            "strikeouts": 1.103
           },
           {
             "playerId": 521692,
             "name": "Salvador Perez",
             "team": "KC",
             "battingOrder": 4,
-            "plateAppearances": 4.477,
-            "hits": 1.148,
-            "totalBases": 1.83,
-            "homeRuns": 0.145,
-            "runs": 0.507,
-            "rbi": 0.576,
-            "walks": 0.375,
-            "strikeouts": 1.063
+            "plateAppearances": 4.48,
+            "hits": 1.152,
+            "totalBases": 1.81,
+            "homeRuns": 0.136,
+            "runs": 0.506,
+            "rbi": 0.565,
+            "walks": 0.38,
+            "strikeouts": 1.074
           },
           {
             "playerId": 686469,
             "name": "Vinnie Pasquantino",
             "team": "KC",
             "battingOrder": 5,
-            "plateAppearances": 4.372,
-            "hits": 0.898,
-            "totalBases": 1.41,
-            "homeRuns": 0.104,
-            "runs": 0.412,
-            "rbi": 0.477,
-            "walks": 0.366,
-            "strikeouts": 1.051
+            "plateAppearances": 4.38,
+            "hits": 0.901,
+            "totalBases": 1.43,
+            "homeRuns": 0.109,
+            "runs": 0.419,
+            "rbi": 0.486,
+            "walks": 0.374,
+            "strikeouts": 1.056
           },
           {
             "playerId": 695600,
             "name": "Carter Jensen",
             "team": "KC",
             "battingOrder": 6,
-            "plateAppearances": 4.268,
-            "hits": 0.958,
-            "totalBases": 1.512,
-            "homeRuns": 0.114,
-            "runs": 0.406,
-            "rbi": 0.469,
-            "walks": 0.365,
-            "strikeouts": 1.013
+            "plateAppearances": 4.273,
+            "hits": 0.955,
+            "totalBases": 1.509,
+            "homeRuns": 0.115,
+            "runs": 0.413,
+            "rbi": 0.476,
+            "walks": 0.364,
+            "strikeouts": 1.032
           },
           {
             "playerId": 686681,
             "name": "Michael Massey",
             "team": "KC",
             "battingOrder": 7,
-            "plateAppearances": 4.162,
-            "hits": 1.136,
-            "totalBases": 1.784,
-            "homeRuns": 0.131,
-            "runs": 0.388,
-            "rbi": 0.533,
-            "walks": 0.353,
-            "strikeouts": 1
+            "plateAppearances": 4.165,
+            "hits": 1.138,
+            "totalBases": 1.814,
+            "homeRuns": 0.142,
+            "runs": 0.402,
+            "rbi": 0.554,
+            "walks": 0.36,
+            "strikeouts": 0.991
           },
           {
             "playerId": 664728,
             "name": "Kyle Isbel",
             "team": "KC",
             "battingOrder": 8,
-            "plateAppearances": 4.057,
-            "hits": 0.516,
-            "totalBases": 0.813,
-            "homeRuns": 0.061,
-            "runs": 0.248,
-            "rbi": 0.283,
-            "walks": 0.346,
-            "strikeouts": 0.988
+            "plateAppearances": 4.06,
+            "hits": 0.527,
+            "totalBases": 0.841,
+            "homeRuns": 0.066,
+            "runs": 0.256,
+            "rbi": 0.3,
+            "walks": 0.34,
+            "strikeouts": 0.971
           },
           {
             "playerId": 686555,
             "name": "Isaac Collins",
             "team": "KC",
             "battingOrder": 9,
-            "plateAppearances": 3.934,
-            "hits": 0.506,
-            "totalBases": 0.792,
-            "homeRuns": 0.058,
-            "runs": 0.29,
+            "plateAppearances": 3.933,
+            "hits": 0.504,
+            "totalBases": 0.803,
+            "homeRuns": 0.062,
+            "runs": 0.298,
             "rbi": 0.25,
-            "walks": 0.329,
-            "strikeouts": 0.944
+            "walks": 0.332,
+            "strikeouts": 0.945
+          },
+          {
+            "playerId": 665161,
+            "name": "Jeremy Peña",
+            "team": "HOU",
+            "battingOrder": 1,
+            "plateAppearances": 4.514,
+            "hits": 0.801,
+            "totalBases": 1.263,
+            "homeRuns": 0.096,
+            "runs": 0.474,
+            "rbi": 0.299,
+            "walks": 0.393,
+            "strikeouts": 0.808
           },
           {
             "playerId": 670541,
             "name": "Yordan Alvarez",
             "team": "HOU",
-            "battingOrder": 1,
-            "plateAppearances": 4.48,
-            "hits": 1.038,
-            "totalBases": 2.093,
-            "homeRuns": 0.262,
-            "runs": 0.642,
-            "rbi": 0.567,
-            "walks": 0.383,
-            "strikeouts": 0.804
-          },
-          {
-            "playerId": 514888,
-            "name": "Jose Altuve",
-            "team": "HOU",
             "battingOrder": 2,
-            "plateAppearances": 4.366,
-            "hits": 1.096,
-            "totalBases": 1.706,
-            "homeRuns": 0.123,
-            "runs": 0.475,
-            "rbi": 0.427,
-            "walks": 0.376,
-            "strikeouts": 0.779
+            "plateAppearances": 4.394,
+            "hits": 1.03,
+            "totalBases": 2.076,
+            "homeRuns": 0.26,
+            "runs": 0.613,
+            "rbi": 0.592,
+            "walks": 0.371,
+            "strikeouts": 0.783
           },
           {
             "playerId": 670623,
             "name": "Isaac Paredes",
             "team": "HOU",
             "battingOrder": 3,
-            "plateAppearances": 4.271,
-            "hits": 1.029,
-            "totalBases": 1.926,
-            "homeRuns": 0.217,
-            "runs": 0.452,
-            "rbi": 0.592,
-            "walks": 0.369,
-            "strikeouts": 0.749
+            "plateAppearances": 4.292,
+            "hits": 1.031,
+            "totalBases": 1.921,
+            "homeRuns": 0.212,
+            "runs": 0.507,
+            "rbi": 0.561,
+            "walks": 0.374,
+            "strikeouts": 0.758
+          },
+          {
+            "playerId": 514888,
+            "name": "Jose Altuve",
+            "team": "HOU",
+            "battingOrder": 4,
+            "plateAppearances": 4.2,
+            "hits": 1.042,
+            "totalBases": 1.633,
+            "homeRuns": 0.12,
+            "runs": 0.407,
+            "rbi": 0.468,
+            "walks": 0.355,
+            "strikeouts": 0.743
+          },
+          {
+            "playerId": 673237,
+            "name": "Yainer Diaz",
+            "team": "HOU",
+            "battingOrder": 5,
+            "plateAppearances": 4.106,
+            "hits": 0.733,
+            "totalBases": 1.166,
+            "homeRuns": 0.09,
+            "runs": 0.324,
+            "rbi": 0.369,
+            "walks": 0.352,
+            "strikeouts": 0.716
           },
           {
             "playerId": 662139,
             "name": "Daulton Varsho",
             "team": "HOU",
-            "battingOrder": 4,
-            "plateAppearances": 4.172,
-            "hits": 0.833,
-            "totalBases": 1.307,
-            "homeRuns": 0.098,
-            "runs": 0.298,
-            "rbi": 0.4,
-            "walks": 0.353,
-            "strikeouts": 0.723
-          },
-          {
-            "playerId": 572233,
-            "name": "Christian Walker",
-            "team": "HOU",
-            "battingOrder": 5,
-            "plateAppearances": 4.079,
-            "hits": 0.646,
-            "totalBases": 1.011,
-            "homeRuns": 0.076,
-            "runs": 0.258,
-            "rbi": 0.329,
-            "walks": 0.353,
-            "strikeouts": 0.71
-          },
-          {
-            "playerId": 694388,
-            "name": "Joey Loperfido",
-            "team": "HOU",
             "battingOrder": 6,
-            "plateAppearances": 3.976,
-            "hits": 0.443,
-            "totalBases": 0.697,
-            "homeRuns": 0.051,
-            "runs": 0.231,
-            "rbi": 0.209,
-            "walks": 0.336,
-            "strikeouts": 0.681
+            "plateAppearances": 4.007,
+            "hits": 0.792,
+            "totalBases": 1.254,
+            "homeRuns": 0.096,
+            "runs": 0.328,
+            "rbi": 0.366,
+            "walks": 0.334,
+            "strikeouts": 0.679
+          },
+          {
+            "playerId": 666211,
+            "name": "Taylor Trammell",
+            "team": "HOU",
+            "battingOrder": 7,
+            "plateAppearances": 3.893,
+            "hits": 0.704,
+            "totalBases": 1.103,
+            "homeRuns": 0.083,
+            "runs": 0.305,
+            "rbi": 0.322,
+            "walks": 0.33,
+            "strikeouts": 0.661
           },
           {
             "playerId": 701358,
             "name": "Cam Smith",
             "team": "HOU",
-            "battingOrder": 7,
-            "plateAppearances": 3.857,
-            "hits": 0.764,
-            "totalBases": 1.221,
-            "homeRuns": 0.098,
-            "runs": 0.34,
-            "rbi": 0.307,
-            "walks": 0.316,
-            "strikeouts": 0.651
-          },
-          {
-            "playerId": -8,
-            "name": "Lineup fallback",
-            "team": "HOU",
             "battingOrder": 8,
-            "plateAppearances": 3.731,
-            "hits": 0.669,
-            "totalBases": 1.052,
-            "homeRuns": 0.082,
-            "runs": 0.337,
-            "rbi": 0.28,
-            "walks": 0.318,
-            "strikeouts": 0.72
+            "plateAppearances": 3.767,
+            "hits": 0.731,
+            "totalBases": 1.16,
+            "homeRuns": 0.091,
+            "runs": 0.33,
+            "rbi": 0.332,
+            "walks": 0.326,
+            "strikeouts": 0.733
           },
           {
-            "playerId": -9,
-            "name": "Lineup fallback",
+            "playerId": 664774,
+            "name": "LaMonte Wade Jr.",
             "team": "HOU",
             "battingOrder": 9,
-            "plateAppearances": 3.605,
-            "hits": 0.666,
-            "totalBases": 1.053,
+            "plateAppearances": 3.639,
+            "hits": 0.655,
+            "totalBases": 1.031,
             "homeRuns": 0.079,
-            "runs": 0.366,
-            "rbi": 0.286,
-            "walks": 0.299,
-            "strikeouts": 0.68
+            "runs": 0.328,
+            "rbi": 0.307,
+            "walks": 0.31,
+            "strikeouts": 0.694
           }
         ],
         "pitchers": [
@@ -3657,20 +1650,20 @@
             "name": "Seth Lugo",
             "team": "KC",
             "role": "starter",
-            "battersFaced": 24.873,
-            "strikeouts": 3.704,
-            "hitsAllowed": 4.877,
-            "runsAllowed": 2.168,
-            "outsRecorded": 17.877
+            "battersFaced": 24.855,
+            "strikeouts": 3.705,
+            "hitsAllowed": 5.086,
+            "runsAllowed": 2.289,
+            "outsRecorded": 17.636
           }
         ]
       },
       "gameStory": [
-        "Across 10,000 simulated games, KC won 54% of the time — a modest lean.",
-        "The simulation's median final was KC 4 — HOU 3, with a median of 7 total runs (10th–90th percentile 3–12).",
-        "About 12% of simulated games went to extra innings."
+        "Across 10,000 simulated games, KC won 52% of the time — essentially a coin flip.",
+        "The simulation's median final was KC 4 — HOU 3, with a median of 7 total runs (10th–90th percentile 3–13).",
+        "About 11% of simulated games went to extra innings."
       ],
-      "artifactHash": "75d142e8ee37708814562d80d76c6927d64ca380500af0dbe7508077022f7894"
+      "artifactHash": "2608495b5e8490f3fc7c5b11c34eabad5b8a361ddc98e62fa53c938a6561c4c4"
     },
     {
       "gamePk": 823573,
@@ -3684,10 +1677,12 @@
       "firstPitch": "2026-09-17T23:15:00Z",
       "completeness": {
         "level": "ready",
-        "notes": [],
-        "awayLineupSource": "prop-derived",
+        "notes": [
+          "PHI confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level."
+        ],
+        "awayLineupSource": "confirmed",
         "homeLineupSource": "prop-derived",
-        "awayRatedCount": 9,
+        "awayRatedCount": 8,
         "homeRatedCount": 9,
         "awayLineupCount": 9,
         "homeLineupCount": 9,
@@ -3720,8 +1715,8 @@
       "status": "ready",
       "runCount": 10000,
       "winProbability": {
-        "away": 0.387,
-        "home": 0.613
+        "away": 0.383,
+        "home": 0.617
       },
       "runs": {
         "away": {
@@ -3731,14 +1726,14 @@
           "p90": 8
         },
         "home": {
-          "mean": 4.94,
+          "mean": 4.98,
           "median": 5,
           "p10": 1,
           "p90": 9
         }
       },
       "totalRuns": {
-        "mean": 8.98,
+        "mean": 9.02,
         "median": 9,
         "p10": 4,
         "p90": 15,
@@ -3752,133 +1747,133 @@
           {
             "value": 1,
             "label": "1",
-            "count": 160,
-            "probability": 0.016
+            "count": 172,
+            "probability": 0.0172
           },
           {
             "value": 2,
             "label": "2",
-            "count": 178,
-            "probability": 0.0178
+            "count": 167,
+            "probability": 0.0167
           },
           {
             "value": 3,
             "label": "3",
-            "count": 560,
-            "probability": 0.056
+            "count": 555,
+            "probability": 0.0555
           },
           {
             "value": 4,
             "label": "4",
-            "count": 486,
-            "probability": 0.0486
+            "count": 452,
+            "probability": 0.0452
           },
           {
             "value": 5,
             "label": "5",
-            "count": 969,
-            "probability": 0.0969
+            "count": 942,
+            "probability": 0.0942
           },
           {
             "value": 6,
             "label": "6",
-            "count": 700,
-            "probability": 0.07
+            "count": 720,
+            "probability": 0.072
           },
           {
             "value": 7,
             "label": "7",
-            "count": 1083,
-            "probability": 0.1083
+            "count": 1089,
+            "probability": 0.1089
           },
           {
             "value": 8,
             "label": "8",
-            "count": 789,
-            "probability": 0.0789
+            "count": 795,
+            "probability": 0.0795
           },
           {
             "value": 9,
             "label": "9",
-            "count": 1056,
-            "probability": 0.1056
+            "count": 1057,
+            "probability": 0.1057
           },
           {
             "value": 10,
             "label": "10",
-            "count": 648,
-            "probability": 0.0648
+            "count": 708,
+            "probability": 0.0708
           },
           {
             "value": 11,
             "label": "11",
-            "count": 819,
-            "probability": 0.0819
+            "count": 806,
+            "probability": 0.0806
           },
           {
             "value": 12,
             "label": "12",
-            "count": 526,
-            "probability": 0.0526
+            "count": 514,
+            "probability": 0.0514
           },
           {
             "value": 13,
             "label": "13",
-            "count": 580,
-            "probability": 0.058
+            "count": 545,
+            "probability": 0.0545
           },
           {
             "value": 14,
             "label": "14",
-            "count": 366,
-            "probability": 0.0366
+            "count": 364,
+            "probability": 0.0364
           },
           {
             "value": 15,
             "label": "15",
-            "count": 330,
-            "probability": 0.033
+            "count": 337,
+            "probability": 0.0337
           },
           {
             "value": 16,
             "label": "16",
-            "count": 197,
-            "probability": 0.0197
+            "count": 189,
+            "probability": 0.0189
           },
           {
             "value": 17,
             "label": "17",
-            "count": 165,
-            "probability": 0.0165
+            "count": 177,
+            "probability": 0.0177
           },
           {
             "value": 18,
             "label": "18",
-            "count": 115,
-            "probability": 0.0115
+            "count": 99,
+            "probability": 0.0099
           },
           {
             "value": 19,
             "label": "19",
-            "count": 77,
-            "probability": 0.0077
+            "count": 114,
+            "probability": 0.0114
           },
           {
             "value": 20,
             "label": "20",
-            "count": 63,
-            "probability": 0.0063
+            "count": 59,
+            "probability": 0.0059
           },
           {
             "value": 21,
             "label": "21+",
-            "count": 133,
-            "probability": 0.0133
+            "count": 139,
+            "probability": 0.0139
           }
         ]
       },
       "runDifferential": {
-        "mean": 0.9,
+        "mean": 0.94,
         "median": 1,
         "p10": -4,
         "p90": 6,
@@ -3886,8 +1881,8 @@
           {
             "value": -13,
             "label": "≤-13",
-            "count": 18,
-            "probability": 0.0018
+            "count": 12,
+            "probability": 0.0012
           },
           {
             "value": -12,
@@ -3898,68 +1893,68 @@
           {
             "value": -11,
             "label": "-11",
-            "count": 19,
-            "probability": 0.0019
+            "count": 21,
+            "probability": 0.0021
           },
           {
             "value": -10,
             "label": "-10",
-            "count": 31,
-            "probability": 0.0031
+            "count": 28,
+            "probability": 0.0028
           },
           {
             "value": -9,
             "label": "-9",
-            "count": 52,
-            "probability": 0.0052
+            "count": 48,
+            "probability": 0.0048
           },
           {
             "value": -8,
             "label": "-8",
-            "count": 101,
-            "probability": 0.0101
+            "count": 77,
+            "probability": 0.0077
           },
           {
             "value": -7,
             "label": "-7",
-            "count": 135,
-            "probability": 0.0135
+            "count": 146,
+            "probability": 0.0146
           },
           {
             "value": -6,
             "label": "-6",
-            "count": 212,
-            "probability": 0.0212
+            "count": 211,
+            "probability": 0.0211
           },
           {
             "value": -5,
             "label": "-5",
-            "count": 295,
-            "probability": 0.0295
+            "count": 325,
+            "probability": 0.0325
           },
           {
             "value": -4,
             "label": "-4",
-            "count": 414,
-            "probability": 0.0414
+            "count": 459,
+            "probability": 0.0459
           },
           {
             "value": -3,
             "label": "-3",
-            "count": 613,
-            "probability": 0.0613
+            "count": 587,
+            "probability": 0.0587
           },
           {
             "value": -2,
             "label": "-2",
-            "count": 840,
-            "probability": 0.084
+            "count": 779,
+            "probability": 0.0779
           },
           {
             "value": -1,
             "label": "-1",
-            "count": 1125,
-            "probability": 0.1125
+            "count": 1126,
+            "probability": 0.1126
           },
           {
             "value": 0,
@@ -3970,32 +1965,32 @@
           {
             "value": 1,
             "label": "1",
-            "count": 1823,
-            "probability": 0.1823
+            "count": 1784,
+            "probability": 0.1784
           },
           {
             "value": 2,
             "label": "2",
-            "count": 1110,
-            "probability": 0.111
+            "count": 1128,
+            "probability": 0.1128
           },
           {
             "value": 3,
             "label": "3",
-            "count": 843,
-            "probability": 0.0843
+            "count": 864,
+            "probability": 0.0864
           },
           {
             "value": 4,
             "label": "4",
-            "count": 664,
-            "probability": 0.0664
+            "count": 679,
+            "probability": 0.0679
           },
           {
             "value": 5,
             "label": "5",
-            "count": 492,
-            "probability": 0.0492
+            "count": 495,
+            "probability": 0.0495
           },
           {
             "value": 6,
@@ -4006,105 +2001,100 @@
           {
             "value": 7,
             "label": "7",
-            "count": 276,
-            "probability": 0.0276
+            "count": 287,
+            "probability": 0.0287
           },
           {
             "value": 8,
             "label": "8",
-            "count": 199,
-            "probability": 0.0199
+            "count": 206,
+            "probability": 0.0206
           },
           {
             "value": 9,
             "label": "9",
-            "count": 108,
-            "probability": 0.0108
+            "count": 114,
+            "probability": 0.0114
           },
           {
             "value": 10,
             "label": "10",
-            "count": 86,
-            "probability": 0.0086
+            "count": 92,
+            "probability": 0.0092
           },
           {
             "value": 11,
             "label": "11",
-            "count": 61,
-            "probability": 0.0061
+            "count": 43,
+            "probability": 0.0043
           },
           {
             "value": 12,
             "label": "12",
-            "count": 32,
-            "probability": 0.0032
+            "count": 28,
+            "probability": 0.0028
           },
           {
             "value": 13,
             "label": "13+",
-            "count": 52,
-            "probability": 0.0052
+            "count": 62,
+            "probability": 0.0062
           }
         ]
       },
       "runLine": [
         {
           "line": 1.5,
-          "homeCover": 0.431,
-          "awayCover": 0.274
+          "homeCover": 0.439,
+          "awayCover": 0.271
         },
         {
           "line": 2.5,
-          "homeCover": 0.32,
-          "awayCover": 0.19
+          "homeCover": 0.326,
+          "awayCover": 0.193
         }
       ],
       "teamTotals": {
         "away": [
           {
             "line": 3.5,
-            "over": 0.512,
-            "under": 0.488
+            "over": 0.514,
+            "under": 0.486
           },
           {
             "line": 4.5,
-            "over": 0.382,
-            "under": 0.618
+            "over": 0.38,
+            "under": 0.62
           }
         ],
         "home": [
           {
             "line": 4.5,
-            "over": 0.51,
-            "under": 0.49
+            "over": 0.515,
+            "under": 0.485
           },
           {
             "line": 5.5,
-            "over": 0.382,
-            "under": 0.618
+            "over": 0.389,
+            "under": 0.611
           }
         ]
       },
       "finalScores": [
         {
-          "away": 2,
-          "home": 3,
-          "probability": 0.032
-        },
-        {
           "away": 3,
           "home": 4,
-          "probability": 0.032
+          "probability": 0.033
+        },
+        {
+          "away": 2,
+          "home": 3,
+          "probability": 0.033
         },
         {
           "away": 4,
           "home": 5,
-          "probability": 0.031
-        },
-        {
-          "away": 3,
-          "home": 2,
-          "probability": 0.024
+          "probability": 0.029
         },
         {
           "away": 5,
@@ -4112,265 +2102,270 @@
           "probability": 0.022
         },
         {
+          "away": 2,
+          "home": 4,
+          "probability": 0.021
+        },
+        {
           "away": 1,
           "home": 2,
-          "probability": 0.022
+          "probability": 0.021
         }
       ],
-      "extraInningsProbability": 0.093,
+      "extraInningsProbability": 0.098,
       "players": {
         "batters": [
           {
-            "playerId": 650333,
-            "name": "Luis Arraez",
+            "playerId": 656941,
+            "name": "Kyle Schwarber",
             "team": "PHI",
             "battingOrder": 1,
-            "plateAppearances": 4.804,
-            "hits": 1.403,
-            "totalBases": 1.952,
-            "homeRuns": 0.087,
-            "runs": 0.658,
-            "rbi": 0.406,
-            "walks": 0.409,
-            "strikeouts": 1.131
+            "plateAppearances": 4.807,
+            "hits": 1.045,
+            "totalBases": 1.636,
+            "homeRuns": 0.122,
+            "runs": 0.582,
+            "rbi": 0.372,
+            "walks": 0.397,
+            "strikeouts": 1.134
           },
           {
             "playerId": 607208,
             "name": "Trea Turner",
             "team": "PHI",
             "battingOrder": 2,
-            "plateAppearances": 4.701,
-            "hits": 1.188,
-            "totalBases": 2.074,
-            "homeRuns": 0.199,
-            "runs": 0.597,
-            "rbi": 0.625,
-            "walks": 0.393,
-            "strikeouts": 1.117
+            "plateAppearances": 4.69,
+            "hits": 1.222,
+            "totalBases": 2.119,
+            "homeRuns": 0.205,
+            "runs": 0.659,
+            "rbi": 0.564,
+            "walks": 0.402,
+            "strikeouts": 1.081
           },
           {
             "playerId": 547180,
             "name": "Bryce Harper",
             "team": "PHI",
             "battingOrder": 3,
-            "plateAppearances": 4.598,
-            "hits": 1.044,
-            "totalBases": 1.867,
-            "homeRuns": 0.191,
-            "runs": 0.497,
-            "rbi": 0.623,
-            "walks": 0.389,
-            "strikeouts": 1.074
+            "plateAppearances": 4.584,
+            "hits": 1.037,
+            "totalBases": 1.873,
+            "homeRuns": 0.194,
+            "runs": 0.55,
+            "rbi": 0.579,
+            "walks": 0.387,
+            "strikeouts": 1.079
+          },
+          {
+            "playerId": 650333,
+            "name": "Luis Arraez",
+            "team": "PHI",
+            "battingOrder": 4,
+            "plateAppearances": 4.478,
+            "hits": 1.294,
+            "totalBases": 1.786,
+            "homeRuns": 0.075,
+            "runs": 0.473,
+            "rbi": 0.496,
+            "walks": 0.387,
+            "strikeouts": 1.05
           },
           {
             "playerId": 664761,
             "name": "Alec Bohm",
             "team": "PHI",
-            "battingOrder": 4,
-            "plateAppearances": 4.483,
-            "hits": 1.112,
-            "totalBases": 1.773,
-            "homeRuns": 0.137,
-            "runs": 0.43,
-            "rbi": 0.577,
-            "walks": 0.384,
-            "strikeouts": 1.061
-          },
-          {
-            "playerId": 669016,
-            "name": "Brandon Marsh",
-            "team": "PHI",
             "battingOrder": 5,
-            "plateAppearances": 4.379,
-            "hits": 0.695,
-            "totalBases": 1.093,
-            "homeRuns": 0.08,
-            "runs": 0.318,
-            "rbi": 0.381,
-            "walks": 0.375,
-            "strikeouts": 1.024
+            "plateAppearances": 4.381,
+            "hits": 1.1,
+            "totalBases": 1.755,
+            "homeRuns": 0.136,
+            "runs": 0.422,
+            "rbi": 0.602,
+            "walks": 0.369,
+            "strikeouts": 1.029
           },
           {
             "playerId": 681082,
             "name": "Bryson Stott",
             "team": "PHI",
             "battingOrder": 6,
-            "plateAppearances": 4.258,
-            "hits": 0.759,
-            "totalBases": 1.203,
-            "homeRuns": 0.093,
-            "runs": 0.36,
-            "rbi": 0.367,
-            "walks": 0.36,
-            "strikeouts": 0.989
+            "plateAppearances": 4.281,
+            "hits": 0.756,
+            "totalBases": 1.195,
+            "homeRuns": 0.091,
+            "runs": 0.318,
+            "rbi": 0.419,
+            "walks": 0.37,
+            "strikeouts": 0.996
           },
           {
-            "playerId": 656941,
-            "name": "Kyle Schwarber",
+            "playerId": 669016,
+            "name": "Brandon Marsh",
             "team": "PHI",
             "battingOrder": 7,
-            "plateAppearances": 4.146,
-            "hits": 0.921,
-            "totalBases": 1.459,
-            "homeRuns": 0.112,
-            "runs": 0.409,
-            "rbi": 0.387,
-            "walks": 0.359,
-            "strikeouts": 0.981
+            "plateAppearances": 4.165,
+            "hits": 0.672,
+            "totalBases": 1.064,
+            "homeRuns": 0.083,
+            "runs": 0.312,
+            "rbi": 0.345,
+            "walks": 0.356,
+            "strikeouts": 0.975
           },
           {
             "playerId": 702222,
             "name": "Justin Crawford",
             "team": "PHI",
             "battingOrder": 8,
-            "plateAppearances": 4.036,
-            "hits": 0.78,
-            "totalBases": 1.234,
-            "homeRuns": 0.093,
-            "runs": 0.382,
-            "rbi": 0.362,
-            "walks": 0.345,
-            "strikeouts": 0.957
+            "plateAppearances": 4.045,
+            "hits": 0.766,
+            "totalBases": 1.195,
+            "homeRuns": 0.089,
+            "runs": 0.355,
+            "rbi": 0.348,
+            "walks": 0.335,
+            "strikeouts": 0.969
           },
           {
-            "playerId": 592663,
-            "name": "J.T. Realmuto",
+            "playerId": 596117,
+            "name": "Garrett Stubbs",
             "team": "PHI",
             "battingOrder": 9,
-            "plateAppearances": 3.927,
-            "hits": 0.681,
-            "totalBases": 1.079,
+            "plateAppearances": 3.928,
+            "hits": 0.715,
+            "totalBases": 1.112,
             "homeRuns": 0.081,
-            "runs": 0.387,
-            "rbi": 0.312,
-            "walks": 0.341,
-            "strikeouts": 0.926
+            "runs": 0.369,
+            "rbi": 0.315,
+            "walks": 0.331,
+            "strikeouts": 0.935
           },
           {
             "playerId": 666182,
             "name": "Bo Bichette",
             "team": "NYM",
             "battingOrder": 1,
-            "plateAppearances": 4.724,
-            "hits": 1.308,
-            "totalBases": 1.805,
-            "homeRuns": 0.077,
+            "plateAppearances": 4.727,
+            "hits": 1.313,
+            "totalBases": 1.807,
+            "homeRuns": 0.076,
             "runs": 0.707,
-            "rbi": 0.4,
-            "walks": 0.41,
-            "strikeouts": 0.959
+            "rbi": 0.397,
+            "walks": 0.401,
+            "strikeouts": 0.975
           },
           {
             "playerId": 665742,
             "name": "Juan Soto",
             "team": "NYM",
             "battingOrder": 2,
-            "plateAppearances": 4.613,
-            "hits": 1.238,
-            "totalBases": 2.223,
+            "plateAppearances": 4.612,
+            "hits": 1.253,
+            "totalBases": 2.251,
             "homeRuns": 0.232,
-            "runs": 0.745,
-            "rbi": 0.689,
-            "walks": 0.389,
-            "strikeouts": 0.965
+            "runs": 0.747,
+            "rbi": 0.694,
+            "walks": 0.387,
+            "strikeouts": 0.951
           },
           {
             "playerId": 596019,
             "name": "Francisco Lindor",
             "team": "NYM",
             "battingOrder": 3,
-            "plateAppearances": 4.498,
-            "hits": 1.123,
-            "totalBases": 2.363,
-            "homeRuns": 0.312,
-            "runs": 0.714,
-            "rbi": 0.833,
-            "walks": 0.388,
-            "strikeouts": 0.924
+            "plateAppearances": 4.5,
+            "hits": 1.115,
+            "totalBases": 2.34,
+            "homeRuns": 0.307,
+            "runs": 0.707,
+            "rbi": 0.83,
+            "walks": 0.389,
+            "strikeouts": 0.926
           },
           {
             "playerId": 805999,
             "name": "A.J. Ewing",
             "team": "NYM",
             "battingOrder": 4,
-            "plateAppearances": 4.379,
-            "hits": 1.451,
-            "totalBases": 2.292,
-            "homeRuns": 0.176,
-            "runs": 0.621,
-            "rbi": 0.717,
-            "walks": 0.362,
-            "strikeouts": 0.887
+            "plateAppearances": 4.387,
+            "hits": 1.449,
+            "totalBases": 2.281,
+            "homeRuns": 0.169,
+            "runs": 0.628,
+            "rbi": 0.704,
+            "walks": 0.373,
+            "strikeouts": 0.896
           },
           {
             "playerId": 701807,
             "name": "Carson Benge",
             "team": "NYM",
             "battingOrder": 5,
-            "plateAppearances": 4.277,
-            "hits": 1.01,
-            "totalBases": 1.58,
+            "plateAppearances": 4.29,
+            "hits": 0.998,
+            "totalBases": 1.577,
             "homeRuns": 0.117,
-            "runs": 0.459,
-            "rbi": 0.547,
-            "walks": 0.365,
-            "strikeouts": 0.868
+            "runs": 0.464,
+            "rbi": 0.558,
+            "walks": 0.375,
+            "strikeouts": 0.886
           },
           {
             "playerId": 676724,
             "name": "Jared Young",
             "team": "NYM",
             "battingOrder": 6,
-            "plateAppearances": 4.173,
-            "hits": 0.985,
-            "totalBases": 1.551,
-            "homeRuns": 0.113,
-            "runs": 0.438,
-            "rbi": 0.519,
-            "walks": 0.362,
-            "strikeouts": 0.843
+            "plateAppearances": 4.186,
+            "hits": 0.992,
+            "totalBases": 1.562,
+            "homeRuns": 0.117,
+            "runs": 0.452,
+            "rbi": 0.518,
+            "walks": 0.357,
+            "strikeouts": 0.853
           },
           {
             "playerId": 543760,
             "name": "Marcus Semien",
             "team": "NYM",
             "battingOrder": 7,
-            "plateAppearances": 4.07,
-            "hits": 0.925,
-            "totalBases": 1.452,
-            "homeRuns": 0.107,
-            "runs": 0.418,
-            "rbi": 0.47,
-            "walks": 0.352,
-            "strikeouts": 0.827
+            "plateAppearances": 4.083,
+            "hits": 0.952,
+            "totalBases": 1.494,
+            "homeRuns": 0.108,
+            "runs": 0.428,
+            "rbi": 0.482,
+            "walks": 0.348,
+            "strikeouts": 0.812
           },
           {
             "playerId": 682626,
             "name": "Francisco Alvarez",
             "team": "NYM",
             "battingOrder": 8,
-            "plateAppearances": 3.964,
-            "hits": 0.748,
-            "totalBases": 1.18,
-            "homeRuns": 0.089,
-            "runs": 0.394,
-            "rbi": 0.387,
-            "walks": 0.333,
-            "strikeouts": 0.848
+            "plateAppearances": 3.973,
+            "hits": 0.75,
+            "totalBases": 1.193,
+            "homeRuns": 0.092,
+            "runs": 0.396,
+            "rbi": 0.397,
+            "walks": 0.335,
+            "strikeouts": 0.857
           },
           {
             "playerId": 683146,
             "name": "Brett Baty",
             "team": "NYM",
             "battingOrder": 9,
-            "plateAppearances": 3.845,
-            "hits": 0.794,
-            "totalBases": 1.234,
-            "homeRuns": 0.088,
-            "runs": 0.441,
-            "rbi": 0.375,
-            "walks": 0.334,
-            "strikeouts": 0.816
+            "plateAppearances": 3.851,
+            "hits": 0.808,
+            "totalBases": 1.28,
+            "homeRuns": 0.098,
+            "runs": 0.448,
+            "rbi": 0.396,
+            "walks": 0.33,
+            "strikeouts": 0.82
           }
         ],
         "pitchers": [
@@ -4380,29 +2375,29 @@
             "team": "PHI",
             "role": "starter",
             "battersFaced": 24.593,
-            "strikeouts": 4.589,
-            "hitsAllowed": 6.179,
-            "runsAllowed": 3.017,
-            "outsRecorded": 16.319
+            "strikeouts": 4.596,
+            "hitsAllowed": 6.206,
+            "runsAllowed": 3.027,
+            "outsRecorded": 16.297
           },
           {
             "playerId": 690997,
             "name": "Nolan McLean",
             "team": "NYM",
             "role": "starter",
-            "battersFaced": 24.821,
-            "strikeouts": 5.767,
-            "hitsAllowed": 5.431,
-            "runsAllowed": 2.382,
-            "outsRecorded": 17.276
+            "battersFaced": 24.789,
+            "strikeouts": 5.738,
+            "hitsAllowed": 5.46,
+            "runsAllowed": 2.431,
+            "outsRecorded": 17.213
           }
         ]
       },
       "gameStory": [
-        "Across 10,000 simulated games, NYM won 61% of the time — a clear lean in the simulation.",
+        "Across 10,000 simulated games, NYM won 62% of the time — a clear lean in the simulation.",
         "The simulation's median final was PHI 4 — NYM 5, with a median of 9 total runs (10th–90th percentile 4–15)."
       ],
-      "artifactHash": "a9eb5625a1ece20e4fee00c76ca4e4af41e89742e8d6c9ed8a58df237f49f8d3"
+      "artifactHash": "c2aa17f791ba826fee455c567aa16cb469ea441d0b8200f02b810ae21bcb09d7"
     },
     {
       "gamePk": 824548,
@@ -4415,16 +2410,16 @@
       "venue": "Rate Field",
       "firstPitch": "2026-09-17T23:40:00Z",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "CWS lineup padded: 8/9 batters have a posted line and the rest are at replacement level; CWS have not posted a batting order yet, and this refreshes hourly until they do."
+          "CWS confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level."
         ],
         "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
-        "homeRatedCount": 8,
+        "homeRatedCount": 6,
         "awayLineupCount": 9,
-        "homeLineupCount": 8,
+        "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "startedBeforeGeneration": false,
@@ -4451,31 +2446,31 @@
           "homeCover": 0.3682
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "runCount": 10000,
       "winProbability": {
-        "away": 0.684,
-        "home": 0.316
+        "away": 0.673,
+        "home": 0.327
       },
       "runs": {
         "away": {
-          "mean": 4.61,
+          "mean": 4.6,
           "median": 4,
           "p10": 1,
           "p90": 9
         },
         "home": {
-          "mean": 2.72,
+          "mean": 2.84,
           "median": 2,
           "p10": 0,
           "p90": 6
         }
       },
       "totalRuns": {
-        "mean": 7.33,
+        "mean": 7.44,
         "median": 7,
         "p10": 3,
-        "p90": 12,
+        "p90": 13,
         "distribution": [
           {
             "value": 0,
@@ -4486,104 +2481,104 @@
           {
             "value": 1,
             "label": "1",
-            "count": 367,
-            "probability": 0.0367
+            "count": 373,
+            "probability": 0.0373
           },
           {
             "value": 2,
             "label": "2",
-            "count": 351,
-            "probability": 0.0351
+            "count": 313,
+            "probability": 0.0313
           },
           {
             "value": 3,
             "label": "3",
-            "count": 915,
-            "probability": 0.0915
+            "count": 877,
+            "probability": 0.0877
           },
           {
             "value": 4,
             "label": "4",
-            "count": 752,
-            "probability": 0.0752
+            "count": 780,
+            "probability": 0.078
           },
           {
             "value": 5,
             "label": "5",
-            "count": 1252,
-            "probability": 0.1252
+            "count": 1229,
+            "probability": 0.1229
           },
           {
             "value": 6,
             "label": "6",
-            "count": 899,
-            "probability": 0.0899
+            "count": 892,
+            "probability": 0.0892
           },
           {
             "value": 7,
             "label": "7",
-            "count": 1161,
-            "probability": 0.1161
+            "count": 1158,
+            "probability": 0.1158
           },
           {
             "value": 8,
             "label": "8",
-            "count": 823,
-            "probability": 0.0823
+            "count": 793,
+            "probability": 0.0793
           },
           {
             "value": 9,
             "label": "9",
-            "count": 962,
-            "probability": 0.0962
+            "count": 909,
+            "probability": 0.0909
           },
           {
             "value": 10,
             "label": "10",
-            "count": 570,
-            "probability": 0.057
+            "count": 622,
+            "probability": 0.0622
           },
           {
             "value": 11,
             "label": "11",
-            "count": 571,
-            "probability": 0.0571
+            "count": 606,
+            "probability": 0.0606
           },
           {
             "value": 12,
             "label": "12",
-            "count": 377,
-            "probability": 0.0377
+            "count": 380,
+            "probability": 0.038
           },
           {
             "value": 13,
             "label": "13",
-            "count": 330,
-            "probability": 0.033
+            "count": 337,
+            "probability": 0.0337
           },
           {
             "value": 14,
             "label": "14",
-            "count": 207,
-            "probability": 0.0207
+            "count": 201,
+            "probability": 0.0201
           },
           {
             "value": 15,
             "label": "15",
-            "count": 157,
-            "probability": 0.0157
+            "count": 179,
+            "probability": 0.0179
           },
           {
             "value": 16,
             "label": "16",
-            "count": 105,
-            "probability": 0.0105
+            "count": 127,
+            "probability": 0.0127
           },
           {
             "value": 17,
             "label": "17",
-            "count": 82,
-            "probability": 0.0082
+            "count": 90,
+            "probability": 0.009
           },
           {
             "value": 18,
@@ -4594,106 +2589,106 @@
           {
             "value": 19,
             "label": "19",
-            "count": 32,
-            "probability": 0.0032
-          },
-          {
-            "value": 20,
-            "label": "20",
-            "count": 22,
-            "probability": 0.0022
-          },
-          {
-            "value": 21,
-            "label": "21+",
-            "count": 21,
-            "probability": 0.0021
-          }
-        ]
-      },
-      "runDifferential": {
-        "mean": -1.88,
-        "median": -2,
-        "p10": -7,
-        "p90": 2,
-        "distribution": [
-          {
-            "value": -13,
-            "label": "≤-13",
-            "count": 63,
-            "probability": 0.0063
-          },
-          {
-            "value": -12,
-            "label": "-12",
             "count": 41,
             "probability": 0.0041
           },
           {
+            "value": 20,
+            "label": "20",
+            "count": 14,
+            "probability": 0.0014
+          },
+          {
+            "value": 21,
+            "label": "21+",
+            "count": 35,
+            "probability": 0.0035
+          }
+        ]
+      },
+      "runDifferential": {
+        "mean": -1.75,
+        "median": -2,
+        "p10": -7,
+        "p90": 3,
+        "distribution": [
+          {
+            "value": -13,
+            "label": "≤-13",
+            "count": 59,
+            "probability": 0.0059
+          },
+          {
+            "value": -12,
+            "label": "-12",
+            "count": 35,
+            "probability": 0.0035
+          },
+          {
             "value": -11,
             "label": "-11",
-            "count": 74,
-            "probability": 0.0074
+            "count": 61,
+            "probability": 0.0061
           },
           {
             "value": -10,
             "label": "-10",
-            "count": 116,
-            "probability": 0.0116
+            "count": 109,
+            "probability": 0.0109
           },
           {
             "value": -9,
             "label": "-9",
-            "count": 170,
-            "probability": 0.017
+            "count": 153,
+            "probability": 0.0153
           },
           {
             "value": -8,
             "label": "-8",
-            "count": 241,
-            "probability": 0.0241
+            "count": 259,
+            "probability": 0.0259
           },
           {
             "value": -7,
             "label": "-7",
-            "count": 328,
-            "probability": 0.0328
+            "count": 340,
+            "probability": 0.034
           },
           {
             "value": -6,
             "label": "-6",
-            "count": 503,
-            "probability": 0.0503
+            "count": 470,
+            "probability": 0.047
           },
           {
             "value": -5,
             "label": "-5",
-            "count": 652,
-            "probability": 0.0652
+            "count": 613,
+            "probability": 0.0613
           },
           {
             "value": -4,
             "label": "-4",
-            "count": 805,
-            "probability": 0.0805
+            "count": 818,
+            "probability": 0.0818
           },
           {
             "value": -3,
             "label": "-3",
-            "count": 1028,
-            "probability": 0.1028
+            "count": 1026,
+            "probability": 0.1026
           },
           {
             "value": -2,
             "label": "-2",
-            "count": 1303,
-            "probability": 0.1303
+            "count": 1274,
+            "probability": 0.1274
           },
           {
             "value": -1,
             "label": "-1",
-            "count": 1515,
-            "probability": 0.1515
+            "count": 1511,
+            "probability": 0.1511
           },
           {
             "value": 0,
@@ -4704,140 +2699,146 @@
           {
             "value": 1,
             "label": "1",
-            "count": 1467,
-            "probability": 0.1467
+            "count": 1420,
+            "probability": 0.142
           },
           {
             "value": 2,
             "label": "2",
-            "count": 755,
-            "probability": 0.0755
+            "count": 777,
+            "probability": 0.0777
           },
           {
             "value": 3,
             "label": "3",
-            "count": 382,
-            "probability": 0.0382
+            "count": 432,
+            "probability": 0.0432
           },
           {
             "value": 4,
             "label": "4",
-            "count": 256,
-            "probability": 0.0256
+            "count": 286,
+            "probability": 0.0286
           },
           {
             "value": 5,
             "label": "5",
-            "count": 127,
-            "probability": 0.0127
+            "count": 162,
+            "probability": 0.0162
           },
           {
             "value": 6,
             "label": "6",
-            "count": 78,
-            "probability": 0.0078
+            "count": 100,
+            "probability": 0.01
           },
           {
             "value": 7,
             "label": "7",
-            "count": 52,
-            "probability": 0.0052
+            "count": 40,
+            "probability": 0.004
           },
           {
             "value": 8,
             "label": "8",
-            "count": 17,
-            "probability": 0.0017
+            "count": 19,
+            "probability": 0.0019
           },
           {
             "value": 9,
             "label": "9",
-            "count": 10,
-            "probability": 0.001
+            "count": 16,
+            "probability": 0.0016
           },
           {
             "value": 10,
             "label": "10",
-            "count": 15,
-            "probability": 0.0015
+            "count": 13,
+            "probability": 0.0013
           },
           {
             "value": 11,
             "label": "11",
-            "count": 2,
-            "probability": 0.0002
+            "count": 4,
+            "probability": 0.0004
           },
           {
             "value": 12,
             "label": "12",
             "count": 0,
             "probability": 0
+          },
+          {
+            "value": 13,
+            "label": "13+",
+            "count": 3,
+            "probability": 0.0003
           }
         ]
       },
       "runLine": [
         {
           "line": 1.5,
-          "homeCover": 0.169,
-          "awayCover": 0.532
+          "homeCover": 0.185,
+          "awayCover": 0.522
         },
         {
           "line": 2.5,
-          "homeCover": 0.094,
-          "awayCover": 0.402
+          "homeCover": 0.108,
+          "awayCover": 0.394
         }
       ],
       "teamTotals": {
         "away": [
           {
             "line": 4.5,
-            "over": 0.462,
-            "under": 0.538
+            "over": 0.452,
+            "under": 0.548
           },
           {
             "line": 5.5,
-            "over": 0.339,
-            "under": 0.661
+            "over": 0.334,
+            "under": 0.666
           }
         ],
         "home": [
           {
             "line": 2.5,
-            "over": 0.475,
-            "under": 0.525
+            "over": 0.492,
+            "under": 0.508
           },
           {
             "line": 3.5,
-            "over": 0.315,
-            "under": 0.685
+            "over": 0.334,
+            "under": 0.666
           }
         ]
       },
       "finalScores": [
         {
-          "away": 2,
-          "home": 3,
-          "probability": 0.034
-        },
-        {
-          "away": 2,
-          "home": 1,
+          "away": 3,
+          "home": 2,
           "probability": 0.033
         },
         {
-          "away": 3,
-          "home": 2,
+          "away": 2,
+          "home": 1,
           "probability": 0.031
-        },
-        {
-          "away": 1,
-          "home": 2,
-          "probability": 0.03
         },
         {
           "away": 3,
           "home": 1,
-          "probability": 0.03
+          "probability": 0.031
+        },
+        {
+          "away": 2,
+          "home": 3,
+          "probability": 0.031
+        },
+        {
+          "away": 3,
+          "home": 4,
+          "probability": 0.028
         },
         {
           "away": 4,
@@ -4845,7 +2846,7 @@
           "probability": 0.028
         }
       ],
-      "extraInningsProbability": 0.112,
+      "extraInningsProbability": 0.109,
       "players": {
         "batters": [
           {
@@ -4853,56 +2854,56 @@
             "name": "Dillon Dingler",
             "team": "DET",
             "battingOrder": 1,
-            "plateAppearances": 4.898,
-            "hits": 0.979,
-            "totalBases": 1.747,
-            "homeRuns": 0.176,
-            "runs": 0.655,
+            "plateAppearances": 4.903,
+            "hits": 0.974,
+            "totalBases": 1.745,
+            "homeRuns": 0.178,
+            "runs": 0.652,
             "rbi": 0.444,
-            "walks": 0.422,
-            "strikeouts": 0.761
+            "walks": 0.413,
+            "strikeouts": 0.774
           },
           {
             "playerId": 650402,
             "name": "Gleyber Torres",
             "team": "DET",
             "battingOrder": 2,
-            "plateAppearances": 4.786,
-            "hits": 1.288,
-            "totalBases": 2.036,
-            "homeRuns": 0.152,
-            "runs": 0.71,
-            "rbi": 0.482,
-            "walks": 0.403,
-            "strikeouts": 0.748
+            "plateAppearances": 4.782,
+            "hits": 1.292,
+            "totalBases": 2.052,
+            "homeRuns": 0.157,
+            "runs": 0.719,
+            "rbi": 0.49,
+            "walks": 0.406,
+            "strikeouts": 0.745
           },
           {
             "playerId": 805808,
             "name": "Kevin McGonigle",
             "team": "DET",
             "battingOrder": 3,
-            "plateAppearances": 4.678,
-            "hits": 1.31,
-            "totalBases": 2.073,
-            "homeRuns": 0.159,
-            "runs": 0.666,
-            "rbi": 0.574,
-            "walks": 0.399,
-            "strikeouts": 0.729
+            "plateAppearances": 4.671,
+            "hits": 1.318,
+            "totalBases": 2.098,
+            "homeRuns": 0.163,
+            "runs": 0.665,
+            "rbi": 0.583,
+            "walks": 0.395,
+            "strikeouts": 0.72
           },
           {
             "playerId": 682985,
             "name": "Riley Greene",
             "team": "DET",
             "battingOrder": 4,
-            "plateAppearances": 4.574,
-            "hits": 1.571,
-            "totalBases": 2.653,
-            "homeRuns": 0.241,
-            "runs": 0.675,
-            "rbi": 0.892,
-            "walks": 0.398,
-            "strikeouts": 0.699
+            "plateAppearances": 4.571,
+            "hits": 1.563,
+            "totalBases": 2.637,
+            "homeRuns": 0.239,
+            "runs": 0.677,
+            "rbi": 0.878,
+            "walks": 0.397,
+            "strikeouts": 0.704
           },
           {
             "playerId": 690993,
@@ -4910,55 +2911,55 @@
             "team": "DET",
             "battingOrder": 5,
             "plateAppearances": 4.479,
-            "hits": 0.761,
-            "totalBases": 1.179,
-            "homeRuns": 0.083,
-            "runs": 0.376,
-            "rbi": 0.464,
-            "walks": 0.379,
-            "strikeouts": 0.68
+            "hits": 0.773,
+            "totalBases": 1.217,
+            "homeRuns": 0.092,
+            "runs": 0.378,
+            "rbi": 0.486,
+            "walks": 0.385,
+            "strikeouts": 0.669
           },
           {
             "playerId": 703601,
             "name": "Max Clark",
             "team": "DET",
             "battingOrder": 6,
-            "plateAppearances": 4.363,
-            "hits": 1.19,
-            "totalBases": 1.894,
-            "homeRuns": 0.145,
-            "runs": 0.473,
-            "rbi": 0.615,
+            "plateAppearances": 4.358,
+            "hits": 1.183,
+            "totalBases": 1.873,
+            "homeRuns": 0.142,
+            "runs": 0.462,
+            "rbi": 0.601,
             "walks": 0.367,
-            "strikeouts": 0.65
+            "strikeouts": 0.634
           },
           {
             "playerId": 807726,
             "name": "John Peck",
             "team": "DET",
             "battingOrder": 7,
-            "plateAppearances": 4.262,
-            "hits": 0.796,
-            "totalBases": 1.254,
-            "homeRuns": 0.094,
-            "runs": 0.35,
-            "rbi": 0.424,
-            "walks": 0.36,
-            "strikeouts": 0.62
+            "plateAppearances": 4.257,
+            "hits": 0.79,
+            "totalBases": 1.247,
+            "homeRuns": 0.093,
+            "runs": 0.349,
+            "rbi": 0.417,
+            "walks": 0.374,
+            "strikeouts": 0.617
           },
           {
             "playerId": 679529,
             "name": "Spencer Torkelson",
             "team": "DET",
             "battingOrder": 8,
-            "plateAppearances": 4.147,
-            "hits": 0.855,
-            "totalBases": 1.356,
-            "homeRuns": 0.104,
+            "plateAppearances": 4.139,
+            "hits": 0.845,
+            "totalBases": 1.333,
+            "homeRuns": 0.101,
             "runs": 0.375,
-            "rbi": 0.429,
-            "walks": 0.34,
-            "strikeouts": 0.736
+            "rbi": 0.414,
+            "walks": 0.345,
+            "strikeouts": 0.723
           },
           {
             "playerId": 656716,
@@ -4966,139 +2967,139 @@
             "team": "DET",
             "battingOrder": 9,
             "plateAppearances": 4.029,
-            "hits": 0.541,
-            "totalBases": 0.867,
-            "homeRuns": 0.067,
-            "runs": 0.327,
-            "rbi": 0.283,
-            "walks": 0.344,
-            "strikeouts": 0.696
-          },
-          {
-            "playerId": 678246,
-            "name": "Miguel Vargas",
-            "team": "CWS",
-            "battingOrder": 1,
-            "plateAppearances": 4.395,
-            "hits": 1.034,
-            "totalBases": 1.673,
-            "homeRuns": 0.136,
-            "runs": 0.508,
-            "rbi": 0.354,
-            "walks": 0.365,
-            "strikeouts": 0.788
+            "hits": 0.535,
+            "totalBases": 0.854,
+            "homeRuns": 0.066,
+            "runs": 0.319,
+            "rbi": 0.285,
+            "walks": 0.34,
+            "strikeouts": 0.708
           },
           {
             "playerId": 805367,
             "name": "Chase Meidroth",
             "team": "CWS",
-            "battingOrder": 2,
-            "plateAppearances": 4.298,
-            "hits": 1.074,
-            "totalBases": 1.782,
-            "homeRuns": 0.153,
-            "runs": 0.448,
-            "rbi": 0.448,
-            "walks": 0.372,
-            "strikeouts": 0.758
-          },
-          {
-            "playerId": 545341,
-            "name": "Randal Grichuk",
-            "team": "CWS",
-            "battingOrder": 3,
-            "plateAppearances": 4.203,
-            "hits": 1.097,
-            "totalBases": 2.025,
-            "homeRuns": 0.219,
-            "runs": 0.389,
-            "rbi": 0.611,
-            "walks": 0.349,
-            "strikeouts": 0.723
+            "battingOrder": 1,
+            "plateAppearances": 4.428,
+            "hits": 1.106,
+            "totalBases": 1.847,
+            "homeRuns": 0.162,
+            "runs": 0.477,
+            "rbi": 0.423,
+            "walks": 0.383,
+            "strikeouts": 0.798
           },
           {
             "playerId": 502054,
             "name": "Tommy Pham",
             "team": "CWS",
+            "battingOrder": 2,
+            "plateAppearances": 4.323,
+            "hits": 0.215,
+            "totalBases": 0.562,
+            "homeRuns": 0.094,
+            "runs": 0.242,
+            "rbi": 0.216,
+            "walks": 0.36,
+            "strikeouts": 0.773
+          },
+          {
+            "playerId": 678246,
+            "name": "Miguel Vargas",
+            "team": "CWS",
+            "battingOrder": 3,
+            "plateAppearances": 4.214,
+            "hits": 0.999,
+            "totalBases": 1.605,
+            "homeRuns": 0.128,
+            "runs": 0.422,
+            "rbi": 0.355,
+            "walks": 0.347,
+            "strikeouts": 0.748
+          },
+          {
+            "playerId": 545341,
+            "name": "Randal Grichuk",
+            "team": "CWS",
             "battingOrder": 4,
-            "plateAppearances": 4.12,
-            "hits": 0.209,
-            "totalBases": 0.543,
-            "homeRuns": 0.091,
-            "runs": 0.174,
-            "rbi": 0.256,
-            "walks": 0.351,
+            "plateAppearances": 4.129,
+            "hits": 1.054,
+            "totalBases": 1.945,
+            "homeRuns": 0.21,
+            "runs": 0.446,
+            "rbi": 0.557,
+            "walks": 0.349,
             "strikeouts": 0.718
+          },
+          {
+            "playerId": 808959,
+            "name": "Munetaka Murakami",
+            "team": "CWS",
+            "battingOrder": 5,
+            "plateAppearances": 4.037,
+            "hits": 0.737,
+            "totalBases": 1.157,
+            "homeRuns": 0.084,
+            "runs": 0.268,
+            "rbi": 0.335,
+            "walks": 0.345,
+            "strikeouts": 0.693
           },
           {
             "playerId": 686668,
             "name": "Brenton Doyle",
             "team": "CWS",
-            "battingOrder": 5,
-            "plateAppearances": 4.005,
-            "hits": 0.633,
-            "totalBases": 0.997,
-            "homeRuns": 0.074,
-            "runs": 0.229,
-            "rbi": 0.266,
-            "walks": 0.342,
-            "strikeouts": 0.693
-          },
-          {
-            "playerId": 695657,
-            "name": "Colson Montgomery",
-            "team": "CWS",
             "battingOrder": 6,
-            "plateAppearances": 3.893,
-            "hits": 0.436,
-            "totalBases": 0.695,
-            "homeRuns": 0.053,
-            "runs": 0.19,
-            "rbi": 0.181,
-            "walks": 0.333,
-            "strikeouts": 0.663
-          },
-          {
-            "playerId": 671976,
-            "name": "Tristan Peters",
-            "team": "CWS",
-            "battingOrder": 7,
-            "plateAppearances": 3.764,
-            "hits": 0.68,
-            "totalBases": 1.07,
-            "homeRuns": 0.082,
-            "runs": 0.261,
-            "rbi": 0.24,
-            "walks": 0.31,
-            "strikeouts": 0.637
+            "plateAppearances": 3.927,
+            "hits": 0.619,
+            "totalBases": 0.96,
+            "homeRuns": 0.066,
+            "runs": 0.227,
+            "rbi": 0.268,
+            "walks": 0.331,
+            "strikeouts": 0.686
           },
           {
             "playerId": 668670,
             "name": "Jake Rogers",
             "team": "CWS",
-            "battingOrder": 8,
-            "plateAppearances": 3.64,
-            "hits": 0.355,
-            "totalBases": 0.563,
-            "homeRuns": 0.043,
-            "runs": 0.212,
-            "rbi": 0.147,
-            "walks": 0.312,
-            "strikeouts": 0.686
+            "battingOrder": 7,
+            "plateAppearances": 3.805,
+            "hits": 0.374,
+            "totalBases": 0.592,
+            "homeRuns": 0.046,
+            "runs": 0.192,
+            "rbi": 0.181,
+            "walks": 0.32,
+            "strikeouts": 0.64
           },
           {
-            "playerId": -9,
-            "name": "Lineup fallback",
+            "playerId": 682668,
+            "name": "Luisangel Acuña",
+            "team": "CWS",
+            "battingOrder": 8,
+            "plateAppearances": 3.664,
+            "hits": 0.664,
+            "totalBases": 1.041,
+            "homeRuns": 0.075,
+            "runs": 0.284,
+            "rbi": 0.252,
+            "walks": 0.325,
+            "strikeouts": 0.685
+          },
+          {
+            "playerId": 695731,
+            "name": "Braden Montgomery",
             "team": "CWS",
             "battingOrder": 9,
-            "plateAppearances": 3.51,
-            "hits": 0.633,
-            "totalBases": 0.979,
-            "homeRuns": 0.071,
-            "runs": 0.314,
-            "rbi": 0.219,
-            "walks": 0.299,
-            "strikeouts": 0.677
+            "plateAppearances": 3.542,
+            "hits": 0.653,
+            "totalBases": 1.018,
+            "homeRuns": 0.073,
+            "runs": 0.286,
+            "rbi": 0.257,
+            "walks": 0.296,
+            "strikeouts": 0.672
           }
         ],
         "pitchers": [
@@ -5107,31 +3108,31 @@
             "name": "Framber Valdez",
             "team": "DET",
             "role": "starter",
-            "battersFaced": 24.929,
-            "strikeouts": 3.713,
-            "hitsAllowed": 4.305,
-            "runsAllowed": 1.782,
-            "outsRecorded": 18.522
+            "battersFaced": 24.916,
+            "strikeouts": 3.725,
+            "hitsAllowed": 4.424,
+            "runsAllowed": 1.847,
+            "outsRecorded": 18.386
           },
           {
             "playerId": 607200,
             "name": "Erick Fedde",
             "team": "CWS",
             "role": "starter",
-            "battersFaced": 24.749,
-            "strikeouts": 2.584,
-            "hitsAllowed": 5.796,
-            "runsAllowed": 2.7,
-            "outsRecorded": 16.857
+            "battersFaced": 24.743,
+            "strikeouts": 2.566,
+            "hitsAllowed": 5.77,
+            "runsAllowed": 2.675,
+            "outsRecorded": 16.866
           }
         ]
       },
       "gameStory": [
-        "Across 10,000 simulated games, DET won 68% of the time — a clear lean in the simulation.",
-        "The simulation's median final was DET 4 — CWS 2, with a median of 7 total runs (10th–90th percentile 3–12).",
+        "Across 10,000 simulated games, DET won 67% of the time — a clear lean in the simulation.",
+        "The simulation's median final was DET 4 — CWS 2, with a median of 7 total runs (10th–90th percentile 3–13).",
         "About 11% of simulated games went to extra innings."
       ],
-      "artifactHash": "7c9ce4845de3121f38ccf77d15355b5843d27a738f7aa8d68a3e9028ddd99b8c"
+      "artifactHash": "53ceef34dd3ec6e724c2915e1ce774b36a1668753d872ea79fea5a4f8d18fde1"
     },
     {
       "gamePk": 822845,
