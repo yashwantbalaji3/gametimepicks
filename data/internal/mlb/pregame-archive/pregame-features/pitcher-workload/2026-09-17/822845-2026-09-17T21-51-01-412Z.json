@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822845,
+  "date": "2026-09-17",
+  "capturedAt": "2026-09-17T21:51:01.412Z",
+  "availableAt": "2026-09-17T21:51:01.412Z",
+  "eventStartTime": "2026-09-18T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641302,
+      "name": "Tyler Alexander",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 57,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 4,
+        "ipSum": 5,
+        "ipAvg": 1.25,
+        "kAvg": 1.25,
+        "bbAvg": 0.25,
+        "erAvg": 0.25,
+        "hrAvg": 0,
+        "kPer9": 9,
+        "workloadIpLast5": 5
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 5,
+        "k": 5,
+        "bb": 1,
+        "er": 1,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 543243,
+      "name": "Sonny Gray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 6,
+        "bbAvg": 1.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 8.71,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 156.67,
+        "k": 140,
+        "bb": 42,
+        "er": 48,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-17T21:51:01.412Z"
+  },
+  "recordHash": "083ced05437ff06237ebc4d2c4c0d462a9b900ac3695c7fcb64e877199041b3d"
+}
