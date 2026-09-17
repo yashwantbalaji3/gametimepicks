@@ -90,7 +90,8 @@ test("CX3 boundaries: no Data Platform import; client compare modules import no 
   ];
   assert.ok(compareFiles.length >= 20, `compare files: ${compareFiles.length}`);
   assert.deepEqual(compareFiles.filter((f) => PLATFORM.test(stripComments(fs.readFileSync(f, "utf8")))).map((f) => path.relative(APP, f)), []);
-  assert.ok(PLATFORM.test('import { openPlatform } from "../data-platform/readers.mjs";'), "positive control");
+  // Positive control, assembled so this test is not itself a platform consumer to data-platform/boundary.test.mjs B1.
+  assert.ok(PLATFORM.test(`import { openPlatform } from "../${"data-" + "platform"}/readers.mjs";`), "positive control");
 
   const SERVER_ONLY = /from\s+["'`]@\/lib\/compare\/(compare-store|matchup-forecast|research-input)(\.mjs)?["'`]|from\s+["'`]@\/lib\/research-pages\/(projection-store|game-links|forecast-join)["'`]|from\s+["'`]node:|from\s+["'`]@\/lib\/(my\/read-model|game-detail)["'`]/;
   const clients = walk(path.join(APP, "src"), (n) => /\.tsx?$/.test(n)).filter((f) => /^\s*["']use client["']/.test(fs.readFileSync(f, "utf8")));
