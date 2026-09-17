@@ -39,8 +39,14 @@ export function matchupForecast(sport: "MLB" | "NFL", gameId: string): MatchupFo
       .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : a.id < b.id ? -1 : 1));
     return { href, label: "Open the NFL game report", players };
   }
-  const detail = detailByMatchId("mlb", gameId);
-  if (!detail?.prediction || detail.prediction.status === "unavailable") return null;
-  const href = gameHrefByMatchId("mlb", gameId);
-  return href ? { href: href.endsWith("/") ? href : `${href}/`, label: "Open the MLB game report", players: [] } : null;
+  return mlbForecastLink(detailByMatchId("mlb", gameId), gameHrefByMatchId("mlb", gameId));
+}
+
+/**
+ * The MLB decision, pure so it is testable with an unavailable (paused) prediction — the committed slate may hold none.
+ * A link only when a prediction exists and is not "unavailable" (pauseMlbMarkets has already run in detailByMatchId).
+ */
+export function mlbForecastLink(detail: { prediction?: { status?: string } | null } | null, href: string | null): MatchupForecastLink | null {
+  if (!detail?.prediction || detail.prediction.status === "unavailable" || !href) return null;
+  return { href: href.endsWith("/") ? href : `${href}/`, label: "Open the MLB game report", players: [] };
 }

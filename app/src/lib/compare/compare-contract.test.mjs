@@ -61,6 +61,7 @@ const wrA = player("NFL", "nfl-athlete-1", "Chris Manhertz", [REC, RCP], [
   ["g1", "2024-09-01T18:00:00Z", "NFL-2024", "nfl-team-3", "nfl-team-2", "A", 20, 1],
 ]);
 const wrB = player("NFL", "nfl-athlete-2", "Chris Manhertz", [REC, RCP], [
+  ["h3", "2026-09-14T17:00:00Z", "NFL-2026", "nfl-team-2", "nfl-team-1", "A", null, null], // both sides have a 2026 row, neither recorded a value
   ["h2", "2025-12-02T18:00:00Z", "NFL-2025", "nfl-team-2", "nfl-team-1", "A", 100, 8],
   ["h1", "2023-12-02T18:00:00Z", "NFL-2023", "nfl-team-2", "nfl-team-1", "A", 60, 5],
 ]);

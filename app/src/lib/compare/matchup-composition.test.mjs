@@ -15,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { matchupEntries, matchupHref } from "./compare-store.ts";
-import { matchupForecast } from "./matchup-forecast.ts";
+import { matchupForecast, mlbForecastLink } from "./matchup-forecast.ts";
 import { detailByMatchId } from "../game-detail.ts";
 import { nflPageIds } from "../my/read-model.ts";
 import * as sitemapModule from "../../app/sitemap.ts";
@@ -52,6 +52,11 @@ test("MF1 forecast links only for exact-id forecasts the owner publishes; player
     if (f) mlbWith += 1; else mlbWithout += 1;
   }
   assert.ok(mlbWith > 0 && mlbWithout > 0, `non-vacuous MLB: ${mlbWith} with, ${mlbWithout} without (players listed: ${players})`);
+  // The paused/unavailable branch, which the committed slate may not exercise: never a link.
+  assert.equal(mlbForecastLink({ prediction: { status: "unavailable" } }, "/games/mlb/x"), null);
+  assert.equal(mlbForecastLink({ prediction: null }, "/games/mlb/x"), null);
+  assert.equal(mlbForecastLink({ prediction: { status: "available" } }, null), null, "no exported report → no link");
+  assert.deepEqual(mlbForecastLink({ prediction: { status: "available" } }, "/games/mlb/x"), { href: "/games/mlb/x/", label: "Open the MLB game report", players: [] });
 });
 
 test("MF2 matchup CTAs resolve only registry games", () => {
