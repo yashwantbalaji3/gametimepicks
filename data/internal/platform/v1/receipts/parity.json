@@ -1,0 +1,675 @@
+{
+ "artifact": "gametime-data-platform-parity",
+ "checks": [
+  {
+   "byDisposition": {},
+   "compared": 30,
+   "id": "P-MLB-1",
+   "mismatches": 0,
+   "owner": "Follow entity registry team ids (mlb-team-<StatsAPI id> over mlb/statsapi-schedule)",
+   "platform": "teams/MLB",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 289,
+   "id": "P-MLB-2",
+   "mismatches": 0,
+   "owner": "mlb/statsapi-schedule gamePk (routes, Live, Saved)",
+   "platform": "games/MLB",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 289,
+   "id": "P-MLB-3",
+   "mismatches": 0,
+   "owner": "mlb/statsapi-schedule newest capture gameDate",
+   "platform": "GameRecord.startUtc",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 630,
+   "id": "P-MLB-4",
+   "mismatches": 0,
+   "owner": "settlement: mlb/results/game-predictions-graded.jsonl actual runs",
+   "platform": "team-game-stats mlb.final-score",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 4,
+   "id": "P-MLB-5",
+   "mismatches": 0,
+   "owner": "finals-history-validation.json receipt counts",
+   "platform": "games/MLB 2023–2025 FINAL",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 32,
+   "id": "P-NFL-1",
+   "mismatches": 0,
+   "owner": "Follow nfl-team-<ESPN id> (nfl/rosters/latest.json)",
+   "platform": "teams/NFL",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 81,
+   "id": "P-NFL-2",
+   "mismatches": 0,
+   "owner": "nfl/schedule event ids (/nfl/game/[eventId])",
+   "platform": "games/NFL",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 16,
+   "id": "P-NFL-3",
+   "mismatches": 0,
+   "owner": "nfl/results/latest.json FINAL scores (loadCurrentNflResults input)",
+   "platform": "team-game-stats nfl.final-score",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {
+    "DECLARED_GAP": 45
+   },
+   "compared": 61,
+   "id": "P-NFL-4",
+   "mismatches": 45,
+   "owner": "settlement: data/internal/nfl/experimental-settlement grade.actual",
+   "platform": "team-game-stats nfl.final-score",
+   "samples": [
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873272",
+     "owner": [
+      16,
+      14
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873273",
+     "owner": [
+      13,
+      13
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873274",
+     "owner": [
+      7,
+      27
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873275",
+     "owner": [
+      28,
+      9
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873276",
+     "owner": [
+      16,
+      24
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873277",
+     "owner": [
+      20,
+      7
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873278",
+     "owner": [
+      7,
+      27
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873279",
+     "owner": [
+      7,
+      17
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873280",
+     "owner": [
+      10,
+      13
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873281",
+     "owner": [
+      20,
+      24
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873282",
+     "owner": [
+      29,
+      14
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873283",
+     "owner": [
+      12,
+      20
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873284",
+     "owner": [
+      24,
+      7
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873289",
+     "owner": [
+      27,
+      9
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401873290",
+     "owner": [
+      34,
+      0
+     ],
+     "platform": [
+      null,
+      null
+     ]
+    }
+   ],
+   "verdict": "EXPLAINED"
+  },
+  {
+   "byDisposition": {},
+   "compared": 361,
+   "id": "P-NFL-5",
+   "mismatches": 0,
+   "owner": "nfl/player-board playerId (nfl-athlete-<ESPN id>, Follow)",
+   "platform": "players/NFL",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 59,
+   "id": "P-NFL-6",
+   "mismatches": 0,
+   "owner": "nfl/graded-picks.json eventId (nfl-<ESPN id>)",
+   "platform": "games/NFL",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 16,
+   "id": "P-NFL-7",
+   "mismatches": 0,
+   "owner": "nfl/forecasts/latest.json providerEventId",
+   "platform": "games/NFL",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 380,
+   "id": "P-EPL-1",
+   "mismatches": 0,
+   "owner": "newest fixture capture eventId (shipped EPL id)",
+   "platform": "games/EPL-2026-27",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 58,
+   "id": "P-EPL-2",
+   "mismatches": 0,
+   "owner": "EPL forecasts eventId (dated + latest + recovered)",
+   "platform": "games/EPL (id or superseded-id lineage)",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 36,
+   "id": "P-EPL-3",
+   "mismatches": 0,
+   "owner": "settlement: EPL graded-forecasts eventId",
+   "platform": "games/EPL",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {
+    "DECLARED_GAP": 19
+   },
+   "compared": 611,
+   "id": "P-EPL-4",
+   "mismatches": 19,
+   "owner": "EPL graded player projections playerId (bare ESPN athlete id)",
+   "platform": "players/EPL (epl-athlete-<id>)",
+   "samples": [
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-228393"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-240055"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-250478"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-282230"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-306557"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-311173"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-313230"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-315668"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-328238"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-336460"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-340645"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-364812"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-373927"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-377894"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "epl-athlete-387657"
+    }
+   ],
+   "verdict": "EXPLAINED"
+  },
+  {
+   "byDisposition": {},
+   "compared": 380,
+   "id": "P-EPL-5",
+   "mismatches": 0,
+   "owner": "newest fixture capture home/away canonical club",
+   "platform": "GameRecord home/away → TeamRecord.name",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 12,
+   "id": "P-UFC-1",
+   "mismatches": 0,
+   "owner": "ufc/card-latest.json boutId (/ufc/bout/[boutId])",
+   "platform": "games/UFC",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 12,
+   "id": "P-UFC-2",
+   "mismatches": 0,
+   "owner": "ufc/card-latest.json red/blue athleteId",
+   "platform": "GameRecord.competitors",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {},
+   "compared": 23,
+   "id": "P-UFC-3",
+   "mismatches": 0,
+   "owner": "ufc/results/latest.json winner flags (FINAL)",
+   "platform": "player-game-stats ufc.bout-result",
+   "samples": [],
+   "verdict": "MATCH"
+  },
+  {
+   "byDisposition": {
+    "DECLARED_GAP": 24
+   },
+   "compared": 31,
+   "id": "P-UFC-4",
+   "mismatches": 24,
+   "owner": "UFC model-vs-market graded providerBoutId",
+   "platform": "games/UFC",
+   "samples": [
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401875227"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401881939"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401881940"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401887532"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401887535"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401887537"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401887539"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401887541"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401887542"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401887543"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401898005"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401898007"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401902947"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401905190"
+    },
+    {
+     "disposition": "DECLARED_GAP",
+     "key": "401905191"
+    }
+   ],
+   "verdict": "EXPLAINED"
+  }
+ ],
+ "dataClass": "INTERNAL",
+ "note": "Point-in-time shadow parity of the committed platform store against current owner artifacts. Not part of the content manifest.",
+ "ownerArtifacts": {
+  "app/public/data/mlb/results/game-predictions-graded.jsonl": "c8285cde0fb07049d420ded48fe3bc5c3edb037f85678beefc8111c8cf48ca9e",
+  "app/public/data/mlb/statsapi-schedule/2026-09-01.json": "71e5bc9d7527a834fdeacde166832f61b18fdd3c75528ff9bcf82e8a8ec716ca",
+  "app/public/data/mlb/statsapi-schedule/2026-09-02.json": "905a8fb18ee4ad200549dbe8634a1a7454cee838a2425e12714c87c5781f1e89",
+  "app/public/data/mlb/statsapi-schedule/2026-09-03.json": "575c0dff52a17c59eb526145300b576da4d536538542ca07224934c32ed997cd",
+  "app/public/data/mlb/statsapi-schedule/2026-09-04.json": "5ae1f4de03c5c6b599bc33650b382f408b54b6988b927b38d019ed94739a5b4a",
+  "app/public/data/mlb/statsapi-schedule/2026-09-05.json": "d24a7d1fe66d1cc911fe151b0ee30e128e7faccb55f4a6b9cbb0654ad113dcca",
+  "app/public/data/mlb/statsapi-schedule/2026-09-06.json": "44f0f974a795d29b3912fe2b9106d57d163965890e7fcd37f87a6daf0a7f1faf",
+  "app/public/data/mlb/statsapi-schedule/2026-09-07.json": "b6515a39e4d00466b392ce1a045e98e67837a675da4a6311fd502ceecb3015b6",
+  "app/public/data/mlb/statsapi-schedule/2026-09-08.json": "18f256911857a385a2df518d14d67bf5eab1fd905f3c30da51c99652bd822a00",
+  "app/public/data/mlb/statsapi-schedule/2026-09-09.json": "6ec4d549c4482df34e1a474c5f60d31ed7285e848b426790c604d30e8589ebb4",
+  "app/public/data/mlb/statsapi-schedule/2026-09-10.json": "3f0e8f970db7a42a7d7d4b74a41cc3aad0ce8c1ac7d2a081e29b07897194400d",
+  "app/public/data/mlb/statsapi-schedule/2026-09-11.json": "0879d160f614656e482512192b6facf8f16fec1fb0bc69acc0d7d4f6cd95b10b",
+  "app/public/data/mlb/statsapi-schedule/2026-09-12.json": "e7d0eb81d597dedf1dd040c4c7f091af533f2cd35c1400a4b28b9a56b1de9e51",
+  "app/public/data/mlb/statsapi-schedule/2026-09-13.json": "6b8868095806b5ff8a7e3c326d80752345e951213e48132a633d9416d3ae29e3",
+  "app/public/data/mlb/statsapi-schedule/2026-09-14.json": "648ccc74adebbe59b888598db638397a1f9dcc25404073b0ca76dc1e27e7f4b6",
+  "app/public/data/mlb/statsapi-schedule/2026-09-15.json": "8351230a8b659056d20ec965324cd14079f8768139ead170c670cc562f1c3781",
+  "app/public/data/mlb/statsapi-schedule/2026-09-16.json": "9169bd8edd969d86a3b3bfa4db81ecc54ef68818f20c6f7ce5411a99e9f15109",
+  "app/public/data/mlb/statsapi-schedule/2026-09-17.json": "008af6def05a8d612d942cfeb29e4e5aa376e39097d6327eaf739c7f70d33da7",
+  "app/public/data/mlb/statsapi-schedule/2026-09-18.json": "f3dc88d7639e40a4e5d4bb3f37559a7255ea729e1ea756b73232f223f25390f4",
+  "app/public/data/mlb/statsapi-schedule/2026-09-19.json": "cdf093f997b38c064f27080ccf3f07e917d6e2143b0f78685a9e35c5b7e10304",
+  "app/public/data/mlb/statsapi-schedule/2026-09-20.json": "dabbabcde96334d0361c3d78d9bcedeede10078050e25bf554122accc20c213c",
+  "app/public/data/mlb/statsapi-schedule/2026-09-21.json": "65f40fd778aea7f4543c5679a16799c9492e2d6ce7880ad3b10e36d0bc1896b9",
+  "app/public/data/mlb/statsapi-schedule/2026-09-22.json": "d9a598f075db21ff08a6ea907df84be9f4a63a57ce71a864fcf1b35a2af995f7",
+  "app/public/data/nfl/forecasts/latest.json": "c7ec49380b0aae5f8fdd9c9eb875565d0a7b9c94d09fd59587ece7fd479a3a8a",
+  "app/public/data/nfl/graded-picks.json": "cb4eff087d934015747e2fb490429b7ff2e3b54c796b07274a877f3776a0ec74",
+  "app/public/data/nfl/player-board/401872656.json": "249b23d949ae13d91c60d63e24671748cded7c16c68f17d01a696b5842c1fe51",
+  "app/public/data/nfl/player-board/401872657.json": "5f99292674a4f7927656afb5ae6d21307f1f00fc91d642e6cbd33c5c5668702d",
+  "app/public/data/nfl/player-board/401872658.json": "8480c4ca72be754948188a63d2966f661ec6f3cd2fe84fd46e52b4854cb0382b",
+  "app/public/data/nfl/player-board/401872659.json": "f71ad3520462a465691ac8c8443607123855b8d389ee367e44ecd5fc0f9a324f",
+  "app/public/data/nfl/player-board/401872660.json": "5816ec5bb73a8a4dbe6b35e1f64ed030b3a2d29b43606fb9f42bff1971f4951d",
+  "app/public/data/nfl/player-board/401872661.json": "2d747c3763ef3ccd91d6998ad71f6a566490cb03e6fc3070bfac867f256ddd07",
+  "app/public/data/nfl/player-board/401872922.json": "7f6f8bad68597fc40492559a354a0f4926f00a1ce2f4b9a63ef6eb548e8c1988",
+  "app/public/data/nfl/player-board/401872923.json": "4ade68c1b0a498879deeee5d9f63aaa7a38e181091207590d037758049b0f0e1",
+  "app/public/data/nfl/player-board/401872924.json": "9ae0f8ffa68c96ecee720b4df6d0e70ff3b73f437810368eb7fbc08257385568",
+  "app/public/data/nfl/player-board/401872925.json": "bc480348c9b0a3ac4cdc2aa4c897d8ca4b47b49b00f79c1b55f8f139e7b265d3",
+  "app/public/data/nfl/player-board/401872926.json": "31e760db48af8465fbf43595ae03ceef3a02161bcb513201912c8ed48394f9a5",
+  "app/public/data/nfl/player-board/401872927.json": "b22cb6fc703cdfa90bd1aae02af31795ea36b4ae53a4dc03b34e14f8499e45da",
+  "app/public/data/nfl/player-board/401872928.json": "f392bafbcb71e2464f4f5bba077d5d49457cd428919128d81055d43a50cf92b5",
+  "app/public/data/nfl/player-board/401872929.json": "7a18bdec4f154e9a22a2bf4f3a700b1737a18023e6336b5f9862d43a4ef9c05d",
+  "app/public/data/nfl/player-board/401872930.json": "3944782fa5f97120c87cf07b5227a6dac72f732ad44116ac334229be5330192e",
+  "app/public/data/nfl/player-board/401872931.json": "e0713da78676c67efe5e396ade4b43da65cf0a350c2f98dfb9d83d3678dfe15a",
+  "app/public/data/nfl/player-board/401872932.json": "28628d1abdfdcccfbc13d52749d4223a32553a44eaebcd11b5658be0ad769316",
+  "app/public/data/nfl/player-board/401872933.json": "ad3cf8ec0c626817f79360d9a3a30b502ac83e2b0ff60f488184ee1614d8ef15",
+  "app/public/data/nfl/player-board/401872934.json": "d9b6ccef1e47d189167ed761ca416e7b154595effc614c713123bdcdd3a8ea7f",
+  "app/public/data/nfl/player-board/401872935.json": "bde6d215ce0942ea0ba8c6bbbec2887ce7ba0aa5b5f1c4e268c12b599757d580",
+  "app/public/data/nfl/player-board/401872936.json": "42dbaa7b3693c495b9c5717f1773069e3601924744368b7a69f20ef0749e91be",
+  "app/public/data/nfl/player-board/401872937.json": "494d686c6328a78e98401ae1bd61197fcbfae3dfaec7a3d9a11d9765f33d187f",
+  "app/public/data/nfl/player-board/401872938.json": "42d63b69cc1367b0079dec6dd38db1b43c267a4e3931765af782ff1c25804220",
+  "app/public/data/nfl/player-board/401872939.json": "487574d8a183741d0739b0e7b1f27f5a86a02dc52450209d38f4a13be1d1a921",
+  "app/public/data/nfl/player-board/401872940.json": "e6adcd0bfdf7072c7e30c89b6d2d16b8444daf6ddc08692d7ab361c16f84c7ce",
+  "app/public/data/nfl/player-board/401872941.json": "c22d081b1f9b7e5ffe1bdebf76039b9aeb29fbd924121b260a80d293296a779d",
+  "app/public/data/nfl/player-board/401872942.json": "acf63411ea1758db2e0f0760f322adfd0cf407b9ccfd2e46a9c0a6354b2a4c0c",
+  "app/public/data/nfl/player-board/401872943.json": "904ebbbf57f651d9b3eb92f6acbefe8a30e3dbfa8b9554932fad0200044d2452",
+  "app/public/data/nfl/player-board/401872944.json": "4776d39ba2305d1f80c3933d71128475386b2531d66ce9e0474a4ea012da11a1",
+  "app/public/data/nfl/player-board/401872945.json": "bae9f65bd367c2d49f23c11293a698ab2d1b38148be75c5607815fca915bef2a",
+  "app/public/data/nfl/player-board/401872946.json": "36900c84d2c78b01329b655e182283bf1512d1c34e49fb1b6fff14ffdb26b595",
+  "app/public/data/nfl/player-board/401872947.json": "70bb4048519c16b50f814c7cdf9a5197ff9f21de82a43b59f8f462149fed9d03",
+  "app/public/data/nfl/results/latest.json": "14edc13742ee87f256c78ab967e03b919e04ca10325646717a015b41f364e579",
+  "app/public/data/nfl/rosters/latest.json": "9bf17778170b6547b6fda43e90b35082b8dc8f1d287a8c74a108fafd56e2e33c",
+  "app/public/data/nfl/schedule/capture-2026-08-09T2210.json": "8d45c9cf3b8d84b1bfd6584b556aa3db7911760cbc6cdd76429ab10370192763",
+  "app/public/data/nfl/schedule/capture-2026-08-11T1411.json": "85710a32e85cfcb0c516ae8ba7801ab636c3fdcdac81751e28368f7fa296f359",
+  "app/public/data/nfl/schedule/capture-2026-08-12T1412.json": "e9034adca4c2c9455930a3c1c64f78610783b3550b486486135457d6975c7417",
+  "app/public/data/nfl/schedule/capture-2026-08-13T1414.json": "b8e56b20a9065f637aad8008546518d03f18db2a45d9154a017d8d2f7bb73065",
+  "app/public/data/nfl/schedule/capture-2026-08-14T0457.json": "9b339acc4124efbe2ad9fbc82d90729982df4589748d7fc837a4f4067ee4f780",
+  "app/public/data/nfl/schedule/capture-2026-08-15T1322.json": "bff0dfb0fe80b36f69453107ff61e3f263c1c775d09ab51770f076e7f213e586",
+  "app/public/data/nfl/schedule/capture-2026-08-15T1433.json": "9eaac45d898d3f64fac14465ff3ec4afd0ef69f9a2680c964bad77a386cc2e19",
+  "app/public/data/nfl/schedule/capture-2026-08-16T0525.json": "1e9db4c1f1ef139b6dbd245d16c0fecd45d9ab1459979a928dd1d0eedd134528",
+  "app/public/data/nfl/schedule/capture-2026-08-17T1330.json": "bec6dc634aa77babd5aa16f2e49d626a80f59d43db8df33ee93ee37a2d188514",
+  "app/public/data/nfl/schedule/capture-2026-08-18T1334.json": "1861a28a68446f85d96863b0d74a7dc0a81c60fd2abd35c1eda9adacce9aa9c1",
+  "app/public/data/nfl/schedule/capture-2026-08-19T1335.json": "4fff39cc48a60ae208963934466ac529f01edd714b64ec160e5362b3b5bddc06",
+  "app/public/data/nfl/schedule/capture-2026-08-20T1337.json": "ebd0ef130355c1be2a2964d6e39ea7454a828fa9cc90bcf326c2e008ab41a95b",
+  "app/public/data/nfl/schedule/capture-2026-08-21T1337.json": "5639e32e82c076b8a5e42179edb425935d8c5ab8fe54a95625d82d65b233de2a",
+  "app/public/data/nfl/schedule/capture-2026-08-22T1323.json": "73bf89d4fafa4bede44dac0dc9aee7ec45f8097a4a92855beab0bd2867c28541",
+  "app/public/data/nfl/schedule/capture-2026-08-23T1713.json": "a8b25d83f1a3c2bbbab2db61d3ee938fca014a3ffc63fb8a3ff9f74aedd156f9",
+  "app/public/data/nfl/schedule/capture-2026-08-24T1341.json": "1cfc7b7c4451e56933da80115105a75fef0e30ac38ca7eecb975132a49cfb339",
+  "app/public/data/nfl/schedule/capture-2026-08-28T2246.json": "cdc8d8dc1c193cab3530ebbe1af9e2b428d9b0bb40b8a7a1088bfcf24c780e51",
+  "app/public/data/nfl/schedule/capture-2026-08-29T1655.json": "550afc4de62899897ac6387ca99bbc4c52a5c4f137047f7dccef1ebec77be40a",
+  "app/public/data/nfl/schedule/capture-2026-08-31T1917.json": "494b73c8a4afd925b4340dbe7e0e00b480088e4f53a1ad9ebc398bfe67eeec69",
+  "app/public/data/nfl/schedule/capture-2026-09-01T1703.json": "d01847bc18038b76f61dc2b637d7649ae37d174e7e2162e3dd7a872200cfccb7",
+  "app/public/data/nfl/schedule/capture-2026-09-04T1639.json": "7f6e696348e3c132e3985272c3658f4ca0447a1273125071a239a20dd5e25cac",
+  "app/public/data/nfl/schedule/capture-2026-09-05T1541.json": "31215161769849eae1d214ea84f418570dedb854bf3388de071a904fd40fa1ec",
+  "app/public/data/nfl/schedule/capture-2026-09-08T1654.json": "6aa0015c190d5031047aed49af4b759d27f6fff8b43717d9a4ffe1cd69a045cd",
+  "app/public/data/nfl/schedule/capture-2026-09-10T1644.json": "ff7ec7ad9f1db2bd06431ba729d9d99e86214414526e7dc9cc47dd10a210610c",
+  "app/public/data/nfl/schedule/capture-2026-09-11T1321.json": "3f762a3502cbc55dfea48b94f625752758ec7c1d2adbf5b5e22383e81faea65f",
+  "app/public/data/nfl/schedule/capture-2026-09-12T1249.json": "eec194d3048c0a302adff150b96aa213da34df1724bd60aa7452491221db45e8",
+  "app/public/data/nfl/schedule/capture-2026-09-14T1552.json": "c63681b78eb291a420f93bea8c8260e4e3253578c5fc5ae3969d9ac1b92195ee",
+  "app/public/data/nfl/schedule/capture-2026-09-15T1418.json": "4dbe05d55cc89eb93783f64e661cac13486d509407c96e32a424cffa37420396",
+  "app/public/data/nfl/schedule/latest.json": "4dbe05d55cc89eb93783f64e661cac13486d509407c96e32a424cffa37420396",
+  "app/public/data/soccer/epl/fixtures/capture-2026-27-2026-09-14T2157.json": "b276e234e49c356607a93ab3de7741078b1e5e163425d8594d08c158eb6bd017",
+  "app/public/data/soccer/epl/forecasts/2026-08-20.json": "4169ee9f58ee9679acb8f02c2ef264ce140cae790a66929e421966de9494ab12",
+  "app/public/data/soccer/epl/forecasts/2026-08-21.json": "6b295de88b3243ebc1cc830fbd7d2fdf1b98dd6081e8cc9b70963335932c8c51",
+  "app/public/data/soccer/epl/forecasts/2026-08-22.json": "398c34dac06d89d5fca4bfde93b87127e8662dee14855b2a04682dfdf624d318",
+  "app/public/data/soccer/epl/forecasts/2026-08-23.json": "fc361696a957e3a7379e6629720b02e343f6168e24b399e9768cf097af4a8e36",
+  "app/public/data/soccer/epl/forecasts/2026-08-24.json": "7a1a1ec2042b36cd97086532552cfd3da061b531265e04dc958e37f684c12a0f",
+  "app/public/data/soccer/epl/forecasts/2026-08-26.json": "adc2e9af8443ce36b2d2e021a0ad7575eee1422fd44886bbfbd177ac5b602e92",
+  "app/public/data/soccer/epl/forecasts/2026-08-27.json": "a9f2c143b5b6d3da6825e00f7262f19c4dd02d1667d7db8667f2ceb673148aae",
+  "app/public/data/soccer/epl/forecasts/2026-08-28.json": "dbc4c32c0358b69444949825c187fe3df60c020abc9d366be029dcc59d970a9e",
+  "app/public/data/soccer/epl/forecasts/2026-08-29.json": "fe340708000ef866166ee5c53186af8eba5470b7025c7e64f77aa45b9ed34afb",
+  "app/public/data/soccer/epl/forecasts/2026-08-30.json": "373b8440d8a6ac9c5c088bc572096deacde68fa35ddc2e261836e3d553261dd2",
+  "app/public/data/soccer/epl/forecasts/2026-08-31.json": "bb1e5903318865ba229ada73ed92dbda7e395b3d40b81dbf62d75135ed5e1a94",
+  "app/public/data/soccer/epl/forecasts/2026-09-03.json": "8ca6f6cf6ec7276a55a7b2b5ae265a25b0f0217b7b7ecf6280565c7428b48995",
+  "app/public/data/soccer/epl/forecasts/2026-09-04.json": "9afaf6b4114d77b547012cd7ec245c492cbe97f3a6387e0f5367f18f338bebf2",
+  "app/public/data/soccer/epl/forecasts/2026-09-05.json": "88d98e8ab1cec53f54c195f509f230b7e8a26e8cc0cf5145e563d231ffc251eb",
+  "app/public/data/soccer/epl/forecasts/2026-09-06.json": "bd81b170f4c53cb5b7bb3fb27df84723d9fcbf21e5231c7f968c04516e392015",
+  "app/public/data/soccer/epl/forecasts/2026-09-07.json": "60fc013a15e44129be537a338a6130a9ae86bb386292cc607abf8d9b2f70db5a",
+  "app/public/data/soccer/epl/forecasts/2026-09-08.json": "625984c7c8bed201ce2b78f86b07d3e85126d408ada82692b1c2310ed0dc16fd",
+  "app/public/data/soccer/epl/forecasts/2026-09-09.json": "680158f20048cb6612f462f9fe9e1faf82a042c6fb451d389c42cb5246e61bd7",
+  "app/public/data/soccer/epl/forecasts/2026-09-10.json": "adc4ef3813f6e49757c16e17ea6648f8867c3637ae88d4d92b57c3e9c0def5a8",
+  "app/public/data/soccer/epl/forecasts/2026-09-11.json": "da4afb0a45ced6b740082e92d06ca149b537d5d3da33b91fdd56aea554031ca1",
+  "app/public/data/soccer/epl/forecasts/2026-09-12.json": "690ab85dcdd82ace6824bc85501d05f9519d2500049eb5790347a9f1d74aeb6d",
+  "app/public/data/soccer/epl/forecasts/2026-09-13.json": "30fa04eebd4c17d1ae45daee5066ed43994d72f5c85910f7b826d9511b07422e",
+  "app/public/data/soccer/epl/forecasts/2026-09-14.json": "49590b3a2d7ad315ed6411e365fa1e9a1fecccc65e1d6971609f217539e98c27",
+  "app/public/data/soccer/epl/forecasts/latest.json": "49590b3a2d7ad315ed6411e365fa1e9a1fecccc65e1d6971609f217539e98c27",
+  "app/public/data/soccer/epl/forecasts/recovered.json": "e3816d2f75ae23a324d72c25db2ae8fb5f14339d23ce351f1ab2b6a38e59207f",
+  "app/public/data/soccer/epl/results/graded-forecasts.jsonl": "a4b3a5f622cf81126c674fbbff691b2d569386fba64336b5827ee9ce8cc4138c",
+  "app/public/data/soccer/epl/results/graded-player-projections.jsonl": "a46f9aaac009c84542117118be975a1458b2ac580452a31671c9661fae44ea4d",
+  "app/public/data/ufc/card-latest.json": "c3929ed1d44dfa8925ef69878ce233fd874fec4fe583cd6e2cf6f42cbf1c7f69",
+  "app/public/data/ufc/results/latest.json": "3fd83ca8dc1eca4eb80506b0282db562213f4f232d2edb9fa962c379be894d25",
+  "data/internal/nfl/experimental-settlement/2026-08-13.json": "87fb13a84f195a295e6ac3aca8458f186e204b7789677d4e5a78c8ad11ff4476",
+  "data/internal/nfl/experimental-settlement/2026-08-14.json": "77596973ccd2f317907d94a593d673debc46aea07f6d430d308f62770a58b4e2",
+  "data/internal/nfl/experimental-settlement/2026-08-15.json": "1e9ac9d3404294692971560ed64271b95d4454ec9fd0dc8b12a98c40c19898c6",
+  "data/internal/nfl/experimental-settlement/2026-08-16.json": "bc88ee344acdb78682246cb9f8e159506bad447f88822f0269e49f92e577d9f9",
+  "data/internal/nfl/experimental-settlement/2026-08-20.json": "8a0f3d9521e1685226068cb61cb14465979df98396d5bfa8f0f1566993515af0",
+  "data/internal/nfl/experimental-settlement/2026-08-22.json": "72d011daf677e6e089e33113083d9d96fe96545e70eba60d78837a79672a18a5",
+  "data/internal/nfl/experimental-settlement/2026-08-23.json": "d67076eb1e8433d2d2650c4c34fc84f97b394fa6fcb5846a952e1c8f698da548",
+  "data/internal/nfl/experimental-settlement/2026-08-27.json": "c32af44499ce75a6dcea067de635932239af0447da0911ab08319f988665f08b",
+  "data/internal/nfl/experimental-settlement/2026-08-28.json": "46c5dfdd6c6b8a41fda7d39faac43480e61d4b2d60fbdeaae598a9d2ebdc8bb7",
+  "data/internal/nfl/experimental-settlement/2026-08-29.json": "894ccc91b11ad0fd44e501a00886caac3be8bd48afab9ec986c70ae5494b06a8",
+  "data/internal/nfl/experimental-settlement/2026-09-07.json": "c2f4d82f9a87551d459460754587e292c1f4cc4bff2e4b7e35002fa14ed240eb",
+  "data/internal/nfl/experimental-settlement/2026-09-08.json": "a9d19689d1139f53aef73a9cd97ac6d5c1973df3ee0f8a4f66e6744b0e19b16a",
+  "data/internal/nfl/experimental-settlement/2026-09-09.json": "b1c878fe4b4f90b73d3c37a8a8a317c34fc7c9d5e2da5f0932564ee06dc1fab0",
+  "data/internal/nfl/experimental-settlement/2026-09-10.json": "6ccd8df26f9675874835c7ef3dbe9178faa60caceed43dbcfe9c7d5972e493f7",
+  "data/internal/nfl/experimental-settlement/2026-09-11.json": "4a1d2d9f8f96114779c6b46e9dc29212c4cac56e45a66057793f25a6c15c622f",
+  "data/internal/nfl/experimental-settlement/2026-09-12.json": "e2aa23f397f5da2d6b03d733f7e178e4e5369d6c63b5f8bfc1bb574bee8a7157",
+  "data/internal/nfl/experimental-settlement/2026-09-13.json": "116d785f8cc3a6fcbc4bcd3061af874b68eaa81349dcd6a6175d83dce79684c2",
+  "data/internal/nfl/experimental-settlement/2026-09-14.json": "4e5e2c17d695d3be57931a2a7ef00e09940df9a546dfba85ecf81589208c5a24",
+  "data/internal/nfl/experimental-settlement/2026-09-15.json": "f87342edeb102c19e45d471090e780f70194e385e10efa03b728d8724f675111",
+  "data/internal/nfl/experimental-settlement/2026-09-16.json": "0e133e9fc6b01dd3c6b79a584777b2ad90d4b7c382e14e9812cca5aa119f8b4b",
+  "data/internal/research/ufc/model-vs-market/graded.jsonl": "794e4c0436e51fc86e34bdafe28868b008791b1f6c5bf62cc75c324b136d4ab3"
+ },
+ "platformManifestSha256": "913a80c747f61f35093ff0dcd897bb90d830aaa1b023bf2eef3b9029cc54d72c",
+ "schemaVersion": 1,
+ "summary": {
+  "checks": 21,
+  "explained": 3,
+  "match": 18,
+  "unexplained": 0
+ }
+}

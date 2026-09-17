@@ -1,0 +1,219 @@
+{
+ "diagnostics": [
+  {
+   "code": "EXCLUDED_BY_SCOPE",
+   "count": 146,
+   "effect": "ROW_EXCLUDED",
+   "samples": [
+    {
+     "id": "401547654",
+     "playerLines": 81,
+     "reason": "preseason: team sides are name-only in this corpus"
+    },
+    {
+     "id": "401548631",
+     "playerLines": 88,
+     "reason": "preseason: team sides are name-only in this corpus"
+    },
+    {
+     "id": "401550740",
+     "playerLines": 85,
+     "reason": "preseason: team sides are name-only in this corpus"
+    },
+    {
+     "id": "401548624",
+     "playerLines": 95,
+     "reason": "preseason: team sides are name-only in this corpus"
+    },
+    {
+     "id": "401548626",
+     "playerLines": 84,
+     "reason": "preseason: team sides are name-only in this corpus"
+    },
+    {
+     "id": "401550178",
+     "playerLines": 100,
+     "reason": "preseason: team sides are name-only in this corpus"
+    },
+    {
+     "id": "401550739",
+     "playerLines": 90,
+     "reason": "preseason: team sides are name-only in this corpus"
+    },
+    {
+     "id": "401549309",
+     "playerLines": 105,
+     "reason": "preseason: team sides are name-only in this corpus"
+    }
+   ],
+   "source": "nfl.espn-player-events",
+   "sportId": "NFL"
+  },
+  {
+   "code": "AMBIGUOUS_ALIAS",
+   "count": 23,
+   "effect": "ROW_DROPPED",
+   "samples": [
+    {
+     "espnEventId": "230921017",
+     "nflverseGameIds": [
+      "2003_03_JAX_IND",
+      "2003_03_NYJ_NE"
+     ]
+    },
+    {
+     "espnEventId": "230921017",
+     "nflverseGameIds": [
+      "2003_03_JAX_IND",
+      "2003_03_NYJ_NE"
+     ]
+    },
+    {
+     "espnEventId": "231027024",
+     "nflverseGameIds": [
+      "2003_08_BUF_KC",
+      "2003_08_MIA_SD",
+      "2003_11_KC_CIN"
+     ]
+    },
+    {
+     "espnEventId": "231027024",
+     "nflverseGameIds": [
+      "2003_08_BUF_KC",
+      "2003_08_MIA_SD",
+      "2003_11_KC_CIN"
+     ]
+    },
+    {
+     "espnEventId": "231027024",
+     "nflverseGameIds": [
+      "2003_08_BUF_KC",
+      "2003_08_MIA_SD",
+      "2003_11_KC_CIN"
+     ]
+    },
+    {
+     "espnEventId": "231221002",
+     "nflverseGameIds": [
+      "2003_16_MIA_BUF",
+      "2003_16_NE_NYJ"
+     ]
+    },
+    {
+     "espnEventId": "231221002",
+     "nflverseGameIds": [
+      "2003_16_MIA_BUF",
+      "2003_16_NE_NYJ"
+     ]
+    },
+    {
+     "espnEventId": "231228001",
+     "nflverseGameIds": [
+      "2003_17_JAX_ATL",
+      "2003_17_PHI_WAS"
+     ]
+    }
+   ],
+   "source": "nfl.nflverse-games-history",
+   "sportId": "NFL"
+  },
+  {
+   "code": "STAT_CONFLICT",
+   "count": 1,
+   "effect": "ROW_DROPPED",
+   "samples": [
+    {
+     "gameId": "401220403",
+     "playerId": "nfl-athlete-3050481",
+     "reason": "two nflverse rows resolve to one ESPN athlete in one game"
+    }
+   ],
+   "source": "nfl.nflverse-player-games",
+   "sportId": "NFL"
+  },
+  {
+   "code": "UNRESOLVED_PLAYER",
+   "count": 34427,
+   "effect": "ROW_DROPPED",
+   "samples": [
+    {
+     "nflversePlayerId": "00-0015754"
+    },
+    {
+     "nflversePlayerId": "00-0022165"
+    },
+    {
+     "nflversePlayerId": "00-0022397"
+    },
+    {
+     "nflversePlayerId": "00-0025460"
+    },
+    {
+     "nflversePlayerId": "00-0026195"
+    },
+    {
+     "nflversePlayerId": "00-0027675"
+    },
+    {
+     "nflversePlayerId": "00-0027996"
+    },
+    {
+     "nflversePlayerId": "00-0029264"
+    }
+   ],
+   "source": "nfl.nflverse-player-games",
+   "sportId": "NFL"
+  },
+  {
+   "code": "NAME_VARIANT",
+   "count": 70,
+   "effect": "INFO",
+   "samples": [
+    {
+     "id": "nfl-athlete-4038524",
+     "kept": "Gardner Minshew II",
+     "variant": "Gardner Minshew"
+    },
+    {
+     "id": "nfl-athlete-4360248",
+     "kept": "Kyle Pitts Sr.",
+     "variant": "Kyle Pitts"
+    },
+    {
+     "id": "nfl-athlete-4241474",
+     "kept": "Brian Robinson Jr.",
+     "variant": "Brian Robinson"
+    },
+    {
+     "id": "nfl-athlete-4379399",
+     "kept": "James Cook III",
+     "variant": "James Cook"
+    },
+    {
+     "id": "nfl-athlete-4035004",
+     "kept": "Mecole Hardman Jr.",
+     "variant": "Mecole Hardman"
+    },
+    {
+     "id": "nfl-athlete-4242433",
+     "kept": "Joshua Palmer",
+     "variant": "Josh Palmer"
+    },
+    {
+     "id": "nfl-athlete-4708486",
+     "kept": "Jimmy Horn Jr.",
+     "variant": "Jimmy Horn"
+    },
+    {
+     "id": "nfl-athlete-4567096",
+     "kept": "John Metchie III",
+     "variant": "John Metchie"
+    }
+   ],
+   "source": "player",
+   "sportId": "NFL"
+  }
+ ],
+ "schemaVersion": 1,
+ "sportId": "NFL"
+}

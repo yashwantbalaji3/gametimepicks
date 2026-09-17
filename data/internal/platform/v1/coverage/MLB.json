@@ -1,0 +1,143 @@
+{
+ "aliases": {
+  "byProvider": {
+   "mlb_statsapi:game": 8868,
+   "mlb_statsapi:player": 732,
+   "mlb_statsapi:team": 30
+  },
+  "total": 9630
+ },
+ "conflicts": 14,
+ "declaredSlices": [
+  {
+   "category": "player identity",
+   "reason": "StatsAPI person ids are normalized only for players carried by a committed factual row (prop actuals); lineups/boards are forecast-owned and are not treated as participation",
+   "status": "PARTIAL"
+  },
+  {
+   "category": "player-game box scores",
+   "reason": "no box score is committed; settlement reads it live and keeps only priced-market actuals",
+   "status": "UNSUPPORTED"
+  },
+  {
+   "category": "team-game stats beyond runs",
+   "reason": "committed linescore projections carry runs only (no hits/errors/innings)",
+   "status": "UNSUPPORTED"
+  },
+  {
+   "category": "2026 finals before 2026-07-04",
+   "reason": "the nightly linescore capture starts 2026-07-04; earlier 2026 games have schedule identity only",
+   "status": "SOURCE_MISSING"
+  },
+  {
+   "category": "2026 start times for games not in a schedule/board capture",
+   "reason": "finals archive and linescores carry dates, not instants",
+   "status": "SOURCE_MISSING"
+  },
+  {
+   "category": "postseason / spring training",
+   "reason": "the finals archive is regular season only",
+   "status": "UNSUPPORTED"
+  }
+ ],
+ "diagnostics": {
+  "EXCLUDED_BY_SCOPE": 1155,
+  "NAME_VARIANT": 1,
+  "UNRESOLVED_TEAM": 144
+ },
+ "entities": {
+  "games": 8868,
+  "players": 732,
+  "playersWithGameRows": 728,
+  "teams": 30
+ },
+ "families": [
+  {
+   "coverageNote": "2023–2025 regular-season finals archive; 2026 from the committed nightly linescores (2026-07-04 onward).",
+   "family": "mlb.final-score",
+   "level": "team",
+   "rows": 16242,
+   "status": "AVAILABLE"
+  },
+  {
+   "coverageNote": "PARTIAL BY CONSTRUCTION: only players and categories that carried a priced market that day (2026-05-16 onward). Absence is not zero and not 'did not play'.",
+   "family": "mlb.prop-actuals",
+   "level": "player",
+   "rows": 19483,
+   "status": "PARTIAL"
+  }
+ ],
+ "rows": {
+  "playerGame": 19483,
+  "teamGame": 16242
+ },
+ "schemaVersion": 1,
+ "seasons": {
+  "MLB-2023": {
+   "finalGames": 2430,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2023-03-30",
+   "games": 2430,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 2430,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2023-10-01",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "mlb.final-score": 4860
+   }
+  },
+  "MLB-2024": {
+   "finalGames": 2429,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2024-03-20",
+   "games": 2429,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 2429,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2024-09-30",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "mlb.final-score": 4858
+   }
+  },
+  "MLB-2025": {
+   "finalGames": 2430,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2025-03-18",
+   "games": 2430,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 2430,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2025-09-28",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "mlb.final-score": 4860
+   }
+  },
+  "MLB-2026": {
+   "finalGames": 954,
+   "finalGamesWithoutTeamRows": 122,
+   "firstEventDate": "2026-05-16",
+   "games": 1579,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 122,
+   "gamesMissingTeamIds": 122,
+   "lastEventDate": "2026-09-23",
+   "playerGameRows": {
+    "mlb.prop-actuals": 19483
+   },
+   "teamGameRows": {
+    "mlb.final-score": 1664
+   }
+  }
+ },
+ "sourceRowsRead": {
+  "mlb.boards": 1398,
+  "mlb.finals-history": 7289,
+  "mlb.linescores": 954,
+  "mlb.settled-leans": 45587,
+  "mlb.statsapi-schedule": 289
+ },
+ "sportId": "MLB"
+}

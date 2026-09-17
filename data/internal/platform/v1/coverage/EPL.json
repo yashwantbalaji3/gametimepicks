@@ -1,0 +1,138 @@
+{
+ "aliases": {
+  "byProvider": {
+   "espn:game": 1520,
+   "espn:player": 1565,
+   "espn:team": 27,
+   "gametime_epl_club:team": 27,
+   "gametime_epl_event:game": 252,
+   "openfootball:game": 380
+  },
+  "total": 3771
+ },
+ "conflicts": 0,
+ "declaredSlices": [
+  {
+   "category": "final scores / team-game stats",
+   "reason": "every committed EPL score source is name-keyed (openfootball, research corpora, ESPN results capture without team ids); joining by club name is banned as identity",
+   "status": "UNSUPPORTED"
+  },
+  {
+   "category": "ESPN event alias for 2026-27 fixtures",
+   "reason": "no committed source links a shipped fixture id to an ESPN event id by id",
+   "status": "UNRESOLVED_IDENTITY"
+  },
+  {
+   "category": "2026-27 player-game lines",
+   "reason": "the ESPN player-match corpus ends with 2025-26",
+   "status": "SOURCE_MISSING"
+  },
+  {
+   "category": "player current team",
+   "reason": "the only squad snapshot predates the 2026 summer transfer deadline",
+   "status": "UNSUPPORTED"
+  },
+  {
+   "category": "athletes not in the 2026-08-21 squad snapshot or the 2022–26 match corpus",
+   "reason": "late signings have ESPN ids in product projections but no committed identity capture",
+   "status": "SOURCE_MISSING"
+  }
+ ],
+ "diagnostics": {},
+ "entities": {
+  "games": 1900,
+  "players": 1565,
+  "playersWithGameRows": 1437,
+  "teams": 27
+ },
+ "families": [
+  {
+   "coverageNote": "2022-23 … 2025-26 (1,520 matches). No committed id-keyed team totals or final scores exist for these matches.",
+   "family": "epl.espn-player-match",
+   "level": "player",
+   "rows": 60742,
+   "status": "AVAILABLE"
+  }
+ ],
+ "rows": {
+  "playerGame": 60742,
+  "teamGame": 0
+ },
+ "schemaVersion": 1,
+ "seasons": {
+  "EPL-2022-23": {
+   "finalGames": 380,
+   "finalGamesWithoutTeamRows": 380,
+   "firstEventDate": "2022-08-05",
+   "games": 380,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 0,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2023-05-28",
+   "playerGameRows": {
+    "epl.espn-player-match": 15185
+   },
+   "teamGameRows": {}
+  },
+  "EPL-2023-24": {
+   "finalGames": 380,
+   "finalGamesWithoutTeamRows": 380,
+   "firstEventDate": "2023-08-11",
+   "games": 380,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 0,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2024-05-19",
+   "playerGameRows": {
+    "epl.espn-player-match": 15180
+   },
+   "teamGameRows": {}
+  },
+  "EPL-2024-25": {
+   "finalGames": 380,
+   "finalGamesWithoutTeamRows": 380,
+   "firstEventDate": "2024-08-16",
+   "games": 380,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 0,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2025-05-25",
+   "playerGameRows": {
+    "epl.espn-player-match": 15188
+   },
+   "teamGameRows": {}
+  },
+  "EPL-2025-26": {
+   "finalGames": 380,
+   "finalGamesWithoutTeamRows": 380,
+   "firstEventDate": "2025-08-15",
+   "games": 380,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 0,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2026-05-24",
+   "playerGameRows": {
+    "epl.espn-player-match": 15189
+   },
+   "teamGameRows": {}
+  },
+  "EPL-2026-27": {
+   "finalGames": 0,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2026-08-21",
+   "games": 380,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 0,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2027-05-30",
+   "playerGameRows": {},
+   "teamGameRows": {}
+  }
+ },
+ "sourceRowsRead": {
+  "epl.espn-player-match": 60742,
+  "epl.espn-squads": 606,
+  "epl.fixtures": 380
+ },
+ "sportId": "EPL"
+}

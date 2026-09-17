@@ -1,0 +1,548 @@
+{
+ "families": {
+  "epl.espn-player-match": {
+   "coverage": "2022-23 … 2025-26 (1,520 matches). No committed id-keyed team totals or final scores exist for these matches.",
+   "description": "ESPN match-summary line per squad player listed for the match.",
+   "id": "epl.espn-player-match",
+   "level": "player",
+   "sportId": "EPL",
+   "stats": [
+    {
+     "aggregation": null,
+     "key": "position",
+     "label": "Position (source code)",
+     "min": null,
+     "sourceField": "position",
+     "type": "string",
+     "unit": null
+    },
+    {
+     "aggregation": null,
+     "key": "formationPlace",
+     "label": "Formation place (source)",
+     "min": null,
+     "sourceField": "formationPlace",
+     "type": "string",
+     "unit": null
+    },
+    {
+     "aggregation": null,
+     "key": "started",
+     "label": "Started",
+     "min": null,
+     "sourceField": "started",
+     "type": "boolean",
+     "unit": null
+    },
+    {
+     "aggregation": null,
+     "key": "subbedIn",
+     "label": "Came on",
+     "min": null,
+     "sourceField": "subbedIn",
+     "type": "boolean",
+     "unit": null
+    },
+    {
+     "aggregation": null,
+     "key": "subbedOut",
+     "label": "Taken off",
+     "min": null,
+     "sourceField": "subbedOut",
+     "type": "boolean",
+     "unit": null
+    },
+    {
+     "aggregation": null,
+     "key": "appeared",
+     "label": "Appeared",
+     "min": null,
+     "sourceField": "appeared",
+     "type": "boolean",
+     "unit": null
+    },
+    {
+     "aggregation": "sum",
+     "key": "goals",
+     "label": "Goals",
+     "min": 0,
+     "sourceField": "goals",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "assists",
+     "label": "Assists",
+     "min": 0,
+     "sourceField": "assists",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "shots",
+     "label": "Shots",
+     "min": 0,
+     "sourceField": "shots",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "shotsOnGoal",
+     "label": "Shots on target",
+     "min": 0,
+     "sourceField": "shotsOnGoal",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "yellowCards",
+     "label": "Yellow cards",
+     "min": 0,
+     "sourceField": "yellow",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "redCards",
+     "label": "Red cards",
+     "min": 0,
+     "sourceField": "red",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "fouls",
+     "label": "Fouls",
+     "min": 0,
+     "sourceField": "fouls",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "offsides",
+     "label": "Offsides",
+     "min": 0,
+     "sourceField": "offsides",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "saves",
+     "label": "Saves",
+     "min": 0,
+     "sourceField": "saves",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "goalsAgainst",
+     "label": "Goals against (goalkeeper line)",
+     "min": 0,
+     "sourceField": "goalsAgainst",
+     "type": "integer",
+     "unit": "count"
+    }
+   ],
+   "version": 1
+  },
+  "mlb.final-score": {
+   "coverage": "2023–2025 regular-season finals archive; 2026 from the committed nightly linescores (2026-07-04 onward).",
+   "description": "Official final runs per club (StatsAPI schedule linescore projection).",
+   "id": "mlb.final-score",
+   "level": "team",
+   "sportId": "MLB",
+   "stats": [
+    {
+     "aggregation": "sum",
+     "key": "runs",
+     "label": "Runs",
+     "min": 0,
+     "sourceField": "homeRuns|awayRuns",
+     "type": "integer",
+     "unit": "runs"
+    }
+   ],
+   "version": 1
+  },
+  "mlb.prop-actuals": {
+   "coverage": "PARTIAL BY CONSTRUCTION: only players and categories that carried a priced market that day (2026-05-16 onward). Absence is not zero and not 'did not play'.",
+   "description": "Box-score actuals recorded by the settlement pipeline for player markets a sportsbook priced.",
+   "id": "mlb.prop-actuals",
+   "level": "player",
+   "sportId": "MLB",
+   "stats": [
+    {
+     "aggregation": "sum",
+     "key": "hits",
+     "label": "Hits",
+     "min": 0,
+     "sourceField": "batter_hits.actual",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "totalBases",
+     "label": "Total bases",
+     "min": 0,
+     "sourceField": "batter_total_bases.actual",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "hitsRunsRbis",
+     "label": "Hits + runs + RBIs (as the source totals it)",
+     "min": 0,
+     "sourceField": "batter_hits_runs_rbis.actual",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "pitcherStrikeouts",
+     "label": "Strikeouts (pitching)",
+     "min": 0,
+     "sourceField": "pitcher_strikeouts.actual",
+     "type": "integer",
+     "unit": "count"
+    }
+   ],
+   "version": 1
+  },
+  "nfl.espn-player-lines": {
+   "coverage": "2023–2025 (REG+POST; preseason games excluded — their team sides are name-only). null = the summary line had no such block for that athlete.",
+   "description": "ESPN game-summary box-score lines per athlete (all positions that appear in the summary).",
+   "id": "nfl.espn-player-lines",
+   "level": "player",
+   "sportId": "NFL",
+   "stats": [
+    {
+     "aggregation": "sum",
+     "key": "passCompletions",
+     "label": "Pass completions",
+     "min": 0,
+     "sourceField": "passCmp",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "passAttempts",
+     "label": "Pass attempts",
+     "min": 0,
+     "sourceField": "passAtt",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "passingYards",
+     "label": "Passing yards",
+     "min": null,
+     "sourceField": "passYds",
+     "type": "integer",
+     "unit": "yards"
+    },
+    {
+     "aggregation": "sum",
+     "key": "passingTds",
+     "label": "Passing TDs",
+     "min": 0,
+     "sourceField": "passTd",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "interceptionsThrown",
+     "label": "Interceptions thrown",
+     "min": 0,
+     "sourceField": "passInt",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "sacksTaken",
+     "label": "Sacks taken",
+     "min": 0,
+     "sourceField": "sacks",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "rushingAttempts",
+     "label": "Rushing attempts",
+     "min": 0,
+     "sourceField": "rushAtt",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "rushingYards",
+     "label": "Rushing yards",
+     "min": null,
+     "sourceField": "rushYds",
+     "type": "integer",
+     "unit": "yards"
+    },
+    {
+     "aggregation": "sum",
+     "key": "rushingTds",
+     "label": "Rushing TDs",
+     "min": 0,
+     "sourceField": "rushTd",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "targets",
+     "label": "Targets",
+     "min": 0,
+     "sourceField": "targets",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "receptions",
+     "label": "Receptions",
+     "min": 0,
+     "sourceField": "rec",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "receivingYards",
+     "label": "Receiving yards",
+     "min": null,
+     "sourceField": "recYds",
+     "type": "integer",
+     "unit": "yards"
+    },
+    {
+     "aggregation": "sum",
+     "key": "receivingTds",
+     "label": "Receiving TDs",
+     "min": 0,
+     "sourceField": "recTd",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "fumbles",
+     "label": "Fumbles",
+     "min": 0,
+     "sourceField": "fumbles",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "fumblesLost",
+     "label": "Fumbles lost",
+     "min": 0,
+     "sourceField": "fumblesLost",
+     "type": "integer",
+     "unit": "count"
+    }
+   ],
+   "version": 1
+  },
+  "nfl.final-score": {
+   "coverage": "1999–2025 REG+POST from nflverse games history; 2026 from ESPN results captures (FINAL rows only).",
+   "description": "Official final points per team.",
+   "id": "nfl.final-score",
+   "level": "team",
+   "sportId": "NFL",
+   "stats": [
+    {
+     "aggregation": "sum",
+     "key": "points",
+     "label": "Points",
+     "min": 0,
+     "sourceField": "homeScore|awayScore|ftHome|ftAway",
+     "type": "integer",
+     "unit": "points"
+    }
+   ],
+   "version": 1
+  },
+  "nfl.nflverse-skill-lines": {
+   "coverage": "2013–2025 REG+POST. Players are mapped gsis/PFR → ESPN through the committed exact id bridge; rows with no ESPN id are counted UNRESOLVED_PLAYER and not emitted. participation PLAYED_NO_ROW = offensive snaps with no nflverse stat row, which the source records as zeros (it had no stat to record); UNKNOWN = stat row with no snap match.",
+   "description": "nflverse weekly stat rows joined to snap counts, skill positions only (QB/RB/WR/TE/FB).",
+   "id": "nfl.nflverse-skill-lines",
+   "level": "player",
+   "sportId": "NFL",
+   "stats": [
+    {
+     "aggregation": null,
+     "enum": [
+      "PLAYED",
+      "PLAYED_NO_ROW",
+      "UNKNOWN"
+     ],
+     "key": "participation",
+     "label": "Participation class (source)",
+     "min": null,
+     "sourceField": "participation",
+     "type": "string",
+     "unit": null
+    },
+    {
+     "aggregation": "sum",
+     "key": "offenseSnaps",
+     "label": "Offensive snaps",
+     "min": 0,
+     "sourceField": "offenseSnaps",
+     "type": "integer",
+     "unit": "snaps"
+    },
+    {
+     "aggregation": "sum",
+     "key": "targets",
+     "label": "Targets",
+     "min": 0,
+     "sourceField": "targets",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "receptions",
+     "label": "Receptions",
+     "min": 0,
+     "sourceField": "receptions",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "receivingYards",
+     "label": "Receiving yards",
+     "min": null,
+     "sourceField": "recYds",
+     "type": "integer",
+     "unit": "yards"
+    },
+    {
+     "aggregation": "sum",
+     "key": "carries",
+     "label": "Carries",
+     "min": 0,
+     "sourceField": "carries",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "rushingYards",
+     "label": "Rushing yards",
+     "min": null,
+     "sourceField": "rushYds",
+     "type": "integer",
+     "unit": "yards"
+    },
+    {
+     "aggregation": "sum",
+     "key": "passAttempts",
+     "label": "Pass attempts",
+     "min": 0,
+     "sourceField": "passAtt",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "passCompletions",
+     "label": "Pass completions",
+     "min": 0,
+     "sourceField": "passCmp",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "passingYards",
+     "label": "Passing yards",
+     "min": null,
+     "sourceField": "passYds",
+     "type": "integer",
+     "unit": "yards"
+    },
+    {
+     "aggregation": "sum",
+     "key": "rushingTds",
+     "label": "Rushing TDs",
+     "min": 0,
+     "sourceField": "rushTd",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "receivingTds",
+     "label": "Receiving TDs",
+     "min": 0,
+     "sourceField": "recTd",
+     "type": "integer",
+     "unit": "count"
+    },
+    {
+     "aggregation": "sum",
+     "key": "otherTds",
+     "label": "Other TDs (special teams + fumble recovery)",
+     "min": 0,
+     "sourceField": "otherTd",
+     "type": "integer",
+     "unit": "count"
+    }
+   ],
+   "version": 1
+  },
+  "ufc.bout-result": {
+   "coverage": "Final bouts in the committed ESPN history (2023-08 onward) and results captures. Method/round/strikes UNSUPPORTED (only name-keyed GPL source exists).",
+   "description": "Per-fighter winner flag from the ESPN MMA scoreboard. No method, round or strike data.",
+   "id": "ufc.bout-result",
+   "level": "player",
+   "sportId": "UFC",
+   "stats": [
+    {
+     "aggregation": null,
+     "key": "won",
+     "label": "Won (provider winner flag)",
+     "min": null,
+     "sourceField": "competitor.winner",
+     "type": "boolean",
+     "unit": null
+    },
+    {
+     "aggregation": null,
+     "key": "boutHadWinner",
+     "label": "Bout had a winner (false = draw or no contest)",
+     "min": null,
+     "sourceField": "any competitor.winner",
+     "type": "boolean",
+     "unit": null
+    }
+   ],
+   "version": 1
+  }
+ },
+ "schemaVersion": 1
+}

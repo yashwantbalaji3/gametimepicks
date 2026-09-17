@@ -1,0 +1,528 @@
+{
+ "aliases": {
+  "byProvider": {
+   "espn:game": 7334,
+   "espn:player": 4023,
+   "espn:team": 32,
+   "nflverse:game": 7269,
+   "nflverse:player": 3236,
+   "nflverse:team": 32,
+   "pfr:player": 3236
+  },
+  "total": 25162
+ },
+ "conflicts": 58,
+ "declaredSlices": [
+  {
+   "category": "EPA / efficiency / play-by-play",
+   "reason": "derived research metrics are not platform facts; raw play-by-play is local-only (gitignored)",
+   "status": "UNSUPPORTED"
+  },
+  {
+   "category": "player-game lines for nflverse players without an ESPN id",
+   "reason": "the committed exact id bridge has no ESPN id for them; no id is minted from gsis or name",
+   "status": "UNRESOLVED_IDENTITY"
+  },
+  {
+   "category": "2023–2025 preseason player lines",
+   "reason": "preseason team sides are name-only in the committed ESPN player-events corpus",
+   "status": "UNSUPPORTED"
+  },
+  {
+   "category": "1999–2012 player-game lines",
+   "reason": "committed player tables start in 2013",
+   "status": "SOURCE_MISSING"
+  },
+  {
+   "category": "start instants before 2023 and for games only in nflverse history",
+   "reason": "nflverse history carries the game date, not the kickoff instant",
+   "status": "SOURCE_MISSING"
+  },
+  {
+   "category": "2026 finals older than the ESPN results window",
+   "reason": "app/public/data/nfl/results/latest.json keeps a rolling 9-day window and is overwritten each run; earlier 2026 finals survive only inside settlement ledgers, which are not a platform fact source. Retaining dated results captures would close this",
+   "status": "SOURCE_MISSING"
+  },
+  {
+   "category": "2026 player-game lines",
+   "reason": "the only committed 2026 box-score capture (data/internal/nfl/official-stats) zero-fills every category an athlete did not appear in, so a recorded zero and a missing category are indistinguishable — normalizing it would convert missing to zero",
+   "status": "UNSUPPORTED"
+  }
+ ],
+ "diagnostics": {
+  "AMBIGUOUS_ALIAS": 23,
+  "EXCLUDED_BY_SCOPE": 146,
+  "NAME_VARIANT": 70,
+  "STAT_CONFLICT": 1,
+  "UNRESOLVED_PLAYER": 34427
+ },
+ "entities": {
+  "games": 7334,
+  "players": 4023,
+  "playersWithGameRows": 2856,
+  "teams": 32
+ },
+ "families": [
+  {
+   "coverageNote": "1999–2025 REG+POST from nflverse games history; 2026 from ESPN results captures (FINAL rows only).",
+   "family": "nfl.final-score",
+   "level": "team",
+   "rows": 14538,
+   "status": "AVAILABLE"
+  },
+  {
+   "coverageNote": "2023–2025 (REG+POST; preseason games excluded — their team sides are name-only). null = the summary line had no such block for that athlete.",
+   "family": "nfl.espn-player-lines",
+   "level": "player",
+   "rows": 53791,
+   "status": "AVAILABLE"
+  },
+  {
+   "coverageNote": "2013–2025 REG+POST. Players are mapped gsis/PFR → ESPN through the committed exact id bridge; rows with no ESPN id are counted UNRESOLVED_PLAYER and not emitted. participation PLAYED_NO_ROW = offensive snaps with no nflverse stat row, which the source records as zeros (it had no stat to record); UNKNOWN = stat row with no snap match.",
+   "family": "nfl.nflverse-skill-lines",
+   "level": "player",
+   "rows": 54148,
+   "status": "AVAILABLE"
+  }
+ ],
+ "rows": {
+  "playerGame": 107939,
+  "teamGame": 14538
+ },
+ "schemaVersion": 1,
+ "seasons": {
+  "NFL-1999": {
+   "finalGames": 259,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "1999-09-12",
+   "games": 259,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 259,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2000-01-30",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 518
+   }
+  },
+  "NFL-2000": {
+   "finalGames": 259,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2000-09-03",
+   "games": 259,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 259,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2001-01-28",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 518
+   }
+  },
+  "NFL-2001": {
+   "finalGames": 259,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2001-09-09",
+   "games": 259,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 259,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2002-02-03",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 518
+   }
+  },
+  "NFL-2002": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2002-09-05",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2003-01-26",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2003": {
+   "finalGames": 258,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2003-09-04",
+   "games": 258,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 258,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2004-02-01",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 516
+   }
+  },
+  "NFL-2004": {
+   "finalGames": 259,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2004-09-09",
+   "games": 259,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 259,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2005-02-06",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 518
+   }
+  },
+  "NFL-2005": {
+   "finalGames": 265,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2005-09-08",
+   "games": 265,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 265,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2006-02-05",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 530
+   }
+  },
+  "NFL-2006": {
+   "finalGames": 265,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2006-09-07",
+   "games": 265,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 265,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2007-02-04",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 530
+   }
+  },
+  "NFL-2007": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2007-09-06",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2008-02-03",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2008": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2008-09-04",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2009-02-01",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2009": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2009-09-10",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2010-02-07",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2010": {
+   "finalGames": 265,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2010-09-09",
+   "games": 265,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 265,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2011-02-06",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 530
+   }
+  },
+  "NFL-2011": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2011-09-08",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2012-02-05",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2012": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2012-09-05",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2013-02-03",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2013": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2013-09-05",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2014-02-02",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 577
+   },
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2014": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2014-09-04",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2015-02-01",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 815
+   },
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2015": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2015-09-10",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2016-02-07",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 1239
+   },
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2016": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2016-09-08",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2017-02-05",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 1685
+   },
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2017": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2017-09-07",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2018-02-04",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 2396
+   },
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2018": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2018-09-06",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2019-02-03",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 3254
+   },
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2019": {
+   "finalGames": 267,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2019-09-05",
+   "games": 267,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 267,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2020-02-02",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 4194
+   },
+   "teamGameRows": {
+    "nfl.final-score": 534
+   }
+  },
+  "NFL-2020": {
+   "finalGames": 269,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2020-09-10",
+   "games": 269,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 269,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2021-02-07",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 5091
+   },
+   "teamGameRows": {
+    "nfl.final-score": 538
+   }
+  },
+  "NFL-2021": {
+   "finalGames": 285,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2021-09-09",
+   "games": 285,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 285,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2022-02-13",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 6269
+   },
+   "teamGameRows": {
+    "nfl.final-score": 570
+   }
+  },
+  "NFL-2022": {
+   "finalGames": 284,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2022-09-08",
+   "games": 284,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 284,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2023-02-12",
+   "playerGameRows": {
+    "nfl.nflverse-skill-lines": 7124
+   },
+   "teamGameRows": {
+    "nfl.final-score": 568
+   }
+  },
+  "NFL-2023": {
+   "finalGames": 285,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2023-09-08",
+   "games": 285,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 0,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2024-02-11",
+   "playerGameRows": {
+    "nfl.espn-player-lines": 17606,
+    "nfl.nflverse-skill-lines": 7150
+   },
+   "teamGameRows": {
+    "nfl.final-score": 570
+   }
+  },
+  "NFL-2024": {
+   "finalGames": 285,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2024-09-06",
+   "games": 285,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 0,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2025-02-09",
+   "playerGameRows": {
+    "nfl.espn-player-lines": 17796,
+    "nfl.nflverse-skill-lines": 7155
+   },
+   "teamGameRows": {
+    "nfl.final-score": 570
+   }
+  },
+  "NFL-2025": {
+   "finalGames": 285,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2025-09-05",
+   "games": 285,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 0,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2026-02-08",
+   "playerGameRows": {
+    "nfl.espn-player-lines": 18389,
+    "nfl.nflverse-skill-lines": 7199
+   },
+   "teamGameRows": {
+    "nfl.final-score": 570
+   }
+  },
+  "NFL-2026": {
+   "finalGames": 16,
+   "finalGamesWithoutTeamRows": 0,
+   "firstEventDate": "2026-08-13",
+   "games": 81,
+   "gamesMissingAnyDate": 0,
+   "gamesMissingStartUtc": 0,
+   "gamesMissingTeamIds": 0,
+   "lastEventDate": "2026-09-25",
+   "playerGameRows": {},
+   "teamGameRows": {
+    "nfl.final-score": 32
+   }
+  }
+ },
+ "sourceRowsRead": {
+  "nfl.espn-player-events": 1001,
+  "nfl.espn-player-events#player-lines": 53791,
+  "nfl.espn-results": 16,
+  "nfl.espn-rosters": 177766,
+  "nfl.espn-schedule": 553,
+  "nfl.nflverse-current-season": 16,
+  "nfl.nflverse-games-history": 7276,
+  "nfl.nflverse-id-bridge": 3706,
+  "nfl.nflverse-player-games#player-lines": 88576
+ },
+ "sportId": "NFL"
+}
