@@ -70,8 +70,17 @@ test("the archive lives outside app/ and never appears in the static export", ()
   const sample = JSON.parse(fs.readFileSync(path.join(ARCHIVE, season, files[0]), "utf8"));
   const pk = sample.games?.[0]?.gamePk;
   if (pk == null) return;
-  // A 2023–2025 gamePk has no business anywhere in a 2026 public export.
-  const hits = walk(out, (n) => n.endsWith(".html")).filter((f) => fs.readFileSync(f, "utf8").includes(String(pk)));
+  // A 2023–2025 gamePk has no business anywhere in a 2026 public export — EXCEPT the v1.3 MLB team research pages,
+  // which publish historical FINAL SCORES as facts through the research projection (never a model input: the
+  // projection is built by scripts/research from the platform store, and data-platform/boundary.test.mjs B1 keeps
+  // every model and page away from the store itself). Everywhere else the rule is unchanged.
+  const RESEARCH_TEAM_PAGES = path.join("teams", "mlb") + path.sep;
+  const html = walk(out, (n) => n.endsWith(".html"));
+  const hits = html.filter((f) => !path.relative(out, f).startsWith(RESEARCH_TEAM_PAGES)).filter((f) => fs.readFileSync(f, "utf8").includes(String(pk)));
+  // positive control: the allowance is exercised (the research pages really carry history), so this is not vacuous.
+  if (html.some((f) => path.relative(out, f).startsWith(RESEARCH_TEAM_PAGES))) {
+    assert.ok(html.filter((f) => path.relative(out, f).startsWith(RESEARCH_TEAM_PAGES)).some((f) => /MLB-202[345]/.test(fs.readFileSync(f, "utf8"))), "MLB team research pages exist but carry no 2023–2025 season");
+  }
   assert.deepEqual(hits.map((f) => path.relative(out, f)), [], `historical gamePk ${pk} leaked into the export`);
 });
 

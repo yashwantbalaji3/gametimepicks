@@ -32,18 +32,34 @@ const code = (n) => /\.(mjs|js|ts|tsx)$/.test(n);
 /** strip comments so a rule documented in prose is not mistaken for code (P308 lesson) */
 const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
 
-test("B1 no app code outside the platform package reads the store or imports the package", () => {
+/*
+ * v1.3 (Team + Player Research): the platform has exactly ONE external consumer — the build-time research projection
+ * script. It reads the committed store once and writes data/research-projection/v1, which pages read. Nothing else
+ * (no page, component, client module, API route or model) may import the package or read the store; the research
+ * package's own boundary test pins the page side (research-pages/boundary.test.mjs).
+ */
+export const PLATFORM_CONSUMERS = Object.freeze([
+  "app/scripts/research/build-research-projections.mjs",
+  // test-only: proves the committed projection equals a rebuild from the committed platform (never shipped)
+  "app/src/lib/research-pages/boundary.test.mjs",
+]);
+
+test("B1 no app code outside the platform package reads the store or imports the package (one allowlisted consumer)", () => {
   const hits = [];
+  const consumers = [];
   const importRe = /(from\s+|import\(\s*)["'`][^"'`]*data-platform\//;
   const storeRe = /data\/internal\/platform|internal["'`],\s*["'`]platform/;
   for (const root of ["app/src", "app/scripts", "app/api"]) {
     for (const f of walk(path.join(REPO, root), code)) {
       if (inPkg(f)) continue;
       const src = fs.readFileSync(f, "utf8");
-      if (importRe.test(src) || storeRe.test(src)) hits.push(path.relative(REPO, f));
+      if (!(importRe.test(src) || storeRe.test(src))) continue;
+      const rel = path.relative(REPO, f).split(path.sep).join("/");
+      if (PLATFORM_CONSUMERS.includes(rel)) consumers.push(rel); else hits.push(rel);
     }
   }
-  assert.deepEqual(hits, [], "v1.2 has no platform consumer; a first consumer is a deliberate v1.3 change with its own review");
+  assert.deepEqual(hits, [], "only the research projection builder may consume the platform; a new consumer is a deliberate change with its own review");
+  assert.deepEqual([...consumers].sort(), [...PLATFORM_CONSUMERS].sort(), "the allowlisted consumer must exist and actually be the one reading the platform (no stale allowlist)");
   // positive control: the detector does fire on a real consumer shape
   assert.ok(importRe.test('import { openPlatform } from "../lib/data-platform/readers.mjs";'));
   assert.ok(storeRe.test('path.join(REPO, "data/internal/platform/v1")'));
