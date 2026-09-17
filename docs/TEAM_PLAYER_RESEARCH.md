@@ -273,3 +273,13 @@ season comparison (records, scored/allowed), NFL/EPL player comparison over iden
 selectors (already canonical). Not ready: EPL results anywhere, MLB player comparison beyond captured categories,
 UFC method/round, NFL 2026 player lines. Matchup Explorer needs the same projection pattern with a per-matchup
 registry and budget. **v1.4 = Matchup Explorer + Compare. Not started.**
+
+## 20. v1.4 addendum — Compare links and the second consumer
+
+- The compare projection (`data/compare-projection/v1`, `docs/MATCHUP_COMPARE.md`) reads THIS research projection, never
+  the Data Platform; B1 `PLATFORM_CONSUMERS` is unchanged. Refresh order is now platform → research → compare.
+- Team pages (MLB, NFL) carry a "Compare team" link (`/compare/teams/<sport>/?a=<slug>`); EPL team pages do not
+  (blocked: no id-keyed results). Player pages carry "Compare player" only when another published player shares a
+  comparable stat family; UFC fighter pages never do.
+- Research table scrollers now set `position: relative`: an `sr-only` header cell inside a non-positioned scroller made
+  the document wider than a phone screen (found in v1.4 QA; the a11y spec now pins document width for these routes).
