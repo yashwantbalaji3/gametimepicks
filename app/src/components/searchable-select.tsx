@@ -151,6 +151,7 @@ export default function SearchableSelect({
     <div className="relative inline-block w-full">
       {!compact && (
         <span
+          id={`${id}-label`}
           className="block font-mono uppercase tracking-[0.16em] mb-1"
           style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
@@ -164,6 +165,12 @@ export default function SearchableSelect({
         aria-expanded={open}
         aria-controls={`${id}-listbox`}
         aria-label={compact ? label : undefined}
+        /*
+         * v1.5: the visible label was a plain <span>, so the button's accessible name was only its CURRENT VALUE —
+         * "Kansas City Chiefs, button" says nothing about what choosing one does. Naming it from the label AND the
+         * value gives "Team, Kansas City Chiefs"; the label still reads first, so voice control can target it.
+         */
+        aria-labelledby={compact ? undefined : `${id}-label ${id}-value`}
         disabled={disabled}
         onClick={() => !disabled && setOpen((v) => !v)}
         className="w-full inline-flex items-center justify-between gap-2 px-3 rounded-[6px]"
@@ -182,7 +189,7 @@ export default function SearchableSelect({
         }}
       >
         <span className="flex flex-col items-start min-w-0">
-          <span className="truncate font-display" style={{ fontWeight: 500 }}>
+          <span id={`${id}-value`} className="truncate font-display" style={{ fontWeight: 500 }}>
             {selected ? selected.label : placeholder}
           </span>
           {selected?.sub && (
