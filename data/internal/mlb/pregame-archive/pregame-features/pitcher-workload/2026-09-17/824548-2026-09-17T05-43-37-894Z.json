@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824548,
+  "date": "2026-09-17",
+  "capturedAt": "2026-09-17T05:43:37.894Z",
+  "availableAt": "2026-09-17T05:43:37.894Z",
+  "eventStartTime": "2026-09-17T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607200,
+      "name": "Erick Fedde",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 13,
+      "lastStartDate": "2026-09-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 4,
+        "bbAvg": 1,
+        "erAvg": 1.6,
+        "hrAvg": 1,
+        "kPer9": 7.71,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 67.67,
+        "k": 48,
+        "bb": 22,
+        "er": 30,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 664285,
+      "name": "Framber Valdez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 6,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.67,
+        "ipAvg": 6.13,
+        "kAvg": 3,
+        "bbAvg": 2,
+        "erAvg": 2,
+        "hrAvg": 0.4,
+        "kPer9": 4.4,
+        "workloadIpLast5": 30.67
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 163.67,
+        "k": 121,
+        "bb": 60,
+        "er": 73,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-17T05:43:37.894Z"
+  },
+  "recordHash": "8e8e2fdfb47cce7413c240bc65fd675c46f54e233d672aa18428cd0aa02a97c0"
+}
