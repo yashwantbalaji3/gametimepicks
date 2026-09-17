@@ -38,7 +38,11 @@ them. Minting a `favorite-team-17` would create a second namespace to reconcile 
 | MLB team | StatsAPI team id + abbreviation | same | schedule + board artifacts, live envelope competitors |
 | NFL event | ESPN event id | same | `/nfl/game/[eventId]`, forecasts, player boards |
 | NFL player | `nfl-athlete-<espnAthleteId>` | ESPN athlete id | `nfl/player-board/<event>.json`, live box-score join |
-| lineage of record | — | `providerAliases: [{provider, id}]` | `lib/events/read-model.ts` — the future v1.2 owner |
+| lineage of record | — | `providerAliases: [{provider, id}]` | `lib/events/read-model.ts` (transient view) → **v1.2: stored + validated in the Data Platform** (`lib/data-platform/aliases.mjs`, `docs/GAMETIME_DATA_PLATFORM.md` §4–5) |
+
+**v1.2 (2026-09-17):** every id in this table is preserved verbatim by the internal Data Platform (parity-proven).
+It adds `mlb-player-<StatsAPI person id>` as an INTERNAL canonical id for players carried by committed factual rows —
+**not** yet a public or followable id; exposing it is a v1.3 decision.
 
 ⚠ **MLB has no canonical PLAYER id in public product data.** The only per-player MLB artifact is a
 bookmaker price list keyed by NAME with `team: null`. This is why MLB Live ships no player rows, and

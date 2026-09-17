@@ -3,6 +3,10 @@
 One document, seven sections. Written 2026-09-15/16, the session that built the first Live vertical
 slice. Everything stated as verified here was measured in that session and the measurement is named.
 
+> **v1.2 note.** The internal Data Platform (`docs/GAMETIME_DATA_PLATFORM.md`) stores schedule/result FACTS by
+> canonical id. It never persists Live state and a platform `FINAL` is not a settlement — the three-owner contract
+> in §2 is unchanged.
+
 ## CURRENT STATE — read this before any older section
 
 | | |
