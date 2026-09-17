@@ -53,6 +53,18 @@ const INTERNAL_ROUTES = ["ops", "preview", "launch", ...GATED_LEGAL_ROUTES];
  */
 const ALWAYS_PUBLIC_DATA = ["build-info.json", "search/index.json"];
 
+/**
+ * Data DIRECTORIES the public site serves in full. Each one is emitted by a build step from a committed, leak-guarded
+ * projection, and its pages assemble file names at runtime (so no literal reference can exist per file).
+ *   compare/v1/  — v1.4 Compare assets: one selector index + one entity file per published team/player
+ *                  (scripts/compare/emit-compare-assets.mjs from data/compare-projection/v1; guarded by
+ *                  lib/compare/compare-projection.test.mjs and compare-built.test.mjs). The Compare shells fetch
+ *                  `/data/compare/v1/<kind>/<sport>/<slug>.json` for the two entities a reader selects.
+ * A runtime-assembled `/data/` reference is tolerated ONLY under one of these prefixes; anything else still refuses.
+ */
+const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/"];
+const underPublicDir = (rel) => ALWAYS_PUBLIC_DATA_DIRS.some((d) => rel === d.slice(0, -1) || rel.startsWith(d));
+
 if (process.env.NEXT_PUBLIC_INTERNAL_ROUTES === "1") {
   console.log("[prune-internal-routes] NEXT_PUBLIC_INTERNAL_ROUTES=1 → keeping internal routes in out/");
   process.exit(0);
@@ -157,6 +169,7 @@ function collectDataReferences() {
     for (const m of txt.matchAll(REF)) {
       const rel = m[0].slice("/data/".length);
       if (rel && CONCRETE.test(rel)) concrete.add(rel);
+      else if (underPublicDir(rel)) continue;
       else ambiguous.push({ file: path.relative(outDir, file), ref: m[0] });
     }
   }
@@ -190,7 +203,7 @@ if (!fs.existsSync(dataDir)) {
   let removedBytes = 0;
   for (const p of walkFiles(dataDir)) {
     const rel = path.relative(dataDir, p).split(path.sep).join("/");
-    if (keep.has(rel)) continue;
+    if (keep.has(rel) || underPublicDir(rel)) continue;
     try {
       removedBytes += fs.statSync(p).size;
     } catch {

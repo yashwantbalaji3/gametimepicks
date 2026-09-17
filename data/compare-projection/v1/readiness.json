@@ -1,0 +1,209 @@
+{
+ "artifact": "compare-readiness",
+ "entities": {
+  "players/EPL": 414,
+  "players/MLB": 255,
+  "players/NFL": 720,
+  "teams/MLB": 30,
+  "teams/NFL": 32
+ },
+ "headToHead": {
+  "MLB": {
+   "inconsistentRowsExcluded": 0,
+   "meetingRefs": 8136,
+   "pairs": 435,
+   "pairsWithMeetings": 435,
+   "storage": "derived from the two team entities; no per-pair file",
+   "worstPairMeetings": 49
+  },
+  "NFL": {
+   "inconsistentRowsExcluded": 0,
+   "meetingRefs": 7269,
+   "pairs": 496,
+   "pairsWithMeetings": 496,
+   "storage": "derived from the two team entities; no per-pair file",
+   "worstPairMeetings": 59
+  }
+ },
+ "matchupPageBudget": 600,
+ "matchupPages": 126,
+ "matchups": {
+  "EPL": {
+   "blocker": "TEAM_RESULTS_UNSUPPORTED",
+   "generated": 0
+  },
+  "MLB": {
+   "excluded": {
+    "OUTSIDE_WINDOW": 1379
+   },
+   "generated": 93,
+   "indexable": 0,
+   "noindex": 93,
+   "startRange": [
+    "2026-09-17T00:05:00Z",
+    "2026-09-24T02:10:00Z"
+   ],
+   "window": {
+    "fromUtc": "2026-09-17T00:00:00Z",
+    "seasonId": "MLB-2026"
+   },
+   "withFinal": 5,
+   "withPriorMeetings": 93
+  },
+  "NFL": {
+   "excluded": {
+    "OUTSIDE_WINDOW": 48
+   },
+   "generated": 33,
+   "indexable": 33,
+   "noindex": 0,
+   "startRange": [
+    "2026-09-10T00:20:00Z",
+    "2026-09-25T00:15:00Z"
+   ],
+   "window": {
+    "fromUtc": "2026-09-09T00:00:00Z",
+    "seasonId": "NFL-2026"
+   },
+   "withFinal": 16,
+   "withPriorMeetings": 33
+  },
+  "UFC": {
+   "blocker": "SPORT_NOT_SUPPORTED",
+   "generated": 0
+  }
+ },
+ "players": {
+  "EPL": {
+   "blocker": null,
+   "comparableFamilies": [
+    "EPL.goals",
+    "EPL.assists",
+    "EPL.shots",
+    "EPL.shotsOnGoal",
+    "EPL.saves",
+    "EPL.goalsAgainst",
+    "EPL.fouls",
+    "EPL.yellowCards",
+    "EPL.redCards"
+   ],
+   "eligible": 414,
+   "excluded": 0,
+   "excludedReasons": {},
+   "families": {
+    "EPL.assists": 396,
+    "EPL.fouls": 406,
+    "EPL.goals": 396,
+    "EPL.goalsAgainst": 25,
+    "EPL.redCards": 406,
+    "EPL.saves": 25,
+    "EPL.shots": 396,
+    "EPL.shotsOnGoal": 396,
+    "EPL.yellowCards": 406
+   },
+   "researchPages": 414,
+   "shipped": true
+  },
+  "MLB": {
+   "blocker": null,
+   "comparableFamilies": [
+    "MLB.hits",
+    "MLB.totalBases",
+    "MLB.hitsRunsRbis"
+   ],
+   "eligible": 255,
+   "excluded": 0,
+   "excludedReasons": {},
+   "families": {
+    "MLB.hits": 255,
+    "MLB.hitsRunsRbis": 255,
+    "MLB.pitcherStrikeouts": 1,
+    "MLB.totalBases": 233
+   },
+   "researchPages": 255,
+   "shipped": true
+  },
+  "NFL": {
+   "blocker": null,
+   "comparableFamilies": [
+    "NFL.receivingYards",
+    "NFL.receptions",
+    "NFL.rushingYards",
+    "NFL.passingYards",
+    "NFL.targets",
+    "NFL.receivingTds",
+    "NFL.rushingAttempts",
+    "NFL.rushingTds",
+    "NFL.passCompletions",
+    "NFL.passAttempts",
+    "NFL.passingTds",
+    "NFL.interceptionsThrown"
+   ],
+   "eligible": 720,
+   "excluded": 30,
+   "excludedReasons": {
+    "NO_COMPARABLE_STAT_FAMILY": 30
+   },
+   "families": {
+    "NFL.interceptionsThrown": 148,
+    "NFL.passAttempts": 172,
+    "NFL.passCompletions": 172,
+    "NFL.passingTds": 148,
+    "NFL.passingYards": 172,
+    "NFL.receivingTds": 631,
+    "NFL.receivingYards": 631,
+    "NFL.receptions": 631,
+    "NFL.rushingAttempts": 505,
+    "NFL.rushingTds": 505,
+    "NFL.rushingYards": 505,
+    "NFL.targets": 631
+   },
+   "researchPages": 750,
+   "shipped": true
+  },
+  "UFC": {
+   "blocker": "NO_SHARED_STAT",
+   "comparableFamilies": [],
+   "eligible": 0,
+   "excluded": 352,
+   "excludedReasons": {
+    "NO_COMPARABLE_STAT_FAMILY": 352
+   },
+   "families": {},
+   "researchPages": 352,
+   "shipped": false
+  }
+ },
+ "researchContentSha256": "d3c56def8ae4871fa46240ebb0776a26267add54694501aad62a14e2be4fe967",
+ "schemaVersion": 1,
+ "teams": {
+  "EPL": {
+   "blocker": "TEAM_RESULTS_UNSUPPORTED",
+   "eligible": 0,
+   "excluded": 20,
+   "researchPages": 20,
+   "shipped": false
+  },
+  "MLB": {
+   "blocker": null,
+   "eligible": 30,
+   "excluded": 0,
+   "researchPages": 30,
+   "shipped": true
+  },
+  "NFL": {
+   "blocker": null,
+   "eligible": 32,
+   "excluded": 0,
+   "researchPages": 32,
+   "shipped": true
+  },
+  "UFC": {
+   "blocker": "SPORT_NOT_SUPPORTED",
+   "eligible": 0,
+   "excluded": 0,
+   "researchPages": 0,
+   "shipped": false
+  }
+ }
+}
