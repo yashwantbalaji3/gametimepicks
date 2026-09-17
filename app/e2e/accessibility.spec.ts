@@ -50,7 +50,10 @@ const ROUTES = ["/", "/models/", "/saved/", "/today/", "/markets/", "/results/",
   // own six-column table and MLB's page ships the most rows.
   "/results/picks/", "/results/picks/mlb/", "/results/picks/ufc/",
   ...(FIRST_NFL_GAME ? [`/nfl/game/${FIRST_NFL_GAME}/`] : []),
-  ...(FIRST_EPL_MATCH ? [`/epl/match/${FIRST_EPL_MATCH}/`] : [])];
+  ...(FIRST_EPL_MATCH ? [`/epl/match/${FIRST_EPL_MATCH}/`] : []),
+  // v1.3 Team + Player Research: the widest research table (an NFL team's season log) and a player page with the
+  // stat-group buttons, season select, chart and 12-column game log. Stable slugs from the research registry.
+  "/teams/nfl/kansas-city-chiefs/", "/players/nfl/travis-kelce/"];
 
 const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844 },

@@ -197,7 +197,21 @@ export function getOptimizerSummary(): OptimizerSummary | null {
  * Settlement is a property of the CONTENT, not of the filename. A date qualifies here only when
  * something actually resolved.
  */
+let settledDatesMemo: string[] | null = null;
+
 export function getOptimizerSettledDates(): string[] {
+  /*
+   * v1.3 build-cost fix: the shared SlateStatusBar calls this on EVERY exported page, and it parses every graded
+   * payload (~740 ms measured per call). The committed files cannot change during one `next build`, so a production
+   * build computes it once per worker; `next dev` keeps recomputing so an edited artifact still shows up.
+   */
+  if (process.env.NODE_ENV === "production" && settledDatesMemo) return [...settledDatesMemo];
+  const result = computeOptimizerSettledDates();
+  if (process.env.NODE_ENV === "production") settledDatesMemo = result;
+  return [...result];
+}
+
+function computeOptimizerSettledDates(): string[] {
   const decided = new Set(["win", "loss", "push", "void"]);
   const hasDecided = (node: unknown): boolean => {
     if (Array.isArray(node)) return node.some(hasDecided);

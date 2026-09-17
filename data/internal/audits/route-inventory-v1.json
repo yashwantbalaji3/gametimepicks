@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-17T04:07:21Z",
+ "generatedAt": "2026-09-17T15:09:27Z",
  "totals": {
-  "routes": 77,
-  "public": 51,
+  "routes": 79,
+  "public": 53,
   "internal": 7,
   "redirects": 15,
   "archive": 2,
@@ -275,7 +275,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (117 generated page(s))"
+   "built": "FAMILY (118 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -435,6 +435,16 @@
    "built": true
   },
   {
+   "route": "/players/[sport]/[slug]",
+   "classification": "public",
+   "owner": "research",
+   "family": true,
+   "purpose": "Player / fighter research (v1.3): factual game logs by season, Last 3/5/10 recorded games with n, a simple bar chart and coverage notes for eligible NFL/MLB/EPL players and UFC fighters; a current published forecast appears only in its own section, joined by exact id. MLB pages and thin pages are noindex. dynamicParams=false from the research projection registry",
+   "dataOwner": "data/research-projection/v1 + (forecast section only) the NFL player-board published families / UFC card-latest",
+   "freshness": "recorded history through the player's newest recorded game; forecasts carry their own kickoff",
+   "built": "FAMILY (4 generated page(s))"
+  },
+  {
    "route": "/preview/epl",
    "classification": "internal",
    "owner": "research",
@@ -513,7 +523,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (101 generated page(s))"
+   "built": "FAMILY (102 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -615,7 +625,7 @@
    "purpose": "one static page per in-window date — same selector, date as the route (P209)",
    "dataOwner": "lib/simulate/day-view over per-sport owners",
    "freshness": "each owner's own stamp",
-   "built": "FAMILY (25 generated page(s))"
+   "built": "FAMILY (26 generated page(s))"
   },
   {
    "route": "/soccer/ligue-1",
@@ -641,6 +651,16 @@
    "dataOwner": "public research contract",
    "freshness": "contract stamps",
    "built": true
+  },
+  {
+   "route": "/teams/[sport]/[slug]",
+   "classification": "public",
+   "owner": "research",
+   "family": true,
+   "purpose": "Team research (v1.3): one page per eligible MLB/NFL/EPL team — season results from official final scores (MLB runs, NFL points), recent games, reader-clock upcoming games, season game log and player-research links; EPL is PARTIAL (fixtures, no record) and noindex. dynamicParams=false from the research projection registry; exact canonical id behind every slug",
+   "dataOwner": "data/research-projection/v1 (built from the Data Platform by scripts/research/build-research-projections.mjs; pages never read the platform)",
+   "freshness": "the projection's platform manifest; results through the newest recorded final, printed as absolute dates",
+   "built": "FAMILY (3 generated page(s))"
   },
   {
    "route": "/terms",
