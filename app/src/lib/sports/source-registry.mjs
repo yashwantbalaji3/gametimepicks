@@ -106,6 +106,16 @@ export const SOURCES = Object.freeze({
     roles: ["results-history", "schedule-candidate"],
     failureBehavior: "community-maintained: club names outside the committed membership table QUARANTINE. The 2026-27 Coventry/Hull quarantine RESOLVED 2026-08-09 by dual-source verification (ESPN eng.1 agreement) — the pattern stands for future promotions; season completeness enforced by exactly-380 refusals in both the corpus builder and the capture script",
   },
+  nflverse: {
+    owner: "AUTOMATION",
+    cost: "free",
+    credentials: "none",
+    terms: "nflverse public data releases (github.com/nflverse), CC BY 4.0 with attribution. First real use P257-F (d3edfb844, 2026-09-11: closing lines + snap share); refreshed by nflverse-weekly.yml. Raw CSVs stay local (gitignored); only derived tables are committed. RECORDED in v1.2 (Data Platform) — the source was in use but had no registry row",
+    authorization: "PRIVATE_RESEARCH",
+    sports: ["nfl"],
+    roles: ["results-history", "player-game-history", "id-crosswalk"],
+    failureBehavior: "derived tables refuse to overwrite on a failed download; the ESPN-id column is trusted only when an ESPN id is claimed by exactly one nflverse game (11 ids are claimed by 2–3 games in 2003–2010 rows and resolve to nobody)",
+  },
   balldontlie: {
     owner: "AUTOMATION",
     cost: "free tier",

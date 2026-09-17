@@ -37,6 +37,15 @@ const walk = (dir, test_, out = []) => {
   return out;
 };
 
+/*
+ * GUARD CHANGED SIDES DELIBERATELY (v1.2 Data Platform). The GameTime Data Platform package is the one
+ * permitted reader: it normalizes the archive into the internal platform store (not a model input).
+ * The founder's constraint is preserved one level down — data-platform-boundary.test.mjs fails if ANY app
+ * code outside the platform package reads the platform store or imports the platform package, so historical
+ * seasons still cannot re-enter a live model input through the platform.
+ */
+const PLATFORM_PACKAGE = [path.join("app", "src", "lib", "data-platform") + path.sep, path.join("app", "scripts", "data-platform") + path.sep];
+
 test("no app code reads the historical archive (it must never reach a live model input)", () => {
   const roots = [path.join(REPO, "app", "src"), path.join(REPO, "app", "scripts")];
   const hits = [];
@@ -44,6 +53,7 @@ test("no app code reads the historical archive (it must never reach a live model
     if (!fs.existsSync(root)) continue;
     for (const f of walk(root, (n) => /\.(ts|tsx|mjs|js)$/.test(n))) {
       if (f.endsWith("finals-history-isolation.test.mjs")) continue; // this file names it on purpose
+      if (PLATFORM_PACKAGE.some((p) => path.relative(REPO, f).startsWith(p))) continue; // the one permitted reader (see above)
       if (fs.readFileSync(f, "utf8").includes("linescores-history")) hits.push(path.relative(REPO, f));
     }
   }

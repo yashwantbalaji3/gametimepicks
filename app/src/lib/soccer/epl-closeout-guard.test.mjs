@@ -34,6 +34,10 @@ const LANE_DIRS = ["src/lib/soccer", "src/app/epl", "src/app/preview/epl", "src/
 // touching every lane's artifacts.
 const CROSS_LANE_READERS = [
   "src/lib/audits",
+  // data-platform (v1.2): the internal canonical store normalizes EPL fixture identity and names the lane's
+  // committed artifacts as provenance. It is read-only, renders nothing, and no surface imports it
+  // (data-platform/boundary.test.mjs B1) — a cross-sport registry, like learning-paths below.
+  "src/lib/data-platform",
   // watches.mjs (P162): the command center's reality-gated watch NAMES the EPL results artifact
   // path as evidence-to-inspect for a human. It imports nothing from the lane — prose, not a read.
   "src/lib/launch/watches.mjs",

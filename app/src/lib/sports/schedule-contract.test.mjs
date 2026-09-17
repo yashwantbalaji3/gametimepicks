@@ -115,6 +115,7 @@ test("no source is invented — the registry covers exactly the providers this r
   // Program 169 · Release A: espn_site_api_nfl (roster/player identity — same public-JSON usage
   // class as espn_scoreboard, split for its own freshness/consumer rules) and
   // nfl_weather_unsourced (a BLOCKED role recorded so no adapter can assume a weather default).
+  // v1.2 Data Platform: nflverse — first real use P257-F (d3edfb844, 2026-09-11); in use but never recorded.
   assert.deepEqual(Object.keys(SOURCES).sort(),
-    ["api_football", "balldontlie", "espn_cdn", "espn_scoreboard", "espn_site_api_nfl", "mlb_midfield", "mlb_statsapi", "nfl_weather_unsourced", "odds_api", "openfootball"]);
+    ["api_football", "balldontlie", "espn_cdn", "espn_scoreboard", "espn_site_api_nfl", "mlb_midfield", "mlb_statsapi", "nfl_weather_unsourced", "nflverse", "odds_api", "openfootball"]);
 });
