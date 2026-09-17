@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-17T15:30:38.656Z",
+  "generatedAt": "2026-09-17T15:38:47.104Z",
   "canonical": {
     "record": "32-29",
     "bankroll": 16965.4,
@@ -117,7 +117,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-09-17",
-      "generatedAt": "2026-09-17T14:39:38Z",
+      "generatedAt": "2026-09-17T15:30:41Z",
       "sports": [
         {
           "sport": "epl",
@@ -136,7 +136,7 @@
           "state": "DERIVED",
           "counts": {
             "scheduled": 12,
-            "priced": 0,
+            "priced": 12,
             "generated": 10,
             "frozen": 0,
             "started": 0
@@ -176,7 +176,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-17",
       "present": true,
-      "generatedAt": "2026-09-17T14:39:37Z",
+      "generatedAt": "2026-09-17T15:30:40Z",
       "watchdog": [],
       "states": {
         "bank-builder": {
@@ -219,16 +219,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-17T15:28:22.008Z",
+    "lastRunAt": "2026-09-17T15:38:46.346Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-17",
-    "etTime": "11:30",
+    "etTime": "11:38",
     "stages": [
       {
         "stage": "schedule",
