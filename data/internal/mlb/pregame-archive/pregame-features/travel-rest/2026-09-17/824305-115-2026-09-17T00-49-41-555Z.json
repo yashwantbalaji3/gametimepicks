@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824305,
+  "teamId": 115,
+  "name": "Colorado Rockies",
+  "side": "home",
+  "date": "2026-09-17",
+  "capturedAt": "2026-09-17T00:49:41.555Z",
+  "availableAt": "2026-09-17T00:49:41.555Z",
+  "eventStartTime": "2026-09-17T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 7,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-09-16",
+  "previousVenueId": 19,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=115&startDate=2026-09-03&endDate=2026-09-16",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-09-17T00:49:41.555Z"
+  },
+  "recordHash": "2b2d6e52cb662d8951cbda1ac44e93e0a42f73b368fc1dedc07cc9dd91e37cf5"
+}

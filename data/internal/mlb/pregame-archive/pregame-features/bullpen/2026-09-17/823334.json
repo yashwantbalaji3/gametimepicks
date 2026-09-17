@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823334,
+  "date": "2026-09-17",
+  "capturedAt": "2026-09-17T00:49:31.538Z",
+  "availableAt": "2026-09-17T00:49:31.538Z",
+  "eventStartTime": "2026-09-17T16:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-14",
+    "2026-09-15",
+    "2026-09-16"
+  ],
+  "home": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 99,
+      "relievers": [
+        {
+          "id": 699008,
+          "name": "Antwone Kelly",
+          "appearances": 1,
+          "pitches": 44,
+          "outs": 9,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 685126,
+          "name": "Brandon Eisert",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 7,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 642397,
+          "name": "Gregory Soto",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 1,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 696062,
+          "name": "Wilber Dotel",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 2,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 2,
+          "dates": [
+            "2026-09-15"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 66,
+      "relievers": [
+        {
+          "id": 676879,
+          "name": "Aaron Ashby",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 669084,
+          "name": "DL Hall",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-14,2026-09-15,2026-09-16) + feed/live box scores",
+    "capturedAt": "2026-09-17T00:49:31.538Z"
+  },
+  "recordHash": "3b873e4547ebbb3570667294327abfc472b22c0fa611ef1cb26c4cd0267a934f"
+}

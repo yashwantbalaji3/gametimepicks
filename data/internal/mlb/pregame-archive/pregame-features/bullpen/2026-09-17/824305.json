@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824305,
+  "date": "2026-09-17",
+  "capturedAt": "2026-09-17T00:49:31.538Z",
+  "availableAt": "2026-09-17T00:49:31.538Z",
+  "eventStartTime": "2026-09-17T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-14",
+    "2026-09-15",
+    "2026-09-16"
+  ],
+  "home": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 140,
+      "relievers": [
+        {
+          "id": 663372,
+          "name": "Ryan Feltner",
+          "appearances": 1,
+          "pitches": 61,
+          "outs": 15,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 680604,
+          "name": "Blas Castaño",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 815081,
+          "name": "Mark Manfredi",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 1,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 605447,
+          "name": "Jordan Romano",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 128,
+      "relievers": [
+        {
+          "id": 681190,
+          "name": "Randy Vásquez",
+          "appearances": 1,
+          "pitches": 44,
+          "outs": 8,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 593974,
+          "name": "Wandy Peralta",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 2,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 5,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 606996,
+          "name": "Kyle Hart",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 1,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-14,2026-09-15,2026-09-16) + feed/live box scores",
+    "capturedAt": "2026-09-17T00:49:31.538Z"
+  },
+  "recordHash": "6a9046760b1da1ec9cfa630b9e20febd7658583ecb1624ddcbb470bf0b4a3294"
+}
