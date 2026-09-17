@@ -299,3 +299,52 @@ test("UFC-3 a draw is not a loss for either fighter; a scratched bout from an ol
   assert.equal(diag.count("EXCLUDED_BY_SCOPE", "UFC"), 1);
   assert.deepEqual(new Set(lines.map((r) => r.opponentPlayerId)), new Set(["ufc-athlete-4895772", "ufc-athlete-5076027"]));
 });
+
+// ── reviewed-table proofs against committed provider data (ids decide; names/abbreviations only confirm) ───────
+test("NFL-8 the nflverse→ESPN table agrees with ESPN's own (abbr, id) pairs and with a join BY EVENT ID", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const APP = process.cwd().endsWith("app") ? process.cwd() : path.join(process.cwd(), "app");
+  const REPO = path.join(APP, "..");
+  const roster = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/rosters/latest.json"), "utf8"));
+  const espnIdByAbbr = new Map(roster.teams.map((t) => [t.teamAbbr, String(t.providerTeamId)]));
+  const DIFFERS = { WAS: "WSH", LA: "LAR" };
+  for (const [code, id] of Object.entries(NFLVERSE_TEAM_TO_ESPN_TEAM_ID)) assert.equal(espnIdByAbbr.get(DIFFERS[code] ?? code), id, `nflverse ${code}`);
+  const cur = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/nfl/replay/current-season.json"), "utf8"));
+  const col = (n) => cur.columns.indexOf(n);
+  const espnSides = new Map();
+  for (const f of fs.readdirSync(path.join(APP, "public/data/nfl/schedule")).filter((x) => x.endsWith(".json"))) {
+    for (const r of JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/schedule", f), "utf8")).rows ?? []) espnSides.set(String(r.providerEventId), [String(r.home.providerTeamId), String(r.away.providerTeamId)]);
+  }
+  let joined = 0;
+  for (const g of cur.games) {
+    const sides = espnSides.get(String(g[col("espnId")]));
+    if (!sides) continue;
+    assert.deepEqual([NFLVERSE_TEAM_TO_ESPN_TEAM_ID[g[col("home")]], NFLVERSE_TEAM_TO_ESPN_TEAM_ID[g[col("away")]]], sides, `event ${g[col("espnId")]}`);
+    joined += 1;
+  }
+  assert.ok(joined >= 10, `id-joined games: ${joined}`);
+});
+
+test("EPL-5 the reviewed club table names only canonical clubs of lib/soccer/epl-clubs.ts, and each ESPN team name is an exact alias of its club", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const { EPL_CLUB_ALIASES } = await import("../soccer/epl-clubs.ts");
+  const byCanonical = new Map(EPL_CLUB_ALIASES.map((c) => [c.canonical, c]));
+  for (const c of EPL_CLUBS) {
+    const product = byCanonical.get(c.club);
+    assert.ok(product, `${c.club} is a canonical product club`);
+    assert.equal(product.abbr, c.abbr, `${c.club} abbreviation`);
+  }
+  const REPO = path.join(process.cwd(), process.cwd().endsWith("app") ? ".." : "");
+  const squads = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/epl/players/squads-2026-27.json"), "utf8"));
+  const espnNames = new Map(squads.squads.map((s) => [String(s.teamId), s.teamName]));
+  const lines = fs.readFileSync(path.join(REPO, "data/internal/research/epl/players/espn-players-v1.jsonl"), "utf8").split("\n");
+  for (const l of lines) { if (!l) continue; const r = JSON.parse(l); if (!espnNames.has(String(r.teamId))) espnNames.set(String(r.teamId), r.teamName); }
+  for (const c of EPL_CLUBS) {
+    const name = espnNames.get(c.espnTeamId);
+    assert.ok(name, `ESPN team ${c.espnTeamId} appears in committed ESPN data`);
+    assert.ok(byCanonical.get(c.club).aliases.includes(name), `ESPN "${name}" (${c.espnTeamId}) must be an exact alias of ${c.club}`);
+  }
+  assert.equal(new Set([...espnNames.keys()].filter((id) => !EPL_CLUBS.some((c) => c.espnTeamId === id))).size, 0, "every ESPN EPL team id in committed data is reviewed");
+});
