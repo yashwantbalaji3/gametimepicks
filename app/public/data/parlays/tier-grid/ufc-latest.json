@@ -5,16 +5,341 @@
  "moneyClass": "NON_MONEY",
  "sport": "ufc",
  "date": "2026-09-19",
- "generatedAt": "2026-09-16T17:35:44Z",
- "state": "NOT_ELIGIBLE",
- "reason": "the last price capture is 4.2 days old; only 0 priced games — the ladder needs 4",
- "evidence": {
-  "pricedGames": 0,
-  "pricesCapturedAt": "2026-09-12T13:30:45Z",
-  "priceAgeDays": 4.17,
-  "settlementSource": "official UFC bout results through the lab's own settled receipts",
-  "settlementProven": true
- },
- "tiers": [],
- "cells": []
+ "generatedAt": "2026-09-17T15:23:17Z",
+ "state": "PUBLISHED",
+ "bandsUnreachable": [
+  "high"
+ ],
+ "calmestAvailable": "low",
+ "tiers": [
+  {
+   "id": "bronze",
+   "minBankroll": 0,
+   "maxBankroll": 50,
+   "cardsPerDay": 1,
+   "bands": [
+    "low"
+   ],
+   "offered": 1,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "silver",
+   "minBankroll": 50,
+   "maxBankroll": 100,
+   "cardsPerDay": 2,
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "gold",
+   "minBankroll": 100,
+   "maxBankroll": 250,
+   "cardsPerDay": 3,
+   "bands": [
+    "low",
+    "medium",
+    "high"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "diamond",
+   "minBankroll": 250,
+   "maxBankroll": null,
+   "cardsPerDay": 4,
+   "bands": [
+    "low",
+    "medium",
+    "high",
+    "longshot"
+   ],
+   "offered": 3,
+   "emptyToday": false,
+   "substitute": null
+  }
+ ],
+ "cells": [
+  {
+   "tier": "bronze",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "ufc-low-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "bronze",
+   "band": "medium",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "ufc-low-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "ufc-medium-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "gold",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "ufc-low-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "ufc-medium-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "high",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no card priced into this band — 2 legs → -128 (low); 3 legs → +129 (medium); 4 legs → +1274 (longshot)"
+  },
+  {
+   "tier": "gold",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 3 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "diamond",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "ufc-low-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "ufc-medium-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "high",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no card priced into this band — 2 legs → -128 (low); 3 legs → +129 (medium); 4 legs → +1274 (longshot)"
+  },
+  {
+   "tier": "diamond",
+   "band": "longshot",
+   "state": "OFFERED",
+   "slipId": "ufc-longshot-2026-09-19",
+   "reason": null
+  }
+ ],
+ "cards": [
+  {
+   "band": "low",
+   "slipId": "ufc-low-2026-09-19",
+   "combinedAmerican": -111,
+   "combinedDecimal": 1.904,
+   "legs": [
+    {
+     "sport": "ufc",
+     "eventId": "401905376",
+     "player": "Dooho Choi",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -278,
+     "decimal": 1.3597122302158273,
+     "modelProbability": 0.7689,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3093026.png",
+     "opponent": "Patricio Pitbull",
+     "team": null
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401905378",
+     "player": "Iwo Baraniewski",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -250,
+     "decimal": 1.4,
+     "modelProbability": 0.7445,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5307810.png",
+     "opponent": "Alonzo Menifield",
+     "team": null
+    }
+   ],
+   "status": "pending",
+   "record": null
+  },
+  {
+   "band": "medium",
+   "slipId": "ufc-medium-2026-09-19",
+   "combinedAmerican": 172,
+   "combinedDecimal": 2.716,
+   "legs": [
+    {
+     "sport": "ufc",
+     "eventId": "401903509",
+     "player": "Joshua Van",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -136,
+     "decimal": 1.7352941176470589,
+     "modelProbability": 0.7374,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5120301.png",
+     "opponent": "Alexandre Pantoja",
+     "team": null
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401905381",
+     "player": "Edmen Shahbazyan",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -177,
+     "decimal": 1.5649717514124295,
+     "modelProbability": 0.6718,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4354318.png",
+     "opponent": "Brunno Ferreira",
+     "team": null
+    }
+   ],
+   "status": "pending",
+   "record": null
+  },
+  {
+   "band": "longshot",
+   "slipId": "ufc-longshot-2026-09-19",
+   "combinedAmerican": 1274,
+   "combinedDecimal": 13.735,
+   "legs": [
+    {
+     "sport": "ufc",
+     "eventId": "401905382",
+     "player": "Joanderson Brito",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -415,
+     "decimal": 1.2409638554216866,
+     "modelProbability": 0.6584,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4422355.png",
+     "opponent": "Giga Chikadze",
+     "team": null
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401903511",
+     "player": "Casey O'Neill",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -230,
+     "decimal": 1.434782608695652,
+     "modelProbability": 0.6536,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4699589.png",
+     "opponent": "Eduarda Moura",
+     "team": null
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401905375",
+     "player": "Arman Tsarukyan",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -350,
+     "decimal": 1.2857142857142856,
+     "modelProbability": 0.5646,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4419372.png",
+     "opponent": "Mauricio Ruffy",
+     "team": null
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401905380",
+     "player": "Tai Tuivasa",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": 500,
+     "decimal": 6,
+     "modelProbability": 0.5582,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3722422.png",
+     "opponent": "Robelis Despaigne",
+     "team": null
+    }
+   ],
+   "status": "pending",
+   "record": null
+  }
+ ],
+ "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
 }
