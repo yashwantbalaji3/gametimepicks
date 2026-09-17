@@ -1,45 +1,48 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-17",
-  "checkedAt": "2026-09-17T10:01:24.662Z",
-  "treeHead": "7880fc2ab",
+  "checkedAt": "2026-09-17T10:17:53.856Z",
+  "treeHead": "f72eb6894",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 9,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-17T15:05:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-17T15:05:00.000Z",
+      "receiptAt": "2026-09-17T10:06:36.815827+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-09-17.json"
     },
     {
       "id": "mlb-markets",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-17T15:35:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-17T15:35:00.000Z",
+      "receiptAt": "2026-09-17T10:09:03.504Z",
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/team-markets/2026-09-17.json"
     },
     {
       "id": "mlb-simulations",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-17T15:35:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-17T15:35:00.000Z",
+      "receiptAt": "2026-09-17T10:09:08.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/game-simulations/2026-09-17.json"
     },
     {
       "id": "risk-ladder",
@@ -67,7 +70,7 @@
     {
       "id": "schedules",
       "state": "STALE",
-      "reason": "receipt is 43.7h old against a 24h bound",
+      "reason": "receipt is 44.0h old against a 24h bound",
       "dueAtIso": "2026-09-17T13:00:00.000Z",
       "receiptAt": "2026-09-15T14:18:35Z",
       "label": "Schedule capture (NFL) + injury capture",
@@ -126,7 +129,7 @@
     {
       "id": "epl-lane",
       "state": "STALE",
-      "reason": "receipt is 60.1h old against a 30h bound",
+      "reason": "receipt is 60.3h old against a 30h bound",
       "dueAtIso": "2026-09-17T21:00:00.000Z",
       "receiptAt": "2026-09-14T21:57:37Z",
       "label": "EPL lane status",
