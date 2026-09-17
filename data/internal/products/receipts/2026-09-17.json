@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-17",
- "generatedAt": "2026-09-17T10:20:17Z",
+ "generatedAt": "2026-09-17T12:23:52Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-1+bank-builder-lane-b-step-1",
-     "lockAt": "2026-09-17T10:20:14.353Z"
+     "lockAt": "2026-09-17T12:23:49.627Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-1+moonshot-lane-b-step-3",
-     "lockAt": "2026-09-17T10:20:14.353Z"
+     "lockAt": "2026-09-17T12:23:49.627Z"
     },
     "transitions": [
      {
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-17T10:09:15.000Z"
+     "lockAt": "2026-09-17T12:13:00.000Z"
     },
     "transitions": [
      {
@@ -402,7 +402,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -192,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Riley Greene",
@@ -416,7 +416,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -193,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -446,7 +446,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -197,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Dustin Harris",
@@ -460,7 +460,7 @@
        "side": "Under",
        "line": 1.5,
        "odds": -222,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Joey Ortiz",
@@ -474,7 +474,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -210,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Maikel Garcia",
@@ -488,7 +488,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -176,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -518,7 +518,7 @@
        "side": "Under",
        "line": 0.5,
        "odds": -109,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Manny Machado",
@@ -532,7 +532,7 @@
        "side": "Under",
        "line": 1.5,
        "odds": -187,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Xander Bogaerts",
@@ -546,7 +546,7 @@
        "side": "Under",
        "line": 1.5,
        "odds": -204,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Michael Massey",
@@ -560,7 +560,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -163,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Walker Jenkins",
@@ -574,7 +574,7 @@
        "side": "Under",
        "line": 0.5,
        "odds": -108,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -588,12 +588,12 @@
    ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "ACTIVE",
+    "state": "AWAITING_RESULT",
     "policyVersion": "mlb-cards@1",
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-17T10:20:16Z"
+     "lockAt": "2026-09-17T12:23:51Z"
     },
     "transitions": [
      {
@@ -603,6 +603,10 @@
      {
       "to": "ACTIVE",
       "runId": "gen:2026-09-17:5f3b40c94d33"
+     },
+     {
+      "to": "AWAITING_RESULT",
+      "runId": "await:2026-09-17:2026-09-17T10:07:22+00:00"
      }
     ]
    }
