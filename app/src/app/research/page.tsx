@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -43,6 +44,17 @@ export default function ResearchPage() {
         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">10,000-run game simulations</span>
         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">Market comparison</span>
         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">Public beta</span>
+      </div>
+
+      {/* v1.5 · the Research Lab is the public, factual half of this page's subject: the recorded data itself. */}
+      <div className="mt-10 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] p-4">
+        <div className="text-[15px] font-semibold text-[var(--text)]">Research Lab</div>
+        <p className="mt-1 text-[14px] leading-relaxed text-[var(--text-mute)]">
+          Search the recorded data directly: find MLB and NFL games by team, opponent, result, score or date; filter NFL,
+          Premier League and MLB player games on one recorded stat; or read recorded season results team by team. Facts only —
+          no forecast, no rating, no pick.
+        </p>
+        <Link href="/research/lab/" className="mt-3 inline-flex min-h-[44px] items-center rounded-full border border-[var(--border)] px-4 text-[13px] text-[var(--text)] no-underline">Open Research Lab</Link>
       </div>
 
       <h2 className="mt-10 text-[13px] font-semibold uppercase tracking-wide text-[var(--text-mute)]">Research milestones</h2>

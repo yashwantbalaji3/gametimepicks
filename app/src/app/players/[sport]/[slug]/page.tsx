@@ -14,6 +14,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import CompareCta from "@/components/compare/compare-cta";
+import { labHref } from "@/lib/lab/lab-store";
 import FollowToggle from "@/components/follow/follow-toggle";
 import PlayerResearchView from "@/components/research-pages/player-research-view";
 import { CoverageStrip, EntityLink, Eyebrow, MONO, PANEL, ResearchShell, ResultBadge, Section, StatTile } from "@/components/research-pages/research-primitives";
@@ -92,6 +93,8 @@ export default function PlayerResearchPage({ params }: { params: { sport: string
         </div>
         {followRef ? <FollowToggle entity={followRef} variant="labeled" /> : null}
         {playerHasComparablePeer(sport, p.id) ? <CompareCta href={comparePath("player", sport, { a: p.slug })}>Compare player</CompareCta> : null}
+        {/* v1.5 · only for a player the Lab carries recorded stat rows for (a UFC fighter never does). */}
+        {labHref("players", sport, p.id) ? <CompareCta href={labHref("players", sport, p.id)!}>Filter game stats</CompareCta> : null}
       </header>
 
       <CoverageStrip coverage={p.coverage} period={period ? `Recorded history: ${period}` : null} />

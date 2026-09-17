@@ -277,6 +277,13 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     desc: "How to read a price", surfaces: ["footer"] },
   { href: "/research", label: "Research engine", group: "record",
     desc: "What the model is being tested against", surfaces: ["footer"] },
+  /*
+   * v1.5 · Research Lab. A SECONDARY destination on the rail and the footer sitemap, never a primary: P243
+   * charter E fixes the primaries at five, and this is a tool a reader reaches for deliberately rather than a
+   * place the product sends them. It is the only nav change v1.5 makes.
+   */
+  { href: "/research/lab", label: "Research Lab", group: "record", glyph: "🔎", note: "MLB · NFL · Premier League",
+    desc: "Search recorded games, player games and season results", surfaces: ["rail", "footer"] },
   { href: "/responsible-use", label: "Responsible use", group: "record",
     desc: "Paper-only, educational, no stake is ever filled", surfaces: ["footer"] },
   /*

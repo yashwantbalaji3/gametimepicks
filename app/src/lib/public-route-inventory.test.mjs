@@ -145,6 +145,13 @@ const APPROVED_DESTINATIONS = new Set([
   "/market-guide",
   "/responsible-use",
   "/research",
+  /*
+   * v1.5: the Research Lab. A secondary tool destination (rail + footer), never a primary — P243 charter E fixes
+   * the primaries at five. It clears the bar this list exists to hold: it renders only recorded facts from a
+   * committed, leak-guarded projection, publishes no forecast, model output, Live state or settlement grade of its
+   * own, and stores nothing on the reader's device.
+   */
+  "/research/lab",
   "/system-status",
   "/about",
   /* P266: the account surface. It is NOT in any nav surface yet and that is deliberate — until a

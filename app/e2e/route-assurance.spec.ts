@@ -101,3 +101,108 @@ test("state · /results renders the canonical accounting section", async ({ page
   await page.waitForLoadState("networkidle");
   await expect(page.locator("#accounting-heading")).toBeVisible();
 });
+
+/*
+ * v1.5 Research Lab · THE SEARCH KEEPS WORKING AFTER THE FIRST FILTER.
+ *
+ * Found in browser QA and fixed: the mode/sport target was rebuilt as a fresh object on every query change, which
+ * re-ran the selector-index effect (clearing both the index and the loaded rows) while the row effect's own
+ * dependency — the partition path — came back identical and so never re-fired. The page then sat on "Applying
+ * filters…" for ever after one filter change, with a correct URL and no console error. Only a real browser can
+ * catch that, and only after an interaction, so it is pinned here on all three engines.
+ */
+test("state · /research/lab/ keeps its results when a filter and then a mode change", async ({ page }) => {
+  const errors = armErrorCapture(page);
+  await page.goto("/research/lab/?mode=games&sport=nfl&season=NFL-2025&team=kansas-city-chiefs");
+  const rows = page.locator("[data-scroll-x] tbody tr");
+  await expect(rows.first()).toBeVisible({ timeout: 15000 });
+  const before = await rows.count();
+  expect(before, "the unfiltered search returns rows").toBeGreaterThan(0);
+
+  // 1 · a filter change must re-run the search, not wedge it. (Progressive disclosure: the result filter lives
+  // behind "More filters", so opening it is part of the journey a reader actually takes.)
+  await page.locator("summary").filter({ hasText: "More filters" }).click();
+  await expect(page.locator("#lab-result")).toBeVisible();
+  await page.locator("#lab-result").selectOption("W");
+  await expect(page.getByText(/recorded games match/)).toBeVisible({ timeout: 15000 });
+  const after = await rows.count();
+  expect(after, "the filtered search still returns rows").toBeGreaterThan(0);
+  expect(after, "a result filter narrows the set").toBeLessThan(before);
+  expect(page.url()).toContain("result=W");
+  // The filter means what it says: every row on the page is a win.
+  const results = await page.locator("[data-scroll-x] tbody tr td:nth-child(7)").allInnerTexts();
+  expect(new Set(results.map((t) => t.trim()))).toEqual(new Set(["Won"]));
+
+  // 2 · a MODE change loads a different index and a different partition, and still paints.
+  await page.getByRole("link", { name: "Players", exact: true }).click();
+  await expect(page.getByText(/recorded player games match/)).toBeVisible({ timeout: 15000 });
+  expect(await rows.count(), "the player search returns rows").toBeGreaterThan(0);
+  expect(page.url()).toContain("mode=players");
+
+  expect(errors, "no console or page error during the search").toEqual([]);
+});
+
+/*
+ * v1.5 Research Lab · A SLOW PARTITION MUST NOT WIN THE RACE.
+ *
+ * Two static assets are in flight whenever the reader changes mode quickly, and the slower one can resolve last.
+ * Two separate rules keep that honest: the loader ignores a payload the current search no longer wants (liveness —
+ * without it the late payload replaces the fresh one and the page sticks on "Applying filters…"), and the renderer
+ * refuses to execute a query against a partition that is not the one it asked for (correctness — without it the
+ * page would show the wrong sport's or season's rows under the new heading). The delay is injected, so this is a
+ * deterministic reproduction rather than a hope that CI is slow in the right place.
+ */
+test("state · /research/lab/ a slow partition never overwrites a newer search", async ({ page }) => {
+  const errors = armErrorCapture(page);
+  // The Game Finder's rows arrive two seconds late; everything else is normal speed.
+  await page.route("**/data/lab/v1/games/nfl/rows.json", async (route) => {
+    await new Promise((r) => setTimeout(r, 2000));
+    await route.continue();
+  });
+  await page.goto("/research/lab/?mode=games&sport=nfl&season=NFL-2025&team=kansas-city-chiefs");
+  // Switch to a fast search before the slow one lands.
+  await page.getByRole("link", { name: "Seasons", exact: true }).click();
+  await expect(page.getByText(/team seasons? match/)).toBeVisible({ timeout: 15000 });
+  expect(page.url(), "the sport is kept when the new mode ships it").toContain("sport=nfl");
+  const heading = await page.getByRole("heading", { name: "Season Explorer" }).isVisible();
+  expect(heading, "the Season Explorer is what the reader asked for").toBe(true);
+
+  // Now let the late Game Finder payload arrive. The season results must still be on screen.
+  await page.waitForTimeout(3000);
+  await expect(page.getByText(/team seasons? match/), "the late payload must not replace the newer search").toBeVisible();
+  // Header text is upper-cased by CSS, so compare case-insensitively against the rendered text.
+  const cols = (await page.locator("[data-scroll-x] thead th").allInnerTexts()).map((c) => c.trim().toLowerCase());
+  expect(cols, "the table is still the Season Explorer's").toContain("finals");
+  expect(errors, "no console or page error during the race").toEqual([]);
+});
+
+/*
+ * v1.5 Research Lab · THE ROWS ON SCREEN ALWAYS BELONG TO THE SEARCH ON SCREEN.
+ *
+ * Changing only the SEASON keeps the mode and the sport, so the engine's own dataset check cannot tell the two
+ * apart — the renderer's partition check is the only thing standing between the reader and last season's rows
+ * rendered under this season's heading. The gap is real but short, so the new season's asset is delayed to make it
+ * observable: during the wait the page must say it is working, never show the previous season's answer.
+ */
+test("state · /research/lab/ never shows one season's rows as another season's answer", async ({ page }) => {
+  await page.route("**/data/lab/v1/players/nfl/NFL-2024.json", async (route) => {
+    await new Promise((r) => setTimeout(r, 2500));
+    await route.continue();
+  });
+  await page.goto("/research/lab/?mode=players&sport=nfl&season=NFL-2025&stat=receiving-yards&value_min=150");
+  const rows = page.locator("[data-scroll-x] tbody tr");
+  await expect(rows.first()).toBeVisible({ timeout: 15000 });
+  const was2025 = await rows.count();
+  expect(was2025).toBeGreaterThan(0);
+
+  await page.locator("#lab-season").selectOption("NFL-2024");
+  // While the 2024 partition is in flight there must be NO result table — 2025's rows are not 2024's answer.
+  await expect(page.getByText("Applying filters…")).toBeVisible({ timeout: 5000 });
+  await expect(rows).toHaveCount(0);
+  // And once it lands, the answer is 2024's.
+  await expect(page.getByText(/recorded player games match/)).toBeVisible({ timeout: 15000 });
+  expect(await rows.count()).toBeGreaterThan(0);
+  const dates = await page.locator("[data-scroll-x] tbody tr td:first-child").allInnerTexts();
+  expect(dates.every((d) => /202[45]/.test(d)), `2024-season dates, got ${dates.slice(0, 3).join(", ")}`).toBe(true);
+  expect(dates.some((d) => /2024/.test(d)), "the 2024 season is what is shown").toBe(true);
+});

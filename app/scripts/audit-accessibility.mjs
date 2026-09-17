@@ -55,6 +55,9 @@ const ROUTES = ["", "models", "saved", "today", "markets", "results", "methodolo
   ...(firstEplMatch ? [`epl/match/${firstEplMatch}`] : []),
   // v1.4: the Compare shells (static HTML; the pair is composed after mount) and one discovered Matchup page.
   "compare", "compare/teams/nfl", "compare/players/nfl", "compare/teams/epl",
+  // v1.5: the Research Lab shell. Its controls are built after mount (so the browser audit covers those); this
+  // static pass covers the shell's landmarks, heading order, link text and the mode/sport navigation.
+  "research/lab",
   ...(firstNflMatchup ? [`matchups/nfl/${firstNflMatchup}`] : [])];
 
 const strip = (h) => h.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");

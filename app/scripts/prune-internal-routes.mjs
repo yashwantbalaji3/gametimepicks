@@ -60,9 +60,13 @@ const ALWAYS_PUBLIC_DATA = ["build-info.json", "search/index.json"];
  *                  (scripts/compare/emit-compare-assets.mjs from data/compare-projection/v1; guarded by
  *                  lib/compare/compare-projection.test.mjs and compare-built.test.mjs). The Compare shells fetch
  *                  `/data/compare/v1/<kind>/<sport>/<slug>.json` for the two entities a reader selects.
+ *   lab/v1/      — v1.5 Research Lab assets: one selector index per mode+sport plus one row partition
+ *                  (scripts/lab/emit-lab-assets.mjs from data/lab-projection/v1; guarded by
+ *                  lib/lab/lab-projection.test.mjs and lab-built.test.mjs). /research/lab/ assembles
+ *                  `/data/lab/v1/<mode>/<sport>/{index,rows,<season>}.json` from the query the reader builds.
  * A runtime-assembled `/data/` reference is tolerated ONLY under one of these prefixes; anything else still refuses.
  */
-const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/"];
+const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/", "lab/v1/"];
 const underPublicDir = (rel) => ALWAYS_PUBLIC_DATA_DIRS.some((d) => rel === d.slice(0, -1) || rel.startsWith(d));
 
 if (process.env.NEXT_PUBLIC_INTERNAL_ROUTES === "1") {

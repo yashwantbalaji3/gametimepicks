@@ -61,12 +61,19 @@ const ROUTES = ["/", "/models/", "/saved/", "/today/", "/markets/", "/results/",
   // and season selects, window buttons, bars, two tables) and one Matchup page (team panels + the meetings table the
   // Team Compare shell shares). Two routes, not three, to hold the CI budget; Team Compare is covered by browser QA.
   "/compare/players/nfl/?a=keenan-allen&b=travis-kelce",
-  ...(FIRST_NFL_MATCHUP ? [`/matchups/nfl/${FIRST_NFL_MATCHUP}/`] : [])];
+  ...(FIRST_NFL_MATCHUP ? [`/matchups/nfl/${FIRST_NFL_MATCHUP}/`] : []),
+  // v1.5 Research Lab: ONE representative composed state — the Game Finder with a team selected, which renders the
+  // mode tabs, the sport chips, four selects, the collapsible filter panel, the coverage strip, a seven-column
+  // result table and the pager. That is every control class the three modes use; the Player and Season modes are
+  // covered by browser QA, to hold the CI budget the same way Team Compare is.
+  "/research/lab/?mode=games&sport=nfl&season=NFL-2025&team=kansas-city-chiefs"];
 
-/** A Compare shell composes its pair after mount from static assets; audit the composed state, not the loading line. */
+/** A Compare shell and the Research Lab build their UI after mount from static assets; audit the composed state. */
 async function gotoAudited(page: import("@playwright/test").Page, route: string) {
   await page.goto(route, { waitUntil: "domcontentloaded" });
   if (route.startsWith("/compare/") && route.includes("?a=")) await page.waitForSelector("#cmp-season-summary", { timeout: 15000 });
+  // The Lab's controls exist only once its selector index has loaded; the table only once the query has run.
+  if (route.startsWith("/research/lab/")) await page.waitForSelector("[data-scroll-x] table", { timeout: 15000 });
 }
 
 const VIEWPORTS = [
@@ -179,7 +186,7 @@ test.describe("contrast — real used colour at every launch viewport", () => {
  * and announced as "combo box" alone. Checked on the composed page, on every engine.
  */
 test.describe("form controls carry accessible names", () => {
-  for (const route of ROUTES.filter((r) => r.startsWith("/compare/"))) {
+  for (const route of ROUTES.filter((r) => r.startsWith("/compare/") || r.startsWith("/research/lab/"))) {
     test(`${route} — every control is named`, async ({ page }) => {
       await gotoAudited(page, route);
       const unnamed = await page.evaluate(() => {
@@ -381,7 +388,7 @@ test.describe("reflow", () => {
          document grows wider than the screen while no element reports as an offender — a phone then zooms the whole
          page out. The offender scan above cannot see that; the document width can. Pinned for the research + compare
          families that found it (other routes keep the offender check alone until audited). */
-      if (/^\/(compare|matchups|teams|players)\//.test(route)) {
+      if (/^\/(compare|matchups|teams|players|research\/lab)\//.test(route)) {
         expect(overflow.scrollWidth, `document wider than the screen on ${route}`).toBeLessThanOrEqual(overflow.clientWidth + 1);
       }
     });

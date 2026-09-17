@@ -14,6 +14,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import CompareCta from "@/components/compare/compare-cta";
+import { labHref } from "@/lib/lab/lab-store";
 import FollowToggle from "@/components/follow/follow-toggle";
 import TeamLogo from "@/components/team-logo";
 import { CoverageStrip, EntityLink, Eyebrow, MONO, PANEL, ResearchShell, ResultBadge, Section, StatTile } from "@/components/research-pages/research-primitives";
@@ -101,6 +102,9 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
         </div>
         {followRef ? <FollowToggle entity={followRef} variant="labeled" /> : null}
         {(sport === "MLB" || sport === "NFL") && teamInCompare(sport, t.id) ? <CompareCta href={comparePath("team", sport, { a: t.slug })}>Compare team</CompareCta> : null}
+        {/* v1.5 · only when the Lab actually has recorded finals for this team; no season is pinned, so the link
+            cannot go stale against a refreshed projection. */}
+        {labHref("games", sport, t.id) ? <CompareCta href={labHref("games", sport, t.id)!}>Find games</CompareCta> : null}
       </header>
 
       <CoverageStrip coverage={t.coverage} period={period} />
