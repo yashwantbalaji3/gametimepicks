@@ -1,0 +1,667 @@
+{
+ "schemaVersion": 1,
+ "artifact": "daily-product-receipt",
+ "dataClass": "PRIVATE_OPERATING_RECORD",
+ "date": "2026-09-17",
+ "generatedAt": "2026-09-17T10:20:17Z",
+ "states": [
+  "NOT_RUN",
+  "INPUTS_MISSING",
+  "STALE",
+  "INCIDENT",
+  "NO_PLAY",
+  "ACTIVE",
+  "PENDING_RESULT",
+  "SETTLED",
+  "VOID",
+  "OFF_SEASON"
+ ],
+ "lifecycleStates": [
+  "EVALUATING",
+  "ACTIVE",
+  "AWAITING_RESULT",
+  "SETTLED_WIN",
+  "SETTLED_LOSS",
+  "SETTLED_RECORDED",
+  "ADVANCED",
+  "RESTARTED",
+  "NO_PLAY",
+  "OFF_SEASON",
+  "INCIDENT"
+ ],
+ "inputs": {
+  "mlbBoard": {
+   "date": "2026-09-17",
+   "present": true,
+   "games": 9,
+   "leans": 415,
+   "hash": "5f3b40c94d33"
+  },
+  "nflMarket": {
+   "present": true,
+   "capturedAt": "2026-09-16T23:33:18Z",
+   "events": 15
+  },
+  "nflModelEligible": false,
+  "portfolioSource": "published mr-dub/daily-portfolio.json",
+  "nflNote": "NFL contributes NO legs: PUBLIC_EXPERIMENTAL — sportsbook prices are not a GameTimePicks pick"
+ },
+ "products": [
+  {
+   "product": "bank-builder",
+   "label": "Bank Builder",
+   "state": "ACTIVE",
+   "reason": "2 lane(s) qualified under the live activation policy",
+   "candidatesEvaluated": 4,
+   "rejections": [],
+   "card": [
+    {
+     "id": "bank-builder-lane-a-step-1",
+     "lane": "A",
+     "step": 1,
+     "legCount": 2,
+     "combinedOdds": 104,
+     "exposure": 100,
+     "potentialReturn": 203.62
+    },
+    {
+     "id": "bank-builder-lane-b-step-1",
+     "lane": "B",
+     "step": 1,
+     "legCount": 2,
+     "combinedOdds": 200,
+     "exposure": 100,
+     "potentialReturn": 300.19
+    }
+   ],
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "bank-builder@1",
+    "evidence": {
+     "policyVersion": "bank-builder@1",
+     "cardRef": "bank-builder-lane-a-step-1+bank-builder-lane-b-step-1",
+     "lockAt": "2026-09-17T10:20:14.353Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:bank-builder:2026-09-17"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-17:5f3b40c94d33"
+     }
+    ]
+   }
+  },
+  {
+   "product": "moonshot",
+   "label": "Moonshot",
+   "state": "ACTIVE",
+   "reason": "2 lane(s) qualified under the live activation policy",
+   "candidatesEvaluated": 4,
+   "rejections": [],
+   "card": [
+    {
+     "id": "moonshot-lane-a-step-1",
+     "lane": "A",
+     "step": 1,
+     "legCount": 2,
+     "combinedOdds": 300,
+     "exposure": 25,
+     "potentialReturn": 100.02
+    },
+    {
+     "id": "moonshot-lane-b-step-3",
+     "lane": "B",
+     "step": 3,
+     "legCount": 2,
+     "combinedOdds": 153,
+     "exposure": 25,
+     "potentialReturn": 1011.3
+    }
+   ],
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "moonshot@2",
+    "evidence": {
+     "policyVersion": "moonshot@2",
+     "cardRef": "moonshot-lane-a-step-1+moonshot-lane-b-step-3",
+     "lockAt": "2026-09-17T10:20:14.353Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:moonshot:2026-09-17"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-17:5f3b40c94d33"
+     }
+    ]
+   }
+  },
+  {
+   "product": "end-zone-vault",
+   "label": "End Zone Vault",
+   "state": "NOT_RUN",
+   "reason": "the Vault ledger holds no entry for 2026-09-17",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "INCIDENT",
+    "policyVersion": "end-zone-vault@1",
+    "evidence": {
+     "policyVersion": "end-zone-vault@1",
+     "incidentRef": "NOT_RUN: the Vault ledger holds no entry for 2026-09-17"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:end-zone-vault:2026-09-17"
+     },
+     {
+      "to": "INCIDENT",
+      "runId": "eval:2026-09-17:NOT_RUN"
+     }
+    ]
+   }
+  },
+  {
+   "product": "homer-nukes",
+   "label": "Homer Nukes",
+   "state": "ACTIVE",
+   "reason": "5 model-qualified home-run picks published for the slate",
+   "candidatesEvaluated": 5,
+   "rejections": [],
+   "card": [
+    {
+     "playerId": 691406,
+     "player": "Junior Caminero",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "ATH",
+     "opponentTeamId": 133,
+     "matchup": "ATH @ TB",
+     "gamePk": 822924,
+     "gameDate": "2026-09-17T17:10:00Z",
+     "venue": "Tropicana Field",
+     "opposingPitcher": "Jeffrey Springs",
+     "opposingPitcherId": 605488,
+     "probability": 0.3118,
+     "seasonHr": 41,
+     "seasonPa": 659,
+     "seasonRate": 0.06222,
+     "adjustedRate": 0.08499,
+     "pitcherHrAllowed": 33,
+     "pitcherBattersFaced": 594,
+     "pitcherMultiplier": 1.551,
+     "reason": "41 HR in 659 plate appearances (6.2% of trips, league 3.0%). Jeffrey Springs has been more homer-prone than average (33 allowed in 594 batters faced), lifting it to 31.2%."
+    },
+    {
+     "playerId": 665742,
+     "player": "Juan Soto",
+     "teamId": 121,
+     "teamAbbr": "NYM",
+     "teamName": "New York Mets",
+     "opponentAbbr": "PHI",
+     "opponentTeamId": 143,
+     "matchup": "PHI @ NYM",
+     "gamePk": 823573,
+     "gameDate": "2026-09-17T23:15:00Z",
+     "venue": "Citi Field",
+     "opposingPitcher": "Aaron Nola",
+     "opposingPitcherId": 605400,
+     "probability": 0.2636,
+     "seasonHr": 25,
+     "seasonPa": 435,
+     "seasonRate": 0.05747,
+     "adjustedRate": 0.07016,
+     "pitcherHrAllowed": 34,
+     "pitcherBattersFaced": 690,
+     "pitcherMultiplier": 1.434,
+     "reason": "25 HR in 435 plate appearances (5.7% of trips, league 3.0%). Aaron Nola has been more homer-prone than average (34 allowed in 690 batters faced), lifting it to 26.4%."
+    },
+    {
+     "playerId": 683748,
+     "player": "Victor Mesa Jr.",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "ATH",
+     "opponentTeamId": 133,
+     "matchup": "ATH @ TB",
+     "gamePk": 822924,
+     "gameDate": "2026-09-17T17:10:00Z",
+     "venue": "Tropicana Field",
+     "opposingPitcher": "Jeffrey Springs",
+     "opposingPitcherId": 605488,
+     "probability": 0.259,
+     "seasonHr": 13,
+     "seasonPa": 230,
+     "seasonRate": 0.05652,
+     "adjustedRate": 0.0688,
+     "pitcherHrAllowed": 33,
+     "pitcherBattersFaced": 594,
+     "pitcherMultiplier": 1.551,
+     "reason": "13 HR in 230 plate appearances (5.7% of trips, league 3.0%). Jeffrey Springs has been more homer-prone than average (33 allowed in 594 batters faced), lifting it to 25.9%."
+    },
+    {
+     "playerId": 571970,
+     "player": "Max Muncy",
+     "teamId": 119,
+     "teamAbbr": "LAD",
+     "teamName": "Los Angeles Dodgers",
+     "opponentAbbr": "CIN",
+     "opponentTeamId": 113,
+     "matchup": "LAD @ CIN",
+     "gamePk": 824464,
+     "gameDate": "2026-09-17T16:40:00Z",
+     "venue": "Great American Ball Park",
+     "opposingPitcher": "Brady Singer",
+     "opposingPitcherId": 663903,
+     "probability": 0.234,
+     "seasonHr": 28,
+     "seasonPa": 527,
+     "seasonRate": 0.05313,
+     "adjustedRate": 0.0614,
+     "pitcherHrAllowed": 30,
+     "pitcherBattersFaced": 683,
+     "pitcherMultiplier": 1.31,
+     "reason": "28 HR in 527 plate appearances (5.3% of trips, league 3.0%). Brady Singer has been more homer-prone than average (30 allowed in 683 batters faced), lifting it to 23.4%."
+    },
+    {
+     "playerId": 596019,
+     "player": "Francisco Lindor",
+     "teamId": 121,
+     "teamAbbr": "NYM",
+     "teamName": "New York Mets",
+     "opponentAbbr": "PHI",
+     "opponentTeamId": 143,
+     "matchup": "PHI @ NYM",
+     "gamePk": 823573,
+     "gameDate": "2026-09-17T23:15:00Z",
+     "venue": "Citi Field",
+     "opposingPitcher": "Aaron Nola",
+     "opposingPitcherId": 605400,
+     "probability": 0.2298,
+     "seasonHr": 20,
+     "seasonPa": 421,
+     "seasonRate": 0.04751,
+     "adjustedRate": 0.0602,
+     "pitcherHrAllowed": 34,
+     "pitcherBattersFaced": 690,
+     "pitcherMultiplier": 1.434,
+     "reason": "20 HR in 421 plate appearances (4.8% of trips, league 3.0%). Aaron Nola has been more homer-prone than average (34 allowed in 690 batters faced), lifting it to 23.0%."
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "homer-nukes@1",
+    "evidence": {
+     "policyVersion": "homer-nukes@1",
+     "cardRef": "card+card+card+card+card",
+     "lockAt": "2026-09-17T10:09:15.000Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:homer-nukes:2026-09-17"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-17:5f3b40c94d33"
+     }
+    ]
+   }
+  },
+  {
+   "product": "ufc-cards",
+   "label": "UFC paper cards",
+   "state": "NO_PLAY",
+   "reason": "no UFC event on 2026-09-17 — the ladder is published for 2026-09-19",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "ufc-cards@1",
+    "evidence": {
+     "policyVersion": "ufc-cards@1",
+     "reason": "no UFC event on 2026-09-17 — the ladder is published for 2026-09-19"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:ufc-cards:2026-09-17"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-17:5f3b40c94d33"
+     }
+    ]
+   }
+  },
+  {
+   "product": "epl-cards",
+   "label": "EPL paper cards",
+   "state": "NO_PLAY",
+   "reason": "no EPL event on 2026-09-17 — the ladder is published for 2026-09-19",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "epl-cards@1",
+    "evidence": {
+     "policyVersion": "epl-cards@1",
+     "reason": "no EPL event on 2026-09-17 — the ladder is published for 2026-09-19"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:epl-cards:2026-09-17"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-17:5f3b40c94d33"
+     }
+    ]
+   }
+  },
+  {
+   "product": "mlb-cards",
+   "label": "MLB suggested cards",
+   "state": "ACTIVE",
+   "reason": "3 paper cards published for the 2026-09-17 event",
+   "candidatesEvaluated": 3,
+   "rejections": [],
+   "card": [
+    {
+     "tier": "medium",
+     "tierLabel": "Medium risk",
+     "slipId": "opt_2026-09-17_public_low_mlb_719209c5060c",
+     "combinedAmerican": 131,
+     "combinedDecimal": 2.309,
+     "legs": [
+      {
+       "player": "A.J. Ewing",
+       "team": "NYM",
+       "opponent": "PHI",
+       "playerId": 805999,
+       "gameId": "86a852d517d266c4d6c74e570caffa06",
+       "gamePk": 823573,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -192,
+       "result": null
+      },
+      {
+       "player": "Riley Greene",
+       "team": "DET",
+       "opponent": "CWS",
+       "playerId": 682985,
+       "gameId": "da77890c919d4d7e049b450184fffb24",
+       "gamePk": 824548,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -193,
+       "result": null
+      }
+     ],
+     "status": "pending",
+     "tierRecord": {
+      "wins": 74,
+      "losses": 346,
+      "hitRate": 0.1762,
+      "roi": -0.0644
+     }
+    },
+    {
+     "tier": "high",
+     "tierLabel": "High risk",
+     "slipId": "opt_2026-09-17_public_medium_mlb_513c61734f51",
+     "combinedAmerican": 406,
+     "combinedDecimal": 5.062,
+     "legs": [
+      {
+       "player": "Victor Mesa Jr.",
+       "team": "TB",
+       "opponent": "ATH",
+       "playerId": 683748,
+       "gameId": "a62a35a880cc2c7bc487947c5d3afe74",
+       "gamePk": 822924,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -197,
+       "result": null
+      },
+      {
+       "player": "Dustin Harris",
+       "team": "SD",
+       "opponent": "COL",
+       "playerId": 687957,
+       "gameId": "0e8da1c4233051485aceb65b1a5c417a",
+       "gamePk": 824305,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Under",
+       "line": 1.5,
+       "odds": -222,
+       "result": null
+      },
+      {
+       "player": "Joey Ortiz",
+       "team": "MIL",
+       "opponent": "PIT",
+       "playerId": 687401,
+       "gameId": "72854b76ef219e56254f54563177c407",
+       "gamePk": 823334,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -210,
+       "result": null
+      },
+      {
+       "player": "Maikel Garcia",
+       "team": "KC",
+       "opponent": "HOU",
+       "playerId": 672580,
+       "gameId": "b9c3b50472005c67c30de323cd8a5396",
+       "gamePk": 824141,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -176,
+       "result": null
+      }
+     ],
+     "status": "pending",
+     "tierRecord": {
+      "wins": 54,
+      "losses": 366,
+      "hitRate": 0.1286,
+      "roi": 0.0928
+     }
+    },
+    {
+     "tier": "longshot",
+     "tierLabel": "Longshot",
+     "slipId": "opt_2026-09-17_public_longshot_mlb_7ebc0277ab5f",
+     "combinedAmerican": 1263,
+     "combinedDecimal": 13.627,
+     "legs": [
+      {
+       "player": "Nate Eaton",
+       "team": "BOS",
+       "opponent": "TEX",
+       "playerId": 681987,
+       "gameId": "04a2f236dde09215a7d5033c63178a44",
+       "gamePk": 822845,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Under",
+       "line": 0.5,
+       "odds": -109,
+       "result": null
+      },
+      {
+       "player": "Manny Machado",
+       "team": "SD",
+       "opponent": "COL",
+       "playerId": 592518,
+       "gameId": "0e8da1c4233051485aceb65b1a5c417a",
+       "gamePk": 824305,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Under",
+       "line": 1.5,
+       "odds": -187,
+       "result": null
+      },
+      {
+       "player": "Xander Bogaerts",
+       "team": "SD",
+       "opponent": "COL",
+       "playerId": 593428,
+       "gameId": "0e8da1c4233051485aceb65b1a5c417a",
+       "gamePk": 824305,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Under",
+       "line": 1.5,
+       "odds": -204,
+       "result": null
+      },
+      {
+       "player": "Michael Massey",
+       "team": "KC",
+       "opponent": "HOU",
+       "playerId": 686681,
+       "gameId": "b9c3b50472005c67c30de323cd8a5396",
+       "gamePk": 824141,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -163,
+       "result": null
+      },
+      {
+       "player": "Walker Jenkins",
+       "team": "MIN",
+       "opponent": "LAA",
+       "playerId": 805805,
+       "gameId": "7147180b37c36caf2b4003b82c2d1afa",
+       "gamePk": 823978,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Under",
+       "line": 0.5,
+       "odds": -108,
+       "result": null
+      }
+     ],
+     "status": "pending",
+     "tierRecord": {
+      "wins": 29,
+      "losses": 394,
+      "hitRate": 0.0686,
+      "roi": -0.0657
+     }
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "mlb-cards@1",
+    "evidence": {
+     "policyVersion": "mlb-cards@1",
+     "cardRef": "card+card+card",
+     "lockAt": "2026-09-17T10:20:16Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:mlb-cards:2026-09-17"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-17:5f3b40c94d33"
+     }
+    ]
+   }
+  },
+  {
+   "product": "multi-cards",
+   "label": "Multi-sport paper cards",
+   "state": "NO_PLAY",
+   "reason": "multi grid state PUBLISHED — the stream opens only when two single-sport streams are live",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "multi-cards@1",
+    "evidence": {
+     "policyVersion": "multi-cards@1",
+     "reason": "multi grid state PUBLISHED — the stream opens only when two single-sport streams are live"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:multi-cards:2026-09-17"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-17:5f3b40c94d33"
+     }
+    ]
+   }
+  },
+  {
+   "product": "nba-lanes",
+   "label": "NBA (all lanes)",
+   "state": "OFF_SEASON",
+   "reason": "the league is off-season by its own published schedule (results capture state OFF_SEASON); no NBA lane evaluates until real events and the activation gates exist",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": false
+  }
+ ],
+ "watchdog": [
+  {
+   "product": "end-zone-vault",
+   "kind": "INCIDENT_OPEN",
+   "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-17"
+  }
+ ],
+ "authorities": {
+  "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
+  "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
+  "vault": "data/internal/nfl/end-zone-vault/ledger.json (append-only, owned by the Vault)",
+  "money": "NOT THIS SCRIPT — no money artifact is read for state or written at all"
+ },
+ "honesty": [
+  "INPUTS_MISSING is not NO_PLAY: a missing slate is an operational gap, and saying 'nothing qualified' would be a lie about a decision that never happened",
+  "every rejection reason is copied verbatim from the live activation policy — this receipt invents none",
+  "NFL contributes legs only when its MODEL layer is publishable; captured sportsbook prices never qualify a leg by themselves"
+ ]
+}

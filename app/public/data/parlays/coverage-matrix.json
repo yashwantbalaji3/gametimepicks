@@ -2,18 +2,18 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-16T15:37:56Z",
+ "generatedAt": "2026-09-17T10:20:20Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 5,
-  "NO_PLAY": 7,
-  "LANE_CLOSED": 8,
+  "PUBLISHED": 3,
+  "NO_PLAY": 1,
+  "LANE_CLOSED": 16,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-09-16",
+   "date": "2026-09-17",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,39 +23,39 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-16_public_low_mlb_b2e3c3d89de2"
+     "slipId": "opt_2026-09-17_public_low_mlb_719209c5060c"
     },
     "high": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-16_public_medium_mlb_50d3b24044f6"
+     "slipId": "opt_2026-09-17_public_medium_mlb_513c61734f51"
     },
     "longshot": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-16_public_longshot_mlb_607322d16a53"
+     "slipId": "opt_2026-09-17_public_longshot_mlb_7ebc0277ab5f"
     }
    }
   },
   {
    "lane": "epl",
    "date": "2026-09-19",
-   "laneState": "LIVE",
-   "laneReason": null,
+   "laneState": "CLOSED",
+   "laneReason": "the last price capture is 3.5 days old",
    "tiers": {
     "low": {
-     "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +158 (medium) … +353 (high)"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.5 days old"
     },
     "medium": {
-     "state": "PUBLISHED",
-     "slipId": "epl-medium-2026-09-19"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.5 days old"
     },
     "high": {
-     "state": "PUBLISHED",
-     "slipId": "epl-high-2026-09-19"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.5 days old"
     },
     "longshot": {
-     "state": "NO_PLAY",
-     "reason": "not enough eligible priced fixtures to build a card"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.5 days old"
     }
    }
   },
@@ -63,23 +63,23 @@
    "lane": "ufc",
    "date": "2026-09-19",
    "laneState": "CLOSED",
-   "laneReason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4",
+   "laneReason": "the last price capture is 4.9 days old; only 0 priced games — the ladder needs 4",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4"
+     "reason": "the last price capture is 4.9 days old; only 0 priced games — the ladder needs 4"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4"
+     "reason": "the last price capture is 4.9 days old; only 0 priced games — the ladder needs 4"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4"
+     "reason": "the last price capture is 4.9 days old; only 0 priced games — the ladder needs 4"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4"
+     "reason": "the last price capture is 4.9 days old; only 0 priced games — the ladder needs 4"
     }
    }
   },
@@ -87,47 +87,47 @@
    "lane": "nfl",
    "date": "2026-08-24",
    "laneState": "CLOSED",
-   "laneReason": "only 0 priced games — the ladder needs 4",
+   "laneReason": "only 1 priced game — the ladder needs 4",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — the ladder needs 4"
+     "reason": "only 1 priced game — the ladder needs 4"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — the ladder needs 4"
+     "reason": "only 1 priced game — the ladder needs 4"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — the ladder needs 4"
+     "reason": "only 1 priced game — the ladder needs 4"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — the ladder needs 4"
+     "reason": "only 1 priced game — the ladder needs 4"
     }
    }
   },
   {
    "lane": "multi",
    "date": "2026-09-14",
-   "laneState": "LIVE",
-   "laneReason": null,
+   "laneState": "CLOSED",
+   "laneReason": "a cross-sport card needs two live sports; only MLB is cleared",
    "tiers": {
     "low": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "a cross-sport card needs two live sports; only MLB is cleared"
     },
     "medium": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "a cross-sport card needs two live sports; only MLB is cleared"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "a cross-sport card needs two live sports; only MLB is cleared"
     },
     "longshot": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "a cross-sport card needs two live sports; only MLB is cleared"
     }
    }
   }
