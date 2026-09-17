@@ -167,10 +167,18 @@ test("CB6 discovery CTAs appear only where their destination exists", () => {
 });
 
 test("CB7 compare and matchup page code makes no Live request and no provider call", () => {
-  const dirs = ["compare", "compare/teams/[sport]", "compare/players/[sport]", "matchups/[sport]/[gameId]"].map((d) => path.join(OUT, "_next/static/chunks/app", d));
-  const chunks = dirs.flatMap((d) => (fs.existsSync(d) ? fs.readdirSync(d).filter((f) => f.endsWith(".js")).map((f) => fs.readFileSync(path.join(d, f), "utf8")) : []));
-  assert.ok(chunks.length >= 3, `compare page chunks found: ${chunks.length}`);
-  for (const js of chunks) assert.doesNotMatch(js, /\/api\/live|espn\.com|statsapi\.mlb\.com|the-odds-api|api-football|localStorage/, "no Live, provider or device storage");
+  /* Scan EVERY chunk a compare/matchup page loads that a static baseline page (/about/) does not: client components are
+     split into shared numbered chunks, so the page's own app/ chunk alone missed an injected fetch (probe 22). */
+  const scriptsOf = (html) => new Set([...html.matchAll(/<script src="(\/_next\/static\/chunks\/[^"]+)"/g)].map((m) => decodeURIComponent(m[1])));
+  const baseline = scriptsOf(htmlOf("/about/"));
+  const pages = [...SHELLS, ...matchups.filter((_, i) => i % 20 === 0).map((m) => m.path)];
+  const own = new Set();
+  for (const p of pages) for (const src of scriptsOf(htmlOf(p))) if (!baseline.has(src)) own.add(src);
+  assert.ok(own.size >= 3, `compare-specific chunks found: ${own.size}`);
+  for (const src of own) {
+    const js = fs.readFileSync(path.join(OUT, src.replace(/^\//, "")), "utf8");
+    assert.doesNotMatch(js, /\/api\/live|espn\.com|statsapi\.mlb\.com|the-odds-api|api-football|api-sports|localStorage/, `${src}: no Live, provider or device storage`);
+  }
   for (const p of SHELLS.concat(matchups.slice(0, 5).map((m) => m.path))) {
     const html = htmlOf(p);
     for (const n of ["data/internal", "research-projection", "compare-projection", "/Users/"]) assert.ok(!html.includes(n), `${p} contains ${n}`);
