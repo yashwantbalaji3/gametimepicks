@@ -172,6 +172,13 @@ A **view, not a truth owner**. If `/my` disappeared, every underlying surface wo
 | Recent results | MLB `mlb/results/game-predictions-graded.jsonl` (settlement) · NFL `loadCurrentNflResults` (FINAL-only settlement adapter) | MLB, NFL | followed team id AND integer scores | newest first (unknown last), then id · max 4 | "no recent final results yet" |
 | Following | `useFollowing` (`gtp.follow.v2`) | — | counts by kind | — | hidden if the follow store is unavailable / newer schema |
 
+### Saved links are derived, not stored (v1.1.4.1)
+
+A saved snapshot's `href` is presentation state that ages: MLB game pages exist only for the current slate. Every
+Saved consumer (`/saved`, the My GameTime preview) links through `lib/saved/saved-destination.mjs` against the
+build-time manifest in `lib/saved/saved-routes.ts`: today's exported game page for the gamePk → the dated MLB board
+anchored to the gamePk → no link. NFL/EPL/UFC keep their stored href. Pinned in `lib/saved/saved-destination*.test.mjs`.
+
 ### Invariants — pinned in `lib/my/*.test.mjs`
 
 - **Request count.** Zero MLB team follows ⇒ the Live module never mounts ⇒ **0 Live requests**. One or
