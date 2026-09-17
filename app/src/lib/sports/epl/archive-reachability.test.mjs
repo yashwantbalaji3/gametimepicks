@@ -18,6 +18,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
+import { buildPrefixLinkIndex } from "../../ci/export-link-index.mjs";
+
 const APP = process.cwd();
 const OUT = path.join(APP, "out");
 const hubPath = path.join(OUT, "epl", "index.html");
@@ -29,25 +31,15 @@ const generated = () => {
   } catch { return []; }
 };
 
-/** Every page in the export that links to this slug, excluding the fixture's own page. */
-function linkedFrom(slug) {
-  const hits = [];
-  const walk = (dir) => {
-    let entries;
-    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
-    for (const e of entries) {
-      const p = path.join(dir, e.name);
-      if (e.isDirectory()) { if (e.name !== "_next") walk(p); continue; }
-      if (e.name !== "index.html") continue;
-      let html;
-      try { html = fs.readFileSync(p, "utf8"); } catch { continue; }
-      if (html.includes(`/epl/match/${slug}`) && !p.includes(path.join("epl", "match", slug))) {
-        hits.push(path.relative(OUT, p));
-      }
-    }
-  };
-  walk(OUT);
-  return hits;
+/**
+ * Every page in the export that links to this route, excluding the route's own page. Backed by ONE shared read of
+ * the export (lib/ci/export-link-index.mjs) instead of a full walk per route — same pages, same substring and
+ * self-exclusion semantics (v1.4.1: this guard alone re-read the whole export once per route).
+ */
+let linkIndex = null;
+function linkedFrom(route) {
+  linkIndex ??= buildPrefixLinkIndex(OUT, "/epl/match/", Math.max(64, ...generated().map((r) => r.length)));
+  return linkIndex(route, path.join("epl", "match", route));
 }
 
 test("EVERY GENERATED EPL FIXTURE PAGE IS LINKED FROM SOMEWHERE", () => {

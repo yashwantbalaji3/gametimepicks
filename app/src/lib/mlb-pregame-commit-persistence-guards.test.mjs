@@ -24,6 +24,16 @@ const repo = path.dirname(app);
 // committable-size cap. Batches all paths through one `git check-ignore --stdin` and returns the ignored subset.
 function gitIgnored(relPaths) {
   if (!relPaths.length) return new Set();
+  /* v1.4.1: `git check-ignore --stdin` over the 70k-file archive took 53 s. `git ls-files --others --ignored
+     --exclude-standard` answers the same question — ignored AND untracked (check-ignore does not report tracked files
+     either) — for the whole archive in 0.1 s. It is used only when every path lies under the archive; anything else
+     keeps the original per-path check. The answer is still filtered to exactly the paths asked about. */
+  const ARCHIVE_DIR = "data/internal/mlb/pregame-archive/";
+  if (relPaths.every((r) => r.split(path.sep).join("/").startsWith(ARCHIVE_DIR))) {
+    const listed = execFileSync("git", ["ls-files", "--others", "--ignored", "--exclude-standard", "--", ARCHIVE_DIR], { cwd: repo, encoding: "utf8", maxBuffer: 1 << 28 });
+    const ignored = new Set(listed.split("\n").filter(Boolean));
+    return new Set(relPaths.filter((r) => ignored.has(r.split(path.sep).join("/"))));
+  }
   try {
     const out = execFileSync("git", ["check-ignore", "--stdin"], { cwd: repo, input: relPaths.join("\n"), encoding: "utf8" });
     return new Set(out.split("\n").filter(Boolean));

@@ -13,13 +13,14 @@
  *       "entering this game" excludes the game itself; Upcoming is never decided at build time
  *  CP10 stat families mirror the v1.3 research registry and have a stable product order
  *  CP11 no evaluative output: comparison objects carry no winner/advantage/rank field
+ *  CP12 a compare document of an unknown schemaVersion is REFUSED, never interpreted (server store and browser alike)
  *
  * Run: npx tsx --test src/lib/compare/compare-contract.test.mjs
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { BLOCKER, EVALUATIVE_TERMS, FORBIDDEN_COMPARE_FIELDS, pairKey } from "./contract.mjs";
+import { BLOCKER, COMPARE_PROJECTION_SCHEMA_VERSION, EVALUATIVE_TERMS, FORBIDDEN_COMPARE_FIELDS, assertCompareVersion, pairKey } from "./contract.mjs";
 import { getPlayerCompareEligibility, getTeamCompareEligibility } from "./eligibility.mjs";
 import { getHeadToHead } from "./head-to-head.mjs";
 import { buildTeamComparison } from "./team-compare.mjs";
@@ -263,4 +264,12 @@ test("CP11 comparisons carry no evaluative field", () => {
   const all = [...keys(buildTeamComparison({ a: mets, b: yankees })), ...keys(buildPlayerComparison({ a: wrA, b: wrB }))].map((k) => k.toLowerCase());
   for (const term of EVALUATIVE_TERMS) assert.ok(!all.some((k) => k.includes(term)), `field containing "${term}"`);
   for (const f of ["forecast", "probability", "edge", "winner", "rank"]) assert.ok(FORBIDDEN_COMPARE_FIELDS.includes(f));
+});
+
+// ── CP12 ───────────────────────────────────────────────────────────────────────────────────────────
+test("CP12 an unknown schemaVersion is refused rather than interpreted", () => {
+  assert.equal(assertCompareVersion({ schemaVersion: COMPARE_PROJECTION_SCHEMA_VERSION, x: 1 }, "ok").x, 1);
+  for (const bad of [{ schemaVersion: 2 }, { schemaVersion: 0 }, { schemaVersion: "1" }, {}, null, "not an object"]) {
+    assert.throws(() => assertCompareVersion(bad, "probe"), /is not readable by the v1 reader|is not an object/, JSON.stringify(bad));
+  }
 });

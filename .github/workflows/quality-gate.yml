@@ -69,8 +69,13 @@ jobs:
       - name: Lint scripts for identifiers that do not exist
         run: npm run lint:scripts
 
-      - name: Typecheck
-        run: npm run typecheck
+      # v1.4.1 · NO SEPARATE TYPECHECK STEP. `next build` below runs the SAME check over the SAME tsconfig
+      # ("Linting and checking validity of types"), and it runs it AFTER generating .next/types, so it covers the
+      # route-type validation a standalone `tsc --noEmit` on a fresh checkout cannot see. Running both cost 31 s of a
+      # 25-minute budget for zero extra signal. Proven with two probes (an unimported src/lib/*.ts and an e2e/*.ts:
+      # both fail the build). `npm run typecheck` still exists and still runs first in the local `npm run gate`.
+      # The reliance is pinned by src/lib/ci/quality-gate-contract.test.mjs — if the build ever stops type-checking
+      # (ignoreBuildErrors) or this step returns, that guard fails.
 
       # ── PHASE 1: everything that needs no built export ─────────────────────────────────────────
       #
@@ -113,7 +118,11 @@ jobs:
       - name: Accessibility — browser (contrast · keyboard · reflow)
         # Chromium + Firefox + WebKit. Keyboard traversal is skipped on WebKit by design: Safari
         # ships with Full Keyboard Access off, so links are not in its Tab order.
-        run: npx playwright test e2e/accessibility.spec.ts e2e/route-assurance.spec.ts
+        # v1.4.1: worker count comes from the runner's own vCPUs (playwright.config `workers: "100%"` in CI);
+        # printed so a slower run can be read against the machine it ran on.
+        run: |
+          echo "[ci-perf] vCPUs: $(nproc)"
+          npx playwright test e2e/accessibility.spec.ts e2e/route-assurance.spec.ts
 
       - name: Upload report on failure
         if: failure()

@@ -27,13 +27,26 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  /*
+   * v1.4.1: CI ran 399 tests two at a time on a four-vCPU runner — measured wall time was the sum of the test
+   * durations divided by two (403 s), with half the machine idle. `2` was the scaffold default from the first
+   * Playwright commit, not a response to flakiness (no run in the history was flaky at 2). "100%" = one worker per
+   * vCPU, so the same suite uses the machine it is given and shrinks automatically on a smaller runner.
+   * Nothing about coverage changes: same specs, projects, retries and assertions.
+   */
+  workers: process.env.CI ? "100%" : undefined,
   reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "http://localhost:4173",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    /*
+     * v1.4.1: was "retain-on-failure", which RECORDS video for every test and deletes it when the test passes —
+     * measured 125 s → 104 s of the local suite (and 399 tests × 3 engines in CI) spent recording video that is
+     * thrown away. "on-first-retry" matches the trace policy: CI retries once, so a failing test still produces a
+     * video (and a trace) of its retry. Diagnostics for a real failure are unchanged.
+     */
+    video: "on-first-retry",
   },
   projects: [
     {

@@ -36,12 +36,43 @@ function shippedFiles() {
   return files;
 }
 
-/** The first shipped file containing `needle`, or null. Reads one file at a time. */
-function findInShipped(needle, files = shippedFiles()) {
+/*
+ * v1.4.1 · ONE read of the shipped export for every needle this file asks about. The guards below used to re-read
+ * the whole export once per needle (up to 16 full passes). The pass keeps, per needle, the FIRST shipped file
+ * containing it (the same walk order as before) — over all shipped files and over scripts only — and the scripts
+ * that carry "Live game state". Every assertion reads these answers; nothing is scanned less.
+ */
+const ESPN_VOCABULARY = ["STATUS_RAIN_DELAY", "STATUS_END_PERIOD", "shortDownDistanceText", "possessionText"];
+const PROVIDER_HOSTS = ["statsapi.mlb.com", "site.api.espn.com"];
+const SERVER_VARIABLES = ["LIVE_GATEWAY_ENABLED", "LIVE_PUBLIC_SPORTS", "BLOB_READ_WRITE_TOKEN", "ODDS_API_KEY"];
+const LIVE_SURFACE = ["Live beta", "mlb-statsapi", "Live game state"];
+const NEEDLES = [...ESPN_VOCABULARY, ...PROVIDER_HOSTS, "/api/live", ...SERVER_VARIABLES, ...LIVE_SURFACE];
+
+let scanCache = null;
+function scan() {
+  if (scanCache) return scanCache;
+  const files = shippedFiles();
+  const first = new Map();
+  const firstScript = new Map();
+  const liveChunks = [];
   for (const f of files) {
-    if (fs.readFileSync(f, "utf8").includes(needle)) return f;
+    const body = fs.readFileSync(f, "utf8");
+    const isScript = f.endsWith(".js");
+    for (const n of NEEDLES) {
+      if (!body.includes(n)) continue;
+      if (!first.has(n)) first.set(n, f);
+      if (isScript && !firstScript.has(n)) firstScript.set(n, f);
+    }
+    if (isScript && body.includes("Live game state")) liveChunks.push(f);
   }
-  return null;
+  scanCache = { files, first, firstScript, liveChunks };
+  return scanCache;
+}
+
+/** The first shipped file containing `needle`, or null (from the single pass). */
+function findInShipped(needle) {
+  if (!NEEDLES.includes(needle)) throw new Error(`public-bundle: "${needle}" is not in NEEDLES — add it so the single pass scans for it`);
+  return scan().first.get(needle) ?? null;
 }
 
 test("BUNDLE 0 · the export is real (anti-vacuity)", () => {
@@ -59,8 +90,6 @@ test("BUNDLE 1 · ⚠ the ESPN PROVIDER path never reaches a public reader", () 
    * nothing. String literals survive minification, and these particular strings exist ONLY inside
    * the NFL adapter — so their absence is evidence and their presence would be a leak.
    */
-  const ESPN_VOCABULARY = ["STATUS_RAIN_DELAY", "STATUS_END_PERIOD", "shortDownDistanceText", "possessionText"];
-
   // Anti-vacuity: prove these strings are real by finding them in the adapter we are claiming is
   // server-side. A typo'd needle would otherwise make this guard pass forever.
   const adapter = fs.readFileSync(path.join(APP, "src/lib/live/adapters/espn-nfl.mjs"), "utf8");
@@ -68,9 +97,8 @@ test("BUNDLE 1 · ⚠ the ESPN PROVIDER path never reaches a public reader", () 
     assert.ok(adapter.includes(v), `"${v}" is not in the adapter — the needle is wrong, not the bundle`);
   }
 
-  const files = shippedFiles();
   for (const v of ESPN_VOCABULARY) {
-    const hit = findInShipped(v, files);
+    const hit = findInShipped(v);
     assert.equal(hit, null, `"${v}" — ESPN adapter code shipped to the client in ${hit && path.basename(hit)}`);
   }
 });
@@ -83,38 +111,33 @@ test("BUNDLE 2 · no shipped SCRIPT can call a provider directly", () => {
    * must never exist is a SCRIPT that can reach a provider, because that is the design in which
    * upstream volume scales with readers instead of with events.
    */
-  const scripts = shippedFiles().filter((f) => f.endsWith(".js"));
+  const scripts = scan().files.filter((f) => f.endsWith(".js"));
   assert.ok(scripts.length > 50, `only ${scripts.length} scripts scanned — the scan is not finding the bundle`);
-  for (const host of ["statsapi.mlb.com", "site.api.espn.com"]) {
-    for (const f of scripts) {
-      assert.equal(fs.readFileSync(f, "utf8").includes(host), false,
-        `${path.basename(f)} can call ${host} directly — the client must only ever call our gateway`);
-    }
+  for (const host of PROVIDER_HOSTS) {
+    const f = scan().firstScript.get(host);
+    assert.equal(f === undefined, true, `${f && path.basename(f)} can call ${host} directly — the client must only ever call our gateway`);
   }
-  assert.ok(findInShipped("/api/live", shippedFiles()), "the client does reach the gateway — otherwise this guard is vacuous");
+  assert.ok(findInShipped("/api/live"), "the client does reach the gateway — otherwise this guard is vacuous");
 });
 
 test("BUNDLE 3 · no credential, key or token travels with the live code", () => {
-  const files = shippedFiles();
-  for (const forbidden of ["LIVE_GATEWAY_ENABLED", "LIVE_PUBLIC_SPORTS", "BLOB_READ_WRITE_TOKEN", "ODDS_API_KEY"]) {
-    const hit = findInShipped(forbidden, files);
+  for (const forbidden of SERVER_VARIABLES) {
+    const hit = findInShipped(forbidden);
     assert.equal(hit, null, `"${forbidden}" is a SERVER variable and must not ship (found in ${hit && path.basename(hit)})`);
   }
 });
 
 test("BUNDLE 4 · the MLB live surface IS shipped, and says what it is", () => {
   // The inverse check: if Stage 2 silently shipped nothing, every guard above would pass trivially.
-  const files = shippedFiles();
-  for (const expected of ["Live beta", "mlb-statsapi", "Live game state"]) {
-    assert.ok(findInShipped(expected, files), `"${expected}" is missing — the MLB live surface did not ship`);
+  for (const expected of LIVE_SURFACE) {
+    assert.ok(findInShipped(expected), `"${expected}" is missing — the MLB live surface did not ship`);
   }
 });
 
 test("BUNDLE 5 · ⚠ MLB totals stay PAUSED — no combined total ships with the live surface", () => {
-  const files = shippedFiles();
   // Scoped to the chunk that actually carries the live panel, so an unrelated page's copy cannot
   // fail this and, more importantly, cannot make it pass by accident.
-  const liveChunks = files.filter((f) => /\.js$/.test(f) && fs.readFileSync(f, "utf8").includes("Live game state"));
+  const { liveChunks } = scan();
   assert.ok(liveChunks.length > 0, "the live chunk was located — otherwise this guard proves nothing");
   for (const f of liveChunks) {
     const body = fs.readFileSync(f, "utf8");

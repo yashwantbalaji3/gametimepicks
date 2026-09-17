@@ -173,6 +173,35 @@ test.describe("contrast — real used colour at every launch viewport", () => {
   }
 });
 
+/*
+ * v1.4.1: the Compare shells build their controls AFTER mount (the pair composes in the browser), so the structural
+ * audit — which reads static HTML — never sees them. A control with no accessible name is unusable by voice control
+ * and announced as "combo box" alone. Checked on the composed page, on every engine.
+ */
+test.describe("form controls carry accessible names", () => {
+  for (const route of ROUTES.filter((r) => r.startsWith("/compare/"))) {
+    test(`${route} — every control is named`, async ({ page }) => {
+      await gotoAudited(page, route);
+      const unnamed = await page.evaluate(() => {
+        const out: string[] = [];
+        for (const el of document.querySelectorAll<HTMLElement>("main select, main input, main button, main [role='listbox'], main [role='combobox']")) {
+          const id = el.getAttribute("id");
+          // A <select>'s own option text is NOT its accessible name (and an <input>'s value is not either):
+          // only a button-like control is named by its content.
+          const contentNames = /^(BUTTON|A)$/.test(el.tagName) || el.getAttribute("role") === "button";
+          const named = !!(el.getAttribute("aria-label") || el.getAttribute("aria-labelledby") || el.getAttribute("title")
+            || (id && document.querySelector(`label[for="${id}"]`))
+            || el.closest("label")
+            || (contentNames && (el.textContent ?? "").trim()));
+          if (!named) out.push(`${el.tagName.toLowerCase()}${id ? "#" + id : ""}`);
+        }
+        return out;
+      });
+      expect(unnamed, `controls with no accessible name on ${route}`).toEqual([]);
+    });
+  }
+});
+
 test.describe("keyboard", () => {
   // Safari ships with "Full Keyboard Access" OFF, so WebKit's sequential focus navigation skips
   // links entirely — one Tab on /today/ leaves document.activeElement as <body>. That is a browser
