@@ -13,7 +13,16 @@ import test from "node:test";
 import { ASK_BUDGET, ASK_ERROR } from "./contract.mjs";
 import { ASK_FORBIDDEN_ARG_NAMES, ASK_FORBIDDEN_TOOL_NAMES, ASK_TOOLS, ASK_TOOL_NAMES, openAiToolList } from "./registry.mjs";
 import { toProviderSchema } from "./schema.mjs";
+import { plannerSystemPrompt } from "./planner.mjs";
+import { writerSystemPrompt } from "./writer.mjs";
 import { buildOpenAiRequest, createOpenAiProvider, extractOutputText, extractUsage } from "./provider-openai.mjs";
+
+/*
+ * A REALISTIC SYSTEM PROMPT, because a fixture that says "s" cannot exercise JSON mode's precondition.
+ * Ask's real planner and writer prompts both end with this instruction; the fixture mirrors it so the
+ * tests fail for the reasons the production path would.
+ */
+const SYSTEM = "You are the planner for Ask GameTime. Reply with ONE JSON object and nothing else.";
 
 /* ═════════════  1. THE CATALOGUE THE MODEL ACTUALLY RECEIVES  ═════════════ */
 
@@ -50,7 +59,7 @@ function capturePlanBody() {
       return { ok: true, json: async () => ({ status: "completed", output_text: "{}", usage: {} }) };
     },
   });
-  return provider.plan({ system: "s", user: "u" }).then(() => body);
+  return provider.plan({ system: SYSTEM, user: "u" }).then(() => body);
 }
 
 test("every registered tool reaches the wire, with its description and its real argument schema", async () => {
@@ -125,8 +134,44 @@ test("the request sends no sampling knob this model family rejects", async () =>
     assert.ok(!(banned in body), `the request sends ${banned}, which this model family rejects`);
   }
   assert.ok(body.max_output_tokens > 0, "the output ceiling must be sent, or a long answer truncates silently");
-  assert.equal(body.instructions, "s");
-  assert.deepEqual(body.input, [{ role: "user", content: "u" }]);
+  assert.ok(body.input.some((m) => m.role === "system"), "the system prompt must travel in input, not instructions");
+  assert.ok(body.input.some((m) => m.role === "user"), "the user message must be present");
+});
+
+test("JSON mode's own precondition is asserted before the request is sent", async () => {
+  /*
+   * ⚠ THIS COST THE FIRST REAL CALL. OpenAI refuses `text.format: json_object` unless the word "json"
+   * appears in the INPUT MESSAGES. Ask's prompts say "Reply with ONE JSON object and nothing else",
+   * but it sat in `instructions`, which does not count — so every call 400'd with a message that named
+   * the cause precisely, and would have named nothing at all without the capture/disclosure split.
+   *
+   * The fix leaves a dependency on prompt wording. This turns that into an invariant: a prompt edit
+   * that drops the word fails here, offline, instead of taking the whole feature down in preview.
+   */
+  const body = await capturePlanBody();
+  assert.match(JSON.stringify(body.input).toLowerCase(), /json/, "JSON mode cannot succeed without it");
+
+  assert.throws(
+    () => buildOpenAiRequest({ model: "m", system: "no instruction here", user: "hello", maxTokens: 10 }),
+    /requires the word 'json'/,
+    "a request that cannot succeed must not be sent",
+  );
+  // With json off there is no such precondition, and none is imposed.
+  assert.doesNotThrow(() => buildOpenAiRequest({ model: "m", system: "plain", user: "hello", maxTokens: 10, json: false }));
+});
+
+test("the REAL planner and writer prompts satisfy JSON mode — not just the fixture", () => {
+  /*
+   * The test above proves the guard works. This proves the guard is SATISFIED by the prompts actually
+   * shipped, which is the property that decides whether Ask answers at all. Testing the fixture alone
+   * would be the same error as v1.6's catalogue: asserting the mechanism rather than its use.
+   */
+  for (const [name, prompt] of [["planner", plannerSystemPrompt()], ["writer", writerSystemPrompt()]]) {
+    assert.doesNotThrow(
+      () => buildOpenAiRequest({ model: "gpt-5-nano", system: prompt, user: "anything", maxTokens: 10 }),
+      `the ${name} prompt no longer contains the word JSON, so every OpenAI call would 400`,
+    );
+  }
 });
 
 test("the writer is given the contract's answer ceiling, not a vendor default", async () => {
@@ -138,7 +183,7 @@ test("the writer is given the contract's answer ceiling, not a vendor default", 
       return { ok: true, json: async () => ({ status: "completed", output_text: "{}", usage: {} }) };
     },
   });
-  await provider.write({ system: "s", user: "u" });
+  await provider.write({ system: SYSTEM, user: "u" });
   assert.equal(seen.max_output_tokens, ASK_BUDGET.maxAnswerTokens);
   // The writer chooses no tools, so it is sent none: a stage cannot use a capability it never receives.
   assert.ok(!seen.tools, "the writer was handed the tool catalogue it has no use for");
@@ -155,7 +200,7 @@ test("an upstream failure is classified, and its message is captured but redacte
       json: async () => ({ error: { type: "authentication_error", message: "bad key sk-proj-AAAA_BBBB-12345678901234" } }),
     }),
   });
-  const r = await provider.plan({ system: "s", user: "u" });
+  const r = await provider.plan({ system: SYSTEM, user: "u" });
 
   assert.equal(r.ok, false);
   assert.equal(r.code, ASK_ERROR.PROVIDER_ERROR);
@@ -170,13 +215,13 @@ test("a rate limit is its own code, and an unrecognised error type is not passed
     apiKey: "sk-test",
     fetchImpl: async () => ({ ok: false, status: 429, json: async () => ({ error: { type: "rate_limit_error", message: "slow down" } }) }),
   });
-  assert.equal((await limited.plan({ system: "s", user: "u" })).code, ASK_ERROR.RATE_LIMITED);
+  assert.equal((await limited.plan({ system: SYSTEM, user: "u" })).code, ASK_ERROR.RATE_LIMITED);
 
   const odd = createOpenAiProvider({
     apiKey: "sk-test",
     fetchImpl: async () => ({ ok: false, status: 400, json: async () => ({ error: { type: "something_new_from_the_vendor", message: "x" } }) }),
   });
-  assert.equal((await odd.plan({ system: "s", user: "u" })).type, "unrecognised_error_type");
+  assert.equal((await odd.plan({ system: SYSTEM, user: "u" })).type, "unrecognised_error_type");
 });
 
 test("usage is reported, including the reasoning tokens a reader never sees but the invoice does", () => {
@@ -214,7 +259,7 @@ test("an abort before the call is a timeout refusal, not a silent hang", async (
     apiKey: "sk-test",
     fetchImpl: async () => { throw Object.assign(new Error("aborted"), { name: "AbortError" }); },
   });
-  const r = await provider.plan({ system: "s", user: "u", signal: controller.signal });
+  const r = await provider.plan({ system: SYSTEM, user: "u", signal: controller.signal });
   assert.equal(r.ok, false);
   assert.equal(r.code, ASK_ERROR.PROVIDER_TIMEOUT);
 });
@@ -229,7 +274,7 @@ test("a transient upstream condition is retried exactly once; a deterministic on
       return { ok: true, json: async () => ({ status: "completed", output_text: "{}", usage: {} }) };
     },
   });
-  assert.equal((await flaky.plan({ system: "s", user: "u" })).ok, true);
+  assert.equal((await flaky.plan({ system: SYSTEM, user: "u" })).ok, true);
   assert.equal(calls, 2, "a 503 must be retried once");
 
   let hard = 0;
@@ -240,7 +285,7 @@ test("a transient upstream condition is retried exactly once; a deterministic on
       return { ok: false, status: 400, json: async () => ({ error: { type: "invalid_request_error", message: "bad field" } }) };
     },
   });
-  await deterministic.plan({ system: "s", user: "u" });
+  await deterministic.plan({ system: SYSTEM, user: "u" });
   assert.equal(hard, 1, "a 400 is deterministic — retrying it doubles the bill to learn nothing");
 });
 
@@ -253,7 +298,7 @@ test("the API key travels in a header and never in the body", async () => {
       return { ok: true, json: async () => ({ status: "completed", output_text: "{}", usage: {} }) };
     },
   });
-  await provider.plan({ system: "s", user: "u" });
+  await provider.plan({ system: SYSTEM, user: "u" });
   assert.match(init.headers.authorization, /^Bearer sk-proj-SECRET_VALUE-0123456789$/);
   assert.ok(!init.body.includes("SECRET_VALUE"), "the key appeared in the request body");
 });

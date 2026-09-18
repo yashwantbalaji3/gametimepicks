@@ -51,8 +51,21 @@ const RETRY_DELAY_MS = 700;
 export function buildOpenAiRequest({ model, system, user, maxTokens, json = true, tools = null }) {
   const body = {
     model,
-    instructions: system,
-    input: [{ role: "user", content: user }],
+    /*
+     * ⚠ THE SYSTEM PROMPT TRAVELS IN `input`, NOT `instructions`, AND THAT IS NOT A STYLE CHOICE.
+     *
+     * JSON mode refuses the request unless the word "json" appears in the INPUT MESSAGES:
+     *   "Response input messages must contain the word 'json' in some form to use 'text.format' of
+     *    type 'json_object'."
+     * Ask's prompts already end with "Reply with ONE JSON object and nothing else" — but it sat in
+     * `instructions`, which does not count, so every single call 400'd. Carrying the system prompt as
+     * a system-role input message satisfies the rule without editing a provider-agnostic prompt to
+     * suit one vendor.
+     *
+     * That leaves a dependency on prompt WORDING, which is exactly the kind of accident that rots
+     * silently, so `assertJsonModeIsSatisfiable` makes it an asserted invariant instead.
+     */
+    input: [{ role: "system", content: system }, { role: "user", content: user }],
     /*
      * Output tokens on a reasoning model INCLUDE its reasoning tokens, which are billed and which the
      * reader never sees. The ceiling therefore has to cover both, and the usage read below records
@@ -61,7 +74,10 @@ export function buildOpenAiRequest({ model, system, user, maxTokens, json = true
     max_output_tokens: maxTokens,
   };
 
-  if (json) body.text = { format: { type: "json_object" } };
+  if (json) {
+    body.text = { format: { type: "json_object" } };
+    assertJsonModeIsSatisfiable(body.input);
+  }
 
   /*
    * THE TOOL CATALOGUE IS SENT AS SCHEMA, AND MAY NOT BE CALLED (§C).
@@ -80,6 +96,17 @@ export function buildOpenAiRequest({ model, system, user, maxTokens, json = true
     body.tool_choice = "none";
   }
   return body;
+}
+
+/**
+ * JSON mode has a precondition, so state it where it can fail loudly rather than upstream at $0.00 a
+ * call and a 400. Thrown, not logged: a request that cannot succeed should not be sent.
+ */
+export function assertJsonModeIsSatisfiable(input) {
+  const text = JSON.stringify(input ?? "").toLowerCase();
+  if (!text.includes("json")) {
+    throw new Error("openai json mode requires the word 'json' in the input messages; the prompt no longer contains it");
+  }
 }
 
 /** Pull the assistant text out of a Responses payload, whichever shape the field arrives in. */
