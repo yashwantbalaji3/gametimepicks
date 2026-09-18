@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823005,
+  "date": "2026-09-18",
+  "capturedAt": "2026-09-18T14:47:52.780Z",
+  "availableAt": "2026-09-18T14:47:52.780Z",
+  "eventStartTime": "2026-09-19T00:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 681517,
+      "name": "Kyle Leahy",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-09-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 17.67,
+        "ipAvg": 3.53,
+        "kAvg": 4.6,
+        "bbAvg": 0.6,
+        "erAvg": 1.2,
+        "hrAvg": 0.4,
+        "kPer9": 11.72,
+        "workloadIpLast5": 17.67
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 135,
+        "k": 128,
+        "bb": 38,
+        "er": 50,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 676917,
+      "name": "Cade Cavalli",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 7,
+      "lastStartDate": "2026-09-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 8.6,
+        "bbAvg": 1.4,
+        "erAvg": 1.2,
+        "hrAvg": 0.6,
+        "kPer9": 13.82,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 164.67,
+        "k": 194,
+        "bb": 48,
+        "er": 57,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-18T14:47:52.780Z"
+  },
+  "recordHash": "7cea400471f9922e09868d7d8aac4e2676015e70ed1cc10ef671b9a1645c2e99"
+}
