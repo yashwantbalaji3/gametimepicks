@@ -95,9 +95,16 @@ export function verifyAnswer(answer, evidence, opts = {}) {
      * second, which is the more natural sentence and therefore the likelier failure.
      */
     const PICK = "(?:pick|picks|forecasts?|leans?|takes?|likes|recommends?)";
+    /*
+     * ⚠ THE WINDOW MUST NOT CROSS A MARKET BOUNDARY. An answer legitimately lists several markets in
+     * a row — "Over/Under: paused · Moneyline: GameTime picks MIN" — and a window that only stopped at
+     * a full stop ran from one market's name into the next market's pick, flagging a correct answer.
+     * `·`, `|`, a newline, a semicolon and a bullet all end a market's clause as surely as a full stop.
+     */
+    const SEP = "[^.·|;\\n•\\-]";
     const windows = [
-      new RegExp(`${escapeRe(market)}([^.]{0,80}?)\\b${PICK}\\b`, "gi"),
-      new RegExp(`\\b${PICK}\\b([^.]{0,80}?)${escapeRe(market)}`, "gi"),
+      new RegExp(`${escapeRe(market)}(${SEP}{0,70}?)\\b${PICK}\\b`, "gi"),
+      new RegExp(`\\b${PICK}\\b(${SEP}{0,70}?)${escapeRe(market)}`, "gi"),
     ];
     let flagged = false;
     for (const re of windows) {

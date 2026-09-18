@@ -52,7 +52,14 @@ export function buildEvidence(envelopes) {
       facts.push({ id: fid, source: env.tool, text });
       for (const v of values) registerNumber(numbers, v);
       for (const m of String(text).matchAll(/-?\d[\d,]*(?:\.\d+)?/g)) registerNumber(numbers, Number(m[0].replace(/,/g, "")));
-      for (const m of String(text).matchAll(/\b\d{4}-\d{2}-\d{2}\b/g)) numbers.add(m[0]);
+      /*
+       * ⚠ NO TRAILING \b. An evidence sentence carries a full timestamp — "updated
+       * 2026-09-17T10:09:03.504Z" — and `\b\d{4}-\d{2}-\d{2}\b` does not match there, because the
+       * character after "17" is "T", a word character. The answer then writes the date bare, where the
+       * boundary DOES match, and the verifier flagged a date its own evidence had supplied. The
+       * asymmetry rejected every forecast answer that mentioned when a forecast was updated.
+       */
+      for (const m of String(text).matchAll(/\b\d{4}-\d{2}-\d{2}/g)) numbers.add(m[0]);
       /*
        * Identifiers are OPAQUE, not numeric. A slip id like `opt_2026-09-17_public_medium_mlb_513c61`
        * is a name that happens to contain digits; a verifier reading "513" out of it would demand

@@ -333,6 +333,7 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
   const base = writerUserMessage({ question: state.question, evidence, state: { resolvedEntities: state.resolvedEntities, wagering: state.wagering } });
 
   let lastViolations = [];
+  let lastRejected = null;
   for (let attempt = 0; attempt <= ASK_BUDGET.maxLlmRetries; attempt += 1) {
     const user = attempt === 0
       ? base
@@ -357,12 +358,15 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
       return { answer, verified: true };
     }
     lastViolations = check.violations;
+    lastRejected = clean;
   }
 
   receipt.verifierStatus = "FAILED_DETERMINISTIC_FALLBACK";
   receipt.errorCode = lastViolations[0]?.code ?? ASK_ERROR.UNSUPPORTED_CLAIM;
   /* Why the writer's answer was rejected. Without this a grounding failure is a dead end. */
   receipt.verifierViolations = lastViolations.slice(0, 6).map((v) => `${v.code}: ${v.detail}`);
+  /* The text that was refused. Without it "unsupported claim" names a problem nobody can see. */
+  receipt.rejectedAnswer = lastRejected ? String(lastRejected).slice(0, 600) : null;
   const answer = deterministicAnswer(evidence, { intent: plan.intent });
   emit({ type: "answer_delta", text: answer.answerMarkdown });
   return { answer, verified: false, violations: lastViolations };

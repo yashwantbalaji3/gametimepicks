@@ -185,7 +185,7 @@ export default async function handler(req, res) {
         planningPasses: result.receipt?.planningPasses ?? 1,
         verifier: result.receipt?.verifierStatus ?? null,
         /* Why a rejected answer was rejected — non-production only, like the other diagnostics. */
-        ...(isProd ? {} : { verifierViolations: result.receipt?.verifierViolations ?? null }),
+        ...(isProd ? {} : { verifierViolations: result.receipt?.verifierViolations ?? null, rejectedAnswer: result.receipt?.rejectedAnswer ?? null }),
       },
     };
 

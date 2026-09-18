@@ -379,6 +379,30 @@ test("a paused market must not be given a pick, but explaining the pause is allo
   assert.equal(verifyAnswer("The Over/Under is paused and publishes no pick, because its live record is below a coin flip.", ev).ok, true);
 });
 
+test("a date the evidence gave as a TIMESTAMP is supported when the answer writes it bare", () => {
+  /*
+   * ⚠ REGRESSION. Evidence says "updated 2026-09-17T10:09:03.504Z"; the answer says "2026-09-17".
+   * The registration pattern ended in \b, which does not match before the "T", so the date was never
+   * registered — and the verifier rejected a date its own evidence had supplied. Every forecast answer
+   * that mentioned when a forecast was updated failed grounding.
+   */
+  const ev = evidenceFor(["for MIN @ LAA (MLB), GameTime has a published forecast, updated 2026-09-17T10:09:03.504Z"]);
+  ev.numbers.add("2026-09-17");
+  assert.equal(verifyAnswer("GameTime's MIN @ LAA forecast was updated on 2026-09-17.", ev).ok, true);
+});
+
+test("listing a paused market beside another market's pick is not presenting the paused one", () => {
+  /*
+   * ⚠ REGRESSION. "Over/Under: paused · Moneyline: GameTime picks MIN" — a window that stopped only at
+   * a full stop ran from the first market's name into the second market's verb, rejecting a correct
+   * answer. A separator ends a clause as surely as a full stop does.
+   */
+  const ev = evidenceFor(["MIN @ LAA · Over/Under is PAUSED by GameTime and publishes no pick"]);
+  assert.equal(verifyAnswer("Over/Under: paused, no pick published · Moneyline: GameTime picks MIN.", ev).ok, true);
+  // And the real violation is still caught.
+  assert.equal(verifyAnswer("GameTime picks the Over/Under over tonight.", ev).ok, false);
+});
+
 test("a number the user supplied is theirs to state and is not a sports claim", () => {
   const ev = evidenceFor(["GameTime published 3 candidates"]);
   assert.equal(verifyAnswer("With your 250 bankroll, here are three candidates.", ev, { userNumbers: [250] }).ok, true);
