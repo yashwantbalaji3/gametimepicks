@@ -238,19 +238,39 @@ for (const c of cases) {
     messages.push({ role: "user", text });
     const t0 = Date.now();
     let res;
-    try {
-      res = await fetch(`${BASE}/api/ask/`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages, entities: last?.entities ?? [] }),
-      });
-    } catch (e) {
-      failed = `network: ${String(e?.message ?? e).slice(0, 120)}`;
+    let body = null;
+    /*
+     * ⚠ THE CANARY'S OWN INTERFERENCE IS NOT A RESULT.
+     *
+     * Pacing alone was not enough. A fast model finishes turns quickly enough that twenty cases still
+     * brush the 12-per-minute ceiling, and a run scored six cases as failures — RATE_LIMITED — that
+     * the model never even saw. Transient network errors did the same thing on another run. Both were
+     * reported in the failures table beside real defects, which is worse than useless: it invites a
+     * verdict about a model from evidence about a load balancer.
+     *
+     * So the limiter and the socket are retried, and only what the MODEL returned is scored. A run
+     * that still cannot get through says so plainly rather than blaming the model for it.
+     */
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      if (attempt) await pause(DELAY_MS * (attempt + 1));
+      try {
+        res = await fetch(`${BASE}/api/ask/`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ messages, entities: last?.entities ?? [] }),
+        });
+      } catch (e) {
+        failed = `network: ${String(e?.message ?? e).slice(0, 120)}`;
+        continue;
+      }
+      body = await res.json().catch(() => null);
+      if (body?.code === "RATE_LIMITED") { failed = "RATE_LIMITED (the canary's own pacing)"; body = null; continue; }
+      failed = null;
       break;
     }
+    if (!body && failed) break;
     ms += Date.now() - t0;
-    const body = await res.json().catch(() => null);
-    if (!body) { failed = `unparseable response (HTTP ${res.status})`; break; }
+    if (!body) { failed = `unparseable response (HTTP ${res?.status})`; break; }
     if (body.ok === false) {
       failed = [body.code,
         body.detail ? `detail=${body.detail}` : null,
