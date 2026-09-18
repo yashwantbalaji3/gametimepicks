@@ -91,3 +91,33 @@ fake fetch, asserting nothing it supplied itself. Re-probed: removing the catalo
 flipping `tool_choice` to `auto` fails one, handing the writer tools it should not have fails one.
 
 **Assert the use, not the mechanism.** A guard that can only pass is not a guard.
+
+## F. Prompt caching — instrumented, not built
+
+Ask's planner request is dominated by a block that is byte-identical on every turn: the system prompt,
+the rendered tool catalogue and the policy rules. That is exactly the shape input caching exists for,
+and at these token counts it is the single largest lever on input cost.
+
+Nothing has been built for it, because §I is right that caching complexity without evidence is a
+liability. What has been done instead is the cheap half: the adapter records `cached_tokens` from the
+provider's usage block, and the canary prints reasoning tokens as a share of output. So the first real
+run answers the question with a measurement — how much of the input was already cached, and what it
+saved — rather than with an argument.
+
+The decision to do anything further waits for that number. If caching is automatic and already
+applies, there is nothing to build; if it needs an explicit marker, the saving is measurable before
+any complexity is added.
+
+## G. Status
+
+| Item | State |
+|---|---|
+| OpenAI adapter behind `AskModelProvider` | **built** |
+| provider selection (`ASK_MODEL_PROVIDER` / `ASK_MODEL_NAME`) | **built**, defaults to Anthropic |
+| tool-catalogue contract test (12 cases, mutation-probed) | **built, passing** |
+| 91-case offline eval on the fake provider | **passing** |
+| Anthropic adapter | **intact, unchanged** |
+| real `gpt-5-nano` measurement | **blocked — `OPENAI_API_KEY` not provisioned** |
+| Preview canary (§J) | blocked on the same |
+| Production switch (§K) | blocked; not attempted |
+| Anthropic baseline re-measurement | **blocked — credit balance exhausted** |
