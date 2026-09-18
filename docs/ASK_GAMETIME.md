@@ -91,6 +91,19 @@ right and the lever no longer exists; steadiness comes from structure instead, w
 the heavier lifting: a closed tool registry, server-side argument re-validation, evidence sentences
 rather than raw rows, and a numeric check before anything is emitted.
 
+**One retry, for transient conditions only.** Overload (529), a gateway hiccup (5xx), a rate limit
+(429) and a dropped connection get exactly one retry after 700 ms. A deterministic 4xx — bad key,
+wrong model, malformed body — gets none, because it will fail identically and retrying it spends a
+call to learn nothing. A request the reader aborted is never retried on their behalf.
+
+The production smoke found what looked like a 35% per-request failure on one question. It was not:
+a later run failed 8 of 8 consecutively then passed 4 of 4 minutes later, same code, same question.
+That is a *window* of upstream unavailability lasting minutes. One retry rides a window out for a
+reader; nothing rides out a genuine outage, and the honest refusal is what ships then.
+
+⚠ The retry had to be **targeted**. A blind retry-everything would have hidden the deprecated-
+`temperature` 400 — the most important bug in the programme — behind a doubled bill and a longer wait.
+
 **Upstream failures are diagnosable in preview only.** A refusal carries the numeric status and the
 provider's own error type in every environment; the redacted, truncated upstream *message* is added
 only when `VERCEL_ENV` is not `production`. Production serves strangers and has no operator reading
@@ -332,6 +345,35 @@ input (no iOS zoom); `prefers-reduced-motion` honoured; focus returns to the com
 
 Hard gates, all of which must pass: numeric faithfulness · no invented parlay leg · blocked-model
 compliance · tool-schema enforcement · no internal leak · no foreign link · no guarantee or EV claim.
+
+## 25b. What only a real provider could find
+
+The 91-case offline eval passes on every commit and could not have found any of these. They are
+recorded because the *reason* each was invisible is a property of deterministic fakes in general, not
+of this one.
+
+| Defect | Why the offline eval could not see it |
+|---|---|
+| `temperature` rejected — every call 400'd | a fake accepts any request shape you hand it |
+| **tool catalogue never sent** — model invented tool names | a keyword router reads no catalogue |
+| **`RESOLVED` placeholder never documented** — model passed names into id slots | the fake needs no placeholder |
+| second planning pass budgeted but unimplemented | the fake emits a whole plan at once |
+| dates inside timestamps unregistered → correct answers rejected | the fake echoes evidence verbatim |
+| pause window crossed into the next market | same |
+| truncation masquerading as a grounding failure | the fake's answers are short |
+| deterministic fallback printed tool names to readers | nothing had inspected a real fallback |
+| thrown provider errors lost their identity | the fake never throws a `TypeError` with a `cause` |
+
+The two that mattered most are the same class: **a mechanism built, unit-tested, and never
+communicated to the model.** `providerToolList()` was exported and never called. `runPlanWithResolution`
+substituted a placeholder the prompt never mentioned. In both cases the executor refused every
+invented tool and every malformed id — the boundary held perfectly — while the product answered a
+third of its questions with a refusal. A correctness failure disguised as a safety success is the
+harder one to notice, because every security assertion remains true while the feature is broken.
+
+Guards now exist for both: a test asserts every registered tool name and a sample description appear
+in the rendered prompt, and the placeholder is documented with a worked example plus a label-matching
+safety net.
 
 ## 26. CI and the offline fake
 
