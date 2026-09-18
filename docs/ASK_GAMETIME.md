@@ -76,12 +76,26 @@ If `/api/ask/` is down, `/ask/` still renders and every link on it still works.
 
 | Provider | When selected | Notes |
 |---|---|---|
-| `anthropic` | `ANTHROPIC_API_KEY` present, or `ASK_MODEL_PROVIDER=anthropic` | Messages API, `claude-sonnet-5`, plan T=0 / write T=0.2 |
+| `anthropic` | `ANTHROPIC_API_KEY` present, or `ASK_MODEL_PROVIDER=anthropic` | Messages API, `claude-sonnet-5`, **no `temperature`** — see below |
 | `fake` | `ASK_MODEL_PROVIDER=fake` | deterministic; **refused in production** |
 | none | no key | `PROVIDER_NOT_CONFIGURED` → 503, fails closed |
 
 Anthropic was not a new choice — it is the convention `api/slip-read.mjs` already established and this
 repository already approved.
+
+**No `temperature` is sent.** The parameter is deprecated for this model and including it returns
+`400 invalid_request_error` on every call — found by the Preview canary, not by a test, because no
+offline fake can reject a request shape the real API rejects. The plan called for a low temperature on
+both stages, reasoning that this is knowledge work rather than creative writing. That reasoning was
+right and the lever no longer exists; steadiness comes from structure instead, which was always doing
+the heavier lifting: a closed tool registry, server-side argument re-validation, evidence sentences
+rather than raw rows, and a numeric check before anything is emitted.
+
+**Upstream failures are diagnosable in preview only.** A refusal carries the numeric status and the
+provider's own error type in every environment; the redacted, truncated upstream *message* is added
+only when `VERCEL_ENV` is not `production`. Production serves strangers and has no operator reading
+the body — preview is where someone is actively debugging. Without this the canary could only see
+"provider error" and would have bisected its own request body one four-minute deploy at a time.
 
 ## 6. Tool registry
 

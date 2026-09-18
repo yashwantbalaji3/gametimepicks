@@ -6,10 +6,9 @@
  * `anthropic-version`, no SDK, and a key read from the environment that is never logged, never echoed
  * into an error body, and never prefixed `NEXT_PUBLIC`.
  *
- * TEMPERATURE (§68). Planning runs at 0 and writing at 0.2. This is knowledge work: the same question
- * over the same evidence should produce the same tool plan every time, and a writer that reaches for
- * variety is a writer reaching for words the evidence did not supply. The numbers are stated here
- * rather than left to a default so a receipt can name them.
+ * TEMPERATURE: NOT SENT, BECAUSE THIS MODEL REFUSES IT. See the request body below — the parameter is
+ * deprecated for this model and including it 400s every call. Steadiness comes from the structure
+ * instead, which is where it should have come from anyway.
  *
  * ABORT IS REAL, NOT COSMETIC (§52, §95). Every request carries an AbortSignal wired to the caller's,
  * so a reader pressing Stop actually cancels the upstream request instead of leaving it to run and
@@ -44,7 +43,7 @@ const KNOWN_ERROR_TYPES = Object.freeze([
 export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetchImpl = fetch, diagnostics = false } = {}) {
   if (!apiKey) throw new Error("createAnthropicProvider: no API key");
 
-  async function call({ system, messages, maxTokens, temperature, signal }) {
+  async function call({ system, messages, maxTokens, signal }) {
     const controller = new AbortController();
     const onAbort = () => controller.abort();
     signal?.addEventListener("abort", onAbort, { once: true });
@@ -59,7 +58,19 @@ export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetch
           "x-api-key": apiKey,
           "anthropic-version": API_VERSION,
         },
-        body: JSON.stringify({ model, max_tokens: maxTokens, temperature, system, messages }),
+        /*
+         * ⚠ NO `temperature`. This model rejects it outright — 400 invalid_request_error,
+         * "`temperature` is deprecated for this model" — so sending it fails every single call.
+         *
+         * The v1.6 plan called for a low temperature on planning and a low-to-moderate one on
+         * writing, reasoning that this is knowledge work rather than creative writing. That reasoning
+         * was sound and the lever no longer exists. What actually holds the output steady is
+         * structural and always did the heavier lifting: the planner may only name tools from a
+         * closed registry, the executor re-validates every argument, the writer receives already-
+         * interpreted evidence sentences rather than raw rows, and the answer is checked against a
+         * numeric index before it is emitted. A temperature setting would have nudged; these refuse.
+         */
+        body: JSON.stringify({ model, max_tokens: maxTokens, system, messages }),
       });
 
       if (!res.ok) {
@@ -128,11 +139,11 @@ export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetch
     model,
 
     async plan({ system, user, signal }) {
-      return call({ system, messages: [{ role: "user", content: user }], maxTokens: 1500, temperature: 0, signal });
+      return call({ system, messages: [{ role: "user", content: user }], maxTokens: 1500, signal });
     },
 
     async write({ system, user, signal }) {
-      return call({ system, messages: [{ role: "user", content: user }], maxTokens: ASK_BUDGET.maxAnswerTokens, temperature: 0.2, signal });
+      return call({ system, messages: [{ role: "user", content: user }], maxTokens: ASK_BUDGET.maxAnswerTokens, signal });
     },
   };
 }
