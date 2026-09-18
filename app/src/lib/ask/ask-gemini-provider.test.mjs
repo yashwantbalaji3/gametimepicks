@@ -207,3 +207,44 @@ test("ASK_MODEL_NAME survives env → decideAsk → makeProvider for Gemini too"
   const d2 = decideAsk({ env: bare, method: "POST", body: { messages: [{ role: "user", text: "hi" }] }, bodyBytes: 20, isProduction: false });
   assert.equal(makeProvider(d2, bare).model, GEMINI_MODEL);
 });
+
+test("no numeric enum reaches the wire, and the constraint is not lost", async () => {
+  /*
+   * ⚠ THE FIRST REAL GEMINI CALL 400'd ON THIS. Enum is string-only in Google's schema dialect, and
+   * `limit` is an integer with an allowed set. The rejection named the exact field, which is the only
+   * reason it cost one cycle rather than a bisect.
+   *
+   * Two things must hold: nothing non-string appears in any enum, and the constraint still reaches
+   * the model somewhere, because a bound the model cannot see is a bound it will violate and the
+   * executor will then refuse — a clean schema error turned into a mysterious INVALID_ARGUMENT.
+   */
+  const { body } = await capturePlan();
+  let checkedOne = false;
+  for (const t of body.tools[0].functionDeclarations) {
+    for (const [key, p] of Object.entries(t.parameters.properties ?? {})) {
+      if (!p.enum) continue;
+      assert.equal(p.type, "STRING", `${t.name}.${key} carries an enum on a non-string type`);
+      for (const v of p.enum) assert.equal(typeof v, "string", `${t.name}.${key} enum value ${v} is not a string`);
+      checkedOne = true;
+    }
+  }
+  assert.ok(checkedOne, "no enums found at all — this guard would pass vacuously");
+
+  /*
+   * The integer-with-allowed-values case must still tell the model what the executor will accept.
+   * Asked of the REGISTRY, not of the output: the output no longer says which fields had an enum,
+   * so looking for one there finds integer fields that never had a constraint and proves nothing.
+   */
+  let checkedNumeric = false;
+  for (const name of ASK_TOOL_NAMES) {
+    for (const [key, field] of Object.entries(ASK_TOOLS[name].args)) {
+      if (!field.oneOf || field.kind === "enum") continue;
+      const sent = body.tools[0].functionDeclarations.find((t) => t.name === name).parameters.properties[key];
+      assert.ok(!sent.enum, `${name}.${key} still carries a numeric enum`);
+      assert.match(sent.description, /Allowed values:/, `${name}.${key} lost its bound instead of moving it to the description`);
+      for (const v of field.oneOf) assert.ok(sent.description.includes(String(v)), `${name}.${key} omits allowed value ${v}`);
+      checkedNumeric = true;
+    }
+  }
+  assert.ok(checkedNumeric, "no numeric-enum field found — this half of the guard would pass vacuously");
+});

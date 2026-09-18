@@ -332,8 +332,25 @@ export function geminiToolList() {
 function toGeminiSchema(schema) {
   const properties = {};
   for (const [key, p] of Object.entries(schema.properties ?? {})) {
-    const out = { type: String(p.type ?? "string").toUpperCase(), description: p.description ?? "" };
-    if (p.enum) out.enum = [...p.enum];
+    const type = String(p.type ?? "string").toUpperCase();
+    const out = { type, description: p.description ?? "" };
+    /*
+     * ⚠ ENUM IS STRING-ONLY IN THIS DIALECT, AND A NUMERIC ONE IS REJECTED OUTRIGHT.
+     *
+     * The first real Gemini call 400'd on exactly this:
+     *   Invalid value at 'tools[0].function_declarations[5].parameters.properties[3].value.enum[0]'
+     *   (TYPE_STRING), 3
+     * `limit` is an INTEGER with an allowed set of {3,5,10,…}, and Google's schema will not carry it.
+     *
+     * Dropping the enum silently would leave the model guessing at a bound the executor then refuses,
+     * which turns a clean schema error into a mysterious INVALID_ARGUMENT for a reader. So the
+     * constraint moves into the description, where it still reaches the model, and the executor —
+     * which was always the real boundary — keeps enforcing it exactly as before.
+     */
+    if (p.enum) {
+      if (type === "STRING") out.enum = p.enum.map(String);
+      else out.description = `${out.description} Allowed values: ${p.enum.join(", ")}.`.trim();
+    }
     if (p.items) out.items = { type: String(p.items.type ?? "string").toUpperCase(), ...(p.items.enum ? { enum: [...p.items.enum] } : {}) };
     /*
      * `minimum`/`maximum`/`pattern`/`maxLength` are dropped rather than guessed at: this dialect does
