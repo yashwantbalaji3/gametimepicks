@@ -153,6 +153,7 @@ export function askAuditLine(decision, receipt = {}, extra = {}) {
     totalMs: receipt.totalMs ?? null,
     inputTokens: receipt.inputTokens ?? null,
     outputTokens: receipt.outputTokens ?? null,
+    reasoningTokens: receipt.reasoningTokens ?? null,
     errorCode: receipt.errorCode ?? null,
     ...extra,
   });

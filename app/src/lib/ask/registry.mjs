@@ -285,6 +285,27 @@ export function providerToolList() {
   }));
 }
 
+/**
+ * THE SAME REGISTRY, IN OPENAI'S FUNCTION SHAPE.
+ *
+ * Generated from the identical specs, by the identical generator, as `providerToolList()`. There is no
+ * hand-maintained second catalogue, because a second catalogue is a second thing to forget to update —
+ * and v1.6's most expensive defect was a catalogue the model was never given at all.
+ *
+ * `strict: true` asks the provider to enforce the argument schema itself. That is a convenience, not a
+ * boundary: the executor re-validates every argument of every call regardless, on every path, because
+ * a model is untrusted input no matter which vendor produced it.
+ */
+export function openAiToolList() {
+  return ASK_TOOL_NAMES.map((name) => ({
+    type: "function",
+    name,
+    description: ASK_TOOLS[name].describe,
+    parameters: toProviderSchema(ASK_TOOLS[name].args),
+    strict: false,
+  }));
+}
+
 /** A stable fingerprint of the whole registry, recorded in receipts so a run names its exact contract. */
 export function registryFingerprint() {
   const parts = ASK_TOOL_NAMES.map((n) => `${n}@${ASK_TOOLS[n].version}:${Object.keys(ASK_TOOLS[n].args).sort().join(",")}`);

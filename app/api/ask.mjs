@@ -29,8 +29,7 @@ import {
 import { ASK_BUDGET, ASK_ERROR } from "../src/lib/ask/contract.mjs";
 import { makeAskLoader, originFetchText, resolveAssetOrigin } from "../src/lib/ask/loader.mjs";
 import { originLiveFetch } from "../src/lib/ask/tools/live.mjs";
-import { createAnthropicProvider } from "../src/lib/ask/provider-anthropic.mjs";
-import { createFakeProvider } from "../src/lib/ask/provider-fake.mjs";
+import { makeProvider } from "../src/lib/ask/provider-factory.mjs";
 import { runAskTurn } from "../src/lib/ask/engine.mjs";
 import { redact } from "../src/lib/ask/provider.mjs";
 
@@ -80,9 +79,7 @@ export default async function handler(req, res) {
    * and has no operator reading the response; preview is where someone is actively debugging.
    */
   const isProd = String(process.env.VERCEL_ENV ?? "").toLowerCase() === "production";
-  const provider = decision.provider === "fake"
-    ? createFakeProvider()
-    : createAnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY, diagnostics: !isProd });
+  const provider = makeProvider(decision, process.env, { diagnostics: !isProd });
 
   /*
    * ABORT IS WIRED THROUGH. A reader pressing Stop closes the response, which fires `close` here,
@@ -181,6 +178,9 @@ export default async function handler(req, res) {
         toolsMs: result.receipt?.toolsMs ?? 0,
         writerMs: result.receipt?.writerMs ?? 0,
         model: result.receipt?.model ?? null,
+        provider: result.receipt?.provider ?? null,
+        reasoningTokens: result.receipt?.reasoningTokens ?? 0,
+        cachedInputTokens: result.receipt?.cachedInputTokens ?? 0,
         planningPasses: result.receipt?.planningPasses ?? 1,
         verifier: result.receipt?.verifierStatus ?? null,
         writerTruncated: result.receipt?.writerTruncated ?? false,

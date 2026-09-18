@@ -82,7 +82,26 @@ if (EXPECT_SHA && deployed?.sha && !deployed.sha.startsWith(EXPECT_SHA.slice(0, 
  * PRICING, STATED SO THE COST FIGURE IS AUDITABLE RATHER THAN ASSERTED. Per million tokens, USD.
  * If these are wrong the cost column is wrong and nothing else is — the token counts are measured.
  */
-const PRICE = { inPerM: 3, outPerM: 15 };
+const PRICE_BOOK = Object.freeze({
+  "claude-sonnet-5": { inPerM: 3, outPerM: 15 },
+  "gpt-5-nano":      { inPerM: 0.05, outPerM: 0.40 },
+  "gpt-5-mini":      { inPerM: 0.25, outPerM: 2.00 },
+});
+const FALLBACK_PRICE = { inPerM: 3, outPerM: 15 };
+
+/*
+ * ⚠ A PRICE IS AN ASSUMPTION; A TOKEN COUNT IS A MEASUREMENT.
+ *
+ * The whole case for v1.6.1 is a cost ratio, so the numbers behind it have to be separable. Token
+ * counts come back from the provider and are measured. These rates are typed in from published
+ * pricing and are NOT verified by this script — if one is stale, the dollar column is wrong and
+ * nothing else is. They are printed with the result for exactly that reason.
+ */
+function priceFor(model) {
+  const known = PRICE_BOOK[String(model ?? "").trim()];
+  return known ? { ...known, assumed: false } : { ...FALLBACK_PRICE, assumed: true };
+}
+let PRICE = FALLBACK_PRICE;
 const cost = (i, o) => (i / 1e6) * PRICE.inPerM + (o / 1e6) * PRICE.outPerM;
 
 /**
@@ -333,8 +352,26 @@ for (const r of results) {
 console.log("");
 console.log(`cases: ${ok.length}/${results.length} pass`);
 console.log(`latency: p50 ${pct(50)} ms · p95 ${pct(95)} ms · max ${lat.at(-1) ?? 0} ms`);
-console.log(`tokens: ${totalIn} in · ${totalOut} out over ${turns} measured turn(s)  (~$${cost(totalIn, totalOut).toFixed(4)} total, ~$${turns ? (cost(totalIn, totalOut) / turns).toFixed(5) : "0"} per turn, at $${PRICE.inPerM}/$${PRICE.outPerM} per Mtok)`);
+/*
+ * The model that ANSWERED, read from the receipts rather than assumed from the flags — a canary that
+ * priced a run using the model it intended to test would report a number about the wrong thing.
+ */
+const models = [...new Set(results.map((r) => r.out?.usage?.model).filter(Boolean))];
+const answeredModel = models.length === 1 ? models[0] : null;
+const priced = priceFor(answeredModel);
+PRICE = priced;
+
+console.log(`provider/model: ${[...new Set(results.map((r) => r.out?.usage?.provider).filter(Boolean))].join(", ") || "unknown"} · ${models.join(", ") || "unknown"}`);
+if (models.length > 1) console.log("⚠ more than one model answered this run — the cost figure below mixes rates and is not a clean measurement");
+console.log(`tokens: ${totalIn} in · ${totalOut} out over ${turns} measured turn(s)  (~$${cost(totalIn, totalOut).toFixed(4)} total, ~$${turns ? (cost(totalIn, totalOut) / turns).toFixed(6) : "0"} per turn, at $${PRICE.inPerM}/$${PRICE.outPerM} per Mtok${priced.assumed ? " — ⚠ ASSUMED, this model is not in the price book" : ""})`);
 if (!turns) console.log("⚠ no token counts came back — the endpoint did not report usage, so the cost figure above is not a measurement");
+if (turns) {
+  const totalReason = results.reduce((n, r) => n + (r.out?.usage?.reasoningTokens ?? 0), 0);
+  if (totalReason) console.log(`of which reasoning: ${totalReason} output tokens (${((totalReason / Math.max(1, totalOut)) * 100).toFixed(0)}% of output) — billed, never shown to a reader`);
+  const perTurn = cost(totalIn, totalOut) / turns;
+  const at = (n) => `$${(perTurn * n).toFixed(2)}`;
+  console.log(`projected: ${at(1000)} / 1k turns · ${at(10000)} / 10k · ${at(100000)} / 100k`);
+}
 const passes = results.map((r) => r.out?.usage?.planningPasses).filter(Boolean);
 if (passes.length) console.log(`planning passes: ${passes.filter((p) => p === 2).length} of ${passes.length} turns needed a second pass`);
 

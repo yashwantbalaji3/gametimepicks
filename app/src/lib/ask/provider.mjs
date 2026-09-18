@@ -30,7 +30,18 @@ import { ASK_ERROR } from "./contract.mjs";
  */
 
 /** Names the runtime understands. Anything else is a configuration error, not a silent default. */
-export const ASK_PROVIDERS = Object.freeze(["anthropic", "fake"]);
+export const ASK_PROVIDERS = Object.freeze(["anthropic", "openai", "fake"]);
+
+/**
+ * Which secret each provider needs. Provider choice and credential requirement are ONE fact, so the
+ * 503 that reports a missing configuration names the variable for the provider actually selected —
+ * not the variable that happened to be required when the file was first written.
+ */
+export const ASK_PROVIDER_ENV = Object.freeze({
+  anthropic: "ANTHROPIC_API_KEY",
+  openai: "OPENAI_API_KEY",
+  fake: null,
+});
 
 /**
  * Decide which provider this process should use. PURE — takes an env object, returns a decision, reads
@@ -41,8 +52,11 @@ export const ASK_PROVIDERS = Object.freeze(["anthropic", "fake"]);
  */
 export function selectProvider(env = {}, opts = {}) {
   const asked = String(env.ASK_MODEL_PROVIDER ?? "").trim().toLowerCase();
-  const hasKey = Boolean(String(env.ANTHROPIC_API_KEY ?? "").trim());
+  const hasAnthropic = Boolean(String(env.ANTHROPIC_API_KEY ?? "").trim());
+  const hasOpenAi = Boolean(String(env.OPENAI_API_KEY ?? "").trim());
   const isProduction = opts.isProduction ?? String(env.VERCEL_ENV ?? "").toLowerCase() === "production";
+  /* An explicit model name overrides the adapter's default. Names only — never a credential. */
+  const model = String(env.ASK_MODEL_NAME ?? "").trim() || null;
 
   if (asked && !ASK_PROVIDERS.includes(asked)) {
     return { ok: false, code: ASK_ERROR.PROVIDER_NOT_CONFIGURED, detail: "unknown provider name" };
@@ -59,10 +73,23 @@ export function selectProvider(env = {}, opts = {}) {
     return { ok: true, provider: "fake" };
   }
 
-  if (asked === "anthropic" || (!asked && hasKey)) {
-    if (!hasKey) return { ok: false, code: ASK_ERROR.PROVIDER_NOT_CONFIGURED, detail: "ANTHROPIC_API_KEY is not set" };
-    return { ok: true, provider: "anthropic" };
+  if (asked === "openai") {
+    if (!hasOpenAi) return { ok: false, code: ASK_ERROR.PROVIDER_NOT_CONFIGURED, detail: "OPENAI_API_KEY is not set" };
+    return { ok: true, provider: "openai", model };
   }
+
+  if (asked === "anthropic") {
+    if (!hasAnthropic) return { ok: false, code: ASK_ERROR.PROVIDER_NOT_CONFIGURED, detail: "ANTHROPIC_API_KEY is not set" };
+    return { ok: true, provider: "anthropic", model };
+  }
+
+  /*
+   * NO EXPLICIT CHOICE. Anthropic stays the default while it is the verified provider, so a migration
+   * that is half-configured cannot silently move production onto an unverified model. Switching is a
+   * deliberate act: set ASK_MODEL_PROVIDER. (v1.6.1 §K flips this only after the canary passes.)
+   */
+  if (!asked && hasAnthropic) return { ok: true, provider: "anthropic", model };
+  if (!asked && hasOpenAi) return { ok: true, provider: "openai", model };
 
   // No provider asked for and no key: Ask is deployable but not answerable, which is the intended
   // state between shipping the route and provisioning the key.
@@ -76,11 +103,43 @@ export function selectProvider(env = {}, opts = {}) {
  * Ask stores nothing, identifies nobody and has no database, so requiring a database credential would
  * be a dependency invented by proximity. One secret, server-side only.
  */
-export const ASK_REQUIRED_ENV = Object.freeze(["ANTHROPIC_API_KEY"]);
+/*
+ * EVERY CREDENTIAL ASK MAY EVER USE — not the one it needs right now.
+ *
+ * ⚠ THE DISTINCTION IS LOad-BEARING. This list also drives the built-output scan that asserts no Ask
+ * secret name reaches a client chunk. Left as the single ACTIVE provider's key, adding a second vendor
+ * would have silently stopped that scan looking for the new one: the guard would still pass, and would
+ * be checking a name that no longer mattered. A leak guard must enumerate every name that could leak.
+ *
+ * "Which one is required for this configuration" is a different question, answered by `requiredEnvFor`.
+ */
+export const ASK_REQUIRED_ENV = Object.freeze(["ANTHROPIC_API_KEY", "OPENAI_API_KEY"]);
+
+/** The secret the SELECTED provider needs — one name, chosen by configuration, never a union. */
+export function requiredEnvFor(env = {}) {
+  /*
+   * ⚠ ASK THE ASKED-FOR PROVIDER, NOT THE SELECTED ONE. Routing this through `selectProvider` alone
+   * was wrong in exactly the case that matters: with ASK_MODEL_PROVIDER=openai and no key, selection
+   * FAILS, so there is no selected provider to look up, and the 503 fell back to listing every
+   * credential in the system. An operator who has named their provider should be told the one
+   * variable they are missing, not handed a menu.
+   */
+  const asked = String(env.ASK_MODEL_PROVIDER ?? "").trim().toLowerCase();
+  if (asked && Object.prototype.hasOwnProperty.call(ASK_PROVIDER_ENV, asked)) {
+    const name = ASK_PROVIDER_ENV[asked];
+    return name ? [name] : [];
+  }
+  const decision = selectProvider(env, { isProduction: false });
+  const name = decision.ok ? ASK_PROVIDER_ENV[decision.provider] : null;
+  return name ? [name] : [];
+}
 
 /** Names only — a VALUE is never read into a message, a log line or an error. */
 export function missingAskConfig(env = {}) {
-  return ASK_REQUIRED_ENV.filter((k) => !String(env[k] ?? "").trim());
+  const required = requiredEnvFor(env);
+  if (required.length) return required.filter((k) => !String(env[k] ?? "").trim());
+  // Nothing selected at all: report every credential that could have selected something.
+  return Object.values(ASK_PROVIDER_ENV).filter(Boolean).filter((k) => !String(env[k] ?? "").trim());
 }
 
 /**
@@ -92,7 +151,13 @@ export function missingAskConfig(env = {}) {
 export function redact(s) {
   return String(s ?? "")
     .replace(/sk-ant-[A-Za-z0-9_-]{8,}/g, "sk-ant-***")
-    .replace(/sk-[A-Za-z0-9]{16,}/g, "sk-***")
+    /*
+     * ⚠ OPENAI KEYS CONTAIN DASHES AND UNDERSCORES (`sk-proj-…`, `sk-svcacct-…`). The previous pattern
+     * required [A-Za-z0-9] only, so it stopped at the first dash and redacted nothing useful. A
+     * redactor that silently fails to match is worse than none, because it is trusted.
+     */
+    .replace(/sk-(proj|svcacct|admin)-[A-Za-z0-9_-]{8,}/g, "sk-$1-***")
+    .replace(/sk-[A-Za-z0-9_-]{16,}/g, "sk-***")
     /*
      * `Bearer <token>` is TWO tokens, and a pattern that consumes one \S+ after the header name eats
      * the word "Bearer" and leaves the credential behind it in the log. The scheme word is matched

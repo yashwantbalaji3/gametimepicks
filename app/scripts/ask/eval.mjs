@@ -27,7 +27,7 @@ import { fileURLToPath } from "node:url";
 
 import { makeAskLoader, fileFetchText } from "../../src/lib/ask/loader.mjs";
 import { createFakeProvider } from "../../src/lib/ask/provider-fake.mjs";
-import { createAnthropicProvider } from "../../src/lib/ask/provider-anthropic.mjs";
+import { makeProvider } from "../../src/lib/ask/provider-factory.mjs";
 import { runAskTurn } from "../../src/lib/ask/engine.mjs";
 import { ASK_PROMPT_VERSION } from "../../src/lib/ask/contract.mjs";
 import { registryFingerprint } from "../../src/lib/ask/registry.mjs";
@@ -70,10 +70,15 @@ const liveFetch = async (sport) =>
     }
     : { schemaVersion: 1, unavailable: true, reason: "UNSUPPORTED_SPORT" };
 
+/*
+ * The fake is constructed directly because the eval drives it into specific BEHAVIOURS (malformed
+ * JSON, a fenced block, a timeout) that no real provider has a knob for. Every real provider goes
+ * through the one factory, so adding a vendor never touches this harness.
+ */
 const providerFor = (behaviour) =>
   PROVIDER === "fake"
     ? createFakeProvider({ behaviour: behaviour ?? "route" })
-    : createAnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY });
+    : makeProvider({ provider: PROVIDER, model: process.env.ASK_MODEL_NAME || null }, process.env, { diagnostics: true });
 
 /* ───────────────────────────────────  run  ─────────────────────────────────── */
 

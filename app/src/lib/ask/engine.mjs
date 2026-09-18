@@ -55,6 +55,8 @@ export async function runAskTurn(input, deps) {
     totalMs: 0,
     inputTokens: 0,
     outputTokens: 0,
+    reasoningTokens: 0,
+    cachedInputTokens: 0,
     errorCode: null,
   };
 
@@ -185,6 +187,14 @@ async function planWithRepair(state, deps, receipt, opts = {}) {
     if (!res.ok) return { ok: false, code: res.code, detail: res.detail ?? null, status: res.status ?? null, type: res.type ?? null, explain: res.explain ?? null, errorName: res.errorName ?? null };
     receipt.inputTokens += res.usage?.inputTokens ?? 0;
     receipt.outputTokens += res.usage?.outputTokens ?? 0;
+    /*
+     * REASONING TOKENS ARE BILLED AND INVISIBLE. On a reasoning model most of a turn's output can be
+     * thinking the reader never sees. They are already inside `outputTokens`, so they are not added to
+     * the cost again — they are recorded separately so a cost receipt can say where the money went,
+     * and so a cheap model whose real expense is reasoning cannot look cheap by accident.
+     */
+    receipt.reasoningTokens += res.usage?.reasoningTokens ?? 0;
+    receipt.cachedInputTokens += res.usage?.cachedInputTokens ?? 0;
 
     const parsed = parsePlan(res.text);
     if (parsed.ok) return parsed;
@@ -343,6 +353,14 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
     if (!res.ok) break;
     receipt.inputTokens += res.usage?.inputTokens ?? 0;
     receipt.outputTokens += res.usage?.outputTokens ?? 0;
+    /*
+     * REASONING TOKENS ARE BILLED AND INVISIBLE. On a reasoning model most of a turn's output can be
+     * thinking the reader never sees. They are already inside `outputTokens`, so they are not added to
+     * the cost again — they are recorded separately so a cost receipt can say where the money went,
+     * and so a cheap model whose real expense is reasoning cannot look cheap by accident.
+     */
+    receipt.reasoningTokens += res.usage?.reasoningTokens ?? 0;
+    receipt.cachedInputTokens += res.usage?.cachedInputTokens ?? 0;
 
     const parsed = parseAnswer(res.text, evidence);
     if (!parsed.ok) {

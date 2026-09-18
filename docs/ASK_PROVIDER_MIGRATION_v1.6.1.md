@@ -1,0 +1,93 @@
+# Ask GameTime v1.6.1 — cost-first provider migration
+
+A second `AskModelProvider` implementation, not a rewrite. The 14-tool closed registry, the
+planner → executor → evidence → verifier → writer pipeline, the ResearchQueryV1 bounds, every grounding
+rule and every hard gate are unchanged and are asserted to be unchanged.
+
+**Contract identity, before and after:** registry fingerprint `v1/14/c168e175`, 14 tools, prompt
+version 2, tool registry version 1. The Anthropic and OpenAI catalogues are generated from the same
+specs by the same generator and are asserted equal.
+
+---
+
+## A. Baseline — Anthropic, as measured
+
+⚠ **These numbers are from commit `826b64b5` on 2026-09-18, not from a fresh run.** The Anthropic
+account's credit balance is exhausted (`400 invalid_request_error`, "Your credit balance is too low to
+access the Anthropic API"), so the baseline **cannot currently be re-measured**. Every figure below is
+the last real measurement taken while the provider was answering, and the Ask runtime has not changed
+in a way that affects model behaviour since.
+
+| | Baseline |
+|---|---|
+| provider · model | `anthropic` · `claude-sonnet-5` |
+| prompt version · tool registry version | 2 · 1 (`v1/14/c168e175`) |
+| offline eval | 91 cases · 0 fail · **7/7 hard gates** |
+| production canary | **20/20 pass**, SHA-asserted against `826b64b5` |
+| latency | p50 **8,426 ms** · p95 **39,031 ms** · max 39,031 ms |
+| parlay latency (the p95) | `09-parlay-answer` **39,031 ms** — a two-turn conversation; every other case < 13,500 ms |
+| tokens | 90,449 in · 15,107 out over 20 measured turns |
+| **cost** | **$0.02490 per turn** ($0.4980 for the 20-case run) at $3 / $15 per Mtok |
+| planning passes | 0 of 20 turns needed a second pass |
+| grounding | `verified: true` on every tool-using case; 0 deterministic fallbacks |
+
+Projected at that rate: **$24.90 / 1k turns · $249 / 10k · $2,490 / 100k.**
+
+## B. Candidate order (cost first)
+
+Measured strictly cheapest-first. A more expensive model is not tried until the cheaper one has been
+measured and has failed a hard gate.
+
+| Order | Model | Input $/Mtok | Output $/Mtok | Status |
+|---|---|---:|---:|---|
+| 1 | `gpt-5-nano` | 0.05 | 0.40 | **adapter built, awaiting key** |
+| 2 | Gemini 2.5 Flash-Lite | — | — | only if nano fails a hard gate |
+| 3 | `gpt-5-mini` | 0.25 | 2.00 | only if both ultra-cheap candidates fail |
+| ref | `claude-sonnet-5` | 3.00 | 15.00 | fallback / comparator, kept configured |
+
+⚠ Those rates are **typed in from published pricing and are not verified by any test**. Token counts
+are measured; the dollar column is an assumption layered on top. The canary prints the rates it used
+and flags a model that is not in its price book, so a stale rate is visible rather than silent.
+
+## C. What the adapter does and does not do
+
+Built (`src/lib/ask/provider-openai.mjs`), behind the existing abstraction:
+
+- server-only `OPENAI_API_KEY`, raw HTTP, no SDK — matching the repo's existing convention
+- the **complete 14-tool catalogue** on every planner request, as function schemas generated from the
+  executor's own specs, with `tool_choice: "none"` so the plan contract stays the only way out
+- bounded output, bounded timeout, abort wired through, one retry for transient conditions only
+- usage capture including **reasoning tokens**, which are billed and never shown to a reader
+- error classification into Ask's own codes; the upstream message captured always, disclosed by
+  environment, redacted for OpenAI key shapes (`sk-proj-…`, `sk-svcacct-…`)
+
+Selection is explicit and configurable: `ASK_MODEL_PROVIDER=openai`, `ASK_MODEL_NAME=gpt-5-nano`. With
+no explicit choice Anthropic remains the default, so a half-configured migration cannot silently move
+production onto an unverified model. Naming a provider whose key is absent **refuses that provider**
+rather than falling back to the other — a silent substitution would bill one vendor while the receipt
+claimed another.
+
+## D. ⚠ What cannot be verified without a key
+
+The request body is the one thing no offline test can prove correct. v1.6 lost a deploy cycle to
+exactly this: `temperature` was deprecated for `claude-sonnet-5` and 400'd every single call.
+
+So the body is built by a **pure exported function** and asserted as a value — every registered tool
+present with its real argument schema, no sampling knob this model family rejects, the output ceiling
+sent, the key in a header and never in the body. That reduces the risk; it does not remove it. The
+endpoint, the model id, and the exact field names of the Responses API are assumptions until a real
+call is made, and the first canary may need one correction. The diagnostics added in v1.6.1's
+predecessor mean such a correction costs one cycle and names itself.
+
+## E. ⚠ The guard that failed its own mutation probe
+
+The first version of the "every registered tool reaches the wire" test called `buildOpenAiRequest`
+with the catalogue passed in by the test itself, then asserted the catalogue was present. Deleting
+`tools:` from the planner's actual call left it **green**.
+
+That is v1.6's defect — a mechanism built, exported and never used — committed a second time inside
+the test written to prevent it. The test now captures the body from a real `provider.plan()` through a
+fake fetch, asserting nothing it supplied itself. Re-probed: removing the catalogue fails three tests,
+flipping `tool_choice` to `auto` fails one, handing the writer tools it should not have fails one.
+
+**Assert the use, not the mechanism.** A guard that can only pass is not a guard.

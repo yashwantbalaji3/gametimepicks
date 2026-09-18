@@ -32,7 +32,7 @@ import { verifyAnswer, deterministicAnswer } from "./verifier.mjs";
 import { parsePlan, plannerSystemPrompt, validatePlan } from "./planner.mjs";
 import { parseAnswer, sanitiseMarkdown } from "./writer.mjs";
 import { clearedState, normaliseContext, normaliseMessages, normalisePreferences, readPreferencesFromText, reduceConversation } from "./conversation.mjs";
-import { missingAskConfig, redact, selectProvider, ASK_REQUIRED_ENV } from "./provider.mjs";
+import { ASK_PROVIDERS, missingAskConfig, redact, requiredEnvFor, selectProvider, ASK_REQUIRED_ENV } from "./provider.mjs";
 import { createFakeProvider } from "./provider-fake.mjs";
 import { refusalPayload } from "../../../api/_ask-core.mjs";
 import { runAskTurn } from "./engine.mjs";
@@ -532,11 +532,40 @@ test("two conversations cannot see each other's state", () => {
 
 /* ═══════════════════════════  9. PROVIDER SELECTION AND SECRETS  ═══════════════════════════ */
 
-test("Ask requires exactly one secret and does not inherit the slip reader's database", () => {
-  assert.deepEqual([...ASK_REQUIRED_ENV], ["ANTHROPIC_API_KEY"]);
-  for (const name of ASK_REQUIRED_ENV) assert.ok(!name.startsWith("NEXT_PUBLIC"), "a secret must never be a NEXT_PUBLIC variable");
-  assert.deepEqual(missingAskConfig({}), ["ANTHROPIC_API_KEY"]);
+test("Ask requires exactly ONE secret per provider and does not inherit the slip reader's database", () => {
+  /*
+   * The invariant survived the second vendor, but it had to be restated. "Exactly one secret" was
+   * written when one secret existed; with two providers the honest form is "exactly one secret FOR THE
+   * SELECTED PROVIDER, and never a database credential". A migration must not turn one requirement
+   * into a union of requirements — that is how Ask would quietly acquire a dependency by proximity,
+   * which is the exact mistake the slip reader's Supabase variables were kept out for.
+   */
+  for (const provider of ASK_PROVIDERS) {
+    const needed = requiredEnvFor({ ASK_MODEL_PROVIDER: provider });
+    assert.ok(needed.length <= 1, `${provider} requires ${needed.length} secrets; at most one is allowed`);
+    for (const name of needed) {
+      assert.ok(!name.startsWith("NEXT_PUBLIC"), `${name} must never be a NEXT_PUBLIC variable`);
+      assert.ok(!/SUPABASE|DATABASE|POSTGRES/i.test(name), `${name} is a database credential — Ask stores nothing`);
+    }
+  }
+  assert.deepEqual(requiredEnvFor({ ASK_MODEL_PROVIDER: "fake" }), [], "the fake needs no credential");
+
+  // The 503 names the variable for the provider the operator ASKED for, not a menu of every vendor.
+  assert.deepEqual(missingAskConfig({ ASK_MODEL_PROVIDER: "anthropic" }), ["ANTHROPIC_API_KEY"]);
+  assert.deepEqual(missingAskConfig({ ASK_MODEL_PROVIDER: "openai" }), ["OPENAI_API_KEY"]);
+  assert.deepEqual(missingAskConfig({ ASK_MODEL_PROVIDER: "openai", OPENAI_API_KEY: "x" }), []);
   assert.deepEqual(missingAskConfig({ ANTHROPIC_API_KEY: "x" }), []);
+
+  // Every name that COULD leak is enumerated, because that list drives the built-chunk scan.
+  for (const name of ASK_REQUIRED_ENV) {
+    assert.ok(!name.startsWith("NEXT_PUBLIC"), `${name} must never be a NEXT_PUBLIC variable`);
+    assert.ok(!/SUPABASE|DATABASE|POSTGRES/i.test(name), `${name} is a database credential`);
+  }
+  for (const provider of ASK_PROVIDERS) {
+    for (const name of requiredEnvFor({ ASK_MODEL_PROVIDER: provider })) {
+      assert.ok(ASK_REQUIRED_ENV.includes(name), `${name} is required but absent from the leak-scan list`);
+    }
+  }
 });
 
 test("with no key configured Ask fails closed rather than answering from memory", () => {
@@ -552,7 +581,37 @@ test("the fake provider is refused in production", () => {
 });
 
 test("an unknown provider name is a configuration error, not a silent default", () => {
-  assert.equal(selectProvider({ ASK_MODEL_PROVIDER: "openai", ANTHROPIC_API_KEY: "x" }).ok, false);
+  // ⚠ "openai" used to be this test's example of an unknown name. It is a real provider now, and the
+  // assertion would have inverted into "a supported provider is refused" while still reading as green.
+  assert.equal(selectProvider({ ASK_MODEL_PROVIDER: "mistral", ANTHROPIC_API_KEY: "x" }).ok, false);
+  assert.equal(selectProvider({ ASK_MODEL_PROVIDER: "gpt", OPENAI_API_KEY: "x" }).ok, false);
+  for (const known of ASK_PROVIDERS) {
+    assert.ok(ASK_PROVIDERS.includes(known), `${known} must remain a recognised name`);
+  }
+});
+
+test("naming a provider whose key is absent refuses THAT provider, never falls back to the other", () => {
+  /*
+   * The dangerous failure is not a refusal, it is a silent substitution: an operator sets
+   * ASK_MODEL_PROVIDER=openai to migrate, the key is missing, and Ask quietly keeps billing Anthropic
+   * while the receipt says what the operator expected to read.
+   */
+  const r = selectProvider({ ASK_MODEL_PROVIDER: "openai", ANTHROPIC_API_KEY: "x" });
+  assert.equal(r.ok, false);
+  assert.equal(r.code, ASK_ERROR.PROVIDER_NOT_CONFIGURED);
+  assert.match(r.detail, /OPENAI_API_KEY/);
+
+  const back = selectProvider({ ASK_MODEL_PROVIDER: "anthropic", OPENAI_API_KEY: "x" });
+  assert.equal(back.ok, false);
+  assert.match(back.detail, /ANTHROPIC_API_KEY/);
+});
+
+test("the selected model is configurable and is never a credential", () => {
+  const r = selectProvider({ ASK_MODEL_PROVIDER: "openai", OPENAI_API_KEY: "x", ASK_MODEL_NAME: "gpt-5-nano" });
+  assert.equal(r.ok, true);
+  assert.equal(r.provider, "openai");
+  assert.equal(r.model, "gpt-5-nano");
+  assert.equal(selectProvider({ ASK_MODEL_PROVIDER: "openai", OPENAI_API_KEY: "x" }).model, null, "no name means the adapter default");
 });
 
 test("a provider failure carries the upstream STATUS and error TYPE, and never its message", async () => {
