@@ -134,6 +134,12 @@ test("the request sends no sampling knob this model family rejects", async () =>
     assert.ok(!(banned in body), `the request sends ${banned}, which this model family rejects`);
   }
   assert.ok(body.max_output_tokens > 0, "the output ceiling must be sent, or a long answer truncates silently");
+  /*
+   * On a reasoning model the output ceiling is shared between thinking and writing. The first real
+   * nano turn spent 96% of it reasoning and had no room left to emit a plan, so the request must pin
+   * the effort rather than accept whatever the vendor defaults to this month.
+   */
+  assert.equal(body.reasoning?.effort, "minimal", "planning is routing, not deliberation — and the budget is shared");
   assert.ok(body.input.some((m) => m.role === "system"), "the system prompt must travel in input, not instructions");
   assert.ok(body.input.some((m) => m.role === "user"), "the user message must be present");
 });

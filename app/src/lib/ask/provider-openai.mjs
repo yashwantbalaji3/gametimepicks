@@ -48,6 +48,22 @@ const RETRY_DELAY_MS = 700;
  * tool registry, an executor that re-validates, evidence sentences rather than rows, and a numeric
  * verifier — not a sampling knob.
  */
+/*
+ * ⚠ REASONING EFFORT IS A BUDGET DECISION, MEASURED NOT GUESSED.
+ *
+ * The first real gpt-5-nano turn spent 1,216 of 1,270 output tokens on reasoning — 96% — leaving ~54
+ * tokens to actually emit the plan. The planner duly returned a plan with no tool call, the writer got
+ * no evidence, and the reader got a refusal. Nothing was wrong with the prompt, the catalogue or the
+ * grounding: the model ran out of room to answer in.
+ *
+ * On a reasoning model the output ceiling is shared between thinking and writing, so a ceiling sized
+ * for the ANSWER silently becomes a ceiling on whether there is an answer at all. Ask's planning stage
+ * is routing, not deliberation — the hard thinking lives in a closed registry and a deterministic
+ * executor — so minimal effort is the right setting on its merits, and it is also what the measurement
+ * demands. §D permits a budget change when measurement proves a reason; this is that measurement.
+ */
+const REASONING_EFFORT = "minimal";
+
 export function buildOpenAiRequest({ model, system, user, maxTokens, json = true, tools = null }) {
   const body = {
     model,
@@ -72,6 +88,7 @@ export function buildOpenAiRequest({ model, system, user, maxTokens, json = true
      * them separately so a cost receipt says where the money actually went.
      */
     max_output_tokens: maxTokens,
+    reasoning: { effort: REASONING_EFFORT },
   };
 
   if (json) {
