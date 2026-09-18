@@ -245,7 +245,7 @@ function plannerUserMessage(state, priorEvidence = null) {
      */
     lines.push("ALREADY ESTABLISHED THIS TURN (do not call these tools again):");
     for (const f of priorEvidence.facts.slice(0, 12)) lines.push(`- ${f.text}`);
-    lines.push("", "Now plan the tool call(s) that actually answer the question.");
+    lines.push("", "Now plan the tool call(s) that actually answer the question. Do NOT call resolveEntity or getGameTimeNow again — that work is done, and its results are above. Name the tool that produces the answer itself.");
     lines.push("");
   }
   if (state.history.length) {

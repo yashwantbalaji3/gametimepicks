@@ -822,7 +822,7 @@ test("an aborted turn stops rather than completing", async () => {
 
 test("every turn records the prompt, registry and provider versions", async () => {
   const r = await ask("Why can't I compare UFC fighters?");
-  assert.equal(r.receipt.promptVersion, 2, "the prompt changed, so its version must have moved");
+  assert.equal(r.receipt.promptVersion, 3, "the prompt changed, so its version must have moved");
   assert.match(r.receipt.registry, /^v1\/14\/[0-9a-f]{8}$/);
   assert.equal(r.receipt.provider, "fake");
 });

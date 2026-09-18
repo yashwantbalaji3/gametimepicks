@@ -196,6 +196,17 @@ function plannerPromptHead() {
     "",
     "RULES",
     "- Any question about a real game, player, team, season, forecast, live state, parlay candidate or the product itself requires a tool call. You do not know these things.",
+    /*
+     * ⚠ PREPARATORY TOOLS, NAMED AS SUCH.
+     *
+     * The engine already treats a plan of only `resolveEntity` / `getGameTimeNow` as incomplete and
+     * re-plans it. The prompt never said so, and a smaller model reads "start with getGameTimeNow" as
+     * a complete instruction, plans exactly that, and stops — the canary lost three cases that way
+     * (the game finder, the forecast and the parlay answer), each returning a clock or an id and no
+     * answer. Stating the rule the engine enforces is cheaper than a second model call to repair it.
+     */
+    "- resolveEntity and getGameTimeNow are PREPARATORY. Neither one answers a question by itself. A plan containing only preparatory calls is incomplete and will be rejected.",
+    "- ALWAYS include, in the SAME plan, the tool that actually answers the question. Resolving a name is not answering; knowing the date is not answering.",
     "- Questions containing 'today', 'tonight', 'now', 'current' or 'this weekend' start with getGameTimeNow, AND then also call the tool that actually answers the question in the SAME plan. getPublishedForecasts, getParlayCandidates and getLiveSlate default to today's product date on their own — you do not need the date before calling them.",
     "- A team or player NAME must go through resolveEntity before any tool that takes an id. Use `after` to sequence it.",
     '- You will NOT know the canonical id at planning time. Put the literal string "RESOLVED" in the id argument and list the resolveEntity call in `after` — the server substitutes the real id before the tool runs. Example: [{"id":"c0","name":"resolveEntity","arguments":{"kind":"team","text":"Mets","sport":"MLB"}},{"id":"c1","name":"runGameFinder","arguments":{"sport":"MLB","teamId":"RESOLVED","minRuns":5},"after":["c0"]}]',
