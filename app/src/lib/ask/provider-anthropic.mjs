@@ -57,10 +57,22 @@ const RETRY_DELAY_MS = 700;
     /*
      * ONE RETRY, FOR TRANSIENT CONDITIONS ONLY (§85, §168).
      *
-     * The production smoke found what looked like a ~35% per-request failure on one question. It was
-     * not: a later run failed 8 of 8 in a row and then passed 4 of 4 minutes later. That is not
-     * randomness, it is a WINDOW — upstream unavailability lasting minutes, which one retry rides out
-     * for a reader most of the time and which no amount of retrying fixes when it is genuinely down.
+     * ⚠ THE FAILURE THIS COMMENT ONCE EXPLAINED WAS NOT A PROVIDER FAILURE AT ALL.
+     *
+     * The production smoke showed ~50% failures on one question, and this file was rewritten twice to
+     * explain them: first as per-request randomness, then as a multi-minute upstream WINDOW. Both were
+     * wrong. The cause was an unguarded property read in `buildEvidence` (a PARTIAL envelope with no
+     * `player` key), surfacing as `PROVIDER_ERROR` only because the endpoint's outer catch had no code
+     * of its own for an internal throw. Every hypothesis about this provider was built on that
+     * mislabel, and each new measurement refuted the previous one because none of them were about
+     * this file.
+     *
+     * Two things kept it alive. The refusal named the wrong subsystem, so the evidence was read as
+     * being about the network. And the retry below made a deterministic bug look stochastic, because
+     * whether a turn crashed depended on whether the planner passed `statFamily` that time.
+     *
+     * The retry policy itself is unchanged and still correct for what it is actually for: a genuine
+     * gateway hiccup or dropped connection very often succeeds moments later.
      *
      * So: one retry, a short fixed delay, transient statuses and network throws only, and an honest
      * refusal after that. A blind retry-everything would have hidden the deprecated-`temperature` 400

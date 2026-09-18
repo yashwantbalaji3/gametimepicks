@@ -201,8 +201,13 @@ export default async function handler(req, res) {
     // Redacted, truncated, and never the raw message: the strings that leak a key are by definition
     // the ones nobody expected to contain one.
     console.log(JSON.stringify({ ask: "failed", message: redact(e?.message) }));
-    if (stream) { send({ type: "error", ok: false, code: ASK_ERROR.PROVIDER_ERROR, reason: reasonFor(ASK_ERROR.PROVIDER_ERROR) }); send({ type: "done" }); return res.end(); }
-    return res.status(500).json({ ok: false, code: ASK_ERROR.PROVIDER_ERROR, reason: reasonFor(ASK_ERROR.PROVIDER_ERROR) });
+    /*
+     * AN UNCAUGHT THROW IN THIS PROCESS IS `INTERNAL_ERROR`, NEVER `PROVIDER_ERROR`. Whatever reached
+     * here came from our own code — the provider's own failures are returned as values, not thrown.
+     */
+    const code = ASK_ERROR.INTERNAL_ERROR;
+    if (stream) { send({ type: "error", ok: false, code, reason: reasonFor(code), ...(isProd ? {} : { detail: redact(e?.message) }) }); send({ type: "done" }); return res.end(); }
+    return res.status(500).json({ ok: false, code, reason: reasonFor(code), ...(isProd ? {} : { detail: redact(e?.message) }) });
   } finally {
     gate.release();
   }
@@ -212,6 +217,7 @@ export default async function handler(req, res) {
 function reasonFor(code) {
   return {
     [ASK_ERROR.PROVIDER_ERROR]: "Ask GameTime is temporarily unavailable. The rest of the site is unaffected.",
+    [ASK_ERROR.INTERNAL_ERROR]: "Something went wrong inside Ask GameTime. The rest of the site is unaffected.",
     [ASK_ERROR.PROVIDER_TIMEOUT]: "That took too long. Try asking again, or open Research Lab directly.",
     [ASK_ERROR.MALFORMED_PLAN]: "I could not work out how to answer that. Try rephrasing it.",
     [ASK_ERROR.UNKNOWN_TOOL]: "I could not answer that with the tools I have.",

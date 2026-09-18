@@ -14,6 +14,7 @@ import test from "node:test";
 import {
   ASK_BUDGET,
   ASK_ERROR,
+  ASK_STATUS,
   ASK_EXPECTED_PARLAY_SPORTS,
   ASK_FORBIDDEN_EV_COPY,
   ASK_RISK_PROFILES,
@@ -736,4 +737,53 @@ test("the Last-N shard is a pure function of the player id", () => {
   assert.ok(Number.isInteger(a) && a >= 0 && a < 8);
   const spread = new Set(Array.from({ length: 200 }, (_, i) => recentShardOf(`nfl-athlete-${i}`)));
   assert.ok(spread.size >= 6, "the hash must actually spread ids across shards");
+});
+
+/* ═══════════════  12. EVIDENCE BUILDING IS TOTAL OVER ENVELOPE SHAPES  ═══════════════ */
+
+/**
+ * ⚠ THIS IS THE GUARD FOR THE ONE DEFECT THAT REACHED PRODUCTION.
+ *
+ * `buildEvidence` switches on the tool name and then reads the keys that tool's HAPPY PATH returns.
+ * But a tool's envelope is not one shape: a PARTIAL envelope is often shaped around the REASON the
+ * result is partial, and carries none of the keys the happy path has. `getPlayerRecentGames` returns
+ * exactly such an envelope when the caller names a stat family the sport does not record — no
+ * `player` key — and the branch read `d.player.label` straight through it.
+ *
+ * The consequences were out of all proportion to the typo: the throw escaped evidence building,
+ * killed the turn, and was reported as `PROVIDER_ERROR`, so an intermittent bug in this file was
+ * diagnosed for hours as an Anthropic outage.
+ *
+ * So this does not test one branch. It asserts the PROPERTY — evidence building is total over tool
+ * envelopes — by driving every registered tool with the emptiest possible payload at every status
+ * that reaches the switch. A new tool, or a new branch that reads a key without checking it, fails
+ * here rather than in production. When it first ran it found ten crashing branches across five tools.
+ */
+test("evidence building never throws, for any tool, on an envelope missing every optional key", () => {
+  for (const tool of ASK_TOOL_NAMES) {
+    for (const status of [ASK_STATUS.OK, ASK_STATUS.PARTIAL]) {
+      assert.doesNotThrow(
+        () => buildEvidence([{ tool, status, arguments: { sport: "NFL" }, data: {} }]),
+        `${tool} (${status}) read a key the envelope need not carry`,
+      );
+      // Null data is the same hazard by a different route — a tool that errored before it built one.
+      assert.doesNotThrow(
+        () => buildEvidence([{ tool, status, arguments: { sport: "NFL" }, data: null }]),
+        `${tool} (${status}) cannot survive a null payload`,
+      );
+    }
+  }
+});
+
+test("a stat family the sport does not record is answered, not crashed", () => {
+  // The exact production envelope: PARTIAL, no `player`, shaped around the families instead.
+  const ev = buildEvidence([{
+    tool: "getPlayerRecentGames",
+    status: ASK_STATUS.PARTIAL,
+    arguments: { sport: "NFL", playerId: "nfl-athlete-15818", statFamily: "made_up" },
+    data: { error: ASK_ERROR.UNSUPPORTED_DATA, availableFamilies: [{ key: "rec_yds", label: "Receiving yards" }] },
+  }]);
+  const text = ev.facts.map((f) => f.text).join(" ");
+  assert.match(text, /Receiving yards/, "the answer must be able to say what IS recorded");
+  assert.match(text, /not recorded/, "and must say the named family is not");
 });

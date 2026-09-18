@@ -119,6 +119,14 @@ export function buildEvidence(envelopes) {
           say(`${d.player?.label ?? "that player"} has recorded stat families: ${d.availableFamilies.join(", ")} — the question did not name one`);
           break;
         }
+        /*
+         * NO IDENTITY, NO SENTENCE (§171). A tool envelope is not guaranteed to carry every key this
+         * branch reads: PARTIAL envelopes reach this switch, and some of them are shaped around the
+         * REASON a result is partial rather than around the result. Reading through a missing key
+         * throws, and a throw here takes down the whole turn — see the getPlayerRecentGames branch
+         * below for what that cost in production.
+         */
+        if (!d.player) break;
         say(`in ${d.season}, ${d.player.label} has ${d.totalMatched} recorded games matching that query for ${d.stat}; ${d.returned} are listed`, [d.totalMatched, d.returned]);
         for (const r of (d.rows ?? []).slice(0, 8)) {
           // MISSING IS NOT ZERO. A null value is stated as "not recorded", never rendered as 0.
@@ -137,6 +145,29 @@ export function buildEvidence(envelopes) {
         break;
 
       case "getPlayerRecentGames": {
+        /*
+         * ⚠ THIS BRANCH CRASHED PRODUCTION, AND THE CRASH WAS REPORTED AS `PROVIDER_ERROR`.
+         *
+         * `getPlayerRecentGames` returns a PARTIAL envelope when the caller named a stat family the
+         * sport does not record — and that envelope is shaped around the FAMILIES, carrying no
+         * `player` at all. PARTIAL envelopes reach this switch, so `d.player.label` threw a
+         * TypeError, the turn died, and the endpoint's outer catch reported it as a provider failure.
+         *
+         * It surfaced as an intermittent ~50% failure on player questions, because whether it
+         * happened at all depended on whether the planner chose to pass `statFamily` that time. The
+         * same question passed and failed minutes apart, help questions never failed, and every
+         * failure was ~5s faster than every success — the writer never ran. That pattern was read
+         * first as an upstream outage window and then as a question-specific fault. It was neither:
+         * it was this line, and the misattribution to the provider is what hid it.
+         *
+         * The sibling branch above already guarded exactly this case. One of the two was missed.
+         */
+        if (d.availableFamilies) {
+          const names = d.availableFamilies.map((f) => (typeof f === "string" ? f : f?.label ?? f?.key)).filter(Boolean);
+          say(`GameTime records these stat families for that player: ${names.join(", ") || "none"} — the question named one that is not recorded`);
+          break;
+        }
+        if (!d.player) break;
         say(`${d.player.label}'s last ${d.returned} recorded games (the player research page's own Last-${d.requested})`, [d.returned, d.requested]);
         for (const [key, w] of Object.entries(d.windows ?? {})) {
           say(`over those ${w.size} games ${d.player.label} recorded ${w.recordedGames} ${short(key)} entries totalling ${w.sum}, an average of ${w.average}`, [w.size, w.recordedGames, w.sum, w.average]);
@@ -149,6 +180,7 @@ export function buildEvidence(envelopes) {
       }
 
       case "getTeamComparison": {
+        if (!d.a || !d.b) break;
         const h = d.headToHead?.allTime?.record;
         if (h) say(`the ${d.a.label} and the ${d.b.label} have ${h.meetings} recorded meetings: ${d.a.label} ${h.aWins}, ${d.b.label} ${h.bWins}${h.ties ? `, ${h.ties} tied` : ""}`, [h.meetings, h.aWins, h.bWins, h.ties]);
         for (const [side, label] of [["a", d.a.label], ["b", d.b.label]]) {
@@ -160,11 +192,13 @@ export function buildEvidence(envelopes) {
       }
 
       case "getPlayerComparison":
+        if (!d.a || !d.b) break;
         say(`${d.a.label} and ${d.b.label} share these recorded stat families: ${(d.sharedFamilies ?? []).map(short).join(", ") || "none listed"}`);
         say(`this comparison is recorded fact only — it carries no forecast and names no better player`);
         break;
 
       case "getMatchupContext": {
+        if (!d.away || !d.home) break;
         say(`${d.away.label} play ${d.home.label}${d.startUtc ? ` at ${d.startUtc}` : ""}${d.neutralSite ? " at a neutral site" : ""}`);
         if (d.final) say(`that game finished ${d.away.label} ${d.final.away}, ${d.home.label} ${d.final.home}`, [d.final.away, d.final.home]);
         const h = d.headToHead?.record;

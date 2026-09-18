@@ -112,6 +112,16 @@ export const ASK_ERROR = Object.freeze({
   REQUEST_TOO_LARGE: "REQUEST_TOO_LARGE",
   MALFORMED_REQUEST: "MALFORMED_REQUEST",
   RATE_LIMITED: "RATE_LIMITED",
+  /*
+   * OUR FAULT, NAMED AS OURS (§172). `INTERNAL_ERROR` exists because it did not: an unguarded property
+   * read in evidence building threw, the endpoint's outer catch had only `PROVIDER_ERROR` to hand, and
+   * an intermittent bug in this repository was reported — to readers and to its own operator — as an
+   * Anthropic outage. Diagnosis then went looking upstream, where there was nothing to find.
+   *
+   * A refusal code is a diagnostic instrument before it is reader copy. One that can name the wrong
+   * subsystem will eventually do so.
+   */
+  INTERNAL_ERROR: "INTERNAL_ERROR",
   // Planner / provider
   PROVIDER_ERROR: "PROVIDER_ERROR",
   PROVIDER_TIMEOUT: "PROVIDER_TIMEOUT",
