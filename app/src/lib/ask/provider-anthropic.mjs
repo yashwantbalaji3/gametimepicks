@@ -37,7 +37,11 @@ const KNOWN_ERROR_TYPES = Object.freeze([
  * @param {{apiKey: string, model?: string, fetchImpl?: typeof fetch}} config
  * @returns {import("./provider.mjs").AskModelProvider}
  */
-export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetchImpl = fetch } = {}) {
+/**
+ * @param {{apiKey: string, model?: string, fetchImpl?: typeof fetch, diagnostics?: boolean}} config
+ *   `diagnostics` forwards a REDACTED, TRUNCATED upstream error message. See `explain` below.
+ */
+export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetchImpl = fetch, diagnostics = false } = {}) {
   if (!apiKey) throw new Error("createAnthropicProvider: no API key");
 
   async function call({ system, messages, maxTokens, temperature, signal }) {
@@ -68,16 +72,33 @@ export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetch
          * "unknown" rather than passed through. The MESSAGE never crosses.
          */
         let type = null;
+        let explain = null;
         try {
           const body = await res.json();
           const raw = String(body?.error?.type ?? "");
           type = KNOWN_ERROR_TYPES.includes(raw) ? raw : raw ? "unrecognised_error_type" : null;
+          /*
+           * THE MESSAGE, IN NON-PRODUCTION ONLY.
+           *
+           * A 400 says the request was malformed; only the message says HOW, and without it an
+           * operator is reduced to redeploying variants to bisect their own request body. That is a
+           * real cost — this canary spent one deploy cycle learning "400" and nothing else.
+           *
+           * It is still withheld from production, because a production error body is read by
+           * strangers and there is no operator behind it to act on the detail. Preview and local get
+           * the message; production gets the status and the type. It passes through `redact()` and is
+           * truncated, so even here nothing credential-shaped survives — and the API key travels in a
+           * HEADER, which a body-validation error cannot echo.
+           */
+          const msg = String(body?.error?.message ?? "");
+          if (diagnostics && msg) explain = redact(msg).slice(0, 220);
         } catch { /* a body we cannot parse tells us nothing, and that is fine */ }
         return {
           ok: false,
           code: res.status === 429 ? ASK_ERROR.RATE_LIMITED : ASK_ERROR.PROVIDER_ERROR,
           status: res.status,
           type,
+          explain,
         };
       }
 

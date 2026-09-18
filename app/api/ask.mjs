@@ -74,9 +74,14 @@ export default async function handler(req, res) {
 
   loader ??= makeAskLoader(originFetchText(origin));
 
+  /*
+   * Upstream error detail is forwarded in PREVIEW and DEVELOPMENT only. Production serves strangers
+   * and has no operator reading the response; preview is where someone is actively debugging.
+   */
+  const isProd = String(process.env.VERCEL_ENV ?? "").toLowerCase() === "production";
   const provider = decision.provider === "fake"
     ? createFakeProvider()
-    : createAnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY });
+    : createAnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY, diagnostics: !isProd });
 
   /*
    * ABORT IS WIRED THROUGH. A reader pressing Stop closes the response, which fires `close` here,
@@ -146,6 +151,7 @@ export default async function handler(req, res) {
       const payload = { ok: false, code: result.code, reason: reasonFor(result.code) };
       if (result.providerStatus) payload.providerStatus = result.providerStatus;
       if (result.providerType) payload.providerType = result.providerType;
+      if (result.providerExplain) payload.providerExplain = result.providerExplain;
       if (stream) { send({ type: "error", ...payload }); send({ type: "done" }); return res.end(); }
       return res.status(502).json(payload);
     }
