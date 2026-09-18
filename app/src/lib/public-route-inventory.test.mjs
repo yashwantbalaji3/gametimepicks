@@ -152,6 +152,16 @@ const APPROVED_DESTINATIONS = new Set([
    * own, and stores nothing on the reader's device.
    */
   "/research/lab",
+  /*
+   * v1.6: Ask GameTime. A secondary tool destination (rail + footer), never a primary — P243 charter E
+   * fixes the primaries at five. It clears the bar this list exists to hold in the strictest way any
+   * destination here does: it OWNS no sports data at all. Every fact in every answer is returned by an
+   * existing owner — Research Lab's own engine, Compare's own builders, the published forecast
+   * projection, the optimizer's own candidates, the Live gateway — and each answer names what it used.
+   * A claim it cannot trace to one of those is refused before it is emitted, and it stores nothing on
+   * the reader's device.
+   */
+  "/ask",
   "/system-status",
   "/about",
   /* P266: the account surface. It is NOT in any nav surface yet and that is deliberate — until a

@@ -19,6 +19,20 @@ on:
       - "app/src/**"
       - "app/e2e/**"
       - "app/scripts/**"
+      # v1.6: the serverless functions. THIS WAS MISSING, and it mattered.
+      #
+      # `app/api/*.mjs` is deployed by Vercel independently of the Next build — the Live gateway, the
+      # analytics collector, the slip reader and two crons all live there. None of them was covered by
+      # this push filter, so every change to production runtime code since they shipped landed on main
+      # without the gate running. The pull_request trigger below uses `app/**` and did cover them,
+      # which is exactly why the gap was invisible: PRs were green and pushes ran nothing.
+      #
+      # Ask GameTime adds `api/ask.mjs` and `api/_ask-core.mjs`. Shipping a new runtime endpoint into
+      # that blind spot is not a risk worth taking for the sake of a shorter list.
+      - "app/api/**"
+      # Routing, headers and cron schedules are deployment behaviour; a change here can break a
+      # function without touching a line of its source.
+      - "app/vercel.json"
       - "app/package.json"
       - "app/package-lock.json"
       - "app/playwright.config.ts"
@@ -94,6 +108,16 @@ jobs:
           echo "failing tests: ${fails:-0}"
           [ "${fails:-0}" -eq 0 ]
 
+      # v1.6 · ASK GAMETIME. Two cheap checks, both offline, both before the build.
+      #
+      # `ask:check` proves the committed projection still matches a rebuild of its sources, the way the
+      # research, compare and lab projections are already checked. Without it a stale projection would
+      # publish quietly and Ask would answer from yesterday's forecasts.
+      #
+      # `ask:eval` runs after the BUILD (see below) because it needs the published assets.
+      - name: Ask projection is current
+        run: npm run ask:check
+
       - name: Build the public export
         run: npm run build
 
@@ -108,6 +132,18 @@ jobs:
           fails=$(grep -cE '^not ok' /tmp/rendered.log || true)
           echo "failing rendered tests: ${fails:-0}"
           [ "${fails:-0}" -eq 0 ]
+
+      # ⚠ AFTER THE BUILD, ON PURPOSE. The eval drives the real tool layer against the PUBLISHED assets
+      # under app/public/data/ask/v1, which the build emits and which are gitignored. Run before the
+      # build, every tool answers ASSET_UNAVAILABLE and the eval measures nothing but its own plumbing —
+      # the exact vacuous-pass shape the two-phase suite exists to remove.
+      #
+      # It runs against the DETERMINISTIC FAKE provider and refuses a real provider inside CI outright,
+      # so this step can never make a billed call.
+      - name: Ask golden eval (fake provider — never billed)
+        env:
+          ASK_MODEL_PROVIDER: fake
+        run: npm run ask:eval
 
       - name: Accessibility — structural (9 launch-critical routes)
         run: node scripts/audit-accessibility.mjs

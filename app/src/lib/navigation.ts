@@ -284,6 +284,21 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    */
   { href: "/research/lab", label: "Research Lab", group: "record", glyph: "🔎", note: "MLB · NFL · Premier League",
     desc: "Search recorded games, player games and season results", surfaces: ["rail", "footer"] },
+  /*
+   * v1.6: ASK GAMETIME.
+   *
+   * ⚠ RAIL + FOOTER, NOT THE TOP BAR OR THE THUMB BAR — the same decision Live and Research Lab made,
+   * for the same reason. P243 charter E fixes the primaries at FIVE and requires the same set on every
+   * surface; a sixth is a product decision belonging to the founder, not a side effect of shipping a
+   * route. Ask still reaches phones: the mobile Menu sheet derives rail-minus-bar, so a rail
+   * destination appears there automatically.
+   *
+   * `desc` describes the JOB, not the technology. "AI assistant" would promise a general chatbot, and
+   * Ask answers from GameTime's own tools or says it cannot — which is the more useful promise and the
+   * only one the product can keep.
+   */
+  { href: "/ask", label: "Ask GameTime", group: "record", glyph: "◇", note: "Answers from GameTime's own data",
+    desc: "Ask about games, players, forecasts and the site", surfaces: ["rail", "footer"] },
   { href: "/responsible-use", label: "Responsible use", group: "record",
     desc: "Paper-only, educational, no stake is ever filled", surfaces: ["footer"] },
   /*

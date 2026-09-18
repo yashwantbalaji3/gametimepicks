@@ -53,6 +53,9 @@ const ROUTES = ["", "models", "saved", "today", "markets", "results", "methodolo
   "results/picks", "results/picks/mlb", "results/picks/ufc",
   ...(firstNflGame ? [`nfl/game/${firstNflGame}`] : []),
   ...(firstEplMatch ? [`epl/match/${firstEplMatch}`] : []),
+  // v1.6: Ask GameTime — a new public route with a live region, a radio group, a number field and a
+  // composer. Added to BOTH lists in the same change (they have drifted apart before).
+  "ask",
   // v1.4: the Compare shells (static HTML; the pair is composed after mount) and one discovered Matchup page.
   "compare", "compare/teams/nfl", "compare/players/nfl", "compare/teams/epl",
   // v1.5: the Research Lab shell. Its controls are built after mount (so the browser audit covers those); this

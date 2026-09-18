@@ -124,6 +124,15 @@ app/public/data/search/index.json
 app/public/data/compare/
 # v1.5 public Research Lab assets — emitted every build from data/lab-projection/v1 (scripts/lab/emit-lab-assets.mjs)
 app/public/data/lab/
+# v1.6 public Ask GameTime assets — emitted every build from data/ask-projection/v1 (scripts/ask/emit-ask-assets.mjs)
+app/public/data/ask/
+# v1.6 DAILY Ask artifacts — rebuilt by every `npm run build` from whatever the build sees.
+# Forecasts and parlay candidates change several times a day (prediction snapshots, lineup refreshes,
+# optimizer runs), so a committed copy is stale within hours and would make `ask:check` go red on main
+# every time the nightly pipeline ran. The slow-moving artifacts beside them stay committed.
+data/ask-projection/v1/forecasts.json
+data/ask-projection/v1/parlays.json
+data/ask-projection/v1/manifest.json
 
 # P257 · raw third-party soccer files stay local (public repository); only derived corpora are committed.
 data/internal/research/soccer/raw/

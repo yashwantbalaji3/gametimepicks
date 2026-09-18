@@ -44,6 +44,23 @@ export const PLATFORM_CONSUMERS = Object.freeze([
   "app/src/lib/research-pages/boundary.test.mjs",
 ]);
 
+/*
+ * Files that NAME the platform path in order to prove something is REFUSED.
+ *
+ * v1.6: the Ask loader's allowlist test feeds `/data/internal/platform/v1/manifest.json` to
+ * `isAllowedAssetPath` and asserts it comes back false — the literal is the point of the assertion,
+ * and Ask has no code path that could read it. The alternative was to split the string so the guard
+ * would not see it, which is evading a guard rather than satisfying one: the path would still be in
+ * the test, and the next reader would have no idea why it was written oddly.
+ *
+ * A file here is exempt from the CONSUMER rule only. It is still forbidden to import the package, and
+ * the check below proves each one refuses rather than reads.
+ */
+export const PLATFORM_REFUSAL_PROBES = Object.freeze([
+  "app/src/lib/ask/ask-contract.test.mjs",
+  "app/src/lib/ask/ask-mutation-probes.test.mjs",
+]);
+
 test("B1 no app code outside the platform package reads the store or imports the package (one allowlisted consumer)", () => {
   const hits = [];
   const consumers = [];
@@ -55,7 +72,15 @@ test("B1 no app code outside the platform package reads the store or imports the
       const src = fs.readFileSync(f, "utf8");
       if (!(importRe.test(src) || storeRe.test(src))) continue;
       const rel = path.relative(REPO, f).split(path.sep).join("/");
-      if (PLATFORM_CONSUMERS.includes(rel)) consumers.push(rel); else hits.push(rel);
+      if (PLATFORM_CONSUMERS.includes(rel)) { consumers.push(rel); continue; }
+      if (PLATFORM_REFUSAL_PROBES.includes(rel)) {
+        // An exemption that cannot be checked is just a hole. A refusal probe must not IMPORT the
+        // package, and it must actually assert a refusal near the path it names.
+        assert.ok(!importRe.test(src), `${rel} is listed as a refusal probe but imports the platform package`);
+        assert.match(src, /isAllowedAssetPath|must be refused|assert\.equal\([^)]*false/, `${rel} names the platform path but asserts no refusal`);
+        continue;
+      }
+      hits.push(rel);
     }
   }
   assert.deepEqual(hits, [], "only the research projection builder may consume the platform; a new consumer is a deliberate change with its own review");

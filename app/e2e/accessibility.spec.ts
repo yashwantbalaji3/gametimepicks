@@ -47,6 +47,9 @@ const ROUTES = ["/", "/models/", "/saved/", "/today/", "/markets/", "/results/",
   "/ufc/", "/goal-rush/", "/bucket-blitz/", "/epl/",
   // P208: the Parlay Center's Build Your Own mode — new public route with the builder + draft UI.
   "/build/custom/",
+  // v1.6: Ask GameTime. Its empty state is what renders without a backend, which is exactly the state
+  // a static contrast + reflow pass should judge — and it carries the new risk-style control group.
+  "/ask/",
   // The picks-vs-outcomes record is the widest tabular content on the site — five columns of model
   // pick against actual outcome — and a table is precisely what fails WCAG 1.4.10 at 320px. The
   // cross-sport index and the largest per-sport record are both covered, because the index has its

@@ -5267,3 +5267,137 @@ body {
 .gtp-disclose[open] > *:not(summary) {
   animation: gtp-disclose-open var(--motion-disclosure-duration) var(--motion-disclosure-easing) both;
 }
+
+/* ─────────────────────────────  ASK GAMETIME (v1.6)  ─────────────────────────────
+   Mobile-first. The composer is in normal flow rather than fixed: a fixed composer on a phone sits on
+   top of the last answer exactly when the reader wants to read it, and a backdrop-filtered fixed bar
+   has already cost this product one unreachable menu. Nothing here creates a containing block.       */
+.ask-app { margin: 18px 0 0; display: flex; flex-direction: column; gap: 10px; }
+
+.ask-log {
+  display: flex; flex-direction: column; gap: 14px;
+  min-height: 220px; padding: 4px;
+}
+
+.ask-empty { padding: 8px 2px 2px; }
+.ask-empty-lead { margin: 0 0 12px; font-size: 14px; color: var(--vault-text-mute); line-height: 1.6; }
+.ask-starters { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ask-starter {
+  font: inherit; font-size: 13px; text-align: left;
+  padding: 10px 14px; min-height: 44px;              /* 44px touch target */
+  border-radius: var(--gtp-radius-pill);
+  border: 1px solid var(--gtp-card-border); background: var(--gtp-card);
+  color: var(--gtp-on-card); cursor: pointer;
+}
+.ask-starter:hover { border-color: var(--gtp-card-border-strong); }
+
+.ask-bubble { border-radius: var(--gtp-radius); padding: 12px 14px; max-width: 100%; }
+.ask-bubble-user {
+  align-self: flex-end; max-width: min(88%, 560px);
+  background: var(--gtp-card-elevated); border: 1px solid var(--gtp-card-border);
+}
+.ask-bubble-assistant { background: var(--gtp-card); border: 1px solid var(--gtp-card-border); }
+.ask-bubble-error { border-color: var(--gtp-danger-soft); }
+
+.ask-text { font-size: 14.5px; line-height: 1.65; color: var(--gtp-on-card); overflow-wrap: anywhere; }
+.ask-md-p { margin: 0 0 8px; }
+.ask-md-p:last-child { margin-bottom: 0; }
+.ask-md-list { margin: 0 0 8px; padding-left: 18px; }
+.ask-md-list li { margin: 0 0 4px; }
+.ask-md-code { font-size: 0.92em; padding: 1px 4px; border-radius: 4px; background: var(--gtp-card-sunken); }
+
+.ask-sources { margin: 10px 0 0; font-size: 12px; color: var(--gtp-on-card-muted); }
+.ask-sources-label { font-weight: 600; }
+
+.ask-links { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ask-chip {
+  display: inline-flex; align-items: center; min-height: 44px;
+  padding: 8px 12px; font-size: 12.5px;
+  border-radius: var(--gtp-radius-pill);
+  border: 1px solid var(--gtp-card-border-strong); background: var(--gtp-card-elevated);
+  color: var(--vault-gold-bright); text-decoration: underline; text-underline-offset: 3px;
+}
+
+.ask-followups { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ask-followup {
+  font: inherit; font-size: 12.5px; min-height: 44px; padding: 8px 12px; cursor: pointer;
+  border-radius: var(--gtp-radius-pill);
+  border: 1px dashed var(--gtp-card-border-strong); background: transparent; color: var(--gtp-on-card-muted);
+}
+
+.ask-status { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; color: var(--gtp-on-card-muted); }
+/* AMBIENT is the role: a quiet, indefinite "still working" pulse, not an entrance or a state change.
+   The duration and easing come from the role tokens, so this dot changes when the system's motion
+   language changes rather than drifting on a number someone once picked. */
+.ask-status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--vault-gold-bright);
+  animation: ask-pulse var(--motion-ambient-duration) var(--motion-ambient-easing) infinite;
+}
+@keyframes ask-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ask-status-dot { animation: none; opacity: 0.8; } }
+
+.ask-prefs-closed { margin: 2px 0 0; }
+.ask-prefs {
+  border: 1px solid var(--gtp-card-border); border-radius: var(--gtp-radius);
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 12px;
+}
+.ask-fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.ask-legend { padding: 0; font-size: 12.5px; font-weight: 600; color: var(--gtp-on-card); }
+.ask-risk-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 0; }
+.ask-risk {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px;
+  font-size: 13px; cursor: pointer;
+  border-radius: var(--gtp-radius-pill);
+  border: 1px solid var(--gtp-card-border); background: var(--gtp-card);
+  color: var(--gtp-on-card);
+}
+/* Selection is a border AND a weight change, never colour alone. */
+.ask-risk-on { border-color: var(--vault-gold-bright); border-width: 2px; font-weight: 700; }
+.ask-risk:focus-within { outline: 2px solid var(--vault-gold-bright); outline-offset: 2px; }
+
+.ask-bankroll { display: flex; flex-direction: column; gap: 6px; }
+.ask-bankroll-input {
+  font: inherit; font-size: 15px; min-height: 44px; padding: 8px 12px; max-width: 220px;
+  border-radius: var(--gtp-radius-sm); border: 1px solid var(--gtp-card-border);
+  background: var(--gtp-card); color: var(--gtp-on-card);
+}
+.ask-help-text { margin: 0; font-size: 12px; color: var(--gtp-on-card-muted); line-height: 1.55; }
+
+.ask-composer { display: flex; gap: 8px; align-items: flex-end; }
+.ask-input {
+  flex: 1 1 auto; min-width: 0; font: inherit; font-size: 16px;  /* 16px: iOS does not zoom on focus */
+  min-height: 48px; max-height: 160px; padding: 12px 14px; resize: vertical;
+  border-radius: var(--gtp-radius); border: 1px solid var(--gtp-card-border);
+  background: var(--gtp-card); color: var(--gtp-on-card);
+}
+.ask-btn {
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  min-height: 48px; padding: 12px 18px; white-space: nowrap;
+  border-radius: var(--gtp-radius); border: 1px solid var(--gtp-card-border-strong);
+  background: var(--gtp-card-elevated); color: var(--gtp-on-card);
+}
+.ask-btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ask-toolbar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
+.ask-toolbar-actions { display: flex; gap: 12px; }
+.ask-hint { font-size: 12px; color: var(--gtp-on-card-faint); }
+.ask-link-btn {
+  font: inherit; font-size: 12.5px; padding: 6px 2px; min-height: 44px;
+  background: none; border: 0; cursor: pointer;
+  color: var(--vault-gold-bright); text-decoration: underline; text-underline-offset: 3px;
+}
+
+.ask-foot { margin: 6px 0 0; font-size: 12px; color: var(--gtp-on-card-faint); line-height: 1.6; }
+
+/* Visually hidden but reachable. `clip-path` rather than a 1px clip so a focused control inside it is
+   still scrolled into view correctly by every engine. */
+.ask-sr {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+@media (min-width: 768px) {
+  .ask-log { min-height: 300px; }
+  .ask-bubble-assistant { max-width: 760px; }
+}

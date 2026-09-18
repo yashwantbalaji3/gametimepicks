@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-17T20:02:21Z",
+ "generatedAt": "2026-09-18T02:30:00Z",
  "totals": {
-  "routes": 84,
-  "public": 58,
+  "routes": 85,
+  "public": 59,
   "internal": 7,
   "redirects": 15,
   "archive": 2,
@@ -38,6 +38,15 @@
    "purpose": "the reader's own bet record: add a slip, confirm what was read, see how it has gone",
    "dataOwner": "the reader's own rows (RLS-scoped)",
    "freshness": "per reader",
+   "built": true
+  },
+  {
+   "route": "/ask",
+   "classification": "public",
+   "owner": "research",
+   "purpose": "Ask GameTime (v1.6): ONE static chat shell over a serverless endpoint that answers from fourteen bounded tools wrapping existing owners — Research Lab, Compare, Matchup, published forecasts, the parlay optimizer, the Live gateway and an authored product-help corpus. The model plans and writes; it never sources a sports fact, and every numeric claim is verified against the tool evidence before the answer is emitted. No conversation, bankroll or identity is stored",
+   "dataOwner": "public/data/ask/v1/{entities,forecasts,parlays,matchups,help,recent/<sport>/<shard>}.json emitted from data/ask-projection/v1, plus the published lab and compare assets; the Data Platform is never read",
+   "freshness": "every forecast, candidate and research answer repeats its own owner's asOf; live state is read at request time through /api/live/",
    "built": true
   },
   {
