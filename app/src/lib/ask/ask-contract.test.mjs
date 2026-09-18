@@ -508,6 +508,38 @@ test("an unknown provider name is a configuration error, not a silent default", 
   assert.equal(selectProvider({ ASK_MODEL_PROVIDER: "openai", ANTHROPIC_API_KEY: "x" }).ok, false);
 });
 
+test("a provider failure carries the upstream STATUS and error TYPE, and never its message", async () => {
+  /*
+   * A canary that can only report "provider error" cannot tell a bad key (401 authentication_error)
+   * from a wrong model (404 not_found_error) from a rate limit — which is the difference between a
+   * five-second fix and an afternoon. The status is a number and the type is an enum from a closed
+   * allowlist; the upstream MESSAGE never crosses, because an error body can echo request content.
+   */
+  const { createAnthropicProvider } = await import("./provider-anthropic.mjs");
+
+  const fakeFetch = async () => ({
+    ok: false,
+    status: 401,
+    json: async () => ({ error: { type: "authentication_error", message: "invalid x-api-key: sk-ant-SECRET-VALUE" } }),
+  });
+  const provider = createAnthropicProvider({ apiKey: "sk-ant-test", fetchImpl: fakeFetch });
+  const r = await provider.plan({ system: "s", user: "u" });
+
+  assert.equal(r.ok, false);
+  assert.equal(r.status, 401);
+  assert.equal(r.type, "authentication_error");
+  const serialised = JSON.stringify(r);
+  assert.ok(!serialised.includes("SECRET-VALUE"), "the upstream message must never cross the adapter");
+  assert.ok(!serialised.includes("invalid x-api-key"), "the upstream message must never cross the adapter");
+});
+
+test("an unrecognised upstream error type is reported as such, not passed through", async () => {
+  const { createAnthropicProvider } = await import("./provider-anthropic.mjs");
+  const fakeFetch = async () => ({ ok: false, status: 418, json: async () => ({ error: { type: "<script>alert(1)</script>" } }) });
+  const r = await createAnthropicProvider({ apiKey: "k", fetchImpl: fakeFetch }).plan({ system: "s", user: "u" });
+  assert.equal(r.type, "unrecognised_error_type", "a value outside the allowlist must not be repeated");
+});
+
 test("redaction removes credential shapes from anything destined for a log", () => {
   const s = redact("failed with x-api-key: sk-ant-abcdefghijklmnop and Authorization: Bearer abcdefghijklmnopqrstuvwx");
   assert.ok(!s.includes("sk-ant-abcdefghijklmnop"));

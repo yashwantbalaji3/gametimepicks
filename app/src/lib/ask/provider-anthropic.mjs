@@ -25,6 +25,15 @@ const API_VERSION = "2023-06-01";
 export const ANTHROPIC_MODEL = "claude-sonnet-5";
 
 /**
+ * Error types this adapter will repeat back. A closed allowlist, because the point is to name a
+ * CONFIGURATION fault to an operator, not to forward whatever a remote service decides to send.
+ */
+const KNOWN_ERROR_TYPES = Object.freeze([
+  "authentication_error", "permission_error", "not_found_error", "invalid_request_error",
+  "rate_limit_error", "overloaded_error", "api_error", "billing_error", "request_too_large",
+]);
+
+/**
  * @param {{apiKey: string, model?: string, fetchImpl?: typeof fetch}} config
  * @returns {import("./provider.mjs").AskModelProvider}
  */
@@ -51,11 +60,25 @@ export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetch
 
       if (!res.ok) {
         /*
-         * THE STATUS, NEVER THE BODY. An upstream error body can echo request content, and request
-         * content is the one place a key could plausibly appear in a malformed deployment. Only the
-         * numeric status crosses this line, and the caller turns it into a typed refusal.
+         * THE STATUS AND THE ERROR TYPE, NEVER THE MESSAGE. An upstream error body can echo request
+         * content, and request content is the one place a key could plausibly appear in a malformed
+         * deployment. So the numeric status crosses this line, and so does the provider's own short
+         * error TYPE (`authentication_error`, `not_found_error`, `invalid_request_error`) — an enum
+         * from a closed set, matched against an allowlist so an unexpected value is reported as
+         * "unknown" rather than passed through. The MESSAGE never crosses.
          */
-        return { ok: false, code: res.status === 429 ? ASK_ERROR.RATE_LIMITED : ASK_ERROR.PROVIDER_ERROR, status: res.status };
+        let type = null;
+        try {
+          const body = await res.json();
+          const raw = String(body?.error?.type ?? "");
+          type = KNOWN_ERROR_TYPES.includes(raw) ? raw : raw ? "unrecognised_error_type" : null;
+        } catch { /* a body we cannot parse tells us nothing, and that is fine */ }
+        return {
+          ok: false,
+          code: res.status === 429 ? ASK_ERROR.RATE_LIMITED : ASK_ERROR.PROVIDER_ERROR,
+          status: res.status,
+          type,
+        };
       }
 
       const payload = await res.json();

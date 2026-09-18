@@ -85,7 +85,17 @@ export default async function handler(req, res) {
    */
   const controller = new AbortController();
   let clientGone = false;
-  req.on?.("close", () => { clientGone = true; controller.abort(); });
+  /*
+   * ⚠ WATCH THE RESPONSE, NOT THE REQUEST. `req` is the incoming stream, and it emits `close` once the
+   * BODY HAS BEEN READ — which for a POST is immediately, long before the answer exists. Aborting on
+   * that would cancel the provider call on every single turn. `res` closes when the client actually
+   * goes away, which is the event this is for.
+   */
+  res.on?.("close", () => {
+    if (res.writableEnded) return; // a normal completed response closes too
+    clientGone = true;
+    controller.abort();
+  });
 
   const stream = wantsStream(req);
   if (stream) {
@@ -124,10 +134,18 @@ export default async function handler(req, res) {
       },
     });
 
-    console.log(askAuditLine(decision, result.receipt ?? {}));
+    console.log(askAuditLine(decision, result.receipt ?? {}, result.providerStatus ? { providerStatus: result.providerStatus, providerType: result.providerType ?? null } : {}));
 
     if (!result.ok) {
+      /*
+       * THE UPSTREAM STATUS IS DIAGNOSTIC, NOT SECRET. A canary that can only say "provider error"
+       * cannot distinguish a bad key (401) from a wrong model (404) from a rate limit (429), which
+       * turns a five-second fix into an afternoon. The numeric status names no key and carries no
+       * content; the upstream BODY is still never echoed.
+       */
       const payload = { ok: false, code: result.code, reason: reasonFor(result.code) };
+      if (result.providerStatus) payload.providerStatus = result.providerStatus;
+      if (result.providerType) payload.providerType = result.providerType;
       if (stream) { send({ type: "error", ...payload }); send({ type: "done" }); return res.end(); }
       return res.status(502).json(payload);
     }
