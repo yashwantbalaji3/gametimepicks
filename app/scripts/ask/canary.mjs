@@ -85,11 +85,24 @@ if (EXPECT_SHA && deployed?.sha && !deployed.sha.startsWith(EXPECT_SHA.slice(0, 
  * PRICING, STATED SO THE COST FIGURE IS AUDITABLE RATHER THAN ASSERTED. Per million tokens, USD.
  * If these are wrong the cost column is wrong and nothing else is — the token counts are measured.
  */
+/*
+ * `verified` separates a rate someone checked from a rate someone assumed. It is not decoration: the
+ * entire case for v1.6.1 is a cost ratio, and a ratio computed from a guessed denominator is a guess
+ * wearing four decimal places. An unverified rate still produces a number — it just says so, loudly,
+ * next to the number.
+ */
 const PRICE_BOOK = Object.freeze({
-  "claude-sonnet-5": { inPerM: 3, outPerM: 15 },
-  "gpt-5-nano":      { inPerM: 0.05, outPerM: 0.40 },
-  "gpt-5-mini":      { inPerM: 0.25, outPerM: 2.00 },
-  "gemini-2.5-flash-lite": { inPerM: 0.10, outPerM: 0.40 },
+  "claude-sonnet-5":        { inPerM: 3, outPerM: 15, verified: true },
+  "gpt-5-nano":             { inPerM: 0.05, outPerM: 0.40, verified: true },
+  "gpt-5-mini":             { inPerM: 0.25, outPerM: 2.00, verified: true },
+  "gemini-2.5-flash-lite":  { inPerM: 0.10, outPerM: 0.40, verified: true },
+  /*
+   * ⚠ ASSUMED. gemini-2.5-flash-lite is no longer available to new users — the API itself says so and
+   * names 3.5-flash-lite as the replacement — so the candidate moved. Its published rate has NOT been
+   * confirmed by anyone here, and 2.5's is used as a stand-in. Every cost figure for this model is
+   * therefore a token count (measured) times a rate (assumed), and the run says which is which.
+   */
+  "gemini-3.5-flash-lite":  { inPerM: 0.10, outPerM: 0.40, verified: false },
 });
 const FALLBACK_PRICE = { inPerM: 3, outPerM: 15 };
 
@@ -103,7 +116,7 @@ const FALLBACK_PRICE = { inPerM: 3, outPerM: 15 };
  */
 function priceFor(model) {
   const known = PRICE_BOOK[String(model ?? "").trim()];
-  return known ? { ...known, assumed: false } : { ...FALLBACK_PRICE, assumed: true };
+  return known ? { ...known, assumed: known.verified === false } : { ...FALLBACK_PRICE, assumed: true, unknownModel: true };
 }
 let PRICE = FALLBACK_PRICE;
 const cost = (i, o) => (i / 1e6) * PRICE.inPerM + (o / 1e6) * PRICE.outPerM;
@@ -406,7 +419,7 @@ PRICE = priced;
 
 console.log(`provider/model: ${[...new Set(results.map((r) => r.out?.usage?.provider).filter(Boolean))].join(", ") || "unknown"} · ${models.join(", ") || "unknown"}`);
 if (models.length > 1) console.log("⚠ more than one model answered this run — the cost figure below mixes rates and is not a clean measurement");
-console.log(`tokens: ${totalIn} in · ${totalOut} out over ${turns} measured turn(s)  (~$${cost(totalIn, totalOut).toFixed(4)} total, ~$${turns ? (cost(totalIn, totalOut) / turns).toFixed(6) : "0"} per turn, at $${PRICE.inPerM}/$${PRICE.outPerM} per Mtok${priced.assumed ? " — ⚠ ASSUMED, this model is not in the price book" : ""})`);
+console.log(`tokens: ${totalIn} in · ${totalOut} out over ${turns} measured turn(s)  (~$${cost(totalIn, totalOut).toFixed(4)} total, ~$${turns ? (cost(totalIn, totalOut) / turns).toFixed(6) : "0"} per turn, at $${PRICE.inPerM}/$${PRICE.outPerM} per Mtok${priced.unknownModel ? " — ⚠ this model is not in the price book at all; the rate is a placeholder" : priced.assumed ? " — ⚠ RATE UNVERIFIED, the dollar figures are a token count times an assumption" : ""})`);
 if (!turns) console.log("⚠ no token counts came back — the endpoint did not report usage, so the cost figure above is not a measurement");
 if (turns) {
   const totalReason = results.reduce((n, r) => n + (r.out?.usage?.reasoningTokens ?? 0), 0);
