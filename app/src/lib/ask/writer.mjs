@@ -43,10 +43,28 @@ export function parseAnswer(text, evidence) {
    * simply gets no link — there is no code path that turns model-authored text into an anchor.
    */
   const byId = new Map((evidence?.links ?? []).map((l) => [l.id, l]));
-  const links = (Array.isArray(parsed.linkIds) ? parsed.linkIds : [])
+  let links = (Array.isArray(parsed.linkIds) ? parsed.linkIds : [])
     .map((id) => byId.get(id))
     .filter(Boolean)
     .slice(0, 5);
+
+  /*
+   * IF THE MODEL NAMED NO LINK, ATTACH THE EVIDENCE'S OWN.
+   *
+   * The production smoke caught the parlay answer shipping with no "Open in Parlay Lab" — not because
+   * the link was unavailable, but because the model simply did not list its id that time. It did on the
+   * next identical request. A reader's route into the underlying product should not depend on the model
+   * remembering to mention it.
+   *
+   * These are the links the TOOLS returned, already approved by the same registry the validator
+   * checks, so attaching them adds nothing the answer was not entitled to — it just stops a useful
+   * thing being dropped at random. De-duplicated by href, because several tools legitimately point at
+   * the same page.
+   */
+  if (!links.length && (evidence?.links ?? []).length) {
+    const seen = new Set();
+    links = evidence.links.filter((l) => (seen.has(l.href) ? false : (seen.add(l.href), true))).slice(0, 3);
+  }
 
   const followUps = (Array.isArray(parsed.followUps) ? parsed.followUps : [])
     .filter((f) => typeof f === "string" && f.trim().length > 0 && f.length < 120)

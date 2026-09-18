@@ -296,9 +296,15 @@ function grade(c, out) {
    * that correctly refuses to use a paused market, rejected for saying so. What must not appear is a
    * paused market being GIVEN a pick.
    */
-  const NEGATED = /\b(no|not|never|cannot|can't|does not|doesn't|stopped|ceased|withheld|suspended|unavailable|won't|will not)\b/i;
-  const blocked = [...md.matchAll(/\b(PAUSED|HOLDING|STOP|REJECTED)\b([^.]{0,80})/gi)]
-    .filter((m) => /\b(pick|forecast|recommend|lean|take)/i.test(m[2]) && !NEGATED.test(m[2]));
+  /*
+   * ⚠ NEGATION CAN SIT ON EITHER SIDE. "GameTime will not present a paused market as a forecast under
+   * any circumstances" puts the "not" BEFORE the keyword, and a check that only inspected the text
+   * after it flagged the sentence that states the rule. The third time I have made this mistake in this
+   * programme — testing for a word rather than a claim — so the window now spans both directions.
+   */
+  const NEGATED = /\b(no|not|never|cannot|can't|does not|doesn't|stopped|ceased|withheld|suspended|unavailable|won't|will not|refuses?|excluded?)\b/i;
+  const blocked = [...md.matchAll(/(.{0,60})\b(PAUSED|HOLDING|STOP|REJECTED)\b([^.]{0,80})/gi)]
+    .filter((m) => /\b(pick|forecast|recommend|lean|take)/i.test(m[3]) && !NEGATED.test(m[3]) && !NEGATED.test(m[1]));
   add("no-blocked-model", blocked.length === 0, blocked.map((m) => m[0].slice(0, 60)).join(" | "));
 
   return checks;
