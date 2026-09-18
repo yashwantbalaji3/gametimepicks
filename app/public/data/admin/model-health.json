@@ -2,13 +2,13 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-17T10:01:20Z",
+ "generatedAt": "2026-09-18T09:47:27Z",
  "worst": "BREACHED",
  "counts": {
-  "INSUFFICIENT_SAMPLE": 16,
+  "INSUFFICIENT_SAMPLE": 17,
   "HOLDING": 2,
-  "WATCH": 1,
-  "BREACHED": 1
+  "WATCH": 0,
+  "BREACHED": 2
  },
  "rules": {
   "states": "INSUFFICIENT_SAMPLE: too few graded events for any verdict. HOLDING: at least as good as the baseline. WATCH: worse on the point estimate, but the 95% interval still includes no difference. BREACHED: worse with the whole 95% interval on the wrong side (log loss, event bootstrap), or |z| >= 2.58 (coverage, level).",
@@ -16,48 +16,48 @@
  },
  "families": [
   {
+   "id": "mlb_moneyline",
+   "sport": "mlb",
+   "label": "MLB moneyline picks",
+   "baseline": "coin flip (log loss 0.6931)",
+   "state": "BREACHED",
+   "n": 654,
+   "judgement": {
+    "state": "BREACHED",
+    "n": 654,
+    "needed": 200,
+    "meanDiff": 0.0146,
+    "lo95": 0.0005,
+    "hi95": 0.0295
+   },
+   "context": {
+    "hitRate": 0.4954,
+    "meanPickProbability": 0.5723,
+    "modelMinusMarket": 0.0363,
+    "pairedWithMarket": 653
+   },
+   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
+  },
+  {
    "id": "mlb_total",
    "sport": "mlb",
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 616,
+   "n": 623,
    "judgement": {
     "state": "BREACHED",
-    "n": 616,
+    "n": 623,
     "needed": 200,
-    "meanDiff": 0.0373,
-    "lo95": 0.0176,
-    "hi95": 0.0579
+    "meanDiff": 0.0372,
+    "lo95": 0.017,
+    "hi95": 0.0576
    },
    "context": {
-    "hitRate": 0.487,
-    "meanPickProbability": 0.5868,
+    "hitRate": 0.4864,
+    "meanPickProbability": 0.5869,
     "modelMinusMarket": 0.0362,
-    "pairedWithMarket": 616
-   },
-   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
-  },
-  {
-   "id": "mlb_moneyline",
-   "sport": "mlb",
-   "label": "MLB moneyline picks",
-   "baseline": "coin flip (log loss 0.6931)",
-   "state": "WATCH",
-   "n": 645,
-   "judgement": {
-    "state": "WATCH",
-    "n": 645,
-    "needed": 200,
-    "meanDiff": 0.0128,
-    "lo95": -0.0014,
-    "hi95": 0.0262
-   },
-   "context": {
-    "hitRate": 0.4992,
-    "meanPickProbability": 0.5722,
-    "modelMinusMarket": 0.0336,
-    "pairedWithMarket": 644
+    "pairedWithMarket": 623
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -67,18 +67,18 @@
    "label": "MLB run line picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 645,
+   "n": 654,
    "judgement": {
     "state": "HOLDING",
-    "n": 645,
+    "n": 654,
     "needed": 200,
     "meanDiff": -0.037,
-    "lo95": -0.054,
-    "hi95": -0.0211
+    "lo95": -0.0526,
+    "hi95": -0.0205
    },
    "context": {
-    "hitRate": 0.6419,
-    "meanPickProbability": 0.5981,
+    "hitRate": 0.6422,
+    "meanPickProbability": 0.5979,
     "modelMinusMarket": null,
     "pairedWithMarket": 0
    },
@@ -158,6 +158,26 @@
     "stoppingRule": "CONTINUE"
    },
    "source": "app/public/data/soccer/epl/results/graded-forecasts.jsonl"
+  },
+  {
+   "id": "epl_shadow_totals",
+   "sport": "epl",
+   "label": "EPL totals SHADOW (research, not public) · club-specific total vs live P304",
+   "baseline": "live P304 constant total, paired per match",
+   "state": "INSUFFICIENT_SAMPLE",
+   "n": 0,
+   "judgement": {
+    "receiptState": "ACCUMULATING",
+    "needed": 60,
+    "meanDiff": null,
+    "lo95": null,
+    "hi95": null,
+    "failedBars": null,
+    "modelId": "epl-totals-shadow-v1-goal-ratios"
+   },
+   "context": null,
+   "source": "data/internal/research/epl/forward-totals/receipt.json",
+   "note": "SHADOW: publishes nothing. SHADOW_BETTER is evidence for a founder adoption decision, never an adoption (the P305 blind receipt is REJECTED)."
   },
   {
    "id": "ligue1_result",
@@ -418,5 +438,14 @@
    "source": "data/internal/research/ufc/model-vs-market/graded.jsonl"
   }
  ],
- "changes": []
+ "changes": [
+  {
+   "id": "mlb_moneyline",
+   "sport": "mlb",
+   "label": "MLB moneyline picks",
+   "from": "WATCH",
+   "to": "BREACHED",
+   "at": "2026-09-18T09:47:27Z"
+  }
+ ]
 }
