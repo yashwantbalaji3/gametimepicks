@@ -179,6 +179,7 @@ export default async function handler(req, res) {
         writerMs: result.receipt?.writerMs ?? 0,
         model: result.receipt?.model ?? null,
         provider: result.receipt?.provider ?? null,
+        providerShape: result.receipt?.providerShape ?? null,
         reasoningTokens: result.receipt?.reasoningTokens ?? 0,
         cachedInputTokens: result.receipt?.cachedInputTokens ?? 0,
         planningPasses: result.receipt?.planningPasses ?? 1,

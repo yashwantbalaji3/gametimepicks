@@ -92,8 +92,43 @@ export function createGeminiProvider({ apiKey, model = GEMINI_MODEL, fetchImpl =
   if (!apiKey) throw new Error("createGeminiProvider: no API key");
 
   async function call({ system, user, maxTokens, signal, json = true, tools = null }) {
+    /*
+     * ⚠ THE SHAPE LADDER.
+     *
+     * gemini-3.5-flash-lite refused the full request with a bare "Request contains an invalid
+     * argument" — no field named, unlike the enum rejection before it. Bisecting that over eight-minute
+     * deploys is the expensive way to learn one fact, so the adapter bisects itself: on a
+     * deterministic INVALID_ARGUMENT it drops ONE optional element and tries again, in a fixed order,
+     * and reports which shape actually worked.
+     *
+     * Dropping the structured tool declarations is safe in a way worth stating plainly: the complete
+     * 14-tool catalogue is ALSO rendered into the planner's system prompt by `renderToolCatalogue`,
+     * and has been since v1.6. The structured copy is belt-and-braces, so the model still sees every
+     * tool, every description and every argument — and the executor, which is the actual boundary,
+     * validates whatever comes back regardless.
+     *
+     * This is a ladder, not a retry-everything: three fixed shapes, each tried at most once, and the
+     * refusal that survives all of them is reported honestly.
+     */
+    const shapes = [
+      { label: "full", json, tools },
+      ...(tools?.length ? [{ label: "no-tools", json, tools: null }] : []),
+      ...(json ? [{ label: "no-json", json: false, tools: null }] : []),
+    ];
+
+    let last = null;
+    for (const shape of shapes) {
+      last = await callOneShape(shape);
+      if (last.ok) return { ...last, shape: shape.label };
+      // Only a malformed-request refusal is worth trying a smaller shape for. Auth, quota, a rate
+      // limit and a network throw all mean the same thing whatever the body looks like.
+      if (!(last.status === 400 && last.type === "INVALID_ARGUMENT")) break;
+    }
+    return { ...last, shape: "none-accepted" };
+
+    async function callOneShape({ json: useJson, tools: useTools }) {
     for (let attempt = 0; ; attempt += 1) {
-      const out = await attemptOnce();
+      const out = await attemptOnce(useJson, useTools);
       const retryable = !out.ok
         && attempt === 0
         && !signal?.aborted
@@ -101,8 +136,9 @@ export function createGeminiProvider({ apiKey, model = GEMINI_MODEL, fetchImpl =
       if (!retryable) return { ...out, attempts: attempt + 1 };
       await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
     }
+    }
 
-    async function attemptOnce() {
+    async function attemptOnce(useJson, useTools) {
       const controller = new AbortController();
       const onAbort = () => controller.abort();
       signal?.addEventListener("abort", onAbort, { once: true });
@@ -121,7 +157,7 @@ export function createGeminiProvider({ apiKey, model = GEMINI_MODEL, fetchImpl =
              */
             "x-goog-api-key": apiKey,
           },
-          body: JSON.stringify(buildGeminiRequest({ system, user, maxTokens, json, tools })),
+          body: JSON.stringify(buildGeminiRequest({ system, user, maxTokens, json: useJson, tools: useTools })),
         });
 
         if (!res.ok) {

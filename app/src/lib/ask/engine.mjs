@@ -224,6 +224,8 @@ async function planWithRepair(state, deps, receipt, opts = {}) {
      * and so a cheap model whose real expense is reasoning cannot look cheap by accident.
      */
     receipt.reasoningTokens += res.usage?.reasoningTokens ?? 0;
+    /* Which request shape the vendor actually accepted — see the Gemini adapter's shape ladder. */
+    if (res.shape) receipt.providerShape = res.shape;
     receipt.cachedInputTokens += res.usage?.cachedInputTokens ?? 0;
 
     const parsed = parsePlan(res.text);
@@ -421,6 +423,8 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
      * and so a cheap model whose real expense is reasoning cannot look cheap by accident.
      */
     receipt.reasoningTokens += res.usage?.reasoningTokens ?? 0;
+    /* Which request shape the vendor actually accepted — see the Gemini adapter's shape ladder. */
+    if (res.shape) receipt.providerShape = res.shape;
     receipt.cachedInputTokens += res.usage?.cachedInputTokens ?? 0;
 
     const parsed = parseAnswer(res.text, evidence);

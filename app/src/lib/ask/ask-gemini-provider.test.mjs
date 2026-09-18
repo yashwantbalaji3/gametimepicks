@@ -248,3 +248,43 @@ test("no numeric enum reaches the wire, and the constraint is not lost", async (
   }
   assert.ok(checkedNumeric, "no numeric-enum field found — this half of the guard would pass vacuously");
 });
+
+test("the shape ladder descends on INVALID_ARGUMENT and reports which shape worked", async () => {
+  /*
+   * ⚠ gemini-3.5-flash-lite refused the full request with a bare "Request contains an invalid
+   * argument" — no field named. Bisecting that over eight-minute deploys is the expensive way to
+   * learn one fact, so the adapter bisects itself and says which shape the vendor accepted.
+   */
+  const seen = [];
+  const provider = createGeminiProvider({
+    apiKey: "AIzaTESTKEY0123456789abcdefghij",
+    fetchImpl: async (_u, init) => {
+      const body = JSON.parse(init.body);
+      seen.push(body.tools ? "full" : "no-tools");
+      if (body.tools) {
+        return { ok: false, status: 400, json: async () => ({ error: { status: "INVALID_ARGUMENT", message: "Request contains an invalid argument." } }) };
+      }
+      return { ok: true, json: async () => okResponse };
+    },
+  });
+
+  const r = await provider.plan({ system: SYSTEM, user: "u" });
+  assert.equal(r.ok, true, "the ladder failed to find a shape the vendor accepts");
+  assert.equal(r.shape, "no-tools", "the run must name the shape that worked");
+  assert.deepEqual(seen, ["full", "no-tools"], "the full shape must be tried first, and only once");
+});
+
+test("the ladder does NOT descend for auth, quota or rate limits", async () => {
+  // A smaller body does not fix a rejected key. Trying one would spend a call to learn nothing.
+  let calls = 0;
+  const provider = createGeminiProvider({
+    apiKey: "AIzaTESTKEY0123456789abcdefghij",
+    fetchImpl: async () => {
+      calls += 1;
+      return { ok: false, status: 403, json: async () => ({ error: { status: "PERMISSION_DENIED", message: "nope" } }) };
+    },
+  });
+  const r = await provider.plan({ system: SYSTEM, user: "u" });
+  assert.equal(r.ok, false);
+  assert.equal(calls, 1, "a permission failure must not walk the whole ladder");
+});
