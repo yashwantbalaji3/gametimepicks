@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823572,
   "date": "2026-09-18",
-  "capturedAt": "2026-09-18T00:54:43.119Z",
-  "availableAt": "2026-09-18T00:54:43.119Z",
+  "capturedAt": "2026-09-18T05:33:04.859Z",
+  "availableAt": "2026-09-18T05:33:04.859Z",
   "eventStartTime": "2026-09-18T23:15:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,34 @@
     "teamId": 121,
     "teamName": "New York Mets",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 45,
+      "relievers": [
+        {
+          "id": 668964,
+          "name": "Tobias Myers",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 681810,
+          "name": "Austin Warren",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-17"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 172,
+      "appearances": 9,
+      "pitches": 217,
       "relievers": [
         {
           "id": 674073,
@@ -46,6 +67,27 @@
           "outs": 9,
           "dates": [
             "2026-09-16"
+          ]
+        },
+        {
+          "id": 668964,
+          "name": "Tobias Myers",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 681810,
+          "name": "Austin Warren",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-09-15",
+            "2026-09-17"
           ]
         },
         {
@@ -79,16 +121,6 @@
           ]
         },
         {
-          "id": 681810,
-          "name": "Austin Warren",
-          "appearances": 1,
-          "pitches": 14,
-          "outs": 3,
-          "dates": [
-            "2026-09-15"
-          ]
-        },
-        {
           "id": 650960,
           "name": "Daniel Duarte",
           "appearances": 1,
@@ -100,28 +132,77 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 668964,
+        "name": "Tobias Myers",
+        "reason": "32 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 143,
     "teamName": "Philadelphia Phillies",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 4,
-      "pitches": 57,
+      "appearances": 3,
+      "pitches": 38,
       "relievers": [
+        {
+          "id": 680742,
+          "name": "Jonathan Bowlan",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 2,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
         {
           "id": 661395,
           "name": "Jhoan Duran",
           "appearances": 1,
-          "pitches": 21,
+          "pitches": 14,
           "outs": 3,
           "dates": [
-            "2026-09-16"
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 641835,
+          "name": "Tim Mayza",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-17"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 95,
+      "relievers": [
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 2,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-09-16",
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 680742,
+          "name": "Jonathan Bowlan",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 4,
+          "dates": [
+            "2026-09-15",
+            "2026-09-17"
           ]
         },
         {
@@ -135,16 +216,6 @@
           ]
         },
         {
-          "id": 680742,
-          "name": "Jonathan Bowlan",
-          "appearances": 1,
-          "pitches": 11,
-          "outs": 2,
-          "dates": [
-            "2026-09-15"
-          ]
-        },
-        {
           "id": 663767,
           "name": "Chase Shugart",
           "appearances": 1,
@@ -152,6 +223,16 @@
           "outs": 3,
           "dates": [
             "2026-09-15"
+          ]
+        },
+        {
+          "id": 641835,
+          "name": "Tim Mayza",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-17"
           ]
         }
       ]
@@ -161,7 +242,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-15,2026-09-16,2026-09-17) + feed/live box scores",
-    "capturedAt": "2026-09-18T00:54:43.119Z"
+    "capturedAt": "2026-09-18T05:33:04.859Z"
   },
-  "recordHash": "cc12987418fe102a7c87ba769bf7963e213faaa4af2e60ab9408b356d891b0c2"
+  "recordHash": "79c4bc182a4bfa4d3e49b285eb791121a35193a3444802695d5ca891f1d1f05e"
 }
