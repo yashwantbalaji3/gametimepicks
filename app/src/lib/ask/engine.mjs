@@ -71,7 +71,7 @@ export async function runAskTurn(input, deps) {
     receipt.errorCode = planned.code;
     receipt.totalMs = Date.now() - t0;
     // The upstream status travels with the refusal so an operator can tell a bad key from a bad model.
-    return { ok: false, code: planned.code, detail: planned.detail ?? null, providerStatus: planned.status ?? null, providerType: planned.type ?? null, providerExplain: planned.explain ?? null, receipt };
+    return { ok: false, code: planned.code, detail: planned.detail ?? null, providerStatus: planned.status ?? null, providerType: planned.type ?? null, providerExplain: planned.explain ?? null, providerErrorName: planned.errorName ?? null, receipt };
   }
 
   const plan = planned.plan;
@@ -182,7 +182,7 @@ async function planWithRepair(state, deps, receipt, opts = {}) {
       signal: deps.signal,
     });
 
-    if (!res.ok) return { ok: false, code: res.code, detail: res.detail ?? null, status: res.status ?? null, type: res.type ?? null, explain: res.explain ?? null };
+    if (!res.ok) return { ok: false, code: res.code, detail: res.detail ?? null, status: res.status ?? null, type: res.type ?? null, explain: res.explain ?? null, errorName: res.errorName ?? null };
     receipt.inputTokens += res.usage?.inputTokens ?? 0;
     receipt.outputTokens += res.usage?.outputTokens ?? 0;
 

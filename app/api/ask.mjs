@@ -158,6 +158,7 @@ export default async function handler(req, res) {
        * an operator nothing about which tool to teach it about.
        */
       if (!isProd && result.detail) payload.detail = result.detail;
+      if (!isProd && result.providerErrorName) payload.providerErrorName = result.providerErrorName;
       if (stream) { send({ type: "error", ...payload }); send({ type: "done" }); return res.end(); }
       return res.status(502).json(payload);
     }

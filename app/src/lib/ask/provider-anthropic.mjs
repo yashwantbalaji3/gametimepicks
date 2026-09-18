@@ -132,8 +132,25 @@ export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetch
         usage: { inputTokens: payload?.usage?.input_tokens ?? null, outputTokens: payload?.usage?.output_tokens ?? null },
       };
     } catch (e) {
-      const aborted = e?.name === "AbortError";
-      return { ok: false, code: aborted ? ASK_ERROR.PROVIDER_TIMEOUT : ASK_ERROR.PROVIDER_ERROR, detail: redact(e?.message) };
+      /*
+       * A THROW MUST NOT LOSE ITS IDENTITY.
+       *
+       * This branch returned `detail: redact(e?.message)` and nothing else — and when the message was
+       * empty the whole refusal carried no status, no type and no detail, so an intermittent
+       * production failure was indistinguishable from every other kind. `fetch` in particular throws a
+       * TypeError whose useful information lives in `cause`, not `message`, so reading only `message`
+       * discards exactly the part that says what happened.
+       */
+      const name = String(e?.name ?? "Error");
+      const aborted = name === "AbortError" || controller.signal.aborted;
+      const parts = [name, e?.message, e?.cause?.message ?? e?.cause?.code].filter(Boolean);
+      return {
+        ok: false,
+        code: aborted ? ASK_ERROR.PROVIDER_TIMEOUT : ASK_ERROR.PROVIDER_ERROR,
+        errorName: name,
+        threw: true,
+        detail: redact(parts.join(" · ") || "threw with no message"),
+      };
     } finally {
       clearTimeout(timer);
       signal?.removeEventListener("abort", onAbort);
