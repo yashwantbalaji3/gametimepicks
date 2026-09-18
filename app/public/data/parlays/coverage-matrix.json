@@ -2,18 +2,18 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-17T15:30:42Z",
+ "generatedAt": "2026-09-18T10:02:17Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 6,
-  "NO_PLAY": 6,
-  "LANE_CLOSED": 8,
+  "PUBLISHED": 8,
+  "NO_PLAY": 8,
+  "LANE_CLOSED": 4,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-09-17",
+   "date": "2026-09-18",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,39 +23,39 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-17_public_low_mlb_719209c5060c"
+     "slipId": "opt_2026-09-18_public_low_mlb_6c9cfb5f16b0"
     },
     "high": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-17_public_medium_mlb_513c61734f51"
+     "slipId": "opt_2026-09-18_public_medium_mlb_a98b33a13919"
     },
     "longshot": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-17_public_longshot_mlb_7ebc0277ab5f"
+     "slipId": "opt_2026-09-18_public_longshot_mlb_dad8e4264517"
     }
    }
   },
   {
    "lane": "epl",
    "date": "2026-09-19",
-   "laneState": "CLOSED",
-   "laneReason": "the last price capture is 3.7 days old",
+   "laneState": "LIVE",
+   "laneReason": null,
    "tiers": {
     "low": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.7 days old"
+     "state": "NO_PLAY",
+     "reason": "no combination of today's prices lands in this band — 2 legs → +158 (medium) … +357 (high)"
     },
     "medium": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.7 days old"
+     "state": "PUBLISHED",
+     "slipId": "epl-medium-2026-09-19"
     },
     "high": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.7 days old"
+     "state": "PUBLISHED",
+     "slipId": "epl-high-2026-09-19"
     },
     "longshot": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.7 days old"
+     "state": "NO_PLAY",
+     "reason": "not enough eligible priced fixtures to build a card"
     }
    }
   },
@@ -87,29 +87,29 @@
    "lane": "nfl",
    "date": "2026-08-24",
    "laneState": "CLOSED",
-   "laneReason": "only 1 priced game — the ladder needs 4",
+   "laneReason": "only 0 priced games — the ladder needs 4",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
+     "reason": "only 0 priced games — the ladder needs 4"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
+     "reason": "only 0 priced games — the ladder needs 4"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
+     "reason": "only 0 priced games — the ladder needs 4"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
+     "reason": "only 0 priced games — the ladder needs 4"
     }
    }
   },
   {
    "lane": "multi",
-   "date": "2026-09-14",
+   "date": "2026-09-17",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
