@@ -28,7 +28,7 @@ import { makeExecutor } from "./executor.mjs";
 import { makeAskLoader, fixtureFetchText } from "./loader.mjs";
 import { buildEvidence } from "./evidence.mjs";
 import { verifyAnswer, deterministicAnswer } from "./verifier.mjs";
-import { parsePlan, validatePlan } from "./planner.mjs";
+import { parsePlan, plannerSystemPrompt, validatePlan } from "./planner.mjs";
 import { parseAnswer, sanitiseMarkdown } from "./writer.mjs";
 import { clearedState, normaliseContext, normaliseMessages, normalisePreferences, readPreferencesFromText, reduceConversation } from "./conversation.mjs";
 import { missingAskConfig, redact, selectProvider, ASK_REQUIRED_ENV } from "./provider.mjs";
@@ -54,6 +54,27 @@ test("every declared tool is implemented, and every implemented tool is declared
   // makeExecutor's module body throws if these disagree; constructing one is the assertion.
   assert.doesNotThrow(() => makeExecutor({}));
   assert.equal(ASK_TOOL_NAMES.length, 14);
+});
+
+test("the planner prompt actually CONTAINS the tool catalogue", () => {
+  /*
+   * ⚠ THE CANARY'S BIGGEST FIND. `providerToolList()` was written, exported and never called. The
+   * prompt told the model "never plan a call to a tool that is not in your tool list" and gave it no
+   * list, so it invented plausible names — getSeasonStats, getPlayerRecentPerformance,
+   * getParlayRecommendations — and the executor refused every one. The boundary held; the product
+   * answered six of twenty questions with a refusal.
+   *
+   * The fake provider is a keyword router that never reads a catalogue, so it routed perfectly while
+   * the real model was guessing. Only a real provider could show this, and only this guard keeps it
+   * from coming back.
+   */
+  const prompt = plannerSystemPrompt();
+  for (const name of ASK_TOOL_NAMES) {
+    assert.ok(prompt.includes(name), `the planner prompt must name ${name} — otherwise the model must guess it`);
+  }
+  // And the descriptions, which are what teach it WHICH tool to pick.
+  assert.ok(prompt.includes("Recorded FINAL team games"), "tool descriptions must reach the model, not just names");
+  assert.ok(prompt.length > 3000, `the prompt is ${prompt.length} chars — too short to contain 14 tools`);
 });
 
 test("the provider tool list is generated from the same specs the executor enforces", () => {
@@ -632,7 +653,7 @@ test("an aborted turn stops rather than completing", async () => {
 
 test("every turn records the prompt, registry and provider versions", async () => {
   const r = await ask("Why can't I compare UFC fighters?");
-  assert.equal(r.receipt.promptVersion, 1);
+  assert.equal(r.receipt.promptVersion, 2, "the prompt changed, so its version must have moved");
   assert.match(r.receipt.registry, /^v1\/14\/[0-9a-f]{8}$/);
   assert.equal(r.receipt.provider, "fake");
 });
