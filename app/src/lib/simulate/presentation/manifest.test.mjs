@@ -35,17 +35,47 @@ test("every MLB game with a full-game simulation yields a presentation or a stat
   }
 });
 
-test("WIN PROBABILITY IS CARRIED, NOT RECOMPUTED", () => {
+/*
+ * ⚠ THE PAUSED BRANCH IS A STATE, NOT AN ABSENCE.
+ *
+ * This assertion used to demand a per-team win probability on every presentable MLB game. That is
+ * unsatisfiable once the moneyline is paused: a paused winner call deliberately publishes NO win
+ * probabilities and names no side, which is a safety property rather than missing data. On the day
+ * every MLB moneyline was paused the test went red across the whole slate while the product was
+ * behaving exactly as designed — a guard failing for the one reason it should not.
+ *
+ * The fix is not to skip the paused games. It is to assert what each state actually promises: the
+ * carried identity when a call is published, and the ABSENCE of any probability when it is paused.
+ * Written as a skip, the pause would have become a blind spot in the very guard that should catch a
+ * paused market leaking a pick.
+ */
+test("WIN PROBABILITY IS CARRIED, NOT RECOMPUTED — and a paused call carries none", () => {
+  let published = 0;
+  let paused = 0;
   for (const d of mlb()) {
     const r = buildMlbPresentation(d);
     if (!isPresentable(r)) continue;
     const outcome = r.chapters.find((c) => c.kind === "outcome");
     if (!outcome) continue;
+
+    if (d.prediction.pausedReasons?.moneyline) {
+      paused += 1;
+      const anyProbability = outcome.stats.filter((s) => s.label.endsWith(" win"));
+      assert.equal(anyProbability.length, 0, `${d.slug} published a win probability for a PAUSED moneyline`);
+      const call = outcome.stats.find((s) => s.label === "Winner call");
+      assert.equal(call?.text, "paused", `${d.slug} paused the moneyline without saying so`);
+      continue;
+    }
+
+    published += 1;
     const home = outcome.stats.find((s) => s.label.endsWith(" win") && s.label.startsWith(d.prediction.homeTeam));
     const away = outcome.stats.find((s) => s.label.endsWith(" win") && s.label.startsWith(d.prediction.awayTeam));
     assert.equal(home?.value, d.fullGameSim.winProbability.home, `${d.slug} home win probability drifted from the artifact`);
     assert.equal(away?.value, d.fullGameSim.winProbability.away, `${d.slug} away win probability drifted from the artifact`);
   }
+  // Not an assertion about the slate — a record of which branch actually ran, so a silent flip to
+  // "every game paused forever" is visible in the log rather than passing as a vacuous zero-iteration.
+  console.log(`      [manifest] outcome chapters checked: ${published} published, ${paused} paused`);
 });
 
 test("THE TOTALS CHAPTER SHOWS THE ARTIFACT'S OWN MEDIAN, MEAN AND TAILS", () => {
