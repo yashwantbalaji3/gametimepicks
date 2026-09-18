@@ -418,6 +418,16 @@ const priced = priceFor(answeredModel);
 PRICE = priced;
 
 console.log(`provider/model: ${[...new Set(results.map((r) => r.out?.usage?.provider).filter(Boolean))].join(", ") || "unknown"} · ${models.join(", ") || "unknown"}`);
+/*
+ * WHICH REQUEST SHAPE THE VENDOR ACTUALLY ACCEPTED.
+ *
+ * The Gemini adapter walks a ladder of request shapes when a model refuses the full one, and a run
+ * that silently used a reduced shape would be measuring something other than what it claims. If the
+ * structured tool catalogue had to be dropped, that belongs in the receipt beside the pass count, not
+ * buried in a server log.
+ */
+const shapes = [...new Set(results.map((r) => r.out?.usage?.providerShape).filter(Boolean))];
+if (shapes.length) console.log(`request shape accepted: ${shapes.join(", ")}${shapes.some((x) => x !== "full") ? "  ⚠ a reduced shape was used — the structured tool catalogue may not have been sent (it is still in the prompt)" : ""}`);
 if (models.length > 1) console.log("⚠ more than one model answered this run — the cost figure below mixes rates and is not a clean measurement");
 console.log(`tokens: ${totalIn} in · ${totalOut} out over ${turns} measured turn(s)  (~$${cost(totalIn, totalOut).toFixed(4)} total, ~$${turns ? (cost(totalIn, totalOut) / turns).toFixed(6) : "0"} per turn, at $${PRICE.inPerM}/$${PRICE.outPerM} per Mtok${priced.unknownModel ? " — ⚠ this model is not in the price book at all; the rate is a placeholder" : priced.assumed ? " — ⚠ RATE UNVERIFIED, the dollar figures are a token count times an assumption" : ""})`);
 if (!turns) console.log("⚠ no token counts came back — the endpoint did not report usage, so the cost figure above is not a measurement");
