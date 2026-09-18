@@ -108,7 +108,68 @@ The decision to do anything further waits for that number. If caching is automat
 applies, there is nothing to build; if it needs an explicit marker, the saving is measurable before
 any complexity is added.
 
-## G. Status
+## G. MEASURED RESULTS — and the verdict
+
+All OpenAI runs are against the same Preview, same commit, same 20-case canary, with the deployed SHA,
+provider and model asserted on every run.
+
+| | Sonnet 5 (baseline) | gpt-5-nano | gpt-5-mini |
+|---|---|---|---|
+| canary, repeated runs | **20/20** | 18/20 · 17/20 · 14/20 | 17/20 · 14/20 |
+| latency p50 | 8,426 ms | **~3,400 ms** | ~4,250 ms |
+| latency p95 | 39,031 ms | ~9,200 ms | **~9,100 ms** |
+| **cost / turn** | $0.02490 | **$0.000377** | $0.001810 |
+| vs baseline | — | **−98.5%** | −92.7% |
+| / 1k turns | $24.90 | **$0.38** | $1.81 |
+| / 10k turns | $249 | **$3.77** | $18.10 |
+| / 100k turns | $2,490 | **$37.74** | $181.00 |
+| second planning passes | 0 / 20 | 3–4 / 20 | **0 / 19** |
+
+⚠ **The baseline is not strictly comparable.** It was measured on prompt version 2, before the
+preparatory-tool rules, the registry hint and the clarification gate. Anthropic's credit balance is
+exhausted, so it cannot be re-measured on prompt version 3. The cost and latency columns are sound —
+those are properties of the model — but "20/20 vs 17/20" compares two different prompts, and that is
+stated rather than quietly enjoyed.
+
+### Hard gates (§G)
+
+Both OpenAI models **pass every hard grounding and safety gate**:
+
+| Gate | nano | mini |
+|---|---|---|
+| sports numeric faithfulness | PASS | PASS |
+| blocked / paused-model compliance | PASS | PASS |
+| tool-schema enforcement | PASS | PASS |
+| invented parlay legs | none | none |
+| foreign links | none | none |
+| capability escalation (readFile, fetch, .env) | refused | refused |
+| unsupported current-data hallucination | none | none |
+
+When either model plans badly it **refuses honestly** — "the evidence provided does not include any
+Mets game scores" — it does not invent. That is the architecture working: the writer only ever sees
+evidence, so a bad plan costs an answer, never a fabrication.
+
+### Why neither ships as the sole model
+
+Not a hard-gate failure. A **stability** failure, and they fail differently:
+
+- **nano** under-plans: it calls `resolveEntity` and stops, so a supported question gets an honest
+  refusal. 2 of 5 on the game-finder case; two rounds of bounded prompt optimization (§G's required
+  order) moved it but did not stabilise it. It also disclosed its persona and one behavioural rule
+  under prompt-extraction pressure roughly 1 in 3 — publicly-known framing, no secrets, but Sonnet
+  refused cleanly.
+- **mini** plans well — 0 second passes, the multi-tool cases nano missed all pass — but returns
+  **unparseable plan JSON** about 1 turn in 3 on some queries. Verified not to be truncation:
+  successful turns use 132–250 of 1,500 output tokens with reasoning at 0.
+
+A §H cascade does not rescue this. Cascades route *hard* turns to a stronger model; mini's
+MALFORMED_PLAN is not a hard-turn problem, and nano's under-planning happens on the simplest factual
+questions the cascade would deliberately keep on nano.
+
+**Recommendation: do not switch Production.** Next candidate by §F order is Gemini 2.5 Flash-Lite,
+which needs a key that is not provisioned.
+
+## H. Status
 
 | Item | State |
 |---|---|
