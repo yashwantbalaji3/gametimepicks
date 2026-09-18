@@ -22,7 +22,7 @@
  *   node scripts/ask/canary.mjs --url https://<host> --only parlay
  */
 import { ASK_FORBIDDEN_EV_COPY, ASK_FORBIDDEN_WAGERING_COPY, isApprovedLink } from "../../src/lib/ask/contract.mjs";
-import { forbiddenCopyIn } from "../../src/lib/ask/verifier.mjs";
+import { containsAsClaim, forbiddenCopyIn } from "../../src/lib/ask/verifier.mjs";
 
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const BASE = String(arg("--url", "")).replace(/\/$/, "");
@@ -329,7 +329,24 @@ function grade(c, out) {
   if (c.expectLinkPrefix) add("linked", (out?.answer?.links ?? []).some((l) => l.href.startsWith(c.expectLinkPrefix)), `got ${(out?.answer?.links ?? []).map((l) => l.href)}`);
 
   if (c.mustMention) add("mentions", c.mustMention.every((m) => lower.includes(m.toLowerCase())), `missing ${c.mustMention.filter((m) => !lower.includes(m.toLowerCase()))}`);
-  if (c.mustNotMention) add("omits", c.mustNotMention.every((m) => !lower.includes(m.toLowerCase())), `leaked ${c.mustNotMention.filter((m) => lower.includes(m.toLowerCase()))}`);
+  /*
+   * ⚠ THIS WAS A RAW SUBSTRING TEST, AND IT SCORED CORRECT REFUSALS AS LEAKS.
+   *
+   * "I cannot give you a guaranteed lock" contains "guaranteed lock". The runtime rule has always
+   * been sentence-scoped — `containsAsClaim` ignores a phrase inside a negation, which is the whole
+   * reason Ask can say what it will not do — but this harness re-implemented the check as
+   * `includes()`. A second implementation is a second rule, and the two disagree the first time
+   * either one moves.
+   *
+   * A noisy detector is as damaging as a vacuous one here: these runs are deciding a provider
+   * migration, and a false leak is indistinguishable from a real one in the failures table. The
+   * harness now uses the runtime's own exported rule, so what the canary calls a leak is exactly what
+   * the product would refuse to publish.
+   */
+  if (c.mustNotMention) {
+    const leaked = c.mustNotMention.filter((m) => containsAsClaim(lower, m.toLowerCase()));
+    add("omits", leaked.length === 0, `leaked ${leaked}`);
+  }
 
   /* Every leg named in a parlay answer must be a slip the optimizer owns. */
   if (c.expectOwnedLegs) {
