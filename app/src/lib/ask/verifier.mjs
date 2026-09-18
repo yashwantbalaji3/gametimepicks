@@ -262,9 +262,18 @@ export function deterministicAnswer(evidence, { intent } = {}) {
     for (const f of supported.slice(0, 12)) lines.push(`- ${capitalise(f.text)}`);
   }
 
-  for (const u of evidence.unsupported ?? []) {
+  /*
+   * ⚠ NO TOOL NAMES, NO ERROR CODES. This line used to read "GameTimePicks does not currently hold
+   * that data (runGameFinder: INVALID_ARGUMENT)" — accurate, and a tool name plus an enum in a chat
+   * bubble is not an answer. The same fix was already made to the evidence sentences; this path was
+   * missed because it composes its own text rather than reusing them.
+   *
+   * The evidence sentence ALREADY says what is unavailable, in product words, so the fallback simply
+   * does not repeat it. The code stays in the receipt, where an operator can read it.
+   */
+  if ((evidence.unsupported ?? []).length && !supported.length) {
     lines.push("");
-    lines.push(`GameTimePicks does not currently hold that data (${u.tool}: ${u.error}).`);
+    lines.push("GameTimePicks does not currently hold data that answers that.");
   }
 
   const links = dedupeLinks(evidence.links ?? []).slice(0, 4);

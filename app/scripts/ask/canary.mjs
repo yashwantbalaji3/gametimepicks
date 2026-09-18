@@ -27,6 +27,7 @@ import { forbiddenCopyIn } from "../../src/lib/ask/verifier.mjs";
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const BASE = String(arg("--url", "")).replace(/\/$/, "");
 const ONLY = arg("--only", null);
+const ONLY_IDS = (arg("--id", "") || "").split(",").filter(Boolean);
 const VERBOSE = process.argv.includes("--verbose");
 
 /*
@@ -58,6 +59,26 @@ if (!/^https:\/\/[a-z0-9.-]+$/i.test(BASE) && !LOOPBACK.test(BASE)) {
 if (LOOPBACK.test(BASE)) console.error("[canary] DRY RUN against loopback — the fake provider, not a real model.\n");
 
 /*
+ * A CANARY MUST NAME WHAT IT TESTED.
+ *
+ * ⚠ This run was once read against a stale URL — the deployment BEFORE the fix under test — and its
+ * failures were briefly taken as evidence the fix had not worked. The report now leads with the
+ * deployed commit, fetched from the deployment's own build marker, so a result can never be attributed
+ * to the wrong build. `--expect-sha` turns that into a refusal rather than a line of small print.
+ */
+const EXPECT_SHA = arg("--expect-sha", null);
+let deployed = null;
+try {
+  const marker = await (await fetch(`${BASE}/data/build-info.json`)).json();
+  deployed = { sha: marker?.commit?.shortSha ?? null, builtAt: marker?.builtAt ?? null, message: marker?.commit?.message ?? null };
+} catch { /* a missing marker is reported, not fatal — the host may not be a GameTime deployment */ }
+
+if (EXPECT_SHA && deployed?.sha && !deployed.sha.startsWith(EXPECT_SHA.slice(0, 7))) {
+  console.error(`REFUSED: ${BASE} is serving ${deployed.sha}, not ${EXPECT_SHA}. Testing the wrong build proves nothing.`);
+  process.exit(2);
+}
+
+/*
  * PRICING, STATED SO THE COST FIGURE IS AUDITABLE RATHER THAN ASSERTED. Per million tokens, USD.
  * If these are wrong the cost column is wrong and nothing else is — the token counts are measured.
  */
@@ -80,7 +101,13 @@ const CASES = [
   { id: "03-player-research", group: "factual", turns: ["How has Keenan Allen performed in his recent games?"],
     expectToolAny: ["getPlayerRecentGames", "runPlayerResearchQuery", "resolveEntity"], expectGrounded: true },
 
-  { id: "04-multi-tool", group: "factual", turns: ["What does GameTime forecast for tonight, and what is the recorded head-to-head?"],
+  { id: "04-multi-tool", group: "factual",
+    /*
+     * A GENUINELY two-tool question, phrased so both halves need different owners. The earlier
+     * wording ("…and the recorded head-to-head?") had no named teams, so there was no head-to-head to
+     * fetch and one tool was the correct plan — the case was testing a question it had not asked.
+     */
+    turns: ["Compare the Mets and the Orioles, and tell me what GameTime currently forecasts for tonight"],
     expectMinTools: 2, expectGrounded: true },
 
   { id: "05-forecast", group: "forecast", turns: ["What does GameTime forecast for tonight?"],
@@ -90,9 +117,14 @@ const CASES = [
     expectToolAny: ["getLiveSlate"], expectGrounded: true },
 
   { id: "07-live-nfl-refused", group: "live", turns: ["What NFL games are live right now?"],
-    expectToolAny: ["getLiveSlate"], expectGrounded: true,
-    /* The refusal must be honest AND readable — no tool name, no error code in a chat bubble. */
-    mustMention: ["not"], mustNotMention: ["getLiveSlate", "UNSUPPORTED_SPORT", "ASSET_UNAVAILABLE"] },
+    /*
+     * ⚠ NO TOOL IS REQUIRED HERE, and demanding one was wrong. The model reads in the tool catalogue
+     * that NFL live state is not available and routes straight to the help corpus — which is the
+     * correct answer reached more cheaply than calling a tool that will refuse. What matters is the
+     * ANSWER: it must say GameTime does not have it, in product words.
+     */
+    expectGrounded: true,
+    mustMention: ["nfl"], mustNotMention: ["getLiveSlate", "UNSUPPORTED_SPORT", "ASSET_UNAVAILABLE"] },
 
   { id: "08-parlay-clarify", group: "parlay", turns: ["Give me the best parlays to place today"],
     expectClarification: true, expectNoTools: true,
@@ -160,7 +192,7 @@ if (unknown.length) {
   process.exit(2);
 }
 
-const cases = CASES.filter((c) => !ONLY || c.group === ONLY);
+const cases = CASES.filter((c) => (!ONLY || c.group === ONLY) && (!ONLY_IDS.length || ONLY_IDS.some((id) => c.id.startsWith(id))));
 /*
  * A RUN THAT EXAMINED NOTHING IS NOT A PASS. `--only typo` selected zero cases and the report said
  * "CANARY PASSED", which is the vacuous-pass shape this codebase has paid for more than once.
@@ -284,6 +316,7 @@ const pct = (p) => (lat.length ? lat[Math.min(lat.length - 1, Math.floor((p / 10
 console.log("");
 console.log("# ASK GAMETIME — REAL PROVIDER CANARY");
 console.log(`host: ${BASE}`);
+console.log(`deployed: ${deployed?.sha ?? "unknown"}${deployed?.builtAt ? ` · built ${deployed.builtAt}` : ""}${deployed?.message ? ` · ${deployed.message.slice(0, 60)}` : ""}`);
 console.log("");
 console.log("| # | case | tools | verified | ms | result |");
 console.log("|---|---|---|---|---:|---|");

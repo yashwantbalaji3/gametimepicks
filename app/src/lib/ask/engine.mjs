@@ -238,6 +238,8 @@ function plannerUserMessage(state, priorEvidence = null) {
  */
 async function runPlanWithResolution(plan, executor, state, emit) {
   const resolved = new Map(state.resolvedEntities.filter((e) => e.id).map((e) => [e.kind, e.id]));
+  /* label → id, so a planner that wrote the NAME instead of the id can still be served. */
+  const labels = new Map(state.resolvedEntities.filter((e) => e.id && e.label).map((e) => [`${e.kind}:${String(e.label).toLowerCase()}`, e.id]));
   const out = [];
   const done = new Set();
   let guard = 0;
@@ -254,9 +256,24 @@ async function runPlanWithResolution(plan, executor, state, emit) {
       const args = { ...call.arguments };
       let blocked = false;
       for (const [k, v] of Object.entries(args)) {
-        if (v !== "RESOLVED" && v !== "${resolved}") continue;
+        if (!/^(team|player|opponent|game).*Id$/i.test(k) || typeof v !== "string") continue;
         const kind = /player/i.test(k) ? "player" : /team/i.test(k) ? "team" : null;
-        const id = kind ? resolved.get(kind) : null;
+        if (!kind) continue;
+
+        const isPlaceholder = v === "RESOLVED" || v === "${resolved}";
+        /*
+         * THE SAFETY NET. A planner that has not yet seen a resolution cannot know an id, so it is told
+         * to write "RESOLVED". It will also sometimes write the NAME — "New York Mets" — which the slug
+         * validator refuses, and the whole question then fails with INVALID_ARGUMENT for a reason the
+         * reader cannot act on. When the value is plainly a name rather than an id, and this turn has
+         * resolved an entity whose LABEL matches it, the id is substituted. An unmatched name still
+         * fails: the point is to use a resolution that exists, never to guess one.
+         */
+        const looksLikeName = /\s/.test(v) || !/^[a-z]+-[a-z]+-/i.test(v);
+        if (!isPlaceholder && !looksLikeName) continue;
+
+        const byLabel = !isPlaceholder ? labels.get(`${kind}:${v.toLowerCase()}`) : null;
+        const id = byLabel ?? resolved.get(kind);
         if (!id) { blocked = true; break; }
         args[k] = id;
       }
@@ -273,7 +290,10 @@ async function runPlanWithResolution(plan, executor, state, emit) {
     const wave = await Promise.all(prepared.map((c) => executor.run(c)));
     for (const e of wave) {
       emit({ type: "tool_complete", tool: e.tool, status: e.status });
-      if (e.tool === "resolveEntity" && e.data?.entity) resolved.set(e.data.entity.kind, e.data.entity.id);
+      if (e.tool === "resolveEntity" && e.data?.entity) {
+        resolved.set(e.data.entity.kind, e.data.entity.id);
+        labels.set(`${e.data.entity.kind}:${String(e.data.entity.label).toLowerCase()}`, e.data.entity.id);
+      }
     }
     out.push(...wave);
   }
@@ -341,6 +361,8 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
 
   receipt.verifierStatus = "FAILED_DETERMINISTIC_FALLBACK";
   receipt.errorCode = lastViolations[0]?.code ?? ASK_ERROR.UNSUPPORTED_CLAIM;
+  /* Why the writer's answer was rejected. Without this a grounding failure is a dead end. */
+  receipt.verifierViolations = lastViolations.slice(0, 6).map((v) => `${v.code}: ${v.detail}`);
   const answer = deterministicAnswer(evidence, { intent: plan.intent });
   emit({ type: "answer_delta", text: answer.answerMarkdown });
   return { answer, verified: false, violations: lastViolations };
