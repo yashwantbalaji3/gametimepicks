@@ -30,12 +30,24 @@ import { buildEvidence } from "./evidence.mjs";
 import { harvestEntities, reduceConversation } from "./conversation.mjs";
 import { parsePlan, plannerSystemPrompt } from "./planner.mjs";
 import { parseAnswer, sanitiseMarkdown, writerSystemPrompt, writerUserMessage } from "./writer.mjs";
-import { deterministicAnswer, verifyAnswer } from "./verifier.mjs";
+import { deterministicAnswer, forbiddenCopyIn, verifyAnswer } from "./verifier.mjs";
 
 /**
  * @param {object} input   { messages, context, preferences, priorEntities }
  * @param {object} deps    { provider, turn, now, liveFetch, signal, onEvent }
  */
+/**
+ * What ships when a clarification asks the reader how they would like to chase a loss.
+ *
+ * It names the boundary rather than deflecting, and it offers the thing GameTime does own, so the
+ * refusal is useful instead of merely safe.
+ */
+export const SAFE_STAKING_REFUSAL = [
+  "I can't help with stake sizing, and GameTime has no staking policy — that includes raising a stake after a loss, which is the most reliable way to turn a bad night into a worse one.",
+  "",
+  "What I can do is show you what GameTime's own research and published forecasts say about tonight's games, with each one's status and confidence. Ask me about a matchup, a team or a player and I'll pull the recorded data.",
+].join("\n");
+
 export async function runAskTurn(input, deps) {
   const t0 = Date.now();
   const emit = deps.onEvent ?? (() => {});
@@ -83,17 +95,35 @@ export async function runAskTurn(input, deps) {
    * A CLARIFICATION IS AN ANSWER, AND IT SHORT-CIRCUITS EVERYTHING BELOW.
    *
    * No tools run, no evidence is built and the writer is never called — so a clarification costs one
-   * model call, and it carries no numbers at all, which is why it needs no verification.
+   * model call and carries no numbers.
+   *
+   * ⚠ THAT USED TO END: "…which is why it needs no verification." It was wrong, and the sentence shows
+   * exactly how: it reasons from "carries no numbers" to "needs no checking", as though numeric
+   * faithfulness were the only rule. The responsible-wagering rule applies to ANY text a reader sees,
+   * and a clarification is text a reader sees.
+   *
+   * Asked to chase a $2,000 loss, a model returned a clarification offering to "double the stake
+   * across all bets" or use "recovery staking" — published verbatim, marked `verified: true`, because
+   * this path skipped the check. The incumbent never phrased a clarification that way, so the hole sat
+   * open behind a model that happened not to walk into it. It is provider-independent and always was.
+   *
+   * A clarification that breaks the copy rule is not published. There is nothing to fall back to from
+   * evidence here — there is no evidence — so what ships is a fixed refusal that answers the question
+   * the reader actually asked: whether GameTime will help them stake.
    */
   if (plan.needsClarification) {
-    receipt.verifierStatus = "N/A_CLARIFICATION";
+    const forbidden = forbiddenCopyIn(plan.clarification);
+    const text = forbidden.length ? SAFE_STAKING_REFUSAL : plan.clarification;
+    receipt.verifierStatus = forbidden.length ? "CLARIFICATION_REFUSED" : "N/A_CLARIFICATION";
+    if (forbidden.length) receipt.verifierViolations = forbidden;
     receipt.totalMs = Date.now() - t0;
-    emit({ type: "answer_delta", text: plan.clarification });
+    emit({ type: "answer_delta", text });
     return {
       ok: true,
-      answer: { answerMarkdown: plan.clarification, citations: [], followUps: [], links: [] },
+      answer: { answerMarkdown: text, citations: [], followUps: [], links: [] },
       intent: plan.intent,
       clarification: true,
+      verified: true,
       entities: state.resolvedEntities,
       receipt,
     };

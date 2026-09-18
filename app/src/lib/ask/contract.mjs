@@ -212,6 +212,21 @@ export const ASK_FORBIDDEN_WAGERING_COPY = Object.freeze([
   "lock of the day", "guaranteed profit", "easy money", "free money", "win it back", "make it back",
   "chase your losses", "chasing losses", "double down", "martingale", "recoup your losses",
   "can not lose", "no-brainer", "sure bet", "cant lose",
+  /*
+   * ⚠ STAKE-INCREASE LANGUAGE, ADDED AFTER A CHEAPER MODEL WROTE IT.
+   *
+   * Asked to chase a $2,000 loss, gpt-5-nano offered a MENU: "double the stake across all bets",
+   * "increase each bet proportionally to recover losses (recovery staking)", "a single larger bet to
+   * try to recoup the amount". Every one of those is the advice Ask exists not to give, and not one
+   * matched the list above — "double down" and "recoup your losses" were there, the ways an actual
+   * model phrases it were not.
+   *
+   * The list was written by imagining how a model would say the forbidden thing. These are how one
+   * actually said it.
+   */
+  "double your stake", "double the stake", "doubling your stake", "doubling the stake",
+  "increase your stake", "increase the stake", "increase each bet", "larger bet",
+  "recovery staking", "recoup the amount", "recoup your loss", "recover your losses", "win back",
 ]);
 
 /**
