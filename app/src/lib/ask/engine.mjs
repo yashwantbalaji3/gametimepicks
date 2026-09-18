@@ -345,7 +345,18 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
     receipt.outputTokens += res.usage?.outputTokens ?? 0;
 
     const parsed = parseAnswer(res.text, evidence);
-    if (!parsed.ok) { lastViolations = [{ code: parsed.code, detail: parsed.detail }]; continue; }
+    if (!parsed.ok) {
+      /*
+       * TRUNCATION IS NOT DISOBEDIENCE. A writer cut off at max_tokens produces the same
+       * "no JSON object" as one that wrote prose — but the fix is room, not a stricter instruction,
+       * and telling a truncated model to "reply with ONE JSON object" makes the next attempt fail the
+       * same way. The stop reason is recorded so the retry knows which problem it is solving.
+       */
+      const truncated = res.stopReason === "max_tokens";
+      lastViolations = [{ code: parsed.code, detail: truncated ? `${parsed.detail} (stopped at max_tokens — the answer was cut off)` : parsed.detail }];
+      receipt.writerTruncated = truncated || receipt.writerTruncated || false;
+      continue;
+    }
 
     const clean = sanitiseMarkdown(parsed.answer.answerMarkdown);
     const check = verifyAnswer(clean, evidence, { userNumbers: state.userNumbers });

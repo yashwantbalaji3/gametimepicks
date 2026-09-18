@@ -175,7 +175,23 @@ export function buildEvidence(envelopes) {
 
       case "getPublishedForecasts": {
         say(`${d.totalMatched} currently published GameTime forecasts match; ${d.returned} are described here`, [d.totalMatched, d.returned]);
-        for (const f of d.forecasts ?? []) {
+        /*
+         * DETAIL FOR THE FIRST FEW, HEADLINES FOR THE REST.
+         *
+         * Six forecasts × every market × every completeness note × every player range produced ~52
+         * evidence sentences, a very long writer prompt, and an answer long enough to be CUT OFF at
+         * max_tokens — which the parser then reported as "no JSON object", a failure that looks like
+         * disobedience and is actually length. It also made for a worse answer: a reader asking what
+         * GameTime forecasts tonight wants the shape of the slate, not every market of every game.
+         */
+        const DETAILED = 3;
+        for (const [fi, f] of (d.forecasts ?? []).entries()) {
+          if (fi >= DETAILED) {
+            const head = (f.markets ?? [])[0];
+            say(`for ${f.matchup} (${f.sport}), GameTime has ${f.experimental ? "an EXPERIMENTAL forecast" : "a published forecast"}${head?.pick ? `; its ${head.label} pick is ${head.pick}` : ""}${head?.confidence ? `, confidence ${head.confidence}` : ""}`,
+              [head?.modelProbability]);
+            continue;
+          }
           const tag = f.experimental ? "an EXPERIMENTAL forecast, which is graded but is not a product pick" : "a published forecast";
           say(`for ${f.matchup} (${f.sport}), GameTime has ${tag}${f.updatedAt ? `, updated ${f.updatedAt}` : ""}`);
           for (const m of f.markets ?? []) {

@@ -123,6 +123,12 @@ export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetch
       return {
         ok: true,
         text,
+        /*
+         * `stop_reason` distinguishes "the model wrote prose instead of JSON" from "the model was
+         * cut off mid-JSON". They look identical to a parser and need opposite fixes — a stricter
+         * instruction versus more room — so guessing between them wastes a deploy either way.
+         */
+        stopReason: payload?.stop_reason ?? null,
         usage: { inputTokens: payload?.usage?.input_tokens ?? null, outputTokens: payload?.usage?.output_tokens ?? null },
       };
     } catch (e) {
