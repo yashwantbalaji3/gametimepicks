@@ -52,7 +52,7 @@ const pause = (ms) => new Promise((r) => setTimeout(r, ms));
  */
 const LOOPBACK = /^http:\/\/(127\.0\.0\.1|localhost)(:\d{2,5})?$/i;
 if (!/^https:\/\/[a-z0-9.-]+$/i.test(BASE) && !LOOPBACK.test(BASE)) {
-  console.error("usage: node scripts/ask/canary.mjs --url https://<host> [--only <group>] [--verbose]");
+  console.error("usage: node scripts/ask/canary.mjs --url https://<host> [--expect-sha <sha>] [--expect-provider <id>] [--expect-model <name>] [--only <group>] [--verbose]");
   console.error("       (http://127.0.0.1:<port> is accepted for a dry run against the fake-backed dev server)");
   process.exit(2);
 }
@@ -67,6 +67,9 @@ if (LOOPBACK.test(BASE)) console.error("[canary] DRY RUN against loopback — th
  * to the wrong build. `--expect-sha` turns that into a refusal rather than a line of small print.
  */
 const EXPECT_SHA = arg("--expect-sha", null);
+/* The same discipline, one level down: which PROVIDER and MODEL actually answered. See the check below. */
+const EXPECT_PROVIDER = arg("--expect-provider", null);
+const EXPECT_MODEL = arg("--expect-model", null);
 let deployed = null;
 try {
   const marker = await (await fetch(`${BASE}/data/build-info.json`)).json();
@@ -357,6 +360,25 @@ console.log(`latency: p50 ${pct(50)} ms · p95 ${pct(95)} ms · max ${lat.at(-1)
  * priced a run using the model it intended to test would report a number about the wrong thing.
  */
 const models = [...new Set(results.map((r) => r.out?.usage?.model).filter(Boolean))];
+const providers = [...new Set(results.map((r) => r.out?.usage?.provider).filter(Boolean))];
+
+/*
+ * A COST COMPARISON MUST NAME THE MODEL IT PRICED.
+ *
+ * `--expect-sha` stops a run being attributed to the wrong BUILD. This stops it being attributed to
+ * the wrong MODEL, which is the same mistake one level down and the one that matters for v1.6.1: a
+ * migration argued on a cost ratio is worthless if the deployment quietly answered on the incumbent
+ * because a flag never bound. The environment that decides the provider is snapshotted at build time,
+ * so "I set the variable" and "the running code used it" are genuinely different claims.
+ */
+if (EXPECT_PROVIDER && !(providers.length === 1 && providers[0] === EXPECT_PROVIDER)) {
+  console.error(`REFUSED: expected provider ${EXPECT_PROVIDER}, deployment answered with ${providers.join(", ") || "none reported"}.`);
+  process.exit(2);
+}
+if (EXPECT_MODEL && !(models.length === 1 && models[0] === EXPECT_MODEL)) {
+  console.error(`REFUSED: expected model ${EXPECT_MODEL}, deployment answered with ${models.join(", ") || "none reported"}.`);
+  process.exit(2);
+}
 const answeredModel = models.length === 1 ? models[0] : null;
 const priced = priceFor(answeredModel);
 PRICE = priced;
