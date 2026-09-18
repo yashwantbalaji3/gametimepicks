@@ -52,7 +52,14 @@ export function buildEvidence(envelopes) {
       facts.push({ id: fid, source: env.tool, text });
       for (const v of values) registerNumber(numbers, v);
       for (const m of String(text).matchAll(/-?\d[\d,]*(?:\.\d+)?/g)) registerNumber(numbers, Number(m[0].replace(/,/g, "")));
-      for (const m of String(text).matchAll(/\b\d{4}-\d{2}-\d{2}\b/g)) numbers.add(m[0]);
+      /*
+       * ⚠ NO TRAILING \b. An evidence sentence carries a full timestamp — "updated
+       * 2026-09-17T10:09:03.504Z" — and `\b\d{4}-\d{2}-\d{2}\b` does not match there, because the
+       * character after "17" is "T", a word character. The answer then writes the date bare, where the
+       * boundary DOES match, and the verifier flagged a date its own evidence had supplied. The
+       * asymmetry rejected every forecast answer that mentioned when a forecast was updated.
+       */
+      for (const m of String(text).matchAll(/\b\d{4}-\d{2}-\d{2}/g)) numbers.add(m[0]);
       /*
        * Identifiers are OPAQUE, not numeric. A slip id like `opt_2026-09-17_public_medium_mlb_513c61`
        * is a name that happens to contain digits; a verifier reading "513" out of it would demand
@@ -168,7 +175,23 @@ export function buildEvidence(envelopes) {
 
       case "getPublishedForecasts": {
         say(`${d.totalMatched} currently published GameTime forecasts match; ${d.returned} are described here`, [d.totalMatched, d.returned]);
-        for (const f of d.forecasts ?? []) {
+        /*
+         * DETAIL FOR THE FIRST FEW, HEADLINES FOR THE REST.
+         *
+         * Six forecasts × every market × every completeness note × every player range produced ~52
+         * evidence sentences, a very long writer prompt, and an answer long enough to be CUT OFF at
+         * max_tokens — which the parser then reported as "no JSON object", a failure that looks like
+         * disobedience and is actually length. It also made for a worse answer: a reader asking what
+         * GameTime forecasts tonight wants the shape of the slate, not every market of every game.
+         */
+        const DETAILED = 3;
+        for (const [fi, f] of (d.forecasts ?? []).entries()) {
+          if (fi >= DETAILED) {
+            const head = (f.markets ?? [])[0];
+            say(`for ${f.matchup} (${f.sport}), GameTime has ${f.experimental ? "an EXPERIMENTAL forecast" : "a published forecast"}${head?.pick ? `; its ${head.label} pick is ${head.pick}` : ""}${head?.confidence ? `, confidence ${head.confidence}` : ""}`,
+              [head?.modelProbability]);
+            continue;
+          }
           const tag = f.experimental ? "an EXPERIMENTAL forecast, which is graded but is not a product pick" : "a published forecast";
           say(`for ${f.matchup} (${f.sport}), GameTime has ${tag}${f.updatedAt ? `, updated ${f.updatedAt}` : ""}`);
           for (const m of f.markets ?? []) {

@@ -28,7 +28,7 @@ export const ASK_TOOL_REGISTRY_VERSION = 1;
  * The system/planner/writer prompt version. Bumped on ANY prompt text change so a receipt can never
  * describe a run by a prompt that has since been edited underneath it (§67 — no hidden prompt drift).
  */
-export const ASK_PROMPT_VERSION = 1;
+export const ASK_PROMPT_VERSION = 2;
 
 /** The committed projection the emit step publishes, and the public prefix it publishes to. */
 export const ASK_PROJECTION_SCHEMA_VERSION = 1;
@@ -62,8 +62,20 @@ export const ASK_BUDGET = Object.freeze({
   maxConversationTurns: 12,
   maxUserMessageChars: 2000,
   maxRequestBytes: 64 * 1024,
-  /** Writer output ceiling. Measured per response type at the canary; this is the hard stop. */
-  maxAnswerTokens: 1200,
+  /*
+   * WRITER OUTPUT CEILING, now measured rather than guessed.
+   *
+   * 1,200 was a reasonable prior and it was wrong. A forecast answer covering several games, or a
+   * parlay answer naming three candidates with four legs each, does not fit — and the failure mode is
+   * ugly: the model is cut off mid-JSON, the parser reports "no JSON object", and that is
+   * indistinguishable from a model that ignored the format. Three canary cases failed this way while
+   * appearing to be a grounding problem.
+   *
+   * 2,400 fits the longest legitimate answer the evidence can produce (a parlay turn: ~22 facts, 3
+   * candidates × 4 legs, rendered as an escaped JSON string) with headroom. The adapter now reports
+   * `stop_reason`, so a future truncation says so instead of hiding as malformed output.
+   */
+  maxAnswerTokens: 2400,
   maxFollowUps: 3,
   /** Every asset the loader may pull, and the total it may pull in one turn. Mirrors the Live gateway. */
   maxAssetBytes: 3_000_000,

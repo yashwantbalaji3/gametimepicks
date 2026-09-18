@@ -150,6 +150,45 @@ export function parsePlan(text) {
  */
 export function plannerSystemPrompt() {
   return [
+    ...plannerPromptHead(),
+    "",
+    "YOUR TOOLS — these are the only tools that exist. There are no others.",
+    ...renderToolCatalogue(),
+    "",
+    "Reply with ONE JSON object and nothing else:",
+    '{"intent":"…","needsClarification":false,"clarification":null,"calls":[{"id":"c0","name":"…","arguments":{…},"after":[]}]}',
+  ].join("\n");
+}
+
+/**
+ * THE TOOL CATALOGUE, RENDERED INTO THE PROMPT.
+ *
+ * ⚠ THIS WAS THE BUG THE CANARY FOUND. `providerToolList()` was written, exported, and never called:
+ * the prompt instructed the model to "never plan a call to a tool that is not in your tool list", and
+ * the model was never given a list. Asked for recorded games it invented `getSeasonStats`; asked for
+ * recent player form, `getPlayerRecentPerformance`; asked for parlays, `getParlayRecommendations`.
+ * Every one was refused by the executor — the boundary held perfectly — but the answer was a refusal
+ * instead of an answer, on six of twenty canary cases.
+ *
+ * No offline test could catch it. The fake provider is a keyword router that never reads a catalogue,
+ * so it routed correctly while the real model was guessing at names.
+ *
+ * Generated from the registry, so the names and arguments the model is shown are by construction the
+ * ones the executor enforces.
+ */
+function renderToolCatalogue() {
+  return providerToolList().map((t) => {
+    const args = Object.entries(t.input_schema.properties);
+    const required = new Set(t.input_schema.required ?? []);
+    const params = args.length
+      ? args.map(([k, p]) => `${k}${required.has(k) ? "*" : ""}: ${p.enum ? p.enum.join("|") : p.type}`).join(", ")
+      : "no arguments";
+    return `- ${t.name}(${params})\n    ${t.description}`;
+  });
+}
+
+function plannerPromptHead() {
+  return [
     "You are the planner for Ask GameTime, the assistant inside the GameTimePicks sports research product.",
     "",
     "Your ONLY job is to decide: the intent, whether a clarification is genuinely needed, and which approved tools to call.",
@@ -157,18 +196,17 @@ export function plannerSystemPrompt() {
     "",
     "RULES",
     "- Any question about a real game, player, team, season, forecast, live state, parlay candidate or the product itself requires a tool call. You do not know these things.",
-    "- Questions containing 'today', 'tonight', 'now', 'current' or 'this weekend' start with getGameTimeNow.",
+    "- Questions containing 'today', 'tonight', 'now', 'current' or 'this weekend' start with getGameTimeNow, AND then also call the tool that actually answers the question in the SAME plan. getPublishedForecasts, getParlayCandidates and getLiveSlate default to today's product date on their own — you do not need the date before calling them.",
     "- A team or player NAME must go through resolveEntity before any tool that takes an id. Use `after` to sequence it.",
+    '- You will NOT know the canonical id at planning time. Put the literal string "RESOLVED" in the id argument and list the resolveEntity call in `after` — the server substitutes the real id before the tool runs. Example: [{"id":"c0","name":"resolveEntity","arguments":{"kind":"team","text":"Mets","sport":"MLB"}},{"id":"c1","name":"runGameFinder","arguments":{"sport":"MLB","teamId":"RESOLVED","minRuns":5},"after":["c0"]}]',
+    "- Never put a team or player NAME in an id argument. Ids look like mlb-team-121 or nfl-athlete-15818; a name will be refused.",
     "- Ask for clarification ONLY when the missing input changes which tool you call or which entity you mean. Never ask a question you could answer by calling a tool.",
     "- If the user asks for parlays and has stated no risk preference, set needsClarification and ask for their risk style (Low, Medium, High or Longshot) and, optionally, an entertainment bankroll. Do not demand a bankroll.",
     "- If the product cannot answer something (EPL club results, UFC numeric stats, NFL live state, NFL 2026 player logs), choose intent UNSUPPORTED_DATA and call searchGameTimeHelp so the answer can explain the gap.",
     "- Never plan a call to a tool that is not in your tool list. There are no other tools.",
     "",
     `INTENTS: ${ASK_INTENTS.join(", ")}`,
-    "",
-    "Reply with ONE JSON object and nothing else:",
-    '{"intent":"…","needsClarification":false,"clarification":null,"calls":[{"id":"c0","name":"…","arguments":{…},"after":[]}]}',
-  ].join("\n");
+  ];
 }
 
 /** The structured tool list, generated from the registry so the model and the server cannot disagree. */

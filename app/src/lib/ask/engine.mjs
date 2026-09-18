@@ -51,6 +51,7 @@ export async function runAskTurn(input, deps) {
     toolsMs: 0,
     writerMs: 0,
     verifierStatus: null,
+    planningPasses: 1,
     totalMs: 0,
     inputTokens: 0,
     outputTokens: 0,
@@ -69,7 +70,8 @@ export async function runAskTurn(input, deps) {
   if (!planned.ok) {
     receipt.errorCode = planned.code;
     receipt.totalMs = Date.now() - t0;
-    return { ok: false, code: planned.code, detail: planned.detail ?? null, receipt };
+    // The upstream status travels with the refusal so an operator can tell a bad key from a bad model.
+    return { ok: false, code: planned.code, detail: planned.detail ?? null, providerStatus: planned.status ?? null, providerType: planned.type ?? null, providerExplain: planned.explain ?? null, receipt };
   }
 
   const plan = planned.plan;
@@ -97,7 +99,36 @@ export async function runAskTurn(input, deps) {
 
   /* ── EXECUTE ──────────────────────────────────────────────────────────────────────────────── */
   const toolStart = Date.now();
-  const envelopes = await runPlanWithResolution(plan, executor, state, emit);
+  let envelopes = await runPlanWithResolution(plan, executor, state, emit);
+  receipt.planningPasses = 1;
+
+  /*
+   * THE SECOND PLANNING PASS — budgeted in §17 and, until the canary, never actually implemented.
+   *
+   * A real planner asked "what does GameTime forecast for tonight?" correctly begins with
+   * getGameTimeNow, because it is told to. Then it stops: it has planned the step it was instructed
+   * to plan, and the substantive call never happens. Every date-bearing question came back with the
+   * clock and nothing else.
+   *
+   * One re-plan fixes it properly, and it is a re-plan rather than a retry: the model is called again
+   * WITH what the first pass learned, so it can now name the tool it actually wanted. The trigger is
+   * narrow — a plan whose calls were all PREPARATORY (the clock, an entity resolution) for an intent
+   * that plainly needs more. A clarification, a genuinely single-tool answer and a refusal all skip it.
+   */
+  const PREPARATORY = new Set(["getGameTimeNow", "resolveEntity"]);
+  const substantive = envelopes.filter((e) => !PREPARATORY.has(e.tool));
+  const wantsMore = !["SITE_HELP", "NAVIGATION_HELP", "AMBIGUOUS", "UNSUPPORTED_DATA"].includes(plan.intent);
+
+  if (!substantive.length && envelopes.length && wantsMore) {
+    emit({ type: "status", text: "Checking GameTime…" });
+    const again = await planWithRepair(state, deps, receipt, { priorEvidence: buildEvidence(envelopes) });
+    receipt.planningPasses = 2;
+    if (again.ok && again.plan.calls.length) {
+      const more = await runPlanWithResolution(again.plan, executor, state, emit);
+      envelopes = [...envelopes, ...more];
+    }
+  }
+
   receipt.toolsMs = Date.now() - toolStart;
   receipt.toolCalls = envelopes.map((e) => e.tool);
   receipt.toolStatuses = envelopes.map((e) => e.status);
@@ -138,9 +169,9 @@ export async function runAskTurn(input, deps) {
 /* ─────────────────────────────────────  stages  ───────────────────────────────────── */
 
 /** One plan, plus at most one repair when the model returned something unparseable (§91). */
-async function planWithRepair(state, deps, receipt) {
+async function planWithRepair(state, deps, receipt, opts = {}) {
   const system = plannerSystemPrompt();
-  const user = plannerUserMessage(state);
+  const user = plannerUserMessage(state, opts.priorEvidence);
 
   for (let attempt = 0; attempt <= ASK_BUDGET.maxLlmRetries; attempt += 1) {
     const res = await deps.provider.plan({
@@ -151,7 +182,7 @@ async function planWithRepair(state, deps, receipt) {
       signal: deps.signal,
     });
 
-    if (!res.ok) return { ok: false, code: res.code, detail: res.detail ?? null };
+    if (!res.ok) return { ok: false, code: res.code, detail: res.detail ?? null, status: res.status ?? null, type: res.type ?? null, explain: res.explain ?? null };
     receipt.inputTokens += res.usage?.inputTokens ?? 0;
     receipt.outputTokens += res.usage?.outputTokens ?? 0;
 
@@ -165,8 +196,18 @@ async function planWithRepair(state, deps, receipt) {
   return { ok: false, code: ASK_ERROR.MALFORMED_PLAN, detail: "the planner did not return a usable plan" };
 }
 
-function plannerUserMessage(state) {
+function plannerUserMessage(state, priorEvidence = null) {
   const lines = [];
+  if (priorEvidence?.facts?.length) {
+    /*
+     * The second pass is given what the first pass LEARNED, as facts — so "today is 2026-09-17" is
+     * already answered and the model can spend this plan on the question rather than on the date.
+     */
+    lines.push("ALREADY ESTABLISHED THIS TURN (do not call these tools again):");
+    for (const f of priorEvidence.facts.slice(0, 12)) lines.push(`- ${f.text}`);
+    lines.push("", "Now plan the tool call(s) that actually answer the question.");
+    lines.push("");
+  }
   if (state.history.length) {
     lines.push("EARLIER IN THIS CONVERSATION (the user's own turns):");
     for (const h of state.history) lines.push(`- ${h}`);
@@ -197,6 +238,8 @@ function plannerUserMessage(state) {
  */
 async function runPlanWithResolution(plan, executor, state, emit) {
   const resolved = new Map(state.resolvedEntities.filter((e) => e.id).map((e) => [e.kind, e.id]));
+  /* label → id, so a planner that wrote the NAME instead of the id can still be served. */
+  const labels = new Map(state.resolvedEntities.filter((e) => e.id && e.label).map((e) => [`${e.kind}:${String(e.label).toLowerCase()}`, e.id]));
   const out = [];
   const done = new Set();
   let guard = 0;
@@ -213,9 +256,24 @@ async function runPlanWithResolution(plan, executor, state, emit) {
       const args = { ...call.arguments };
       let blocked = false;
       for (const [k, v] of Object.entries(args)) {
-        if (v !== "RESOLVED" && v !== "${resolved}") continue;
+        if (!/^(team|player|opponent|game).*Id$/i.test(k) || typeof v !== "string") continue;
         const kind = /player/i.test(k) ? "player" : /team/i.test(k) ? "team" : null;
-        const id = kind ? resolved.get(kind) : null;
+        if (!kind) continue;
+
+        const isPlaceholder = v === "RESOLVED" || v === "${resolved}";
+        /*
+         * THE SAFETY NET. A planner that has not yet seen a resolution cannot know an id, so it is told
+         * to write "RESOLVED". It will also sometimes write the NAME — "New York Mets" — which the slug
+         * validator refuses, and the whole question then fails with INVALID_ARGUMENT for a reason the
+         * reader cannot act on. When the value is plainly a name rather than an id, and this turn has
+         * resolved an entity whose LABEL matches it, the id is substituted. An unmatched name still
+         * fails: the point is to use a resolution that exists, never to guess one.
+         */
+        const looksLikeName = /\s/.test(v) || !/^[a-z]+-[a-z]+-/i.test(v);
+        if (!isPlaceholder && !looksLikeName) continue;
+
+        const byLabel = !isPlaceholder ? labels.get(`${kind}:${v.toLowerCase()}`) : null;
+        const id = byLabel ?? resolved.get(kind);
         if (!id) { blocked = true; break; }
         args[k] = id;
       }
@@ -232,7 +290,10 @@ async function runPlanWithResolution(plan, executor, state, emit) {
     const wave = await Promise.all(prepared.map((c) => executor.run(c)));
     for (const e of wave) {
       emit({ type: "tool_complete", tool: e.tool, status: e.status });
-      if (e.tool === "resolveEntity" && e.data?.entity) resolved.set(e.data.entity.kind, e.data.entity.id);
+      if (e.tool === "resolveEntity" && e.data?.entity) {
+        resolved.set(e.data.entity.kind, e.data.entity.id);
+        labels.set(`${e.data.entity.kind}:${String(e.data.entity.label).toLowerCase()}`, e.data.entity.id);
+      }
     }
     out.push(...wave);
   }
@@ -272,6 +333,7 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
   const base = writerUserMessage({ question: state.question, evidence, state: { resolvedEntities: state.resolvedEntities, wagering: state.wagering } });
 
   let lastViolations = [];
+  let lastRejected = null;
   for (let attempt = 0; attempt <= ASK_BUDGET.maxLlmRetries; attempt += 1) {
     const user = attempt === 0
       ? base
@@ -283,7 +345,18 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
     receipt.outputTokens += res.usage?.outputTokens ?? 0;
 
     const parsed = parseAnswer(res.text, evidence);
-    if (!parsed.ok) { lastViolations = [{ code: parsed.code, detail: parsed.detail }]; continue; }
+    if (!parsed.ok) {
+      /*
+       * TRUNCATION IS NOT DISOBEDIENCE. A writer cut off at max_tokens produces the same
+       * "no JSON object" as one that wrote prose — but the fix is room, not a stricter instruction,
+       * and telling a truncated model to "reply with ONE JSON object" makes the next attempt fail the
+       * same way. The stop reason is recorded so the retry knows which problem it is solving.
+       */
+      const truncated = res.stopReason === "max_tokens";
+      lastViolations = [{ code: parsed.code, detail: truncated ? `${parsed.detail} (stopped at max_tokens — the answer was cut off)` : parsed.detail }];
+      receipt.writerTruncated = truncated || receipt.writerTruncated || false;
+      continue;
+    }
 
     const clean = sanitiseMarkdown(parsed.answer.answerMarkdown);
     const check = verifyAnswer(clean, evidence, { userNumbers: state.userNumbers });
@@ -296,10 +369,15 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
       return { answer, verified: true };
     }
     lastViolations = check.violations;
+    lastRejected = clean;
   }
 
   receipt.verifierStatus = "FAILED_DETERMINISTIC_FALLBACK";
   receipt.errorCode = lastViolations[0]?.code ?? ASK_ERROR.UNSUPPORTED_CLAIM;
+  /* Why the writer's answer was rejected. Without this a grounding failure is a dead end. */
+  receipt.verifierViolations = lastViolations.slice(0, 6).map((v) => `${v.code}: ${v.detail}`);
+  /* The text that was refused. Without it "unsupported claim" names a problem nobody can see. */
+  receipt.rejectedAnswer = lastRejected ? String(lastRejected).slice(0, 600) : null;
   const answer = deterministicAnswer(evidence, { intent: plan.intent });
   emit({ type: "answer_delta", text: answer.answerMarkdown });
   return { answer, verified: false, violations: lastViolations };

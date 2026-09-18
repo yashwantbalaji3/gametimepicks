@@ -74,9 +74,14 @@ export default async function handler(req, res) {
 
   loader ??= makeAskLoader(originFetchText(origin));
 
+  /*
+   * Upstream error detail is forwarded in PREVIEW and DEVELOPMENT only. Production serves strangers
+   * and has no operator reading the response; preview is where someone is actively debugging.
+   */
+  const isProd = String(process.env.VERCEL_ENV ?? "").toLowerCase() === "production";
   const provider = decision.provider === "fake"
     ? createFakeProvider()
-    : createAnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY });
+    : createAnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY, diagnostics: !isProd });
 
   /*
    * ABORT IS WIRED THROUGH. A reader pressing Stop closes the response, which fires `close` here,
@@ -85,7 +90,17 @@ export default async function handler(req, res) {
    */
   const controller = new AbortController();
   let clientGone = false;
-  req.on?.("close", () => { clientGone = true; controller.abort(); });
+  /*
+   * ⚠ WATCH THE RESPONSE, NOT THE REQUEST. `req` is the incoming stream, and it emits `close` once the
+   * BODY HAS BEEN READ — which for a POST is immediately, long before the answer exists. Aborting on
+   * that would cancel the provider call on every single turn. `res` closes when the client actually
+   * goes away, which is the event this is for.
+   */
+  res.on?.("close", () => {
+    if (res.writableEnded) return; // a normal completed response closes too
+    clientGone = true;
+    controller.abort();
+  });
 
   const stream = wantsStream(req);
   if (stream) {
@@ -124,10 +139,25 @@ export default async function handler(req, res) {
       },
     });
 
-    console.log(askAuditLine(decision, result.receipt ?? {}));
+    console.log(askAuditLine(decision, result.receipt ?? {}, result.providerStatus ? { providerStatus: result.providerStatus, providerType: result.providerType ?? null } : {}));
 
     if (!result.ok) {
+      /*
+       * THE UPSTREAM STATUS IS DIAGNOSTIC, NOT SECRET. A canary that can only say "provider error"
+       * cannot distinguish a bad key (401) from a wrong model (404) from a rate limit (429), which
+       * turns a five-second fix into an afternoon. The numeric status names no key and carries no
+       * content; the upstream BODY is still never echoed.
+       */
       const payload = { ok: false, code: result.code, reason: reasonFor(result.code) };
+      if (result.providerStatus) payload.providerStatus = result.providerStatus;
+      if (result.providerType) payload.providerType = result.providerType;
+      if (result.providerExplain) payload.providerExplain = result.providerExplain;
+      /*
+       * The refusal detail names WHAT was refused — the tool the model invented, the argument it
+       * passed. That is a name the model produced, not a secret, and without it "UNKNOWN_TOOL" tells
+       * an operator nothing about which tool to teach it about.
+       */
+      if (!isProd && result.detail) payload.detail = result.detail;
       if (stream) { send({ type: "error", ...payload }); send({ type: "done" }); return res.end(); }
       return res.status(502).json(payload);
     }
@@ -140,6 +170,24 @@ export default async function handler(req, res) {
       answer: result.answer,
       evidence: result.evidence ?? null,
       entities: result.entities ?? [],
+      /*
+       * TOKEN COUNTS AND TIMINGS, so cost is MEASURED rather than asserted. They describe this turn's
+       * own consumption and name nothing about the reader; the canary needs them to report a real
+       * per-turn cost, and a reader who looks at them learns only what their own question cost.
+       */
+      usage: {
+        inputTokens: result.receipt?.inputTokens ?? 0,
+        outputTokens: result.receipt?.outputTokens ?? 0,
+        plannerMs: result.receipt?.plannerMs ?? 0,
+        toolsMs: result.receipt?.toolsMs ?? 0,
+        writerMs: result.receipt?.writerMs ?? 0,
+        model: result.receipt?.model ?? null,
+        planningPasses: result.receipt?.planningPasses ?? 1,
+        verifier: result.receipt?.verifierStatus ?? null,
+        writerTruncated: result.receipt?.writerTruncated ?? false,
+        /* Why a rejected answer was rejected — non-production only, like the other diagnostics. */
+        ...(isProd ? {} : { verifierViolations: result.receipt?.verifierViolations ?? null, rejectedAnswer: result.receipt?.rejectedAnswer ?? null }),
+      },
     };
 
     if (stream) {

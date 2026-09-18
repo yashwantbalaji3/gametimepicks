@@ -95,9 +95,16 @@ export function verifyAnswer(answer, evidence, opts = {}) {
      * second, which is the more natural sentence and therefore the likelier failure.
      */
     const PICK = "(?:pick|picks|forecasts?|leans?|takes?|likes|recommends?)";
+    /*
+     * ⚠ THE WINDOW MUST NOT CROSS A MARKET BOUNDARY. An answer legitimately lists several markets in
+     * a row — "Over/Under: paused · Moneyline: GameTime picks MIN" — and a window that only stopped at
+     * a full stop ran from one market's name into the next market's pick, flagging a correct answer.
+     * `·`, `|`, a newline, a semicolon and a bullet all end a market's clause as surely as a full stop.
+     */
+    const SEP = "[^.·|;\\n•\\-]";
     const windows = [
-      new RegExp(`${escapeRe(market)}([^.]{0,80}?)\\b${PICK}\\b`, "gi"),
-      new RegExp(`\\b${PICK}\\b([^.]{0,80}?)${escapeRe(market)}`, "gi"),
+      new RegExp(`${escapeRe(market)}(${SEP}{0,70}?)\\b${PICK}\\b`, "gi"),
+      new RegExp(`\\b${PICK}\\b(${SEP}{0,70}?)${escapeRe(market)}`, "gi"),
     ];
     let flagged = false;
     for (const re of windows) {
@@ -262,9 +269,18 @@ export function deterministicAnswer(evidence, { intent } = {}) {
     for (const f of supported.slice(0, 12)) lines.push(`- ${capitalise(f.text)}`);
   }
 
-  for (const u of evidence.unsupported ?? []) {
+  /*
+   * ⚠ NO TOOL NAMES, NO ERROR CODES. This line used to read "GameTimePicks does not currently hold
+   * that data (runGameFinder: INVALID_ARGUMENT)" — accurate, and a tool name plus an enum in a chat
+   * bubble is not an answer. The same fix was already made to the evidence sentences; this path was
+   * missed because it composes its own text rather than reusing them.
+   *
+   * The evidence sentence ALREADY says what is unavailable, in product words, so the fallback simply
+   * does not repeat it. The code stays in the receipt, where an operator can read it.
+   */
+  if ((evidence.unsupported ?? []).length && !supported.length) {
     lines.push("");
-    lines.push(`GameTimePicks does not currently hold that data (${u.tool}: ${u.error}).`);
+    lines.push("GameTimePicks does not currently hold data that answers that.");
   }
 
   const links = dedupeLinks(evidence.links ?? []).slice(0, 4);

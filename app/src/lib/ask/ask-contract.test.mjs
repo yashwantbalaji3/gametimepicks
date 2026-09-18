@@ -28,7 +28,7 @@ import { makeExecutor } from "./executor.mjs";
 import { makeAskLoader, fixtureFetchText } from "./loader.mjs";
 import { buildEvidence } from "./evidence.mjs";
 import { verifyAnswer, deterministicAnswer } from "./verifier.mjs";
-import { parsePlan, validatePlan } from "./planner.mjs";
+import { parsePlan, plannerSystemPrompt, validatePlan } from "./planner.mjs";
 import { parseAnswer, sanitiseMarkdown } from "./writer.mjs";
 import { clearedState, normaliseContext, normaliseMessages, normalisePreferences, readPreferencesFromText, reduceConversation } from "./conversation.mjs";
 import { missingAskConfig, redact, selectProvider, ASK_REQUIRED_ENV } from "./provider.mjs";
@@ -54,6 +54,27 @@ test("every declared tool is implemented, and every implemented tool is declared
   // makeExecutor's module body throws if these disagree; constructing one is the assertion.
   assert.doesNotThrow(() => makeExecutor({}));
   assert.equal(ASK_TOOL_NAMES.length, 14);
+});
+
+test("the planner prompt actually CONTAINS the tool catalogue", () => {
+  /*
+   * ⚠ THE CANARY'S BIGGEST FIND. `providerToolList()` was written, exported and never called. The
+   * prompt told the model "never plan a call to a tool that is not in your tool list" and gave it no
+   * list, so it invented plausible names — getSeasonStats, getPlayerRecentPerformance,
+   * getParlayRecommendations — and the executor refused every one. The boundary held; the product
+   * answered six of twenty questions with a refusal.
+   *
+   * The fake provider is a keyword router that never reads a catalogue, so it routed perfectly while
+   * the real model was guessing. Only a real provider could show this, and only this guard keeps it
+   * from coming back.
+   */
+  const prompt = plannerSystemPrompt();
+  for (const name of ASK_TOOL_NAMES) {
+    assert.ok(prompt.includes(name), `the planner prompt must name ${name} — otherwise the model must guess it`);
+  }
+  // And the descriptions, which are what teach it WHICH tool to pick.
+  assert.ok(prompt.includes("Recorded FINAL team games"), "tool descriptions must reach the model, not just names");
+  assert.ok(prompt.length > 3000, `the prompt is ${prompt.length} chars — too short to contain 14 tools`);
 });
 
 test("the provider tool list is generated from the same specs the executor enforces", () => {
@@ -358,6 +379,30 @@ test("a paused market must not be given a pick, but explaining the pause is allo
   assert.equal(verifyAnswer("The Over/Under is paused and publishes no pick, because its live record is below a coin flip.", ev).ok, true);
 });
 
+test("a date the evidence gave as a TIMESTAMP is supported when the answer writes it bare", () => {
+  /*
+   * ⚠ REGRESSION. Evidence says "updated 2026-09-17T10:09:03.504Z"; the answer says "2026-09-17".
+   * The registration pattern ended in \b, which does not match before the "T", so the date was never
+   * registered — and the verifier rejected a date its own evidence had supplied. Every forecast answer
+   * that mentioned when a forecast was updated failed grounding.
+   */
+  const ev = evidenceFor(["for MIN @ LAA (MLB), GameTime has a published forecast, updated 2026-09-17T10:09:03.504Z"]);
+  ev.numbers.add("2026-09-17");
+  assert.equal(verifyAnswer("GameTime's MIN @ LAA forecast was updated on 2026-09-17.", ev).ok, true);
+});
+
+test("listing a paused market beside another market's pick is not presenting the paused one", () => {
+  /*
+   * ⚠ REGRESSION. "Over/Under: paused · Moneyline: GameTime picks MIN" — a window that stopped only at
+   * a full stop ran from the first market's name into the second market's verb, rejecting a correct
+   * answer. A separator ends a clause as surely as a full stop does.
+   */
+  const ev = evidenceFor(["MIN @ LAA · Over/Under is PAUSED by GameTime and publishes no pick"]);
+  assert.equal(verifyAnswer("Over/Under: paused, no pick published · Moneyline: GameTime picks MIN.", ev).ok, true);
+  // And the real violation is still caught.
+  assert.equal(verifyAnswer("GameTime picks the Over/Under over tonight.", ev).ok, false);
+});
+
 test("a number the user supplied is theirs to state and is not a sports claim", () => {
   const ev = evidenceFor(["GameTime published 3 candidates"]);
   assert.equal(verifyAnswer("With your 250 bankroll, here are three candidates.", ev, { userNumbers: [250] }).ok, true);
@@ -508,6 +553,38 @@ test("an unknown provider name is a configuration error, not a silent default", 
   assert.equal(selectProvider({ ASK_MODEL_PROVIDER: "openai", ANTHROPIC_API_KEY: "x" }).ok, false);
 });
 
+test("a provider failure carries the upstream STATUS and error TYPE, and never its message", async () => {
+  /*
+   * A canary that can only report "provider error" cannot tell a bad key (401 authentication_error)
+   * from a wrong model (404 not_found_error) from a rate limit — which is the difference between a
+   * five-second fix and an afternoon. The status is a number and the type is an enum from a closed
+   * allowlist; the upstream MESSAGE never crosses, because an error body can echo request content.
+   */
+  const { createAnthropicProvider } = await import("./provider-anthropic.mjs");
+
+  const fakeFetch = async () => ({
+    ok: false,
+    status: 401,
+    json: async () => ({ error: { type: "authentication_error", message: "invalid x-api-key: sk-ant-SECRET-VALUE" } }),
+  });
+  const provider = createAnthropicProvider({ apiKey: "sk-ant-test", fetchImpl: fakeFetch });
+  const r = await provider.plan({ system: "s", user: "u" });
+
+  assert.equal(r.ok, false);
+  assert.equal(r.status, 401);
+  assert.equal(r.type, "authentication_error");
+  const serialised = JSON.stringify(r);
+  assert.ok(!serialised.includes("SECRET-VALUE"), "the upstream message must never cross the adapter");
+  assert.ok(!serialised.includes("invalid x-api-key"), "the upstream message must never cross the adapter");
+});
+
+test("an unrecognised upstream error type is reported as such, not passed through", async () => {
+  const { createAnthropicProvider } = await import("./provider-anthropic.mjs");
+  const fakeFetch = async () => ({ ok: false, status: 418, json: async () => ({ error: { type: "<script>alert(1)</script>" } }) });
+  const r = await createAnthropicProvider({ apiKey: "k", fetchImpl: fakeFetch }).plan({ system: "s", user: "u" });
+  assert.equal(r.type, "unrecognised_error_type", "a value outside the allowlist must not be repeated");
+});
+
 test("redaction removes credential shapes from anything destined for a log", () => {
   const s = redact("failed with x-api-key: sk-ant-abcdefghijklmnop and Authorization: Bearer abcdefghijklmnopqrstuvwx");
   assert.ok(!s.includes("sk-ant-abcdefghijklmnop"));
@@ -600,7 +677,7 @@ test("an aborted turn stops rather than completing", async () => {
 
 test("every turn records the prompt, registry and provider versions", async () => {
   const r = await ask("Why can't I compare UFC fighters?");
-  assert.equal(r.receipt.promptVersion, 1);
+  assert.equal(r.receipt.promptVersion, 2, "the prompt changed, so its version must have moved");
   assert.match(r.receipt.registry, /^v1\/14\/[0-9a-f]{8}$/);
   assert.equal(r.receipt.provider, "fake");
 });
