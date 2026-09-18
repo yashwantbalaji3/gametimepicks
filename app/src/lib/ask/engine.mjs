@@ -51,6 +51,7 @@ export async function runAskTurn(input, deps) {
     toolsMs: 0,
     writerMs: 0,
     verifierStatus: null,
+    planningPasses: 1,
     totalMs: 0,
     inputTokens: 0,
     outputTokens: 0,
@@ -98,7 +99,36 @@ export async function runAskTurn(input, deps) {
 
   /* ── EXECUTE ──────────────────────────────────────────────────────────────────────────────── */
   const toolStart = Date.now();
-  const envelopes = await runPlanWithResolution(plan, executor, state, emit);
+  let envelopes = await runPlanWithResolution(plan, executor, state, emit);
+  receipt.planningPasses = 1;
+
+  /*
+   * THE SECOND PLANNING PASS — budgeted in §17 and, until the canary, never actually implemented.
+   *
+   * A real planner asked "what does GameTime forecast for tonight?" correctly begins with
+   * getGameTimeNow, because it is told to. Then it stops: it has planned the step it was instructed
+   * to plan, and the substantive call never happens. Every date-bearing question came back with the
+   * clock and nothing else.
+   *
+   * One re-plan fixes it properly, and it is a re-plan rather than a retry: the model is called again
+   * WITH what the first pass learned, so it can now name the tool it actually wanted. The trigger is
+   * narrow — a plan whose calls were all PREPARATORY (the clock, an entity resolution) for an intent
+   * that plainly needs more. A clarification, a genuinely single-tool answer and a refusal all skip it.
+   */
+  const PREPARATORY = new Set(["getGameTimeNow", "resolveEntity"]);
+  const substantive = envelopes.filter((e) => !PREPARATORY.has(e.tool));
+  const wantsMore = !["SITE_HELP", "NAVIGATION_HELP", "AMBIGUOUS", "UNSUPPORTED_DATA"].includes(plan.intent);
+
+  if (!substantive.length && envelopes.length && wantsMore) {
+    emit({ type: "status", text: "Checking GameTime…" });
+    const again = await planWithRepair(state, deps, receipt, { priorEvidence: buildEvidence(envelopes) });
+    receipt.planningPasses = 2;
+    if (again.ok && again.plan.calls.length) {
+      const more = await runPlanWithResolution(again.plan, executor, state, emit);
+      envelopes = [...envelopes, ...more];
+    }
+  }
+
   receipt.toolsMs = Date.now() - toolStart;
   receipt.toolCalls = envelopes.map((e) => e.tool);
   receipt.toolStatuses = envelopes.map((e) => e.status);
@@ -139,9 +169,9 @@ export async function runAskTurn(input, deps) {
 /* ─────────────────────────────────────  stages  ───────────────────────────────────── */
 
 /** One plan, plus at most one repair when the model returned something unparseable (§91). */
-async function planWithRepair(state, deps, receipt) {
+async function planWithRepair(state, deps, receipt, opts = {}) {
   const system = plannerSystemPrompt();
-  const user = plannerUserMessage(state);
+  const user = plannerUserMessage(state, opts.priorEvidence);
 
   for (let attempt = 0; attempt <= ASK_BUDGET.maxLlmRetries; attempt += 1) {
     const res = await deps.provider.plan({
@@ -166,8 +196,18 @@ async function planWithRepair(state, deps, receipt) {
   return { ok: false, code: ASK_ERROR.MALFORMED_PLAN, detail: "the planner did not return a usable plan" };
 }
 
-function plannerUserMessage(state) {
+function plannerUserMessage(state, priorEvidence = null) {
   const lines = [];
+  if (priorEvidence?.facts?.length) {
+    /*
+     * The second pass is given what the first pass LEARNED, as facts — so "today is 2026-09-17" is
+     * already answered and the model can spend this plan on the question rather than on the date.
+     */
+    lines.push("ALREADY ESTABLISHED THIS TURN (do not call these tools again):");
+    for (const f of priorEvidence.facts.slice(0, 12)) lines.push(`- ${f.text}`);
+    lines.push("", "Now plan the tool call(s) that actually answer the question.");
+    lines.push("");
+  }
   if (state.history.length) {
     lines.push("EARLIER IN THIS CONVERSATION (the user's own turns):");
     for (const h of state.history) lines.push(`- ${h}`);

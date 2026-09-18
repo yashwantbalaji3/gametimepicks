@@ -193,7 +193,11 @@ for (const c of cases) {
     const body = await res.json().catch(() => null);
     if (!body) { failed = `unparseable response (HTTP ${res.status})`; break; }
     if (body.ok === false) {
-      failed = `${body.code}${body.providerStatus ? ` upstream=${body.providerStatus}` : ""}${body.providerType ? ` type=${body.providerType}` : ""}`;
+      failed = [body.code,
+        body.detail ? `detail=${body.detail}` : null,
+        body.providerStatus ? `upstream=${body.providerStatus}` : null,
+        body.providerType ? `type=${body.providerType}` : null,
+        body.providerExplain ? `msg=${body.providerExplain}` : null].filter(Boolean).join(" ");
       break;
     }
     // The assistant's turn joins the history, exactly as the browser sends it.
@@ -255,8 +259,9 @@ function grade(c, out) {
    * that correctly refuses to use a paused market, rejected for saying so. What must not appear is a
    * paused market being GIVEN a pick.
    */
-  const blocked = [...md.matchAll(/\b(PAUSED|HOLDING|STOP|REJECTED)\b([^.]{0,60})/gi)]
-    .filter((m) => /\b(pick|forecast|recommend|lean|take)/i.test(m[2]) && !/\b(no|not|never|cannot|does not|publishes no)\b/i.test(m[2]));
+  const NEGATED = /\b(no|not|never|cannot|can't|does not|doesn't|stopped|ceased|withheld|suspended|unavailable|won't|will not)\b/i;
+  const blocked = [...md.matchAll(/\b(PAUSED|HOLDING|STOP|REJECTED)\b([^.]{0,80})/gi)]
+    .filter((m) => /\b(pick|forecast|recommend|lean|take)/i.test(m[2]) && !NEGATED.test(m[2]));
   add("no-blocked-model", blocked.length === 0, blocked.map((m) => m[0].slice(0, 60)).join(" | "));
 
   return checks;
@@ -267,6 +272,7 @@ function grade(c, out) {
 const ok = results.filter((r) => r.checks.every((c) => c.pass));
 const totalIn = results.reduce((n, r) => n + (r.out?.usage?.inputTokens ?? 0), 0);
 const totalOut = results.reduce((n, r) => n + (r.out?.usage?.outputTokens ?? 0), 0);
+const turns = results.filter((r) => (r.out?.usage?.inputTokens ?? 0) > 0).length;
 const lat = results.filter((r) => !r.failed).map((r) => r.ms).sort((a, b) => a - b);
 const pct = (p) => (lat.length ? lat[Math.min(lat.length - 1, Math.floor((p / 100) * lat.length))] : 0);
 
@@ -283,7 +289,10 @@ for (const r of results) {
 console.log("");
 console.log(`cases: ${ok.length}/${results.length} pass`);
 console.log(`latency: p50 ${pct(50)} ms · p95 ${pct(95)} ms · max ${lat.at(-1) ?? 0} ms`);
-console.log(`tokens: ${totalIn} in · ${totalOut} out  (~$${cost(totalIn, totalOut).toFixed(4)} at $${PRICE.inPerM}/$${PRICE.outPerM} per Mtok)`);
+console.log(`tokens: ${totalIn} in · ${totalOut} out over ${turns} measured turn(s)  (~$${cost(totalIn, totalOut).toFixed(4)} total, ~$${turns ? (cost(totalIn, totalOut) / turns).toFixed(5) : "0"} per turn, at $${PRICE.inPerM}/$${PRICE.outPerM} per Mtok)`);
+if (!turns) console.log("⚠ no token counts came back — the endpoint did not report usage, so the cost figure above is not a measurement");
+const passes = results.map((r) => r.out?.usage?.planningPasses).filter(Boolean);
+if (passes.length) console.log(`planning passes: ${passes.filter((p) => p === 2).length} of ${passes.length} turns needed a second pass`);
 
 const failures = results.filter((r) => r.checks.some((c) => !c.pass));
 if (failures.length) {

@@ -152,6 +152,12 @@ export default async function handler(req, res) {
       if (result.providerStatus) payload.providerStatus = result.providerStatus;
       if (result.providerType) payload.providerType = result.providerType;
       if (result.providerExplain) payload.providerExplain = result.providerExplain;
+      /*
+       * The refusal detail names WHAT was refused — the tool the model invented, the argument it
+       * passed. That is a name the model produced, not a secret, and without it "UNKNOWN_TOOL" tells
+       * an operator nothing about which tool to teach it about.
+       */
+      if (!isProd && result.detail) payload.detail = result.detail;
       if (stream) { send({ type: "error", ...payload }); send({ type: "done" }); return res.end(); }
       return res.status(502).json(payload);
     }
@@ -164,6 +170,20 @@ export default async function handler(req, res) {
       answer: result.answer,
       evidence: result.evidence ?? null,
       entities: result.entities ?? [],
+      /*
+       * TOKEN COUNTS AND TIMINGS, so cost is MEASURED rather than asserted. They describe this turn's
+       * own consumption and name nothing about the reader; the canary needs them to report a real
+       * per-turn cost, and a reader who looks at them learns only what their own question cost.
+       */
+      usage: {
+        inputTokens: result.receipt?.inputTokens ?? 0,
+        outputTokens: result.receipt?.outputTokens ?? 0,
+        plannerMs: result.receipt?.plannerMs ?? 0,
+        toolsMs: result.receipt?.toolsMs ?? 0,
+        writerMs: result.receipt?.writerMs ?? 0,
+        model: result.receipt?.model ?? null,
+        planningPasses: result.receipt?.planningPasses ?? 1,
+      },
     };
 
     if (stream) {
