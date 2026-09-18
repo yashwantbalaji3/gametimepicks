@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-18",
- "generatedAt": "2026-09-18T10:02:14Z",
+ "generatedAt": "2026-09-18T12:03:09Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-1+bank-builder-lane-b-step-1",
-     "lockAt": "2026-09-18T10:02:10.557Z"
+     "lockAt": "2026-09-18T12:03:06.132Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-1+moonshot-lane-b-step-1",
-     "lockAt": "2026-09-18T10:02:10.557Z"
+     "lockAt": "2026-09-18T12:03:06.132Z"
     },
     "transitions": [
      {
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-18T09:55:34.000Z"
+     "lockAt": "2026-09-18T11:56:08.000Z"
     },
     "transitions": [
      {
@@ -402,7 +402,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -138,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Spencer Torkelson",
@@ -416,7 +416,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -179,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -446,7 +446,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -256,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Chandler Simpson",
@@ -460,7 +460,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -234,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Elly De La Cruz",
@@ -474,7 +474,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -206,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Kevin McGonigle",
@@ -488,7 +488,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -214,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -518,7 +518,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -190,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Jake Rogers",
@@ -532,7 +532,7 @@
        "side": "Under",
        "line": 0.5,
        "odds": 110,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Nolan Arenado",
@@ -546,7 +546,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -172,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Jackson Merrill",
@@ -560,7 +560,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -266,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Nathan Church",
@@ -574,7 +574,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -151,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -588,12 +588,12 @@
    ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "ACTIVE",
+    "state": "AWAITING_RESULT",
     "policyVersion": "mlb-cards@1",
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-18T10:02:12Z"
+     "lockAt": "2026-09-18T12:03:08Z"
     },
     "transitions": [
      {
@@ -603,6 +603,10 @@
      {
       "to": "ACTIVE",
       "runId": "gen:2026-09-18:fac660362a83"
+     },
+     {
+      "to": "AWAITING_RESULT",
+      "runId": "await:2026-09-18:2026-09-18T09:54:04+00:00"
      }
     ]
    }
