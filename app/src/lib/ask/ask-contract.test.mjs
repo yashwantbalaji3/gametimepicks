@@ -578,6 +578,52 @@ test("a provider failure carries the upstream STATUS and error TYPE, and never i
   assert.ok(!serialised.includes("invalid x-api-key"), "the upstream message must never cross the adapter");
 });
 
+test("a transient upstream condition is retried exactly once; a deterministic one is not", async () => {
+  /*
+   * ⚠ WHAT THE PRODUCTION SMOKE ACTUALLY FOUND. One question appeared to fail ~35% of the time. It
+   * was not per-request randomness: a later run failed 8 of 8 in a row and then passed 4 of 4 minutes
+   * later. That is a WINDOW of upstream unavailability, which one retry rides out for a reader.
+   *
+   * The retry must be TARGETED. Retrying everything would have hidden the deprecated-`temperature`
+   * 400 behind a doubled bill and a longer wait, and that 400 was the bug that mattered most.
+   */
+  const { createAnthropicProvider } = await import("./provider-anthropic.mjs");
+
+  // 529 overloaded, then success → one retry, then an answer.
+  let calls = 0;
+  const flaky = async () => {
+    calls += 1;
+    return calls === 1
+      ? { ok: false, status: 529, json: async () => ({ error: { type: "overloaded_error" } }) }
+      : { ok: true, json: async () => ({ content: [{ type: "text", text: "{}" }], stop_reason: "end_turn", usage: {} }) };
+  };
+  const ok = await createAnthropicProvider({ apiKey: "k", fetchImpl: flaky }).plan({ system: "s", user: "u" });
+  assert.equal(ok.ok, true, "a transient failure must be retried");
+  assert.equal(calls, 2, "exactly once — not zero, not a loop");
+  assert.equal(ok.attempts, 2);
+
+  // 400 invalid_request → deterministic, must NOT be retried.
+  let bad = 0;
+  const broken = async () => { bad += 1; return { ok: false, status: 400, json: async () => ({ error: { type: "invalid_request_error" } }) }; };
+  const r = await createAnthropicProvider({ apiKey: "k", fetchImpl: broken }).plan({ system: "s", user: "u" });
+  assert.equal(r.ok, false);
+  assert.equal(bad, 1, "a deterministic 4xx must fail once and stop — retrying it spends a call to learn nothing");
+  assert.equal(r.attempts, 1);
+
+  // A thrown network error is transient; an abort is not.
+  let net = 0;
+  const throws = async () => { net += 1; if (net === 1) throw new TypeError("fetch failed"); return { ok: true, json: async () => ({ content: [{ type: "text", text: "{}" }], usage: {} }) }; };
+  assert.equal((await createAnthropicProvider({ apiKey: "k", fetchImpl: throws }).plan({ system: "s", user: "u" })).ok, true);
+  assert.equal(net, 2, "a dropped connection is worth one retry");
+
+  const aborted = new AbortController();
+  aborted.abort();
+  let tried = 0;
+  const never = async () => { tried += 1; throw Object.assign(new Error("aborted"), { name: "AbortError" }); };
+  await createAnthropicProvider({ apiKey: "k", fetchImpl: never }).plan({ system: "s", user: "u", signal: aborted.signal });
+  assert.equal(tried, 1, "a reader who pressed Stop must not have their request retried on their behalf");
+});
+
 test("an unrecognised upstream error type is reported as such, not passed through", async () => {
   const { createAnthropicProvider } = await import("./provider-anthropic.mjs");
   const fakeFetch = async () => ({ ok: false, status: 418, json: async () => ({ error: { type: "<script>alert(1)</script>" } }) });

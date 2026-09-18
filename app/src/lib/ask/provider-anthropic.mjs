@@ -43,7 +43,40 @@ const KNOWN_ERROR_TYPES = Object.freeze([
 export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetchImpl = fetch, diagnostics = false } = {}) {
   if (!apiKey) throw new Error("createAnthropicProvider: no API key");
 
+/**
+ * Upstream conditions worth ONE retry, and the ones that are not.
+ *
+ * A deterministic 4xx — a bad key, a wrong model, a malformed body — will fail identically the second
+ * time, so retrying it spends a call to learn nothing. Overload, a gateway hiccup and a dropped
+ * connection are the opposite: the same request very often succeeds moments later.
+ */
+const TRANSIENT_STATUS = new Set([408, 409, 425, 429, 500, 502, 503, 504, 529]);
+const RETRY_DELAY_MS = 700;
+
   async function call({ system, messages, maxTokens, signal }) {
+    /*
+     * ONE RETRY, FOR TRANSIENT CONDITIONS ONLY (§85, §168).
+     *
+     * The production smoke found what looked like a ~35% per-request failure on one question. It was
+     * not: a later run failed 8 of 8 in a row and then passed 4 of 4 minutes later. That is not
+     * randomness, it is a WINDOW — upstream unavailability lasting minutes, which one retry rides out
+     * for a reader most of the time and which no amount of retrying fixes when it is genuinely down.
+     *
+     * So: one retry, a short fixed delay, transient statuses and network throws only, and an honest
+     * refusal after that. A blind retry-everything would have hidden the deprecated-`temperature` 400
+     * behind a doubled bill and a longer wait.
+     */
+    for (let attempt = 0; ; attempt += 1) {
+      const out = await attemptOnce();
+      const retryable = !out.ok
+        && attempt === 0
+        && !signal?.aborted
+        && (out.threw ? out.code !== ASK_ERROR.PROVIDER_TIMEOUT : TRANSIENT_STATUS.has(out.status));
+      if (!retryable) return { ...out, attempts: attempt + 1 };
+      await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+    }
+
+    async function attemptOnce() {
     const controller = new AbortController();
     const onAbort = () => controller.abort();
     signal?.addEventListener("abort", onAbort, { once: true });
@@ -154,6 +187,7 @@ export function createAnthropicProvider({ apiKey, model = ANTHROPIC_MODEL, fetch
     } finally {
       clearTimeout(timer);
       signal?.removeEventListener("abort", onAbort);
+    }
     }
   }
 
