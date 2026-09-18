@@ -306,6 +306,45 @@ export function openAiToolList() {
   }));
 }
 
+/**
+ * THE SAME REGISTRY AGAIN, IN GEMINI'S OPENAPI SUBSET.
+ *
+ * Generated from the identical specs by the identical generator, then translated. Two differences are
+ * forced by the vendor and neither is a weakening of the contract:
+ *
+ *   - types are UPPERCASE (`STRING`, `INTEGER`) in Google's schema dialect;
+ *   - `additionalProperties` is not accepted, so it cannot be sent.
+ *
+ * The second is worth being explicit about: it means the model is not TOLD that unknown arguments are
+ * rejected. It is still true — `validateArgs` refuses an unknown key on every path, for every
+ * provider, before a handler runs. The schema shown to a model is a courtesy; the executor is the
+ * boundary, and no vendor's dialect can widen it.
+ */
+export function geminiToolList() {
+  return ASK_TOOL_NAMES.map((name) => ({
+    name,
+    description: ASK_TOOLS[name].describe,
+    parameters: toGeminiSchema(toProviderSchema(ASK_TOOLS[name].args)),
+  }));
+}
+
+/** Translate one JSON-Schema object into Google's dialect. Structure-preserving, never permissive. */
+function toGeminiSchema(schema) {
+  const properties = {};
+  for (const [key, p] of Object.entries(schema.properties ?? {})) {
+    const out = { type: String(p.type ?? "string").toUpperCase(), description: p.description ?? "" };
+    if (p.enum) out.enum = [...p.enum];
+    if (p.items) out.items = { type: String(p.items.type ?? "string").toUpperCase(), ...(p.items.enum ? { enum: [...p.items.enum] } : {}) };
+    /*
+     * `minimum`/`maximum`/`pattern`/`maxLength` are dropped rather than guessed at: this dialect does
+     * not carry all of them, and a bound the model is shown but the server does not enforce would be
+     * worse than no bound at all. The executor enforces every one of them regardless.
+     */
+    properties[key] = out;
+  }
+  return { type: "OBJECT", properties, required: [...(schema.required ?? [])] };
+}
+
 /** A stable fingerprint of the whole registry, recorded in receipts so a run names its exact contract. */
 export function registryFingerprint() {
   const parts = ASK_TOOL_NAMES.map((n) => `${n}@${ASK_TOOLS[n].version}:${Object.keys(ASK_TOOLS[n].args).sort().join(",")}`);

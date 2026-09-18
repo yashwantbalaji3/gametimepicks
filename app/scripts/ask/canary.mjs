@@ -89,6 +89,7 @@ const PRICE_BOOK = Object.freeze({
   "claude-sonnet-5": { inPerM: 3, outPerM: 15 },
   "gpt-5-nano":      { inPerM: 0.05, outPerM: 0.40 },
   "gpt-5-mini":      { inPerM: 0.25, outPerM: 2.00 },
+  "gemini-2.5-flash-lite": { inPerM: 0.10, outPerM: 0.40 },
 });
 const FALLBACK_PRICE = { inPerM: 3, outPerM: 15 };
 

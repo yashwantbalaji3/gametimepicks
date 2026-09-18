@@ -30,7 +30,7 @@ import { ASK_ERROR } from "./contract.mjs";
  */
 
 /** Names the runtime understands. Anything else is a configuration error, not a silent default. */
-export const ASK_PROVIDERS = Object.freeze(["anthropic", "openai", "fake"]);
+export const ASK_PROVIDERS = Object.freeze(["anthropic", "openai", "gemini", "fake"]);
 
 /**
  * Which secret each provider needs. Provider choice and credential requirement are ONE fact, so the
@@ -40,6 +40,7 @@ export const ASK_PROVIDERS = Object.freeze(["anthropic", "openai", "fake"]);
 export const ASK_PROVIDER_ENV = Object.freeze({
   anthropic: "ANTHROPIC_API_KEY",
   openai: "OPENAI_API_KEY",
+  gemini: "GOOGLE_API_KEY",
   fake: null,
 });
 
@@ -54,6 +55,7 @@ export function selectProvider(env = {}, opts = {}) {
   const asked = String(env.ASK_MODEL_PROVIDER ?? "").trim().toLowerCase();
   const hasAnthropic = Boolean(String(env.ANTHROPIC_API_KEY ?? "").trim());
   const hasOpenAi = Boolean(String(env.OPENAI_API_KEY ?? "").trim());
+  const hasGemini = Boolean(String(env.GOOGLE_API_KEY ?? "").trim());
   const isProduction = opts.isProduction ?? String(env.VERCEL_ENV ?? "").toLowerCase() === "production";
   /* An explicit model name overrides the adapter's default. Names only — never a credential. */
   const model = String(env.ASK_MODEL_NAME ?? "").trim() || null;
@@ -78,6 +80,11 @@ export function selectProvider(env = {}, opts = {}) {
     return { ok: true, provider: "openai", model };
   }
 
+  if (asked === "gemini") {
+    if (!hasGemini) return { ok: false, code: ASK_ERROR.PROVIDER_NOT_CONFIGURED, detail: "GOOGLE_API_KEY is not set" };
+    return { ok: true, provider: "gemini", model };
+  }
+
   if (asked === "anthropic") {
     if (!hasAnthropic) return { ok: false, code: ASK_ERROR.PROVIDER_NOT_CONFIGURED, detail: "ANTHROPIC_API_KEY is not set" };
     return { ok: true, provider: "anthropic", model };
@@ -90,6 +97,7 @@ export function selectProvider(env = {}, opts = {}) {
    */
   if (!asked && hasAnthropic) return { ok: true, provider: "anthropic", model };
   if (!asked && hasOpenAi) return { ok: true, provider: "openai", model };
+  if (!asked && hasGemini) return { ok: true, provider: "gemini", model };
 
   // No provider asked for and no key: Ask is deployable but not answerable, which is the intended
   // state between shipping the route and provisioning the key.
@@ -113,7 +121,7 @@ export function selectProvider(env = {}, opts = {}) {
  *
  * "Which one is required for this configuration" is a different question, answered by `requiredEnvFor`.
  */
-export const ASK_REQUIRED_ENV = Object.freeze(["ANTHROPIC_API_KEY", "OPENAI_API_KEY"]);
+export const ASK_REQUIRED_ENV = Object.freeze(["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY"]);
 
 /** The secret the SELECTED provider needs — one name, chosen by configuration, never a union. */
 export function requiredEnvFor(env = {}) {
@@ -157,6 +165,8 @@ export function redact(s) {
      * redactor that silently fails to match is worse than none, because it is trusted.
      */
     .replace(/sk-(proj|svcacct|admin)-[A-Za-z0-9_-]{8,}/g, "sk-$1-***")
+    /* Google API keys are a fixed shape and contain neither a prefix the rules above match nor a dash. */
+    .replace(/AIza[0-9A-Za-z_-]{20,}/g, "AIza***")
     .replace(/sk-[A-Za-z0-9_-]{16,}/g, "sk-***")
     /*
      * `Bearer <token>` is TWO tokens, and a pattern that consumes one \S+ after the header name eats

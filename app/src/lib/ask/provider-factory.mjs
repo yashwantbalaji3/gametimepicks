@@ -11,12 +11,14 @@
  */
 import { createAnthropicProvider, ANTHROPIC_MODEL } from "./provider-anthropic.mjs";
 import { createOpenAiProvider, OPENAI_MODEL } from "./provider-openai.mjs";
+import { createGeminiProvider, GEMINI_MODEL } from "./provider-gemini.mjs";
 import { createFakeProvider } from "./provider-fake.mjs";
 
 /** The model each provider uses when the environment names none. Recorded in every receipt. */
 export const ASK_DEFAULT_MODEL = Object.freeze({
   anthropic: ANTHROPIC_MODEL,
   openai: OPENAI_MODEL,
+  gemini: GEMINI_MODEL,
 });
 
 /**
@@ -36,6 +38,11 @@ export function makeProvider(decision, env = {}, opts = {}) {
         apiKey: env.OPENAI_API_KEY,
         model: model ?? OPENAI_MODEL,
         diagnostics,
+      });
+    case "gemini":
+      return createGeminiProvider({
+        apiKey: env.GOOGLE_API_KEY,
+        model: model ?? GEMINI_MODEL,
       });
     case "anthropic":
       return createAnthropicProvider({
