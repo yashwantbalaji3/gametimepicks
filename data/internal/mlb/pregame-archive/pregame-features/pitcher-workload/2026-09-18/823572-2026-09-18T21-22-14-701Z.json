@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823572,
+  "date": "2026-09-18",
+  "capturedAt": "2026-09-18T21:22:14.701Z",
+  "availableAt": "2026-09-18T21:22:14.701Z",
+  "eventStartTime": "2026-09-18T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 804267,
+      "name": "Zac Thornton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-09-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.2,
+        "bbAvg": 0.6,
+        "erAvg": 2.8,
+        "hrAvg": 1.6,
+        "kPer9": 8.36,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 73.33,
+        "k": 55,
+        "bb": 16,
+        "er": 28,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 641835,
+      "name": "Tim Mayza",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 6,
+      "lastStartDate": "2026-09-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 9.33,
+        "ipAvg": 1.87,
+        "kAvg": 2,
+        "bbAvg": 0.2,
+        "erAvg": 0.2,
+        "hrAvg": 0,
+        "kPer9": 9.64,
+        "workloadIpLast5": 9.33
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 9.33,
+        "k": 10,
+        "bb": 1,
+        "er": 1,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-18T21:22:14.701Z"
+  },
+  "recordHash": "88e554b1a05b01a08090bbe1614ba0a5ef8e86b4faad5d975cc42206ab079c66"
+}

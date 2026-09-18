@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824383,
+  "date": "2026-09-18",
+  "capturedAt": "2026-09-18T21:22:14.701Z",
+  "availableAt": "2026-09-18T21:22:14.701Z",
+  "eventStartTime": "2026-09-18T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 682982,
+      "name": "Daniel Espino",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 6,
+      "lastStartDate": "2026-09-12",
+      "last5": {
+        "starts": 1,
+        "ipSum": 2,
+        "ipAvg": 2,
+        "kAvg": 2,
+        "bbAvg": 0,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 9,
+        "workloadIpLast5": 2
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 2,
+        "k": 2,
+        "bb": 0,
+        "er": 0,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 686930,
+      "name": "Mason Barnett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 32,
+      "lastStartDate": "2026-08-17",
+      "last5": {
+        "starts": 4,
+        "ipSum": 16,
+        "ipAvg": 4,
+        "kAvg": 3.75,
+        "bbAvg": 2.75,
+        "erAvg": 4.75,
+        "hrAvg": 1.75,
+        "kPer9": 8.44,
+        "workloadIpLast5": 16
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 16,
+        "k": 15,
+        "bb": 11,
+        "er": 19,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-18T21:22:14.701Z"
+  },
+  "recordHash": "6c2e1154d443144688bdcef692f7c056c68d10ef3ae35fa7d7e24cc641ca168a"
+}
