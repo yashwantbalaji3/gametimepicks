@@ -34,6 +34,7 @@ import { parseAnswer, sanitiseMarkdown } from "./writer.mjs";
 import { clearedState, normaliseContext, normaliseMessages, normalisePreferences, readPreferencesFromText, reduceConversation } from "./conversation.mjs";
 import { missingAskConfig, redact, selectProvider, ASK_REQUIRED_ENV } from "./provider.mjs";
 import { createFakeProvider } from "./provider-fake.mjs";
+import { refusalPayload } from "../../../api/_ask-core.mjs";
 import { runAskTurn } from "./engine.mjs";
 import { capabilityOf, canEnterPredictionProducts } from "../sport-capability-registry.ts";
 
@@ -574,9 +575,47 @@ test("a provider failure carries the upstream STATUS and error TYPE, and never i
   assert.equal(r.ok, false);
   assert.equal(r.status, 401);
   assert.equal(r.type, "authentication_error");
+  /*
+   * ⚠ THIS GUARD USED TO ASSERT A PROXY, AND THE PROXY COST AN INCIDENT.
+   *
+   * It asserted that the upstream MESSAGE never crosses the adapter. That is not the property anyone
+   * needs; the property is that a PRODUCTION RESPONSE never carries it. The proxy was stricter, and
+   * being stricter it also stopped the message reaching the operator's LOG — so when every production
+   * call started returning `400 invalid_request_error`, the one sentence naming the cause had not
+   * been read anywhere, and learning it needed a deploy.
+   *
+   * The message is now always captured, always REDACTED, and disclosed by `refusalPayload` — which is
+   * pure, and tested directly below. What must still hold here is that nothing key-shaped survives
+   * capture, whatever the upstream chose to echo.
+   */
   const serialised = JSON.stringify(r);
-  assert.ok(!serialised.includes("SECRET-VALUE"), "the upstream message must never cross the adapter");
-  assert.ok(!serialised.includes("invalid x-api-key"), "the upstream message must never cross the adapter");
+  assert.ok(!serialised.includes("sk-ant-SECRET-VALUE"), "a key shape must never survive redaction");
+  assert.ok(r.explain && r.explain.includes("invalid x-api-key"), "the operator's copy must exist");
+});
+
+test("a production refusal never carries the upstream message, the detail, or the error name", () => {
+  const result = {
+    code: "PROVIDER_ERROR",
+    providerStatus: 400,
+    providerType: "invalid_request_error",
+    providerExplain: "your credit balance is too low",
+    detail: "getSeasonStats",
+    providerErrorName: "TypeError",
+  };
+
+  const prod = refusalPayload(result, { isProduction: true, reason: "unavailable" });
+  assert.equal(prod.providerStatus, 400, "the numeric status is diagnostic, not secret");
+  assert.equal(prod.providerType, "invalid_request_error", "the error TYPE is a closed enum");
+  const serialisedProd = JSON.stringify(prod);
+  for (const withheld of ["credit balance", "getSeasonStats", "TypeError"]) {
+    assert.ok(!serialisedProd.includes(withheld), `production leaked ${withheld}`);
+  }
+
+  // Preview and local have an operator behind them, and an operator needs the sentence.
+  const preview = refusalPayload(result, { isProduction: false, reason: "unavailable" });
+  assert.equal(preview.providerExplain, "your credit balance is too low");
+  assert.equal(preview.detail, "getSeasonStats");
+  assert.equal(preview.providerErrorName, "TypeError");
 });
 
 test("a transient upstream condition is retried exactly once; a deterministic one is not", async () => {

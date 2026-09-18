@@ -174,3 +174,27 @@ export function clientKeyFrom(headers = {}) {
   }
   return h.toString(16);
 }
+
+/**
+ * WHAT A REFUSAL MAY SAY, AND TO WHOM.
+ *
+ * The upstream message is captured on every call, because the environment that actually fails is
+ * production and a message that was never read there is no use to anyone. Disclosure is a separate
+ * decision from capture, and it lives HERE — pure and tested — rather than in the network file,
+ * because "does a stranger see this" is exactly the kind of decision that should not be reachable
+ * only through a live HTTP request.
+ *
+ * Production gets the code, the reason, the numeric status and the provider's error TYPE (a closed
+ * enum). It does not get the message, the refusal detail, or the thrown error's name. Preview and
+ * local get everything, because there is an operator behind them.
+ */
+export function refusalPayload(result = {}, { isProduction = true, reason = null } = {}) {
+  const payload = { ok: false, code: result.code, reason };
+  if (result.providerStatus) payload.providerStatus = result.providerStatus;
+  if (result.providerType) payload.providerType = result.providerType;
+  if (isProduction) return payload;
+  if (result.providerExplain) payload.providerExplain = result.providerExplain;
+  if (result.detail) payload.detail = result.detail;
+  if (result.providerErrorName) payload.providerErrorName = result.providerErrorName;
+  return payload;
+}

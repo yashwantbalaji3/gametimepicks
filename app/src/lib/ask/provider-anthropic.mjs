@@ -146,8 +146,22 @@ const RETRY_DELAY_MS = 700;
            * truncated, so even here nothing credential-shaped survives — and the API key travels in a
            * HEADER, which a body-validation error cannot echo.
            */
+          /*
+           * ALWAYS CAPTURED, SELECTIVELY DISCLOSED.
+           *
+           * This was gated on `diagnostics`, which is off in production — so in the one environment
+           * that actually fails, the message was never even read. When every production call began
+           * returning `400 invalid_request_error` on a request body byte-identical to one that had
+           * passed minutes earlier, the operator had a status and a type and no way to learn the
+           * sentence that would have named the cause outright, short of a deploy.
+           *
+           * The message is now always captured here and the DISCLOSURE decision is made at the
+           * endpoint: the server log always carries it (operator-only), the response body carries it
+           * outside production only. `redact()` and the 220-char truncation apply either way, and the
+           * API key travels in a HEADER, which a body-validation error cannot echo.
+           */
           const msg = String(body?.error?.message ?? "");
-          if (diagnostics && msg) explain = redact(msg).slice(0, 220);
+          if (msg) explain = redact(msg).slice(0, 220);
         } catch { /* a body we cannot parse tells us nothing, and that is fine */ }
         return {
           ok: false,
