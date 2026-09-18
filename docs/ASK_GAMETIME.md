@@ -276,7 +276,7 @@ that has since changed.
 | conversation turns sent | 12 |
 | user message | 2,000 chars |
 | request body | 64 KB |
-| answer tokens | 1,200 |
+| answer tokens | 2,400 |
 | assets / turn | 8, each ≤ 3 MB |
 | provider timeout | 30 s |
 | tool timeout | 8 s |
@@ -375,6 +375,42 @@ Guards now exist for both: a test asserts every registered tool name and a sampl
 in the rendered prompt, and the placeholder is documented with a worked example plus a label-matching
 safety net.
 
+### 25c. The one a real provider could not find either
+
+The last defect of v1.6 was not a provider problem, a prompt problem or a grounding problem. It was an
+unguarded property read — and it is recorded here because of how long it survived and why.
+
+`buildEvidence` switches on the tool name and then reads the keys that tool's HAPPY PATH returns. A
+tool envelope is not one shape: a `PARTIAL` envelope is often built around the REASON a result is
+partial rather than around the result. `getPlayerRecentGames` returns no `player` key at all when the
+caller names a stat family the sport does not record, and the branch read `d.player.label` through it.
+`PARTIAL` reaches that switch, so the read threw, the throw escaped evidence building, and the turn
+died.
+
+**The endpoint's outer catch had only `PROVIDER_ERROR` to hand.** So a bug in this repository was
+reported — to readers, and to its own operator — as an Anthropic outage. Every hypothesis went
+upstream, where there was nothing to find.
+
+It presented as an intermittent ~50% failure on player questions, because whether it happened at all
+depended on whether the planner chose to pass `statFamily` that turn. Three tells were available and
+each was misread:
+
+| Observation | Read as | Actually |
+|---|---|---|
+| same question passes and fails minutes apart | upstream window | the plan varies per turn |
+| help questions never fail, player questions often do | question-specific provider fault | only one path reaches the branch |
+| **every failure ~5s faster than every success** | noise | the writer never ran — the crash is upstream of it |
+
+The third was decisive and was available from the first measurement. A refusal code that can name the
+wrong subsystem will eventually do so, and when it does it points every subsequent measurement at the
+wrong place. `INTERNAL_ERROR` now exists so an uncaught throw in this process is never attributed to
+the provider; the provider's own failures are returned as values, not thrown.
+
+The guard is the property, not the instance: `buildEvidence` is driven with the emptiest possible
+payload for every registered tool at every status that reaches the switch, and must not throw. When it
+first ran it found **ten crashing branches across five tools** — the one that had reached production,
+and nine that had not yet. It is mutation-probed.
+
 ## 26. CI and the offline fake
 
 CI runs `ask:check` (projection currency) and `ask:eval` (fake provider). A real-provider eval is
@@ -403,6 +439,12 @@ uploaded file; Ask stores nothing and identifies nobody.
 
 Rollout: flag off → canary → flag on. Disabling is one variable.
 
+**Live as of 2026-09-18.** `ASK_GAMETIME_ENABLED=1` in Production; provider `anthropic`, model
+`claude-sonnet-5`; prompt version 2, tool registry version 1. Production withholds `detail`,
+`providerErrorName` and the verifier's rejected answer; it does return the refusal `code`, and
+`providerStatus` where the provider supplied one — the absence of a status on a refusal is itself
+diagnostic, because it means nothing was thrown by the provider at all.
+
 ## 28. Known data limitations
 
 | Asked for | Status |
@@ -427,6 +469,7 @@ Rollout: flag off → canary → flag on. Disabling is one variable.
 | answers falling back deterministically | check the verifier receipt; usually stale projection → `npm run ask:build` |
 | stale forecasts | `npm run ask:build && npm run ask:check` |
 | suspected leak | `npm run suite:built` — the negative bundle test scans every downloadable byte |
+| `INTERNAL_ERROR` in a refusal | **ours, not the provider's.** An uncaught throw inside the turn. Read the deployment log line (`{"ask":"failed",…}`) via `vercel logs <deployment-url> --follow`; a `PROVIDER_*` code would mean the opposite |
 
 ## 30. Future roadmap
 
