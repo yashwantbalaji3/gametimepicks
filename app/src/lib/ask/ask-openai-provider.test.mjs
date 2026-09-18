@@ -14,6 +14,9 @@ import { ASK_BUDGET, ASK_ERROR } from "./contract.mjs";
 import { ASK_FORBIDDEN_ARG_NAMES, ASK_FORBIDDEN_TOOL_NAMES, ASK_TOOLS, ASK_TOOL_NAMES, openAiToolList } from "./registry.mjs";
 import { toProviderSchema } from "./schema.mjs";
 import { plannerSystemPrompt } from "./planner.mjs";
+import { decideAsk } from "../../../api/_ask-core.mjs";
+import { makeProvider } from "./provider-factory.mjs";
+import { OPENAI_MODEL } from "./provider-openai.mjs";
 import { writerSystemPrompt } from "./writer.mjs";
 import { buildOpenAiRequest, createOpenAiProvider, extractOutputText, extractUsage } from "./provider-openai.mjs";
 
@@ -307,4 +310,41 @@ test("the API key travels in a header and never in the body", async () => {
   await provider.plan({ system: SYSTEM, user: "u" });
   assert.match(init.headers.authorization, /^Bearer sk-proj-SECRET_VALUE-0123456789$/);
   assert.ok(!init.body.includes("SECRET_VALUE"), "the key appeared in the request body");
+});
+
+/* ═════════════  5. CONFIGURATION REACHES THE ADAPTER  ═════════════ */
+
+test("ASK_MODEL_NAME survives the whole path from env to the constructed provider", () => {
+  /*
+   * ⚠ IT DID NOT. `selectProvider` read the variable, validated it and returned it; `decideAsk`
+   * returned only the provider and dropped the model; `makeProvider` fell back to the adapter default.
+   * The deployment answered on gpt-5-nano while its configuration said gpt-5-mini, and every unit test
+   * passed, because they all asserted that the variable was READ.
+   *
+   * This asserts the end of the chain — the object that will make the HTTP call — which is the only
+   * place the question "which model actually answers" is settled.
+   */
+  const env = { ASK_GAMETIME_ENABLED: "1", ASK_MODEL_PROVIDER: "openai", OPENAI_API_KEY: "sk-test", ASK_MODEL_NAME: "gpt-5-mini" };
+  const decision = decideAsk({ env, method: "POST", body: { messages: [{ role: "user", text: "hi" }] }, bodyBytes: 20, isProduction: false });
+  assert.equal(decision.proceed, true, decision.reason ?? "decideAsk refused");
+  assert.equal(decision.model, "gpt-5-mini", "decideAsk dropped the configured model");
+
+  const provider = makeProvider(decision, env);
+  assert.equal(provider.id, "openai");
+  assert.equal(provider.model, "gpt-5-mini", "the constructed provider is not the configured model");
+
+  // And with no name configured, the adapter's own default stands rather than an empty string.
+  const bare = { ASK_GAMETIME_ENABLED: "1", ASK_MODEL_PROVIDER: "openai", OPENAI_API_KEY: "sk-test" };
+  const d2 = decideAsk({ env: bare, method: "POST", body: { messages: [{ role: "user", text: "hi" }] }, bodyBytes: 20, isProduction: false });
+  assert.equal(makeProvider(d2, bare).model, OPENAI_MODEL);
+});
+
+test("the receipt names the model that actually answered", async () => {
+  // A cost receipt that names the intended model rather than the answering one is worse than none.
+  const provider = createOpenAiProvider({
+    apiKey: "sk-test",
+    model: "gpt-5-mini",
+    fetchImpl: async () => ({ ok: true, json: async () => ({ status: "completed", output_text: "{}", usage: {} }) }),
+  });
+  assert.equal(provider.model, "gpt-5-mini");
 });

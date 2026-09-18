@@ -108,6 +108,18 @@ export function decideAsk({ env = {}, method = "POST", body = null, bodyBytes = 
     proceed: true,
     reason: "ready",
     provider: provider.provider,
+    /*
+     * ⚠ THE MODEL NAME WAS ACCEPTED AND THEN DROPPED HERE.
+     *
+     * `selectProvider` reads ASK_MODEL_NAME, validates it and returns it — and this function returned
+     * only the provider, so `makeProvider` fell back to the adapter default and the deployment quietly
+     * answered on gpt-5-nano while its configuration said gpt-5-mini. Unit tests covered the reading
+     * of the variable, not its USE, which is the same class of defect as v1.6's unsent tool catalogue.
+     *
+     * It was caught only because the canary asserts which model actually answered. Without that the
+     * whole comparison would have been one model measured twice and reported as two.
+     */
+    model: provider.model ?? null,
     request: {
       messages: messages.messages,
       // Client context is SHAPE-checked here and EXISTENCE-checked by the resolver downstream. An id
