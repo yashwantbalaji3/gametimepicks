@@ -153,7 +153,7 @@ export async function runAskTurn(input, deps) {
 
   if (!substantive.length && envelopes.length && wantsMore) {
     emit({ type: "status", text: "Checking GameTime…" });
-    const again = await planWithRepair(state, deps, receipt, { priorEvidence: buildEvidence(envelopes) });
+    const again = await planWithRepair({ ...state, intent: plan.intent }, deps, receipt, { priorEvidence: buildEvidence(envelopes) });
     receipt.planningPasses = 2;
     if (again.ok && again.plan.calls.length) {
       const more = await runPlanWithResolution(again.plan, executor, state, emit);
@@ -236,6 +236,23 @@ async function planWithRepair(state, deps, receipt, opts = {}) {
   return { ok: false, code: ASK_ERROR.MALFORMED_PLAN, detail: "the planner did not return a usable plan" };
 }
 
+/**
+ * Which tools actually ANSWER each intent, as opposed to preparing for one. Derived from the registry's
+ * own division of labour, not from a model's opinion, and used only as a hint on the second pass.
+ */
+const SUBSTANTIVE_FOR_INTENT = Object.freeze({
+  FACTUAL_GAME_QUERY: ["runGameFinder"],
+  FACTUAL_PLAYER_QUERY: ["getPlayerRecentGames", "runPlayerResearchQuery"],
+  SEASON_QUERY: ["getSeasonExplorer"],
+  TEAM_COMPARE: ["getTeamComparison"],
+  PLAYER_COMPARE: ["getPlayerComparison"],
+  MATCHUP_CONTEXT: ["getMatchupContext"],
+  PUBLISHED_FORECAST: ["getPublishedForecasts"],
+  LIVE_STATUS: ["getLiveSlate"],
+  PARLAY_REQUEST: ["getParlayCandidates"],
+  BANKROLL_PARLAY_REQUEST: ["getParlayCandidates"],
+});
+
 function plannerUserMessage(state, priorEvidence = null) {
   const lines = [];
   if (priorEvidence?.facts?.length) {
@@ -246,6 +263,20 @@ function plannerUserMessage(state, priorEvidence = null) {
     lines.push("ALREADY ESTABLISHED THIS TURN (do not call these tools again):");
     for (const f of priorEvidence.facts.slice(0, 12)) lines.push(`- ${f.text}`);
     lines.push("", "Now plan the tool call(s) that actually answer the question. Do NOT call resolveEntity or getGameTimeNow again — that work is done, and its results are above. Name the tool that produces the answer itself.");
+    /*
+     * THE INTENT ALREADY NAMES THE ANSWERING TOOLS, SO SAY SO.
+     *
+     * This is not the engine guessing a call — it picks nothing, passes no arguments and overrides
+     * no decision. It restates a mapping the registry already fixes: a FACTUAL_GAME_QUERY is answered
+     * by runGameFinder, and there is no second candidate. The model still chooses, and the executor
+     * still validates whatever it chooses.
+     *
+     * It exists because the FIRST re-plan instruction was not enough for a small model: told only
+     * "name the tool that produces the answer", it returned an empty plan and the reader got an honest
+     * refusal to a question the product can answer perfectly well.
+     */
+    const expected = SUBSTANTIVE_FOR_INTENT[state.intent];
+    if (expected?.length) lines.push(`For this question the tool that answers it is one of: ${expected.join(", ")}.`);
     lines.push("");
   }
   if (state.history.length) {
