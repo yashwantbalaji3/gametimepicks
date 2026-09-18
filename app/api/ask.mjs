@@ -24,6 +24,7 @@ import {
   clientKeyFrom,
   decideAsk,
   makeRateLimiter,
+  refusalPayload,
 } from "./_ask-core.mjs";
 import { ASK_BUDGET, ASK_ERROR } from "../src/lib/ask/contract.mjs";
 import { makeAskLoader, originFetchText, resolveAssetOrigin } from "../src/lib/ask/loader.mjs";
@@ -139,7 +140,14 @@ export default async function handler(req, res) {
       },
     });
 
-    console.log(askAuditLine(decision, result.receipt ?? {}, result.providerStatus ? { providerStatus: result.providerStatus, providerType: result.providerType ?? null } : {}));
+    /*
+     * THE OPERATOR'S COPY. The upstream message goes to the server log in every environment — it is
+     * how an operator learns WHY a 400 is a 400 without shipping a deploy to find out. It is redacted
+     * and truncated at the provider, and the log already records no question, answer or bankroll.
+     */
+    console.log(askAuditLine(decision, result.receipt ?? {}, result.providerStatus
+      ? { providerStatus: result.providerStatus, providerType: result.providerType ?? null, providerExplain: result.providerExplain ?? null }
+      : {}));
 
     if (!result.ok) {
       /*
@@ -148,17 +156,7 @@ export default async function handler(req, res) {
        * turns a five-second fix into an afternoon. The numeric status names no key and carries no
        * content; the upstream BODY is still never echoed.
        */
-      const payload = { ok: false, code: result.code, reason: reasonFor(result.code) };
-      if (result.providerStatus) payload.providerStatus = result.providerStatus;
-      if (result.providerType) payload.providerType = result.providerType;
-      if (result.providerExplain) payload.providerExplain = result.providerExplain;
-      /*
-       * The refusal detail names WHAT was refused — the tool the model invented, the argument it
-       * passed. That is a name the model produced, not a secret, and without it "UNKNOWN_TOOL" tells
-       * an operator nothing about which tool to teach it about.
-       */
-      if (!isProd && result.detail) payload.detail = result.detail;
-      if (!isProd && result.providerErrorName) payload.providerErrorName = result.providerErrorName;
+      const payload = refusalPayload(result, { isProduction: isProd, reason: reasonFor(result.code) });
       if (stream) { send({ type: "error", ...payload }); send({ type: "done" }); return res.end(); }
       return res.status(502).json(payload);
     }
