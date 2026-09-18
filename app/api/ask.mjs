@@ -184,6 +184,8 @@ export default async function handler(req, res) {
         cachedInputTokens: result.receipt?.cachedInputTokens ?? 0,
         planningPasses: result.receipt?.planningPasses ?? 1,
         verifier: result.receipt?.verifierStatus ?? null,
+        writerProviderStatus: result.receipt?.writerProviderStatus ?? null,
+        writerProviderType: result.receipt?.writerProviderType ?? null,
         writerTruncated: result.receipt?.writerTruncated ?? false,
         /* Why a rejected answer was rejected — non-production only, like the other diagnostics. */
         ...(isProd ? {} : { verifierViolations: result.receipt?.verifierViolations ?? null, rejectedAnswer: result.receipt?.rejectedAnswer ?? null }),

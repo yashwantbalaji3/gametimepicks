@@ -950,3 +950,51 @@ test("the copy rule covers how a model actually phrases stake-chasing, not only 
   // Negation still scopes to the sentence, so stating the boundary is not itself a violation.
   assert.deepEqual(forbiddenCopyIn("GameTime will never tell you to double the stake after a loss."), []);
 });
+
+/* ═══════════  14. A FAILURE MUST NAME ITS OWN CAUSE  ═══════════ */
+
+test("a writer provider failure is not reported as a grounding failure", async () => {
+  /*
+   * ⚠ IT WAS. The write loop broke on `!res.ok` and everything below reported the turn as
+   * UNSUPPORTED_CLAIM with an empty violations list — so a provider refusal, an unparseable answer
+   * and a real grounding violation all reached the operator wearing the third one's label.
+   *
+   * It sent this migration's analysis the wrong way: a model looked like it failed verification a
+   * quarter of the time, when those turns had never reached the verifier. Same class as the
+   * PROVIDER_ERROR that hid an unguarded property read — a code that can name the wrong cause will.
+   */
+  const provider = createFakeProvider({ behaviour: "route" });
+  const original = provider.write;
+  provider.write = async () => ({ ok: false, code: ASK_ERROR.PROVIDER_ERROR, status: 503, type: "server_error" });
+
+  const r = await runAskTurn(
+    { messages: [{ role: "user", text: "What MLB games are live right now?" }] },
+    { ...engineDeps("route"), provider },
+  );
+
+  assert.equal(r.ok, true, "the deterministic answer still ships");
+  assert.equal(r.verified, false);
+  assert.equal(r.receipt.verifierStatus, "FAILED_WRITER_PROVIDER", "the receipt must name the provider, not the verifier");
+  assert.equal(r.receipt.errorCode, ASK_ERROR.PROVIDER_ERROR, "an UNSUPPORTED_CLAIM here would point diagnosis at grounding");
+  assert.equal(r.receipt.writerProviderStatus, 503);
+  assert.deepEqual(r.receipt.verifierViolations, [], "there were no violations, and none must be invented");
+  provider.write = original;
+});
+
+test("a real grounding violation is still reported as one", async () => {
+  // The fix must not relabel genuine grounding failures — that would trade one blind spot for another.
+  const provider = createFakeProvider({ behaviour: "route" });
+  provider.write = async () => ({
+    ok: true,
+    text: JSON.stringify({ answerMarkdown: "The Mets scored 47 runs last night.", citations: [], followUps: [], linkIds: [] }),
+    usage: {},
+  });
+
+  const r = await runAskTurn(
+    { messages: [{ role: "user", text: "What MLB games are live right now?" }] },
+    { ...engineDeps("route"), provider },
+  );
+  assert.equal(r.verified, false);
+  assert.equal(r.receipt.verifierStatus, "FAILED_DETERMINISTIC_FALLBACK");
+  assert.ok(r.receipt.verifierViolations.length > 0, "a fabricated number must still be named as one");
+});

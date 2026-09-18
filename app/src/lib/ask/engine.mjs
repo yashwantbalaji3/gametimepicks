@@ -407,13 +407,31 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
 
   let lastViolations = [];
   let lastRejected = null;
+  let writerProviderFailure = null;
   for (let attempt = 0; attempt <= ASK_BUDGET.maxLlmRetries; attempt += 1) {
     const user = attempt === 0
       ? base
       : `${base}\n\nYour previous answer was rejected for: ${lastViolations.map((v) => v.detail).join("; ")}. Rewrite it using ONLY the evidence above. Do not include any number that is not in the evidence.`;
 
     const res = await deps.provider.write({ system, user, signal: deps.signal });
-    if (!res.ok) break;
+    if (!res.ok) {
+      /*
+       * ⚠ THE WRITER'S PROVIDER FAILED — WHICH IS NOT A GROUNDING FAILURE.
+       *
+       * This was a bare `break`, and everything below it then reported the turn as
+       * `UNSUPPORTED_CLAIM` with an empty violations list. Three unrelated causes — the provider
+       * refused the call, the writer returned unparseable output, the answer failed grounding — all
+       * arrived at the reader and the operator wearing the label of the third.
+       *
+       * It sent this migration's analysis the wrong way for a while: Gemini looked like a model whose
+       * WRITING fails verification a quarter of the time, when the turns in question had never
+       * reached the verifier at all. Same class as the PROVIDER_ERROR that hid an unguarded property
+       * read: a code that can name the wrong cause will, and every measurement taken afterwards
+       * inherits the mistake.
+       */
+      writerProviderFailure = { code: res.code, status: res.status ?? null, type: res.type ?? null };
+      break;
+    }
     receipt.inputTokens += res.usage?.inputTokens ?? 0;
     receipt.outputTokens += res.usage?.outputTokens ?? 0;
     /*
@@ -455,8 +473,21 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
     lastRejected = clean;
   }
 
-  receipt.verifierStatus = "FAILED_DETERMINISTIC_FALLBACK";
-  receipt.errorCode = lastViolations[0]?.code ?? ASK_ERROR.UNSUPPORTED_CLAIM;
+  /*
+   * NAME THE CAUSE THAT ACTUALLY OCCURRED. The deterministic answer ships either way — that part was
+   * always right — but what the receipt CALLS the failure decides where the next hour of diagnosis
+   * goes.
+   */
+  receipt.verifierStatus = writerProviderFailure
+    ? "FAILED_WRITER_PROVIDER"
+    : lastViolations.length
+      ? "FAILED_DETERMINISTIC_FALLBACK"
+      : "FAILED_NO_WRITER_OUTPUT";
+  receipt.errorCode = writerProviderFailure?.code ?? lastViolations[0]?.code ?? ASK_ERROR.UNSUPPORTED_CLAIM;
+  if (writerProviderFailure) {
+    receipt.writerProviderStatus = writerProviderFailure.status;
+    receipt.writerProviderType = writerProviderFailure.type;
+  }
   /* Why the writer's answer was rejected. Without this a grounding failure is a dead end. */
   receipt.verifierViolations = lastViolations.slice(0, 6).map((v) => `${v.code}: ${v.detail}`);
   /* The text that was refused. Without it "unsupported claim" names a problem nobody can see. */
