@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-09-17",
-  "platformState": "PUBLISHED",
+  "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -15,15 +15,16 @@
       }
     },
     "nfl": {
-      "state": "PUBLISHED",
-      "reason": "all 16 event(s) in the horizon carry a forecast",
-      "deadlineUtc": null,
+      "state": "PUBLISHING",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-09-24T22:45:00.000Z",
       "counts": {
-        "scheduled": 16,
+        "scheduled": 17,
         "published": 16,
         "missedCoverage": 0,
-        "awaiting": 0
-      }
+        "awaiting": 1
+      },
+      "missed": []
     },
     "ufc": {
       "state": "PUBLISHED",
@@ -48,7 +49,7 @@
       }
     }
   },
-  "checkedAt": "2026-09-18T00:12:14.425Z",
+  "checkedAt": "2026-09-18T00:30:23.360Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
