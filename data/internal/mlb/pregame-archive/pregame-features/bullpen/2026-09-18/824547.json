@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824547,
+  "date": "2026-09-18",
+  "capturedAt": "2026-09-18T00:43:00.860Z",
+  "availableAt": "2026-09-18T00:43:00.860Z",
+  "eventStartTime": "2026-09-18T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-15",
+    "2026-09-16",
+    "2026-09-17"
+  ],
+  "home": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 182,
+      "relievers": [
+        {
+          "id": 663436,
+          "name": "Davis Martin",
+          "appearances": 1,
+          "pitches": 71,
+          "outs": 16,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 696146,
+          "name": "Hagen Smith",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 5,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 5,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 656794,
+          "name": "Sean Newcomb",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 0,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 702273,
+          "name": "Noah Schultz",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 6,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 663542,
+          "name": "Bryan Hudson",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 663855,
+          "name": "Jordan Hicks",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 116,
+    "teamName": "Detroit Tigers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 111,
+      "relievers": [
+        {
+          "id": 641755,
+          "name": "Tyler Kinley",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 621097,
+          "name": "Jacob Waguespack",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 676428,
+          "name": "Brant Hurter",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 640448,
+          "name": "Kyle Finnegan",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 1,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 805427,
+          "name": "Drew Sommers",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 663947,
+          "name": "Tyler Holton",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-15,2026-09-16,2026-09-17) + feed/live box scores",
+    "capturedAt": "2026-09-18T00:43:00.860Z"
+  },
+  "recordHash": "b42188d30daa7900c158f1207183cf98b1602a4e46f1ef762de7fd6849b4758d"
+}

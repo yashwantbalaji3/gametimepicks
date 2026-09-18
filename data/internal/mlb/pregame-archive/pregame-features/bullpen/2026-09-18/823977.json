@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823977,
+  "date": "2026-09-18",
+  "capturedAt": "2026-09-18T00:43:00.860Z",
+  "availableAt": "2026-09-18T00:43:00.860Z",
+  "eventStartTime": "2026-09-19T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-15",
+    "2026-09-16",
+    "2026-09-17"
+  ],
+  "home": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 104,
+      "relievers": [
+        {
+          "id": 671111,
+          "name": "Sammy Peralta",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 8,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 815083,
+          "name": "Mitch Farris",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 670245,
+          "name": "Ryan Watson",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 642048,
+          "name": "Tayler Saucedo",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 191,
+      "relievers": [
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 38,
+          "outs": 5,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 672782,
+          "name": "Yoendrys Gómez",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 5,
+          "dates": [
+            "2026-09-15",
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 701519,
+          "name": "Travis Adams",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 9,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 702193,
+          "name": "Andrew Morris",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 621345,
+          "name": "A.J. Minter",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 656546,
+          "name": "Jeff Hoffman",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 667297,
+          "name": "Tommy Nance",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 681892,
+          "name": "Kody Funderburk",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-15,2026-09-16,2026-09-17) + feed/live box scores",
+    "capturedAt": "2026-09-18T00:43:00.860Z"
+  },
+  "recordHash": "1618130df76e92ac9b252d589dcc5336c46844c0979a817d3248f70cdbde48b1"
+}

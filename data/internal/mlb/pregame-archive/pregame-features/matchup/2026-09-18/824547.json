@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824547,
+  "date": "2026-09-18",
+  "capturedAt": "2026-09-18T00:43:02.506Z",
+  "availableAt": "2026-09-18T00:43:02.506Z",
+  "eventStartTime": "2026-09-18T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 689818,
+    "name": "David Sandlin",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 808825,
+    "name": "Andrew Sears",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-18T00:43:02.506Z"
+  },
+  "recordHash": "b1e7057744da533f6def412294085e127693a79ddaed6b1fc78cc8440964b2f1"
+}

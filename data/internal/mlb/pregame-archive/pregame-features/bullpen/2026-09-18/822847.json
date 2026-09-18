@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822847,
+  "date": "2026-09-18",
+  "capturedAt": "2026-09-18T00:43:00.860Z",
+  "availableAt": "2026-09-18T00:43:00.860Z",
+  "eventStartTime": "2026-09-19T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-15",
+    "2026-09-16",
+    "2026-09-17"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 128,
+      "relievers": [
+        {
+          "id": 543135,
+          "name": "Nathan Eovaldi",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 12,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 5,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 681217,
+          "name": "Chase Silseth",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 676395,
+          "name": "Robert Garcia",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 1,
+          "dates": [
+            "2026-09-15"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 141,
+    "teamName": "Toronto Blue Jays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 225,
+      "relievers": [
+        {
+          "id": 547179,
+          "name": "Michael Lorenzen",
+          "appearances": 1,
+          "pitches": 53,
+          "outs": 6,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 681293,
+          "name": "Spencer Arrighetti",
+          "appearances": 1,
+          "pitches": 52,
+          "outs": 6,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 693686,
+          "name": "Spencer Miles",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 676454,
+          "name": "Brendan Cellucci",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 5,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 573009,
+          "name": "Joe Mantiply",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 663893,
+          "name": "Brendon Little",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-15"
+          ]
+        },
+        {
+          "id": 686973,
+          "name": "Louis Varland",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 689254,
+          "name": "Mason Fluharty",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-15,2026-09-16,2026-09-17) + feed/live box scores",
+    "capturedAt": "2026-09-18T00:43:00.860Z"
+  },
+  "recordHash": "5e93385dea3bf0c5299aa84da7d3029f3efff6f25248b9cd5d8a92435c5f5181"
+}
