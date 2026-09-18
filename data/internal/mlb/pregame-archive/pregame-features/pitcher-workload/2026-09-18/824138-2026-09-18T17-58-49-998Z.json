@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824138,
+  "date": "2026-09-18",
+  "capturedAt": "2026-09-18T17:58:49.998Z",
+  "availableAt": "2026-09-18T17:58:49.998Z",
+  "eventStartTime": "2026-09-19T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663567,
+      "name": "Peter Lambert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-09-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 4.8,
+        "bbAvg": 2,
+        "erAvg": 3.8,
+        "hrAvg": 0.4,
+        "kPer9": 8,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 145.67,
+        "k": 141,
+        "bb": 56,
+        "er": 60,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 641816,
+      "name": "Tyler Mahle",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-09-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.33,
+        "ipAvg": 6.27,
+        "kAvg": 4.4,
+        "bbAvg": 0.8,
+        "erAvg": 1,
+        "hrAvg": 0.6,
+        "kPer9": 6.32,
+        "workloadIpLast5": 31.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 138,
+        "k": 127,
+        "bb": 43,
+        "er": 60,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-18T17:58:49.998Z"
+  },
+  "recordHash": "636e2a80a85e83b1d903ba6d9832e1c803b1bcc968ad341a557d451870f5a737"
+}
