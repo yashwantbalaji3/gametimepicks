@@ -260,8 +260,8 @@ test("the shape ladder descends on INVALID_ARGUMENT and reports which shape work
     apiKey: "AIzaTESTKEY0123456789abcdefghij",
     fetchImpl: async (_u, init) => {
       const body = JSON.parse(init.body);
-      seen.push(body.tools ? "full" : "no-tools");
-      if (body.tools) {
+      seen.push(body.generationConfig.thinkingConfig ? "full" : body.tools ? "no-thinking" : "no-tools");
+      if (body.generationConfig.thinkingConfig) {
         return { ok: false, status: 400, json: async () => ({ error: { status: "INVALID_ARGUMENT", message: "Request contains an invalid argument." } }) };
       }
       return { ok: true, json: async () => okResponse };
@@ -270,8 +270,8 @@ test("the shape ladder descends on INVALID_ARGUMENT and reports which shape work
 
   const r = await provider.plan({ system: SYSTEM, user: "u" });
   assert.equal(r.ok, true, "the ladder failed to find a shape the vendor accepts");
-  assert.equal(r.shape, "no-tools", "the run must name the shape that worked");
-  assert.deepEqual(seen, ["full", "no-tools"], "the full shape must be tried first, and only once");
+  assert.equal(r.shape, "no-thinking", "the run must name the shape that worked");
+  assert.deepEqual(seen, ["full", "no-thinking"], "the full shape must be tried first, and only once");
 });
 
 test("the ladder does NOT descend for auth, quota or rate limits", async () => {

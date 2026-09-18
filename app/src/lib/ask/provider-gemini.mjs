@@ -45,13 +45,13 @@ const RETRY_DELAY_MS = 700;
  * keeps this output steady is structural, and a sampling knob is the thing most likely to be
  * deprecated out from under a request that otherwise works.
  */
-export function buildGeminiRequest({ system, user, maxTokens, json = true, tools = null }) {
+export function buildGeminiRequest({ system, user, maxTokens, json = true, tools = null, thinking = true }) {
   const body = {
     systemInstruction: { parts: [{ text: system }] },
     contents: [{ role: "user", parts: [{ text: user }] }],
     generationConfig: {
       maxOutputTokens: maxTokens,
-      thinkingConfig: { thinkingBudget: 0 },
+      ...(thinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
       ...(json ? { responseMimeType: "application/json" } : {}),
     },
   };
@@ -111,9 +111,15 @@ export function createGeminiProvider({ apiKey, model = GEMINI_MODEL, fetchImpl =
      * refusal that survives all of them is reported honestly.
      */
     const shapes = [
-      { label: "full", json, tools },
-      ...(tools?.length ? [{ label: "no-tools", json, tools: null }] : []),
-      ...(json ? [{ label: "no-json", json: false, tools: null }] : []),
+      { label: "full", json, tools, thinking: true },
+      /*
+       * `thinkingConfig` is second because the first ladder — which only ever dropped tools and JSON —
+       * was refused at every rung, and those three shapes share exactly one optional element: a
+       * thinking budget pinned to zero. Newer models in this family do not all permit disabling it.
+       */
+      { label: "no-thinking", json, tools, thinking: false },
+      ...(tools?.length ? [{ label: "no-tools", json, tools: null, thinking: false }] : []),
+      ...(json ? [{ label: "minimal", json: false, tools: null, thinking: false }] : []),
     ];
 
     let last = null;
@@ -126,9 +132,9 @@ export function createGeminiProvider({ apiKey, model = GEMINI_MODEL, fetchImpl =
     }
     return { ...last, shape: "none-accepted" };
 
-    async function callOneShape({ json: useJson, tools: useTools }) {
+    async function callOneShape({ json: useJson, tools: useTools, thinking: useThinking }) {
     for (let attempt = 0; ; attempt += 1) {
-      const out = await attemptOnce(useJson, useTools);
+      const out = await attemptOnce(useJson, useTools, useThinking);
       const retryable = !out.ok
         && attempt === 0
         && !signal?.aborted
@@ -138,7 +144,7 @@ export function createGeminiProvider({ apiKey, model = GEMINI_MODEL, fetchImpl =
     }
     }
 
-    async function attemptOnce(useJson, useTools) {
+    async function attemptOnce(useJson, useTools, useThinking) {
       const controller = new AbortController();
       const onAbort = () => controller.abort();
       signal?.addEventListener("abort", onAbort, { once: true });
@@ -157,7 +163,7 @@ export function createGeminiProvider({ apiKey, model = GEMINI_MODEL, fetchImpl =
              */
             "x-goog-api-key": apiKey,
           },
-          body: JSON.stringify(buildGeminiRequest({ system, user, maxTokens, json: useJson, tools: useTools })),
+          body: JSON.stringify(buildGeminiRequest({ system, user, maxTokens, json: useJson, tools: useTools, thinking: useThinking })),
         });
 
         if (!res.ok) {
