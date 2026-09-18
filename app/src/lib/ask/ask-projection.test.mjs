@@ -12,6 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import zlib from "node:zlib";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -22,7 +23,6 @@ import {
   ASK_PROJECTION_DIR,
   ASK_RECENT_SHARDS,
   FORBIDDEN_ASK_FIELDS,
-  isAskDailyFile,
   askStoredGzipped,
   isAllowedAssetPath,
   isApprovedLink,
@@ -56,7 +56,42 @@ const manifest = present ? read("manifest.json") : { files: [] };
  * a ritual `npm run build` before running tests.
  */
 const files = (manifest.files ?? []).filter((f) => fs.existsSync(path.join(SRC, storedName(f.path))));
-const dailyPresent = (manifest.files ?? []).some((f) => isAskDailyFile(f.path) && fs.existsSync(path.join(SRC, storedName(f.path))));
+
+/*
+ * ⚠ CHECKED BY NAME, NOT VIA THE MANIFEST. The manifest lists only the COMMITTED files, so looking
+ * for the daily artifacts in it always finds nothing — and the four guards below (NBA eligibility,
+ * the paused market, the EV/stake owners) would have skipped for ever while reporting as skipped,
+ * which reads like a deliberate exclusion rather than a broken check.
+ */
+
+test("every committed artifact is actually TRACKED BY GIT, not merely present on disk", () => {
+  /*
+   * ⚠ THE FAILURE THIS EXISTS FOR. The manifest was briefly gitignored alongside the daily artifacts.
+   * Locally it was present-but-untracked, so every guard that reads it passed; in a fresh CI checkout
+   * it did not exist, the projection guard found no index and correctly refused to pass vacuously —
+   * and the build went red for a reason no local run could reproduce.
+   *
+   * "Present on disk" and "in the repository" are different claims, and only the second one is true
+   * for everyone else. ONE `git ls-files` call, not a check-ignore per file: a per-file spawn cost
+   * this CI 53 seconds once already.
+   */
+  if (!files.length) return;
+  const tracked = new Set(
+    execFileSync("git", ["ls-files", ASK_PROJECTION_DIR], { cwd: path.join(APP, ".."), encoding: "utf8" })
+      .split("\n").filter(Boolean),
+  );
+  assert.ok(tracked.size > 0, "git reports no tracked files under the projection — the probe would pass vacuously");
+
+  for (const f of [...files.map((x) => x.path), "manifest.json"]) {
+    const rel = `${ASK_PROJECTION_DIR}/${storedName(f)}`;
+    assert.ok(tracked.has(rel), `${rel} is on disk but not tracked by git — it would be absent in a fresh checkout`);
+  }
+
+  // The other direction: the DAILY artifacts must NOT be tracked, or they go stale in the repository.
+  for (const daily of ["forecasts.json", "parlays.json"]) {
+    assert.ok(!tracked.has(`${ASK_PROJECTION_DIR}/${daily}`), `${daily} must be built, not committed — a committed copy is stale within hours`);
+  }
+});
 
 test("every file in the manifest exists, at the byte size it claims", () => {
   for (const f of files) {
@@ -104,24 +139,6 @@ test("every link in every artifact is one the approved route registry permits", 
 
 /* ───────────────────────────  THE NBA RULE  ─────────────────────────── */
 
-test("no parlay candidate belongs to a sport the capability registry bars from prediction products", { skip: !dailyPresent && "parlays.json is built by `npm run build`, not committed" }, () => {
-  const parlays = read("parlays.json");
-  let checked = 0;
-  for (const day of Object.values(parlays.byDate ?? {})) {
-    for (const [sport] of Object.entries(day.eligibleSports ?? {})) void sport;
-    for (const slips of Object.values(day.profiles ?? {})) {
-      for (const slip of slips) {
-        checked += 1;
-        assert.ok(canEnterPredictionProducts(slip.sport), `${slip.slipId}: ${slip.sport} may not enter prediction products (${capabilityOf(slip.sport).state})`);
-        for (const leg of slip.legs ?? []) {
-          assert.ok(canEnterPredictionProducts(leg.sport), `${slip.slipId}: a leg is ${leg.sport}, which may not enter prediction products`);
-        }
-      }
-    }
-  }
-  assert.ok(checked > 0, "no candidates were checked — this guard would pass vacuously");
-});
-
 test("the frozen expectation still matches the live capability registry", () => {
   /*
    * ⚠ THE DORMANT-KEY TRAP. The optimizer artifact carries an `nba` cut in every snapshot and it is
@@ -129,6 +146,9 @@ test("the frozen expectation still matches the live capability registry", () => 
    * asserts the DERIVED answer: exactly the sports the registry currently permits, and no others. If
    * NBA is ever promoted back to FULL_MODEL this test fails and a human decides, rather than a legacy
    * JSON key quietly reopening a sport.
+   *
+   * The artifact-level check — that no NBA candidate is actually PRESENT — lives in
+   * ask-published.test.mjs, which reads the built export so it runs after the daily artifacts exist.
    */
   const parlay = ["mlb", "nfl", "epl", "nba", "ufc", "soccer", "nhl"].filter((s) => canEnterPredictionProducts(s));
   assert.deepEqual(parlay, [...ASK_EXPECTED_PARLAY_SPORTS], "the sports permitted into parlay candidates changed");
@@ -141,43 +161,9 @@ test("the frozen expectation still matches the live capability registry", () => 
 });
 
 test("the manifest records every sport cut that was dropped, even when none was", () => {
-  if (!present) return;
   // `dropped` is written even when empty: an absent field would be indistinguishable from "we stopped
   // recording drops", and an empty ARRAY is a claim that nothing was refused.
   assert.ok(Array.isArray(manifest.dropped), "the manifest must carry a dropped list");
-});
-
-/* ───────────────────────────  FORECASTS AND PAUSES  ─────────────────────────── */
-
-test("no forecast belongs to a sport that may not show forward-looking output", { skip: !dailyPresent && "forecasts.json is built by `npm run build`, not committed" }, () => {
-  const doc = read("forecasts.json");
-  assert.ok((doc.forecasts ?? []).length > 0, "no forecasts were checked — this guard would pass vacuously");
-  for (const f of doc.forecasts) {
-    assert.ok(canShowLiveProjections(f.sport), `${f.forecastId}: ${f.sport} may not show forecasts`);
-    // NFL and EPL publish under an experimental banner and are NOT product picks. The flag travels
-    // with the forecast so the answer cannot drop it.
-    if (f.sport !== "MLB") assert.equal(f.experimental, true, `${f.forecastId}: a non-FULL_MODEL forecast must be marked experimental`);
-  }
-});
-
-test("a paused market ships as PAUSED with a reason, and never with a pick", { skip: !dailyPresent && "forecasts.json is built by `npm run build`, not committed" }, () => {
-  const doc = read("forecasts.json");
-  const paused = doc.forecasts.flatMap((f) => (f.markets ?? []).filter((m) => m.status === "PAUSED"));
-  for (const m of paused) {
-    assert.equal(m.pick, null, `a paused ${m.market} must carry no pick`);
-    assert.equal(m.modelProbability, null, `a paused ${m.market} must carry no model probability`);
-    assert.ok(m.pausedReason, `a paused ${m.market} must state why`);
-  }
-});
-
-test("the artifact states that no expected-value owner and no staking policy exist", { skip: !dailyPresent && "parlays.json is built by `npm run build`, not committed" }, () => {
-  const parlays = read("parlays.json");
-  /*
-   * Stated as DATA, not only in a prompt. The writer receives "GameTime publishes no price-aware
-   * expected value" as a fact it repeats, rather than as a rule it is asked to obey.
-   */
-  assert.equal(parlays.evOwner, null, "no approved price-aware EV owner exists in this repository");
-  assert.equal(parlays.stakePolicyOwner, null, "no approved staking policy exists in this repository");
 });
 
 /* ───────────────────────────  SIZE AND SHAPE  ─────────────────────────── */

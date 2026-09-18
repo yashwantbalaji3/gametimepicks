@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import {
   ASK_ASSET_PREFIX,
   ASK_BUDGET,
+  ASK_DAILY_FILES,
   ASK_PROJECTION_DIR,
   askStoredGzipped,
   assertAskVersion,
@@ -59,8 +60,20 @@ const read = (rel) => {
 // file left in the source tree can never be published. The manifest itself is not in its own file list
 // and is therefore not published: no consumer reads it at runtime, and publishing a receipt that hashes
 // every other asset would invite it to be trusted as one.
-for (const entry of [...manifest.files].sort((a, b) => (a.path < b.path ? -1 : 1))) {
-  const rel = entry.path;
+/*
+ * The manifest lists the COMMITTED files; the daily artifacts are known by name and added here. That
+ * split keeps the committed receipt stable — a forecast changing several times a day must not dirty
+ * the file whose job is to describe what is in the repository.
+ *
+ * A daily file that is missing is a BUILD FAILURE, not a quiet omission: it means the projection step
+ * did not run before this one, and publishing the site without forecasts would leave every forecast
+ * question answering "not published" with no way to tell that from the truth.
+ */
+const emitPaths = [...manifest.files.map((f) => f.path), ...ASK_DAILY_FILES].sort();
+for (const rel of emitPaths) {
+  if (!fs.existsSync(path.join(SRC, storedName(rel)))) {
+    throw new Error(`refused: ${rel} is missing — run scripts/ask/build-ask-projections.mjs before emitting`);
+  }
   const publicPath = `${ASK_ASSET_PREFIX}/${rel}`;
 
   // The emit writes only paths the LOADER would accept. A file the endpoint could never read is a

@@ -615,11 +615,29 @@ const help = buildHelpCorpus();
 assertLinks("help corpus", help.chunks.flatMap((c) => (c.route ? [{ href: c.route }] : [])));
 add("help.json", help);
 
+/*
+ * THE MANIFEST IS THE RECEIPT FOR THE COMMITTED PROJECTION, AND IT IS COMMITTED.
+ *
+ * ⚠ It was briefly gitignored alongside the daily artifacts, on the reasoning that it hashes them and
+ * would therefore be perpetually dirty. That was right about the cause and wrong about the fix: the
+ * projection guard uses the manifest as its index, so in a fresh CI checkout there was no manifest,
+ * no index, and the guard correctly refused to pass vacuously — it failed the build, which is the only
+ * reason the mistake was visible at all rather than shipping as a silently unguarded artifact.
+ *
+ * So the manifest lists only the COMMITTED files. It is stable, diffable and committable. The daily
+ * artifacts are known by name (ASK_DAILY_FILES) and the emit step adds them itself, which means no
+ * receipt has to change when a forecast does.
+ */
 const manifest = {
   schemaVersion: ASK_PROJECTION_SCHEMA_VERSION,
   artifact: "ask-manifest",
   builder: "gametime-ask-projection@1",
-  files: [...artifacts.keys()].sort().map((rel) => ({ path: rel, bytes: Buffer.byteLength(artifacts.get(rel)), sha256: sha(artifacts.get(rel)) })),
+  scope: "committed",
+  dailyFiles: [...ASK_DAILY_FILES],
+  files: [...artifacts.keys()]
+    .filter((rel) => !isAskDailyFile(rel))
+    .sort()
+    .map((rel) => ({ path: rel, bytes: Buffer.byteLength(artifacts.get(rel)), sha256: sha(artifacts.get(rel)) })),
   /* Every sport cut refused at a boundary, with its reason. An empty list here is a CLAIM that nothing
      was dropped, so it is written even when empty rather than omitted. */
   dropped: drops,
@@ -634,7 +652,7 @@ if (CHECK) {
      * nothing that can be stale. Checking them would fail on `main` every time the nightly pipeline
      * landed a prediction snapshot — a currency check that cries wolf is a currency check nobody reads.
      */
-    if (isAskDailyFile(rel) || rel === "manifest.json") continue;
+    if (isAskDailyFile(rel)) continue;
     const abs = path.join(OUT, storedName(rel));
     if (!fs.existsSync(abs)) { stale.push(rel); continue; }
     const raw = fs.readFileSync(abs);
@@ -643,7 +661,7 @@ if (CHECK) {
   }
   const expected = new Set([...artifacts.keys()].map(storedName));
   for (const existing of listCommitted()) {
-    if (isAskDailyFile(existing) || existing === "manifest.json") continue;
+    if (isAskDailyFile(existing)) continue;
     if (!expected.has(existing)) stale.push(`${existing} (orphan)`);
   }
   if (stale.length) {
@@ -651,7 +669,7 @@ if (CHECK) {
     for (const s of stale) console.error(`  ${s}`);
     process.exit(1);
   }
-  const checked = [...artifacts.keys()].filter((r) => !isAskDailyFile(r) && r !== "manifest.json").length;
+  const checked = [...artifacts.keys()].filter((r) => !isAskDailyFile(r)).length;
   console.log(`ask projection up to date (${checked} committed files checked; ${ASK_DAILY_FILES.length} daily artifacts are built, not committed) in ${Math.round(performance.now() - t0)} ms`);
   process.exit(0);
 }
