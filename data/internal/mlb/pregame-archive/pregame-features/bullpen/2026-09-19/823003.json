@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823003,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T00:32:09.493Z",
+  "availableAt": "2026-09-19T00:32:09.493Z",
+  "eventStartTime": "2026-09-19T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-16",
+    "2026-09-17",
+    "2026-09-18"
+  ],
+  "home": {
+    "teamId": 138,
+    "teamName": "St. Louis Cardinals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 57,
+      "relievers": [
+        {
+          "id": 703725,
+          "name": "Luis Gastelum",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 676617,
+          "name": "Riley O'Brien",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 700669,
+          "name": "Gordon Graceffo",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 4,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 677865,
+          "name": "Justin Bruihl",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 2,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 150,
+      "relievers": [
+        {
+          "id": 691384,
+          "name": "Luis Perales",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 6,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 702021,
+          "name": "Will Dion",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 8,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 683000,
+          "name": "Riley Cornelio",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 8,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 663992,
+          "name": "Richard Lovelady",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 672442,
+          "name": "Yovanny Cruz",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-16,2026-09-17,2026-09-18) + feed/live box scores",
+    "capturedAt": "2026-09-19T00:32:09.493Z"
+  },
+  "recordHash": "cb544863aed21a3a1436ec0d9d1121d04800231e88f0a0d3657ffa890afad146"
+}

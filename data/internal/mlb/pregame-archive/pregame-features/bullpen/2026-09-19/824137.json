@@ -1,0 +1,148 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824137,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T00:32:09.493Z",
+  "availableAt": "2026-09-19T00:32:09.493Z",
+  "eventStartTime": "2026-09-19T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-16",
+    "2026-09-17",
+    "2026-09-18"
+  ],
+  "home": {
+    "teamId": 117,
+    "teamName": "Houston Astros",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 170,
+      "relievers": [
+        {
+          "id": 814490,
+          "name": "Ethan Pecko",
+          "appearances": 1,
+          "pitches": 71,
+          "outs": 17,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 687911,
+          "name": "Bryan King",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 8,
+          "dates": [
+            "2026-09-16",
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 660853,
+          "name": "Enyel De Los Santos",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 4,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 837227,
+          "name": "Tatsuya Imai",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 623352,
+          "name": "Josh Hader",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 650556,
+          "name": "Bryan Abreu",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-09-17"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 58,
+      "relievers": [
+        {
+          "id": 702566,
+          "name": "Owen Murphy",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 7,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 2,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-16,2026-09-17,2026-09-18) + feed/live box scores",
+    "capturedAt": "2026-09-19T00:32:09.493Z"
+  },
+  "recordHash": "9025a1b0b22c54097ddb560d1fb9e5c4fc975c2e4e039491085930b61836a90d"
+}

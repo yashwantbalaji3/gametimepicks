@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824380,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T00:32:09.493Z",
+  "availableAt": "2026-09-19T00:32:09.493Z",
+  "eventStartTime": "2026-09-19T22:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-16",
+    "2026-09-17",
+    "2026-09-18"
+  ],
+  "home": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 50,
+      "relievers": [
+        {
+          "id": 681870,
+          "name": "Erik Sabrowski",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 683769,
+          "name": "Hunter Gaddis",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 165,
+      "relievers": [
+        {
+          "id": 814305,
+          "name": "Yunior Tur",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 5,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 688297,
+          "name": "Chris Roycroft",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 686751,
+          "name": "Seth Johnson",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 7,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 656240,
+          "name": "Scott Blewett",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 664129,
+          "name": "Geoff Hartlieb",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 5,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 697812,
+          "name": "Joe Rock",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 0,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 680723,
+          "name": "Drew Rom",
+          "appearances": 2,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-16",
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 663687,
+          "name": "Hogan Harris",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 2,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-16,2026-09-17,2026-09-18) + feed/live box scores",
+    "capturedAt": "2026-09-19T00:32:09.493Z"
+  },
+  "recordHash": "f294486184772e85e7158635da9ea6da925874f7e3568584d9906e152e3a599d"
+}

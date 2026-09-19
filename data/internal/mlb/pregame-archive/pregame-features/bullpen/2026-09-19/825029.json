@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 825029,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T00:32:09.493Z",
+  "availableAt": "2026-09-19T00:32:09.493Z",
+  "eventStartTime": "2026-09-20T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-16",
+    "2026-09-17",
+    "2026-09-18"
+  ],
+  "home": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 57,
+      "relievers": [
+        {
+          "id": 669194,
+          "name": "Ryne Nelson",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 4,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 642701,
+          "name": "Dennis Santana",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 6,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 86,
+      "relievers": [
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 657376,
+          "name": "Clarke Schmidt",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 2,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        },
+        {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 3,
+          "dates": [
+            "2026-09-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-16,2026-09-17,2026-09-18) + feed/live box scores",
+    "capturedAt": "2026-09-19T00:32:09.493Z"
+  },
+  "recordHash": "ee097b854ced9e87ca9b36c9ae1b70d5176b28bd52e08a1327661f423b69b23a"
+}
