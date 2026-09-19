@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824788,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T00:48:36.981Z",
+  "availableAt": "2026-09-19T00:48:36.981Z",
+  "eventStartTime": "2026-09-19T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669432,
+      "name": "Trevor Rogers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-09-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 7,
+        "bbAvg": 0.6,
+        "erAvg": 3.2,
+        "hrAvg": 1.2,
+        "kPer9": 9.84,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 157.67,
+        "k": 143,
+        "bb": 38,
+        "er": 74,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 688107,
+      "name": "Robert Gasser",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-09-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 5,
+        "bbAvg": 2.2,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 9.38,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 91,
+        "k": 86,
+        "bb": 29,
+        "er": 45,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-19T00:48:36.981Z"
+  },
+  "recordHash": "e568f974eebcd55e02d1bd0ab9e66061cac91fd393a2bcc53e46e161b2284fb4"
+}
