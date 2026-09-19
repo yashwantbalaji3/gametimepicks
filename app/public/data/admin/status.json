@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-19T13:33:35.478Z",
+  "generatedAt": "2026-09-19T14:06:06.940Z",
   "canonical": {
     "record": "33-32",
     "bankroll": 16565.4,
@@ -118,7 +118,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-09-19",
-      "generatedAt": "2026-09-19T12:39:31Z",
+      "generatedAt": "2026-09-19T13:33:38Z",
       "sports": [
         {
           "sport": "epl",
@@ -177,22 +177,12 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-19",
       "present": true,
-      "generatedAt": "2026-09-19T12:39:29Z",
+      "generatedAt": "2026-09-19T13:33:37Z",
       "watchdog": [
-        {
-          "product": "end-zone-vault",
-          "kind": "INCIDENT_OPEN",
-          "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-19"
-        },
         {
           "product": "ufc-cards",
           "kind": "STALE_ACTIVE_CARD",
           "detail": "locked 2026-09-18T17:00:51Z, still ACTIVE"
-        },
-        {
-          "product": "epl-cards",
-          "kind": "STALE_ACTIVE_CARD",
-          "detail": "locked 2026-09-18T23:02:42Z, still ACTIVE"
         }
       ],
       "states": {
@@ -205,7 +195,7 @@
           "policyVersion": "moonshot@2"
         },
         "end-zone-vault": {
-          "state": "INCIDENT",
+          "state": "NO_PLAY",
           "policyVersion": "end-zone-vault@1"
         },
         "homer-nukes": {
@@ -225,7 +215,7 @@
           "policyVersion": "mlb-cards@1"
         },
         "multi-cards": {
-          "state": "NO_PLAY",
+          "state": "ACTIVE",
           "policyVersion": "multi-cards@1"
         }
       }
@@ -236,16 +226,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-19T13:31:29.328Z",
+    "lastRunAt": "2026-09-19T14:06:06.174Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-19",
-    "etTime": "09:33",
+    "etTime": "10:06",
     "stages": [
       {
         "stage": "schedule",
