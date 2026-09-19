@@ -2,11 +2,11 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-19T09:45:44Z",
+ "generatedAt": "2026-09-19T13:33:40Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 8,
-  "NO_PLAY": 8,
+  "PUBLISHED": 11,
+  "NO_PLAY": 5,
   "LANE_CLOSED": 4,
   "MISSING": 0
  },
@@ -43,7 +43,7 @@
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +161 (medium) … +357 (high)"
+     "reason": "no combination of today's prices lands in this band — 2 legs → +154 (medium) … +386 (high)"
     },
     "medium": {
      "state": "PUBLISHED",
@@ -109,25 +109,25 @@
   },
   {
    "lane": "multi",
-   "date": "2026-09-18",
+   "date": "2026-09-19",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "reason": "no cross-sport card priced into this band today — 2 legs → +163 (medium)"
     },
     "medium": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "PUBLISHED",
+     "slipId": "multi-medium-2026-09-19"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "PUBLISHED",
+     "slipId": "multi-high-2026-09-19"
     },
     "longshot": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "PUBLISHED",
+     "slipId": "multi-longshot-2026-09-19"
     }
    }
   }

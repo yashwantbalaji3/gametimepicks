@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-19",
- "generatedAt": "2026-09-19T12:39:29Z",
+ "generatedAt": "2026-09-19T13:33:37Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-2+bank-builder-lane-b-step-1",
-     "lockAt": "2026-09-19T12:39:25.937Z"
+     "lockAt": "2026-09-19T13:33:33.617Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-1+moonshot-lane-b-step-1",
-     "lockAt": "2026-09-19T12:39:25.937Z"
+     "lockAt": "2026-09-19T13:33:33.617Z"
     },
     "transitions": [
      {
@@ -144,18 +144,18 @@
   {
    "product": "end-zone-vault",
    "label": "End Zone Vault",
-   "state": "NOT_RUN",
-   "reason": "the Vault ledger holds no entry for 2026-09-19",
+   "state": "NO_PLAY",
+   "reason": "scorerPrice: FAIL(NOT_REQUESTED — this authorization funds team markets only, so no touchdown price was asked for; whether the books offer one is unknown) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)",
    "candidatesEvaluated": 0,
    "rejections": [],
    "card": null,
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "INCIDENT",
+    "state": "NO_PLAY",
     "policyVersion": "end-zone-vault@1",
     "evidence": {
      "policyVersion": "end-zone-vault@1",
-     "incidentRef": "NOT_RUN: the Vault ledger holds no entry for 2026-09-19"
+     "reason": "scorerPrice: FAIL(NOT_REQUESTED — this authorization funds team markets only, so no touchdown price was asked for; whether the books offer one is unknown) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)"
     },
     "transitions": [
      {
@@ -163,8 +163,8 @@
       "runId": "open:end-zone-vault:2026-09-19"
      },
      {
-      "to": "INCIDENT",
-      "runId": "eval:2026-09-19:NOT_RUN"
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-19:0f8228796a74"
      }
     ]
    }
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-19T12:32:44.000Z"
+     "lockAt": "2026-09-19T13:26:52.000Z"
     },
     "transitions": [
      {
@@ -512,14 +512,14 @@
    "label": "EPL paper cards",
    "state": "ACTIVE",
    "reason": "2 paper cards published for the 2026-09-19 event",
-   "candidatesEvaluated": 5,
+   "candidatesEvaluated": 4,
    "rejections": [],
    "card": [
     {
      "tier": "medium",
      "slipId": "epl-medium-2026-09-19",
-     "combinedAmerican": 161,
-     "combinedDecimal": 2.61,
+     "combinedAmerican": 154,
+     "combinedDecimal": 2.543,
      "legs": [
       {
        "sport": "epl",
@@ -527,14 +527,14 @@
        "player": null,
        "matchup": "Newcastle United v Hull City",
        "kickoffUtc": "2026-09-19T14:00:00Z",
-       "team": "Newcastle United",
-       "market": "match_result",
-       "marketLabel": "Match result",
-       "side": "home",
-       "line": null,
-       "odds": -165,
-       "decimal": 1.606060606060606,
-       "books": 10
+       "team": null,
+       "market": "total_goals",
+       "marketLabel": "Total goals 3.5",
+       "side": "under",
+       "line": 3.5,
+       "odds": -177,
+       "decimal": 1.5649717514124295,
+       "books": 1
       },
       {
        "sport": "epl",
@@ -558,8 +558,8 @@
     {
      "tier": "high",
      "slipId": "epl-high-2026-09-19",
-     "combinedAmerican": 339,
-     "combinedDecimal": 4.389,
+     "combinedAmerican": 324,
+     "combinedDecimal": 4.241,
      "legs": [
       {
        "sport": "epl",
@@ -572,8 +572,8 @@
        "marketLabel": "Total goals 2.5",
        "side": "under",
        "line": 2.5,
-       "odds": 108,
-       "decimal": 2.08,
+       "odds": 101,
+       "decimal": 2.01,
        "books": 6
       },
       {
@@ -603,7 +603,7 @@
     "evidence": {
      "policyVersion": "epl-cards@1",
      "cardRef": "card+card",
-     "lockAt": "2026-09-18T23:02:42Z"
+     "lockAt": "2026-09-19T13:18:56Z"
     },
     "transitions": [
      {
@@ -835,7 +835,7 @@
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-19T12:39:27Z"
+     "lockAt": "2026-09-19T13:33:35Z"
     },
     "transitions": [
      {
@@ -856,18 +856,204 @@
   {
    "product": "multi-cards",
    "label": "Multi-sport paper cards",
-   "state": "NO_PLAY",
-   "reason": "multi grid state PUBLISHED — the stream opens only when two single-sport streams are live",
-   "candidatesEvaluated": 0,
+   "state": "ACTIVE",
+   "reason": "3 multi-sport cards frozen for 2026-09-19",
+   "candidatesEvaluated": 3,
    "rejections": [],
-   "card": null,
+   "card": [
+    {
+     "band": "medium",
+     "slipId": "multi-medium-2026-09-19",
+     "combinedAmerican": 163,
+     "combinedDecimal": 2.63,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:hull-city-v-newcastle-united:20260919t1400",
+       "player": null,
+       "market": "total_goals",
+       "side": "under",
+       "line": 3.5,
+       "odds": -177,
+       "decimal": 1.5649717514124295,
+       "score": 0,
+       "team": null,
+       "opponent": null,
+       "marketLabel": "Total goals 3.5"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "ee466ede63ff4aece0b2964d81a18297",
+       "player": "Trevor Story",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -147,
+       "decimal": 1.6802721088435373,
+       "score": 0,
+       "team": "BOS",
+       "opponent": "TB",
+       "marketLabel": "Hits"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    },
+    {
+     "band": "high",
+     "slipId": "multi-high-2026-09-19",
+     "combinedAmerican": 577,
+     "combinedDecimal": 6.766,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:coventry-city-v-nottingham-forest:20260919t1630",
+       "player": null,
+       "market": "match_result",
+       "side": "home",
+       "line": null,
+       "odds": -160,
+       "decimal": 1.625,
+       "score": 0,
+       "team": "Nottingham Forest",
+       "opponent": null,
+       "marketLabel": "Match result"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "abb3f111a0be68d4bdf0608a428f8d55",
+       "player": "Kevin McGonigle",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -191,
+       "decimal": 1.5235602094240837,
+       "score": 0,
+       "team": "DET",
+       "opponent": "CWS",
+       "marketLabel": "Hits"
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401905376",
+       "player": "Dooho Choi",
+       "market": "fight_winner",
+       "side": "win",
+       "line": null,
+       "odds": -278,
+       "decimal": 1.3597122302158273,
+       "score": 0,
+       "team": null,
+       "opponent": "Patricio Pitbull",
+       "marketLabel": "Fight winner"
+      },
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:arsenal-v-brighton-hove-albion:20260919t1400",
+       "player": null,
+       "market": "total_goals",
+       "side": "under",
+       "line": 2.5,
+       "odds": 101,
+       "decimal": 2.01,
+       "score": 0,
+       "team": null,
+       "opponent": null,
+       "marketLabel": "Total goals 2.5"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    },
+    {
+     "band": "longshot",
+     "slipId": "multi-longshot-2026-09-19",
+     "combinedAmerican": 1078,
+     "combinedDecimal": 11.777,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:everton-v-ipswich-town:20260919t1400",
+       "player": null,
+       "market": "total_goals",
+       "side": "under",
+       "line": 2.5,
+       "odds": 111,
+       "decimal": 2.1100000000000003,
+       "score": 0,
+       "team": null,
+       "opponent": null,
+       "marketLabel": "Total goals 2.5"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "0f7b4e8f0c23ecca42f1c5e69ecc9bcc",
+       "player": "Ketel Marte",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -176,
+       "decimal": 1.5681818181818183,
+       "score": 0,
+       "team": "AZ",
+       "opponent": "NYY",
+       "marketLabel": "Hits"
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401905378",
+       "player": "Iwo Baraniewski",
+       "market": "fight_winner",
+       "side": "win",
+       "line": null,
+       "odds": -250,
+       "decimal": 1.4,
+       "score": 0,
+       "team": null,
+       "opponent": "Alonzo Menifield",
+       "marketLabel": "Fight winner"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "59c14a5981b0869948d86636923f1c90",
+       "player": "Javier Sanoja",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -215,
+       "decimal": 1.4651162790697674,
+       "score": 0,
+       "team": "MIA",
+       "opponent": "SD",
+       "marketLabel": "Hits"
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401903509",
+       "player": "Joshua Van",
+       "market": "fight_winner",
+       "side": "win",
+       "line": null,
+       "odds": -136,
+       "decimal": 1.7352941176470589,
+       "score": 0,
+       "team": null,
+       "opponent": "Alexandre Pantoja",
+       "marketLabel": "Fight winner"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    }
+   ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "NO_PLAY",
+    "state": "ACTIVE",
     "policyVersion": "multi-cards@1",
     "evidence": {
      "policyVersion": "multi-cards@1",
-     "reason": "multi grid state PUBLISHED — the stream opens only when two single-sport streams are live"
+     "cardRef": "card+card+card",
+     "lockAt": "2026-09-19T13:18:56Z"
     },
     "transitions": [
      {
@@ -875,8 +1061,8 @@
       "runId": "open:multi-cards:2026-09-19"
      },
      {
-      "to": "NO_PLAY",
-      "runId": "eval:2026-09-19:0f8228796a74"
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-19:0f8228796a74"
      }
     ]
    }
@@ -894,19 +1080,9 @@
  ],
  "watchdog": [
   {
-   "product": "end-zone-vault",
-   "kind": "INCIDENT_OPEN",
-   "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-19"
-  },
-  {
    "product": "ufc-cards",
    "kind": "STALE_ACTIVE_CARD",
    "detail": "locked 2026-09-18T17:00:51Z, still ACTIVE"
-  },
-  {
-   "product": "epl-cards",
-   "kind": "STALE_ACTIVE_CARD",
-   "detail": "locked 2026-09-18T23:02:42Z, still ACTIVE"
   }
  ],
  "authorities": {
