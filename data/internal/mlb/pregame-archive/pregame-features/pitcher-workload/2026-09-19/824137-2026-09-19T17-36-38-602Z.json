@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824137,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T17:36:38.602Z",
+  "availableAt": "2026-09-19T17:36:38.602Z",
+  "eventStartTime": "2026-09-19T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669713,
+      "name": "Hayden Wesneski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-09-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 4,
+        "bbAvg": 1.8,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 6.92,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 48.67,
+        "k": 38,
+        "bb": 16,
+        "er": 20,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 656550,
+      "name": "Grant Holmes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-09-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 2.6,
+        "bbAvg": 1.6,
+        "erAvg": 1,
+        "hrAvg": 0.2,
+        "kPer9": 4.88,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 137.67,
+        "k": 106,
+        "bb": 59,
+        "er": 55,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-19T17:36:38.602Z"
+  },
+  "recordHash": "b3b6ac49b374ff25176c1198633cce22063b299e9539a656a29170ce7f116860"
+}
