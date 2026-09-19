@@ -2,13 +2,13 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-18T13:50:46Z",
+ "generatedAt": "2026-09-19T09:32:13Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 15,
   "HOLDING": 2,
-  "WATCH": 1,
-  "BREACHED": 3
+  "WATCH": 2,
+  "BREACHED": 2
  },
  "rules": {
   "states": "INSUFFICIENT_SAMPLE: too few graded events for any verdict. HOLDING: at least as good as the baseline. WATCH: worse on the point estimate, but the 95% interval still includes no difference. BREACHED: worse with the whole 95% interval on the wrong side (log loss, event bootstrap), or |z| >= 2.58 (coverage, level).",
@@ -16,48 +16,25 @@
  },
  "families": [
   {
-   "id": "mlb_moneyline",
-   "sport": "mlb",
-   "label": "MLB moneyline picks",
-   "baseline": "coin flip (log loss 0.6931)",
-   "state": "BREACHED",
-   "n": 654,
-   "judgement": {
-    "state": "BREACHED",
-    "n": 654,
-    "needed": 200,
-    "meanDiff": 0.0146,
-    "lo95": 0.0005,
-    "hi95": 0.0295
-   },
-   "context": {
-    "hitRate": 0.4954,
-    "meanPickProbability": 0.5723,
-    "modelMinusMarket": 0.0363,
-    "pairedWithMarket": 653
-   },
-   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
-  },
-  {
    "id": "mlb_total",
    "sport": "mlb",
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 623,
+   "n": 637,
    "judgement": {
     "state": "BREACHED",
-    "n": 623,
+    "n": 637,
     "needed": 200,
-    "meanDiff": 0.0372,
-    "lo95": 0.017,
-    "hi95": 0.0576
+    "meanDiff": 0.0361,
+    "lo95": 0.0152,
+    "hi95": 0.0567
    },
    "context": {
-    "hitRate": 0.4864,
-    "meanPickProbability": 0.5869,
-    "modelMinusMarket": 0.0362,
-    "pairedWithMarket": 623
+    "hitRate": 0.4867,
+    "meanPickProbability": 0.5873,
+    "modelMinusMarket": 0.0353,
+    "pairedWithMarket": 637
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -79,6 +56,29 @@
    },
    "context": null,
    "source": "app/public/data/nfl/reconciliation/<week>.json"
+  },
+  {
+   "id": "mlb_moneyline",
+   "sport": "mlb",
+   "label": "MLB moneyline picks",
+   "baseline": "coin flip (log loss 0.6931)",
+   "state": "WATCH",
+   "n": 669,
+   "judgement": {
+    "state": "WATCH",
+    "n": 669,
+    "needed": 200,
+    "meanDiff": 0.0129,
+    "lo95": -0.0013,
+    "hi95": 0.0269
+   },
+   "context": {
+    "hitRate": 0.4993,
+    "meanPickProbability": 0.5725,
+    "modelMinusMarket": 0.0359,
+    "pairedWithMarket": 668
+   },
+   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
   {
    "id": "nfl_anytime_td",
@@ -105,18 +105,18 @@
    "label": "MLB run line picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 654,
+   "n": 669,
    "judgement": {
     "state": "HOLDING",
-    "n": 654,
+    "n": 669,
     "needed": 200,
-    "meanDiff": -0.037,
-    "lo95": -0.0526,
-    "hi95": -0.0205
+    "meanDiff": -0.0348,
+    "lo95": -0.0502,
+    "hi95": -0.0192
    },
    "context": {
-    "hitRate": 0.6422,
-    "meanPickProbability": 0.5979,
+    "hitRate": 0.6368,
+    "meanPickProbability": 0.5978,
     "modelMinusMarket": null,
     "pairedWithMarket": 0
    },
@@ -439,6 +439,14 @@
   }
  ],
  "changes": [
+  {
+   "id": "mlb_moneyline",
+   "sport": "mlb",
+   "label": "MLB moneyline picks",
+   "from": "BREACHED",
+   "to": "WATCH",
+   "at": "2026-09-19T09:32:13Z"
+  },
   {
    "id": "nfl_player_receptions",
    "sport": "nfl",

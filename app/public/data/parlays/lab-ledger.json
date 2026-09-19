@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-18T15:08:26Z",
+ "generatedAt": "2026-09-19T09:31:11Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -14,23 +14,24 @@
   {
    "id": "mlb",
    "label": "MLB",
-   "live": true,
+   "live": false,
+   "blocked": "no price capture for 2026-09-19 yet — the sport's own generation runs later in the day (newest capture 2026-09-18); only 0 priced games — the ladder needs 4",
    "evidence": {
-    "pricedGames": 7,
-    "pricesCapturedAt": "2026-09-18T09:55:23.740Z",
-    "priceAgeDays": 0.22,
+    "pricedGames": 0,
+    "pricesCapturedAt": null,
+    "priceAgeDays": null,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
-   "settledDays": 30,
+   "settledDays": 31,
    "record": {
-    "wins": 17,
-    "losses": 62,
+    "wins": 19,
+    "losses": 63,
     "pushes": 0,
-    "staked": 79,
-    "returned": 73.33,
-    "hitRate": 0.2152,
-    "roi": -0.0718
+    "staked": 82,
+    "returned": 87.62,
+    "hitRate": 0.2317,
+    "roi": 0.0685
    },
    "byTier": {
     "low": {
@@ -43,31 +44,31 @@
      "roi": -1
     },
     "medium": {
-     "wins": 12,
+     "wins": 13,
      "losses": 18,
      "pushes": 0,
-     "staked": 30,
-     "returned": 33.74,
-     "hitRate": 0.4,
-     "roi": 0.1247
+     "staked": 31,
+     "returned": 36.43,
+     "hitRate": 0.4194,
+     "roi": 0.1752
     },
     "high": {
      "wins": 3,
-     "losses": 18,
+     "losses": 19,
      "pushes": 0,
-     "staked": 21,
+     "staked": 22,
      "returned": 17.1,
-     "hitRate": 0.1429,
-     "roi": -0.1857
+     "hitRate": 0.1364,
+     "roi": -0.2227
     },
     "longshot": {
-     "wins": 2,
+     "wins": 3,
      "losses": 25,
      "pushes": 0,
-     "staked": 27,
-     "returned": 22.49,
-     "hitRate": 0.0741,
-     "roi": -0.167
+     "staked": 28,
+     "returned": 34.09,
+     "hitRate": 0.1071,
+     "roi": 0.2175
     }
    }
   },
@@ -79,7 +80,7 @@
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-09-17T23:22:52Z",
-    "priceAgeDays": 0.66,
+    "priceAgeDays": 1.42,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -139,7 +140,7 @@
    "evidence": {
     "pricedGames": 12,
     "pricesCapturedAt": "2026-09-17T15:22:34Z",
-    "priceAgeDays": 0.99,
+    "priceAgeDays": 1.76,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true
    },
@@ -197,9 +198,9 @@
    "label": "Premier League",
    "live": true,
    "evidence": {
-    "pricedGames": 20,
-    "pricesCapturedAt": "2026-09-17T23:30:43Z",
-    "priceAgeDays": 0.65,
+    "pricedGames": 19,
+    "pricesCapturedAt": "2026-09-18T23:02:29Z",
+    "priceAgeDays": 0.44,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },
@@ -258,12 +259,10 @@
    "live": true,
    "evidence": {
     "liveSports": [
-     "mlb",
      "ufc",
      "epl"
     ],
     "liveLabels": [
-     "MLB",
      "UFC",
      "Premier League"
     ]
@@ -325,9 +324,9 @@
   "firstDay": "2026-05-25",
   "lastDay": "2026-09-18",
   "gradedDays": 81,
-  "wins": 326,
-  "losses": 1377,
-  "roi": -0.0179,
+  "wins": 336,
+  "losses": 1391,
+  "roi": -0.0008,
   "note": "A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now."
  }
 }
