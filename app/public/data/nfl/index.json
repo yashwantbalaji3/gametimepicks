@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-19T13:04:42Z",
+ "generatedAt": "2026-09-19T17:23:11Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -21,19 +21,19 @@
   "forecastsTotal": 16,
   "forecastsUpcoming": 15,
   "forecastsStarted": 1,
-  "marketEvents": 1,
+  "marketEvents": 14,
   "settled": 0
  },
  "nextKickoffUtc": "2026-09-20T17:00Z",
  "nextMatchup": "CAR @ ATL",
  "nextForecastUtc": "2026-09-20T17:00Z",
  "nextForecastMatchup": "CAR @ ATL",
- "marketCapturedAt": "2026-09-17T23:22:52Z",
+ "marketCapturedAt": "2026-09-19T17:23:11Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-18T23:02:12Z",
+  "generatedAt": "2026-09-19T13:04:42Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -85,9 +85,13 @@
    "kickoffUtc": "2026-09-20T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": 18,
+    "leansTo": "ATL",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 25,
     "away": 21,
@@ -103,12 +107,12 @@
     "p90": 63,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "9efb0c8c8ee5474d",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "9cba5f2d88dee4dc",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -126,9 +130,13 @@
    "kickoffUtc": "2026-09-20T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -15,
+    "leansTo": "MIN",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 23,
     "away": 22,
@@ -144,12 +152,12 @@
     "p90": 63,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "014643135658ad68",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "fa0b60ac6527c83e",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -185,12 +193,12 @@
     "p90": 60,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "4d9bca9cdf16f80a",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "12312874c09cf519",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -208,9 +216,13 @@
    "kickoffUtc": "2026-09-20T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -5.7,
+    "leansTo": "PIT",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 22,
     "away": 19,
@@ -226,12 +238,12 @@
     "p90": 58,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "2644934801f671ac",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "c84e2eab2ee11666",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -267,12 +279,12 @@
     "p90": 63,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "32de2146586ea5a3",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "807af2ac1cb5cff1",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -290,9 +302,13 @@
    "kickoffUtc": "2026-09-20T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -17,
+    "leansTo": "CLE",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 24,
     "away": 18,
@@ -308,12 +324,12 @@
     "p90": 59,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "69cf9a0b3869a814",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "88195ddce4f92396",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -331,9 +347,13 @@
    "kickoffUtc": "2026-09-20T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -6.6,
+    "leansTo": "NO",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 27,
     "away": 18,
@@ -349,12 +369,12 @@
     "p90": 62,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "37ad758185c2c274",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "b8175504e39499c0",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -372,9 +392,13 @@
    "kickoffUtc": "2026-09-20T17:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": 7.3,
+    "leansTo": "HOU",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 27,
     "away": 22,
@@ -390,12 +414,12 @@
     "p90": 66,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "8ed21181414cfcf0",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "a43c00219bfd9e15",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -413,9 +437,13 @@
    "kickoffUtc": "2026-09-20T20:05Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -6.8,
+    "leansTo": "JAX",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 24,
     "away": 20,
@@ -431,12 +459,12 @@
     "p90": 61,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "4454c76baa1c92f3",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "e153b4f18c4d24b8",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -454,9 +482,13 @@
    "kickoffUtc": "2026-09-20T20:05Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -5.1,
+    "leansTo": "LV",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 22,
     "away": 15,
@@ -472,12 +504,12 @@
     "p90": 54,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "a8a20967d3f98630",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "2dc27a4419e76020",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -495,9 +527,13 @@
    "kickoffUtc": "2026-09-20T20:25Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -14.1,
+    "leansTo": "WSH",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 29,
     "away": 26,
@@ -513,12 +549,12 @@
     "p90": 71,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "45cbf2c6aa210579",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "6f4e0aa10220e7dc",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -536,9 +572,13 @@
    "kickoffUtc": "2026-09-20T20:25Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -13.3,
+    "leansTo": "SEA",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 20,
     "away": 26,
@@ -554,12 +594,12 @@
     "p90": 63,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "07e16108554c1e74",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "8dac3524fa92345d",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -577,9 +617,13 @@
    "kickoffUtc": "2026-09-20T20:25Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -12.8,
+    "leansTo": "MIA",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 27,
     "away": 19,
@@ -595,12 +639,12 @@
     "p90": 63,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "4f48ad810b06704f",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "1f95c123563d3977",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -618,9 +662,13 @@
    "kickoffUtc": "2026-09-21T00:20Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -6,
+    "leansTo": "IND",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 25,
     "away": 20,
@@ -636,12 +684,12 @@
     "p90": 62,
     "head": "matchup-totals-v3-play-efficiency"
    },
-   "hasMarket": false,
+   "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "3d0170aa7ea115e0",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "0b48db7fe32f2c33",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
@@ -681,8 +729,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "e4428574b09d893c",
-    "generatedAt": "2026-09-19T13:04:42Z"
+    "inputHash": "486276aac22b08e4",
+    "generatedAt": "2026-09-19T17:23:11Z"
    }
   },
   {
