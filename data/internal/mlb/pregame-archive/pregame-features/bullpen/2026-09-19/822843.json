@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 822843,
   "date": "2026-09-19",
-  "capturedAt": "2026-09-19T00:48:37.928Z",
-  "availableAt": "2026-09-19T00:48:37.928Z",
+  "capturedAt": "2026-09-19T05:29:32.192Z",
+  "availableAt": "2026-09-19T05:29:32.192Z",
   "eventStartTime": "2026-09-19T23:05:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,34 @@
     "teamId": 140,
     "teamName": "Texas Rangers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 59,
+      "relievers": [
+        {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 12,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 8,
-      "pitches": 208,
+      "appearances": 10,
+      "pitches": 267,
       "relievers": [
         {
           "id": 674003,
@@ -36,6 +57,16 @@
           "outs": 13,
           "dates": [
             "2026-09-17"
+          ]
+        },
+        {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 12,
+          "dates": [
+            "2026-09-18"
           ]
         },
         {
@@ -98,22 +129,89 @@
           "dates": [
             "2026-09-17"
           ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 592866,
+        "name": "Trevor Williams",
+        "reason": "49 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 141,
     "teamName": "Toronto Blue Jays",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 5,
+      "pitches": 106,
+      "relievers": [
+        {
+          "id": 663893,
+          "name": "Brendon Little",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 692064,
+          "name": "José Rodríguez",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 5,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 680755,
+          "name": "Braydon Fisher",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 573009,
+          "name": "Joe Mantiply",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 676454,
+          "name": "Brendan Cellucci",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 3,
-      "pitches": 60,
+      "appearances": 8,
+      "pitches": 166,
       "relievers": [
         {
           "id": 693686,
@@ -126,6 +224,46 @@
           ]
         },
         {
+          "id": 663893,
+          "name": "Brendon Little",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 692064,
+          "name": "José Rodríguez",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 5,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 680755,
+          "name": "Braydon Fisher",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 573009,
+          "name": "Joe Mantiply",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
           "id": 686973,
           "name": "Louis Varland",
           "appearances": 1,
@@ -133,6 +271,16 @@
           "outs": 3,
           "dates": [
             "2026-09-16"
+          ]
+        },
+        {
+          "id": 676454,
+          "name": "Brendan Cellucci",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
           ]
         },
         {
@@ -152,7 +300,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-16,2026-09-17,2026-09-18) + feed/live box scores",
-    "capturedAt": "2026-09-19T00:48:37.928Z"
+    "capturedAt": "2026-09-19T05:29:32.192Z"
   },
-  "recordHash": "2cb2fb48e71e19633a28e3c35c3f37341b74fab197d73977036b09ec691544cc"
+  "recordHash": "6ac3e9ad037cc225907d218204b211be9fb69880f0e97e09dbac16792006c080"
 }

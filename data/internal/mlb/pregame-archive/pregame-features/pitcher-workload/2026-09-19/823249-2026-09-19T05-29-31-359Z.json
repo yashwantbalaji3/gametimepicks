@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823249,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T05:29:31.359Z",
+  "availableAt": "2026-09-19T05:29:31.359Z",
+  "eventStartTime": "2026-09-20T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663554,
+      "name": "Casey Mize",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-09-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 2.4,
+        "bbAvg": 1.2,
+        "erAvg": 3,
+        "hrAvg": 1.4,
+        "kPer9": 4.84,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 124.33,
+        "k": 107,
+        "bb": 31,
+        "er": 51,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 691587,
+      "name": "Eury Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 4.4,
+        "bbAvg": 3,
+        "erAvg": 4,
+        "hrAvg": 1,
+        "kPer9": 9.14,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 144.33,
+        "k": 155,
+        "bb": 64,
+        "er": 64,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-19T05:29:31.359Z"
+  },
+  "recordHash": "9f284ceaef7f5f51aab56e6f1dea22bbd515fc87ef8295c27418db173872392e"
+}

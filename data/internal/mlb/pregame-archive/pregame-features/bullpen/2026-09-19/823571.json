@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823571,
   "date": "2026-09-19",
-  "capturedAt": "2026-09-19T00:48:37.928Z",
-  "availableAt": "2026-09-19T00:48:37.928Z",
+  "capturedAt": "2026-09-19T05:29:32.192Z",
+  "availableAt": "2026-09-19T05:29:32.192Z",
   "eventStartTime": "2026-09-19T20:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,34 @@
     "teamId": 121,
     "teamName": "New York Mets",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 29,
+      "relievers": [
+        {
+          "id": 681320,
+          "name": "Nate Lavender",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 5,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 673380,
+          "name": "Dedniel Núñez",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 4,
-      "pitches": 129,
+      "appearances": 6,
+      "pitches": 158,
       "relievers": [
         {
           "id": 674073,
@@ -59,6 +80,16 @@
           ]
         },
         {
+          "id": 681320,
+          "name": "Nate Lavender",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 5,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
           "id": 681810,
           "name": "Austin Warren",
           "appearances": 1,
@@ -66,6 +97,16 @@
           "outs": 3,
           "dates": [
             "2026-09-17"
+          ]
+        },
+        {
+          "id": 673380,
+          "name": "Dedniel Núñez",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
           ]
         }
       ]
@@ -76,14 +117,65 @@
     "teamId": 143,
     "teamName": "Philadelphia Phillies",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 119,
+      "relievers": [
+        {
+          "id": 664353,
+          "name": "José Urquidy",
+          "appearances": 1,
+          "pitches": 64,
+          "outs": 14,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 621383,
+          "name": "Tanner Banks",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 75,
+      "appearances": 8,
+      "pitches": 194,
       "relievers": [
+        {
+          "id": 664353,
+          "name": "José Urquidy",
+          "appearances": 1,
+          "pitches": 64,
+          "outs": 14,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 621383,
+          "name": "Tanner Banks",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
         {
           "id": 661395,
           "name": "Jhoan Duran",
@@ -103,6 +195,16 @@
           "outs": 2,
           "dates": [
             "2026-09-17"
+          ]
+        },
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
           ]
         },
         {
@@ -127,12 +229,23 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 664353,
+        "name": "José Urquidy",
+        "reason": "64 pitches yesterday"
+      },
+      {
+        "id": 621383,
+        "name": "Tanner Banks",
+        "reason": "37 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-16,2026-09-17,2026-09-18) + feed/live box scores",
-    "capturedAt": "2026-09-19T00:48:37.928Z"
+    "capturedAt": "2026-09-19T05:29:32.192Z"
   },
-  "recordHash": "29f1657a27bfaee4f63f237711b8f52886937964743c48bea1140a86ac995d64"
+  "recordHash": "39a36f12066293286c170d92129de274d36752f509665308dee04d5024be470b"
 }
