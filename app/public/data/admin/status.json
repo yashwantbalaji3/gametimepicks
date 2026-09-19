@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-19T11:46:20.951Z",
+  "generatedAt": "2026-09-19T12:30:26.981Z",
   "canonical": {
     "record": "33-32",
     "bankroll": 16565.4,
@@ -118,15 +118,15 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-09-19",
-      "generatedAt": "2026-09-19T09:45:42Z",
+      "generatedAt": "2026-09-19T11:46:23Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 9,
-            "priced": 9,
-            "generated": 9,
+            "scheduled": 8,
+            "priced": 8,
+            "generated": 8,
             "frozen": 0,
             "started": 0
           },
@@ -177,7 +177,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-19",
       "present": true,
-      "generatedAt": "2026-09-19T09:45:41Z",
+      "generatedAt": "2026-09-19T11:46:22Z",
       "watchdog": [
         {
           "product": "end-zone-vault",
@@ -188,6 +188,11 @@
           "product": "ufc-cards",
           "kind": "STALE_ACTIVE_CARD",
           "detail": "locked 2026-09-18T17:00:51Z, still ACTIVE"
+        },
+        {
+          "product": "epl-cards",
+          "kind": "STALE_ACTIVE_CARD",
+          "detail": "locked 2026-09-18T23:02:42Z, still ACTIVE"
         }
       ],
       "states": {
@@ -216,7 +221,7 @@
           "policyVersion": "epl-cards@1"
         },
         "mlb-cards": {
-          "state": "ACTIVE",
+          "state": "AWAITING_RESULT",
           "policyVersion": "mlb-cards@1"
         },
         "multi-cards": {
@@ -231,16 +236,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-19T11:44:11.353Z",
+    "lastRunAt": "2026-09-19T12:30:26.312Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "ok": true,
+    "status": "pass",
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-19",
-    "etTime": "07:46",
+    "etTime": "08:30",
     "stages": [
       {
         "stage": "schedule",
