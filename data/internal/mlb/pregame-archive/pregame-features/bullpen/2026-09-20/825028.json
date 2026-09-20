@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 825028,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T00:19:06.055Z",
+  "availableAt": "2026-09-20T00:19:06.055Z",
+  "eventStartTime": "2026-09-20T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-17",
+    "2026-09-18",
+    "2026-09-19"
+  ],
+  "home": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 2,
+      "pitches": 71,
+      "relievers": [
+        {
+          "id": 668678,
+          "name": "Zac Gallen",
+          "appearances": 1,
+          "pitches": 68,
+          "outs": 9,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 664199,
+          "name": "Taylor Clarke",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 57,
+      "relievers": [
+        {
+          "id": 642232,
+          "name": "Ryan Yarbrough",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 661563,
+          "name": "Luis Gil",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 605242,
+          "name": "Michael Fulmer",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-17,2026-09-18,2026-09-19) + feed/live box scores",
+    "capturedAt": "2026-09-20T00:19:06.055Z"
+  },
+  "recordHash": "71b37d824fd8dfaa8925b4fad1c0ac3c2783c7f5127e214cfb437e27b2297af6"
+}

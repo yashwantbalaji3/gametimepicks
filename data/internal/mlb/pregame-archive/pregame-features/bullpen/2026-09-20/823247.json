@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823247,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T00:19:06.055Z",
+  "availableAt": "2026-09-20T00:19:06.055Z",
+  "eventStartTime": "2026-09-20T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-17",
+    "2026-09-18",
+    "2026-09-19"
+  ],
+  "home": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 95,
+      "relievers": [
+        {
+          "id": 656288,
+          "name": "Griffin Canning",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 9,
+          "dates": [
+            "2026-09-17",
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 688158,
+          "name": "David Morgan",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 593974,
+          "name": "Wandy Peralta",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 146,
+    "teamName": "Miami Marlins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 98,
+      "relievers": [
+        {
+          "id": 690978,
+          "name": "Dax Fulton",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 667652,
+          "name": "Jack Ralston",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 676604,
+          "name": "Tyler Zuber",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 694795,
+          "name": "Josh Ekness",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 806188,
+          "name": "Cade Gibson",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 1,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-17,2026-09-18,2026-09-19) + feed/live box scores",
+    "capturedAt": "2026-09-20T00:19:06.055Z"
+  },
+  "recordHash": "f34ac709e3476e3c6a4d628519d5421529dcc592fa254282ebce23157a4edb93"
+}

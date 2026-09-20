@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823329,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T00:19:06.055Z",
+  "availableAt": "2026-09-20T00:19:06.055Z",
+  "eventStartTime": "2026-09-20T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-17",
+    "2026-09-18",
+    "2026-09-19"
+  ],
+  "home": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 188,
+      "relievers": [
+        {
+          "id": 694753,
+          "name": "Khristian Curtis",
+          "appearances": 1,
+          "pitches": 61,
+          "outs": 10,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 642397,
+          "name": "Gregory Soto",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 5,
+          "dates": [
+            "2026-09-17",
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 682254,
+          "name": "Mason Montgomery",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 4,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 596133,
+          "name": "Luke Weaver",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 685126,
+          "name": "Brandon Eisert",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 666808,
+          "name": "Camilo Doval",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-17"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 118,
+    "teamName": "Kansas City Royals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 139,
+      "relievers": [
+        {
+          "id": 671162,
+          "name": "Connor Thomas",
+          "appearances": 2,
+          "pitches": 40,
+          "outs": 7,
+          "dates": [
+            "2026-09-17",
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 663878,
+          "name": "Nate Pearson",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 656638,
+          "name": "Alex Lange",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 543238,
+          "name": "Anthony Gose",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 621016,
+          "name": "Jose Cuas",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 668674,
+          "name": "Lucas Erceg",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-17,2026-09-18,2026-09-19) + feed/live box scores",
+    "capturedAt": "2026-09-20T00:19:06.055Z"
+  },
+  "recordHash": "66d58bb206320ba0a5c3b489e288aaf4bf91b6c7045e102fbd36966436be60a8"
+}

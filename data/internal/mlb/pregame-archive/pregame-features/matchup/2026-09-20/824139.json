@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824139,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T00:19:06.931Z",
+  "availableAt": "2026-09-20T00:19:06.931Z",
+  "eventStartTime": "2026-09-20T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 686613,
+    "name": "Hunter Brown",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 527048,
+    "name": "Martín Pérez",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-20T00:19:06.931Z"
+  },
+  "recordHash": "505ad28b0805bdaa63a71b4fa975ded95fd424f70c3cf5098bdeb32624b36994"
+}

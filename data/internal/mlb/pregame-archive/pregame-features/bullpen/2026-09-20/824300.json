@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824300,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T00:19:06.055Z",
+  "availableAt": "2026-09-20T00:19:06.055Z",
+  "eventStartTime": "2026-09-20T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-17",
+    "2026-09-18",
+    "2026-09-19"
+  ],
+  "home": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 147,
+      "relievers": [
+        {
+          "id": 688642,
+          "name": "Zach Agnos",
+          "appearances": 1,
+          "pitches": 57,
+          "outs": 9,
+          "dates": [
+            "2026-09-17"
+          ]
+        },
+        {
+          "id": 657514,
+          "name": "Brennan Bernardino",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 6,
+          "dates": [
+            "2026-09-17",
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 605447,
+          "name": "Jordan Romano",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-17",
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 677955,
+          "name": "Jaden Hill",
+          "appearances": 2,
+          "pitches": 20,
+          "outs": 6,
+          "dates": [
+            "2026-09-17",
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 815081,
+          "name": "Mark Manfredi",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 72,
+      "relievers": [
+        {
+          "id": 622554,
+          "name": "Seranthony Domínguez",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 4,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 662253,
+          "name": "Andrés Muñoz",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 642100,
+          "name": "Gabe Speier",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 1,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 678606,
+          "name": "José A. Ferrer",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-09-18"
+          ]
+        },
+        {
+          "id": 672841,
+          "name": "Carlos Vargas",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-09-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-17,2026-09-18,2026-09-19) + feed/live box scores",
+    "capturedAt": "2026-09-20T00:19:06.055Z"
+  },
+  "recordHash": "d5ab96cf34e7132602f1f6994898900f1445a8f5ebad93eb8a9ca9a9b193ae81"
+}
