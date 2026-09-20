@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-20",
- "generatedAt": "2026-09-20T10:04:14Z",
+ "generatedAt": "2026-09-20T12:02:03Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-3+bank-builder-lane-b-step-1",
-     "lockAt": "2026-09-20T10:04:11.196Z"
+     "lockAt": "2026-09-20T12:01:59.366Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-1+moonshot-lane-b-step-1",
-     "lockAt": "2026-09-20T10:04:11.196Z"
+     "lockAt": "2026-09-20T12:01:59.366Z"
     },
     "transitions": [
      {
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-20T09:57:41.000Z"
+     "lockAt": "2026-09-20T11:54:53.000Z"
     },
     "transitions": [
      {
@@ -484,7 +484,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -164,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Shea Langeliers",
@@ -498,7 +498,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -174,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -528,7 +528,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -143,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Joey Ortiz",
@@ -542,7 +542,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -204,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Kazuma Okamoto",
@@ -556,7 +556,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -141,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -586,7 +586,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -148,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Isaac Paredes",
@@ -600,7 +600,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -179,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Connor Norby",
@@ -614,7 +614,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -231,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Dominic Canzone",
@@ -628,7 +628,7 @@
        "side": "Under",
        "line": 1.5,
        "odds": -196,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Otto Lopez",
@@ -642,7 +642,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -245,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -656,12 +656,12 @@
    ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "ACTIVE",
+    "state": "AWAITING_RESULT",
     "policyVersion": "mlb-cards@1",
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-20T10:04:12Z"
+     "lockAt": "2026-09-20T12:02:01Z"
     },
     "transitions": [
      {
@@ -671,6 +671,10 @@
      {
       "to": "ACTIVE",
       "runId": "gen:2026-09-20:0054124636f2"
+     },
+     {
+      "to": "AWAITING_RESULT",
+      "runId": "await:2026-09-20:2026-09-20T09:56:16+00:00"
      }
     ]
    }
@@ -719,6 +723,11 @@
    "product": "end-zone-vault",
    "kind": "INCIDENT_OPEN",
    "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-20"
+  },
+  {
+   "product": "epl-cards",
+   "kind": "STALE_ACTIVE_CARD",
+   "detail": "locked 2026-09-19T22:35:41Z, still ACTIVE"
   }
  ],
  "authorities": {
