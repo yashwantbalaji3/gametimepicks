@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823975,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T00:31:10.958Z",
+  "availableAt": "2026-09-20T00:31:10.958Z",
+  "eventStartTime": "2026-09-20T20:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 696270,
+      "name": "Ryan Johnson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 5,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 4.6,
+        "bbAvg": 2,
+        "erAvg": 1.2,
+        "hrAvg": 0.4,
+        "kPer9": 6.9,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 85.33,
+        "k": 67,
+        "bb": 36,
+        "er": 41,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 665152,
+      "name": "Dean Kremer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 6,
+      "lastStartDate": "2026-09-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.2,
+        "bbAvg": 2,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 7.88,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 77.33,
+        "k": 74,
+        "bb": 26,
+        "er": 46,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-20&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-20T00:31:10.958Z"
+  },
+  "recordHash": "6a2366ae421fd7ae8dd3405d01bb91ac0650b3bd43bf9d5fba0acb356a6b213a"
+}
