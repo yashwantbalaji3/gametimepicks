@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824381,
+  "teamId": 133,
+  "name": "Athletics",
+  "side": "away",
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T05:42:52.128Z",
+  "availableAt": "2026-09-20T05:42:52.128Z",
+  "eventStartTime": "2026-09-20T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 8,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-09-19",
+  "previousVenueId": 5,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=133&startDate=2026-09-06&endDate=2026-09-19",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-09-20T05:42:52.128Z"
+  },
+  "recordHash": "f53ec24f0a04a3f6bc936a522da77135a51ece0525972e1e0c582dbc91e82d17"
+}
