@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-20T09:50:25Z",
+ "generatedAt": "2026-09-20T13:04:02Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 15,
@@ -420,20 +420,20 @@
    "label": "UFC fight winner",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 31,
+   "n": 41,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 31,
+    "n": 41,
     "needed": 60,
-    "meanDiff": 0.0166,
+    "meanDiff": 0.0052,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "modelLogLoss": 0.7097,
-    "marketLogLoss": 0.6815,
-    "modelMinusMarket": 0.0282,
-    "pairedWithMarket": 31
+    "modelLogLoss": 0.6983,
+    "marketLogLoss": 0.659,
+    "modelMinusMarket": 0.0393,
+    "pairedWithMarket": 41
    },
    "source": "data/internal/research/ufc/model-vs-market/graded.jsonl"
   }
