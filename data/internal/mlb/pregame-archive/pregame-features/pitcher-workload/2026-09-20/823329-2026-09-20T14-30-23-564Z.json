@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823329,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T14:30:23.564Z",
+  "availableAt": "2026-09-20T14:30:23.564Z",
+  "eventStartTime": "2026-09-20T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669199,
+      "name": "Lake Bachar",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 10.33,
+        "ipAvg": 2.07,
+        "kAvg": 2,
+        "bbAvg": 1.6,
+        "erAvg": 0.6,
+        "hrAvg": 0.2,
+        "kPer9": 8.71,
+        "workloadIpLast5": 10.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 22.33,
+        "k": 25,
+        "bb": 13,
+        "er": 5,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 608379,
+      "name": "Michael Wacha",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 5,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33,
+        "ipAvg": 6.6,
+        "kAvg": 5.8,
+        "bbAvg": 1.6,
+        "erAvg": 1.6,
+        "hrAvg": 1.2,
+        "kPer9": 7.91,
+        "workloadIpLast5": 33
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 188.67,
+        "k": 149,
+        "bb": 49,
+        "er": 70,
+        "hr": 27
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-20&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-20T14:30:23.564Z"
+  },
+  "recordHash": "ee435b1c4d6b1164b178130a1814f6fae5f8fb7e8175c789521660581fb7f984"
+}
