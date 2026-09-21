@@ -1,0 +1,85 @@
+{
+ "schemaVersion": 1,
+ "artifact": "parlay-lab-settlement",
+ "dataClass": "PUBLIC_DERIVED",
+ "date": "2026-09-20",
+ "settledAt": "2026-09-21T10:43:39Z",
+ "source": "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name; EPL official full-time scores via the results bridge, joined by canonical eventId; NFL official final scores (nfl/results/latest.json), joined by canonical eventId",
+ "policyVersion": 2,
+ "cards": [
+  {
+   "sport": "mlb",
+   "sports": [
+    "mlb"
+   ],
+   "tier": "medium",
+   "slipId": "opt_2026-09-20_public_low_mlb_7fffb00457af",
+   "result": "loss",
+   "combinedDecimal": 2.534903,
+   "legs": [
+    "win",
+    "loss"
+   ]
+  },
+  {
+   "sport": "mlb",
+   "sports": [
+    "mlb"
+   ],
+   "tier": "high",
+   "slipId": "opt_2026-09-20_public_medium_mlb_6b39b290e2c0",
+   "result": "loss",
+   "combinedDecimal": 4.328242,
+   "legs": [
+    "loss",
+    "loss",
+    "win"
+   ]
+  },
+  {
+   "sport": "mlb",
+   "sports": [
+    "mlb"
+   ],
+   "tier": "longshot",
+   "slipId": "opt_2026-09-20_public_high_mlb_c3cdcc5e40a7",
+   "result": "loss",
+   "combinedDecimal": 7.958767,
+   "legs": [
+    "win",
+    "loss",
+    "loss",
+    "loss",
+    "loss"
+   ]
+  },
+  {
+   "sport": "epl",
+   "sports": [
+    "epl"
+   ],
+   "tier": "medium",
+   "slipId": "epl-medium-2026-09-20",
+   "result": "pending",
+   "combinedDecimal": 2.021959,
+   "legs": [
+    "pending",
+    "pending"
+   ]
+  },
+  {
+   "sport": "epl",
+   "sports": [
+    "epl"
+   ],
+   "tier": "high",
+   "slipId": "epl-high-2026-09-20",
+   "result": "pending",
+   "combinedDecimal": 4.6655,
+   "legs": [
+    "pending",
+    "pending"
+   ]
+  }
+ ]
+}
