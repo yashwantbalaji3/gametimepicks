@@ -2,11 +2,11 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-21T10:44:47Z",
+ "generatedAt": "2026-09-21T16:02:22Z",
  "worst": "BREACHED",
  "counts": {
-  "INSUFFICIENT_SAMPLE": 15,
-  "HOLDING": 3,
+  "INSUFFICIENT_SAMPLE": 14,
+  "HOLDING": 4,
   "WATCH": 1,
   "BREACHED": 2
  },
@@ -44,14 +44,14 @@
    "label": "NFL receptions 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "BREACHED",
-   "n": 262,
+   "n": 321,
    "judgement": {
     "state": "BREACHED",
-    "n": 262,
+    "n": 321,
     "needed": 150,
-    "rate": 0.9046,
+    "rate": 0.9128,
     "target": 0.8,
-    "z": 4.2319,
+    "z": 5.0512,
     "direction": "ranges too wide"
    },
    "context": null,
@@ -109,14 +109,14 @@
    "label": "NFL touchdown chances",
    "baseline": "expected scorers = actual scorers",
    "state": "HOLDING",
-   "n": 335,
+   "n": 420,
    "judgement": {
     "state": "HOLDING",
-    "n": 335,
+    "n": 420,
     "needed": 150,
-    "expected": 77.9867,
-    "actual": 75,
-    "z": -0.4029,
+    "expected": 98.1371,
+    "actual": 91,
+    "z": -0.8612,
     "direction": null
    },
    "context": null,
@@ -128,14 +128,33 @@
    "label": "NFL receiving yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 262,
+   "n": 321,
    "judgement": {
     "state": "HOLDING",
-    "n": 262,
+    "n": 321,
     "needed": 150,
-    "rate": 0.8244,
+    "rate": 0.8162,
     "target": 0.8,
-    "z": 0.9885,
+    "z": 0.7256,
+    "direction": null
+   },
+   "context": null,
+   "source": "app/public/data/nfl/reconciliation/<week>.json"
+  },
+  {
+   "id": "nfl_player_rush_yds",
+   "sport": "nfl",
+   "label": "NFL rushing yards 80% range",
+   "baseline": "8 in 10 inside the published range",
+   "state": "HOLDING",
+   "n": 173,
+   "judgement": {
+    "state": "HOLDING",
+    "n": 173,
+    "needed": 150,
+    "rate": 0.8266,
+    "target": 0.8,
+    "z": 0.8743,
     "direction": null
    },
    "context": null,
@@ -323,12 +342,12 @@
    "label": "NFL winning margin 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 26,
+   "n": 31,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 26,
+    "n": 31,
     "needed": 48,
-    "rate": 0.7308,
+    "rate": 0.7419,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -342,31 +361,12 @@
    "label": "NFL passing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 47,
+   "n": 59,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 47,
+    "n": 59,
     "needed": 150,
-    "rate": 0.8298,
-    "target": 0.8,
-    "z": null,
-    "direction": null
-   },
-   "context": null,
-   "source": "app/public/data/nfl/reconciliation/<week>.json"
-  },
-  {
-   "id": "nfl_player_rush_yds",
-   "sport": "nfl",
-   "label": "NFL rushing yards 80% range",
-   "baseline": "8 in 10 inside the published range",
-   "state": "INSUFFICIENT_SAMPLE",
-   "n": 134,
-   "judgement": {
-    "state": "INSUFFICIENT_SAMPLE",
-    "n": 134,
-    "needed": 150,
-    "rate": 0.7985,
+    "rate": 0.7966,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -380,12 +380,12 @@
    "label": "NFL total points 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 26,
+   "n": 31,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 26,
+    "n": 31,
     "needed": 48,
-    "rate": 0.7308,
+    "rate": 0.7419,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -399,18 +399,18 @@
    "label": "NFL winner",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 26,
+   "n": 31,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 26,
+    "n": 31,
     "needed": 48,
-    "meanDiff": -0.0002,
+    "meanDiff": -0.0221,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "hits": 13,
-    "expectedHits": 15.3929
+    "hits": 17,
+    "expectedHits": 18.7187
    },
    "source": "app/public/data/nfl/reconciliation/<week>.json"
   },
@@ -439,6 +439,14 @@
   }
  ],
  "changes": [
+  {
+   "id": "nfl_player_rush_yds",
+   "sport": "nfl",
+   "label": "NFL rushing yards 80% range",
+   "from": "INSUFFICIENT_SAMPLE",
+   "to": "HOLDING",
+   "at": "2026-09-21T16:02:22Z"
+  },
   {
    "id": "nfl_anytime_td",
    "sport": "nfl",
