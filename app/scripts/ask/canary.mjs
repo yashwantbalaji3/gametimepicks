@@ -278,7 +278,26 @@ for (const c of cases) {
         continue;
       }
       body = await res.json().catch(() => null);
-      if (body?.code === "RATE_LIMITED") { failed = "RATE_LIMITED (the canary's own pacing)"; body = null; continue; }
+      /*
+       * ⚠ TWO DIFFERENT RATE LIMITS WEAR THE SAME CODE.
+       *
+       * Ask's own in-memory limiter and the PROVIDER's 429 both surface as RATE_LIMITED. This
+       * reported either as "the canary's own pacing", so an exhausted vendor quota was printed as a
+       * harness artifact and retried pointlessly — nine cases in one run, each waiting out a backoff
+       * for a quota that resets tomorrow.
+       *
+       * They are told apart by `providerStatus`: an upstream 429 carries one, our own limiter does
+       * not. Only ours is worth retrying, because only ours is caused by how fast this script runs.
+       */
+      if (body?.code === "RATE_LIMITED") {
+        const upstream = body.providerStatus === 429;
+        failed = upstream
+          ? `PROVIDER QUOTA EXHAUSTED (upstream 429 ${body.providerType ?? ""}) — not a pacing artifact`.trim()
+          : "RATE_LIMITED (the canary's own pacing)";
+        if (upstream) break;
+        body = null;
+        continue;
+      }
       failed = null;
       break;
     }
@@ -324,7 +343,30 @@ function grade(c, out) {
    * GROUNDED means the answer PASSED the numeric/claim verifier. `verified: false` is safe — the
    * deterministic fallback shipped — but it is a writing-stage failure and the canary reports it.
    */
-  if (c.expectGrounded) add("grounded", out?.verified === true, `verified=${out?.verified}`);
+  /*
+   * ⚠ "verified=false" IS NOT A CAUSE, IT IS AN OUTCOME.
+   *
+   * This reported every unverified turn as `grounded — verified=false`, which collapses the exact
+   * distinction the engine draws: the writer's provider refused the call, the writer returned
+   * unparseable output, or the answer genuinely failed grounding. Three different problems with three
+   * different owners, printed identically.
+   *
+   * It mattered here. A run reported three "grounding failures" for Gemini; the receipts said
+   * FAILED_WRITER_PROVIDER — the model never wrote anything to ground. A harness that cannot tell
+   * those apart produces a verdict about the wrong thing, which is how this migration nearly
+   * concluded twice already.
+   */
+  if (c.expectGrounded) {
+    const v = out?.usage?.verifier ?? null;
+    const why = v === "FAILED_WRITER_PROVIDER"
+      ? `WRITER PROVIDER FAILED (upstream ${out?.usage?.writerProviderStatus ?? "?"} ${out?.usage?.writerProviderType ?? ""})`.trim()
+      : v === "FAILED_NO_WRITER_OUTPUT"
+        ? "WRITER RETURNED NOTHING USABLE (no parseable answer)"
+        : v === "FAILED_DETERMINISTIC_FALLBACK"
+          ? `GROUNDING REJECTED: ${(out?.usage?.verifierViolations ?? []).join(" | ") || "violations not disclosed"}`
+          : `verified=${out?.verified} verifier=${v ?? "none"}`;
+    add("grounded", out?.verified === true, why);
+  }
   if (c.expectCitations) add("cited", (out?.answer?.citations ?? []).length > 0 || (out?.evidence?.sources ?? []).length > 0);
   if (c.expectLinkPrefix) add("linked", (out?.answer?.links ?? []).some((l) => l.href.startsWith(c.expectLinkPrefix)), `got ${(out?.answer?.links ?? []).map((l) => l.href)}`);
 
@@ -444,7 +486,18 @@ console.log(`provider/model: ${[...new Set(results.map((r) => r.out?.usage?.prov
  * buried in a server log.
  */
 const shapes = [...new Set(results.map((r) => r.out?.usage?.providerShape).filter(Boolean))];
-if (shapes.length) console.log(`request shape accepted: ${shapes.join(", ")}${shapes.some((x) => x !== "full") ? "  ⚠ a reduced shape was used — the structured tool catalogue may not have been sent (it is still in the prompt)" : ""}`);
+/*
+ * ⚠ ONLY WARN ABOUT WHAT THE SHAPE ACTUALLY DROPPED. This warned on any shape but "full", so
+ * `no-thinking` — which keeps the whole tool catalogue and drops only a thinking budget the model
+ * rejects — printed "the structured tool catalogue may not have been sent" on every single run. A
+ * warning that misdescribes the run is the same defect as a detector that fires on a refusal: it
+ * teaches the reader to ignore it.
+ */
+const SHAPES_WITHOUT_TOOLS = new Set(["no-tools", "minimal"]);
+if (shapes.length) {
+  const lostTools = shapes.filter((x) => SHAPES_WITHOUT_TOOLS.has(x));
+  console.log(`request shape accepted: ${shapes.join(", ")}${lostTools.length ? "  ⚠ the structured tool catalogue was NOT sent (it is still rendered in the prompt)" : shapes.every((x) => x === "full") ? "" : "  (a reduced shape; the full 14-tool catalogue is still on the wire)"}`);
+}
 if (models.length > 1) console.log("⚠ more than one model answered this run — the cost figure below mixes rates and is not a clean measurement");
 console.log(`tokens: ${totalIn} in · ${totalOut} out over ${turns} measured turn(s)  (~$${cost(totalIn, totalOut).toFixed(4)} total, ~$${turns ? (cost(totalIn, totalOut) / turns).toFixed(6) : "0"} per turn, at $${PRICE.inPerM}/$${PRICE.outPerM} per Mtok${priced.unknownModel ? " — ⚠ this model is not in the price book at all; the rate is a placeholder" : priced.assumed ? " — ⚠ RATE UNVERIFIED, the dollar figures are a token count times an assumption" : ""})`);
 if (!turns) console.log("⚠ no token counts came back — the endpoint did not report usage, so the cost figure above is not a measurement");
