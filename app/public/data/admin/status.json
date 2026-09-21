@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-21T10:55:42.138Z",
+  "generatedAt": "2026-09-21T10:57:30.716Z",
   "canonical": {
     "record": "35-34",
     "bankroll": 16265.4,
@@ -19,7 +19,7 @@
     "date": "2026-09-21",
     "dailyPortfolioDate": "2026-09-21",
     "activeBankroll": 16265.4,
-    "openExposure": 0,
+    "openExposure": 225,
     "worldCupGames": 0,
     "mlbGames": 3,
     "mlbSlate": "2026-09-21"
@@ -44,8 +44,8 @@
     ]
   },
   "productReadiness": {
-    "bankBuilder": "awaiting approval",
-    "moonshot": "awaiting approval",
+    "bankBuilder": "active · 2 lane(s)",
+    "moonshot": "active · 1 lane(s)",
     "top10": "live",
     "worldCup": "dormant (no board)",
     "mlb": "live · 3 game(s)",
@@ -53,42 +53,51 @@
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 0,
+      "activeLanes": 2,
       "lanes": [
         {
           "lane": "A",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 139,
           "stake": 100,
-          "potentialReturn": 100,
-          "selections": []
+          "potentialReturn": 238.99,
+          "selections": [
+            "Baltimore Orioles +1.5",
+            "San Francisco Giants +1.5"
+          ]
         },
         {
           "lane": "B",
-          "status": "awaiting",
+          "status": "active",
           "step": 2,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 203,
           "stake": 300.48,
-          "potentialReturn": 300.48,
-          "selections": []
+          "potentialReturn": 909.34,
+          "selections": [
+            "Washington Nationals +1.5",
+            "Baltimore Orioles to win"
+          ]
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 0,
+      "activeLanes": 1,
       "lanes": [
         {
           "lane": "A",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 300,
           "stake": 25,
-          "potentialReturn": 25,
-          "selections": []
+          "potentialReturn": 100.1,
+          "selections": [
+            "Detroit Tigers to win",
+            "Minnesota Twins -1.5"
+          ]
         },
         {
           "lane": "B",
@@ -125,20 +134,20 @@
     }
   },
   "counts": {
-    "activeProducts": 1,
-    "pendingApprovals": 4
+    "activeProducts": 3,
+    "pendingApprovals": 1
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-21T10:55:41.371Z",
+    "lastRunAt": "2026-09-21T10:55:42.995Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-21",
-    "etTime": "06:55",
+    "etTime": "06:57",
     "stages": [
       {
         "stage": "schedule",
@@ -234,7 +243,7 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": false
+      "done": true
     },
     {
       "step": "No missing-data warnings",
@@ -247,7 +256,7 @@
   },
   "nextSettlementDate": "2026-09-21",
   "nextRefreshDate": "2026-09-22",
-  "nextAction": "No active Bank Builder lane for 2026-09-21 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-09-21's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
