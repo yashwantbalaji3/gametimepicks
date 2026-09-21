@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-20T23:00:24Z",
+ "generatedAt": "2026-09-21T15:53:10Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 3,
+  "scheduledUpcoming": 2,
   "forecastsTotal": 16,
-  "forecastsUpcoming": 2,
-  "forecastsStarted": 14,
-  "marketEvents": 2,
+  "forecastsUpcoming": 1,
+  "forecastsStarted": 15,
+  "marketEvents": 1,
   "settled": 0
  },
- "nextKickoffUtc": "2026-09-21T00:20Z",
- "nextMatchup": "IND @ KC",
- "nextForecastUtc": "2026-09-21T00:20Z",
- "nextForecastMatchup": "IND @ KC",
- "marketCapturedAt": "2026-09-20T23:00:24Z",
+ "nextKickoffUtc": "2026-09-22T00:15Z",
+ "nextMatchup": "NYG @ LAR",
+ "nextForecastUtc": "2026-09-22T00:15Z",
+ "nextForecastMatchup": "NYG @ LAR",
+ "marketCapturedAt": "2026-09-21T15:53:10Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-20T18:09:43Z",
+  "generatedAt": "2026-09-20T23:00:24Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -71,51 +71,6 @@
  },
  "events": [
   {
-   "providerEventId": "401872945",
-   "canonicalEventId": "nfl-401872945",
-   "matchup": "IND @ KC",
-   "home": {
-    "abbr": "KC",
-    "name": "Kansas City Chiefs"
-   },
-   "away": {
-    "abbr": "IND",
-    "name": "Indianapolis Colts"
-   },
-   "kickoffUtc": "2026-09-21T00:20Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -5.4,
-    "leansTo": "IND",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
-   "projectedScore": {
-    "home": 25,
-    "away": 20,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6525,
-    "away": 0.3198
-   },
-   "total": {
-    "median": 45,
-    "p10": 28,
-    "p90": 62,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "da79228434fee560",
-    "generatedAt": "2026-09-20T23:00:24Z"
-   }
-  },
-  {
    "providerEventId": "401872947",
    "canonicalEventId": "nfl-401872947",
    "matchup": "NYG @ LAR",
@@ -139,8 +94,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.6944,
-    "away": 0.2779
+    "home": 0.696,
+    "away": 0.2785
    },
    "total": {
     "median": 51,
@@ -152,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "3ca8fb7d368f58a7",
-    "generatedAt": "2026-09-20T23:00:24Z"
+    "inputHash": "428c832896a2b0a1",
+    "generatedAt": "2026-09-21T15:53:10Z"
    }
   },
   {
@@ -728,6 +683,47 @@
     "version": 2,
     "inputHash": "96453180642e3d77",
     "generatedAt": "2026-09-20T18:09:43Z"
+   }
+  },
+  {
+   "providerEventId": "401872945",
+   "canonicalEventId": "nfl-401872945",
+   "matchup": "IND @ KC",
+   "home": {
+    "abbr": "KC",
+    "name": "Kansas City Chiefs"
+   },
+   "away": {
+    "abbr": "IND",
+    "name": "Indianapolis Colts"
+   },
+   "kickoffUtc": "2026-09-21T00:20Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 25,
+    "away": 20,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6525,
+    "away": 0.3198
+   },
+   "total": {
+    "median": 45,
+    "p10": 28,
+    "p90": 62,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": true,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "da79228434fee560",
+    "generatedAt": "2026-09-20T23:00:24Z"
    }
   }
  ],
