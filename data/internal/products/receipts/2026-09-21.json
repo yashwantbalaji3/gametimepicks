@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-21",
- "generatedAt": "2026-09-21T10:57:32Z",
+ "generatedAt": "2026-09-21T13:34:35Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-1+bank-builder-lane-b-step-2",
-     "lockAt": "2026-09-21T10:57:29.594Z"
+     "lockAt": "2026-09-21T13:34:32.250Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-1",
-     "lockAt": "2026-09-21T10:57:29.594Z"
+     "lockAt": "2026-09-21T13:34:32.250Z"
     },
     "transitions": [
      {
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-21T10:51:31.000Z"
+     "lockAt": "2026-09-21T13:28:06.000Z"
     },
     "transitions": [
      {
@@ -402,7 +402,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -212,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Riley Greene",
@@ -416,7 +416,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -194,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -446,7 +446,7 @@
        "side": "Under",
        "line": 0.5,
        "odds": -102,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Keibert Ruiz",
@@ -460,7 +460,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -146,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Colton Cowser",
@@ -474,7 +474,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": 103,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -504,7 +504,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -248,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Kazuma Okamoto",
@@ -518,7 +518,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -163,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Ben Malgeri",
@@ -532,7 +532,7 @@
        "side": "Under",
        "line": 0.5,
        "odds": 104,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Hao-Yu Lee",
@@ -546,7 +546,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -187,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -560,12 +560,12 @@
    ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "ACTIVE",
+    "state": "AWAITING_RESULT",
     "policyVersion": "mlb-cards@1",
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-21T10:57:30Z"
+     "lockAt": "2026-09-21T13:34:33Z"
     },
     "transitions": [
      {
@@ -575,6 +575,10 @@
      {
       "to": "ACTIVE",
       "runId": "gen:2026-09-21:855cea564121"
+     },
+     {
+      "to": "AWAITING_RESULT",
+      "runId": "await:2026-09-21:2026-09-21T10:50:02+00:00"
      }
     ]
    }
