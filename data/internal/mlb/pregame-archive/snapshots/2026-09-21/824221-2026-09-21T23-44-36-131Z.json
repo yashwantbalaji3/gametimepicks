@@ -1,0 +1,184 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "824221-d7b5ffc65dcbeba0a30e82ca5b3f0d90",
+  "snapshotCreatedAt": "2026-09-21T23:44:36.131Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-09-21",
+  "eventId": "824221",
+  "gamePk": 824221,
+  "eventStartTime": "2026-09-21T22:40:00Z",
+  "homeTeam": "DET",
+  "awayTeam": "WSH",
+  "venue": "Comerica Park",
+  "statusState": "In Progress",
+  "startedAtCapture": true,
+  "dataQuality": {
+    "anyEligible": false,
+    "eligibleFamilies": []
+  },
+  "rawPayloadHash": "be1c40bd87683dc77bc6368bbaee9254",
+  "normalizedPayloadHash": "dd2e29f45fa6e85140d455da4dd793d6",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-09-21T23:44:36.131Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-21T23:44:36.131Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824221/feed/live",
+        "requestedAt": "2026-09-21T23:44:36.131Z",
+        "receivedAt": "2026-09-21T23:44:36.131Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": false,
+      "value": {
+        "homeProbable": "River Ryan",
+        "awayProbable": "DJ Herz",
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-09-21T23:44:36.131Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-21T23:44:36.131Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824221/feed/live",
+        "requestedAt": "2026-09-21T23:44:36.131Z",
+        "receivedAt": "2026-09-21T23:44:36.131Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": false,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "60",
+        "wind": "11 mph, L To R",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": true
+      },
+      "status": "MISSING",
+      "observedAt": "2026-09-21T23:44:36.131Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-21T23:44:36.131Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824221/feed/live",
+        "requestedAt": "2026-09-21T23:44:36.131Z",
+        "receivedAt": "2026-09-21T23:44:36.131Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": false,
+      "value": {
+        "officials": [
+          {
+            "name": "Emil Jimenez",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Louie Krupa",
+            "type": "First Base"
+          },
+          {
+            "name": "Mike Muchlinski",
+            "type": "Second Base"
+          },
+          {
+            "name": "Doug Eddings",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "MISSING",
+      "observedAt": "2026-09-21T23:44:36.131Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-21T23:44:36.131Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824221/feed/live",
+        "requestedAt": "2026-09-21T23:44:36.131Z",
+        "receivedAt": "2026-09-21T23:44:36.131Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
