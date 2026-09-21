@@ -8,10 +8,10 @@
     "teamMarketCapture": {
       "status": "captured",
       "date": "2026-09-21",
-      "records": 180,
-      "eligible": 180,
-      "creditsSpent": 7525,
-      "creditsRemaining": 12478,
+      "records": 740,
+      "eligible": 740,
+      "creditsSpent": 7604,
+      "creditsRemaining": 12399,
       "skippedStarted": 0
     },
     "playerPropCapture": {
@@ -21,26 +21,27 @@
       "eventsCaptured": 2,
       "eventsOnDate": 2,
       "maxEvents": 3,
-      "marketsCaptured": [],
-      "records": 0,
-      "eligibleRecords": 0,
-      "paired": 0,
-      "overOnly": 0,
-      "deVigCoveragePct": 0,
-      "estimatedCredits": 18,
-      "actualCreditsSpent": 0,
-      "creditsRemaining": 12481,
-      "skippedGames": 0,
-      "providerUnavailable": [
-        {
-          "event": "198233ed5390fadb40e84cac794551ab",
-          "reason": "no player-prop markets returned"
-        },
-        {
-          "event": "3e7090629723a062facffeca147d8c9d",
-          "reason": "no player-prop markets returned"
-        }
+      "marketsCaptured": [
+        "pitcher_outs",
+        "pitcher_strikeouts",
+        "batter_hits",
+        "batter_hits_runs_rbis",
+        "batter_rbis",
+        "batter_total_bases",
+        "pitcher_earned_runs",
+        "batter_home_runs",
+        "batter_runs_scored"
       ],
+      "records": 1451,
+      "eligibleRecords": 1451,
+      "paired": 1240,
+      "overOnly": 211,
+      "deVigCoveragePct": 85.5,
+      "estimatedCredits": 18,
+      "actualCreditsSpent": 18,
+      "creditsRemaining": 12378,
+      "skippedGames": 0,
+      "providerUnavailable": [],
       "stoppedEarly": null
     }
   },
@@ -57,7 +58,7 @@
     "datesCollected": 61,
     "marketDatesCollected": 60,
     "playerPropDatesCollected": 60,
-    "avgEligiblePlayerPropRecordsPerDay": 10386,
+    "avgEligiblePlayerPropRecordsPerDay": 10410,
     "estimatedDaysTo30DateGate": 0,
     "pathTo500SettledEligibleRows": "settledEligibleObs=0 until a separate settlement-join mission runs; then each settled prop-lean that was captured pregame becomes 1 eligible row. At current per-day capture, a month of daily collection yields ample raw eligible records; the 500 SETTLED-eligible threshold is measurable only after the settlement join + official grading."
   },
@@ -127,9 +128,9 @@
     ],
     "gamesFinal": 812,
     "gamesPending": 4,
-    "joinRows": 101404,
+    "joinRows": 101462,
     "settledEligibleRows": 92879,
-    "marketPendingRows": 565,
+    "marketPendingRows": 623,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
     "joinCoverageByMarket": {
