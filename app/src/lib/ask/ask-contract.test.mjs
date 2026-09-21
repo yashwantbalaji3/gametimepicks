@@ -998,3 +998,44 @@ test("a real grounding violation is still reported as one", async () => {
   assert.equal(r.receipt.verifierStatus, "FAILED_DETERMINISTIC_FALLBACK");
   assert.ok(r.receipt.verifierViolations.length > 0, "a fabricated number must still be named as one");
 });
+
+/* ═══════  15. VERIFIER FALSE-POSITIVE CLASS SEVEN: THE CITATION MARKER  ═══════ */
+
+test("an inline evidence citation is a reference, not a numeric claim", () => {
+  /*
+   * ⚠ CLASS SEVEN, found by a change of model rather than a change of code.
+   *
+   * Fact ids look like E1.1. A model that cites inline writes "…the Lab's own tool [E1.1]", and the
+   * numeric scan read 1.1 out of the marker and rejected the answer for "the number 1.1 is not in the
+   * evidence" — an answer whose only crime was showing its working.
+   *
+   * The incumbent put citations in the `citations` array and rarely inline, so this sat unexercised
+   * for the whole of v1.6. It then presented as a GROUNDING problem in the new model: five of twenty
+   * canary cases, each a correct answer thrown away. The verifier was wrong, not the writer.
+   */
+  const evidence = {
+    facts: [{ id: "E1.1", text: "Research Lab is GameTimePicks' factual query tool" }],
+    numbers: new Set(),
+    identifiers: new Set(),
+    links: [],
+  };
+
+  for (const form of [
+    "Research Lab is the factual query tool [E1.1].",
+    "Research Lab is the factual query tool (E1.1).",
+    "Per E1.1, the Lab carries no forecasts.",
+    "See [E12.3] and [E2] for the rest.",
+  ]) {
+    const r = verifyAnswer(form, evidence, {});
+    assert.ok(r.ok, `a citation was read as a claim: ${form} → ${JSON.stringify((r.violations ?? []).map((v) => v.detail))}`);
+  }
+
+  // ⚠ AND THE SCAN MUST STILL BITE. Stripping citations must not become a hole to hide numbers in.
+  const fabricated = verifyAnswer("The Mets scored 47 runs [E1.1].", evidence, {});
+  assert.equal(fabricated.ok, false, "a fabricated number beside a citation must still be caught");
+  assert.match(fabricated.violations[0].detail, /47/);
+
+  // A decimal that is a real claim, not a marker, is still checked.
+  const decimal = verifyAnswer("Their ERA was 3.42 this season.", evidence, {});
+  assert.equal(decimal.ok, false, "a genuine decimal claim must still be caught");
+});

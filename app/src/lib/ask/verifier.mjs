@@ -145,6 +145,21 @@ export function verifyAnswer(answer, evidence, opts = {}) {
    * removed before anything is counted.
    */
   for (const ident of evidence.identifiers ?? []) scrubbed = scrubbed.split(ident).join(" ");
+  /*
+   * ⚠ AN EVIDENCE CITATION IS A REFERENCE, NOT A CLAIM — false-positive class SEVEN.
+   *
+   * Fact ids look like `E1.1`, and a model that cites inline writes "…the Lab's own tool [E1.1]".
+   * The numeric scan then read 1.1 straight out of the citation marker and rejected the answer for
+   * "the number 1.1 is not in the evidence" — an answer whose only crime was showing its working.
+   *
+   * The incumbent listed citations in the `citations` array and rarely inline, so this sat unexercised
+   * until a model with a different citing habit arrived. It then looked exactly like a grounding
+   * problem in that model: five of twenty canary cases, every one a correct answer thrown away for a
+   * number nobody claimed. The verifier was wrong, not the writer.
+   *
+   * Stripped before anything is counted, in both the bare and bracketed forms.
+   */
+  scrubbed = scrubbed.replace(/\[?\bE\d+(?:\.\d+)?\]?/g, " ");
   scrubbed = scrubbed.replace(/\b[A-Za-z][A-Za-z0-9]*(?:[_-][A-Za-z0-9]+){2,}\b/g, " ");
   for (const re of SAFE_CONTEXT) scrubbed = scrubbed.replace(re, " ");
   // Markdown list numbering ("1. ", "2. ") is structure, not a claim.
