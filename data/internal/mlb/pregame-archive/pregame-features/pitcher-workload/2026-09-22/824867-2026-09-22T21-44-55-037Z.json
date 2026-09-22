@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824867,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T21:44:55.037Z",
+  "availableAt": "2026-09-22T21:44:55.037Z",
+  "eventStartTime": "2026-09-22T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 702275,
+      "name": "JR Ritchie",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 4.8,
+        "bbAvg": 2.6,
+        "erAvg": 4.4,
+        "hrAvg": 1,
+        "kPer9": 9.53,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 44.33,
+        "k": 41,
+        "bb": 28,
+        "er": 30,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 682227,
+      "name": "Brandon Williamson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 20,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22,
+        "ipAvg": 4.4,
+        "kAvg": 3.4,
+        "bbAvg": 3.8,
+        "erAvg": 3.2,
+        "hrAvg": 0.4,
+        "kPer9": 6.95,
+        "workloadIpLast5": 22
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 33.33,
+        "k": 24,
+        "bb": 22,
+        "er": 22,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-22T21:44:55.037Z"
+  },
+  "recordHash": "33a05fa24d2641c58491680fcacb5c6d1c2f80fc3af2ecd43ced9db5747f1970"
+}

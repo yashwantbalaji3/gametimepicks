@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824709,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T21:44:55.037Z",
+  "availableAt": "2026-09-22T21:44:55.037Z",
+  "eventStartTime": "2026-09-22T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 801139,
+      "name": "Payton Tolle",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 9,
+      "lastStartDate": "2026-09-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 7.6,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 0.4,
+        "kPer9": 12.21,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 143,
+        "k": 166,
+        "bb": 38,
+        "er": 48,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 800048,
+      "name": "Parker Messick",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 6,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 6.8,
+        "bbAvg": 1.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 10.43,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 178.33,
+        "k": 186,
+        "bb": 47,
+        "er": 51,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-22T21:44:55.037Z"
+  },
+  "recordHash": "ed8fb64c7d717b28fffb23835b4e96d66303687316a14631e1f13e167b50ca08"
+}
