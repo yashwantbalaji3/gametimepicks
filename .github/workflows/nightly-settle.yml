@@ -303,18 +303,20 @@ jobs:
           echo "::notice::daily portfolio rolled forward to $ROLL_DATE"
 
       # v1.7 forward shadow. Grade yesterday's shadow cards from the linescores fetched above (pending
-      # stays pending — a missing final is never a loss), roll the shadow ladders, and publish the
-      # shadow for the roll-forward date at THIS instant, the same one the live product just rolled
-      # to. Neither step touches the live lanes or the protected money. Fail loud, no `|| true`.
+      # stays pending — a missing final is never a loss) and roll the shadow ladders. Touches neither the
+      # live lanes nor the protected money. Fail loud, no `|| true`.
+      #
+      # docs/V17_SHADOW_INTEGRITY_AUDIT.md (I1/I2): this step USED TO publish the shadow (and the public
+      # availability summary) for the roll-forward date at this instant, 01–06 ET. The shadow's only pool
+      # is mlb/team-markets/<date>.json, which the paid ingest downstream of this job writes ~10:00Z — so
+      # the roll-time publication would have been a day of INSUFFICIENT_CANDIDATES for every policy, and
+      # under first-publication-wins the real slate could never have been judged. The live product's card
+      # publication is daily-products (after its pool gate); the shadow publishes there, beside it, once.
       - name: Grade and roll the selector shadow (v1.7)
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           set -euo pipefail
-          ROLL_DATE="$(TZ=America/New_York date +%F)"
-          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           (cd app && npx tsx scripts/products/grade-selector-shadow.mjs --write)
-          (cd app && npx tsx scripts/products/build-product-eligible-legs.mjs --date "$ROLL_DATE" --now "$NOW" --write)
-          (cd app && npx tsx scripts/products/build-selector-shadow.mjs --date "$ROLL_DATE" --now "$NOW" --write)
 
       # The risk ladder re-derives its whole record from every graded day, so it runs AFTER
       # settlement and never carries a number forward from the previous file.

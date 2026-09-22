@@ -96,7 +96,7 @@ export function buildEligibleLegs({ date = DATE, now = NOW, root = ROOT } = {}) 
   manifest.marketPricedLegPolicy = MARKET_PRICED_LEG_POLICY;
   const artifact = { schemaVersion: PRODUCT_ELIGIBLE_LEG_SCHEMA_VERSION, artifact: "product-eligible-legs", dataClass: "internal", date, asOf: now, generatedAt: new Date().toISOString(), marketPricedLegPolicy: MARKET_PRICED_LEG_POLICY, counts: { total: legs.length, eligible: legs.filter((l) => l.productEligible).length }, legs };
   const availability = {
-    schemaVersion: 1, artifact: "product-availability", dataClass: "PUBLIC_DERIVED", date, asOf: now,
+    schemaVersion: 1, artifact: "product-availability", dataClass: "PUBLIC_DERIVED", date, asOf: now, generatedAt: new Date().toISOString(),
     note: "Today's eligible universe for Bank Builder / Moonshot, per sport. Counts and plain reasons only.",
     sports: Object.fromEntries(CONTRACT_SPORTS.map((sport) => {
       const m = manifest.sports[sport];

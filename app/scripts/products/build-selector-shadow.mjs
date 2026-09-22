@@ -15,6 +15,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { buildEligibleLegs } from "./build-product-eligible-legs.mjs";
 import { guardLegs } from "../../src/lib/products/eligible-leg/contract.mjs";
@@ -42,9 +43,23 @@ const existing = readJson(path.join(DIR, `${DATE}.json`), null);
 if (existing && !process.argv.includes("--force")) { console.log(`[selector-shadow] ${DATE} already published at ${existing.asOf} — first publication wins, nothing rewritten`); process.exit(0); }
 if (existing && Object.values(existing.policies).some((p) => Object.values(p.lanes).some((l) => l.graded))) { console.log(`[selector-shadow] ${DATE} already graded — refusing --force`); process.exit(0); }
 
+// INPUTS MISSING IS NOT A NO-PLAY (docs/V17_SHADOW_INTEGRITY_AUDIT.md, I1/I2). Every shadow policy pools
+// MLB only, and the MLB universe comes from mlb/team-markets/<date>.json, which the paid ingest writes
+// ~10:00Z on the product day. A caller that runs before it exists (the nightly roll did, 01–06 ET) would
+// publish a day of INSUFFICIENT_CANDIDATES and, under first-publication-wins, lock the real slate out.
+// Refuse to publish instead: a missing slate is never a no-play. Exit 0 — the caller distinguishes this
+// from a no-play by the absence of the day file and by this line.
+const TEAM_MARKETS = path.join(REPO, "app", "public", "data", "mlb", "team-markets", `${DATE}.json`);
+if (!fs.existsSync(TEAM_MARKETS)) { console.log(`[selector-shadow] ${DATE}: INPUTS_MISSING — no mlb/team-markets/${DATE}.json at ${NOW}; not published (a missing slate is never a no-play)`); process.exit(0); }
+
 const { artifact, manifest } = buildEligibleLegs({ date: DATE, now: NOW });
 const { kept, refused } = guardLegs(artifact.legs, { asOf: NOW });
-const day = { schemaVersion: 1, artifact: "selector-shadow-day", dataClass: "internal-research", date: DATE, asOf: NOW, generatedAt: new Date().toISOString(), eligibleLegs: kept.length, refusedAtRead: refused.length, availability: Object.fromEntries(Object.entries(manifest.sports).map(([s, m]) => [s, { eligible: m.eligibleLegCount, rejected: m.rejectedLegCount }])), policies: {} };
+// The guarded universe every policy (control and candidates alike) ranked over, fingerprinted so a later
+// rewrite of eligible-legs/<date>.json (that file is regenerated on every run) can never change what
+// this day was judged on without the change being visible (audit I6).
+const universeLegIds = kept.map((l) => l.legId).sort();
+const universe = { legIds: universeLegIds, sha256: createHash("sha256").update(JSON.stringify(universeLegIds)).digest("hex") };
+const day = { schemaVersion: 1, artifact: "selector-shadow-day", dataClass: "internal-research", date: DATE, asOf: NOW, generatedAt: new Date().toISOString(), eligibleLegs: kept.length, refusedAtRead: refused.length, universe, availability: Object.fromEntries(Object.entries(manifest.sports).map(([s, m]) => [s, { eligible: m.eligibleLegCount, rejected: m.rejectedLegCount }])), policies: {} };
 
 for (const name of ALL) {
   const st = state.policies[name];

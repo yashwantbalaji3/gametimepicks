@@ -4,7 +4,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { gradeLegFromLinescores, gradeCardFromLinescores, advancePosition, policyMetrics, adoptionGate, ADOPTION_MIN_DECIDED, SHADOW_POLICIES } from "./shadow.mjs";
+import { gradeLegFromLinescores, gradeCardFromLinescores, advancePosition, policyMetrics, adoptionGate, settledDecimal, ADOPTION_MIN_DECIDED, SHADOW_POLICIES } from "./shadow.mjs";
 import { POLICIES } from "./policies.mjs";
 
 const rows = [{ gamePk: 1, isFinal: true, homeRuns: 5, awayRuns: 3 }, { gamePk: 2, isFinal: false, homeRuns: 2, awayRuns: 2 }, { gamePk: 3, isFinal: true, homeRuns: 4, awayRuns: 4 }];
@@ -36,6 +36,18 @@ test("ladder rule: won carries the real payout and skips cleared rungs; lost res
   assert.deepEqual(advancePosition("BB-C1", { step: 3, stake: 700 }, "lost", { stake: 700, decimal: 2 }), { step: 1, stake: POLICIES["BB-C1"].seed, completed: false });
   assert.deepEqual(advancePosition("BB-C1", { step: 3, stake: 700.75 }, "push", { stake: 700.75, decimal: 2 }), { step: 3, stake: 700.75, completed: false });
   assert.deepEqual(advancePosition("MS-C1", { step: 3, stake: 400 }, "won", { stake: 400, decimal: 2.5 }), { step: 1, stake: 25, completed: true });
+});
+
+test("settled decimal: a pushed leg pays 1.0, so a won card with a push rolls on the SURVIVING legs' price (audit I5)", () => {
+  const legs = [{ american: -110 }, { american: 150 }];
+  assert.equal(settledDecimal(legs, ["won", "won"]), +((1 + 100 / 110) * 2.5).toFixed(4));
+  assert.equal(settledDecimal(legs, ["won", "push"]), +(1 + 100 / 110).toFixed(4), "the pushed leg's price is removed");
+  assert.equal(settledDecimal(legs, ["push", "push"]), 1, "an all-push card returns the stake");
+  assert.equal(settledDecimal(legs, ["won"]), null, "a grade array that does not match the legs is refused, never guessed");
+  assert.equal(settledDecimal([{ american: NaN }], ["won"]), null, "an unpriced leg is refused");
+  // The ladder rule then advances on the settled decimal: $100 at (-110 won, +150 push) is $190.91, not $477.27.
+  const next = advancePosition("BB-C1", { step: 1, stake: 100 }, "won", { stake: 100, decimal: settledDecimal(legs, ["won", "push"]) });
+  assert.deepEqual(next, { step: 1, stake: 190.91, completed: false }, "$190.91 has not cleared the $200 rung-2 start");
 });
 
 test("metrics: pending is not decided; push is neither win nor loss; survival is over decisive only", () => {

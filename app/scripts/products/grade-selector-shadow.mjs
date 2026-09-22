@@ -13,7 +13,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { gradeCardFromLinescores, advancePosition, policyMetrics, adoptionGate, SHADOW_POLICIES } from "../../src/lib/products/selector/shadow.mjs";
+import { gradeCardFromLinescores, advancePosition, policyMetrics, adoptionGate, settledDecimal, SHADOW_POLICIES } from "../../src/lib/products/selector/shadow.mjs";
 import { policyId } from "../../src/lib/products/selector/policies.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -38,8 +38,10 @@ for (const f of days) {
         const g = rows ? gradeCardFromLinescores({ legs: x.legs }, rows) : { status: "pending", legs: x.legs.map(() => "pending") };
         if (g.status === "pending") { pending++; }
         else {
-          x.graded = { ...g, gradedAt: new Date().toISOString(), source: "statsapi_linescore" };
-          const st = state.policies[name]; if (st) { const next = advancePosition(name, st.positions[lane], g.status, { stake: x.stake, decimal: x.decimal }); x.completed = next.completed; st.positions[lane] = { step: next.step, stake: next.stake, pending: false }; }
+          // A pushed leg pays 1.0: the ladder rolls on the SETTLED decimal, never the published one (audit I5).
+          const settled = settledDecimal(x.legs, g.legs) ?? x.decimal;
+          x.graded = { ...g, gradedAt: new Date().toISOString(), source: "statsapi_linescore", settledDecimal: settled, payout: g.status === "won" ? +(x.stake * settled).toFixed(2) : g.status === "push" ? x.stake : 0 };
+          const st = state.policies[name]; if (st) { const next = advancePosition(name, st.positions[lane], g.status, { stake: x.stake, decimal: settled }); x.completed = next.completed; st.positions[lane] = { step: next.step, stake: next.stake, pending: false }; }
           graded++; changed = true;
         }
       }

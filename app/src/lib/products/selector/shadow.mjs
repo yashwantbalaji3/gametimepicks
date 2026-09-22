@@ -32,6 +32,24 @@ export function gradeCardFromLinescores(card, rows) {
   return { status: "won", legs };
 }
 
+/**
+ * The decimal a card actually settles at: a pushed leg pays 1.0 (its price is removed), a won leg pays its
+ * own price. Before the v1.7 shadow-integrity audit (docs/V17_SHADOW_INTEGRITY_AUDIT.md, I5) a card that
+ * won with one pushed leg carried the FULL published decimal, overstating the payout the ladder rolled on.
+ * Legs without a per-leg grade are treated as won (the published decimal), so callers that only know the
+ * card status keep the old behaviour.
+ */
+export function settledDecimal(legs, legGrades) {
+  if (!Array.isArray(legs) || !Array.isArray(legGrades) || legs.length !== legGrades.length) return null;
+  let d = 1;
+  for (let i = 0; i < legs.length; i++) {
+    if (legGrades[i] === "push") continue;
+    const a = legs[i]?.american; if (!Number.isFinite(a)) return null;
+    d *= a >= 100 ? 1 + a / 100 : 1 + 100 / -a;
+  }
+  return +d.toFixed(4);
+}
+
 export function advancePosition(policyName, pos, status, card) {
   const policy = POLICIES[policyName]; const ladder = LADDERS[policy.ladder];
   if (status === "won") {
