@@ -100,13 +100,26 @@ jobs:
           echo "  Min credits remaining: ${{ env.ODDS_MIN_CREDITS_REMAINING }}"
           echo "════════════════════════════════════════════════════════"
 
+      # ── NBA LEGACY HALF DE-SCHEDULED (v1.7 NBA readiness, docs/V17_NBA_READINESS_RECEIPT.md, cleanup
+      # receipt 2026-09-22) ─────────────────────────────────────────────────────────────────────────
+      # Every Python step below is the stats.nba.com / nba_api pipeline that has been dead from CI
+      # since 2026-06-13: run 35685601992 (2026-09-22 04:06 UTC) shows "fetching game logs via
+      # nba_api for 33 players" → "recent10 attachment timed out after 8m", meta.dataMode
+      # ScheduleUnavailable, and "no changes to commit" — 13 minutes of runner time, nine times a
+      # day, producing nothing. The replacement path is the ESPN-based NBA track in
+      # sport-schedules.yml (schedule, results, injuries, rosters, experimental forecasts —
+      # internal research, registry HISTORICAL_ONLY). The steps are GATED, not deleted: set the
+      # repository variable NBA_LEGACY_REFRESH=true to run them again. The publication-SLO watchdog
+      # and the commit path stay on the every-2h cron because detection rides here on purpose.
       - name: Setup Python
+        if: vars.NBA_LEGACY_REFRESH == 'true' || env.ENABLE_ODDS_REFRESH == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "pip"
 
       - name: Install Python dependencies
+        if: vars.NBA_LEGACY_REFRESH == 'true' || env.ENABLE_ODDS_REFRESH == 'true'
         run: |
           if [ -f pipeline/requirements.txt ]; then
             python -m pip install --upgrade pip
@@ -128,10 +141,12 @@ jobs:
         run: npm ci
 
       - name: Show pre-refresh data freshness
+        if: vars.NBA_LEGACY_REFRESH == 'true'
         run: |
           python3 scripts/show_meta_freshness.py --label pre
 
       - name: Run safe refresh (free tasks only)
+        if: vars.NBA_LEGACY_REFRESH == 'true'
         run: |
           bash scripts/automation_refresh.sh
         env:
@@ -294,11 +309,13 @@ jobs:
           done
 
       - name: Inspect trends (diagnostic)
+        if: vars.NBA_LEGACY_REFRESH == 'true'
         run: |
           python3 -m pipeline.inspect_trends || true
 
       - name: Show post-refresh data freshness
         id: post_refresh
+        if: vars.NBA_LEGACY_REFRESH == 'true'
         run: |
           python3 scripts/show_meta_freshness.py --label post
           echo ""
