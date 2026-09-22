@@ -75,7 +75,7 @@ nothing, exit 0.
 | fetcher: second month 404 aborts | half-window refused | — |
 | `utcDayStart`/`utcDayEnd` | day-granular bounds, year end | invalid date throws |
 
-Run tonight: `espn-scoreboard-callers` 12/12 · `espn-scoreboard-window` 4/4 · `ufc-record-consolidation` (the
+Run tonight: `espn-scoreboard-callers` 10/10 · `epl-results-capture-transport` 2/2 (in the EPL lane) · `epl-closeout-guard` 9/9 · `espn-scoreboard-window` 4/4 · `ufc-record-consolidation` (the
 `limit=1000` guard over the four UFC scripts) · `audits/capture-independence` · `ops/workflow-shell-syntax` →
 **34 pass / 0 fail**. `npm run -s lint:scripts` clean.
 
@@ -101,6 +101,15 @@ Four probes against the strengthened guard, each applied and reverted:
 | literal range form in a single-day UFC caller (`dates=20260922-20261121`) | **caught** (2 fail) |
 | `epl-results-capture.mjs` re-derives the month plan locally instead of via the owner | **caught** (1 fail) |
 | a migrated caller adds a const-built direct `await fetch(scoreboard?dates=A-B)` | **caught** (2 fail) |
+
+**And the fix tripped a different guard, correctly.** Naming the EPL capture's module by path put a
+non-lane file in breach of `epl-closeout-guard`'s reader check ("only this lane references the soccer/epl
+root"), which refuses any module outside `src/lib/soccer` that references the lane by path. CI caught it in
+the rendered phase (`not ok 432`, 1 fail) on a commit that touched only a test file and this document — a
+useful demonstration that the lane boundary is real. The two EPL-specific tests moved **into** the lane
+(`src/lib/soccer/epl-results-capture-transport.test.mjs`) rather than being rewritten to spell the path in a
+form the scan cannot see: a test is not an exemption, and dodging a guard to keep a file where it was is how
+guards become decoration.
 
 One deliberate exception is now named rather than accidental: `capture-epl-results.mjs` is the ONE windowed
 caller outside the shared fetcher. It keeps its own loop because its failure semantics differ (`EXIT_SOURCE_STALE`

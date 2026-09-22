@@ -180,29 +180,14 @@ test("the only module that spells the scoreboard URL with a dates= parameter is 
   assert.deepEqual(windowed, [], `windowed scoreboard calls outside the owner: ${windowed.join("; ")}`);
 });
 
-test("the EPL results capture keeps its own loop but NOT its own month plan — one owner for the rule", () => {
-  const rel = "src/lib/soccer/epl-results-capture.mjs";
-  const src = fs.readFileSync(path.join(APP, rel), "utf8");
-  assert.match(src, /monthsCovering/, `${rel} must take the month plan from the shared owner`);
-  assert.match(src, /sports\/espn-scoreboard-window\.mjs/, `${rel} must import the shared owner`);
-  assert.doesNotMatch(src, /getUTCMonth\(\)/, `${rel} must not re-derive months itself (that is the owner's rule)`);
-});
-
-test("the two month plans agree — the EPL signature is a wrapper, never a second rule", async () => {
-  const { scoreboardMonths } = await import("../soccer/epl-results-capture.mjs");
-  const { monthsCovering } = await import("./espn-scoreboard-window.mjs");
-  for (const [start, now] of [
-    ["2026-08-21", "2026-09-22T15:00:00Z"],
-    ["2026-08-21", "2027-05-24T23:59:00Z"],
-    ["2026-12-30", "2027-01-02T00:00:00Z"],
-    ["2026-09-01", "2026-09-01T00:00:00Z"],
-  ]) {
-    assert.deepEqual(scoreboardMonths(start, now), monthsCovering(`${start}T00:00:00Z`, now), `${start} → ${now}`);
-  }
-  // the EPL signature answers [] where the owner throws — an inverted window is a refusal upstream
-  assert.deepEqual(scoreboardMonths("2026-09-22", "2026-09-01T00:00:00Z"), []);
-  assert.deepEqual(scoreboardMonths("nope", "2026-09-01T00:00:00Z"), []);
-});
+/*
+ * TWO SIBLING TESTS LIVE IN THE EPL LANE, NOT HERE. The EPL results capture is the one windowed scoreboard
+ * caller outside the shared fetcher (its failure semantics differ), so two tests pin that its month PLAN
+ * still comes from the owner and that the two signatures agree. They sit beside the module they describe,
+ * in `epl-results-capture-transport.test.mjs` within the lane directory, because epl-closeout-guard refuses
+ * any module outside that lane from naming the lane by path — and a test is not an exemption. See that file
+ * for the range-form rule's other half.
+ */
 
 /* ── the fetcher itself, with an injected fetch ── */
 const fakeFetch = (table) => async (url) => {
