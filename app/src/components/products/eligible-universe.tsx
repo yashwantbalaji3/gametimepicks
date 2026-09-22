@@ -10,21 +10,21 @@ export default function EligibleUniverse({ availability, compact = false }: { av
   if (!availability) return null;
   const marketOnly = availability.sports.some((s) => s.eligibleLegs > 0 && s.marketPricedOnly);
   return (
-    <section aria-label="Today's eligible universe" className={`rounded-xl border px-4 ${compact ? "py-3" : "py-4"}`} style={{ borderColor: "var(--vault-border)", background: "var(--vault-surface)" }}>
+    <section aria-label="Today's eligible universe" className={`rounded-xl border px-4 ${compact ? "py-3" : "py-4"}`} style={{ borderColor: "var(--vault-border)", background: "var(--vault-panel)" }}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--vault-text-faint)" }}>Today&rsquo;s eligible universe · {availability.date}</h2>
-        <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-muted)" }}>{availability.totalEligible} eligible leg{availability.totalEligible === 1 ? "" : "s"} across {availability.sports.filter((s) => s.eligibleLegs > 0).length} sport{availability.sports.filter((s) => s.eligibleLegs > 0).length === 1 ? "" : "s"}</span>
+        <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-mute)" }}>{availability.totalEligible} eligible leg{availability.totalEligible === 1 ? "" : "s"} across {availability.sports.filter((s) => s.eligibleLegs > 0).length} sport{availability.sports.filter((s) => s.eligibleLegs > 0).length === 1 ? "" : "s"}</span>
       </div>
       <ul className="mt-2 grid gap-1 sm:grid-cols-2" role="list">
         {availability.sports.map((s) => (
           <li key={s.sport} className="flex items-center justify-between gap-3 text-[12px]">
-            <span className="font-semibold" style={{ color: s.eligibleLegs > 0 ? "var(--vault-text)" : "var(--vault-text-muted)" }}>{s.label}</span>
-            <span className="text-right" style={{ color: "var(--vault-text-muted)" }}>{s.eligibleLegs > 0 ? `${s.eligibleLegs} eligible legs · ${s.events} game${s.events === 1 ? "" : "s"}` : s.reason}</span>
+            <span className="font-semibold" style={{ color: s.eligibleLegs > 0 ? "var(--vault-text)" : "var(--vault-text-mute)" }}>{s.label}</span>
+            <span className="text-right" style={{ color: "var(--vault-text-mute)" }}>{s.eligibleLegs > 0 ? `${s.eligibleLegs} eligible legs · ${s.events} game${s.events === 1 ? "" : "s"}` : s.reason}</span>
           </li>
         ))}
       </ul>
       {marketOnly ? (
-        <p className="mt-2 text-[11px] leading-snug" style={{ color: "var(--vault-text-muted)" }}>
+        <p className="mt-2 text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
           Every eligible leg today is priced by the sportsbook market with no forecast behind it. A card built from these legs is a market construction; its chance of landing is what the prices imply, not a prediction.
         </p>
       ) : null}
