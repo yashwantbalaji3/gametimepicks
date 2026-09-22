@@ -17,7 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { scoreboardMonthUrls, mergeWindowEvents } from "../../src/lib/sports/espn-scoreboard-window.mjs";
+import { fetchScoreboardWindowEvents } from "../../src/lib/sports/espn-scoreboard-window.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = path.join(APP, "public", "data", "nba", "schedule");
@@ -34,14 +34,9 @@ const d1 = new Date(d0.getTime() + DAYS * 86400_000);
 // 2026-09-20: the provider began answering the RANGE form (`dates=A-B`) with 400 on every request
 // (sport-schedules.yml refused "NBA schedule" daily). The month form still answers; the window is
 // applied here, on the events, so the artifact's promise ("this window, never the season") holds.
-const urls = scoreboardMonthUrls("basketball/nba", d0, d1);
-const responses = [];
-for (const u of urls) {
-  const res = await fetch(u);
-  if (!res.ok) { console.error(`REFUSED: scoreboard fetch ${res.status} (${u})`); process.exit(1); }
-  responses.push(await res.json());
-}
-const data = { events: mergeWindowEvents(responses, d0, d1) };
+let data, urls;
+try { const r = await fetchScoreboardWindowEvents("basketball/nba", d0, d1); data = { events: r.events }; urls = r.urls; }
+catch (err) { console.error(`REFUSED: ${err.message}`); process.exit(1); }
 const url = urls.join(" ");
 
 const rows = (data.events ?? []).map((e) => {

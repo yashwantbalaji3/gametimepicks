@@ -36,6 +36,7 @@ import {
   gradeShadow, decide, scoreGraded, drawEceNullQuantile, canonicalJson,
 } from "../../src/lib/sports/soccer/dixon-coles-shadow-record.mjs";
 import { fitEplStrength, scoreMatrix as v1ScoreMatrix } from "../../src/lib/sports/epl/strength-state.mjs";
+import { fetchScoreboardWindowEvents, isProviderRefusal, utcDayStart, utcDayEnd } from "../../src/lib/sports/espn-scoreboard-window.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -86,15 +87,14 @@ const dayFiles = (k) => {
   if (!fs.existsSync(d)) return [];
   return fs.readdirSync(d).filter((f) => /^forecasts-\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().map((f) => readJson(path.join(d, f)));
 };
-const ymd = (t) => new Date(t).toISOString().slice(0, 10).replace(/-/g, "");
 let refusals = 0;
 const refuse = (msg) => { refusals += 1; console.error(`REFUSED ${msg}`); };
 
 async function espnEvents(code, fromMs, toMs) {
-  const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${ymd(fromMs)}-${ymd(toMs)}&limit=400`;
-  const res = await fetch(url, { headers: { accept: "application/json" } });
-  if (!res.ok) throw new Error(`ESPN scoreboard HTTP ${res.status}`);
-  return (await res.json()).events ?? [];
+  // v1.8 B4: month-window transport via the one shared owner (range form 400 since 2026-09-20;
+  // soccer-dc-shadow.yml red on every run). Day bounds kept, as the day-granular range form was.
+  const { events } = await fetchScoreboardWindowEvents(`soccer/${code}`, utcDayStart(fromMs), utcDayEnd(toMs));
+  return events;
 }
 
 /* ── forecast ─────────────────────────────────────────────────────────────────────────────────────────── */

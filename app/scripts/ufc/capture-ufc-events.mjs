@@ -15,6 +15,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { fetchScoreboardWindowEvents, isProviderRefusal, utcDayStart, utcDayEnd } from "../../src/lib/sports/espn-scoreboard-window.mjs";
+
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = path.join(APP, "public", "data", "ufc", "schedule");
 
@@ -23,13 +25,19 @@ const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const DAYS = Math.min(120, Math.max(1, Number(arg("--days", "60"))));
 
-const d0 = new Date(NOW);
-const fmt = (d) => d.toISOString().slice(0, 10).replaceAll("-", "");
-const url = `https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${fmt(d0)}-${fmt(new Date(d0.getTime() + DAYS * 86400_000))}&limit=1000`; // P196: default page size truncated a 13-bout card to 7
+const DRY = process.argv.includes("--dry-run");
 
-const res = await fetch(url);
-if (!res.ok) { console.error(`REFUSED: scoreboard fetch ${res.status}`); process.exit(1); }
-const data = await res.json();
+const d0 = new Date(NOW);
+// v1.8 B4: the RANGE form (`dates=A-B`) died for NBA/NFL/soccer on 2026-09-20; MMA still answered it, which
+// is exactly why this caller had to move BEFORE the provider changed the MMA endpoint too. The shared
+// owner asks by MONTH (limit=1000 — P196: the default page size truncated a 13-bout card to 7) and the
+// window is applied to the events here. The old form was day-granular, so the window end is the END
+// of the last UTC day, never the bare instant.
+const d1 = utcDayEnd(new Date(d0.getTime() + DAYS * 86400_000));
+let data, urls;
+try { ({ events: data, urls } = await fetchScoreboardWindowEvents("mma/ufc", d0, d1)); data = { events: data }; }
+catch (err) { console.error(`REFUSED: ${err.message}`); process.exit(1); }
+const url = urls.join(" ");
 
 const events = [];
 const bouts = [];
@@ -74,6 +82,7 @@ for (const e of data.events ?? []) {
 }
 
 if (events.length === 0) { console.error("REFUSED: zero usable events — an empty capture would render as an empty slate"); process.exit(1); }
+if (DRY) { console.log(`dry-run: ${events.length} events / ${bouts.length} named bouts in window ${d0.toISOString()}..${d1.toISOString()} from ${urls.length} month request(s); nothing written`); process.exit(0); }
 for (const [label, list, key] of [["event", events, "providerEventId"], ["bout", bouts, "providerBoutId"]]) {
   const dupes = list.length - new Set(list.map((r) => r[key])).size;
   if (dupes > 0) { console.error(`REFUSED: ${dupes} duplicate ${label} provider ids in one window`); process.exit(1); }
