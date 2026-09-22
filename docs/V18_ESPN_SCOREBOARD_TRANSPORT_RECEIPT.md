@@ -65,7 +65,9 @@ nothing, exit 0.
 
 | Test | Pins | Mutation / positive control |
 |---|---|---|
-| range-form scan over `app/scripts/**` + `app/api/**` | no non-comment line builds `scoreboard?dates=…-…` | the four exact strings that were on disk before the repair are asserted to MATCH the scan regex; month/day forms asserted NOT to |
+| range-form scan over every ESPN-calling file in `app/scripts/**` + `app/api/**` | no non-comment line builds a `dates=` value whose LITERAL text carries a hyphen | the four exact strings that were on disk before the repair are asserted to MATCH; month/day forms, and a one-day value that spells a hyphen *inside* its expression, asserted NOT to |
+| EPL results capture keeps its own loop but not its own month plan | `epl-results-capture.mjs` imports `monthsCovering` from the owner and never re-derives months | re-deriving the plan locally fails the test |
+| the two month plans agree | `scoreboardMonths(start, now)` ≡ `monthsCovering(...)` across four windows incl. a year roll; the EPL signature's `[]` for an inverted/invalid window is pinned separately | — |
 | migrated-caller list (10 files) | each imports the owner and `fetchScoreboardWindowEvents`; none calls `scoreboardMonthUrls` or `await fetch(…scoreboard…)` itself | reverting any one file to its own fetch loop fails the test by name |
 | "only the owner spells a windowed `dates=`" | every other `dates=` in the tree is a single-day form (`${day}`, `${date}`, literal, or the `{YYYYMMDD}` documentation placeholder) | — |
 | fetcher: month plan + window merge | two months requested in order, `accept: application/json`, before/after-window events dropped, echoed event collapsed | — |
@@ -73,9 +75,38 @@ nothing, exit 0.
 | fetcher: second month 404 aborts | half-window refused | — |
 | `utcDayStart`/`utcDayEnd` | day-granular bounds, year end | invalid date throws |
 
-Run tonight: `espn-scoreboard-callers` 11/11 · `espn-scoreboard-window` 4/4 · `ufc-record-consolidation` (the
+Run tonight: `espn-scoreboard-callers` 12/12 · `espn-scoreboard-window` 4/4 · `ufc-record-consolidation` (the
 `limit=1000` guard over the four UFC scripts) · `audits/capture-independence` · `ops/workflow-shell-syntax` →
-**33 pass / 0 fail**. `npm run -s lint:scripts` clean.
+**34 pass / 0 fail**. `npm run -s lint:scripts` clean.
+
+### 3a. The first version of this guard was blind to a const-built URL (found by mutation probe, 2026-09-22)
+
+The scan originally required the literal `scoreboard?dates=` **on one line**. `capture-epl-results.mjs` keeps the
+host in a const and appends the query — `` `${SCOREBOARD}?dates=${month}&limit=1000` `` — so the word
+`scoreboard` and the `?dates=` never share a line, and the file was invisible to the scan. Probe: injecting
+`dates=${month}-${month}` there left the suite at **10 pass / 0 fail**. That is the vacuous-guard class this
+repair exists to prevent — the guard would have passed while the dead form was back on disk.
+
+The scan is now anchored on `?dates=` (not on the word `scoreboard`) across every file that mentions
+`site.api.espn.com`, and it reads the value with a brace-aware walk rather than a regex, because
+`api/_live-core.mjs` spells `?dates=${plan.date.replace(/-/g, "")}` — a SPACE and a hyphen inside the expression,
+which a `[^&`"'\s]*` capture truncates into a false positive. `${...}` groups are consumed into `raw` only; the
+hyphen test runs on the literal remainder.
+
+Four probes against the strengthened guard, each applied and reverted:
+
+| Probe | Result |
+|---|---|
+| const-built range form in `capture-epl-results.mjs` (`dates=${month}-${month}`) | **caught** (2 fail) |
+| literal range form in a single-day UFC caller (`dates=20260922-20261121`) | **caught** (2 fail) |
+| `epl-results-capture.mjs` re-derives the month plan locally instead of via the owner | **caught** (1 fail) |
+| a migrated caller adds a const-built direct `await fetch(scoreboard?dates=A-B)` | **caught** (2 fail) |
+
+One deliberate exception is now named rather than accidental: `capture-epl-results.mjs` is the ONE windowed
+caller outside the shared fetcher. It keeps its own loop because its failure semantics differ (`EXIT_SOURCE_STALE`
+= 4, nothing written, plus per-month provenance in the artifact's `source` block), but its month PLAN comes from
+the shared owner — pinned by the two tests above, so the rule has one owner even though the transport has two
+call sites.
 
 ## 4. Live dry runs (provider, 2026-09-22 ≈18:07Z; nothing written)
 
