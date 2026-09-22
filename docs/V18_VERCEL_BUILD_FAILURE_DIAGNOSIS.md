@@ -19,7 +19,7 @@ same Next.js (**14.2.15**):
 | Deployment | Env | Commit | Outcome |
 |---|---|---|---|
 | `7jsrjkxwg` | Production | `8182f62` (bot: "mlb lineup refresh") | **● Error after 46m** |
-| `nv3fm7kn1` | Preview | `0550601a` (PR #632, Track C1) | **● Building, silent 24m+** |
+| `nv3fm7kn1` | Preview | `0550601a` (PR #632, Track C1) | **● Error after 46m** (confirmed 20:47Z) |
 | `3yvpkgbc1` | Production | `3eb86c88` | ● Ready in **5m** |
 
 ## 2. The classification
@@ -38,7 +38,7 @@ steps, and not the clone.
 | Generating static pages **0 → 1856** | 107 s | 104 s | 106 s |
 | Generating static pages **1856 → 2475** | **64 s** | **never — no further output** | **never — no further output** |
 | Finalize + traces + prune + publish | 21 s | — | — |
-| **Total** | **5 m** | **46 m → Error** | **still building** |
+| **Total** | **5 m** | **46 m → Error** | **46 m → Error** |
 
 ### The signature
 
@@ -49,13 +49,24 @@ counter in both, to the page:
 ```
 healthy  20:24:50  (1856/2475)  →  20:25:50  (2436/2475)  →  20:25:54  ✓ (2475/2475)
 failing  19:06:16  (1856/2475)  →  [42 minutes of silence]  →  ● Error
-failing  20:06:42  (1856/2475)  →  [24 minutes of silence and counting]
+failing  20:06:42  (1856/2475)  →  [41 minutes of silence]       →  ● Error
 ```
+
+Both failing builds ran **46 minutes to the minute** before the platform ended them, from two different
+commits, one Production and one Preview.
 
 **That final band is already the slowest part of a healthy build.** Pages 618→1237 take 21 s and
 1237→1856 take 18 s (≈34 pages/s), but 1856→2436 takes 60 s (≈10 pages/s) — roughly **3× the per-page
 cost** of everything before it. The band that intermittently hangs is the band that is already three
 times more expensive per page.
+
+### The log contains no error at all
+
+Worth stating plainly, because it constrains the hypotheses: the failed builds' logs were searched for
+`out of memory`, `oom`, `killed`, `SIGKILL`, `SIGTERM`, `heap`, `timed out`, `exceeded` and `error:`.
+**Nothing matches.** The last line written is the `(1856/2475)` progress line, and then the build produces
+no output whatsoever for the remaining ~41 minutes. A hard OOM kill normally leaves a trace; this leaves
+none, which fits a **hang** — a wait that never returns — better than a crash.
 
 ## 3. What this rules out
 
@@ -78,9 +89,11 @@ Ranked by what the evidence supports, not by ease:
    ceiling intervenes. A page that reads a very large artifact per page would explain the 3× per-page cost
    in the same band. Identify the band first: it is the ~619 pages Next generates after the 1856th, in its
    own deterministic order.
-2. **Memory pressure on an 8 GB / 4-core machine.** Generation is the peak-memory phase, the last band is
-   the most expensive, and a machine paging heavily stops emitting progress without dying. Worth checking
-   whether the export's biggest per-page payloads sit in that band.
+2. **Memory pressure on an 8 GB / 4-core machine.** Generation is the peak-memory phase and the last band is
+   the most expensive, so a machine paging heavily would stop emitting progress without dying. The absence of
+   any OOM line is consistent with paging rather than a kill, but it is weaker evidence than hypothesis 1 —
+   an OOM kill would usually say so. Worth checking whether the export's biggest per-page payloads sit in
+   that band.
 3. **Concurrency inside the band** — Next's worker pool stalling on a shared resource, which would also be
    intermittent on identical input.
 
@@ -114,5 +127,5 @@ new piece of work, not the tail of this diagnosis.
 ## 7. Verification trail
 
 `vercel ls gametime-picks` and `vercel inspect --logs <url>` against the three deployments in §1,
-2026-09-22 20:29–20:35Z. Read-only. Phase boundaries in §2 are the log's own timestamps, differenced — not
+2026-09-22 20:29–20:50Z, re-read after `nv3fm7kn1` terminated. Read-only. Phase boundaries in §2 are the log's own timestamps, differenced — not
 estimates. The two failing builds' logs end at the line quoted in §2, with nothing after it.
