@@ -416,6 +416,7 @@ export default function BankBuilderPage() {
          */
         stake: laneMoney.stake,
         combinedOdds: laneMoney.combinedOdds,
+        jointProbabilityBasis: card?.jointProbabilityBasis ?? null,
         // Return follows the same stake AND the same price, so the three numbers describe one bet.
         potentialReturn: laneMoney.potentialReturn,
         reachesTarget: laneMoney.reachesTarget,

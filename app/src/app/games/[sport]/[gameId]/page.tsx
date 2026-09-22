@@ -37,10 +37,16 @@ export function generateMetadata({ params }: { params: { sport: string; gameId: 
     /* NOT wrapped, deliberately: withRouteMetadata's job is to declare "this URL is the one",
        and this page exists to say the opposite — the slug is ambiguous and neither game owns it.
        A canonical here would nominate a disambiguation stub as the home of two real games. */
+    /* og:url is set to THIS page all the same. Without it Next inherits the layout's root og:url, and
+       the share card of a doubleheader stub claimed to be the homepage — the first doubleheader after
+       the built guard shipped (TB @ NYY, 2026-09-22) caught it. A share card naming its own URL is not
+       a canonical: it says "this is where you are", not "this is the home of these games". */
+    const here = `/games/${params.sport}/${params.gameId}/`;
     return {
       title: `Two games share this matchup · GameTime Picks`,
       description: "This matchup has more than one game on this date. Pick the game you want. Educational, paper-only.",
       robots: { index: false, follow: true },
+      openGraph: { url: here, title: "Two games share this matchup", description: "This matchup has more than one game on this date. Pick the game you want." },
     };
   }
   return withRouteMetadata(`/games/${params.sport}/${params.gameId}/`, { title: "Game · GameTime Picks", description: "Game detail — educational, paper-only." });

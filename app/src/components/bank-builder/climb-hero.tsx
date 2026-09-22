@@ -69,6 +69,9 @@ export interface ClimbLane {
   cycle?: number | null;     // ladder cycle/run # if available
   stake: number | null;
   combinedOdds: number | null;
+  /** F1 Option A: the card's probability basis, when its legs are all market-priced ("market-implied").
+   *  Unknown → null → no label (never labelled "model"). Read from the published card; never inferred here. */
+  jointProbabilityBasis?: "market-implied" | "model" | "mixed" | null;
   potentialReturn: number | null;
   goalTarget: number | null;
   /**
