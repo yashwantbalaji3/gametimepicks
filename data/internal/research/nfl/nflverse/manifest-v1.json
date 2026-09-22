@@ -2,22 +2,22 @@
  "schemaVersion": 1,
  "artifact": "nflverse-capture",
  "dataClass": "PRIVATE_RESEARCH",
- "capturedAt": "2026-09-15T15:38:48Z",
+ "capturedAt": "2026-09-22T15:35:14Z",
  "attribution": "Data: nflverse (https://github.com/nflverse), licensed CC BY 4.0. Derived tables; raw files are not redistributed here.",
  "sources": [
   {
    "name": "players.csv",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/players/players.csv",
    "status": 200,
-   "bytes": 7290797,
-   "sha256": "507f8cf03ffc8a82b841212582000163eb713ced15c9f83f851afb42da0af259"
+   "bytes": 7234131,
+   "sha256": "4dd70f328f31b0bb7cbf043412298d5a325863e27b8f2eeea22c9e925c808dee"
   },
   {
    "name": "games.csv",
    "url": "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv",
    "status": 200,
-   "bytes": 2177839,
-   "sha256": "1e37943afccb462d95b68e065e1481320faffd96f36368ff804a069da891e1a4"
+   "bytes": 2179543,
+   "sha256": "580b8c76dcce9c616d493086f9205e2b1279d0d0b73b5cb849dd4a3c2be64bee"
   },
   {
    "name": "snap_counts_2022.csv",
@@ -51,14 +51,14 @@
    "name": "snap_counts_2026.csv",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2026.csv",
    "status": 200,
-   "bytes": 134005,
-   "sha256": "e995f21949eed665c189b931fd165dc38afd644565a507cd3ff117813304e785"
+   "bytes": 268763,
+   "sha256": "de7dee6776781052e85fd697d13e6c1d18fb22e04df0b2794cfd0ec758c7efab"
   }
  ],
  "tables": {
   "gameLines": {
    "games": 1411,
-   "withClose": 1171
+   "withClose": 1187
   },
   "participation": {
    "2022": {
@@ -85,15 +85,15 @@
    "2025": {
     "file": "participation-2025.jsonl",
     "rows": 10573,
-    "unjoined": 31,
-    "joinRate": 0.9971,
+    "unjoined": 30,
+    "joinRate": 0.9972,
     "published": true
    },
    "2026": {
     "file": "participation-2026.jsonl",
-    "rows": 588,
-    "unjoined": 3,
-    "joinRate": 0.9949,
+    "rows": 1189,
+    "unjoined": 5,
+    "joinRate": 0.9958,
     "published": true
    }
   }

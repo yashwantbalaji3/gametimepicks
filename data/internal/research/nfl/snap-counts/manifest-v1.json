@@ -10,7 +10,7 @@
   "project": "https://github.com/nflverse/nflverse-data",
   "upstream": "snap counts are sourced by nflverse from Pro-Football-Reference"
  },
- "capturedAt": "2026-09-15T15:38:51Z",
+ "capturedAt": "2026-09-22T15:35:16Z",
  "script": "app/scripts/nfl/capture-nfl-snap-counts.mjs",
  "consumers": "research only — no model, board, promotion or public page reads these files",
  "seasons": {
@@ -65,14 +65,14 @@
   "2026": {
    "file": "snap-counts-2026.json",
    "published": true,
-   "rowCount": 1492,
-   "offenseRows": 588,
-   "teamGames": 32,
+   "rowCount": 2994,
+   "offenseRows": 1189,
+   "teamGames": 64,
    "weekRange": [
     1,
-    1
+    2
    ],
-   "contentSha256": "d3ae7e8c16198a14add01fb8453eabef5f01968ef9f3a6e3847b6da7fe805470"
+   "contentSha256": "716d42f387d7b345a4ad0d1cf3388b8802640f6d60d88dd6afe601a9c724fa15"
   }
  },
  "tablesOnDisk": [
@@ -84,10 +84,10 @@
  ],
  "bridge": {
   "file": "id-bridge-v1.json",
-  "pfrIdsInTables": 3706,
-  "inPlayersFile": 3691,
-  "withGsisId": 3691,
-  "withEspnId": 3683,
+  "pfrIdsInTables": 3732,
+  "inPlayersFile": 3718,
+  "withGsisId": 3718,
+  "withEspnId": 3710,
   "espnCollisions": 0
  },
  "joinAudit": {
@@ -320,21 +320,21 @@
    "method": "id join pfr_player_id → nflverse players.csv (pfr_id → espn_id); names are audited, never used to join",
    "forward": {
     "offenseRows": 10573,
-    "withEspnId": 10542,
-    "rate": 0.9971,
+    "withEspnId": 10543,
+    "rate": 0.9972,
     "skillOffenseRows": 6876,
-    "skillWithEspnId": 6862,
-    "skillRate": 0.998,
+    "skillWithEspnId": 6863,
+    "skillRate": 0.9981,
     "rowsWithoutPfrId": 0
    },
    "reverse": {
     "playerGames": 5370,
-    "matched": 5362,
-    "unbridged": 8,
+    "matched": 5363,
+    "unbridged": 7,
     "ambiguous": 0,
     "noSnapRow": 0,
-    "teamAgree": 5362,
-    "nameAgree": 5270,
+    "teamAgree": 5363,
+    "nameAgree": 5271,
     "examplesUnmatched": [
      {
       "playerId": "nfl-athlete-4605841",
@@ -352,12 +352,6 @@
       "playerId": "nfl-athlete-4605841",
       "name": "Nathan Carter",
       "week": 8,
-      "why": "UNBRIDGED"
-     },
-     {
-      "playerId": "nfl-athlete-4361182",
-      "name": "Adrian Martinez",
-      "week": 9,
       "why": "UNBRIDGED"
      },
      {
@@ -435,7 +429,7 @@
       "nflverse": "Kenneth Gainwell"
      }
     ],
-    "rate": 0.9985,
+    "rate": 0.9987,
     "teamAgreeRate": 1,
     "nameAgreeRate": 0.9828
    }
