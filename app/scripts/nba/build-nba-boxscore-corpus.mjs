@@ -17,16 +17,17 @@
  *   node scripts/nba/build-nba-boxscore-corpus.mjs --season 2026            # the 2025-26 season
  *   node scripts/nba/build-nba-boxscore-corpus.mjs --season 2025 --dry-run  # list only, no fetch
  *   node scripts/nba/build-nba-boxscore-corpus.mjs --limit 20 --force       # re-capture 20 games
- * Flags: --season <corpus season> · --limit N · --dry-run · --force · --now <ISO> (pins capturedAt)
+ *   node scripts/nba/build-nba-boxscore-corpus.mjs --only 401584742,401584865 --force   # specific games
+ * Flags: --season <corpus season> · --only <id,id,…> · --limit N · --dry-run · --force · --now <ISO> (pins capturedAt)
  * Exit: 0 ok · 1 usage / refused · 2 aborted (25 consecutive failures or label-order mismatch)
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { parseSummary, countNullMinutes, EXPECTED_LABELS, LabelOrderError } from "../../src/lib/sports/nba/boxscore-parse.mjs";
+import { parseSummary, countNullMinutes, noMinutesBreakdown, EXPECTED_LABELS, LabelOrderError } from "../../src/lib/sports/nba/boxscore-parse.mjs";
 
-const SCRIPT_VERSION = "nba-boxscore-corpus-1.0.0";
+const SCRIPT_VERSION = "nba-boxscore-corpus-1.2.0";
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.resolve(APP, "..", "data", "internal", "research", "nba");
 const CORPUS = path.join(ROOT, "corpus-v1.json");
@@ -50,6 +51,8 @@ const FORCE = flag("--force");
 const SEASON = opt("--season") != null ? Number(opt("--season")) : null;
 const LIMIT = opt("--limit") != null ? Number(opt("--limit")) : null;
 const NOW_ARG = opt("--now");
+const ONLY = opt("--only") != null ? new Set(opt("--only").split(",").map((x) => x.trim()).filter(Boolean)) : null;
+if (opt("--only") != null && (!ONLY || ONLY.size === 0)) { console.error("REFUSED: --only needs a comma-separated list of provider event ids"); process.exit(1); }
 if (opt("--season") != null && !Number.isInteger(SEASON)) { console.error("REFUSED: --season must be an integer corpus season (e.g. 2026)"); process.exit(1); }
 if (opt("--limit") != null && (!Number.isInteger(LIMIT) || LIMIT < 1)) { console.error("REFUSED: --limit must be a positive integer"); process.exit(1); }
 if (NOW_ARG != null && !Number.isFinite(Date.parse(NOW_ARG))) { console.error("REFUSED: --now must be an ISO timestamp"); process.exit(1); }
@@ -67,7 +70,8 @@ fs.mkdirSync(OUT, { recursive: true });
 const fileFor = (id) => path.join(OUT, `${id}.json`);
 const hasFile = (id) => fs.existsSync(fileFor(id));
 
-const scoped = allRows.filter((r) => SEASON == null || r.season === SEASON);
+const scoped = allRows.filter((r) => (SEASON == null || r.season === SEASON) && (ONLY == null || ONLY.has(String(r.providerEventId))));
+if (ONLY != null) { const unknown = [...ONLY].filter((id) => !rowById.has(id)); if (unknown.length) { console.error(`REFUSED: --only ids not in corpus: ${unknown.join(", ")}`); process.exit(1); } }
 let todo = scoped.filter((r) => FORCE || !hasFile(String(r.providerEventId)));
 if (LIMIT != null) todo = todo.slice(0, LIMIT);
 
@@ -135,13 +139,13 @@ async function fetchWithRetry(id) {
 
 /* ─────────────── run ─────────────── */
 const run = {
-  startedAt: nowIso(), season: SEASON, limit: LIMIT, force: FORCE,
+  startedAt: nowIso(), season: SEASON, only: ONLY ? [...ONLY] : null, limit: LIMIT, force: FORCE,
   attempted: 0, written: 0, writtenNoBoxscore: 0, failed: 0, failures: {},
 };
 const labelSetsSeen = new Set(prevManifest?.labelSets ?? []);
 let consecutive = 0;
 
-console.log(`boxscore corpus: season ${SEASON ?? "all"} · ${scoped.length} in scope · ${todo.length} to fetch${FORCE ? " (force)" : ""}`);
+console.log(`boxscore corpus: season ${SEASON ?? "all"}${ONLY ? ` · only ${ONLY.size} id(s)` : ""} · ${scoped.length} in scope · ${todo.length} to fetch${FORCE ? " (force)" : ""}`);
 
 for (const [i, row] of todo.entries()) {
   const id = String(row.providerEventId);
@@ -192,7 +196,7 @@ function writeManifest(outcome) {
   run.outcome = outcome;
 
   const bySeason = {};
-  for (const s of seasonsInCorpus) bySeason[String(s)] = { inCorpus: 0, captured: 0, capturedNoBoxscore: 0, missing: 0, failed: 0, players: 0, dnpPlayers: 0, playersNullMinutes: 0 };
+  for (const s of seasonsInCorpus) bySeason[String(s)] = { inCorpus: 0, captured: 0, capturedNoBoxscore: 0, missing: 0, failed: 0, players: 0, dnpPlayers: 0, playersNullMinutes: 0, nullMinutesInactive: 0, nullMinutesNoAthleteId: 0, nullMinutesOther: 0 };
   const teamMapping = {};
   const failedReasons = {};
   const unknownTeams = new Set();
@@ -222,6 +226,8 @@ function writeManifest(outcome) {
     b.players += doc.players?.length ?? 0;
     b.dnpPlayers += (doc.players ?? []).filter((p) => p.didNotPlay).length;
     b.playersNullMinutes += countNullMinutes(doc);
+    const nm = noMinutesBreakdown(doc);
+    b.nullMinutesInactive += nm.inactive; b.nullMinutesNoAthleteId += nm.noAthleteId; b.nullMinutesOther += nm.other;
     for (const t of doc.teams ?? []) {
       if (t.abbr == null) continue;
       teamMapping[t.abbr] ??= { providerTeamIds: [], canonicalTricode: t.canonicalTricode ?? null, name: t.name };

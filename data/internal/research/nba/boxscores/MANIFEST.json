@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nba-boxscore-corpus",
  "dataClass": "PRIVATE_RESEARCH",
- "scriptVersion": "nba-boxscore-corpus-1.0.0",
- "generatedAt": "2026-09-22T05:00:28.917Z",
+ "scriptVersion": "nba-boxscore-corpus-1.2.0",
+ "generatedAt": "2026-09-22T05:36:42.707Z",
  "source": "espn_summary",
  "sourceCorpus": "corpus-v1.json",
  "expectedLabels": [
@@ -35,7 +35,10 @@
    "failed": 0,
    "players": 37734,
    "dnpPlayers": 7278,
-   "playersNullMinutes": 145
+   "playersNullMinutes": 145,
+   "nullMinutesInactive": 145,
+   "nullMinutesNoAthleteId": 0,
+   "nullMinutesOther": 0
   },
   "2025": {
    "inCorpus": 1394,
@@ -45,7 +48,10 @@
    "failed": 0,
    "players": 37961,
    "dnpPlayers": 7508,
-   "playersNullMinutes": 90
+   "playersNullMinutes": 90,
+   "nullMinutesInactive": 90,
+   "nullMinutesNoAthleteId": 0,
+   "nullMinutesOther": 0
   },
   "2026": {
    "inCorpus": 1393,
@@ -55,7 +61,10 @@
    "failed": 0,
    "players": 37385,
    "dnpPlayers": 6595,
-   "playersNullMinutes": 81
+   "playersNullMinutes": 81,
+   "nullMinutesInactive": 59,
+   "nullMinutesNoAthleteId": 22,
+   "nullMinutesOther": 0
   }
  },
  "totals": {
@@ -66,7 +75,10 @@
   "failed": 0,
   "players": 113080,
   "dnpPlayers": 21381,
-  "playersNullMinutes": 316
+  "playersNullMinutes": 316,
+  "nullMinutesInactive": 294,
+  "nullMinutesNoAthleteId": 22,
+  "nullMinutesOther": 0
  },
  "statusCounts": {
   "STATUS_FINAL": 4179
@@ -352,17 +364,41 @@
   "REAL · Real Madrid"
  ],
  "lastRun": {
-  "startedAt": "2026-09-22T04:53:19.182Z",
-  "season": 2024,
+  "startedAt": "2026-09-22T05:36:35.443Z",
+  "season": null,
+  "only": [
+   "401810184",
+   "401810200",
+   "401810216",
+   "401810358",
+   "401810372",
+   "401810401",
+   "401810458",
+   "401810469",
+   "401810516",
+   "401810560",
+   "401810577",
+   "401810591",
+   "401810607",
+   "401810633",
+   "401810691",
+   "401810725",
+   "401810744",
+   "401810785",
+   "401812692",
+   "401812708",
+   "401812719",
+   "401812729"
+  ],
   "limit": null,
-  "force": false,
-  "attempted": 1392,
-  "written": 1392,
+  "force": true,
+  "attempted": 22,
+  "written": 22,
   "writtenNoBoxscore": 0,
   "failed": 0,
   "failures": {},
-  "finishedAt": "2026-09-22T05:00:28.222Z",
-  "requestsMade": 1393,
+  "finishedAt": "2026-09-22T05:36:42.073Z",
+  "requestsMade": 22,
   "outcome": "ok"
  }
 }

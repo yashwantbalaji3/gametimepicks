@@ -90,22 +90,33 @@ const NULL_STATS = Object.freeze({
 export function parseAthlete(entry, providerTeamId) {
   const a = entry?.athlete ?? {};
   const didNotPlay = entry?.didNotPlay === true;
+  const active = typeof entry?.active === "boolean" ? entry.active : null;
   const base = {
     providerAthleteId: a.id != null ? String(a.id) : null,
-    name: typeof a.displayName === "string" ? a.displayName : null,
+    name: typeof a.displayName === "string" ? a.displayName : typeof a.shortName === "string" ? a.shortName : null,
     providerTeamId: providerTeamId != null ? String(providerTeamId) : null,
     starter: entry?.starter === true,
+    active,
     didNotPlay,
     dnpReason: didNotPlay && typeof entry?.reason === "string" && entry.reason.trim() ? entry.reason.trim() : null,
   };
   if (didNotPlay) return { ...base, ...NULL_STATS };
   const s = Array.isArray(entry?.stats) ? entry.stats : [];
+  const minutes = parseIntStat(s[0]);
+  // ESPN QUIRK (verified on events 401584742 and 401810184; 316 rows across 2023-26): a non-DNP row
+  // can arrive with MIN "--" and every other column a literal "0"/"0-0". Two shapes: an INACTIVE
+  // roster player (active:false, e.g. James Harden pre-trade) and a PHANTOM roster placeholder
+  // (active:true, athlete has no id/displayName, only a shortName). Those zeros are ESPN's zero-fill
+  // of an absent row, not observations — passing them through is exactly the absent-as-zero defect
+  // this corpus exists to avoid. Minutes are the participation evidence (ESPN writes a literal "0"
+  // for a real sub-minute stint): no minutes on a non-DNP row ⇒ null across the board.
+  if (minutes === null) return { ...base, ...NULL_STATS };
   const fg = parseMadeAttempted(s[2]);
   const tp = parseMadeAttempted(s[3]);
   const ft = parseMadeAttempted(s[4]);
   return {
     ...base,
-    minutes: parseIntStat(s[0]),
+    minutes,
     pts: parseIntStat(s[1]),
     fgm: fg.made, fga: fg.attempted,
     threePm: tp.made, threePa: tp.attempted,
@@ -191,7 +202,19 @@ export function parseSummary(summary, meta) {
   };
 }
 
-/** Players who played (not DNP) yet carry null minutes — the manifest's "unparseable minutes" signal. */
+/** Non-DNP rows with null minutes (each one nulled across the board by the no-minutes rule). */
 export function countNullMinutes(doc) {
   return (doc?.players ?? []).filter((p) => !p.didNotPlay && p.minutes === null).length;
+}
+
+/** Breakdown of countNullMinutes by ESPN shape: inactive roster player · phantom row (no athlete id) · other. */
+export function noMinutesBreakdown(doc) {
+  const out = { inactive: 0, noAthleteId: 0, other: 0 };
+  for (const p of doc?.players ?? []) {
+    if (p.didNotPlay || p.minutes !== null) continue;
+    if (p.active === false) out.inactive += 1;
+    else if (p.providerAthleteId == null) out.noAthleteId += 1;
+    else out.other += 1;
+  }
+  return out;
 }

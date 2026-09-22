@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 
 import {
   EXPECTED_LABELS, LabelOrderError, assertLabelOrder, parseIntStat, parseMadeAttempted, parseAthlete,
-  parseSummary, canonicalTricodeFromEspnAbbr, countNullMinutes,
+  parseSummary, canonicalTricodeFromEspnAbbr, countNullMinutes, noMinutesBreakdown,
 } from "./boxscore-parse.mjs";
 
 const STAT_KEYS = ["minutes", "pts", "reb", "ast", "threePm", "threePa", "fgm", "fga", "ftm", "fta", "stl", "blk", "tov", "oreb", "dreb", "pf", "plusMinus"];
@@ -103,6 +103,41 @@ test("DNP: didNotPlay stays true, every stat null, reason recorded — even when
 
   const dnpNoReason = parseAthlete(athlete({ didNotPlay: true, reason: "" }), "20");
   assert.equal(dnpNoReason.dnpReason, null);
+});
+
+test("ESPN zero-fill rows: no minutes on a non-DNP row nulls every stat — inactive player AND phantom placeholder", () => {
+  const ZEROS = ["--", "0", "0-0", "0-0", "0-0", "0", "0", "0", "0", "0", "0", "0", "0", "0"];
+  // Shape 1, verbatim from event 401584742 (James Harden pre-trade): active:false, NOT didNotPlay.
+  const inactive = parseAthlete(athlete({ active: false, starter: false, reason: undefined, stats: ZEROS }), "20");
+  assert.equal(inactive.active, false);
+  assert.equal(inactive.didNotPlay, false, "didNotPlay stays as ESPN reported it");
+  for (const k of STAT_KEYS) assert.equal(inactive[k], null, `${k} must be null, not ESPN's zero-fill`);
+  // Shape 2, verbatim from event 401810184: active:true, athlete has no id/displayName (shortName only).
+  const phantom = parseAthlete({ active: true, athlete: { links: [], shortName: "Olbrich" }, starter: false, didNotPlay: false, reason: "COACH'S DECISION", ejected: false, stats: ZEROS }, "4");
+  assert.equal(phantom.providerAthleteId, null);
+  assert.equal(phantom.name, "Olbrich", "shortName is the only name ESPN gives a phantom row");
+  assert.equal(phantom.active, true);
+  for (const k of STAT_KEYS) assert.equal(phantom[k], null, `${k} must be null for a phantom row`);
+  // An ACTIVE, identified player with unparseable minutes is still a non-observation: nothing survives.
+  const activeNoMin = parseAthlete(athlete({ active: true, stats: ["--", "4", "2-3", "0-0", "0-0", "2", "1", "2", "0", "1", "1", "1", "4", "0"] }), "20");
+  for (const k of STAT_KEYS) assert.equal(activeNoMin[k], null, `${k} must be null when minutes are missing`);
+  // Minutes present ⇒ the row is an observation, whatever `active` says (a real sub-minute stint is "0").
+  const inactivePlayed = parseAthlete(athlete({ active: false }), "20");
+  assert.equal(inactivePlayed.minutes, 30); assert.equal(inactivePlayed.pts, 6);
+  const zeroMinutes = parseAthlete(athlete({ stats: ["0", "0", "0-0", "0-0", "0-0", "0", "0", "0", "0", "0", "0", "0", "0", "0"] }), "20");
+  assert.equal(zeroMinutes.minutes, 0); assert.equal(zeroMinutes.pts, 0, "a literal 0 with minutes present is a real observation");
+  // No active flag at all → null (unknown).
+  assert.equal(parseAthlete(athlete({ active: undefined }), "20").active, null);
+  // Manifest counters see the breakdown.
+  const { doc } = parseSummary(summary([
+    athlete({ active: false, stats: ZEROS }),
+    { active: true, athlete: { shortName: "Olbrich" }, starter: false, didNotPlay: false, stats: ZEROS },
+    athlete({ active: true, stats: ["--", "4"] }),
+    athlete({ didNotPlay: true, stats: [] }),
+    athlete(),
+  ]), META);
+  assert.equal(countNullMinutes(doc), 3, "DNP and played rows are not null-minute rows");
+  assert.deepEqual(noMinutesBreakdown(doc), { inactive: 1, noAthleteId: 1, other: 1 });
 });
 
 test("label-order guard: the expected 14 pass; reorder, rename, extra and missing columns throw", () => {
