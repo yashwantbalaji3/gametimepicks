@@ -80,6 +80,31 @@ none, which fits a **hang** — a wait that never returns — better than a cras
 - **Not a lint, type, compile or data-generation problem.** Each of those completes normally, before the
   stall, in every failing build examined.
 
+## 3a. Confirmed after the merge: the SAME code both failed and passed
+
+§3 argued from a production build of plain `main` that no v1.8 branch causes this. The refresh of PR #632
+turned that inference into a demonstration. The projection code is byte-identical in both runs — the second
+commit adds one test file and one receipt section, nothing the build executes:
+
+| Commit | Env | Build | The 1856 → 2475 band |
+|---|---|---|---|
+| `0550601a` | Preview | **46 m → ● Error** | stalled at `1856/2475`, silent 41 min |
+| `efaba452` | Preview | **6 m → ● Ready** | `1856 → 2434` in 60 s, then `✓ 2475/2475` |
+
+Both on `4 cores, 8 GB` in `cle1`, same Next.js, same route set (2,475 pages both times). The passing build
+was verified as a real build rather than a skip — `[ignore-build] no previous deployed SHA — building` — and
+crossed the failing band at the healthy rate measured in §2 (≈10 pages/s, 60 s).
+
+**So the failure is intermittent infrastructure, not code**: identical input, same machine class, opposite
+outcomes ~25 minutes apart. Two consequences worth stating plainly:
+
+- a green Vercel run does **not** mean the next one is safe. Production builds of `main` hit this
+  independently of any branch, and nothing in this diagnosis changes that;
+- a re-run is a legitimate first response to this specific signature — but only *after* matching the
+  signature, because an unconditional "just re-run it" habit is how a real defect gets waved through.
+  §2 gives the four things to match: the stall at `1856/2475`, ~40+ minutes of silence, no
+  OOM/SIGKILL/heap/error line, and termination at ~46 minutes.
+
 ## 4. Where to look next (hypotheses, untested)
 
 Ranked by what the evidence supports, not by ease:
@@ -99,7 +124,12 @@ Ranked by what the evidence supports, not by ease:
 
 A named-phase watchdog (**B5**) would convert this from a 46-minute silent ceiling into a fast, diagnosable
 failure, and is worth doing regardless of which hypothesis is right: it preserves the diagnosis instead of
-discarding it, which is the whole problem with the current failure mode.
+discarding it, which is the whole problem with the current failure mode. The §3a result strengthens that
+case rather than weakening it — an intermittent hang is exactly the failure a watchdog turns from a
+46-minute mystery into a cheap, repeatable observation.
+
+**No Vercel plan, billing or project setting was changed** by this diagnosis or by the post-merge checkpoint;
+every observation is read-only (`vercel ls`, `vercel inspect --logs`).
 
 ## 5. A second finding, for B2
 
