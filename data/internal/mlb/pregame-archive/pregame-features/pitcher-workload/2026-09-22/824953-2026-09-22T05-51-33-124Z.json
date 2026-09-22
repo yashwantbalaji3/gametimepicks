@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824953,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T05:51:33.124Z",
+  "availableAt": "2026-09-22T05:51:33.124Z",
+  "eventStartTime": "2026-09-23T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669620,
+      "name": "Brady Basso",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 6,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 12.33,
+        "ipAvg": 2.47,
+        "kAvg": 1.4,
+        "bbAvg": 0.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.2,
+        "kPer9": 5.11,
+        "workloadIpLast5": 12.33
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 14.67,
+        "k": 10,
+        "bb": 3,
+        "er": 9,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 579328,
+      "name": "Yusei Kikuchi",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 6,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 5,
+        "bbAvg": 2.8,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 8.54,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 57.33,
+        "k": 58,
+        "bb": 28,
+        "er": 32,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-22T05:51:33.124Z"
+  },
+  "recordHash": "d2aa1b36a3a98c5bb641f564e934c5f33e96ed2fa2ba58de2f610a84a1fbbbb8"
+}
