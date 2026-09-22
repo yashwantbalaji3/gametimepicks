@@ -185,13 +185,13 @@ export function selectSafestTargetFitCard(pool: ModelPick[], rung: LaneRung, exc
     crossSport,
     whyThisCard: [
       picked.length >= 2
-        ? `Safest-fit (${sportLabel}): chosen to MAXIMIZE the chance all ${picked.length} legs land — estimated ${Math.round(hitProb * 100)}% combined hit probability at ${tierLabel(tier)}, not the longest-odds card.`
-        : `Awaiting a full card — fewer than 2 model-qualified legs available.`,
+        ? `Safest-fit (${sportLabel}): chosen to MAXIMIZE the chance all ${picked.length} legs land — a market-implied ${Math.round(hitProb * 100)}% chance that every leg lands at ${tierLabel(tier)} (what the prices imply, not a forecast), not the longest-odds card.`
+        : `Awaiting a full card — fewer than 2 eligible legs available.`,
       fitsTarget
-        ? `Combined ${combinedOdds > 0 ? "+" : ""}${combinedOdds} rides $${rung.rolledStake.toLocaleString("en-US")} toward the $${rung.targetReturn.toLocaleString("en-US")} rung goal (avg leg confidence ${avgConf}%).`
+        ? `Combined ${combinedOdds > 0 ? "+" : ""}${combinedOdds} rides $${rung.rolledStake.toLocaleString("en-US")} toward the $${rung.targetReturn.toLocaleString("en-US")} rung goal (avg market-implied leg probability ${avgConf}%).`
         : `No combo reaches the $${rung.targetReturn.toLocaleString("en-US")} goal — strongest available shown as a candidate.`,
     ],
-    shortfallNote: picked.length < 2 ? "Fewer than 2 model-qualified legs available — awaiting a full card." : (!fitsTarget ? `Below the Step ${rung.nextStep} target — candidate only.` : null),
+    shortfallNote: picked.length < 2 ? "Fewer than 2 eligible legs available — awaiting a full card." : (!fitsTarget ? `Below the Step ${rung.nextStep} target — candidate only.` : null),
   };
 }
 
@@ -256,8 +256,8 @@ export function selectValueTargetFitCard(
     estimatedHitProbability: Number(hitProb.toFixed(4)),
     marketTier: tier, marketTierLabel: tierLabel(tier), confidenceScore: avgConf, crossSport,
     whyThisCard: [
-      `Value lane (${sportLabel}): the most SURVIVABLE ${picked.length}-leg card inside the +${band.minOdds}..+${band.maxOdds} band — ~${Math.round(hitProb * 100)}% combined hit probability at ${tierLabel(tier)}, picked for a bigger jump per win without chasing the longest price.`,
-      `Combined +${combinedOdds} rides $${rung.rolledStake.toLocaleString("en-US")} → $${round2(rung.rolledStake * combinedDecimal).toLocaleString("en-US")} (clears the $${rung.targetReturn.toLocaleString("en-US")} rung goal; avg leg confidence ${avgConf}%).`,
+      `Value lane (${sportLabel}): the most SURVIVABLE ${picked.length}-leg card inside the +${band.minOdds}..+${band.maxOdds} band — a market-implied ~${Math.round(hitProb * 100)}% chance that every leg lands at ${tierLabel(tier)} (what the prices imply, not a forecast), picked for a bigger jump per win without chasing the longest price.`,
+      `Combined +${combinedOdds} rides $${rung.rolledStake.toLocaleString("en-US")} → $${round2(rung.rolledStake * combinedDecimal).toLocaleString("en-US")} (clears the $${rung.targetReturn.toLocaleString("en-US")} rung goal; avg market-implied leg probability ${avgConf}%).`,
     ],
     shortfallNote: inValueBand ? null : `Below the +${band.minOdds} value band — safest target-fit shown.`,
   };

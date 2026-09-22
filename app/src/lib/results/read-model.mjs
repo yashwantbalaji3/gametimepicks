@@ -59,10 +59,12 @@ export function interval(wins, losses, z = 1.96) {
 }
 
 /** One row of the read model. Every field is read; none is derived from another record type. */
-function row({ recordType, sport, tier, wins, losses, pushes, voids, pending, staked, returned, source, note }) {
+function row({ recordType, sport, tier, wins, losses, pushes, voids, pending, staked, returned, source, note, era }) {
   const r = rate(wins, losses);
   return {
     recordType, sport, tier: tier ?? null,
+    /* Which population a signature-product row describes ("receipts" | "legacy"); null elsewhere. */
+    era: era ?? null,
     wins: wins ?? 0, losses: losses ?? 0, pushes: pushes ?? 0, voids: voids ?? 0, pending: pending ?? 0,
     decisive: r.decisive,
     settled: (wins ?? 0) + (losses ?? 0) + (pushes ?? 0) + (voids ?? 0),
@@ -82,11 +84,14 @@ function row({ recordType, sport, tier, wins, losses, pushes, voids, pending, st
  * The Moonshot product ledger is shaped `{ productId, results: [{ outcome, stake, payout, … }] }` —
  * it carries no `record` block. The first release read `moonshot.record`, found `undefined`, and
  * dropped the row without a word (V19 results audit, contradiction C2). The record is COUNTED from
- * the rows with the same outcome rule `moonshot-state.mjs` uses for /moonshot and the trust center,
- * so the three surfaces print one number for this era. The fold-era Moonshot record in
- * `mr-dub/portfolio.json .moonshot` is a different era and is NOT merged here — which era the
- * public surfaces should show is an open founder question (docs/V17_FOUNDER_DECISION_PACKET.md).
+ * the rows with the same outcome rule `moonshot-state.mjs` uses for /moonshot and the trust center.
  * A ledger that already carries a `record` block is honoured as-is.
+ *
+ * Founder decision 2026-09-22 (Moonshot legacy era): this ledger is the June 2026 LEGACY era. The
+ * CURRENT Moonshot record is the receipt/fold era in `mr-dub/portfolio.json .moonshot`; when that
+ * block exists it is the signature-product row, and this ledger is named in the row's note as a
+ * separate legacy population. It is never a second row: the explorer pools rows of one record type
+ * into a headline, and a second row would sum the two eras — exactly what the decision forbids.
  */
 export function moonshotLedgerRecord(moonshot) {
   if (!moonshot) return null;
@@ -152,17 +157,24 @@ export function buildResultRows(sources = {}) {
   }
 
   /* ── signature money products ──────────────────────────────────────────────────────────────── */
+  const legacyMoonshot = moonshotLedgerRecord(moonshot);
+  const foldMoonshot = portfolio?.moonshot?.record && typeof portfolio.moonshot.inBankrollSince === "string" ? portfolio.moonshot.record : null;
+  const legacySettled = legacyMoonshot ? (legacyMoonshot.wins ?? 0) + (legacyMoonshot.losses ?? 0) + (legacyMoonshot.pushes ?? 0) + (legacyMoonshot.voids ?? 0) : 0;
   const money = [
-    ["bank-builder", portfolio?.record ?? portfolio?.bankBuilder?.record ?? null, "mr-dub/portfolio.json"],
-    ["moonshot", moonshotLedgerRecord(moonshot), "product-ledger/moonshot.json"],
+    ["bank-builder", portfolio?.record ?? portfolio?.bankBuilder?.record ?? null, "mr-dub/portfolio.json", null, null],
+    foldMoonshot
+      ? ["moonshot", foldMoonshot, "mr-dub/portfolio.json .moonshot", "receipts",
+          `settled receipts since ${portfolio.moonshot.inBankrollSince}` +
+          (legacyMoonshot ? ` · legacy era (June 2026, ${legacySettled} card${legacySettled === 1 ? "" : "s"}) ${legacyMoonshot.wins ?? 0}–${legacyMoonshot.losses ?? 0} kept apart, never summed` : "")]
+      : ["moonshot", legacyMoonshot, "product-ledger/moonshot.json", "legacy", "legacy era (June 2026) — no current-era record is published"],
   ];
-  for (const [id, rec, source] of money) {
+  for (const [id, rec, source, era, note] of money) {
     if (!rec) continue;
     rows.push(row({
       recordType: RECORD_TYPES.SIGNATURE_PRODUCT, sport: id,
       wins: rec.wins, losses: rec.losses, pushes: rec.pushes, voids: rec.voids, pending: rec.pending,
       staked: rec.staked ?? null, returned: rec.returned ?? null,
-      source,
+      source, era, note,
     }));
   }
 

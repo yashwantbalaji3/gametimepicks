@@ -279,7 +279,7 @@ export default function ClimbHero({
         <ul className="mt-2 flex flex-col gap-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
           <li>· Paper-only picks — no real money is placed.</li>
           <li>· A parlay loses if any one leg loses.</li>
-          <li>· The model skips weak slates instead of forcing a card.</li>
+          <li>· A slate where no card reaches the step&rsquo;s price publishes no card.</li>
           <li>· Official results settle the ladder.</li>
           <li>· Track Record shows every receipt.</li>
         </ul>

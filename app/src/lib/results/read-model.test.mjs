@@ -17,7 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  buildResultRows, filterRows, poolRows, rate, interval, RECORD_TYPES, RISK_TIERS,
+  buildResultRows, filterRows, poolRows, rate, interval, moonshotLedgerRecord, RECORD_TYPES, RISK_TIERS,
 } from "./read-model.mjs";
 
 const APP = process.cwd();
@@ -166,8 +166,39 @@ test("C2 · the Moonshot row is COUNTED from the product ledger's rows, never dr
     .find((x) => x.sport === "moonshot");
   assert.equal(withRecord.wins, 2); assert.equal(withRecord.losses, 3);
 
-  /* the COMMITTED ledger produces the row too — the shape this test exists for */
-  const live = rows.find((x) => x.recordType === RECORD_TYPES.SIGNATURE_PRODUCT && x.sport === "moonshot");
-  assert.ok(live, "the committed product-ledger/moonshot.json yields a row");
-  assert.equal(live.wins + live.losses + live.pending, sources.moonshot.results.length);
+  /* a ledger alone is the LEGACY era, and says so */
+  assert.equal(r.era, "legacy");
+
+  /* the COMMITTED artifacts produce exactly ONE Moonshot row — the receipt/fold era (founder decision
+     2026-09-22, Moonshot legacy era): mr-dub/portfolio.json .moonshot is the current record, the June
+     ledger is named in the note as a separate legacy population, and the two are never summed. */
+  const moonRows = rows.filter((x) => x.recordType === RECORD_TYPES.SIGNATURE_PRODUCT && x.sport === "moonshot");
+  assert.equal(moonRows.length, 1, "one Moonshot row — a second row would be pooled into the headline and sum the eras");
+  const live = moonRows[0];
+  const fold = sources.portfolio.moonshot;
+  assert.equal(typeof fold.inBankrollSince, "string", "the committed portfolio carries the fold-era marker");
+  assert.equal(live.era, "receipts");
+  assert.equal(live.source, "mr-dub/portfolio.json .moonshot");
+  assert.equal(live.wins, fold.record.wins); assert.equal(live.losses, fold.record.losses);
+  assert.equal(live.wins + live.losses + live.pending + live.voids, fold.record.wins + fold.record.losses + fold.record.pending + fold.record.voids);
+  assert.match(live.note, new RegExp(`settled receipts since ${fold.inBankrollSince}`));
+  const legacy = moonshotLedgerRecord(sources.moonshot);
+  assert.match(live.note, new RegExp(`legacy era \\(June 2026, ${sources.moonshot.results.length} cards\\) ${legacy.wins}–${legacy.losses} kept apart, never summed`));
+  assert.notEqual(live.losses, fold.record.losses + legacy.losses, "the eras are not added");
+});
+
+test("C2 · founder decision 2026-09-22 — fold era present → ONE row from the portfolio, legacy in the note; absent → the ledger row, labelled legacy", () => {
+  const ledger = { productId: "moonshot", results: [
+    { date: "2026-06-23", outcome: "lost", stake: 25, payout: 0 },
+    { date: "2026-07-06", outcome: "lost", stake: 25, payout: 0 },
+  ] };
+  const portfolio = { record: { wins: 36, losses: 35, voids: 0, pending: 0 }, moonshot: { inBankrollSince: "2026-08-15", record: { wins: 4, losses: 33, voids: 0, pending: 0 } } };
+  const both = buildResultRows({ portfolio, moonshot: ledger }).filter((x) => x.sport === "moonshot");
+  assert.equal(both.length, 1);
+  assert.deepEqual({ wins: both[0].wins, losses: both[0].losses, era: both[0].era, source: both[0].source }, { wins: 4, losses: 33, era: "receipts", source: "mr-dub/portfolio.json .moonshot" });
+  assert.match(both[0].note, /legacy era \(June 2026, 2 cards\) 0–2 kept apart, never summed/);
+  /* a portfolio block WITHOUT the fold marker (the pre-fold single-card block) is not the current era */
+  const preFold = buildResultRows({ portfolio: { moonshot: { record: { wins: 0, losses: 1 } } }, moonshot: ledger }).filter((x) => x.sport === "moonshot");
+  assert.equal(preFold.length, 1);
+  assert.equal(preFold[0].era, "legacy"); assert.equal(preFold[0].source, "product-ledger/moonshot.json"); assert.equal(preFold[0].losses, 2);
 });

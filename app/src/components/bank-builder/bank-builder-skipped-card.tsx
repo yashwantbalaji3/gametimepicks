@@ -1,8 +1,8 @@
 /**
- * BankBuilderSkippedCard — the PREMIUM "model skipped" state for Bank Builder: a deliberate product
- * decision, not an error. Explains WHY there's no lane today (the dual ladder is between runs / no low-risk
- * two-leg card cleared the rung target), shows the model's strongest single-leg alternatives on the slate,
- * the next refresh, and a CTA to the knockout board. Pure presentation — real board picks only.
+ * BankBuilderSkippedCard — the PREMIUM no-play state for Bank Builder: a deliberate product decision,
+ * not an error. Explains WHY there's no lane today (no two-leg card reached the step's price at the
+ * card's risk rules), shows the strongest single-leg alternatives on the slate, the next refresh, and a
+ * CTA. Pure presentation — real de-vigged board picks only, labelled as market-implied (F1 Option A).
  */
 import Link from "next/link";
 import FlagBadge from "@/components/flag-badge";
@@ -47,7 +47,7 @@ export default function BankBuilderSkippedCard({
                   <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{a.matchup}</span>
                 </span>
                 <span className="flex items-center gap-2 shrink-0 font-mono" style={{ fontSize: 10.5 }}>
-                  <span style={{ color: "var(--vault-text-mute)" }}>{a.modelProbability != null ? `model ${Math.round(a.modelProbability * 100)}%` : "not modelled"}</span>
+                  <span style={{ color: "var(--vault-text-mute)" }}>{a.modelProbability != null ? `market-implied ${Math.round(a.modelProbability * 100)}%` : "no price"}</span>
                   <span className="tabular" style={{ color: "var(--vault-text)" }}>{odds(a.americanOdds)}</span>
                 </span>
               </div>

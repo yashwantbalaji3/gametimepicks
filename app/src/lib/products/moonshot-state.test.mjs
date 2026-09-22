@@ -100,10 +100,11 @@ test("legs with no game identity are counted and named", () => {
   assert.match(s.contradictions.join(" | "), /6 leg\(s\) with no game identity/);
 });
 
-test("ONE RECORD PER PRODUCT · displayRecord prefers the settlement log", () => {
+test("ONE RECORD PER PRODUCT · without a fold-era block the June ledger is shown — AS LEGACY, never as current", () => {
   /*
-   * /mr-dub printed the portfolio's 0-1 directly beside the reconciled 0-7 — one surface, two records
-   * for one product. Surfaces with room for a single figure now take it from here.
+   * Founder decision 2026-09-22 (Moonshot legacy era). The pre-fold portfolio block (the single World
+   * Cup card, no `inBankrollSince`) is not the current era, so the ledger is the only record — and it
+   * is labelled legacy. It used to be printed as the product's record with no era at all.
    */
   const s = derive();
   assert.deepEqual(
@@ -111,14 +112,44 @@ test("ONE RECORD PER PRODUCT · displayRecord prefers the settlement log", () =>
     { wins: 0, losses: 7 },
   );
   assert.equal(s.displayRecord.source, "product-ledger/moonshot.json");
+  assert.equal(s.displayRecord.era, "legacy");
+  assert.match(s.displayRecord.label, /^Legacy era \(June 2026, 7 cards\) 0–7 · 2026-06-23 … 2026-07-06$/);
   // The disagreement is still reported, not resolved away.
   assert.match(s.contradictions.join(" | "), /two settled counts for one product/);
+});
+
+test("founder decision 2026-09-22 · the fold era is the CURRENT record; the June ledger is a separate legacy era, never summed", () => {
+  const fold = { inBankrollSince: "2026-08-15", record: { wins: 4, losses: 33, voids: 0, pending: 0 }, legacy: portfolio() };
+  const s = derive({ portfolioMoonshot: fold });
+  assert.deepEqual(
+    { wins: s.displayRecord.wins, losses: s.displayRecord.losses, voids: s.displayRecord.voids, pending: s.displayRecord.pending },
+    { wins: 4, losses: 33, voids: 0, pending: 0 },
+  );
+  assert.equal(s.displayRecord.source, "mr-dub/portfolio.json .moonshot");
+  assert.equal(s.displayRecord.era, "receipts");
+  assert.equal(s.displayRecord.fromDate, "2026-08-15", "the era's start is read from the fold, never hardcoded");
+  assert.equal(s.displayRecord.label, "Moonshot 4–33 · since 2026-08-15 · settled receipts");
+  /* the legacy era travels beside it, labelled, with its own dates and sample */
+  assert.deepEqual({ wins: s.legacyRecord.wins, losses: s.legacyRecord.losses, settled: s.legacyRecord.settled, era: s.legacyRecord.era }, { wins: 0, losses: 7, settled: 7, era: "legacy" });
+  assert.equal(s.legacyRecord.label, "Legacy era (June 2026, 7 cards) 0–7 · 2026-06-23 … 2026-07-06");
+  /* never combined */
+  assert.notEqual(s.displayRecord.losses, 33 + 7);
+  const note = s.contradictions.join(" | ");
+  assert.match(note, /two eras, not one record/);
+  assert.match(note, /never summed with the current era/);
+  assert.doesNotMatch(note, /two settled counts for one product/, "the eras are different populations, not a disagreement");
+  /* pending is never a loss; voids are preserved */
+  const s2 = derive({ portfolioMoonshot: { inBankrollSince: "2026-08-15", record: { wins: 4, losses: 33, voids: 2, pending: 1 } } });
+  assert.equal(s2.displayRecord.losses, 33); assert.equal(s2.displayRecord.voids, 2); assert.equal(s2.displayRecord.pending, 1);
+  assert.equal(s2.displayRecord.label, "Moonshot 4–33–2 · since 2026-08-15 · settled receipts");
 });
 
 test("displayRecord falls back to the portfolio when no ledger exists", () => {
   const s = derive({ productLedger: null });
   assert.equal(s.displayRecord.losses, 1);
   assert.equal(s.displayRecord.source, "mr-dub/portfolio.json .moonshot");
+  assert.equal(s.displayRecord.era, "legacy", "a pre-fold block is never presented as the current era");
+  assert.equal(s.legacyRecord, null);
 });
 
 test("the founder decision is NAMED, not assumed — and its TOKEN is not public copy", () => {

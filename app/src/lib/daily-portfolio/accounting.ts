@@ -33,8 +33,42 @@ export const ACTIVATION_CUTOFF_MIN = 30;
 export const MOONSHOT_MAX_EXPOSURE = 50;
 
 export interface ActivationEligibility { eligible: boolean; reason: string }
+/**
+ * v1.7 · F1 Option A (founder decision 2026-09-22) — WHAT A LEG'S PROBABILITY IS.
+ * "market-implied": the bookmaker's de-vigged price (probabilitySource "market-devigged"). It is what the
+ *   prices imply, not a forecast; every surface must present such a leg as a MARKET CONSTRUCTION.
+ * "model": a validated model owner's probability (probabilitySource "model").
+ * null: the source is not recorded. An unknown basis is never assumed to be either — and is never
+ *   labelled "model".
+ */
+export type ProbabilityBasis = "market-implied" | "model";
+/** A card's basis over its legs: every leg market-implied → "market-implied"; every leg model → "model";
+ *  both kinds → "mixed"; any leg unknown, or no legs → null. */
+export type JointProbabilityBasis = ProbabilityBasis | "mixed";
+
+export function probabilityBasisOf(source: unknown): ProbabilityBasis | null {
+  if (source === "market-devigged") return "market-implied";
+  if (source === "model") return "model";
+  return null;
+}
+export function jointProbabilityBasisOf(legs: ReadonlyArray<{ probabilityBasis?: ProbabilityBasis | null }>): JointProbabilityBasis | null {
+  if (!legs.length) return null;
+  const bases = legs.map((l) => l.probabilityBasis ?? null);
+  if (bases.some((b) => b === null)) return null;
+  const set = new Set(bases);
+  return set.size === 1 ? (bases[0] as ProbabilityBasis) : "mixed";
+}
+
 export interface PortfolioLaneLeg {
-  id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null; modelConfidence: number; probabilitySource?: "market-devigged" | "model"; kickoffEt: string; risk: string; photoUrl?: string | null; teamLogo?: string | null;
+  id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null;
+  /** @deprecated (F1 Option A) — the NAME overstates what this carries: for every market-priced leg it is the
+   *  de-vigged market price, not a model's confidence. Kept because settled receipts, the settlement reader
+   *  and fixtures still read it; read `impliedProbability` + `probabilityBasis` instead. */
+  modelConfidence: number;
+  /** The same number under its honest name when the basis is market-implied; null otherwise. */
+  impliedProbability?: number | null;
+  probabilityBasis?: ProbabilityBasis | null;
+  probabilitySource?: "market-devigged" | "model"; kickoffEt: string; risk: string; photoUrl?: string | null; teamLogo?: string | null;
   // v1.7 audit B2 — receipt identity. A published leg must let a later reader answer "which event, which
   // market, which line, from when" without parsing a display string. Additive; display code ignores them.
   eventId?: string | null;      // the odds-feed event id the price was captured under
@@ -65,6 +99,8 @@ export interface PortfolioLane {
   correlationNote: string | null;
   shortfallNote: string | null;
   whyThisCard: string[];
+  /** F1 Option A — the basis of the card's joint probability, derived from its legs (never assumed). */
+  jointProbabilityBasis?: JointProbabilityBasis | null;
   narrative?: { title: string; story: string }; // Moonshot story (display-only; never affects money math)
   activationEligibility: ActivationEligibility;
   locked?: boolean;           // approved-card lock honored (legs pinned)
@@ -92,7 +128,7 @@ const PRODUCT_LABEL: Record<string, string> = { "bank-builder": "Bank Builder", 
 
 export function laneEligibility(lane: LaneCandidate, nowMs: number, emptyReason: string | null = null): ActivationEligibility {
   if (lane.legCount === 0 && emptyReason) return { eligible: false, reason: emptyReason };
-  if (lane.legCount < lane.targetLegs) return { eligible: false, reason: `only ${lane.legCount}/${lane.targetLegs} model-qualified legs — awaiting a full lane` };
+  if (lane.legCount < lane.targetLegs) return { eligible: false, reason: `only ${lane.legCount}/${lane.targetLegs} eligible legs — awaiting a full lane` };
   // P177-C: the SPORT gate, checked before anything else about the legs themselves. NFL was
   // excluded from the paper products only because no NFL loader was ever written — an omission,
   // not a rule. Adding one would have quietly let experimental output into a paper ladder. This
@@ -121,7 +157,17 @@ const lineOf = (p: ModelPick): number | null => {
   const sp = /\s([+-]\d+(?:\.\d+)?)\s*$/.exec(s); if (sp) return Number(sp[1]);
   return null;
 };
-const toLeg = (p: ModelPick): PortfolioLaneLeg => ({ id: p.id, matchup: p.matchup, market: p.marketLabel, selection: p.selection, player: p.player, odds: p.odds, provider: p.provider, modelConfidence: p.modelProbability, probabilitySource: p.probabilitySource ?? (p.edge === 0 ? "market-devigged" : "model"), kickoffEt: p.kickoffEt, risk: p.risk, photoUrl: p.playerPortrait ?? null, teamLogo: p.teamLogo ?? null, eventId: p.gameId ?? null, startUtc: p.kickoffUtc ?? null, marketKey: p.marketKey ?? null, line: lineOf(p) });
+const toLeg = (p: ModelPick): PortfolioLaneLeg => {
+  const probabilitySource = p.probabilitySource ?? (p.edge === 0 ? "market-devigged" : "model");
+  const probabilityBasis = probabilityBasisOf(probabilitySource);
+  return {
+    id: p.id, matchup: p.matchup, market: p.marketLabel, selection: p.selection, player: p.player, odds: p.odds, provider: p.provider,
+    modelConfidence: p.modelProbability,
+    impliedProbability: probabilityBasis === "market-implied" ? p.modelProbability : null,
+    probabilityBasis, probabilitySource,
+    kickoffEt: p.kickoffEt, risk: p.risk, photoUrl: p.playerPortrait ?? null, teamLogo: p.teamLogo ?? null, eventId: p.gameId ?? null, startUtc: p.kickoffUtc ?? null, marketKey: p.marketKey ?? null, line: lineOf(p),
+  };
+};
 
 /** Map a Bank Builder GeneratedLane (target-fit next-step card) to a PortfolioLane. Exposure is the
  *  $100 seed (ledger convention); the card displays the rolled balance riding toward the rung goal. */
@@ -133,7 +179,7 @@ function toBBLane(g: GeneratedLane, status: PortfolioLane["status"], eligibility
     combinedOdds: g.combinedOdds, combinedDecimal: g.combinedDecimal, potentialReturn: g.potentialReturn,
     legCount: g.legs.length, targetLegs: 2, legs: g.legs.map(toLeg),
     correlationNote: g.correlationNote, shortfallNote: g.shortfallNote,
-    whyThisCard: g.whyThisCard, activationEligibility: eligibility,
+    whyThisCard: g.whyThisCard, jointProbabilityBasis: jointProbabilityBasisOf(g.legs.map(toLeg)), activationEligibility: eligibility,
   };
 }
 
@@ -147,6 +193,7 @@ function toMoonLane(g: ReturnType<typeof selectMoonshotRungCard>, status: Portfo
     targetReturn: g.targetReturn, fitsTarget: g.fitsTarget,
     combinedOdds: g.combinedOdds, combinedDecimal: g.combinedDecimal, potentialReturn: g.potentialReturn,
     legCount: legs.length, targetLegs: 2, legs: legs.map(toLeg),
+    jointProbabilityBasis: jointProbabilityBasisOf(legs.map(toLeg)),
     correlationNote: g.correlationNote, shortfallNote: g.shortfallNote,
     // No story line: the World Cup narrative writer describes "knockout angles" and "one longshot
     // ticket", neither of which a two-leg MLB rung card is. whyThisCard says what the card is for.
@@ -162,7 +209,7 @@ function heldLane(product: "bank-builder" | "moonshot", r: { lane: string; nextS
     step: r.basis?.step ?? r.nextStep, clearedSteps: r.clearedSteps, status: "awaiting",
     stake: r.basis?.stake ?? r.rolledStake, exposure: 0, targetReturn: r.targetReturn, fitsTarget: false,
     combinedOdds: 0, combinedDecimal: 1, potentialReturn: 0, legCount: 0, targetLegs: 2, legs: [],
-    correlationNote: null, shortfallNote: r.why, whyThisCard: [r.why],
+    correlationNote: null, shortfallNote: r.why, whyThisCard: [r.why], jointProbabilityBasis: null,
     activationEligibility: { eligible: false, reason: r.why },
   };
 }
@@ -170,7 +217,7 @@ function heldLane(product: "bank-builder" | "moonshot", r: { lane: string; nextS
 /** Activation eligibility for a Bank Builder generated lane (pre-event, cutoff, full + target-fit). */
 function bbEligibility(g: GeneratedLane, nowMs: number, emptyReason: string | null = null): ActivationEligibility {
   if (g.legs.length === 0 && emptyReason) return { eligible: false, reason: emptyReason };
-  if (g.legs.length < 2) return { eligible: false, reason: "fewer than 2 model-qualified legs — awaiting a full card" };
+  if (g.legs.length < 2) return { eligible: false, reason: "fewer than 2 eligible legs — awaiting a full card" };
   if (!g.fitsTarget) return { eligible: false, reason: `no 2-leg combo reaches the Step ${g.step} target — candidate only` };
   for (const l of g.legs) {
     const ms = l.kickoffUtc ? Date.parse(l.kickoffUtc) : NaN;
@@ -343,6 +390,9 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
       odds: leg.americanOdds,
       provider: leg.provider ?? "consensus",
       modelConfidence: leg.modelProbability ?? 0,
+      // F1 Option A: the approved store records no probability source → basis stays null (never assumed).
+      probabilityBasis: probabilityBasisOf(leg.probabilitySource),
+      impliedProbability: probabilityBasisOf(leg.probabilitySource) === "market-implied" ? (leg.modelProbability ?? null) : null,
       kickoffEt: leg.kickoffUtc ? new Date(leg.kickoffUtc).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }) + " ET" : "",
       risk: "Lower-volatility",
       teamLogo: null,
@@ -361,6 +411,7 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
       legCount: legs.length, targetLegs: legs.length, legs,
       correlationNote: null, shortfallNote: null,
       whyThisCard: [l.whyLadderPick, l.whyItCouldFail].filter(Boolean),
+      jointProbabilityBasis: jointProbabilityBasisOf(legs),
       activationEligibility: settled
         ? { eligible: false, reason: `settled ${settled} — official result recorded; seed no longer at risk` }
         : { eligible: true, reason: "operator-approved active paper ladder" },

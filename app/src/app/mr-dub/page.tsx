@@ -178,18 +178,26 @@ export default function MrDubPage() {
             <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
               🌙 {moonshotState.publicNote}
             </p>
+            {/* Founder decision 2026-09-22: the current record is the receipt/fold era; the June ledger is a
+                labelled legacy detail, collapsed, never combined with it. */}
             <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
               Settled record{" "}
               <span className="font-mono" style={{ color: "var(--vault-moonshot-bright)" }}>
-                {moonshotState.ledgerRecord ? `${moonshotState.ledgerRecord.wins}–${moonshotState.ledgerRecord.losses}` : "—"}
+                {moonshotState.displayRecord ? `${moonshotState.displayRecord.wins}–${moonshotState.displayRecord.losses}` : "—"}
               </span>
-              {moonshotState.ledgerRecord?.fromDate ? ` (${moonshotState.ledgerRecord.fromDate} … ${moonshotState.ledgerRecord.throughDate})` : ""}
-              {moonshotState.openCardCount ? ` · ${moonshotState.openCardCount} card(s) left open and ungraded` : ""}
-              . Does not affect the core Bank Builder record. Paper-only.{" "}
+              {moonshotState.displayRecord?.era === "receipts" ? ` · since ${moonshotState.displayRecord.fromDate} · settled receipts` : moonshotState.displayRecord ? " · legacy era" : ""}
+              {moonshotState.openCardCount ? ` · ${moonshotState.openCardCount} legacy card(s) left open and ungraded` : ""}
+              . Kept on its own line — it is not part of the Bank Builder record. Paper-only.{" "}
               <Link href="/moonshot" style={{ color: "var(--vault-moonshot-bright)" }}>Full reconciliation →</Link>
             </p>
+            {moonshotState.legacyRecord && moonshotState.displayRecord?.era === "receipts" ? (
+              <details className="mb-2 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+                <summary className="cursor-pointer font-mono">{moonshotState.legacyRecord.label}</summary>
+                <span className="block mt-1">A different product era — June multi-leg cards from {moonshotState.legacyRecord.source}. History only; never added to the current record.</span>
+              </details>
+            ) : null}
             {moonshotLane ? (
-              <MoonshotLaneTracker lane={moonshotLane} record={moonshotState.displayRecord ?? undefined} exposure={portfolio.moonshot.exposure} running={moonshotState.running} mode="compact" />
+              <MoonshotLaneTracker lane={moonshotLane} record={moonshotState.displayRecord ?? undefined} recordLabel={moonshotState.displayRecord?.label ?? undefined} exposure={portfolio.moonshot.exposure} running={moonshotState.running} mode="compact" />
             ) : (
               <Link href="/moonshot" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-moonshot-bright)", textDecoration: "none" }}>Open the Moonshot Lane tracker →</Link>
             )}

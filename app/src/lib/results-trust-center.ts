@@ -166,8 +166,11 @@ export interface TrustCenterModel {
     paperExposure: number;
   } | null;
   /** The ONE Moonshot state owner's display record — the same derivation /moonshot renders, so the
-   *  two surfaces cannot print different records for one product. */
-  moonshotDisplayRecord: { wins: number; losses: number } | null;
+   *  two surfaces cannot print different records for one product. Founder decision 2026-09-22: this is
+   *  the receipt/fold-era record when one exists (`era: "receipts"`, `fromDate` = the fold's
+   *  inBankrollSince); the June ledger travels separately as `legacy` and is never summed into it. */
+  moonshotDisplayRecord: { wins: number; losses: number; era: "receipts" | "legacy"; fromDate: string | null; label: string | null } | null;
+  moonshotLegacyRecord: { wins: number; losses: number; settled: number; label: string | null } | null;
   bankrollHealth: TrustBankrollHealth | null;
   mlb: TrustMlbPerformance;
 }
@@ -363,6 +366,7 @@ export function getTrustCenterModel(): TrustCenterModel {
 
   /* The ONE Moonshot state owner, with the SAME loaders /moonshot uses. */
   let moonshotDisplayRecord: TrustCenterModel["moonshotDisplayRecord"] = null;
+  let moonshotLegacyRecord: TrustCenterModel["moonshotLegacyRecord"] = null;
   try {
     const derived = deriveMoonshotState({
       settledCardIds: settledCardIds(loadLifecycleHistory(), "moonshot"),
@@ -375,9 +379,12 @@ export function getTrustCenterModel(): TrustCenterModel {
       today: currentEtDate(),
     });
     moonshotDisplayRecord = derived.displayRecord
-      ? { wins: derived.displayRecord.wins, losses: derived.displayRecord.losses }
+      ? { wins: derived.displayRecord.wins, losses: derived.displayRecord.losses, era: derived.displayRecord.era as "receipts" | "legacy", fromDate: derived.displayRecord.fromDate ?? null, label: derived.displayRecord.label ?? null }
       : null;
-  } catch { moonshotDisplayRecord = null; }
+    moonshotLegacyRecord = derived.legacyRecord
+      ? { wins: derived.legacyRecord.wins, losses: derived.legacyRecord.losses, settled: derived.legacyRecord.settled, label: derived.legacyRecord.label ?? null }
+      : null;
+  } catch { moonshotDisplayRecord = null; moonshotLegacyRecord = null; }
 
   return {
     money,
@@ -389,6 +396,7 @@ export function getTrustCenterModel(): TrustCenterModel {
     moonshot,
     today,
     moonshotDisplayRecord,
+    moonshotLegacyRecord,
     bankrollHealth,
     mlb,
   };

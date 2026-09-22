@@ -65,7 +65,8 @@ export interface DailyLaneLeg {
   selection?: string;
   odds?: number;
   provider?: string;
-  modelConfidence?: number;
+  modelConfidence?: number; // deprecated name (F1 Option A) — read impliedProbability first
+  impliedProbability?: number | null;
   kickoffEt?: string;
   line?: number | null;
   risk?: string;
@@ -118,7 +119,7 @@ export function buildSettledLeg(
     participantName: dpLeg.selection ?? null,
     marketType: marketType ?? null,
     odds: dpLeg.odds ?? gradedLeg?.odds ?? null,
-    modelProbability: dpLeg.modelConfidence ?? null,
+    modelProbability: dpLeg.impliedProbability ?? dpLeg.modelConfidence ?? null,
     legQualityTier: dpLeg.risk === "Lower-volatility" ? "core" : "broader",
     side,
     line: dpLeg.line ?? null,

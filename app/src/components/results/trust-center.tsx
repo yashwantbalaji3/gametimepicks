@@ -279,9 +279,10 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
                     ? "No active longshot"
                     : model.moonshot?.status ?? "No active longshot",
               /* The record comes from the ONE Moonshot state owner — the same derivation /moonshot
-                 renders — never from the frozen portfolio block alone (which knew one card). */
+                 renders. Founder decision 2026-09-22: it is the receipt/fold-era record, named with its
+                 era and sample; the June legacy era is never combined into it. */
               detail: model.moonshotDisplayRecord
-                ? `Settled record ${model.moonshotDisplayRecord.wins}-${model.moonshotDisplayRecord.losses} · separate paper lane`
+                ? `${model.moonshotDisplayRecord.label ?? `Settled record ${model.moonshotDisplayRecord.wins}-${model.moonshotDisplayRecord.losses}`} · separate paper lane`
                 : "Separate paper lane",
             },
             {

@@ -151,7 +151,7 @@ export default function MoonshotPage() {
       {/* THE RECONCILIATION — the charter's P0: one place where pending count, settled count,
           exposure and card status are stated together, including where the sources disagree.
           Hiding the disagreement behind a single chip is what produced the contradiction. */}
-      {moonshot.contradictions.length ? (
+      {moonshot.contradictions.length || moonshot.displayRecord ? (
         <section
           aria-label="Moonshot state reconciliation"
           className="rounded-xl px-4 py-4 flex flex-col gap-3"
@@ -166,8 +166,13 @@ export default function MoonshotPage() {
                 two published cards and $50 paper exposure — one page, two unscoped eras. */}
             {[
               ["Published today", String(moonshotLanes.length), moonshotLanes.length ? `$${dailyPortfolio.exposure.moonshot.toFixed(2)} paper` : "no card today"],
-              ["Settled cards", moonshot.ledgerRecord ? `${moonshot.ledgerRecord.wins}–${moonshot.ledgerRecord.losses}` : "—",
-                moonshot.ledgerRecord?.fromDate ? `${moonshot.ledgerRecord.fromDate} … ${moonshot.ledgerRecord.throughDate}` : ""],
+              /* Founder decision 2026-09-22: the CURRENT record is the receipt/fold era (mr-dub/portfolio.json
+                 .moonshot, graded nightly from official results). The June ledger is a legacy era, shown
+                 collapsed below — never combined into this tile. */
+              ["Settled record", moonshot.displayRecord ? `${moonshot.displayRecord.wins}–${moonshot.displayRecord.losses}` : "—",
+                moonshot.displayRecord?.era === "receipts"
+                  ? `since ${moonshot.displayRecord.fromDate ?? "—"} · settled receipts`
+                  : moonshot.displayRecord ? "legacy era · no current-era record" : ""],
               ["Legacy open cards", String(moonshot.openCardCount), moonshot.openCardCount === 0 ? "legacy lane fully graded" : moonshot.unsettleableCardCount ? "cannot be graded" : "awaiting results"],
               ["Legacy stranded stake", `$${moonshot.openExposure.toFixed(2)}`, "legacy lane · paper"],
             ].map(([k, v, sub]) => (
@@ -179,16 +184,31 @@ export default function MoonshotPage() {
             ))}
           </dl>
 
-          <div className="flex flex-col gap-1.5">
-            <p className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-              Where the stored records disagree
-            </p>
-            <ul className="flex flex-col gap-1">
-              {moonshot.contradictions.map((c) => (
-                <li key={c} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>· {c}</li>
-              ))}
-            </ul>
-          </div>
+          {/* The legacy era, as a labelled detail (founder decision 2026-09-22 · UX M-2): a different
+              population — June multi-leg cards — never combined with the current era's headline. */}
+          {moonshot.legacyRecord && moonshot.displayRecord?.era === "receipts" ? (
+            <details className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
+              <summary className="cursor-pointer font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                {moonshot.legacyRecord.label}
+              </summary>
+              <p className="mt-1.5 font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+                The June 2026 Moonshot was a different product — {moonshot.legacyRecord.settled} multi-leg card{moonshot.legacyRecord.settled === 1 ? "" : "s"} settled from {moonshot.legacyRecord.source}. It is kept here as history and is never added to the current record above.
+              </p>
+            </details>
+          ) : null}
+
+          {moonshot.contradictions.length ? (
+            <div className="flex flex-col gap-1.5">
+              <p className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+                What the stored records say, side by side
+              </p>
+              <ul className="flex flex-col gap-1">
+                {moonshot.contradictions.map((c) => (
+                  <li key={c} className="font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>· {c}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           {moonshot.founderDecision ? (
             <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
@@ -262,6 +282,7 @@ export default function MoonshotPage() {
           <MoonshotLaneTracker
             lane={lane}
             record={moonshot.displayRecord ?? undefined}
+            recordLabel={moonshot.displayRecord?.label ?? undefined}
             exposure={exposure}
             running={moonshot.running}
             /* Outcomes the lifecycle ledger graded, keyed by the lane's own card ids — without this

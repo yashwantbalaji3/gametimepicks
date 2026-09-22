@@ -83,7 +83,7 @@ export function TrustStrip({ recordLabel, bankrollLabel, peakLabel, openExposure
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Official settlement only · pending is not a loss</span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        {recordLabel ? <TrustTile value={recordLabel} label="Paper record (W–L)" /> : null}
+        {recordLabel ? <TrustTile value={recordLabel} label="Bank Builder paper record (W–L)" /> : null}
         {bankrollLabel ? <TrustTile value={bankrollLabel} label="Current paper bankroll" /> : null}
         {peakLabel ? <TrustTile value={peakLabel} label="Peak paper bankroll" /> : null}
         <TrustTile value={openExposureLabel} label="Open exposure" />

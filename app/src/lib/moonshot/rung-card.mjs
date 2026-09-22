@@ -88,7 +88,7 @@ export function selectMoonshotRungCard(pool, rung, { excludeIds = new Set(), exc
     whyThisCard: picked.length === 2 ? [
       `Day ${rung.nextStep}: $${rung.rolledStake.toLocaleString("en-US")} needs ${target.toFixed(2)}× to reach $${rung.targetReturn.toLocaleString("en-US")}.`,
       fitsTarget
-        ? `Of every two-leg pair from different games that reaches it, this one has the best chance of both landing (${pct}%).`
+        ? `Of every two-leg pair from different games that reaches it, this one has the best market-implied chance of both landing (${pct}% — what the prices imply, not a forecast).`
         : `The closest pair reaches ${combinedDecimal.toFixed(2)}×, short of the goal.`,
       "Both legs win → the whole payout carries to the next day. Either leg loses → the lane restarts at $25.",
     ] : [],
