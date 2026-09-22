@@ -101,3 +101,12 @@ won → carry real payout; lost → seed; void/push → same rung, same stake; p
 
 ## 7. Looks
 1. 2026-09-21 — preregistered (this file). No replay run yet.
+2. 2026-09-22 — first replay run (`docs/V17_HISTORICAL_REPLAY_RECEIPT.md`). BB-C1 not rejected (37-34 vs
+   32-39 paired on 71 lane-days). BB-C2/C3/C4/C5 and MS-C2 rejected on the rules above. The absolute floor in
+   BB-C2 (0.42) proved unreachable for market-priced cards; a **relative** floor is added below as BB-C2b for
+   forward shadow only, with no historical score. No constant in §2 was edited.
+
+### BB-C2b "safest-fit + relative no-play floor" (look 2, forward-only)
+BB-C1 plus: decline the day when the best qualifying card's market joint p is below **0.90 × the best joint
+p any construction reaching the rung achieved on the last 7 replayed/shadowed days for that rung**; if fewer
+than 3 such days exist, do not decline. Reason code `SLATE_QUALITY_BELOW_THRESHOLD`. Scored in Phase H only.

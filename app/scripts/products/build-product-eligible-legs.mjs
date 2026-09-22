@@ -30,6 +30,12 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? proces
 const WRITE = process.argv.includes("--write");
 const NOW = arg("--now", new Date().toISOString());
 const DATE = arg("--date", NOW.slice(0, 10));
+/** Before 2026-09-01 there is no statsapi-schedule capture; the daily board carries the same identity. */
+function boardAsSchedule(board) {
+  if (!board?.games?.length) return null;
+  return { games: board.games.map((g) => ({ gamePk: g.gamePk, gameDate: g.gameDate, home: { id: g.homeTeamId, name: g.homeTeamName }, away: { id: g.awayTeamId, name: g.awayTeamName } })), source: "mlb/boards" };
+}
+
 /** The ET calendar date of an instant — product dates are ET dates. */
 export function etDate(iso) {
   const t = Date.parse(iso); if (!Number.isFinite(t)) return null;
@@ -71,7 +77,7 @@ function nflMarketsAsOf(root, now) {
 export function buildEligibleLegs({ date = DATE, now = NOW, root = ROOT } = {}) {
   const rj = (rel) => { try { return JSON.parse(fs.readFileSync(path.join(root, rel), "utf8")); } catch { return null; } };
   const sports = {
-    mlb: mlbCandidates({ teamMarkets: rj(`mlb/team-markets/${date}.json`), schedule: rj(`mlb/statsapi-schedule/${date}.json`), date }),
+    mlb: mlbCandidates({ teamMarkets: rj(`mlb/team-markets/${date}.json`), schedule: rj(`mlb/statsapi-schedule/${date}.json`) ?? boardAsSchedule(rj(`mlb/boards/${date}.json`)), date }),
     nfl: nflCandidates({ forecasts: nflForecastsAsOf(root, now), markets: nflMarketsAsOf(root, now) }),
     ufc: ufcCandidates({ odds: rj("ufc/odds-latest.json") }),
     epl: eplCandidates({ forecasts: rj(`soccer/epl/forecasts/${date}.json`) ?? rj("soccer/epl/forecasts/latest.json"), odds: rj("soccer/epl/odds/latest.json"), date }),
