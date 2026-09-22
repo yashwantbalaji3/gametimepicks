@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-21T23:50:21Z",
+ "generatedAt": "2026-09-22T14:02:52Z",
  "windowSeasonType": "MIXED_OR_REGULAR",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
@@ -35,92 +35,83 @@
   }
  },
  "market": {
-  "state": "LIVE",
-  "headline": "Sportsbook prices are published for this slate",
-  "detail": "Captured before every kickoff shown, across up to 11 sportsbooks. These are the books' own numbers with attribution — not GameTimePicks predictions.",
+  "state": "ARCHIVED_CAPTURE",
+  "headline": "No current sportsbook prices — the last capture covered games now played",
+  "detail": "The most recent authorized capture (2026-09-21) priced 1 game(s) whose kickoffs have all passed. Those prices live with their games in the archive; no current price is shown and none is invented.",
   "capturedAt": "2026-09-21T23:50:21Z",
-  "events": 1
+  "events": 0,
+  "nextGate": "The next authorized market capture."
  },
  "window": {
   "seasonType": 2,
-  "week": 2
+  "week": 3
  },
  "playerFamilies": [
   {
    "key": "player_pass_yds",
    "label": "Passing yards",
    "publication": {
-    "boards": 16,
+    "boards": 1,
     "states": [
      "ESTIMATE"
     ],
-    "models": [
-     "nfl-player-share-level-v1"
-    ]
+    "models": []
    },
    "source": "boards",
    "nextGate": "Current role evidence, a current offered line, and settlement support.",
    "state": "ESTIMATE_BELOW_BAR",
-   "modelId": "nfl-player-share-level-v1",
+   "modelId": null,
    "headline": "Passing yards: displayed as an unvalidated estimate",
-   "detail": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss — the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance."
+   "detail": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk — on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
   },
   {
    "key": "player_rush_yds",
    "label": "Rushing yards",
    "publication": {
-    "boards": 16,
+    "boards": 1,
     "states": [
-     "PUBLISHED"
+     "ESTIMATE"
     ],
-    "models": [
-     "nfl-player-share-level-v1"
-    ]
+    "models": []
    },
    "source": "boards",
-   "nextGate": null,
-   "state": "PUBLISHED",
-   "modelId": "nfl-player-share-level-v1",
-   "headline": "Rushing yards: published this week by nfl-player-share-level-v1",
-   "detail": "Share-level model: cleared every bar when re-tested on 2014–2021 (14,502 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (0 graded player-games so far)."
+   "nextGate": "Current role evidence, a current offered line, and settlement support.",
+   "state": "ESTIMATE_NEAR_BAR",
+   "modelId": null,
+   "headline": "Rushing yards: displayed as an unvalidated estimate",
+   "detail": "SHADOW_ELIGIBLE — failed bar(s): calOk — its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
   },
   {
    "key": "player_reception_yds",
    "label": "Receiving yards",
    "publication": {
-    "boards": 16,
+    "boards": 1,
     "states": [
      "PUBLISHED"
     ],
-    "models": [
-     "nfl-player-share-level-v1"
-    ]
+    "models": []
    },
    "source": "boards",
-   "nextGate": null,
-   "state": "PUBLISHED",
-   "modelId": "nfl-player-share-level-v1",
-   "headline": "Receiving yards: published this week by nfl-player-share-level-v1",
-   "detail": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (0 graded player-games so far)."
+   "nextGate": "Current role evidence, a current offered line, and settlement support.",
+   "state": "MIXED",
+   "headline": "Receiving yards: publication differs across this week's games",
+   "detail": "Across 1 boards: 1 published. Each game page states its own."
   },
   {
    "key": "player_receptions",
    "label": "Receptions",
    "publication": {
-    "boards": 16,
+    "boards": 1,
     "states": [
      "PUBLISHED"
     ],
-    "models": [
-     "nfl-player-share-level-v1"
-    ]
+    "models": []
    },
    "source": "boards",
-   "nextGate": null,
-   "state": "PUBLISHED",
-   "modelId": "nfl-player-share-level-v1",
-   "headline": "Receptions: published this week by nfl-player-share-level-v1",
-   "detail": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (0 graded player-games so far)."
+   "nextGate": "Current role evidence, a current offered line, and settlement support.",
+   "state": "MIXED",
+   "headline": "Receptions: publication differs across this week's games",
+   "detail": "Across 1 boards: 1 published. Each game page states its own."
   }
  ],
  "anytimeTd": {
