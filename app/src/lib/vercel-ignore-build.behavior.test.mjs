@@ -20,6 +20,22 @@ const SCRIPT = path.join(APP, "scripts", "vercel-ignore-build.sh");
 let repo;
 const shas = {};
 
+/**
+ * Files OUTSIDE app/ that `npm run build` reads (emit steps, research/compare/lab/ask pages, the
+ * search index, and the three data/internal paths a PUBLIC route reads). Any change here must build;
+ * the sibling data/internal churn (pregame archive etc.) must not — it feeds pipeline scripts only.
+ * Audit: docs/V17_DEPLOY_TRIGGER_AUDIT.md (2026-09-22).
+ */
+const REPO_ROOT_BUILD_INPUTS = [
+  "data/research-projection/v1/index.json",
+  "data/compare-projection/v1/readiness.json",
+  "data/lab-projection/v1/index.json",
+  "data/ask-projection/v1/manifest.json",
+  "data/internal/mlb/model-learning/calibrator-manifest.json",
+  "data/internal/nfl/forecast-receipts/2026-w03.json",
+  "data/internal/mlb/prediction-snapshots/2026-09-22/1.json",
+];
+
 function git(args, opts = {}) {
   const r = spawnSync("git", args, { cwd: repo, encoding: "utf8", ...opts });
   assert.equal(r.status, 0, `git ${args.join(" ")} failed: ${r.stderr}`);
@@ -56,6 +72,11 @@ before(() => {
   commit("data-change", { "app/public/data/board.json": "{}" });
   commit("docs-tail", { "docs/NOTES.md": "v3" });
   commit("app-change", { "app/src/page.tsx": "v2" });
+  // 2026-09-22 audit (docs/V17_DEPLOY_TRIGGER_AUDIT.md): repo-root build inputs outside app/.
+  commit("internal-churn", { "data/internal/mlb/pregame-archive/freezes/2026-09-22/1.json": "{}" });
+  for (const [i, rel] of REPO_ROOT_BUILD_INPUTS.entries()) commit(`input-${i}`, { [rel]: `{"v":${i}}` });
+  // Leave HEAD where the older tests expect it; the new tests check out their own shas.
+  git(["checkout", "-q", shas["app-change"]]);
 });
 
 after(() => fs.rmSync(repo, { recursive: true, force: true }));
@@ -132,4 +153,64 @@ test("the hatch is opt-in — any other value leaves the diff logic untouched", 
     assert.equal(runIgnore({ ...base, VERCEL_FORCE_BUILD: v }).status, off.status,
       `VERCEL_FORCE_BUILD=${JSON.stringify(v)} must not change the decision — only "1" opts in`);
   }
+});
+
+// ── 2026-09-22 deploy-trigger audit (docs/V17_DEPLOY_TRIGGER_AUDIT.md) ─────────────────────────
+
+test("`[skip ci]` in the commit message never skips a Vercel build — only the diff decides", () => {
+  /*
+   * Q1 of the audit: 503 pushes/7d, every one whose span touched app/ was built regardless of the
+   * `[skip ci]` marker (361 DATA + 84 CODE), and every span without app/ changes was skipped (55).
+   * The marker is a GitHub Actions convention; this script must not grow a message-based skip.
+   */
+  commit("data-skip-ci [skip ci]", { "app/public/data/board.json": '{"v":2}' });
+  const r = runIgnore({ VERCEL_GIT_PREVIOUS_SHA: shas["app-change"] });
+  git(["checkout", "-q", shas["app-change"]]);
+  assert.equal(r.status, 1, `a [skip ci] data commit must still deploy: ${r.stdout}`);
+  assert.doesNotMatch(fs.readFileSync(SCRIPT, "utf8"), /git log|--format|%s|VERCEL_GIT_COMMIT_MESSAGE/,
+    "the script must not read the commit message at all");
+});
+
+test("repo-root build inputs outside app/ → BUILD (projections + the three read data/internal paths)", () => {
+  // Each input-N commit changes exactly one repo-root file the build reads; base = its parent.
+  for (const [i, rel] of REPO_ROOT_BUILD_INPUTS.entries()) {
+    const head = shas[`input-${i}`];
+    git(["checkout", "-q", head]);
+    const parent = git(["rev-parse", `${head}^`]);
+    const r = runIgnore({ VERCEL_GIT_PREVIOUS_SHA: parent });
+    assert.equal(r.status, 1, `${rel} is a build input — a change there must BUILD: ${r.stdout}`);
+  }
+  git(["checkout", "-q", shas["app-change"]]);
+});
+
+test("data/internal churn the build never reads → still SKIP (the extension is not a blanket data/ rule)", () => {
+  /*
+   * ~19 pregame-archive pushes/7d (300+ files each) plus settle receipts touch data/internal only.
+   * They feed pipeline scripts, not `npm run build`; building them would add ~4% of builds for
+   * byte-identical output. Fail-open still applies to everything the build DOES read (test above).
+   */
+  git(["checkout", "-q", shas["internal-churn"]]);
+  const r = runIgnore({ VERCEL_GIT_PREVIOUS_SHA: shas["app-change"] });
+  git(["checkout", "-q", shas["app-change"]]);
+  assert.equal(r.status, 0, `internal-only churn must skip: ${r.stdout}`);
+  assert.match(r.stdout, /skipping build/);
+});
+
+test("after a FAILED deploy the base is the last SUCCESSFUL one, so the failed commit's data is carried by the next build", () => {
+  /*
+   * Q2 of the audit. Chain: base → docs-only → data-change (its deploy FAILED at the 45-min ceiling)
+   * → docs-tail. Vercel sets VERCEL_GIT_PREVIOUS_SHA to the last SUCCESSFUL deployment (docs-only's
+   * predecessor "base" here), so the docs-tail push spans the failed data change and BUILDS.
+   * Had Vercel pointed at the failed commit itself, the same push would SKIP and strand the data —
+   * the second assertion documents why the semantics matter (and why the script must never invent
+   * a HEAD^ base of its own).
+   */
+  git(["checkout", "-q", shas["docs-tail"]]);
+  const carried = runIgnore({ VERCEL_GIT_PREVIOUS_SHA: shas["base"] });
+  const stranded = runIgnore({ VERCEL_GIT_PREVIOUS_SHA: shas["data-change"] });
+  git(["checkout", "-q", shas["app-change"]]);
+  assert.equal(carried.status, 1, "span from the last SUCCESSFUL deploy includes the failed data commit → BUILD");
+  assert.equal(stranded.status, 0, "a base AT the failed commit would skip — Vercel's last-successful semantics prevent it");
+  assert.doesNotMatch(fs.readFileSync(SCRIPT, "utf8"), /git (rev-parse|diff)[^\n]*HEAD[\^~]|BASE=[^\n]*HEAD[\^~]/,
+    "the script must not fall back to a HEAD^ base of its own");
 });
