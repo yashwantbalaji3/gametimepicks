@@ -10,7 +10,8 @@ downward, then `RELEASE_AND_PR_HISTORY.md`.
 
 | Date | Doc | Purpose | Known main SHA | State |
 |------|-----|---------|----------------|-------|
-| 2026-06-02 | [`HANDOFF_2026-06-02_PRE_METHODOLOGY_V2.md`](./HANDOFF_2026-06-02_PRE_METHODOLOGY_V2.md) | Post product-quality sprint (#245–#254); next task = Suggested Parlay Methodology v2 (shadow audit + docs first) | `f78f389` | **current** |
+| 2026-09-22 | [`V17_RELEASE_HANDOFF.md`](./V17_RELEASE_HANDOFF.md) | v1.7 Bank Builder + Moonshot recovery, ProductEligibleLeg contract, selector shadow, NBA readiness track; next = forward-shadow adoption receipt + founder gates F1/F2/F3 | see §6 of the doc | **current** |
+| 2026-06-02 | [`HANDOFF_2026-06-02_PRE_METHODOLOGY_V2.md`](./HANDOFF_2026-06-02_PRE_METHODOLOGY_V2.md) | Post product-quality sprint (#245–#254); next task = Suggested Parlay Methodology v2 (shadow audit + docs first) | `f78f389` | superseded |
 | 2026-06-02 | [`HANDOFF_2026-06-02_POST_DOCS_VOLUME_DISCIPLINE.md`](./HANDOFF_2026-06-02_POST_DOCS_VOLUME_DISCIPLINE.md) | Post-docs/volume-discipline; next task = projection→prob recalibration (shadow-only) | `4ef8801` | superseded |
 | 2026-06-02 | [`HANDOFF_2026-06-02_SETTLEMENT_PROJECTIONS.md`](./HANDOFF_2026-06-02_SETTLEMENT_PROJECTIONS.md) | June-1 settlement + June-2 clock-gate | `f505f6f`→`bf4e07a` | superseded |
 | 2026-06-01 | [`HANDOFF_2026-06-01_REAL_SCHEDULES_MOBILE_UI.md`](./HANDOFF_2026-06-01_REAL_SCHEDULES_MOBILE_UI.md) | Real schedules + mobile UI (#231–#235) | `55c3007` | superseded |
