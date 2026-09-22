@@ -251,3 +251,9 @@ Both edited workflows parse as YAML. `generate_daily_board.py` parses.
 5. **No authorized NBA price receipt** — the PRODUCT column of every market bar is unreachable until one
    exists; a public forecast can be earned without it, product eligibility cannot.
 6. **N-6 raw-preserving box-score re-capture** before any uniformising `--force`.
+
+### Cleanup receipt addendum — 2026-09-22 (daytime session)
+
+- **N-1 (second half) DONE:** `morning-projections.yml` now sets `SKIP_NBA` unless the repository variable `NBA_LEGACY_REFRESH=true` (the orchestrator already honoured the flag; step 3/4 was the dead stats.nba.com generator writing an empty `ScheduleUnavailable` board + `meta.json` every run). The public coupling that blocked this overnight — the footer's "last refresh" read `meta.lastPipelineRun` on every page — is gone: the footer shows the **build marker** (`buildInfoFromEnv().builtAt`) and the methodology page dropped its "legacy pipeline run" badge. MLB half untouched.
+- **NBA schedule capture REPAIRED:** `sport-schedules.yml` had refused "NBA schedule" (and "NFL schedule") on every run since 2026-09-20 — ESPN's scoreboard answers `400 Failed to get events endpoint.` to the `dates=A-B` range form while `dates=YYYYMM` still answers. `capture-nba-schedule.mjs` / `capture-nfl-schedule.mjs` now fetch by month through `src/lib/sports/espn-scoreboard-window.mjs` (unit-tested) and filter to the window; live dry-run 2026-09-22: **370 NBA events over 70 days** (the committed artifact still holds the 100-row Oct 3–25 window until the next run), 16 NFL events over 9 days.
+- Registry still `HISTORICAL_ONLY`; nothing NBA is product-eligible.
