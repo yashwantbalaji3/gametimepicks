@@ -317,6 +317,10 @@ jobs:
         run: |
           set -euo pipefail
           (cd app && npx tsx scripts/products/grade-selector-shadow.mjs --write)
+          # v1.7 shadow observability: the report is a pure function of the ledger, the day files, the
+          # state and mr-dub/settled — regenerated here so docs/V17_SHADOW_REPORT.md and report.json can
+          # never be a hand-kept number. It says SHADOW_RUNNING · NOT ADOPTED by construction.
+          (cd app && npx tsx scripts/products/report-selector-shadow.mjs --write)
 
       # The risk ladder re-derives its whole record from every graded day, so it runs AFTER
       # settlement and never carries a number forward from the previous file.
@@ -665,6 +669,8 @@ jobs:
           git add data/internal/audits/ 2>/dev/null || true
           git add data/internal/offered-window/ 2>/dev/null || true
           git add data/internal/products/ 2>/dev/null || true
+          # v1.7 shadow report (generated above from the ledger; never hand-edited).
+          git add docs/V17_SHADOW_REPORT.md 2>/dev/null || true
           git add app/public/data/mlb/statsapi-schedule/ 2>/dev/null || true
           git add data/internal/research/mlb/engine-level-shadow/ 2>/dev/null || true
           git add app/public/data/ops/offered-window.json 2>/dev/null || true
