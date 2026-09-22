@@ -552,6 +552,8 @@ if (VERBOSE) {
     console.log(`tools=[${(r.out?.evidence?.sources ?? []).join(", ")}] verified=${r.out?.verified} ms=${r.ms}`);
     console.log((r.out?.answer?.answerMarkdown ?? `(failed: ${r.failed})`).slice(0, 700));
     if (r.out?.answer?.links?.length) console.log(`links: ${r.out.answer.links.map((l) => l.href).join(" | ")}`);
+    /* A tool that could not answer is the cause of most missing links; without this line "got " is a dead end. */
+    if (r.out?.evidence?.unsupported?.length) console.log(`unsupported: ${r.out.evidence.unsupported.map((u) => `${u.tool} — ${u.error}`).join(" | ")}`);
   }
 }
 

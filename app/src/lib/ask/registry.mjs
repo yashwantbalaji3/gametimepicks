@@ -174,7 +174,7 @@ export const ASK_TOOLS = Object.freeze({
       "this tool at all. NFL and EPL forecasts are labelled experimental and are not product picks.",
     args: {
       sport: { kind: "enum", options: ["MLB", "NFL", "EPL"], describe: "Narrow to one sport. Omit for every sport with published forecasts." },
-      date: { kind: "isoDate", describe: "Product date (ET). Omit for today — resolve it with getGameTimeNow first." },
+      date: { kind: "isoDate", describe: "Product date (ET) as YYYY-MM-DD. Omit for today — the tool uses today's product date on its own, so do not call getGameTimeNow for it. Only pass a date when the user named a specific day, and never write a placeholder here." },
       gameId: { kind: "slug", describe: "One specific game's canonical id." },
       teamId: { kind: "slug", describe: "Only forecasts involving this team." },
       limit: { kind: "integer", min: 1, max: 20, default: 6, describe: "How many forecasts to return." },
@@ -191,7 +191,7 @@ export const ASK_TOOLS = Object.freeze({
       "Does NOT imply sportsbook expected value: GameTime publishes no price-aware EV, so never rank or " +
       "describe these by EV or profitability.",
     args: {
-      date: { kind: "isoDate", describe: "Product date (ET). Omit for today — resolve it with getGameTimeNow first." },
+      date: { kind: "isoDate", describe: "Product date (ET) as YYYY-MM-DD. Omit for today — the tool uses today's product date on its own, so do not call getGameTimeNow for it. Only pass a date when the user named a specific day, and never write a placeholder here." },
       riskProfile: { kind: "enum", options: [...ASK_RISK_PROFILES], describe: "LOW, MEDIUM, HIGH or LONGSHOT. Omit only if the user has expressed no preference." },
       sports: { kind: "enumArray", options: SPORTS, maxItems: 4, describe: "Restrict to these sports. Sports without current prediction capability are dropped regardless." },
       maxLegs: { kind: "integer", min: 2, max: 10, describe: "Only candidates with at most this many legs." },

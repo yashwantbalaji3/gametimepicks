@@ -822,7 +822,7 @@ test("an aborted turn stops rather than completing", async () => {
 
 test("every turn records the prompt, registry and provider versions", async () => {
   const r = await ask("Why can't I compare UFC fighters?");
-  assert.equal(r.receipt.promptVersion, 3, "the prompt changed, so its version must have moved");
+  assert.equal(r.receipt.promptVersion, 4, "the prompt changed, so its version must have moved");
   assert.match(r.receipt.registry, /^v1\/14\/[0-9a-f]{8}$/);
   assert.equal(r.receipt.provider, "fake");
 });
@@ -1084,4 +1084,81 @@ test("the ENGINE resolves an inline link id — not just the helper", async () =
   const r = await runAskTurn({ messages: [{ role: "user", text: "What MLB games are live right now?" }] }, { ...engineDeps("route"), provider });
   assert.equal(r.verified, true, `an approved link written inline was thrown away: ${JSON.stringify(r.receipt.verifierViolations)}`);
   assert.doesNotMatch(r.answer.answerMarkdown, /\]\(E\d+:/, "the id must be replaced by the evidence's own href, never published as-is");
+});
+
+/* ═══════════  16. A PLACEHOLDER IN A DATE SLOT IS THE PRODUCT DATE, NEVER A GUESS  ═══════════ */
+
+/*
+ * The shipping-build passes lost the parlay answer two times in three, with no link into Parlay Lab.
+ * Not the link resolver: Gemini had obeyed the catalogue's "resolve it with getGameTimeNow first",
+ * written the placeholder it was taught for ids into the DATE slot, and the isoDate validator refused
+ * the call before getParlayCandidates ran. Two dates in the fixture make the substitution observable:
+ * today's product date carries one slip, the artifact's LATEST date another, so "filled from
+ * getGameTimeNow", "dropped to the tool's default" and "refused" each leave a different mark.
+ */
+const slip = (id) => ({ slipId: id, profile: "MEDIUM", sport: "MLB", legCount: 2, legs: [{ sport: "MLB", playerName: "A", oddsForSide: -110 }, { sport: "MLB", playerName: "B", oddsForSide: -110 }], score: 0.2, correlationPenalty: 0, payoutPer100: { american: 264, decimal: 3.64, profitPer100: 264 } });
+const twoDayParlayDeps = () => ({
+  ...engineDeps("route"),
+  turn: makeAskLoader(fixtureFetchText({
+    "/data/ask/v1/parlays.json": {
+      schemaVersion: 1,
+      dates: ["2026-09-17", "2026-09-18"],
+      byDate: {
+        "2026-09-17": { date: "2026-09-17", generatedAt: "2026-09-17T10:00:00Z", eligibleSports: ["mlb"], profiles: { MEDIUM: [slip("s-today")] } },
+        "2026-09-18": { date: "2026-09-18", generatedAt: "2026-09-18T10:00:00Z", eligibleSports: ["mlb"], profiles: { MEDIUM: [slip("s-latest")] } },
+      },
+      evOwner: null,
+    },
+  })).beginTurn(),
+});
+const parlayPlan = (args, after) => JSON.stringify({
+  intent: "BANKROLL_PARLAY_REQUEST", needsClarification: false, clarification: null,
+  calls: [...(after ? [{ id: "c0", name: "getGameTimeNow", arguments: {} }] : []), { id: "c1", name: "getParlayCandidates", arguments: args, ...(after ? { after: ["c0"] } : {}) }],
+});
+/** A writer that reports which slips its evidence carried, so the test can see which DATE was queried. */
+const slipSpy = (provider, seen) => {
+  provider.write = async ({ user }) => {
+    for (const id of ["s-today", "s-latest"]) if (user.includes(id)) seen.add(id);
+    return { ok: true, text: JSON.stringify({ answerMarkdown: "GameTime published one medium candidate today.", citations: [], followUps: [], linkIds: [] }), usage: {} };
+  };
+  return provider;
+};
+
+test("the ENGINE fills a date placeholder from getGameTimeNow — the plan Gemini actually wrote", async () => {
+  const seen = new Set();
+  const provider = slipSpy(createFakeProvider({ script: [parlayPlan({ date: "RESOLVED", riskProfile: "MEDIUM", limit: 3 }, true)] }), seen);
+  const r = await runAskTurn({ messages: [{ role: "user", text: "$100 medium risk parlays today" }] }, { ...twoDayParlayDeps(), provider });
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.receipt.toolStatuses, ["OK", "OK"], "getParlayCandidates must RUN, not be refused over the placeholder");
+  assert.deepEqual([...seen], ["s-today"], "the date must be the one getGameTimeNow reported, not the artifact's latest");
+  assert.ok(r.answer.links.some((l) => l.href.startsWith("/parlay-lab/")), `the reader must get the route into Parlay Lab: ${JSON.stringify(r.answer.links)}`);
+});
+
+test("a date placeholder with no getGameTimeNow in the plan is dropped, and the tool applies its own default", async () => {
+  const seen = new Set();
+  const provider = slipSpy(createFakeProvider({ script: [parlayPlan({ date: "today", riskProfile: "MEDIUM", limit: 3 }, false)] }), seen);
+  const r = await runAskTurn({ messages: [{ role: "user", text: "$100 medium risk parlays today" }] }, { ...twoDayParlayDeps(), provider });
+  assert.deepEqual(r.receipt.toolStatuses, ["OK"]);
+  assert.deepEqual([...seen], ["s-latest"], "the tool's documented default is the artifact's latest date");
+});
+
+test("a date that is not a placeholder is still refused — the net substitutes, it never guesses", async () => {
+  const seen = new Set();
+  const provider = slipSpy(createFakeProvider({ script: [parlayPlan({ date: "next Saturday", riskProfile: "MEDIUM", limit: 3 }, true)] }), seen);
+  const r = await runAskTurn({ messages: [{ role: "user", text: "$100 medium risk parlays next Saturday" }] }, { ...twoDayParlayDeps(), provider });
+  assert.ok(r.receipt.toolStatuses.includes("ERROR"), `an unparseable date must be refused, not coerced: ${JSON.stringify(r.receipt.toolStatuses)}`);
+  assert.deepEqual([...seen], [], "no candidate may be served for a date nobody could parse");
+  assert.ok(r.evidence.unsupported.some((u) => u.tool === "getParlayCandidates" && u.error === ASK_ERROR.INVALID_ARGUMENT));
+});
+
+test("the catalogue never tells the planner to fetch a date it can omit", () => {
+  for (const [name, def] of Object.entries(ASK_TOOLS)) {
+    for (const [key, field] of Object.entries(def.args)) {
+      if (field.kind !== "isoDate") continue;
+      assert.doesNotMatch(field.describe, /getGameTimeNow first/, `${name}.${key}: that instruction produced the placeholder the validator refuses`);
+      if (key !== "date") continue; // a range filter (fromDate/toDate) has no "today" default to describe
+      assert.match(field.describe, /Omit for today/, `${name}.${key}: the model must be told the argument is optional`);
+      assert.match(field.describe, /placeholder/, `${name}.${key}: the model must be told not to write one`);
+    }
+  }
 });

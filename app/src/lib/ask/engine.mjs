@@ -24,7 +24,7 @@
  * now the right move. It is not a retry loop, and there is no third pass.
  */
 import { ASK_BUDGET, ASK_ERROR, ASK_PROMPT_VERSION, ASK_STATUS } from "./contract.mjs";
-import { registryFingerprint } from "./registry.mjs";
+import { ASK_TOOLS, registryFingerprint } from "./registry.mjs";
 import { makeExecutor } from "./executor.mjs";
 import { buildEvidence } from "./evidence.mjs";
 import { harvestEntities, reduceConversation } from "./conversation.mjs";
@@ -309,8 +309,18 @@ function plannerUserMessage(state, priorEvidence = null) {
  * AMBIGUOUS it leaves the dependent call UNRUN rather than picking a candidate, so the answer asks
  * which person was meant instead of confidently describing the wrong one (§19, §118).
  */
+/**
+ * What a planner writes in a DATE slot when it means "the date I have not been told yet". Gemini, told
+ * by the catalogue to resolve the product date with getGameTimeNow first, wrote the placeholder it had
+ * been taught for ids. Only these literal spellings count: "next Saturday" is a request, not a
+ * placeholder, and stays refused.
+ */
+const DATE_PLACEHOLDER = /^(RESOLVED|\$\{resolved\}|today|now)$/i;
+
 async function runPlanWithResolution(plan, executor, state, emit) {
   const resolved = new Map(state.resolvedEntities.filter((e) => e.id).map((e) => [e.kind, e.id]));
+  /* The product date getGameTimeNow reported THIS turn, once it has run. */
+  let productDate = null;
   /* label → id, so a planner that wrote the NAME instead of the id can still be served. */
   const labels = new Map(state.resolvedEntities.filter((e) => e.id && e.label).map((e) => [`${e.kind}:${String(e.label).toLowerCase()}`, e.id]));
   const out = [];
@@ -329,7 +339,26 @@ async function runPlanWithResolution(plan, executor, state, emit) {
       const args = { ...call.arguments };
       let blocked = false;
       for (const [k, v] of Object.entries(args)) {
-        if (!/^(team|player|opponent|game).*Id$/i.test(k) || typeof v !== "string") continue;
+        if (typeof v !== "string") continue;
+        /*
+         * THE DATE PLACEHOLDER NET. The id net below exists because a planner cannot know an id before
+         * resolveEntity returns one. The same planner cannot know today's product date before
+         * getGameTimeNow returns it, and the catalogue's own description once told it to resolve the
+         * date that way — so it wrote "RESOLVED" in the date slot, the isoDate validator refused the
+         * call, getParlayCandidates never ran, and a correct plan produced "no candidate matching
+         * that" with no link into Parlay Lab: two times in three on the shipping build.
+         *
+         * A placeholder in a date slot means exactly one thing — the product date this turn is running
+         * on. When getGameTimeNow has reported it, that date is used; otherwise the argument is dropped
+         * and the tool applies its own documented default, which is the same date. Nothing is guessed:
+         * a value that is not one of the literal placeholders is left for the validator to refuse.
+         */
+        if (ASK_TOOLS[call.name]?.args?.[k]?.kind === "isoDate" && DATE_PLACEHOLDER.test(v.trim())) {
+          if (productDate) args[k] = productDate;
+          else delete args[k];
+          continue;
+        }
+        if (!/^(team|player|opponent|game).*Id$/i.test(k)) continue;
         const kind = /player/i.test(k) ? "player" : /team/i.test(k) ? "team" : null;
         if (!kind) continue;
 
@@ -363,6 +392,7 @@ async function runPlanWithResolution(plan, executor, state, emit) {
     const wave = await Promise.all(prepared.map((c) => executor.run(c)));
     for (const e of wave) {
       emit({ type: "tool_complete", tool: e.tool, status: e.status });
+      if (e.tool === "getGameTimeNow" && e.status === ASK_STATUS.OK && typeof e.data?.productDateEt === "string") productDate = e.data.productDateEt;
       if (e.tool === "resolveEntity" && e.data?.entity) {
         resolved.set(e.data.entity.kind, e.data.entity.id);
         labels.set(`${e.data.entity.kind}:${String(e.data.entity.label).toLowerCase()}`, e.data.entity.id);
