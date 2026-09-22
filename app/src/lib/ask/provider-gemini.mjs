@@ -19,7 +19,14 @@ import { redact } from "./provider.mjs";
 const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 
 /** The cheapest candidate under evaluation. `ASK_MODEL_NAME` overrides it. */
-export const GEMINI_MODEL = "gemini-2.5-flash-lite";
+/*
+ * THE DEFAULT IS THE MODEL THAT WAS MEASURED. 2.5 Flash-Lite was the plan; the account was never
+ * offered it, and every v1.6.1 receipt — the five-run stability series, the shipping-build passes,
+ * the price book — is for its successor. A default that names a model the account cannot call is a
+ * latent outage waiting for the one deployment where ASK_MODEL_NAME is forgotten. ASK_MODEL_NAME
+ * still overrides this, and the canary's --expect-model still refuses a run on any other name.
+ */
+export const GEMINI_MODEL = "gemini-3.5-flash-lite";
 
 /** Google's own status enum. Anything unrecognised is reported as such, never passed through. */
 const KNOWN_ERROR_TYPES = Object.freeze([
