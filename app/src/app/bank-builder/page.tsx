@@ -17,6 +17,7 @@ import { currentEtDate } from "@/lib/freshness";
 import { latestMlbBoardDate } from "@/lib/mlb/mlb-props";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { deriveProductState, productStateLabel, productStateExplanation, isLive } from "@/lib/products/product-state.mjs";
+import { poolAvailability, POOL_STATUS } from "@/lib/daily-portfolio/input-availability.mjs";
 import { deriveBankBuilderState } from "@/lib/products/product-state-view.mjs";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
@@ -30,6 +31,8 @@ import { currentRunSteps, positionFromReceipts, readReceipts } from "@/lib/produ
 import { clearedDetailFromReceipts, laneDisplayFromReceipts, receiptPositionRecord } from "@/lib/bank-builder/receipt-lane-display";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
 import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
+import EligibleUniverse from "@/components/products/eligible-universe";
+import { loadProductAvailability } from "@/lib/products/availability";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import fs from "node:fs";
@@ -150,7 +153,16 @@ export default function BankBuilderPage() {
   const pubLedger = loadPublicBankBuilderLedger();
   const currentBankroll = pubSummary?.currentBankrollUnits ?? BANK_BUILDER_BASE;
   const rec = pubSummary?.record ?? { wins: 0, losses: 0, pushes: 0 };
-  const recordLabel = `${rec.wins}–${rec.losses}${rec.pushes ? `–${rec.pushes}` : ""}`;
+  // v1.7 audit S3: `pubSummary.record` is the completed-ladder run frozen 2026-06-13 (5–0) and read as
+  // "the product's record" beside live lanes. The official Bank Builder record is the protected
+  // settled-money owner (mr-dub/portfolio.json, Rule S fold) — the same number /, /today and /results print.
+  const officialRecord = (() => {
+    try {
+      const p = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "portfolio.json"), "utf8")) as { record?: { wins?: number; losses?: number; voids?: number } };
+      return p.record && Number.isFinite(p.record.wins) && Number.isFinite(p.record.losses) ? p.record : null;
+    } catch { return null; }
+  })();
+  const recordLabel = officialRecord ? `${officialRecord.wins}–${officialRecord.losses}${officialRecord.voids ? `–${officialRecord.voids}` : ""}` : "—";
   // Crown reached: bankroll has cleared the $10,000 goal (resolveLadderStep → null) with a
   // clean card — the ladder is COMPLETE. We pin the display rung to the final step (not the
   // Step-1 fallback) so labels read $3,500 → $10,000.
@@ -220,12 +232,21 @@ export default function BankBuilderPage() {
    * arrived, not that the slate lost on merit.
    */
   const bbInputsDate = latestMlbBoardDate(path.join(process.cwd(), "public", "data"), currentEtDate());
+  /*
+   * v1.7 (F3): an OFF-DAY is neither a missing input nor a pass. The generator's own availability
+   * owner (`poolAvailability`, the same call `accounting.ts` makes) says NO_EVENTS when a slate for
+   * the day IS present and holds no games — the MLB postseason calendar has such days, and the props
+   * board this page treats as its input is naturally absent on them. Read from the same owner so the
+   * page and the generator cannot disagree about which kind of empty today is.
+   */
+  const bbPool = poolAvailability(path.join(process.cwd(), "public", "data"), currentEtDate());
   const bbProductState = deriveProductState({
     productDate: currentEtDate(),
     artifactDate: bbArtifact.date,
     publishedCards: bbArtifact.cards,
     inputsMissing: bbInputsDate == null,
     inputsDate: bbInputsDate,
+    noEvents: bbPool.status === POOL_STATUS.NO_EVENTS,
   });
   // The real ET hour lets the label distinguish "the morning generator has not run YET" (expected
   // overnight) from "it missed its window" (alarming) — same NOT_RUN state, honest framing.
@@ -460,6 +481,10 @@ export default function BankBuilderPage() {
             : `Next daily evaluation: ${RUNBOOKS.mlb.products.when}. A watchdog re-runs a missed morning before 7:00 AM ET.`}
         </span>
       </div>
+
+      {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
+          reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
+      <EligibleUniverse availability={loadProductAvailability()} compact />
 
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE

@@ -32,7 +32,9 @@ const exists = (p) => { try { return fs.statSync(p).isFile(); } catch { return f
 export function poolAvailability(root, date) {
   const candidates = [
     path.join(root, "mlb", "team-markets", `${date}.json`),
-    path.join(root, "mlb", "board", `${date}.json`),
+    // v1.7 audit S8: this read `mlb/board/` (singular) — a directory that never existed — so the
+    // availability check was single-source without saying so. The board lives at `mlb/boards/`.
+    path.join(root, "mlb", "boards", `${date}.json`),
   ];
   const sources = candidates.map((p) => {
     const present = exists(p);

@@ -48,7 +48,7 @@ test("Mr. Dub flagship section order: hero → executive dashboard → today →
   const hero = p.indexOf("Paper Portfolio Scientist");
   const dash = p.indexOf("<ExecutiveDashboard");
   const today = p.indexOf("<TodayStatusStrip");
-  const journey = p.indexOf("The $100 → $19.5K journey");
+  const journey = p.indexOf("The $100 → $10K ladders");
   const analytics = p.indexOf("How the bankroll moved");
   const timeline = p.indexOf("Day-by-day timeline");
   const attribution = p.indexOf("Every wager, by product");

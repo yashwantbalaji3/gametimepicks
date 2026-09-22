@@ -143,3 +143,31 @@ test("LIVE · pending is reported, never folded into the denominator", () => {
     assert.ok(!Number.isNaN(r.settled));
   }
 });
+
+test("C2 · the Moonshot row is COUNTED from the product ledger's rows, never dropped on a missing `record` block", () => {
+  /*
+   * `product-ledger/moonshot.json` is `{ productId, results[] }`; reading `.record` off it yields
+   * undefined and the first release silently skipped the row. The row must appear, with the same
+   * outcome rule /moonshot uses, and an undecided outcome must land in pending — never in losses.
+   */
+  const fixture = { productId: "moonshot", results: [
+    { date: "2026-06-23", outcome: "lost", stake: 25, payout: 0 },
+    { date: "2026-06-24", outcome: "won", stake: 25, payout: 110 },
+    { date: "2026-06-25", outcome: "pending", stake: 25, payout: null },
+  ] };
+  const r = buildResultRows({ moonshot: fixture }).find((x) => x.recordType === RECORD_TYPES.SIGNATURE_PRODUCT && x.sport === "moonshot");
+  assert.ok(r, "the Moonshot signature-product row exists");
+  assert.equal(r.wins, 1); assert.equal(r.losses, 1); assert.equal(r.pending, 1);
+  assert.equal(r.staked, 75); assert.equal(r.returned, 110);
+  assert.equal(r.source, "product-ledger/moonshot.json");
+
+  /* a ledger that already carries a record block is honoured verbatim */
+  const withRecord = buildResultRows({ moonshot: { record: { wins: 2, losses: 3, pushes: 1 } } })
+    .find((x) => x.sport === "moonshot");
+  assert.equal(withRecord.wins, 2); assert.equal(withRecord.losses, 3);
+
+  /* the COMMITTED ledger produces the row too — the shape this test exists for */
+  const live = rows.find((x) => x.recordType === RECORD_TYPES.SIGNATURE_PRODUCT && x.sport === "moonshot");
+  assert.ok(live, "the committed product-ledger/moonshot.json yields a row");
+  assert.equal(live.wins + live.losses + live.pending, sources.moonshot.results.length);
+});

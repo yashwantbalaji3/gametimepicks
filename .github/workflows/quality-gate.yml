@@ -40,13 +40,17 @@ on:
       - "app/tsconfig.json"
       - "pipeline/**"
       - "scripts/ci/**"
-      - ".github/workflows/quality-gate.yml"
+      # docs/V17_WORKFLOW_AUDIT.md W7: src/lib/workflow-failure-visibility.test.mjs and its siblings pin the
+      # OTHER workflows' text (job-level continue-on-error, the shared writer queue, the push-failure shape),
+      # yet only this file's own path was listed — an edit to nightly-settle.yml or daily-products.yml pushed
+      # to main ran none of them. Workflows change rarely; the gate cost is negligible.
+      - ".github/workflows/**"
   pull_request:
     paths:
       - "app/**"
       - "pipeline/**"
       - "scripts/ci/**"
-      - ".github/workflows/quality-gate.yml"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 # Independent of gtp-generated-artifacts: this job writes no artifact and spends no API credit, so

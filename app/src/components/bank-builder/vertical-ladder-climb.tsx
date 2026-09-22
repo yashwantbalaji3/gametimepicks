@@ -267,8 +267,8 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
         </div>
       ) : !isActive ? (
         <div className="mt-2 rounded-[10px] px-3 py-3 text-[12px] leading-snug" style={{ background: "color-mix(in srgb, var(--vault-crown) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 25%, transparent)", color: "var(--vault-text-mute)" }}>
-          <span className="font-semibold" style={{ color: "var(--vault-gold-bright)" }}>Model pass — holding for a stronger slate.</span>{" "}
-          No qualified card today, so the ladder waits rather than force a weak card. A pass protects the seed; the lane re-arms the moment a qualified card appears.
+          <span className="font-semibold" style={{ color: "var(--vault-gold-bright)" }}>No card reached this step&rsquo;s price today.</span>{" "}
+          The ladder waits rather than force a weak card. Waiting protects the seed; the lane re-arms the moment a qualifying card appears.
         </div>
       ) : null}
       <p className="mt-2 font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>

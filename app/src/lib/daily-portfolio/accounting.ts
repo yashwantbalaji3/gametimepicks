@@ -33,7 +33,15 @@ export const ACTIVATION_CUTOFF_MIN = 30;
 export const MOONSHOT_MAX_EXPOSURE = 50;
 
 export interface ActivationEligibility { eligible: boolean; reason: string }
-export interface PortfolioLaneLeg { id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null; modelConfidence: number; probabilitySource?: "market-devigged" | "model"; kickoffEt: string; risk: string; photoUrl?: string | null; teamLogo?: string | null }
+export interface PortfolioLaneLeg {
+  id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null; modelConfidence: number; probabilitySource?: "market-devigged" | "model"; kickoffEt: string; risk: string; photoUrl?: string | null; teamLogo?: string | null;
+  // v1.7 audit B2 — receipt identity. A published leg must let a later reader answer "which event, which
+  // market, which line, from when" without parsing a display string. Additive; display code ignores them.
+  eventId?: string | null;      // the odds-feed event id the price was captured under
+  startUtc?: string | null;     // machine kickoff / first pitch
+  marketKey?: string | null;    // e.g. mlb_moneyline
+  line?: number | null;         // null when not applicable
+}
 export interface PortfolioLane {
   id: string;
   product: "bank-builder" | "moonshot";
@@ -106,7 +114,14 @@ export function laneEligibility(lane: LaneCandidate, nowMs: number, emptyReason:
   return { eligible: true, reason: "all legs pre-event and outside the cutoff" };
 }
 
-const toLeg = (p: ModelPick): PortfolioLaneLeg => ({ id: p.id, matchup: p.matchup, market: p.marketLabel, selection: p.selection, player: p.player, odds: p.odds, provider: p.provider, modelConfidence: p.modelProbability, probabilitySource: p.probabilitySource ?? (p.edge === 0 ? "market-devigged" : "model"), kickoffEt: p.kickoffEt, risk: p.risk, photoUrl: p.playerPortrait ?? null, teamLogo: p.teamLogo ?? null });
+/** The line a selection names: "Over 8" → 8, "Under 8.5" → 8.5, "Detroit Tigers +1.5" → 1.5, "… -1.5" → -1.5; null when none. */
+const lineOf = (p: ModelPick): number | null => {
+  const s = p.selection ?? "";
+  const ou = /\b(?:Over|Under)\s+(\d+(?:\.\d+)?)\s*$/.exec(s); if (ou) return Number(ou[1]);
+  const sp = /\s([+-]\d+(?:\.\d+)?)\s*$/.exec(s); if (sp) return Number(sp[1]);
+  return null;
+};
+const toLeg = (p: ModelPick): PortfolioLaneLeg => ({ id: p.id, matchup: p.matchup, market: p.marketLabel, selection: p.selection, player: p.player, odds: p.odds, provider: p.provider, modelConfidence: p.modelProbability, probabilitySource: p.probabilitySource ?? (p.edge === 0 ? "market-devigged" : "model"), kickoffEt: p.kickoffEt, risk: p.risk, photoUrl: p.playerPortrait ?? null, teamLogo: p.teamLogo ?? null, eventId: p.gameId ?? null, startUtc: p.kickoffUtc ?? null, marketKey: p.marketKey ?? null, line: lineOf(p) });
 
 /** Map a Bank Builder GeneratedLane (target-fit next-step card) to a PortfolioLane. Exposure is the
  *  $100 seed (ledger convention); the card displays the rolled balance riding toward the rung goal. */

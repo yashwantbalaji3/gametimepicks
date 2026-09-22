@@ -78,13 +78,7 @@ test("Bank Builder page is a SINGLE ladder (ClimbHero), not the duplicate Produc
   assert.ok(!/ProductLanesLadder/.test(page), "duplicate ProductLanesLadder section removed from Bank Builder");
 });
 
-test("DualLadderBoard injects the current step's daily legs into an open drawer (with portraits/flags)", () => {
-  const board = read("src/components/bank-builder/dual-ladder-board.tsx");
-  assert.match(board, /daily-portfolio\.json/, "reads the daily portfolio for the current step legs");
-  assert.match(board, /PlayerAvatar/, "player props render a portrait");
-  assert.match(board, /FlagBadge/, "team legs render a flag/logo");
-  assert.match(board, /open/, "current step drawer can open by default");
-});
+// (v1.7 UX P-1: the DualLadderBoard drawer test was removed with the unmounted component it read.)
 
 test("exposure/bankroll/crown unchanged by the cross-lane upgrade", () => {
   const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));

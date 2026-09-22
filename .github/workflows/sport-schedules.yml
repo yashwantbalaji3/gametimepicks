@@ -359,6 +359,82 @@ jobs:
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 
+      # v1.7 NBA track N2/N3 — the PRESEASON-EXPERIMENTAL pipeline, internal only. Grades yesterday's
+      # forecasts from the finals just captured (fetching the new game's box score from the same free
+      # ESPN summary endpoint, paced), then builds today's forecasts from the canonical corpus, the
+      # injuries feed and today's schedule. Nothing here is public, product-eligible, or read by a page;
+      # the registry stays HISTORICAL_ONLY. A refusal is recorded like every other capture's.
+      - name: NBA experimental forecasts — grade yesterday, build today (internal research only)
+        id: nbaexp
+        working-directory: app
+        run: |
+          set -uo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          TODAY="$(TZ=America/New_York date +%F)"
+          if npx tsx scripts/nba/grade-nba-experimental-forecasts.mjs --fetch --write --now "$NOW" \
+             && npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date "$TODAY" --now "$NOW" --write; then
+            echo "state=BUILT" >> "$GITHUB_OUTPUT"
+          else
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"
+            echo "NBA experimental forecasts" >> "$REFUSALS"
+          fi
+
+      - name: Commit NBA experimental research if its content changed
+        if: github.event.inputs.dry_run != 'true' && steps.nbaexp.outputs.state == 'BUILT'
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/research/nba/experimental/
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: nba experimental forecasts (internal research) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
+      # v1.7 NBA track N-4 — the FREE ROSTER OWNER. The box-score corpus knows a player only as
+      # "appeared for this team", so offseason trades and rookies were invisible (2026-10-03 artifact:
+      # Giannis Antetokounmpo on MIA with no MIA box-score row). ESPN's keyless team roster endpoint
+      # is the current-roster snapshot (30 sequential requests, ≈0.4 s apart); parsing rules are in
+      # src/lib/sports/nba/roster-parse.mjs (unit-tested: refused rows, MISSING teams, determinism).
+      # Internal research only: data/internal/research/nba/rosters/, never a page, never a product.
+      # The dated + latest normalised artifacts are committed; the raw payloads (≈2.7 MB/day) are kept
+      # as a 14-day workflow artifact rather than in git. A failure is recorded like every capture's.
+      - name: Capture NBA rosters (ESPN team roster endpoint, no key; raw preserved as artifact)
+        id: nbarosters
+        working-directory: app
+        run: |
+          set -uo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if node scripts/nba/capture-nba-rosters.mjs --now "$NOW"; then
+            echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          else
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"
+            echo "NBA rosters" >> "$REFUSALS"
+          fi
+
+      - name: Keep the raw NBA roster payloads (14 days)
+        if: steps.nbarosters.outputs.state == 'CAPTURED'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nba-rosters-raw-${{ github.run_id }}
+          path: data/internal/research/nba/rosters/raw/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Commit NBA roster capture if its content changed
+        if: github.event.inputs.dry_run != 'true' && steps.nbarosters.outputs.state == 'CAPTURED'
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          # Normalised artifacts only; raw/ is gitignored-by-omission here (uploaded above).
+          git add data/internal/research/nba/rosters/latest.json
+          git add data/internal/research/nba/rosters/*.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: nba roster capture (internal research) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
       - name: Capture NFL+NBA injuries facts (ESPN public feed, no key; prose never stored)
         id: injuries
         working-directory: app

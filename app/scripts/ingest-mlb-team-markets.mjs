@@ -209,6 +209,14 @@ async function main() {
   const outPath = path.join(outDir, `${args.date}.json`);
   fs.writeFileSync(outPath, JSON.stringify(artifact, null, 2) + "\n");
   console.log(`[team-markets] wrote ${path.relative(APP, outPath)}`);
+  // v1.7 (audit defect S7): the dated file is rewritten whole on every run, so a product published at
+  // 10:00 and a replay reading the file at 18:00 saw different prices with the same name. Every capture
+  // is ALSO archived under its own instant, append-only, so a time-locked replay can read exactly what
+  // a publication could have read and nothing later. Small files; the commit allowlist includes them.
+  const archiveDir = path.join(outDir, "captures", args.date);
+  fs.mkdirSync(archiveDir, { recursive: true });
+  const archivePath = path.join(archiveDir, `${capturedAt.replace(/[:.]/g, "-")}.json`);
+  if (!fs.existsSync(archivePath)) { fs.writeFileSync(archivePath, JSON.stringify(artifact, null, 2) + "\n"); console.log(`[team-markets] archived ${path.relative(APP, archivePath)}`); }
 }
 
 main().catch((e) => {

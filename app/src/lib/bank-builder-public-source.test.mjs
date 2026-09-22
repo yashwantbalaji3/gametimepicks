@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { loadPublicBankBuilderSummary, loadBankBuilderSummary } from "./data-bank-builder.ts";
+import fs from "node:fs";
+import path from "node:path";
+import { loadPublicBankBuilderSummary } from "./data-bank-builder.ts";
 
 test("public summary ($10,376.17 / Step 5 after the Step-5 hit) is the source of truth for /today + /bank-builder", () => {
   const pub = loadPublicBankBuilderSummary();
@@ -9,12 +11,12 @@ test("public summary ($10,376.17 / Step 5 after the Step-5 hit) is the source of
   assert.equal(pub.currentProgressionStep, 5);
 });
 
-test("the internal audit summary differs — /today must NOT read it (stale $444.19)", () => {
-  const pub = loadPublicBankBuilderSummary();
-  const internal = loadBankBuilderSummary();
-  // If both exist and differ, the public one wins (that's the bug we fixed on /today).
-  if (pub && internal && pub.currentBankrollUnits !== internal.currentBankrollUnits) {
-    assert.equal(pub.currentBankrollUnits, 10376.17);
-    assert.notEqual(internal.currentBankrollUnits, 10376.17);
-  }
+test("the retired optimizer summary (bank-builder/summary-latest.json) has no loader and no writer", () => {
+  /* v1.7 store-ownership audit S4: a second "Bank Builder" record (30-37) regenerated nightly with no mounted
+     reader. Retired: its loader is gone and the nightly ledger script no longer writes the file. A stale copy
+     may remain on disk; nothing reads it and the export prune never ships an unreferenced data file. */
+  const lib = fs.readFileSync(path.join(process.cwd(), "src", "lib", "data-bank-builder.ts"), "utf8");
+  assert.doesNotMatch(lib, /read<[^>]*>\("summary-latest\.json"\)/);
+  const writer = fs.readFileSync(path.join(process.cwd(), "scripts", "build-bank-builder-ledger.mjs"), "utf8");
+  assert.doesNotMatch(writer, /writeFileSync\([^\n]*"summary-latest\.json"/);
 });

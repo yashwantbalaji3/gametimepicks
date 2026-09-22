@@ -1552,12 +1552,10 @@ def main() -> int:
     }
     _write_json(out_dir / "meta.json", meta)
 
-    # hit_rates.json — preserve or seed
-    hr_target = out_dir / "hit_rates.json"
-    if not hr_target.exists():
-        demo_hr = C.DEMO_DATA_DIR / "hit_rates.json"
-        if demo_hr.exists():
-            hr_target.write_text(demo_hr.read_text())
+    # hit_rates.json is no longer seeded. It was a demo file (isDemo: true, dated 2026-04-30) that
+    # this block re-copied from demo_data/ whenever it was missing, so deleting the orphan was
+    # always undone by the next run. Zero src/ readers (docs/V17_NBA_READINESS_RECEIPT.md, cleanup
+    # receipt 2026-09-22); the settled record is derived from results/, never from this file.
 
     if all_log_entries:
         append_entries(all_log_entries)

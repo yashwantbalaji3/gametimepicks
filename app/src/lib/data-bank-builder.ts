@@ -51,9 +51,9 @@ function read<T>(rel: string): T | null {
   }
 }
 
-export function loadBankBuilderSummary(): BankBuilderSummary | null {
-  return read<BankBuilderSummary>("summary-latest.json");
-}
+/* `loadBankBuilderSummary` (bank-builder/summary-latest.json) was retired in v1.7 — the store was a
+   parallel optimizer-derived "Bank Builder" record with no mounted reader (V17_PRODUCT_STORE_OWNERSHIP S4).
+   The nightly writer no longer emits the file; a stale copy on disk is not read and is never shipped. */
 
 export function loadBankBuilderLedger(): { entries: BankBuilderLedgerEntry[] } | null {
   return read<{ entries: BankBuilderLedgerEntry[] }>("ledger-latest.json");

@@ -95,7 +95,7 @@ test("the 7-step preview COMPONENT (kept for the future Plan-0007 migration, NOT
 test("no survival/value/aggressive/safest anywhere; affirmative no-play copy", () => {
   assert.ok(!BANNED.test(vlad) && !BANNED.test(climb), "no risk-mode words in the ladder components");
   assert.ok(NO_RISK_MODE(vlad) && NO_RISK_MODE(climb), "no 'Lane X · Survival/Value' chips");
-  assert.match(vlad, /Model pass — holding for a stronger slate/, "affirmative no-play, not passive 'awaiting'");
+  assert.match(vlad, /No card reached this step(’|&rsquo;)s price today/, "affirmative no-play, not passive 'awaiting'");
 });
 
 test("SIMPLIFIED page (Option-1): vertical hero, BB-own seed exposure, NO separate 7-step block, no duplicate active card", () => {

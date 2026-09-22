@@ -3,7 +3,7 @@
  * evidence that the methodology works. Sprint 035: the record stands on 33 settled bets, two 5-leg
  * ladders produced essentially all of the profit, and across all four paper products the record is
  * 19-39. A 189x return on that sample is a variance outcome, not a demonstrated skill. An executive
- * dashboard (KPIs), today's status, the visual $100 → $19.5K Bank Builder journey, performance analytics,
+ * dashboard (KPIs), today's status, the visual $100 → $10K Bank Builder ladders, performance analytics,
  * an expandable day-by-day timeline, and every wager attributed to its product.
  *
  * Server component. Everything is DERIVED at build time from the canonical settlement artifacts via
@@ -50,7 +50,7 @@ const usd = (n: number | null | undefined) => n == null ? "—" : `$${Number(n).
 
 export const metadata = withRouteMetadata("/mr-dub/", {
   title: "Mr. Dub's Portfolio · GameTime Picks",
-  description: "Mr. Dub's flagship paper portfolio — the $100 → $19.5K journey in full: executive KPIs, the visual Bank Builder ladder, performance analytics, an expandable day-by-day timeline, and every wager by product. Official results only. Educational, paper-only; not financial advice.",
+  description: "Mr. Dub's flagship paper portfolio — the $100 → $10K Bank Builder ladders in full: executive KPIs, the visual ladder, performance analytics, an expandable day-by-day timeline, and every paper card by product. Official results only. Educational, paper-only; not financial advice.",
 });
 
 const CTAS = [
@@ -137,9 +137,9 @@ export default function MrDubPage() {
       {/* 3 — Today's status (pending cards, current Bank Builder, exposure, settlement window). Phase 7. */}
       <TodayStatusStrip todayStatus={f.todayStatus} />
 
-      {/* 4 — The Bank Builder journey — the visual $100 → $19.5K ladder. Phase 4. */}
+      {/* 4 — The Bank Builder journey — the visual $100 → $10K ladders. Phase 4. */}
       <section>
-        <SectionHeader eyebrow="The methodology, proven" title="The $100 → $19.5K journey" sub="Two completed $100→$10K Bank Builder ladders banked the crown; today's lane climbs toward the next rung. Tap any rung for the approved card and its official result." />
+        <SectionHeader eyebrow="The record, as settled" title="The $100 → $10K ladders" sub="Two completed $100→$10K Bank Builder ladders banked the crown — ten winning legs, a small sample, not evidence the climb repeats. Today's lane climbs toward its next rung. Tap any rung for the card and its official result." />
         <div className="mt-2"><BankBuilderJourneySection journey={f.journey} /></div>
       </section>
 

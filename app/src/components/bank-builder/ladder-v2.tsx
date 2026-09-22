@@ -80,7 +80,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
           >
             v2 preview · live settlement runs v1
           </span>
-          <span className="font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>we lock profit as the ladder climbs</span>
+          <span className="font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>every win carries its whole payout to the next step</span>
         </div>
       </div>
 
@@ -161,9 +161,8 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
           Later steps get <em>safer</em>, not richer (the multiple never rises after Step&nbsp;3; 2 legs max; Step&nbsp;7 is
           double-chance / draw-no-bet only). If the model can&rsquo;t find a strong card we skip — an honest under-target
           card beats weak filler. <strong style={{ color: "var(--vault-text-mute)" }}>This is the v2 preview:</strong> today&rsquo;s
-          live ladder and every dollar on this page settle under v1 (full roll); v2 profit-locking activates only once its
-          settlement support ships and is gate-proven. Built from the settled record — double chance 8–0 · match result 8–2 ·
-          totals 10–6 · both-teams-to-score 1–3.
+          live ladder and every dollar on this page settle under v1 (full roll); the v2 profit-banking ladder activates only once its
+          settlement support ships and clears its gate. Its market mix is read from the settled record at that time, never quoted here.
         </p>
       </div>
     </section>

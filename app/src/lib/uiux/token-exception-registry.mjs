@@ -65,7 +65,6 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
     rationale: "Archived 2026 World Cup surfaces keep their era's palette; the competition is complete and its pages are historical evidence.",
     removal: "when the WC archive surfaces retire",
     files: {
-      "src/components/bank-builder/world-cup-flex-card.tsx": 8,
       "src/components/game/soccer-simulation-report-v2.tsx": 2,
       "src/components/world-cup/game-script-card.tsx": 2,
       "src/components/game/wc-simulation-result-summary.tsx": 1,

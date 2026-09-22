@@ -84,7 +84,10 @@ const summary = {
 };
 fs.writeFileSync(path.join(outDir, "ledger-latest.json"),
   JSON.stringify({ generatedAt: GENERATED_AT, base: BANK_BUILDER_BASE, goal: BANK_BUILDER_GOAL, entries }, null, 2) + "\n");
-fs.writeFileSync(path.join(outDir, "summary-latest.json"), JSON.stringify(summary, null, 2) + "\n");
+// v1.7 (docs/V17_PRODUCT_STORE_OWNERSHIP.md S4): `summary-latest.json` is RETIRED — no longer written. It
+// carried a second "Bank Builder" record (30-37 at retirement) that no mounted surface read and that
+// contradicted the official protected record on every page that prints one. The ledger files above stay
+// (the internal launch ledger panel reads ledger-latest.json); the summary still goes to the run log below.
 if (last) fs.writeFileSync(path.join(outDir, `ledger-${last.date}.json`),
   JSON.stringify(entries[entries.length - 1], null, 2) + "\n");
 console.log(JSON.stringify({ dates: dates.length, entries: entries.length, ...summary }, null, 2));
