@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-22",
- "generatedAt": "2026-09-22T10:13:16Z",
+ "generatedAt": "2026-09-22T12:15:11Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-2+bank-builder-lane-b-step-1",
-     "lockAt": "2026-09-22T10:13:12.536Z"
+     "lockAt": "2026-09-22T12:15:07.396Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-1+moonshot-lane-b-step-1",
-     "lockAt": "2026-09-22T10:13:12.536Z"
+     "lockAt": "2026-09-22T12:15:07.396Z"
     },
     "transitions": [
      {
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-22T10:06:06.000Z"
+     "lockAt": "2026-09-22T12:08:05.000Z"
     },
     "transitions": [
      {
@@ -402,7 +402,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -155,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Dominic Canzone",
@@ -416,7 +416,7 @@
        "side": "Over",
        "line": 1.5,
        "odds": -102,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -446,7 +446,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -129,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Riley Greene",
@@ -460,7 +460,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -203,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Brandon Lowe",
@@ -474,7 +474,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -199,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Jonathan Aranda",
@@ -488,7 +488,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -140,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -518,7 +518,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -189,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Javier Sanoja",
@@ -532,7 +532,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -168,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Dominic Canzone",
@@ -546,7 +546,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -171,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Kyle Stowers",
@@ -560,7 +560,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -115,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -574,12 +574,12 @@
    ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "ACTIVE",
+    "state": "AWAITING_RESULT",
     "policyVersion": "mlb-cards@1",
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-22T10:13:14Z"
+     "lockAt": "2026-09-22T12:15:09Z"
     },
     "transitions": [
      {
@@ -589,6 +589,10 @@
      {
       "to": "ACTIVE",
       "runId": "gen:2026-09-22:3f1a10429165"
+     },
+     {
+      "to": "AWAITING_RESULT",
+      "runId": "await:2026-09-22:2026-09-22T10:04:32+00:00"
      }
     ]
    }
