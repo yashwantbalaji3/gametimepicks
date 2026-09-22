@@ -15,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { readSources } from "../../../scripts/results/build-results-projection.mjs";
-import { buildProjection, cellById, cellsByFamily, recordLabelOrNull, FAMILIES, ERAS } from "./projection-core.mjs";
+import { buildProjection, cellById, cellsByFamily, recordLabelOrNull, FAMILIES, ERAS, PRESENTATION } from "./projection-core.mjs";
 import { buildResultRows, moonshotLedgerRecord, RECORD_TYPES as READ_MODEL_TYPES } from "./read-model.mjs";
 import { loadGradedPicks, PICK_SPORTS } from "../sports/graded-picks-loader.ts";
 import { getMlbLifetimeSummary } from "../data-mlb-results.ts";
@@ -94,7 +94,10 @@ test("§1a · crownLadderSummary (banked-ladders.json ladders[0]) and bank-build
   const crown = crownLadderSummary(ROOT);
   assert.ok(crown, "owner present");
   const l1 = byId("product:-:bank-builder:LEDGER_ONLY:ladder-1");
-  assert.equal(recordLabelOrNull(l1), crown.recordLabel, "the crown ladder's record label");
+  // C3: parity is with the LEGACY frame's label — the default (CURRENT) frame answers nothing at all,
+  // which is the policy, and asserting it here keeps the parity test from quietly re-opening the gate.
+  assert.equal(recordLabelOrNull(l1), null, "C3: a June ladder has no label in a current frame");
+  assert.equal(recordLabelOrNull(l1, { context: PRESENTATION.LEGACY_HISTORY }), crown.recordLabel, "the crown ladder's record label, in a legacy panel");
   assert.deepEqual([l1.counts.won, l1.counts.lost], [crown.wins, crown.losses]);
   // the /bank-builder proof strip: every ladder with a numeric final, W–L from its steps
   const banked = readJson("mr-dub/banked-ladders.json");
