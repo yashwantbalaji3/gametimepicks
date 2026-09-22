@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { PUBLIC_STATE_LABEL, PUBLIC_STATE_MEANING, type PublicModelState } from "@/lib/command-center/contract";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getMeta } from "@/lib/data";
 
 export const metadata: Metadata = withRouteMetadata("/methodology/", {
   title: "Methodology — GameTimePicks",
@@ -18,8 +17,6 @@ export const metadata: Metadata = withRouteMetadata("/methodology/", {
 import HowToReadThis from "@/components/research/how-to-read-this";
 import TerminalSummaryPanel from "@/components/research/terminal-summary-panel";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
-import FreshnessBadge from "@/components/ui/freshness-badge";
-import { currentEtDate } from "@/lib/freshness";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
@@ -38,7 +35,6 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
  * revised, reads as a track record and is not one.
  */
 export default function MethodologyPage() {
-  const meta = getMeta();
 
   return (
     <div className="mx-auto max-w-[880px] px-4 sm:px-6 py-10">
@@ -67,9 +63,10 @@ export default function MethodologyPage() {
         * reports the worst of every stage rather than one sport's dormancy. What stays here is the
         * age of the legacy pipeline artifact, which is what this line was actually for and says so.
         */}
-      <div className="mt-6 reveal reveal-d1 flex flex-wrap items-center gap-2">
-        <FreshnessBadge slateDate={(meta?.lastPipelineRun ?? "").slice(0, 10) || null} serverToday={currentEtDate()} noun="legacy pipeline run" />
-      </div>
+      {/* v1.7 (2026-09-22): the "legacy pipeline run" badge read meta.json's lastPipelineRun — the clock
+          of the retired stats.nba.com board generator, now de-scheduled (morning-projections SKIP_NBA).
+          A retired pipeline's age is not a fact a reader can act on; platform status has one owner
+          (/system-status) and every product states its own artifact date. */}
 
       {/* Three labels the reader will meet on every board. They describe what EXISTS for a market, not
           how good it is — that judgement is the settled record's job, not a label's. */}
