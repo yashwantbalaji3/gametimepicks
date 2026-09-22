@@ -101,7 +101,7 @@ rendered output and adds no page weight**. C2 repoints them.
 ## 7. Tests
 
 `projection-core` · `projection-builder` · `projection-parity` · `projection-reader` → **44 pass / 0 fail**,
-plus `projection-wiring` **3/3** (§8) — **47 pass / 0 fail** together. `npm run -s lint:scripts` clean and
+plus `projection-wiring` **3/3** (§8) — **48 pass / 0 fail** together (47 before the C9 record-type test of §8b). `npm run -s lint:scripts` clean and
 `npx tsc --noEmit` clean (see §8a — it was not, at first). The parity test builds the projection in memory from the same reads
 the script performs and compares it with what each mounted consumer's loader returns, and asserts every
 cell's cited owner is on disk. Refusal tests cover population mixing directly: `sumSameEra` throws across
@@ -149,6 +149,41 @@ builder and the tests import legitimately) or on lookalike paths.
   `docs/V18_RESULTS_PROJECTION_CONTRACT.md §9` for the wiring plan and the reason it was left out of
   nightly-settle; the file had never been written. This document is that receipt, and §9 is that plan.
 - **The "not scheduled" boundary was prose only.** It is now the biconditional in §8, with probes.
+
+## 8b. Refreshed against main (2026-09-22, after #630 / #631 / #633 merged)
+
+`origin/main` `2c4199307` was **merged** into the branch (never rebased). No conflict: main changed no file
+under `src/lib/results/`, `scripts/results/` or `public/data/results/projection/`, and **none of the 14
+owners the 53 cells cite** — so every C1 file is byte-identical to the pre-merge commit, and the committed
+artifact is still a true read model of its owners. Proven rather than assumed: rebuilding at the same pinned
+instant reproduces **all 53 cells and the headline identically**, with no non-history key differing.
+
+### A rule the probes found unpinned
+
+Re-running the mutation probes over the truth rules turned up one that **survived**: deleting the record-type
+test inside `recordLabelOrNull` — the line that refuses to label a cycle, calibration or gap cell as a W–L —
+left the suite at **47 pass / 0 fail**.
+
+The code was right; the suite had a hole. The cells the builder emits are protected twice over (the real
+cycle cell carries all-null counts *and* `displayEligible: false`), and the constructor outright refuses
+counts on a `CALIBRATION_STATE` or `ERA_GAP` cell. But **`CYCLE_COMPLETION` is the one record type whose
+counts the constructor does not forbid**, so a completed-ladder tally is one careless `counts` block away
+from rendering as a win–loss record — a cell that passes every construction check while violating "cycle
+completion is not a leg hit rate". Nothing stood in the way but that one line.
+
+A test now pins it, with both controls: the forged cell really does carry `won: 3, lost: 2`, it really is
+`displayEligible: true`, and its counts really do format into `3–2` on their own — so the `null` from
+`recordLabelOrNull` is the record-type rule refusing it and nothing else. A `PRODUCT_RECORD` with the
+identical counts still labels `3–2`, so the refusal is by type rather than a blanket suppression. The
+narrower mutations (letting through only `CYCLE_COMPLETION`, or only `ERA_GAP`) are caught too.
+
+**16 of 16 probes now catch** — 12 truth rules, 4 on the C9 "never print 0–0" rule. The full list:
+`sumSameEra` across eras / across families / on a COMPOSITE or UNSEGMENTED input / on a non-summable record
+type · a cell emitted without an owner path · counts on an `ERA_GAP` or `CALIBRATION_STATE` cell · a
+COMPOSITE without its composition, or not equal to its composition's sum · an untyped era on a cell or in
+`cellForEra` · a non-integer count coerced instead of refused · labelling a non-display-eligible cell ·
+labelling a cycle/calibration/gap cell · `formatRecordLabel` returning a label with won/lost absent · a
+headline pointing at a legacy era.
 
 ## 9. Wiring plan (C2 — not done here)
 

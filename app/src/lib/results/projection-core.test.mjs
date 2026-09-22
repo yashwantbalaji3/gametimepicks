@@ -423,6 +423,47 @@ test("cycle completion is a table, not a record; only receipt-derived counts cro
   assert.equal(cellsByFamily(P, FAMILIES.CYCLE).length, 1, "only products with a counts block; the UNRECEIPTED era block of the owner yields no cell");
 });
 
+/*
+ * DEFENCE IN DEPTH ON THE C9 RULE. The cells the builder actually emits are protected twice over: the
+ * real cycle cell carries all-null counts AND displayEligible false, and the constructor outright refuses
+ * counts on a CALIBRATION_STATE or an ERA_GAP cell. CYCLE_COMPLETION is the one record type whose counts
+ * the constructor does NOT forbid, so a completed-ladder tally is one careless `counts` away from being
+ * rendered as a W-L — "cycle completion is not a leg hit rate" would be violated by a cell that passes
+ * every construction check. The only thing standing in the way is the record-type test inside
+ * recordLabelOrNull, and a mutation probe (2026-09-22, refreshing #632 against main) showed NOTHING
+ * pinned it: deleting that test left the suite at 47 pass / 0 fail. This is that pin.
+ */
+test("C9 · a cycle / calibration / gap cell is NEVER labelled as a W-L, even carrying counts and display-eligible", () => {
+  const base = {
+    family: FAMILIES.CYCLE, product: "bank-builder", era: ERAS.RECEIPT_ERA, status: STATUSES.LIVE,
+    owner: { path: "mr-dub/portfolio.json", generatedAt: NOW, stampField: "generatedAt" },
+    window: { from: "2026-08-15", to: "2026-08-17" },
+    displayEligible: { eligible: true, reason: "forced eligible ON PURPOSE, so the record-type rule is the only thing left to refuse it" },
+    semantics: "a probe cell: ladders completed, wrongly given a won/lost block",
+  };
+
+  // CYCLE_COMPLETION with won/lost survives construction — that is exactly why the reader must refuse it.
+  const cyc = makeCell({ ...base, recordType: RECORD_TYPES.CYCLE_COMPLETION, counts: counts({ won: 3, lost: 2 }), n: 5 });
+  assert.equal(cyc.counts.won, 3, "positive control: the cell really does carry a won/lost block");
+  assert.equal(cyc.displayEligible.eligible, true, "positive control: eligibility is not what is refusing it");
+  assert.equal(formatRecordLabel(cyc.counts), "3–2", "positive control: those counts DO format into a label on their own (en dash, as the formatter writes it)");
+  assert.equal(recordLabelOrNull(cyc), null, "…but a completed-ladder count is not a W–L and must never be labelled as one");
+
+  // The other two cannot be constructed with counts at all — the constructor refuses first.
+  assert.throws(() => makeCell({ ...base, family: FAMILIES.MODEL_FAMILY, recordType: RECORD_TYPES.CALIBRATION_STATE, counts: counts({ won: 3, lost: 2 }), n: 5, ownerState: "CALIBRATED" }), /state word and n only/);
+  assert.throws(() => makeCell({ ...base, family: FAMILIES.PRODUCT, recordType: RECORD_TYPES.ERA_GAP, counts: counts({ won: 3, lost: 2 }), n: 5 }), /carries no counts/);
+  // …so for those the reader is the second line, against a hand-edited or future artifact rather than
+  // against this builder. Same refusal, reached with a plain object.
+  for (const recordType of [RECORD_TYPES.CALIBRATION_STATE, RECORD_TYPES.ERA_GAP]) {
+    const forged = { ...cyc, recordType, counts: counts({ won: 3, lost: 2 }) };
+    assert.equal(recordLabelOrNull(forged), null, `${recordType} must not be labelled as a W-L`);
+  }
+
+  // And the rule is not blanket: a real product record with the same counts IS labelled.
+  const prod = makeCell({ ...base, family: FAMILIES.PRODUCT, recordType: RECORD_TYPES.PRODUCT_RECORD, counts: counts({ won: 3, lost: 2 }), n: 5 });
+  assert.equal(recordLabelOrNull(prod), "3–2", "negative control: the refusal is by record type, not a suppression of every label");
+});
+
 /* ── selectors ───────────────────────────────────────────────────────────────────────────────── */
 test("selectors: byFamily, bySport, byId, headline bySport; an unknown key yields nothing rather than widening", () => {
   assert.equal(cellsByFamily(P, FAMILIES.FORECAST).length, 4);
