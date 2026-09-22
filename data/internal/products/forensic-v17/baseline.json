@@ -1,0 +1,1324 @@
+{
+ "bank-builder": {
+  "laneDaysPublishedActive": 52,
+  "laneDaysDecided": 36,
+  "laneDaysUnreceipted": 16,
+  "decidedByStatus": {
+   "won": 16,
+   "lost": 20
+  },
+  "decidedByStep": {
+   "step1|won": 13,
+   "step1|lost": 13,
+   "step2|lost": 4,
+   "step2|won": 3,
+   "step3|lost": 3
+  },
+  "decidedByLegCount": {
+   "2legs|won": 15,
+   "2legs|lost": 19,
+   "3legs|lost": 1,
+   "3legs|won": 1
+  },
+  "decidedBySameGame": {
+   "distinctGames|won": 16,
+   "distinctGames|lost": 20
+  },
+  "taxonomy": {
+   "UNRECEIPTED": 16,
+   "WON": 12,
+   "MODEL_MISS": 2,
+   "VARIANCE_OR_UNRESOLVED": 1,
+   "SETTLEMENT_OR_RECORD_BUG": 4,
+   "PRICE_STRUCTURE": 17
+  },
+  "noPlayLaneDays": {
+   "NO_PLAY": 4,
+   "STALE_INPUT": 61
+  },
+  "cyclesStarted": 26,
+  "cyclesCompleted": 0,
+  "cyclesLost": 20,
+  "cyclesOpen": 1,
+  "cyclesTruncatedByFrozenRung": 5,
+  "furthestStepPerCycle": [
+   2,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   3,
+   2,
+   1,
+   1,
+   3,
+   1,
+   2,
+   1,
+   1,
+   1,
+   1,
+   3,
+   2,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "meanFurthestStep": 1.38,
+  "publishedJointP": {
+   "n": 36,
+   "mean": 0.397,
+   "expectedWins": 14.31,
+   "actualWins": 16
+  },
+  "legsByProbabilitySource": {
+   "model": {
+    "legs": 12,
+    "won": 7,
+    "impliedWins": 9.46,
+    "hitRate": 0.583,
+    "impliedRate": 0.788
+   },
+   "unknown": {
+    "legs": 4,
+    "won": 3,
+    "impliedWins": 2.38,
+    "hitRate": 0.75,
+    "impliedRate": 0.596
+   },
+   "market-devigged": {
+    "legs": 51,
+    "won": 32,
+    "impliedWins": 30.8,
+    "hitRate": 0.627,
+    "impliedRate": 0.604
+   }
+  },
+  "legsByMarket": {
+   "batter_hits": {
+    "legs": 4,
+    "won": 3
+   },
+   "batter_hits_runs_rbis": {
+    "legs": 3,
+    "won": 2
+   },
+   "pitcher_strikeouts": {
+    "legs": 4,
+    "won": 2
+   },
+   "batter_total_bases": {
+    "legs": 1,
+    "won": 0
+   },
+   "Moneyline": {
+    "legs": 34,
+    "won": 21
+   },
+   "Run Line": {
+    "legs": 21,
+    "won": 14
+   }
+  },
+  "legsByOddsBucket": {
+   "<=-200": {
+    "legs": 22,
+    "won": 16
+   },
+   "-199..-111": {
+    "legs": 41,
+    "won": 24
+   },
+   "-110..+110": {
+    "legs": 3,
+    "won": 2
+   },
+   "+111..+200": {
+    "legs": 1,
+    "won": 0
+   }
+  },
+  "publicationLead": {
+   "laneDaysGeneratedAfterAFirstPitch": 0,
+   "laneDaysWithoutKickoff": 6
+  },
+  "cycles": [
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-08-15",
+    "steps": [
+     {
+      "date": "2026-08-15",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-08-16",
+      "step": 2,
+      "result": "lost",
+      "taxonomy": "MODEL_MISS"
+     }
+    ],
+    "end": "2026-08-16",
+    "outcome": "lost",
+    "furthestStep": 2
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-08-17",
+    "steps": [
+     {
+      "date": "2026-08-17",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     }
+    ],
+    "outcome": "truncated",
+    "end": "2026-08-17",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-06",
+    "steps": [
+     {
+      "date": "2026-09-06",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "SETTLEMENT_OR_RECORD_BUG"
+     }
+    ],
+    "outcome": "truncated",
+    "end": "2026-09-06",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-07",
+    "steps": [
+     {
+      "date": "2026-09-07",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-07",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-08",
+    "steps": [
+     {
+      "date": "2026-09-08",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "SETTLEMENT_OR_RECORD_BUG"
+     }
+    ],
+    "outcome": "truncated",
+    "end": "2026-09-08",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-09",
+    "steps": [
+     {
+      "date": "2026-09-09",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-09",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-10",
+    "steps": [
+     {
+      "date": "2026-09-10",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-10",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-11",
+    "steps": [
+     {
+      "date": "2026-09-11",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-12",
+      "step": 2,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-13",
+      "step": 3,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-13",
+    "outcome": "lost",
+    "furthestStep": 3
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-14",
+    "steps": [
+     {
+      "date": "2026-09-14",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-15",
+      "step": 2,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-15",
+    "outcome": "lost",
+    "furthestStep": 2
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-16",
+    "steps": [
+     {
+      "date": "2026-09-16",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-16",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-17",
+    "steps": [
+     {
+      "date": "2026-09-17",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-17",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "A",
+    "start": "2026-09-18",
+    "steps": [
+     {
+      "date": "2026-09-18",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-19",
+      "step": 2,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-20",
+      "step": 3,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-20",
+    "outcome": "lost",
+    "furthestStep": 3
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-08-15",
+    "steps": [
+     {
+      "date": "2026-08-15",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "MODEL_MISS"
+     }
+    ],
+    "end": "2026-08-15",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-08-16",
+    "steps": [
+     {
+      "date": "2026-08-16",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-08-17",
+      "step": 2,
+      "result": "lost",
+      "taxonomy": "VARIANCE_OR_UNRESOLVED"
+     }
+    ],
+    "end": "2026-08-17",
+    "outcome": "lost",
+    "furthestStep": 2
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-06",
+    "steps": [
+     {
+      "date": "2026-09-06",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-06",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-07",
+    "steps": [
+     {
+      "date": "2026-09-07",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "SETTLEMENT_OR_RECORD_BUG"
+     }
+    ],
+    "outcome": "truncated",
+    "end": "2026-09-07",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-08",
+    "steps": [
+     {
+      "date": "2026-09-08",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-08",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-09",
+    "steps": [
+     {
+      "date": "2026-09-09",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "SETTLEMENT_OR_RECORD_BUG"
+     }
+    ],
+    "outcome": "truncated",
+    "end": "2026-09-09",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-10",
+    "steps": [
+     {
+      "date": "2026-09-10",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-11",
+      "step": 2,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-12",
+      "step": 3,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-12",
+    "outcome": "lost",
+    "furthestStep": 3
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-13",
+    "steps": [
+     {
+      "date": "2026-09-13",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-14",
+      "step": 2,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-14",
+    "outcome": "lost",
+    "furthestStep": 2
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-15",
+    "steps": [
+     {
+      "date": "2026-09-15",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-15",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-16",
+    "steps": [
+     {
+      "date": "2026-09-16",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-16",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-17",
+    "steps": [
+     {
+      "date": "2026-09-17",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-17",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-18",
+    "steps": [
+     {
+      "date": "2026-09-18",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-18",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-19",
+    "steps": [
+     {
+      "date": "2026-09-19",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-19",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "bank-builder",
+    "lane": "B",
+    "start": "2026-09-20",
+    "steps": [
+     {
+      "date": "2026-09-20",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     }
+    ],
+    "outcome": "open",
+    "furthestStep": 1
+   }
+  ]
+ },
+ "moonshot": {
+  "laneDaysPublishedActive": 52,
+  "laneDaysDecided": 36,
+  "laneDaysUnreceipted": 16,
+  "decidedByStatus": {
+   "lost": 32,
+   "won": 4
+  },
+  "decidedByStep": {
+   "step1|lost": 30,
+   "step1|won": 2,
+   "step2|won": 2,
+   "step3|lost": 2
+  },
+  "decidedByLegCount": {
+   "3legs|lost": 6,
+   "4legs|lost": 1,
+   "8legs|lost": 5,
+   "6legs|lost": 2,
+   "5legs|lost": 2,
+   "2legs|won": 4,
+   "2legs|lost": 16
+  },
+  "decidedBySameGame": {
+   "sameGame|lost": 15,
+   "distinctGames|lost": 17,
+   "distinctGames|won": 4
+  },
+  "taxonomy": {
+   "UNRECEIPTED": 16,
+   "MODEL_MISS": 5,
+   "CORRELATION_CONCENTRATION": 10,
+   "PRICE_STRUCTURE": 17,
+   "WON": 4
+  },
+  "noPlayLaneDays": {
+   "NO_PLAY": 85,
+   "STALE_INPUT": 1
+  },
+  "cyclesStarted": 32,
+  "cyclesCompleted": 0,
+  "cyclesLost": 32,
+  "cyclesOpen": 0,
+  "cyclesTruncatedByFrozenRung": 0,
+  "furthestStepPerCycle": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   3,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   3,
+   1,
+   1,
+   1
+  ],
+  "meanFurthestStep": 1.13,
+  "publishedJointP": {
+   "n": 36,
+   "mean": 0.21,
+   "expectedWins": 7.58,
+   "actualWins": 4
+  },
+  "legsByProbabilitySource": {
+   "model": {
+    "legs": 18,
+    "won": 9,
+    "impliedWins": 13.4,
+    "hitRate": 0.5,
+    "impliedRate": 0.745
+   },
+   "unknown": {
+    "legs": 12,
+    "won": 7,
+    "impliedWins": 6.39,
+    "hitRate": 0.583,
+    "impliedRate": 0.532
+   },
+   "market-devigged": {
+    "legs": 71,
+    "won": 34,
+    "impliedWins": 36.68,
+    "hitRate": 0.479,
+    "impliedRate": 0.517
+   }
+  },
+  "legsByMarket": {
+   "pitcher_strikeouts": {
+    "legs": 6,
+    "won": 3
+   },
+   "batter_total_bases": {
+    "legs": 2,
+    "won": 0
+   },
+   "batter_hits_runs_rbis": {
+    "legs": 10,
+    "won": 6
+   },
+   "Total Runs": {
+    "legs": 34,
+    "won": 15
+   },
+   "Run Line": {
+    "legs": 29,
+    "won": 14
+   },
+   "Moneyline": {
+    "legs": 20,
+    "won": 12
+   }
+  },
+  "legsByOddsBucket": {
+   "-110..+110": {
+    "legs": 19,
+    "won": 13
+   },
+   "-199..-111": {
+    "legs": 66,
+    "won": 32
+   },
+   "+111..+200": {
+    "legs": 14,
+    "won": 4
+   },
+   "<=-200": {
+    "legs": 2,
+    "won": 1
+   }
+  },
+  "publicationLead": {
+   "laneDaysGeneratedAfterAFirstPitch": 0,
+   "laneDaysWithoutKickoff": 6
+  },
+  "cycles": [
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-08-15",
+    "steps": [
+     {
+      "date": "2026-08-15",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "MODEL_MISS"
+     }
+    ],
+    "end": "2026-08-15",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-08-16",
+    "steps": [
+     {
+      "date": "2026-08-16",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "MODEL_MISS"
+     }
+    ],
+    "end": "2026-08-16",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-08-17",
+    "steps": [
+     {
+      "date": "2026-08-17",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-08-17",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-06",
+    "steps": [
+     {
+      "date": "2026-09-06",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-06",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-07",
+    "steps": [
+     {
+      "date": "2026-09-07",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-09-07",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-08",
+    "steps": [
+     {
+      "date": "2026-09-08",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-09-08",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-09",
+    "steps": [
+     {
+      "date": "2026-09-09",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-09-09",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-10",
+    "steps": [
+     {
+      "date": "2026-09-10",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-09-10",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-11",
+    "steps": [
+     {
+      "date": "2026-09-11",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-12",
+      "step": 2,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-13",
+      "step": 3,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-13",
+    "outcome": "lost",
+    "furthestStep": 3
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-14",
+    "steps": [
+     {
+      "date": "2026-09-14",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-14",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-15",
+    "steps": [
+     {
+      "date": "2026-09-15",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-15",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-16",
+    "steps": [
+     {
+      "date": "2026-09-16",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-16",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-17",
+    "steps": [
+     {
+      "date": "2026-09-17",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-17",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-18",
+    "steps": [
+     {
+      "date": "2026-09-18",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-18",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-19",
+    "steps": [
+     {
+      "date": "2026-09-19",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-19",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "A",
+    "start": "2026-09-20",
+    "steps": [
+     {
+      "date": "2026-09-20",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-20",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-08-15",
+    "steps": [
+     {
+      "date": "2026-08-15",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "MODEL_MISS"
+     }
+    ],
+    "end": "2026-08-15",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-08-16",
+    "steps": [
+     {
+      "date": "2026-08-16",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "MODEL_MISS"
+     }
+    ],
+    "end": "2026-08-16",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-08-17",
+    "steps": [
+     {
+      "date": "2026-08-17",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "MODEL_MISS"
+     }
+    ],
+    "end": "2026-08-17",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-06",
+    "steps": [
+     {
+      "date": "2026-09-06",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-09-06",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-07",
+    "steps": [
+     {
+      "date": "2026-09-07",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-09-07",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-08",
+    "steps": [
+     {
+      "date": "2026-09-08",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-09-08",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-09",
+    "steps": [
+     {
+      "date": "2026-09-09",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-09-09",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-10",
+    "steps": [
+     {
+      "date": "2026-09-10",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "CORRELATION_CONCENTRATION"
+     }
+    ],
+    "end": "2026-09-10",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-11",
+    "steps": [
+     {
+      "date": "2026-09-11",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-11",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-12",
+    "steps": [
+     {
+      "date": "2026-09-12",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-12",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-13",
+    "steps": [
+     {
+      "date": "2026-09-13",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-13",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-14",
+    "steps": [
+     {
+      "date": "2026-09-14",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-14",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-15",
+    "steps": [
+     {
+      "date": "2026-09-15",
+      "step": 1,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-16",
+      "step": 2,
+      "result": "won",
+      "taxonomy": "WON"
+     },
+     {
+      "date": "2026-09-17",
+      "step": 3,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-17",
+    "outcome": "lost",
+    "furthestStep": 3
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-18",
+    "steps": [
+     {
+      "date": "2026-09-18",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-18",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-19",
+    "steps": [
+     {
+      "date": "2026-09-19",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-19",
+    "outcome": "lost",
+    "furthestStep": 1
+   },
+   {
+    "product": "moonshot",
+    "lane": "B",
+    "start": "2026-09-20",
+    "steps": [
+     {
+      "date": "2026-09-20",
+      "step": 1,
+      "result": "lost",
+      "taxonomy": "PRICE_STRUCTURE"
+     }
+    ],
+    "end": "2026-09-20",
+    "outcome": "lost",
+    "furthestStep": 1
+   }
+  ]
+ },
+ "note": "cyclesCompleted is 0 in the receipt era by construction of the data (no lane cleared step 5 since 2026-08-15); the two completed ladders of June 2026 predate the receipts and live in mr-dub/banked-ladders.json."
+}

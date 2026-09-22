@@ -1,0 +1,80 @@
+{
+ "schemaVersion": 1,
+ "artifact": "forensic-v17/lane-days",
+ "dataClass": "internal-research",
+ "generatedAt": "2026-09-22T03:34:32.958Z",
+ "repoHead": "c0decad62f2e1dddeb7bbdf4573031c85cfa2917",
+ "source": {
+  "publications": "app/public/data/mr-dub/daily-portfolio.json",
+  "receipts": "app/public/data/mr-dub/settled/<date>.json"
+ },
+ "coverage": {
+  "dates": 69,
+  "firstDate": "2026-06-23",
+  "lastDate": "2026-09-21",
+  "publishedVersions": 193,
+  "receipts": 37,
+  "receiptFirst": "2026-08-15",
+  "receiptLast": "2026-09-20"
+ },
+ "gaps": {
+  "laneDaysPlacedWithoutReceipt": [
+   "2026-06-23 bank-builder A",
+   "2026-06-23 bank-builder B",
+   "2026-06-23 moonshot A",
+   "2026-06-23 moonshot B",
+   "2026-06-24 bank-builder A",
+   "2026-06-24 bank-builder B",
+   "2026-06-25 bank-builder A",
+   "2026-06-25 bank-builder B",
+   "2026-06-26 bank-builder A",
+   "2026-06-27 bank-builder B",
+   "2026-06-28 bank-builder A",
+   "2026-06-28 bank-builder B",
+   "2026-07-01 moonshot A",
+   "2026-07-01 moonshot B",
+   "2026-07-02 bank-builder A",
+   "2026-07-02 moonshot A",
+   "2026-07-02 moonshot B",
+   "2026-07-03 bank-builder A",
+   "2026-07-03 moonshot A",
+   "2026-07-03 moonshot B",
+   "2026-07-05 moonshot B",
+   "2026-07-06 bank-builder A",
+   "2026-07-06 moonshot B",
+   "2026-07-07 moonshot B",
+   "2026-07-10 bank-builder A",
+   "2026-07-10 moonshot A",
+   "2026-07-10 moonshot B",
+   "2026-07-11 moonshot B",
+   "2026-07-14 moonshot B",
+   "2026-09-21 bank-builder A",
+   "2026-09-21 bank-builder B",
+   "2026-09-21 moonshot A"
+  ],
+  "laneDaysWithoutKickoff": [
+   "2026-08-15 bank-builder A",
+   "2026-08-15 bank-builder B",
+   "2026-08-15 moonshot A",
+   "2026-08-15 moonshot B",
+   "2026-08-16 bank-builder A",
+   "2026-08-16 bank-builder B",
+   "2026-08-16 moonshot A",
+   "2026-08-16 moonshot B",
+   "2026-08-17 bank-builder A",
+   "2026-08-17 bank-builder B",
+   "2026-08-17 moonshot A",
+   "2026-08-17 moonshot B"
+  ],
+  "publishedLegsCarryNoLineOrGamePk": true,
+  "publishedLanesCarryNoPolicyVersion": true
+ },
+ "taxonomyRules": {
+  "STALE_INPUT": "lane published as awaiting with 'fewer than 2 model-qualified legs' — the product pool did not exist (team-leg loader wired 2026-09-05)",
+  "SETTLEMENT_OR_RECORD_BUG": "a won step inside 2026-08-18..2026-09-09 whose payout never carried (rung store frozen 2026-08-17, fixed P255 2026-09-10)",
+  "MODEL_MISS": "a lost leg published with a MODEL probability >= 0.70 from a demoted market family",
+  "CORRELATION_CONCENTRATION": "a lost card with more legs than distinct games",
+  "PRICE_STRUCTURE": "a lost card whose every leg probability was the de-vigged market price — the loss is inside the market's own expectation of the construction",
+  "VARIANCE_OR_UNRESOLVED": "anything else"
+ }
+}
