@@ -79,6 +79,34 @@ function row({ recordType, sport, tier, wins, losses, pushes, voids, pending, st
 }
 
 /**
+ * The Moonshot product ledger is shaped `{ productId, results: [{ outcome, stake, payout, … }] }` —
+ * it carries no `record` block. The first release read `moonshot.record`, found `undefined`, and
+ * dropped the row without a word (V19 results audit, contradiction C2). The record is COUNTED from
+ * the rows with the same outcome rule `moonshot-state.mjs` uses for /moonshot and the trust center,
+ * so the three surfaces print one number for this era. The fold-era Moonshot record in
+ * `mr-dub/portfolio.json .moonshot` is a different era and is NOT merged here — which era the
+ * public surfaces should show is an open founder question (docs/V17_FOUNDER_DECISION_PACKET.md).
+ * A ledger that already carries a `record` block is honoured as-is.
+ */
+export function moonshotLedgerRecord(moonshot) {
+  if (!moonshot) return null;
+  if (moonshot.record && typeof moonshot.record === "object") return moonshot.record;
+  if (!Array.isArray(moonshot.results)) return null;
+  const isWin = (o) => /^w(on|in)?$/i.test(String(o ?? ""));
+  const isLoss = (o) => /^los[ts]$/i.test(String(o ?? ""));
+  const rows = moonshot.results;
+  const wins = rows.filter((r) => isWin(r?.outcome)).length;
+  const losses = rows.filter((r) => isLoss(r?.outcome)).length;
+  const sum = (k) => rows.reduce((s, r) => s + (Number(r?.[k]) || 0), 0);
+  return {
+    wins, losses, pushes: 0, voids: 0,
+    /* an undecided outcome is pending, never a loss */
+    pending: rows.length - wins - losses,
+    staked: sum("stake"), returned: sum("payout"),
+  };
+}
+
+/**
  * Project the committed ledgers into rows.
  *
  * @param {{ labLedger?: any, gradedBySport?: Record<string, any>, portfolio?: any, moonshot?: any }} sources
@@ -126,7 +154,7 @@ export function buildResultRows(sources = {}) {
   /* ── signature money products ──────────────────────────────────────────────────────────────── */
   const money = [
     ["bank-builder", portfolio?.record ?? portfolio?.bankBuilder?.record ?? null, "mr-dub/portfolio.json"],
-    ["moonshot", moonshot?.record ?? null, "product-ledger/moonshot.json"],
+    ["moonshot", moonshotLedgerRecord(moonshot), "product-ledger/moonshot.json"],
   ];
   for (const [id, rec, source] of money) {
     if (!rec) continue;

@@ -116,3 +116,28 @@ test("overnight NOT_RUN framing: before the generation window a 1-day-old card i
   // must not get the calm framing).
   assert.match(productStateLabel(PRODUCT_STATES.NOT_RUN, opts), /Not updated today/);
 });
+
+test("v1.7 F3 · an OFF-DAY (slate present, no games) is NO_EVENTS — current, not live, not a pass, not an outage", () => {
+  /*
+   * From 2026-09-28 the products' only sport is the MLB postseason, whose calendar holds off-days.
+   * The generator already knew a slate with no games from a missing one (input-availability.mjs
+   * NO_EVENTS); the page collapsed it into "Waiting on today's data" — an outage message for a
+   * day that simply has nothing scheduled.
+   */
+  const s = deriveProductState({ productDate: TODAY, artifactDate: TODAY, publishedCards: 0, noEvents: true, inputsMissing: true });
+  assert.equal(s, PRODUCT_STATES.NO_EVENTS, "an off-day outranks a sibling board that is naturally absent");
+  assert.equal(isCurrent(s), true, "it IS today's answer");
+  assert.equal(isLive(s), false);
+  assert.match(productStateLabel(s), /No games on today's slate/);
+  assert.doesNotMatch(productStateLabel(s), /waiting|not updated|failed|live/i);
+  assert.doesNotMatch(productStateExplanation(s), /model|policy|outage|operational/i, "neither a model decision nor an operational gap");
+  assert.match(productStateExplanation(s), /calendar/);
+
+  // No games but a card was published anyway: contradictory, and the card's state wins — never "no events".
+  const contradiction = deriveProductState({ productDate: TODAY, artifactDate: TODAY, publishedCards: 1, noEvents: true });
+  assert.equal(contradiction, PRODUCT_STATES.CARD_PUBLISHED);
+
+  // Without the flag nothing changes for existing callers.
+  assert.equal(deriveProductState({ productDate: TODAY, artifactDate: TODAY, publishedCards: 0, inputsMissing: true }), PRODUCT_STATES.INPUTS_MISSING);
+  assert.equal(deriveProductState({ productDate: TODAY, artifactDate: TODAY, publishedCards: 0 }), PRODUCT_STATES.COMPLETED_NO_QUALIFIED_CARD);
+});

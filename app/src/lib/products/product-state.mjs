@@ -27,6 +27,13 @@ export const PRODUCT_STATES = {
   GENERATION_FAILED: "GENERATION_FAILED",
   /** The generator ran to completion for the current date and nothing met policy. A REAL no-play. */
   COMPLETED_NO_QUALIFIED_CARD: "COMPLETED_NO_QUALIFIED_CARD",
+  /**
+   * The generator ran and the day's slate holds no games — an off-day, not a pass and not an
+   * outage. v1.7 (F3): the generator already told these apart (`input-availability.mjs`
+   * NO_EVENTS) but every page collapsed the answer into "Waiting on today's data", which on a
+   * postseason off-day reads as a feed that never arrived. This is the calendar's answer.
+   */
+  NO_EVENTS: "NO_EVENTS",
   /** A card is published for the current date. */
   CARD_PUBLISHED: "CARD_PUBLISHED",
   /** A published card whose events have started/finished but is not yet graded. */
@@ -38,6 +45,7 @@ export const PRODUCT_STATES = {
 /** Only these may say anything resembling "today". */
 const CURRENT = new Set([
   PRODUCT_STATES.COMPLETED_NO_QUALIFIED_CARD,
+  PRODUCT_STATES.NO_EVENTS,
   PRODUCT_STATES.CARD_PUBLISHED,
   PRODUCT_STATES.AWAITING_SETTLEMENT,
   PRODUCT_STATES.SETTLED,
@@ -61,6 +69,7 @@ export const isLive = (state) => LIVE.has(state);
  * @param {string?} [o.inputsDate]       the date of the inputs used
  * @param {boolean} [o.settled]          the published card has been graded
  * @param {boolean} [o.eventsStarted]    the card's events have begun
+ * @param {boolean} [o.noEvents]         the day's input slate is PRESENT and holds no games (an off-day)
  */
 export function deriveProductState({
   productDate,
@@ -71,12 +80,18 @@ export function deriveProductState({
   inputsDate = null,
   settled = false,
   eventsStarted = false,
+  noEvents = false,
 }) {
   // No artifact for today at all — the generator did not run. This is the case that spent fifteen
   // days rendering as a no-play, and it is the single most important distinction in this module.
   if (artifactDate == null || artifactDate !== productDate) return PRODUCT_STATES.NOT_RUN;
 
   if (generatorFailed) return PRODUCT_STATES.GENERATION_FAILED;
+  // An off-day outranks the input-freshness checks below: `noEvents` is only true when a source for
+  // the day IS present and empty, and a sibling board (props) is naturally absent on a day with no
+  // games — that absence is not a missing input. A published card on an off-day is contradictory
+  // and is NOT claimed as no-events; the card's own state wins.
+  if (noEvents && publishedCards === 0) return PRODUCT_STATES.NO_EVENTS;
   if (inputsMissing) return PRODUCT_STATES.INPUTS_MISSING;
   if (inputsDate != null && inputsDate < productDate) return PRODUCT_STATES.INPUTS_STALE;
 
@@ -102,6 +117,7 @@ export function productStateLabel(state, { artifactDate = null, productDate = nu
     case PRODUCT_STATES.AWAITING_SETTLEMENT: return "Awaiting settlement";
     case PRODUCT_STATES.SETTLED: return "Settled";
     case PRODUCT_STATES.COMPLETED_NO_QUALIFIED_CARD: return "No qualified card today";
+    case PRODUCT_STATES.NO_EVENTS: return "No games on today's slate";
     case PRODUCT_STATES.GENERATION_FAILED: return "Update failed — being investigated";
     case PRODUCT_STATES.INPUTS_MISSING: return "Waiting on today's data";
     case PRODUCT_STATES.INPUTS_STALE: return "Waiting on today's data";
@@ -135,6 +151,8 @@ export function productStateExplanation(state) {
     case PRODUCT_STATES.SETTLED: return "Today's card has been graded from official results.";
     case PRODUCT_STATES.COMPLETED_NO_QUALIFIED_CARD:
       return "Today's slate was checked in full and nothing met the card's qualification policy. No card is published rather than forcing one.";
+    case PRODUCT_STATES.NO_EVENTS:
+      return "No games are scheduled today, so there was nothing to assess. This is the calendar, not a pass — the ladder resumes on the next slate.";
     case PRODUCT_STATES.GENERATION_FAILED: return "Today's update did not complete. The last published card is shown below.";
     case PRODUCT_STATES.INPUTS_MISSING:
     case PRODUCT_STATES.INPUTS_STALE: return "Today's source data has not arrived yet, so no card has been assessed.";

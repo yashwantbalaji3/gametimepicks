@@ -17,6 +17,7 @@ import { currentEtDate } from "@/lib/freshness";
 import { latestMlbBoardDate } from "@/lib/mlb/mlb-props";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { deriveProductState, productStateLabel, productStateExplanation, isLive } from "@/lib/products/product-state.mjs";
+import { poolAvailability, POOL_STATUS } from "@/lib/daily-portfolio/input-availability.mjs";
 import { deriveBankBuilderState } from "@/lib/products/product-state-view.mjs";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
@@ -231,12 +232,21 @@ export default function BankBuilderPage() {
    * arrived, not that the slate lost on merit.
    */
   const bbInputsDate = latestMlbBoardDate(path.join(process.cwd(), "public", "data"), currentEtDate());
+  /*
+   * v1.7 (F3): an OFF-DAY is neither a missing input nor a pass. The generator's own availability
+   * owner (`poolAvailability`, the same call `accounting.ts` makes) says NO_EVENTS when a slate for
+   * the day IS present and holds no games — the MLB postseason calendar has such days, and the props
+   * board this page treats as its input is naturally absent on them. Read from the same owner so the
+   * page and the generator cannot disagree about which kind of empty today is.
+   */
+  const bbPool = poolAvailability(path.join(process.cwd(), "public", "data"), currentEtDate());
   const bbProductState = deriveProductState({
     productDate: currentEtDate(),
     artifactDate: bbArtifact.date,
     publishedCards: bbArtifact.cards,
     inputsMissing: bbInputsDate == null,
     inputsDate: bbInputsDate,
+    noEvents: bbPool.status === POOL_STATUS.NO_EVENTS,
   });
   // The real ET hour lets the label distinguish "the morning generator has not run YET" (expected
   // overnight) from "it missed its window" (alarming) — same NOT_RUN state, honest framing.

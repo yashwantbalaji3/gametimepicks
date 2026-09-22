@@ -27,17 +27,17 @@ export default function BankBuilderSkippedCard({
           No qualified Bank Builder today
         </span>
         <span className="rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 8.5, color: "var(--vault-gold-bright)", background: "color-mix(in srgb, var(--vault-crown) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" }}>
-          model discipline
+          no qualifying card
         </span>
       </div>
 
       <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-        Today&rsquo;s slate offered <span style={{ color: "var(--vault-text)" }}>no low-risk two-leg team-market combo</span> that cleared a rung target, and low-value player-prop cards were rejected on purpose. <span style={{ color: "var(--vault-text)" }}>Skipping is the pick</span> — the ladder waits rather than force a weak card. The completed $100→$10K ladders are unchanged. The strongest single legs today are below.
+        Today&rsquo;s slate offered <span style={{ color: "var(--vault-text)" }}>no combination of eligible legs</span> that reached this step&rsquo;s price at the card&rsquo;s risk rules. <span style={{ color: "var(--vault-text)" }}>No card is published</span> rather than forcing a weak one — the ladder waits for the next slate. The completed $100→$10K ladders are unchanged. The strongest single legs today are below.
       </p>
 
       {alternatives.length > 0 ? (
         <div className="flex flex-col gap-1.5">
-          <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Meanwhile — the model&rsquo;s strongest single legs today</span>
+          <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Meanwhile — the strongest single legs on today&rsquo;s slate</span>
           <div className="flex flex-col gap-1">
             {alternatives.map((a) => (
               <div key={a.gameSlug + a.selection} className="flex items-center justify-between gap-2 rounded-[7px] px-2.5 py-1.5" style={{ background: "color-mix(in srgb, var(--vault-bg) 45%, transparent)", border: "1px solid var(--vault-rule)" }}>
