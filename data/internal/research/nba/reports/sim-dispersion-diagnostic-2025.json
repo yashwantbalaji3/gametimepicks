@@ -1,0 +1,2897 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-sim-dispersion-diagnostic",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "modelVersion": "nba-preseason-experimental-v0",
+ "generatedAt": "2026-09-22T06:11:51.203Z",
+ "season": 2025,
+ "sampledGames": 60,
+ "simulations": 4000,
+ "sampling": {
+  "minDaysIntoSeason": 30,
+  "eligible": 1005,
+  "step": 16
+ },
+ "realized": [
+  {
+   "label": "regular · all seasons",
+   "n": 3690,
+   "marginMean": 1.84,
+   "marginSD": 15.98,
+   "marginAbsMean": 12.87,
+   "totalMean": 229.1,
+   "totalSD": 20.03,
+   "homeSD": 12.81,
+   "awaySD": 12.81,
+   "corrHomeAway": 0.222
+  },
+  {
+   "label": "regular · non-OT",
+   "n": 3517,
+   "marginMean": 1.89,
+   "marginSD": 16.32,
+   "marginAbsMean": 13.27,
+   "totalMean": 228.04,
+   "totalSD": 19.37,
+   "homeSD": 12.67,
+   "awaySD": 12.66,
+   "corrHomeAway": 0.17
+  },
+  {
+   "label": "regular · OT only",
+   "n": 173,
+   "marginMean": 0.8,
+   "marginSD": 5.28,
+   "marginAbsMean": 4.64,
+   "totalMean": 250.57,
+   "totalSD": 21.11,
+   "homeSD": 11.22,
+   "awaySD": 10.53,
+   "corrHomeAway": 0.884
+  },
+  {
+   "label": "regular · season 2025",
+   "n": 1230,
+   "marginMean": 1.63,
+   "marginSD": 15.88,
+   "marginAbsMean": 12.75,
+   "totalMean": 227.65,
+   "totalSD": 19.78,
+   "homeSD": 12.55,
+   "awaySD": 12.81,
+   "corrHomeAway": 0.216
+  },
+  {
+   "label": "regular · season 2025 · non-OT",
+   "n": 1170,
+   "marginMean": 1.72,
+   "marginSD": 16.24,
+   "marginAbsMean": 13.17,
+   "totalMean": 226.63,
+   "totalSD": 19.19,
+   "homeSD": 12.44,
+   "awaySD": 12.69,
+   "corrHomeAway": 0.166
+  },
+  {
+   "label": "preseason · all seasons",
+   "n": 217,
+   "marginMean": 4.79,
+   "marginSD": 16.78,
+   "marginAbsMean": 12.69,
+   "totalMean": 224.27,
+   "totalSD": 19.48,
+   "homeSD": 12.3,
+   "awaySD": 13.38,
+   "corrHomeAway": 0.149
+  },
+  {
+   "label": "preseason · non-OT",
+   "n": 204,
+   "marginMean": 5.09,
+   "marginSD": 17.21,
+   "marginAbsMean": 13.19,
+   "totalMean": 222.78,
+   "totalSD": 18.47,
+   "homeSD": 12.19,
+   "awaySD": 13.04,
+   "corrHomeAway": 0.071
+  }
+ ],
+ "sampleRealized": {
+  "label": "sampled 60 games",
+  "n": 60,
+  "marginMean": -0.92,
+  "marginSD": 16.63,
+  "marginAbsMean": 12.32,
+  "totalMean": 229.98,
+  "totalSD": 17.9,
+  "homeSD": 12.44,
+  "awaySD": 12,
+  "corrHomeAway": 0.073
+ },
+ "withinTeamCovariance": {
+  "season": 2025,
+  "teams": 30,
+  "teamPtsSD": 11.71,
+  "sqrtSumPlayerVar": 19.02,
+  "ratioTeamVarToSumPlayerVar": 0.383,
+  "note": "ratio < 1 ⇒ teammates' points are NEGATIVELY correlated (shared possessions); an independent sum overstates team SD by 1/sqrt(ratio)"
+ },
+ "eloBrier_sample": 0.233,
+ "decomposition": {
+  "full": {
+   "simMarginSD_mean": 22.09,
+   "simTotalSD_mean": 22.05,
+   "simHomeSD_mean": 15.51,
+   "forecastErrorSD_margin": 17.16,
+   "forecastErrorSD_total": 18.8,
+   "marginBias": 1.81,
+   "totalBias": -2.24,
+   "coverage80_margin": 0.917,
+   "coverage80_total": 0.85,
+   "simBrier": 0.235,
+   "tieMass_mean": 0.017
+  },
+  "minutesFixed": {
+   "simMarginSD_mean": 18.66,
+   "simTotalSD_mean": 18.58,
+   "simHomeSD_mean": 13.05,
+   "forecastErrorSD_margin": 17.27,
+   "forecastErrorSD_total": 18.73,
+   "marginBias": 1.75,
+   "totalBias": -3,
+   "coverage80_margin": 0.9,
+   "coverage80_total": 0.8,
+   "simBrier": 0.236,
+   "tieMass_mean": 0.02
+  },
+  "ratesFixed": {
+   "simMarginSD_mean": 10.03,
+   "simTotalSD_mean": 10.03,
+   "simHomeSD_mean": 7.16,
+   "forecastErrorSD_margin": 17.3,
+   "forecastErrorSD_total": 18.48,
+   "marginBias": 1.96,
+   "totalBias": -5.35,
+   "coverage80_margin": 0.55,
+   "coverage80_total": 0.433,
+   "simBrier": 0.26,
+   "tieMass_mean": 0.032
+  },
+  "bothFixed": {
+   "simMarginSD_mean": 0,
+   "simTotalSD_mean": 0,
+   "simHomeSD_mean": 0,
+   "forecastErrorSD_margin": 17.34,
+   "forecastErrorSD_total": 18.35,
+   "marginBias": 1.95,
+   "totalBias": -6.05,
+   "coverage80_margin": 0.017,
+   "coverage80_total": 0.017,
+   "simBrier": 0.379,
+   "tieMass_mean": 0.05
+  }
+ },
+ "analyticPartition": {
+  "note": "variance of the INDEPENDENT player sum (both teams), from the prepared v0 rosters: sqrt of each term, points; the sum of the three ≈ the full-config margin variance before clipping/rounding",
+  "rateTermSD": 19.5,
+  "minutesTermSD": 10.32,
+  "crossTermSD": 6.79,
+  "totalIndependentSD": 23.08,
+  "rescaleFactor_mean": 0.7,
+  "rescaleFactor_min": 0.5,
+  "rescaleFactor_max": 0.906,
+  "rescaleBounds": {
+   "min": 0.5,
+   "max": 1.5
+  },
+  "poolSize_mean": 18.64,
+  "scaledPoolMinutes_mean": 241.05,
+  "defaultSdSubstitutions_perSide": 0,
+  "poolRateSubstitutions_perSide": 0
+ },
+ "perGame": [
+  {
+   "providerEventId": "401704826",
+   "dateUtc": "2024-11-22T00:00Z",
+   "matchup": "Detroit Pistons @ Charlotte Hornets",
+   "final": {
+    "ftHome": 123,
+    "ftAway": 121,
+    "overtime": true
+   },
+   "eloPHome": 0.616,
+   "configs": {
+    "full": {
+     "pHome": 0.4155,
+     "marginMean": -4.61,
+     "marginSD": 21.85,
+     "totalMean": 212.53,
+     "totalSD": 21.25,
+     "tieMass": 0.0195
+    },
+    "minutesFixed": {
+     "pHome": 0.4035,
+     "marginMean": -4.55,
+     "marginSD": 18.77,
+     "totalMean": 212.17,
+     "totalSD": 18.05,
+     "tieMass": 0.0205
+    },
+    "ratesFixed": {
+     "pHome": 0.291,
+     "marginMean": -5.2,
+     "marginSD": 9.55,
+     "totalMean": 210.5,
+     "totalSD": 9.78,
+     "tieMass": 0.0385
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -5,
+     "marginSD": 0,
+     "totalMean": 211,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704834",
+   "dateUtc": "2024-11-24T01:00Z",
+   "matchup": "Charlotte Hornets @ Milwaukee Bucks",
+   "final": {
+    "ftHome": 125,
+    "ftAway": 119,
+    "overtime": false
+   },
+   "eloPHome": 0.721,
+   "configs": {
+    "full": {
+     "pHome": 0.6565,
+     "marginMean": 9.66,
+     "marginSD": 23.21,
+     "totalMean": 217.35,
+     "totalSD": 22.77,
+     "tieMass": 0.015
+    },
+    "minutesFixed": {
+     "pHome": 0.6756,
+     "marginMean": 9.29,
+     "marginSD": 19.87,
+     "totalMean": 216.82,
+     "totalSD": 19.99,
+     "tieMass": 0.0158
+    },
+    "ratesFixed": {
+     "pHome": 0.8357,
+     "marginMean": 9.86,
+     "marginSD": 10.05,
+     "totalMean": 214.5,
+     "totalSD": 9.94,
+     "tieMass": 0.021
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 10,
+     "marginSD": 0,
+     "totalMean": 214,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704850",
+   "dateUtc": "2024-11-26T03:00Z",
+   "matchup": "Brooklyn Nets @ Golden State Warriors",
+   "final": {
+    "ftHome": 120,
+    "ftAway": 128,
+    "overtime": false
+   },
+   "eloPHome": 0.794,
+   "configs": {
+    "full": {
+     "pHome": 0.6863,
+     "marginMean": 10.24,
+     "marginSD": 22.44,
+     "totalMean": 223.12,
+     "totalSD": 22.32,
+     "tieMass": 0.016
+    },
+    "minutesFixed": {
+     "pHome": 0.718,
+     "marginMean": 10.89,
+     "marginSD": 19.11,
+     "totalMean": 222.25,
+     "totalSD": 18.86,
+     "tieMass": 0.0165
+    },
+    "ratesFixed": {
+     "pHome": 0.9052,
+     "marginMean": 12.05,
+     "marginSD": 9.28,
+     "totalMean": 219.95,
+     "totalSD": 9.15,
+     "tieMass": 0.0225
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 13,
+     "marginSD": 0,
+     "totalMean": 219,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704861",
+   "dateUtc": "2024-11-28T01:00Z",
+   "matchup": "Toronto Raptors @ New Orleans Pelicans",
+   "final": {
+    "ftHome": 93,
+    "ftAway": 119,
+    "overtime": false
+   },
+   "eloPHome": 0.719,
+   "configs": {
+    "full": {
+     "pHome": 0.4356,
+     "marginMean": -3.33,
+     "marginSD": 21.08,
+     "totalMean": 215.74,
+     "totalSD": 21.19,
+     "tieMass": 0.0182
+    },
+    "minutesFixed": {
+     "pHome": 0.4278,
+     "marginMean": -3.23,
+     "marginSD": 18.47,
+     "totalMean": 215.24,
+     "totalSD": 18.48,
+     "tieMass": 0.0185
+    },
+    "ratesFixed": {
+     "pHome": 0.3688,
+     "marginMean": -3.07,
+     "marginSD": 9.07,
+     "totalMean": 213.91,
+     "totalSD": 9.1,
+     "tieMass": 0.04
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -3,
+     "marginSD": 0,
+     "totalMean": 213,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704867",
+   "dateUtc": "2024-12-01T00:00Z",
+   "matchup": "Philadelphia 76ers @ Detroit Pistons",
+   "final": {
+    "ftHome": 96,
+    "ftAway": 111,
+    "overtime": false
+   },
+   "eloPHome": 0.544,
+   "configs": {
+    "full": {
+     "pHome": 0.5101,
+     "marginMean": 0.08,
+     "marginSD": 24.47,
+     "totalMean": 218.81,
+     "totalSD": 24.38,
+     "tieMass": 0.0163
+    },
+    "minutesFixed": {
+     "pHome": 0.5114,
+     "marginMean": 0.1,
+     "marginSD": 20.02,
+     "totalMean": 218.12,
+     "totalSD": 19.74,
+     "tieMass": 0.0187
+    },
+    "ratesFixed": {
+     "pHome": 0.6486,
+     "marginMean": 4.28,
+     "marginSD": 11.31,
+     "totalMean": 213.57,
+     "totalSD": 11.52,
+     "tieMass": 0.0328
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 5,
+     "marginSD": 0,
+     "totalMean": 213,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704883",
+   "dateUtc": "2024-12-03T01:00Z",
+   "matchup": "Brooklyn Nets @ Chicago Bulls",
+   "final": {
+    "ftHome": 128,
+    "ftAway": 102,
+    "overtime": false
+   },
+   "eloPHome": 0.614,
+   "configs": {
+    "full": {
+     "pHome": 0.6074,
+     "marginMean": 6.81,
+     "marginSD": 28.14,
+     "totalMean": 237.6,
+     "totalSD": 27.54,
+     "tieMass": 0.0152
+    },
+    "minutesFixed": {
+     "pHome": 0.5976,
+     "marginMean": 5.78,
+     "marginSD": 22.73,
+     "totalMean": 236.47,
+     "totalSD": 22.71,
+     "tieMass": 0.0143
+    },
+    "ratesFixed": {
+     "pHome": 0.7752,
+     "marginMean": 9.32,
+     "marginSD": 12.56,
+     "totalMean": 232.59,
+     "totalSD": 12.29,
+     "tieMass": 0.0275
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 9,
+     "marginSD": 0,
+     "totalMean": 231,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704888",
+   "dateUtc": "2024-12-05T00:30Z",
+   "matchup": "Orlando Magic @ Philadelphia 76ers",
+   "final": {
+    "ftHome": 102,
+    "ftAway": 106,
+    "overtime": false
+   },
+   "eloPHome": 0.415,
+   "configs": {
+    "full": {
+     "pHome": 0.3438,
+     "marginMean": -10.88,
+     "marginSD": 27.49,
+     "totalMean": 226.7,
+     "totalSD": 27.21,
+     "tieMass": 0.013
+    },
+    "minutesFixed": {
+     "pHome": 0.3277,
+     "marginMean": -10.87,
+     "marginSD": 23.14,
+     "totalMean": 226.02,
+     "totalSD": 23.19,
+     "tieMass": 0.0135
+    },
+    "ratesFixed": {
+     "pHome": 0.1432,
+     "marginMean": -12.2,
+     "marginSD": 11.46,
+     "totalMean": 219.64,
+     "totalSD": 11.49,
+     "tieMass": 0.0205
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -13,
+     "marginSD": 0,
+     "totalMean": 219,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704904",
+   "dateUtc": "2024-12-07T03:00Z",
+   "matchup": "Minnesota Timberwolves @ Golden State Warriors",
+   "final": {
+    "ftHome": 90,
+    "ftAway": 107,
+    "overtime": false
+   },
+   "eloPHome": 0.61,
+   "configs": {
+    "full": {
+     "pHome": 0.5667,
+     "marginMean": 3.37,
+     "marginSD": 20.92,
+     "totalMean": 215.51,
+     "totalSD": 21.31,
+     "tieMass": 0.02
+    },
+    "minutesFixed": {
+     "pHome": 0.5952,
+     "marginMean": 3.9,
+     "marginSD": 17.72,
+     "totalMean": 215.16,
+     "totalSD": 17.98,
+     "tieMass": 0.02
+    },
+    "ratesFixed": {
+     "pHome": 0.6609,
+     "marginMean": 3.97,
+     "marginSD": 10.11,
+     "totalMean": 212.8,
+     "totalSD": 9.88,
+     "tieMass": 0.0338
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 4,
+     "marginSD": 0,
+     "totalMean": 212,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704920",
+   "dateUtc": "2024-12-09T00:00Z",
+   "matchup": "New Orleans Pelicans @ San Antonio Spurs",
+   "final": {
+    "ftHome": 121,
+    "ftAway": 116,
+    "overtime": false
+   },
+   "eloPHome": 0.633,
+   "configs": {
+    "full": {
+     "pHome": 0.7101,
+     "marginMean": 11.73,
+     "marginSD": 20.72,
+     "totalMean": 226.58,
+     "totalSD": 20.68,
+     "tieMass": 0.0168
+    },
+    "minutesFixed": {
+     "pHome": 0.7568,
+     "marginMean": 11.72,
+     "marginSD": 17.29,
+     "totalMean": 225.86,
+     "totalSD": 17.14,
+     "tieMass": 0.018
+    },
+    "ratesFixed": {
+     "pHome": 0.9106,
+     "marginMean": 13.23,
+     "marginSD": 9.69,
+     "totalMean": 223.97,
+     "totalSD": 9.62,
+     "tieMass": 0.0147
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 13,
+     "marginSD": 0,
+     "totalMean": 223,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401736805",
+   "dateUtc": "2024-12-14T01:00Z",
+   "matchup": "Brooklyn Nets @ Memphis Grizzlies",
+   "final": {
+    "ftHome": 135,
+    "ftAway": 119,
+    "overtime": false
+   },
+   "eloPHome": 0.69,
+   "configs": {
+    "full": {
+     "pHome": 0.7175,
+     "marginMean": 13.73,
+     "marginSD": 24.19,
+     "totalMean": 237.81,
+     "totalSD": 23.74,
+     "tieMass": 0.015
+    },
+    "minutesFixed": {
+     "pHome": 0.7575,
+     "marginMean": 14.03,
+     "marginSD": 20.04,
+     "totalMean": 236.91,
+     "totalSD": 19.47,
+     "tieMass": 0.0165
+    },
+    "ratesFixed": {
+     "pHome": 0.8851,
+     "marginMean": 13.57,
+     "marginSD": 11.28,
+     "totalMean": 235.59,
+     "totalSD": 11.32,
+     "tieMass": 0.0198
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 14,
+     "marginSD": 0,
+     "totalMean": 234,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401736817",
+   "dateUtc": "2024-12-17T00:30Z",
+   "matchup": "Chicago Bulls @ Toronto Raptors",
+   "final": {
+    "ftHome": 121,
+    "ftAway": 122,
+    "overtime": false
+   },
+   "eloPHome": 0.454,
+   "configs": {
+    "full": {
+     "pHome": 0.3944,
+     "marginMean": -6.27,
+     "marginSD": 22.61,
+     "totalMean": 233.88,
+     "totalSD": 23.27,
+     "tieMass": 0.0173
+    },
+    "minutesFixed": {
+     "pHome": 0.3735,
+     "marginMean": -6.08,
+     "marginSD": 19.47,
+     "totalMean": 233.09,
+     "totalSD": 20,
+     "tieMass": 0.0165
+    },
+    "ratesFixed": {
+     "pHome": 0.2635,
+     "marginMean": -6.34,
+     "marginSD": 10.03,
+     "totalMean": 231.58,
+     "totalSD": 9.95,
+     "tieMass": 0.034
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -6,
+     "marginSD": 0,
+     "totalMean": 230,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704938",
+   "dateUtc": "2024-12-20T03:00Z",
+   "matchup": "Los Angeles Lakers @ Sacramento Kings",
+   "final": {
+    "ftHome": 100,
+    "ftAway": 113,
+    "overtime": false
+   },
+   "eloPHome": 0.542,
+   "configs": {
+    "full": {
+     "pHome": 0.7386,
+     "marginMean": 13.83,
+     "marginSD": 22.32,
+     "totalMean": 217.95,
+     "totalSD": 22.15,
+     "tieMass": 0.0143
+    },
+    "minutesFixed": {
+     "pHome": 0.7675,
+     "marginMean": 13.4,
+     "marginSD": 18.66,
+     "totalMean": 216.64,
+     "totalSD": 18.36,
+     "tieMass": 0.0145
+    },
+    "ratesFixed": {
+     "pHome": 0.9001,
+     "marginMean": 12.3,
+     "marginSD": 9.89,
+     "totalMean": 215.03,
+     "totalSD": 9.77,
+     "tieMass": 0.0168
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 12,
+     "marginSD": 0,
+     "totalMean": 214,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704954",
+   "dateUtc": "2024-12-22T23:00Z",
+   "matchup": "Houston Rockets @ Toronto Raptors",
+   "final": {
+    "ftHome": 110,
+    "ftAway": 114,
+    "overtime": false
+   },
+   "eloPHome": 0.288,
+   "configs": {
+    "full": {
+     "pHome": 0.6096,
+     "marginMean": 6.44,
+     "marginSD": 23.56,
+     "totalMean": 222.1,
+     "totalSD": 23.85,
+     "tieMass": 0.0143
+    },
+    "minutesFixed": {
+     "pHome": 0.6255,
+     "marginMean": 6.51,
+     "marginSD": 20.96,
+     "totalMean": 221.28,
+     "totalSD": 21.28,
+     "tieMass": 0.019
+    },
+    "ratesFixed": {
+     "pHome": 0.7758,
+     "marginMean": 6.92,
+     "marginSD": 9.18,
+     "totalMean": 219.31,
+     "totalSD": 9.36,
+     "tieMass": 0.033
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 7,
+     "marginSD": 0,
+     "totalMean": 219,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704970",
+   "dateUtc": "2024-12-24T03:30Z",
+   "matchup": "Detroit Pistons @ Los Angeles Lakers",
+   "final": {
+    "ftHome": 114,
+    "ftAway": 117,
+    "overtime": false
+   },
+   "eloPHome": 0.79,
+   "configs": {
+    "full": {
+     "pHome": 0.2919,
+     "marginMean": -12.97,
+     "marginSD": 22.92,
+     "totalMean": 218.61,
+     "totalSD": 22.27,
+     "tieMass": 0.0168
+    },
+    "minutesFixed": {
+     "pHome": 0.2554,
+     "marginMean": -12.95,
+     "marginSD": 19.51,
+     "totalMean": 217.85,
+     "totalSD": 19.23,
+     "tieMass": 0.0173
+    },
+    "ratesFixed": {
+     "pHome": 0.1005,
+     "marginMean": -12.92,
+     "marginSD": 10.26,
+     "totalMean": 216.27,
+     "totalSD": 9.94,
+     "tieMass": 0.0165
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -13,
+     "marginSD": 0,
+     "totalMean": 215,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401704986",
+   "dateUtc": "2024-12-28T00:30Z",
+   "matchup": "Indiana Pacers @ Boston Celtics",
+   "final": {
+    "ftHome": 142,
+    "ftAway": 105,
+    "overtime": false
+   },
+   "eloPHome": 0.767,
+   "configs": {
+    "full": {
+     "pHome": 0.5045,
+     "marginMean": 0.32,
+     "marginSD": 23.29,
+     "totalMean": 223.57,
+     "totalSD": 23.37,
+     "tieMass": 0.0185
+    },
+    "minutesFixed": {
+     "pHome": 0.4929,
+     "marginMean": -0.13,
+     "marginSD": 19.55,
+     "totalMean": 223.13,
+     "totalSD": 19.93,
+     "tieMass": 0.0168
+    },
+    "ratesFixed": {
+     "pHome": 0.5028,
+     "marginMean": 0,
+     "marginSD": 10.82,
+     "totalMean": 220.07,
+     "totalSD": 10.49,
+     "tieMass": 0.0365
+    },
+    "bothFixed": {
+     "pHome": 0.5,
+     "marginMean": 0,
+     "marginSD": 0,
+     "totalMean": 220,
+     "totalSD": 0,
+     "tieMass": 1
+    }
+   }
+  },
+  {
+   "providerEventId": "401705002",
+   "dateUtc": "2024-12-29T20:30Z",
+   "matchup": "Brooklyn Nets @ Orlando Magic",
+   "final": {
+    "ftHome": 102,
+    "ftAway": 101,
+    "overtime": false
+   },
+   "eloPHome": 0.746,
+   "configs": {
+    "full": {
+     "pHome": 0.5563,
+     "marginMean": 3.29,
+     "marginSD": 23.93,
+     "totalMean": 227.66,
+     "totalSD": 23.45,
+     "tieMass": 0.016
+    },
+    "minutesFixed": {
+     "pHome": 0.5783,
+     "marginMean": 3.88,
+     "marginSD": 20.44,
+     "totalMean": 226.34,
+     "totalSD": 19.74,
+     "tieMass": 0.0195
+    },
+    "ratesFixed": {
+     "pHome": 0.5883,
+     "marginMean": 2.43,
+     "marginSD": 11.24,
+     "totalMean": 224.96,
+     "totalSD": 11,
+     "tieMass": 0.035
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 3,
+     "marginSD": 0,
+     "totalMean": 223,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705018",
+   "dateUtc": "2025-01-01T01:00Z",
+   "matchup": "Minnesota Timberwolves @ Oklahoma City Thunder",
+   "final": {
+    "ftHome": 113,
+    "ftAway": 105,
+    "overtime": false
+   },
+   "eloPHome": 0.741,
+   "configs": {
+    "full": {
+     "pHome": 0.5989,
+     "marginMean": 5.84,
+     "marginSD": 21.93,
+     "totalMean": 212.07,
+     "totalSD": 21.84,
+     "tieMass": 0.0163
+    },
+    "minutesFixed": {
+     "pHome": 0.6245,
+     "marginMean": 6.12,
+     "marginSD": 18.8,
+     "totalMean": 211.56,
+     "totalSD": 18.44,
+     "tieMass": 0.0185
+    },
+    "ratesFixed": {
+     "pHome": 0.7053,
+     "marginMean": 5.43,
+     "marginSD": 9.94,
+     "totalMean": 210.45,
+     "totalSD": 9.97,
+     "tieMass": 0.0315
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 6,
+     "marginSD": 0,
+     "totalMean": 210,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705034",
+   "dateUtc": "2025-01-03T03:30Z",
+   "matchup": "Portland Trail Blazers @ Los Angeles Lakers",
+   "final": {
+    "ftHome": 114,
+    "ftAway": 106,
+    "overtime": false
+   },
+   "eloPHome": 0.789,
+   "configs": {
+    "full": {
+     "pHome": 0.5176,
+     "marginMean": 0.4,
+     "marginSD": 25.13,
+     "totalMean": 223.82,
+     "totalSD": 24.68,
+     "tieMass": 0.0163
+    },
+    "minutesFixed": {
+     "pHome": 0.5219,
+     "marginMean": 1.09,
+     "marginSD": 20.31,
+     "totalMean": 222.36,
+     "totalSD": 19.94,
+     "tieMass": 0.0177
+    },
+    "ratesFixed": {
+     "pHome": 0.5988,
+     "marginMean": 2.72,
+     "marginSD": 11.46,
+     "totalMean": 219.34,
+     "totalSD": 11.16,
+     "tieMass": 0.0355
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 4,
+     "marginSD": 0,
+     "totalMean": 218,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705050",
+   "dateUtc": "2025-01-05T01:00Z",
+   "matchup": "Denver Nuggets @ San Antonio Spurs",
+   "final": {
+    "ftHome": 111,
+    "ftAway": 122,
+    "overtime": true
+   },
+   "eloPHome": 0.474,
+   "configs": {
+    "full": {
+     "pHome": 0.366,
+     "marginMean": -7.71,
+     "marginSD": 22.11,
+     "totalMean": 225.44,
+     "totalSD": 21.73,
+     "tieMass": 0.014
+    },
+    "minutesFixed": {
+     "pHome": 0.3461,
+     "marginMean": -7.67,
+     "marginSD": 19.03,
+     "totalMean": 224.99,
+     "totalSD": 18.51,
+     "tieMass": 0.0227
+    },
+    "ratesFixed": {
+     "pHome": 0.204,
+     "marginMean": -8.24,
+     "marginSD": 9.84,
+     "totalMean": 223.02,
+     "totalSD": 9.97,
+     "tieMass": 0.032
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -8,
+     "marginSD": 0,
+     "totalMean": 222,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705066",
+   "dateUtc": "2025-01-07T01:00Z",
+   "matchup": "LA Clippers @ Minnesota Timberwolves",
+   "final": {
+    "ftHome": 108,
+    "ftAway": 106,
+    "overtime": false
+   },
+   "eloPHome": 0.583,
+   "configs": {
+    "full": {
+     "pHome": 0.4396,
+     "marginMean": -3.42,
+     "marginSD": 22.22,
+     "totalMean": 212.99,
+     "totalSD": 21.83,
+     "tieMass": 0.0182
+    },
+    "minutesFixed": {
+     "pHome": 0.4249,
+     "marginMean": -3.51,
+     "marginSD": 19.46,
+     "totalMean": 212.51,
+     "totalSD": 19.26,
+     "tieMass": 0.0232
+    },
+    "ratesFixed": {
+     "pHome": 0.383,
+     "marginMean": -2.87,
+     "marginSD": 9.43,
+     "totalMean": 210.09,
+     "totalSD": 9.13,
+     "tieMass": 0.041
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -3,
+     "marginSD": 0,
+     "totalMean": 209,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705082",
+   "dateUtc": "2025-01-09T02:30Z",
+   "matchup": "San Antonio Spurs @ Milwaukee Bucks",
+   "final": {
+    "ftHome": 121,
+    "ftAway": 105,
+    "overtime": false
+   },
+   "eloPHome": 0.668,
+   "configs": {
+    "full": {
+     "pHome": 0.5171,
+     "marginMean": 1.41,
+     "marginSD": 22.18,
+     "totalMean": 222.26,
+     "totalSD": 22.11,
+     "tieMass": 0.0177
+    },
+    "minutesFixed": {
+     "pHome": 0.5325,
+     "marginMean": 1.76,
+     "marginSD": 19.32,
+     "totalMean": 221.79,
+     "totalSD": 19.35,
+     "tieMass": 0.022
+    },
+    "ratesFixed": {
+     "pHome": 0.5108,
+     "marginMean": 0.42,
+     "marginSD": 9.5,
+     "totalMean": 218.99,
+     "totalSD": 9.51,
+     "tieMass": 0.038
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 1,
+     "marginSD": 0,
+     "totalMean": 219,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705100",
+   "dateUtc": "2025-01-12T00:00Z",
+   "matchup": "Toronto Raptors @ Detroit Pistons",
+   "final": {
+    "ftHome": 123,
+    "ftAway": 114,
+    "overtime": false
+   },
+   "eloPHome": 0.769,
+   "configs": {
+    "full": {
+     "pHome": 0.5834,
+     "marginMean": 4.62,
+     "marginSD": 21.42,
+     "totalMean": 221.94,
+     "totalSD": 20.99,
+     "tieMass": 0.0173
+    },
+    "minutesFixed": {
+     "pHome": 0.6038,
+     "marginMean": 4.69,
+     "marginSD": 17.83,
+     "totalMean": 221.54,
+     "totalSD": 17.46,
+     "tieMass": 0.0235
+    },
+    "ratesFixed": {
+     "pHome": 0.7164,
+     "marginMean": 5.77,
+     "marginSD": 10.15,
+     "totalMean": 218.95,
+     "totalSD": 9.87,
+     "tieMass": 0.0318
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 6,
+     "marginSD": 0,
+     "totalMean": 218,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705118",
+   "dateUtc": "2025-01-14T03:30Z",
+   "matchup": "San Antonio Spurs @ Los Angeles Lakers",
+   "final": {
+    "ftHome": 102,
+    "ftAway": 126,
+    "overtime": false
+   },
+   "eloPHome": 0.705,
+   "configs": {
+    "full": {
+     "pHome": 0.4859,
+     "marginMean": -0.57,
+     "marginSD": 23.28,
+     "totalMean": 215.79,
+     "totalSD": 23.37,
+     "tieMass": 0.0187
+    },
+    "minutesFixed": {
+     "pHome": 0.4916,
+     "marginMean": -0.71,
+     "marginSD": 20.19,
+     "totalMean": 215.24,
+     "totalSD": 20.34,
+     "tieMass": 0.0248
+    },
+    "ratesFixed": {
+     "pHome": 0.4776,
+     "marginMean": -0.63,
+     "marginSD": 9.85,
+     "totalMean": 213.47,
+     "totalSD": 9.75,
+     "tieMass": 0.0367
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -1,
+     "marginSD": 0,
+     "totalMean": 213,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705135",
+   "dateUtc": "2025-01-16T02:00Z",
+   "matchup": "Charlotte Hornets @ Utah Jazz",
+   "final": {
+    "ftHome": 112,
+    "ftAway": 117,
+    "overtime": false
+   },
+   "eloPHome": 0.687,
+   "configs": {
+    "full": {
+     "pHome": 0.5974,
+     "marginMean": 4.64,
+     "marginSD": 18.92,
+     "totalMean": 219.08,
+     "totalSD": 19.06,
+     "tieMass": 0.0187
+    },
+    "minutesFixed": {
+     "pHome": 0.6299,
+     "marginMean": 5,
+     "marginSD": 15.3,
+     "totalMean": 219.09,
+     "totalSD": 15.38,
+     "tieMass": 0.0232
+    },
+    "ratesFixed": {
+     "pHome": 0.6827,
+     "marginMean": 4.73,
+     "marginSD": 9.98,
+     "totalMean": 216.61,
+     "totalSD": 10.22,
+     "tieMass": 0.0355
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 5,
+     "marginSD": 0,
+     "totalMean": 217,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705148",
+   "dateUtc": "2025-01-18T02:30Z",
+   "matchup": "Memphis Grizzlies @ San Antonio Spurs",
+   "final": {
+    "ftHome": 112,
+    "ftAway": 140,
+    "overtime": false
+   },
+   "eloPHome": 0.496,
+   "configs": {
+    "full": {
+     "pHome": 0.3846,
+     "marginMean": -6.37,
+     "marginSD": 22.59,
+     "totalMean": 228.57,
+     "totalSD": 22.08,
+     "tieMass": 0.0173
+    },
+    "minutesFixed": {
+     "pHome": 0.3825,
+     "marginMean": -6.16,
+     "marginSD": 19.51,
+     "totalMean": 227.84,
+     "totalSD": 19.02,
+     "tieMass": 0.0205
+    },
+    "ratesFixed": {
+     "pHome": 0.2445,
+     "marginMean": -6.81,
+     "marginSD": 9.83,
+     "totalMean": 226.7,
+     "totalSD": 10,
+     "tieMass": 0.0335
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -6,
+     "marginSD": 0,
+     "totalMean": 226,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705166",
+   "dateUtc": "2025-01-20T19:00Z",
+   "matchup": "Detroit Pistons @ Houston Rockets",
+   "final": {
+    "ftHome": 96,
+    "ftAway": 107,
+    "overtime": false
+   },
+   "eloPHome": 0.776,
+   "configs": {
+    "full": {
+     "pHome": 0.4968,
+     "marginMean": 0.14,
+     "marginSD": 20.96,
+     "totalMean": 223.74,
+     "totalSD": 20.89,
+     "tieMass": 0.019
+    },
+    "minutesFixed": {
+     "pHome": 0.4949,
+     "marginMean": 0.08,
+     "marginSD": 18.76,
+     "totalMean": 223.85,
+     "totalSD": 18.52,
+     "tieMass": 0.0253
+    },
+    "ratesFixed": {
+     "pHome": 0.4662,
+     "marginMean": -0.81,
+     "marginSD": 8.69,
+     "totalMean": 221.88,
+     "totalSD": 8.62,
+     "tieMass": 0.047
+    },
+    "bothFixed": {
+     "pHome": 0.5,
+     "marginMean": 0,
+     "marginSD": 0,
+     "totalMean": 222,
+     "totalSD": 0,
+     "tieMass": 1
+    }
+   }
+  },
+  {
+   "providerEventId": "401705182",
+   "dateUtc": "2025-01-23T01:00Z",
+   "matchup": "Charlotte Hornets @ Memphis Grizzlies",
+   "final": {
+    "ftHome": 132,
+    "ftAway": 120,
+    "overtime": false
+   },
+   "eloPHome": 0.829,
+   "configs": {
+    "full": {
+     "pHome": 0.741,
+     "marginMean": 11.76,
+     "marginSD": 18.48,
+     "totalMean": 225.49,
+     "totalSD": 18.53,
+     "tieMass": 0.0175
+    },
+    "minutesFixed": {
+     "pHome": 0.7716,
+     "marginMean": 11.45,
+     "marginSD": 15.09,
+     "totalMean": 224.93,
+     "totalSD": 15.39,
+     "tieMass": 0.0227
+    },
+    "ratesFixed": {
+     "pHome": 0.9009,
+     "marginMean": 11.89,
+     "marginSD": 9.24,
+     "totalMean": 223.12,
+     "totalSD": 9.29,
+     "tieMass": 0.0192
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 11,
+     "marginSD": 0,
+     "totalMean": 223,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705199",
+   "dateUtc": "2025-01-25T17:00Z",
+   "matchup": "Indiana Pacers @ San Antonio Spurs",
+   "final": {
+    "ftHome": 98,
+    "ftAway": 136,
+    "overtime": false
+   },
+   "eloPHome": 0.355,
+   "configs": {
+    "full": {
+     "pHome": 0.4905,
+     "marginMean": -0.44,
+     "marginSD": 22.12,
+     "totalMean": 231.48,
+     "totalSD": 22.45,
+     "tieMass": 0.0165
+    },
+    "minutesFixed": {
+     "pHome": 0.4909,
+     "marginMean": -0.36,
+     "marginSD": 19.27,
+     "totalMean": 231.35,
+     "totalSD": 19.76,
+     "tieMass": 0.0173
+    },
+    "ratesFixed": {
+     "pHome": 0.4572,
+     "marginMean": -0.95,
+     "marginSD": 9.48,
+     "totalMean": 228.44,
+     "totalSD": 9.46,
+     "tieMass": 0.041
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -1,
+     "marginSD": 0,
+     "totalMean": 229,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705215",
+   "dateUtc": "2025-01-28T00:00Z",
+   "matchup": "Detroit Pistons @ Cleveland Cavaliers",
+   "final": {
+    "ftHome": 110,
+    "ftAway": 91,
+    "overtime": false
+   },
+   "eloPHome": 0.8,
+   "configs": {
+    "full": {
+     "pHome": 0.574,
+     "marginMean": 4.2,
+     "marginSD": 23.67,
+     "totalMean": 235.04,
+     "totalSD": 23.34,
+     "tieMass": 0.0175
+    },
+    "minutesFixed": {
+     "pHome": 0.5734,
+     "marginMean": 3.63,
+     "marginSD": 20.38,
+     "totalMean": 234.02,
+     "totalSD": 20.23,
+     "tieMass": 0.0222
+    },
+    "ratesFixed": {
+     "pHome": 0.555,
+     "marginMean": 1.56,
+     "marginSD": 10.1,
+     "totalMean": 230.95,
+     "totalSD": 10.09,
+     "tieMass": 0.04
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 2,
+     "marginSD": 0,
+     "totalMean": 230,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705230",
+   "dateUtc": "2025-01-30T00:00Z",
+   "matchup": "Detroit Pistons @ Indiana Pacers",
+   "final": {
+    "ftHome": 133,
+    "ftAway": 119,
+    "overtime": false
+   },
+   "eloPHome": 0.73,
+   "configs": {
+    "full": {
+     "pHome": 0.561,
+     "marginMean": 3.39,
+     "marginSD": 21.77,
+     "totalMean": 229.35,
+     "totalSD": 22.07,
+     "tieMass": 0.0175
+    },
+    "minutesFixed": {
+     "pHome": 0.569,
+     "marginMean": 3.07,
+     "marginSD": 19.14,
+     "totalMean": 229.42,
+     "totalSD": 19.2,
+     "tieMass": 0.0235
+    },
+    "ratesFixed": {
+     "pHome": 0.5921,
+     "marginMean": 2.43,
+     "marginSD": 9.71,
+     "totalMean": 227.11,
+     "totalSD": 9.57,
+     "tieMass": 0.0408
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 2,
+     "marginSD": 0,
+     "totalMean": 228,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705246",
+   "dateUtc": "2025-02-01T00:00Z",
+   "matchup": "Dallas Mavericks @ Detroit Pistons",
+   "final": {
+    "ftHome": 117,
+    "ftAway": 102,
+    "overtime": false
+   },
+   "eloPHome": 0.481,
+   "configs": {
+    "full": {
+     "pHome": 0.422,
+     "marginMean": -4.42,
+     "marginSD": 22.25,
+     "totalMean": 232.18,
+     "totalSD": 21.78,
+     "tieMass": 0.019
+    },
+    "minutesFixed": {
+     "pHome": 0.4128,
+     "marginMean": -4.24,
+     "marginSD": 19.57,
+     "totalMean": 232.09,
+     "totalSD": 19.09,
+     "tieMass": 0.0195
+    },
+    "ratesFixed": {
+     "pHome": 0.342,
+     "marginMean": -3.79,
+     "marginSD": 9.61,
+     "totalMean": 229.47,
+     "totalSD": 9.48,
+     "tieMass": 0.038
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -3,
+     "marginSD": 0,
+     "totalMean": 229,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705262",
+   "dateUtc": "2025-02-02T20:30Z",
+   "matchup": "Dallas Mavericks @ Cleveland Cavaliers",
+   "final": {
+    "ftHome": 144,
+    "ftAway": 101,
+    "overtime": false
+   },
+   "eloPHome": 0.753,
+   "configs": {
+    "full": {
+     "pHome": 0.447,
+     "marginMean": -3.15,
+     "marginSD": 21.45,
+     "totalMean": 233.12,
+     "totalSD": 21.2,
+     "tieMass": 0.0185
+    },
+    "minutesFixed": {
+     "pHome": 0.4284,
+     "marginMean": -3.71,
+     "marginSD": 18.04,
+     "totalMean": 232.18,
+     "totalSD": 17.56,
+     "tieMass": 0.0232
+    },
+    "ratesFixed": {
+     "pHome": 0.3745,
+     "marginMean": -3.41,
+     "marginSD": 10.19,
+     "totalMean": 229.6,
+     "totalSD": 10.42,
+     "tieMass": 0.0385
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -3,
+     "marginSD": 0,
+     "totalMean": 229,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705277",
+   "dateUtc": "2025-02-05T00:30Z",
+   "matchup": "Houston Rockets @ Brooklyn Nets",
+   "final": {
+    "ftHome": 99,
+    "ftAway": 97,
+    "overtime": false
+   },
+   "eloPHome": 0.308,
+   "configs": {
+    "full": {
+     "pHome": 0.4569,
+     "marginMean": -2.45,
+     "marginSD": 20.17,
+     "totalMean": 221.19,
+     "totalSD": 20.12,
+     "tieMass": 0.0227
+    },
+    "minutesFixed": {
+     "pHome": 0.4499,
+     "marginMean": -2.36,
+     "marginSD": 17.62,
+     "totalMean": 220.59,
+     "totalSD": 17.66,
+     "tieMass": 0.0232
+    },
+    "ratesFixed": {
+     "pHome": 0.3896,
+     "marginMean": -2.29,
+     "marginSD": 8.1,
+     "totalMean": 219.51,
+     "totalSD": 8.2,
+     "tieMass": 0.0432
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -3,
+     "marginSD": 0,
+     "totalMean": 219,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705294",
+   "dateUtc": "2025-02-07T00:30Z",
+   "matchup": "Dallas Mavericks @ Boston Celtics",
+   "final": {
+    "ftHome": 120,
+    "ftAway": 127,
+    "overtime": false
+   },
+   "eloPHome": 0.768,
+   "configs": {
+    "full": {
+     "pHome": 0.3329,
+     "marginMean": -9.07,
+     "marginSD": 20.49,
+     "totalMean": 227.72,
+     "totalSD": 20.72,
+     "tieMass": 0.0163
+    },
+    "minutesFixed": {
+     "pHome": 0.298,
+     "marginMean": -8.91,
+     "marginSD": 16.69,
+     "totalMean": 227,
+     "totalSD": 16.63,
+     "tieMass": 0.02
+    },
+    "ratesFixed": {
+     "pHome": 0.1787,
+     "marginMean": -9.91,
+     "marginSD": 10.62,
+     "totalMean": 224.7,
+     "totalSD": 10.79,
+     "tieMass": 0.024
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -10,
+     "marginSD": 0,
+     "totalMean": 224,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705310",
+   "dateUtc": "2025-02-09T00:00Z",
+   "matchup": "Atlanta Hawks @ Washington Wizards",
+   "final": {
+    "ftHome": 111,
+    "ftAway": 125,
+    "overtime": false
+   },
+   "eloPHome": 0.34,
+   "configs": {
+    "full": {
+     "pHome": 0.3914,
+     "marginMean": -6.2,
+     "marginSD": 22.49,
+     "totalMean": 221.81,
+     "totalSD": 22.98,
+     "tieMass": 0.0127
+    },
+    "minutesFixed": {
+     "pHome": 0.3734,
+     "marginMean": -6.23,
+     "marginSD": 19.74,
+     "totalMean": 221.45,
+     "totalSD": 19.8,
+     "tieMass": 0.0192
+    },
+    "ratesFixed": {
+     "pHome": 0.2679,
+     "marginMean": -6.08,
+     "marginSD": 9.75,
+     "totalMean": 219.35,
+     "totalSD": 9.99,
+     "tieMass": 0.0318
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -7,
+     "marginSD": 0,
+     "totalMean": 219,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705326",
+   "dateUtc": "2025-02-11T01:00Z",
+   "matchup": "Golden State Warriors @ Milwaukee Bucks",
+   "final": {
+    "ftHome": 111,
+    "ftAway": 125,
+    "overtime": false
+   },
+   "eloPHome": 0.632,
+   "configs": {
+    "full": {
+     "pHome": 0.6478,
+     "marginMean": 8.3,
+     "marginSD": 21.99,
+     "totalMean": 238.07,
+     "totalSD": 22.58,
+     "tieMass": 0.016
+    },
+    "minutesFixed": {
+     "pHome": 0.6595,
+     "marginMean": 6.9,
+     "marginSD": 17.31,
+     "totalMean": 236.36,
+     "totalSD": 17.86,
+     "tieMass": 0.0235
+    },
+    "ratesFixed": {
+     "pHome": 0.7268,
+     "marginMean": 6.33,
+     "marginSD": 10.28,
+     "totalMean": 234.85,
+     "totalSD": 10.61,
+     "tieMass": 0.031
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 5,
+     "marginSD": 0,
+     "totalMean": 233,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705342",
+   "dateUtc": "2025-02-13T01:00Z",
+   "matchup": "Milwaukee Bucks @ Minnesota Timberwolves",
+   "final": {
+    "ftHome": 101,
+    "ftAway": 103,
+    "overtime": false
+   },
+   "eloPHome": 0.683,
+   "configs": {
+    "full": {
+     "pHome": 0.4093,
+     "marginMean": -5.45,
+     "marginSD": 22.92,
+     "totalMean": 241.56,
+     "totalSD": 22.92,
+     "tieMass": 0.0165
+    },
+    "minutesFixed": {
+     "pHome": 0.417,
+     "marginMean": -3.63,
+     "marginSD": 18.48,
+     "totalMean": 239.3,
+     "totalSD": 18.28,
+     "tieMass": 0.0245
+    },
+    "ratesFixed": {
+     "pHome": 0.3981,
+     "marginMean": -2.9,
+     "marginSD": 10.82,
+     "totalMean": 237.23,
+     "totalSD": 10.83,
+     "tieMass": 0.0387
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -1,
+     "marginSD": 0,
+     "totalMean": 235,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705356",
+   "dateUtc": "2025-02-21T00:30Z",
+   "matchup": "Orlando Magic @ Atlanta Hawks",
+   "final": {
+    "ftHome": 108,
+    "ftAway": 114,
+    "overtime": false
+   },
+   "eloPHome": 0.629,
+   "configs": {
+    "full": {
+     "pHome": 0.6412,
+     "marginMean": 7.45,
+     "marginSD": 21.6,
+     "totalMean": 225.61,
+     "totalSD": 21.37,
+     "tieMass": 0.015
+    },
+    "minutesFixed": {
+     "pHome": 0.6659,
+     "marginMean": 7.51,
+     "marginSD": 18.68,
+     "totalMean": 224.93,
+     "totalSD": 18.41,
+     "tieMass": 0.0227
+    },
+    "ratesFixed": {
+     "pHome": 0.8067,
+     "marginMean": 8.61,
+     "marginSD": 9.8,
+     "totalMean": 222.41,
+     "totalSD": 9.82,
+     "tieMass": 0.025
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 8,
+     "marginSD": 0,
+     "totalMean": 222,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705372",
+   "dateUtc": "2025-02-22T22:00Z",
+   "matchup": "Phoenix Suns @ Chicago Bulls",
+   "final": {
+    "ftHome": 117,
+    "ftAway": 121,
+    "overtime": false
+   },
+   "eloPHome": 0.505,
+   "configs": {
+    "full": {
+     "pHome": 0.5805,
+     "marginMean": 4.22,
+     "marginSD": 21.1,
+     "totalMean": 230.29,
+     "totalSD": 21.01,
+     "tieMass": 0.019
+    },
+    "minutesFixed": {
+     "pHome": 0.5887,
+     "marginMean": 4.08,
+     "marginSD": 17.11,
+     "totalMean": 229.44,
+     "totalSD": 17.05,
+     "tieMass": 0.0225
+    },
+    "ratesFixed": {
+     "pHome": 0.6464,
+     "marginMean": 3.8,
+     "marginSD": 10.78,
+     "totalMean": 228.08,
+     "totalSD": 10.68,
+     "tieMass": 0.0313
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 4,
+     "marginSD": 0,
+     "totalMean": 228,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705388",
+   "dateUtc": "2025-02-25T00:00Z",
+   "matchup": "Denver Nuggets @ Indiana Pacers",
+   "final": {
+    "ftHome": 116,
+    "ftAway": 125,
+    "overtime": false
+   },
+   "eloPHome": 0.551,
+   "configs": {
+    "full": {
+     "pHome": 0.4874,
+     "marginMean": -0.88,
+     "marginSD": 25.36,
+     "totalMean": 233.35,
+     "totalSD": 25.15,
+     "tieMass": 0.0182
+    },
+    "minutesFixed": {
+     "pHome": 0.4756,
+     "marginMean": -1.15,
+     "marginSD": 22.28,
+     "totalMean": 232.87,
+     "totalSD": 22.1,
+     "tieMass": 0.0182
+    },
+    "ratesFixed": {
+     "pHome": 0.4808,
+     "marginMean": -0.63,
+     "marginSD": 10.29,
+     "totalMean": 230.05,
+     "totalSD": 10.22,
+     "tieMass": 0.0385
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -1,
+     "marginSD": 0,
+     "totalMean": 229,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705404",
+   "dateUtc": "2025-02-27T00:00Z",
+   "matchup": "Philadelphia 76ers @ New York Knicks",
+   "final": {
+    "ftHome": 110,
+    "ftAway": 105,
+    "overtime": false
+   },
+   "eloPHome": 0.828,
+   "configs": {
+    "full": {
+     "pHome": 0.6116,
+     "marginMean": 6.77,
+     "marginSD": 24.06,
+     "totalMean": 222.24,
+     "totalSD": 24.14,
+     "tieMass": 0.0158
+    },
+    "minutesFixed": {
+     "pHome": 0.6324,
+     "marginMean": 6.52,
+     "marginSD": 20.21,
+     "totalMean": 221.14,
+     "totalSD": 20.36,
+     "tieMass": 0.0163
+    },
+    "ratesFixed": {
+     "pHome": 0.7751,
+     "marginMean": 7.64,
+     "marginSD": 10.48,
+     "totalMean": 216.76,
+     "totalSD": 10.85,
+     "tieMass": 0.0257
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 8,
+     "marginSD": 0,
+     "totalMean": 216,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705420",
+   "dateUtc": "2025-03-01T01:00Z",
+   "matchup": "Indiana Pacers @ Miami Heat",
+   "final": {
+    "ftHome": 125,
+    "ftAway": 120,
+    "overtime": false
+   },
+   "eloPHome": 0.46,
+   "configs": {
+    "full": {
+     "pHome": 0.3005,
+     "marginMean": -11.27,
+     "marginSD": 21.69,
+     "totalMean": 215.39,
+     "totalSD": 21.39,
+     "tieMass": 0.0175
+    },
+    "minutesFixed": {
+     "pHome": 0.2704,
+     "marginMean": -11.14,
+     "marginSD": 18.23,
+     "totalMean": 214.8,
+     "totalSD": 17.83,
+     "tieMass": 0.0203
+    },
+    "ratesFixed": {
+     "pHome": 0.1442,
+     "marginMean": -10.93,
+     "marginSD": 10.38,
+     "totalMean": 213.3,
+     "totalSD": 10.45,
+     "tieMass": 0.021
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -11,
+     "marginSD": 0,
+     "totalMean": 213,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705436",
+   "dateUtc": "2025-03-02T23:00Z",
+   "matchup": "Toronto Raptors @ Orlando Magic",
+   "final": {
+    "ftHome": 102,
+    "ftAway": 104,
+    "overtime": false
+   },
+   "eloPHome": 0.695,
+   "configs": {
+    "full": {
+     "pHome": 0.6045,
+     "marginMean": 5.16,
+     "marginSD": 22.3,
+     "totalMean": 218.34,
+     "totalSD": 22.31,
+     "tieMass": 0.017
+    },
+    "minutesFixed": {
+     "pHome": 0.6084,
+     "marginMean": 5.11,
+     "marginSD": 19.51,
+     "totalMean": 218.13,
+     "totalSD": 19.4,
+     "tieMass": 0.0182
+    },
+    "ratesFixed": {
+     "pHome": 0.7967,
+     "marginMean": 7.38,
+     "marginSD": 8.81,
+     "totalMean": 211.49,
+     "totalSD": 8.85,
+     "tieMass": 0.03
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 7,
+     "marginSD": 0,
+     "totalMean": 211,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705452",
+   "dateUtc": "2025-03-05T01:00Z",
+   "matchup": "Cleveland Cavaliers @ Chicago Bulls",
+   "final": {
+    "ftHome": 117,
+    "ftAway": 139,
+    "overtime": false
+   },
+   "eloPHome": 0.203,
+   "configs": {
+    "full": {
+     "pHome": 0.3859,
+     "marginMean": -5.92,
+     "marginSD": 20.5,
+     "totalMean": 238.29,
+     "totalSD": 21.25,
+     "tieMass": 0.0147
+    },
+    "minutesFixed": {
+     "pHome": 0.3641,
+     "marginMean": -6.13,
+     "marginSD": 17.24,
+     "totalMean": 238.05,
+     "totalSD": 17.52,
+     "tieMass": 0.0203
+    },
+    "ratesFixed": {
+     "pHome": 0.2752,
+     "marginMean": -5.96,
+     "marginSD": 9.83,
+     "totalMean": 235.7,
+     "totalSD": 10,
+     "tieMass": 0.0385
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -6,
+     "marginSD": 0,
+     "totalMean": 236,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705467",
+   "dateUtc": "2025-03-07T00:30Z",
+   "matchup": "Golden State Warriors @ Brooklyn Nets",
+   "final": {
+    "ftHome": 119,
+    "ftAway": 121,
+    "overtime": false
+   },
+   "eloPHome": 0.345,
+   "configs": {
+    "full": {
+     "pHome": 0.2374,
+     "marginMean": -14.23,
+     "marginSD": 19.88,
+     "totalMean": 227.03,
+     "totalSD": 19.86,
+     "tieMass": 0.0127
+    },
+    "minutesFixed": {
+     "pHome": 0.1908,
+     "marginMean": -14.77,
+     "marginSD": 17.01,
+     "totalMean": 226.21,
+     "totalSD": 16.92,
+     "tieMass": 0.017
+    },
+    "ratesFixed": {
+     "pHome": 0.0648,
+     "marginMean": -13.25,
+     "marginSD": 8.84,
+     "totalMean": 224.52,
+     "totalSD": 8.56,
+     "tieMass": 0.0135
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -14,
+     "marginSD": 0,
+     "totalMean": 224,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705483",
+   "dateUtc": "2025-03-09T01:00Z",
+   "matchup": "Orlando Magic @ Milwaukee Bucks",
+   "final": {
+    "ftHome": 109,
+    "ftAway": 111,
+    "overtime": false
+   },
+   "eloPHome": 0.796,
+   "configs": {
+    "full": {
+     "pHome": 0.5894,
+     "marginMean": 4.7,
+     "marginSD": 21.14,
+     "totalMean": 226.6,
+     "totalSD": 21.4,
+     "tieMass": 0.0222
+    },
+    "minutesFixed": {
+     "pHome": 0.5737,
+     "marginMean": 3.34,
+     "marginSD": 17.09,
+     "totalMean": 225.15,
+     "totalSD": 17.39,
+     "tieMass": 0.022
+    },
+    "ratesFixed": {
+     "pHome": 0.6664,
+     "marginMean": 4.25,
+     "marginSD": 9.9,
+     "totalMean": 222.73,
+     "totalSD": 10.05,
+     "tieMass": 0.0408
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 3,
+     "marginSD": 0,
+     "totalMean": 221,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705499",
+   "dateUtc": "2025-03-11T00:00Z",
+   "matchup": "Indiana Pacers @ Chicago Bulls",
+   "final": {
+    "ftHome": 121,
+    "ftAway": 103,
+    "overtime": false
+   },
+   "eloPHome": 0.41,
+   "configs": {
+    "full": {
+     "pHome": 0.5259,
+     "marginMean": 1.82,
+     "marginSD": 21.07,
+     "totalMean": 239.94,
+     "totalSD": 21.06,
+     "tieMass": 0.0163
+    },
+    "minutesFixed": {
+     "pHome": 0.5386,
+     "marginMean": 1.66,
+     "marginSD": 17.4,
+     "totalMean": 239.23,
+     "totalSD": 17.25,
+     "tieMass": 0.0192
+    },
+    "ratesFixed": {
+     "pHome": 0.5506,
+     "marginMean": 1.37,
+     "marginSD": 10.45,
+     "totalMean": 237.49,
+     "totalSD": 10.5,
+     "tieMass": 0.0367
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 1,
+     "marginSD": 0,
+     "totalMean": 237,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705516",
+   "dateUtc": "2025-03-13T00:00Z",
+   "matchup": "Utah Jazz @ Memphis Grizzlies",
+   "final": {
+    "ftHome": 122,
+    "ftAway": 115,
+    "overtime": false
+   },
+   "eloPHome": 0.861,
+   "configs": {
+    "full": {
+     "pHome": 0.5763,
+     "marginMean": 4.47,
+     "marginSD": 21.61,
+     "totalMean": 229.73,
+     "totalSD": 22.17,
+     "tieMass": 0.0205
+    },
+    "minutesFixed": {
+     "pHome": 0.5725,
+     "marginMean": 3.15,
+     "marginSD": 16.96,
+     "totalMean": 228.43,
+     "totalSD": 17.17,
+     "tieMass": 0.0235
+    },
+    "ratesFixed": {
+     "pHome": 0.6384,
+     "marginMean": 3.97,
+     "marginSD": 11.56,
+     "totalMean": 227.34,
+     "totalSD": 11.49,
+     "tieMass": 0.0393
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 3,
+     "marginSD": 0,
+     "totalMean": 227,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705531",
+   "dateUtc": "2025-03-15T01:30Z",
+   "matchup": "Los Angeles Lakers @ Denver Nuggets",
+   "final": {
+    "ftHome": 131,
+    "ftAway": 126,
+    "overtime": false
+   },
+   "eloPHome": 0.648,
+   "configs": {
+    "full": {
+     "pHome": 0.5456,
+     "marginMean": 2.26,
+     "marginSD": 20.98,
+     "totalMean": 220.95,
+     "totalSD": 22.04,
+     "tieMass": 0.0203
+    },
+    "minutesFixed": {
+     "pHome": 0.5531,
+     "marginMean": 2.21,
+     "marginSD": 17.26,
+     "totalMean": 219.91,
+     "totalSD": 17.71,
+     "tieMass": 0.0217
+    },
+    "ratesFixed": {
+     "pHome": 0.5921,
+     "marginMean": 2.45,
+     "marginSD": 10.95,
+     "totalMean": 217.69,
+     "totalSD": 10.81,
+     "tieMass": 0.0343
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 3,
+     "marginSD": 0,
+     "totalMean": 217,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705547",
+   "dateUtc": "2025-03-16T23:00Z",
+   "matchup": "Utah Jazz @ Minnesota Timberwolves",
+   "final": {
+    "ftHome": 128,
+    "ftAway": 102,
+    "overtime": false
+   },
+   "eloPHome": 0.894,
+   "configs": {
+    "full": {
+     "pHome": 0.5823,
+     "marginMean": 4.72,
+     "marginSD": 21.28,
+     "totalMean": 228.68,
+     "totalSD": 21.52,
+     "tieMass": 0.017
+    },
+    "minutesFixed": {
+     "pHome": 0.5849,
+     "marginMean": 3.94,
+     "marginSD": 18.16,
+     "totalMean": 228.33,
+     "totalSD": 18.59,
+     "tieMass": 0.0222
+    },
+    "ratesFixed": {
+     "pHome": 0.6549,
+     "marginMean": 3.86,
+     "marginSD": 9.56,
+     "totalMean": 225.22,
+     "totalSD": 9.47,
+     "tieMass": 0.0343
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 3,
+     "marginSD": 0,
+     "totalMean": 225,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705563",
+   "dateUtc": "2025-03-19T02:30Z",
+   "matchup": "Cleveland Cavaliers @ LA Clippers",
+   "final": {
+    "ftHome": 132,
+    "ftAway": 119,
+    "overtime": false
+   },
+   "eloPHome": 0.362,
+   "configs": {
+    "full": {
+     "pHome": 0.4185,
+     "marginMean": -4.38,
+     "marginSD": 21.1,
+     "totalMean": 234.92,
+     "totalSD": 20.36,
+     "tieMass": 0.0165
+    },
+    "minutesFixed": {
+     "pHome": 0.3881,
+     "marginMean": -5.04,
+     "marginSD": 17.54,
+     "totalMean": 233.4,
+     "totalSD": 17.04,
+     "tieMass": 0.0248
+    },
+    "ratesFixed": {
+     "pHome": 0.3045,
+     "marginMean": -4.88,
+     "marginSD": 9.68,
+     "totalMean": 231.74,
+     "totalSD": 9.65,
+     "tieMass": 0.0365
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -6,
+     "marginSD": 0,
+     "totalMean": 230,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705562",
+   "dateUtc": "2025-03-21T02:30Z",
+   "matchup": "Milwaukee Bucks @ Los Angeles Lakers",
+   "final": {
+    "ftHome": 89,
+    "ftAway": 118,
+    "overtime": false
+   },
+   "eloPHome": 0.676,
+   "configs": {
+    "full": {
+     "pHome": 0.5587,
+     "marginMean": 3.05,
+     "marginSD": 20.97,
+     "totalMean": 230.58,
+     "totalSD": 20.82,
+     "tieMass": 0.0185
+    },
+    "minutesFixed": {
+     "pHome": 0.5699,
+     "marginMean": 3.18,
+     "marginSD": 18.38,
+     "totalMean": 229.11,
+     "totalSD": 18.25,
+     "tieMass": 0.0213
+    },
+    "ratesFixed": {
+     "pHome": 0.6874,
+     "marginMean": 3.99,
+     "marginSD": 8.28,
+     "totalMean": 226.89,
+     "totalSD": 8.31,
+     "tieMass": 0.0452
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 4,
+     "marginSD": 0,
+     "totalMean": 226,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705595",
+   "dateUtc": "2025-03-23T19:00Z",
+   "matchup": "New Orleans Pelicans @ Detroit Pistons",
+   "final": {
+    "ftHome": 136,
+    "ftAway": 130,
+    "overtime": false
+   },
+   "eloPHome": 0.775,
+   "configs": {
+    "full": {
+     "pHome": 0.6245,
+     "marginMean": 6.04,
+     "marginSD": 19.46,
+     "totalMean": 231.67,
+     "totalSD": 18.89,
+     "tieMass": 0.02
+    },
+    "minutesFixed": {
+     "pHome": 0.6448,
+     "marginMean": 6.05,
+     "marginSD": 16.18,
+     "totalMean": 230.8,
+     "totalSD": 15.67,
+     "tieMass": 0.0225
+    },
+    "ratesFixed": {
+     "pHome": 0.7906,
+     "marginMean": 7.36,
+     "marginSD": 9.15,
+     "totalMean": 227.94,
+     "totalSD": 9.24,
+     "tieMass": 0.0323
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 7,
+     "marginSD": 0,
+     "totalMean": 227,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705611",
+   "dateUtc": "2025-03-25T23:00Z",
+   "matchup": "Orlando Magic @ Charlotte Hornets",
+   "final": {
+    "ftHome": 104,
+    "ftAway": 111,
+    "overtime": false
+   },
+   "eloPHome": 0.392,
+   "configs": {
+    "full": {
+     "pHome": 0.6459,
+     "marginMean": 7.74,
+     "marginSD": 21.13,
+     "totalMean": 237.04,
+     "totalSD": 20.98,
+     "tieMass": 0.0182
+    },
+    "minutesFixed": {
+     "pHome": 0.675,
+     "marginMean": 7.74,
+     "marginSD": 17.28,
+     "totalMean": 236.62,
+     "totalSD": 17.09,
+     "tieMass": 0.0265
+    },
+    "ratesFixed": {
+     "pHome": 0.7492,
+     "marginMean": 6.96,
+     "marginSD": 10.4,
+     "totalMean": 234.49,
+     "totalSD": 10.69,
+     "tieMass": 0.0265
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 6,
+     "marginSD": 0,
+     "totalMean": 234,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705627",
+   "dateUtc": "2025-03-27T23:00Z",
+   "matchup": "Indiana Pacers @ Washington Wizards",
+   "final": {
+    "ftHome": 109,
+    "ftAway": 162,
+    "overtime": false
+   },
+   "eloPHome": 0.238,
+   "configs": {
+    "full": {
+     "pHome": 0.4849,
+     "marginMean": -0.95,
+     "marginSD": 21.26,
+     "totalMean": 228.52,
+     "totalSD": 21.56,
+     "tieMass": 0.0173
+    },
+    "minutesFixed": {
+     "pHome": 0.5,
+     "marginMean": -0.27,
+     "marginSD": 16.23,
+     "totalMean": 226.78,
+     "totalSD": 16.34,
+     "tieMass": 0.021
+    },
+    "ratesFixed": {
+     "pHome": 0.4719,
+     "marginMean": -0.88,
+     "marginSD": 12.2,
+     "totalMean": 225.43,
+     "totalSD": 12.25,
+     "tieMass": 0.0323
+    },
+    "bothFixed": {
+     "pHome": 0.5,
+     "marginMean": 0,
+     "marginSD": 0,
+     "totalMean": 224,
+     "totalSD": 0,
+     "tieMass": 1
+    }
+   }
+  },
+  {
+   "providerEventId": "401705643",
+   "dateUtc": "2025-03-30T00:00Z",
+   "matchup": "Dallas Mavericks @ Chicago Bulls",
+   "final": {
+    "ftHome": 119,
+    "ftAway": 120,
+    "overtime": false
+   },
+   "eloPHome": 0.614,
+   "configs": {
+    "full": {
+     "pHome": 0.162,
+     "marginMean": -20.27,
+     "marginSD": 20.49,
+     "totalMean": 267.39,
+     "totalSD": 20.6,
+     "tieMass": 0.0095
+    },
+    "minutesFixed": {
+     "pHome": 0.1166,
+     "marginMean": -20.39,
+     "marginSD": 17.17,
+     "totalMean": 266.78,
+     "totalSD": 16.93,
+     "tieMass": 0.0138
+    },
+    "ratesFixed": {
+     "pHome": 0.0199,
+     "marginMean": -20.44,
+     "marginSD": 9.81,
+     "totalMean": 264.75,
+     "totalSD": 10.05,
+     "tieMass": 0.0037
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -20,
+     "marginSD": 0,
+     "totalMean": 264,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705659",
+   "dateUtc": "2025-03-31T23:30Z",
+   "matchup": "Boston Celtics @ Memphis Grizzlies",
+   "final": {
+    "ftHome": 103,
+    "ftAway": 117,
+    "overtime": false
+   },
+   "eloPHome": 0.339,
+   "configs": {
+    "full": {
+     "pHome": 0.542,
+     "marginMean": 2.3,
+     "marginSD": 22.52,
+     "totalMean": 241.62,
+     "totalSD": 22.71,
+     "tieMass": 0.0175
+    },
+    "minutesFixed": {
+     "pHome": 0.5456,
+     "marginMean": 2.27,
+     "marginSD": 19.13,
+     "totalMean": 240.17,
+     "totalSD": 19.1,
+     "tieMass": 0.0238
+    },
+    "ratesFixed": {
+     "pHome": 0.6596,
+     "marginMean": 4.32,
+     "marginSD": 10.08,
+     "totalMean": 236.58,
+     "totalSD": 9.87,
+     "tieMass": 0.0423
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 5,
+     "marginSD": 0,
+     "totalMean": 235,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705675",
+   "dateUtc": "2025-04-03T00:30Z",
+   "matchup": "Atlanta Hawks @ Dallas Mavericks",
+   "final": {
+    "ftHome": 120,
+    "ftAway": 118,
+    "overtime": false
+   },
+   "eloPHome": 0.606,
+   "configs": {
+    "full": {
+     "pHome": 0.7774,
+     "marginMean": 15.64,
+     "marginSD": 20.25,
+     "totalMean": 253.83,
+     "totalSD": 20.16,
+     "tieMass": 0.0138
+    },
+    "minutesFixed": {
+     "pHome": 0.832,
+     "marginMean": 15.85,
+     "marginSD": 16.7,
+     "totalMean": 252.73,
+     "totalSD": 16.74,
+     "tieMass": 0.016
+    },
+    "ratesFixed": {
+     "pHome": 0.927,
+     "marginMean": 14.86,
+     "marginSD": 10.03,
+     "totalMean": 252,
+     "totalSD": 9.92,
+     "tieMass": 0.0105
+    },
+    "bothFixed": {
+     "pHome": 1,
+     "marginMean": 15,
+     "marginSD": 0,
+     "totalMean": 251,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705690",
+   "dateUtc": "2025-04-05T00:00Z",
+   "matchup": "Cleveland Cavaliers @ San Antonio Spurs",
+   "final": {
+    "ftHome": 113,
+    "ftAway": 114,
+    "overtime": false
+   },
+   "eloPHome": 0.247,
+   "configs": {
+    "full": {
+     "pHome": 0.4926,
+     "marginMean": -0.59,
+     "marginSD": 21.73,
+     "totalMean": 235.41,
+     "totalSD": 21.65,
+     "tieMass": 0.0192
+    },
+    "minutesFixed": {
+     "pHome": 0.491,
+     "marginMean": -0.74,
+     "marginSD": 18.68,
+     "totalMean": 234.47,
+     "totalSD": 18.68,
+     "tieMass": 0.017
+    },
+    "ratesFixed": {
+     "pHome": 0.4974,
+     "marginMean": -0.05,
+     "marginSD": 8.93,
+     "totalMean": 231.75,
+     "totalSD": 9.14,
+     "tieMass": 0.0462
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -1,
+     "marginSD": 0,
+     "totalMean": 231,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  },
+  {
+   "providerEventId": "401705706",
+   "dateUtc": "2025-04-06T23:00Z",
+   "matchup": "Phoenix Suns @ New York Knicks",
+   "final": {
+    "ftHome": 112,
+    "ftAway": 98,
+    "overtime": false
+   },
+   "eloPHome": 0.755,
+   "configs": {
+    "full": {
+     "pHome": 0.4789,
+     "marginMean": -1.35,
+     "marginSD": 22.23,
+     "totalMean": 229.1,
+     "totalSD": 22.62,
+     "tieMass": 0.0163
+    },
+    "minutesFixed": {
+     "pHome": 0.4729,
+     "marginMean": -1.07,
+     "marginSD": 19.3,
+     "totalMean": 228.59,
+     "totalSD": 19.47,
+     "tieMass": 0.0208
+    },
+    "ratesFixed": {
+     "pHome": 0.3961,
+     "marginMean": -2.28,
+     "marginSD": 9.33,
+     "totalMean": 225.52,
+     "totalSD": 9.48,
+     "tieMass": 0.0457
+    },
+    "bothFixed": {
+     "pHome": 0,
+     "marginMean": -2,
+     "marginSD": 0,
+     "totalMean": 226,
+     "totalSD": 0,
+     "tieMass": 0
+    }
+   }
+  }
+ ]
+}
