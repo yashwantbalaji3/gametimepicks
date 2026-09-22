@@ -22,6 +22,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { league as leagueOf } from "../../src/lib/sports/soccer/leagues.mjs";
 import { fitEplStrength, scoreMatrix, sparseSplitFlags, normalizeClubName, EPL_MODEL_ID } from "../../src/lib/sports/epl/strength-state.mjs";
+import { fetchScoreboardWindowEvents, isProviderRefusal, utcDayStart, utcDayEnd } from "../../src/lib/sports/espn-scoreboard-window.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -45,12 +46,13 @@ function corpusName(espnName) {
   return exact ? state.displayName(exact) : null;
 }
 
-const ymd = (t) => new Date(t).toISOString().slice(0, 10).replace(/-/g, "");
 const from = Date.parse(NOW), to = from + DAYS * 86_400_000;
-const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${L.espn}/scoreboard?dates=${ymd(from)}-${ymd(to)}&limit=200`;
-const res = await fetch(url);
-if (!res.ok) { console.error(`REFUSED: ESPN scoreboard HTTP ${res.status}`); process.exit(3); }
-const events = (await res.json()).events ?? [];
+// v1.8 B4: month-window transport via the one shared owner — the range form answered 400 from
+// 2026-09-20 and this script exited 3 on every run (soccer-leagues.yml red, no forecasts published).
+// Whole UTC days at both ends, as the day-granular range form was.
+let events, url;
+try { const r = await fetchScoreboardWindowEvents(`soccer/${L.espn}`, utcDayStart(from), utcDayEnd(to)); events = r.events; url = r.urls.join(" "); }
+catch (err) { console.error(`REFUSED: ESPN scoreboard ${err.message}`); process.exit(3); }
 
 const slugify = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const r6 = (x) => Number(x.toFixed(6));

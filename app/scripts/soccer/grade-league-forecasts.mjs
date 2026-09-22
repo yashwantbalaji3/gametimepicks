@@ -14,6 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { league as leagueOf } from "../../src/lib/sports/soccer/leagues.mjs";
 import { lastPreKickoffForecasts, gradeMatch, mergeGraded, summarize } from "../../src/lib/sports/soccer/grading.mjs";
+import { fetchScoreboardWindowEvents, isProviderRefusal, utcDayStart, utcDayEnd } from "../../src/lib/sports/espn-scoreboard-window.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const arg = (n) => { const i = process.argv.indexOf(n); return i >= 0 ? process.argv[i + 1] : null; };
@@ -32,13 +33,14 @@ const due = [...forecasts.values()].filter(({ row }) => !graded.has(row.eventId)
 
 const fresh = [];
 if (due.length) {
-  const ymd = (t) => new Date(t).toISOString().slice(0, 10).replace(/-/g, "");
   const ks = due.map(({ row }) => Date.parse(row.kickoffUtc));
-  const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${L.espn}/scoreboard?dates=${ymd(Math.min(...ks) - 86_400_000)}-${ymd(Math.max(...ks) + 86_400_000)}&limit=400`;
-  const res = await fetch(url);
-  if (!res.ok) { console.error(`REFUSED: ESPN scoreboard HTTP ${res.status} — nothing graded`); process.exit(3); }
+  // v1.8 B4: month-window transport via the one shared owner (the range form answered 400 from 2026-09-20
+  // and this exit 3 stopped the whole soccer-leagues job before the forecasts step). Day bounds kept.
+  let events;
+  try { ({ events } = await fetchScoreboardWindowEvents(`soccer/${L.espn}`, utcDayStart(Math.min(...ks) - 86_400_000), utcDayEnd(Math.max(...ks) + 86_400_000))); }
+  catch (err) { console.error(`REFUSED: ESPN scoreboard ${err.message} — nothing graded`); process.exit(3); }
   const finals = new Map();
-  for (const e of (await res.json()).events ?? []) {
+  for (const e of events) {
     if (!e.status?.type?.completed) continue;
     const c = e.competitions?.[0]?.competitors ?? [];
     const h = c.find((x) => x.homeAway === "home"), a = c.find((x) => x.homeAway === "away");

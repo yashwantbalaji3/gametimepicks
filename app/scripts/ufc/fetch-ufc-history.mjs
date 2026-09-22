@@ -11,6 +11,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { fetchScoreboardWindowEvents, isProviderRefusal, utcDayStart, utcDayEnd } from "../../src/lib/sports/espn-scoreboard-window.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const RAW = path.resolve(APP, "..", "data", "internal", "research", "ufc", "raw");
@@ -24,7 +25,7 @@ for (let y = 2023; y <= 2026; y++) for (let m = 1; m <= 12; m++) {
   const mm = String(m).padStart(2, "0");
   let end = [4, 6, 9, 11].includes(m) ? 30 : m === 2 ? (y % 4 === 0 ? 29 : 28) : 31;
   if (y === 2026 && m === 8) end = 9;
-  windows.push({ file: `espn-${y}-${mm}.json`, range: `${y}${mm}01-${y}${mm}${end}` });
+  windows.push({ file: `espn-${y}-${mm}.json`, d0: utcDayStart(`${y}-${mm}-01T00:00:00Z`), d1: utcDayEnd(`${y}-${mm}-${String(end).padStart(2, "0")}T00:00:00Z`) });
 }
 
 fs.mkdirSync(RAW, { recursive: true });
@@ -32,11 +33,11 @@ let ok = 0, fetched = 0, failed = [];
 for (const w of windows) {
   const p = path.join(RAW, w.file);
   try { const d = JSON.parse(fs.readFileSync(p, "utf8")); if (Array.isArray(d.events)) { ok++; continue; } } catch { /* fetch below */ }
-  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${w.range}&limit=1000`);
-  const body = await res.text();
-  let good = false;
-  try { good = Array.isArray(JSON.parse(body).events); } catch { good = false; }
-  if (good) { fs.writeFileSync(p, body); ok++; fetched++; }
+  // v1.8 B4: month-window transport via the one shared owner (limit=1000 lives there). The raw file keeps
+  // the same shape ({ events }) and the same day-bounded window as the old range request.
+  let good = false, events = null;
+  try { ({ events } = await fetchScoreboardWindowEvents("mma/ufc", w.d0, w.d1)); good = Array.isArray(events); } catch { good = false; }
+  if (good) { fs.writeFileSync(p, JSON.stringify({ events })); ok++; fetched++; }
   else { failed.push(w.file); try { fs.unlinkSync(p); } catch { /* no stub */ } }
   await new Promise((r) => setTimeout(r, SPACING));
 }
