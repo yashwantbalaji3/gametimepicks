@@ -8,6 +8,8 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
 import { labelForSeasonType, populationForSeasonType, etDateOf, buildForecastArtifact, gradeForecastGame, summariseGrades, LABELS, DATA_CLASS } from "./experimental-forecast.mjs";
 
@@ -128,4 +130,52 @@ test("grading: winner Brier/log loss for Elo AND sim; minutes MAE and conditiona
   assert.equal(s[LABELS[2]].players.minutesMAE, null);
   assert.equal(s[LABELS[1]].winner.elo.n, 1);
   assert.equal(s[LABELS[2]].winner.sim.n, 1);
+});
+
+test("roster reconciliation (N-4, additive): arrivals/rookies listed as on-roster-without-history, departures as simulated-but-not-on-roster, MISSING roster recorded, pool UNCHANGED", () => {
+  const rosterTeam = (providerTeamId, tricode, ids, state = "CAPTURED") => ({ providerTeamId, espnAbbr: tricode, canonicalTricode: tricode, state, reason: state === "CAPTURED" ? null : "fetch failed: timeout", playerCount: state === "CAPTURED" ? ids.length : null, players: state === "CAPTURED" ? ids.map((id) => ({ providerAthleteId: id, displayName: `R${id}`, position: "G", experienceYears: 0, injuryStatus: null })) : null, refused: [] });
+  // TOR roster: t0..t5 stay, t6/t7 departed, rookie "rk1" + arrival "3032977" new. MIA roster: MISSING.
+  const rosters = { artifact: "nba-roster-capture", contractVersion: "nba-roster-contract-v1", asOf: "2026-09-22T06:08:44Z", capturedAt: "2026-09-22T06:08:44Z", teams: [rosterTeam(TOR, "TOR", ["t0", "t1", "t2", "t3", "t4", "t5", "rk1", "3032977"]), rosterTeam(MIA, "MIA", [], "MISSING")] };
+  const withR = build({ rosters, scheduleRows: [SCHED[0]] });
+  const without = build({ scheduleRows: [SCHED[0]] });
+  const g = withR.artifact.games[0], g0 = without.artifact.games[0];
+  assert.deepEqual(g.forecast.sim, g0.forecast.sim, "the simulated pool is unchanged by the roster (v0 rule)");
+  assert.equal(g.forecast.assumptions.availability.home.poolSize, g0.forecast.assumptions.availability.home.poolSize);
+  const h = g.home.rosterReconciliation;
+  assert.equal(h.state, "CAPTURED");
+  assert.equal(h.asOf, "2026-09-22T06:08:44Z");
+  assert.equal(h.rosterSize, 8);
+  assert.deepEqual(h.onRosterWithoutHistory.map((p) => p.providerAthleteId), ["rk1", "3032977"], "rookie and arrival have no TOR box-score row");
+  assert.deepEqual(h.simulatedButNotOnRoster.map((p) => p.providerAthleteId), ["t6", "t7"], "departures are still simulated at v0 and visibly listed");
+  assert.equal(h.simulatedOnRoster, 6);
+  assert.equal(g.away.rosterReconciliation.state, "MISSING");
+  assert.match(g.away.rosterReconciliation.reason, /timeout/);
+  assert.equal(withR.manifest.roster.provided, true);
+  assert.equal(withR.manifest.roster.playersOnRosterWithoutHistory, 2);
+  assert.equal(withR.manifest.roster.playersSimulatedButNotOnRoster, 2);
+  assert.deepEqual(withR.manifest.roster.teamsMissingRoster, [`Miami Heat (${MIA})`]);
+  assert.equal(withR.artifact.roster.asOf, "2026-09-22T06:08:44Z");
+  assert.equal(without.manifest.roster.provided, false, "no roster → absent, never zero");
+  assert.equal(g0.home.rosterReconciliation.state, "ABSENT");
+  assert.equal(withR.artifact.productEligible, false);
+});
+
+test("on-disk experimental artifacts (if any) keep the label, PRIVATE_RESEARCH class and productEligible:false; a preseason game never carries the regular label", () => {
+  const dir = path.resolve(process.cwd(), "..", "data", "internal", "research", "nba", "experimental", "forecasts");
+  if (!fs.existsSync(dir)) return;
+  const files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f));
+  for (const f of files) {
+    const a = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    assert.equal(a.productEligible, false, f);
+    assert.equal(a.dataClass, "PRIVATE_RESEARCH", f);
+    assert.match(a.neverReadBy ?? "", /app\/src\/app/, f);
+    for (const l of a.labels ?? []) assert.ok(Object.values(LABELS).includes(l), `${f}: unknown label ${l}`);
+    for (const g of a.games ?? []) {
+      assert.equal(g.label, labelForSeasonType(g.seasonType), `${f}/${g.providerEventId}: label must follow seasonType`);
+      assert.equal(g.population, populationForSeasonType(g.seasonType), f);
+      assert.equal(g.forecast.assumptions.minutes.home.population, g.population, `${f}: minutes population must match the game's population`);
+      assert.ok(Number.isFinite(g.forecast.simulations) && typeof g.forecast.seed === "string", `${f}: reproducibility fields`);
+      for (const side of ["home", "away"]) for (const p of g.forecast.players[side] ?? []) assert.ok(Number.isFinite(p.expectedMinutes) && Number.isFinite(p.minutesSd), `${f}: every simulated player carries expected minutes AND uncertainty`);
+    }
+  }
 });

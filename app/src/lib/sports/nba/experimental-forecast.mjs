@@ -13,10 +13,16 @@
  *     samples in separate buckets; a preseason record is never regular-season validation.
  *   - The artifact is internal research: productEligible:false, dataClass PRIVATE_RESEARCH,
  *     and a `neverReadBy` note. Nothing here is imported by app/src/app/**.
+ *   - ROSTER RECONCILIATION (N-4, additive, v0 pool UNCHANGED): when a roster capture is passed,
+ *     every side records who is on the current roster but has no box-score history (rookies,
+ *     arrivals) and who is in the simulated pool but no longer on the roster (departures). The
+ *     numbers are diagnostics stamped with the roster's asOf; the simulated pool is still the v0
+ *     "appeared in a box score" pool, so the gap is measured, not hidden and not yet closed.
  */
 import { buildTeamRatings, ratingFor, winProbability, seasonOfDate } from "./team-rating.mjs";
 import { expectedMinutes } from "./minutes-model.mjs";
 import { simulateGame, DEFAULT_SIMULATIONS, NBA_SIM_MODEL_VERSION } from "./game-sim.mjs";
+import { rosterForTeam } from "./roster-contract.mjs";
 
 export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
 export const FORECAST_SCHEMA_VERSION = 1;
@@ -45,6 +51,36 @@ export function etDateOf(iso) {
 }
 
 /**
+ * Reconcile one team's simulated pool (minutes-model rows) against the roster capture. Pure.
+ * Returns { state: "ABSENT" } when no roster was passed, { state: "MISSING", reason } when the
+ * team's roster was not captured, else the three lists. Never changes the pool.
+ */
+export function reconcileRoster(rosters, providerTeamId, minutesResult) {
+  if (!rosters) return { state: "ABSENT", asOf: null };
+  const team = rosterForTeam(rosters, providerTeamId);
+  if (!team) {
+    const missing = (rosters.teams ?? []).find((t) => String(t.providerTeamId) === String(providerTeamId));
+    return { state: "MISSING", asOf: rosters.asOf ?? rosters.capturedAt ?? null, reason: missing?.reason ?? "team not in roster capture" };
+  }
+  const rows = Array.isArray(minutesResult?.rows) ? minutesResult.rows : [];
+  const history = new Map(rows.map((r) => [String(r.providerAthleteId), r]));
+  const onRoster = new Set(team.players.map((p) => String(p.providerAthleteId)));
+  const onRosterWithoutHistory = team.players.filter((p) => !history.has(String(p.providerAthleteId)))
+    .map((p) => ({ providerAthleteId: String(p.providerAthleteId), name: p.displayName, position: p.position ?? null, experienceYears: p.experienceYears ?? null, injuryStatus: p.injuryStatus ?? null }));
+  const simulatedButNotOnRoster = rows.filter((r) => !onRoster.has(String(r.providerAthleteId)))
+    .map((r) => ({ providerAthleteId: String(r.providerAthleteId), name: r.name ?? null, expectedMinutes: r.expectedMinutes ?? null, availability: r.availability ?? null, basis: r.basis ?? null }));
+  return {
+    state: "CAPTURED",
+    asOf: rosters.asOf ?? rosters.capturedAt ?? null,
+    rosterSize: team.playerCount,
+    simulatedOnRoster: rows.length - simulatedButNotOnRoster.length,
+    onRosterWithoutHistory,
+    simulatedButNotOnRoster,
+    poolRule: "v0: pool = box-score history; roster reconciled, not applied",
+  };
+}
+
+/**
  * Build the forecast artifact for one ET date. Pure given already-loaded inputs.
  *
  * @param date          YYYY-MM-DD (ET)
@@ -53,8 +89,9 @@ export function etDateOf(iso) {
  * @param corpusRows    corpus-v1 rows[]
  * @param boxscores     box-score docs[]
  * @param injuries      injuries feed entries[] (null → availability unknown)
+ * @param rosters       roster capture artifact (roster-parse.mjs) or null → reconciliation absent, never guessed
  */
-export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, boxscores, injuries = null, simulations = DEFAULT_SIMULATIONS }) {
+export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, boxscores, injuries = null, rosters = null, simulations = DEFAULT_SIMULATIONS }) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date))) throw new Error("REFUSED: --date YYYY-MM-DD required");
   if (typeof now !== "string" || !Number.isFinite(Date.parse(now))) throw new Error("REFUSED: --now ISO required");
 
@@ -75,6 +112,11 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     minutesBasisCounts: { trailing10: 0, season: 0, insufficient: 0 },
     poolRateSubstitutions: 0, defaultSdSubstitutions: 0,
     gamesAlreadyStartedAtNow: 0,
+    roster: rosters ? {
+      provided: true, asOf: rosters.asOf ?? rosters.capturedAt ?? null, contractVersion: rosters.contractVersion ?? null,
+      teamsMissingRoster: [], playersOnRosterWithoutHistory: 0, playersSimulatedButNotOnRoster: 0, playersSimulatedOnRoster: 0,
+      poolRule: "v0: the simulated pool is still box-score history; roster is reconciled, not applied",
+    } : { provided: false, asOf: null, contractVersion: null, poolRule: "no roster capture passed — reconciliation absent (not zero)" },
   };
   const noteTeam = (list, name) => { if (!list.includes(name)) list.push(name); };
 
@@ -99,7 +141,16 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
         if (p.basis === "insufficient") manifest.playersInsufficient += 1;
       }
       for (const u of minutes.unmatchedInjuries) manifest.playersUnknownToHistory.push({ team: name, providerTeamId: String(s?.providerTeamId), ...u });
-      return { name, abbr: s?.abbr ?? null, providerTeamId: String(s?.providerTeamId), rating, minutes };
+      const rosterReconciliation = reconcileRoster(rosters, String(s?.providerTeamId), minutes);
+      if (rosters) {
+        if (rosterReconciliation.state === "MISSING") noteTeam(manifest.roster.teamsMissingRoster, `${name} (${s?.providerTeamId})`);
+        else {
+          manifest.roster.playersOnRosterWithoutHistory += rosterReconciliation.onRosterWithoutHistory.length;
+          manifest.roster.playersSimulatedButNotOnRoster += rosterReconciliation.simulatedButNotOnRoster.length;
+          manifest.roster.playersSimulatedOnRoster += rosterReconciliation.simulatedOnRoster;
+        }
+      }
+      return { name, abbr: s?.abbr ?? null, providerTeamId: String(s?.providerTeamId), rating, minutes, rosterReconciliation };
     };
     const home = side(row.home);
     const away = side(row.away);
@@ -112,8 +163,8 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
       providerEventId: String(row.providerEventId),
       label, seasonType: row.seasonType, population,
       dateUtc: row.dateUtc, etDate: date, neutralSite: row.neutralSite === true, venue: row.venue ?? null,
-      home: { name: home.name, abbr: home.abbr, providerTeamId: home.providerTeamId, rating: home.rating, minutesModel: { modelVersion: home.minutes.modelVersion, seasonUsed: home.minutes.seasonUsed, teamGamesInSeason: home.minutes.teamGamesInSeason, teamGamesInWindow: home.minutes.teamGamesInWindow, windowFromDateUtc: home.minutes.windowFromDateUtc, windowToDateUtc: home.minutes.windowToDateUtc } },
-      away: { name: away.name, abbr: away.abbr, providerTeamId: away.providerTeamId, rating: away.rating, minutesModel: { modelVersion: away.minutes.modelVersion, seasonUsed: away.minutes.seasonUsed, teamGamesInSeason: away.minutes.teamGamesInSeason, teamGamesInWindow: away.minutes.teamGamesInWindow, windowFromDateUtc: away.minutes.windowFromDateUtc, windowToDateUtc: away.minutes.windowToDateUtc } },
+      home: { name: home.name, abbr: home.abbr, providerTeamId: home.providerTeamId, rating: home.rating, minutesModel: { modelVersion: home.minutes.modelVersion, seasonUsed: home.minutes.seasonUsed, teamGamesInSeason: home.minutes.teamGamesInSeason, teamGamesInWindow: home.minutes.teamGamesInWindow, windowFromDateUtc: home.minutes.windowFromDateUtc, windowToDateUtc: home.minutes.windowToDateUtc }, rosterReconciliation: home.rosterReconciliation },
+      away: { name: away.name, abbr: away.abbr, providerTeamId: away.providerTeamId, rating: away.rating, minutesModel: { modelVersion: away.minutes.modelVersion, seasonUsed: away.minutes.seasonUsed, teamGamesInSeason: away.minutes.teamGamesInSeason, teamGamesInWindow: away.minutes.teamGamesInWindow, windowFromDateUtc: away.minutes.windowFromDateUtc, windowToDateUtc: away.minutes.windowToDateUtc }, rosterReconciliation: away.rosterReconciliation },
       forecast: sim,
     });
     manifest.gamesForecast += 1;
@@ -131,6 +182,7 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     date,
     labels: [...new Set(games.map((g) => g.label))].sort(),
     ratings: { params: ratings.params, targetSeason: ratings.targetSeason, boundaryRegressionApplied: ratings.boundaryRegressionApplied, folded: ratings.folded, lastFoldedDateUtc: ratings.lastFoldedDateUtc },
+    roster: manifest.roster,
     games,
     manifest,
   };

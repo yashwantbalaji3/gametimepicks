@@ -31,6 +31,7 @@ const CORPUS = path.join(NBA, "corpus-v1.json");
 const BOXSCORES = path.join(NBA, "boxscores");
 const SCHEDULE = path.join(APP, "public", "data", "nba", "schedule", "latest.json");
 const INJURIES = path.join(RESEARCH, "injuries", "nba", "latest.json");
+const ROSTERS = path.join(NBA, "rosters", "latest.json");
 const OUT_DIR = path.join(NBA, "experimental", "forecasts");
 
 const argv = process.argv.slice(2);
@@ -49,6 +50,7 @@ const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
 const corpus = readJson(CORPUS);
 const schedule = readJson(SCHEDULE);
 const injuries = fs.existsSync(INJURIES) ? readJson(INJURIES) : null;
+const rosters = fs.existsSync(ROSTERS) ? readJson(ROSTERS) : null;
 const boxscores = fs.readdirSync(BOXSCORES)
   .filter((f) => /^\d+\.json$/.test(f))
   .map((f) => readJson(path.join(BOXSCORES, f)));
@@ -56,13 +58,14 @@ const boxscores = fs.readdirSync(BOXSCORES)
 const { artifact, manifest } = buildForecastArtifact({
   date: DATE, now: NOW,
   scheduleRows: schedule.rows ?? [], corpusRows: corpus.rows ?? [], boxscores,
-  injuries: injuries?.entries ?? null, simulations: SIMS,
+  injuries: injuries?.entries ?? null, rosters, simulations: SIMS,
 });
 artifact.inputs = {
   corpus: { file: "corpus-v1.json", generatedAt: corpus.generatedAt ?? null, rows: (corpus.rows ?? []).length },
   boxscores: { dir: "boxscores/", docs: boxscores.length },
   schedule: { file: "app/public/data/nba/schedule/latest.json", generatedAt: schedule.generatedAt ?? null, rows: (schedule.rows ?? []).length },
   injuries: injuries ? { file: "injuries/nba/latest.json", generatedAt: injuries.generatedAt ?? null, sourceAsOf: injuries.sourceAsOf ?? null, entries: (injuries.entries ?? []).length } : null,
+  rosters: rosters ? { file: "rosters/latest.json", asOf: rosters.asOf ?? null, contractVersion: rosters.contractVersion ?? null, teamsCaptured: rosters.manifest?.teamsCaptured ?? null, players: rosters.manifest?.players ?? null } : null,
 };
 
 console.log(`NBA experimental forecasts · ${DATE} · now ${NOW} · sims ${SIMS}`);
@@ -75,6 +78,14 @@ for (const g of artifact.games) {
 console.log(` players: expectedMinutes ${manifest.playersWithExpectedMinutes} · out ${manifest.playersOut} · noMinutes ${manifest.playersNoMinutes} · basis ${JSON.stringify(manifest.minutesBasisCounts)}`);
 console.log(` unknown-to-history (injuries): ${manifest.playersUnknownToHistory.length} · teams w/o boxscore history: ${manifest.teamsWithoutBoxscoreHistory.length} · w/o rating: regular ${manifest.teamsWithoutRegularHistory.length} preseason ${manifest.teamsWithoutPreseasonHistory.length}`);
 console.log(` substitutions: pool-rate ${manifest.poolRateSubstitutions} · default-sd ${manifest.defaultSdSubstitutions}`);
+console.log(` roster: ${manifest.roster.provided ? `asOf ${manifest.roster.asOf} · on roster w/o history ${manifest.roster.playersOnRosterWithoutHistory} · simulated but not on roster ${manifest.roster.playersSimulatedButNotOnRoster} · teams missing ${manifest.roster.teamsMissingRoster.length}` : "not provided (rosters/latest.json absent)"}`);
+
+// NO-OP IS NOT A FAILURE: a date with no NBA game on the schedule writes nothing and exits 0 with an
+// explicit state line, so the workflow's BUILT/FAILED split stays meaningful (FAILED = exit 1 above).
+if (manifest.gamesOnSchedule === 0) {
+  console.log(`state=NO_GAMES · ${DATE} has no NBA game on the schedule capture — nothing written (exit 0)`);
+  process.exit(0);
+}
 
 if (WRITE) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
