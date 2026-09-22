@@ -1,0 +1,2416 @@
+{
+  "schema": "gtp.results-projection.v1",
+  "artifact": "results-projection",
+  "dataClass": "PUBLIC_DERIVED",
+  "builtAt": "2026-09-22T18:00:00Z",
+  "rules": {
+    "pending": "a count, never a loss, never inside a W–L",
+    "pushVoid": "counts beside the record, never decisive",
+    "missing": "null — a count the owner does not carry is never 0; a recorded 0 is a 0",
+    "eras": "typed; two eras are never summed; a COMPOSITE cell carries its composition; no cross-family total exists or may be derived",
+    "forecasts": "none — this projection owns no probability and no forecast"
+  },
+  "sources": [
+    {
+      "key": "portfolio",
+      "present": true,
+      "path": "mr-dub/portfolio.json",
+      "generatedAt": "2026-07-07T18:00:00Z"
+    },
+    {
+      "key": "bankedLadders",
+      "present": true,
+      "path": "mr-dub/banked-ladders.json",
+      "generatedAt": "2026-06-25T16:00:00Z"
+    },
+    {
+      "key": "moonshotLedger",
+      "present": true,
+      "path": "product-ledger/moonshot.json",
+      "generatedAt": null
+    },
+    {
+      "key": "gradedPicks.mlb",
+      "present": true,
+      "path": "mlb/graded-picks.json",
+      "generatedAt": "2026-09-22T14:11:38Z"
+    },
+    {
+      "key": "gradedPicks.nfl",
+      "present": true,
+      "path": "nfl/graded-picks.json",
+      "generatedAt": "2026-09-22T14:11:38Z"
+    },
+    {
+      "key": "gradedPicks.ufc",
+      "present": true,
+      "path": "ufc/graded-picks.json",
+      "generatedAt": "2026-09-22T14:11:38Z"
+    },
+    {
+      "key": "gradedPicks.epl",
+      "present": true,
+      "path": "epl/graded-picks.json",
+      "generatedAt": "2026-09-22T14:11:38Z"
+    },
+    {
+      "key": "mlbLifetime",
+      "present": true,
+      "path": "mlb/results/lifetime_summary.json",
+      "generatedAt": "2026-09-22T14:10:47.846303+00:00"
+    },
+    {
+      "key": "nbaLifetime",
+      "present": true,
+      "path": "results/lifetime_summary.json",
+      "generatedAt": "2026-09-22T14:10:46+00:00"
+    },
+    {
+      "key": "riskLadder",
+      "present": true,
+      "path": "parlays/risk-ladder/latest.json",
+      "generatedAt": "2026-09-22T14:11:39Z"
+    },
+    {
+      "key": "labLedger",
+      "present": true,
+      "path": "parlays/lab-ledger.json",
+      "generatedAt": "2026-09-22T15:44:19Z"
+    },
+    {
+      "key": "modelHealth",
+      "present": true,
+      "path": "admin/model-health.json",
+      "generatedAt": "2026-09-22T14:12:22Z"
+    },
+    {
+      "key": "cycleTable",
+      "present": true,
+      "path": "data/internal/products/cycle-table/latest.json",
+      "generatedAt": "2026-09-22T06:02:04.282Z"
+    },
+    {
+      "key": "receipts",
+      "present": true,
+      "path": "mr-dub/settled/<date>.json",
+      "generatedAt": "2026-09-22T09:57:28Z",
+      "count": 38
+    }
+  ],
+  "headline": {
+    "byFamily": {
+      "product": "product:-:bank-builder:COMPOSITE:protected-record",
+      "forecast": "forecast:mlb:-:LIVE_LEDGER:lifetime-summary",
+      "lab": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-overall",
+      "cycle": null,
+      "model-family": null
+    },
+    "byProduct": {
+      "bank-builder": "product:-:bank-builder:COMPOSITE:protected-record",
+      "moonshot": "product:-:moonshot:RECEIPT_ERA:-",
+      "parlay-lab": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-overall"
+    },
+    "bySport": {
+      "mlb": "forecast:mlb:-:LIVE_LEDGER:lifetime-summary",
+      "nfl": "forecast:nfl:-:LIVE_LEDGER:graded-picks",
+      "ufc": "forecast:ufc:-:LIVE_LEDGER:graded-picks",
+      "epl": "forecast:epl:-:LIVE_LEDGER:graded-picks",
+      "nba": "forecast:nba:-:HISTORICAL_ONLY:lifetime-summary"
+    }
+  },
+  "cells": [
+    {
+      "cellId": "product:-:bank-builder:PROTECTED_BASE:-",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "bank-builder",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": null,
+      "era": "PROTECTED_BASE",
+      "n": 33,
+      "counts": {
+        "won": 19,
+        "lost": 14,
+        "pending": 0,
+        "push": null,
+        "void": 0
+      },
+      "decisive": 33,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/portfolio.json",
+        "generatedAt": "2026-09-22T09:57:29Z",
+        "stampField": "protectedFold.foldedAt"
+      },
+      "window": {
+        "from": "2026-06-09",
+        "to": "2026-07-07"
+      },
+      "status": "FROZEN",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "era component of the protected record — shown beside the composite as its base, never alone as the current record"
+      },
+      "semantics": "The July-7 protected base (multi-sport operator era). Frozen in protected-fold.mjs PROTECTED_BASE; only won/lost enter W–L; voids carried by the owner; push not carried.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:bank-builder:RECEIPT_ERA:-",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "bank-builder",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": "Rule S",
+      "era": "RECEIPT_ERA",
+      "n": 38,
+      "counts": {
+        "won": 17,
+        "lost": 21,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": 38,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/portfolio.json",
+        "generatedAt": "2026-09-22T09:57:29Z",
+        "stampField": "protectedFold.foldedAt"
+      },
+      "window": {
+        "from": "2026-08-15",
+        "to": "2026-09-21"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "era component of the protected record — the Rule S fold of the nightly receipts"
+      },
+      "semantics": "Σ protectedFold.days bankBuilder.won/lost. A day folds only when every PLACED lane is decided; pending is never inside. The fold tallies won and lost only (void/push not carried here; the receipts carry them in crossCheck).",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": {
+        "won": 17,
+        "lost": 21,
+        "void": 0,
+        "push": 0,
+        "receipts": 38,
+        "source": "mr-dub/settled/<date>.json"
+      },
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:bank-builder:COMPOSITE:protected-record",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "bank-builder",
+      "market": null,
+      "segment": "protected-record",
+      "modelOrPolicyVersion": "Rule S",
+      "era": "COMPOSITE",
+      "n": 71,
+      "counts": {
+        "won": 36,
+        "lost": 35,
+        "pending": 0,
+        "push": null,
+        "void": 0
+      },
+      "decisive": 71,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/portfolio.json",
+        "generatedAt": "2026-09-22T09:57:29Z",
+        "stampField": "protectedFold.foldedAt"
+      },
+      "window": {
+        "from": "2026-06-09",
+        "to": "2026-09-21"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "the protected Bank Builder record; a blended figure shown only with its era composition beside it"
+      },
+      "semantics": "portfolio.record — the official Bank Builder paper record (July base + Rule S fold). Only won/lost enter W–L; pending 0 by construction of the fold; voids carried; push not carried by the owner. Bank Builder only: Moonshot's record is on its own line.",
+      "composition": [
+        {
+          "era": "PROTECTED_BASE",
+          "cellId": "product:-:bank-builder:PROTECTED_BASE:-",
+          "counts": {
+            "won": 19,
+            "lost": 14,
+            "pending": 0,
+            "push": null,
+            "void": 0
+          },
+          "window": {
+            "from": "2026-06-09",
+            "to": "2026-07-07"
+          }
+        },
+        {
+          "era": "RECEIPT_ERA",
+          "cellId": "product:-:bank-builder:RECEIPT_ERA:-",
+          "counts": {
+            "won": 17,
+            "lost": 21,
+            "pending": null,
+            "push": null,
+            "void": null
+          },
+          "window": {
+            "from": "2026-08-15",
+            "to": "2026-09-21"
+          }
+        }
+      ],
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:bank-builder:UNRECEIPTED_GAP:-",
+      "recordType": "ERA_GAP",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "bank-builder",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": null,
+      "era": "UNRECEIPTED_GAP",
+      "n": null,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/portfolio.json",
+        "generatedAt": "2026-09-22T09:57:29Z",
+        "stampField": "protectedFold.foldedAt"
+      },
+      "window": {
+        "from": "2026-07-08",
+        "to": "2026-08-14"
+      },
+      "status": "DISCLOSED_GAP",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "a disclosed gap — render as a gap in the timeline, never as a number"
+      },
+      "semantics": "No receipt and no fold day covers these dates (V19 C8). The July base closes at protectedFold.base.asOf; the first folded receipt is protectedFold.days[0]. Whatever was placed in between is not in the protected record and is not reconstructed here.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:bank-builder:PENDING_SETTLEMENT:-",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "bank-builder",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": null,
+      "era": "PENDING_SETTLEMENT",
+      "n": null,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": 0,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/settled/<date>.json",
+        "generatedAt": "2026-09-22T09:57:28Z",
+        "stampField": "settledAt"
+      },
+      "window": {
+        "from": "2026-09-21",
+        "to": "2026-09-21"
+      },
+      "status": "PENDING",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "a pending count — never inside a W–L"
+      },
+      "semantics": "Placed lanes (status active) whose receipt result is still pending, on receipts dated after protectedFold.foldedThrough. Today's placed lanes live in mr-dub/daily-portfolio.json, which is not an owner of this projection. Pending is never a loss.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:moonshot:PENDING_SETTLEMENT:-",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "moonshot",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": null,
+      "era": "PENDING_SETTLEMENT",
+      "n": null,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": 0,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/settled/<date>.json",
+        "generatedAt": "2026-09-22T09:57:28Z",
+        "stampField": "settledAt"
+      },
+      "window": {
+        "from": "2026-09-21",
+        "to": "2026-09-21"
+      },
+      "status": "PENDING",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "a pending count — never inside a W–L"
+      },
+      "semantics": "Placed lanes (status active) whose receipt result is still pending, on receipts dated after protectedFold.foldedThrough. Today's placed lanes live in mr-dub/daily-portfolio.json, which is not an owner of this projection. Pending is never a loss.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:moonshot:RECEIPT_ERA:-",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "moonshot",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": "Rule S",
+      "era": "RECEIPT_ERA",
+      "n": 37,
+      "counts": {
+        "won": 4,
+        "lost": 33,
+        "pending": 0,
+        "push": null,
+        "void": 0
+      },
+      "decisive": 37,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/portfolio.json",
+        "generatedAt": "2026-09-22T09:57:29Z",
+        "stampField": "protectedFold.foldedAt"
+      },
+      "window": {
+        "from": "2026-08-15",
+        "to": "2026-09-21"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "the current Moonshot record — settled receipts since the product entered the protected bankroll"
+      },
+      "semantics": "portfolio.moonshot.record — every Moonshot lane settled since inBankrollSince, graded nightly from the official box score, folded under Rule S. Kept on its own line; never summed with Bank Builder and never with the June legacy ledger.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": {
+        "won": 4,
+        "lost": 33,
+        "void": 0,
+        "push": 0,
+        "receipts": 38,
+        "source": "mr-dub/settled/<date>.json"
+      },
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:moonshot:PROTECTED_BASE:legacy-card",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "moonshot",
+      "market": null,
+      "segment": "legacy-card",
+      "modelOrPolicyVersion": null,
+      "era": "PROTECTED_BASE",
+      "n": 1,
+      "counts": {
+        "won": 0,
+        "lost": 1,
+        "pending": 0,
+        "push": null,
+        "void": 0
+      },
+      "decisive": 1,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/portfolio.json",
+        "generatedAt": "2026-09-22T09:57:29Z",
+        "stampField": "protectedFold.foldedAt"
+      },
+      "window": {
+        "from": null,
+        "to": "2026-07-07"
+      },
+      "status": "FROZEN",
+      "displayEligible": {
+        "eligible": false,
+        "reason": "a single pre-fold card kept inside the July base as history — not a product record"
+      },
+      "semantics": "portfolio.moonshot.legacy.record — the one stopped Moonshot card of the July-7 base. The owner carries no start date for it (window.from null).",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:moonshot:LEGACY_PRODUCT_LEDGER:-",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "moonshot",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": null,
+      "era": "LEGACY_PRODUCT_LEDGER",
+      "n": 7,
+      "counts": {
+        "won": 0,
+        "lost": 7,
+        "pending": 0,
+        "push": null,
+        "void": null
+      },
+      "decisive": 7,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "product-ledger/moonshot.json",
+        "generatedAt": null,
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-06-23",
+        "to": "2026-07-06"
+      },
+      "status": "FROZEN",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "the June 2026 legacy era — labelled as legacy, never the current headline, never summed with the receipt era"
+      },
+      "semantics": "product-ledger/moonshot.json rows counted by outcome (the same rule moonshot-state.mjs and read-model.mjs use): won/lost by outcome word, an undecided row is pending. No wired settler; a closed ledger.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:moonshot:UNRECEIPTED_GAP:-",
+      "recordType": "ERA_GAP",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "moonshot",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": null,
+      "era": "UNRECEIPTED_GAP",
+      "n": null,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/portfolio.json",
+        "generatedAt": "2026-09-22T09:57:29Z",
+        "stampField": "protectedFold.foldedAt"
+      },
+      "window": {
+        "from": "2026-07-07",
+        "to": "2026-08-14"
+      },
+      "status": "DISCLOSED_GAP",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "a disclosed gap — render as a gap, never as a number"
+      },
+      "semantics": "Between the last June ledger row and the first receipt-era day no Moonshot owner carries an outcome. Not reconstructed.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:bank-builder:LEDGER_ONLY:ladder-1",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "bank-builder",
+      "market": null,
+      "segment": "ladder-1",
+      "modelOrPolicyVersion": null,
+      "era": "LEDGER_ONLY",
+      "n": 5,
+      "counts": {
+        "won": 5,
+        "lost": 0,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": 5,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/banked-ladders.json",
+        "generatedAt": "2026-06-25T16:00:00Z",
+        "stampField": "bankedAt"
+      },
+      "window": {
+        "from": "2026-06-09",
+        "to": "2026-06-13"
+      },
+      "status": "FROZEN",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "a completed June ladder from the banked ledger — its own cell, labelled by ladder; never merged with the protected record or the receipt cycles"
+      },
+      "semantics": "Road to $10K — original crown ladder: steps are ledger events from the June operator process (multi-sport), not nightly receipts. W–L counts the ladder's steps. Settlement as the owner describes it: bank-builder/public-ledger-latest.json.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:bank-builder:LEDGER_ONLY:ladder-2",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "bank-builder",
+      "market": null,
+      "segment": "ladder-2",
+      "modelOrPolicyVersion": null,
+      "era": "LEDGER_ONLY",
+      "n": 5,
+      "counts": {
+        "won": 5,
+        "lost": 0,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": 5,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/banked-ladders.json",
+        "generatedAt": "2026-06-25T16:00:00Z",
+        "stampField": "bankedAt"
+      },
+      "window": {
+        "from": "2026-06-18",
+        "to": "2026-06-24"
+      },
+      "status": "FROZEN",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "a completed June ladder from the banked ledger — its own cell, labelled by ladder; never merged with the protected record or the receipt cycles"
+      },
+      "semantics": "Dual Bank Builder Lane A — second $100→$10k: steps are ledger events from the June operator process (multi-sport), not nightly receipts. W–L counts the ladder's steps. Settlement as the owner describes it: API-Football v3 /fixtures (FT regulation).",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "product:-:bank-builder:LEDGER_ONLY:historical-record-2026-06-25",
+      "recordType": "PRODUCT_RECORD",
+      "family": "product",
+      "recordFamilyId": "official-paper-record",
+      "sport": null,
+      "product": "bank-builder",
+      "market": null,
+      "segment": "historical-record-2026-06-25",
+      "modelOrPolicyVersion": null,
+      "era": "LEDGER_ONLY",
+      "n": 16,
+      "counts": {
+        "won": 13,
+        "lost": 3,
+        "pending": 0,
+        "push": null,
+        "void": 0
+      },
+      "decisive": 16,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "mr-dub/banked-ladders.json",
+        "generatedAt": "2026-06-25T16:00:00Z",
+        "stampField": "bankedAt"
+      },
+      "window": {
+        "from": "2026-06-09",
+        "to": "2026-06-25"
+      },
+      "status": "SUPERSEDED",
+      "displayEligible": {
+        "eligible": false,
+        "reason": "an earlier snapshot of the same population the July-7 protected base restates — superseded, kept for replay"
+      },
+      "semantics": "banked-ladders.historicalRecord as of bankedAt. The protected base (PROTECTED_BASE) is the later snapshot of the same product; this one is never shown as a current figure.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "forecast:mlb:-:LIVE_LEDGER:lifetime-summary",
+      "recordType": "FORECAST_RECORD",
+      "family": "forecast",
+      "recordFamilyId": "public-sim-accuracy",
+      "sport": "mlb",
+      "product": null,
+      "market": "player-props",
+      "segment": "lifetime-summary",
+      "modelOrPolicyVersion": null,
+      "era": "LIVE_LEDGER",
+      "n": 45655,
+      "counts": {
+        "won": 22938,
+        "lost": 22717,
+        "pending": null,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 45655,
+      "hitRate": 0.5024,
+      "ownerState": "partial (pending dates: 2026-06-16)",
+      "owner": {
+        "path": "mlb/results/lifetime_summary.json",
+        "generatedAt": "2026-09-22T14:10:47.846303+00:00",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-05-16",
+        "to": "2026-09-21"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "lean hit rate with n — a model-performance ledger, never called a win rate, never part of a product record"
+      },
+      "semantics": "mlb/results/lifetime_summary.json: decisive = wins + losses over the official-box-score settled leans; pushes counted separately (owner). The owner does not name voided leans (void null) — totalSettled − decisive − pushes is what graded-picks calls voided.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": "forecast:mlb:-:LIVE_LEDGER:graded-picks"
+    },
+    {
+      "cellId": "forecast:mlb:-:LIVE_LEDGER:graded-picks",
+      "recordType": "FORECAST_RECORD",
+      "family": "forecast",
+      "recordFamilyId": "public-sim-accuracy",
+      "sport": "mlb",
+      "product": null,
+      "market": null,
+      "segment": "graded-picks",
+      "modelOrPolicyVersion": null,
+      "era": "LIVE_LEDGER",
+      "n": 48448,
+      "counts": {
+        "won": 22938,
+        "lost": 22717,
+        "pending": 0,
+        "push": null,
+        "void": 2793
+      },
+      "decisive": 45655,
+      "hitRate": 0.5024,
+      "ownerState": "ASSESSABLE",
+      "owner": {
+        "path": "mlb/graded-picks.json",
+        "generatedAt": "2026-09-22T14:11:38Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "counts always; the rate only when the owner's sampleState is ASSESSABLE or EMERGING (owner rule; now ASSESSABLE)"
+      },
+      "semantics": "Player-prop projections: the model's over/under lean against the book's line, graded from the official box score. hits/misses/voided copied from graded-picks.counts; pending = total − counted − voided (the read-model's rule). The owner carries no date window (window null). Caveat from the owner: A model-performance record, independent of the paper bankroll. It shares no row with the settled money record on /results.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": "forecast:mlb:-:LIVE_LEDGER:lifetime-summary"
+    },
+    {
+      "cellId": "forecast:nfl:-:LIVE_LEDGER:graded-picks",
+      "recordType": "FORECAST_RECORD",
+      "family": "forecast",
+      "recordFamilyId": "public-sim-accuracy",
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "graded-picks",
+      "modelOrPolicyVersion": null,
+      "era": "LIVE_LEDGER",
+      "n": 61,
+      "counts": {
+        "won": 32,
+        "lost": 27,
+        "pending": 0,
+        "push": null,
+        "void": 2
+      },
+      "decisive": 59,
+      "hitRate": 0.5424,
+      "ownerState": "EMERGING",
+      "owner": {
+        "path": "nfl/graded-picks.json",
+        "generatedAt": "2026-09-22T14:11:38Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "counts always; the rate only when the owner's sampleState is ASSESSABLE or EMERGING (owner rule; now EMERGING)"
+      },
+      "semantics": "Preseason game forecasts: which side the model favoured, graded against the official final. hits/misses/voided copied from graded-picks.counts; pending = total − counted − voided (the read-model's rule). The owner carries no date window (window null). Caveat from the owner: EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "forecast:ufc:-:LIVE_LEDGER:graded-picks",
+      "recordType": "FORECAST_RECORD",
+      "family": "forecast",
+      "recordFamilyId": "public-sim-accuracy",
+      "sport": "ufc",
+      "product": null,
+      "market": null,
+      "segment": "graded-picks",
+      "modelOrPolicyVersion": null,
+      "era": "LIVE_LEDGER",
+      "n": 41,
+      "counts": {
+        "won": 25,
+        "lost": 16,
+        "pending": 0,
+        "push": null,
+        "void": 0
+      },
+      "decisive": 41,
+      "hitRate": 0.6098,
+      "ownerState": "EMERGING",
+      "owner": {
+        "path": "ufc/graded-picks.json",
+        "generatedAt": "2026-09-22T14:11:38Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "counts always; the rate only when the owner's sampleState is ASSESSABLE or EMERGING (owner rule; now EMERGING)"
+      },
+      "semantics": "Fight-winner picks: the model's chosen fighter and its probability, graded against the official result. hits/misses/voided copied from graded-picks.counts; pending = total − counted − voided (the read-model's rule). The owner carries no date window (window null). Caveat from the owner: The market's own de-vigged probability for the same bout is shown alongside. This is the only sport here where the two are recorded together.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "forecast:epl:-:LIVE_LEDGER:graded-picks",
+      "recordType": "FORECAST_RECORD",
+      "family": "forecast",
+      "recordFamilyId": "public-sim-accuracy",
+      "sport": "epl",
+      "product": null,
+      "market": null,
+      "segment": "graded-picks",
+      "modelOrPolicyVersion": null,
+      "era": "LIVE_LEDGER",
+      "n": 36,
+      "counts": {
+        "won": 15,
+        "lost": 21,
+        "pending": 0,
+        "push": null,
+        "void": 0
+      },
+      "decisive": 36,
+      "hitRate": 0.4167,
+      "ownerState": "EMERGING",
+      "owner": {
+        "path": "epl/graded-picks.json",
+        "generatedAt": "2026-09-22T14:11:38Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "counts always; the rate only when the owner's sampleState is ASSESSABLE or EMERGING (owner rule; now EMERGING)"
+      },
+      "semantics": "Match-result forecasts: the outcome the model gave the most probability to, graded against the official full-time score. hits/misses/voided copied from graded-picks.counts; pending = total − counted − voided (the read-model's rule). The owner carries no date window (window null). Caveat from the owner: This model has cleared no preregistered bar and publishes distributions rather than picks — the 'predicted' column is simply its likeliest outcome.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "forecast:nba:-:HISTORICAL_ONLY:lifetime-summary",
+      "recordType": "FORECAST_RECORD",
+      "family": "forecast",
+      "recordFamilyId": "public-sim-accuracy",
+      "sport": "nba",
+      "product": null,
+      "market": "player-props",
+      "segment": "lifetime-summary",
+      "modelOrPolicyVersion": null,
+      "era": "HISTORICAL_ONLY",
+      "n": 3635,
+      "counts": {
+        "won": 1784,
+        "lost": 1851,
+        "pending": null,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 3635,
+      "hitRate": 0.4907840440165062,
+      "ownerState": null,
+      "owner": {
+        "path": "results/lifetime_summary.json",
+        "generatedAt": "2026-09-22T14:10:46+00:00",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-05-15",
+        "to": "2026-06-13"
+      },
+      "status": "FROZEN",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "historical only — the window is printed with the number; no NBA lean has settled since newestDate"
+      },
+      "semantics": "results/lifetime_summary.json (NBA): decisive = wins + losses, pushes excluded and counted separately. Frozen at the end of the 2025-26 playoffs.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-overall",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": null,
+      "product": "parlay-lab",
+      "market": null,
+      "segment": "risk-ladder-overall",
+      "modelOrPolicyVersion": null,
+      "era": "UNSEGMENTED_WINDOW",
+      "n": 1799,
+      "counts": {
+        "won": 351,
+        "lost": 1448,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": 1799,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "parlays/risk-ladder/latest.json",
+        "generatedAt": "2026-09-22T14:11:39Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-05-25",
+        "to": "2026-09-22"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "shown only with its window printed — the owner spans the 2026-08-17 selection-policy change without segmenting its record"
+      },
+      "semantics": "parlays/risk-ladder/latest.json record.overall: whole paper cards W–L across every graded day and every tier. The owner's overall block carries wins/losses/staked/returned only — pending and pushes live on the per-tier cells and are not summed here.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": "lab:-:parlay-lab:POLICY_V1:prior-policy"
+    },
+    {
+      "cellId": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-tier-low",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": null,
+      "product": "parlay-lab",
+      "market": "low",
+      "segment": "risk-ladder-tier-low",
+      "modelOrPolicyVersion": null,
+      "era": "UNSEGMENTED_WINDOW",
+      "n": 447,
+      "counts": {
+        "won": 182,
+        "lost": 264,
+        "pending": 25,
+        "push": 1,
+        "void": null
+      },
+      "decisive": 446,
+      "hitRate": 0.4081,
+      "ownerState": null,
+      "owner": {
+        "path": "parlays/risk-ladder/latest.json",
+        "generatedAt": "2026-09-22T14:11:39Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-05-25",
+        "to": "2026-09-22"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "per-tier paper cards, shown with the window; pushes are out of decisive, pending is a count"
+      },
+      "semantics": "risk-ladder record.byTier.low: decisive = wins + losses; pushes and pending carried separately by the owner.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-tier-medium",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": null,
+      "product": "parlay-lab",
+      "market": "medium",
+      "segment": "risk-ladder-tier-medium",
+      "modelOrPolicyVersion": null,
+      "era": "UNSEGMENTED_WINDOW",
+      "n": 450,
+      "counts": {
+        "won": 78,
+        "lost": 372,
+        "pending": 22,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 450,
+      "hitRate": 0.1733,
+      "ownerState": null,
+      "owner": {
+        "path": "parlays/risk-ladder/latest.json",
+        "generatedAt": "2026-09-22T14:11:39Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-05-25",
+        "to": "2026-09-22"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "per-tier paper cards, shown with the window; pushes are out of decisive, pending is a count"
+      },
+      "semantics": "risk-ladder record.byTier.medium: decisive = wins + losses; pushes and pending carried separately by the owner.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-tier-high",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": null,
+      "product": "parlay-lab",
+      "market": "high",
+      "segment": "risk-ladder-tier-high",
+      "modelOrPolicyVersion": null,
+      "era": "UNSEGMENTED_WINDOW",
+      "n": 450,
+      "counts": {
+        "won": 59,
+        "lost": 391,
+        "pending": 22,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 450,
+      "hitRate": 0.1311,
+      "ownerState": null,
+      "owner": {
+        "path": "parlays/risk-ladder/latest.json",
+        "generatedAt": "2026-09-22T14:11:39Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-05-25",
+        "to": "2026-09-22"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "per-tier paper cards, shown with the window; pushes are out of decisive, pending is a count"
+      },
+      "semantics": "risk-ladder record.byTier.high: decisive = wins + losses; pushes and pending carried separately by the owner.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-tier-longshot",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": null,
+      "product": "parlay-lab",
+      "market": "longshot",
+      "segment": "risk-ladder-tier-longshot",
+      "modelOrPolicyVersion": null,
+      "era": "UNSEGMENTED_WINDOW",
+      "n": 453,
+      "counts": {
+        "won": 32,
+        "lost": 421,
+        "pending": 19,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 453,
+      "hitRate": 0.0706,
+      "ownerState": null,
+      "owner": {
+        "path": "parlays/risk-ladder/latest.json",
+        "generatedAt": "2026-09-22T14:11:39Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-05-25",
+        "to": "2026-09-22"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "per-tier paper cards, shown with the window; pushes are out of decisive, pending is a count"
+      },
+      "semantics": "risk-ladder record.byTier.longshot: decisive = wins + losses; pushes and pending carried separately by the owner.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "lab:-:parlay-lab:POLICY_V1:prior-policy",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": null,
+      "product": "parlay-lab",
+      "market": null,
+      "segment": "prior-policy",
+      "modelOrPolicyVersion": "1",
+      "era": "POLICY_V1",
+      "n": 1799,
+      "counts": {
+        "won": 351,
+        "lost": 1448,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": 1799,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "parlays/lab-ledger.json",
+        "generatedAt": "2026-09-22T15:44:19Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-05-25",
+        "to": "2026-09-22"
+      },
+      "status": "WINDOW_CONTRADICTS_LABEL",
+      "displayEligible": {
+        "eligible": false,
+        "reason": "the owner labels this \"Before the 2026-08-17 selection change\" but its window runs to 2026-09-22, past the policy change on 2026-08-17 (V19 C4/C5) — not shown as a policy-1 record"
+      },
+      "semantics": "lab-ledger.priorPolicy (policy 1): Up to six cards per tier, legs reused across tiers, cards up to six legs. Owner note: A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-overall"
+    },
+    {
+      "cellId": "lab:mlb:parlay-lab:POLICY_V2:stream",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": "mlb",
+      "product": "parlay-lab",
+      "market": null,
+      "segment": "stream",
+      "modelOrPolicyVersion": "2",
+      "era": "POLICY_V2",
+      "n": 91,
+      "counts": {
+        "won": 20,
+        "lost": 71,
+        "pending": null,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 91,
+      "hitRate": 0.2198,
+      "ownerState": "live",
+      "owner": {
+        "path": "parlays/lab-ledger.json",
+        "generatedAt": "2026-09-22T15:44:19Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-08-17",
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "the Lab's own per-stream card record under the current policy"
+      },
+      "semantics": "lab-ledger stream mlb (MLB) under policy 2 since 2026-08-17: Legs disjoint across tiers · five-leg cap · ties on score resolve to the shorter card. The owner carries settledDays (34) rather than a last date (window.to null).",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "lab:nfl:parlay-lab:POLICY_V2:stream",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": "parlay-lab",
+      "market": null,
+      "segment": "stream",
+      "modelOrPolicyVersion": "2",
+      "era": "POLICY_V2",
+      "n": 0,
+      "counts": {
+        "won": 0,
+        "lost": 0,
+        "pending": null,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 0,
+      "hitRate": null,
+      "ownerState": "not live — only 0 priced games — the ladder needs 4",
+      "owner": {
+        "path": "parlays/lab-ledger.json",
+        "generatedAt": "2026-09-22T15:44:19Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-08-17",
+        "to": null
+      },
+      "status": "FROZEN",
+      "displayEligible": {
+        "eligible": false,
+        "reason": "nothing settled — the owner's rule refuses to print 0–0 as a record (a recorded zero stays in counts)"
+      },
+      "semantics": "lab-ledger stream nfl (NFL) under policy 2 since 2026-08-17: Legs disjoint across tiers · five-leg cap · ties on score resolve to the shorter card. The owner carries settledDays (0) rather than a last date (window.to null).",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "lab:ufc:parlay-lab:POLICY_V2:stream",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": "ufc",
+      "product": "parlay-lab",
+      "market": null,
+      "segment": "stream",
+      "modelOrPolicyVersion": "2",
+      "era": "POLICY_V2",
+      "n": 11,
+      "counts": {
+        "won": 1,
+        "lost": 10,
+        "pending": null,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 11,
+      "hitRate": 0.0909,
+      "ownerState": "live",
+      "owner": {
+        "path": "parlays/lab-ledger.json",
+        "generatedAt": "2026-09-22T15:44:19Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-08-17",
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "the Lab's own per-stream card record under the current policy"
+      },
+      "semantics": "lab-ledger stream ufc (UFC) under policy 2 since 2026-08-17: Legs disjoint across tiers · five-leg cap · ties on score resolve to the shorter card. The owner carries settledDays (4) rather than a last date (window.to null).",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "lab:epl:parlay-lab:POLICY_V2:stream",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": "epl",
+      "product": "parlay-lab",
+      "market": null,
+      "segment": "stream",
+      "modelOrPolicyVersion": "2",
+      "era": "POLICY_V2",
+      "n": 8,
+      "counts": {
+        "won": 3,
+        "lost": 5,
+        "pending": null,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 8,
+      "hitRate": 0.375,
+      "ownerState": "live",
+      "owner": {
+        "path": "parlays/lab-ledger.json",
+        "generatedAt": "2026-09-22T15:44:19Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-08-17",
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "the Lab's own per-stream card record under the current policy"
+      },
+      "semantics": "lab-ledger stream epl (Premier League) under policy 2 since 2026-08-17: Legs disjoint across tiers · five-leg cap · ties on score resolve to the shorter card. The owner carries settledDays (7) rather than a last date (window.to null).",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "lab:-:parlay-lab:POLICY_V2:stream-multi",
+      "recordType": "LAB_CARD_RECORD",
+      "family": "lab",
+      "recordFamilyId": null,
+      "sport": null,
+      "product": "parlay-lab",
+      "market": null,
+      "segment": "stream-multi",
+      "modelOrPolicyVersion": "2",
+      "era": "POLICY_V2",
+      "n": 0,
+      "counts": {
+        "won": 0,
+        "lost": 0,
+        "pending": null,
+        "push": 0,
+        "void": null
+      },
+      "decisive": 0,
+      "hitRate": null,
+      "ownerState": "live",
+      "owner": {
+        "path": "parlays/lab-ledger.json",
+        "generatedAt": "2026-09-22T15:44:19Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-08-17",
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": false,
+        "reason": "nothing settled — the owner's rule refuses to print 0–0 as a record (a recorded zero stays in counts)"
+      },
+      "semantics": "lab-ledger stream multi (Multi-sport) under policy 2 since 2026-08-17: Legs disjoint across tiers · five-leg cap · ties on score resolve to the shorter card. The owner carries settledDays (0) rather than a last date (window.to null).",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "cycle:-:bank-builder:RECEIPT_ERA:-",
+      "recordType": "CYCLE_COMPLETION",
+      "family": "cycle",
+      "recordFamilyId": null,
+      "sport": null,
+      "product": "bank-builder",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": null,
+      "era": "RECEIPT_ERA",
+      "n": 21,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "data/internal/products/cycle-table/latest.json",
+        "generatedAt": "2026-09-22T06:02:04.282Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-08-15",
+        "to": "2026-09-20"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": false,
+        "reason": "prototype (V17 §8): the published-step convention is not yet fixed and the owner is classed internal-research — a table, never a percentage, once it is"
+      },
+      "semantics": "Cycle completion is NOT a leg hit rate and NOT a W–L: a cycle is a ladder run from a seed to a loss, a completion, or an open rung. Counts are receipt-derived only (forensic-sourced counts are not carried). Show the PUBLISHED furthest step, with divergences disclosed.",
+      "composition": null,
+      "cycles": {
+        "started": 21,
+        "lost": 20,
+        "completed": 0,
+        "open": 1,
+        "furthestPublishedStepMax": 3,
+        "meanFurthestPublishedStep": 1.48,
+        "cyclesWithPublishedStepDivergence": 4,
+        "placedLaneDays": 36,
+        "decidedLaneDays": 36,
+        "noPlayLaneDays": 38
+      },
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "cycle:-:moonshot:RECEIPT_ERA:-",
+      "recordType": "CYCLE_COMPLETION",
+      "family": "cycle",
+      "recordFamilyId": null,
+      "sport": null,
+      "product": "moonshot",
+      "market": null,
+      "segment": null,
+      "modelOrPolicyVersion": null,
+      "era": "RECEIPT_ERA",
+      "n": 32,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": null,
+      "owner": {
+        "path": "data/internal/products/cycle-table/latest.json",
+        "generatedAt": "2026-09-22T06:02:04.282Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": "2026-08-15",
+        "to": "2026-09-20"
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": false,
+        "reason": "prototype (V17 §8): the published-step convention is not yet fixed and the owner is classed internal-research — a table, never a percentage, once it is"
+      },
+      "semantics": "Cycle completion is NOT a leg hit rate and NOT a W–L: a cycle is a ladder run from a seed to a loss, a completion, or an open rung. Counts are receipt-derived only (forensic-sourced counts are not carried). Show the PUBLISHED furthest step, with divergences disclosed.",
+      "composition": null,
+      "cycles": {
+        "started": 32,
+        "lost": 32,
+        "completed": 0,
+        "open": 0,
+        "furthestPublishedStepMax": 3,
+        "meanFurthestPublishedStep": 1.13,
+        "cyclesWithPublishedStepDivergence": 0,
+        "placedLaneDays": 36,
+        "decidedLaneDays": 36,
+        "noPlayLaneDays": 38
+      },
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:mlb:-:LIVE_LEDGER:mlb_total",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "mlb",
+      "product": null,
+      "market": null,
+      "segment": "mlb_total",
+      "modelOrPolicyVersion": "mlb_total",
+      "era": "LIVE_LEDGER",
+      "n": 667,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "BREACHED",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "MLB total picks vs coin flip (log loss 0.6931): BREACHED. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_player_receptions",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_player_receptions",
+      "modelOrPolicyVersion": "nfl_player_receptions",
+      "era": "LIVE_LEDGER",
+      "n": 333,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "BREACHED",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL receptions 80% range vs 8 in 10 inside the published range: BREACHED. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:mlb:-:LIVE_LEDGER:mlb_moneyline",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "mlb",
+      "product": null,
+      "market": null,
+      "segment": "mlb_moneyline",
+      "modelOrPolicyVersion": "mlb_moneyline",
+      "era": "LIVE_LEDGER",
+      "n": 702,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "WATCH",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "MLB moneyline picks vs coin flip (log loss 0.6931): WATCH. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:mlb:-:LIVE_LEDGER:mlb_run_line",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "mlb",
+      "product": null,
+      "market": null,
+      "segment": "mlb_run_line",
+      "modelOrPolicyVersion": "mlb_run_line",
+      "era": "LIVE_LEDGER",
+      "n": 702,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "HOLDING",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "MLB run line picks vs coin flip (log loss 0.6931): HOLDING. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_anytime_td",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_anytime_td",
+      "modelOrPolicyVersion": "nfl_anytime_td",
+      "era": "LIVE_LEDGER",
+      "n": 436,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "HOLDING",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL touchdown chances vs expected scorers = actual scorers: HOLDING. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_player_reception_yds",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_player_reception_yds",
+      "modelOrPolicyVersion": "nfl_player_reception_yds",
+      "era": "LIVE_LEDGER",
+      "n": 333,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "HOLDING",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL receiving yards 80% range vs 8 in 10 inside the published range: HOLDING. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_player_rush_yds",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_player_rush_yds",
+      "modelOrPolicyVersion": "nfl_player_rush_yds",
+      "era": "LIVE_LEDGER",
+      "n": 181,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "HOLDING",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL rushing yards 80% range vs 8 in 10 inside the published range: HOLDING. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:epl:-:LIVE_LEDGER:epl_forward_match_model",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "epl",
+      "product": null,
+      "market": null,
+      "segment": "epl_forward_match_model",
+      "modelOrPolicyVersion": "epl_forward_match_model",
+      "era": "LIVE_LEDGER",
+      "n": 0,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "EPL blind forward test · match model vs the one it replaced vs the previous model (split Poisson), paired per match: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:epl:-:LIVE_LEDGER:epl_result",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "epl",
+      "product": null,
+      "market": null,
+      "segment": "epl_result",
+      "modelOrPolicyVersion": "epl_result",
+      "era": "LIVE_LEDGER",
+      "n": 36,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "EPL match result (home/draw/away) vs even odds (log loss 1.0986): INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:epl:-:LIVE_LEDGER:epl_shadow_totals",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "epl",
+      "product": null,
+      "market": null,
+      "segment": "epl_shadow_totals",
+      "modelOrPolicyVersion": "epl_shadow_totals",
+      "era": "LIVE_LEDGER",
+      "n": 0,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "EPL totals SHADOW (research, not public) · club-specific total vs live P304 vs live P304 constant total, paired per match: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:ligue-1:-:LIVE_LEDGER:ligue1_result",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "ligue-1",
+      "product": null,
+      "market": null,
+      "segment": "ligue1_result",
+      "modelOrPolicyVersion": "ligue1_result",
+      "era": "LIVE_LEDGER",
+      "n": 9,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "Ligue 1 match result (home/draw/away) vs even odds (log loss 1.0986): INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_forward_anytime_td",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_forward_anytime_td",
+      "modelOrPolicyVersion": "nfl_forward_anytime_td",
+      "era": "LIVE_LEDGER",
+      "n": 0,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL blind forward test · anytime td vs its preregistered forward bars: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_forward_player_pass_yds",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_forward_player_pass_yds",
+      "modelOrPolicyVersion": "nfl_forward_player_pass_yds",
+      "era": "LIVE_LEDGER",
+      "n": 0,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL blind forward test · pass yds vs its preregistered forward bars: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_forward_player_reception_yds",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_forward_player_reception_yds",
+      "modelOrPolicyVersion": "nfl_forward_player_reception_yds",
+      "era": "LIVE_LEDGER",
+      "n": 0,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL blind forward test · reception yds vs its preregistered forward bars: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_forward_player_receptions",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_forward_player_receptions",
+      "modelOrPolicyVersion": "nfl_forward_player_receptions",
+      "era": "LIVE_LEDGER",
+      "n": 0,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL blind forward test · receptions vs its preregistered forward bars: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_forward_player_rush_yds",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_forward_player_rush_yds",
+      "modelOrPolicyVersion": "nfl_forward_player_rush_yds",
+      "era": "LIVE_LEDGER",
+      "n": 0,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL blind forward test · rush yds vs its preregistered forward bars: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_margin_range",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_margin_range",
+      "modelOrPolicyVersion": "nfl_margin_range",
+      "era": "LIVE_LEDGER",
+      "n": 32,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL winning margin 80% range vs 8 in 10 inside the published range: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_player_pass_yds",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_player_pass_yds",
+      "modelOrPolicyVersion": "nfl_player_pass_yds",
+      "era": "LIVE_LEDGER",
+      "n": 62,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL passing yards 80% range vs 8 in 10 inside the published range: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_total_range",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_total_range",
+      "modelOrPolicyVersion": "nfl_total_range",
+      "era": "LIVE_LEDGER",
+      "n": 32,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL total points 80% range vs 8 in 10 inside the published range: INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:nfl:-:LIVE_LEDGER:nfl_winner",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "nfl",
+      "product": null,
+      "market": null,
+      "segment": "nfl_winner",
+      "modelOrPolicyVersion": "nfl_winner",
+      "era": "LIVE_LEDGER",
+      "n": 32,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "NFL winner vs coin flip (log loss 0.6931): INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    },
+    {
+      "cellId": "model-family:ufc:-:LIVE_LEDGER:ufc_winner",
+      "recordType": "CALIBRATION_STATE",
+      "family": "model-family",
+      "recordFamilyId": null,
+      "sport": "ufc",
+      "product": null,
+      "market": null,
+      "segment": "ufc_winner",
+      "modelOrPolicyVersion": "ufc_winner",
+      "era": "LIVE_LEDGER",
+      "n": 41,
+      "counts": {
+        "won": null,
+        "lost": null,
+        "pending": null,
+        "push": null,
+        "void": null
+      },
+      "decisive": null,
+      "hitRate": null,
+      "ownerState": "INSUFFICIENT_SAMPLE",
+      "owner": {
+        "path": "admin/model-health.json",
+        "generatedAt": "2026-09-22T14:12:22Z",
+        "stampField": "generatedAt"
+      },
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "status": "LIVE",
+      "displayEligible": {
+        "eligible": true,
+        "reason": "state word + n only (V19 §4): no calibration number, no comparison figure leaves the owner"
+      },
+      "semantics": "UFC fight winner vs coin flip (log loss 0.6931): INSUFFICIENT_SAMPLE. Calibration is not a hit rate; the number stays on the owner until the family clears its bar.",
+      "composition": null,
+      "cycles": null,
+      "crossCheck": null,
+      "sameAs": null
+    }
+  ]
+}
