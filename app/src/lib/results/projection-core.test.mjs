@@ -14,6 +14,7 @@ import {
   buildProjection, makeCell, counts, settledN, sumSameEra, formatRecordLabel, recordLabelOrNull, pendingLabelOrNull,
   headlineFor, headlineForProduct, cellForEra, cellsByFamily, cellsBySport, cellById, assertProjectionShape,
   ERAS, FAMILIES, RECORD_TYPES, STATUSES, LEGACY_ERAS, UNSUMMABLE_ERAS, REQUIRED_OWNERS,
+  PRESENTATION, LEGACY_PRESENTATION_ERAS, presentationOf, legacyCells, mayShowIn,
 } from "./projection-core.mjs";
 
 const NOW = "2026-09-22T18:00:00Z";
@@ -134,18 +135,25 @@ test("rule 2 · there is no cross-family total, and no exported helper can make 
 test("rule 2 · positive control — two cells of ONE family in ONE era DO sum; then any era mix throws", () => {
   const a = byId("product:-:bank-builder:LEDGER_ONLY:ladder-1");
   const b = byId("product:-:bank-builder:LEDGER_ONLY:ladder-2");
-  const s = sumSameEra([a, b]);
+  /*
+   * C3: these two are LEGACY_HISTORY, and a legacy record never contributes to a current-performance
+   * summary — so the default (CURRENT) frame REFUSES the arithmetic that would turn two completed June
+   * ladders into a tidy 10–0 reading as current form. The same-era sum still works, in the legacy frame.
+   */
+  assert.throws(() => sumSameEra([a, b]), /legacy history never contributes to current performance/);
+  const s = sumSameEra([a, b], { context: PRESENTATION.LEGACY_HISTORY });
   assert.deepEqual(s.counts, { won: 10, lost: 0, pending: null, push: null, void: null });
   assert.equal(s.n, 10);
   assert.equal(s.era, ERAS.LEDGER_ONLY);
+  assert.equal(s.presentation, PRESENTATION.LEGACY_HISTORY, "a legacy aggregate carries its frame, so it cannot be passed on as a current one");
   assert.deepEqual(s.window, { from: "2026-06-09", to: "2026-06-24" });
   // mutation probes — the same two cells, one era changed → throws
   const c = clone(b); c.era = ERAS.RECEIPT_ERA;
-  assert.throws(() => sumSameEra([a, c]), /across eras/);
+  assert.throws(() => sumSameEra([a, c], { context: PRESENTATION.LEGACY_HISTORY }), /across eras/);
   const d = clone(b); delete d.era;
-  assert.throws(() => sumSameEra([a, d]), /no typed era/);
+  assert.throws(() => sumSameEra([a, d], { context: PRESENTATION.LEGACY_HISTORY }), /no typed era/);
   const e = clone(b); e.era = "JUNE";
-  assert.throws(() => sumSameEra([a, e]), /no typed era/);
+  assert.throws(() => sumSameEra([a, e], { context: PRESENTATION.LEGACY_HISTORY }), /no typed era/);
   // the protected record's two eras can never be summed by the helper — the owner already did, with composition
   assert.throws(() => sumSameEra([byId(BB_BASE), byId(BB_RECEIPT)]), /across eras/);
   // a COMPOSITE or UNSEGMENTED cell is never an input
@@ -160,8 +168,9 @@ test("rule 2 · positive control — two cells of ONE family in ONE era DO sum; 
   assert.equal(sumSameEra([]), null);
   // a count any input does not carry is null in the sum — never 0
   const f = clone(a); f.counts.push = 2;
-  assert.equal(sumSameEra([f, b]).counts.push, null);
-  assert.equal(sumSameEra([f, { ...b, counts: { ...b.counts, push: 1 } }]).counts.push, 3);
+  const LEG = { context: PRESENTATION.LEGACY_HISTORY };
+  assert.equal(sumSameEra([f, b], LEG).counts.push, null);
+  assert.equal(sumSameEra([f, { ...b, counts: { ...b.counts, push: 1 } }], LEG).counts.push, 3);
 });
 
 /* ── rule 3 · window, n, era, owner; absent owner ⇒ absent cell ──────────────────────────────── */
@@ -266,7 +275,14 @@ test("rule 5 · the protected record is COMPOSITE with its era composition besid
   // the June "5–0" ladders: separate LEDGER_ONLY cells, never inside the composite
   const l1 = byId("product:-:bank-builder:LEDGER_ONLY:ladder-1"), l2 = byId("product:-:bank-builder:LEDGER_ONLY:ladder-2");
   assert.deepEqual([l1.counts.won, l1.counts.lost, l2.counts.won, l2.counts.lost], [5, 0, 5, 0]);
-  assert.equal(recordLabelOrNull(l1), "5–0");
+  /*
+   * C3: the label exists, but only inside an explicitly labelled legacy panel. A caller that has not
+   * declared the legacy frame — the default — gets NOTHING rather than a June figure in a current frame.
+   */
+  assert.equal(recordLabelOrNull(l1), null, "no label in the default (CURRENT) frame");
+  assert.equal(recordLabelOrNull(l1, { context: PRESENTATION.LEGACY_HISTORY }), "5–0", "…and the real figure in a legacy panel");
+  assert.equal(l1.presentation, PRESENTATION.LEGACY_HISTORY);
+  assert.ok(l1.window.from && l1.window.to, "a legacy cell carries the exact dates the decision requires beside it");
   assert.equal(l1.window.to, "2026-06-13"); assert.equal(l2.window.to, "2026-06-24");
   assert.ok(!cellsByFamily(P, FAMILIES.PRODUCT).some((c) => c.counts.won === 31 || c.counts.won === 26), "no cell merges the ladders into the protected record");
   assert.equal(byId("product:-:bank-builder:LEDGER_ONLY:historical-record-2026-06-25").status, STATUSES.SUPERSEDED);

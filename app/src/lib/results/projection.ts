@@ -24,6 +24,11 @@ import {
   cellsBySport as cellsBySportCore,
   ERAS,
   FAMILIES,
+  legacyCells as legacyCellsCore,
+  mayShowIn as mayShowInCore,
+  presentationOf as presentationOfCore,
+  PRESENTATION,
+  LEGACY_PRESENTATION_ERAS,
   formatRecordLabel as formatRecordLabelCore,
   headlineFor as headlineForCore,
   headlineForProduct as headlineForProductCore,
@@ -38,12 +43,14 @@ import {
   sumSameEra as sumSameEraCore,
 } from "./projection-core.mjs";
 
-export { ERAS, FAMILIES, LEGACY_ERAS, PROJECTION_REL, PROJECTION_SCHEMA, RECORD_TYPES, STATUSES };
+export { ERAS, FAMILIES, LEGACY_ERAS, PRESENTATION, LEGACY_PRESENTATION_ERAS, PROJECTION_REL, PROJECTION_SCHEMA, RECORD_TYPES, STATUSES };
 
 export type RecordType = (typeof RECORD_TYPES)[keyof typeof RECORD_TYPES];
 export type Family = (typeof FAMILIES)[keyof typeof FAMILIES];
 export type Era = (typeof ERAS)[keyof typeof ERAS];
 export type CellStatus = (typeof STATUSES)[keyof typeof STATUSES];
+/** The frame a cell may be shown in (C3). A surface declares its own; it is never inferred. */
+export type PresentationContext = (typeof PRESENTATION)[keyof typeof PRESENTATION];
 
 /** A count block. `null` = the owner does not carry it — never 0. */
 export interface ProjectionCounts {
@@ -87,6 +94,8 @@ export interface ProjectionCell {
   window: ProjectionWindow;
   status: CellStatus;
   displayEligible: { eligible: boolean; reason: string };
+  /** C3: the frame this cell may be shown in, derived from its era. Never widened by a consumer. */
+  presentation: PresentationContext;
   semantics: string;
   composition: ProjectionComposition[] | null;
   cycles: ProjectionCycles | null;
@@ -151,11 +160,45 @@ export const cellForEra = (
 /** "W–L · N pushes · N voids" from counts; pending never inside. Null when won/lost is not carried. */
 export const formatRecordLabel = (c: ProjectionCounts | null | undefined): string | null => formatRecordLabelCore(c);
 
-/** The C9 rule: a label only for a present, display-eligible cell with won and lost — else null, never "0–0". */
-export const recordLabelOrNull = (cell: ProjectionCell | null | undefined): string | null => recordLabelOrNullCore(cell);
+/**
+ * The C9 rule: a label only for a present, display-eligible cell with won and lost — else null, never "0–0".
+ *
+ * C3: `context` is the frame the CALLER renders in, and it defaults to `CURRENT`, so a surface that has not
+ * thought about this gets null for a legacy-history cell rather than a June figure in a current frame. Pass
+ * `LEGACY_HISTORY` only from an explicitly labelled Completed ladders / Legacy history panel.
+ */
+export const recordLabelOrNull = (
+  cell: ProjectionCell | null | undefined,
+  opts?: { context?: PresentationContext },
+): string | null => recordLabelOrNullCore(cell, opts);
+
+/** True when a cell may be shown in the caller's frame (C3) — the one predicate a surface should ask. */
+export const mayShowIn = (cell: ProjectionCell | null | undefined, context: PresentationContext): boolean => mayShowInCore(cell, context);
+
+/** The frame a given era may be presented in (C3). One place the rule lives. */
+export const presentationOf = (era: Era): PresentationContext => presentationOfCore(era) as PresentationContext;
+
+/**
+ * The cells an explicitly labelled "Completed ladders / Legacy history" panel may draw (C3), oldest first.
+ * The ONLY selector that answers with legacy cells, so a panel never hand-rolls the era filter. Each cell
+ * carries its exact dates and its own era/methodology sentence — the context the decision requires beside it.
+ */
+export const legacyCells = (
+  p: ResultsProjection | null,
+  q?: { product?: string | null; family?: Family | null },
+): ProjectionCell[] => legacyCellsCore(p, q) as ProjectionCell[];
 
 /** "N pending" beside the record, or null when the owner carries no pending count. */
 export const pendingLabelOrNull = (cell: ProjectionCell | null | undefined): string | null => pendingLabelOrNullCore(cell);
 
-/** The only aggregation: same family, same summable era — anything else throws. */
-export const sumSameEra = (cells: ProjectionCell[]): SameEraSum | null => sumSameEraCore(cells) as SameEraSum | null;
+/**
+ * The only aggregation: same family, same summable era — anything else throws.
+ *
+ * C3: summing LEGACY_HISTORY cells into a `CURRENT` summary throws. Legacy history never contributes to
+ * current performance, and same-era arithmetic would otherwise turn two completed June ladders into a tidy
+ * 10–0 that reads as current form. The result carries the frame it was summed in.
+ */
+export const sumSameEra = (
+  cells: ProjectionCell[],
+  opts?: { context?: PresentationContext },
+): SameEraSum | null => sumSameEraCore(cells, opts) as SameEraSum | null;

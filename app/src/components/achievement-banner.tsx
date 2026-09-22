@@ -1,8 +1,20 @@
 /**
- * Achievement banner — surfaces the platform's verifiable track record (Phase 9 social proof). Every claim
- * is read from the canonical portfolio + banked-ladders artifacts (no hardcoded marketing numbers): two
- * officially-completed $100→$10k ladders, cumulative paper profit, and the Bank Builder record. Paper-only,
- * educational — never overstated.
+ * Completed ladders — the LEGACY HISTORY panel (C3 founder decision, 2026-09-22).
+ *
+ * The two completed $100→$10k Bank Builder ladders are real and are preserved. They ran in JUNE 2026, under
+ * the June multi-sport operator process, and they are NOT evidence for the methodology running today. The
+ * decision is explicit: they may render only inside an explicitly labelled "Completed ladders / Legacy
+ * history" context, with exact dates and era context, and may never be the current headline, never be added
+ * to the current protected record, and never be mixed into current-performance figures.
+ *
+ * This banner used to break three of those rules at once: it headlined "2× $100 → $10K challenge completed"
+ * with a crown, carried NO dates and no era, and sat the completions immediately beside the CURRENT Bank
+ * Builder record and CURRENT paper profit — so a reader had nothing to tell them the ladders were three
+ * months old or ran under a different process. It is now a dated, era-labelled historical panel, and the
+ * current record is no longer shown inside it (the current figure belongs to the current surfaces; showing
+ * it here is what invited the reading that the completions were current evidence).
+ *
+ * Every figure is still read from the canonical portfolio + banked-ladders artifacts — no hardcoded numbers.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -15,47 +27,70 @@ export default function AchievementBanner() {
   let banked: any = null;
   try { p = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "portfolio.json"), "utf8")); } catch { return null; }
   try { banked = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "banked-ladders.json"), "utf8")); } catch {}
-  const completed = (p.completedLadders ?? []).filter((l: any) => l.official);
-  if (completed.length < 1) return null;
-  const rec = p.record ?? { wins: 0, losses: 0 };
-  // Realized paper profit — the ONE canonical figure (bankroll − starting capital). NOT
-  // banked.lifetimeProfit, which historically held the bankroll itself (off by the $100 seed).
-  const profit = p.settledProfit ?? ((p.currentBankroll ?? 100) - (p.startingBankroll ?? 100));
+  /*
+   * The OFFICIAL gate stays: portfolio.json marks which completed ladders the owner considers officially
+   * settled, and a panel that showed an unofficial completion would be a claim the owner has not made.
+   * The dated rows below come from banked-ladders.json, which is where the step dates live.
+   */
+  const officialCount = (p.completedLadders ?? []).filter((l: any) => l.official).length;
+  if (officialCount < 1) return null;
+  /*
+   * The ladders' EXACT DATES, read from the owner's own step dates / completedDate — the C3 decision
+   * requires them beside the figure, and a panel that cannot source them shows no date rather than a
+   * guessed one. `banked` may be absent (its read is allowed to fail), in which case there is no dated
+   * legacy context to show and the panel declines to render at all.
+   */
+  const ladderRows = (banked?.ladders ?? [])
+    .filter((l: any) => typeof l.final === "number" && Number.isFinite(l.final))
+    .map((l: any) => {
+      const dates = (l.steps ?? []).map((s: any) => s.date).filter(Boolean).sort();
+      const from = dates[0] ?? null;
+      const to = l.completedDate ?? dates[dates.length - 1] ?? null;
+      return { label: l.label ?? "Completed ladder", start: l.start ?? 100, final: l.final, from, to, key: l.ladder ?? l.final };
+    })
+    .filter((r: any) => r.from && r.to);
+  if (ladderRows.length < 1) return null;
+  const spanFrom = ladderRows.map((r: any) => r.from).sort()[0];
+  const spanTo = ladderRows.map((r: any) => r.to).sort().at(-1);
+  const monthLabel = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+  const dayLabel = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
   return (
     <section
-      aria-label="Track record"
+      aria-label="Completed ladders — legacy history"
       className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4"
-      style={{ border: "1px solid color-mix(in srgb, var(--vault-crown) 45%, transparent)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-crown) 14%, transparent), color-mix(in srgb, var(--vault-scrim-base) 50%, transparent))" }}
+      style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)" }}
     >
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span aria-hidden style={{ fontSize: 18 }}>👑</span>
-            <h2 className="font-display tracking-tight" style={{ color: "var(--vault-gold-bright)", fontSize: 17, fontWeight: 800 }}>
-              {completed.length === 2 ? "2× $100 → $10K challenge completed" : `${completed.length}× $100 → $10K challenge completed`}
-            </h2>
-          </div>
-          <p className="mt-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-            Two paper Bank Builder ladders run from $100 to ~$10K, each graded leg-by-leg from official results.
+          {/* The label the C3 decision requires: historical, explicit, and carrying the era in the heading itself. */}
+          <p className="font-mono uppercase tracking-[0.1em] text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+            Completed ladders · legacy history
+          </p>
+          <h2 className="font-display tracking-tight mt-0.5" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>
+            {ladderRows.length === 1 ? "One" : `${ladderRows.length}×`} $100 → $10K paper ladder{ladderRows.length === 1 ? "" : "s"} completed in {monthLabel(spanFrom)}
+          </h2>
+          <p className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+            {spanFrom === spanTo ? dayLabel(spanFrom) : `${dayLabel(spanFrom)} – ${dayLabel(spanTo)}, ${new Date(`${spanTo}T00:00:00Z`).getUTCFullYear()}`}
+            {" · "}run under the June multi-sport operator process, graded leg-by-leg from official results.
             <span className="ml-1" style={{ color: "var(--vault-text-faint)" }}>
-              Ten winning legs across two ladders — a small sample, and not evidence the approach repeats.
-              Paper-only · educational · not betting advice.
+              A different era from the Bank Builder running today — historical record, not evidence for the
+              current methodology, and not part of the current record. Paper-only · educational · not betting advice.
             </span>
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {completed.map((l: any) => (
-            <span key={l.ladder ?? l.final} className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold" style={{ color: "var(--vault-gold-bright)", background: "color-mix(in srgb, var(--vault-crown) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>
-              {usd(l.start ?? 100)} → {usd(l.final)}
+          {ladderRows.map((l: any) => (
+            <span
+              key={l.key}
+              className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold"
+              title={`${l.label} · ${l.from} → ${l.to}`}
+              style={{ color: "var(--vault-text)", background: "var(--vault-wash)", border: "1px solid var(--vault-rule)" }}
+            >
+              {usd(l.start)} → {usd(l.final)}
+              <span className="ml-1.5 font-normal" style={{ color: "var(--vault-text-faint)" }}>{dayLabel(l.to)}</span>
             </span>
           ))}
-          <span className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold" style={{ color: "var(--vault-success)", background: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 35%, transparent)" }}>
-            {usd(profit)} paper profit
-          </span>
-          <span className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold" style={{ color: "var(--vault-text)", background: "var(--vault-wash)", border: "1px solid var(--vault-rule)" }}>
-            Bank Builder {rec.wins}–{rec.losses}
-          </span>
           <Link href="/mr-dub" className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.08em] text-[10px]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", textDecoration: "none" }}>
             Full ledger →
           </Link>

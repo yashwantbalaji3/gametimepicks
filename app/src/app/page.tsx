@@ -20,7 +20,6 @@ import { currentEtDate } from "@/lib/freshness";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
-import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
@@ -71,13 +70,22 @@ export default function HomePage() {
 
   // ── CANONICAL money / record — identical sources to the Today board; never recomputed or hardcoded ──
   const dailyPortfolio = buildDailyPortfolio(dataRoot, new Date().toISOString(), today);
-  const crown = crownLadderSummary(dataRoot);
 
   // Record comes from the canonical portfolio.json. Fail closed to null so a figure is only ever shown
   // when it can be sourced canonically. The peak/high-water figure is deliberately NOT read here: a
   // "peak paper bankroll" tile on the front door reads as a profitability claim, and this is a research
   // terminal. The full paper record, including every losing card, lives on /results.
-  let recordLabel: string | null = crown?.recordLabel ?? null;
+  /*
+   * C3 · THE FALLBACK WAS A CLAIM. This started at `crownLadderSummary(dataRoot).recordLabel` — the June completed-ladder
+   * figure, "5–0" — and only then tried to overwrite it from portfolio.json. So whenever the current
+   * record could not be read (unreadable file, missing or malformed `record`), the front door rendered
+   * `Record 5–0` from a June legacy ladder AS THE CURRENT BANK BUILDER RECORD, which the C3 decision
+   * forbids outright: a completed June ladder may never be the current headline, and may render only in
+   * an explicitly labelled legacy context with its exact dates. The comment below already said "fail
+   * closed"; it did not. It starts at null now, so the card shows the real current record or no figure,
+   * and the crown-summary import is gone from this page because nothing else on the front door used it.
+   */
+  let recordLabel: string | null = null;
   let pendingLabel: string | null = null;
   try {
     const p = JSON.parse(fs.readFileSync(path.join(dataRoot, "mr-dub", "portfolio.json"), "utf8"));
