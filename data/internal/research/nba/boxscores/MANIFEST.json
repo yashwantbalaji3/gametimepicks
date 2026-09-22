@@ -1,0 +1,368 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-boxscore-corpus",
+ "dataClass": "PRIVATE_RESEARCH",
+ "scriptVersion": "nba-boxscore-corpus-1.0.0",
+ "generatedAt": "2026-09-22T05:00:28.917Z",
+ "source": "espn_summary",
+ "sourceCorpus": "corpus-v1.json",
+ "expectedLabels": [
+  "MIN",
+  "PTS",
+  "FG",
+  "3PT",
+  "FT",
+  "REB",
+  "AST",
+  "TO",
+  "STL",
+  "BLK",
+  "OREB",
+  "DREB",
+  "PF",
+  "+/-"
+ ],
+ "labelSets": [
+  "[\"MIN\",\"PTS\",\"FG\",\"3PT\",\"FT\",\"REB\",\"AST\",\"TO\",\"STL\",\"BLK\",\"OREB\",\"DREB\",\"PF\",\"+/-\"]"
+ ],
+ "labelOrderViolations": [],
+ "seasons": {
+  "2024": {
+   "inCorpus": 1392,
+   "captured": 1392,
+   "capturedNoBoxscore": 0,
+   "missing": 0,
+   "failed": 0,
+   "players": 37734,
+   "dnpPlayers": 7278,
+   "playersNullMinutes": 145
+  },
+  "2025": {
+   "inCorpus": 1394,
+   "captured": 1394,
+   "capturedNoBoxscore": 0,
+   "missing": 0,
+   "failed": 0,
+   "players": 37961,
+   "dnpPlayers": 7508,
+   "playersNullMinutes": 90
+  },
+  "2026": {
+   "inCorpus": 1393,
+   "captured": 1393,
+   "capturedNoBoxscore": 0,
+   "missing": 0,
+   "failed": 0,
+   "players": 37385,
+   "dnpPlayers": 6595,
+   "playersNullMinutes": 81
+  }
+ },
+ "totals": {
+  "inCorpus": 4179,
+  "captured": 4179,
+  "capturedNoBoxscore": 0,
+  "missing": 0,
+  "failed": 0,
+  "players": 113080,
+  "dnpPlayers": 21381,
+  "playersNullMinutes": 316
+ },
+ "statusCounts": {
+  "STATUS_FINAL": 4179
+ },
+ "failedReasons": {},
+ "failures": {},
+ "teamMapping": {
+  "ATL": {
+   "providerTeamIds": [
+    "1"
+   ],
+   "canonicalTricode": "ATL",
+   "name": "Atlanta Hawks"
+  },
+  "BKN": {
+   "providerTeamIds": [
+    "17"
+   ],
+   "canonicalTricode": "BKN",
+   "name": "Brooklyn Nets"
+  },
+  "BOS": {
+   "providerTeamIds": [
+    "2"
+   ],
+   "canonicalTricode": "BOS",
+   "name": "Boston Celtics"
+  },
+  "CHA": {
+   "providerTeamIds": [
+    "30"
+   ],
+   "canonicalTricode": "CHA",
+   "name": "Charlotte Hornets"
+  },
+  "CHI": {
+   "providerTeamIds": [
+    "4"
+   ],
+   "canonicalTricode": "CHI",
+   "name": "Chicago Bulls"
+  },
+  "CLE": {
+   "providerTeamIds": [
+    "5"
+   ],
+   "canonicalTricode": "CLE",
+   "name": "Cleveland Cavaliers"
+  },
+  "CNS": {
+   "providerTeamIds": [
+    "126121"
+   ],
+   "canonicalTricode": null,
+   "name": "Cairns Taipans"
+  },
+  "DAL": {
+   "providerTeamIds": [
+    "6"
+   ],
+   "canonicalTricode": "DAL",
+   "name": "Dallas Mavericks"
+  },
+  "DEN": {
+   "providerTeamIds": [
+    "7"
+   ],
+   "canonicalTricode": "DEN",
+   "name": "Denver Nuggets"
+  },
+  "DET": {
+   "providerTeamIds": [
+    "8"
+   ],
+   "canonicalTricode": "DET",
+   "name": "Detroit Pistons"
+  },
+  "FLMG": {
+   "providerTeamIds": [
+    "108597"
+   ],
+   "canonicalTricode": null,
+   "name": "Flamengo"
+  },
+  "GS": {
+   "providerTeamIds": [
+    "9"
+   ],
+   "canonicalTricode": "GSW",
+   "name": "Golden State Warriors"
+  },
+  "GUANGZHOU": {
+   "providerTeamIds": [
+    "111136"
+   ],
+   "canonicalTricode": null,
+   "name": "Guangzhou Loong-Lions"
+  },
+  "HAPOEL": {
+   "providerTeamIds": [
+    "131570"
+   ],
+   "canonicalTricode": null,
+   "name": "Hapoel Jerusalem"
+  },
+  "HOU": {
+   "providerTeamIds": [
+    "10"
+   ],
+   "canonicalTricode": "HOU",
+   "name": "Houston Rockets"
+  },
+  "IND": {
+   "providerTeamIds": [
+    "11"
+   ],
+   "canonicalTricode": "IND",
+   "name": "Indiana Pacers"
+  },
+  "LAC": {
+   "providerTeamIds": [
+    "12"
+   ],
+   "canonicalTricode": "LAC",
+   "name": "LA Clippers"
+  },
+  "LAL": {
+   "providerTeamIds": [
+    "13"
+   ],
+   "canonicalTricode": "LAL",
+   "name": "Los Angeles Lakers"
+  },
+  "MEL": {
+   "providerTeamIds": [
+    "111124"
+   ],
+   "canonicalTricode": null,
+   "name": "Melbourne United"
+  },
+  "MEM": {
+   "providerTeamIds": [
+    "29"
+   ],
+   "canonicalTricode": "MEM",
+   "name": "Memphis Grizzlies"
+  },
+  "MIA": {
+   "providerTeamIds": [
+    "14"
+   ],
+   "canonicalTricode": "MIA",
+   "name": "Miami Heat"
+  },
+  "MIL": {
+   "providerTeamIds": [
+    "15"
+   ],
+   "canonicalTricode": "MIL",
+   "name": "Milwaukee Bucks"
+  },
+  "MIN": {
+   "providerTeamIds": [
+    "16"
+   ],
+   "canonicalTricode": "MIN",
+   "name": "Minnesota Timberwolves"
+  },
+  "MRC": {
+   "providerTeamIds": [
+    "126689"
+   ],
+   "canonicalTricode": null,
+   "name": "Ra'Anana"
+  },
+  "NO": {
+   "providerTeamIds": [
+    "3"
+   ],
+   "canonicalTricode": "NOP",
+   "name": "New Orleans Pelicans"
+  },
+  "NY": {
+   "providerTeamIds": [
+    "18"
+   ],
+   "canonicalTricode": "NYK",
+   "name": "New York Knicks"
+  },
+  "NZL": {
+   "providerTeamIds": [
+    "111836"
+   ],
+   "canonicalTricode": null,
+   "name": "New Zealand Breakers"
+  },
+  "OKC": {
+   "providerTeamIds": [
+    "25"
+   ],
+   "canonicalTricode": "OKC",
+   "name": "Oklahoma City Thunder"
+  },
+  "ORL": {
+   "providerTeamIds": [
+    "19"
+   ],
+   "canonicalTricode": "ORL",
+   "name": "Orlando Magic"
+  },
+  "PHI": {
+   "providerTeamIds": [
+    "20"
+   ],
+   "canonicalTricode": "PHI",
+   "name": "Philadelphia 76ers"
+  },
+  "PHX": {
+   "providerTeamIds": [
+    "21"
+   ],
+   "canonicalTricode": "PHX",
+   "name": "Phoenix Suns"
+  },
+  "POR": {
+   "providerTeamIds": [
+    "22"
+   ],
+   "canonicalTricode": "POR",
+   "name": "Portland Trail Blazers"
+  },
+  "REAL": {
+   "providerTeamIds": [
+    "66329"
+   ],
+   "canonicalTricode": null,
+   "name": "Real Madrid"
+  },
+  "SA": {
+   "providerTeamIds": [
+    "24"
+   ],
+   "canonicalTricode": "SAS",
+   "name": "San Antonio Spurs"
+  },
+  "SAC": {
+   "providerTeamIds": [
+    "23"
+   ],
+   "canonicalTricode": "SAC",
+   "name": "Sacramento Kings"
+  },
+  "TOR": {
+   "providerTeamIds": [
+    "28"
+   ],
+   "canonicalTricode": "TOR",
+   "name": "Toronto Raptors"
+  },
+  "UTAH": {
+   "providerTeamIds": [
+    "26"
+   ],
+   "canonicalTricode": "UTA",
+   "name": "Utah Jazz"
+  },
+  "WSH": {
+   "providerTeamIds": [
+    "27"
+   ],
+   "canonicalTricode": "WAS",
+   "name": "Washington Wizards"
+  }
+ },
+ "nonNbaTeams": [
+  "CNS · Cairns Taipans",
+  "FLMG · Flamengo",
+  "GUANGZHOU · Guangzhou Loong-Lions",
+  "HAPOEL · Hapoel Jerusalem",
+  "MEL · Melbourne United",
+  "MRC · Ra'Anana",
+  "NZL · New Zealand Breakers",
+  "REAL · Real Madrid"
+ ],
+ "lastRun": {
+  "startedAt": "2026-09-22T04:53:19.182Z",
+  "season": 2024,
+  "limit": null,
+  "force": false,
+  "attempted": 1392,
+  "written": 1392,
+  "writtenNoBoxscore": 0,
+  "failed": 0,
+  "failures": {},
+  "finishedAt": "2026-09-22T05:00:28.222Z",
+  "requestsMade": 1393,
+  "outcome": "ok"
+ }
+}
