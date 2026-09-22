@@ -16,23 +16,32 @@
  * to experimental/ledger.json (re-grading a date replaces its entry; the ledger never double-counts).
  *
  * Run (from app/):
- *   npx tsx scripts/nba/grade-nba-experimental-forecasts.mjs [--write] [--fetch] [--now ISO] [--date YYYY-MM-DD]
+ *   npx tsx scripts/nba/grade-nba-experimental-forecasts.mjs [--write] [--fetch] [--now ISO] [--date YYYY-MM-DD] [--family v0|v0.1]
+ *
+ * FAMILIES (v1.8 A1): each family grades its own forecasts into its own ledger (experimental/ vs
+ * experimental-v0.1/). Fetched box scores are looked up across both families' caches and written only to
+ * the grading family's own cache, so a game is fetched once even when two families forecast it.
  * Exit: 0 ok · 1 usage / refused
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { gradeForecastGame, summariseGrades, LABELS } from "../../src/lib/sports/nba/experimental-forecast.mjs";
+import { gradeForecastGame, summariseGrades, LABELS, familySpec, familyGuard, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { parseSummary, LabelOrderError } from "../../src/lib/sports/nba/boxscore-parse.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const NBA = path.resolve(APP, "..", "data", "internal", "research", "nba");
 const CORPUS = path.join(NBA, "corpus-v1.json");
 const BOXSCORES = path.join(NBA, "boxscores");
-const EXP = path.join(NBA, "experimental");
+const argvEarly = process.argv.slice(2);
+const familyArg = (() => { const i = argvEarly.indexOf("--family"); return i === -1 ? "v0" : argvEarly[i + 1] ?? null; })();
+let FAMILY;
+try { FAMILY = familySpec(familyArg); } catch (e) { console.error(e.message); process.exit(1); }
+const EXP = path.join(NBA, FAMILY.dir);
 const FORECASTS = path.join(EXP, "forecasts");
 const EXP_BOX = path.join(EXP, "boxscores");
+const ALL_EXP_BOX = Object.values(FAMILIES).map((f) => path.join(NBA, f.dir, "boxscores"));
 const LEDGER = path.join(EXP, "ledger.json");
 const RESULTS = path.join(APP, "public", "data", "nba", "results", "latest.json");
 const SUMMARY_URL = (id) => `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${encodeURIComponent(id)}`;
@@ -47,7 +56,7 @@ const ONLY_DATE = opt("--date");
 const NOW = opt("--now") ?? new Date().toISOString();
 if (!Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now must be ISO"); process.exit(1); }
 if (ONLY_DATE && !/^\d{4}-\d{2}-\d{2}$/.test(ONLY_DATE)) { console.error("REFUSED: --date YYYY-MM-DD"); process.exit(1); }
-if (!fs.existsSync(FORECASTS)) { console.log("no forecasts directory — nothing to grade"); process.exit(0); }
+if (!fs.existsSync(FORECASTS)) { console.log(`no forecasts directory for family ${FAMILY.family} — nothing to grade`); process.exit(0); }
 
 const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
 const corpus = readJson(CORPUS);
@@ -63,7 +72,7 @@ function findFinal(id) {
   return null;
 }
 function findBoxscore(id) {
-  for (const [dir, source] of [[BOXSCORES, "corpus"], [EXP_BOX, "experimental-fetch"]]) {
+  for (const [dir, source] of [[BOXSCORES, "corpus"], ...ALL_EXP_BOX.map((d) => [d, "experimental-fetch"])]) {
     const f = path.join(dir, `${id}.json`);
     if (fs.existsSync(f)) { try { return { doc: readJson(f), source }; } catch { /* unreadable → treat as absent */ } }
   }
@@ -94,10 +103,19 @@ async function fetchSummary(id) {
 
 /* ─────────────── grade ─────────────── */
 const files = fs.readdirSync(FORECASTS).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().filter((f) => !ONLY_DATE || f === `${ONLY_DATE}.json`);
-const ledger = fs.existsSync(LEDGER) ? readJson(LEDGER) : { schemaVersion: 1, artifact: "nba-experimental-ledger", dataClass: "PRIVATE_RESEARCH", productEligible: false, labels: Object.values(LABELS), entries: [] };
+const ledger = fs.existsSync(LEDGER) ? readJson(LEDGER) : { schemaVersion: 1, artifact: "nba-experimental-ledger", family: FAMILY.family, modelVersion: FAMILY.modelVersion, poolRule: FAMILY.poolRule, dataClass: "PRIVATE_RESEARCH", productEligible: false, labels: Object.values(LABELS), entries: [] };
+// A LEDGER NEVER MIXES FAMILIES. The sibling directories normally keep them apart, but a path is not a
+// proof — so the check reads the document. An unstamped ledger is legacy v0 and is adopted by v0 only.
+const ledgerGate = familyGuard({ family: FAMILY.family, doc: ledger, what: "ledger" });
+if (!ledgerGate.ok) { console.error(`REFUSED: ${path.relative(path.resolve(APP, ".."), LEDGER)} — ${ledgerGate.detail}`); process.exit(1); }
+if (ledgerGate.adopt) { ledger.family = FAMILY.family; ledger.modelVersion = FAMILY.modelVersion; ledger.poolRule = FAMILY.poolRule; }
 const entries = [];
 for (const file of files) {
   const artifact = readJson(path.join(FORECASTS, file));
+  // ...and neither does a GRADING RUN. A forecast that declares another family is refused rather than
+  // averaged in: the ledger's summary would otherwise blend two pool rules into one record.
+  const artGate = familyGuard({ family: FAMILY.family, doc: artifact, what: "forecast artifact" });
+  if (!artGate.ok) { console.error(`REFUSED: ${FAMILY.dir}/forecasts/${file} — ${artGate.detail}`); process.exit(1); }
   const date = artifact.date ?? file.slice(0, 10);
   const graded = [];
   const pending = [];
@@ -127,7 +145,7 @@ for (const file of files) {
   const summary = summariseGrades(graded);
   const entry = { date, gradedAt: NOW, modelVersion: artifact.modelVersion ?? null, inputAsOf: artifact.inputAsOf ?? null, forecastGames: (artifact.games ?? []).length, graded: graded.filter((g) => g.graded).length, pending, fetched, summary, games: graded };
   entries.push(entry);
-  console.log(`${date}: forecast ${entry.forecastGames} · graded ${entry.graded} · pending ${pending.length}${FETCH ? ` · fetched ${fetched.length}` : ""}`);
+  console.log(`[${FAMILY.family}] ${date}: forecast ${entry.forecastGames} · graded ${entry.graded} · pending ${pending.length}${FETCH ? ` · fetched ${fetched.length}` : ""}`);
   for (const [label, b] of Object.entries(summary)) if (b.games) console.log(`  ${label}: games ${b.games} · elo brier ${b.winner.elo.brier} ll ${b.winner.elo.logLoss} · sim brier ${b.winner.sim.brier} ll ${b.winner.sim.logLoss} · margin MAE ${b.score.marginMAE} · total MAE ${b.score.totalMAE} · minutes MAE ${b.players.minutesMAE} (rows ${b.players.matchedRows}) · cond pts MAE ${b.players.conditionalMAE.pts}`);
 }
 
