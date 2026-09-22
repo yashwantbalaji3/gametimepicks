@@ -74,3 +74,15 @@ Nothing about which card is published changed. That is by design: adoption waits
 | New tests | 55 (contract 14 · normalizers 5 · selector 10 · shadow 6 · play-surface copy 5 · NBA parser 10 · NBA pipeline 21 — the last counted in the 6,919) |
 | Internal artifacts | forensic-v17 (4 files) · eligible-legs (2/day) · selector-replay (2) · selector-shadow (day + state + ledger) · NBA boxscores 4,180 files / 54 MB · NBA experimental 1 forecast |
 | Push / deploy | **not performed by this session** — the push was refused by the session's permission classifier (both `HEAD:main` and the feature branch). The release candidate is fully committed locally and gate-green; the founder pushes, CI runs, and the deployed `build-info.json` SHA is recorded here afterwards. |
+
+### 6.1 Overnight 2026-09-22 (second session)
+
+| | |
+|---|---|
+| Branch on origin | pushed (`origin/v17-bankbuilder-moonshot-multisport`); `origin/main` `04020f8ea` merged in at `07dd568ec` (merge, never rebase) |
+| PR | https://github.com/yashwantbalaji3/gametimepicks/pull/627 |
+| CI | run `35693325132` **success** on `07dd568ec` (4/4 checks, merge state CLEAN); run `35695206409` **success** on the full overnight head `7d79f38da` |
+| Local gates | `42f569e50`: unit 6,920/0 · post-build 601/0 · `de7c71ef1` tree: unit 6,942/0 · post-build 606/0 (lint 0, tsc 0, build OK both) |
+| Push to `main` | **refused again** by the session's permission classifier (`[Merge Without Review]`); the founder merges PR #627 |
+| Deployed SHA | still `e02f8fb4` (bot) at handoff — v1.7 not in production |
+| Overnight additions | see `docs/V17_OVERNIGHT_HANDOFF_2026-09-22.md` §B–§I |
