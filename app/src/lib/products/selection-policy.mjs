@@ -26,12 +26,16 @@ export const SELECTION_POLICIES = Object.freeze({
       poolOddsMax: 2000,           // the model-qualified pool's outer price bound
       seedStake: 100,              // the $100 seed each lane risks (rolled stake rides the ladder)
       activationCutoffMinutes: 30, // every leg must be at least this far from first pitch/kickoff
-      candidateSource: "model-qualified picks only (the model-pick pool; sportsbook prices alone never qualify a leg)",
-      ranking: "hitRateScore desc, then shorter price",
+      // v1.7 audit S9: the two lines below described the retired World Cup executor. What actually runs
+      // since 2026-09-05 is recorded here so the registry and the executor agree.
+      candidateSource: "mlb/team-markets/<date>.json — de-vigged DraftKings favourites (ML, run line, total); every probability is the MARKET's, no model qualifies a leg",
+      ranking: "Lane A: max product of market-implied leg probabilities subject to combined decimal ≥ rung goal / carried stake, tie → fewer legs → smallest overshoot (top-24 by p, 2–4 legs, 1 leg per game). Lane B: same inside the +200..+700 band, else Lane A's rule",
     }),
     executors: Object.freeze([
-      "src/lib/world-cup/model-qualified-picks.ts · buildDailyLaneCandidates (BANK_BUILDER_MAX_ODDS, POOL_ODDS_MAX, selectLegs used-set)",
-      "src/lib/daily-portfolio/accounting.ts · laneEligibility (targetLegs, ACTIVATION_CUTOFF_MIN)",
+      "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (pool, receiptPositions, bbEligibility, ACTIVATION_CUTOFF_MIN)",
+      "src/lib/daily-portfolio/bank-builder-generation.ts · selectSafestTargetFitCard / selectValueTargetFitCard (VALUE_BAND)",
+      "src/lib/daily-portfolio/bank-builder-correlation-review.ts · both-lanes construction (laneAMaxLegs, shared-game escape)",
+      "src/lib/daily-portfolio/mlb-team-legs.ts · loadMlbTeamLegs (ODDS_MIN −650, ODDS_MAX 400, favourites only)",
     ]),
   }),
   "moonshot@1": Object.freeze({

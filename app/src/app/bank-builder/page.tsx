@@ -30,6 +30,8 @@ import { currentRunSteps, positionFromReceipts, readReceipts } from "@/lib/produ
 import { clearedDetailFromReceipts, laneDisplayFromReceipts, receiptPositionRecord } from "@/lib/bank-builder/receipt-lane-display";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
 import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-proposal-card";
+import EligibleUniverse from "@/components/products/eligible-universe";
+import { loadProductAvailability } from "@/lib/products/availability";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import fs from "node:fs";
@@ -150,7 +152,16 @@ export default function BankBuilderPage() {
   const pubLedger = loadPublicBankBuilderLedger();
   const currentBankroll = pubSummary?.currentBankrollUnits ?? BANK_BUILDER_BASE;
   const rec = pubSummary?.record ?? { wins: 0, losses: 0, pushes: 0 };
-  const recordLabel = `${rec.wins}–${rec.losses}${rec.pushes ? `–${rec.pushes}` : ""}`;
+  // v1.7 audit S3: `pubSummary.record` is the completed-ladder run frozen 2026-06-13 (5–0) and read as
+  // "the product's record" beside live lanes. The official Bank Builder record is the protected
+  // settled-money owner (mr-dub/portfolio.json, Rule S fold) — the same number /, /today and /results print.
+  const officialRecord = (() => {
+    try {
+      const p = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "portfolio.json"), "utf8")) as { record?: { wins?: number; losses?: number; voids?: number } };
+      return p.record && Number.isFinite(p.record.wins) && Number.isFinite(p.record.losses) ? p.record : null;
+    } catch { return null; }
+  })();
+  const recordLabel = officialRecord ? `${officialRecord.wins}–${officialRecord.losses}${officialRecord.voids ? `–${officialRecord.voids}` : ""}` : "—";
   // Crown reached: bankroll has cleared the $10,000 goal (resolveLadderStep → null) with a
   // clean card — the ladder is COMPLETE. We pin the display rung to the final step (not the
   // Step-1 fallback) so labels read $3,500 → $10,000.
@@ -460,6 +471,10 @@ export default function BankBuilderPage() {
             : `Next daily evaluation: ${RUNBOOKS.mlb.products.when}. A watchdog re-runs a missed morning before 7:00 AM ET.`}
         </span>
       </div>
+
+      {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
+          reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
+      <EligibleUniverse availability={loadProductAvailability()} compact />
 
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE

@@ -21,6 +21,8 @@ import MoonshotLadderV2 from "@/components/moonshot/ladder-v2";
 import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
 import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
+import EligibleUniverse from "@/components/products/eligible-universe";
+import { loadProductAvailability } from "@/lib/products/availability";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import LifecycleRecord from "@/components/products/lifecycle-record";
 import { positionFromReceipts, readReceipts } from "@/lib/products/ladder-position.mjs";
@@ -209,6 +211,10 @@ export default function MoonshotPage() {
           ? "Next transition: today's cards settle overnight from official results. Both legs win → the whole payout carries to the lane's next day; either leg loses → the lane restarts at $25."
           : "No card is placed today. The ladder deals again tomorrow morning from wherever each lane stands."}
       </p>
+
+      {/* v1.7 — which sports could contribute a leg today, from the availability owner (counts + plain
+          reasons; names the market-priced caveat). Same component as /bank-builder, same owner. */}
+      <EligibleUniverse availability={loadProductAvailability()} compact />
 
       {/*
         TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).
