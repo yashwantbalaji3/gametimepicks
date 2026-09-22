@@ -18,6 +18,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { fetchScoreboardWindowEvents, isProviderRefusal, utcDayStart, utcDayEnd } from "../../src/lib/sports/espn-scoreboard-window.mjs";
+
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = path.join(APP, "public", "data", "ufc", "results");
 
@@ -26,24 +28,30 @@ const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const DAYS = Math.min(31, Math.max(1, Number(arg("--days", "9"))));
 
-const fmt = (d) => d.toISOString().slice(0, 10).replaceAll("-", "");
-const from = fmt(new Date(Date.parse(NOW) - DAYS * 86400_000));
-const to = fmt(new Date(Date.parse(NOW)));
 /*
  * P196 · Release C: `limit=1000` is load-bearing. Without it ESPN's default page size truncated
  * the 08-22 event to 7 of 13 bouts — the ENTIRE MAIN CARD, headliner included, silently absent
  * while every returned row read STATUS_FINAL. A capture that looks complete and is not is the
  * worst kind; the history fetcher always carried the parameter and this one had to learn it.
  */
-const url = `https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${from}-${to}&limit=1000`;
 
-let data = null;
+/*
+ * v1.8 B4: month-window transport through the ONE shared owner. The range form (`dates=A-B`) died on
+ * 2026-09-20 and this capture swallowed the 400 as SOURCE_STALE for a week — green, writing nothing
+ * (NFL results froze at 2026-09-15). A 4xx is the provider REFUSING the request form: it will not heal
+ * by waiting, so it exits 1 (the workflow records the refusal and goes red). Network / 5xx / malformed
+ * payloads stay SOURCE_STALE, exit 0, last-known-good stands. Window bounds are whole UTC days, as the
+ * old day-granular form was.
+ */
+const DRY = process.argv.includes("--dry-run");
+const d0 = utcDayStart(new Date(Date.parse(NOW) - DAYS * 86400_000));
+const d1 = utcDayEnd(new Date(Date.parse(NOW)));
+let data = null, urls = [];
 try {
-  const res = await fetch(url);
-  const parsed = JSON.parse(await res.text());
-  if (!Array.isArray(parsed.events)) throw new Error("no events array");
-  data = parsed;
+  const r = await fetchScoreboardWindowEvents("mma/ufc", d0, d1);
+  data = { events: r.events }; urls = r.urls;
 } catch (err) {
+  if (isProviderRefusal(err)) { console.error(`REFUSED: mma scoreboard rejected the request (HTTP ${err.status}) — a 4xx is a contract change, not an outage; nothing written`); process.exit(1); }
   console.log(`SOURCE_STALE: mma scoreboard unavailable (${String(err?.message ?? err).slice(0, 80)}) — last-known-good artifact stands, nothing written`);
   process.exit(0);
 }
@@ -99,6 +107,8 @@ const artifact = {
   completedCount: completed.length,
   rows,
 };
+artifact.source.url = urls.join(" ");
+if (DRY) { console.log(`dry-run: state ${artifact.state}, rows ${rows.length}, completed ${completed.length}, window ${d0.toISOString()}..${d1.toISOString()} from ${urls.length} month request(s); nothing written`); process.exit(0); }
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, "latest.json"), JSON.stringify(artifact, null, 1));
 console.log(`ufc results/latest.json: state ${artifact.state}, rows ${rows.length}, completed ${completed.length}`);
