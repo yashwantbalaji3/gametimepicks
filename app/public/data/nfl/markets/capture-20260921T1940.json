@@ -1,0 +1,6712 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-market-capture",
+ "dataClass": "MARKET_CAPTURE_PUBLIC",
+ "sport": "nfl",
+ "generatedAt": "2026-09-21T19:40:58Z",
+ "capturedAt": "2026-09-21T19:40:58Z",
+ "source": {
+  "id": "odds_api",
+  "name": "The Odds API",
+  "license": "paid plan; prices are market facts displayed with attribution"
+ },
+ "disclaimer": "Sportsbook prices captured pre-kickoff for comparison. Prices are market facts, not GameTimePicks predictions; no wager is suggested.",
+ "eventCount": 30,
+ "rows": [
+  {
+   "canonicalEventId": "nfl-401872658",
+   "providerEventId": "401872658",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "PIT",
+    "name": "Pittsburgh Steelers"
+   },
+   "away": {
+    "abbr": "ATL",
+    "name": "Atlanta Falcons"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 250,
+      "home": -300
+     },
+     "noVigWinProb": {
+      "away": 0.275862,
+      "home": 0.724138
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -105,
+       "home": -112
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -110,
+       "under": -120
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": 252,
+      "home": -310
+     },
+     "noVigWinProb": {
+      "away": 0.273115,
+      "home": 0.726885
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "away": 220,
+      "home": -286
+     },
+     "noVigWinProb": {
+      "away": 0.296649,
+      "home": 0.703351
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -114,
+       "home": -107
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -109,
+       "under": -112
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": 255,
+      "home": -310
+     },
+     "noVigWinProb": {
+      "away": 0.271433,
+      "home": 0.728567
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": 255,
+      "home": -310
+     },
+     "noVigWinProb": {
+      "away": 0.271433,
+      "home": 0.728567
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 252,
+      "home": -310
+     },
+     "noVigWinProb": {
+      "away": 0.273115,
+      "home": 0.726885
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -107,
+       "home": -103
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 232,
+      "home": -300
+     },
+     "noVigWinProb": {
+      "away": 0.286533,
+      "home": 0.713467
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": 235,
+      "home": -295
+     },
+     "noVigWinProb": {
+      "away": 0.285559,
+      "home": 0.714441
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -109,
+       "home": -109
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -117,
+       "under": -104
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T13:48:00Z",
+   "capturedAt": "2026-09-13T13:48:01Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.724894,
+    "awayWinProbNoVig": 0.275106,
+    "spreadHome": -6.5,
+    "total": 41,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1.002747
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872659",
+   "providerEventId": "401872659",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "IND",
+    "name": "Indianapolis Colts"
+   },
+   "away": {
+    "abbr": "BAL",
+    "name": "Baltimore Ravens"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": -175,
+      "home": 140
+     },
+     "noVigWinProb": {
+      "away": 0.604317,
+      "home": 0.395683
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -112,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 48,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": -165,
+      "home": 145
+     },
+     "noVigWinProb": {
+      "away": 0.604034,
+      "home": 0.395966
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -113,
+       "home": -107
+      }
+     },
+     "total": {
+      "line": 48,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "away": -175,
+      "home": 143
+     },
+     "noVigWinProb": {
+      "away": 0.607283,
+      "home": 0.392717
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -117,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 48,
+      "prices": {
+       "over": -108,
+       "under": -113
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": -165,
+      "home": 142
+     },
+     "noVigWinProb": {
+      "away": 0.601084,
+      "home": 0.398916
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 48,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": -165,
+      "home": 140
+     },
+     "noVigWinProb": {
+      "away": 0.599092,
+      "home": 0.400908
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 48,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": -165,
+      "home": 145
+     },
+     "noVigWinProb": {
+      "away": 0.604034,
+      "home": 0.395966
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -109,
+       "home": -101
+      }
+     },
+     "total": {
+      "line": 48,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": -162,
+      "home": 132
+     },
+     "noVigWinProb": {
+      "away": 0.589239,
+      "home": 0.410761
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 48,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": -170,
+      "home": 144
+     },
+     "noVigWinProb": {
+      "away": 0.605724,
+      "home": 0.394276
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -110,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -118,
+       "under": -103
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T13:48:00Z",
+   "capturedAt": "2026-09-13T13:48:01Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.395966,
+    "awayWinProbNoVig": 0.604034,
+    "spreadHome": 3,
+    "total": 48,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872660",
+   "providerEventId": "401872660",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "HOU",
+    "name": "Houston Texans"
+   },
+   "away": {
+    "abbr": "BUF",
+    "name": "Buffalo Bills"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": -120,
+      "home": 100
+     },
+     "noVigWinProb": {
+      "away": 0.521739,
+      "home": 0.478261
+     },
+     "spread": {
+      "line": 1,
+      "prices": {
+       "away": -110,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": -116,
+      "home": -104
+     },
+     "noVigWinProb": {
+      "away": 0.513007,
+      "home": 0.486993
+     },
+     "spread": {
+      "line": 1,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "away": -121,
+      "home": 100
+     },
+     "noVigWinProb": {
+      "away": 0.522678,
+      "home": 0.477322
+     },
+     "spread": {
+      "line": 1.5,
+      "prices": {
+       "away": -108,
+       "home": -113
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -113,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": -120,
+      "home": 100
+     },
+     "noVigWinProb": {
+      "away": 0.521739,
+      "home": 0.478261
+     },
+     "spread": {
+      "line": 1,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": -120,
+      "home": 100
+     },
+     "noVigWinProb": {
+      "away": 0.521739,
+      "home": 0.478261
+     },
+     "spread": {
+      "line": 1.5,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": -116,
+      "home": -104
+     },
+     "noVigWinProb": {
+      "away": 0.513007,
+      "home": 0.486993
+     },
+     "spread": {
+      "line": 1,
+      "prices": {
+       "away": -105,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": -119,
+      "home": -102
+     },
+     "noVigWinProb": {
+      "away": 0.518328,
+      "home": 0.481672
+     },
+     "spread": {
+      "line": 1,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": -118,
+      "home": 100
+     },
+     "noVigWinProb": {
+      "away": 0.519824,
+      "home": 0.480176
+     },
+     "spread": {
+      "line": 1,
+      "prices": {
+       "away": -110,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -109,
+       "under": -110
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T13:48:00Z",
+   "capturedAt": "2026-09-13T13:48:01Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.479258,
+    "awayWinProbNoVig": 0.520742,
+    "spreadHome": 1,
+    "total": 44.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1.001915
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872661",
+   "providerEventId": "401872661",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "CAR",
+    "name": "Carolina Panthers"
+   },
+   "away": {
+    "abbr": "CHI",
+    "name": "Chicago Bears"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": 140,
+      "away": -165
+     },
+     "noVigWinProb": {
+      "home": 0.400908,
+      "away": 0.599092
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "home": -108,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "home": 145,
+      "away": -165
+     },
+     "noVigWinProb": {
+      "home": 0.395966,
+      "away": 0.604034
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "home": 140,
+      "away": -175
+     },
+     "noVigWinProb": {
+      "home": 0.395683,
+      "away": 0.604317
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "home": -107,
+       "away": -114
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": 138,
+      "away": -160
+     },
+     "noVigWinProb": {
+      "home": 0.405743,
+      "away": 0.594257
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": 140,
+      "away": -165
+     },
+     "noVigWinProb": {
+      "home": 0.400908,
+      "away": 0.599092
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": 145,
+      "away": -165
+     },
+     "noVigWinProb": {
+      "home": 0.395966,
+      "away": 0.604034
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "home": -105,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": 139,
+      "away": -171
+     },
+     "noVigWinProb": {
+      "home": 0.398711,
+      "away": 0.601289
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "home": -120,
+       "away": 100
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": 142,
+      "away": -170
+     },
+     "noVigWinProb": {
+      "home": 0.396243,
+      "away": 0.603757
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "home": -106,
+       "away": -114
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -112,
+       "under": -108
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T13:48:00Z",
+   "capturedAt": "2026-09-13T13:48:01Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.397729,
+    "awayWinProbNoVig": 0.602271,
+    "spreadHome": 3,
+    "total": 47,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1.002468
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872925",
+   "providerEventId": "401872925",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "CIN",
+    "name": "Cincinnati Bengals"
+   },
+   "away": {
+    "abbr": "TB",
+    "name": "Tampa Bay Buccaneers"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": -210,
+      "away": 170
+     },
+     "noVigWinProb": {
+      "home": 0.646522,
+      "away": 0.353478
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": -108,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 50.5,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "home": -200,
+      "away": 174
+     },
+     "noVigWinProb": {
+      "home": 0.646226,
+      "away": 0.353774
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": -107,
+       "away": -113
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "home": -210,
+      "away": 170
+     },
+     "noVigWinProb": {
+      "home": 0.646522,
+      "away": 0.353478
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 50.5,
+      "prices": {
+       "over": -109,
+       "under": -112
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": -200,
+      "away": 170
+     },
+     "noVigWinProb": {
+      "home": 0.642857,
+      "away": 0.357143
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": -105,
+       "away": -115
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -210,
+      "away": 175
+     },
+     "noVigWinProb": {
+      "home": 0.650704,
+      "away": 0.349296
+     },
+     "spread": {
+      "line": -3.5,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -200,
+      "away": 174
+     },
+     "noVigWinProb": {
+      "home": 0.646226,
+      "away": 0.353774
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": 100,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": -113,
+       "under": -102
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": -214,
+      "away": 171
+     },
+     "noVigWinProb": {
+      "home": 0.648746,
+      "away": 0.351254
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 50.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": -205,
+      "away": 171
+     },
+     "noVigWinProb": {
+      "home": 0.645576,
+      "away": 0.354424
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": -107,
+       "away": -113
+      }
+     },
+     "total": {
+      "line": 50.5,
+      "prices": {
+       "over": -109,
+       "under": -110
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T13:48:00Z",
+   "capturedAt": "2026-09-13T13:48:01Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.646331,
+    "awayWinProbNoVig": 0.353669,
+    "spreadHome": -4,
+    "total": 50.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1.000296
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872922",
+   "providerEventId": "401872922",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "JAX",
+    "name": "Jacksonville Jaguars"
+   },
+   "away": {
+    "abbr": "CLE",
+    "name": "Cleveland Browns"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 350,
+      "home": -450
+     },
+     "noVigWinProb": {
+      "away": 0.213592,
+      "home": 0.786408
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -108,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -110,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": 354,
+      "home": -455
+     },
+     "noVigWinProb": {
+      "away": 0.211775,
+      "home": 0.788225
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "away": 320,
+      "home": -435
+     },
+     "noVigWinProb": {
+      "away": 0.226503,
+      "home": 0.773497
+     },
+     "spread": {
+      "line": -8.5,
+      "prices": {
+       "away": -109,
+       "home": -112
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -107,
+       "under": -114
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": 340,
+      "home": -435
+     },
+     "noVigWinProb": {
+      "away": 0.218457,
+      "home": 0.781543
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": 340,
+      "home": -460
+     },
+     "noVigWinProb": {
+      "away": 0.216718,
+      "home": 0.783282
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 354,
+      "home": -455
+     },
+     "noVigWinProb": {
+      "away": 0.211775,
+      "home": 0.788225
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -110,
+       "home": 100
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 360,
+      "home": -490
+     },
+     "noVigWinProb": {
+      "away": 0.207454,
+      "home": 0.792546
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": 340,
+      "home": -460
+     },
+     "noVigWinProb": {
+      "away": 0.216718,
+      "home": 0.783282
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -117,
+       "home": -104
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -118,
+       "under": -117
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T13:48:00Z",
+   "capturedAt": "2026-09-13T13:48:01Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.783957,
+    "awayWinProbNoVig": 0.216043,
+    "spreadHome": -9,
+    "total": 40,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1.003126
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872923",
+   "providerEventId": "401872923",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "DET",
+    "name": "Detroit Lions"
+   },
+   "away": {
+    "abbr": "NO",
+    "name": "New Orleans Saints"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": -325,
+      "away": 260
+     },
+     "noVigWinProb": {
+      "home": 0.733542,
+      "away": 0.266458
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -108,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "home": -335,
+      "away": 270
+     },
+     "noVigWinProb": {
+      "home": 0.740221,
+      "away": 0.259779
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -108,
+       "away": -112
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "home": -345,
+      "away": 265
+     },
+     "noVigWinProb": {
+      "home": 0.738888,
+      "away": 0.261112
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 49.5,
+      "prices": {
+       "over": -113,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": -335,
+      "away": 272
+     },
+     "noVigWinProb": {
+      "home": 0.741256,
+      "away": 0.258744
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -340,
+      "away": 270
+     },
+     "noVigWinProb": {
+      "home": 0.740872,
+      "away": 0.259128
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": 100,
+       "under": -120
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -335,
+      "away": 270
+     },
+     "noVigWinProb": {
+      "home": 0.740221,
+      "away": 0.259779
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -103,
+       "away": -107
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": -330,
+      "away": 250
+     },
+     "noVigWinProb": {
+      "home": 0.728707,
+      "away": 0.271293
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 50,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": -325,
+      "away": 260
+     },
+     "noVigWinProb": {
+      "home": 0.733542,
+      "away": 0.266458
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -105,
+       "away": -115
+      }
+     },
+     "total": {
+      "line": 49.5,
+      "prices": {
+       "over": -117,
+       "under": -104
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T13:48:00Z",
+   "capturedAt": "2026-09-13T13:48:01Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.739236,
+    "awayWinProbNoVig": 0.260764,
+    "spreadHome": -7,
+    "total": 50,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1.001333
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872924",
+   "providerEventId": "401872924",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "TEN",
+    "name": "Tennessee Titans"
+   },
+   "away": {
+    "abbr": "NYJ",
+    "name": "New York Jets"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 100,
+      "home": -120
+     },
+     "noVigWinProb": {
+      "away": 0.478261,
+      "home": 0.521739
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -110,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 38.5,
+      "prices": {
+       "over": -110,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "spread": {
+      "line": 0,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 38.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "away": -103,
+      "home": -120
+     },
+     "noVigWinProb": {
+      "away": 0.481923,
+      "home": 0.518077
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -113,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 38.5,
+      "prices": {
+       "over": -109,
+       "under": -112
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "spread": {
+      "line": 0,
+      "prices": {
+       "away": 100,
+       "home": -120
+      }
+     },
+     "total": {
+      "line": 38.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": -105,
+      "home": -115
+     },
+     "noVigWinProb": {
+      "away": 0.489166,
+      "home": 0.510834
+     },
+     "spread": {
+      "line": -1,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 39,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "spread": {
+      "line": 0,
+      "prices": {
+       "away": 100,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 38.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": -110,
+      "home": -111
+     },
+     "noVigWinProb": {
+      "away": 0.498925,
+      "home": 0.501075
+     },
+     "spread": {
+      "line": -1,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 38.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": 100,
+      "home": -118
+     },
+     "noVigWinProb": {
+      "away": 0.480176,
+      "home": 0.519824
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -113,
+       "home": -106
+      }
+     },
+     "total": {
+      "line": 38.5,
+      "prices": {
+       "over": -114,
+       "under": -106
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T13:48:00Z",
+   "capturedAt": "2026-09-13T13:48:01Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.518077,
+    "awayWinProbNoVig": 0.481923,
+    "spreadHome": -1,
+    "total": 38.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872926",
+   "providerEventId": "401872926",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "LAC",
+    "name": "Los Angeles Chargers"
+   },
+   "away": {
+    "abbr": "ARI",
+    "name": "Arizona Cardinals"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 380,
+      "home": -500
+     },
+     "noVigWinProb": {
+      "away": 0.2,
+      "home": 0.8
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -118,
+       "home": -112
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": 393,
+      "home": -515
+     },
+     "noVigWinProb": {
+      "away": 0.194994,
+      "home": 0.805006
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -112,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "away": 360,
+      "home": -500
+     },
+     "noVigWinProb": {
+      "away": 0.206897,
+      "home": 0.793103
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -109,
+       "home": -112
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -113,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": 400,
+      "home": -515
+     },
+     "noVigWinProb": {
+      "away": 0.19279,
+      "home": 0.80721
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": 360,
+      "home": -500
+     },
+     "noVigWinProb": {
+      "away": 0.206897,
+      "home": 0.793103
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "away": 380,
+      "home": -500
+     },
+     "noVigWinProb": {
+      "away": 0.2,
+      "home": 0.8
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "away": 370,
+      "home": -500
+     },
+     "noVigWinProb": {
+      "away": 0.20339,
+      "home": 0.79661
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "fanduel",
+     "moneyline": {
+      "away": 385,
+      "home": -500
+     },
+     "noVigWinProb": {
+      "away": 0.198347,
+      "home": 0.801653
+     },
+     "spread": {
+      "line": -8.5,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -104,
+       "under": -118
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 393,
+      "home": -515
+     },
+     "noVigWinProb": {
+      "away": 0.194994,
+      "home": 0.805006
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -112,
+       "home": 101
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -109,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 370,
+      "home": -526
+     },
+     "noVigWinProb": {
+      "away": 0.202053,
+      "home": 0.797947
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": 390,
+      "home": -530
+     },
+     "noVigWinProb": {
+      "away": 0.195228,
+      "home": 0.804772
+     },
+     "spread": {
+      "line": -9.5,
+      "prices": {
+       "away": -112,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -113,
+       "under": -107
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T17:34:56Z",
+   "capturedAt": "2026-09-13T17:35:06Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.8,
+    "awayWinProbNoVig": 0.2,
+    "spreadHome": -9.5,
+    "total": 47,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872927",
+   "providerEventId": "401872927",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "MIN",
+    "name": "Minnesota Vikings"
+   },
+   "away": {
+    "abbr": "GB",
+    "name": "Green Bay Packers"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 110,
+      "home": -130
+     },
+     "noVigWinProb": {
+      "away": 0.457256,
+      "home": 0.542744
+     },
+     "spread": {
+      "line": -2,
+      "prices": {
+       "away": -110,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 46,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": 113,
+      "home": -133
+     },
+     "noVigWinProb": {
+      "away": 0.451297,
+      "home": 0.548703
+     },
+     "spread": {
+      "line": -2,
+      "prices": {
+       "away": -112,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 46,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "away": 105,
+      "home": -127
+     },
+     "noVigWinProb": {
+      "away": 0.465784,
+      "home": 0.534216
+     },
+     "spread": {
+      "line": -2,
+      "prices": {
+       "away": -113,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 46,
+      "prices": {
+       "over": -113,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": 112,
+      "home": -132
+     },
+     "noVigWinProb": {
+      "away": 0.453267,
+      "home": 0.546733
+     },
+     "spread": {
+      "line": -1,
+      "prices": {
+       "away": 100,
+       "home": -120
+      }
+     },
+     "total": {
+      "line": 46,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": 110,
+      "home": -130
+     },
+     "noVigWinProb": {
+      "away": 0.457256,
+      "home": 0.542744
+     },
+     "spread": {
+      "line": -2,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "away": 110,
+      "home": -130
+     },
+     "noVigWinProb": {
+      "away": 0.457256,
+      "home": 0.542744
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -102,
+       "home": -118
+      }
+     },
+     "total": {
+      "line": 46.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "away": 110,
+      "home": -130
+     },
+     "noVigWinProb": {
+      "away": 0.457256,
+      "home": 0.542744
+     },
+     "spread": {
+      "line": -2,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanduel",
+     "moneyline": {
+      "away": 114,
+      "home": -134
+     },
+     "noVigWinProb": {
+      "away": 0.449343,
+      "home": 0.550657
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -104,
+       "home": -118
+      }
+     },
+     "total": {
+      "line": 46.5,
+      "prices": {
+       "over": -104,
+       "under": -118
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 113,
+      "home": -133
+     },
+     "noVigWinProb": {
+      "away": 0.451297,
+      "home": 0.548703
+     },
+     "spread": {
+      "line": -1,
+      "prices": {
+       "away": 109,
+       "home": -120
+      }
+     },
+     "total": {
+      "line": 46,
+      "prices": {
+       "over": -102,
+       "under": -113
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 109,
+      "home": -134
+     },
+     "noVigWinProb": {
+      "away": 0.4552,
+      "home": 0.5448
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 46,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": 113,
+      "home": -132
+     },
+     "noVigWinProb": {
+      "away": 0.452101,
+      "home": 0.547899
+     },
+     "spread": {
+      "line": -2,
+      "prices": {
+       "away": -110,
+       "home": -109
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T17:34:56Z",
+   "capturedAt": "2026-09-13T17:35:06Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.5448,
+    "awayWinProbNoVig": 0.4552,
+    "spreadHome": -2,
+    "total": 46,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872928",
+   "providerEventId": "401872928",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "LV",
+    "name": "Las Vegas Raiders"
+   },
+   "away": {
+    "abbr": "MIA",
+    "name": "Miami Dolphins"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": -165,
+      "away": 140
+     },
+     "noVigWinProb": {
+      "home": 0.599092,
+      "away": 0.400908
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -112,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -105,
+       "under": -112
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "home": -166,
+      "away": 146
+     },
+     "noVigWinProb": {
+      "home": 0.605552,
+      "away": 0.394448
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "home": -159,
+      "away": 130
+     },
+     "noVigWinProb": {
+      "home": 0.585401,
+      "away": 0.414599
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -113,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -107,
+       "under": -114
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": -160,
+      "away": 138
+     },
+     "noVigWinProb": {
+      "home": 0.594257,
+      "away": 0.405743
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -160,
+      "away": 135
+     },
+     "noVigWinProb": {
+      "home": 0.591195,
+      "away": 0.408805
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -105,
+       "away": -115
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": 100,
+       "under": -120
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": -170,
+      "away": 142
+     },
+     "noVigWinProb": {
+      "home": 0.603757,
+      "away": 0.396243
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "home": -165,
+      "away": 135
+     },
+     "noVigWinProb": {
+      "home": 0.594025,
+      "away": 0.405975
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanduel",
+     "moneyline": {
+      "home": -164,
+      "away": 138
+     },
+     "noVigWinProb": {
+      "home": 0.596528,
+      "away": 0.403472
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -112,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -166,
+      "away": 146
+     },
+     "noVigWinProb": {
+      "home": 0.605552,
+      "away": 0.394448
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -101,
+       "away": -109
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -102,
+       "under": -113
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": -166,
+      "away": 135
+     },
+     "noVigWinProb": {
+      "home": 0.594574,
+      "away": 0.405426
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": -170,
+      "away": 140
+     },
+     "noVigWinProb": {
+      "home": 0.60177,
+      "away": 0.39823
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -106,
+       "under": -114
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T17:34:56Z",
+   "capturedAt": "2026-09-13T17:35:06Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.596528,
+    "awayWinProbNoVig": 0.403472,
+    "spreadHome": -3,
+    "total": 40.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872929",
+   "providerEventId": "401872929",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "PHI",
+    "name": "Philadelphia Eagles"
+   },
+   "away": {
+    "abbr": "WSH",
+    "name": "Washington Commanders"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": -275,
+      "away": 220
+     },
+     "noVigWinProb": {
+      "home": 0.701195,
+      "away": 0.298805
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "home": -105,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -110,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "home": -270,
+      "away": 222
+     },
+     "noVigWinProb": {
+      "home": 0.701468,
+      "away": 0.298532
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "home": -112,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "home": -265,
+      "away": 210
+     },
+     "noVigWinProb": {
+      "home": 0.692373,
+      "away": 0.307627
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "home": -107,
+       "away": -114
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -113,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": -265,
+      "away": 223
+     },
+     "noVigWinProb": {
+      "home": 0.701052,
+      "away": 0.298948
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -270,
+      "away": 220
+     },
+     "noVigWinProb": {
+      "home": 0.700162,
+      "away": 0.299838
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": -265,
+      "away": 215
+     },
+     "noVigWinProb": {
+      "home": 0.69577,
+      "away": 0.30423
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "home": -112,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "home": -275,
+      "away": 220
+     },
+     "noVigWinProb": {
+      "home": 0.701195,
+      "away": 0.298805
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanduel",
+     "moneyline": {
+      "home": -270,
+      "away": 220
+     },
+     "noVigWinProb": {
+      "home": 0.700162,
+      "away": 0.299838
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -270,
+      "away": 222
+     },
+     "noVigWinProb": {
+      "home": 0.701468,
+      "away": 0.298532
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "home": -107,
+       "away": -103
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": -260,
+      "away": 206
+     },
+     "noVigWinProb": {
+      "home": 0.688474,
+      "away": 0.311526
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": -260,
+      "away": 210
+     },
+     "noVigWinProb": {
+      "home": 0.691252,
+      "away": 0.308748
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "home": -108,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -113,
+       "under": -108
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T17:34:56Z",
+   "capturedAt": "2026-09-13T17:35:06Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.700162,
+    "awayWinProbNoVig": 0.299838,
+    "spreadHome": -6,
+    "total": 44,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872930",
+   "providerEventId": "401872930",
+   "kickoffUtc": "2026-09-14T00:20Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "NYG",
+    "name": "New York Giants"
+   },
+   "away": {
+    "abbr": "DAL",
+    "name": "Dallas Cowboys"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": -165,
+      "home": 140
+     },
+     "noVigWinProb": {
+      "away": 0.599092,
+      "home": 0.400908
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -108,
+       "home": -102
+      }
+     },
+     "total": {
+      "line": 48,
+      "prices": {
+       "over": -110,
+       "under": -118
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": -175,
+      "home": 150
+     },
+     "noVigWinProb": {
+      "away": 0.614035,
+      "home": 0.385965
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": -170,
+      "home": 149
+     },
+     "noVigWinProb": {
+      "away": 0.610558,
+      "home": 0.389442
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -110,
+       "home": 100
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": -172,
+      "home": 139
+     },
+     "noVigWinProb": {
+      "away": 0.601804,
+      "home": 0.398196
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": -170,
+      "home": 143
+     },
+     "noVigWinProb": {
+      "away": 0.604743,
+      "home": 0.395257
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -111,
+       "home": -107
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -114,
+       "under": -106
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-13T22:54:23Z",
+   "capturedAt": "2026-09-13T22:54:38Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.395257,
+    "awayWinProbNoVig": 0.604743,
+    "spreadHome": 3,
+    "total": 47.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872931",
+   "providerEventId": "401872931",
+   "kickoffUtc": "2026-09-15T00:15Z",
+   "seasonType": 2,
+   "week": 1,
+   "home": {
+    "abbr": "KC",
+    "name": "Kansas City Chiefs"
+   },
+   "away": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 110,
+      "home": -130
+     },
+     "noVigWinProb": {
+      "away": 0.457256,
+      "home": 0.542744
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "away": -118,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 42.5,
+      "prices": {
+       "over": -120,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "away": 108,
+      "home": -132
+     },
+     "noVigWinProb": {
+      "away": 0.457991,
+      "home": 0.542009
+     },
+     "spread": {
+      "line": -2,
+      "prices": {
+       "away": -108,
+       "home": -113
+      }
+     },
+     "total": {
+      "line": 42.5,
+      "prices": {
+       "over": -112,
+       "under": -109
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": 105,
+      "home": -125
+     },
+     "noVigWinProb": {
+      "away": 0.467532,
+      "home": 0.532468
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 42.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "away": 110,
+      "home": -130
+     },
+     "noVigWinProb": {
+      "away": 0.457256,
+      "home": 0.542744
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "away": -112,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 42.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "away": 110,
+      "home": -130
+     },
+     "noVigWinProb": {
+      "away": 0.457256,
+      "home": 0.542744
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 42.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 111,
+      "home": -131
+     },
+     "noVigWinProb": {
+      "away": 0.455253,
+      "home": 0.544747
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -102,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 43,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 108,
+      "home": -132
+     },
+     "noVigWinProb": {
+      "away": 0.457991,
+      "home": 0.542009
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 42.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": 113,
+      "home": -133
+     },
+     "noVigWinProb": {
+      "away": 0.451297,
+      "home": 0.548703
+     },
+     "spread": {
+      "line": -1.5,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 42.5,
+      "prices": {
+       "over": -112,
+       "under": -108
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-14T23:42:00Z",
+   "capturedAt": "2026-09-14T23:42:04Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.542744,
+    "awayWinProbNoVig": 0.457256,
+    "spreadHome": -1.5,
+    "total": 42.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872932",
+   "providerEventId": "401872932",
+   "kickoffUtc": "2026-09-18T00:15Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "BUF",
+    "name": "Buffalo Bills"
+   },
+   "away": {
+    "abbr": "DET",
+    "name": "Detroit Lions"
+   },
+   "books": [
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "home": -245,
+      "away": 190
+     },
+     "noVigWinProb": {
+      "home": 0.673141,
+      "away": 0.326859
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 54.5,
+      "prices": {
+       "over": -114,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": -250,
+      "away": 210
+     },
+     "noVigWinProb": {
+      "home": 0.688889,
+      "away": 0.311111
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 54.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -250,
+      "away": 210
+     },
+     "noVigWinProb": {
+      "home": 0.688889,
+      "away": 0.311111
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 54.5,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": -238,
+      "away": 195
+     },
+     "noVigWinProb": {
+      "home": 0.675031,
+      "away": 0.324969
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -108,
+       "away": -112
+      }
+     },
+     "total": {
+      "line": 54.5,
+      "prices": {
+       "over": -118,
+       "under": -102
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "home": -245,
+      "away": 200
+     },
+     "noVigWinProb": {
+      "home": 0.680556,
+      "away": 0.319444
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 54.5,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -257,
+      "away": 212
+     },
+     "noVigWinProb": {
+      "home": 0.691933,
+      "away": 0.308067
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -106,
+       "away": -104
+      }
+     },
+     "total": {
+      "line": 54.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": -245,
+      "away": 205
+     },
+     "noVigWinProb": {
+      "home": 0.684138,
+      "away": 0.315862
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -106,
+       "away": -114
+      }
+     },
+     "total": {
+      "line": 54.5,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-17T23:22:43Z",
+   "capturedAt": "2026-09-17T23:22:52Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.684138,
+    "awayWinProbNoVig": 0.315862,
+    "spreadHome": -5.5,
+    "total": 54.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872933",
+   "providerEventId": "401872933",
+   "kickoffUtc": "2026-09-20T17:00Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "ATL",
+    "name": "Atlanta Falcons"
+   },
+   "away": {
+    "abbr": "CAR",
+    "name": "Carolina Panthers"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": 125,
+      "away": -150
+     },
+     "noVigWinProb": {
+      "home": 0.425532,
+      "away": 0.574468
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "home": -120,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "home": 128,
+      "away": -148
+     },
+     "noVigWinProb": {
+      "home": 0.423613,
+      "away": 0.576387
+     },
+     "spread": {
+      "line": 2.5,
+      "prices": {
+       "home": 100,
+       "away": -120
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": 129,
+      "away": -150
+     },
+     "noVigWinProb": {
+      "home": 0.42123,
+      "away": 0.57877
+     },
+     "spread": {
+      "line": 2,
+      "prices": {
+       "home": 100,
+       "away": -120
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": 125,
+      "away": -145
+     },
+     "noVigWinProb": {
+      "home": 0.428884,
+      "away": 0.571116
+     },
+     "spread": {
+      "line": 2.5,
+      "prices": {
+       "home": 100,
+       "away": -120
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": 130,
+      "away": -155
+     },
+     "noVigWinProb": {
+      "home": 0.417007,
+      "away": 0.582993
+     },
+     "spread": {
+      "line": 2.5,
+      "prices": {
+       "home": 100,
+       "away": -120
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "home": 125,
+      "away": -150
+     },
+     "noVigWinProb": {
+      "home": 0.425532,
+      "away": 0.574468
+     },
+     "spread": {
+      "line": 2.5,
+      "prices": {
+       "home": 100,
+       "away": -120
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": 128,
+      "away": -148
+     },
+     "noVigWinProb": {
+      "home": 0.423613,
+      "away": 0.576387
+     },
+     "spread": {
+      "line": 2.5,
+      "prices": {
+       "home": 101,
+       "away": -112
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": 127,
+      "away": -150
+     },
+     "noVigWinProb": {
+      "home": 0.42337,
+      "away": 0.57663
+     },
+     "spread": {
+      "line": 2.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": 125,
+      "away": -148
+     },
+     "noVigWinProb": {
+      "home": 0.42685,
+      "away": 0.57315
+     },
+     "spread": {
+      "line": 2.5,
+      "prices": {
+       "home": 100,
+       "away": -121
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T13:34:45Z",
+   "capturedAt": "2026-09-20T13:34:47Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.423613,
+    "awayWinProbNoVig": 0.576387,
+    "spreadHome": 2.5,
+    "total": 43.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872938",
+   "providerEventId": "401872938",
+   "kickoffUtc": "2026-09-20T17:00Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "BAL",
+    "name": "Baltimore Ravens"
+   },
+   "away": {
+    "abbr": "NO",
+    "name": "New Orleans Saints"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": -425,
+      "away": 320
+     },
+     "noVigWinProb": {
+      "home": 0.772727,
+      "away": 0.227273
+     },
+     "spread": {
+      "line": -8,
+      "prices": {
+       "home": -110,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "home": -430,
+      "away": 337
+     },
+     "noVigWinProb": {
+      "home": 0.780001,
+      "away": 0.219999
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "home": 101,
+       "away": -121
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": -430,
+      "away": 338
+     },
+     "noVigWinProb": {
+      "home": 0.780393,
+      "away": 0.219607
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "home": 100,
+       "away": -120
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -440,
+      "away": 330
+     },
+     "noVigWinProb": {
+      "home": 0.777961,
+      "away": 0.222039
+     },
+     "spread": {
+      "line": -8,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": -375,
+      "away": 295
+     },
+     "noVigWinProb": {
+      "home": 0.757188,
+      "away": 0.242812
+     },
+     "spread": {
+      "line": -8.5,
+      "prices": {
+       "home": -105,
+       "away": -115
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "home": -425,
+      "away": 325
+     },
+     "noVigWinProb": {
+      "home": 0.774799,
+      "away": 0.225201
+     },
+     "spread": {
+      "line": -8,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -430,
+      "away": 337
+     },
+     "noVigWinProb": {
+      "home": 0.780001,
+      "away": 0.219999
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "home": 100,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": -441,
+      "away": 340
+     },
+     "noVigWinProb": {
+      "home": 0.781978,
+      "away": 0.218022
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": -400,
+      "away": 320
+     },
+     "noVigWinProb": {
+      "home": 0.770642,
+      "away": 0.229358
+     },
+     "spread": {
+      "line": -8.5,
+      "prices": {
+       "home": -109,
+       "away": -109
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -109
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T13:34:45Z",
+   "capturedAt": "2026-09-20T13:34:47Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.777961,
+    "awayWinProbNoVig": 0.222039,
+    "spreadHome": -8.5,
+    "total": 45.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872937",
+   "providerEventId": "401872937",
+   "kickoffUtc": "2026-09-20T17:00Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "CHI",
+    "name": "Chicago Bears"
+   },
+   "away": {
+    "abbr": "MIN",
+    "name": "Minnesota Vikings"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": -210,
+      "away": 180
+     },
+     "noVigWinProb": {
+      "home": 0.654788,
+      "away": 0.345212
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -110,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "home": -218,
+      "away": 185
+     },
+     "noVigWinProb": {
+      "home": 0.66145,
+      "away": 0.33855
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": -215,
+      "away": 183
+     },
+     "noVigWinProb": {
+      "home": 0.658888,
+      "away": 0.341112
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -220,
+      "away": 180
+     },
+     "noVigWinProb": {
+      "home": 0.65812,
+      "away": 0.34188
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -105,
+       "away": -115
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": -205,
+      "away": 170
+     },
+     "noVigWinProb": {
+      "home": 0.644729,
+      "away": 0.355271
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -112,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "home": -220,
+      "away": 180
+     },
+     "noVigWinProb": {
+      "home": 0.65812,
+      "away": 0.34188
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -218,
+      "away": 185
+     },
+     "noVigWinProb": {
+      "home": 0.66145,
+      "away": 0.33855
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -105,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": -212,
+      "away": 178
+     },
+     "noVigWinProb": {
+      "home": 0.653856,
+      "away": 0.346144
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": -218,
+      "away": 183
+     },
+     "noVigWinProb": {
+      "home": 0.659871,
+      "away": 0.340129
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -109,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -110,
+       "under": -109
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T13:34:45Z",
+   "capturedAt": "2026-09-20T13:34:47Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.65812,
+    "awayWinProbNoVig": 0.34188,
+    "spreadHome": -4.5,
+    "total": 47,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872934",
+   "providerEventId": "401872934",
+   "kickoffUtc": "2026-09-20T17:00Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "HOU",
+    "name": "Houston Texans"
+   },
+   "away": {
+    "abbr": "CIN",
+    "name": "Cincinnati Bengals"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 125,
+      "home": -150
+     },
+     "noVigWinProb": {
+      "away": 0.425532,
+      "home": 0.574468
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "away": -105,
+       "home": -125
+      }
+     },
+     "total": {
+      "line": 46,
+      "prices": {
+       "over": -112,
+       "under": -118
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": 129,
+      "home": -149
+     },
+     "noVigWinProb": {
+      "away": 0.421884,
+      "home": 0.578116
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "away": 100,
+       "home": -120
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -108,
+       "under": -112
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": 129,
+      "home": -150
+     },
+     "noVigWinProb": {
+      "away": 0.42123,
+      "home": 0.57877
+     },
+     "spread": {
+      "line": -2,
+      "prices": {
+       "away": 100,
+       "home": -120
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": 135,
+      "home": -160
+     },
+     "noVigWinProb": {
+      "away": 0.408805,
+      "home": 0.591195
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "away": -125,
+       "home": 105
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "away": 124,
+      "home": -148
+     },
+     "noVigWinProb": {
+      "away": 0.42794,
+      "home": 0.57206
+     },
+     "spread": {
+      "line": -3,
+      "prices": {
+       "away": -118,
+       "home": -102
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "away": 125,
+      "home": -150
+     },
+     "noVigWinProb": {
+      "away": 0.425532,
+      "home": 0.574468
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "away": 100,
+       "home": -120
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 129,
+      "home": -149
+     },
+     "noVigWinProb": {
+      "away": 0.421884,
+      "home": 0.578116
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "away": 104,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -105,
+       "under": -109
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 125,
+      "home": -147
+     },
+     "noVigWinProb": {
+      "away": 0.427521,
+      "home": 0.572479
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": 128,
+      "home": -152
+     },
+     "noVigWinProb": {
+      "away": 0.42101,
+      "home": 0.57899
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "away": -106,
+       "home": -113
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -112,
+       "under": -108
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T13:34:45Z",
+   "capturedAt": "2026-09-20T13:34:47Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.578116,
+    "awayWinProbNoVig": 0.421884,
+    "spreadHome": -2.5,
+    "total": 45.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872935",
+   "providerEventId": "401872935",
+   "kickoffUtc": "2026-09-20T17:00Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "TB",
+    "name": "Tampa Bay Buccaneers"
+   },
+   "away": {
+    "abbr": "CLE",
+    "name": "Cleveland Browns"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 333,
+      "home": -425
+     },
+     "noVigWinProb": {
+      "away": 0.221964,
+      "home": 0.778036
+     },
+     "spread": {
+      "line": -8,
+      "prices": {
+       "away": -108,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": 330,
+      "home": -420
+     },
+     "noVigWinProb": {
+      "away": 0.22356,
+      "home": 0.77644
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -120,
+       "home": 100
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": 320,
+      "home": -400
+     },
+     "noVigWinProb": {
+      "away": 0.229358,
+      "home": 0.770642
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -120,
+       "home": 100
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": 325,
+      "home": -435
+     },
+     "noVigWinProb": {
+      "away": 0.224436,
+      "home": 0.775564
+     },
+     "spread": {
+      "line": -8,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "away": 330,
+      "home": -425
+     },
+     "noVigWinProb": {
+      "away": 0.223167,
+      "home": 0.776833
+     },
+     "spread": {
+      "line": -8.5,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -108,
+       "under": -112
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "away": 325,
+      "home": -425
+     },
+     "noVigWinProb": {
+      "away": 0.225201,
+      "home": 0.774799
+     },
+     "spread": {
+      "line": -8,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 330,
+      "home": -420
+     },
+     "noVigWinProb": {
+      "away": 0.22356,
+      "home": 0.77644
+     },
+     "spread": {
+      "line": -9,
+      "prices": {
+       "away": -118,
+       "home": 107
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 330,
+      "home": -420
+     },
+     "noVigWinProb": {
+      "away": 0.22356,
+      "home": 0.77644
+     },
+     "spread": {
+      "line": -8,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": 325,
+      "home": -420
+     },
+     "noVigWinProb": {
+      "away": 0.225597,
+      "home": 0.774403
+     },
+     "spread": {
+      "line": -7.5,
+      "prices": {
+       "away": -109,
+       "home": -109
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -107,
+       "under": -113
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T13:34:45Z",
+   "capturedAt": "2026-09-20T13:34:47Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.77644,
+    "awayWinProbNoVig": 0.22356,
+    "spreadHome": -8,
+    "total": 41.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872936",
+   "providerEventId": "401872936",
+   "kickoffUtc": "2026-09-20T17:00Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "NYJ",
+    "name": "New York Jets"
+   },
+   "away": {
+    "abbr": "GB",
+    "name": "Green Bay Packers"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": -185,
+      "home": 150
+     },
+     "noVigWinProb": {
+      "away": 0.618729,
+      "home": 0.381271
+     },
+     "spread": {
+      "line": 3.5,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -112,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": -173,
+      "home": 152
+     },
+     "noVigWinProb": {
+      "away": 0.614929,
+      "home": 0.385071
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -117,
+       "home": -103
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": -175,
+      "home": 150
+     },
+     "noVigWinProb": {
+      "away": 0.614035,
+      "home": 0.385965
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": -170,
+      "home": 145
+     },
+     "noVigWinProb": {
+      "away": 0.606701,
+      "home": 0.393299
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -120,
+       "home": 100
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "away": -192,
+      "home": 160
+     },
+     "noVigWinProb": {
+      "away": 0.63094,
+      "home": 0.36906
+     },
+     "spread": {
+      "line": 3.5,
+      "prices": {
+       "away": -112,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "away": -180,
+      "home": 150
+     },
+     "noVigWinProb": {
+      "away": 0.616438,
+      "home": 0.383562
+     },
+     "spread": {
+      "line": 3.5,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": -173,
+      "home": 152
+     },
+     "noVigWinProb": {
+      "away": 0.614929,
+      "home": 0.385071
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -114,
+       "home": 103
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -113,
+       "under": -102
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": -179,
+      "home": 151
+     },
+     "noVigWinProb": {
+      "away": 0.616911,
+      "home": 0.383089
+     },
+     "spread": {
+      "line": 3.5,
+      "prices": {
+       "away": 100,
+       "home": -120
+      }
+     },
+     "total": {
+      "line": 44,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": -182,
+      "home": 153
+     },
+     "noVigWinProb": {
+      "away": 0.620182,
+      "home": 0.379818
+     },
+     "spread": {
+      "line": 3,
+      "prices": {
+       "away": -118,
+       "home": -103
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T13:34:45Z",
+   "capturedAt": "2026-09-20T13:34:47Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.383562,
+    "awayWinProbNoVig": 0.616438,
+    "spreadHome": 3,
+    "total": 44,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872946",
+   "providerEventId": "401872946",
+   "kickoffUtc": "2026-09-20T17:00Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "NE",
+    "name": "New England Patriots"
+   },
+   "away": {
+    "abbr": "PIT",
+    "name": "Pittsburgh Steelers"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": -235,
+      "away": 200
+     },
+     "noVigWinProb": {
+      "home": 0.677885,
+      "away": 0.322115
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -108,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -108,
+       "under": -112
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "home": -243,
+      "away": 202
+     },
+     "noVigWinProb": {
+      "home": 0.681481,
+      "away": 0.318519
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": -235,
+      "away": 200
+     },
+     "noVigWinProb": {
+      "home": 0.677885,
+      "away": 0.322115
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -240,
+      "away": 200
+     },
+     "noVigWinProb": {
+      "home": 0.679245,
+      "away": 0.320755
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": -230,
+      "away": 190
+     },
+     "noVigWinProb": {
+      "home": 0.669007,
+      "away": 0.330993
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -112,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -108,
+       "under": -112
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "home": -245,
+      "away": 200
+     },
+     "noVigWinProb": {
+      "home": 0.680556,
+      "away": 0.319444
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -243,
+      "away": 202
+     },
+     "noVigWinProb": {
+      "home": 0.681481,
+      "away": 0.318519
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -104,
+       "away": -106
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -102,
+       "under": -113
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": -238,
+      "away": 198
+     },
+     "noVigWinProb": {
+      "home": 0.677247,
+      "away": 0.322753
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": -235,
+      "away": 194
+     },
+     "noVigWinProb": {
+      "home": 0.673457,
+      "away": 0.326543
+     },
+     "spread": {
+      "line": -5.5,
+      "prices": {
+       "home": -110,
+       "away": -109
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -109,
+       "under": -112
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T13:34:45Z",
+   "capturedAt": "2026-09-20T13:34:47Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.677885,
+    "awayWinProbNoVig": 0.322115,
+    "spreadHome": -5.5,
+    "total": 41.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872939",
+   "providerEventId": "401872939",
+   "kickoffUtc": "2026-09-20T17:00Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "TEN",
+    "name": "Tennessee Titans"
+   },
+   "away": {
+    "abbr": "PHI",
+    "name": "Philadelphia Eagles"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": -350,
+      "home": 275
+     },
+     "noVigWinProb": {
+      "away": 0.744681,
+      "home": 0.255319
+     },
+     "spread": {
+      "line": 7,
+      "prices": {
+       "away": -115,
+       "home": -102
+      }
+     },
+     "total": {
+      "line": 39.5,
+      "prices": {
+       "over": -110,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "betonlineag",
+     "moneyline": {
+      "away": -342,
+      "home": 276
+     },
+     "noVigWinProb": {
+      "away": 0.744201,
+      "home": 0.255799
+     },
+     "spread": {
+      "line": 7,
+      "prices": {
+       "away": -112,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 39.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "away": -340,
+      "home": 275
+     },
+     "noVigWinProb": {
+      "away": 0.74344,
+      "home": 0.25656
+     },
+     "spread": {
+      "line": 7.5,
+      "prices": {
+       "away": 100,
+       "home": -120
+      }
+     },
+     "total": {
+      "line": 39.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": -350,
+      "home": 275
+     },
+     "noVigWinProb": {
+      "away": 0.744681,
+      "home": 0.255319
+     },
+     "spread": {
+      "line": 7,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 40,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "away": -325,
+      "home": 260
+     },
+     "noVigWinProb": {
+      "away": 0.733542,
+      "home": 0.266458
+     },
+     "spread": {
+      "line": 7,
+      "prices": {
+       "away": -118,
+       "home": -102
+      }
+     },
+     "total": {
+      "line": 39.5,
+      "prices": {
+       "over": -112,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "away": -350,
+      "home": 275
+     },
+     "noVigWinProb": {
+      "away": 0.744681,
+      "home": 0.255319
+     },
+     "spread": {
+      "line": 7,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 39.5,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": -342,
+      "home": 276
+     },
+     "noVigWinProb": {
+      "away": 0.744201,
+      "home": 0.255799
+     },
+     "spread": {
+      "line": 7,
+      "prices": {
+       "away": -104,
+       "home": -106
+      }
+     },
+     "total": {
+      "line": 39.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": -360,
+      "home": 285
+     },
+     "noVigWinProb": {
+      "away": 0.750813,
+      "home": 0.249187
+     },
+     "spread": {
+      "line": 7,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 39.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": -335,
+      "home": 270
+     },
+     "noVigWinProb": {
+      "away": 0.740221,
+      "home": 0.259779
+     },
+     "spread": {
+      "line": 7,
+      "prices": {
+       "away": -109,
+       "home": -109
+      }
+     },
+     "total": {
+      "line": 39.5,
+      "prices": {
+       "over": -109,
+       "under": -112
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T13:34:45Z",
+   "capturedAt": "2026-09-20T13:34:47Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.255799,
+    "awayWinProbNoVig": 0.744201,
+    "spreadHome": 7,
+    "total": 39.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872940",
+   "providerEventId": "401872940",
+   "kickoffUtc": "2026-09-20T20:05Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "away": {
+    "abbr": "JAX",
+    "name": "Jacksonville Jaguars"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": -150,
+      "away": 125
+     },
+     "noVigWinProb": {
+      "home": 0.574468,
+      "away": 0.425532
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "home": -118,
+       "away": -102
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -145,
+      "away": 125
+     },
+     "noVigWinProb": {
+      "home": 0.571116,
+      "away": 0.428884
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": -148,
+      "away": 124
+     },
+     "noVigWinProb": {
+      "home": 0.57206,
+      "away": 0.42794
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -142,
+      "away": 122
+     },
+     "noVigWinProb": {
+      "home": 0.565717,
+      "away": 0.434283
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "home": -114,
+       "away": 103
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -113,
+       "under": -102
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": -148,
+      "away": 125
+     },
+     "noVigWinProb": {
+      "home": 0.57315,
+      "away": 0.42685
+     },
+     "spread": {
+      "line": -2.5,
+      "prices": {
+       "home": -120,
+       "away": 100
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T17:37:08Z",
+   "capturedAt": "2026-09-20T17:37:15Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.57206,
+    "awayWinProbNoVig": 0.42794,
+    "spreadHome": -2.5,
+    "total": 45.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872941",
+   "providerEventId": "401872941",
+   "kickoffUtc": "2026-09-20T20:05Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "LAC",
+    "name": "Los Angeles Chargers"
+   },
+   "away": {
+    "abbr": "LV",
+    "name": "Las Vegas Raiders"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 250,
+      "home": -300
+     },
+     "noVigWinProb": {
+      "away": 0.275862,
+      "home": 0.724138
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": 260,
+      "home": -320
+     },
+     "noVigWinProb": {
+      "away": 0.267176,
+      "home": 0.732824
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "away": 270,
+      "home": -340
+     },
+     "noVigWinProb": {
+      "away": 0.259128,
+      "home": 0.740872
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "away": -115,
+       "home": -105
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 254,
+      "home": -312
+     },
+     "noVigWinProb": {
+      "away": 0.271682,
+      "home": 0.728318
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -102,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 255,
+      "home": -310
+     },
+     "noVigWinProb": {
+      "away": 0.271433,
+      "home": 0.728567
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 43.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T17:37:08Z",
+   "capturedAt": "2026-09-20T17:37:15Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.728567,
+    "awayWinProbNoVig": 0.271433,
+    "spreadHome": -6.5,
+    "total": 43.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872943",
+   "providerEventId": "401872943",
+   "kickoffUtc": "2026-09-20T20:25Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "ARI",
+    "name": "Arizona Cardinals"
+   },
+   "away": {
+    "abbr": "SEA",
+    "name": "Seattle Seahawks"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": 175,
+      "away": -210
+     },
+     "noVigWinProb": {
+      "home": 0.349296,
+      "away": 0.650704
+     },
+     "spread": {
+      "line": 4,
+      "prices": {
+       "home": -105,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -110,
+       "under": -108
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": 165,
+      "away": -195
+     },
+     "noVigWinProb": {
+      "home": 0.363412,
+      "away": 0.636588
+     },
+     "spread": {
+      "line": 3.5,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 41,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": 180,
+      "away": -218
+     },
+     "noVigWinProb": {
+      "home": 0.342525,
+      "away": 0.657475
+     },
+     "spread": {
+      "line": 3.5,
+      "prices": {
+       "home": 100,
+       "away": -120
+      }
+     },
+     "total": {
+      "line": 41.5,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": 174,
+      "away": -200
+     },
+     "noVigWinProb": {
+      "home": 0.353774,
+      "away": 0.646226
+     },
+     "spread": {
+      "line": 4,
+      "prices": {
+       "home": -110,
+       "away": 100
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -116,
+       "under": 101
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": 176,
+      "away": -210
+     },
+     "noVigWinProb": {
+      "home": 0.348471,
+      "away": 0.651529
+     },
+     "spread": {
+      "line": 4,
+      "prices": {
+       "home": -110,
+       "away": -110
+      }
+     },
+     "total": {
+      "line": 40.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T17:37:08Z",
+   "capturedAt": "2026-09-20T17:37:15Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.349296,
+    "awayWinProbNoVig": 0.650704,
+    "spreadHome": 4,
+    "total": 41,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872944",
+   "providerEventId": "401872944",
+   "kickoffUtc": "2026-09-20T20:25Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "DAL",
+    "name": "Dallas Cowboys"
+   },
+   "away": {
+    "abbr": "WSH",
+    "name": "Washington Commanders"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "home": -210,
+      "away": 175
+     },
+     "noVigWinProb": {
+      "home": 0.650704,
+      "away": 0.349296
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": -105,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 51,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -210,
+      "away": 175
+     },
+     "noVigWinProb": {
+      "home": 0.650704,
+      "away": 0.349296
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 51,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": -225,
+      "away": 185
+     },
+     "noVigWinProb": {
+      "home": 0.663648,
+      "away": 0.336352
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": -105,
+       "away": -115
+      }
+     },
+     "total": {
+      "line": 51.5,
+      "prices": {
+       "over": -102,
+       "under": -118
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -205,
+      "away": 177
+     },
+     "noVigWinProb": {
+      "home": 0.65057,
+      "away": 0.34943
+     },
+     "spread": {
+      "line": -4,
+      "prices": {
+       "home": -102,
+       "away": -108
+      }
+     },
+     "total": {
+      "line": 51,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "home": -210,
+      "away": 176
+     },
+     "noVigWinProb": {
+      "home": 0.651529,
+      "away": 0.348471
+     },
+     "spread": {
+      "line": -4.5,
+      "prices": {
+       "home": 100,
+       "away": -120
+      }
+     },
+     "total": {
+      "line": 51,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T17:37:08Z",
+   "capturedAt": "2026-09-20T17:37:15Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.650704,
+    "awayWinProbNoVig": 0.349296,
+    "spreadHome": -4,
+    "total": 51,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872942",
+   "providerEventId": "401872942",
+   "kickoffUtc": "2026-09-20T20:25Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "SF",
+    "name": "San Francisco 49ers"
+   },
+   "away": {
+    "abbr": "MIA",
+    "name": "Miami Dolphins"
+   },
+   "books": [
+    {
+     "book": "betmgm",
+     "moneyline": {
+      "away": 675,
+      "home": -1000
+     },
+     "noVigWinProb": {
+      "away": 0.124294,
+      "home": 0.875706
+     },
+     "spread": {
+      "line": -13.5,
+      "prices": {
+       "away": -112,
+       "home": -108
+      }
+     },
+     "total": {
+      "line": 45,
+      "prices": {
+       "over": -108,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "away": 700,
+      "home": -1200
+     },
+     "noVigWinProb": {
+      "away": 0.119266,
+      "home": 0.880734
+     },
+     "spread": {
+      "line": -13,
+      "prices": {
+       "away": -105,
+       "home": -115
+      }
+     },
+     "total": {
+      "line": 45,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "away": 625,
+      "home": -950
+     },
+     "noVigWinProb": {
+      "away": 0.132283,
+      "home": 0.867717
+     },
+     "spread": {
+      "line": -13.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 44.5,
+      "prices": {
+       "over": -115,
+       "under": -105
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 686,
+      "home": -1050
+     },
+     "noVigWinProb": {
+      "away": 0.122301,
+      "home": 0.877699
+     },
+     "spread": {
+      "line": -13,
+      "prices": {
+       "away": -101,
+       "home": -109
+      }
+     },
+     "total": {
+      "line": 45,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 753,
+      "home": -1133
+     },
+     "noVigWinProb": {
+      "away": 0.113145,
+      "home": 0.886855
+     },
+     "spread": {
+      "line": -13.5,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 45,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T17:37:08Z",
+   "capturedAt": "2026-09-20T17:37:15Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.877699,
+    "awayWinProbNoVig": 0.122301,
+    "spreadHome": -13.5,
+    "total": 45,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872945",
+   "providerEventId": "401872945",
+   "kickoffUtc": "2026-09-21T00:20Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "KC",
+    "name": "Kansas City Chiefs"
+   },
+   "away": {
+    "abbr": "IND",
+    "name": "Indianapolis Colts"
+   },
+   "books": [
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "away": 235,
+      "home": -286
+     },
+     "noVigWinProb": {
+      "away": 0.287181,
+      "home": 0.712819
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "away": -110,
+       "home": 100
+      }
+     },
+     "total": {
+      "line": 46,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "mybookieag",
+     "moneyline": {
+      "away": 228,
+      "home": -275
+     },
+     "noVigWinProb": {
+      "away": 0.293657,
+      "home": 0.706343
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "away": -110,
+       "home": -110
+      }
+     },
+     "total": {
+      "line": 46,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "away": 225,
+      "home": -275
+     },
+     "noVigWinProb": {
+      "away": 0.295567,
+      "home": 0.704433
+     },
+     "spread": {
+      "line": -6,
+      "prices": {
+       "away": -113,
+       "home": -107
+      }
+     },
+     "total": {
+      "line": 45.5,
+      "prices": {
+       "over": -118,
+       "under": -103
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-20T23:00:18Z",
+   "capturedAt": "2026-09-20T23:00:24Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.706343,
+    "awayWinProbNoVig": 0.293657,
+    "spreadHome": -6,
+    "total": 46,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   },
+   "carriedForward": true
+  },
+  {
+   "canonicalEventId": "nfl-401872947",
+   "providerEventId": "401872947",
+   "kickoffUtc": "2026-09-22T00:15Z",
+   "seasonType": 2,
+   "week": 2,
+   "home": {
+    "abbr": "LAR",
+    "name": "Los Angeles Rams"
+   },
+   "away": {
+    "abbr": "NYG",
+    "name": "New York Giants"
+   },
+   "books": [
+    {
+     "book": "betrivers",
+     "moneyline": {
+      "home": -315,
+      "away": 250
+     },
+     "noVigWinProb": {
+      "home": 0.726524,
+      "away": 0.273476
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -105,
+       "away": -117
+      }
+     },
+     "total": {
+      "line": 47,
+      "prices": {
+       "over": -114,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "betus",
+     "moneyline": {
+      "home": -300,
+      "away": 250
+     },
+     "noVigWinProb": {
+      "home": 0.724138,
+      "away": 0.275862
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": 100,
+       "away": -120
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "bovada",
+     "moneyline": {
+      "home": -330,
+      "away": 265
+     },
+     "noVigWinProb": {
+      "home": 0.736923,
+      "away": 0.263077
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "home": -120,
+       "away": 100
+      }
+     },
+     "total": {
+      "line": 48,
+      "prices": {
+       "over": -105,
+       "under": -115
+      }
+     }
+    },
+    {
+     "book": "draftkings",
+     "moneyline": {
+      "home": -298,
+      "away": 240
+     },
+     "noVigWinProb": {
+      "home": 0.717971,
+      "away": 0.282029
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "home": -115,
+       "away": -105
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "fanatics",
+     "moneyline": {
+      "home": -320,
+      "away": 250
+     },
+     "noVigWinProb": {
+      "home": 0.727273,
+      "away": 0.272727
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": -105,
+       "away": -115
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -110,
+       "under": -110
+      }
+     }
+    },
+    {
+     "book": "lowvig",
+     "moneyline": {
+      "home": -320,
+      "away": 260
+     },
+     "noVigWinProb": {
+      "home": 0.732824,
+      "away": 0.267176
+     },
+     "spread": {
+      "line": -7,
+      "prices": {
+       "home": 104,
+       "away": -115
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -107,
+       "under": -107
+      }
+     }
+    },
+    {
+     "book": "williamhill_us",
+     "moneyline": {
+      "home": -320,
+      "away": 250
+     },
+     "noVigWinProb": {
+      "home": 0.727273,
+      "away": 0.272727
+     },
+     "spread": {
+      "line": -6.5,
+      "prices": {
+       "home": -118,
+       "away": -102
+      }
+     },
+     "total": {
+      "line": 47.5,
+      "prices": {
+       "over": -110,
+       "under": -109
+      }
+     }
+    }
+   ],
+   "sourceAsOf": "2026-09-21T19:40:48Z",
+   "capturedAt": "2026-09-21T19:40:58Z",
+   "consensus": {
+    "homeWinProbNoVig": 0.727273,
+    "awayWinProbNoVig": 0.272727,
+    "spreadHome": -7,
+    "total": 47.5,
+    "basis": "median across captured books of each side's proportionally de-vigged price, then normalised so the pair sums to 1 (two independent medians need not, and on a lopsided game they miss by most)",
+    "preNormalisedSum": 1
+   }
+  }
+ ],
+ "propMarkets": {
+  "state": "NOT_PROBED",
+  "offeredMarkets": [],
+  "absentMarkets": []
+ }
+}

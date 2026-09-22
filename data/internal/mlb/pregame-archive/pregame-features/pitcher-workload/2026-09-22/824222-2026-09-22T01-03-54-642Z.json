@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824222,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T01:03:54.642Z",
+  "availableAt": "2026-09-22T01:03:54.642Z",
+  "eventStartTime": "2026-09-22T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 623454,
+      "name": "Drew Anderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 7,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 4.4,
+        "bbAvg": 2.8,
+        "erAvg": 1.4,
+        "hrAvg": 0.6,
+        "kPer9": 7.71,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 45.67,
+        "k": 43,
+        "bb": 23,
+        "er": 12,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 800600,
+      "name": "Jackson Kent",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 7,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 3.6,
+        "bbAvg": 3,
+        "erAvg": 3,
+        "hrAvg": 0.2,
+        "kPer9": 6.57,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 32.33,
+        "k": 27,
+        "bb": 23,
+        "er": 23,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-22T01:03:54.642Z"
+  },
+  "recordHash": "87395c82f144efe22751b3e409b39259105352b080f860f3c3a57b25733ae59d"
+}

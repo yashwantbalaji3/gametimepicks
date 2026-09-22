@@ -1,0 +1,375 @@
+{
+ "schemaVersion": 1,
+ "artifact": "parlay-tier-grid",
+ "dataClass": "DERIVED_POLICY_VIEW",
+ "moneyClass": "NON_MONEY",
+ "sport": "multi",
+ "date": "2026-09-19",
+ "generatedAt": "2026-09-19T22:35:41Z",
+ "state": "PUBLISHED",
+ "bandsUnreachable": [
+  "low"
+ ],
+ "calmestAvailable": "medium",
+ "tiers": [
+  {
+   "id": "bronze",
+   "minBankroll": 0,
+   "maxBankroll": 50,
+   "cardsPerDay": 1,
+   "bands": [
+    "low"
+   ],
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": {
+    "band": "medium",
+    "slipId": "multi-medium-2026-09-19",
+    "reason": "Nothing on today's board priced in this range. The calmest card available is medium risk, which is a longer price than this bankroll is normally shown — its own record is attached."
+   }
+  },
+  {
+   "id": "silver",
+   "minBankroll": 50,
+   "maxBankroll": 100,
+   "cardsPerDay": 2,
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "offered": 1,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "gold",
+   "minBankroll": 100,
+   "maxBankroll": 250,
+   "cardsPerDay": 3,
+   "bands": [
+    "low",
+    "medium",
+    "high"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "diamond",
+   "minBankroll": 250,
+   "maxBankroll": null,
+   "cardsPerDay": 4,
+   "bands": [
+    "low",
+    "medium",
+    "high",
+    "longshot"
+   ],
+   "offered": 3,
+   "emptyToday": false,
+   "substitute": null
+  }
+ ],
+ "cells": [
+  {
+   "tier": "bronze",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no cross-sport card priced into this band today — 2 legs → +163 (medium)"
+  },
+  {
+   "tier": "bronze",
+   "band": "medium",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no cross-sport card priced into this band today — 2 legs → +163 (medium)"
+  },
+  {
+   "tier": "silver",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "multi-medium-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "gold",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no cross-sport card priced into this band today — 2 legs → +163 (medium)"
+  },
+  {
+   "tier": "gold",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "multi-medium-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "multi-high-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 3 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "diamond",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no cross-sport card priced into this band today — 2 legs → +163 (medium)"
+  },
+  {
+   "tier": "diamond",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "multi-medium-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "multi-high-2026-09-19",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "longshot",
+   "state": "OFFERED",
+   "slipId": "multi-longshot-2026-09-19",
+   "reason": null
+  }
+ ],
+ "cards": [
+  {
+   "band": "medium",
+   "slipId": "multi-medium-2026-09-19",
+   "combinedAmerican": 163,
+   "combinedDecimal": 2.63,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:hull-city-v-newcastle-united:20260919t1400",
+     "player": null,
+     "market": "total_goals",
+     "side": "under",
+     "line": 3.5,
+     "odds": -177,
+     "decimal": 1.5649717514124295,
+     "score": 0,
+     "team": null,
+     "opponent": null,
+     "marketLabel": "Total goals 3.5"
+    },
+    {
+     "sport": "mlb",
+     "eventId": "ee466ede63ff4aece0b2964d81a18297",
+     "player": "Trevor Story",
+     "market": "batter_hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -147,
+     "decimal": 1.6802721088435373,
+     "score": 0,
+     "team": "BOS",
+     "opponent": "TB",
+     "marketLabel": "Hits"
+    }
+   ],
+   "status": "pending",
+   "record": null
+  },
+  {
+   "band": "high",
+   "slipId": "multi-high-2026-09-19",
+   "combinedAmerican": 577,
+   "combinedDecimal": 6.766,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:coventry-city-v-nottingham-forest:20260919t1630",
+     "player": null,
+     "market": "match_result",
+     "side": "home",
+     "line": null,
+     "odds": -160,
+     "decimal": 1.625,
+     "score": 0,
+     "team": "Nottingham Forest",
+     "opponent": null,
+     "marketLabel": "Match result"
+    },
+    {
+     "sport": "mlb",
+     "eventId": "abb3f111a0be68d4bdf0608a428f8d55",
+     "player": "Kevin McGonigle",
+     "market": "batter_hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -191,
+     "decimal": 1.5235602094240837,
+     "score": 0,
+     "team": "DET",
+     "opponent": "CWS",
+     "marketLabel": "Hits"
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401905376",
+     "player": "Dooho Choi",
+     "market": "fight_winner",
+     "side": "win",
+     "line": null,
+     "odds": -278,
+     "decimal": 1.3597122302158273,
+     "score": 0,
+     "team": null,
+     "opponent": "Patricio Pitbull",
+     "marketLabel": "Fight winner"
+    },
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:arsenal-v-brighton-hove-albion:20260919t1400",
+     "player": null,
+     "market": "total_goals",
+     "side": "under",
+     "line": 2.5,
+     "odds": 101,
+     "decimal": 2.01,
+     "score": 0,
+     "team": null,
+     "opponent": null,
+     "marketLabel": "Total goals 2.5"
+    }
+   ],
+   "status": "pending",
+   "record": null
+  },
+  {
+   "band": "longshot",
+   "slipId": "multi-longshot-2026-09-19",
+   "combinedAmerican": 1078,
+   "combinedDecimal": 11.777,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:everton-v-ipswich-town:20260919t1400",
+     "player": null,
+     "market": "total_goals",
+     "side": "under",
+     "line": 2.5,
+     "odds": 111,
+     "decimal": 2.1100000000000003,
+     "score": 0,
+     "team": null,
+     "opponent": null,
+     "marketLabel": "Total goals 2.5"
+    },
+    {
+     "sport": "mlb",
+     "eventId": "0f7b4e8f0c23ecca42f1c5e69ecc9bcc",
+     "player": "Ketel Marte",
+     "market": "batter_hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -176,
+     "decimal": 1.5681818181818183,
+     "score": 0,
+     "team": "AZ",
+     "opponent": "NYY",
+     "marketLabel": "Hits"
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401905378",
+     "player": "Iwo Baraniewski",
+     "market": "fight_winner",
+     "side": "win",
+     "line": null,
+     "odds": -250,
+     "decimal": 1.4,
+     "score": 0,
+     "team": null,
+     "opponent": "Alonzo Menifield",
+     "marketLabel": "Fight winner"
+    },
+    {
+     "sport": "mlb",
+     "eventId": "59c14a5981b0869948d86636923f1c90",
+     "player": "Javier Sanoja",
+     "market": "batter_hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -215,
+     "decimal": 1.4651162790697674,
+     "score": 0,
+     "team": "MIA",
+     "opponent": "SD",
+     "marketLabel": "Hits"
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401903509",
+     "player": "Joshua Van",
+     "market": "fight_winner",
+     "side": "win",
+     "line": null,
+     "odds": -136,
+     "decimal": 1.7352941176470589,
+     "score": 0,
+     "team": null,
+     "opponent": "Alexandre Pantoja",
+     "marketLabel": "Fight winner"
+    }
+   ],
+   "status": "pending",
+   "record": null
+  }
+ ],
+ "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
+}

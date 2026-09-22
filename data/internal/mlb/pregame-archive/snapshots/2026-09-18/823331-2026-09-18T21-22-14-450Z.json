@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823331-461f5e9452d102cad0d378eb40f797eb",
+  "snapshotCreatedAt": "2026-09-18T21:22:14.450Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-09-18",
+  "eventId": "823331",
+  "gamePk": 823331,
+  "eventStartTime": "2026-09-18T22:40:00Z",
+  "homeTeam": "PIT",
+  "awayTeam": "KC",
+  "venue": "PNC Park",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "4292562c4d2f1d794d0199f324363d80",
+  "normalizedPayloadHash": "fbc70cc00a33c183ed347ade37686a4e",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          804606,
+          664040,
+          668804,
+          665833,
+          693304,
+          656811,
+          682927,
+          687462,
+          680779
+        ],
+        "away": [
+          695600,
+          677951,
+          686469,
+          672580,
+          686681,
+          521692,
+          670231,
+          679845,
+          664728
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-18T21:22:14.450Z",
+      "availableAt": "2026-09-18T21:22:14.450Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-18T21:22:14.450Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823331/feed/live",
+        "requestedAt": "2026-09-18T21:22:14.450Z",
+        "receivedAt": "2026-09-18T21:22:14.450Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Paul Skenes",
+        "awayProbable": "Randy Dobnak",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-18T21:22:14.450Z",
+      "availableAt": "2026-09-18T21:22:14.450Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-18T21:22:14.450Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823331/feed/live",
+        "requestedAt": "2026-09-18T21:22:14.450Z",
+        "receivedAt": "2026-09-18T21:22:14.450Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "75",
+        "wind": "7 mph, L To R",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-18T21:22:14.450Z",
+      "availableAt": "2026-09-18T21:22:14.450Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-18T21:22:14.450Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823331/feed/live",
+        "requestedAt": "2026-09-18T21:22:14.450Z",
+        "receivedAt": "2026-09-18T21:22:14.450Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Bill Miller",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Chad Whitson",
+            "type": "First Base"
+          },
+          {
+            "name": "Brian Walsh",
+            "type": "Second Base"
+          },
+          {
+            "name": "Chad Fairchild",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-18T21:22:14.450Z",
+      "availableAt": "2026-09-18T21:22:14.450Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-18T21:22:14.450Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823331/feed/live",
+        "requestedAt": "2026-09-18T21:22:14.450Z",
+        "receivedAt": "2026-09-18T21:22:14.450Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

@@ -2,84 +2,84 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-18T10:02:17Z",
+ "generatedAt": "2026-09-21T16:45:59Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 8,
-  "NO_PLAY": 8,
-  "LANE_CLOSED": 4,
+  "PUBLISHED": 2,
+  "NO_PLAY": 2,
+  "LANE_CLOSED": 16,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-09-18",
-   "laneState": "LIVE",
-   "laneReason": null,
+   "date": "2026-09-21",
+   "laneState": "CLOSED",
+   "laneReason": "only 2 priced games — the ladder needs 4",
    "tiers": {
     "low": {
-     "state": "NO_PLAY",
-     "reason": "no priced card in this tier on today's slate"
+     "state": "LANE_CLOSED",
+     "reason": "only 2 priced games — the ladder needs 4"
     },
     "medium": {
-     "state": "PUBLISHED",
-     "slipId": "opt_2026-09-18_public_low_mlb_6c9cfb5f16b0"
+     "state": "LANE_CLOSED",
+     "reason": "only 2 priced games — the ladder needs 4"
     },
     "high": {
-     "state": "PUBLISHED",
-     "slipId": "opt_2026-09-18_public_medium_mlb_a98b33a13919"
+     "state": "LANE_CLOSED",
+     "reason": "only 2 priced games — the ladder needs 4"
     },
     "longshot": {
-     "state": "PUBLISHED",
-     "slipId": "opt_2026-09-18_public_longshot_mlb_dad8e4264517"
+     "state": "LANE_CLOSED",
+     "reason": "only 2 priced games — the ladder needs 4"
     }
    }
   },
   {
    "lane": "epl",
-   "date": "2026-09-19",
+   "date": "2026-10-10",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +158 (medium) … +357 (high)"
+     "reason": "no combination of today's prices lands in this band — 2 legs → +113 (medium) … +373 (high)"
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "epl-medium-2026-09-19"
+     "slipId": "epl-medium-2026-10-10"
     },
     "high": {
      "state": "PUBLISHED",
-     "slipId": "epl-high-2026-09-19"
+     "slipId": "epl-high-2026-10-10"
     },
     "longshot": {
      "state": "NO_PLAY",
-     "reason": "not enough eligible priced fixtures to build a card"
+     "reason": "no combination of today's prices lands in this band — 2 legs → +234 (medium) … +520 (high)"
     }
    }
   },
   {
    "lane": "ufc",
-   "date": "2026-09-19",
-   "laneState": "LIVE",
-   "laneReason": null,
+   "date": "2026-09-26",
+   "laneState": "CLOSED",
+   "laneReason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4",
    "tiers": {
     "low": {
-     "state": "PUBLISHED",
-     "slipId": "ufc-low-2026-09-19"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4"
     },
     "medium": {
-     "state": "PUBLISHED",
-     "slipId": "ufc-medium-2026-09-19"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "no card priced into this band — 2 legs → -128 (low); 3 legs → +129 (medium); 4 legs → +1274 (longshot)"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4"
     },
     "longshot": {
-     "state": "PUBLISHED",
-     "slipId": "ufc-longshot-2026-09-19"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4"
     }
    }
   },
@@ -87,47 +87,47 @@
    "lane": "nfl",
    "date": "2026-08-24",
    "laneState": "CLOSED",
-   "laneReason": "only 0 priced games — the ladder needs 4",
+   "laneReason": "only 1 priced game — the ladder needs 4",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — the ladder needs 4"
+     "reason": "only 1 priced game — the ladder needs 4"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — the ladder needs 4"
+     "reason": "only 1 priced game — the ladder needs 4"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — the ladder needs 4"
+     "reason": "only 1 priced game — the ladder needs 4"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — the ladder needs 4"
+     "reason": "only 1 priced game — the ladder needs 4"
     }
    }
   },
   {
    "lane": "multi",
-   "date": "2026-09-17",
-   "laneState": "LIVE",
-   "laneReason": null,
+   "date": "2026-09-20",
+   "laneState": "CLOSED",
+   "laneReason": "a cross-sport card needs two live sports; only Premier League is cleared",
    "tiers": {
     "low": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "a cross-sport card needs two live sports; only Premier League is cleared"
     },
     "medium": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "a cross-sport card needs two live sports; only Premier League is cleared"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "a cross-sport card needs two live sports; only Premier League is cleared"
     },
     "longshot": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "a cross-sport card needs two live sports; only Premier League is cleared"
     }
    }
   }

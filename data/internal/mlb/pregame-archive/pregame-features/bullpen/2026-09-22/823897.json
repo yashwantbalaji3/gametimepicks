@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823897,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T01:03:55.312Z",
+  "availableAt": "2026-09-22T01:03:55.312Z",
+  "eventStartTime": "2026-09-23T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-19",
+    "2026-09-20",
+    "2026-09-21"
+  ],
+  "home": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 207,
+      "relievers": [
+        {
+          "id": 686218,
+          "name": "Emmet Sheehan",
+          "appearances": 1,
+          "pitches": 93,
+          "outs": 16,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 621242,
+          "name": "Edwin Díaz",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 681911,
+          "name": "Alex Vesia",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 656945,
+          "name": "Tanner Scott",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 678020,
+          "name": "Seth Halvorsen",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 592779,
+          "name": "Brock Stewart",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 663460,
+          "name": "Kris Bubic",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 623465,
+          "name": "Evan Phillips",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 153,
+      "relievers": [
+        {
+          "id": 681190,
+          "name": "Randy Vásquez",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 6,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 8,
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 2,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 2,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 2,
+          "pitches": 19,
+          "outs": 6,
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 688158,
+          "name": "David Morgan",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 606996,
+          "name": "Kyle Hart",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 1,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-19,2026-09-20,2026-09-21) + feed/live box scores",
+    "capturedAt": "2026-09-22T01:03:55.312Z"
+  },
+  "recordHash": "999c66bcc8aef744bf9a86adb3979b9ea73d6719fbbe820f9c6ffb5b925ac8bd"
+}

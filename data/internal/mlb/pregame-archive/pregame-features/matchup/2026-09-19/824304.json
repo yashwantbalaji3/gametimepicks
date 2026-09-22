@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824304,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T21:11:31.058Z",
+  "availableAt": "2026-09-19T21:11:31.058Z",
+  "eventStartTime": "2026-09-20T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 500779,
+    "name": "Jose Quintana",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 682243,
+    "name": "Bryce Miller",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [
+    {
+      "playerId": 641487,
+      "name": "J.P. Crawford",
+      "battingOrderSlot": 1,
+      "batSide": "L",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 668227,
+      "name": "Randy Arozarena",
+      "battingOrderSlot": 2,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 686527,
+      "name": "Dominic Canzone",
+      "battingOrderSlot": 3,
+      "batSide": "L",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 663728,
+      "name": "Cal Raleigh",
+      "battingOrderSlot": 4,
+      "batSide": "S",
+      "platoonVsOpposingSP": "switch-advantage"
+    },
+    {
+      "playerId": 677594,
+      "name": "Julio Rodríguez",
+      "battingOrderSlot": 5,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 647304,
+      "name": "Josh Naylor",
+      "battingOrderSlot": 6,
+      "batSide": "L",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 703197,
+      "name": "Michael Arroyo",
+      "battingOrderSlot": 7,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 703155,
+      "name": "Lazaro Montes",
+      "battingOrderSlot": 8,
+      "batSide": "L",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 642215,
+      "name": "Weston Wilson",
+      "battingOrderSlot": 9,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    }
+  ],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-19T21:11:31.058Z"
+  },
+  "recordHash": "fc68d8a77646414c0581c8e82dcd49508dd888fe4d6a9fddd2fbac6d9e111a06"
+}

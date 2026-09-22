@@ -1,0 +1,472 @@
+{
+  "policyVersion": 1,
+  "generatedAt": null,
+  "latestSettledDate": "2026-09-19",
+  "trainingWindowStart": "2026-09-12",
+  "trainingWindowEnd": "2026-09-19",
+  "trainingWindowDays": 8,
+  "sampleSizes": {
+    "universeLegs": 4365,
+    "publishedLegs": 667,
+    "publishedCards": 192
+  },
+  "universeBaselineHitRate": 0.4767,
+  "noLiveWire": false,
+  "hardGuards": {
+    "maxLegsByLane": {
+      "low": 2,
+      "medium": 3,
+      "high": 3,
+      "longshot": 3
+    },
+    "bankBuilderMaxLegs": 2,
+    "bankBuilderHeavyFavoriteOnly": true,
+    "lowNoPlusMoney": true,
+    "lowOddsFloor": -130,
+    "maxRestrictedLegsPerCard": 1,
+    "excludeEdgePctFromLowMedium": 15,
+    "excludeEdgePctAll": 20,
+    "nbaRequiresRealStatsProvider": true,
+    "ufcFailClosed": true,
+    "staleFormBlockedFromLowBank": true,
+    "confidenceUsedForRanking": false
+  },
+  "recommendedMarketStatus": {
+    "batter_hits": {
+      "wins": 895,
+      "losses": 693,
+      "n": 1588,
+      "hitRate": 0.5636,
+      "wilsonLB": 0.5391,
+      "shrunk": 0.5625,
+      "recommendedStatus": "allowed"
+    },
+    "batter_hits_runs_rbis": {
+      "wins": 808,
+      "losses": 771,
+      "n": 1579,
+      "hitRate": 0.5117,
+      "wilsonLB": 0.4871,
+      "shrunk": 0.5113,
+      "recommendedStatus": "restricted"
+    },
+    "batter_total_bases": {
+      "wins": 275,
+      "losses": 369,
+      "n": 644,
+      "hitRate": 0.427,
+      "wilsonLB": 0.3894,
+      "shrunk": 0.4285,
+      "recommendedStatus": "disabled"
+    },
+    "pitcher_strikeouts": {
+      "wins": 103,
+      "losses": 100,
+      "n": 203,
+      "hitRate": 0.5074,
+      "wilsonLB": 0.4391,
+      "shrunk": 0.5046,
+      "recommendedStatus": "restricted"
+    }
+  },
+  "calibration": {
+    "edgeInverted": true,
+    "confidencePredictive": false,
+    "confidenceSpread": 0.0091,
+    "byEdgeBucket": {
+      "10-15": {
+        "wins": 330,
+        "losses": 299,
+        "n": 629,
+        "hitRate": 0.5246,
+        "wilsonLB": 0.4856
+      },
+      "neg": {
+        "wins": 409,
+        "losses": 403,
+        "n": 812,
+        "hitRate": 0.5037,
+        "wilsonLB": 0.4694
+      },
+      "5-10": {
+        "wins": 505,
+        "losses": 448,
+        "n": 953,
+        "hitRate": 0.5299,
+        "wilsonLB": 0.4982
+      },
+      "0-5": {
+        "wins": 623,
+        "losses": 560,
+        "n": 1183,
+        "hitRate": 0.5266,
+        "wilsonLB": 0.4981
+      },
+      "15-20": {
+        "wins": 143,
+        "losses": 161,
+        "n": 304,
+        "hitRate": 0.4704,
+        "wilsonLB": 0.415
+      },
+      "20+": {
+        "wins": 71,
+        "losses": 62,
+        "n": 133,
+        "hitRate": 0.5338,
+        "wilsonLB": 0.4493
+      }
+    },
+    "byConfidence": {
+      "High": {
+        "wins": 977,
+        "losses": 908,
+        "n": 1885,
+        "hitRate": 0.5183,
+        "wilsonLB": 0.4957
+      },
+      "Low": {
+        "wins": 825,
+        "losses": 773,
+        "n": 1598,
+        "hitRate": 0.5163,
+        "wilsonLB": 0.4918
+      },
+      "Medium": {
+        "wins": 279,
+        "losses": 252,
+        "n": 531,
+        "hitRate": 0.5254,
+        "wilsonLB": 0.4829
+      }
+    }
+  },
+  "segments": {
+    "universe_byMarket": {
+      "batter_hits": {
+        "wins": 895,
+        "losses": 693,
+        "n": 1588,
+        "hitRate": 0.5636,
+        "wilsonLB": 0.5391
+      },
+      "batter_hits_runs_rbis": {
+        "wins": 808,
+        "losses": 771,
+        "n": 1579,
+        "hitRate": 0.5117,
+        "wilsonLB": 0.4871
+      },
+      "batter_total_bases": {
+        "wins": 275,
+        "losses": 369,
+        "n": 644,
+        "hitRate": 0.427,
+        "wilsonLB": 0.3894
+      },
+      "pitcher_strikeouts": {
+        "wins": 103,
+        "losses": 100,
+        "n": 203,
+        "hitRate": 0.5074,
+        "wilsonLB": 0.4391
+      }
+    },
+    "universe_byConfidence": {
+      "High": {
+        "wins": 977,
+        "losses": 908,
+        "n": 1885,
+        "hitRate": 0.5183,
+        "wilsonLB": 0.4957
+      },
+      "Low": {
+        "wins": 825,
+        "losses": 773,
+        "n": 1598,
+        "hitRate": 0.5163,
+        "wilsonLB": 0.4918
+      },
+      "Medium": {
+        "wins": 279,
+        "losses": 252,
+        "n": 531,
+        "hitRate": 0.5254,
+        "wilsonLB": 0.4829
+      }
+    },
+    "universe_byEdgeBucket": {
+      "10-15": {
+        "wins": 330,
+        "losses": 299,
+        "n": 629,
+        "hitRate": 0.5246,
+        "wilsonLB": 0.4856
+      },
+      "neg": {
+        "wins": 409,
+        "losses": 403,
+        "n": 812,
+        "hitRate": 0.5037,
+        "wilsonLB": 0.4694
+      },
+      "5-10": {
+        "wins": 505,
+        "losses": 448,
+        "n": 953,
+        "hitRate": 0.5299,
+        "wilsonLB": 0.4982
+      },
+      "0-5": {
+        "wins": 623,
+        "losses": 560,
+        "n": 1183,
+        "hitRate": 0.5266,
+        "wilsonLB": 0.4981
+      },
+      "15-20": {
+        "wins": 143,
+        "losses": 161,
+        "n": 304,
+        "hitRate": 0.4704,
+        "wilsonLB": 0.415
+      },
+      "20+": {
+        "wins": 71,
+        "losses": 62,
+        "n": 133,
+        "hitRate": 0.5338,
+        "wilsonLB": 0.4493
+      }
+    },
+    "universe_byRole": {
+      "batter": {
+        "wins": 1978,
+        "losses": 1833,
+        "n": 3811,
+        "hitRate": 0.519,
+        "wilsonLB": 0.5031
+      },
+      "pitcher": {
+        "wins": 103,
+        "losses": 100,
+        "n": 203,
+        "hitRate": 0.5074,
+        "wilsonLB": 0.4391
+      }
+    },
+    "published_byRiskLane": {
+      "low": {
+        "wins": 69,
+        "losses": 25,
+        "n": 94,
+        "hitRate": 0.734,
+        "wilsonLB": 0.6368
+      },
+      "medium": {
+        "wins": 87,
+        "losses": 60,
+        "n": 147,
+        "hitRate": 0.5918,
+        "wilsonLB": 0.511
+      },
+      "high": {
+        "wins": 116,
+        "losses": 72,
+        "n": 188,
+        "hitRate": 0.617,
+        "wilsonLB": 0.5458
+      },
+      "longshot": {
+        "wins": 150,
+        "losses": 88,
+        "n": 238,
+        "hitRate": 0.6303,
+        "wilsonLB": 0.5673
+      }
+    },
+    "published_byMarket": {
+      "batter_hits": {
+        "wins": 413,
+        "losses": 244,
+        "n": 657,
+        "hitRate": 0.6286,
+        "wilsonLB": 0.591
+      },
+      "batter_hits_runs_rbis": {
+        "wins": 9,
+        "losses": 1,
+        "n": 10,
+        "hitRate": 0.9,
+        "wilsonLB": 0.5958
+      }
+    },
+    "published_byOddsBand": {
+      "favorite": {
+        "wins": 233,
+        "losses": 126,
+        "n": 359,
+        "hitRate": 0.649,
+        "wilsonLB": 0.5983
+      },
+      "heavy_fav": {
+        "wins": 131,
+        "losses": 53,
+        "n": 184,
+        "hitRate": 0.712,
+        "wilsonLB": 0.6427
+      },
+      "plus_money": {
+        "wins": 15,
+        "losses": 42,
+        "n": 57,
+        "hitRate": 0.2632,
+        "wilsonLB": 0.1665
+      },
+      "slight_fav": {
+        "wins": 33,
+        "losses": 20,
+        "n": 53,
+        "hitRate": 0.6226,
+        "wilsonLB": 0.4881
+      },
+      "near_even_plus": {
+        "wins": 10,
+        "losses": 4,
+        "n": 14,
+        "hitRate": 0.7143,
+        "wilsonLB": 0.4535
+      }
+    },
+    "published_byEdgeBucket": {
+      "10-15": {
+        "wins": 148,
+        "losses": 71,
+        "n": 219,
+        "hitRate": 0.6758,
+        "wilsonLB": 0.6112
+      },
+      "5-10": {
+        "wins": 248,
+        "losses": 163,
+        "n": 411,
+        "hitRate": 0.6034,
+        "wilsonLB": 0.5554
+      },
+      "0-5": {
+        "wins": 26,
+        "losses": 11,
+        "n": 37,
+        "hitRate": 0.7027,
+        "wilsonLB": 0.5422
+      }
+    },
+    "published_byRecentForm": {
+      "full(>=8)": {
+        "wins": 422,
+        "losses": 245,
+        "n": 667,
+        "hitRate": 0.6327,
+        "wilsonLB": 0.5954
+      }
+    },
+    "published_byCardLength": {
+      "2-leg": {
+        "wins": 26,
+        "losses": 22,
+        "n": 48,
+        "hitRate": 0.5417,
+        "wilsonLB": 0.4029
+      },
+      "3-leg": {
+        "wins": 2,
+        "losses": 25,
+        "n": 27,
+        "hitRate": 0.0741,
+        "wilsonLB": 0.0206
+      },
+      "4-leg": {
+        "wins": 5,
+        "losses": 42,
+        "n": 47,
+        "hitRate": 0.1064,
+        "wilsonLB": 0.0463
+      },
+      "5-leg": {
+        "wins": 4,
+        "losses": 40,
+        "n": 44,
+        "hitRate": 0.0909,
+        "wilsonLB": 0.0359
+      },
+      "6-leg": {
+        "wins": 1,
+        "losses": 13,
+        "n": 14,
+        "hitRate": 0.0714,
+        "wilsonLB": 0.0127
+      }
+    },
+    "published_cardsByLane": {
+      "low": {
+        "wins": 26,
+        "losses": 22,
+        "n": 48,
+        "hitRate": 0.5417,
+        "wilsonLB": 0.4029
+      },
+      "medium": {
+        "wins": 4,
+        "losses": 38,
+        "n": 42,
+        "hitRate": 0.0952,
+        "wilsonLB": 0.0377
+      },
+      "high": {
+        "wins": 5,
+        "losses": 39,
+        "n": 44,
+        "hitRate": 0.1136,
+        "wilsonLB": 0.0495
+      },
+      "longshot": {
+        "wins": 3,
+        "losses": 43,
+        "n": 46,
+        "hitRate": 0.0652,
+        "wilsonLB": 0.0224
+      }
+    }
+  },
+  "warnings": [
+    "edge signal is INVERTED at high values — edge capped, not used to promote",
+    "confidence non-predictive (spread 0.9pts) — excluded from ranking"
+  ],
+  "notes": "Recommendation artifact only. Optimizer reads this in a later PR; until then it documents policy. Fail-closed: if noLiveWire, optimizer keeps its static conservative policy.",
+  "cardLengthProjection": {
+    "low": {
+      "legHitRate": 0.734,
+      "proj2leg": 0.539,
+      "proj3leg": 0.395,
+      "currentMaxLegsRec": 2
+    },
+    "medium": {
+      "legHitRate": 0.5918,
+      "proj2leg": 0.35,
+      "proj3leg": 0.207,
+      "currentMaxLegsRec": 3
+    },
+    "high": {
+      "legHitRate": 0.617,
+      "proj2leg": 0.381,
+      "proj3leg": 0.235,
+      "currentMaxLegsRec": 3
+    },
+    "longshot": {
+      "legHitRate": 0.6303,
+      "proj2leg": 0.397,
+      "proj3leg": 0.25,
+      "currentMaxLegsRec": 3
+    }
+  }
+}

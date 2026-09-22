@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824304,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T14:11:17.554Z",
+  "availableAt": "2026-09-19T14:11:17.554Z",
+  "eventStartTime": "2026-09-20T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 500779,
+      "name": "Jose Quintana",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 118,
+      "lastStartDate": "2026-05-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 2.2,
+        "bbAvg": 1.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 4.37,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 41,
+        "k": 20,
+        "bb": 17,
+        "er": 24,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 682243,
+      "name": "Bryce Miller",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-09-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 4.4,
+        "bbAvg": 3.6,
+        "erAvg": 3.6,
+        "hrAvg": 1.2,
+        "kPer9": 8.87,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 102.33,
+        "k": 102,
+        "bb": 34,
+        "er": 48,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-19T14:11:17.554Z"
+  },
+  "recordHash": "633fc205e3146366e6b919b2443040d97cb58e6652c082d983ed1d7d01b3bb33"
+}

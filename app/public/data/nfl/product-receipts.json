@@ -2,29 +2,29 @@
   "schemaVersion": 1,
   "artifact": "nfl-product-receipts",
   "dataClass": "PUBLIC_DERIVED",
-  "runId": "5352659f4a08",
-  "generatedAt": "2026-09-18T18:14:57Z",
+  "runId": "bd0387bf9baa",
+  "generatedAt": "2026-09-21T23:50:21Z",
   "asOf": {
-    "index": "2026-09-18T18:14:57Z",
-    "eligibility": "2026-09-18T18:14:57Z",
-    "vault": "2026-09-18T18:14:57Z",
-    "markets": "2026-09-17T23:22:52Z"
+    "index": "2026-09-21T23:50:21Z",
+    "eligibility": "2026-09-21T23:50:21Z",
+    "vault": "2026-09-21T23:50:21Z",
+    "markets": "2026-09-21T23:50:21Z"
   },
-  "nextRunUtc": "2026-09-18T21:00:00Z",
-  "eventsInWindow": 15,
+  "nextRunUtc": "2026-09-22T14:30:00Z",
+  "eventsInWindow": 1,
   "lanes": [
     {
       "product": "bank-builder",
       "label": "Bank Builder",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 15,
+      "candidatesConsidered": 1,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 15
+          "count": 1
         }
       ],
       "reconciles": true,
@@ -37,13 +37,13 @@
       "label": "Moonshot",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 15,
+      "candidatesConsidered": 1,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 15
+          "count": 1
         }
       ],
       "reconciles": true,
@@ -56,13 +56,13 @@
       "label": "Card builder",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 15,
+      "candidatesConsidered": 1,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 15
+          "count": 1
         }
       ],
       "reconciles": true,
@@ -74,14 +74,14 @@
       "product": "end-zone-vault",
       "label": "End Zone Vault",
       "state": "NO_PLAY",
-      "stateReason": "158 model candidates · no current comparable touchdown price is available",
-      "candidatesConsidered": 158,
+      "stateReason": "14 model candidates · no current comparable touchdown price is available",
+      "candidatesConsidered": 14,
       "rejections": [
         {
           "reason": "NO_PRICED_MARKET",
           "label": "the provider offers no NFL player market in this window",
           "detail": "an unpriced leg can never enter a paper product — there is nothing to settle it against.",
-          "count": 158
+          "count": 14
         }
       ],
       "alsoBlocking": [

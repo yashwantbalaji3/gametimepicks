@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-09-18",
- "generatedAt": "2026-09-18T18:14:57Z",
+ "generatedAt": "2026-09-18T23:02:12Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "158 model candidates · no current comparable touchdown price is available",
+ "reason": "155 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -50,25 +50,6 @@
    "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 40, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
-  },
-  {
-   "playerId": "nfl-athlete-4426385",
-   "name": "Zach Charbonnet",
-   "position": "RB",
-   "team": "SEA",
-   "opponent": "ARI",
-   "event": "SEA @ ARI",
-   "providerEventId": "401872943",
-   "kickoffUtc": "2026-09-20T20:25Z",
-   "tdProbability": 0.502039,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 46, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   },
   {
@@ -179,8 +160,8 @@
    "probabilityRange": {
     "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
    },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "roleState": "QUESTIONABLE",
+   "roleNote": "published designation: Questionable",
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.53, g 47, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
@@ -241,9 +222,28 @@
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.42, g 39, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4685382",
+   "name": "Omarion Hampton",
+   "position": "RB",
+   "team": "LAC",
+   "opponent": "LV",
+   "event": "LV @ LAC",
+   "providerEventId": "401872941",
+   "kickoffUtc": "2026-09-20T20:05Z",
+   "tdProbability": 0.376586,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.24, g 9, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   }
  ],
- "candidateCount": 158,
+ "candidateCount": 155,
  "withheld": [
   {
    "event": "CAR @ ATL",
@@ -260,6 +260,12 @@
   {
    "event": "CIN @ HOU",
    "team": "HOU",
+   "player": "Nico Collins",
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "CIN @ HOU",
+   "team": "HOU",
    "player": "Jayden Higgins",
    "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
   },
@@ -268,6 +274,12 @@
    "team": "DEN",
    "player": "Frank Crum",
    "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "JAX @ DEN",
+   "team": "DEN",
+   "player": "Marvin Mims Jr.",
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
   },
   {
    "event": "LV @ LAC",
@@ -280,6 +292,12 @@
    "team": "DAL",
    "player": "Malik Davis",
    "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "SEA @ ARI",
+   "team": "SEA",
+   "player": "Zach Charbonnet",
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
   },
   {
    "event": "MIA @ SF",
@@ -298,7 +316,7 @@
   ],
   "tdMarketOffered": null,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 144
+  "roleReadyCandidates": 149
  },
  "disclaimer": "Model touchdown probabilities. Educational."
 }

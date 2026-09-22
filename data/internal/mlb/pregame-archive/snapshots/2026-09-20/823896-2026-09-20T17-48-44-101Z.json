@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823896-0d9437b1f9fc102b8756f24029165614",
+  "snapshotCreatedAt": "2026-09-20T17:48:44.101Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-09-20",
+  "eventId": "823896",
+  "gamePk": 823896,
+  "eventStartTime": "2026-09-20T20:10:00Z",
+  "homeTeam": "LAD",
+  "awayTeam": "SF",
+  "venue": "UNIQLO Field at Dodger Stadium",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "f7268c0c677134a86a4a253480228a26",
+  "normalizedPayloadHash": "70fec607b0f0bcdeae077eabd2318f35",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          605141,
+          669242,
+          606192,
+          518692,
+          500743,
+          571970,
+          800543,
+          571771,
+          676439
+        ],
+        "away": [
+          813841,
+          808982,
+          682674,
+          668800,
+          695391,
+          814154,
+          694376,
+          687529,
+          683766
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-20T17:48:44.101Z",
+      "availableAt": "2026-09-20T17:48:44.101Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-20T17:48:44.101Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823896/feed/live",
+        "requestedAt": "2026-09-20T17:48:44.101Z",
+        "receivedAt": "2026-09-20T17:48:44.101Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": null,
+        "awayProbable": "Matt Wilkinson",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-20T17:48:44.101Z",
+      "availableAt": "2026-09-20T17:48:44.101Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-20T17:48:44.101Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823896/feed/live",
+        "requestedAt": "2026-09-20T17:48:44.101Z",
+        "receivedAt": "2026-09-20T17:48:44.101Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "77",
+        "wind": "8 mph, Out To CF",
+        "roofType": "Open",
+        "dayNight": "day",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-20T17:48:44.101Z",
+      "availableAt": "2026-09-20T17:48:44.101Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-20T17:48:44.101Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823896/feed/live",
+        "requestedAt": "2026-09-20T17:48:44.101Z",
+        "receivedAt": "2026-09-20T17:48:44.101Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Brennan Miller",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Ben May",
+            "type": "First Base"
+          },
+          {
+            "name": "Louie Krupa",
+            "type": "Second Base"
+          },
+          {
+            "name": "John Tumpane",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-20T17:48:44.101Z",
+      "availableAt": "2026-09-20T17:48:44.101Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-20T17:48:44.101Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823896/feed/live",
+        "requestedAt": "2026-09-20T17:48:44.101Z",
+        "receivedAt": "2026-09-20T17:48:44.101Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

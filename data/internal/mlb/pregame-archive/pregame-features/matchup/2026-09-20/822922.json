@@ -1,0 +1,162 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 822922,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T14:30:26.768Z",
+  "availableAt": "2026-09-20T14:30:26.768Z",
+  "eventStartTime": "2026-09-20T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 643377,
+    "name": "Griffin Jax",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 663776,
+    "name": "Patrick Sandoval",
+    "pitchHand": "L"
+  },
+  "homeBatters": [
+    {
+      "playerId": 650490,
+      "name": "Yandy Díaz",
+      "battingOrderSlot": 1,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 668723,
+      "name": "Ryan Vilade",
+      "battingOrderSlot": 2,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 691406,
+      "name": "Junior Caminero",
+      "battingOrderSlot": 3,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 676356,
+      "name": "Jonny DeLuca",
+      "battingOrderSlot": 4,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 802415,
+      "name": "Chandler Simpson",
+      "battingOrderSlot": 5,
+      "batSide": "L",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 810938,
+      "name": "Ben Williamson",
+      "battingOrderSlot": 6,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 663743,
+      "name": "Nick Fortes",
+      "battingOrderSlot": 7,
+      "batSide": "R",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 683748,
+      "name": "Victor Mesa Jr.",
+      "battingOrderSlot": 8,
+      "batSide": "L",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 670764,
+      "name": "Taylor Walls",
+      "battingOrderSlot": 9,
+      "batSide": "S",
+      "platoonVsOpposingSP": "switch-advantage"
+    }
+  ],
+  "awayBatters": [
+    {
+      "playerId": 701350,
+      "name": "Roman Anthony",
+      "battingOrderSlot": 1,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 681508,
+      "name": "Mickey Gasper",
+      "battingOrderSlot": 2,
+      "batSide": "S",
+      "platoonVsOpposingSP": "switch-advantage"
+    },
+    {
+      "playerId": 668939,
+      "name": "Adley Rutschman",
+      "battingOrderSlot": 3,
+      "batSide": "S",
+      "platoonVsOpposingSP": "switch-advantage"
+    },
+    {
+      "playerId": 596115,
+      "name": "Trevor Story",
+      "battingOrderSlot": 4,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 686765,
+      "name": "Nick Sogard",
+      "battingOrderSlot": 5,
+      "batSide": "S",
+      "platoonVsOpposingSP": "switch-advantage"
+    },
+    {
+      "playerId": 702332,
+      "name": "Caleb Durbin",
+      "battingOrderSlot": 6,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 680776,
+      "name": "Jarren Duran",
+      "battingOrderSlot": 7,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 643396,
+      "name": "Isiah Kiner-Falefa",
+      "battingOrderSlot": 8,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 681987,
+      "name": "Nate Eaton",
+      "battingOrderSlot": 9,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    }
+  ],
+  "lineupPosted": true,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-20T14:30:26.768Z"
+  },
+  "recordHash": "9532e505558f23cd579e1265936bd3ec6c7a9d548d251e8a311fe37f85a323ea"
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822921,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T00:32:07.580Z",
+  "availableAt": "2026-09-19T00:32:07.580Z",
+  "eventStartTime": "2026-09-19T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 642547,
+      "name": "Freddy Peralta",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 6,
+      "lastStartDate": "2026-09-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 4.6,
+        "bbAvg": 1,
+        "erAvg": 1.4,
+        "hrAvg": 0.6,
+        "kPer9": 6.9,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 158,
+        "k": 146,
+        "bb": 58,
+        "er": 82,
+        "hr": 23
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-19T00:32:07.580Z"
+  },
+  "recordHash": "d716e6c578ade963a1df03073d4c760c71e92f3d8beeb94d3558c2c7d228086e"
+}

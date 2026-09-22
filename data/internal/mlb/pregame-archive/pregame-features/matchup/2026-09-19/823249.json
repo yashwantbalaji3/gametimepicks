@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823249,
+  "date": "2026-09-19",
+  "capturedAt": "2026-09-19T21:11:31.058Z",
+  "availableAt": "2026-09-19T21:11:31.058Z",
+  "eventStartTime": "2026-09-20T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 663554,
+    "name": "Casey Mize",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 691587,
+    "name": "Eury Pérez",
+    "pitchHand": "R"
+  },
+  "homeBatters": [
+    {
+      "playerId": 665487,
+      "name": "Fernando Tatis Jr.",
+      "battingOrderSlot": 1,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 687957,
+      "name": "Dustin Harris",
+      "battingOrderSlot": 2,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 592518,
+      "name": "Manny Machado",
+      "battingOrderSlot": 3,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 664034,
+      "name": "Ty France",
+      "battingOrderSlot": 4,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 701538,
+      "name": "Jackson Merrill",
+      "battingOrderSlot": 5,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 669134,
+      "name": "Luis Campusano",
+      "battingOrderSlot": 6,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 630105,
+      "name": "Jake Cronenworth",
+      "battingOrderSlot": 7,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 669392,
+      "name": "Samad Taylor",
+      "battingOrderSlot": 8,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 666023,
+      "name": "Freddy Fermin",
+      "battingOrderSlot": 9,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    }
+  ],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-19T21:11:31.058Z"
+  },
+  "recordHash": "06190d21ca248bb5794860bfae72479e2fab361f0afc6fe0c0e34afbd7efefff"
+}

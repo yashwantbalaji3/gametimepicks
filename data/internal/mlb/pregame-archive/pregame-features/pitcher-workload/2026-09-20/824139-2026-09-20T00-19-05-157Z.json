@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824139,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T00:19:05.157Z",
+  "availableAt": "2026-09-20T00:19:05.157Z",
+  "eventStartTime": "2026-09-20T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 686613,
+      "name": "Hunter Brown",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 7.6,
+        "bbAvg": 1.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 12.07,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 97,
+        "k": 110,
+        "bb": 49,
+        "er": 37,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 527048,
+      "name": "Martín Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 5,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 3.4,
+        "bbAvg": 3,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 5.81,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 128.33,
+        "k": 89,
+        "bb": 60,
+        "er": 45,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-20&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-20T00:19:05.157Z"
+  },
+  "recordHash": "571c84df886d3f3739cec1141d20654e4ea64907db4a8b25fa42dc832881eaf8"
+}

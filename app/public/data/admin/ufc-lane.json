@@ -2,48 +2,47 @@
   "schemaVersion": 1,
   "artifact": "ufc-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-09-18T17:00:52Z",
+  "generatedAt": "2026-09-21T18:35:43Z",
   "nextCard": {
-    "name": "UFC 331: Van vs. Pantoja 2",
-    "slateDate": "2026-09-19",
-    "bouts": 12,
-    "hoursAway": 27.99
+    "name": "UFC Fight Night: Rosas Jr. vs. Barcelos",
+    "slateDate": "2026-09-26",
+    "bouts": 11,
+    "hoursAway": 120.4
   },
   "freshness": {
     "card": {
       "state": "READ",
-      "stampedAt": "2026-09-18T17:00:18Z",
+      "stampedAt": "2026-09-21T18:34:49Z",
       "ageHours": 0.01
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-09-17T15:22:34Z",
-      "ageHours": 25.64
+      "ageHours": 99.22
     },
     "ladder": {
       "state": "READ",
-      "stampedAt": "2026-09-18T17:00:51Z",
+      "stampedAt": "2026-09-21T18:35:42Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-09-18T12:48:43+00:00",
-      "ageHours": 4.2
+      "stampedAt": "2026-09-21T14:57:00+00:00",
+      "ageHours": 3.65
     },
     "settled": {
       "state": "READ",
       "stampedAt": "2026-06-15T13:55:00Z",
-      "ageHours": 2283.1
+      "ageHours": 2356.68
     }
   },
   "cards": {
-    "state": "PUBLISHED_FOR_THIS_CARD",
-    "date": "2026-09-19",
-    "carded": 3,
-    "skipped": [
-      "high"
-    ],
-    "selection": "the model's own read — a fitted fight model that passed its preregistered bar. Since 2026-08-22 it is graded publicly beside the de-vigged line, and the cumulative comparison currently favours the market"
+    "state": "NO_CARDS_FOR_THIS_CARD",
+    "date": "2026-09-26",
+    "carded": 0,
+    "skipped": [],
+    "ladderState": "NO_PRICES",
+    "detail": "no price capture for this card (UFC Fight Night: Rosas Jr. vs. Barcelos); the newest snapshot covers a different event"
   },
   "settlementReach": {
     "state": "IN_SCOPE",
@@ -58,18 +57,18 @@
     "requests": 25
   },
   "productLane": {
-    "live": true,
-    "blocked": null
+    "live": false,
+    "blocked": "the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4"
   },
   "population": {
     "state": "POPULATION_EXACT",
-    "generatedAt": "2026-09-18T17:00:25Z",
+    "generatedAt": "2026-09-21T18:34:59Z",
     "counts": {
-      "expected": 12,
-      "captured": 12,
-      "read": 10,
+      "expected": 11,
+      "captured": 11,
+      "read": 9,
       "unmodelled": 2,
-      "priced": 10,
+      "priced": 0,
       "missing": 0,
       "phantom": 0
     }
@@ -77,18 +76,18 @@
   "modelVsMarket": {
     "state": "RECONCILED",
     "cumulative": {
-      "n": 31,
+      "n": 41,
       "model": {
-        "logLoss": 0.709712,
-        "brier": 0.250261,
-        "accuracy": 0.580645
+        "logLoss": 0.698308,
+        "brier": 0.245726,
+        "accuracy": 0.609756
       },
       "market": {
-        "logLoss": 0.681472,
-        "brier": 0.245721
+        "logLoss": 0.659004,
+        "brier": 0.235707
       }
     },
-    "gradedTotal": 31,
+    "gradedTotal": 41,
     "reconciliation": [
       {
         "slateDate": "2026-08-22",
@@ -121,6 +120,14 @@
         "void": 0,
         "pending": 0,
         "reconciles": true
+      },
+      {
+        "slateDate": "2026-09-19",
+        "frozen": 10,
+        "graded": 10,
+        "void": 0,
+        "pending": 0,
+        "reconciles": true
       }
     ],
     "postCardLag": {
@@ -149,6 +156,11 @@
       "id": "calibration-sample",
       "state": "REALITY_GATED",
       "detail": "the model has never been scored against a no-vig UFC line, and one card has been settled from official results. Cards have to be fought."
+    },
+    {
+      "id": "product-lane-closed",
+      "state": "REALITY_GATED",
+      "detail": "the Lab gate has closed this lane: the last price capture is 4.1 days old; only 0 priced games — the ladder needs 4. It reopens by itself when the evidence returns."
     }
   ]
 }

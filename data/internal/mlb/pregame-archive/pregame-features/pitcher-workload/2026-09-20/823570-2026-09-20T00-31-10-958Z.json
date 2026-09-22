@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823570,
+  "date": "2026-09-20",
+  "capturedAt": "2026-09-20T00:31:10.958Z",
+  "availableAt": "2026-09-20T00:31:10.958Z",
+  "eventStartTime": "2026-09-20T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 804636,
+      "name": "Jonah Tong",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-09-14",
+      "last5": {
+        "starts": 2,
+        "ipSum": 11,
+        "ipAvg": 5.5,
+        "kAvg": 6.5,
+        "bbAvg": 1,
+        "erAvg": 2,
+        "hrAvg": 0.5,
+        "kPer9": 10.64,
+        "workloadIpLast5": 11
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 11,
+        "k": 13,
+        "bb": 2,
+        "er": 4,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 650911,
+      "name": "Cristopher Sánchez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 5,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 5.6,
+        "bbAvg": 1.2,
+        "erAvg": 3.6,
+        "hrAvg": 0.8,
+        "kPer9": 7.88,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 193.67,
+        "k": 215,
+        "bb": 44,
+        "er": 63,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-20&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-20T00:31:10.958Z"
+  },
+  "recordHash": "3849938c5ea73fb0a9f8e5ba7212a22ca4182e7c1196f3678be912c7c9373bec"
+}

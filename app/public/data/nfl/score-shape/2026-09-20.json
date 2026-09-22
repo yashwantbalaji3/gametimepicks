@@ -1,0 +1,2519 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-score-shape",
+  "dataClass": "PUBLIC_DERIVED",
+  "generatedAt": "2026-09-20T23:00:24Z",
+  "date": "2026-09-20",
+  "runs": 20000,
+  "engine": {
+    "id": "nfl-full-game-v2-regular-season",
+    "parameters": {
+      "SCORING_CHANCES": 11,
+      "P_TD": 0.226,
+      "P_FG": 0.154,
+      "GAME_FLOW_KAPPA": 0.11,
+      "P_XP_GOOD": 0.94,
+      "P_TWO_POINT_GOOD": 0.035,
+      "P_SAFETY": 0.008,
+      "OT": {
+        "homeFg": 0.47,
+        "awayFg": 0.47
+      },
+      "MODEL_VERSION": "nfl-full-game-v2-regular-season"
+    },
+    "fittedOn": "816 regular-season finals (2023, 2024, 2025)",
+    "fitCommand": "node scripts/nfl/fit-nfl-score-engine.mjs --phase 2",
+    "what": "An event-based score simulation — touchdowns and field goals, not a normal draw — so final scores are lumpy the way football's are and margins can cluster on 3 and 7.",
+    "centreOwner": "The published forecast owns the median margin and median total; this engine is solved onto them and supplies only the SHAPE around that centre."
+  },
+  "keyNumberAccuracy": {
+    "sampleGames": 816,
+    "seasons": "2023, 2024, 2025",
+    "byNumber": {
+      "3": 0.1422,
+      "7": 0.0833,
+      "10": 0.0417,
+      "14": 0.0441
+    },
+    "share": 0.3113
+  },
+  "eventCount": 2,
+  "games": [
+    {
+      "providerEventId": "401872945",
+      "canonicalEventId": "nfl-401872945",
+      "matchup": "IND @ KC",
+      "kickoffUtc": "2026-09-21T00:20Z",
+      "away": "IND",
+      "home": "KC",
+      "centre": {
+        "marginMedian": 5,
+        "totalMedian": 45,
+        "simulatedMarginMedian": 4,
+        "simulatedTotalMedian": 45,
+        "iterations": 6
+      },
+      "finalScores": [
+        {
+          "away": 17,
+          "home": 20,
+          "probability": 0.0093
+        },
+        {
+          "away": 20,
+          "home": 17,
+          "probability": 0.007
+        },
+        {
+          "away": 20,
+          "home": 23,
+          "probability": 0.00635
+        },
+        {
+          "away": 17,
+          "home": 24,
+          "probability": 0.00605
+        },
+        {
+          "away": 23,
+          "home": 20,
+          "probability": 0.00605
+        },
+        {
+          "away": 24,
+          "home": 27,
+          "probability": 0.00585
+        }
+      ],
+      "keyNumbers": {
+        "numbers": [
+          3,
+          7,
+          10,
+          14
+        ],
+        "share": 0.27165,
+        "byNumber": [
+          {
+            "number": 3,
+            "probability": 0.103
+          },
+          {
+            "number": 7,
+            "probability": 0.0649
+          },
+          {
+            "number": 10,
+            "probability": 0.0569
+          },
+          {
+            "number": 14,
+            "probability": 0.04685
+          }
+        ]
+      },
+      "marginDistribution": [
+        {
+          "value": -35,
+          "label": "-35",
+          "count": 23,
+          "probability": 0.00115
+        },
+        {
+          "value": -32,
+          "label": "-32",
+          "count": 29,
+          "probability": 0.00145
+        },
+        {
+          "value": -31,
+          "label": "-31",
+          "count": 45,
+          "probability": 0.00225
+        },
+        {
+          "value": -29,
+          "label": "-29",
+          "count": 28,
+          "probability": 0.0014
+        },
+        {
+          "value": -28,
+          "label": "-28",
+          "count": 54,
+          "probability": 0.0027
+        },
+        {
+          "value": -27,
+          "label": "-27",
+          "count": 62,
+          "probability": 0.0031
+        },
+        {
+          "value": -26,
+          "label": "-26",
+          "count": 37,
+          "probability": 0.00185
+        },
+        {
+          "value": -25,
+          "label": "-25",
+          "count": 79,
+          "probability": 0.00395
+        },
+        {
+          "value": -24,
+          "label": "-24",
+          "count": 102,
+          "probability": 0.0051
+        },
+        {
+          "value": -23,
+          "label": "-23",
+          "count": 64,
+          "probability": 0.0032
+        },
+        {
+          "value": -22,
+          "label": "-22",
+          "count": 91,
+          "probability": 0.00455
+        },
+        {
+          "value": -21,
+          "label": "-21",
+          "count": 186,
+          "probability": 0.0093
+        },
+        {
+          "value": -20,
+          "label": "-20",
+          "count": 143,
+          "probability": 0.00715
+        },
+        {
+          "value": -19,
+          "label": "-19",
+          "count": 99,
+          "probability": 0.00495
+        },
+        {
+          "value": -18,
+          "label": "-18",
+          "count": 209,
+          "probability": 0.01045
+        },
+        {
+          "value": -17,
+          "label": "-17",
+          "count": 244,
+          "probability": 0.0122
+        },
+        {
+          "value": -16,
+          "label": "-16",
+          "count": 147,
+          "probability": 0.00735
+        },
+        {
+          "value": -15,
+          "label": "-15",
+          "count": 213,
+          "probability": 0.01065
+        },
+        {
+          "value": -14,
+          "label": "-14",
+          "count": 361,
+          "probability": 0.01805
+        },
+        {
+          "value": -13,
+          "label": "-13",
+          "count": 269,
+          "probability": 0.01345
+        },
+        {
+          "value": -12,
+          "label": "-12",
+          "count": 180,
+          "probability": 0.009
+        },
+        {
+          "value": -11,
+          "label": "-11",
+          "count": 360,
+          "probability": 0.018
+        },
+        {
+          "value": -10,
+          "label": "-10",
+          "count": 422,
+          "probability": 0.0211
+        },
+        {
+          "value": -9,
+          "label": "-9",
+          "count": 216,
+          "probability": 0.0108
+        },
+        {
+          "value": -8,
+          "label": "-8",
+          "count": 335,
+          "probability": 0.01675
+        },
+        {
+          "value": -7,
+          "label": "-7",
+          "count": 554,
+          "probability": 0.0277
+        },
+        {
+          "value": -6,
+          "label": "-6",
+          "count": 391,
+          "probability": 0.01955
+        },
+        {
+          "value": -5,
+          "label": "-5",
+          "count": 296,
+          "probability": 0.0148
+        },
+        {
+          "value": -4,
+          "label": "-4",
+          "count": 577,
+          "probability": 0.02885
+        },
+        {
+          "value": -3,
+          "label": "-3",
+          "count": 957,
+          "probability": 0.04785
+        },
+        {
+          "value": -2,
+          "label": "-2",
+          "count": 293,
+          "probability": 0.01465
+        },
+        {
+          "value": -1,
+          "label": "-1",
+          "count": 530,
+          "probability": 0.0265
+        },
+        {
+          "value": 0,
+          "label": "0",
+          "count": 29,
+          "probability": 0.00145
+        },
+        {
+          "value": 1,
+          "label": "1",
+          "count": 429,
+          "probability": 0.02145
+        },
+        {
+          "value": 2,
+          "label": "2",
+          "count": 334,
+          "probability": 0.0167
+        },
+        {
+          "value": 3,
+          "label": "3",
+          "count": 1103,
+          "probability": 0.05515
+        },
+        {
+          "value": 4,
+          "label": "4",
+          "count": 635,
+          "probability": 0.03175
+        },
+        {
+          "value": 5,
+          "label": "5",
+          "count": 321,
+          "probability": 0.01605
+        },
+        {
+          "value": 6,
+          "label": "6",
+          "count": 586,
+          "probability": 0.0293
+        },
+        {
+          "value": 7,
+          "label": "7",
+          "count": 744,
+          "probability": 0.0372
+        },
+        {
+          "value": 8,
+          "label": "8",
+          "count": 382,
+          "probability": 0.0191
+        },
+        {
+          "value": 9,
+          "label": "9",
+          "count": 361,
+          "probability": 0.01805
+        },
+        {
+          "value": 10,
+          "label": "10",
+          "count": 716,
+          "probability": 0.0358
+        },
+        {
+          "value": 11,
+          "label": "11",
+          "count": 565,
+          "probability": 0.02825
+        },
+        {
+          "value": 12,
+          "label": "12",
+          "count": 291,
+          "probability": 0.01455
+        },
+        {
+          "value": 13,
+          "label": "13",
+          "count": 462,
+          "probability": 0.0231
+        },
+        {
+          "value": 14,
+          "label": "14",
+          "count": 576,
+          "probability": 0.0288
+        },
+        {
+          "value": 15,
+          "label": "15",
+          "count": 301,
+          "probability": 0.01505
+        },
+        {
+          "value": 16,
+          "label": "16",
+          "count": 340,
+          "probability": 0.017
+        },
+        {
+          "value": 17,
+          "label": "17",
+          "count": 528,
+          "probability": 0.0264
+        },
+        {
+          "value": 18,
+          "label": "18",
+          "count": 374,
+          "probability": 0.0187
+        },
+        {
+          "value": 19,
+          "label": "19",
+          "count": 206,
+          "probability": 0.0103
+        },
+        {
+          "value": 20,
+          "label": "20",
+          "count": 338,
+          "probability": 0.0169
+        },
+        {
+          "value": 21,
+          "label": "21",
+          "count": 363,
+          "probability": 0.01815
+        },
+        {
+          "value": 22,
+          "label": "22",
+          "count": 153,
+          "probability": 0.00765
+        },
+        {
+          "value": 23,
+          "label": "23",
+          "count": 218,
+          "probability": 0.0109
+        },
+        {
+          "value": 24,
+          "label": "24",
+          "count": 305,
+          "probability": 0.01525
+        },
+        {
+          "value": 25,
+          "label": "25",
+          "count": 175,
+          "probability": 0.00875
+        },
+        {
+          "value": 26,
+          "label": "26",
+          "count": 135,
+          "probability": 0.00675
+        },
+        {
+          "value": 27,
+          "label": "27",
+          "count": 206,
+          "probability": 0.0103
+        },
+        {
+          "value": 28,
+          "label": "28",
+          "count": 200,
+          "probability": 0.01
+        },
+        {
+          "value": 29,
+          "label": "29",
+          "count": 98,
+          "probability": 0.0049
+        },
+        {
+          "value": 30,
+          "label": "30",
+          "count": 103,
+          "probability": 0.00515
+        },
+        {
+          "value": 31,
+          "label": "31",
+          "count": 153,
+          "probability": 0.00765
+        },
+        {
+          "value": 32,
+          "label": "32",
+          "count": 89,
+          "probability": 0.00445
+        },
+        {
+          "value": 33,
+          "label": "33",
+          "count": 61,
+          "probability": 0.00305
+        },
+        {
+          "value": 34,
+          "label": "34",
+          "count": 78,
+          "probability": 0.0039
+        },
+        {
+          "value": 35,
+          "label": "35",
+          "count": 67,
+          "probability": 0.00335
+        },
+        {
+          "value": 36,
+          "label": "36",
+          "count": 41,
+          "probability": 0.00205
+        },
+        {
+          "value": 37,
+          "label": "37",
+          "count": 29,
+          "probability": 0.00145
+        },
+        {
+          "value": 38,
+          "label": "38",
+          "count": 49,
+          "probability": 0.00245
+        },
+        {
+          "value": 39,
+          "label": "39",
+          "count": 34,
+          "probability": 0.0017
+        },
+        {
+          "value": 41,
+          "label": "41",
+          "count": 28,
+          "probability": 0.0014
+        }
+      ],
+      "totalDistribution": [
+        {
+          "value": 10,
+          "label": "10",
+          "count": 21,
+          "probability": 0.00105
+        },
+        {
+          "value": 13,
+          "label": "13",
+          "count": 48,
+          "probability": 0.0024
+        },
+        {
+          "value": 16,
+          "label": "16",
+          "count": 84,
+          "probability": 0.0042
+        },
+        {
+          "value": 17,
+          "label": "17",
+          "count": 83,
+          "probability": 0.00415
+        },
+        {
+          "value": 19,
+          "label": "19",
+          "count": 89,
+          "probability": 0.00445
+        },
+        {
+          "value": 20,
+          "label": "20",
+          "count": 156,
+          "probability": 0.0078
+        },
+        {
+          "value": 21,
+          "label": "21",
+          "count": 49,
+          "probability": 0.00245
+        },
+        {
+          "value": 22,
+          "label": "22",
+          "count": 100,
+          "probability": 0.005
+        },
+        {
+          "value": 23,
+          "label": "23",
+          "count": 278,
+          "probability": 0.0139
+        },
+        {
+          "value": 24,
+          "label": "24",
+          "count": 174,
+          "probability": 0.0087
+        },
+        {
+          "value": 25,
+          "label": "25",
+          "count": 83,
+          "probability": 0.00415
+        },
+        {
+          "value": 26,
+          "label": "26",
+          "count": 250,
+          "probability": 0.0125
+        },
+        {
+          "value": 27,
+          "label": "27",
+          "count": 341,
+          "probability": 0.01705
+        },
+        {
+          "value": 28,
+          "label": "28",
+          "count": 89,
+          "probability": 0.00445
+        },
+        {
+          "value": 29,
+          "label": "29",
+          "count": 340,
+          "probability": 0.017
+        },
+        {
+          "value": 30,
+          "label": "30",
+          "count": 526,
+          "probability": 0.0263
+        },
+        {
+          "value": 31,
+          "label": "31",
+          "count": 287,
+          "probability": 0.01435
+        },
+        {
+          "value": 32,
+          "label": "32",
+          "count": 193,
+          "probability": 0.00965
+        },
+        {
+          "value": 33,
+          "label": "33",
+          "count": 546,
+          "probability": 0.0273
+        },
+        {
+          "value": 34,
+          "label": "34",
+          "count": 475,
+          "probability": 0.02375
+        },
+        {
+          "value": 35,
+          "label": "35",
+          "count": 298,
+          "probability": 0.0149
+        },
+        {
+          "value": 36,
+          "label": "36",
+          "count": 476,
+          "probability": 0.0238
+        },
+        {
+          "value": 37,
+          "label": "37",
+          "count": 879,
+          "probability": 0.04395
+        },
+        {
+          "value": 38,
+          "label": "38",
+          "count": 443,
+          "probability": 0.02215
+        },
+        {
+          "value": 39,
+          "label": "39",
+          "count": 364,
+          "probability": 0.0182
+        },
+        {
+          "value": 40,
+          "label": "40",
+          "count": 596,
+          "probability": 0.0298
+        },
+        {
+          "value": 41,
+          "label": "41",
+          "count": 730,
+          "probability": 0.0365
+        },
+        {
+          "value": 42,
+          "label": "42",
+          "count": 320,
+          "probability": 0.016
+        },
+        {
+          "value": 43,
+          "label": "43",
+          "count": 689,
+          "probability": 0.03445
+        },
+        {
+          "value": 44,
+          "label": "44",
+          "count": 764,
+          "probability": 0.0382
+        },
+        {
+          "value": 45,
+          "label": "45",
+          "count": 493,
+          "probability": 0.02465
+        },
+        {
+          "value": 46,
+          "label": "46",
+          "count": 346,
+          "probability": 0.0173
+        },
+        {
+          "value": 47,
+          "label": "47",
+          "count": 778,
+          "probability": 0.0389
+        },
+        {
+          "value": 48,
+          "label": "48",
+          "count": 532,
+          "probability": 0.0266
+        },
+        {
+          "value": 49,
+          "label": "49",
+          "count": 418,
+          "probability": 0.0209
+        },
+        {
+          "value": 50,
+          "label": "50",
+          "count": 572,
+          "probability": 0.0286
+        },
+        {
+          "value": 51,
+          "label": "51",
+          "count": 782,
+          "probability": 0.0391
+        },
+        {
+          "value": 52,
+          "label": "52",
+          "count": 388,
+          "probability": 0.0194
+        },
+        {
+          "value": 53,
+          "label": "53",
+          "count": 388,
+          "probability": 0.0194
+        },
+        {
+          "value": 54,
+          "label": "54",
+          "count": 544,
+          "probability": 0.0272
+        },
+        {
+          "value": 55,
+          "label": "55",
+          "count": 493,
+          "probability": 0.02465
+        },
+        {
+          "value": 56,
+          "label": "56",
+          "count": 261,
+          "probability": 0.01305
+        },
+        {
+          "value": 57,
+          "label": "57",
+          "count": 477,
+          "probability": 0.02385
+        },
+        {
+          "value": 58,
+          "label": "58",
+          "count": 477,
+          "probability": 0.02385
+        },
+        {
+          "value": 59,
+          "label": "59",
+          "count": 292,
+          "probability": 0.0146
+        },
+        {
+          "value": 60,
+          "label": "60",
+          "count": 223,
+          "probability": 0.01115
+        },
+        {
+          "value": 61,
+          "label": "61",
+          "count": 343,
+          "probability": 0.01715
+        },
+        {
+          "value": 62,
+          "label": "62",
+          "count": 274,
+          "probability": 0.0137
+        },
+        {
+          "value": 63,
+          "label": "63",
+          "count": 191,
+          "probability": 0.00955
+        },
+        {
+          "value": 64,
+          "label": "64",
+          "count": 222,
+          "probability": 0.0111
+        },
+        {
+          "value": 65,
+          "label": "65",
+          "count": 275,
+          "probability": 0.01375
+        },
+        {
+          "value": 66,
+          "label": "66",
+          "count": 159,
+          "probability": 0.00795
+        },
+        {
+          "value": 67,
+          "label": "67",
+          "count": 125,
+          "probability": 0.00625
+        },
+        {
+          "value": 68,
+          "label": "68",
+          "count": 158,
+          "probability": 0.0079
+        },
+        {
+          "value": 69,
+          "label": "69",
+          "count": 142,
+          "probability": 0.0071
+        },
+        {
+          "value": 70,
+          "label": "70",
+          "count": 76,
+          "probability": 0.0038
+        },
+        {
+          "value": 71,
+          "label": "71",
+          "count": 116,
+          "probability": 0.0058
+        },
+        {
+          "value": 72,
+          "label": "72",
+          "count": 103,
+          "probability": 0.00515
+        },
+        {
+          "value": 73,
+          "label": "73",
+          "count": 69,
+          "probability": 0.00345
+        },
+        {
+          "value": 74,
+          "label": "74",
+          "count": 51,
+          "probability": 0.00255
+        },
+        {
+          "value": 75,
+          "label": "75",
+          "count": 68,
+          "probability": 0.0034
+        },
+        {
+          "value": 76,
+          "label": "76",
+          "count": 55,
+          "probability": 0.00275
+        },
+        {
+          "value": 77,
+          "label": "77",
+          "count": 35,
+          "probability": 0.00175
+        },
+        {
+          "value": 78,
+          "label": "78",
+          "count": 33,
+          "probability": 0.00165
+        },
+        {
+          "value": 79,
+          "label": "79",
+          "count": 56,
+          "probability": 0.0028
+        },
+        {
+          "value": 80,
+          "label": "80",
+          "count": 21,
+          "probability": 0.00105
+        },
+        {
+          "value": 82,
+          "label": "82",
+          "count": 23,
+          "probability": 0.00115
+        }
+      ],
+      "teamPointsDistribution": [
+        {
+          "value": 0,
+          "label": "0",
+          "count": 294,
+          "probability": 0.00735
+        },
+        {
+          "value": 3,
+          "label": "3",
+          "count": 703,
+          "probability": 0.017575
+        },
+        {
+          "value": 6,
+          "label": "6",
+          "count": 796,
+          "probability": 0.0199
+        },
+        {
+          "value": 7,
+          "label": "7",
+          "count": 912,
+          "probability": 0.0228
+        },
+        {
+          "value": 9,
+          "label": "9",
+          "count": 566,
+          "probability": 0.01415
+        },
+        {
+          "value": 10,
+          "label": "10",
+          "count": 1964,
+          "probability": 0.0491
+        },
+        {
+          "value": 11,
+          "label": "11",
+          "count": 87,
+          "probability": 0.002175
+        },
+        {
+          "value": 12,
+          "label": "12",
+          "count": 300,
+          "probability": 0.0075
+        },
+        {
+          "value": 13,
+          "label": "13",
+          "count": 2216,
+          "probability": 0.0554
+        },
+        {
+          "value": 14,
+          "label": "14",
+          "count": 1398,
+          "probability": 0.03495
+        },
+        {
+          "value": 15,
+          "label": "15",
+          "count": 261,
+          "probability": 0.006525
+        },
+        {
+          "value": 16,
+          "label": "16",
+          "count": 1552,
+          "probability": 0.0388
+        },
+        {
+          "value": 17,
+          "label": "17",
+          "count": 2777,
+          "probability": 0.069425
+        },
+        {
+          "value": 18,
+          "label": "18",
+          "count": 266,
+          "probability": 0.00665
+        },
+        {
+          "value": 19,
+          "label": "19",
+          "count": 798,
+          "probability": 0.01995
+        },
+        {
+          "value": 20,
+          "label": "20",
+          "count": 2856,
+          "probability": 0.0714
+        },
+        {
+          "value": 21,
+          "label": "21",
+          "count": 1518,
+          "probability": 0.03795
+        },
+        {
+          "value": 22,
+          "label": "22",
+          "count": 429,
+          "probability": 0.010725
+        },
+        {
+          "value": 23,
+          "label": "23",
+          "count": 1959,
+          "probability": 0.048975
+        },
+        {
+          "value": 24,
+          "label": "24",
+          "count": 2564,
+          "probability": 0.0641
+        },
+        {
+          "value": 25,
+          "label": "25",
+          "count": 411,
+          "probability": 0.010275
+        },
+        {
+          "value": 26,
+          "label": "26",
+          "count": 932,
+          "probability": 0.0233
+        },
+        {
+          "value": 27,
+          "label": "27",
+          "count": 2414,
+          "probability": 0.06035
+        },
+        {
+          "value": 28,
+          "label": "28",
+          "count": 1199,
+          "probability": 0.029975
+        },
+        {
+          "value": 29,
+          "label": "29",
+          "count": 466,
+          "probability": 0.01165
+        },
+        {
+          "value": 30,
+          "label": "30",
+          "count": 1438,
+          "probability": 0.03595
+        },
+        {
+          "value": 31,
+          "label": "31",
+          "count": 1665,
+          "probability": 0.041625
+        },
+        {
+          "value": 32,
+          "label": "32",
+          "count": 321,
+          "probability": 0.008025
+        },
+        {
+          "value": 33,
+          "label": "33",
+          "count": 630,
+          "probability": 0.01575
+        },
+        {
+          "value": 34,
+          "label": "34",
+          "count": 1406,
+          "probability": 0.03515
+        },
+        {
+          "value": 35,
+          "label": "35",
+          "count": 622,
+          "probability": 0.01555
+        },
+        {
+          "value": 36,
+          "label": "36",
+          "count": 295,
+          "probability": 0.007375
+        },
+        {
+          "value": 37,
+          "label": "37",
+          "count": 698,
+          "probability": 0.01745
+        },
+        {
+          "value": 38,
+          "label": "38",
+          "count": 766,
+          "probability": 0.01915
+        },
+        {
+          "value": 39,
+          "label": "39",
+          "count": 162,
+          "probability": 0.00405
+        },
+        {
+          "value": 40,
+          "label": "40",
+          "count": 263,
+          "probability": 0.006575
+        },
+        {
+          "value": 41,
+          "label": "41",
+          "count": 560,
+          "probability": 0.014
+        },
+        {
+          "value": 42,
+          "label": "42",
+          "count": 256,
+          "probability": 0.0064
+        },
+        {
+          "value": 43,
+          "label": "43",
+          "count": 117,
+          "probability": 0.002925
+        },
+        {
+          "value": 44,
+          "label": "44",
+          "count": 258,
+          "probability": 0.00645
+        },
+        {
+          "value": 45,
+          "label": "45",
+          "count": 252,
+          "probability": 0.0063
+        },
+        {
+          "value": 46,
+          "label": "46",
+          "count": 68,
+          "probability": 0.0017
+        },
+        {
+          "value": 47,
+          "label": "47",
+          "count": 77,
+          "probability": 0.001925
+        },
+        {
+          "value": 48,
+          "label": "48",
+          "count": 134,
+          "probability": 0.00335
+        },
+        {
+          "value": 49,
+          "label": "49",
+          "count": 76,
+          "probability": 0.0019
+        },
+        {
+          "value": 51,
+          "label": "51",
+          "count": 51,
+          "probability": 0.001275
+        },
+        {
+          "value": 52,
+          "label": "52",
+          "count": 47,
+          "probability": 0.001175
+        }
+      ],
+      "scoringRates": {
+        "awayTouchdowns": 2.3,
+        "homeTouchdowns": 2.7,
+        "awayFieldGoals": 1.6,
+        "homeFieldGoals": 1.9
+      },
+      "overtimeProbability": 0.03735,
+      "tieProbability": 0.00145
+    },
+    {
+      "providerEventId": "401872947",
+      "canonicalEventId": "nfl-401872947",
+      "matchup": "NYG @ LAR",
+      "kickoffUtc": "2026-09-22T00:15Z",
+      "away": "NYG",
+      "home": "LAR",
+      "centre": {
+        "marginMedian": 8,
+        "totalMedian": 51,
+        "simulatedMarginMedian": 7,
+        "simulatedTotalMedian": 51,
+        "iterations": 6
+      },
+      "finalScores": [
+        {
+          "away": 24,
+          "home": 27,
+          "probability": 0.00635
+        },
+        {
+          "away": 27,
+          "home": 30,
+          "probability": 0.00575
+        },
+        {
+          "away": 17,
+          "home": 27,
+          "probability": 0.0057
+        },
+        {
+          "away": 20,
+          "home": 27,
+          "probability": 0.00535
+        },
+        {
+          "away": 20,
+          "home": 23,
+          "probability": 0.0053
+        },
+        {
+          "away": 17,
+          "home": 34,
+          "probability": 0.0052
+        }
+      ],
+      "keyNumbers": {
+        "numbers": [
+          3,
+          7,
+          10,
+          14
+        ],
+        "share": 0.24465,
+        "byNumber": [
+          {
+            "number": 3,
+            "probability": 0.0869
+          },
+          {
+            "number": 7,
+            "probability": 0.061
+          },
+          {
+            "number": 10,
+            "probability": 0.0525
+          },
+          {
+            "number": 14,
+            "probability": 0.04425
+          }
+        ]
+      },
+      "marginDistribution": [
+        {
+          "value": -32,
+          "label": "-32",
+          "count": 35,
+          "probability": 0.00175
+        },
+        {
+          "value": -29,
+          "label": "-29",
+          "count": 28,
+          "probability": 0.0014
+        },
+        {
+          "value": -28,
+          "label": "-28",
+          "count": 38,
+          "probability": 0.0019
+        },
+        {
+          "value": -27,
+          "label": "-27",
+          "count": 40,
+          "probability": 0.002
+        },
+        {
+          "value": -26,
+          "label": "-26",
+          "count": 31,
+          "probability": 0.00155
+        },
+        {
+          "value": -25,
+          "label": "-25",
+          "count": 62,
+          "probability": 0.0031
+        },
+        {
+          "value": -24,
+          "label": "-24",
+          "count": 73,
+          "probability": 0.00365
+        },
+        {
+          "value": -23,
+          "label": "-23",
+          "count": 47,
+          "probability": 0.00235
+        },
+        {
+          "value": -22,
+          "label": "-22",
+          "count": 81,
+          "probability": 0.00405
+        },
+        {
+          "value": -21,
+          "label": "-21",
+          "count": 122,
+          "probability": 0.0061
+        },
+        {
+          "value": -20,
+          "label": "-20",
+          "count": 80,
+          "probability": 0.004
+        },
+        {
+          "value": -19,
+          "label": "-19",
+          "count": 106,
+          "probability": 0.0053
+        },
+        {
+          "value": -18,
+          "label": "-18",
+          "count": 165,
+          "probability": 0.00825
+        },
+        {
+          "value": -17,
+          "label": "-17",
+          "count": 163,
+          "probability": 0.00815
+        },
+        {
+          "value": -16,
+          "label": "-16",
+          "count": 118,
+          "probability": 0.0059
+        },
+        {
+          "value": -15,
+          "label": "-15",
+          "count": 181,
+          "probability": 0.00905
+        },
+        {
+          "value": -14,
+          "label": "-14",
+          "count": 272,
+          "probability": 0.0136
+        },
+        {
+          "value": -13,
+          "label": "-13",
+          "count": 206,
+          "probability": 0.0103
+        },
+        {
+          "value": -12,
+          "label": "-12",
+          "count": 170,
+          "probability": 0.0085
+        },
+        {
+          "value": -11,
+          "label": "-11",
+          "count": 359,
+          "probability": 0.01795
+        },
+        {
+          "value": -10,
+          "label": "-10",
+          "count": 341,
+          "probability": 0.01705
+        },
+        {
+          "value": -9,
+          "label": "-9",
+          "count": 205,
+          "probability": 0.01025
+        },
+        {
+          "value": -8,
+          "label": "-8",
+          "count": 306,
+          "probability": 0.0153
+        },
+        {
+          "value": -7,
+          "label": "-7",
+          "count": 485,
+          "probability": 0.02425
+        },
+        {
+          "value": -6,
+          "label": "-6",
+          "count": 314,
+          "probability": 0.0157
+        },
+        {
+          "value": -5,
+          "label": "-5",
+          "count": 281,
+          "probability": 0.01405
+        },
+        {
+          "value": -4,
+          "label": "-4",
+          "count": 529,
+          "probability": 0.02645
+        },
+        {
+          "value": -3,
+          "label": "-3",
+          "count": 772,
+          "probability": 0.0386
+        },
+        {
+          "value": -2,
+          "label": "-2",
+          "count": 285,
+          "probability": 0.01425
+        },
+        {
+          "value": -1,
+          "label": "-1",
+          "count": 479,
+          "probability": 0.02395
+        },
+        {
+          "value": 0,
+          "label": "0",
+          "count": 37,
+          "probability": 0.00185
+        },
+        {
+          "value": 1,
+          "label": "1",
+          "count": 393,
+          "probability": 0.01965
+        },
+        {
+          "value": 2,
+          "label": "2",
+          "count": 390,
+          "probability": 0.0195
+        },
+        {
+          "value": 3,
+          "label": "3",
+          "count": 966,
+          "probability": 0.0483
+        },
+        {
+          "value": 4,
+          "label": "4",
+          "count": 569,
+          "probability": 0.02845
+        },
+        {
+          "value": 5,
+          "label": "5",
+          "count": 334,
+          "probability": 0.0167
+        },
+        {
+          "value": 6,
+          "label": "6",
+          "count": 565,
+          "probability": 0.02825
+        },
+        {
+          "value": 7,
+          "label": "7",
+          "count": 735,
+          "probability": 0.03675
+        },
+        {
+          "value": 8,
+          "label": "8",
+          "count": 424,
+          "probability": 0.0212
+        },
+        {
+          "value": 9,
+          "label": "9",
+          "count": 392,
+          "probability": 0.0196
+        },
+        {
+          "value": 10,
+          "label": "10",
+          "count": 709,
+          "probability": 0.03545
+        },
+        {
+          "value": 11,
+          "label": "11",
+          "count": 513,
+          "probability": 0.02565
+        },
+        {
+          "value": 12,
+          "label": "12",
+          "count": 353,
+          "probability": 0.01765
+        },
+        {
+          "value": 13,
+          "label": "13",
+          "count": 509,
+          "probability": 0.02545
+        },
+        {
+          "value": 14,
+          "label": "14",
+          "count": 613,
+          "probability": 0.03065
+        },
+        {
+          "value": 15,
+          "label": "15",
+          "count": 359,
+          "probability": 0.01795
+        },
+        {
+          "value": 16,
+          "label": "16",
+          "count": 363,
+          "probability": 0.01815
+        },
+        {
+          "value": 17,
+          "label": "17",
+          "count": 557,
+          "probability": 0.02785
+        },
+        {
+          "value": 18,
+          "label": "18",
+          "count": 390,
+          "probability": 0.0195
+        },
+        {
+          "value": 19,
+          "label": "19",
+          "count": 272,
+          "probability": 0.0136
+        },
+        {
+          "value": 20,
+          "label": "20",
+          "count": 402,
+          "probability": 0.0201
+        },
+        {
+          "value": 21,
+          "label": "21",
+          "count": 442,
+          "probability": 0.0221
+        },
+        {
+          "value": 22,
+          "label": "22",
+          "count": 233,
+          "probability": 0.01165
+        },
+        {
+          "value": 23,
+          "label": "23",
+          "count": 325,
+          "probability": 0.01625
+        },
+        {
+          "value": 24,
+          "label": "24",
+          "count": 366,
+          "probability": 0.0183
+        },
+        {
+          "value": 25,
+          "label": "25",
+          "count": 252,
+          "probability": 0.0126
+        },
+        {
+          "value": 26,
+          "label": "26",
+          "count": 155,
+          "probability": 0.00775
+        },
+        {
+          "value": 27,
+          "label": "27",
+          "count": 258,
+          "probability": 0.0129
+        },
+        {
+          "value": 28,
+          "label": "28",
+          "count": 267,
+          "probability": 0.01335
+        },
+        {
+          "value": 29,
+          "label": "29",
+          "count": 122,
+          "probability": 0.0061
+        },
+        {
+          "value": 30,
+          "label": "30",
+          "count": 140,
+          "probability": 0.007
+        },
+        {
+          "value": 31,
+          "label": "31",
+          "count": 185,
+          "probability": 0.00925
+        },
+        {
+          "value": 32,
+          "label": "32",
+          "count": 136,
+          "probability": 0.0068
+        },
+        {
+          "value": 33,
+          "label": "33",
+          "count": 94,
+          "probability": 0.0047
+        },
+        {
+          "value": 34,
+          "label": "34",
+          "count": 121,
+          "probability": 0.00605
+        },
+        {
+          "value": 35,
+          "label": "35",
+          "count": 128,
+          "probability": 0.0064
+        },
+        {
+          "value": 36,
+          "label": "36",
+          "count": 58,
+          "probability": 0.0029
+        },
+        {
+          "value": 37,
+          "label": "37",
+          "count": 56,
+          "probability": 0.0028
+        },
+        {
+          "value": 38,
+          "label": "38",
+          "count": 79,
+          "probability": 0.00395
+        },
+        {
+          "value": 39,
+          "label": "39",
+          "count": 46,
+          "probability": 0.0023
+        },
+        {
+          "value": 40,
+          "label": "40",
+          "count": 23,
+          "probability": 0.00115
+        },
+        {
+          "value": 41,
+          "label": "41",
+          "count": 49,
+          "probability": 0.00245
+        },
+        {
+          "value": 42,
+          "label": "42",
+          "count": 26,
+          "probability": 0.0013
+        },
+        {
+          "value": 45,
+          "label": "45",
+          "count": 23,
+          "probability": 0.00115
+        }
+      ],
+      "totalDistribution": [
+        {
+          "value": 16,
+          "label": "16",
+          "count": 30,
+          "probability": 0.0015
+        },
+        {
+          "value": 17,
+          "label": "17",
+          "count": 31,
+          "probability": 0.00155
+        },
+        {
+          "value": 19,
+          "label": "19",
+          "count": 42,
+          "probability": 0.0021
+        },
+        {
+          "value": 20,
+          "label": "20",
+          "count": 49,
+          "probability": 0.00245
+        },
+        {
+          "value": 21,
+          "label": "21",
+          "count": 21,
+          "probability": 0.00105
+        },
+        {
+          "value": 22,
+          "label": "22",
+          "count": 46,
+          "probability": 0.0023
+        },
+        {
+          "value": 23,
+          "label": "23",
+          "count": 104,
+          "probability": 0.0052
+        },
+        {
+          "value": 24,
+          "label": "24",
+          "count": 53,
+          "probability": 0.00265
+        },
+        {
+          "value": 25,
+          "label": "25",
+          "count": 45,
+          "probability": 0.00225
+        },
+        {
+          "value": 26,
+          "label": "26",
+          "count": 138,
+          "probability": 0.0069
+        },
+        {
+          "value": 27,
+          "label": "27",
+          "count": 137,
+          "probability": 0.00685
+        },
+        {
+          "value": 28,
+          "label": "28",
+          "count": 49,
+          "probability": 0.00245
+        },
+        {
+          "value": 29,
+          "label": "29",
+          "count": 192,
+          "probability": 0.0096
+        },
+        {
+          "value": 30,
+          "label": "30",
+          "count": 297,
+          "probability": 0.01485
+        },
+        {
+          "value": 31,
+          "label": "31",
+          "count": 154,
+          "probability": 0.0077
+        },
+        {
+          "value": 32,
+          "label": "32",
+          "count": 126,
+          "probability": 0.0063
+        },
+        {
+          "value": 33,
+          "label": "33",
+          "count": 331,
+          "probability": 0.01655
+        },
+        {
+          "value": 34,
+          "label": "34",
+          "count": 286,
+          "probability": 0.0143
+        },
+        {
+          "value": 35,
+          "label": "35",
+          "count": 187,
+          "probability": 0.00935
+        },
+        {
+          "value": 36,
+          "label": "36",
+          "count": 365,
+          "probability": 0.01825
+        },
+        {
+          "value": 37,
+          "label": "37",
+          "count": 549,
+          "probability": 0.02745
+        },
+        {
+          "value": 38,
+          "label": "38",
+          "count": 243,
+          "probability": 0.01215
+        },
+        {
+          "value": 39,
+          "label": "39",
+          "count": 335,
+          "probability": 0.01675
+        },
+        {
+          "value": 40,
+          "label": "40",
+          "count": 509,
+          "probability": 0.02545
+        },
+        {
+          "value": 41,
+          "label": "41",
+          "count": 501,
+          "probability": 0.02505
+        },
+        {
+          "value": 42,
+          "label": "42",
+          "count": 299,
+          "probability": 0.01495
+        },
+        {
+          "value": 43,
+          "label": "43",
+          "count": 623,
+          "probability": 0.03115
+        },
+        {
+          "value": 44,
+          "label": "44",
+          "count": 729,
+          "probability": 0.03645
+        },
+        {
+          "value": 45,
+          "label": "45",
+          "count": 383,
+          "probability": 0.01915
+        },
+        {
+          "value": 46,
+          "label": "46",
+          "count": 398,
+          "probability": 0.0199
+        },
+        {
+          "value": 47,
+          "label": "47",
+          "count": 752,
+          "probability": 0.0376
+        },
+        {
+          "value": 48,
+          "label": "48",
+          "count": 556,
+          "probability": 0.0278
+        },
+        {
+          "value": 49,
+          "label": "49",
+          "count": 418,
+          "probability": 0.0209
+        },
+        {
+          "value": 50,
+          "label": "50",
+          "count": 626,
+          "probability": 0.0313
+        },
+        {
+          "value": 51,
+          "label": "51",
+          "count": 825,
+          "probability": 0.04125
+        },
+        {
+          "value": 52,
+          "label": "52",
+          "count": 401,
+          "probability": 0.02005
+        },
+        {
+          "value": 53,
+          "label": "53",
+          "count": 497,
+          "probability": 0.02485
+        },
+        {
+          "value": 54,
+          "label": "54",
+          "count": 644,
+          "probability": 0.0322
+        },
+        {
+          "value": 55,
+          "label": "55",
+          "count": 615,
+          "probability": 0.03075
+        },
+        {
+          "value": 56,
+          "label": "56",
+          "count": 373,
+          "probability": 0.01865
+        },
+        {
+          "value": 57,
+          "label": "57",
+          "count": 673,
+          "probability": 0.03365
+        },
+        {
+          "value": 58,
+          "label": "58",
+          "count": 620,
+          "probability": 0.031
+        },
+        {
+          "value": 59,
+          "label": "59",
+          "count": 351,
+          "probability": 0.01755
+        },
+        {
+          "value": 60,
+          "label": "60",
+          "count": 353,
+          "probability": 0.01765
+        },
+        {
+          "value": 61,
+          "label": "61",
+          "count": 587,
+          "probability": 0.02935
+        },
+        {
+          "value": 62,
+          "label": "62",
+          "count": 357,
+          "probability": 0.01785
+        },
+        {
+          "value": 63,
+          "label": "63",
+          "count": 317,
+          "probability": 0.01585
+        },
+        {
+          "value": 64,
+          "label": "64",
+          "count": 356,
+          "probability": 0.0178
+        },
+        {
+          "value": 65,
+          "label": "65",
+          "count": 457,
+          "probability": 0.02285
+        },
+        {
+          "value": 66,
+          "label": "66",
+          "count": 234,
+          "probability": 0.0117
+        },
+        {
+          "value": 67,
+          "label": "67",
+          "count": 260,
+          "probability": 0.013
+        },
+        {
+          "value": 68,
+          "label": "68",
+          "count": 289,
+          "probability": 0.01445
+        },
+        {
+          "value": 69,
+          "label": "69",
+          "count": 272,
+          "probability": 0.0136
+        },
+        {
+          "value": 70,
+          "label": "70",
+          "count": 141,
+          "probability": 0.00705
+        },
+        {
+          "value": 71,
+          "label": "71",
+          "count": 244,
+          "probability": 0.0122
+        },
+        {
+          "value": 72,
+          "label": "72",
+          "count": 224,
+          "probability": 0.0112
+        },
+        {
+          "value": 73,
+          "label": "73",
+          "count": 152,
+          "probability": 0.0076
+        },
+        {
+          "value": 74,
+          "label": "74",
+          "count": 119,
+          "probability": 0.00595
+        },
+        {
+          "value": 75,
+          "label": "75",
+          "count": 149,
+          "probability": 0.00745
+        },
+        {
+          "value": 76,
+          "label": "76",
+          "count": 105,
+          "probability": 0.00525
+        },
+        {
+          "value": 77,
+          "label": "77",
+          "count": 77,
+          "probability": 0.00385
+        },
+        {
+          "value": 78,
+          "label": "78",
+          "count": 105,
+          "probability": 0.00525
+        },
+        {
+          "value": 79,
+          "label": "79",
+          "count": 119,
+          "probability": 0.00595
+        },
+        {
+          "value": 80,
+          "label": "80",
+          "count": 72,
+          "probability": 0.0036
+        },
+        {
+          "value": 81,
+          "label": "81",
+          "count": 59,
+          "probability": 0.00295
+        },
+        {
+          "value": 82,
+          "label": "82",
+          "count": 48,
+          "probability": 0.0024
+        },
+        {
+          "value": 83,
+          "label": "83",
+          "count": 43,
+          "probability": 0.00215
+        },
+        {
+          "value": 85,
+          "label": "85",
+          "count": 35,
+          "probability": 0.00175
+        },
+        {
+          "value": 86,
+          "label": "86",
+          "count": 33,
+          "probability": 0.00165
+        },
+        {
+          "value": 87,
+          "label": "87",
+          "count": 23,
+          "probability": 0.00115
+        },
+        {
+          "value": 89,
+          "label": "89",
+          "count": 24,
+          "probability": 0.0012
+        }
+      ],
+      "teamPointsDistribution": [
+        {
+          "value": 0,
+          "label": "0",
+          "count": 133,
+          "probability": 0.003325
+        },
+        {
+          "value": 3,
+          "label": "3",
+          "count": 408,
+          "probability": 0.0102
+        },
+        {
+          "value": 6,
+          "label": "6",
+          "count": 502,
+          "probability": 0.01255
+        },
+        {
+          "value": 7,
+          "label": "7",
+          "count": 529,
+          "probability": 0.013225
+        },
+        {
+          "value": 9,
+          "label": "9",
+          "count": 419,
+          "probability": 0.010475
+        },
+        {
+          "value": 10,
+          "label": "10",
+          "count": 1372,
+          "probability": 0.0343
+        },
+        {
+          "value": 11,
+          "label": "11",
+          "count": 54,
+          "probability": 0.00135
+        },
+        {
+          "value": 12,
+          "label": "12",
+          "count": 280,
+          "probability": 0.007
+        },
+        {
+          "value": 13,
+          "label": "13",
+          "count": 1617,
+          "probability": 0.040425
+        },
+        {
+          "value": 14,
+          "label": "14",
+          "count": 1006,
+          "probability": 0.02515
+        },
+        {
+          "value": 15,
+          "label": "15",
+          "count": 223,
+          "probability": 0.005575
+        },
+        {
+          "value": 16,
+          "label": "16",
+          "count": 1312,
+          "probability": 0.0328
+        },
+        {
+          "value": 17,
+          "label": "17",
+          "count": 2284,
+          "probability": 0.0571
+        },
+        {
+          "value": 18,
+          "label": "18",
+          "count": 213,
+          "probability": 0.005325
+        },
+        {
+          "value": 19,
+          "label": "19",
+          "count": 769,
+          "probability": 0.019225
+        },
+        {
+          "value": 20,
+          "label": "20",
+          "count": 2542,
+          "probability": 0.06355
+        },
+        {
+          "value": 21,
+          "label": "21",
+          "count": 1260,
+          "probability": 0.0315
+        },
+        {
+          "value": 22,
+          "label": "22",
+          "count": 527,
+          "probability": 0.013175
+        },
+        {
+          "value": 23,
+          "label": "23",
+          "count": 1951,
+          "probability": 0.048775
+        },
+        {
+          "value": 24,
+          "label": "24",
+          "count": 2343,
+          "probability": 0.058575
+        },
+        {
+          "value": 25,
+          "label": "25",
+          "count": 379,
+          "probability": 0.009475
+        },
+        {
+          "value": 26,
+          "label": "26",
+          "count": 1061,
+          "probability": 0.026525
+        },
+        {
+          "value": 27,
+          "label": "27",
+          "count": 2625,
+          "probability": 0.065625
+        },
+        {
+          "value": 28,
+          "label": "28",
+          "count": 1056,
+          "probability": 0.0264
+        },
+        {
+          "value": 29,
+          "label": "29",
+          "count": 574,
+          "probability": 0.01435
+        },
+        {
+          "value": 30,
+          "label": "30",
+          "count": 1804,
+          "probability": 0.0451
+        },
+        {
+          "value": 31,
+          "label": "31",
+          "count": 1876,
+          "probability": 0.0469
+        },
+        {
+          "value": 32,
+          "label": "32",
+          "count": 434,
+          "probability": 0.01085
+        },
+        {
+          "value": 33,
+          "label": "33",
+          "count": 903,
+          "probability": 0.022575
+        },
+        {
+          "value": 34,
+          "label": "34",
+          "count": 1739,
+          "probability": 0.043475
+        },
+        {
+          "value": 35,
+          "label": "35",
+          "count": 743,
+          "probability": 0.018575
+        },
+        {
+          "value": 36,
+          "label": "36",
+          "count": 403,
+          "probability": 0.010075
+        },
+        {
+          "value": 37,
+          "label": "37",
+          "count": 1055,
+          "probability": 0.026375
+        },
+        {
+          "value": 38,
+          "label": "38",
+          "count": 1033,
+          "probability": 0.025825
+        },
+        {
+          "value": 39,
+          "label": "39",
+          "count": 265,
+          "probability": 0.006625
+        },
+        {
+          "value": 40,
+          "label": "40",
+          "count": 476,
+          "probability": 0.0119
+        },
+        {
+          "value": 41,
+          "label": "41",
+          "count": 849,
+          "probability": 0.021225
+        },
+        {
+          "value": 42,
+          "label": "42",
+          "count": 381,
+          "probability": 0.009525
+        },
+        {
+          "value": 43,
+          "label": "43",
+          "count": 250,
+          "probability": 0.00625
+        },
+        {
+          "value": 44,
+          "label": "44",
+          "count": 473,
+          "probability": 0.011825
+        },
+        {
+          "value": 45,
+          "label": "45",
+          "count": 462,
+          "probability": 0.01155
+        },
+        {
+          "value": 46,
+          "label": "46",
+          "count": 120,
+          "probability": 0.003
+        },
+        {
+          "value": 47,
+          "label": "47",
+          "count": 184,
+          "probability": 0.0046
+        },
+        {
+          "value": 48,
+          "label": "48",
+          "count": 327,
+          "probability": 0.008175
+        },
+        {
+          "value": 49,
+          "label": "49",
+          "count": 134,
+          "probability": 0.00335
+        },
+        {
+          "value": 50,
+          "label": "50",
+          "count": 65,
+          "probability": 0.001625
+        },
+        {
+          "value": 51,
+          "label": "51",
+          "count": 114,
+          "probability": 0.00285
+        },
+        {
+          "value": 52,
+          "label": "52",
+          "count": 137,
+          "probability": 0.003425
+        },
+        {
+          "value": 54,
+          "label": "54",
+          "count": 46,
+          "probability": 0.00115
+        },
+        {
+          "value": 55,
+          "label": "55",
+          "count": 74,
+          "probability": 0.00185
+        },
+        {
+          "value": 56,
+          "label": "56",
+          "count": 40,
+          "probability": 0.001
+        }
+      ],
+      "scoringRates": {
+        "awayTouchdowns": 2.5,
+        "homeTouchdowns": 3.2,
+        "awayFieldGoals": 1.7,
+        "homeFieldGoals": 2.2
+      },
+      "overtimeProbability": 0.03115,
+      "tieProbability": 0.00185
+    }
+  ],
+  "refused": [],
+  "disclaimer": "Educational and paper-only — not betting advice."
+}
