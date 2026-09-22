@@ -5,39 +5,81 @@
  "program": "300",
  "evidenceTier": "BLIND_FORWARD — every included week was committed before its first kickoff",
  "season": 2026,
- "updatedAt": "2026-09-15T14:53:22Z",
- "weeksIncluded": [],
+ "updatedAt": "2026-09-22T17:42:09Z",
+ "weeksIncluded": [
+  2
+ ],
  "weeksExcludedLate": [],
  "families": {
   "player_receptions": {
    "state": "ACCUMULATING",
-   "n": 0,
+   "n": 200,
    "needed": 300,
-   "metrics": null
+   "metrics": {
+    "n": 200,
+    "mae": 1.595,
+    "rolling4Mae": 1.6887,
+    "shareVolMae": 1.5808,
+    "coverage80": 0.7675,
+    "ece": 0.0859,
+    "level": 1.1454
+   }
   },
   "player_reception_yds": {
    "state": "ACCUMULATING",
-   "n": 0,
+   "n": 200,
    "needed": 300,
-   "metrics": null
+   "metrics": {
+    "n": 200,
+    "mae": 22.9894,
+    "rolling4Mae": 23.06,
+    "shareVolMae": 22.3294,
+    "coverage80": 0.755,
+    "ece": 0.1127,
+    "level": 1.1235
+   }
   },
   "player_rush_yds": {
    "state": "ACCUMULATING",
-   "n": 0,
+   "n": 111,
    "needed": 300,
-   "metrics": null
+   "metrics": {
+    "n": 111,
+    "mae": 16.4305,
+    "rolling4Mae": 20.3851,
+    "shareVolMae": 16.9981,
+    "coverage80": 0.8378,
+    "ece": 0.0788,
+    "level": 1.2191
+   }
   },
   "player_pass_yds": {
    "state": "ACCUMULATING",
-   "n": 0,
+   "n": 35,
    "needed": 300,
-   "metrics": null
+   "metrics": {
+    "n": 35,
+    "mae": 63.6572,
+    "rolling4Mae": 73.3429,
+    "shareVolMae": 70.4851,
+    "coverage80": 0.8286,
+    "ece": 0.2171,
+    "level": 1.058
+   }
   },
   "anytime_td": {
    "state": "ACCUMULATING",
-   "n": 0,
+   "n": 267,
    "needed": 1000,
-   "metrics": null
+   "metrics": {
+    "n": 267,
+    "logLoss": 0.4405,
+    "constantRateLogLoss": 0.4536,
+    "meanPredicted": 0.2394,
+    "actualRate": 0.1685,
+    "level": 1.4201,
+    "ece": 0.0769
+   }
   }
  },
  "consequence": "A family in FORWARD_BREACHED after a live adoption is proposed for reversal that week (preregistration decisionRule). ACCUMULATING carries no verdict."
