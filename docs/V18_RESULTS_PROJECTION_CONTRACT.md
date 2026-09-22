@@ -76,13 +76,44 @@ These are the point of C1. None is fixed here; each is now a typed, queryable st
 | `product:-:bank-builder:UNRECEIPTED_GAP` and `…moonshot:UNRECEIPTED_GAP` → `DISCLOSED_GAP` | 2026-07-08 → 08-14 and 07-07 → 08-14 with **all counts null**. Rendered as a gap in a timeline, never as a number. |
 | the two `CYCLE_COMPLETION` cells | `n` 21 and 32 ladders with **null** won/lost, because a completed cycle is not a W–L. |
 
-### The June completed-ladder record is absent, not merged
+### The June completed-ladder record: its own typed cells, in no headline and in no sum
 
-The founder-gated question of where the June 5-0 completed-ladder record belongs publicly (C3) is **not
-decided here and not pre-empted**. The projection's only June-era product cells are the `PROTECTED_BASE`
-19–14 (06-09 → 07-07) and the `SUPERSEDED` 13–3 snapshot; the `CYCLE_COMPLETION` cells cover
-`RECEIPT_ERA` only (08-15 → 09-20). No June completed-ladder figure is summed into the protected record,
-into a headline, or into any cycle cell. Its **absence** is the boundary C3 chooses inside.
+**Correction to an earlier draft of this section, which said the record was "absent, not merged" and that
+the only June-era product cells were the `PROTECTED_BASE` 19–14 and the `SUPERSEDED` 13–3 snapshot. That
+was wrong** — it came from searching for the string `5-0` and for cycle cells, and missed the two cells
+that actually carry it. The post-merge checkpoint enumerated every June-era product and cycle cell instead
+of grepping for a figure. What is true:
+
+| Cell | Counts | Window | Status | In a headline? | In a sum? |
+|---|---|---|---|---|---|
+| `product:-:bank-builder:LEDGER_ONLY:ladder-1` | **5–0** | 06-09 → 06-13 | FROZEN | **no** | **no** |
+| `product:-:bank-builder:LEDGER_ONLY:ladder-2` | **5–0** | 06-18 → 06-24 | FROZEN | **no** | **no** |
+
+Each is one completed ladder, owned by `mr-dub/banked-ladders.json`, labelled by ladder, in the
+`LEDGER_ONLY` era. Their own `displayEligible.reason` states the rule: *"a completed June ladder from the
+banked ledger — its own cell, labelled by ladder; never merged with the protected record or the receipt
+cycles."*
+
+Three things hold, each checked rather than asserted:
+
+1. **Neither is a headline**, under `byFamily`, `byProduct` or `bySport`.
+2. **Neither is in any sum.** The `COMPOSITE` protected record (36–35) declares its composition as
+   `PROTECTED_BASE` (19–14) + `RECEIPT_ERA` (17–21) — **no `LEDGER_ONLY` component** — and `sumSameEra`
+   throws on any attempt to cross eras (mutation-probed, §8b).
+3. **Neither is a cycle cell.** The two `CYCLE_COMPLETION` cells cover `RECEIPT_ERA` only (08-15 → 09-20)
+   and carry null won/lost.
+
+So the honest statement is *typed and isolated*, not *absent*. That is the right behaviour for a truth
+consolidation: a read model that silently dropped a real completed ladder would be its own distortion, and
+C1's job is to give every owner's population a typed cell with its own window and era.
+
+**What this means for C3, stated precisely so the gate is not understated.** Both cells are
+`displayEligible: true`. Nothing renders today — no consumer reads the projection (§6) — so nothing is
+published and no founder gate has been crossed. But the moment C2 repoints a reader, these two cells become
+*eligible to render*, and where a completed-ladder record belongs publicly is exactly the founder-gated
+question. **C2 must therefore not repoint any Results reader that would surface a `LEDGER_ONLY` product
+cell until C3 is decided**, or must repoint it with those cells explicitly filtered. That is a C2
+precondition, recorded here because this is where the evidence lives.
 
 ## 5. Write-once, dated
 
@@ -201,6 +232,9 @@ headline pointing at a legacy era.
    flag that records the restatement; do not reach for `continue-on-error`, which would make the step green.
 4. Repoint readers **in the same change** as step 1, never before it, and delete
    `projection-wiring.test.mjs` once both halves are on.
+5. **Do not surface a `LEDGER_ONLY` product cell** in any repointed reader until C3 is decided — the two
+   June 5–0 completed-ladder cells are `displayEligible: true`, and their public home is the founder gate
+   (§4). Either hold that reader or filter the era explicitly.
 
 ## 10. Status
 
