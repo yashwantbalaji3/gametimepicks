@@ -65,5 +65,12 @@ Nothing about which card is published changed. That is by design: adoption waits
 
 ## 6. Engineering receipt
 
-Filled after the gate and push: release SHA · CI run URL · build time · test counts · artifact sizes ·
-route changes (none added; two pages gained a section) · deployed `build-info.json` SHA.
+| | |
+|---|---|
+| Local release candidate | branch `v17-bankbuilder-moonshot-multisport`, 11 commits on top of `c0decad62`, `origin/main` merged (last bot commit `932b8d832`) |
+| Gate (from `app/`, 2026-09-22) | `lint:scripts` 0 · unit **6,919 pass / 0 fail** (855 files) · `tsc --noEmit` 0 · `npm run build` OK (prune swept 3,089 files / 969 MB from `out/data`) · post-build **601 pass / 0 fail** |
+| Built-export proof | `/bank-builder/` and `/moonshot/` render "Today's eligible universe" with the market-priced caveat; `/mr-dub/` prints "The record, as settled · The $100 → $10K ladders"; no banned string in any of the three |
+| Routes | none added; two pages gained one server-rendered section; no client JS added |
+| New tests | 55 (contract 14 · normalizers 5 · selector 10 · shadow 6 · play-surface copy 5 · NBA parser 10 · NBA pipeline 21 — the last counted in the 6,919) |
+| Internal artifacts | forensic-v17 (4 files) · eligible-legs (2/day) · selector-replay (2) · selector-shadow (day + state + ledger) · NBA boxscores 4,180 files / 54 MB · NBA experimental 1 forecast |
+| Push / deploy | **not performed by this session** — the push was refused by the session's permission classifier (both `HEAD:main` and the feature branch). The release candidate is fully committed locally and gate-green; the founder pushes, CI runs, and the deployed `build-info.json` SHA is recorded here afterwards. |
