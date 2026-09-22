@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824302,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T15:25:48.542Z",
+  "availableAt": "2026-09-22T15:25:48.542Z",
+  "eventStartTime": "2026-09-23T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607536,
+      "name": "Kyle Freeland",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 7,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 3.8,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 1.2,
+        "kPer9": 5.9,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 128.33,
+        "k": 104,
+        "bb": 28,
+        "er": 91,
+        "hr": 27
+      }
+    },
+    "away": {
+      "id": 647336,
+      "name": "Michael Soroka",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 7,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19.33,
+        "ipAvg": 3.87,
+        "kAvg": 3.6,
+        "bbAvg": 1.6,
+        "erAvg": 1.8,
+        "hrAvg": 0.2,
+        "kPer9": 8.38,
+        "workloadIpLast5": 19.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 100.33,
+        "k": 97,
+        "bb": 25,
+        "er": 37,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-22T15:25:48.542Z"
+  },
+  "recordHash": "5c2b89d9321dcaf72273cbd4004da7d200eb538d1d55c733642f14803c344b97"
+}

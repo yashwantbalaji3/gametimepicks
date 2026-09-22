@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823897,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T15:25:48.542Z",
+  "availableAt": "2026-09-22T15:25:48.542Z",
+  "eventStartTime": "2026-09-23T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 650633,
+      "name": "Michael King",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 5,
+      "lastStartDate": "2026-09-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 5.2,
+        "bbAvg": 2,
+        "erAvg": 1,
+        "hrAvg": 0.4,
+        "kPer9": 7.31,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 181,
+        "k": 154,
+        "bb": 68,
+        "er": 61,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-22T15:25:48.542Z"
+  },
+  "recordHash": "9f29bc243e5480fd2e2240c463f53a9964a814845fd78938fbb48d4102bef55d"
+}

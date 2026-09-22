@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824061,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T15:25:48.542Z",
+  "availableAt": "2026-09-22T15:25:48.542Z",
+  "eventStartTime": "2026-09-22T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663738,
+      "name": "Daniel Lynch IV",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 6,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 2.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.2,
+        "hrAvg": 0.4,
+        "kPer9": 4.37,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 30.67,
+        "k": 17,
+        "bb": 11,
+        "er": 18,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 641743,
+      "name": "Anthony Kay",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 6,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 3.4,
+        "bbAvg": 1.6,
+        "erAvg": 3.4,
+        "hrAvg": 0.8,
+        "kPer9": 7.06,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 142,
+        "k": 120,
+        "bb": 50,
+        "er": 70,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-22T15:25:48.542Z"
+  },
+  "recordHash": "5a619f7d2c6924c655ee53fc4424203b86cfb9edbca5d4284eb8da064e5b96bb"
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 823897,
+  "teamId": 119,
+  "name": "Los Angeles Dodgers",
+  "side": "home",
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T15:26:03.440Z",
+  "availableAt": "2026-09-22T15:26:03.440Z",
+  "eventStartTime": "2026-09-23T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 2,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-09-20",
+  "previousVenueId": 22,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=119&startDate=2026-09-08&endDate=2026-09-21",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-09-22T15:26:03.440Z"
+  },
+  "recordHash": "534b05d7e9b9674a0cef8bd516a62fdde69e6685cf66e74c2530d82b1f8015ea"
+}
