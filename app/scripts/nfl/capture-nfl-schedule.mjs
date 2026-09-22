@@ -13,14 +13,17 @@
  *     "the whole season";
  *   - --now is required; the script refuses to read a live clock for its stamps.
  *
- * Run: node scripts/nfl/capture-nfl-schedule.mjs --now 2026-08-09T22:10:00Z --days 9
+ * Run: node scripts/nfl/capture-nfl-schedule.mjs --now 2026-08-09T22:10:00Z --days 9   (--dry-run: fetch, count, write nothing)
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { scoreboardMonthUrls, mergeWindowEvents } from "../../src/lib/sports/espn-scoreboard-window.mjs";
+
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = path.join(APP, "public", "data", "nfl", "schedule");
+const DRY = process.argv.includes("--dry-run");
 
 const arg = (name, fallback = null) => {
   const i = process.argv.indexOf(name);
@@ -33,11 +36,18 @@ const DAYS = Math.min(31, Math.max(1, Number(arg("--days", "9"))));
 const d0 = new Date(NOW);
 const fmt = (d) => d.toISOString().slice(0, 10).replaceAll("-", "");
 const d1 = new Date(d0.getTime() + DAYS * 86400_000);
-const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${fmt(d0)}-${fmt(d1)}`;
-
-const res = await fetch(url);
-if (!res.ok) { console.error(`REFUSED: scoreboard fetch ${res.status}`); process.exit(1); }
-const data = await res.json();
+// 2026-09-20: the provider began answering the RANGE form (`dates=A-B`) with 400 on every request
+// (sport-schedules.yml refused "NFL schedule" daily). The month form still answers; the window is
+// applied here, on the events, so the artifact's promise ("this window, never the season") holds.
+const urls = scoreboardMonthUrls("football/nfl", d0, d1);
+const responses = [];
+for (const u of urls) {
+  const res = await fetch(u);
+  if (!res.ok) { console.error(`REFUSED: scoreboard fetch ${res.status} (${u})`); process.exit(1); }
+  responses.push(await res.json());
+}
+const data = { events: mergeWindowEvents(responses, d0, d1) };
+const url = urls.join(" ");
 
 const rows = (data.events ?? []).map((e) => {
   const comp = e.competitions?.[0];
@@ -76,6 +86,7 @@ const artifact = {
   rows,
 };
 
+if (DRY) { console.log(`dry-run: ${rows.length} events in window ${fmt(d0)}..${fmt(d1)} from ${urls.length} month request(s); nothing written`); process.exit(0); }
 fs.mkdirSync(OUT, { recursive: true });
 const file = `capture-${NOW.replace(/[:]/g, "").slice(0, 15)}.json`;
 fs.writeFileSync(path.join(OUT, file), JSON.stringify(artifact, null, 1));
