@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823412,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T05:51:33.124Z",
+  "availableAt": "2026-09-22T05:51:33.124Z",
+  "eventStartTime": "2026-09-22T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 554430,
+      "name": "Zack Wheeler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 6.6,
+        "bbAvg": 2.6,
+        "erAvg": 2.2,
+        "hrAvg": 1,
+        "kPer9": 9.9,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 150.33,
+        "k": 177,
+        "bb": 46,
+        "er": 50,
+        "hr": 20
+      }
+    },
+    "away": {
+      "id": 669160,
+      "name": "Dustin May",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 4,
+      "lastStartDate": "2026-09-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 16.67,
+        "ipAvg": 3.33,
+        "kAvg": 3.8,
+        "bbAvg": 1,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 10.26,
+        "workloadIpLast5": 16.67
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 140.67,
+        "k": 137,
+        "bb": 47,
+        "er": 72,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-22T05:51:33.124Z"
+  },
+  "recordHash": "afa2c1d486f56fd5a3b7016cc998c7ece868a5e19d580308118872d6e3c04a7a"
+}
