@@ -93,11 +93,20 @@ rule is right. The two ledgers begin separating on Oct 3, and preseason grades a
 
 ## 5. Automation (`.github/workflows/sport-schedules.yml`)
 
-- **Order fixed:** the roster capture now runs **before** the experimental step (it ran after it — a v0.1 forecast
-  would have read yesterday's roster). Step ids unchanged (`nbarosters`, `nbaexp`); guard tests
-  `audits/capture-independence` (13), `launch/schedule-cadence`, `sports/nfl/injuries-reach-boards`,
-  `ops/workflow-shell-syntax`, `ops/workflow-failure-visibility`, `soccer/capture-selection` all pass; YAML parses;
-  `nbarosters` precedes `nbaexp` (asserted).
+- **Order fixed:** the roster capture now runs **before** the experimental steps (it ran after them — a v0.1
+  forecast would have read yesterday's roster, and a capture landing after the build is a roster from the
+  future, which the gate refuses). Guard tests `audits/capture-independence` (13), `launch/schedule-cadence`,
+  `sports/nfl/injuries-reach-boards`, `ops/workflow-shell-syntax`, `ops/workflow-script-cwd`,
+  `ops/workflow-failure-visibility`, `soccer/capture-selection` all pass; YAML parses.
+- **The order is now a pinned contract, not an inspection.** An earlier draft of this receipt said
+  "`nbarosters` precedes `nbaexp` (asserted)" — **it was not asserted anywhere.** No test looked at the step
+  order, so the constraint v0.1's whole gate rests on was true only by inspection and would have drifted the
+  first time someone inserted a step. `src/lib/sports/nba/experimental-pipeline-order.test.mjs` now chains it
+  by position in the step list: `nbarosters` < `nbaexp` < `nbaexpv01`, exactly one build invocation per family,
+  no v0.1 command inside a chain ahead of v0's build, and each commit gated on its **own** step's state while
+  staging only its own directory. Three probes, all caught — moving the roster capture after the forecasts,
+  chaining a v0.1 grade ahead of v0's build, and re-gating v0.1's commit on v0's step (the original coupling
+  defect). Its detectors carry positive controls: all three step ids must exist before any order is compared.
 - **One step per family, and that matters.** The first version chained all four commands with `&&` —
   `grade v0 && grade v0.1 && build v0 && build v0.1` — and gated a single commit step on `state == 'BUILT'`.
   v0.1 refuses by design whenever the roster capture is missing, stale or newer than the forecast instant; in a
@@ -129,7 +138,7 @@ rule is right. The two ledgers begin separating on Oct 3, and preseason grades a
 `roster-gated-pool` **13/13** · `experimental-forecast` 7/7 (its on-disk guard now covers both families and pins
 that a family directory holds only its own model version) · `game-sim` 5/5 · `minutes-model` 5/5 · `roster-parse`
 8/8 · `research/nba-research` 5/5 · `public-beta-safety` 6/6 · `ops/workflow-shell-syntax` 6/6 ·
-`ops/workflow-script-cwd` 2/2 · `workflow-failure-visibility` 9/9 · `npm run -s lint:scripts` clean. Full
+`ops/workflow-script-cwd` 2/2 · `workflow-failure-visibility` 9/9 · `experimental-pipeline-order` 3/3 · `npm run -s lint:scripts` clean. Full
 `run-suite.mjs --phase unit`: see §9.
 
 Five of those 13 were added while finishing A1, because three required behaviours had no test and one existing
