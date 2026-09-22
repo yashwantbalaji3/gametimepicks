@@ -199,3 +199,14 @@ owner (fallback 4) before the World Series ends. Fallbacks 2 and 3 follow the F1
 - **No-play default:** "Approve the no-play copy/state fix as a copy-only change; products publish `NO_PLAY` with the universe reason from 09-28."
 - **Postseason construction:** "Confirm F1 = A/C; products continue on postseason slates under the market-construction label; no floor until Phase H adopts one."
 - **Go dark:** "Confirm F1 = B; both products publish the no-owner sentence daily until a validated owner exists; shadow continues."
+
+---
+
+## Founder decisions recorded — 2026-09-22
+
+| Gate | Decision | Consequences implemented (objective, reversible, in-program) | Not changed |
+|---|---|---|---|
+| **F1** | **Option A (transitional).** Market-priced / no-forecast legs stay admitted; every surface presents them as MARKET CONSTRUCTIONS, never as GameTimePicks model predictions. | truthful-labelling backlog: `probabilityBasis` on published legs/cards, "model confidence" / "model-qualified" wording removed from the Play surfaces, market-construction chips beside the probability (see the v1.7 handoff §L for the diff) | selection logic; `MARKET_PRICED_LEG_POLICY` stays `ADMITTED_PENDING_FOUNDER_DECISION` (the constant names the state; the decision is this row) |
+| **F2** | **HOLD.** EPL stays `EXPERIMENTAL_PUBLIC`; no product eligibility. Revisit only when the preregistered forward requirement is met. | evidence defects repaired independently: P304 graded-count separation from the v1 rows; the stalled results capture (`docs/V17_EPL_EVIDENCE_REPAIR.md`) | registry, model status, odds capture (paid path) |
+| **F3** | **Explicit `NO_PLAY` approved.** With no legitimate eligible universe, publish a truthful no-play reason — never stale/waiting/forced selections. Postseason market-priced candidates may continue under the truthful label while F1 = A. No forced plays to keep daily activity. | `NO_EVENTS` state (shipped in v1.7); no-play copy repointed to price language; the generator already publishes nothing when nothing qualifies | no forced-card logic exists and none is added |
+| **Moonshot legacy history** | The receipt/fold-era record is the primary current record; the 0–7 June ledger era is collapsed behind clearly labelled legacy detail; eras are never combined into one headline. | `displayRecord` prefers the fold-era record and exposes `legacyRecord`; /moonshot, /results (hub + explorer), trust center, /mr-dub updated | the receipts themselves; pending never a loss |

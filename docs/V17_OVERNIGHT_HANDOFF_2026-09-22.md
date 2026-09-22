@@ -168,3 +168,24 @@ migration is opt-in and idempotent; Bank Builder / Moonshot user staking state i
    `app/scripts/build-active-builder-slip.mjs` (the session could not delete files).
 5. Optional: add a permission rule allowing pushes to `main` from this session type if you want future
    overnight sessions to land CI-green work themselves.
+
+---
+
+## K. Production verification (2026-09-22, after the founder merged PR #627)
+
+**`V1.7 FOUNDATION — PUBLIC AND VERIFIED`**
+
+| | |
+|---|---|
+| Merge | PR #627 merged 2026-09-22T13:40:41Z as `441fefa4b` (parents `442a04d5c` main, `935493d7c` branch head) |
+| Production SHA (`/data/build-info.json`) | `20a19a672cf75eb26a2d8cb64c3375be6e0e162b` · builtAt `2026-09-22T14:22:12.832Z` · environment vercel · message "auto: mlb daily production slate 2026-09-22 [skip ci]" |
+| Ancestry (git) | `441fefa4b`, `935493d7c`, `7d79f38da`, `07dd568ec` are all ancestors of `20a19a672` (`git merge-base --is-ancestor`); all 25 branch commits are contained. `origin/main` at verification `f2c613dab` (one data commit past production: "auto: daily products 2026-09-22") |
+| Deployment evidence (GitHub deployments API, Vercel-created) | `441fefa4b` deployment 6592833224 success (record 14:17:42Z; ≈37 min after merge — matches the founder's 36m52s); `20a19a672` deployment 6593060543 success 14:28:13Z. Failures today: `e545b33fb` (nightly settle 09:25 ET) → `npx vercel inspect dpl_6RvVdMtDxN2ouhekUm8iYCVHM13a --logs`; `1b72585a1` (mlb slate) → `npx vercel inspect dpl_GvugNcRFNRB5sdinKD3BbjDaJWsu --logs` (Phase 3 audit) |
+| `/bank-builder/` | "Today's eligible universe · 2026-09-21" (built before the 14:22Z daily-products commit; refreshes on the next deploy), "priced by the sportsbook market with no forecast behind it", **Record 36–35** (the protected record after the 09-21 settlement — the same number on every surface), "Live today"; no "Model pass" / "model discipline" / banned strings |
+| `/moonshot/` | eligible universe + caveat; "high variance"; no banned strings |
+| `/mr-dub/` | "The record, as settled · The $100 → $10K ladders"; "Bank Builder 36 – 35"; "$16,040 paper profit"; no "$19.5K" / "proven" |
+| `/results/` | explorer carries the Moonshot signature-product row (`source: product-ledger/moonshot.json`, 0–7 legacy era) — the row no longer disappears (C2). The hub tile still prints "Road to $10K completed 5–0" and "Settled record 0-7 · separate paper lane" — addressed under the founder's Moonshot-era decision (§L) |
+| Off-day state | not observable today (games exist); `NO_EVENTS` is in the deployed code and pinned by `product-state.test.mjs` (10/0) |
+| Public assets | `/data/build-info.json` 200 · `/data/search/index.json` 200 · `/data/products/availability/latest.json`, `/data/mr-dub/*.json`, `/data/product-ledger/moonshot.json`, `/data/bank-builder/summary-latest.json` all 404 (read at build time, pruned from the export by design) |
+| Live selector / registry on `main` | `bank-builder@1` / `moonshot@2` (policies.mjs unchanged); `MARKET_PRICED_LEG_POLICY.state = ADMITTED_PENDING_FOUNDER_DECISION`; NBA `HISTORICAL_ONLY` |
+| Shadow after merge | `daily-products` run 35739675416 (14:20Z, `workflow_run`) built `eligible-legs/2026-09-22.json` and `selector-shadow/2026-09-22.json` at asOf `2026-09-22T14:22:27Z` with **96 eligible legs** (universe sha `2f1a9e2e…`); BB-LEGACY / BB-C1 / BB-C2b placed both lanes (A step 2), MS-* `NO_QUALIFYING_PLAY`. The 13:32Z run (pre-merge code) had no shadow step; no roll-time publication occurred (`nightly-settle` runs 35713168639 … 35738373269 grade/roll only). The premature-publication defect is absent; forward evidence accumulates from 2026-09-22. |
