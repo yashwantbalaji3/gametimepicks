@@ -222,3 +222,7 @@ lint 0 · unit **6,972 / 0** · tsc 0 · build OK (prune 3,122 files / 981.4 MB)
 1. **Merge PR #628** (CI status in the chat report) — it carries the founder-decision implementation, the three ESPN-capture repairs, the main-gate repair (R1/R2/MF1), the NBA legacy-pipeline retirement, the EPL evidence repair and the deploy audit. Until it merges, `quality-gate` on `main` stays red on the Tuesday data state and the NFL/NBA/EPL captures keep refusing.
 2. **Run the 14 `npx vercel inspect <dpl> --logs` commands** in `docs/V17_DEPLOY_TRIGGER_AUDIT.md` (needs your Vercel login) and paste the build-step timings back; that is the only way to see where the 45 minutes go on the failing builds. Nothing in the repo's own steps takes more than ~2 minutes cold.
 3. Nothing else is gated on you today. F1/F2/F3 and the Moonshot-era decision are recorded and implemented; the shadow keeps accumulating (first graded day 2026-09-21; 2026-09-22 published at 14:22Z); NBA remains `HISTORICAL_ONLY`.
+
+## N. Final closeout — `V1.7 FOLLOW-THROUGH — PUBLIC AND VERIFIED`
+
+Production `070365ea3d128b6c58a893d5fbea562123f17429` (the PR #628 merge; builtAt 2026-09-22T15:50:19Z; Vercel deployment 6594908674 success 15:54:50Z) contains all 11 #628 commits and the #627 foundation; `quality-gate` on `main` run 35749838905 success. Full receipt: `docs/V17_RELEASE_HANDOFF.md` §6.3. Next program proposal: `docs/V18_NEXT_PROGRAM_REALITY_CHECK.md`.
