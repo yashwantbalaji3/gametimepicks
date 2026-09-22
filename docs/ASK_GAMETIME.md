@@ -77,6 +77,8 @@ If `/api/ask/` is down, `/ask/` still renders and every link on it still works.
 | Provider | When selected | Notes |
 |---|---|---|
 | `anthropic` | `ANTHROPIC_API_KEY` present, or `ASK_MODEL_PROVIDER=anthropic` | Messages API, `claude-sonnet-5`, **no `temperature`** — see below |
+| `openai` | `ASK_MODEL_PROVIDER=openai` | Responses-style adapter; `gpt-5-nano` default. Evaluated in v1.6.1, **not shipped** (under-plans; see the migration doc) |
+| `gemini` | `ASK_MODEL_PROVIDER=gemini` (+ `GOOGLE_API_KEY`) | `gemini-3.5-flash-lite` default — the model that was measured. Shape ladder settles on `no-thinking`; the full 14-tool catalogue stays on the wire. **v1.6.1 shipping provider** |
 | `fake` | `ASK_MODEL_PROVIDER=fake` | deterministic; **refused in production** |
 | none | no key | `PROVIDER_NOT_CONFIGURED` → 503, fails closed |
 
@@ -464,6 +466,8 @@ diagnostic, because it means nothing was thrown by the provider at all.
 | Symptom | Action |
 |---|---|
 | runaway cost / abuse | set `ASK_GAMETIME_ENABLED=0` → 503, static site unaffected |
+| provider/model rollback | `ASK_MODEL_PROVIDER` / `ASK_MODEL_NAME` name the provider and model; change them and **redeploy with `VERCEL_FORCE_BUILD=1`** (an env change on the same SHA is otherwise skipped by `vercel-ignore-build.sh`), then unset the force variable. Never rotate a key for a provider switch |
+| a parlay/forecast turn says "no candidate matching that — date: not YYYY-MM-DD" | the planner wrote a placeholder in a DATE slot; the engine's placeholder net (v1.6.1) fills it from `getGameTimeNow` or drops it. `canary.mjs --verbose` prints `unsupported: <tool> — <error>` |
 | provider outage | Ask returns a typed refusal; no action required |
 | every tool `ASSET_UNAVAILABLE` | check `/data/ask/v1/` survived the prune; check `ASK_ASSET_ORIGIN` |
 | answers falling back deterministically | check the verifier receipt; usually stale projection → `npm run ask:build` |
