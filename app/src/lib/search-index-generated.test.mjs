@@ -24,6 +24,25 @@ test("the search index is gitignored and not tracked", () => {
 });
 
 test("every way the site is served generates it first", () => {
-  assert.match(pkg.scripts.build, /build-search-index\.mjs[^&]*&& next build/, "the production build writes the index before next build");
+  /*
+   * The invariant is ORDER: the index is written before `next build` runs, and a failure to write it stops
+   * the build. This used to be spelled as adjacency — /build-search-index\.mjs[^&]*&& next build/ — which
+   * broke when B5 wrapped each build step in scripts/build/run-phase.mjs, because `next build` stopped
+   * sitting immediately after the `&&`. Adjacency was never the requirement; it was a proxy for ordering
+   * that happened to hold. Checking positions instead says what is actually meant, and survives any wrapper.
+   */
+  const build = pkg.scripts.build ?? "";
+  const iIndex = build.indexOf("build-search-index.mjs");
+  const iNext = build.search(/\bnext build\b/);
+  assert.ok(iIndex >= 0, "the production build generates the search index");
+  assert.ok(iNext >= 0, "…and runs next build");
+  assert.ok(iIndex < iNext, `the index must be generated BEFORE next build (index at ${iIndex}, next build at ${iNext})`);
+
+  // …and the step between them is still a gate, so a failed index generation cannot be walked past
+  const between = build.slice(iIndex, iNext);
+  assert.match(between, /&&/, "the two steps stay &&-chained");
+  assert.doesNotMatch(between, /\|\|\s*true/, "and no step between them is made unconditionally green");
+  assert.doesNotMatch(between, /;\s*\S/, "nor sequenced with ';', which would not gate on failure");
+
   assert.match(pkg.scripts.predev ?? "", /build-search-index\.mjs/, "local dev generates it too");
 });
