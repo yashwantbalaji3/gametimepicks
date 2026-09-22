@@ -140,3 +140,7 @@ Every June-era test file above (`june13-*`, `june19-*`, `june20-*`, `june21-*`, 
 | `LEDGER_ONLY` | June 9–13, June 18–24 | 2 completed ladders in `banked-ladders.json` (multi-sport, operator process) | listed from the ledger, never merged with receipt cycles |
 
 Cross-check against `forensic-v17/baseline.json`: Moonshot 32/32/0 and mean furthest 1.13 match exactly; Bank Builder lost 20, completed 0, open 1 match; cycle count differs only by the truncation convention above.
+
+## Retirement receipt (2026-09-22 overnight)
+
+S4 `bank-builder/summary-latest.json`: the nightly writer no longer emits it (`app/scripts/build-bank-builder-ledger.mjs`), `loadBankBuilderSummary` is removed, and `bank-builder-public-source.test.mjs` pins both. The dated ledger files keep writing because the internal `/launch` ledger panel reads `ledger-latest.json` (`src/lib/launch/ledger-panel.mjs:27`) — a reader §6 above missed. Two files are left on disk for the founder to delete (this session may not delete files): the stale `app/public/data/bank-builder/summary-latest.json` (unread, never shipped) and the unscheduled `app/scripts/build-active-builder-slip.mjs` that reads it.
