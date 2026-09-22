@@ -16,7 +16,10 @@
 set -euo pipefail
 MSG="${1:?commit message required}"
 : "${GENERATED_PATHS:?GENERATED_PATHS required (space-separated path prefixes)}"
-PROTECTED_RE='(^|/)mr-dub/(portfolio|ledger|daily-summary|banked-ladders)\.json$'
+# v1.7 shadow-integrity audit: a shadow day file is a FIRST-PUBLICATION-WINS artifact. Two runs that both
+# created it would otherwise be resolved to the later copy — the S7 rewrite in a new place — so it is
+# refused like the money files, whatever GENERATED_PATHS says (docs/V17_WORKFLOW_AUDIT.md W2).
+PROTECTED_RE='(^|/)mr-dub/(portfolio|ledger|daily-summary|banked-ladders)\.json$|(^|/)data/internal/products/selector-shadow/'
 
 if git diff --cached --quiet; then echo "commit-generated: nothing staged"; exit 0; fi
 git commit -q -m "$MSG"
@@ -27,7 +30,11 @@ for attempt in 1 2 3 4 5; do
   if git push -q origin HEAD:main; then echo "commit-generated: pushed (attempt $attempt)"; exit 0; fi
   echo "commit-generated: push rejected (attempt $attempt) — rebasing onto origin/main"
   git fetch -q origin main
-  if git rebase -q origin/main >/dev/null 2>&1; then continue; fi
+  # --autostash (docs/V17_WORKFLOW_AUDIT.md W1): the caller unstages stamp-only files, which leaves them
+  # MODIFIED in the worktree, and `git rebase` refuses a dirty tree ("cannot rebase: You have unstaged
+  # changes") — silently, behind the redirect. Run 35630279965 (2026-09-21 17:10Z) rebased five times
+  # without moving and failed. The autostash carries the unstaged edits across the rebase.
+  if git rebase -q --autostash origin/main >/dev/null 2>&1; then continue; fi
   # A content conflict. During a rebase, "theirs" is the commit being replayed — this run's version.
   while true; do
     conflicted=$(git diff --name-only --diff-filter=U)

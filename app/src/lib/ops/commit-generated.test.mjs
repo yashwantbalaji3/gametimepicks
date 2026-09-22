@@ -50,3 +50,33 @@ test("the protected money files are never auto-resolved, even inside a generated
   assert.equal(r.status, 1);
   assert.match(r.stdout + r.stderr, /not a regenerable path/);
 });
+
+// ── v1.7 shadow-integrity audit (docs/V17_WORKFLOW_AUDIT.md W1/W2) ────────────────────────────────────
+test("W1: an unstaged stamp-only edit in the worktree does not block the rebase (run 35630279965 rebased five times without moving)", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "cg-"));
+  const origin = path.join(root, "origin.git");
+  git(root, "init", "-q", "--bare", "-b", "main", origin);
+  const a = path.join(root, "a"), b = path.join(root, "b");
+  git(root, "clone", "-q", origin, a);
+  fs.mkdirSync(path.join(a, "data/gen"), { recursive: true });
+  fs.writeFileSync(path.join(a, "data/gen/receipt.json"), '{"v":0}\n'); fs.writeFileSync(path.join(a, "data/gen/stamp.json"), '{"generatedAt":"t0"}\n');
+  git(a, "add", "."); git(a, "commit", "-q", "-m", "seed"); git(a, "push", "-q", "origin", "HEAD:main");
+  git(root, "clone", "-q", origin, b);
+  // another writer lands first on a DIFFERENT file
+  fs.writeFileSync(path.join(a, "data/gen/other.json"), '{"v":"A"}\n'); git(a, "add", "."); git(a, "commit", "-q", "-m", "A"); git(a, "push", "-q", "origin", "HEAD:main");
+  // run B stages its receipt, and — like the daily-products commit step — leaves a stamp-only file modified but unstaged
+  fs.writeFileSync(path.join(b, "data/gen/receipt.json"), '{"v":"B"}\n'); git(b, "add", "data/gen/receipt.json");
+  fs.writeFileSync(path.join(b, "data/gen/stamp.json"), '{"generatedAt":"t1"}\n');
+  const r = spawnSync("bash", [HELPER, "auto: B [skip ci]"], { cwd: b, encoding: "utf8", env: { ...process.env, GENERATED_PATHS: "data/gen/", GIT_AUTHOR_NAME: "t", GIT_AUTHOR_EMAIL: "t@t", GIT_COMMITTER_NAME: "t", GIT_COMMITTER_EMAIL: "t@t" } });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /pushed \(attempt 2\)/, "rejected once, rebased, then landed");
+  assert.equal(originFile(origin, root, "data/gen/receipt.json"), '{"v":"B"}\n');
+  assert.equal(fs.readFileSync(path.join(root, "check", "data/gen/other.json"), "utf8"), '{"v":"A"}\n', "the other writer's work survives");
+});
+
+test("W2: a selector-shadow day file is never auto-resolved to the later copy — first publication wins, the run fails loud", () => {
+  const { r, origin, root } = race("data/internal/products/selector-shadow/2026-09-22.json", { generated: "data/internal/products/" });
+  assert.equal(r.status, 1);
+  assert.match(r.stdout + r.stderr, /not a regenerable path/);
+  assert.equal(originFile(origin, root, "data/internal/products/selector-shadow/2026-09-22.json"), '{"v":"A"}\n', "the first publication is untouched");
+});
