@@ -145,6 +145,8 @@ The one real defect is a misattribution: the published `trackRecord` sentence co
 | G5 | "3-day freshness" in the matrix — UNVERIFIED | `docs/V17_SPORT_ELIGIBILITY_MATRIX.md:12` |
 | G6 | §29.3 cited, defined nowhere in the repo | `V17_SPORT_ELIGIBILITY_MATRIX.md:12` |
 
+**Repair status 2026-09-22 (F2 = HOLD; no status changed):** G1 fixed — `build-epl-forecasts.mjs` now derives `trackRecord` from a per-`modelId` split (`app/src/lib/soccer/epl-graded-by-model.mjs`; v1 rows kept as a labelled prior bucket, P304 figures null at n = 0). G2 root-caused — ESPN rejects the date-RANGE scoreboard form with HTTP 400 since 2026-09-16 (runs 35042672207 → 35675723968 all green on `SOURCE_STALE` + exit 0); capture now asks per month and exits 4 on a source failure, `epl-settle` raises it red after the commit, `epl-matchweek` reports a notice. G7 (new): the workflow's grader never wrote the `control` block the forward receipt reads — fixed via shared helpers. Recovery: 10 P304 fixtures (09-18 → 09-20) graded from official finals; ledger 36 → 46 (v1 36, P304 10, all 10 with control); forward receipt n 0 → 10/60 `ACCUMULATING`. Odds time-lock limitation recorded, not fixed. Details: `docs/V17_EPL_EVIDENCE_REPAIR.md`.
+
 ### Recommended next experiment (not a decision)
 Do **not** move the registry. Unstall the results capture, let P304 accrue its own forward sample under its
 preregistered protocol (n ≥ 60), and add a per-fixture odds capture instant so a leg *could* be time-locked. Revisit
@@ -199,3 +201,14 @@ owner (fallback 4) before the World Series ends. Fallbacks 2 and 3 follow the F1
 - **No-play default:** "Approve the no-play copy/state fix as a copy-only change; products publish `NO_PLAY` with the universe reason from 09-28."
 - **Postseason construction:** "Confirm F1 = A/C; products continue on postseason slates under the market-construction label; no floor until Phase H adopts one."
 - **Go dark:** "Confirm F1 = B; both products publish the no-owner sentence daily until a validated owner exists; shadow continues."
+
+---
+
+## Founder decisions recorded — 2026-09-22
+
+| Gate | Decision | Consequences implemented (objective, reversible, in-program) | Not changed |
+|---|---|---|---|
+| **F1** | **Option A (transitional).** Market-priced / no-forecast legs stay admitted; every surface presents them as MARKET CONSTRUCTIONS, never as GameTimePicks model predictions. | truthful-labelling backlog: `probabilityBasis` on published legs/cards, "model confidence" / "model-qualified" wording removed from the Play surfaces, market-construction chips beside the probability (see the v1.7 handoff §L for the diff) | selection logic; `MARKET_PRICED_LEG_POLICY` stays `ADMITTED_PENDING_FOUNDER_DECISION` (the constant names the state; the decision is this row) |
+| **F2** | **HOLD.** EPL stays `EXPERIMENTAL_PUBLIC`; no product eligibility. Revisit only when the preregistered forward requirement is met. | evidence defects repaired independently: P304 graded-count separation from the v1 rows; the stalled results capture (`docs/V17_EPL_EVIDENCE_REPAIR.md`) | registry, model status, odds capture (paid path) |
+| **F3** | **Explicit `NO_PLAY` approved.** With no legitimate eligible universe, publish a truthful no-play reason — never stale/waiting/forced selections. Postseason market-priced candidates may continue under the truthful label while F1 = A. No forced plays to keep daily activity. | `NO_EVENTS` state (shipped in v1.7); no-play copy repointed to price language; the generator already publishes nothing when nothing qualifies | no forced-card logic exists and none is added |
+| **Moonshot legacy history** | The receipt/fold-era record is the primary current record; the 0–7 June ledger era is collapsed behind clearly labelled legacy detail; eras are never combined into one headline. | `displayRecord` prefers the fold-era record and exposes `legacyRecord`; /moonshot, /results (hub + explorer), trust center, /mr-dub updated | the receipts themselves; pending never a loss |

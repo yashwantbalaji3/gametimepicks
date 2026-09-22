@@ -159,7 +159,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
         <p className="mt-2 text-[10.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
           Win Step&nbsp;2 and the original $100 is already back in your pocket — the ladder freerolls from there.
           Later steps get <em>safer</em>, not richer (the multiple never rises after Step&nbsp;3; 2 legs max; Step&nbsp;7 is
-          double-chance / draw-no-bet only). If the model can&rsquo;t find a strong card we skip — an honest under-target
+          double-chance / draw-no-bet only). If no card reaches the step&rsquo;s price we skip — an honest under-target
           card beats weak filler. <strong style={{ color: "var(--vault-text-mute)" }}>This is the v2 preview:</strong> today&rsquo;s
           live ladder and every dollar on this page settle under v1 (full roll); the v2 profit-banking ladder activates only once its
           settlement support ships and clears its gate. Its market mix is read from the settled record at that time, never quoted here.

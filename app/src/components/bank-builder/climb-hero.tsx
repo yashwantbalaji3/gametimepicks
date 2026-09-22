@@ -69,6 +69,9 @@ export interface ClimbLane {
   cycle?: number | null;     // ladder cycle/run # if available
   stake: number | null;
   combinedOdds: number | null;
+  /** F1 Option A: the card's probability basis, when its legs are all market-priced ("market-implied").
+   *  Unknown → null → no label (never labelled "model"). Read from the published card; never inferred here. */
+  jointProbabilityBasis?: "market-implied" | "model" | "mixed" | null;
   potentialReturn: number | null;
   goalTarget: number | null;
   /**
@@ -279,7 +282,7 @@ export default function ClimbHero({
         <ul className="mt-2 flex flex-col gap-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
           <li>· Paper-only picks — no real money is placed.</li>
           <li>· A parlay loses if any one leg loses.</li>
-          <li>· The model skips weak slates instead of forcing a card.</li>
+          <li>· A slate where no card reaches the step&rsquo;s price publishes no card.</li>
           <li>· Official results settle the ladder.</li>
           <li>· Track Record shows every receipt.</li>
         </ul>

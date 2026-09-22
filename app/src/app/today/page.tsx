@@ -202,7 +202,7 @@ export default function TodayPage() {
   const bbStepPhrase = awaitingRung != null ? `awaiting Step ${awaitingRung}` : "awaiting next card";
   const bbStatusValue = bbNoPlay ? "No-play" : bbHasActiveCard ? "Active card" : "Awaiting card";
   const bbReason = bbNoPlay
-    ? "No qualified card cleared the model bar today — the ladder holds rather than force a play."
+    ? "No card reaches this step's price today — the ladder holds rather than force a play."
     : bbHasActiveCard
       ? "An approved lane is placed as the active paper ladder — settles from official results only."
       : "The next-rung card is pending approval — no exposure is placed until it is.";

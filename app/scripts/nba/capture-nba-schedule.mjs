@@ -11,14 +11,17 @@
  * Same contract as the NFL capture: raw provider statuses (adapter normalizes), --now pinned,
  * zero-event windows REFUSED so an empty capture can never look like an empty slate.
  *
- * Run: node scripts/nba/capture-nba-schedule.mjs --now 2026-08-10T02:30:00Z --days 70
+ * Run: node scripts/nba/capture-nba-schedule.mjs --now 2026-08-10T02:30:00Z --days 70   (--dry-run: fetch, count, write nothing)
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { scoreboardMonthUrls, mergeWindowEvents } from "../../src/lib/sports/espn-scoreboard-window.mjs";
+
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = path.join(APP, "public", "data", "nba", "schedule");
+const DRY = process.argv.includes("--dry-run");
 
 const arg = (name, fb = null) => { const i = process.argv.indexOf(name); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : fb; };
 const NOW = arg("--now");
@@ -27,11 +30,19 @@ const DAYS = Math.min(120, Math.max(1, Number(arg("--days", "70"))));
 
 const d0 = new Date(NOW);
 const fmt = (d) => d.toISOString().slice(0, 10).replaceAll("-", "");
-const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${fmt(d0)}-${fmt(new Date(d0.getTime() + DAYS * 86400_000))}`;
-
-const res = await fetch(url);
-if (!res.ok) { console.error(`REFUSED: scoreboard fetch ${res.status}`); process.exit(1); }
-const data = await res.json();
+const d1 = new Date(d0.getTime() + DAYS * 86400_000);
+// 2026-09-20: the provider began answering the RANGE form (`dates=A-B`) with 400 on every request
+// (sport-schedules.yml refused "NBA schedule" daily). The month form still answers; the window is
+// applied here, on the events, so the artifact's promise ("this window, never the season") holds.
+const urls = scoreboardMonthUrls("basketball/nba", d0, d1);
+const responses = [];
+for (const u of urls) {
+  const res = await fetch(u);
+  if (!res.ok) { console.error(`REFUSED: scoreboard fetch ${res.status} (${u})`); process.exit(1); }
+  responses.push(await res.json());
+}
+const data = { events: mergeWindowEvents(responses, d0, d1) };
+const url = urls.join(" ");
 
 const rows = (data.events ?? []).map((e) => {
   const comp = e.competitions?.[0];
@@ -73,6 +84,7 @@ const artifact = {
   rows,
 };
 
+if (DRY) { console.log(`dry-run: ${rows.length} events in window ${fmt(d0)}..${fmt(d1)} from ${urls.length} month request(s), neutral ${rows.filter((r) => r.neutralSite).length}; nothing written`); process.exit(0); }
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, `capture-${NOW.replace(/[:]/g, "").slice(0, 15)}.json`), JSON.stringify(artifact, null, 1));
 fs.writeFileSync(path.join(OUT, "latest.json"), JSON.stringify(artifact, null, 1));

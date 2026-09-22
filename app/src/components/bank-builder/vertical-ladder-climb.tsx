@@ -9,6 +9,7 @@
  */
 import type { ClimbLane, ClimbLeg, ClimbRung } from "./climb-hero";
 import FlagBadge from "@/components/flag-badge";
+import { MarketConstructionLabel } from "@/components/products/probability-basis-chip";
 import TeamLogo from "@/components/team-logo";
 import { PlayerPortrait } from "@/components/entity";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
@@ -91,7 +92,7 @@ function LegRow({ leg }: { leg: ClimbLeg }) {
 /** One rung on the vertical spine: a node (centered on the rail) + its content. The CURRENT rung (the one
  *  carrying today's card — identified by step, not a status string) is the glowing "you are here" and its
  *  card legs attach to it; rungs below it read cleared, rungs above read upcoming. */
-function RungRow({ rung, legs, isCurrent, isReview, entry }: { rung: ClimbRung; legs: ClimbLeg[]; isCurrent: boolean; isReview?: boolean; entry?: number | null }) {
+function RungRow({ rung, legs, isCurrent, isReview, entry, basis }: { rung: ClimbRung; legs: ClimbLeg[]; isCurrent: boolean; isReview?: boolean; entry?: number | null; basis?: ClimbLane["jointProbabilityBasis"] }) {
   // A review card's current rung uses the gold "paper review" palette (never the red live-money heat).
   const REVIEW = { label: "Review · Paper $0", color: "var(--vault-gold-bright)", ring: "color-mix(in srgb, var(--vault-crown) 55%, transparent)", fill: "color-mix(in srgb, var(--vault-crown) 10%, transparent)" };
   const m = isCurrent ? (isReview ? REVIEW : RUNG.active) : RUNG[rung.status];
@@ -132,7 +133,12 @@ function RungRow({ rung, legs, isCurrent, isReview, entry }: { rung: ClimbRung; 
           Step {rung.step} · from {isCurrent && entry != null && Number.isFinite(entry) ? money(entry) : money0(rung.startTarget)}
         </span>
         {isActive && legs.length > 0 ? (
-          <ul className="mt-2 flex flex-col gap-1.5">{legs.map((leg, i) => <LegRow key={i} leg={leg} />)}</ul>
+          <>
+            {/* F1 Option A: a card whose every leg is the de-vigged market price is a market construction — say
+                so where the legs are, on the surface that shows them. Unknown basis renders nothing. */}
+            <MarketConstructionLabel basis={basis ?? null} />
+            <ul className="mt-2 flex flex-col gap-1.5">{legs.map((leg, i) => <LegRow key={i} leg={leg} />)}</ul>
+          </>
         ) : null}
         {isCleared && rung.cleared ? (
           <details className="mt-2 group">
@@ -206,7 +212,7 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
           </span>
         </div>
         {rungsTopDown.map((r) => (
-          <RungRow key={r.step} rung={r} legs={lane.legs} isCurrent={showsCard && lane.step != null && r.step === lane.step} isReview={isReview} entry={isReview ? null : lane.stake} />
+          <RungRow key={r.step} rung={r} legs={lane.legs} isCurrent={showsCard && lane.step != null && r.step === lane.step} isReview={isReview} entry={isReview ? null : lane.stake} basis={lane.jointProbabilityBasis ?? null} />
         ))}
       </div>
 

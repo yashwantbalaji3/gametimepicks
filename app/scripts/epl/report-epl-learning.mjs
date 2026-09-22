@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 
 import { buildEplLearningReport } from "../../src/lib/sports/epl/learning-report.mjs";
 import { loadEplCorpus } from "../../src/lib/sports/epl/corpus.mjs";
+import { EPL_ELO_POISSON_MODEL_ID } from "../../src/lib/sports/epl/elo-poisson.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.join(APP, "..");
@@ -27,7 +28,15 @@ const rows = fs.existsSync(LEDGER)
   ? fs.readFileSync(LEDGER, "utf8").split("\n").filter((l) => l.trim()).flatMap((l) => { try { return [JSON.parse(l)]; } catch { return []; } })
   : [];
 
-const report = buildEplLearningReport(rows);
+/*
+ * v1.7 F2 (G1): WHICH model is live is read from the newest forecast set's own stamp (the builder writes
+ * matchModel.modelId from the receipts), falling back to the adopted P304 id. The ledger-wide figures stay,
+ * labelled ALL_MODELS; the live model gets its own bucket so a previous model's 36 rows can never read as its record.
+ */
+const liveModelId = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/epl/forecasts/latest.json"), "utf8")).matchModel?.modelId ?? EPL_ELO_POISSON_MODEL_ID; } catch { return EPL_ELO_POISSON_MODEL_ID; }
+})();
+const report = buildEplLearningReport(rows, { liveModelId });
 const corpus = loadEplCorpus(REPO);
 
 const out = {
@@ -41,7 +50,8 @@ const out = {
   ...report,
 };
 
-console.log(`epl learning · ${report.sample.graded} graded · ${report.sample.pairedWithMarket} with a market baseline`);
+console.log(`epl learning · ${report.sample.graded} graded (all models) · ${report.sample.pairedWithMarket} with a market baseline`);
+console.log(`  live model ${report.liveModel.modelId}: ${report.liveModel.n} graded · logLoss ${report.liveModel.logLoss ?? "—"} · by model: ${Object.values(report.byModel).map((b) => `${b.modelId} ${b.n}`).join(", ") || "none"}`);
 console.log(`  corpus: ${corpus.base} historical + ${corpus.current} this season = ${corpus.rows.length}`);
 console.log(`  model   logLoss ${report.model.logLoss ?? "—"} · brier ${report.model.brier ?? "—"}`);
 const p = report.comparison.onPairedMatches;

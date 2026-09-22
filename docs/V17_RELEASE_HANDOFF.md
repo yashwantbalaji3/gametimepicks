@@ -86,3 +86,7 @@ Nothing about which card is published changed. That is by design: adoption waits
 | Push to `main` | **refused again** by the session's permission classifier (`[Merge Without Review]`); the founder merges PR #627 |
 | Deployed SHA | still `e02f8fb4` (bot) at handoff — v1.7 not in production |
 | Overnight additions | see `docs/V17_OVERNIGHT_HANDOFF_2026-09-22.md` §B–§I |
+
+### 6.2 Production proof (2026-09-22)
+
+PR #627 merged by the founder as `441fefa4b` (13:40:41Z). Production `/data/build-info.json` → `20a19a672` (builtAt 2026-09-22T14:22:12Z), a bot descendant containing the full PR history (ancestry proven with `git merge-base --is-ancestor`). Smoke and shadow evidence: `docs/V17_OVERNIGHT_HANDOFF_2026-09-22.md` §K. **`V1.7 FOUNDATION — PUBLIC AND VERIFIED`.**

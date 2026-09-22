@@ -70,12 +70,41 @@ if ! git cat-file -e "$BASE" 2>/dev/null; then
     exit 1
 fi
 
-# The deployed output is produced exclusively from app/ (next build in this directory).
-# ':(top)' anchors the pathspec at the repo root regardless of the cwd Vercel runs us in.
-if git diff --quiet "$BASE" HEAD -- ':(top)app/'; then
-    echo "[ignore-build] no app/ changes since deployed $BASE — skipping build"
+# ── What is deploy-worthy (docs/V17_DEPLOY_TRIGGER_AUDIT.md, 2026-09-22) ──────────────────────
+# The deployed output is produced by `npm run build` in app/, which reads:
+#   app/                           — code, config, and app/public/data (337 build-time fs readers +
+#                                    the raw /data/ URLs the prune keep-set retains)
+#   data/*-projection/             — repo-root projections the emit steps and the research/compare/
+#                                    lab/ask pages + the search index read at build (v1.3–v1.6)
+#   data/internal/<three paths>    — the only repo-root internal files a PUBLIC route reads at build:
+#                                    /markets (calibrator manifest), /nfl/game + /results/nfl + /my
+#                                    (NFL forecast receipts), /today (MLB prediction snapshots)
+# Everything else under data/internal (85k files: pregame archive, linescores, research corpora) is
+# read only by pipeline scripts that are not build steps, so it stays skip-able.
+#
+# Note on `[skip ci]`: it is a GitHub Actions convention. Vercel never reads the commit message —
+# THIS diff is the only thing that decides. A bot commit that writes app/public/data always builds,
+# by design: those files are baked into the HTML at build time, so a skip would serve stale pages.
+#
+# Note on VERCEL_GIT_PREVIOUS_SHA after a FAILED deploy: Vercel sets it to the last SUCCESSFUL
+# deployment, so the next push's diff spans the failed commit too and its data is delivered by the
+# next build. A failure therefore costs only the wait until the next app/-touching push.
+#
+# ':(top)' anchors each pathspec at the repo root regardless of the cwd Vercel runs us in.
+BUILD_INPUTS=(
+    ':(top)app/'
+    ':(top)data/research-projection/'
+    ':(top)data/compare-projection/'
+    ':(top)data/lab-projection/'
+    ':(top)data/ask-projection/'
+    ':(top)data/internal/mlb/model-learning/calibrator-manifest.json'
+    ':(top)data/internal/nfl/forecast-receipts/'
+    ':(top)data/internal/mlb/prediction-snapshots/'
+)
+if git diff --quiet "$BASE" HEAD -- "${BUILD_INPUTS[@]}"; then
+    echo "[ignore-build] no build-input changes (app/, data/*-projection, read internal paths) since deployed $BASE — skipping build"
     exit 0
 fi
 
-echo "[ignore-build] app/ changed since deployed $BASE — building"
+echo "[ignore-build] build inputs changed since deployed $BASE — building"
 exit 1

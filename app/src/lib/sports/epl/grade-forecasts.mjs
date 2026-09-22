@@ -52,6 +52,38 @@ export function indexForecasts(artifacts) {
 }
 
 /**
+ * P304 adoption: the replaced model's probabilities, scored on the same match. Returns `{ control }` or `{}`.
+ *
+ * ONE RULE, TWO CALLERS (v1.7 F2 repair). This block lived only inside buildGradedRows while the
+ * workflow's grader — scripts/epl/grade-epl-forecasts.mjs — built its rows inline and never wrote a
+ * control. The forward receipt filters on `control.logLoss`, so P304's forward n could not have moved
+ * off zero however many matches were graded: the protocol was unsatisfiable by the producer. Both
+ * graders now spread these helpers, and a test pins the script to them.
+ *
+ * @param {object} row     the forecast-of-record row
+ * @param {"H"|"D"|"A"} actual
+ */
+export function scoreControlBlock(row, actual) {
+  const c = row?.control?.probs;
+  if (!c) return {};
+  const cActual = actual === "H" ? c.home : actual === "D" ? c.draw : c.away;
+  return { control: { modelId: row.control.modelId ?? null, probs: c, probabilityOfActual: r6(cActual), logLoss: r6(-Math.log(clip(cActual))) } };
+}
+
+/** P305-F: the private totals shadow beside the published model's own total distribution. Returns `{ shadowTotals }` or `{}`. */
+export function scoreShadowTotalsBlock(row, actual, total) {
+  if (!(row?.shadowTotals?.totals?.distribution && row?.model?.totals?.distribution)) return {};
+  const scoreTotals = (dist, probs) => {
+    const k = Math.min(total, dist.length - 1);
+    const over = (line) => dist.reduce((s, q, j) => (j > line ? s + q : s), 0);
+    const line = (l) => { const prob = r6(over(l)); const observed = total > l; return { prob, observed, brier: r6((prob - (observed ? 1 : 0)) ** 2) }; };
+    const pa = probs ? (actual === "H" ? probs.home : actual === "D" ? probs.draw : probs.away) : null;
+    return { totalLogLoss: r6(-Math.log(clip(dist[k]))), expectedTotal: r6(dist.reduce((s, q, j) => s + q * j, 0)), over15: line(1), over25: line(2), over35: line(3), probs: probs ?? null, oneXTwoLogLoss: pa == null ? null : r6(-Math.log(clip(pa))) };
+  };
+  return { shadowTotals: { modelId: row.shadowTotals.modelId ?? null, protocol: row.shadowTotals.protocol ?? null, control: scoreTotals(row.model.totals.distribution, row.model.probs), shadow: scoreTotals(row.shadowTotals.totals.distribution, row.shadowTotals.probs ?? null) } };
+}
+
+/**
  * Grade every completed fixture that has a forecast of record and is not already in the ledger.
  *
  * @param {{ forecasts: Map, results: object, alreadyGraded: Set<string> }} input
@@ -121,23 +153,10 @@ export function buildGradedRows({ forecasts, results, alreadyGraded = new Set() 
         over25: over25 == null ? null : { modelProbOver: over25, observedOver: overHit, brier: r6((over25 - (overHit ? 1 : 0)) ** 2) },
       },
       /* P304 adoption: the model the published one replaced, scored on the same match — the paired forward test. */
-      ...(fc.row.control?.probs ? (() => {
-        const c = fc.row.control.probs;
-        const cActual = actual === "H" ? c.home : actual === "D" ? c.draw : c.away;
-        return { control: { modelId: fc.row.control.modelId ?? null, probs: c, probabilityOfActual: r6(cActual), logLoss: r6(-Math.log(clip(cActual))) } };
-      })() : {}),
+      ...scoreControlBlock(fc.row, actual),
       /* P305-F: the private totals shadow, scored on the same match beside the published model's own total
          distribution. Evidence for a founder decision; nothing reads it to change what publishes. */
-      ...(fc.row.shadowTotals?.totals?.distribution && fc.row.model?.totals?.distribution ? (() => {
-        const scoreTotals = (dist, probs) => {
-          const k = Math.min(total, dist.length - 1);
-          const over = (line) => dist.reduce((s, q, j) => (j > line ? s + q : s), 0);
-          const line = (l) => { const prob = r6(over(l)); const observed = total > l; return { prob, observed, brier: r6((prob - (observed ? 1 : 0)) ** 2) }; };
-          const pa = probs ? (actual === "H" ? probs.home : actual === "D" ? probs.draw : probs.away) : null;
-          return { totalLogLoss: r6(-Math.log(clip(dist[k]))), expectedTotal: r6(dist.reduce((s, q, j) => s + q * j, 0)), over15: line(1), over25: line(2), over35: line(3), probs: probs ?? null, oneXTwoLogLoss: pa == null ? null : r6(-Math.log(clip(pa))) };
-        };
-        return { shadowTotals: { modelId: fc.row.shadowTotals.modelId ?? null, protocol: fc.row.shadowTotals.protocol ?? null, control: scoreTotals(fc.row.model.totals.distribution, p), shadow: scoreTotals(fc.row.shadowTotals.totals.distribution, fc.row.shadowTotals.probs ?? null) } };
-      })() : {}),
+      ...scoreShadowTotalsBlock(fc.row, actual, total),
     });
   }
   return { graded, skipped };

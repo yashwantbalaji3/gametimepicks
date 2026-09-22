@@ -170,12 +170,23 @@ jobs:
           node app/scripts/epl/capture-epl-odds.mjs --now "$NOW" --apply || \
             echo "epl odds: refused or unavailable this run — see the step log; nothing was spent beyond what the ledger records"
 
+      # `|| echo "no newly-settled EPL match"` used to sit on this line. It relabelled a provider failure
+      # as a quiet matchweek: from 2026-09-16 every run printed SOURCE_STALE and that sentence, and the
+      # results artifact silently froze. The status is carried and REPORTED after the commit as a
+      # notice; epl-settle, the owner of the nightly capture, is the job that goes red on the same state.
       - name: Settle any match that has finished
         run: |
-          set -euo pipefail
+          set -uo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          node app/scripts/epl/capture-epl-results.mjs --now "$NOW" || \
-            echo "no newly-settled EPL match — the honest state between matchweeks"
+          node app/scripts/epl/capture-epl-results.mjs --now "$NOW"
+          RC=$?
+          if [ "$RC" -eq 0 ]; then
+            echo "RESULTS_CAPTURE=ok" >> "$GITHUB_ENV"
+          elif [ "$RC" -eq 4 ]; then
+            echo "RESULTS_CAPTURE=stale" >> "$GITHUB_ENV"
+          else
+            echo "RESULTS_CAPTURE=failed" >> "$GITHUB_ENV"
+          fi
 
       # ---- Grading: the loop that makes the record mean something ----
       #
@@ -439,6 +450,12 @@ jobs:
         run: |
           set -euo pipefail
           FAILED=0
+          # A results-source stall is a NOTICE here, never a green silence: this job runs up to eighteen
+          # times a matchweek, so the red run (and the alert) belongs to epl-settle, which owns the capture.
+          if [ "${RESULTS_CAPTURE:-ok}" != "ok" ]; then
+            echo "::warning::EPL results capture did not refresh this run (${RESULTS_CAPTURE:-unknown}) — a finished"
+            echo "::warning::match cannot be graded until the nightly epl-settle capture succeeds. Not a quiet matchweek."
+          fi
           if [ "${GRADE_STATUS:-ok}" != "ok" ]; then
             echo "::error::EPL forecast grading REFUSED — completed fixtures could not be joined to any"
             echo "::error::pre-kickoff forecast. This is a broken join, not a quiet matchday. Do not trust"

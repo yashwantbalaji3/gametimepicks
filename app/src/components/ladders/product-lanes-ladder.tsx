@@ -23,6 +23,7 @@ import FlagBadge from "@/components/flag-badge";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
 import type { DailyPortfolioCard, DailyPortfolioLeg } from "@/lib/mr-dub/daily-portfolio";
+import ProbabilityBasisChip, { MarketConstructionLabel } from "@/components/products/probability-basis-chip";
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -214,6 +215,8 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-crown-warm)", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
           ) : null}
         </div>
+        {/* F1 Option A: a card built from market-priced legs is a market construction, and says so. */}
+        <MarketConstructionLabel basis={card.jointProbabilityBasis} />
       </div>
 
       {/* A Moonshot card with no rung goal was dealt before the ladder existed (the morning of
@@ -249,13 +252,16 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
                   <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 11.5, fontWeight: 600 }}>{leg.selection}</span>
                   <OddsPill odds={leg.odds} size="sm" tone={tone} />
                 </div>
-                <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{leg.matchup} · {leg.marketLabel}</span>
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{leg.matchup} · {leg.marketLabel}</span>
+                  <ProbabilityBasisChip basis={leg.probabilityBasis} />
+                </span>
               </div>
             </div>
           ))
         ) : (
           <div className="px-3.5 py-3">
-            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>No model-qualified legs available</span>
+            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>No eligible legs available</span>
           </div>
         )}
       </div>

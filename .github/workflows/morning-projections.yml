@@ -265,6 +265,15 @@ jobs:
           # BallDontLie key is upgraded to a tier that includes /stats — then the
           # (working) /players?search resolver + stats fetch produce real NBA data.
           ENABLE_BALLDONTLIE_FALLBACK: ${{ vars.ENABLE_BALLDONTLIE_FALLBACK || 'false' }}
+          # ── NBA LEGACY HALF DE-SCHEDULED (v1.7 NBA readiness, docs/V17_NBA_READINESS_RECEIPT.md,
+          # cleanup receipt 2026-09-22) ─────────────────────────────────────────────────────────
+          # The orchestrator's step 3/4 is the stats.nba.com / nba_api board generator, dead from
+          # CI since 2026-06-13: every run writes an empty `ScheduleUnavailable` board and a
+          # meta.json whose only consumer was the footer's "last refresh" stamp (now the build
+          # marker). The orchestrator already honours SKIP_NBA; it is set unless the repository
+          # variable NBA_LEGACY_REFRESH=true. The MLB half (step 4/4) is untouched. The
+          # replacement NBA path is the ESPN-based internal research track in sport-schedules.yml.
+          SKIP_NBA: ${{ vars.NBA_LEGACY_REFRESH == 'true' && '0' || '1' }}
         run: bash scripts/automation_projections.sh
 
       - name: Set up Node (health gate)

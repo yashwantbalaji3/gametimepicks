@@ -1,5 +1,5 @@
 /**
- * DailyPortfolioSection — Mr. Dub's "Today's paper portfolio": the day's four model-built CANDIDATE
+ * DailyPortfolioSection — Mr. Dub's "Today's paper portfolio": the day's four market-built CANDIDATE
  * lanes (Bank Builder A/B + Moonshot A/B) plus a summary stat row.
  *
  * Honest by construction: candidates place NO exposure ($0 placed · not activated) — open exposure,
@@ -20,6 +20,7 @@ import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-prop
 import type { StrongestPick } from "@/lib/world-cup/structured-moonshot";
 import type { BankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import type { DailyPortfolio, DailyPortfolioCard, DailyPortfolioLeg } from "@/lib/mr-dub/daily-portfolio";
+import ProbabilityBasisChip, { MarketConstructionLabel } from "@/components/products/probability-basis-chip";
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -109,6 +110,8 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-crown-warm)", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
           ) : null}
         </div>
+        {/* F1 Option A: a card built from market-priced legs is a market construction, and says so. */}
+        <MarketConstructionLabel basis={card.jointProbabilityBasis} />
       </div>
 
       <div className="flex flex-col flex-1">
@@ -123,13 +126,16 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
                   <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 11.5, fontWeight: 600 }}>{leg.selection}</span>
                   <OddsPill odds={leg.odds} size="sm" tone={moonshot ? "violet" : "gold"} />
                 </div>
-                <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{leg.matchup} · {leg.marketLabel}</span>
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{leg.matchup} · {leg.marketLabel}</span>
+                  <ProbabilityBasisChip basis={leg.probabilityBasis} />
+                </span>
               </div>
             </div>
           ))
         ) : (
           <div className="px-3.5 py-3">
-            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>No model-qualified legs available</span>
+            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>No eligible legs available</span>
           </div>
         )}
       </div>
@@ -156,14 +162,15 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
   );
 }
 
-/** Polished "model skipped" placeholder for a flagship product that fielded no qualified lane today —
- *  never a blank slot, and honest about WHY (the model declined rather than forcing a weak card). */
+/** Polished no-play placeholder for a flagship product that fielded no qualified lane today — never a
+ *  blank slot, and honest about WHY. F1 Option A: these products build from market prices, so the reason
+ *  is a price shortfall on the slate, never "the model" declining. */
 function SkippedProductCard({ product }: { product: "bank-builder" | "moonshot" }) {
   const label = product === "bank-builder" ? "Bank Builder" : "Moonshot";
   const reason =
     product === "bank-builder"
-      ? "No 2-leg team-market combo cleared the model's ladder-step target on today's thin knockout slate — the model skipped it instead of forcing a weak ladder off low-value player props."
-      : "No qualified longshot card cleared the +700 floor with a coherent story today — the model is holding rather than forcing a thin moonshot.";
+      ? "No 2-leg team-market combo on today's slate reaches this step's price at the card's risk rules — no card is published rather than forcing a weak one."
+      : "No two-leg card from different games reaches the rung's price today — the ladder waits rather than force one.";
   return (
     <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px dashed var(--vault-rule)", background: "color-mix(in srgb, var(--lava-bg) 30%, transparent)", borderLeft: `2px solid ${product === "moonshot" ? "var(--product-moonshot-mid)" : "var(--vault-gold-bright)"}` }}>
       <div className="px-3.5 py-3 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
@@ -180,7 +187,7 @@ function SkippedProductCard({ product }: { product: "bank-builder" | "moonshot" 
 }
 
 export default function DailyPortfolioSection({ portfolio, bankBuilderAlternatives = [], bankBuilderProposal }: { portfolio: DailyPortfolio; bankBuilderAlternatives?: StrongestPick[]; bankBuilderProposal?: BankBuilderProposal }) {
-  // Flagship products that fielded no lane today get a polished "model skipped" state — never a blank slot
+  // Flagship products that fielded no lane today get a polished no-play state — never a blank slot
   // (the product state is always legible). Bank Builder gets the PREMIUM skipped card (with alternatives).
   // When the operator has approved a Bank Builder ladder, show the rich approved card (per-leg live status)
   // and drop the generic BB lane cards from the grid so the two never duplicate.
@@ -205,7 +212,7 @@ export default function DailyPortfolioSection({ portfolio, bankBuilderAlternativ
       </div>
 
       {/* Lane cards — 2×2 on desktop, single column on mobile. A flagship product with no lane today shows
-          a polished "model skipped" placeholder rather than vanishing. */}
+          a polished no-play placeholder rather than vanishing. */}
       {/* Approved Bank Builder = the active paper ladder (rich card, per-leg status), shown above the grid. */}
       {bbApproved && bankBuilderProposal ? <BankBuilderProposalCard proposal={bankBuilderProposal} /> : null}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">

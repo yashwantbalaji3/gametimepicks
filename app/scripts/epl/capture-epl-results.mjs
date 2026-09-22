@@ -5,7 +5,20 @@
  * THE HONEST EMPTY STATE: before the first completed 2026-27 league fixture this artifact is
  * state NO_RESULTS_YET with FRESH stamps and zero rows — never a failure, never 0-0 scores,
  * never a fabricated matchweek. A source failure writes NOTHING (last-known-good stands) and
- * exits 0 with SOURCE_STALE on stdout — an outage must never look like an empty slate.
+ * prints SOURCE_STALE — an outage must never look like an empty slate.
+ *
+ * ── A SOURCE FAILURE IS NOT A GREEN RUN (v1.7 F2 evidence repair, G2) ─────────────────────────
+ *
+ * This script used to exit 0 on SOURCE_STALE. From 2026-09-16T01:06Z (epl-settle run 35042672207)
+ * every nightly run printed "SOURCE_STALE: eng.1 scoreboard unavailable (no events array)" and
+ * exited 0; the workflow stayed green for seven nights while ~23 P304 forecasts of record went
+ * ungraded and results/latest.json froze at 2026-09-15T01:10:22Z. The provider had not gone down:
+ * ESPN stopped honouring the DATE-RANGE form of the scoreboard query (`dates=YYYYMMDD-YYYYMMDD`
+ * → HTTP 400 "Failed to get events endpoint."), while the single-day (`dates=YYYYMMDD`) and
+ * month (`dates=YYYYMM`) forms still return 200. This script now asks month by month from the
+ * season start, and a provider failure exits EXIT_SOURCE_STALE (4) with nothing written, so the
+ * workflow can carry it past the commit step and raise it — distinguishable from a crash (1) and
+ * from a quiet matchday (0).
  *
  * Rows keep RAW provider statuses; grading happens downstream through the FT-only settlement
  * contract, joined by the canonical kickoff-based event identity — never by fuzzy names.
@@ -16,6 +29,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { EXIT_SOURCE_STALE, scoreboardMonths, inCaptureWindow } from "../../src/lib/soccer/epl-results-capture.mjs";
+
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = path.join(APP, "public", "data", "soccer", "epl", "results");
 
@@ -24,24 +39,34 @@ const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const SEASON_START = arg("--season-start", "2026-08-21");
 
-const fmt = (d) => d.toISOString().slice(0, 10).replaceAll("-", "");
-const from = fmt(new Date(Date.parse(`${SEASON_START}T00:00:00Z`)));
-const to = fmt(new Date(Date.parse(NOW)));
-const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=${from}-${to}&limit=1000`;
+const SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard";
 
 let data = null;
+const sourceRequests = [];
 if (Date.parse(NOW) < Date.parse(`${SEASON_START}T00:00:00Z`)) {
   data = { events: [] }; // the season has not started — an empty window is the truth, no fetch needed
 } else {
   try {
-    const res = await fetch(url);
-    const body = await res.text();
-    const parsed = JSON.parse(body);
-    if (!Array.isArray(parsed.events)) throw new Error("no events array");
-    data = parsed;
+    const byId = new Map();
+    for (const month of scoreboardMonths(SEASON_START, NOW)) {
+      const url = `${SCOREBOARD}?dates=${month}&limit=1000`;
+      const res = await fetch(url);
+      const body = await res.text();
+      if (!res.ok) throw new Error(`dates=${month} → HTTP ${res.status} ${body.slice(0, 60)}`);
+      const parsed = JSON.parse(body);
+      if (!Array.isArray(parsed.events)) throw new Error(`dates=${month} → no events array`);
+      let kept = 0;
+      for (const e of parsed.events) {
+        if (!inCaptureWindow(e?.date, SEASON_START, NOW)) continue;
+        byId.set(String(e.id ?? ""), e);
+        kept += 1;
+      }
+      sourceRequests.push({ month, events: parsed.events.length, inWindow: kept });
+    }
+    data = { events: [...byId.values()] };
   } catch (err) {
-    console.log(`SOURCE_STALE: eng.1 scoreboard unavailable (${String(err?.message ?? err).slice(0, 80)}) — last-known-good artifact stands, nothing written`);
-    process.exit(0);
+    console.log(`SOURCE_STALE: eng.1 scoreboard unavailable (${String(err?.message ?? err).slice(0, 120)}) — last-known-good artifact stands, nothing written`);
+    process.exit(EXIT_SOURCE_STALE);
   }
 }
 
@@ -127,7 +152,7 @@ const artifact = {
   sourceAsOf: NOW,
   state: completed.length > 0 ? "RESULTS" : Date.parse(NOW) < Date.parse(`${SEASON_START}T00:00:00Z`) ? "PRESEASON" : "NO_RESULTS_YET",
   seasonStart: SEASON_START,
-  source: { id: "espn_scoreboard", name: "ESPN eng.1 public scoreboard", license: "public JSON endpoint, no key; point-in-time snapshot with attribution" },
+  source: { id: "espn_scoreboard", name: "ESPN eng.1 public scoreboard", license: "public JSON endpoint, no key; point-in-time snapshot with attribution", requestForm: "dates=YYYYMM per month (the date-range form returns HTTP 400 since 2026-09-16)", requests: sourceRequests },
   rowCount: allRows.length,
   completedCount: completed.length,
   /* Published, not silent: a capture that quietly preserved rows would be indistinguishable

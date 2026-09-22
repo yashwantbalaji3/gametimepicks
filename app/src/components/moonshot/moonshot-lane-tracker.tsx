@@ -73,10 +73,13 @@ function cardStatusPill(result?: string): TicketStatus {
 }
 
 export default function MoonshotLaneTracker({
-  lane, record, exposure, running, mode = "full", maxCards, showHistory = true, nowIso, settledOutcomes,
+  lane, record, recordLabel, exposure, running, mode = "full", maxCards, showHistory = true, nowIso, settledOutcomes,
 }: {
   lane: MoonshotLane;
   record?: { wins: number; losses: number; voids: number; pending: number };
+  /** Founder decision 2026-09-22: the record names its era and sample (e.g. "Moonshot 4–33 · since
+   *  2026-08-15 · settled receipts"), from the one Moonshot state owner. Falls back to a bare "Record". */
+  recordLabel?: string;
   exposure?: number;
   /** P250 · A01: outcomes the lifecycle ledger has graded, keyed by the lane's own cardId. The
    *  settler never rewrites the lane artifact (it feeds the protected bankroll), so without this
@@ -115,7 +118,7 @@ export default function MoonshotLaneTracker({
   // This tracker reads the LEGACY lane store (moonshot-lane/active.json), whose cards predate the ladder.
   // The live product is the three-day ladder on the daily portfolio; this block keeps the old record.
   const summary: Array<[string, string]> = [
-    ["Record", recordStr],
+    [recordLabel ? recordLabel.replace(/^Moonshot \S+ · /, "Record · ") : "Record", recordStr],
     ["Exposure", usd(exp)],
     ["Style", "Fast ladder · $25 → $1,000"],
   ];

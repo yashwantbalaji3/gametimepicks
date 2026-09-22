@@ -11,7 +11,7 @@
  *
  *   MLB teams  mlb/statsapi-schedule/*.json   { id, name }        — StatsAPI team id, 30 clubs
  *   NFL teams  nfl/rosters/latest.json        { teamAbbr, providerTeamId } — ESPN team id, 32 clubs
- *              nfl/forecasts/*.json           { abbr, name }      — joined on the ESPN abbreviation
+ *              nfl/forecasts/*.json           { abbr, name }      — joined on the ESPN abbreviation (EVERY dated file + the two windows)
  *
  * FAIL CLOSED. A name or abbreviation that resolves to zero ids, or to more than one, resolves to
  * null — and a page that gets null renders no Follow control rather than a guessed one.
@@ -89,7 +89,18 @@ function build(): { mlb: TeamEntry[]; nfl: TeamEntry[] } {
     if (typeof t?.teamAbbr === "string" && t?.providerTeamId !== undefined) nflIdByAbbr.set(t.teamAbbr, String(t.providerTeamId));
   }
   const nflNameByAbbr = new Map<string, string>();
-  for (const rel of ["nfl/forecasts/latest.json", "nfl/forecasts/frozen-latest.json"]) {
+  /* Names come from EVERY published forecast file, oldest dated file first and the two rolling
+     windows last (so the newest spelling wins). Reading only latest.json + frozen-latest.json named
+     the clubs of the current WINDOW — on the Tuesday after Week 3 that was one finished game (ATL,
+     GB) and an empty frozen file, so 30 clubs silently left the registry and every anti-vacuity
+     guard on it went red (R1/R2, quality-gate on main 2026-09-22). A rolling window's omission is
+     not a club's absence; the season's published artifacts are the owner this registry claims. */
+  let forecastFiles: string[] = [];
+  try {
+    forecastFiles = fs.readdirSync(path.join(dataDir(), "nfl/forecasts"))
+      .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().map((f) => `nfl/forecasts/${f}`);
+  } catch { forecastFiles = []; }
+  for (const rel of [...forecastFiles, "nfl/forecasts/latest.json", "nfl/forecasts/frozen-latest.json"]) {
     const j = readJson(path.join(dataDir(), rel));
     for (const e of j?.events ?? j?.forecasts ?? []) {
       for (const side of [e?.home, e?.away]) {

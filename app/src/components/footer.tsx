@@ -2,6 +2,7 @@ import path from "node:path";
 
 import Link from "next/link";
 import { getMeta } from "@/lib/data";
+import { buildInfoFromEnv } from "@/lib/build-clock";
 import { formatTimestamp } from "@/lib/format";
 import FooterFreshness from "./footer-freshness";
 import BrandMark from "./brand-mark";
@@ -24,6 +25,7 @@ const FOOTER_DESTINATIONS = destinationsFor("footer");
 
 export default function Footer() {
   const meta = getMeta();
+  const build = buildInfoFromEnv();
   /*
    * Support is fail-closed by design: SupportEntry returns null unless a real destination is
    * configured. Wrapping it in an unconditional <li> therefore shipped an EMPTY list item into the
@@ -234,15 +236,21 @@ export default function Footer() {
           {/* P251-F12: the "version 0.5.0" chip was the legacy meta.json's app version — a number
               that has not moved in months and means nothing to a reader. Freshness and the last
               refresh are the two facts on this row a visitor can act on. */}
+          {/* v1.7 (2026-09-22): "last refresh" was `meta.lastPipelineRun` — the clock of the LEGACY
+              NBA board generator (stats.nba.com, dead from CI since June; meta.json says
+              dataMode ScheduleUnavailable). Every page stamped itself with a pipeline that
+              produces nothing. The build marker is the one sitewide fact that is true of every
+              page at once: the export is exactly as fresh as its build, and each product states
+              its own artifact date where it matters (product-state.mjs). */}
           <span>
-            last refresh{" "}
+            last build{" "}
             <span style={{ color: "var(--vault-text-mute)" }}>
-              {formatTimestamp(meta.lastPipelineRun)}
+              {build?.builtAt ? formatTimestamp(build.builtAt) : "unknown"}
             </span>
           </span>
           <span className="inline-flex items-center gap-1">
             <span>freshness</span>{" "}
-            <FooterFreshness lastRun={meta.lastPipelineRun} />
+            <FooterFreshness lastRun={build?.builtAt ?? null} />
           </span>
         </div>
 

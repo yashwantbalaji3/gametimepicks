@@ -168,3 +168,57 @@ migration is opt-in and idempotent; Bank Builder / Moonshot user staking state i
    `app/scripts/build-active-builder-slip.mjs` (the session could not delete files).
 5. Optional: add a permission rule allowing pushes to `main` from this session type if you want future
    overnight sessions to land CI-green work themselves.
+
+---
+
+## K. Production verification (2026-09-22, after the founder merged PR #627)
+
+**`V1.7 FOUNDATION — PUBLIC AND VERIFIED`**
+
+| | |
+|---|---|
+| Merge | PR #627 merged 2026-09-22T13:40:41Z as `441fefa4b` (parents `442a04d5c` main, `935493d7c` branch head) |
+| Production SHA (`/data/build-info.json`) | `20a19a672cf75eb26a2d8cb64c3375be6e0e162b` · builtAt `2026-09-22T14:22:12.832Z` · environment vercel · message "auto: mlb daily production slate 2026-09-22 [skip ci]" |
+| Ancestry (git) | `441fefa4b`, `935493d7c`, `7d79f38da`, `07dd568ec` are all ancestors of `20a19a672` (`git merge-base --is-ancestor`); all 25 branch commits are contained. `origin/main` at verification `f2c613dab` (one data commit past production: "auto: daily products 2026-09-22") |
+| Deployment evidence (GitHub deployments API, Vercel-created) | `441fefa4b` deployment 6592833224 success (record 14:17:42Z; ≈37 min after merge — matches the founder's 36m52s); `20a19a672` deployment 6593060543 success 14:28:13Z. Failures today: `e545b33fb` (nightly settle 09:25 ET) → `npx vercel inspect dpl_6RvVdMtDxN2ouhekUm8iYCVHM13a --logs`; `1b72585a1` (mlb slate) → `npx vercel inspect dpl_GvugNcRFNRB5sdinKD3BbjDaJWsu --logs` (Phase 3 audit) |
+| `/bank-builder/` | "Today's eligible universe · 2026-09-21" (built before the 14:22Z daily-products commit; refreshes on the next deploy), "priced by the sportsbook market with no forecast behind it", **Record 36–35** (the protected record after the 09-21 settlement — the same number on every surface), "Live today"; no "Model pass" / "model discipline" / banned strings |
+| `/moonshot/` | eligible universe + caveat; "high variance"; no banned strings |
+| `/mr-dub/` | "The record, as settled · The $100 → $10K ladders"; "Bank Builder 36 – 35"; "$16,040 paper profit"; no "$19.5K" / "proven" |
+| `/results/` | explorer carries the Moonshot signature-product row (`source: product-ledger/moonshot.json`, 0–7 legacy era) — the row no longer disappears (C2). The hub tile still prints "Road to $10K completed 5–0" and "Settled record 0-7 · separate paper lane" — addressed under the founder's Moonshot-era decision (§L) |
+| Off-day state | not observable today (games exist); `NO_EVENTS` is in the deployed code and pinned by `product-state.test.mjs` (10/0) |
+| Public assets | `/data/build-info.json` 200 · `/data/search/index.json` 200 · `/data/products/availability/latest.json`, `/data/mr-dub/*.json`, `/data/product-ledger/moonshot.json`, `/data/bank-builder/summary-latest.json` all 404 (read at build time, pruned from the export by design) |
+| Live selector / registry on `main` | `bank-builder@1` / `moonshot@2` (policies.mjs unchanged); `MARKET_PRICED_LEG_POLICY.state = ADMITTED_PENDING_FOUNDER_DECISION`; NBA `HISTORICAL_ONLY` |
+| Shadow after merge | `daily-products` run 35739675416 (14:20Z, `workflow_run`) built `eligible-legs/2026-09-22.json` and `selector-shadow/2026-09-22.json` at asOf `2026-09-22T14:22:27Z` with **96 eligible legs** (universe sha `2f1a9e2e…`); BB-LEGACY / BB-C1 / BB-C2b placed both lanes (A step 2), MS-* `NO_QUALIFYING_PLAY`. The 13:32Z run (pre-merge code) had no shadow step; no roll-time publication occurred (`nightly-settle` runs 35713168639 … 35738373269 grade/roll only). The premature-publication defect is absent; forward evidence accumulates from 2026-09-22. |
+
+## L. Daytime session (after production verification) — founder decisions implemented, operational audit
+
+Branch `v17-bankbuilder-moonshot-multisport`, PR https://github.com/yashwantbalaji3/gametimepicks/pull/628 (CI result in §M).
+
+### L1. Founder decisions → code (no selection logic, policy constant, registry or model status changed)
+| Decision | Implemented | Commit |
+|---|---|---|
+| **F1 = Option A** (market constructions, truthful labels) | published legs carry `probabilityBasis` (`market-implied` / `model` / null — never assumed) and `impliedProbability` (honest name; `modelConfidence` kept `@deprecated` for settled receipts); cards carry `jointProbabilityBasis`; every Play surface shows "Market construction · priced by the sportsbook market · what the prices imply, not a prediction" and a per-leg "Market-implied" chip; "model-qualified" / "the model skipped" / "model N%" wording removed; `v17-market-construction-labels.test.mjs` (7) + copy guard extended | `8a493afa8` |
+| **F2 = HOLD** (evidence defects fixed only) | EPL results capture had stalled since 2026-09-15 (ESPN `dates=A-B` → 400, capture exited 0 → green); month-form capture, exit 4 on provider failure, `epl-settle` turns a refused capture red; P304 track record split by model (v1's 36 rows no longer counted as P304's); `grade-epl-forecasts.mjs` now writes the `control` / `shadowTotals` blocks the forward receipt requires; the 10 stalled P304 fixtures graded from official finals → **forward n 10 of 60, ACCUMULATING** (was 0) — `docs/V17_EPL_EVIDENCE_REPAIR.md` | `4efe54179` |
+| **F3 = explicit NO_PLAY** | already shipped in v1.7 (`NO_EVENTS` state + price-based no-play copy); Mr. Dub / today no-play copy repointed in the F1 commit | — |
+| **Moonshot eras** | `displayRecord` = the receipt/fold-era record (**4–33 since 2026-08-15**, read from the fold marker); the June 2026 ledger (0–7) is `legacyRecord` behind a labelled `<details>` on /moonshot, /mr-dub, /results and the trust center; the explorer keeps ONE Moonshot row (a second row would sum the eras) | `8a493afa8` |
+
+### L2. Broken automation found and fixed (all green loudly, nobody looked)
+- **ESPN dropped the scoreboard date-range form on 2026-09-20** (`400 Failed to get events endpoint.`). Three captures broke at once: NFL schedule and NBA schedule (`sport-schedules.yml` refused daily; runs 35513825563, 35621730109, 35737261812) and EPL results (exit 0 → green). One shared month-window plan (`src/lib/sports/espn-scoreboard-window.mjs`, unit-tested) now serves all three; live dry-runs 16 NFL / 370 NBA events. Commits `0c8b0f56a`, `4efe54179`.
+- **`quality-gate` was red on `main` from the v1.7 merge onward** (run 35735059397) on data alone: after Week 3 the NFL forecast windows held one finished game (`latest.json`) and nothing (`frozen-latest.json`), so the Follow entity registry — which named clubs from the WINDOW — resolved 2 of 32 clubs (R1/R2 red; 30 clubs unfollowable on the site). The registry now unions every dated `nfl/forecasts/*.json`. MF1 demanded a live matchup without a forecast to prove non-vacuity — false on a Tuesday when every listed game has a report; proved by probe instead. Commit `0693d290a`.
+- **Doubleheader share card claimed the homepage**: the TB @ NYY disambiguation stub (first doubleheader since the built og:url guard) inherited the layout's root `og:url`; it now names its own URL (still noindex, no canonical). Commit `bd359354d`.
+- **Sitewide "last refresh" was the dead NBA pipeline's clock** (`meta.lastPipelineRun`, dataMode `ScheduleUnavailable`): the footer now shows the build marker, the methodology page drops its "legacy pipeline run" badge, and with that coupling gone the NBA half of `morning-projections` is gated (`SKIP_NBA` unless `vars.NBA_LEGACY_REFRESH`). Commit `3d1da0cd2`.
+- Shadow report regenerated nightly after grading (`nightly-settle`), never hand-kept. Commit `e5efbf42b`.
+
+### L3. Deploy-trigger audit — `docs/V17_DEPLOY_TRIGGER_AUDIT.md` (commit `8f6d8fd6c`)
+- `[skip ci]` never reaches Vercel; only `vercel-ignore-build.sh`'s diff decides. 7 days: 503 pushes → 445 builds (53 CODE, 361 DATA, 89 SKIP); every DATA build touched a real build input (337 build-time fs readers bake `app/public/data` into HTML) — **0 unnecessary builds**; a keep-set-aware skip was evaluated and **rejected** (it would have skipped 332 real builds and served stale pages).
+- The 15 failures since Sep 18 (0/240 before, 15/206 after) sit in a 46.0–46.4-min band = the **45-min Vercel build ceiling**; local cold build is 117 s for 2,474 pages, so the time is not in our steps — prime suspect the 1.4 GB / 6,667-file export upload (`/mlb` alone 628 MB). **Only the Vercel logs can close this**: the audit lists 14 `npx vercel inspect <dpl> --logs` commands for the founder.
+- 53% of builds are superseded before completion (Vercel cancels only queued builds); coalescing sibling bot pushes is the lever.
+- Latent hole closed: the build also reads `data/*-projection/` and three `data/internal` paths that the `app/`-only pathspec never saw (fail-toward-build, +4 mutation tests, 0 stale events / 0 extra builds this week).
+
+### L4. Gate on the final daytime tree (`bd359354d`)
+lint 0 · unit **6,972 / 0** · tsc 0 · build OK (prune 3,122 files / 981.4 MB) · post-build **606 / 0** (the doubleheader og:url guard now passes). Built export: /bank-builder, /moonshot, /mr-dub carry "Market construction · priced by the sportsbook market · what the prices imply, not a prediction" with per-leg "Market-implied" chips; /moonshot, /mr-dub, /results print "Moonshot 4–33 · since 2026-08-15 · settled receipts" with the June 0–7 era behind a labelled legacy detail; the footer reads "last build …"; no "model-qualified" / "Model pass" / "model discipline" / "$19.5K" / "proven" anywhere on the Play surfaces.
+
+### M. What the founder needs to do next (daytime)
+1. **Merge PR #628** (CI status in the chat report) — it carries the founder-decision implementation, the three ESPN-capture repairs, the main-gate repair (R1/R2/MF1), the NBA legacy-pipeline retirement, the EPL evidence repair and the deploy audit. Until it merges, `quality-gate` on `main` stays red on the Tuesday data state and the NFL/NBA/EPL captures keep refusing.
+2. **Run the 14 `npx vercel inspect <dpl> --logs` commands** in `docs/V17_DEPLOY_TRIGGER_AUDIT.md` (needs your Vercel login) and paste the build-step timings back; that is the only way to see where the 45 minutes go on the failing builds. Nothing in the repo's own steps takes more than ~2 minutes cold.
+3. Nothing else is gated on you today. F1/F2/F3 and the Moonshot-era decision are recorded and implemented; the shadow keeps accumulating (first graded day 2026-09-21; 2026-09-22 published at 14:22Z); NBA remains `HISTORICAL_ONLY`.

@@ -32,8 +32,17 @@ const round = (x, n = 6) => (x == null ? null : Number(x.toFixed(n)));
  * @param rows  graded-forecasts.jsonl entries, newest or oldest first — order is irrelevant
  * @param opts.minSample  override only for testing the boundary itself
  */
-export function buildEplLearningReport(rows, { minSample = MIN_SAMPLE_FOR_COMPARISON } = {}) {
+export function buildEplLearningReport(rows, { minSample = MIN_SAMPLE_FOR_COMPARISON, liveModelId = null } = {}) {
   const graded = (rows ?? []).filter((r) => r?.scores && Number.isFinite(r.scores.logLoss));
+  /*
+   * v1.7 F2 (G1): the ledger is shared by every model that has published, so the figures below are
+   * the LEDGER's, scope ALL_MODELS — and they are labelled so. The per-model buckets are what may be
+   * attributed to a model; the live model's bucket is null at n = 0, never a 0.0 figure.
+   */
+  const byModel = splitByModel(graded, minSample);
+  const liveModel = liveModelId
+    ? (byModel[liveModelId] ?? emptyModelBucket(liveModelId, minSample))
+    : null;
   const paired = graded.filter((r) => r?.market?.scores && Number.isFinite(r.market.scores.logLoss));
 
   const modelAll = { n: graded.length, logLoss: round(mean(graded.map((r) => r.scores.logLoss))), brier: round(mean(graded.map((r) => r.scores.brier))) };
@@ -81,7 +90,10 @@ export function buildEplLearningReport(rows, { minSample = MIN_SAMPLE_FOR_COMPAR
   }
 
   return {
-    sample: { graded: graded.length, pairedWithMarket: paired.length, minSampleForComparison: minSample },
+    sample: { graded: graded.length, pairedWithMarket: paired.length, minSampleForComparison: minSample, scope: "ALL_MODELS" },
+    /* The live model's own record, and every model's, by the modelId on each graded row. */
+    liveModel,
+    byModel,
     coverage: {
       paired: paired.length,
       unpaired: { total: unpaired.length, byCause },
@@ -91,6 +103,38 @@ export function buildEplLearningReport(rows, { minSample = MIN_SAMPLE_FOR_COMPAR
     comparison: { ...comparison, onPairedMatches: { model, market, logLossDelta, brierDelta } },
     stoppingRule: stoppingRule(paired.length, logLossDelta, minSample),
   };
+}
+
+/** One model's bucket: n, its means, and its market comparison over ITS paired rows only. Null figures at n = 0. */
+function modelBucket(modelId, rows, minSample) {
+  const paired = rows.filter((r) => r?.market?.scores && Number.isFinite(r.market.scores.logLoss));
+  const model = { logLoss: round(mean(paired.map((r) => r.scores.logLoss))), brier: round(mean(paired.map((r) => r.scores.brier))) };
+  const market = { logLoss: round(mean(paired.map((r) => r.market.scores.logLoss))), brier: round(mean(paired.map((r) => r.market.scores.brier))) };
+  const logLossDelta = model.logLoss != null && market.logLoss != null ? round(model.logLoss - market.logLoss) : null;
+  return {
+    modelId,
+    n: rows.length,
+    logLoss: round(mean(rows.map((r) => r.scores.logLoss))),
+    brier: round(mean(rows.map((r) => r.scores.brier))),
+    pairedWithMarket: paired.length,
+    comparison: paired.length === 0
+      ? { state: "NO_PAIRED_MATCHES" }
+      : paired.length < minSample
+        ? { state: "SAMPLE_TOO_SMALL", onPairedMatches: { model, market, logLossDelta } }
+        : { state: logLossDelta < 0 ? "MODEL_AHEAD" : logLossDelta > 0 ? "MODEL_BEHIND" : "LEVEL", onPairedMatches: { model, market, logLossDelta } },
+  };
+}
+function emptyModelBucket(modelId, minSample) { return modelBucket(modelId, [], minSample); }
+function splitByModel(graded, minSample) {
+  const groups = new Map();
+  for (const r of graded) {
+    const id = typeof r.modelId === "string" && r.modelId ? r.modelId : "UNATTRIBUTED";
+    if (!groups.has(id)) groups.set(id, []);
+    groups.get(id).push(r);
+  }
+  const out = {};
+  for (const id of [...groups.keys()].sort()) out[id] = modelBucket(id, groups.get(id), minSample);
+  return out;
 }
 
 /**

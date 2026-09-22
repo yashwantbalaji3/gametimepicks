@@ -16,7 +16,11 @@ const walk = (dir) => { const out = []; for (const e of fs.readdirSync(path.join
 const SURFACES = ["src/app/bank-builder/page.tsx", "src/app/moonshot/page.tsx", "src/app/mr-dub/page.tsx", ...walk("src/components/bank-builder"), ...walk("src/components/moonshot"), ...walk("src/components/mr-dub"), "src/components/achievement-banner.tsx", "src/components/ladders/product-lanes-ladder.tsx", "src/components/products/eligible-universe.tsx"];
 
 /** Claims no owner supports (audit A6). Word-bounded so "improve" / "unproven" stay legal. */
-const BANNED = [/\bproven\b/i, /lock(s|ed|ing)? (in )?profit/i, /\$19\.5K/, /the model holds/i, /\bguaranteed\b/i, /\bsure thing\b/i, /\bbanker\b/i, /\bcan'?t lose\b/i];
+const BANNED = [/\bproven\b/i, /lock(s|ed|ing)? (in )?profit/i, /\$19\.5K/, /the model holds/i, /\bguaranteed\b/i, /\bsure thing\b/i, /\bbanker\b/i, /\bcan'?t lose\b/i,
+  /* F1 Option A (founder decision 2026-09-22): the products build from market prices, so no Play surface may
+     attribute a leg, a card or a no-play to "the model". The full labelling contract is pinned in
+     v17-market-construction-labels.test.mjs. */
+  /model confidence/i, /model-qualified legs/i, /model bar\b/i, /model discipline/i, /the model skips/i, /model skipped/i, /the model's ladder/i];
 
 test("no unsupported performance claim in the Play surfaces' rendered strings", () => {
   for (const rel of SURFACES) {

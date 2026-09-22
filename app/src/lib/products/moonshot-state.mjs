@@ -186,6 +186,28 @@ export function moonshotTodayCounts(cards) {
   };
 }
 
+/** The two Moonshot record populations. They are reported side by side and never summed. */
+export const MOONSHOT_ERAS = Object.freeze({
+  RECEIPTS: "receipts", // receipt-era lanes graded nightly from official results, in the protected bankroll since `inBankrollSince`
+  LEGACY: "legacy",     // the June 2026 product ledger: seven multi-leg cards, 2026-06-23 → 07-06
+});
+
+const dash = (rec) => `${rec.wins}–${rec.losses}${rec.voids ? `–${rec.voids}` : ""}`;
+
+/**
+ * The record label a surface prints: names the product, the era and the sample. Dates come from the
+ * record itself (the fold's `inBankrollSince`, the ledger's first/last row) — never hardcoded.
+ *   receipts → "Moonshot 4–33 · since 2026-08-15 · settled receipts"
+ *   legacy   → "Legacy era (June 2026, 7 cards) 0–7 · 2026-06-23 … 2026-07-06"
+ */
+export function moonshotRecordLabel(rec) {
+  if (!rec) return null;
+  if (rec.era === MOONSHOT_ERAS.RECEIPTS) return `Moonshot ${dash(rec)}${rec.fromDate ? ` · since ${rec.fromDate}` : ""} · settled receipts`;
+  const settled = rec.settled ?? (rec.wins ?? 0) + (rec.losses ?? 0) + (rec.voids ?? 0);
+  const month = rec.fromDate ? new Date(`${rec.fromDate}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }) : null;
+  return `Legacy era (${month ? `${month}, ` : ""}${settled} card${settled === 1 ? "" : "s"}) ${dash(rec)}${rec.fromDate ? ` · ${rec.fromDate}${rec.throughDate && rec.throughDate !== rec.fromDate ? ` … ${rec.throughDate}` : ""}` : ""}`;
+}
+
 /**
  * @param {object}      args
  * @param {object|null} args.lane                  moonshot-lane/active.json
@@ -235,7 +257,21 @@ export function deriveMoonshotState({
     );
   }
 
-  // The two record sources, reported side by side rather than reconciled by fiat.
+  /*
+   * TWO ERAS, NOT TWO OPINIONS (founder decision 2026-09-22 · Moonshot legacy era).
+   *
+   * `product-ledger/moonshot.json` is the June 2026 ledger: seven multi-leg cards, 2026-06-23 → 07-06,
+   * settled per card. `mr-dub/portfolio.json .moonshot` is the receipt/fold era: every lane settled
+   * since the product entered the protected bankroll (`inBankrollSince`, written by the Rule S fold),
+   * graded nightly from official results — the moonshot@2 two-leg rung cards and the pre-@2 lanes
+   * before them. They are different populations — a June eight-leg same-game card and a September
+   * two-leg rung card are not the same product — so they are reported
+   * as two eras and NEVER summed into one headline. The fold era is the CURRENT record; the June
+   * ledger is a labelled legacy detail.
+   *
+   * A pre-fold portfolio block (the single World Cup card, no `inBankrollSince`) is not the fold era
+   * and never becomes the current record: without the era marker the legacy ledger is shown, as legacy.
+   */
   const ledgerResults = Array.isArray(productLedger?.results) ? productLedger.results : null;
   const ledgerRecord = ledgerResults
     ? {
@@ -247,27 +283,41 @@ export function deriveMoonshotState({
         source: "product-ledger/moonshot.json",
         fromDate: ledgerResults.map((r) => r.date).filter(Boolean).sort()[0] ?? null,
         throughDate: ledgerResults.map((r) => r.date).filter(Boolean).sort().at(-1) ?? null,
+        era: MOONSHOT_ERAS.LEGACY,
       }
     : null;
 
   const pr = portfolioMoonshot?.record;
+  const foldEra = typeof portfolioMoonshot?.inBankrollSince === "string" && /^\d{4}-\d{2}-\d{2}$/.test(portfolioMoonshot.inBankrollSince);
   const portfolioRecord = pr
     ? {
         wins: pr.wins ?? 0,
         losses: pr.losses ?? 0,
+        voids: pr.voids ?? 0,
         settled: (pr.wins ?? 0) + (pr.losses ?? 0) + (pr.voids ?? 0),
         pending: pr.pending ?? 0,
         source: "mr-dub/portfolio.json .moonshot",
+        fromDate: foldEra ? portfolioMoonshot.inBankrollSince : null,
+        era: foldEra ? MOONSHOT_ERAS.RECEIPTS : MOONSHOT_ERAS.LEGACY,
       }
     : null;
 
-  if (ledgerRecord && portfolioRecord && ledgerRecord.settled !== portfolioRecord.settled) {
+  if (ledgerRecord && portfolioRecord) {
     contradictions.push(
-      `two settled counts for one product: ${portfolioRecord.source} says ${portfolioRecord.settled}, ` +
-      `${ledgerRecord.source} says ${ledgerRecord.settled}` +
-      `${ledgerRecord.fromDate ? ` (${ledgerRecord.fromDate} … ${ledgerRecord.throughDate})` : ""}`,
+      foldEra
+        ? `two eras, not one record: ${portfolioRecord.source} counts ${portfolioRecord.settled} settled receipt-era lanes since ${portfolioRecord.fromDate} (the current record, graded nightly from official results); ` +
+          `${ledgerRecord.source} counts ${ledgerRecord.settled} settled June 2026 legacy cards` +
+          `${ledgerRecord.fromDate ? ` (${ledgerRecord.fromDate} … ${ledgerRecord.throughDate})` : ""} — a different population, kept as legacy and never summed with the current era`
+        : `two settled counts for one product: ${portfolioRecord.source} says ${portfolioRecord.settled}, ` +
+          `${ledgerRecord.source} says ${ledgerRecord.settled}` +
+          `${ledgerRecord.fromDate ? ` (${ledgerRecord.fromDate} … ${ledgerRecord.throughDate})` : ""}`,
     );
   }
+
+  /* The June ledger as a labelled legacy detail — always available to a surface that shows it collapsed. */
+  const legacyRecord = ledgerRecord
+    ? { wins: ledgerRecord.wins, losses: ledgerRecord.losses, voids: 0, pending: 0, settled: ledgerRecord.settled, source: ledgerRecord.source, fromDate: ledgerRecord.fromDate, throughDate: ledgerRecord.throughDate, era: MOONSHOT_ERAS.LEGACY, label: moonshotRecordLabel({ ...ledgerRecord, era: MOONSHOT_ERAS.LEGACY }) }
+    : null;
 
   if (portfolioRecord && openCards.length && portfolioRecord.pending !== openCards.length) {
     contradictions.push(
@@ -340,18 +390,22 @@ export function deriveMoonshotState({
     unsettleableCardCount: unsettleable.length,
     ledgerRecord,
     portfolioRecord,
+    legacyRecord,
     /*
-     * The record a surface should DISPLAY when it has room for only one. The product ledger wins: it
-     * is the per-card settlement log, it covers the fuller history, and the portfolio block's figure
-     * describes a single World Cup card from a retired competition. The disagreement is not hidden —
-     * `contradictions` still carries it, and /moonshot prints both — but two surfaces printing two
-     * different "records" for one product is the contradiction this owner exists to end.
+     * The record a surface should DISPLAY when it has room for only one (founder decision 2026-09-22):
+     * the fold-era record when the portfolio block carries the era marker — it is the settled-receipt
+     * record of the product as it runs today, graded nightly from official results. Without a fold-era
+     * block, the June ledger is shown, labelled as legacy, never as current. The two eras are not
+     * hidden — `legacyRecord` is always exposed beside it and /moonshot prints both — but they are two
+     * populations and no surface may add them.
      */
-    displayRecord: ledgerRecord
-      ? { wins: ledgerRecord.wins, losses: ledgerRecord.losses, voids: 0, pending: 0, source: ledgerRecord.source }
-      : portfolioRecord
-        ? { ...portfolioRecord, voids: 0 }
-        : null,
+    displayRecord: portfolioRecord && foldEra
+      ? { wins: portfolioRecord.wins, losses: portfolioRecord.losses, voids: portfolioRecord.voids, pending: portfolioRecord.pending, source: portfolioRecord.source, fromDate: portfolioRecord.fromDate, era: MOONSHOT_ERAS.RECEIPTS, label: moonshotRecordLabel(portfolioRecord) }
+      : ledgerRecord
+        ? { wins: ledgerRecord.wins, losses: ledgerRecord.losses, voids: 0, pending: 0, source: ledgerRecord.source, fromDate: ledgerRecord.fromDate, era: MOONSHOT_ERAS.LEGACY, label: moonshotRecordLabel(ledgerRecord) }
+        : portfolioRecord
+          ? { wins: portfolioRecord.wins, losses: portfolioRecord.losses, voids: portfolioRecord.voids, pending: portfolioRecord.pending, source: portfolioRecord.source, fromDate: null, era: MOONSHOT_ERAS.LEGACY, label: moonshotRecordLabel(portfolioRecord) }
+          : null,
     contradictions,
     publicNote,
     /*

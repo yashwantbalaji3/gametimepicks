@@ -21,6 +21,10 @@ const NOW = "2026-09-16T17:00:00.000Z";
 
 /* ──────────────────────────── real registry ──────────────────────────── */
 
+/* 2026-09-22: this guard went red on main when the two rolling forecast windows held one finished game
+   (ATL, GB) and nothing — the registry had named clubs from the WINDOW, not from the season's published
+   files. The live Tuesday state (latest.json 1 event, frozen-latest.json 0 events, dated files 32 clubs)
+   is exactly the regression fixture; the registry must resolve all 32 from the dated files alone. */
 test("R1 · the registry resolves every club from published artifacts (anti-vacuity)", async () => {
   const { registryCounts, legacyNameMap, mlbTeamRefByName, nflTeamRefByAbbr } = await import("./entity-registry.ts");
   const { mlbTeams, nflTeams } = registryCounts();

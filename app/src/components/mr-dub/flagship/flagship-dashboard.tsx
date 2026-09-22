@@ -45,7 +45,7 @@ export function ExecutiveDashboard({ kpis, journey, todayStatus }: { kpis: Flags
           </div>
           <div className="flex flex-col items-end gap-1">
             <span className="font-display tabular" style={{ fontSize: 30, fontWeight: 850, color: "var(--vault-success)", lineHeight: 1 }}>{kpis.record.wins}–{kpis.record.losses}</span>
-            <span className="font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-text-faint)" }}>official record · {kpis.winRate}% win</span>
+            <span className="font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Bank Builder official record · {kpis.winRate}% win</span>
             <span className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px]" style={{ color: todayStatus.pendingExposure > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>
               <span aria-hidden style={{ width: 6, height: 6, borderRadius: 99, background: todayStatus.pendingExposure > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)", display: "inline-block" }} />
               {todayStatus.settlementStatus}

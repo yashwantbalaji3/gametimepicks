@@ -14,7 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, buildDailyLaneCandidates, type LaneCandidate } from "../world-cup/model-qualified-picks";
-import { readCanonicalMoney } from "../daily-portfolio/accounting";
+import { readCanonicalMoney, probabilityBasisOf, jointProbabilityBasisOf, type ProbabilityBasis, type JointProbabilityBasis } from "../daily-portfolio/accounting";
 import { moonshotNarrative } from "../world-cup/wc-editorial";
 
 /** Moonshot story from a candidate lane's ModelPick legs (display-only; never affects money). */
@@ -27,7 +27,12 @@ export interface DailyPortfolioLeg {
   /** The leg's canonical id ("MLB:<gameHash>:<market>:<sel>") — its sport prefix drives sport-correct
    *  rendering (P250 · A01: MLB legs rendered ⚽ chips for as long as this field was dropped here). */
   id?: string | null;
-  selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null; photoUrl?: string | null; teamLogo?: string | null; kickoffEt?: string | null }
+  selection: string; marketLabel: string; matchup: string; odds: number; player?: string | null; photoUrl?: string | null; teamLogo?: string | null; kickoffEt?: string | null;
+  /** F1 Option A (founder decision 2026-09-22): what the leg's probability IS. Read from the published
+   *  `probabilityBasis`, else derived from `probabilitySource`; null when neither is recorded — an unknown
+   *  basis is never labelled "model". The surfaces render a "Market-implied" chip from this. */
+  probabilityBasis?: ProbabilityBasis | null;
+}
 
 /** Normalize a player name for joining (accent-strip + lowercase + alphanumerics only). */
 const normPlayerName = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
@@ -76,6 +81,8 @@ export interface DailyPortfolioCard {
   correlationNote: string | null;
   shortfallNote: string | null;
   narrative?: { title: string; story: string } | null; // Moonshot story (display-only)
+  /** F1 Option A — the card's joint-probability basis over its legs ("market-implied" = a market construction). */
+  jointProbabilityBasis?: JointProbabilityBasis | null;
 }
 export interface DailyPortfolio {
   date: string;
@@ -98,10 +105,15 @@ function toCard(l: LaneCandidate): DailyPortfolioCard {
     id: l.id, product: l.product, productLabel: PRODUCT_LABEL[l.product] ?? l.product, lane: l.lane, step: 1, clearedSteps: 0,
     status: l.status, stake: l.stake, targetReturn: null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
-    legs: l.legs.map((p) => ({ id: (p as { id?: string }).id ?? null, selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds, player: p.player ?? null })),
+    legs: l.legs.map((p) => ({ id: (p as { id?: string }).id ?? null, selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds, player: p.player ?? null, probabilityBasis: probabilityBasisOf(p.probabilitySource) })),
     correlationNote: l.correlationNote, shortfallNote: l.shortfallNote, narrative: moonNarr(l),
+    jointProbabilityBasis: jointProbabilityBasisOf(l.legs.map((p) => ({ probabilityBasis: probabilityBasisOf(p.probabilitySource) }))),
   };
 }
+
+/** A published leg's basis: the explicit field when it is a known value, else derived from its source. */
+const legBasis = (g: any): ProbabilityBasis | null =>
+  g?.probabilityBasis === "market-implied" || g?.probabilityBasis === "model" ? g.probabilityBasis : probabilityBasisOf(g?.probabilitySource);
 
 /** Map a persisted (activated) portfolio into the read-side view. Returns null when absent / wrong date. */
 function fromPersisted(root: string, date: string): DailyPortfolio | null {
@@ -112,8 +124,11 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
     id: l.id, product: l.product, productLabel: l.productLabel, lane: l.lane, step: l.step ?? 1, clearedSteps: l.clearedSteps ?? 0,
     status: l.status, stake: l.stake, targetReturn: l.targetReturn ?? null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
-    legs: (l.legs ?? []).map((g: any) => ({ id: g.id ?? null, selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null, photoUrl: g.photoUrl ?? null, teamLogo: g.teamLogo ?? null, kickoffEt: g.kickoffEt ?? null })),
+    legs: (l.legs ?? []).map((g: any) => ({ id: g.id ?? null, selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null, photoUrl: g.photoUrl ?? null, teamLogo: g.teamLogo ?? null, kickoffEt: g.kickoffEt ?? null, probabilityBasis: legBasis(g) })),
     correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null, narrative: l.narrative ?? null,
+    // A day published before the field existed (carried verbatim by the P257 rule) still names its basis
+    // through `probabilitySource`; the card's basis is derived the same way, never copied from a claim.
+    jointProbabilityBasis: jointProbabilityBasisOf((l.legs ?? []).map((g: any) => ({ probabilityBasis: legBasis(g) }))),
   }));
   enrichLegPhotos(cards, root, date);
   const anyActive = cards.some((c) => c.status === "active");
