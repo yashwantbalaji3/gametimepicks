@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824867,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T01:03:55.312Z",
+  "availableAt": "2026-09-22T01:03:55.312Z",
+  "eventStartTime": "2026-09-22T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-19",
+    "2026-09-20",
+    "2026-09-21"
+  ],
+  "home": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 124,
+      "relievers": [
+        {
+          "id": 700363,
+          "name": "AJ Smith-Shawver",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 2,
+          "pitches": 20,
+          "outs": 5,
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 678061,
+          "name": "Ray Kerr",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 628452,
+          "name": "Raisel Iglesias",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 113,
+    "teamName": "Cincinnati Reds",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 141,
+      "relievers": [
+        {
+          "id": 686730,
+          "name": "Carson Spiers",
+          "appearances": 1,
+          "pitches": 62,
+          "outs": 12,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 572955,
+          "name": "Pierce Johnson",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 682825,
+          "name": "Luis Mey",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 685112,
+          "name": "Zach McCambley",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 668933,
+          "name": "Graham Ashcraft",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-19,2026-09-20,2026-09-21) + feed/live box scores",
+    "capturedAt": "2026-09-22T01:03:55.312Z"
+  },
+  "recordHash": "baaac1b266a6280fac2b49f8fec71b3f828b04d6cd50b95ef05fda223a679355"
+}

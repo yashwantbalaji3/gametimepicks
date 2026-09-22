@@ -1,0 +1,179 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824302,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T01:03:55.312Z",
+  "availableAt": "2026-09-22T01:03:55.312Z",
+  "eventStartTime": "2026-09-23T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-19",
+    "2026-09-20",
+    "2026-09-21"
+  ],
+  "home": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 143,
+      "relievers": [
+        {
+          "id": 663372,
+          "name": "Ryan Feltner",
+          "appearances": 1,
+          "pitches": 61,
+          "outs": 9,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 693308,
+          "name": "Nick Frasso",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 657514,
+          "name": "Brennan Bernardino",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 145,
+      "relievers": [
+        {
+          "id": 805299,
+          "name": "Brandyn Garcia",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 8,
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 664199,
+          "name": "Taylor Clarke",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 679885,
+          "name": "Justin Martinez",
+          "appearances": 2,
+          "pitches": 17,
+          "outs": 5,
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 669194,
+          "name": "Ryne Nelson",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-09-19"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-19,2026-09-20,2026-09-21) + feed/live box scores",
+    "capturedAt": "2026-09-22T01:03:55.312Z"
+  },
+  "recordHash": "3cfa52fb53dbea0fe84f9f157646cfc5dcaf49e53e8943e8c9c8af49a709cf11"
+}

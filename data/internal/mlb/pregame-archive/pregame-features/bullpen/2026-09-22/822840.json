@@ -1,0 +1,210 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822840,
+  "date": "2026-09-22",
+  "capturedAt": "2026-09-22T01:03:55.312Z",
+  "availableAt": "2026-09-22T01:03:55.312Z",
+  "eventStartTime": "2026-09-23T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-19",
+    "2026-09-20",
+    "2026-09-21"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 180,
+      "relievers": [
+        {
+          "id": 656756,
+          "name": "Jordan Montgomery",
+          "appearances": 1,
+          "pitches": 51,
+          "outs": 11,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 671936,
+          "name": "Adam Macko",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 7,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 681217,
+          "name": "Chase Silseth",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 5,
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 676395,
+          "name": "Robert Garcia",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 8,
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 543135,
+          "name": "Nathan Eovaldi",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 0,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 121,
+    "teamName": "New York Mets",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 173,
+      "relievers": [
+        {
+          "id": 642376,
+          "name": "Jefry Yan",
+          "appearances": 2,
+          "pitches": 47,
+          "outs": 7,
+          "dates": [
+            "2026-09-19",
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 673540,
+          "name": "Kodai Senga",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 1,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 672335,
+          "name": "Cionel Pérez",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 2,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 681810,
+          "name": "Austin Warren",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 5,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 668964,
+          "name": "Tobias Myers",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 674073,
+          "name": "Jack Weisenburger",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 702752,
+          "name": "Jonathan Pintaro",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 1,
+          "dates": [
+            "2026-09-19"
+          ]
+        },
+        {
+          "id": 673380,
+          "name": "Dedniel Núñez",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-09-19"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-19,2026-09-20,2026-09-21) + feed/live box scores",
+    "capturedAt": "2026-09-22T01:03:55.312Z"
+  },
+  "recordHash": "6a1f72577cedb25e5b30c765ae379279338f9f04ddc1426204092faef3782c85"
+}
