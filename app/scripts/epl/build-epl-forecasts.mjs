@@ -26,6 +26,7 @@ import { shadowScoreMatrix, shadowTotalsRow } from "../../src/lib/sports/epl/tot
 import { selectEplMatchModel } from "../../src/lib/sports/epl/match-model.mjs";
 import { loadEplCorpus } from "../../src/lib/sports/epl/corpus.mjs";
 import { loadEplGradedRecord } from "../../src/lib/sports/epl/graded-record.ts";
+import { splitEplGradedByModel, eplTrackRecordSentence, eplGradedRecordField } from "../../src/lib/soccer/epl-graded-by-model.mjs";
 import { runEplShadow } from "../../src/lib/sports/epl/shadow-run.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -230,6 +231,38 @@ if (unslugged.length > 0) {
 const counts = {};
 for (const r of rows) counts[r.state] = (counts[r.state] ?? 0) + 1;
 
+/**
+ * What may honestly be said about THIS model's record, from the ledger and nothing else.
+ *
+ * Deliberately refuses to quote an accuracy figure at any sample size this function can see. A hit
+ * rate over a handful of matches is noise with a percent sign on it, and putting one here would be
+ * read as a claim no matter how it were hedged.
+ *
+ * v1.7 F2 (G1): "this model" means the model whose id is on the row. The ledger is shared by every
+ * EPL match model that has published; when P304 replaced the split Poisson on 2026-09-14 this
+ * sentence kept counting the 36 rows the PREVIOUS model had earned as if they were P304's, while
+ * P304's own forward receipt honestly said n = 0. The split below attributes each graded row to the
+ * model that forecast it; the previous model's record stays visible, labelled as not this model's.
+ */
+const gradedSplit = (() => {
+  const rec = loadEplGradedRecord();
+  if (rec == null) return null;                                   // unreadable ≠ zero — the sentence says so
+  return splitEplGradedByModel(loadGradedLedgerRows(), { modelId: strengthState.modelId });
+})();
+function loadGradedLedgerRows() {
+  const p = path.join(APP, "public/data/soccer/epl/results/graded-forecasts.jsonl");
+  if (!fs.existsSync(p)) return [];
+  return fs.readFileSync(p, "utf8").split("\n").filter((l) => l.trim()).flatMap((l) => { try { return [JSON.parse(l)]; } catch { return []; } });
+}
+function trackRecordSentence() {
+  return eplTrackRecordSentence(gradedSplit, { adopted: selection.adopted });
+}
+if (gradedSplit) {
+  const prior = gradedSplit.prior.map((p) => `${p.modelId} ${p.n}`).join(", ") || "none";
+  console.log(`graded record: ${gradedSplit.current.n} under ${gradedSplit.modelId} · prior models: ${prior} · unattributed ${gradedSplit.unattributed}`);
+}
+
+
 const artifact = {
   schemaVersion: 1,
   artifact: "epl-forecast-set",
@@ -242,6 +275,7 @@ const artifact = {
   oddsCapturedAt: oddsSnapshot?.capturedAt ?? null,
   fixturesConsidered: upcoming.length,
   counts,
+  gradedRecord: eplGradedRecordField(gradedSplit),
   /* Named so a reader can see WHY a fixture is absent from the priced set. */
   rows,
   note: "Forecast distributions only. publicActivation is OFF on every row; nothing here is a recommendation.",
@@ -306,30 +340,6 @@ const publicRows = rows.map((r) => ({
   modelId: r.model?.modelId ?? r.modelOnly?.modelId ?? null,
 }));
 
-/**
- * What may honestly be said about this model's record, from the ledger and nothing else.
- *
- * Deliberately refuses to quote an accuracy figure at any sample size this function can see. A hit
- * rate over a handful of matches is noise with a percent sign on it, and putting one here would be
- * read as a claim no matter how it were hedged.
- */
-function trackRecordSentence() {
-  const rec = loadEplGradedRecord();
-  if (rec == null) {
-    return "The graded record could not be read, so no accuracy claim is made here.";
-  }
-  const n = rec.team.matches;
-  if (n === 0) {
-    return "No Premier League match has been graded under this model. There is no win/loss record, no accuracy figure, and no track record to cite.";
-  }
-  /* P304: once the blind-tested model publishes, the out-of-sample claim belongs to validationNote; this sentence
-     speaks only about the LIVE record, so the two never contradict each other on one page. */
-  return `${n} Premier League match${n === 1 ? " has" : "es have"} been graded under this model — far too few to support any accuracy claim. ` +
-    (selection.adopted
-      ? "No live win rate or accuracy figure is quoted until its season record is large enough to mean something."
-      : "No win rate or accuracy figure is quoted, and this model has not been validated out of sample.");
-}
-
 const publicArtifact = {
   schemaVersion: 1,
   artifact: "epl-forecast-public",
@@ -358,6 +368,8 @@ const publicArtifact = {
     ? "Tested blind on nine past Premier League seasons (2013-14 to 2021-22, 3,420 matches) it was never fit on, where it beat the previous model and a plain rating system. Its total-goals numbers follow the league's recent scoring rate, so they are the same for every match — in that test they were more accurate than the previous model's team-by-team totals. Its live record this season is still being graded."
     : null,
   trackRecord: trackRecordSentence(),
+  /* v1.7 F2 (G1): the count the sentence states, by modelId, so the reader can check it. */
+  gradedRecord: eplGradedRecordField(gradedSplit),
   note: "Model distributions only — not picks, not advice, and not compared against a price.",
   rows: publicRows,
 };

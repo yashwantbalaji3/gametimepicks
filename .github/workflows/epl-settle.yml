@@ -41,11 +41,27 @@ jobs:
         run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
 
       # Official results first — everything below grades from what this writes.
+      #
+      # A SOURCE FAILURE IS CARRIED, NOT SWALLOWED (v1.7 F2 evidence repair, G2). The capture exits 4
+      # (SOURCE_STALE) when the provider cannot be read and writes nothing; it used to exit 0 on the
+      # same condition, and from 2026-09-16 (run 35042672207) seven consecutive nightly runs were
+      # green while ESPN rejected the query form and ~23 forecasts of record went ungraded. The
+      # status is raised AFTER the commit step so a stall can never cost the run its other work.
       - name: Capture match results
         run: |
-          set -euo pipefail
+          set -uo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           node app/scripts/epl/capture-epl-results.mjs --now "$NOW"
+          RC=$?
+          if [ "$RC" -eq 0 ]; then
+            echo "RESULTS_CAPTURE=ok" >> "$GITHUB_ENV"
+          elif [ "$RC" -eq 4 ]; then
+            echo "RESULTS_CAPTURE=stale" >> "$GITHUB_ENV"
+            echo "::warning::EPL results capture SOURCE_STALE — the provider could not be read; last-known-good stands and nothing new can grade tonight"
+          else
+            echo "RESULTS_CAPTURE=failed" >> "$GITHUB_ENV"
+            echo "::warning::EPL results capture crashed (exit $RC) — see the step log"
+          fi
 
       # Team markets: 1X2 and over/under, against the forecast published before kickoff.
       #
@@ -125,6 +141,14 @@ jobs:
         run: |
           set -euo pipefail
           FAILED=0
+          # This job exists to capture results. A night it could not is a failed night, not a quiet one —
+          # the classifier below can only say NOTHING_NEW about a capture that never happened.
+          if [ "${RESULTS_CAPTURE:-ok}" != "ok" ]; then
+            echo "::error::EPL results capture did not run to completion (${RESULTS_CAPTURE:-unknown}) — the"
+            echo "::error::results artifact was NOT refreshed tonight, so no fixture that finished today could"
+            echo "::error::be graded. Check the provider query form before trusting any 'nothing new' below."
+            FAILED=1
+          fi
           if [ "${TEAM_GRADE:-ok}" != "ok" ]; then
             echo "::error::EPL TEAM grading refused — completed fixtures could not be joined to any"
             echo "::error::pre-kickoff forecast. A broken join, not a quiet matchday."

@@ -117,7 +117,11 @@ test("SOURCE PIN · the shadow rides the PRIVATE row only; the grader scores it;
   assert.match(builder, /shadowTotals: shadow\.state && \(out\.state === "CURRENT_PRE_EVENT" \|\| out\.state === "READY_EXCEPT_ODDS"\)/);
   const publicBlock = builder.slice(builder.indexOf("const publicRows = rows.map"), builder.indexOf("}));", builder.indexOf("const publicRows = rows.map")));
   assert.doesNotMatch(publicBlock, /shadowTotals|shadow\./, "publicRows never copies the shadow");
-  assert.match(src("src/lib/sports/epl/grade-forecasts.mjs"), /shadowTotals: \{ modelId: fc\.row\.shadowTotals\.modelId/);
+  /* v1.7 F2 repair: the scoring moved into scoreShadowTotalsBlock so the workflow's grader script can spread the
+     SAME block — it never wrote one before, so no graded row carried a shadow and this receipt could not accumulate. */
+  assert.match(src("src/lib/sports/epl/grade-forecasts.mjs"), /shadowTotals: \{ modelId: row\.shadowTotals\.modelId/);
+  assert.match(src("src/lib/sports/epl/grade-forecasts.mjs"), /\.\.\.scoreShadowTotalsBlock\(fc\.row, actual, total\)/);
+  assert.match(src("scripts/epl/grade-epl-forecasts.mjs"), /\.\.\.scoreShadowTotalsBlock\(fc\.row, actual, total\)/, "the grader the workflows run must score the shadow too");
   const wf = src("../.github/workflows/epl-matchweek.yml");
   assert.ok(wf.indexOf("build-epl-totals-shadow-receipt.mjs") < wf.indexOf("build-epl-forecasts.mjs"), "the receipt is rebuilt from the graded ledger before the forecasts");
   const commit = wf.slice(wf.indexOf("- name: Commit if anything changed"));

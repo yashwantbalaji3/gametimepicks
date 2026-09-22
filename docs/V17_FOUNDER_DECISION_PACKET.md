@@ -145,6 +145,8 @@ The one real defect is a misattribution: the published `trackRecord` sentence co
 | G5 | "3-day freshness" in the matrix — UNVERIFIED | `docs/V17_SPORT_ELIGIBILITY_MATRIX.md:12` |
 | G6 | §29.3 cited, defined nowhere in the repo | `V17_SPORT_ELIGIBILITY_MATRIX.md:12` |
 
+**Repair status 2026-09-22 (F2 = HOLD; no status changed):** G1 fixed — `build-epl-forecasts.mjs` now derives `trackRecord` from a per-`modelId` split (`app/src/lib/soccer/epl-graded-by-model.mjs`; v1 rows kept as a labelled prior bucket, P304 figures null at n = 0). G2 root-caused — ESPN rejects the date-RANGE scoreboard form with HTTP 400 since 2026-09-16 (runs 35042672207 → 35675723968 all green on `SOURCE_STALE` + exit 0); capture now asks per month and exits 4 on a source failure, `epl-settle` raises it red after the commit, `epl-matchweek` reports a notice. G7 (new): the workflow's grader never wrote the `control` block the forward receipt reads — fixed via shared helpers. Recovery: 10 P304 fixtures (09-18 → 09-20) graded from official finals; ledger 36 → 46 (v1 36, P304 10, all 10 with control); forward receipt n 0 → 10/60 `ACCUMULATING`. Odds time-lock limitation recorded, not fixed. Details: `docs/V17_EPL_EVIDENCE_REPAIR.md`.
+
 ### Recommended next experiment (not a decision)
 Do **not** move the registry. Unstall the results capture, let P304 accrue its own forward sample under its
 preregistered protocol (n ≥ 60), and add a per-fixture odds capture instant so a leg *could* be time-locked. Revisit

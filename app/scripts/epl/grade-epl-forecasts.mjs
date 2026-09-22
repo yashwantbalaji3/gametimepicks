@@ -36,7 +36,7 @@ import { fileURLToPath } from "node:url";
 
 import { gradeEplLeg } from "../../src/lib/sports/epl/settlement-contract.mjs";
 import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.mjs";
-import { classifyEmptyRun } from "../../src/lib/sports/epl/grade-forecasts.mjs";
+import { classifyEmptyRun, scoreControlBlock, scoreShadowTotalsBlock } from "../../src/lib/sports/epl/grade-forecasts.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -269,6 +269,14 @@ for (const r of bridged.results) {
         brier: Number(((over25 - (overHit ? 1 : 0)) ** 2).toFixed(6)),
       },
     },
+    /*
+     * P304 adoption: the replaced model, scored on the same match — the paired forward test's ONLY input.
+     * This script never wrote it (the rule lived in the lib alone), so the forward receipt read
+     * `control.logLoss` from rows that had none and P304's forward n could not leave zero. Same helper
+     * as buildGradedRows now; the shadow-totals block (P305-F) rides the same way.
+     */
+    ...scoreControlBlock(fc.row, actual),
+    ...scoreShadowTotalsBlock(fc.row, actual, total),
     gradedAt: new Date(results.sourceAsOf ?? results.generatedAt).toISOString(),
   });
 }
