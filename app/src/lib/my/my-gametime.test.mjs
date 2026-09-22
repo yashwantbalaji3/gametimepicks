@@ -114,7 +114,16 @@ test("RM6 · ⚠ player rows carry PUBLISHED families only, read from each board
       checked++;
     }
   }
-  assert.ok(checked > 100, "many markets were checked");
+  /*
+   * ⚠ A LIVE ARTIFACT IS NOT A FIXTURE. This read "checked > 100", calibrated on a full-week index
+   * of sixteen boards. The index is rolling: by Monday night the bots have pruned it to the one game
+   * left (20 rows, 39 markets on 2026-09-21), and the guard went red on a slate phase, not a defect.
+   * The property is that EVERY market on EVERY row was examined — so the bar is the data's own total,
+   * with the positive control below keeping it from being satisfied by an empty index.
+   */
+  const total = rows.reduce((n, r) => n + r.markets.length, 0);
+  assert.ok(total > 0, "rows carry markets — otherwise this proves nothing");
+  assert.equal(checked, total, "every market of every row was checked");
   // Positive control: at least one board really does withhold a family (e.g. passing yards ESTIMATE).
   assert.ok([...nonPublishedByBoard.values()].some((s) => s.size > 0), "the gate had something to refuse");
 });
