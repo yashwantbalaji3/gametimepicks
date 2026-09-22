@@ -43,7 +43,12 @@ test("MF1 forecast links only for exact-id forecasts the owner publishes; player
       assert.ok([...published].some((k) => typeof row.markets?.[k]?.median === "number"), `${p.id} has a PUBLISHED range in ${e.gameId}`);
     }
   }
-  assert.ok(nflWith > 0 && nflWithout > 0, `non-vacuous NFL: ${nflWith} with, ${nflWithout} without`);
+  /* Non-vacuity, WITHOUT depending on the day's data state. The old assertion demanded that some live
+     NFL matchup lack a forecast; on a Tuesday after every listed game has a published report that is
+     simply false (2026-09-22: 33 with, 0 without) and the guard went red on a correct state. The
+     exclusion path is proved by probe instead: an id the owner never published gets no link. */
+  assert.ok(nflWith > 0, `non-vacuous NFL (with): ${nflWith} with, ${nflWithout} without`);
+  assert.equal(matchupForecast("NFL", "nfl-000000000"), null, "an id the owner never published gets no forecast link (exclusion path exercised by probe)");
   let mlbWith = 0, mlbWithout = 0;
   for (const e of matchupEntries("MLB")) {
     const f = matchupForecast("MLB", e.gameId);
