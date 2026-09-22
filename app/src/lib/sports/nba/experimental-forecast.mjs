@@ -23,8 +23,55 @@ import { buildTeamRatings, ratingFor, winProbability, seasonOfDate } from "./tea
 import { expectedMinutes } from "./minutes-model.mjs";
 import { simulateGame, DEFAULT_SIMULATIONS, NBA_SIM_MODEL_VERSION } from "./game-sim.mjs";
 import { rosterForTeam } from "./roster-contract.mjs";
+import { gatePool, POOL_VERSION as ROSTER_GATED_POOL_VERSION } from "./roster-gated-pool.mjs";
 
 export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
+/**
+ * Artifact FAMILIES (v1.8 A1). v0 is frozen exactly as preregistered (docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md
+ * §1) and keeps its directory, its ledger and its model-version string. v0.1 is the roster-gated pool: same
+ * Elo, same minutes model, same seeded simulation engine — only the POOL rule changes — written to its own
+ * directory with its own ledger so the two are graded side by side and neither rewrites the other.
+ */
+export const FAMILIES = Object.freeze({
+  "v0": Object.freeze({ family: "v0", poolRule: "box-score-history", modelVersion: "nba-preseason-experimental-v0", dir: "experimental" }),
+  "v0.1": Object.freeze({ family: "v0.1", poolRule: "roster-gated", modelVersion: "nba-preseason-experimental-v0.1", dir: "experimental-v0.1" }),
+});
+export function familySpec(family) {
+  const f = FAMILIES[String(family ?? "v0")];
+  if (!f) throw new Error(`REFUSED: unknown NBA experimental family ${JSON.stringify(family)} (${Object.keys(FAMILIES).join(", ")})`);
+  return f;
+}
+
+/**
+ * Does a document on disk belong to the family that is about to read or extend it? (v1.8 A1)
+ *
+ * The two families live in sibling directories, so the PATH normally keeps them apart — but a path is
+ * not a proof. A forecast written by one family and left in the other's directory (a bad `--out`, a
+ * hand-copied file, a half-finished migration) would be graded into the wrong ledger, and the ledger
+ * would then average two different pool rules into one record. Two populations summed is the defect
+ * class this project refuses everywhere else, so the grader checks the DOCUMENT, not the directory.
+ *
+ * A document with neither `family` nor `modelVersion` is legacy (v0 predates the family key) and is
+ * adopted by v0 only — never by v0.1, which has never existed without its stamps.
+ *
+ * @returns { ok: true, adopt } | { ok: false, reason, detail }
+ */
+export function familyGuard({ family, doc, what = "document" }) {
+  const spec = familySpec(family);
+  const declaredFamily = doc?.family ?? null;
+  const declaredVersion = doc?.modelVersion ?? null;
+  if (declaredFamily != null && String(declaredFamily) !== spec.family) {
+    return { ok: false, reason: "FAMILY_MISMATCH", detail: `${what} declares family ${JSON.stringify(declaredFamily)}, not ${spec.family} — a family never reads another family's ${what}` };
+  }
+  if (declaredVersion != null && String(declaredVersion) !== spec.modelVersion) {
+    return { ok: false, reason: "MODEL_VERSION_MISMATCH", detail: `${what} carries modelVersion ${JSON.stringify(declaredVersion)}, not ${spec.modelVersion} — a family never reads another family's ${what}` };
+  }
+  if (declaredFamily == null && declaredVersion == null) {
+    if (spec.family !== "v0") return { ok: false, reason: "UNSTAMPED_NOT_ADOPTABLE", detail: `${what} declares no family and no modelVersion; only v0 adopts an unstamped ${what} (it predates the family key), never ${spec.family}` };
+    return { ok: true, adopt: true };
+  }
+  return { ok: true, adopt: declaredFamily == null };
+}
 export const FORECAST_SCHEMA_VERSION = 1;
 export const DATA_CLASS = "PRIVATE_RESEARCH";
 export const LABELS = Object.freeze({ 1: "NBA PRESEASON — EXPERIMENTAL", 2: "NBA REGULAR SEASON — SHADOW" });
@@ -91,9 +138,14 @@ export function reconcileRoster(rosters, providerTeamId, minutesResult) {
  * @param injuries      injuries feed entries[] (null → availability unknown)
  * @param rosters       roster capture artifact (roster-parse.mjs) or null → reconciliation absent, never guessed
  */
-export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, boxscores, injuries = null, rosters = null, simulations = DEFAULT_SIMULATIONS }) {
+export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, boxscores, injuries = null, rosters = null, simulations = DEFAULT_SIMULATIONS, family = "v0" }) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date))) throw new Error("REFUSED: --date YYYY-MM-DD required");
   if (typeof now !== "string" || !Number.isFinite(Date.parse(now))) throw new Error("REFUSED: --now ISO required");
+  const spec = familySpec(family);
+  const rosterGated = spec.poolRule === "roster-gated";
+  // v0.1 FAILS CLOSED on a missing roster capture at the artifact level too: no roster, no forecast, no fallback.
+  if (rosterGated && !rosters) throw new Error("REFUSED: family v0.1 requires a roster capture (rosters/latest.json) — it never falls back to box-score membership");
+  const teamMinutesCache = new Map();
 
   const slate = (Array.isArray(scheduleRows) ? scheduleRows : [])
     .filter((r) => r?.providerEventId && r?.dateUtc && etDateOf(r.dateUtc) === date)
@@ -112,6 +164,8 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     minutesBasisCounts: { trailing10: 0, season: 0, insufficient: 0 },
     poolRateSubstitutions: 0, defaultSdSubstitutions: 0,
     gamesAlreadyStartedAtNow: 0,
+    family: spec.family, poolRule: spec.poolRule,
+    pool: rosterGated ? { poolVersion: ROSTER_GATED_POOL_VERSION, rosterPlayers: 0, playersSimulated: 0, playersInsufficientHistory: 0, playersExcludedNotOnRoster: 0, playersOtherTeamHistory: 0, gamesRefusedByRosterGate: 0 } : { poolVersion: null, rule: "v0: box-score history" },
     roster: rosters ? {
       provided: true, asOf: rosters.asOf ?? rosters.capturedAt ?? null, contractVersion: rosters.contractVersion ?? null,
       teamsMissingRoster: [], playersOnRosterWithoutHistory: 0, playersSimulatedButNotOnRoster: 0, playersSimulatedOnRoster: 0,
@@ -131,7 +185,19 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
       const name = s?.name ?? null;
       const rating = ratingFor(ratings, name, { population });
       if (rating.basis === "default-no-history") noteTeam(population === "preseason" ? manifest.teamsWithoutPreseasonHistory : manifest.teamsWithoutRegularHistory, `${name} (${s?.providerTeamId})`);
-      const minutes = expectedMinutes({ boxscores, teamProviderId: s?.providerTeamId, asOfDateUtc: now, injuries, population });
+      let minutes, pool = null;
+      if (rosterGated) {
+        const gated = gatePool({ rosters, providerTeamId: s?.providerTeamId, boxscores, asOfDateUtc: now, injuries, population, teamMinutesCache });
+        if (gated.state === "REFUSED") return { refused: gated.reason, name, providerTeamId: String(s?.providerTeamId), gate: gated.gate };
+        minutes = gated; pool = gated.gate;
+        manifest.pool.playersInsufficientHistory += pool.insufficientHistory.length;
+        manifest.pool.playersExcludedNotOnRoster += pool.excludedNotOnRoster.length;
+        manifest.pool.playersOtherTeamHistory += pool.otherTeamHistory.length;
+        manifest.pool.playersSimulated += pool.simulated;
+        manifest.pool.rosterPlayers += pool.rosterSize;
+      } else {
+        minutes = expectedMinutes({ boxscores, teamProviderId: s?.providerTeamId, asOfDateUtc: now, injuries, population });
+      }
       if (minutes.teamGamesInSeason === 0) noteTeam(manifest.teamsWithoutBoxscoreHistory, `${name} (${s?.providerTeamId}) [${population}]`);
       for (const p of minutes.rows) {
         manifest.minutesBasisCounts[p.basis] += 1;
@@ -150,10 +216,17 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
           manifest.roster.playersSimulatedOnRoster += rosterReconciliation.simulatedOnRoster;
         }
       }
-      return { name, abbr: s?.abbr ?? null, providerTeamId: String(s?.providerTeamId), rating, minutes, rosterReconciliation };
+      return { name, abbr: s?.abbr ?? null, providerTeamId: String(s?.providerTeamId), rating, minutes, rosterReconciliation, pool };
     };
     const home = side(row.home);
     const away = side(row.away);
+    if (home.refused || away.refused) {
+      // FAIL CLOSED (v0.1): a side whose roster gate refused is not simulated — the game is recorded as refused with the reason.
+      for (const [sideKey, s] of [["home", home], ["away", away]]) if (s.refused) manifest.refused.push({ providerEventId: String(row.providerEventId), side: sideKey, team: `${s.name} (${s.providerTeamId})`, reason: `ROSTER_GATE: ${s.refused}`, gate: s.gate });
+      manifest.pool.gamesRefusedByRosterGate += 1;
+      manifest.byLabel[label] -= 1;
+      continue;
+    }
     const eloP = winProbability(home.rating.rating, away.rating.rating, { neutralSite: row.neutralSite === true });
     const sim = simulateGame({ providerEventId: row.providerEventId, inputAsOf: now, neutralSite: row.neutralSite === true, home, away, eloWinProbability: eloP, simulations });
     manifest.poolRateSubstitutions += sim.assumptions.minutes.home.poolRateSubstitutions + sim.assumptions.minutes.away.poolRateSubstitutions;
@@ -163,8 +236,9 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
       providerEventId: String(row.providerEventId),
       label, seasonType: row.seasonType, population,
       dateUtc: row.dateUtc, etDate: date, neutralSite: row.neutralSite === true, venue: row.venue ?? null,
-      home: { name: home.name, abbr: home.abbr, providerTeamId: home.providerTeamId, rating: home.rating, minutesModel: { modelVersion: home.minutes.modelVersion, seasonUsed: home.minutes.seasonUsed, teamGamesInSeason: home.minutes.teamGamesInSeason, teamGamesInWindow: home.minutes.teamGamesInWindow, windowFromDateUtc: home.minutes.windowFromDateUtc, windowToDateUtc: home.minutes.windowToDateUtc }, rosterReconciliation: home.rosterReconciliation },
-      away: { name: away.name, abbr: away.abbr, providerTeamId: away.providerTeamId, rating: away.rating, minutesModel: { modelVersion: away.minutes.modelVersion, seasonUsed: away.minutes.seasonUsed, teamGamesInSeason: away.minutes.teamGamesInSeason, teamGamesInWindow: away.minutes.teamGamesInWindow, windowFromDateUtc: away.minutes.windowFromDateUtc, windowToDateUtc: away.minutes.windowToDateUtc }, rosterReconciliation: away.rosterReconciliation },
+      home: { name: home.name, abbr: home.abbr, providerTeamId: home.providerTeamId, rating: home.rating, minutesModel: { modelVersion: home.minutes.modelVersion, seasonUsed: home.minutes.seasonUsed, teamGamesInSeason: home.minutes.teamGamesInSeason, teamGamesInWindow: home.minutes.teamGamesInWindow, windowFromDateUtc: home.minutes.windowFromDateUtc, windowToDateUtc: home.minutes.windowToDateUtc }, rosterReconciliation: home.rosterReconciliation, ...(rosterGated ? { pool: home.pool } : {}) },
+      away: { name: away.name, abbr: away.abbr, providerTeamId: away.providerTeamId, rating: away.rating, minutesModel: { modelVersion: away.minutes.modelVersion, seasonUsed: away.minutes.seasonUsed, teamGamesInSeason: away.minutes.teamGamesInSeason, teamGamesInWindow: away.minutes.teamGamesInWindow, windowFromDateUtc: away.minutes.windowFromDateUtc, windowToDateUtc: away.minutes.windowToDateUtc }, rosterReconciliation: away.rosterReconciliation, ...(rosterGated ? { pool: away.pool } : {}) },
+      ...(rosterGated ? { poolVersion: ROSTER_GATED_POOL_VERSION } : {}),
       forecast: sim,
     });
     manifest.gamesForecast += 1;
@@ -176,7 +250,8 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     dataClass: DATA_CLASS,
     productEligible: false,
     neverReadBy: "app/src/app/** (public routes) — internal research only; sport-capability-registry keeps NBA HISTORICAL_ONLY",
-    modelVersion: NBA_SIM_MODEL_VERSION,
+    modelVersion: spec.modelVersion,
+    ...(rosterGated ? { family: spec.family, poolRule: spec.poolRule, poolVersion: ROSTER_GATED_POOL_VERSION, simEngineVersion: NBA_SIM_MODEL_VERSION } : {}),
     generatedAt: now,
     inputAsOf: now,
     date,

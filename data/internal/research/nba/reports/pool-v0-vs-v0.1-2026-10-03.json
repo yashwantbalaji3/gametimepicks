@@ -1,0 +1,341 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-pool-version-comparison",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "date": "2026-10-03",
+ "generatedAt": "2026-09-22T19:49:08.633Z",
+ "inputs": {
+  "v0": {
+   "file": "data/internal/research/nba/experimental/forecasts/2026-10-03.json",
+   "modelVersion": "nba-preseason-experimental-v0",
+   "inputAsOf": "2026-09-22T19:00:00Z",
+   "rosterAsOf": "2026-09-22T14:01:32Z"
+  },
+  "v01": {
+   "file": "data/internal/research/nba/experimental-v0.1/forecasts/2026-10-03.json",
+   "modelVersion": "nba-preseason-experimental-v0.1",
+   "poolVersion": "nba-roster-gated-pool-v0.1",
+   "inputAsOf": "2026-09-22T19:00:00Z",
+   "rosterAsOf": "2026-09-22T14:01:32Z"
+  }
+ },
+ "asOfMismatch": false,
+ "totals": {
+  "games": 1,
+  "sides": 2,
+  "v0Simulated": 40,
+  "v01Simulated": 33,
+  "departuresExcluded": 17,
+  "departureMinutesExcluded": 192.7243,
+  "arrivalsModelledOtherTeam": 10,
+  "arrivalMinutesAdded": 136.7565,
+  "insufficientHistory": 6,
+  "retained": 23,
+  "refusedByGate": 0,
+  "rosterCoverage": 1,
+  "refusalRate": 0
+ },
+ "reading": "v0 simulated departed players and could not see arrivals; v0.1 excludes the former (listed), admits the latter with other-team history where it exists, and lists rostered players with no history as INSUFFICIENT_HISTORY (null, never zero). Forecast deltas are reported, not judged — grading decides from Oct 3, in separate ledgers.",
+ "games": [
+  {
+   "providerEventId": "401902644",
+   "matchup": "MIA @ TOR",
+   "label": "NBA PRESEASON — EXPERIMENTAL",
+   "dateUtc": "2026-10-03T23:00Z",
+   "elo": {
+    "pHome": 0.6895,
+    "note": "identical by construction — the Elo does not read the pool"
+   },
+   "sim": {
+    "v0": {
+     "pHome": 0.589,
+     "marginMean": 5.24,
+     "marginSd": 23.89,
+     "totalMean": 229.71,
+     "totalSd": 23.93
+    },
+    "v01": {
+     "pHome": 0.7771,
+     "marginMean": 18.76,
+     "marginSd": 24.62,
+     "totalMean": 227.01,
+     "totalSd": 24.56
+    },
+    "pHomeDelta": 0.1881,
+    "eloVsSimGap": {
+     "v0": -0.1005,
+     "v01": 0.0876
+    }
+   },
+   "sides": {
+    "home": {
+     "team": "TOR (28)",
+     "rosterSize": 19,
+     "rosterAsOf": "2026-09-22T14:01:32Z",
+     "v0Simulated": 19,
+     "v01Simulated": 16,
+     "retained": 11,
+     "departuresExcluded": [
+      {
+       "providerAthleteId": "3913176",
+       "name": "Brandon Ingram",
+       "v0ExpectedMinutes": 20.9456,
+       "v0PtsMean": 13.78
+      },
+      {
+       "providerAthleteId": "4278580",
+       "name": "Sandro Mamukelashvili",
+       "v0ExpectedMinutes": 15.222,
+       "v0PtsMean": 6.3
+      },
+      {
+       "providerAthleteId": "5106258",
+       "name": "Gradey Dick",
+       "v0ExpectedMinutes": 14.3412,
+       "v0PtsMean": 8.42
+      },
+      {
+       "providerAthleteId": "4397018",
+       "name": "Ochai Agbaji",
+       "v0ExpectedMinutes": 14.2151,
+       "v0PtsMean": 4.91
+      },
+      {
+       "providerAthleteId": "5107897",
+       "name": "Jonathan Mogbo",
+       "v0ExpectedMinutes": 9.3089,
+       "v0PtsMean": 3.54
+      },
+      {
+       "providerAthleteId": "4593041",
+       "name": "David Roddy",
+       "v0ExpectedMinutes": 7.9254,
+       "v0PtsMean": 3.88
+      },
+      {
+       "providerAthleteId": "4278046",
+       "name": "Olivier Sarr",
+       "v0ExpectedMinutes": 7.548,
+       "v0PtsMean": 1.99
+      },
+      {
+       "providerAthleteId": "4397119",
+       "name": "Jared Rhoden",
+       "v0ExpectedMinutes": 4.1514,
+       "v0PtsMean": 2.03
+      }
+     ],
+     "arrivalsModelledFromOtherTeam": [
+      {
+       "providerAthleteId": "6450",
+       "name": "Kawhi Leonard",
+       "v01ExpectedMinutes": 19.1173,
+       "historyTeam": "12"
+      },
+      {
+       "providerAthleteId": "2993874",
+       "name": "Kyle Anderson",
+       "v01ExpectedMinutes": 13.8901,
+       "historyTeam": "26"
+      },
+      {
+       "providerAthleteId": "4431684",
+       "name": "Trayce Jackson-Davis",
+       "v01ExpectedMinutes": 12.5459,
+       "historyTeam": "9"
+      },
+      {
+       "providerAthleteId": "4395623",
+       "name": "Trey Jemison III",
+       "v01ExpectedMinutes": 11.2913,
+       "historyTeam": "18"
+      },
+      {
+       "providerAthleteId": "4432190",
+       "name": "Andre Jackson Jr.",
+       "v01ExpectedMinutes": 9.4094,
+       "historyTeam": "15"
+      }
+     ],
+     "insufficientHistory": [
+      {
+       "providerAthleteId": "4432586",
+       "name": "Nate Bittle",
+       "position": "C",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      },
+      {
+       "providerAthleteId": "4432737",
+       "name": "Jaden Bradley",
+       "position": "G",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      },
+      {
+       "providerAthleteId": "5149115",
+       "name": "Allen Graves",
+       "position": "F",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      }
+     ],
+     "out": [],
+     "v0RawPoolMinutes": 317.97,
+     "v01RawPoolMinutes": 267.82,
+     "v0Rescale": 0.7548,
+     "v01Rescale": 0.8961,
+     "v0PoolRateSubstitutions": 3,
+     "v01PoolRateSubstitutions": 2,
+     "scoreMean": {
+      "v0": 117.48,
+      "v01": 122.89
+     }
+    },
+    "away": {
+     "team": "MIA (14)",
+     "rosterSize": 20,
+     "rosterAsOf": "2026-09-22T14:01:32Z",
+     "v0Simulated": 21,
+     "v01Simulated": 17,
+     "retained": 12,
+     "departuresExcluded": [
+      {
+       "providerAthleteId": "5105623",
+       "name": "Kel'el Ware",
+       "v0ExpectedMinutes": 16.0114,
+       "v0PtsMean": 12.07
+      },
+      {
+       "providerAthleteId": "4432848",
+       "name": "Jaime Jaquez Jr.",
+       "v0ExpectedMinutes": 15.6731,
+       "v0PtsMean": 7.11
+      },
+      {
+       "providerAthleteId": "2595516",
+       "name": "Norman Powell",
+       "v0ExpectedMinutes": 14.7483,
+       "v0PtsMean": 10.92
+      },
+      {
+       "providerAthleteId": "4278516",
+       "name": "Ethan Thompson",
+       "v0ExpectedMinutes": 12.0422,
+       "v0PtsMean": 5.03
+      },
+      {
+       "providerAthleteId": "4432753",
+       "name": "Gabe Madsen",
+       "v0ExpectedMinutes": 9.8097,
+       "v0PtsMean": 4.48
+      },
+      {
+       "providerAthleteId": "5214640",
+       "name": "Kasparas Jakucionis",
+       "v0ExpectedMinutes": 9.8097,
+       "v0PtsMean": 4.8
+      },
+      {
+       "providerAthleteId": "4431679",
+       "name": "Precious Achiuwa",
+       "v0ExpectedMinutes": 8.1183,
+       "v0PtsMean": 3.21
+      },
+      {
+       "providerAthleteId": "3074752",
+       "name": "Terry Rozier",
+       "v0ExpectedMinutes": 7.4418,
+       "v0PtsMean": 3.4
+      },
+      {
+       "providerAthleteId": "4432189",
+       "name": "Dain Dainja",
+       "v0ExpectedMinutes": 5.4122,
+       "v0PtsMean": 2.49
+      }
+     ],
+     "arrivalsModelledFromOtherTeam": [
+      {
+       "providerAthleteId": "3032977",
+       "name": "Giannis Antetokounmpo",
+       "v01ExpectedMinutes": 18.7139,
+       "historyTeam": "15"
+      },
+      {
+       "providerAthleteId": "2528210",
+       "name": "Tim Hardaway Jr.",
+       "v01ExpectedMinutes": 14.9711,
+       "historyTeam": "7"
+      },
+      {
+       "providerAthleteId": "6475",
+       "name": "Klay Thompson",
+       "v01ExpectedMinutes": 13.6286,
+       "historyTeam": "6"
+      },
+      {
+       "providerAthleteId": "3064482",
+       "name": "Bobby Portis",
+       "v01ExpectedMinutes": 12.6115,
+       "historyTeam": "15"
+      },
+      {
+       "providerAthleteId": "4278076",
+       "name": "Nick Richards",
+       "v01ExpectedMinutes": 10.5774,
+       "historyTeam": "21"
+      }
+     ],
+     "insufficientHistory": [
+      {
+       "providerAthleteId": "4702784",
+       "name": "J'Vonne Hadley",
+       "position": "F",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      },
+      {
+       "providerAthleteId": "4837356",
+       "name": "Tre Donaldson",
+       "position": "G",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      },
+      {
+       "providerAthleteId": "5107157",
+       "name": "Ryan Conwell",
+       "position": "G",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      }
+     ],
+     "out": [],
+     "v0RawPoolMinutes": 354.75,
+     "v01RawPoolMinutes": 294.97,
+     "v0Rescale": 0.6765,
+     "v01Rescale": 0.8136,
+     "v0PoolRateSubstitutions": 5,
+     "v01PoolRateSubstitutions": 2,
+     "scoreMean": {
+      "v0": 112.23,
+      "v01": 104.13
+     }
+    }
+   }
+  }
+ ]
+}

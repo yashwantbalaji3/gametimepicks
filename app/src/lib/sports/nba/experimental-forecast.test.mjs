@@ -160,12 +160,16 @@ test("roster reconciliation (N-4, additive): arrivals/rookies listed as on-roste
   assert.equal(withR.artifact.productEligible, false);
 });
 
-test("on-disk experimental artifacts (if any) keep the label, PRIVATE_RESEARCH class and productEligible:false; a preseason game never carries the regular label", () => {
-  const dir = path.resolve(process.cwd(), "..", "data", "internal", "research", "nba", "experimental", "forecasts");
-  if (!fs.existsSync(dir)) return;
+test("on-disk experimental artifacts (both families, if any) keep the label, PRIVATE_RESEARCH class and productEligible:false; a preseason game never carries the regular label; a family never carries the other's model version", () => {
+  const expected = { experimental: "nba-preseason-experimental-v0", "experimental-v0.1": "nba-preseason-experimental-v0.1" };
+  for (const [sub, modelVersion] of Object.entries(expected)) {
+  const dir = path.resolve(process.cwd(), "..", "data", "internal", "research", "nba", sub, "forecasts");
+  if (!fs.existsSync(dir)) continue;
   const files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f));
   for (const f of files) {
     const a = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    assert.equal(a.modelVersion, modelVersion, `${sub}/${f}: a family directory holds only its own model version`);
+    if (sub === "experimental-v0.1") { assert.equal(a.poolRule, "roster-gated", f); assert.equal(a.simEngineVersion, "nba-preseason-experimental-v0", f); for (const g of a.games ?? []) for (const side of ["home", "away"]) assert.ok(g[side].pool?.rosterAsOf, `${f}: every v0.1 side records the roster instant`); }
     assert.equal(a.productEligible, false, f);
     assert.equal(a.dataClass, "PRIVATE_RESEARCH", f);
     assert.match(a.neverReadBy ?? "", /app\/src\/app/, f);
@@ -177,5 +181,6 @@ test("on-disk experimental artifacts (if any) keep the label, PRIVATE_RESEARCH c
       assert.ok(Number.isFinite(g.forecast.simulations) && typeof g.forecast.seed === "string", `${f}: reproducibility fields`);
       for (const side of ["home", "away"]) for (const p of g.forecast.players[side] ?? []) assert.ok(Number.isFinite(p.expectedMinutes) && Number.isFinite(p.minutesSd), `${f}: every simulated player carries expected minutes AND uncertainty`);
     }
+  }
   }
 });
