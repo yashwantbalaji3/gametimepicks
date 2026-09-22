@@ -2,12 +2,12 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-22T14:22:31Z",
+ "generatedAt": "2026-09-22T15:41:48Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 5,
-  "NO_PLAY": 3,
-  "LANE_CLOSED": 12,
+  "PUBLISHED": 7,
+  "NO_PLAY": 5,
+  "LANE_CLOSED": 8,
   "MISSING": 0
  },
  "rows": [
@@ -62,24 +62,24 @@
   {
    "lane": "ufc",
    "date": "2026-09-26",
-   "laneState": "CLOSED",
-   "laneReason": "the last price capture is 5.0 days old; only 0 priced games — the ladder needs 4",
+   "laneState": "LIVE",
+   "laneReason": null,
    "tiers": {
     "low": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 5.0 days old; only 0 priced games — the ladder needs 4"
+     "state": "NO_PLAY",
+     "reason": "no card priced into this band — 2 legs → +133 (medium)"
     },
     "medium": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 5.0 days old; only 0 priced games — the ladder needs 4"
+     "state": "PUBLISHED",
+     "slipId": "ufc-medium-2026-09-26"
     },
     "high": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 5.0 days old; only 0 priced games — the ladder needs 4"
+     "state": "PUBLISHED",
+     "slipId": "ufc-high-2026-09-26"
     },
     "longshot": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 5.0 days old; only 0 priced games — the ladder needs 4"
+     "state": "NO_PLAY",
+     "reason": "no card priced into this band — 2 legs → +503 (high)"
     }
    }
   },
