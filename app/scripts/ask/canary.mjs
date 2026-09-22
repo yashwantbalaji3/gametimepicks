@@ -92,17 +92,24 @@ if (EXPECT_SHA && deployed?.sha && !deployed.sha.startsWith(EXPECT_SHA.slice(0, 
  * next to the number.
  */
 const PRICE_BOOK = Object.freeze({
-  "claude-sonnet-5":        { inPerM: 3, outPerM: 15, verified: true },
+  /*
+   * ALL VERIFIED 2026-09-21 against each vendor's own pricing page, and two were wrong:
+   *
+   *   claude-sonnet-5        $2 / $10 — NOT $3 / $15. Sonnet 5 launched at $2/$10 as introductory
+   *                          pricing and the scheduled rise to $3/$15 on 1 September was cancelled.
+   *                          Every Anthropic cost figure in v1.6 and v1.6.1 was overstated by 50%, and
+   *                          every "percent cheaper than Sonnet" claim was measured against it.
+   *   gemini-3.5-flash-lite  $0.30 / $2.50 — NOT the $0.10 / $0.40 of 2.5-flash-lite that stood in for
+   *                          it. That understated Gemini by about 3.5x.
+   *
+   * Both errors pointed the same way — they made the cheap models look cheaper relative to the
+   * incumbent than they are. A cost ratio built on typed-in rates is a guess with four decimal places.
+   */
+  "claude-sonnet-5":        { inPerM: 2.00, outPerM: 10.00, verified: true },
   "gpt-5-nano":             { inPerM: 0.05, outPerM: 0.40, verified: true },
   "gpt-5-mini":             { inPerM: 0.25, outPerM: 2.00, verified: true },
   "gemini-2.5-flash-lite":  { inPerM: 0.10, outPerM: 0.40, verified: true },
-  /*
-   * ⚠ ASSUMED. gemini-2.5-flash-lite is no longer available to new users — the API itself says so and
-   * names 3.5-flash-lite as the replacement — so the candidate moved. Its published rate has NOT been
-   * confirmed by anyone here, and 2.5's is used as a stand-in. Every cost figure for this model is
-   * therefore a token count (measured) times a rate (assumed), and the run says which is which.
-   */
-  "gemini-3.5-flash-lite":  { inPerM: 0.10, outPerM: 0.40, verified: false },
+  "gemini-3.5-flash-lite":  { inPerM: 0.30, outPerM: 2.50, verified: true },
 });
 const FALLBACK_PRICE = { inPerM: 3, outPerM: 15 };
 

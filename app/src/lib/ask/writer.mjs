@@ -145,6 +145,28 @@ function dedupe(links) {
 }
 
 /**
+ * RESOLVE AN INLINE LINK THAT NAMES AN EVIDENCE LINK BY ID.
+ *
+ * The contract is that the model names links by id and the href comes from the evidence. Most models
+ * put those ids in `linkIds`. Gemini also writes them INLINE — "[Live scoreboard](E2:live)" — using the
+ * id where a URL would go. The verifier rightly refuses to publish `E2:live` as an href, records an
+ * UNSUPPORTED_LINK, and the turn fell back to the deterministic answer: a correct reply discarded over
+ * where the id was written, two times in five on the live-slate question.
+ *
+ * This is the same resolution, in a different position. Only ids that the evidence itself issued are
+ * rewritten, and only to the evidence's own href — so no model-authored text can become an anchor, which
+ * is the property the link rule exists to protect. An unknown id, or anything URL-shaped, is left exactly
+ * as written for the verifier to reject.
+ */
+export function resolveInlineLinkIds(markdown, evidenceLinks = []) {
+  const byId = new Map((evidenceLinks ?? []).map((l) => [l.id, l.href]));
+  return String(markdown ?? "").replace(/\]\((E\d+:[A-Za-z0-9_-]+)\)/g, (whole, id) => {
+    const href = byId.get(id);
+    return href ? `](${href})` : whole;
+  });
+}
+
+/**
  * SANITISE THE RENDERED MARKDOWN (§98).
  *
  * The browser renders a small safe subset, but the string is sanitised here too, on the server, before

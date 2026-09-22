@@ -30,7 +30,7 @@ import { makeAskLoader, fixtureFetchText } from "./loader.mjs";
 import { buildEvidence } from "./evidence.mjs";
 import { verifyAnswer, deterministicAnswer, forbiddenCopyIn } from "./verifier.mjs";
 import { parsePlan, plannerSystemPrompt, validatePlan } from "./planner.mjs";
-import { parseAnswer, sanitiseMarkdown } from "./writer.mjs";
+import { parseAnswer, resolveInlineLinkIds, sanitiseMarkdown } from "./writer.mjs";
 import { clearedState, normaliseContext, normaliseMessages, normalisePreferences, readPreferencesFromText, reduceConversation } from "./conversation.mjs";
 import { ASK_PROVIDERS, missingAskConfig, redact, requiredEnvFor, selectProvider, ASK_REQUIRED_ENV } from "./provider.mjs";
 import { createFakeProvider } from "./provider-fake.mjs";
@@ -1038,4 +1038,50 @@ test("an inline evidence citation is a reference, not a numeric claim", () => {
   // A decimal that is a real claim, not a marker, is still checked.
   const decimal = verifyAnswer("Their ERA was 3.42 this season.", evidence, {});
   assert.equal(decimal.ok, false, "a genuine decimal claim must still be caught");
+});
+
+/* ═══════  16. AN INLINE LINK ID IS STILL A LINK BY ID  ═══════ */
+
+test("an inline link naming an evidence id resolves to that evidence's own href — and nothing else does", () => {
+  /*
+   * Gemini writes "[Live scoreboard](E2:live)" — the evidence link id where a URL would go. The verifier
+   * refused the href, and a correct answer fell back to the deterministic one two times in five. The id
+   * is resolved exactly as `linkIds` are: the href comes from the evidence, never from the model.
+   */
+  const links = [{ id: "E2:live", label: "Live", href: "/live/" }];
+
+  assert.equal(resolveInlineLinkIds("See the [Live scoreboard](E2:live).", links), "See the [Live scoreboard](/live/).");
+
+  // An id the evidence did not issue is left as written, for the verifier to reject.
+  assert.equal(resolveInlineLinkIds("[x](E9:nope)", links), "[x](E9:nope)");
+  // A real URL is never touched here — it is not an id, and it must still be refused downstream.
+  assert.equal(resolveInlineLinkIds("[x](https://evil.example/)", links), "[x](https://evil.example/)");
+
+  // End to end through the verifier: the resolved answer passes, the unresolved ones do not.
+  const evidence = { facts: [{ id: "E2.1", text: "the MLB live slate" }], numbers: new Set(), identifiers: new Set(), links };
+  assert.equal(verifyAnswer(resolveInlineLinkIds("Games are on the [Live scoreboard](E2:live).", links), evidence, {}).ok, true);
+  assert.equal(verifyAnswer(resolveInlineLinkIds("Games are on the [scores](https://evil.example/).", links), evidence, {}).ok, false);
+});
+
+test("the ENGINE resolves an inline link id — not just the helper", async () => {
+  /*
+   * A test of `resolveInlineLinkIds` alone would stay green if the engine stopped calling it: the
+   * mechanism asserted, its use not — the defect this programme has now met in four different places.
+   * So a fake writer behaves the way Gemini did: it reads a link id out of its own prompt and writes
+   * it INLINE where a URL would go.
+   */
+  const provider = createFakeProvider({ behaviour: "route" });
+  provider.write = async ({ user }) => {
+    const id = /^(E\d+:[A-Za-z0-9_-]+) · /m.exec(user)?.[1];
+    assert.ok(id, "the writer prompt carried no link id — this test would be vacuous");
+    return {
+      ok: true,
+      text: JSON.stringify({ answerMarkdown: `Live games are on the [scoreboard](${id}).`, citations: [], followUps: [], linkIds: [] }),
+      usage: {},
+    };
+  };
+
+  const r = await runAskTurn({ messages: [{ role: "user", text: "What MLB games are live right now?" }] }, { ...engineDeps("route"), provider });
+  assert.equal(r.verified, true, `an approved link written inline was thrown away: ${JSON.stringify(r.receipt.verifierViolations)}`);
+  assert.doesNotMatch(r.answer.answerMarkdown, /\]\(E\d+:/, "the id must be replaced by the evidence's own href, never published as-is");
 });

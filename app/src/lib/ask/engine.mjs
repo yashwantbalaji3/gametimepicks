@@ -29,7 +29,7 @@ import { makeExecutor } from "./executor.mjs";
 import { buildEvidence } from "./evidence.mjs";
 import { harvestEntities, reduceConversation } from "./conversation.mjs";
 import { parsePlan, plannerSystemPrompt } from "./planner.mjs";
-import { parseAnswer, sanitiseMarkdown, writerSystemPrompt, writerUserMessage } from "./writer.mjs";
+import { parseAnswer, resolveInlineLinkIds, sanitiseMarkdown, writerSystemPrompt, writerUserMessage } from "./writer.mjs";
 import { deterministicAnswer, forbiddenCopyIn, verifyAnswer } from "./verifier.mjs";
 
 /**
@@ -459,7 +459,7 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
       continue;
     }
 
-    const clean = sanitiseMarkdown(parsed.answer.answerMarkdown);
+    const clean = resolveInlineLinkIds(sanitiseMarkdown(parsed.answer.answerMarkdown), evidence.links);
     const check = verifyAnswer(clean, evidence, { userNumbers: state.userNumbers });
 
     if (check.ok) {
