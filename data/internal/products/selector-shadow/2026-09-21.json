@@ -1,0 +1,694 @@
+{
+ "schemaVersion": 1,
+ "artifact": "selector-shadow-day",
+ "dataClass": "internal-research",
+ "date": "2026-09-21",
+ "asOf": "2026-09-21T10:57:00Z",
+ "generatedAt": "2026-09-22T04:57:30.552Z",
+ "eligibleLegs": 18,
+ "refusedAtRead": 30,
+ "availability": {
+  "mlb": {
+   "eligible": 18,
+   "rejected": 0
+  },
+  "nfl": {
+   "eligible": 0,
+   "rejected": 6
+  },
+  "ufc": {
+   "eligible": 0,
+   "rejected": 24
+  },
+  "epl": {
+   "eligible": 0,
+   "rejected": 0
+  },
+  "nba": {
+   "eligible": 0,
+   "rejected": 0
+  }
+ },
+ "policies": {
+  "BB-LEGACY": {
+   "policyId": "BB-LEGACY@7be1d5171769",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 100,
+     "american": 139,
+     "decimal": 2.3899,
+     "potentialReturn": 238.99,
+     "jointP": 0.3827,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:824787:mlb_run_line:home:1.5",
+       "sport": "mlb",
+       "eventId": "824787",
+       "eventStartUtc": "2026-09-21T22:35:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": 1.5,
+       "american": -192,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.6291,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Toronto Blue Jays @ Baltimore Orioles",
+       "displaySelection": "Baltimore Orioles +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      },
+      {
+       "legId": "mlb:823169:mlb_run_line:home:1.5",
+       "sport": "mlb",
+       "eventId": "823169",
+       "eventStartUtc": "2026-09-22T01:45:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": 1.5,
+       "american": -175,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.6083,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Minnesota Twins @ San Francisco Giants",
+       "displaySelection": "San Francisco Giants +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-LEGACY@7be1d5171769",
+      "product": "bank-builder",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 18,
+      "considered": 246,
+      "reaching": 246,
+      "concentrated": 192,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "CONCENTRATION_TOO_HIGH",
+     "detail": {
+      "considered": 4,
+      "reaching": 4,
+      "concentrated": 2
+     },
+     "step": 1,
+     "stake": 100,
+     "receipt": {
+      "policyId": "BB-LEGACY@7be1d5171769",
+      "product": "bank-builder",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 18,
+      "considered": 4
+     }
+    }
+   }
+  },
+  "BB-C1": {
+   "policyId": "BB-C1@b66731b335c2",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 100,
+     "american": 139,
+     "decimal": 2.3899,
+     "potentialReturn": 238.99,
+     "jointP": 0.3827,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:824787:mlb_run_line:home:1.5",
+       "sport": "mlb",
+       "eventId": "824787",
+       "eventStartUtc": "2026-09-21T22:35:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": 1.5,
+       "american": -192,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.6291,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Toronto Blue Jays @ Baltimore Orioles",
+       "displaySelection": "Baltimore Orioles +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      },
+      {
+       "legId": "mlb:823169:mlb_run_line:home:1.5",
+       "sport": "mlb",
+       "eventId": "823169",
+       "eventStartUtc": "2026-09-22T01:45:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": 1.5,
+       "american": -175,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.6083,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Minnesota Twins @ San Francisco Giants",
+       "displaySelection": "San Francisco Giants +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-C1@b66731b335c2",
+      "product": "bank-builder",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 18,
+      "considered": 246,
+      "reaching": 246,
+      "concentrated": 192,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "CONCENTRATION_TOO_HIGH",
+     "detail": {
+      "considered": 4,
+      "reaching": 4,
+      "concentrated": 4
+     },
+     "step": 1,
+     "stake": 100,
+     "receipt": {
+      "policyId": "BB-C1@b66731b335c2",
+      "product": "bank-builder",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 18,
+      "considered": 4
+     }
+    }
+   }
+  },
+  "BB-C2b": {
+   "policyId": "BB-C2b@61c455e7d375",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 100,
+     "american": 139,
+     "decimal": 2.3899,
+     "potentialReturn": 238.99,
+     "jointP": 0.3827,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:824787:mlb_run_line:home:1.5",
+       "sport": "mlb",
+       "eventId": "824787",
+       "eventStartUtc": "2026-09-21T22:35:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": 1.5,
+       "american": -192,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.6291,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Toronto Blue Jays @ Baltimore Orioles",
+       "displaySelection": "Baltimore Orioles +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      },
+      {
+       "legId": "mlb:823169:mlb_run_line:home:1.5",
+       "sport": "mlb",
+       "eventId": "823169",
+       "eventStartUtc": "2026-09-22T01:45:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": 1.5,
+       "american": -175,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.6083,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Minnesota Twins @ San Francisco Giants",
+       "displaySelection": "San Francisco Giants +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-C2b@61c455e7d375",
+      "product": "bank-builder",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 18,
+      "considered": 246,
+      "reaching": 246,
+      "concentrated": 192,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "CONCENTRATION_TOO_HIGH",
+     "detail": {
+      "considered": 4,
+      "reaching": 4,
+      "concentrated": 4
+     },
+     "step": 1,
+     "stake": 100,
+     "receipt": {
+      "policyId": "BB-C2b@61c455e7d375",
+      "product": "bank-builder",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 18,
+      "considered": 4
+     }
+    }
+   }
+  },
+  "MS-LEGACY": {
+   "policyId": "MS-LEGACY@311563f3927d",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 300,
+     "decimal": 4.0041,
+     "potentialReturn": 100.1,
+     "jointP": 0.2282,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:824221:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "824221",
+       "eventStartUtc": "2026-09-21T22:40:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -156,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5825,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Washington Nationals @ Detroit Tigers",
+       "displaySelection": "Detroit Tigers to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      },
+      {
+       "legId": "mlb:823169:mlb_run_line:away:-1.5",
+       "sport": "mlb",
+       "eventId": "823169",
+       "eventStartUtc": "2026-09-22T01:45:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "away",
+       "line": -1.5,
+       "american": 144,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.3917,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Minnesota Twins @ San Francisco Giants",
+       "displaySelection": "Minnesota Twins -1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-LEGACY@311563f3927d",
+      "product": "moonshot",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 18,
+      "considered": 153,
+      "reaching": 50,
+      "concentrated": 13,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "CONCENTRATION_TOO_HIGH",
+     "detail": {
+      "considered": 15,
+      "reaching": 4,
+      "concentrated": 4
+     },
+     "step": 1,
+     "stake": 25,
+     "receipt": {
+      "policyId": "MS-LEGACY@311563f3927d",
+      "product": "moonshot",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 18,
+      "considered": 15
+     }
+    }
+   }
+  },
+  "MS-C1": {
+   "policyId": "MS-C1@cbd27cd0b408",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 300,
+     "decimal": 4.0041,
+     "potentialReturn": 100.1,
+     "jointP": 0.2282,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:824221:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "824221",
+       "eventStartUtc": "2026-09-21T22:40:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -156,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5825,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Washington Nationals @ Detroit Tigers",
+       "displaySelection": "Detroit Tigers to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      },
+      {
+       "legId": "mlb:823169:mlb_run_line:away:-1.5",
+       "sport": "mlb",
+       "eventId": "823169",
+       "eventStartUtc": "2026-09-22T01:45:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "away",
+       "line": -1.5,
+       "american": 144,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.3917,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Minnesota Twins @ San Francisco Giants",
+       "displaySelection": "Minnesota Twins -1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-C1@cbd27cd0b408",
+      "product": "moonshot",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 18,
+      "considered": 153,
+      "reaching": 50,
+      "concentrated": 13,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "CONCENTRATION_TOO_HIGH",
+     "detail": {
+      "considered": 15,
+      "reaching": 4,
+      "concentrated": 4
+     },
+     "step": 1,
+     "stake": 25,
+     "receipt": {
+      "policyId": "MS-C1@cbd27cd0b408",
+      "product": "moonshot",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 18,
+      "considered": 15
+     }
+    }
+   }
+  },
+  "MS-C4": {
+   "policyId": "MS-C4@5da8e43d1124",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 300,
+     "decimal": 4.0041,
+     "potentialReturn": 100.1,
+     "jointP": 0.2282,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:824221:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "824221",
+       "eventStartUtc": "2026-09-21T22:40:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -156,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5825,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Washington Nationals @ Detroit Tigers",
+       "displaySelection": "Detroit Tigers to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      },
+      {
+       "legId": "mlb:823169:mlb_run_line:away:-1.5",
+       "sport": "mlb",
+       "eventId": "823169",
+       "eventStartUtc": "2026-09-22T01:45:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "away",
+       "line": -1.5,
+       "american": 144,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-21T10:51:25.815Z",
+       "probability": null,
+       "marketImpliedProbability": 0.3917,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Minnesota Twins @ San Francisco Giants",
+       "displaySelection": "Minnesota Twins -1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-21.json",
+        "mlb/statsapi-schedule/2026-09-21.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-C4@5da8e43d1124",
+      "product": "moonshot",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 18,
+      "considered": 153,
+      "reaching": 50,
+      "concentrated": 13,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "CONCENTRATION_TOO_HIGH",
+     "detail": {
+      "considered": 15,
+      "reaching": 4,
+      "concentrated": 4
+     },
+     "step": 1,
+     "stake": 25,
+     "receipt": {
+      "policyId": "MS-C4@5da8e43d1124",
+      "product": "moonshot",
+      "asOf": "2026-09-21T10:57:00Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 18,
+      "considered": 15
+     }
+    }
+   }
+  }
+ }
+}

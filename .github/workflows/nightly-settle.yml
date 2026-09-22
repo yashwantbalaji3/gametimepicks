@@ -302,6 +302,20 @@ jobs:
           npx tsx app/scripts/activate-daily-portfolio.mjs --date "$ROLL_DATE" --apply
           echo "::notice::daily portfolio rolled forward to $ROLL_DATE"
 
+      # v1.7 forward shadow. Grade yesterday's shadow cards from the linescores fetched above (pending
+      # stays pending — a missing final is never a loss), roll the shadow ladders, and publish the
+      # shadow for the roll-forward date at THIS instant, the same one the live product just rolled
+      # to. Neither step touches the live lanes or the protected money. Fail loud, no `|| true`.
+      - name: Grade and roll the selector shadow (v1.7)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          ROLL_DATE="$(TZ=America/New_York date +%F)"
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          (cd app && npx tsx scripts/products/grade-selector-shadow.mjs --write)
+          (cd app && npx tsx scripts/products/build-product-eligible-legs.mjs --date "$ROLL_DATE" --now "$NOW" --write)
+          (cd app && npx tsx scripts/products/build-selector-shadow.mjs --date "$ROLL_DATE" --now "$NOW" --write)
+
       # The risk ladder re-derives its whole record from every graded day, so it runs AFTER
       # settlement and never carries a number forward from the previous file.
       # ── HOW THE PICKS TURNED OUT, REBUILT WHENEVER SOMETHING SETTLES ─────────────────────────
@@ -668,6 +682,9 @@ jobs:
           # Program 236: the product lifecycle ledger — settled outcomes and ladder positions for
           # Bank Builder and Moonshot. Not money; the protected artifacts stay out of this list.
           git add app/public/data/products/lifecycle/ 2>/dev/null || true
+          # v1.7: the public availability summary (counts + plain reasons); the internal eligible-leg
+          # universe and selector shadow ride on data/internal/products/ above.
+          git add app/public/data/products/availability/ 2>/dev/null || true
           # Program 238: the model-results index + its dated partitions, rebuilt above.
           git add app/public/data/mlb/results/ 2>/dev/null || true
           git add app/public/data/parlays/optimizer-summary.json 2>/dev/null || true

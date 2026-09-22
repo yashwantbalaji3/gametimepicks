@@ -20,7 +20,8 @@ import { fileURLToPath } from "node:url";
 import { buildEligibleLegs } from "./build-product-eligible-legs.mjs";
 import { guardLegs } from "../../src/lib/products/eligible-leg/contract.mjs";
 import { selectProduct } from "../../src/lib/products/selector/select.mjs";
-import { POLICIES, LADDERS, policyId } from "../../src/lib/products/selector/policies.mjs";
+import { POLICIES, policyId } from "../../src/lib/products/selector/policies.mjs";
+import { gradeCardFromLinescores, advancePosition } from "../../src/lib/products/selector/shadow.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.resolve(HERE, "..", "..");
@@ -34,41 +35,13 @@ const dates = [];
 for (const f of fs.readdirSync(path.join(APP, "public", "data", "mlb", "team-markets"))) { const d = f.replace(".json", ""); if (d >= FROM && d <= TO) dates.push(d); }
 dates.sort();
 
-/** Grade a card from the official linescore cache. */
+/** Grading and the ladder rule are the shadow's (one rule, one place). */
 function linescores(date) { try { const d = JSON.parse(fs.readFileSync(path.join(REPO, "data", "internal", "mlb", "linescores", `${date}.json`), "utf8")); return Array.isArray(d) ? d : (d.linescores ?? d.games ?? Object.values(d)); } catch { return null; } }
-function gradeLeg(leg, ls) {
-  const g = (ls ?? []).find((x) => String(x.gamePk) === String(leg.eventId));
-  if (!g || !g.isFinal || !Number.isFinite(g.homeRuns) || !Number.isFinite(g.awayRuns)) return "pending";
-  const home = g.homeRuns, away = g.awayRuns;
-  if (leg.marketKey === "mlb_moneyline") return (leg.side === "home" ? home > away : away > home) ? "won" : "lost";
-  if (leg.marketKey === "mlb_run_line") { const m = leg.side === "home" ? home - away + leg.line : away - home + leg.line; return m > 0 ? "won" : m < 0 ? "lost" : "push"; }
-  if (leg.marketKey === "mlb_total_runs") { const t = home + away; if (t === leg.line) return "push"; return (leg.side === "over" ? t > leg.line : t < leg.line) ? "won" : "lost"; }
-  return "pending";
-}
-function gradeCard(card, ls) {
-  const r = card.legs.map((l) => gradeLeg(l, ls));
-  if (r.includes("lost")) return { status: "lost", legs: r };
-  if (r.includes("pending")) return { status: "pending", legs: r };
-  if (r.every((x) => x === "push")) return { status: "push", legs: r };
-  return { status: "won", legs: r };
-}
-
-/** Carry a lane's position from its own replayed result (ladder-position rules). */
-function advance(policy, pos, status, card) {
-  const ladder = LADDERS[policy.ladder];
-  if (status === "won") {
-    const payout = +(card.stake * card.decimal).toFixed(2);
-    if (payout >= ladder[ladder.length - 1][1]) return { step: 1, stake: policy.seed, completed: true }; // cleared the final goal
-    // The next rung is the highest whose START the payout has reached (skips rungs already cleared).
-    let step = pos.step; while (step < ladder.length && payout >= ladder[step][0]) step++;
-    return { step, stake: payout, completed: false };
-  }
-  if (status === "lost") return { step: 1, stake: policy.seed, completed: false };
-  return { ...pos, completed: false }; // push/void: same rung, same stake
-}
+const gradeCard = (card, ls) => gradeCardFromLinescores(card, ls);
+const advance = (policy, pos, status, card) => advancePosition(policy.name, pos, status, card);
 
 const results = {};
-for (const name of Object.keys(POLICIES)) results[name] = { policyId: policyId(name), product: POLICIES[name].product, positions: { A: { step: 1, stake: POLICIES[name].seed }, B: { step: 1, stake: POLICIES[name].seed } }, days: [], lastPlaced: { A: null, B: null } };
+for (const name of Object.keys(POLICIES)) results[name] = { policyId: policyId(name), product: POLICIES[name].product, name, positions: { A: { step: 1, stake: POLICIES[name].seed }, B: { step: 1, stake: POLICIES[name].seed } }, days: [], lastPlaced: { A: null, B: null } };
 const coverage = [];
 for (const date of dates) {
   // THE TIME-LOCK. The only price archive is the committed team-market file, which the ingest rewrites
@@ -84,9 +57,10 @@ for (const date of dates) {
   const { kept } = guardLegs(artifact.legs, { asOf });
   const ls = linescores(date);
   coverage.push({ date, asOf, publication, captureAt, timeLock, eligibleLegs: kept.length, linescore: !!ls });
-  const usedByBB = {}; // per policy family, BB legs are excluded from the same family's Moonshot? No — policies are independent; each replays alone.
+  // Policies are independent: each replays alone (no cross-product leg exclusion), so each is judged
+  // on the whole eligible universe. The shadow runner applies the same rule.
   for (const [name, st] of Object.entries(results)) {
-    const policy = POLICIES[name];
+    const policy = { ...POLICIES[name], name };
     const positions = { A: { ...st.positions.A, state: "ready" }, B: { ...st.positions.B, state: "ready" } };
     const cadence = policy.cadenceDays ? { A: { lastPlacedDate: st.lastPlaced.A, date }, B: { lastPlacedDate: st.lastPlaced.B, date } } : null;
     const sel = selectProduct({ policyName: name, legs: kept, positions, asOf, cadence });

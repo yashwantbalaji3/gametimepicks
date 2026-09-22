@@ -198,6 +198,13 @@ jobs:
           # fault, and swallowing it leaves the Parlay Center rendering yesterday's cards under today's
           # date. The same shape hid a UFC capture that crashed after paying for its prices.
           (cd app && node scripts/parlays/build-risk-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --date "$DATE")
+          # v1.7: the day's ProductEligibleLeg universe (every sport, reasons for every refusal) and the
+          # forward SHADOW of the preregistered selectors, at the same instant the live product published.
+          # Network-free; neither touches the live lanes or the money. First publication wins: a later run
+          # of this job never rewrites a shadow day. NO `|| true` — a crash here is a real fault.
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          (cd app && npx tsx scripts/products/build-product-eligible-legs.mjs --date "$DATE" --now "$NOW" --write)
+          (cd app && npx tsx scripts/products/build-selector-shadow.mjs --date "$DATE" --now "$NOW" --write)
 
       - name: Protected money must be byte-identical
         # A DISPLAY refresh that moved the bankroll would be a serious defect. The orchestrator has
@@ -294,6 +301,8 @@ jobs:
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
           git add app/public/data/mr-dub/ app/public/data/admin/ data/internal/products/receipts/ data/internal/products/forward-coverage/ || true
+          # v1.7: eligible-leg universe, its manifest, the public availability summary, the selector shadow.
+          git add data/internal/products/eligible-legs/ data/internal/products/selector-shadow/ app/public/data/products/availability/ 2>/dev/null || true
           git add app/public/data/parlays/risk-ladder/ 2>/dev/null || true
           git add app/public/data/parlays/lab-ledger.json app/public/data/parlays/coverage-matrix.json 2>/dev/null || true
           if git diff --cached --quiet; then

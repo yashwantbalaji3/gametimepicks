@@ -104,7 +104,7 @@ const better = (a, b) => (b.jointP - a.jointP) || (a.decimal - b.decimal) || (a.
  * @param {Set<string>} [args.excludeEventIds] events already used by the sibling lane
  * @param {object} [args.cadence]     { lastPlacedDate, date } for cadence policies
  */
-export function selectLane({ policyName, legs, position, asOf, excludeLegIds = new Set(), excludeEventIds = new Set(), cadence = null }) {
+export function selectLane({ policyName, legs, position, asOf, excludeLegIds = new Set(), excludeEventIds = new Set(), cadence = null, history = null }) {
   const policy = POLICIES[policyName]; if (!policy) throw new Error(`unknown policy ${policyName}`);
   const id = policyId(policyName);
   const rung = rungFor(policy, position);
@@ -149,6 +149,13 @@ export function selectLane({ policyName, legs, position, asOf, excludeLegIds = n
     const floor = rung.isFinal && policy.noPlayFloor.final != null ? policy.noPlayFloor.final : rung.step === 1 ? policy.noPlayFloor.step1 : policy.noPlayFloor.later;
     if (best.jointP < floor) return noPlay(NO_PLAY.SLATE_QUALITY_BELOW_THRESHOLD, { considered, reaching, bestJointP: +best.jointP.toFixed(4), floor });
   }
+  if (policy.relativeFloor && Array.isArray(history?.bestJointPByStep?.[rung.step])) {
+    const recent = history.bestJointPByStep[rung.step].slice(-policy.relativeFloor.window);
+    if (recent.length >= policy.relativeFloor.minDays) {
+      const floor = policy.relativeFloor.ratio * Math.max(...recent);
+      if (best.jointP < floor) return noPlay(NO_PLAY.SLATE_QUALITY_BELOW_THRESHOLD, { considered, reaching, bestJointP: +best.jointP.toFixed(4), floor: +floor.toFixed(4), relative: true, window: recent.length });
+    }
+  }
   return {
     status: "CARD", rung,
     card: {
@@ -161,12 +168,12 @@ export function selectLane({ policyName, legs, position, asOf, excludeLegIds = n
 }
 
 /** Both lanes of one product for one day: Lane A first, Lane B never shares an event with Lane A. */
-export function selectProduct({ policyName, legs, positions, asOf, excludeLegIds = new Set(), cadence = null }) {
+export function selectProduct({ policyName, legs, positions, asOf, excludeLegIds = new Set(), cadence = null, history = null }) {
   const out = {};
   const usedEvents = new Set(), usedLegs = new Set(excludeLegIds);
   for (const lane of ["A", "B"]) {
     const pos = positions?.[lane] ?? { step: 1, state: "ready" };
-    const r = selectLane({ policyName, legs, position: { ...pos, lane }, asOf, excludeLegIds: usedLegs, excludeEventIds: usedEvents, cadence: cadence?.[lane] ?? null });
+    const r = selectLane({ policyName, legs, position: { ...pos, lane }, asOf, excludeLegIds: usedLegs, excludeEventIds: usedEvents, cadence: cadence?.[lane] ?? null, history });
     out[lane] = r;
     if (r.status === "CARD") for (const l of r.card.legs) { usedLegs.add(l.legId); usedEvents.add(`${l.sport}:${l.eventId}`); }
   }

@@ -51,6 +51,9 @@ export const POLICIES = Object.freeze({
   "BB-C3": bb({ noPlayFloor: { step1: 0.42, later: 0.30 }, pool: "eligible-universe" }),
   "BB-C4": bb({ noPlayFloor: { step1: 0.42, later: 0.30 }, ladder: "bb-3" }),
   "BB-C5": bb({ noPlayFloor: { step1: 0.42, later: 0.30 }, ladder: "bb-4" }),
+  // Look 2 (2026-09-22, forward-only): a RELATIVE floor — decline when today's best qualifying joint p is
+  // below `ratio` × the best the rung achieved on the last `window` days, once `minDays` are known.
+  "BB-C2b": bb({ relativeFloor: { ratio: 0.9, window: 7, minDays: 3 } }),
   "MS-LEGACY": ms({ concentration: { ...BASE_CONCENTRATION, sameEntity: "record", opponent: "record" } }),
   "MS-C1": ms({ noPlayFloor: { step1: 0.20, later: 0.20, final: 0.32 } }),
   "MS-C2": ms({ noPlayFloor: { step1: 0.20, later: 0.20, final: 0.32 }, legsPerCard: [2, 3] }),

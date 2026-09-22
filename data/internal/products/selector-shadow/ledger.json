@@ -1,0 +1,225 @@
+{
+ "schemaVersion": 1,
+ "artifact": "selector-shadow-ledger",
+ "dataClass": "internal-research",
+ "generatedAt": "2026-09-22T04:57:48.703Z",
+ "days": 1,
+ "firstDate": "2026-09-21",
+ "lastDate": "2026-09-21",
+ "policies": {
+  "BB-LEGACY": {
+   "policyId": "BB-LEGACY@7be1d5171769",
+   "metrics": {
+    "laneDays": 2,
+    "placed": 1,
+    "decided": 0,
+    "pending": 1,
+    "won": 0,
+    "lost": 0,
+    "push": 0,
+    "survivalPerStep": null,
+    "survivalSe": null,
+    "byStep": {},
+    "completions": 0,
+    "furthestStep": 1,
+    "noPlayLaneDays": 1,
+    "noPlayByReason": {
+     "CONCENTRATION_TOO_HIGH": 1
+    },
+    "publicationRate": 0.5,
+    "expectedWinsUnderPublishedP": 0,
+    "meanJointP": null
+   }
+  },
+  "BB-C1": {
+   "policyId": "BB-C1@b66731b335c2",
+   "metrics": {
+    "laneDays": 2,
+    "placed": 1,
+    "decided": 0,
+    "pending": 1,
+    "won": 0,
+    "lost": 0,
+    "push": 0,
+    "survivalPerStep": null,
+    "survivalSe": null,
+    "byStep": {},
+    "completions": 0,
+    "furthestStep": 1,
+    "noPlayLaneDays": 1,
+    "noPlayByReason": {
+     "CONCENTRATION_TOO_HIGH": 1
+    },
+    "publicationRate": 0.5,
+    "expectedWinsUnderPublishedP": 0,
+    "meanJointP": null
+   }
+  },
+  "BB-C2b": {
+   "policyId": "BB-C2b@61c455e7d375",
+   "metrics": {
+    "laneDays": 2,
+    "placed": 1,
+    "decided": 0,
+    "pending": 1,
+    "won": 0,
+    "lost": 0,
+    "push": 0,
+    "survivalPerStep": null,
+    "survivalSe": null,
+    "byStep": {},
+    "completions": 0,
+    "furthestStep": 1,
+    "noPlayLaneDays": 1,
+    "noPlayByReason": {
+     "CONCENTRATION_TOO_HIGH": 1
+    },
+    "publicationRate": 0.5,
+    "expectedWinsUnderPublishedP": 0,
+    "meanJointP": null
+   }
+  },
+  "MS-LEGACY": {
+   "policyId": "MS-LEGACY@311563f3927d",
+   "metrics": {
+    "laneDays": 2,
+    "placed": 1,
+    "decided": 0,
+    "pending": 1,
+    "won": 0,
+    "lost": 0,
+    "push": 0,
+    "survivalPerStep": null,
+    "survivalSe": null,
+    "byStep": {},
+    "completions": 0,
+    "furthestStep": 1,
+    "noPlayLaneDays": 1,
+    "noPlayByReason": {
+     "CONCENTRATION_TOO_HIGH": 1
+    },
+    "publicationRate": 0.5,
+    "expectedWinsUnderPublishedP": 0,
+    "meanJointP": null
+   }
+  },
+  "MS-C1": {
+   "policyId": "MS-C1@cbd27cd0b408",
+   "metrics": {
+    "laneDays": 2,
+    "placed": 1,
+    "decided": 0,
+    "pending": 1,
+    "won": 0,
+    "lost": 0,
+    "push": 0,
+    "survivalPerStep": null,
+    "survivalSe": null,
+    "byStep": {},
+    "completions": 0,
+    "furthestStep": 1,
+    "noPlayLaneDays": 1,
+    "noPlayByReason": {
+     "CONCENTRATION_TOO_HIGH": 1
+    },
+    "publicationRate": 0.5,
+    "expectedWinsUnderPublishedP": 0,
+    "meanJointP": null
+   }
+  },
+  "MS-C4": {
+   "policyId": "MS-C4@5da8e43d1124",
+   "metrics": {
+    "laneDays": 2,
+    "placed": 1,
+    "decided": 0,
+    "pending": 1,
+    "won": 0,
+    "lost": 0,
+    "push": 0,
+    "survivalPerStep": null,
+    "survivalSe": null,
+    "byStep": {},
+    "completions": 0,
+    "furthestStep": 1,
+    "noPlayLaneDays": 1,
+    "noPlayByReason": {
+     "CONCENTRATION_TOO_HIGH": 1
+    },
+    "publicationRate": 0.5,
+    "expectedWinsUnderPublishedP": 0,
+    "meanJointP": null
+   }
+  }
+ },
+ "gates": {
+  "BB-C1": {
+   "product": "bank-builder",
+   "control": "BB-LEGACY",
+   "state": "NOT_YET",
+   "reasons": [
+    "decided 0 < 20",
+    "survival not measurable yet"
+   ],
+   "measured": {
+    "shadowDecided": 0,
+    "shadowSurvival": null,
+    "controlSurvival": null,
+    "shadowPlaced": 1,
+    "controlPlaced": 1
+   },
+   "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
+  },
+  "BB-C2b": {
+   "product": "bank-builder",
+   "control": "BB-LEGACY",
+   "state": "NOT_YET",
+   "reasons": [
+    "decided 0 < 20",
+    "survival not measurable yet"
+   ],
+   "measured": {
+    "shadowDecided": 0,
+    "shadowSurvival": null,
+    "controlSurvival": null,
+    "shadowPlaced": 1,
+    "controlPlaced": 1
+   },
+   "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
+  },
+  "MS-C1": {
+   "product": "moonshot",
+   "control": "MS-LEGACY",
+   "state": "NOT_YET",
+   "reasons": [
+    "decided 0 < 20",
+    "survival not measurable yet"
+   ],
+   "measured": {
+    "shadowDecided": 0,
+    "shadowSurvival": null,
+    "controlSurvival": null,
+    "shadowPlaced": 1,
+    "controlPlaced": 1
+   },
+   "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
+  },
+  "MS-C4": {
+   "product": "moonshot",
+   "control": "MS-LEGACY",
+   "state": "NOT_YET",
+   "reasons": [
+    "decided 0 < 20",
+    "survival not measurable yet"
+   ],
+   "measured": {
+    "shadowDecided": 0,
+    "shadowSurvival": null,
+    "controlSurvival": null,
+    "shadowPlaced": 1,
+    "controlPlaced": 1
+   },
+   "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
+  }
+ }
+}
