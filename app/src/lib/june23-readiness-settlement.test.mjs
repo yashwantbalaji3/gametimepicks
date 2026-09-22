@@ -49,10 +49,7 @@ test("archived June-24 lanes are settled: Lane A completed (ladder cleared), Lan
   assert.ok(!bView.steps.some((s) => s.status === "active"), "lane-b has no active card (no open exposure)");
 });
 
-test("Bank Builder board renders the 'Awaiting next card' lane status label", () => {
-  const board = read("src/components/bank-builder/dual-ladder-board.tsx");
-  assert.match(board, /awaiting_next_card.*Awaiting next card/, "board labels awaiting_next_card cleanly");
-});
+// (v1.7 UX P-1: the 'Awaiting next card' board-label test was removed with the unmounted dual-ladder-board.tsx.)
 
 test("World Cup Specials history persists across days (June 22 + June 23), separate, $0 exposure", () => {
   const h = loadWorldCupSpecialsHistory();
