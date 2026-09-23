@@ -7,8 +7,10 @@
  *
  * It was positioned to fail. The step sat ~160 lines BEFORE "Refresh prediction history + learning
  * artifacts", which is where `export-mlb-calibration-rows.mjs` rewrites that corpus — while the aggregate
- * had already been rewritten by an earlier step. So every night it compared TODAY's aggregate against
- * YESTERDAY's corpus and refused, and a trailing `|| echo` turned the refusal into a warning.
+ * had already been rewritten by an earlier step. So it compared TODAY's aggregate against YESTERDAY's
+ * corpus, and refused WHENEVER NEW ROWS LANDED BETWEEN THE TWO. Not every night: the same guards passed
+ * at 4dbd40a3b, so the window only opens when the aggregate actually moves. A trailing `|| echo` then
+ * turned the refusal into a warning.
  *
  * Observed 2026-09-23, run 35845995477: `##[warning]model-results index refused to write — prior index
  * retained`. Job green, settle committed, and `main` shipped an index claiming **22,938** wins beside an
