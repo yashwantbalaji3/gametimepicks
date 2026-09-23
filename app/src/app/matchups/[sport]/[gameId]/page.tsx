@@ -29,6 +29,7 @@ import { formatGameDate, formatKickoff, formatRecord } from "@/lib/research-page
 import { gameHrefs } from "@/lib/research-pages/game-links";
 import { teamLabels } from "@/lib/research-pages/projection-store";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { matchupTitles } from "@/lib/compare/matchup-title.mjs";
 
 export const dynamicParams = false;
 type Sport = "MLB" | "NFL";
@@ -55,7 +56,17 @@ export function generateMetadata({ params }: { params: { sport: string; gameId: 
   const x = load(params);
   if (!x) return { title: "Matchup research · GameTimePicks" };
   const { sport, entry, m } = x;
-  const title = `${m.away.name} ${joiner(m.neutralSite)} ${m.home.name} matchup history and team stats | GameTimePicks`;
+  /*
+   * UX-1: this read "{away} at {home} matchup history and team stats" for every game, so 93 MLB matchups
+   * shared 38 titles. The h1 is deliberately unchanged — the line beneath it already renders the kickoff
+   * in ET, so only the TITLE, which travels to tabs, search results and shared links, was ambiguous.
+   */
+  const describe = (e: { awayTeamId: string; homeTeamId: string }) => {
+    const t = compareTeams(sport);
+    return `${t.get(e.awayTeamId)?.name} ${joiner(m.neutralSite)} ${t.get(e.homeTeamId)?.name}`;
+  };
+  const titled = matchupTitles(matchupEntries(sport), describe, formatGameDate).get(String(entry.gameId));
+  const title = `${titled ?? `${m.away.name} ${joiner(m.neutralSite)} ${m.home.name}`} · matchup history | GameTimePicks`;
   const description = `${m.away.name} ${joiner(m.neutralSite)} ${m.home.name}, ${formatGameDate(m.startUtc)}: each team's recorded results entering the game and their recorded meetings in ${SPORT_NAME[sport]} data.`;
   return withRouteMetadata(matchupPath(sport, entry.gameId), { title, description, ...(entry.indexable ? {} : { robots: { index: false, follow: true } }) });
 }
