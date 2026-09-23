@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823492,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T15:17:37.365Z",
+  "availableAt": "2026-09-23T15:17:37.365Z",
+  "eventStartTime": "2026-09-23T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 543037,
+      "name": "Gerrit Cole",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-09-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 4.6,
+        "bbAvg": 0.4,
+        "erAvg": 3.4,
+        "hrAvg": 1.8,
+        "kPer9": 7.22,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 121.33,
+        "k": 123,
+        "bb": 22,
+        "er": 49,
+        "hr": 21
+      }
+    },
+    "away": {
+      "id": 693855,
+      "name": "Ian Seymour",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 5,
+      "lastStartDate": "2026-09-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 7,
+        "bbAvg": 1,
+        "erAvg": 3,
+        "hrAvg": 1.8,
+        "kPer9": 12.43,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 72,
+        "k": 98,
+        "bb": 15,
+        "er": 38,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-23T15:17:37.365Z"
+  },
+  "recordHash": "8aa8e736197f24d5101a57974a1f481418af4e0eafa636825129b8e5cadb3a15"
+}

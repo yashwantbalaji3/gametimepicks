@@ -2,16 +2,16 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-22T23:30:30Z",
+ "generatedAt": "2026-09-23T14:14:14Z",
  "windowSeasonType": "MIXED_OR_REGULAR",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
   "state": "PUBLIC_EXPERIMENTAL",
   "headline": "Experimental regular-season simulations are published",
-  "detail": "We publish a simulated score range and win chance for every game, clearly marked experimental (1 games forecast today under nfl-regular-season-public-v1). The win chance comes from a team rating that weights margin of victory. Tested on 4,281 past games it had never seen (2006–2021), it scored 0.629 on log loss (lower is better) against 0.642 for our previous rating, 0.693 for a coin flip and 0.610 for the sportsbooks' own odds — so it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.",
+  "detail": "We publish a simulated score range and win chance for every game, clearly marked experimental (16 games forecast today under nfl-regular-season-public-v1). The win chance comes from a team rating that weights margin of victory. Tested on 4,281 past games it had never seen (2006–2021), it scored 0.629 on log loss (lower is better) against 0.642 for our previous rating, 0.693 for a coin flip and 0.610 for the sportsbooks' own odds — so it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.",
   "nextGate": "A validated pick additionally needs the frozen 2026 walk-forward evaluation to pass its own bars — 64 decisive games and 4 completed weeks before any reading counts.",
   "checkable": {
-   "forecasts": 1,
+   "forecasts": 16,
    "model": "nfl-regular-season-public-v1",
    "heldOutWinnerLogLoss": 0.6478,
    "coinLogLoss": 0.6931
@@ -51,7 +51,7 @@
    "key": "player_pass_yds",
    "label": "Passing yards",
    "publication": {
-    "boards": 1,
+    "boards": 16,
     "states": [
      "ESTIMATE"
     ],
@@ -70,7 +70,7 @@
    "key": "player_rush_yds",
    "label": "Rushing yards",
    "publication": {
-    "boards": 1,
+    "boards": 16,
     "states": [
      "PUBLISHED"
     ],
@@ -89,7 +89,7 @@
    "key": "player_reception_yds",
    "label": "Receiving yards",
    "publication": {
-    "boards": 1,
+    "boards": 16,
     "states": [
      "PUBLISHED"
     ],
@@ -108,7 +108,7 @@
    "key": "player_receptions",
    "label": "Receptions",
    "publication": {
-    "boards": 1,
+    "boards": 16,
     "states": [
      "PUBLISHED"
     ],

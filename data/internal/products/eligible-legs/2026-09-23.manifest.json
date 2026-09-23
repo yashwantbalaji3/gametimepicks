@@ -1,0 +1,104 @@
+{
+ "schemaVersion": 1,
+ "artifact": "product-eligible-legs/manifest",
+ "date": "2026-09-23",
+ "asOf": "2026-09-23T15:35:03Z",
+ "sports": {
+  "mlb": {
+   "registryState": "FULL_MODEL",
+   "registryPermitsProductLegs": true,
+   "rawForecastCount": 15,
+   "publicForecastCount": 15,
+   "eventCount": 15,
+   "marketFamilyCount": 3,
+   "eligibleLegCount": 90,
+   "rejectedLegCount": 0,
+   "rejectedByReason": {},
+   "staleCount": 0,
+   "noPriceCount": 0,
+   "marketPricedNoForecastCount": 90,
+   "ownerNote": "market-implied de-vigged prices from one bookmaker; the MLB model families are WATCH/HOLDING/BREACHED against the market and are not a product forecast owner",
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-23.json",
+    "mlb/statsapi-schedule/2026-09-23.json"
+   ]
+  },
+  "nfl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "registryPermitsProductLegs": false,
+   "rawForecastCount": 16,
+   "publicForecastCount": 16,
+   "eventCount": 0,
+   "marketFamilyCount": 0,
+   "eligibleLegCount": 0,
+   "rejectedLegCount": 0,
+   "rejectedByReason": {},
+   "staleCount": 0,
+   "noPriceCount": 0,
+   "marketPricedNoForecastCount": 0,
+   "ownerNote": "every game is PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg (nfl/product-eligibility.json) and the public-beta engine cannot emit it; player families publish no line and no price",
+   "sourceReceiptRefs": []
+  },
+  "ufc": {
+   "registryState": "SCAFFOLD_ONLY",
+   "registryPermitsProductLegs": false,
+   "rawForecastCount": 9,
+   "publicForecastCount": 0,
+   "eventCount": 9,
+   "marketFamilyCount": 1,
+   "eligibleLegCount": 0,
+   "rejectedLegCount": 18,
+   "rejectedByReason": {
+    "SPORT_NOT_ELIGIBLE": 18,
+    "STALE": 17,
+    "MISSING_IDENTITY": 18,
+    "PRICE_UNAVAILABLE": 1,
+    "PRICE_OUT_OF_RANGE": 2
+   },
+   "staleCount": 17,
+   "noPriceCount": 1,
+   "marketPricedNoForecastCount": 18,
+   "ownerNote": "no independent fight model (SCAFFOLD_ONLY); the projections artifact is a nudged market price and is not an owner; prices are a raw consensus without a per-bout capture time",
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ]
+  },
+  "epl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "registryPermitsProductLegs": false,
+   "rawForecastCount": 10,
+   "publicForecastCount": 10,
+   "eventCount": 0,
+   "marketFamilyCount": 0,
+   "eligibleLegCount": 0,
+   "rejectedLegCount": 0,
+   "rejectedByReason": {},
+   "staleCount": 0,
+   "noPriceCount": 0,
+   "marketPricedNoForecastCount": 0,
+   "ownerNote": "registry EXPERIMENTAL_PUBLIC (binding); artifact validation VALIDATED_OUT_OF_SAMPLE_HISTORY; lane calibration UNPROVEN; odds capture is public:false and joined by eventId",
+   "sourceReceiptRefs": []
+  },
+  "nba": {
+   "registryState": "HISTORICAL_ONLY",
+   "registryPermitsProductLegs": false,
+   "rawForecastCount": 0,
+   "publicForecastCount": 0,
+   "eventCount": 0,
+   "marketFamilyCount": 0,
+   "eligibleLegCount": 0,
+   "rejectedLegCount": 0,
+   "rejectedByReason": {},
+   "staleCount": 0,
+   "noPriceCount": 0,
+   "marketPricedNoForecastCount": 0,
+   "ownerNote": "HISTORICAL_ONLY — no current NBA forecast owner; nothing is normalized by design",
+   "sourceReceiptRefs": []
+  }
+ },
+ "marketPricedLegPolicy": {
+  "state": "ADMITTED_PENDING_FOUNDER_DECISION",
+  "gate": "F1",
+  "since": "2026-09-21"
+ }
+}

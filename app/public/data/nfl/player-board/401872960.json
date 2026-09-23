@@ -1,0 +1,559 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-23T14:14:14Z",
+ "sourceGeneratedAt": "2026-09-23T14:14:14Z",
+ "providerEventId": "401872960",
+ "matchup": "BAL @ DAL",
+ "kickoffUtc": "2026-09-27T20:25Z",
+ "seasonType": 2,
+ "week": 3,
+ "participationBasis": "Availability refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "ESTIMATE",
+   "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+   "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
+   "model": "nfl-player-share-level-v1"
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "PUBLISHED",
+   "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (14,502 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (111 graded player-games so far).",
+   "model": "nfl-player-share-level-v1"
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (200 graded player-games so far).",
+   "model": "nfl-player-share-level-v1"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "PUBLISHED",
+   "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (200 graded player-games so far).",
+   "model": "nfl-player-share-level-v1"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (267 graded player-games so far).",
+   "model": "nfl-anytime-td-opportunity-v1"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "newArrivals": {},
+ "departedFiltered": 0,
+ "shareLevel": {
+  "markets": [
+   "anytime_td",
+   "player_pass_yds",
+   "player_reception_yds",
+   "player_receptions",
+   "player_rush_yds"
+  ],
+  "rows": 67,
+  "rosterDropped": 47,
+  "withoutEspnId": 0
+ },
+ "players": [
+  {
+   "playerId": "nfl-athlete-3043078",
+   "name": "Derrick Henry",
+   "team": "BAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 1.3691,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "player_reception_yds": {
+     "mean": 14.669,
+     "p10": 0,
+     "p25": 0,
+     "median": 9.7328,
+     "p75": 22.2782,
+     "p90": 37.3133
+    },
+    "player_rush_yds": {
+     "mean": 94.8244,
+     "p10": 25.0955,
+     "p25": 45.4565,
+     "median": 79.5013,
+     "p75": 127.7063,
+     "p90": 184.6364
+    },
+    "anytime_td": {
+     "probability": 0.7516
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4361579",
+   "name": "Javonte Williams",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 2.8273,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 6
+    },
+    "player_reception_yds": {
+     "mean": 26.2101,
+     "p10": 3.3739,
+     "p25": 10.7146,
+     "median": 21.5636,
+     "p75": 36.697,
+     "p90": 54.5974
+    },
+    "player_rush_yds": {
+     "mean": 61.5182,
+     "p10": 13.4261,
+     "p25": 26.4876,
+     "median": 49.648,
+     "p75": 83.8135,
+     "p90": 125.2254
+    },
+    "anytime_td": {
+     "probability": 0.5325
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241389",
+   "name": "CeeDee Lamb",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 5.9004,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 8,
+     "p90": 11
+    },
+    "player_reception_yds": {
+     "mean": 75.0591,
+     "p10": 26.9184,
+     "p25": 42.9151,
+     "median": 66.9275,
+     "p75": 98.481,
+     "p90": 133.9699
+    },
+    "anytime_td": {
+     "probability": 0.4665
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429615",
+   "name": "Zay Flowers",
+   "team": "BAL",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_receptions": {
+     "mean": 6.1154,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 8,
+     "p90": 11
+    },
+    "player_reception_yds": {
+     "mean": 87.6707,
+     "p10": 31.5137,
+     "p25": 50.1742,
+     "median": 78.1873,
+     "p75": 114.9918,
+     "p90": 156.3795
+    },
+    "anytime_td": {
+     "probability": 0.3874
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426354",
+   "name": "George Pickens",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 4.9734,
+     "p10": 1,
+     "p25": 3,
+     "median": 4,
+     "p75": 7,
+     "p90": 9
+    },
+    "player_reception_yds": {
+     "mean": 56.3043,
+     "p10": 17.973,
+     "p25": 30.4221,
+     "median": 49.427,
+     "p75": 74.8437,
+     "p90": 103.809
+    },
+    "anytime_td": {
+     "probability": 0.3153
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3116365",
+   "name": "Mark Andrews",
+   "team": "BAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 4.7414,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 9
+    },
+    "player_reception_yds": {
+     "mean": 49.176,
+     "p10": 14.809,
+     "p25": 25.8666,
+     "median": 42.8556,
+     "p75": 65.7475,
+     "p90": 91.9836
+    },
+    "anytime_td": {
+     "probability": 0.2598
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242355",
+   "name": "Jake Ferguson",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 2.7369,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 6
+    },
+    "player_reception_yds": {
+     "mean": 26.9441,
+     "p10": 2.9803,
+     "p25": 10.7503,
+     "median": 22.0616,
+     "p75": 37.8552,
+     "p90": 56.5666
+    },
+    "anytime_td": {
+     "probability": 0.2467
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-5083754",
+   "name": "Ryan Flournoy",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 3.5764,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
+    },
+    "player_reception_yds": {
+     "mean": 36.5155,
+     "p10": 8.2549,
+     "p25": 17.1868,
+     "median": 30.9653,
+     "p75": 49.9395,
+     "p90": 72.0785
+    },
+    "anytime_td": {
+     "probability": 0.2417
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360939",
+   "name": "Rashod Bateman",
+   "team": "BAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 3.1475,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
+    "player_reception_yds": {
+     "mean": 35.8357,
+     "p10": 6.1701,
+     "p25": 15.5643,
+     "median": 29.8443,
+     "p75": 49.6983,
+     "p90": 73.0748
+    },
+    "anytime_td": {
+     "probability": 0.2249
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3916387",
+   "name": "Lamar Jackson",
+   "team": "BAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 25.4508,
+     "p10": 0.9297,
+     "p25": 4.2599,
+     "median": 14.3251,
+     "p75": 34.9115,
+     "p90": 64.8161
+    },
+    "player_pass_yds": {
+     "mean": 258.8828,
+     "p10": 129.305,
+     "p25": 176.9935,
+     "median": 242.8196,
+     "p75": 323.3431,
+     "p90": 409.2537
+    },
+    "anytime_td": {
+     "probability": 0.2193
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4038441",
+   "name": "Justice Hill",
+   "team": "BAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 1.446,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "player_reception_yds": {
+     "mean": 14.8411,
+     "p10": 0,
+     "p25": 0.0137,
+     "median": 10.149,
+     "p75": 22.417,
+     "p90": 37.1367
+    },
+    "player_rush_yds": {
+     "mean": 11.6786,
+     "p10": 0.0068,
+     "p25": 0.4813,
+     "median": 4.0108,
+     "p75": 14.7837,
+     "p90": 33.4307
+    },
+    "anytime_td": {
+     "probability": 0.1922
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4035671",
+   "name": "Tyler Huntley",
+   "team": "BAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 16.8032,
+     "p10": 0.1353,
+     "p25": 1.4728,
+     "median": 7.4467,
+     "p75": 22.2905,
+     "p90": 45.8982
+    },
+    "player_pass_yds": {
+     "mean": 130.9779,
+     "p10": 57.7457,
+     "p25": 83.5203,
+     "median": 120.4567,
+     "p75": 167.0383,
+     "p90": 217.8658
+    },
+    "anytime_td": {
+     "probability": 0.1379
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2576581",
+   "name": "Chris Moore",
+   "team": "BAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 1.7844,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 3,
+     "p90": 4
+    },
+    "player_reception_yds": {
+     "mean": 22.1991,
+     "p10": 0,
+     "p25": 4.6389,
+     "median": 16.5277,
+     "p75": 32.7686,
+     "p90": 52.2694
+    },
+    "anytime_td": {
+     "probability": 0.1233
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2577417",
+   "name": "Dak Prescott",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 15.9363,
+     "p10": 0.0989,
+     "p25": 1.2729,
+     "median": 6.8369,
+     "p75": 21.0264,
+     "p90": 43.8478
+    },
+    "player_pass_yds": {
+     "mean": 237.9166,
+     "p10": 126.1243,
+     "p25": 168.1549,
+     "median": 225.1358,
+     "p75": 293.8016,
+     "p90": 366.2356
+    },
+    "anytime_td": {
+     "probability": 0.0998
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4362478",
+   "name": "Emari Demercado",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 15.4198,
+     "p10": 0.0632,
+     "p25": 1.0698,
+     "median": 6.2988,
+     "p75": 20.1707,
+     "p90": 42.8581
+    },
+    "anytime_td": {
+     "probability": 0.0904
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4696882",
+   "name": "Devontez Walker",
+   "team": "BAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 1.0351,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "player_reception_yds": {
+     "mean": 13.136,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.7393,
+     "p75": 20.3656,
+     "p90": 36.4516
+    },
+    "anytime_td": {
+     "probability": 0.0773
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4383396",
+   "name": "Hunter Luepke",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 5.7858,
+     "p10": 0,
+     "p25": 0,
+     "median": 0.299,
+     "p75": 4.9243,
+     "p90": 17.9924
+    },
+    "anytime_td": {
+     "probability": 0.0628
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360698",
+   "name": "Joe Milton III",
+   "team": "DAL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 6.3977,
+     "p10": 0,
+     "p25": 0,
+     "median": 0.4089,
+     "p75": 5.6811,
+     "p90": 19.8845
+    },
+    "anytime_td": {
+     "probability": 0.0447
+    }
+   }
+  }
+ ],
+ "disclaimer": "Model projections. Educational."
+}

@@ -1,22 +1,22 @@
 {
   "date": "2026-09-22",
-  "decisiveRows": 512,
-  "wins": 266,
-  "decisiveHitRate": 0.51953125,
-  "meanStatedProbability": 0.6084279296874994,
-  "meanMarketProbability": 0.5025868049904281,
-  "calibrationErrorPp": 8.889667968749936,
+  "decisiveRows": 514,
+  "wins": 267,
+  "decisiveHitRate": 0.519455252918288,
+  "meanStatedProbability": 0.6090068093385207,
+  "meanMarketProbability": 0.5026387001496652,
+  "calibrationErrorPp": 8.955155642023271,
   "scoring": {
-    "modelBrier": 0.2552284379882813,
-    "marketBrier": 0.2441968136274974,
-    "rowsScored": 512
+    "modelBrier": 0.25547133935797667,
+    "marketBrier": 0.24442051634764062,
+    "rowsScored": 514
   },
   "byMarketFamily": [
     {
       "market": "pitcher_strikeouts",
-      "n": 28,
-      "hitRate": 0.39285714285714285,
-      "calibrationErrorPp": 24.885714285714283,
+      "n": 30,
+      "hitRate": 0.4,
+      "calibrationErrorPp": 24.941333333333326,
       "sufficientSample": false
     },
     {
@@ -42,11 +42,11 @@
     }
   ],
   "observations": [
-    "Stated 60.8% on average and won 52.0% (266/512) — calibration error +8.9pp.",
+    "Stated 60.9% on average and won 51.9% (267/514) — calibration error +9.0pp.",
     "The de-vigged market stated 50.3% on the same rows.",
     "Widest gap: `batter_hits_runs_rbis` at +14.9pp on n=202.",
     "Closest: `batter_hits` at +5.1pp on n=202.",
-    "Insufficient sample to read: `pitcher_strikeouts` (n=28), `batter_total_bases` (n=80)."
+    "Insufficient sample to read: `pitcher_strikeouts` (n=30), `batter_total_bases` (n=80)."
   ],
   "whatShouldNotBeConcluded": [
     "One settled date is not evidence of a change in model quality — day-to-day swings in this corpus are larger than most effects worth chasing.",

@@ -10,35 +10,47 @@
  "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
  "frozenAt": "2026-09-11T19:49:08.471Z",
  "rule": "each forward match graded once, against its single pre-kickoff shadow forecast, from the corpus final score (openfootball since 2026-09-14; football-data.co.uk before — identical scores on every joined match)",
- "sampleState": "NONE",
+ "sampleState": "TOO_SMALL_TO_ASSESS",
  "summary": {
-  "matches": 0,
-  "logLoss": null,
-  "brier": null,
+  "matches": 17,
+  "logLoss": 0.9033,
+  "brier": 0.5381,
   "uniformLogLoss": 1.0986,
-  "sampleState": "NONE"
+  "sampleState": "TOO_SMALL_TO_ASSESS"
  },
  "decision": {
   "state": "INTERIM_DECIDES_NOTHING",
   "why": "before the single preregistered look — these figures are reported and decide nothing",
-  "n": 0,
+  "n": 17,
   "figures": {
    "dixonColes": {
-    "n": 0
+    "n": 17,
+    "logLoss": 0.9033,
+    "brier": 0.5381,
+    "rps": 0.1993,
+    "accuracy": 0.5882,
+    "ece": 0.1125,
+    "drawEce": 0.048
    },
    "empirical": {
-    "n": 0
+    "n": 17,
+    "logLoss": 1.1086,
+    "brier": 0.6767,
+    "rps": 0.2627,
+    "accuracy": 0.3529,
+    "ece": 0.0738,
+    "drawEce": 0.078
    },
-   "drawEceNullBound": null,
+   "drawEceNullBound": 0.2186,
    "bars": {
-    "skill": null,
-    "drawEcePass": null,
-    "drawEceBeyondNoise": null
+    "skill": true,
+    "drawEcePass": false,
+    "drawEceBeyondNoise": false
    }
   },
   "due": false,
   "look": {
-   "seasonRowsInCorpus": 41,
+   "seasonRowsInCorpus": 69,
    "seasonMatches": 380,
    "deadline": "2027-07-01T00:00:00Z"
   },
@@ -46,7 +58,13 @@
  },
  "reportedNotGating": {
   "v1SplitPoisson": {
-   "n": 0
+   "n": 17,
+   "logLoss": 1.0011,
+   "brier": 0.6047,
+   "rps": 0.2162,
+   "accuracy": 0.5294,
+   "ece": 0.0601,
+   "drawEce": 0.1385
   },
   "marketClose": {
    "n": 0
@@ -54,10 +72,640 @@
   "rescheduled": 0
  },
  "population": {
-  "graded": 0,
-  "pendingResult": 16,
+  "graded": 17,
+  "pendingResult": 1,
   "excluded": []
  },
- "matches": [],
- "generatedAt": "2026-09-15T14:29:52.000Z"
+ "matches": [
+  {
+   "eventId": "soccer:laliga:401882881",
+   "matchup": "Racing Santander v Alavés",
+   "homeClub": "Racing Santander",
+   "awayClub": "Alavés",
+   "kickoffUtc": "2026-09-12T12:00:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.44335,
+    "draw": 0.224573,
+    "away": 0.332077
+   },
+   "final": {
+    "home": 2,
+    "away": 1
+   },
+   "result": "H",
+   "probabilityOfResult": 0.4434,
+   "logLoss": 0.8134,
+   "brier": 0.4706,
+   "pairingKey": "2026-27|Santander|Alaves",
+   "actualKickoffUtc": "2026-09-12T12:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.562626,
+     "draw": 0.184209,
+     "away": 0.253166
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882882",
+   "matchup": "Osasuna v Espanyol",
+   "homeClub": "Osasuna",
+   "awayClub": "Espanyol",
+   "kickoffUtc": "2026-09-12T14:15:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.475797,
+    "draw": 0.263444,
+    "away": 0.260759
+   },
+   "final": {
+    "home": 0,
+    "away": 2
+   },
+   "result": "A",
+   "probabilityOfResult": 0.2608,
+   "logLoss": 1.3442,
+   "brier": 0.8423,
+   "pairingKey": "2026-27|Osasuna|Espanol",
+   "actualKickoffUtc": "2026-09-12T14:15:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.458212,
+     "draw": 0.250178,
+     "away": 0.291609
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882886",
+   "matchup": "Athletic Club v Elche",
+   "homeClub": "Athletic Club",
+   "awayClub": "Elche",
+   "kickoffUtc": "2026-09-12T16:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.576541,
+    "draw": 0.227485,
+    "away": 0.195974
+   },
+   "final": {
+    "home": 1,
+    "away": 1
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2275,
+   "logLoss": 1.4807,
+   "brier": 0.9676,
+   "pairingKey": "2026-27|Ath Bilbao|Elche",
+   "actualKickoffUtc": "2026-09-12T16:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.703001,
+     "draw": 0.18868,
+     "away": 0.108319
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882880",
+   "matchup": "Real Madrid v Rayo Vallecano",
+   "homeClub": "Real Madrid",
+   "awayClub": "Rayo Vallecano",
+   "kickoffUtc": "2026-09-12T19:00:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.728375,
+    "draw": 0.174436,
+    "away": 0.097189
+   },
+   "final": {
+    "home": 4,
+    "away": 1
+   },
+   "result": "H",
+   "probabilityOfResult": 0.7284,
+   "logLoss": 0.3169,
+   "brier": 0.1137,
+   "pairingKey": "2026-27|Real Madrid|Vallecano",
+   "actualKickoffUtc": "2026-09-12T19:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.755958,
+     "draw": 0.164667,
+     "away": 0.079375
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882885",
+   "matchup": "Celta Vigo v Málaga",
+   "homeClub": "Celta Vigo",
+   "awayClub": "Málaga",
+   "kickoffUtc": "2026-09-13T12:00:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.630428,
+    "draw": 0.247478,
+    "away": 0.122094
+   },
+   "final": {
+    "home": 1,
+    "away": 1
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2475,
+   "logLoss": 1.3964,
+   "brier": 0.9786,
+   "pairingKey": "2026-27|Celta|Malaga",
+   "actualKickoffUtc": "2026-09-13T12:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.930519,
+     "draw": 0.066301,
+     "away": 0.00318
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882883",
+   "matchup": "Levante v Barcelona",
+   "homeClub": "Levante",
+   "awayClub": "Barcelona",
+   "kickoffUtc": "2026-09-13T14:15:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.15103,
+    "draw": 0.176159,
+    "away": 0.672811
+   },
+   "final": {
+    "home": 2,
+    "away": 4
+   },
+   "result": "A",
+   "probabilityOfResult": 0.6728,
+   "logLoss": 0.3963,
+   "brier": 0.1609,
+   "pairingKey": "2026-27|Levante|Barcelona",
+   "actualKickoffUtc": "2026-09-13T14:15:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.121092,
+     "draw": 0.148424,
+     "away": 0.730483
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882884",
+   "matchup": "Getafe v Deportivo",
+   "homeClub": "Getafe",
+   "awayClub": "Deportivo",
+   "kickoffUtc": "2026-09-13T16:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.321345,
+    "draw": 0.290503,
+    "away": 0.388153
+   },
+   "final": {
+    "home": 1,
+    "away": 1
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2905,
+   "logLoss": 1.2361,
+   "brier": 0.7573,
+   "pairingKey": "2026-27|Getafe|La Coruna",
+   "actualKickoffUtc": "2026-09-13T16:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.206402,
+     "draw": 0.23322,
+     "away": 0.560378
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882879",
+   "matchup": "Real Sociedad v Atlético Madrid",
+   "homeClub": "Real Sociedad",
+   "awayClub": "Atlético Madrid",
+   "kickoffUtc": "2026-09-13T19:00:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.329857,
+    "draw": 0.250188,
+    "away": 0.419954
+   },
+   "final": {
+    "home": 0,
+    "away": 3
+   },
+   "result": "A",
+   "probabilityOfResult": 0.42,
+   "logLoss": 0.8676,
+   "brier": 0.5079,
+   "pairingKey": "2026-27|Sociedad|Ath Madrid",
+   "actualKickoffUtc": "2026-09-13T19:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.279179,
+     "draw": 0.269064,
+     "away": 0.451758
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882877",
+   "matchup": "Villarreal v Real Betis",
+   "homeClub": "Villarreal",
+   "awayClub": "Real Betis",
+   "kickoffUtc": "2026-09-14T19:00:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.538547,
+    "draw": 0.217564,
+    "away": 0.243889
+   },
+   "final": {
+    "home": 1,
+    "away": 2
+   },
+   "result": "A",
+   "probabilityOfResult": 0.2439,
+   "logLoss": 1.411,
+   "brier": 0.9091,
+   "pairingKey": "2026-27|Villarreal|Betis",
+   "actualKickoffUtc": "2026-09-14T19:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.532727,
+     "draw": 0.212895,
+     "away": 0.254378
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882868",
+   "matchup": "Rayo Vallecano v Espanyol",
+   "homeClub": "Rayo Vallecano",
+   "awayClub": "Espanyol",
+   "kickoffUtc": "2026-09-15T17:00:00.000Z",
+   "forecastAt": "2026-09-13T13:53:49.000Z",
+   "probs": {
+    "home": 0.459788,
+    "draw": 0.27826,
+    "away": 0.261952
+   },
+   "final": {
+    "home": 2,
+    "away": 1
+   },
+   "result": "H",
+   "probabilityOfResult": 0.4598,
+   "logLoss": 0.777,
+   "brier": 0.4379,
+   "pairingKey": "2026-27|Vallecano|Espanol",
+   "actualKickoffUtc": "2026-09-15T17:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.426867,
+     "draw": 0.26226,
+     "away": 0.310873
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882876",
+   "matchup": "Alavés v Valencia",
+   "homeClub": "Alavés",
+   "awayClub": "Valencia",
+   "kickoffUtc": "2026-09-15T18:00:00.000Z",
+   "forecastAt": "2026-09-13T13:53:49.000Z",
+   "probs": {
+    "home": 0.489995,
+    "draw": 0.263255,
+    "away": 0.24675
+   },
+   "final": {
+    "home": 0,
+    "away": 1
+   },
+   "result": "A",
+   "probabilityOfResult": 0.2467,
+   "logLoss": 1.3994,
+   "brier": 0.8768,
+   "pairingKey": "2026-27|Alaves|Valencia",
+   "actualKickoffUtc": "2026-09-15T18:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.460786,
+     "draw": 0.285198,
+     "away": 0.254017
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882872",
+   "matchup": "Elche v Real Madrid",
+   "homeClub": "Elche",
+   "awayClub": "Real Madrid",
+   "kickoffUtc": "2026-09-15T19:30:00.000Z",
+   "forecastAt": "2026-09-13T13:53:49.000Z",
+   "probs": {
+    "home": 0.174049,
+    "draw": 0.201234,
+    "away": 0.624717
+   },
+   "final": {
+    "home": 2,
+    "away": 3
+   },
+   "result": "A",
+   "probabilityOfResult": 0.6247,
+   "logLoss": 0.4705,
+   "brier": 0.2116,
+   "pairingKey": "2026-27|Elche|Real Madrid",
+   "actualKickoffUtc": "2026-09-15T19:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.128868,
+     "draw": 0.188002,
+     "away": 0.68313
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882875",
+   "matchup": "Atlético Madrid v Osasuna",
+   "homeClub": "Atlético Madrid",
+   "awayClub": "Osasuna",
+   "kickoffUtc": "2026-09-16T17:00:00.000Z",
+   "forecastAt": "2026-09-14T16:00:14.000Z",
+   "probs": {
+    "home": 0.635808,
+    "draw": 0.20854,
+    "away": 0.155652
+   },
+   "final": {
+    "home": 4,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.6358,
+   "logLoss": 0.4529,
+   "brier": 0.2004,
+   "pairingKey": "2026-27|Ath Madrid|Osasuna",
+   "actualKickoffUtc": "2026-09-16T17:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.683984,
+     "draw": 0.194547,
+     "away": 0.121468
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882873",
+   "matchup": "Deportivo v Sevilla",
+   "homeClub": "Deportivo",
+   "awayClub": "Sevilla",
+   "kickoffUtc": "2026-09-16T17:00:00.000Z",
+   "forecastAt": "2026-09-14T16:00:14.000Z",
+   "probs": {
+    "home": 0.619118,
+    "draw": 0.19875,
+    "away": 0.182132
+   },
+   "final": {
+    "home": 0,
+    "away": 1
+   },
+   "result": "A",
+   "probabilityOfResult": 0.1821,
+   "logLoss": 1.703,
+   "brier": 1.0917,
+   "pairingKey": "2026-27|La Coruna|Sevilla",
+   "actualKickoffUtc": "2026-09-16T17:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.61635,
+     "draw": 0.201475,
+     "away": 0.182175
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882871",
+   "matchup": "Barcelona v Racing Santander",
+   "homeClub": "Barcelona",
+   "awayClub": "Racing Santander",
+   "kickoffUtc": "2026-09-16T19:30:00.000Z",
+   "forecastAt": "2026-09-14T16:00:14.000Z",
+   "probs": {
+    "home": 0.897756,
+    "draw": 0.063998,
+    "away": 0.038246
+   },
+   "final": {
+    "home": 7,
+    "away": 2
+   },
+   "result": "H",
+   "probabilityOfResult": 0.8978,
+   "logLoss": 0.1079,
+   "brier": 0.016,
+   "pairingKey": "2026-27|Barcelona|Santander",
+   "actualKickoffUtc": "2026-09-16T19:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.875224,
+     "draw": 0.085467,
+     "away": 0.039309
+    },
+    "empirical": {
+     "home": 0.463555,
+     "draw": 0.254476,
+     "away": 0.281969
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882874",
+   "matchup": "Real Betis v Getafe",
+   "homeClub": "Real Betis",
+   "awayClub": "Getafe",
+   "kickoffUtc": "2026-09-17T17:00:00.000Z",
+   "forecastAt": "2026-09-15T14:29:52.000Z",
+   "probs": {
+    "home": 0.528024,
+    "draw": 0.279947,
+    "away": 0.192028
+   },
+   "final": {
+    "home": 1,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.528,
+   "logLoss": 0.6386,
+   "brier": 0.338,
+   "pairingKey": "2026-27|Betis|Getafe",
+   "actualKickoffUtc": "2026-09-17T17:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.513914,
+     "draw": 0.27827,
+     "away": 0.207816
+    },
+    "empirical": {
+     "home": 0.463964,
+     "draw": 0.254183,
+     "away": 0.281853
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:laliga:401882869",
+   "matchup": "Málaga v Villarreal",
+   "homeClub": "Málaga",
+   "awayClub": "Villarreal",
+   "kickoffUtc": "2026-09-17T19:30:00.000Z",
+   "forecastAt": "2026-09-15T14:29:52.000Z",
+   "probs": {
+    "home": 0.169642,
+    "draw": 0.249762,
+    "away": 0.580597
+   },
+   "final": {
+    "home": 1,
+    "away": 3
+   },
+   "result": "A",
+   "probabilityOfResult": 0.5806,
+   "logLoss": 0.5437,
+   "brier": 0.2671,
+   "pairingKey": "2026-27|Malaga|Villarreal",
+   "actualKickoffUtc": "2026-09-17T19:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.232273,
+     "draw": 0.445581,
+     "away": 0.322146
+    },
+    "empirical": {
+     "home": 0.463964,
+     "draw": 0.254183,
+     "away": 0.281853
+    },
+    "marketClose": null
+   }
+  }
+ ],
+ "generatedAt": "2026-09-23T14:27:45.000Z"
 }

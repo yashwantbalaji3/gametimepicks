@@ -10,35 +10,47 @@
  "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
  "frozenAt": "2026-09-11T19:49:08.471Z",
  "rule": "each forward match graded once, against its single pre-kickoff shadow forecast, from the corpus final score (openfootball since 2026-09-14; football-data.co.uk before — identical scores on every joined match)",
- "sampleState": "NONE",
+ "sampleState": "TOO_SMALL_TO_ASSESS",
  "summary": {
-  "matches": 0,
-  "logLoss": null,
-  "brier": null,
+  "matches": 8,
+  "logLoss": 0.8994,
+  "brier": 0.5281,
   "uniformLogLoss": 1.0986,
-  "sampleState": "NONE"
+  "sampleState": "TOO_SMALL_TO_ASSESS"
  },
  "decision": {
   "state": "INTERIM_DECIDES_NOTHING",
   "why": "before the single preregistered look — these figures are reported and decide nothing",
-  "n": 0,
+  "n": 8,
   "figures": {
    "dixonColes": {
-    "n": 0
+    "n": 8,
+    "logLoss": 0.8994,
+    "brier": 0.5282,
+    "rps": 0.1741,
+    "accuracy": 0.5,
+    "ece": 0.1796,
+    "drawEce": 0.0558
    },
    "empirical": {
-    "n": 0
+    "n": 8,
+    "logLoss": 1.0513,
+    "brier": 0.6333,
+    "rps": 0.2229,
+    "accuracy": 0.5,
+    "ece": 0.0431,
+    "drawEce": 0.0006
    },
-   "drawEceNullBound": null,
+   "drawEceNullBound": 0.3058,
    "bars": {
-    "skill": null,
-    "drawEcePass": null,
-    "drawEceBeyondNoise": null
+    "skill": true,
+    "drawEcePass": false,
+    "drawEceBeyondNoise": false
    }
   },
   "due": false,
   "look": {
-   "seasonRowsInCorpus": 18,
+   "seasonRowsInCorpus": 36,
    "seasonMatches": 306,
    "deadline": "2027-07-01T00:00:00Z"
   },
@@ -46,7 +58,13 @@
  },
  "reportedNotGating": {
   "v1SplitPoisson": {
-   "n": 0
+   "n": 8,
+   "logLoss": 1.1816,
+   "brier": 0.6899,
+   "rps": 0.2074,
+   "accuracy": 0.375,
+   "ece": 0.2186,
+   "drawEce": 0.2597
   },
   "marketClose": {
    "n": 0
@@ -54,10 +72,307 @@
   "rescheduled": 0
  },
  "population": {
-  "graded": 0,
-  "pendingResult": 8,
+  "graded": 8,
+  "pendingResult": 0,
   "excluded": []
  },
- "matches": [],
- "generatedAt": "2026-09-15T14:29:52.000Z"
+ "matches": [
+  {
+   "eventId": "soccer:bundesliga:401884799",
+   "matchup": "Borussia Dortmund v SC Paderborn 07",
+   "homeClub": "Borussia Dortmund",
+   "awayClub": "SC Paderborn 07",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.613624,
+    "draw": 0.273677,
+    "away": 0.1127
+   },
+   "final": {
+    "home": 3,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.6136,
+   "logLoss": 0.4884,
+   "brier": 0.2369,
+   "pairingKey": "2026-27|Dortmund|Paderborn",
+   "actualKickoffUtc": "2026-09-12T13:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.04645,
+     "draw": 0.907101,
+     "away": 0.04645
+    },
+    "empirical": {
+     "home": 0.435341,
+     "draw": 0.250602,
+     "away": 0.314056
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:bundesliga:401884795",
+   "matchup": "FC Augsburg v Bayer Leverkusen",
+   "homeClub": "FC Augsburg",
+   "awayClub": "Bayer Leverkusen",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.228972,
+    "draw": 0.240483,
+    "away": 0.530545
+   },
+   "final": {
+    "home": 2,
+    "away": 2
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2405,
+   "logLoss": 1.4251,
+   "brier": 0.9108,
+   "pairingKey": "2026-27|Augsburg|Leverkusen",
+   "actualKickoffUtc": "2026-09-12T13:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.18217,
+     "draw": 0.219132,
+     "away": 0.598698
+    },
+    "empirical": {
+     "home": 0.435341,
+     "draw": 0.250602,
+     "away": 0.314056
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:bundesliga:401884794",
+   "matchup": "Mainz v Eintracht Frankfurt",
+   "homeClub": "Mainz",
+   "awayClub": "Eintracht Frankfurt",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.448441,
+    "draw": 0.248523,
+    "away": 0.303035
+   },
+   "final": {
+    "home": 1,
+    "away": 3
+   },
+   "result": "A",
+   "probabilityOfResult": 0.303,
+   "logLoss": 1.1939,
+   "brier": 0.7486,
+   "pairingKey": "2026-27|Mainz|Ein Frankfurt",
+   "actualKickoffUtc": "2026-09-12T13:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.406989,
+     "draw": 0.249305,
+     "away": 0.343706
+    },
+    "empirical": {
+     "home": 0.435341,
+     "draw": 0.250602,
+     "away": 0.314056
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:bundesliga:401884796",
+   "matchup": "SC Freiburg v Borussia Mönchengladbach",
+   "homeClub": "SC Freiburg",
+   "awayClub": "Borussia Mönchengladbach",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.475004,
+    "draw": 0.252327,
+    "away": 0.272669
+   },
+   "final": {
+    "home": 5,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.475,
+   "logLoss": 0.7444,
+   "brier": 0.4136,
+   "pairingKey": "2026-27|Freiburg|M'gladbach",
+   "actualKickoffUtc": "2026-09-12T13:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.565953,
+     "draw": 0.209706,
+     "away": 0.224341
+    },
+    "empirical": {
+     "home": 0.435341,
+     "draw": 0.250602,
+     "away": 0.314056
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:bundesliga:401884797",
+   "matchup": "TSG Hoffenheim v VfB Stuttgart",
+   "homeClub": "TSG Hoffenheim",
+   "awayClub": "VfB Stuttgart",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.337388,
+    "draw": 0.22259,
+    "away": 0.440023
+   },
+   "final": {
+    "home": 2,
+    "away": 1
+   },
+   "result": "H",
+   "probabilityOfResult": 0.3374,
+   "logLoss": 1.0865,
+   "brier": 0.6822,
+   "pairingKey": "2026-27|Hoffenheim|Stuttgart",
+   "actualKickoffUtc": "2026-09-12T13:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.322545,
+     "draw": 0.206524,
+     "away": 0.47093
+    },
+    "empirical": {
+     "home": 0.435341,
+     "draw": 0.250602,
+     "away": 0.314056
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:bundesliga:401884792",
+   "matchup": "FC Cologne v Werder Bremen",
+   "homeClub": "FC Cologne",
+   "awayClub": "Werder Bremen",
+   "kickoffUtc": "2026-09-12T16:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.420118,
+    "draw": 0.259761,
+    "away": 0.320121
+   },
+   "final": {
+    "home": 1,
+    "away": 1
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2598,
+   "logLoss": 1.348,
+   "brier": 0.8269,
+   "pairingKey": "2026-27|FC Koln|Werder Bremen",
+   "actualKickoffUtc": "2026-09-12T16:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.384192,
+     "draw": 0.241675,
+     "away": 0.374133
+    },
+    "empirical": {
+     "home": 0.435341,
+     "draw": 0.250602,
+     "away": 0.314056
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:bundesliga:401884798",
+   "matchup": "RB Leipzig v Hamburg SV",
+   "homeClub": "RB Leipzig",
+   "awayClub": "Hamburg SV",
+   "kickoffUtc": "2026-09-13T13:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.653621,
+    "draw": 0.206868,
+    "away": 0.139511
+   },
+   "final": {
+    "home": 5,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.6536,
+   "logLoss": 0.4252,
+   "brier": 0.1822,
+   "pairingKey": "2026-27|RB Leipzig|Hamburg",
+   "actualKickoffUtc": "2026-09-13T13:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.765309,
+     "draw": 0.155884,
+     "away": 0.078807
+    },
+    "empirical": {
+     "home": 0.435341,
+     "draw": 0.250602,
+     "away": 0.314056
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:bundesliga:401884791",
+   "matchup": "SV Elversberg v Bayern Munich",
+   "homeClub": "SV Elversberg",
+   "awayClub": "Bayern Munich",
+   "kickoffUtc": "2026-09-13T15:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.232964,
+    "draw": 0.15046,
+    "away": 0.616577
+   },
+   "final": {
+    "home": 1,
+    "away": 2
+   },
+   "result": "A",
+   "probabilityOfResult": 0.6166,
+   "logLoss": 0.4836,
+   "brier": 0.2239,
+   "pairingKey": "2026-27|Elversberg|Bayern Munich",
+   "actualKickoffUtc": "2026-09-13T15:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.194736,
+     "draw": 0.140929,
+     "away": 0.664335
+    },
+    "empirical": {
+     "home": 0.435341,
+     "draw": 0.250602,
+     "away": 0.314056
+    },
+    "marketClose": null
+   }
+  }
+ ],
+ "generatedAt": "2026-09-23T14:27:45.000Z"
 }

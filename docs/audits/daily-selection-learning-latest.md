@@ -1,18 +1,18 @@
 # Daily selection learning — through 2026-09-22
 
 Training window: **2026-09-15 → 2026-09-22** (8d). Universe legs:
-**4094** (baseline 45.9%). Published legs:
+**4096** (baseline 45.9%). Published legs:
 **647**, cards: **192**. noLiveWire=**false**.
 
 ## Recommended market status (Wilson-LB driven, fail-closed)
 - **batter_hits** → `allowed` — 56% (817/1450, WLB 54%) shrunk 56%
 - **batter_hits_runs_rbis** → `restricted` — 50% (715/1442, WLB 47%) shrunk 50%
 - **batter_total_bases** → `disabled` — 41% (250/603, WLB 38%) shrunk 42%
-- **pitcher_strikeouts** → `restricted` — 52% (98/187, WLB 45%) shrunk 52%
+- **pitcher_strikeouts** → `restricted` — 52% (99/189, WLB 45%) shrunk 52%
 
 ## Calibration
-- Edge inverted at high values: **true** 0-5:54% (562/1049, WLB 51%) · neg:51% (389/765, WLB 47%) · 10-15:50% (304/604, WLB 46%) · 5-10:52% (450/871, WLB 48%) · 15-20:43% (115/266, WLB 37%) · 20+:47% (60/127, WLB 39%)
-- Confidence predictive: **false** (spread 2.6pts) Low:52% (770/1481, WLB 49%) · Medium:52% (242/461, WLB 48%) · High:50% (868/1740, WLB 48%)
+- Edge inverted at high values: **true** 0-5:54% (562/1049, WLB 51%) · neg:51% (389/765, WLB 47%) · 10-15:50% (304/604, WLB 46%) · 5-10:52% (450/871, WLB 48%) · 15-20:43% (115/267, WLB 37%) · 20+:48% (61/128, WLB 39%)
+- Confidence predictive: **false** (spread 2.6pts) Low:52% (771/1482, WLB 49%) · Medium:52% (242/461, WLB 48%) · High:50% (868/1741, WLB 48%)
 
 ## Published leg hit rate by lane
 - low: 65% (59/91, WLB 55%)
