@@ -5,7 +5,14 @@
  *       and the local gate still runs `tsc --noEmit` first. v1.4.1 removed the duplicate standalone CI step (31 s);
  *       if the build ever stops type-checking, that saving would silently become a hole.
  *  QG2  the phases that must fail loudly still do: both suite phases assert on `^not ok`, no step is
- *       continue-on-error, and the job timeout is unchanged at 25 minutes.
+ *       continue-on-error, and the job timeout is PINNED — it may only move as a deliberate, recorded
+ *       decision. It moved once: 25 -> 40 on 2026-09-23, because 25 was cancelling the gate's last
+ *       phase rather than failing anything. Measured on the same workflow — the last green run took
+ *       17m (unit 3.8 · build 4.6 · guards 1.6 · browser a11y 6.0); a day later every phase had roughly
+ *       doubled to ~28m, so the job died PART-WAY THROUGH browser a11y with every earlier phase green.
+ *       A ceiling that fires before the last step reports red without asking the question, and it did
+ *       so on every branch at once. Raising it runs MORE validation; this guard exists so that is
+ *       always a choice someone made, never drift.
  *  QG3  the browser phase still runs all three engines over both specs, with retries unchanged.
  *
  * Run: npx tsx --test src/lib/ci/quality-gate-contract.test.mjs
@@ -32,7 +39,11 @@ test("QG1 every CI run still type-checks: the build does it, and nothing disable
 });
 
 test("QG2 failures stay loud: both suite phases assert, nothing is continue-on-error, timeout unchanged", () => {
-  assert.match(quality, /timeout-minutes: 25/, "the job timeout is not raised");
+  // Match on CODE, not prose: the block's own comment explains the 25 -> 40 move, and a guard that
+  // reads its own explanation is satisfied by the wrong thing.
+  const qualityCode = quality.replace(/^\s*#.*$/gm, "");
+  assert.match(qualityCode, /^\s*timeout-minutes: 40$/m, "the quality job timeout is pinned at 40 minutes");
+  assert.doesNotMatch(qualityCode, /^\s*timeout-minutes: (?!40$)/m, "exactly one timeout, and it is the pinned one");
   assert.doesNotMatch(quality, /continue-on-error/, "a green step must mean the work passed");
   const asserts = [...quality.matchAll(/grep -cE '\^not ok'/g)];
   assert.equal(asserts.length, 2, "both the unit and rendered phases count failing TAP lines");
