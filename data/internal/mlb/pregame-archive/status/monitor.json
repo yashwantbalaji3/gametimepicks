@@ -8,40 +8,44 @@
     "teamMarketCapture": {
       "status": "captured",
       "date": "2026-09-23",
-      "records": 722,
-      "eligible": 722,
-      "creditsSpent": 7914,
-      "creditsRemaining": 12089,
-      "skippedStarted": 10
+      "records": 870,
+      "eligible": 870,
+      "creditsSpent": 7974,
+      "creditsRemaining": 12029,
+      "skippedStarted": 0
     },
     "playerPropCapture": {
       "status": "captured",
       "date": "2026-09-23",
       "mode": "write",
       "eventsCaptured": 3,
-      "eventsOnDate": 13,
+      "eventsOnDate": 10,
       "maxEvents": 3,
       "marketsCaptured": [
-        "pitcher_strikeouts",
-        "batter_total_bases",
-        "batter_hits_runs_rbis",
-        "pitcher_outs",
         "batter_hits",
+        "batter_hits_runs_rbis",
         "batter_rbis",
-        "batter_runs_scored",
+        "batter_total_bases",
         "pitcher_earned_runs",
+        "pitcher_outs",
+        "pitcher_strikeouts",
         "batter_home_runs"
       ],
-      "records": 2206,
-      "eligibleRecords": 2206,
-      "paired": 1934,
-      "overOnly": 272,
-      "deVigCoveragePct": 87.7,
+      "records": 197,
+      "eligibleRecords": 197,
+      "paired": 180,
+      "overOnly": 17,
+      "deVigCoveragePct": 91.4,
       "estimatedCredits": 27,
-      "actualCreditsSpent": 27,
-      "creditsRemaining": 12029,
-      "skippedGames": 10,
-      "providerUnavailable": [],
+      "actualCreditsSpent": 15,
+      "creditsRemaining": 12011,
+      "skippedGames": 7,
+      "providerUnavailable": [
+        {
+          "event": "cc3886440708c8649f6f878183416628",
+          "reason": "no player-prop markets returned"
+        }
+      ],
       "stoppedEarly": null
     }
   },
@@ -58,7 +62,7 @@
     "datesCollected": 63,
     "marketDatesCollected": 62,
     "playerPropDatesCollected": 62,
-    "avgEligiblePlayerPropRecordsPerDay": 10275,
+    "avgEligiblePlayerPropRecordsPerDay": 10278,
     "estimatedDaysTo30DateGate": 0,
     "pathTo500SettledEligibleRows": "settledEligibleObs=0 until a separate settlement-join mission runs; then each settled prop-lean that was captured pregame becomes 1 eligible row. At current per-day capture, a month of daily collection yields ample raw eligible records; the 500 SETTLED-eligible threshold is measurable only after the settlement join + official grading."
   },
@@ -128,30 +132,30 @@
       "2026-09-22",
       "2026-09-23"
     ],
-    "gamesFinal": 816,
-    "gamesPending": 32,
-    "joinRows": 103050,
-    "settledEligibleRows": 93559,
-    "marketPendingRows": 1451,
+    "gamesFinal": 830,
+    "gamesPending": 18,
+    "joinRows": 103218,
+    "settledEligibleRows": 94463,
+    "marketPendingRows": 553,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
     "joinCoverageByMarket": {
-      "totals": 3246,
-      "spreads": 1948,
-      "h2h": 1202,
-      "pitcher_outs": 1912,
-      "pitcher_strikeouts": 1678,
-      "batter_hits": 13457,
-      "batter_hits_runs_rbis": 13494,
-      "batter_rbis": 12091,
-      "batter_total_bases": 16409,
-      "pitcher_earned_runs": 1546,
-      "batter_runs_scored": 11998,
-      "batter_home_runs": 14578
+      "totals": 3314,
+      "spreads": 2006,
+      "h2h": 1230,
+      "pitcher_outs": 1927,
+      "pitcher_strikeouts": 1690,
+      "batter_hits": 13581,
+      "batter_hits_runs_rbis": 13594,
+      "batter_rbis": 12199,
+      "batter_total_bases": 16579,
+      "pitcher_earned_runs": 1560,
+      "batter_runs_scored": 12090,
+      "batter_home_runs": 14693
     },
     "earliestValidResearchDate": {
       "dateGate": "63/30 distinct dates · ~0 more daily runs",
-      "settledEligibleGate": "93559/500 · ~0 market-settled days at the observed 1534 settled-eligible rows/day",
+      "settledEligibleGate": "94463/500 · ~0 market-settled days at the observed 1549 settled-eligible rows/day",
       "bindingConstraint": "gate met",
       "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
     }
@@ -160,7 +164,7 @@
     "minDistinctDates": 30,
     "minSettledEligibleObs": 500,
     "dates": "63/30",
-    "settledEligible": "93559/500",
+    "settledEligible": "94463/500",
     "met": true
   }
 }

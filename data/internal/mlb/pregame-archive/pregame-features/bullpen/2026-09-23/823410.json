@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823410,
   "date": "2026-09-23",
-  "capturedAt": "2026-09-23T01:04:44.801Z",
-  "availableAt": "2026-09-23T01:04:44.801Z",
+  "capturedAt": "2026-09-23T05:29:31.053Z",
+  "availableAt": "2026-09-23T05:29:31.053Z",
   "eventStartTime": "2026-09-23T22:40:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,32 +20,85 @@
     "teamId": 143,
     "teamName": "Philadelphia Phillies",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 3,
-      "pitches": 51,
+      "appearances": 4,
+      "pitches": 47,
       "relievers": [
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
         {
           "id": 686934,
           "name": "Alex McFarlane",
           "appearances": 1,
-          "pitches": 18,
-          "outs": 2,
+          "pitches": 21,
+          "outs": 5,
           "dates": [
-            "2026-09-20"
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 641835,
+          "name": "Tim Mayza",
+          "appearances": 1,
+          "pitches": 1,
+          "outs": 1,
+          "dates": [
+            "2026-09-22"
           ]
         },
         {
           "id": 621237,
           "name": "José Alvarado",
           "appearances": 1,
-          "pitches": 18,
+          "pitches": 1,
+          "outs": 1,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 98,
+      "relievers": [
+        {
+          "id": 686934,
+          "name": "Alex McFarlane",
+          "appearances": 2,
+          "pitches": 39,
+          "outs": 7,
+          "dates": [
+            "2026-09-20",
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 1,
+          "pitches": 24,
           "outs": 3,
           "dates": [
-            "2026-09-20"
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 621237,
+          "name": "José Alvarado",
+          "appearances": 2,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-09-20",
+            "2026-09-22"
           ]
         },
         {
@@ -57,6 +110,16 @@
           "dates": [
             "2026-09-20"
           ]
+        },
+        {
+          "id": 641835,
+          "name": "Tim Mayza",
+          "appearances": 1,
+          "pitches": 1,
+          "outs": 1,
+          "dates": [
+            "2026-09-22"
+          ]
         }
       ]
     },
@@ -66,30 +129,62 @@
     "teamId": 158,
     "teamName": "Milwaukee Brewers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 6,
-      "pitches": 95,
+      "appearances": 2,
+      "pitches": 84,
       "relievers": [
         {
-          "id": 668941,
-          "name": "JoJo Romero",
+          "id": 676467,
+          "name": "Colton Gordon",
           "appearances": 1,
-          "pitches": 22,
-          "outs": 5,
+          "pitches": 70,
+          "outs": 15,
           "dates": [
-            "2026-09-20"
+            "2026-09-22"
           ]
         },
         {
           "id": 690986,
           "name": "Kyle Harrison",
           "appearances": 1,
-          "pitches": 20,
-          "outs": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 179,
+      "relievers": [
+        {
+          "id": 676467,
+          "name": "Colton Gordon",
+          "appearances": 1,
+          "pitches": 70,
+          "outs": 15,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 690986,
+          "name": "Kyle Harrison",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 4,
+          "dates": [
+            "2026-09-20",
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 668941,
+          "name": "JoJo Romero",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 5,
           "dates": [
             "2026-09-20"
           ]
@@ -136,12 +231,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 676467,
+        "name": "Colton Gordon",
+        "reason": "70 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-20,2026-09-21,2026-09-22) + feed/live box scores",
-    "capturedAt": "2026-09-23T01:04:44.801Z"
+    "capturedAt": "2026-09-23T05:29:31.053Z"
   },
-  "recordHash": "cb23fc005d5083a21f769be2c7392a1251d5ecd5cfbbcf8f1ff9221007632f64"
+  "recordHash": "03afdf26858366013873113c75587db56b0ab8719b4eb9cf2483480fd5fe38c1"
 }
