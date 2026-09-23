@@ -130,6 +130,50 @@ stricter** — every one now also asserts the page does *not* do the thing it us
 | `c3-legacy-presentation` front door | `let recordLabel … = null` | the canonical reader, **and** names no legacy frame or completed-ladder source |
 | `v17-play-surface-copy` Mr. Dub headline | `eyebrow="The record, as settled"` | the corrected legacy eyebrow (that eyebrow *was* violation #4) |
 
+## 6b. The C9 rule, pinned where it is actually read
+
+The projection refuses a zero record in the model. **The other read model does not**: `read-model.mjs`'s
+`row()` coerces every absent count with `wins ?? 0`, and **12 of its 31 rows today carry `wins: 0,
+losses: 0`** — all four NFL tiers, two EPL tiers, all four `multi` tiers, and the NFL and `multi` stream
+totals. Nothing renders them as `0–0`, and that is the point: the only thing between those rows and a
+rendered zero record is one early return inside the explorer's `Rate` component. `/results` already has two
+other call sites that print `{wins}-{losses}`.
+
+`c9-never-zero-zero.test.mjs` pins it over the built export. Three things about it were decided by probing,
+not by reading:
+
+- **It is scoped, because site-wide it is noise.** A blanket `0–0` scan over `out/` matches **64 pages** —
+  every one an EPL exact-score probability table, where `0–0` is a scoreline and correct. A negative control
+  asserts the guard stays silent on those, and that at least one really carries one (so the control is not
+  vacuous).
+- **It matches the ASCII hyphen too.** The canonical formatter uses an en dash, but `/results`' "Official
+  record" tile writes `${wins}-${losses}` — a detector that knew only the en dash would miss the call site
+  most likely to regress. Measured first: ASCII `0-0` occurs **zero** times across all six surfaces, so it
+  costs no noise.
+- **Its real positive control is a rebuild.** Making `currentProductRecord` return `"0–0"` and rebuilding
+  fails the guard with both front-door contexts named.
+
+**And it says what it cannot see.** Removing the `Rate` early return and rebuilding changed *nothing* in the
+static HTML: the explorer is a client component, and those twelve rows only reach the DOM after a viewer
+picks NFL or `multi` in its filter. So the guard covers the **server-rendered** record surfaces — where C2
+repointed the readers, and therefore where a regression would land — and the explorer's filtered rows need
+a driven browser test, named as a follow-up rather than silently implied.
+
+## 6c. Two unrelated defects found while verifying, filed not fixed
+
+Both are pre-existing on `origin/main` and neither is caused by C2.
+
+1. **Two EPL paper cards never graded.** `epl-medium-2026-09-19` / `epl-high-2026-09-19` are `pending` with
+   **every leg `result: null`**; the receipt has not been rewritten since 2026-09-20. The nightly
+   `complete-pending-days.mjs --window-days 30 --apply` sweep exists so this cannot happen and has not
+   closed them in three nights. (§7)
+2. **A post-build guard that fires on its own build clock.** `finals-history-isolation.test.mjs` searches
+   raw HTML for a gamePk with `includes(String(pk))` — no digit boundaries. It failed with "historical
+   gamePk 718780 leaked into the export"; the page's single occurrence is inside `1790123718780`, the
+   build's own `serverNowMs` (2026-09-23T00:35:18.780Z). It passes or fails on the millisecond the build
+   starts. Its existing "positive control" only checks that the research-page allowance is exercised — it
+   never checks that the detector catches a real leak.
+
 ## 7. Verification
 
 `lint:scripts` clean · `tsc --noEmit` clean · unit **7,087 pass / 1 fail** · post-build rendered guards
@@ -180,4 +224,6 @@ the former. These are **not** Results consumers and do not belong on the project
    one PR out of two concepts.
 2. `moonshot-state.mjs` already implements its own correct legacy/current split; reconcile it with
    `legacyCells` rather than repointing it blind.
-3. The EPL lab-receipt pending sweep (§7).
+3. The two filed defects in §6c.
+4. A driven browser test for the explorer's client-filtered rows (§6b) — the one part of the C9 rule no
+   static guard can reach.
