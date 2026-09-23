@@ -182,9 +182,35 @@ test("the runner refuses a malformed invocation rather than silently running not
 test("instrumentation is never fatal: an unwritable receipt path does not fail the phase", () => {
   // The receipt is a convenience for builds that finish; the stdout markers are the mechanism. A build must
   // not go red because a JSON file could not be written.
-  const r = runPhase("t-receipt", ["-e", 'console.log("fine")'], { env: { GTP_PHASE_RECEIPT: "/proc/definitely/not/writable/x.json" } });
+  /*
+   * THE FIXTURE WAS `/proc/definitely/not/writable/x.json`, AND THAT IS WHAT HUNG THE GATE.
+   *
+   * On macOS `/proc` does not exist, so `writeReceipt`'s `mkdirSync(..., { recursive: true })` fails
+   * instantly and the test passes in milliseconds. On a Linux runner `/proc` is a real mounted procfs, and
+   * the same call does not return. `writeReceipt` runs INSIDE `finish()`, before `process.exit(code)` — so
+   * the wrapper never exits, `spawnSync` waits forever, and the whole suite stalls with nothing to show for
+   * it but orphaned node processes at job teardown. An "obviously unwritable" path is an assumption about
+   * the filesystem, and this one was only true on the author's machine.
+   *
+   * A path UNDER A REGULAR FILE is unwritable on every platform, for the same reason, by POSIX: the parent
+   * is not a directory, so the mkdir fails immediately with ENOTDIR. No special directory, no privileges,
+   * no platform branch.
+   */
+  const blocker = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "gtp-phase-ro-")), "not-a-directory");
+  fs.writeFileSync(blocker, "this is a file, so it cannot be a parent directory");
+  const receipt = path.join(blocker, "x.json");
+
+  const r = runPhase("t-receipt", ["-e", 'console.log("fine")'], { env: { GTP_PHASE_RECEIPT: receipt } });
   assert.equal(r.status, 0, "the phase still passes");
   assert.match(r.out, /END\s+t-receipt ok/);
+  /*
+   * POSITIVE CONTROL on the FIXTURE, not just on the behaviour. Without it this test would also pass if the
+   * path had quietly become writable — it would then be asserting "a phase that wrote its receipt fine
+   * still passes", which proves nothing about the swallow it exists to guard.
+   */
+  assert.equal(fs.existsSync(receipt), false, "the receipt must really have been unwritable");
+  assert.throws(() => fs.mkdirSync(path.dirname(receipt), { recursive: true }), /ENOTDIR|EEXIST|ENOENT/,
+    "…and unwritable for the reason claimed: its parent is a file, on every platform");
 });
 
 test("the DEFAULT receipt path is a build artifact — never a published or committed data path", () => {
