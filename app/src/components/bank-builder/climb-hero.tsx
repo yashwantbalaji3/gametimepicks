@@ -98,6 +98,9 @@ export interface ClimbCompletedLadder {
   final: number;
   recordLabel: string;       // e.g. "5–0"
   pathLabel: string;         // e.g. "$100 → $10,376.17"
+  /** ISO dates from the owner's own steps / completedDate. C3 allows a legacy ladder ONLY with them. */
+  from: string;
+  to: string;
 }
 export interface ClimbHeroProps {
   currentBankroll: number;   // dailyPortfolio.activeBankroll
@@ -109,6 +112,11 @@ export interface ClimbHeroProps {
 }
 
 // ── Formatting (display only) ───────────────────────────────────────────────────────────────────
+/** A legacy ladder's exact span, the C3 requirement for showing it at all. Same spelling as /mr-dub's panel. */
+const dayLabel = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+const ladderDates = (l: { from: string; to: string }) =>
+  `${dayLabel(l.from)} – ${dayLabel(l.to)}, ${new Date(`${l.to}T00:00:00Z`).getUTCFullYear()}`;
+
 const money = (n: number | null | undefined) =>
   n == null || !Number.isFinite(n)
     ? "—"
@@ -245,14 +253,24 @@ export default function ClimbHero({
         </div>
       ) : null}
 
-      {/* 5 · Completed-ladder proof (compact) */}
+      {/* 5 · Completed ladders — LEGACY HISTORY (C3 · corrected in C2) */}
       {completedLadders.length > 0 ? (
         <div
+          aria-label="Completed ladders — legacy history"
           className="mt-4 rounded-2xl px-5 py-4"
           style={{ border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 30%, transparent)", background: "linear-gradient(135deg, color-mix(in srgb, var(--gtp-success-on-dark) 7%, transparent), color-mix(in srgb, var(--vault-scrim-base) 25%, transparent))" }}
         >
+          {/*
+            * C2 · a THIRD rendered C3 violation, found by reading the built page rather than the source.
+            * C3 corrected the front door and the /mr-dub banner and stopped there; this strip has the same
+            * shape and was not looked at. It said "Completed ladders · Verified · official results" and
+            * then printed two June 5–0 ladders with NO dates and NO era — sitting inside the live Bank
+            * Builder hero, directly under today's rung. The decision permits these figures only in an
+            * explicitly labelled legacy context, "with exact dates and methodology/era context", so the
+            * label alone was not enough. Treated exactly as C3 treated the banner.
+            */}
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-success)" }}>Completed ladders</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)" }}>Completed ladders · legacy history</span>
             <Chip label="Verified · official results" color="var(--vault-success)" />
           </div>
           <div className="flex flex-wrap gap-2">
@@ -264,10 +282,15 @@ export default function ClimbHero({
               >
                 {money0(l.start)} <span style={{ color: "var(--vault-text-faint)" }}>→</span> {money(l.final)}
                 <span className="ml-1.5 font-mono text-[11px]" style={{ color: "var(--vault-success)" }}>{dash(l.recordLabel)}</span>
+                <span className="ml-1.5 font-mono text-[10px] font-normal" style={{ color: "var(--vault-text-faint)" }}>{ladderDates(l)}</span>
                 {i < completedLadders.length - 1 ? <span className="mx-2" style={{ color: "var(--vault-rule)" }} aria-hidden>·</span> : null}
               </span>
             ))}
           </div>
+          <p className="mt-1.5 m-0 font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+            Run under the June 2026 multi-sport operator process — a different era from the Bank Builder running
+            today. Historical record, not evidence for the current methodology, and not part of the current record.
+          </p>
           <Link href="/results" className="mt-2 inline-flex font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-success)" }}>
             See every receipt →
           </Link>

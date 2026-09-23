@@ -67,6 +67,7 @@ import { buildChangeLog } from "@/lib/command-center/changes";
 import YesterdayCard from "@/components/recap/yesterday-card";
 import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 import { legacyNameMap } from "@/lib/follow/entity-registry";
+import { currentProductRecord } from "@/lib/results/current-record";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -165,21 +166,14 @@ export default function TodayPage() {
 
   // ── Record — read from the canonical portfolio.json (the fields AchievementBanner surfaces). Fail
   //    closed to null so a figure is only ever shown when it can be sourced canonically. ──
-  let recordLabel: string | null = null;
-  let pendingLabel: string | null = null;
-  let hasSettledResults = false;
-  try {
-    const p = JSON.parse(fs.readFileSync(path.join(dataRoot, "mr-dub", "portfolio.json"), "utf8"));
-    if (p.record && typeof p.record.wins === "number" && typeof p.record.losses === "number") {
-      recordLabel = `${p.record.wins}–${p.record.losses}`;
-      const settled = p.record.wins + p.record.losses + (p.record.voids ?? 0);
-      const pending = p.record.pending ?? 0;
-      pendingLabel = `${pending} pending · ${settled} settled`;
-      hasSettledResults = settled > 0; // gate the brief's yesterday link — no recap when nothing has settled
-    }
-  } catch {
-    /* fail closed → the results reminder omits any figure it cannot source canonically */
-  }
+  /*
+   * C2: the same question the front door asks, through the same reader, so the two pages cannot disagree
+   * about the record — they used to agree only because two hand-written copies happened to match.
+   * `settled` still gates the brief's yesterday link, and stays null (not 0) when the cell cannot be read,
+   * so an unreadable projection hides the recap link rather than claiming nothing has settled.
+   */
+  const { recordLabel, pendingLabel, settled: settledCount } = currentProductRecord("bank-builder");
+  const hasSettledResults = (settledCount ?? 0) > 0;
 
   // ── Bank Builder status — derived HONESTLY (never a hardcoded "active" card), same pattern as Home.
   //    `available === false` ⇒ no qualified card ⇒ NO-PLAY. The awaiting rung is read from the public
