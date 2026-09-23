@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823492,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:30.619Z",
+  "availableAt": "2026-09-23T00:52:30.619Z",
+  "eventStartTime": "2026-09-23T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-20",
+    "2026-09-21",
+    "2026-09-22"
+  ],
+  "home": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 1,
+      "pitches": 11,
+      "relievers": [
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 67,
+      "relievers": [
+        {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 2,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 661563,
+          "name": "Luis Gil",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 657612,
+          "name": "Tim Hill",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 1,
+      "pitches": 23,
+      "relievers": [
+        {
+          "id": 694494,
+          "name": "Ty Johnson",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 81,
+      "relievers": [
+        {
+          "id": 694494,
+          "name": "Ty Johnson",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 8,
+          "dates": [
+            "2026-09-20",
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 811315,
+          "name": "Brody Hopkins",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 642121,
+          "name": "Cole Sulser",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 687330,
+          "name": "Kevin Kelly",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-20,2026-09-21,2026-09-22) + feed/live box scores",
+    "capturedAt": "2026-09-23T00:52:30.619Z"
+  },
+  "recordHash": "b4217bd5b5c0840d786361ca5d5a0a7b2f7e0afdcd2d36f55b2a68cb6dfa2c79"
+}

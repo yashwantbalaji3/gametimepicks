@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823168,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:29.852Z",
+  "availableAt": "2026-09-23T00:52:29.852Z",
+  "eventStartTime": "2026-09-23T19:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 702885,
+      "name": "Cesar Perdomo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 5,
+      "lastStartDate": "2026-09-18",
+      "last5": {
+        "starts": 3,
+        "ipSum": 15.33,
+        "ipAvg": 5.11,
+        "kAvg": 2.67,
+        "bbAvg": 2,
+        "erAvg": 2.33,
+        "hrAvg": 0.67,
+        "kPer9": 4.7,
+        "workloadIpLast5": 15.33
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 15.33,
+        "k": 8,
+        "bb": 6,
+        "er": 7,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 687570,
+      "name": "Connor Prielipp",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-09-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 5.4,
+        "bbAvg": 1.8,
+        "erAvg": 4,
+        "hrAvg": 0.4,
+        "kPer9": 8.48,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 111.33,
+        "k": 115,
+        "bb": 41,
+        "er": 64,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-23T00:52:29.852Z"
+  },
+  "recordHash": "02e53d3b09e2359ebeaa93c093c390ea684b2ee25249bfb52dc948306b846490"
+}

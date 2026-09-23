@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823894,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:29.852Z",
+  "availableAt": "2026-09-23T00:52:29.852Z",
+  "eventStartTime": "2026-09-24T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 808967,
+      "name": "Yoshinobu Yamamoto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 8,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33.67,
+        "ipAvg": 6.73,
+        "kAvg": 8.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 11.23,
+        "workloadIpLast5": 33.67
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 179,
+        "k": 178,
+        "bb": 41,
+        "er": 50,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 592662,
+      "name": "Robbie Ray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 7,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.2,
+        "bbAvg": 3,
+        "erAvg": 3.2,
+        "hrAvg": 0.8,
+        "kPer9": 7.66,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 156,
+        "k": 130,
+        "bb": 81,
+        "er": 65,
+        "hr": 22
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-23T00:52:29.852Z"
+  },
+  "recordHash": "689b959e6cc39e1f7c06b43d49f726863aeaff19caf1e72df2c4f2a217a62e80"
+}

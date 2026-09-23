@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823086,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:30.619Z",
+  "availableAt": "2026-09-23T00:52:30.619Z",
+  "eventStartTime": "2026-09-24T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-20",
+    "2026-09-21",
+    "2026-09-22"
+  ],
+  "home": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 35,
+      "relievers": [
+        {
+          "id": 622554,
+          "name": "Seranthony Domínguez",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 662253,
+          "name": "Andrés Muñoz",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 1,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 117,
+    "teamName": "Houston Astros",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 64,
+      "relievers": [
+        {
+          "id": 837227,
+          "name": "Tatsuya Imai",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 687911,
+          "name": "Bryan King",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 0,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 699044,
+          "name": "Miguel Ullola",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 6,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-20,2026-09-21,2026-09-22) + feed/live box scores",
+    "capturedAt": "2026-09-23T00:52:30.619Z"
+  },
+  "recordHash": "3746d23f6bc89c4bca6b2bf49c17fe1bd242bb20f168a04f9aecf3434a617ab7"
+}

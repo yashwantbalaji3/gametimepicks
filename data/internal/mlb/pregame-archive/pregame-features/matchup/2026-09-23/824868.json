@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824868,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:31.212Z",
+  "availableAt": "2026-09-23T00:52:31.212Z",
+  "eventStartTime": "2026-09-23T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 519242,
+    "name": "Chris Sale",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 671096,
+    "name": "Andrew Abbott",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-23T00:52:31.212Z"
+  },
+  "recordHash": "bd4455307466d6958be5728ed53074f1a51033b26359ecdfc5395ef9f513f1c9"
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824060,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:30.619Z",
+  "availableAt": "2026-09-23T00:52:30.619Z",
+  "eventStartTime": "2026-09-23T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-20",
+    "2026-09-21",
+    "2026-09-22"
+  ],
+  "home": {
+    "teamId": 118,
+    "teamName": "Kansas City Royals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 69,
+      "relievers": [
+        {
+          "id": 671162,
+          "name": "Connor Thomas",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 2,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 663878,
+          "name": "Nate Pearson",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 2,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 621016,
+          "name": "Jose Cuas",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 543238,
+          "name": "Anthony Gose",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 676510,
+          "name": "Nolan Hoffman",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 75,
+      "relievers": [
+        {
+          "id": 670950,
+          "name": "Trevor Richards",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 696146,
+          "name": "Hagen Smith",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 623211,
+          "name": "Huascar Brazobán",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 622491,
+          "name": "Luis Castillo",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-20,2026-09-21,2026-09-22) + feed/live box scores",
+    "capturedAt": "2026-09-23T00:52:30.619Z"
+  },
+  "recordHash": "9887078936f2d10afbd043ad02a2fcb7049584d7728f1aeb3e1aa8e420b5d80c"
+}

@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823168,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:30.619Z",
+  "availableAt": "2026-09-23T00:52:30.619Z",
+  "eventStartTime": "2026-09-23T19:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-20",
+    "2026-09-21",
+    "2026-09-22"
+  ],
+  "home": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 126,
+      "relievers": [
+        {
+          "id": 663941,
+          "name": "Tristan Beck",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 8,
+          "dates": [
+            "2026-09-21"
+          ]
+        },
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 5,
+          "dates": [
+            "2026-09-20",
+            "2026-09-21"
+          ]
+        },
+        {
+          "id": 656529,
+          "name": "Sam Hentges",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 4,
+          "dates": [
+            "2026-09-20",
+            "2026-09-21"
+          ]
+        },
+        {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 671345,
+          "name": "Jason Foley",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-21"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 76,
+      "relievers": [
+        {
+          "id": 641927,
+          "name": "Bailey Ober",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 9,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 4,
+          "dates": [
+            "2026-09-21"
+          ]
+        },
+        {
+          "id": 701519,
+          "name": "Travis Adams",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 5,
+          "dates": [
+            "2026-09-21"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-20,2026-09-21,2026-09-22) + feed/live box scores",
+    "capturedAt": "2026-09-23T00:52:30.619Z"
+  },
+  "recordHash": "0396684f1ea47eff2b74a3ebddbb1a3fd47eeeef0bc57d3b6c486a5d92762793"
+}

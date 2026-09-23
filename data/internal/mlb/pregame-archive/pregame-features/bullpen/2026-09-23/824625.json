@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824625,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:30.619Z",
+  "availableAt": "2026-09-23T00:52:30.619Z",
+  "eventStartTime": "2026-09-23T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-20",
+    "2026-09-21",
+    "2026-09-22"
+  ],
+  "home": {
+    "teamId": 112,
+    "teamName": "Chicago Cubs",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 35,
+      "relievers": [
+        {
+          "id": 573204,
+          "name": "Caleb Thielbar",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 665795,
+          "name": "Edward Cabrera",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 607067,
+          "name": "Colin Rea",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 146,
+    "teamName": "Miami Marlins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 1,
+      "pitches": 32,
+      "relievers": [
+        {
+          "id": 687134,
+          "name": "Bradley Blalock",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-20,2026-09-21,2026-09-22) + feed/live box scores",
+    "capturedAt": "2026-09-23T00:52:30.619Z"
+  },
+  "recordHash": "3482e79e223f5c1144482baf59ec7ce74fb2f43d680efa77453492b2f8b75032"
+}

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822841,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:30.619Z",
+  "availableAt": "2026-09-23T00:52:30.619Z",
+  "eventStartTime": "2026-09-24T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-20",
+    "2026-09-21",
+    "2026-09-22"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 67,
+      "relievers": [
+        {
+          "id": 671936,
+          "name": "Adam Macko",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 7,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 0,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 676395,
+          "name": "Robert Garcia",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 5,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 681217,
+          "name": "Chase Silseth",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 121,
+    "teamName": "New York Mets",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 82,
+      "relievers": [
+        {
+          "id": 673540,
+          "name": "Kodai Senga",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 1,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 681810,
+          "name": "Austin Warren",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 5,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 642376,
+          "name": "Jefry Yan",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 674073,
+          "name": "Jack Weisenburger",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-09-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-20,2026-09-21,2026-09-22) + feed/live box scores",
+    "capturedAt": "2026-09-23T00:52:30.619Z"
+  },
+  "recordHash": "8f6048b6738c7c897ad2698b6c820492098b0073282c4c3b2763646a86abf92f"
+}
