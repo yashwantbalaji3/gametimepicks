@@ -3,8 +3,8 @@
  "artifact": "selector-shadow-report",
  "dataClass": "internal-research",
  "status": "SHADOW_RUNNING · NOT ADOPTED",
- "reportedAt": "2026-09-22T14:40:54.593Z",
- "ledgerGeneratedAt": "2026-09-22T14:11:38.463Z",
+ "reportedAt": "2026-09-23T09:59:58.460Z",
+ "ledgerGeneratedAt": "2026-09-23T09:59:57.636Z",
  "days": 2,
  "firstDate": "2026-09-21",
  "lastDate": "2026-09-22",
@@ -27,8 +27,8 @@
     "generatedAt": "2026-09-22T04:57:30.552Z",
     "retroactive": true,
     "rewrite": "INTACT",
-    "firstCommitAt": "2026-09-22T00:57:48-04:00",
-    "firstCommitHash": "e3f9c4b5ccf806a197f3f2d515af1a7309bb3772",
+    "firstCommitAt": "2026-09-23T07:35:24Z",
+    "firstCommitHash": "8e4a59ecf3a3cd954507496d3ae0259c5914f575",
     "publicationFingerprint": "523c936a7699e56091f7973370810560962eea9eba63f143708b1fac7e47617b",
     "universeSha256": null,
     "eligibleLegs": 18,
@@ -44,8 +44,8 @@
     "generatedAt": "2026-09-22T14:22:28.563Z",
     "retroactive": false,
     "rewrite": "INTACT",
-    "firstCommitAt": "2026-09-22T14:22:34Z",
-    "firstCommitHash": "f2c613dabe696fd5d23e17877163db13696073a5",
+    "firstCommitAt": "2026-09-23T07:35:24Z",
+    "firstCommitHash": "8e4a59ecf3a3cd954507496d3ae0259c5914f575",
     "publicationFingerprint": "bf5160be80bdf4300d82ce332e8808a94b3aea71fe5de24013a25e195bb2a206",
     "universeSha256": "2f1a9e2e49b5ae9c17047ce43502989ce8823256dab9a9a70389bf87a4291429",
     "eligibleLegs": 96,
@@ -55,22 +55,36 @@
    }
   ]
  },
- "settlementDisagreements": [],
+ "settlementDisagreements": [
+  {
+   "date": "2026-09-22",
+   "policy": "BB-LEGACY",
+   "lane": "B",
+   "leg": "Tampa Bay Rays @ New York Yankees|New York Yankees to win",
+   "shadow": "won",
+   "live": "pending"
+  }
+ ],
  "policies": {
   "BB-LEGACY": {
    "policyId": "BB-LEGACY@7be1d5171769",
    "metrics": {
     "laneDays": 4,
     "placed": 3,
-    "decided": 1,
-    "pending": 2,
-    "won": 1,
-    "lost": 0,
+    "decided": 3,
+    "pending": 0,
+    "won": 2,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": 1,
-    "survivalSe": 0,
+    "survivalPerStep": 0.667,
+    "survivalSe": 0.272,
     "byStep": {
      "1": {
+      "won": 1,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
       "won": 1,
       "lost": 0,
       "push": 0
@@ -83,30 +97,47 @@
      "CONCENTRATION_TOO_HIGH": 1
     },
     "publicationRate": 0.75,
-    "expectedWinsUnderPublishedP": 0.38,
-    "meanJointP": 0.383
+    "expectedWinsUnderPublishedP": 1,
+    "meanJointP": 0.333
    },
    "forwardOnlyMetrics": {
     "laneDays": 2,
     "placed": 2,
-    "decided": 0,
-    "pending": 2,
-    "won": 0,
-    "lost": 0,
+    "decided": 2,
+    "pending": 0,
+    "won": 1,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": null,
-    "survivalSe": null,
-    "byStep": {},
+    "survivalPerStep": 0.5,
+    "survivalSe": 0.354,
+    "byStep": {
+     "1": {
+      "won": 0,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
+      "won": 1,
+      "lost": 0,
+      "push": 0
+     }
+    },
     "completions": 0,
     "furthestStep": 2,
     "noPlayLaneDays": 0,
     "noPlayByReason": {},
     "publicationRate": 1,
-    "expectedWinsUnderPublishedP": 0,
-    "meanJointP": null
+    "expectedWinsUnderPublishedP": 0.62,
+    "meanJointP": 0.308
    },
    "survivalByRung": {
     "1": {
+     "won": 1,
+     "lost": 1,
+     "push": 0,
+     "survival": 0.5
+    },
+    "2": {
      "won": 1,
      "lost": 0,
      "push": 0,
@@ -119,17 +150,17 @@
    "probabilityBasis": {
     "market-implied": 3
    },
-   "ledgerAgrees": false,
+   "ledgerAgrees": true,
    "position": {
     "A": {
-     "step": 2,
-     "stake": 238.99,
-     "pending": true
+     "step": 3,
+     "stake": 700.74,
+     "pending": false
     },
     "B": {
      "step": 1,
      "stake": 100,
-     "pending": true
+     "pending": false
     }
    }
   },
@@ -138,15 +169,20 @@
    "metrics": {
     "laneDays": 4,
     "placed": 3,
-    "decided": 1,
-    "pending": 2,
-    "won": 1,
-    "lost": 0,
+    "decided": 3,
+    "pending": 0,
+    "won": 2,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": 1,
-    "survivalSe": 0,
+    "survivalPerStep": 0.667,
+    "survivalSe": 0.272,
     "byStep": {
      "1": {
+      "won": 1,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
       "won": 1,
       "lost": 0,
       "push": 0
@@ -159,30 +195,47 @@
      "CONCENTRATION_TOO_HIGH": 1
     },
     "publicationRate": 0.75,
-    "expectedWinsUnderPublishedP": 0.38,
-    "meanJointP": 0.383
+    "expectedWinsUnderPublishedP": 1.12,
+    "meanJointP": 0.372
    },
    "forwardOnlyMetrics": {
     "laneDays": 2,
     "placed": 2,
-    "decided": 0,
-    "pending": 2,
-    "won": 0,
-    "lost": 0,
+    "decided": 2,
+    "pending": 0,
+    "won": 1,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": null,
-    "survivalSe": null,
-    "byStep": {},
+    "survivalPerStep": 0.5,
+    "survivalSe": 0.354,
+    "byStep": {
+     "1": {
+      "won": 0,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
+      "won": 1,
+      "lost": 0,
+      "push": 0
+     }
+    },
     "completions": 0,
     "furthestStep": 2,
     "noPlayLaneDays": 0,
     "noPlayByReason": {},
     "publicationRate": 1,
-    "expectedWinsUnderPublishedP": 0,
-    "meanJointP": null
+    "expectedWinsUnderPublishedP": 0.73,
+    "meanJointP": 0.367
    },
    "survivalByRung": {
     "1": {
+     "won": 1,
+     "lost": 1,
+     "push": 0,
+     "survival": 0.5
+    },
+    "2": {
      "won": 1,
      "lost": 0,
      "push": 0,
@@ -195,17 +248,17 @@
    "probabilityBasis": {
     "market-implied": 3
    },
-   "ledgerAgrees": false,
+   "ledgerAgrees": true,
    "position": {
     "A": {
-     "step": 2,
-     "stake": 238.99,
-     "pending": true
+     "step": 3,
+     "stake": 700.74,
+     "pending": false
     },
     "B": {
      "step": 1,
      "stake": 100,
-     "pending": true
+     "pending": false
     }
    }
   },
@@ -214,15 +267,20 @@
    "metrics": {
     "laneDays": 4,
     "placed": 3,
-    "decided": 1,
-    "pending": 2,
-    "won": 1,
-    "lost": 0,
+    "decided": 3,
+    "pending": 0,
+    "won": 2,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": 1,
-    "survivalSe": 0,
+    "survivalPerStep": 0.667,
+    "survivalSe": 0.272,
     "byStep": {
      "1": {
+      "won": 1,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
       "won": 1,
       "lost": 0,
       "push": 0
@@ -235,30 +293,47 @@
      "CONCENTRATION_TOO_HIGH": 1
     },
     "publicationRate": 0.75,
-    "expectedWinsUnderPublishedP": 0.38,
-    "meanJointP": 0.383
+    "expectedWinsUnderPublishedP": 1.12,
+    "meanJointP": 0.372
    },
    "forwardOnlyMetrics": {
     "laneDays": 2,
     "placed": 2,
-    "decided": 0,
-    "pending": 2,
-    "won": 0,
-    "lost": 0,
+    "decided": 2,
+    "pending": 0,
+    "won": 1,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": null,
-    "survivalSe": null,
-    "byStep": {},
+    "survivalPerStep": 0.5,
+    "survivalSe": 0.354,
+    "byStep": {
+     "1": {
+      "won": 0,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
+      "won": 1,
+      "lost": 0,
+      "push": 0
+     }
+    },
     "completions": 0,
     "furthestStep": 2,
     "noPlayLaneDays": 0,
     "noPlayByReason": {},
     "publicationRate": 1,
-    "expectedWinsUnderPublishedP": 0,
-    "meanJointP": null
+    "expectedWinsUnderPublishedP": 0.73,
+    "meanJointP": 0.367
    },
    "survivalByRung": {
     "1": {
+     "won": 1,
+     "lost": 1,
+     "push": 0,
+     "survival": 0.5
+    },
+    "2": {
      "won": 1,
      "lost": 0,
      "push": 0,
@@ -271,17 +346,17 @@
    "probabilityBasis": {
     "market-implied": 3
    },
-   "ledgerAgrees": false,
+   "ledgerAgrees": true,
    "position": {
     "A": {
-     "step": 2,
-     "stake": 238.99,
-     "pending": true
+     "step": 3,
+     "stake": 700.74,
+     "pending": false
     },
     "B": {
      "step": 1,
      "stake": 100,
-     "pending": true
+     "pending": false
     }
    }
   },
@@ -529,12 +604,12 @@
    "allDays": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 1 < 20"
+     "decided 3 < 20"
     ],
     "measured": {
-     "shadowDecided": 1,
-     "shadowSurvival": 1,
-     "controlSurvival": 1,
+     "shadowDecided": 3,
+     "shadowSurvival": 0.667,
+     "controlSurvival": 0.667,
      "shadowPlaced": 3,
      "controlPlaced": 3
     },
@@ -543,13 +618,12 @@
    "forwardOnly": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 0 < 20",
-     "survival not measurable yet"
+     "decided 2 < 20"
     ],
     "measured": {
-     "shadowDecided": 0,
-     "shadowSurvival": null,
-     "controlSurvival": null,
+     "shadowDecided": 2,
+     "shadowSurvival": 0.5,
+     "controlSurvival": 0.5,
      "shadowPlaced": 2,
      "controlPlaced": 2
     },
@@ -564,12 +638,12 @@
    "allDays": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 1 < 20"
+     "decided 3 < 20"
     ],
     "measured": {
-     "shadowDecided": 1,
-     "shadowSurvival": 1,
-     "controlSurvival": 1,
+     "shadowDecided": 3,
+     "shadowSurvival": 0.667,
+     "controlSurvival": 0.667,
      "shadowPlaced": 3,
      "controlPlaced": 3
     },
@@ -578,13 +652,12 @@
    "forwardOnly": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 0 < 20",
-     "survival not measurable yet"
+     "decided 2 < 20"
     ],
     "measured": {
-     "shadowDecided": 0,
-     "shadowSurvival": null,
-     "controlSurvival": null,
+     "shadowDecided": 2,
+     "shadowSurvival": 0.5,
+     "controlSurvival": 0.5,
      "shadowPlaced": 2,
      "controlPlaced": 2
     },
