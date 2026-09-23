@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-23",
- "generatedAt": "2026-09-23T10:12:59Z",
+ "generatedAt": "2026-09-23T12:26:08Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-1+bank-builder-lane-b-step-2",
-     "lockAt": "2026-09-23T10:12:52.351Z"
+     "lockAt": "2026-09-23T12:26:05.593Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-a-step-1+moonshot-lane-b-step-1",
-     "lockAt": "2026-09-23T10:12:52.351Z"
+     "lockAt": "2026-09-23T12:26:05.593Z"
     },
     "transitions": [
      {
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-23T10:05:46.000Z"
+     "lockAt": "2026-09-23T12:19:45.000Z"
     },
     "transitions": [
      {
@@ -402,7 +402,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -156,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Carter Jensen",
@@ -416,7 +416,7 @@
        "side": "Over",
        "line": 1.5,
        "odds": -107,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -446,7 +446,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -189,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Max Clark",
@@ -460,7 +460,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -198,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Brandon Lowe",
@@ -474,7 +474,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -163,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Elly De La Cruz",
@@ -488,7 +488,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -197,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -518,7 +518,7 @@
        "side": "Under",
        "line": 1.5,
        "odds": -269,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Ha-Seong Kim",
@@ -532,7 +532,7 @@
        "side": "Under",
        "line": 0.5,
        "odds": 102,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Jonathan Aranda",
@@ -546,7 +546,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -156,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Riley Greene",
@@ -560,7 +560,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -211,
-       "result": null
+       "result": "unresolved"
       },
       {
        "player": "Joey Ortiz",
@@ -574,7 +574,7 @@
        "side": "Over",
        "line": 0.5,
        "odds": -182,
-       "result": null
+       "result": "unresolved"
       }
      ],
      "status": "pending",
@@ -588,12 +588,12 @@
    ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "ACTIVE",
+    "state": "AWAITING_RESULT",
     "policyVersion": "mlb-cards@1",
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-23T10:12:54Z"
+     "lockAt": "2026-09-23T12:26:06Z"
     },
     "transitions": [
      {
@@ -603,6 +603,10 @@
      {
       "to": "ACTIVE",
       "runId": "gen:2026-09-23:f9c00d017b27"
+     },
+     {
+      "to": "AWAITING_RESULT",
+      "runId": "await:2026-09-23:2026-09-23T10:04:11+00:00"
      }
     ]
    }
