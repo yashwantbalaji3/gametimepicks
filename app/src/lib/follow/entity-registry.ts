@@ -58,6 +58,19 @@ function build(): { mlb: TeamEntry[]; nfl: TeamEntry[] } {
     const j = readJson(path.join(schedDir, f));
     for (const g of j?.games ?? []) {
       for (const side of [g?.home, g?.away]) {
+        /*
+         * A POSTSEASON SLOT IS NOT A CLUB. StatsAPI publishes undecided postseason games with TBD sides
+         * — "NL Wild Card #2", "AL Higher Seed" — carrying its own `placeholder: true`. On 2026-09-23 the
+         * 09-29 capture held seven of them, so this registry resolved 37 "MLB clubs" and
+         * `mlbTeamRefByName("NL Wild Card #3")` returned a followable ref: an identity minted for
+         * something that is not an entity.
+         *
+         * The flag is the OWNER's, not a guess: verified live that day, postseason TBD sides carry it
+         * (4 of 4 on 2026-10-06) and regular-season sides do not carry the key at all (0 of 32). An
+         * absent flag therefore means "a real club", which is correct for every capture written before
+         * the capture started recording it.
+         */
+        if (side?.placeholder === true) continue;
         if (side?.id !== undefined && typeof side?.name === "string") mlbById.set(String(side.id), side.name);
       }
     }

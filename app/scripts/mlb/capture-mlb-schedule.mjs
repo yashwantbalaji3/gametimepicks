@@ -30,6 +30,13 @@ import { fileURLToPath } from "node:url";
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT_DIR = path.join(APP, "public", "data", "mlb", "statsapi-schedule");
 
+/** One side of a game, reduced to identity plus StatsAPI's own TBD-slot flag. */
+const side = (t) => ({
+  id: t?.id ?? null,
+  name: t?.name ?? null,
+  ...(t?.placeholder === true ? { placeholder: true } : {}),
+});
+
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const has = (n) => process.argv.includes(n);
 
@@ -72,8 +79,19 @@ const rows = games
      */
     doubleHeader: g.doubleHeader ?? "N",
     gameNumber: g.gameNumber ?? 1,
-    away: { id: g.teams?.away?.team?.id ?? null, name: g.teams?.away?.team?.name ?? null },
-    home: { id: g.teams?.home?.team?.id ?? null, name: g.teams?.home?.team?.name ?? null },
+    /*
+     * `placeholder` is StatsAPI's OWN flag for a postseason slot whose seed is not yet decided —
+     * "NL Wild Card #2", "AL Higher Seed". It is carried through because downstream consumers cannot
+     * otherwise tell a TBD slot from a club: this capture reduces a team to {id, name}, and by the time
+     * it reaches the follow registry there is nothing left to distinguish them. On 2026-09-23 that cost
+     * seven fake MLB "clubs" in the registry (37 instead of 30) and made `NL Wild Card #3` followable.
+     *
+     * Verified against the live API that day: postseason TBD sides carry `placeholder: true` (4 of 4 on
+     * 2026-10-06), and regular-season sides do not carry the key AT ALL (0 of 32 on 2026-09-23). So an
+     * ABSENT flag means "a real club", which is exactly right for every capture written before today.
+     */
+    away: side(g.teams?.away?.team),
+    home: side(g.teams?.home?.team),
     venue: g.venue?.name ?? null,
   }))
   .filter((r) => r.gamePk != null)
