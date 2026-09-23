@@ -1,0 +1,340 @@
+{
+ "schemaVersion": 1,
+ "artifact": "forward-coverage",
+ "dataClass": "PRIVATE_OPERATING_RECORD",
+ "date": "2026-09-23",
+ "generatedAt": "2026-09-23T10:13:00Z",
+ "sources": {
+  "eplFixturesCapture": "capture-2026-27-2026-09-21T2208.json",
+  "eplOddsCapturedAt": "2026-09-19T22:35:26Z",
+  "eplForecastDays": 188,
+  "ufcCardGeneratedAt": "2026-09-22T15:27:12Z",
+  "nflIndexGeneratedAt": "2026-09-22T23:30:30Z"
+ },
+ "derivedAtMs": 1790158380000,
+ "sports": [
+  {
+   "sport": "epl",
+   "state": "DERIVED",
+   "events": [],
+   "counts": {
+    "scheduled": 0,
+    "priced": 0,
+    "generated": 0,
+    "frozen": 0,
+    "started": 0
+   },
+   "findings": []
+  },
+  {
+   "sport": "ufc",
+   "state": "DERIVED",
+   "events": [
+    {
+     "eventId": "401911630",
+     "label": "Raoni Barcelos vs Raul Rosas Jr.",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401911631",
+     "label": "Robert Bryczek vs Rodolfo Vieira",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401914465",
+     "label": "Ilimbek Akylbek Uulu vs Mehemmedeli Osmanli",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": false,
+     "generated": false,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401914464",
+     "label": "Tina Black vs Melissa Amaya",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": false,
+     "generated": false,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401914468",
+     "label": "Brady Hiestand vs Rinya Nakamura",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401914467",
+     "label": "Christian Edwards vs Rodolfo Bellato",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401914470",
+     "label": "Elves Brener vs Josiah Harrell",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": false,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401914466",
+     "label": "Ricky Simon vs Montel Jackson",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401914471",
+     "label": "Norma Dumont vs Ailin Perez",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401914469",
+     "label": "Alatengheili vs John Castaneda",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401923433",
+     "label": "Mickey Gall vs Sedriques Dumas",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "401914472",
+     "label": "Vanessa Demopoulos vs Yazmin Jauregui",
+     "startUtc": "2026-09-26T21:00Z",
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    }
+   ],
+   "counts": {
+    "scheduled": 12,
+    "priced": 9,
+    "generated": 10,
+    "frozen": 0,
+    "started": 0
+   },
+   "findings": [
+    "SKIPPED_TYPED:1 bout(s) skipped with reasons (population-exact)"
+   ]
+  },
+  {
+   "sport": "nfl",
+   "state": "SCHEDULE_ONLY",
+   "events": [
+    {
+     "eventId": "401872948",
+     "label": "ATL @ GB",
+     "startUtc": "2026-09-25T00:15Z",
+     "priced": true,
+     "generated": false,
+     "frozen": false,
+     "started": false,
+     "seasonType": 2
+    }
+   ],
+   "counts": {
+    "scheduled": 1,
+    "priced": 1,
+    "generated": 0,
+    "frozen": 0,
+    "started": 0
+   },
+   "findings": [
+    "MODEL_ABSENT_BY_DECISION:1 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+   ]
+  },
+  {
+   "sport": "mlb",
+   "state": "DAILY_BY_CONTRACT",
+   "events": [
+    {
+     "eventId": 824223,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 824785,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 824784,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 823168,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 823327,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 823410,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 823492,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 824710,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 824868,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 824060,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 824625,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 822841,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 824301,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 824951,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 823894,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": 823086,
+     "label": "game",
+     "startUtc": null,
+     "priced": true,
+     "generated": true,
+     "frozen": false,
+     "started": false
+    }
+   ],
+   "counts": {
+    "scheduled": 16,
+    "priced": 16,
+    "generated": 16,
+    "frozen": 0,
+    "started": 0
+   },
+   "findings": [
+    "FUTURE_STAGING_ABSENT_BY_DESIGN:game-specific inputs (probables, lineups, current odds) arrive per game day; a pre-series artifact would be dishonest for repeated matchups"
+   ]
+  }
+ ]
+}
