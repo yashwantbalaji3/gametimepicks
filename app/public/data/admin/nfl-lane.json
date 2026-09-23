@@ -2,14 +2,14 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-09-23T14:14:14Z",
+ "generatedAt": "2026-09-23T18:34:00Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "ATL @ GB",
   "kickoffUtc": "2026-09-25T00:15Z",
   "seasonType": 2,
   "week": 3,
-  "hoursToKickoff": 34.01,
+  "hoursToKickoff": 29.68,
   "eventsInWindow": 17
  },
  "freshness": {
@@ -19,23 +19,21 @@
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-09-23T14:14:14Z (FRESH)"
+   "detail": "as of 2026-09-23T18:34:00Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-09-23T14:14:31Z (FRESH)"
+   "detail": "as of 2026-09-23T18:34:30Z (FRESH)"
   },
   "odds": {
-   "state": "STALE",
-   "detail": "as of 2026-09-21T23:50:21Z (STALE)"
+   "state": "FRESH",
+   "detail": "as of 2026-09-23T18:34:00Z (FRESH)"
   }
  },
  "regularSeason": {
   "verdict": {
-   "state": "OPERATIONAL_GAPS",
-   "operationalGaps": [
-    "prices:STALE"
-   ],
+   "state": "READY_WITH_DESIGN_CAPS",
+   "operationalGaps": [],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -56,12 +54,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-09-23T14:14:31Z"
+    "detail": "injuries as of 2026-09-23T18:34:30Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-09-23T14:14:14Z"
+    "detail": "rosters as of 2026-09-23T18:34:00Z"
    },
    {
     "id": "participationRoles",
@@ -90,16 +88,16 @@
    },
    {
     "id": "prices",
-    "state": "STALE",
-    "detail": "prices as of 2026-09-21T23:50:21Z"
+    "state": "AVAILABLE",
+    "detail": "prices as of 2026-09-23T18:34:00Z"
    }
   ]
  },
  "markets": {
   "state": "CAPTURED",
-  "events": 30,
+  "events": 31,
   "books": 11,
-  "capturedAt": "2026-09-21T23:50:21Z",
+  "capturedAt": "2026-09-23T18:34:00Z",
   "propMarkets": {
    "state": "NOT_PROBED",
    "offeredMarkets": [],
@@ -108,17 +106,17 @@
  },
  "credits": {
   "state": "UNKNOWN",
-  "programSpend": 132,
+  "programSpend": 135,
   "ceiling": null,
   "remainingProgram": null,
-  "providerRemaining": 12372,
+  "providerRemaining": 11836,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
    "providerRequestsUsed": 4342,
    "providerRequestsRemaining": 15658,
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
-  "requests": 186,
+  "requests": 189,
   "detail": "authorization receipt did not parse — no paid call may run"
  },
  "models": {
@@ -151,11 +149,11 @@
   }
  },
  "currentArtifacts": {
-  "total": 1044,
-  "contractValid": 1044,
-  "preStart": 20,
-  "settlementReady": 300,
-  "detail": "1044/1044 pass the current-event contract; 300 carry pinned settlement targets"
+  "total": 1060,
+  "contractValid": 1060,
+  "preStart": 36,
+  "settlementReady": 301,
+  "detail": "1060/1060 pass the current-event contract; 301 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",

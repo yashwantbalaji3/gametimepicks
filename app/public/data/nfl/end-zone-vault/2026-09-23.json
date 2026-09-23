@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-09-23",
- "generatedAt": "2026-09-23T14:14:14Z",
+ "generatedAt": "2026-09-23T18:34:00Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "172 model candidates · no current comparable touchdown price is available",
+ "reason": "169 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -224,26 +224,26 @@
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   },
   {
-   "playerId": "nfl-athlete-4689114",
-   "name": "Jaxson Dart",
-   "position": "QB",
-   "team": "NYG",
-   "opponent": "TEN",
-   "event": "TEN @ NYG",
-   "providerEventId": "401872956",
-   "kickoffUtc": "2026-09-27T17:00Z",
-   "tdProbability": 0.389502,
+   "playerId": "nfl-athlete-4361579",
+   "name": "Javonte Williams",
+   "position": "RB",
+   "team": "DAL",
+   "opponent": "BAL",
+   "event": "BAL @ DAL",
+   "providerEventId": "401872960",
+   "kickoffUtc": "2026-09-27T20:25Z",
+   "tdProbability": 0.368544,
    "probabilityRange": {
     "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
    },
-   "roleState": "QUESTIONABLE",
-   "roleNote": "published designation: Doubtful",
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
    "marketPrice": null,
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.41, g 13, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.47, g 16, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   }
  ],
- "candidateCount": 172,
+ "candidateCount": 169,
  "withheld": [
   {
    "event": "LAC @ BUF",
@@ -256,6 +256,24 @@
    "team": "CLE",
    "player": "Dylan Sampson",
    "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "HOU @ IND",
+   "team": "IND",
+   "player": "Alec Pierce",
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "TEN @ NYG",
+   "team": "NYG",
+   "player": "Jaxson Dart",
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "SEA @ WSH",
+   "team": "WSH",
+   "player": "Jayden Daniels",
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
   },
   {
    "event": "SEA @ WSH",
@@ -304,7 +322,7 @@
   ],
   "tdMarketOffered": null,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 156
+  "roleReadyCandidates": 154
  },
  "disclaimer": "Model touchdown probabilities. Educational."
 }
