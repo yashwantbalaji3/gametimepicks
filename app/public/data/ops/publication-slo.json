@@ -5,23 +5,23 @@
   "sports": {
     "mlb": {
       "state": "PUBLISHING",
-      "reason": "16 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-09-23T15:40:00.000Z",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-09-23T21:05:00.000Z",
       "counts": {
         "scheduled": 16,
-        "published": 0,
+        "published": 15,
         "missedCoverage": 0,
-        "awaiting": 16
+        "awaiting": 1
       },
       "missed": []
     },
     "nfl": {
       "state": "PUBLISHED",
-      "reason": "all 17 event(s) in the horizon carry a forecast",
+      "reason": "all 16 event(s) in the horizon carry a forecast",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 17,
-        "published": 17,
+        "scheduled": 16,
+        "published": 16,
         "missedCoverage": 0,
         "awaiting": 0
       }
@@ -50,20 +50,22 @@
       }
     }
   },
-  "checkedAt": "2026-09-23T10:00:58.545Z",
+  "checkedAt": "2026-09-23T15:32:40.117Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHING",
-  "reason": "today's slate is not published yet and is not late — the deadline is 2026-09-23T15:40:00.000Z",
-  "publishDeadlineUtc": "2026-09-23T15:40:00.000Z",
+  "state": "PUBLISHED",
+  "reason": "board published with 638 rows",
+  "publishDeadlineUtc": null,
   "scheduledGames": 16,
   "pregameRemaining": 16,
   "alreadyStarted": 0,
   "board": {
-    "present": false,
-    "leans": 0,
+    "present": true,
+    "leans": 638,
     "pendingReason": null,
-    "generatedAt": null
+    "generatedAt": "2026-09-23T10:02:43.585302+00:00",
+    "scheduledGames": 16,
+    "startedBeforeGeneration": 0
   },
   "games": [
     {
@@ -71,7 +73,7 @@
       "startUtc": "2026-09-23T17:10:00Z",
       "away": "Washington Nationals",
       "home": "Detroit Tigers",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -79,7 +81,7 @@
       "startUtc": "2026-09-23T17:35:00Z",
       "away": "Toronto Blue Jays",
       "home": "Baltimore Orioles",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
