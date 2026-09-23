@@ -21,6 +21,32 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
+/**
+ * EVERY CHILD IN THIS FILE IS CAPPED, AND A CAP HIT IS A NAMED FAILURE.
+ *
+ * Without this the file could hang the whole suite, and on 2026-09-23 it did: `quality-gate` step 6 ran
+ * to its 25-minute job ceiling on `main` and on every open PR, producing no failure and no clue — the job
+ * log's only evidence was three `Terminate orphan process: pid (…) (node)` lines at teardown. The suite
+ * stalled at a fixed point every time (`ok 3190`, the last test of `ops/assert-run-produced.test.mjs`),
+ * and the next file in the runner's sorted order is this one. A bisect confirmed it: at the C3 merge,
+ * WITHOUT this file, step 6 completes in 3m45s; with it, it never completes.
+ *
+ * `spawnSync` with no `timeout` waits forever, so one child that does not exit takes the gate with it and
+ * says nothing. 60s is ~20x the slowest child here (the 2.6s heartbeat probes), so it cannot fire on a
+ * slow runner — and when it does fire, `error.code === "ETIMEDOUT"` names the invocation instead of
+ * leaving a silent ceiling kill.
+ */
+const CHILD_TIMEOUT_MS = 60_000;
+
+/** spawnSync with a cap, and a refusal that names itself rather than hanging or passing vacuously. */
+function runCapped(args, opts = {}, timeoutMs = CHILD_TIMEOUT_MS) {
+  const r = spawnSync(process.execPath, args, { timeout: timeoutMs, killSignal: "SIGKILL", encoding: "utf8", ...opts });
+  if (r.error?.code === "ETIMEDOUT") {
+    throw new Error(`run-phase child exceeded ${timeoutMs}ms and was killed: ${args.slice(1).join(" ")} — a child that does not exit must fail this test, never hang the suite`);
+  }
+  return r;
+}
+
 const APP = process.cwd();
 const RUNNER = path.join(APP, "scripts", "build", "run-phase.mjs");
 const PKG = JSON.parse(fs.readFileSync(path.join(APP, "package.json"), "utf8"));
@@ -28,12 +54,38 @@ const PKG = JSON.parse(fs.readFileSync(path.join(APP, "package.json"), "utf8"));
 /** Run the real runner with a real child. `receipt` defaults to a throwaway file. */
 function runPhase(name, childArgs, { heartbeat = 0, env = {} } = {}) {
   const receipt = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "gtp-phase-")), "build-phases.json");
-  const r = spawnSync(process.execPath, [RUNNER, name, "--", process.execPath, ...childArgs], {
-    cwd: APP, encoding: "utf8",
+  const r = runCapped([RUNNER, name, "--", process.execPath, ...childArgs], {
+    cwd: APP,
     env: { ...process.env, GTP_PHASE_RECEIPT: receipt, GTP_PHASE_HEARTBEAT_SECONDS: String(heartbeat), GTP_PHASE_QUIET: "", ...env },
   });
   return { ...r, out: `${r.stdout}${r.stderr}`, receipt };
 }
+
+/* ── 0 · THE CAP ITSELF ───────────────────────────────────────────────────────────────────────── */
+
+test("POSITIVE CONTROL: a child that never exits is KILLED and named, not waited on", () => {
+  /*
+   * The whole point of the cap, exercised against a child that genuinely never exits. Without this the
+   * `timeout` option would be decorative — and a decorative timeout is exactly what let a 25-minute
+   * ceiling kill stand in for a test result. A short override keeps the control cheap; the real calls
+   * use CHILD_TIMEOUT_MS.
+   */
+  const started = Date.now();
+  assert.throws(
+    () => runCapped([RUNNER, "t-never-exits", "--", process.execPath, "-e", "setInterval(() => {}, 1000)"],
+      { cwd: APP, env: { ...process.env, GTP_PHASE_RECEIPT: "", GTP_PHASE_HEARTBEAT_SECONDS: "0" } },
+      2_000),
+    /does not exit must fail this test, never hang the suite/,
+    "a non-exiting child must raise, not block",
+  );
+  const elapsed = Date.now() - started;
+  assert.ok(elapsed < 30_000, `the cap must fire promptly (took ${elapsed}ms)`);
+
+  // NEGATIVE CONTROL: a child that exits normally is untouched by the cap, so it is not a blanket refusal.
+  const ok = runCapped([RUNNER, "t-exits", "--", process.execPath, "-e", "0"],
+    { cwd: APP, env: { ...process.env, GTP_PHASE_RECEIPT: "", GTP_PHASE_HEARTBEAT_SECONDS: "0" } }, 2_000);
+  assert.equal(ok.status, 0, "a normal child still returns its own exit code");
+});
 
 /* ── 1 · WIRING: the phases the build actually runs through ───────────────────────────────────── */
 
@@ -120,10 +172,10 @@ test("START is printed BEFORE the child runs, so the last phase to start is iden
 });
 
 test("the runner refuses a malformed invocation rather than silently running nothing", () => {
-  const bad = spawnSync(process.execPath, [RUNNER, "only-a-name"], { cwd: APP, encoding: "utf8" });
+  const bad = runCapped([RUNNER, "only-a-name"], { cwd: APP });
   assert.equal(bad.status, 2, "no `--` separator → usage error");
   assert.match(`${bad.stdout}${bad.stderr}`, /usage:/);
-  const bad2 = spawnSync(process.execPath, [RUNNER, "name", "--"], { cwd: APP, encoding: "utf8" });
+  const bad2 = runCapped([RUNNER, "name", "--"], { cwd: APP });
   assert.equal(bad2.status, 2, "`--` with no command → usage error");
 });
 
@@ -158,8 +210,8 @@ test("the DEFAULT receipt path is a build artifact — never a published or comm
   // POSITIVE CONTROL: a real run writes there and leaves nothing under public/data
   const before = fs.existsSync(path.join(APP, "public", "data", "ops", "build-phases.json"));
   assert.equal(before, false, "no build-phases.json may sit in the published ops directory");
-  const r = spawnSync(process.execPath, [RUNNER, "t-default", "--", process.execPath, "-e", "0"], {
-    cwd: APP, encoding: "utf8",
+  const r = runCapped([RUNNER, "t-default", "--", process.execPath, "-e", "0"], {
+    cwd: APP,
     env: { ...process.env, GTP_PHASE_RECEIPT: "", GTP_PHASE_HEARTBEAT_SECONDS: "0" },
   });
   assert.equal(r.status, 0);
