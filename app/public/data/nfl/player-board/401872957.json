@@ -1,0 +1,681 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-09-23T14:14:14Z",
+ "sourceGeneratedAt": "2026-09-23T14:14:14Z",
+ "providerEventId": "401872957",
+ "matchup": "NE @ JAX",
+ "kickoffUtc": "2026-09-27T17:00Z",
+ "seasonType": 2,
+ "week": 3,
+ "participationBasis": "Availability refreshes until kickoff.",
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "ESTIMATE",
+   "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+   "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
+   "model": "nfl-player-share-level-v1"
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "PUBLISHED",
+   "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (14,502 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (111 graded player-games so far).",
+   "model": "nfl-player-share-level-v1"
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (200 graded player-games so far).",
+   "model": "nfl-player-share-level-v1"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "PUBLISHED",
+   "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (200 graded player-games so far).",
+   "model": "nfl-player-share-level-v1"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (267 graded player-games so far).",
+   "model": "nfl-anytime-td-opportunity-v1"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "newArrivals": {
+  "JAX": [
+   {
+    "playerId": "nfl-athlete-4362619",
+    "name": "Chris Rodriguez Jr.",
+    "position": "RB",
+    "team": "JAX",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "WSH",
+     "games": 15,
+     "targetsPg": 0.3,
+     "receptionsPg": 0.2,
+     "recYdsPg": 2,
+     "rushAttPg": 8.6,
+     "rushYdsPg": 41.2,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from WSH (15 games last season) — his role at JAX is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-4889929",
+    "name": "Quinn Ewers",
+    "position": "QB",
+    "team": "JAX",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "MIA",
+     "games": 7,
+     "targetsPg": 0.1,
+     "receptionsPg": 0.1,
+     "recYdsPg": -0.9,
+     "rushAttPg": 1.3,
+     "rushYdsPg": 2.6,
+     "passAttPg": 18,
+     "passYdsPg": 127.9
+    },
+    "note": "usage carried from MIA (7 games last season) — his role at JAX is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ],
+  "NE": [
+   {
+    "playerId": "nfl-athlete-4047646",
+    "name": "A.J. Brown",
+    "position": "WR",
+    "team": "NE",
+    "participation": "OUT",
+    "lastSeason": {
+     "club": "PHI",
+     "games": 16,
+     "targetsPg": 8,
+     "receptionsPg": 5.1,
+     "recYdsPg": 64.3,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from PHI (16 games last season) — his role at NE is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   },
+   {
+    "playerId": "nfl-athlete-4361432",
+    "name": "Romeo Doubs",
+    "position": "WR",
+    "team": "NE",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "GB",
+     "games": 19,
+     "targetsPg": 5.2,
+     "receptionsPg": 3.4,
+     "recYdsPg": 44.7,
+     "rushAttPg": 0,
+     "rushYdsPg": 0,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "usage carried from GB (19 games last season) — his role at NE is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+   }
+  ]
+ },
+ "departedFiltered": 0,
+ "shareLevel": {
+  "markets": [
+   "anytime_td",
+   "player_pass_yds",
+   "player_reception_yds",
+   "player_receptions",
+   "player_rush_yds"
+  ],
+  "rows": 72,
+  "rosterDropped": 50,
+  "withoutEspnId": 0
+ },
+ "players": [
+  {
+   "playerId": "nfl-athlete-4432620",
+   "name": "Parker Washington",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 6.6497,
+     "p10": 2,
+     "p25": 4,
+     "median": 6,
+     "p75": 9,
+     "p90": 12
+    },
+    "player_reception_yds": {
+     "mean": 85.393,
+     "p10": 32.4623,
+     "p25": 50.304,
+     "median": 76.7873,
+     "p75": 111.2266,
+     "p90": 149.6642
+    },
+    "anytime_td": {
+     "probability": 0.4447
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432710",
+   "name": "TreVeyon Henderson",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 55.1941,
+     "p10": 10.1495,
+     "p25": 21.6087,
+     "median": 43.0224,
+     "p75": 75.7529,
+     "p90": 116.2993
+    },
+    "anytime_td": {
+     "probability": 0.3783
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4569173",
+   "name": "Rhamondre Stevenson",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 2.951,
+     "p10": 0,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
+    "player_reception_yds": {
+     "mean": 30.4927,
+     "p10": 4.4339,
+     "p25": 12.7481,
+     "median": 25.1957,
+     "p75": 42.5458,
+     "p90": 63.0384
+    },
+    "player_rush_yds": {
+     "mean": 45.8624,
+     "p10": 7.2229,
+     "p25": 16.481,
+     "median": 34.6249,
+     "p75": 63.2427,
+     "p90": 99.3664
+    },
+    "anytime_td": {
+     "probability": 0.3672
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4882093",
+   "name": "Bhayshul Tuten",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 47.723,
+     "p10": 7.3719,
+     "p25": 16.9677,
+     "median": 35.8854,
+     "p75": 65.8397,
+     "p90": 103.737
+    },
+    "anytime_td": {
+     "probability": 0.3605
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432773",
+   "name": "Brian Thomas Jr.",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 3.9033,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 8
+    },
+    "player_reception_yds": {
+     "mean": 46.5573,
+     "p10": 11.671,
+     "p25": 22.7248,
+     "median": 39.8176,
+     "p75": 63.2232,
+     "p90": 90.3971
+    },
+    "anytime_td": {
+     "probability": 0.2685
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430539",
+   "name": "Brenton Strange",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 2.7583,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 6
+    },
+    "player_reception_yds": {
+     "mean": 29.9772,
+     "p10": 3.3295,
+     "p25": 11.9594,
+     "median": 24.5405,
+     "p75": 42.1134,
+     "p90": 62.936
+    },
+    "anytime_td": {
+     "probability": 0.2177
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3046439",
+   "name": "Hunter Henry",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 3.6014,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7
+    },
+    "player_reception_yds": {
+     "mean": 40.3873,
+     "p10": 9.0528,
+     "p25": 18.946,
+     "median": 34.2169,
+     "p75": 55.263,
+     "p90": 79.8337
+    },
+    "anytime_td": {
+     "probability": 0.2109
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3916433",
+   "name": "Jakobi Meyers",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 2.4661,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5
+    },
+    "player_reception_yds": {
+     "mean": 29.2284,
+     "p10": 0.3891,
+     "p25": 10.5863,
+     "median": 23.5,
+     "p75": 41.5637,
+     "p90": 63.0731
+    },
+    "anytime_td": {
+     "probability": 0.2031
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4361432",
+   "name": "Romeo Doubs",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 2.9534,
+     "p10": 0,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6
+    },
+    "player_reception_yds": {
+     "mean": 39.425,
+     "p10": 5.7478,
+     "p25": 16.4913,
+     "median": 32.5799,
+     "p75": 55.0043,
+     "p90": 81.4893
+    },
+    "anytime_td": {
+     "probability": 0.1915
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2991662",
+   "name": "Mack Hollins",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 3.2104,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 5,
+     "p90": 6
+    },
+    "player_reception_yds": {
+     "mean": 36.9822,
+     "p10": 6.738,
+     "p25": 16.3036,
+     "median": 30.9002,
+     "p75": 51.164,
+     "p90": 74.9876
+    },
+    "anytime_td": {
+     "probability": 0.1776
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4362619",
+   "name": "Chris Rodriguez Jr.",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 24.5864,
+     "p10": 1.4627,
+     "p25": 5.2463,
+     "median": 15.1928,
+     "p75": 33.9962,
+     "p90": 60.2387
+    },
+    "anytime_td": {
+     "probability": 0.1745
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4427095",
+   "name": "DeMario Douglas",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 2.7928,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 6
+    },
+    "player_reception_yds": {
+     "mean": 28.5144,
+     "p10": 3.3348,
+     "p25": 11.4627,
+     "median": 23.3767,
+     "p75": 40.0148,
+     "p90": 59.7212
+    },
+    "anytime_td": {
+     "probability": 0.1662
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2576336",
+   "name": "Ameer Abdullah",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 15.8767,
+     "p10": 0.0823,
+     "p25": 1.1896,
+     "median": 6.6589,
+     "p75": 20.8645,
+     "p90": 43.8922
+    },
+    "anytime_td": {
+     "probability": 0.1545
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4431452",
+   "name": "Drake Maye",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 26.8384,
+     "p10": 1.2676,
+     "p25": 5.0955,
+     "median": 15.8537,
+     "p75": 36.9856,
+     "p90": 67.0657
+    },
+    "player_pass_yds": {
+     "mean": 236.8956,
+     "p10": 121.3985,
+     "p25": 164.2977,
+     "median": 223.0556,
+     "p75": 294.4724,
+     "p90": 370.2996
+    },
+    "anytime_td": {
+     "probability": 0.1448
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360310",
+   "name": "Trevor Lawrence",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 13.1732,
+     "p10": 0.0299,
+     "p25": 0.7616,
+     "median": 5.0561,
+     "p75": 17.0359,
+     "p90": 37.0418
+    },
+    "player_pass_yds": {
+     "mean": 242.085,
+     "p10": 123.702,
+     "p25": 167.6278,
+     "median": 227.8443,
+     "p75": 301.0866,
+     "p90": 378.8944
+    },
+    "anytime_td": {
+     "probability": 0.1107
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4244856",
+   "name": "Austin Trammell",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 1.3421,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "player_reception_yds": {
+     "mean": 14.8247,
+     "p10": 0,
+     "p25": 0,
+     "median": 9.7379,
+     "p75": 22.5528,
+     "p90": 37.9011
+    },
+    "anytime_td": {
+     "probability": 0.1057
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4431431",
+   "name": "Corey Kiner",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 13.1174,
+     "p10": 0.0908,
+     "p25": 1.0878,
+     "median": 5.7005,
+     "p75": 17.344,
+     "p90": 35.9891
+    },
+    "anytime_td": {
+     "probability": 0.0923
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4698253",
+   "name": "Lan Larison",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 1.4136,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "player_reception_yds": {
+     "mean": 14.7771,
+     "p10": 0,
+     "p25": 0,
+     "median": 9.9974,
+     "p75": 22.3681,
+     "p90": 37.2038
+    },
+    "anytime_td": {
+     "probability": 0.0887
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4613202",
+   "name": "Kyle Williams",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 1.0398,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "player_reception_yds": {
+     "mean": 11.6207,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.0134,
+     "p75": 18.0126,
+     "p90": 32.1837
+    },
+    "anytime_td": {
+     "probability": 0.0757
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3059989",
+   "name": "Nick Mullens",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 8.772,
+     "p10": 0.0003,
+     "p25": 0.242,
+     "median": 2.6608,
+     "p75": 10.8309,
+     "p90": 25.5248
+    },
+    "anytime_td": {
+     "probability": 0.0745
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4039505",
+   "name": "Reggie Gilliam",
+   "team": "NE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_receptions": {
+     "mean": 1.0795,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3
+    },
+    "player_reception_yds": {
+     "mean": 11.5552,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.2747,
+     "p75": 17.8778,
+     "p90": 31.6238
+    },
+    "anytime_td": {
+     "probability": 0.0721
+    }
+   }
+  }
+ ],
+ "disclaimer": "Model projections. Educational."
+}
