@@ -8,17 +8,17 @@
   "mode": "graded",
   "officialMoneyRecordAffected": false,
   "cards": [],
-  "legCount": 659,
+  "legCount": 661,
   "counts": {
     "pending": 3,
-    "win": 287,
-    "loss": 270,
+    "win": 288,
+    "loss": 271,
     "push": 0,
     "unavailable": 99
   },
   "bySource": {
     "statsapi": 48,
-    "settled_leans": 611,
+    "settled_leans": 613,
     "pool": 0
   },
   "legs": [
@@ -7977,6 +7977,30 @@
       "status": "win",
       "actual": 2,
       "reason": "2 > 1.5"
+    },
+    {
+      "legId": "7fafa79a573ac098f38c8c6c4293b93e-Chris_Bassitt-pitcher_strikeouts-3.5",
+      "sport": "MLB",
+      "marketKey": "pitcher_strikeouts",
+      "gameId": "824785",
+      "source": "settled_leans",
+      "selection": "Strikeouts Over 3.5",
+      "line": 3.5,
+      "status": "loss",
+      "actual": 0,
+      "reason": "0 < 3.5"
+    },
+    {
+      "legId": "7fafa79a573ac098f38c8c6c4293b93e-Max_Scherzer-pitcher_strikeouts-4.5",
+      "sport": "MLB",
+      "marketKey": "pitcher_strikeouts",
+      "gameId": "824785",
+      "source": "settled_leans",
+      "selection": "Strikeouts Under 4.5",
+      "line": 4.5,
+      "status": "win",
+      "actual": 0,
+      "reason": "0 < 4.5"
     }
   ],
   "warning": "INTERNAL product-settlement ledger only; does NOT update the 19-14 official record, bankroll, or exposure. Team markets grade from official StatsAPI final scores; non-final games stay pending; missing data is unavailable, never a loss."
