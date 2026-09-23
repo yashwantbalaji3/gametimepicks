@@ -77,8 +77,9 @@ const CHUNKS = [
       "longer supports it — the MLB over/under market is paused for this reason. Experimental means " +
       "forecasts publish under a banner and are graded, but have not cleared the bar to become product " +
       "picks. NFL is mixed rather than wholly experimental: rushing yards, receiving yards, receptions and " +
-      "anytime touchdown are published, while passing yards is an estimate whose over/under chance is not " +
-      "yet well calibrated. Published as a forecast and eligible to appear as a parlay leg are different " +
+      "anytime touchdown are published, while passing yards is not — its over/under chance is not yet " +
+      "calibrated well enough, so its range is shown instead of a precise chance. Published as a forecast " +
+      "and eligible to appear as a parlay leg are different " +
       "things — the signature products currently draw their legs from MLB only. Ask will explain a paused " +
       "market but will never present one as a forecast.",
   },
@@ -255,7 +256,7 @@ const CHUNKS = [
     text:
       "MLB is GameTime's fully modelled sport: daily boards, full-game simulations, published predictions " +
       "and nightly settlement. NFL publishes graded forecasts too, several at published status — rushing " +
-      "yards, receiving yards, receptions and anytime touchdown — with passing yards still an estimate. " +
+      "yards, receiving yards, receptions and anytime touchdown — with passing yards not yet published. " +
       "EPL publishes experimental forecasts that are graded. Neither sport currently supplies parlay legs: " +
       "the signature products draw from MLB only. UFC has fighter research and market-implied reads. NBA is a " +
       "historical archive — its settled record stays published, but it is off-season with no live " +
