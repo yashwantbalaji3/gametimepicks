@@ -42,6 +42,7 @@
  */
 import { spawn } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 const argv = process.argv.slice(2);
@@ -92,6 +93,43 @@ function noteProgress(chunk) {
   }
 }
 
+/*
+ * RESOURCE STATE ON EVERY ALIVE LINE (P0 · 2026-09-24).
+ *
+ * The 2026-09-23/24 wedges all stalled at `Generating static pages (1869/2493)` and then said
+ * nothing for ~39 minutes. In the one wedge whose log survived, THIS process's own 30-second
+ * interval fired at 292s, 453s and 439s gaps — a process that does nothing but write to stdout
+ * cannot GC-stall for seven minutes, so the machine underneath it was starved, blocked, or both.
+ * The log could not say which, and that is the whole reason the incident stayed undiagnosed.
+ *
+ * These three numbers separate the candidate families on the NEXT occurrence, from the log alone:
+ *   mem   container memory in use / limit — the cgroup the build actually runs in, not the host's
+ *         /proc/meminfo, which on a shared builder describes a machine we do not own
+ *   load  1-minute load average — CPU contention, which memory pressure does not explain
+ *   rss   this wrapper's own resident size — a control: it must stay flat, and if it ever does
+ *         not, the instrumentation is part of the problem
+ *
+ * Every read is wrapped and optional. A missing cgroup file, a different cgroup version, or a
+ * platform without either (macOS locally) yields "?" and costs nothing — a diagnostic that can
+ * fail a build is worse than no diagnostic at all.
+ */
+const readNum = (f) => { try { const v = Number(fs.readFileSync(f, "utf8").trim()); return Number.isFinite(v) ? v : null; } catch { return null; } };
+const gib = (b) => `${(b / 1073741824).toFixed(2)}G`;
+function resourceLine() {
+  try {
+    /* cgroup v2 first (Vercel's builders), then v1. "max" in v2 means unlimited → fall back to the host. */
+    const used = readNum("/sys/fs/cgroup/memory.current") ?? readNum("/sys/fs/cgroup/memory/memory.usage_in_bytes");
+    let limit = readNum("/sys/fs/cgroup/memory.max") ?? readNum("/sys/fs/cgroup/memory/memory.limit_in_bytes");
+    if (limit != null && limit > os.totalmem()) limit = null;
+    const mem = used != null
+      ? `${gib(used)}/${limit != null ? gib(limit) : gib(os.totalmem())}`
+      : `${gib(os.totalmem() - os.freemem())}/${gib(os.totalmem())}`;
+    const load = os.loadavg()[0].toFixed(1);
+    const rss = `${Math.round(process.memoryUsage().rss / 1048576)}M`;
+    return ` · mem ${mem} · load ${load} · self ${rss}`;
+  } catch { return ""; }
+}
+
 const started = Date.now();
 say(`START  ${NAME} at ${iso()}`);
 
@@ -100,7 +138,7 @@ if (HEARTBEAT_S > 0 && !QUIET) {
   timer = setInterval(() => {
     const elapsed = Math.round((Date.now() - started) / 1000);
     const stall = lastProgressAt ? ` · last progress ${JSON.stringify(lastProgress)} ${Math.round((Date.now() - lastProgressAt) / 1000)}s ago` : " · no progress line seen yet";
-    say(`ALIVE  ${NAME} ${elapsed}s${stall}`);
+    say(`ALIVE  ${NAME} ${elapsed}s${stall}${resourceLine()}`);
   }, HEARTBEAT_S * 1000);
   timer.unref?.();
 }
