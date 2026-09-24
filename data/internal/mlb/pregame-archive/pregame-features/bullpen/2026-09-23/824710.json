@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824710,
   "date": "2026-09-23",
-  "capturedAt": "2026-09-23T01:04:44.801Z",
-  "availableAt": "2026-09-23T01:04:44.801Z",
+  "capturedAt": "2026-09-23T18:45:06.132Z",
+  "availableAt": "2026-09-23T18:45:06.132Z",
   "eventStartTime": "2026-09-23T23:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,75 @@
     "teamId": 111,
     "teamName": "Boston Red Sox",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 67,
+      "relievers": [
+        {
+          "id": 687941,
+          "name": "Alec Gamboa",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 4,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 1,
-      "pitches": 12,
+      "appearances": 4,
+      "pitches": 79,
       "relievers": [
+        {
+          "id": 687941,
+          "name": "Alec Gamboa",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 4,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
         {
           "id": 594027,
           "name": "Tyron Guerrero",
@@ -46,32 +107,115 @@
     "teamId": 114,
     "teamName": "Cleveland Guardians",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 2,
-      "pitches": 34,
+      "appearances": 5,
+      "pitches": 80,
       "relievers": [
         {
-          "id": 671922,
-          "name": "Cade Smith",
+          "id": 681870,
+          "name": "Erik Sabrowski",
           "appearances": 1,
-          "pitches": 20,
-          "outs": 4,
+          "pitches": 19,
+          "outs": 3,
           "dates": [
-            "2026-09-20"
+            "2026-09-22"
           ]
         },
         {
           "id": 683769,
           "name": "Hunter Gaddis",
           "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 682120,
+          "name": "Tim Herrin",
+          "appearances": 1,
           "pitches": 14,
           "outs": 2,
           "dates": [
-            "2026-09-20"
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 1,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 114,
+      "relievers": [
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 7,
+          "dates": [
+            "2026-09-20",
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 683769,
+          "name": "Hunter Gaddis",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 5,
+          "dates": [
+            "2026-09-20",
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 681870,
+          "name": "Erik Sabrowski",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 682120,
+          "name": "Tim Herrin",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 1,
+          "dates": [
+            "2026-09-22"
           ]
         }
       ]
@@ -81,7 +225,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-20,2026-09-21,2026-09-22) + feed/live box scores",
-    "capturedAt": "2026-09-23T01:04:44.801Z"
+    "capturedAt": "2026-09-23T18:45:06.132Z"
   },
-  "recordHash": "133caf4bf956979941252e2b038e7e532881e52c8b9ae972bff6404ce9eaa582"
+  "recordHash": "b47ce4d1b4582f2c80d9332ef2d94d0fc885b15b278e0b7d317aab1e29f0d0fe"
 }

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824625,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T05:29:30.499Z",
+  "availableAt": "2026-09-23T05:29:30.499Z",
+  "eventStartTime": "2026-09-23T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 592332,
+      "name": "Kevin Gausman",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 8,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 6.8,
+        "bbAvg": 1.2,
+        "erAvg": 2.8,
+        "hrAvg": 1.4,
+        "kPer9": 10.67,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 172,
+        "k": 177,
+        "bb": 46,
+        "er": 87,
+        "hr": 25
+      }
+    },
+    "away": {
+      "id": 687473,
+      "name": "Ryan Gusto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 7,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 3.6,
+        "bbAvg": 2.2,
+        "erAvg": 2,
+        "hrAvg": 0.6,
+        "kPer9": 6.48,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 73.33,
+        "k": 60,
+        "bb": 26,
+        "er": 34,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-23T05:29:30.499Z"
+  },
+  "recordHash": "987f3af357f8794947e9c48eb30843889b390cf2f47d5fd025dd98eef69e2333"
+}

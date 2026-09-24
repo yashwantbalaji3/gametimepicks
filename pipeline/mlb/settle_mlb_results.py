@@ -301,6 +301,26 @@ def _lineage_fields(lean: dict) -> dict:
     }
 
 
+def _settled_ids_in_ledger() -> set[str]:
+    """Ids the canonical ledger already holds. Read-only; a missing or malformed ledger yields an
+    empty set, which is the fail-open-to-counting direction — an unreadable ledger must not make a
+    genuinely unavailable lean look accounted for."""
+    out: set[str] = set()
+    if not SETTLED_LEANS_PATH.exists():
+        return out
+    for line_text in SETTLED_LEANS_PATH.read_text().splitlines():
+        line_text = line_text.strip()
+        if not line_text:
+            continue
+        try:
+            obj = json.loads(line_text)
+        except Exception:
+            continue
+        if obj.get("id") and obj.get("graded") is True:
+            out.add(obj["id"])
+    return out
+
+
 def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: bool = False) -> dict:
     """Run settlement for `date_iso`. Returns the comparison-report dict.
 
@@ -337,6 +357,20 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
     settled_rows: list[dict] = []
     name_fallback_notes: list[str] = []
     actual_unavailable: list[str] = []
+    # ── RERUN IDEMPOTENCY (2026-09-23) ───────────────────────────────────────────────────────
+    # `actual_unavailable` is recomputed from LIVE fetches every run, while the ledger is durable
+    # and keyed by id. So a lean settled successfully on run 1 gets re-counted as "unavailable" on
+    # run 2 whenever that run cannot re-fetch its boxscore — and the two populations overlap.
+    #
+    # Observed: re-running 2026-09-22 produced `predicted 613, accounted 615 (ledger 613 +
+    # unavailable 2) → -2 unexplained`. Nothing had gone missing; two rows were counted twice.
+    #
+    # The contract is that running the settler twice over the same immutable evidence must not
+    # change canonical accounting. A lean the LEDGER already holds is accounted for, whatever this
+    # run's fetches managed — so it goes in its own bucket and is reconciled explicitly, never
+    # silently dropped and never double-counted.
+    previously_settled_ids = _settled_ids_in_ledger()
+    already_settled: list[str] = []
     # Rows the model declined to take a side on. Not graded, never decisive — but counted, so the
     # published population reconciles to the settled population with no unexplained remainder.
     no_play: list[str] = []
@@ -401,16 +435,22 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
         box = boxes.get(gpk)
         if box is None:
             # Final game but boxscore fetch failed — record as actual_unavailable
-            actual_unavailable.append(
-                f"{lean.get('playerName')} ({market}) — boxscore unavailable for gamePk {gpk}"
-            )
+            if lean.get("id") in previously_settled_ids:
+                already_settled.append(f"{lean.get('playerName')} ({market}) — boxscore unavailable for gamePk {gpk}")
+            else:
+                actual_unavailable.append(
+                    f"{lean.get('playerName')} ({market}) — boxscore unavailable for gamePk {gpk}"
+                )
             continue
 
         rec, method = _find_player_in_box(box, lean.get("playerId"), lean.get("playerName", ""))
         if rec is None:
-            actual_unavailable.append(
-                f"{lean.get('playerName')} ({market}) — not in boxscore for gamePk {gpk}"
-            )
+            if lean.get("id") in previously_settled_ids:
+                already_settled.append(f"{lean.get('playerName')} ({market}) — not in boxscore for gamePk {gpk}")
+            else:
+                actual_unavailable.append(
+                    f"{lean.get('playerName')} ({market}) — not in boxscore for gamePk {gpk}"
+                )
             continue
         if method == "name":
             name_fallback_notes.append(
@@ -450,9 +490,12 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
                         "settledAt": datetime.now(timezone.utc).isoformat(),
                     })
                     continue
-            actual_unavailable.append(
-                f"{lean.get('playerName')} ({market}) — actual stat unavailable (player didn't appear)"
-            )
+            if lean.get("id") in previously_settled_ids:
+                already_settled.append(f"{lean.get('playerName')} ({market}) — actual stat unavailable (player didn't appear)")
+            else:
+                actual_unavailable.append(
+                    f"{lean.get('playerName')} ({market}) — actual stat unavailable (player didn't appear)"
+                )
             continue
 
         outcome = _grade(side, float(line), float(actual))
@@ -595,10 +638,16 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
         "publishedRows": len(leans),
         "noPlayCount": len(no_play),
         "noPlay": no_play[:40],
+        # A lean a PRIOR run already settled is accounted for by the ledger, not by this run's
+        # fetches. It is its own term so the identity still closes and nothing is counted twice.
+        "alreadySettledCount": len(already_settled),
+        "alreadySettled": already_settled[:40],
         "unresolvedCount": max(
-            0, len(leans) - len(settled_rows) - len(no_play) - len(actual_unavailable)
+            0,
+            len(leans) - len(settled_rows) - len(no_play) - len(actual_unavailable) - len(already_settled),
         ),
-        "reconciles": len(leans) == len(settled_rows) + len(no_play) + len(actual_unavailable),
+        "reconciles": len(leans)
+        == len(settled_rows) + len(no_play) + len(actual_unavailable) + len(already_settled),
         "pendingGameList": pending_games,
         "nameFallbackCount": len(name_fallback_notes),
         "nameFallbackNotes": name_fallback_notes[:40],
