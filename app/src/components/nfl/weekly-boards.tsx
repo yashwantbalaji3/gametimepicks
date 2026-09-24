@@ -14,7 +14,9 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
-import PlayerAvatar from "@/components/player-avatar";
+import PredictionBoard from "@/components/prediction/prediction-board";
+import { presentWeeklyBoard } from "@/lib/prediction-presentation/nfl";
+import type { PredictionPresentation } from "@/lib/prediction-presentation/contract";
 import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
 import FollowToggle from "@/components/follow/follow-toggle";
 import type { FollowRef } from "@/lib/follow/follow-store";
@@ -26,20 +28,25 @@ export interface BoardRow {
   opponent: string;
   kickoffUtc: string;
   providerEventId: string;
+  participation: string;
   value: number;
   median?: number;
   p10?: number;
   p90?: number;
+  probability?: number;
+  /** The builder's own pricing state. Read, never inferred — see the prediction contract. */
+  pricingState?: string;
 }
 export interface Board {
   id: string;
+  /** The market family key the presentation contract keys on. */
+  family: string;
   title: string;
   state: string;
   reason?: string;
+  caveat?: string;
   rows?: BoardRow[];
 }
-
-const espnAthleteId = (playerId: string) => Number(String(playerId).replace(/^nfl-athlete-/, "")) || null;
 
 function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -55,14 +62,12 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
   );
 }
 
-/* Formatted here rather than passed in: a function cannot cross the server/client boundary, and a
-   kickoff time is presentation, so it belongs on the side that presents it. */
-const etKickoff = (iso: string) =>
-  new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
-    .format(new Date(iso));
-
-export default function NflWeeklyBoards({ boards, teamNames = {}, teamRefs = {} }: {
+export default function NflWeeklyBoards({ boards, generatedAt, model, teamNames = {}, teamRefs = {} }: {
   boards: Board[];
+  /** The board stamp, and the model that produced it. Crosses the boundary ONCE for all 45 rows,
+   *  rather than being repeated inside every presentation the server would otherwise serialise. */
+  generatedAt: string;
+  model?: { id?: string; version?: number | string } | null;
   teamNames?: Record<string, string>;
   /** abbreviation → canonical team ref, resolved on the server. An abbreviation absent here gets no star. */
   teamRefs?: Record<string, FollowRef>;
@@ -87,7 +92,12 @@ export default function NflWeeklyBoards({ boards, teamNames = {}, teamRefs = {} 
     (team === "All" || r.team === team) &&
     (query === "" || r.name.toLowerCase().includes(query));
 
-  const filtered = boards.map((b) => ({ board: b, rows: (b.rows ?? []).filter(matches) }));
+  const filtered = boards.map((b) => ({
+    board: b,
+    rows: (b.rows ?? []).filter(matches),
+    /** Published order, so a filtered view still prints the ranking the owner produced. */
+    published: (b.rows ?? []).map((r) => r.playerId),
+  }));
   const totalShown = filtered.reduce((n, f) => n + f.rows.length, 0);
   const totalRows = boards.reduce((n, b) => n + (b.rows?.length ?? 0), 0);
   const narrowed = team !== "All" || query !== "";
@@ -124,10 +134,16 @@ export default function NflWeeklyBoards({ boards, teamNames = {}, teamRefs = {} 
       </div>
 
       <div className="flex flex-col gap-5">
-        {filtered.map(({ board: b, rows }) =>
+        {filtered.map(({ board: b, rows, published }) =>
           (b.state === "PUBLISHED" || b.state === "ESTIMATE") && (b.rows?.length ?? 0) > 0 ? (
             <div key={b.id}>
-              <h3 style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>{b.title}</h3>
+              <h3 style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>{b.title}</h3>
+              {/* An ESTIMATE family carries real numbers WITH the bar it failed, once per board. */}
+              {b.state === "ESTIMATE" && b.caveat ? (
+                <p style={{ margin: "0 0 6px", fontSize: 11, lineHeight: 1.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
+                  Estimate — {b.caveat}
+                </p>
+              ) : null}
               {rows.length === 0 ? (
                 /* A board with no matching row still says so. Vanishing would leave a reader
                    unsure whether the board exists at all — the same reason an empty period
@@ -136,46 +152,13 @@ export default function NflWeeklyBoards({ boards, teamNames = {}, teamRefs = {} 
                   No {team === "All" ? "matching" : team} player is in this board&rsquo;s published rows.
                 </p>
               ) : (
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 620 }}>
-                    <thead>
-                      <tr>
-                        {["#", "Player", "Game", "Kickoff (ET)", b.id === "top_td" ? "TD chance" : "Median", ...(b.id === "top_td" ? [] : ["Range (10th–90th)"]), ""].map((h, i) => (
-                          <th key={`${h}-${i}`} scope="col" style={{ textAlign: "left", padding: "6px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map((r) => {
-                        /* The rank is the row's place in the PUBLISHED board, not in the filtered
-                           view — filtering must never renumber a ranking it did not produce. */
-                        const rank = (b.rows ?? []).indexOf(r) + 1;
-                        return (
-                          <tr key={`${r.playerId}-${r.team}`}>
-                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11, color: "var(--vault-text-faint)" }}>{rank}</td>
-                            <td style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
-                              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                                {b.id === "top_td" ? <PlayerAvatar playerId={espnAthleteId(r.playerId)} playerName={r.name} team={r.team} sport="nfl" size="sm" /> : null}
-                                <span>{r.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{r.team}</span></span>
-                              </span>
-                            </td>
-                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-mute)" }}>{r.team} vs {r.opponent}</td>
-                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{etKickoff(r.kickoffUtc)}</td>
-                            <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 13, fontWeight: 700, color: "var(--gtp-bank-heat)" }}>
-                              {b.id === "top_td" ? `${(r.value * 100).toFixed(1)}%` : r.median}
-                            </td>
-                            {b.id === "top_td" ? null : (
-                              <td className="font-mono" style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-faint)" }}>{r.p10}–{r.p90}</td>
-                            )}
-                            <td style={{ padding: "7px 9px", borderTop: "1px solid var(--vault-border)", whiteSpace: "nowrap" }}>
-                              <Link href={`/nfl/game/${r.providerEventId}/`} className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, color: "var(--vault-gold-bright)" }}>Game →</Link>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                <PredictionBoard
+                  predictions={presentWeeklyBoard({ generatedAt, model }, { ...b, rows })}
+                  gameHref={(p) => `/nfl/game/${p.game.providerEventId}/`}
+                  /* The rank is the row's place in the PUBLISHED board, not in the filtered view —
+                     filtering must never renumber a ranking it did not produce. */
+                  rankOf={(p: PredictionPresentation) => published.indexOf(p.player.playerId) + 1}
+                />
               )}
             </div>
           ) : (

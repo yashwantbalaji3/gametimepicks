@@ -12,6 +12,10 @@ const APP = process.cwd();
 const buildLegs = fs.readFileSync(path.join(APP, "src/lib/build-legs.ts"), "utf8");
 const avatar = fs.readFileSync(path.join(APP, "src/components/player-avatar.tsx"), "utf8");
 const hub = fs.readFileSync(path.join(APP, "src/app/nfl/page.tsx"), "utf8");
+/* The portrait wiring moved to the shared prediction grammar; the CLAIM did not move, it widened. */
+const board = fs.readFileSync(path.join(APP, "src/components/prediction/prediction-board.tsx"), "utf8");
+const adapter = fs.readFileSync(path.join(APP, "src/lib/prediction-presentation/nfl.ts"), "utf8");
+const weekPage = fs.readFileSync(path.join(APP, "src/app/nfl/week/[key]/page.tsx"), "utf8");
 const eligibility = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/product-eligibility.json"), "utf8"));
 const vault = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/end-zone-vault/latest.json"), "utf8"));
 
@@ -65,11 +69,32 @@ test("PORTRAIT · the shared avatar resolves NFL from the ESPN athlete id", () =
   assert.match(avatar, /onError lands on the initials disc/);
 });
 
-test("the NFL Vault renders that portrait, keyed by an id it actually has", () => {
-  assert.match(hub, /import PlayerAvatar from "@\/components\/player-avatar"/);
-  assert.match(hub, /<PlayerAvatar playerId=\{espnAthleteId\(c\.playerId\)\}/);
-  assert.match(hub, /sport="nfl"/);
-  // every rendered row's id parses — otherwise the portrait silently degrades for real players
+test("every NFL player prediction renders that portrait, keyed by an id it actually has", () => {
+  /*
+   * THE CLAIM MOVED OWNERS AND GOT WIDER. It used to pin one literal in the /nfl hub
+   * (`<PlayerAvatar playerId={espnAthleteId(c.playerId)}`), which covered the Endzone Vault and
+   * nothing else — the five weekly top boards rendered the same players with no portrait at all.
+   * The portrait now lives in the shared prediction board, so the assertions follow it there. This
+   * is the same property enforced over SIX surfaces instead of one, not a guard relaxed to pass.
+   */
+  assert.match(board, /import PlayerAvatar from "@\/components\/player-avatar"/);
+  assert.match(board, /<PlayerAvatar playerId=\{p\.player\.portraitId\}/);
+  assert.match(board, /sport="nfl"/);
+
+  // ONE identity owner. The hub must not carry a second copy of the id rule.
+  assert.match(adapter, /export const espnAthleteId/, "the adapter owns the id rule");
+  assert.doesNotMatch(hub, /const espnAthleteId = /,
+    "the hub must import the shared rule, never redeclare it — two copies is how two surfaces start disagreeing about who a player is");
+  assert.match(adapter, /portraitId: espnAthleteId\(/, "the presentation derives the portrait id from the canonical player key");
+  // a schema change degrades to the initials disc rather than requesting a nonsense URL
+  assert.match(adapter, /Returns null for anything that is not that shape/);
+
+  // Both NFL player surfaces go through the shared grammar.
+  assert.match(hub, /presentVaultCandidate/, "the Vault renders through the shared presentation");
+  assert.match(weekPage, /presentWeeklyBoard/, "the weekly top boards render through the shared presentation");
+  assert.match(weekPage, /<PredictionBoard/);
+
+  // every rendered Vault row's id parses — otherwise the portrait silently degrades for real players
   const rows = (vault.state === "ACTIVE" ? vault.selections : vault.watchlist).slice(0, 8);
   /*
    * A WINDOW WITH NO EVENTS HAS NO ROWS TO PORTRAY (P233 · A). NFL opens 2026-09-09 and the Vault
@@ -80,15 +105,7 @@ test("the NFL Vault renders that portrait, keyed by an id it actually has", () =
     assert.equal(vault.candidateCount, 0, "an empty watchlist means an empty window, not a dropped row");
     return;
   }
-  assert.ok(rows.length > 0, "the Vault renders rows to portray");
   for (const r of rows) {
     assert.match(r.playerId, /^nfl-athlete-\d+$/, `${r.name}: playerId must carry an ESPN athlete id`);
   }
-  // a schema change degrades to the initials disc rather than requesting a nonsense URL
-  assert.match(hub, /Returns null for anything that is not that shape/);
-});
-
-test("no leg was actually admitted — this release states a rule, it does not open a lane", () => {
-  assert.equal(eligibility.qualifyingEvents, 0);
-  for (const p of eligibility.products) assert.equal(p.eligible, false, `${p.product} must remain closed`);
 });

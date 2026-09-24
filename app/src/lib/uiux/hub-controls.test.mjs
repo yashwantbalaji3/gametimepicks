@@ -42,7 +42,16 @@ test("BUILT · filtering narrows the view and never re-ranks it", () => {
    * view would invent a ranking the owner never produced — the same rule that keeps a top-N table
    * a maximum rather than a quota.
    */
-  assert.match(src, /\(b\.rows \?\? \[\]\)\.indexOf\(r\) \+ 1/, "rank comes from the published board, not the filtered rows");
+  /*
+   * The expression moved when the five boards adopted the shared prediction grammar; the CLAIM did
+   * not. The published order is still derived from the board's own rows, and the rank still reads
+   * that order rather than the filtered list's index.
+   */
+  assert.match(src, /published: \(b\.rows \?\? \[\]\)\.map\(\(r\) => r\.playerId\)/,
+    "the published order comes from the board's own rows");
+  assert.match(src, /rankOf=\{\(p: PredictionPresentation\) => published\.indexOf\(p\.player\.playerId\) \+ 1\}/,
+    "rank comes from the published board, not the filtered rows");
+  assert.ok(!/rankOf=\{[^}]*\brows\b/.test(src), "the rank must never be read off the filtered rows");
   /* The chip list is sorted (it is an alphabetical index of clubs); the ROWS never are. */
   assert.ok(!/rows[^\n]*\.sort\(/.test(src), "the rows must not be re-sorted — ranking has one owner");
   assert.ok(!/filtered[^\n]*\.sort\(/.test(src), "the filtered view must not be re-sorted either");

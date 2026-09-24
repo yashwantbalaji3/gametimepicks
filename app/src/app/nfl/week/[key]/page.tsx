@@ -16,6 +16,8 @@ import TeamLogo from "@/components/team-logo";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import { availableWeekKeys } from "@/lib/sports/nfl/week-keys";
+import PredictionBoard from "@/components/prediction/prediction-board";
+import { presentWeeklyBoard } from "@/lib/prediction-presentation/nfl";
 
 const read = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
@@ -30,11 +32,12 @@ type Forecast = {
     total: { median: number; p10: number; p90: number; head?: string };
   };
 };
-type BoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; value: number; median?: number; p10?: number; p90?: number; probability?: number };
+type BoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; participation: string; value: number; median?: number; p10?: number; p90?: number; probability?: number; pricingState?: string };
 type WeeklyBoards = {
   generatedAt: string; period: { seasonType: number; week: number };
   scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number };
-  boards: Array<{ id: string; title: string; state: string; reason?: string; caveat?: string; topN: number; rows?: BoardRow[] }>;
+  model?: { id?: string; version?: number | string; launchState?: string } | null;
+  boards: Array<{ id: string; family: string; title: string; state: string; reason?: string; caveat?: string; topN: number; rows?: BoardRow[] }>;
 };
 
 export function generateStaticParams() {
@@ -148,33 +151,20 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
             {wb.boards.map((b) =>
               (b.state === "PUBLISHED" || b.state === "ESTIMATE") && b.rows?.length ? (
                 <div key={b.id}>
-                  <h2 style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>
+                  <h2 style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "var(--vault-text)" }}>
                     {b.title}
                   </h2>
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
-                      <thead>
-                        <tr>
-                          {["#", "Player", "Game", b.id === "top_td" ? "TD chance" : "Median", ""].map((h, i) => (
-                            <th key={`${h}-${i}`} scope="col" style={{ textAlign: "left", padding: "5px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {b.rows.map((r, i) => (
-                          <tr key={`${r.playerId}-${r.team}`}>
-                            <td className="font-mono" style={td({ fontSize: 11, color: "var(--vault-text-faint)" })}>{i + 1}</td>
-                            <td style={td({ fontSize: 13 })}>{r.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{r.team}</span></td>
-                            <td className="font-mono" style={td({ fontSize: 11.5, color: "var(--vault-text-mute)" })}>{r.team} vs {r.opponent}</td>
-                            <td className="font-mono" style={td({ fontWeight: 700 })}>{b.id === "top_td" ? `${(r.value * 100).toFixed(1)}%` : r.median}</td>
-                            <td style={td({ whiteSpace: "nowrap" })}>
-                              <Link href={`/nfl/game/${r.providerEventId}/`} className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, color: "var(--vault-gold-bright)" }}>Game →</Link>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  {/* An ESTIMATE family carries real numbers WITH the bar it failed. The caveat rides
+                      with the board, once, rather than being repeated on every row. */}
+                  {b.state === "ESTIMATE" && b.caveat ? (
+                    <p style={{ margin: "0 0 6px", fontSize: 11, lineHeight: 1.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
+                      Estimate — {b.caveat}
+                    </p>
+                  ) : null}
+                  <PredictionBoard
+                    predictions={presentWeeklyBoard(wb, b)}
+                    gameHref={(p) => `/nfl/game/${p.game.providerEventId}/`}
+                  />
                 </div>
               ) : (
                 <p key={b.id} style={{ margin: 0, fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720, border: "1px dashed var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
