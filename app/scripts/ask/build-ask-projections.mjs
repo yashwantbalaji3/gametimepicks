@@ -597,6 +597,145 @@ function buildRecent() {
   return out;
 }
 
+/* ────────────────────────────────── 5b. RESULTS ────────────────────────────────── */
+
+/**
+ * THE CANONICAL RESULTS PROJECTION, PROJECTED FOR ASK — copied, never recomputed.
+ *
+ * `lib/results/projection-core.mjs` is THE read model over the settlement owners (v1.8 · Track C), and
+ * `results/projection/latest.json` is its artifact. Ask must answer "what is Bank Builder's record"
+ * from THAT, not from a second traversal of the owners — a second traversal is how two surfaces come to
+ * give a reader two different records.
+ *
+ * WHY A PROJECTION AND NOT A DIRECT READ. The prune strips `data/results/**` from the export, and the
+ * Ask loader is confined to `/data/ask/v1/` by design (it takes a PATH, never a URL, so the model can
+ * never name a host). So the bytes have to be republished under the Ask prefix. Nothing is transformed
+ * on the way: every count, window and era is the cell's own.
+ *
+ * WHAT IS DROPPED, AND WHY. `owner.path` and `semantics` do not cross. The path is an internal file
+ * location a reader cannot use and the leak guard would refuse; the prose is written for a page that
+ * can show it in context, and an LLM handed a paragraph per cell will paraphrase it into a claim. What
+ * crosses is the STRUCTURE — counts, era, presentation, window, status, eligibility — which is what a
+ * deterministic answer is built from. `owner.generatedAt` crosses, because "as of when" is the
+ * question a reader most often actually means.
+ */
+function buildResults() {
+  const file = path.join(APP, "public/data/results/projection/latest.json");
+  if (!fs.existsSync(file)) {
+    notes.push("results projection absent");
+    drops.push({ what: "results", reason: "no canonical projection artifact" });
+    return { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-results", available: false, cells: [], headline: {}, recent: {} };
+  }
+  const proj = JSON.parse(fs.readFileSync(file, "utf8"));
+
+  /*
+   * `model-family` DOES NOT CROSS. Those cells are CALIBRATION_STATE — a state WORD plus an n, never a
+   * record — and the set includes internal research families (an EPL totals shadow among them). A word
+   * like INSUFFICIENT_SAMPLE handed to a writer becomes a sentence about model quality that no owner
+   * wrote, and none of the Results questions this tool exists for is about calibration. So the family
+   * is dropped HERE, once, with the drop recorded in the manifest — rather than relying on the leak
+   * guard to catch the one cell that happens to spell "shadow" today.
+   */
+  /*
+   * ⚠ THE DROP RECEIPT GOES IN THIS DAILY ARTIFACT, NOT IN THE MANIFEST.
+   *
+   * `drops` is serialised into manifest.json, which is COMMITTED. These counts come from the results
+   * projection, which the settlement pipeline rebuilds nightly — so pushing them there would make the
+   * committed manifest change every morning and `ask:check` would report the projection stale on main
+   * every day. A currency check that cries wolf is one nobody reads, which is the same reasoning that
+   * makes results.json a daily file in the first place.
+   */
+  const excluded = [];
+  const all = proj.cells ?? [];
+  const noFamily = all.filter((c) => c.family !== "model-family");
+  if (all.length !== noFamily.length) {
+    excluded.push({ what: "cells", family: "model-family", count: all.length - noFamily.length, reason: "calibration states are a word, not a record — out of scope for Ask" });
+  }
+  /*
+   * AND ONLY WHAT THE OWNER SAYS MAY BE DISPLAYED. `displayEligible.eligible === false` is the
+   * projection's own decision that a cell must not be shown — the Bank Builder ladder components and
+   * the prototype cycle tables are ineligible for reasons the owner already wrote down. Ask is a
+   * display surface like any other, so the same decision binds it; an ineligible cell does not cross,
+   * and its reasoning does not either. (That reasoning is also where the owner names its own working
+   * classifications, which is a second, independent argument for the same boundary.)
+   */
+  const source = noFamily.filter((c) => c.displayEligible?.eligible === true);
+  if (noFamily.length !== source.length) {
+    excluded.push({ what: "cells", count: noFamily.length - source.length, reason: "owner marked the cell not display-eligible" });
+  }
+
+  const cells = source.map((c) => ({
+    cellId: c.cellId,
+    recordType: c.recordType,
+    family: c.family,
+    sport: c.sport ?? null,
+    product: c.product ?? null,
+    segment: c.segment ?? null,
+    era: c.era,
+    presentation: c.presentation ?? null,
+    n: c.n ?? null,
+    counts: c.counts ?? null,
+    decisive: c.decisive ?? null,
+    hitRate: c.hitRate ?? null,
+    ownerState: c.ownerState ?? null,
+    window: c.window ?? null,
+    status: c.status ?? null,
+    displayEligible: c.displayEligible ?? null,
+    asOf: c.owner?.generatedAt ?? null,
+  }));
+
+  /*
+   * THE GRADED ROWS a reader means by "show me the latest settled EPL forecasts". Bounded per sport:
+   * the whole MLB feed is 1 MB of JSONL and the loader refuses an asset over its ceiling, so this
+   * publishes the newest rows rather than the feed. `total` is always the TRUE count, so a bounded
+   * list can never be mistaken for the whole record.
+   */
+  const RECENT_LIMIT = 40;
+  const recent = {};
+  for (const sport of ["nfl", "epl", "ufc"]) {
+    const gp = path.join(APP, `public/data/${sport}/graded-picks.json`);
+    if (!fs.existsSync(gp)) { notes.push(`results recent ${sport} absent`); continue; }
+    const doc = JSON.parse(fs.readFileSync(gp, "utf8"));
+    const rows = Array.isArray(doc.picks) ? doc.picks : Array.isArray(doc.rows) ? doc.rows : [];
+    const sorted = [...rows].sort((a, b) => String(b.when ?? "").localeCompare(String(a.when ?? "")));
+    recent[sport] = {
+      total: rows.length,
+      asOf: doc.generatedAt ?? null,
+      rows: sorted.slice(0, RECENT_LIMIT).map((r) => ({
+        eventId: r.eventId ?? null,
+        when: r.when ?? null,
+        subject: r.subject ?? null,
+        market: r.market ?? null,
+        predicted: r.predicted ?? null,
+        actual: r.actual ?? null,
+        /* `hit` is the owner's own graded outcome. `null` is PENDING or ungraded — never a loss. */
+        hit: typeof r.hit === "boolean" ? r.hit : null,
+        modelProbability: typeof r.modelProbability === "number" ? r.modelProbability : null,
+      })),
+    };
+    notes.push(`results recent ${sport} ${rows.length}`);
+  }
+
+  return {
+    schemaVersion: ASK_PROJECTION_SCHEMA_VERSION,
+    artifact: "ask-results",
+    available: true,
+    builtAt: proj.builtAt ?? null,
+    /* The projection's own headline map: which cell IS the current record for a product or a sport.
+       Ask never picks a cell by scanning — it asks the owner which one it designated. */
+    /* An empty list here is a CLAIM that nothing was cut, so it is written even when empty. */
+    excluded,
+    headline: {
+      ...(proj.headline ?? {}),
+      /* A headline pointing at a cell that did not cross would be a dangling reference the tool would
+         resolve to nothing; the family is named as absent instead. */
+      byFamily: Object.fromEntries(Object.entries(proj.headline?.byFamily ?? {}).filter(([f]) => f !== "model-family")),
+    },
+    cells,
+    recent,
+  };
+}
+
 /* ────────────────────────────────── 6. WRITE ────────────────────────────────── */
 
 const artifacts = new Map();
@@ -611,6 +750,7 @@ add("matchups.json", buildMatchups());
 add("forecasts.json", buildForecasts());
 add("parlays.json", buildParlays());
 for (const [key, doc] of Object.entries(buildRecent())) add(`recent/${key}.json`, doc);
+add("results.json", buildResults());
 const help = buildHelpCorpus();
 assertLinks("help corpus", help.chunks.flatMap((c) => (c.route ? [{ href: c.route }] : [])));
 add("help.json", help);

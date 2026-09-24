@@ -55,7 +55,7 @@ test("the registry contains no tool that could reach a file, a shell, a database
 test("every declared tool is implemented, and every implemented tool is declared", () => {
   // makeExecutor's module body throws if these disagree; constructing one is the assertion.
   assert.doesNotThrow(() => makeExecutor({}));
-  assert.equal(ASK_TOOL_NAMES.length, 14);
+  assert.equal(ASK_TOOL_NAMES.length, 18, "14 + the four Results tools (v1.9)");
 });
 
 test("the planner prompt actually CONTAINS the tool catalogue", () => {
@@ -823,7 +823,7 @@ test("an aborted turn stops rather than completing", async () => {
 test("every turn records the prompt, registry and provider versions", async () => {
   const r = await ask("Why can't I compare UFC fighters?");
   assert.equal(r.receipt.promptVersion, 4, "the prompt changed, so its version must have moved");
-  assert.match(r.receipt.registry, /^v1\/14\/[0-9a-f]{8}$/);
+  assert.match(r.receipt.registry, /^v1\/18\/[0-9a-f]{8}$/);
   assert.equal(r.receipt.provider, "fake");
 });
 

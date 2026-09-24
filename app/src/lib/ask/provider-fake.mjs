@@ -124,6 +124,39 @@ function routePlan(user) {
     return { intent: "FACTUAL_GAME_QUERY", needsClarification: false, clarification: null, calls };
   }
 
+  /*
+   * RESULTS — the SETTLED record, and it has to be matched early.
+   *
+   * "What is Bank Builder's record?" contains "what is" (the help block), "Parlay Lab" contains
+   * "parlay" (the parlay block), and "how did yesterday's forecasts perform" contains both "forecast"
+   * and "perform" (two more blocks). Every one of those would answer a different question.
+   *
+   * ⚠ AND IT MUST NOT EAT A TEAM'S RECORD. "Show me NFL season records" and "What was Arsenal's
+   * 2025-26 league record?" are Season Explorer questions that both contain "record". The
+   * discriminator is WHOSE record: ours (a named product, or an explicit forecast/model framing)
+   * versus a club's. Matching on "record" alone breaks two cases that already pass.
+   */
+  const resultsProduct = has("bank builder", "bank-builder") ? "bank-builder"
+    : has("moonshot") ? "moonshot"
+      : has("parlay lab", "parlay-lab") ? "parlay-lab" : null;
+
+  if (has("pending", "unsettled", "not settled", "still open", "still waiting")) {
+    push("getPendingResults", {});
+    return { intent: "RESULTS_PENDING", needsClarification: false, clarification: null, calls };
+  }
+  if (resultsProduct && has("record", "results", "how has", "how did", "done")) {
+    push("getProductRecord", { product: resultsProduct });
+    return { intent: "RESULTS_PRODUCT_RECORD", needsClarification: false, clarification: null, calls };
+  }
+  if (has("how accurate", "forecast record", "model record", "gametime's record")) {
+    push("getForecastRecord", { sport: sportOf(question) ?? "NFL" });
+    return { intent: "RESULTS_FORECAST_RECORD", needsClarification: false, clarification: null, calls };
+  }
+  if (has("settled", "graded") || (has("how did") && has("forecast"))) {
+    push("getRecentResults", { sport: sportOf(question) ?? "NFL", limit: 10 }, needsNow ? ["c0"] : []);
+    return { intent: "RESULTS_RECENT", needsClarification: false, clarification: null, calls };
+  }
+
   // Product help: a question about the site is not a question about a game, and routing it to a sports
   // tool is the commonest routing error a keyword matcher makes.
   if (has("what does", "what is", "how do i", "how much", "where do i", "where are", "why can", "why cant", "why can't", "why doesn't", "why does", "difference between", "how does", "how current")

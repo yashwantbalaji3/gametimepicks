@@ -132,6 +132,9 @@ app/public/data/ask/
 # every time the nightly pipeline ran. The slow-moving artifacts beside them stay committed.
 data/ask-projection/v1/forecasts.json
 data/ask-projection/v1/parlays.json
+# v1.9: the Results projection is rebuilt nightly by the settlement pipeline, so it is a DAILY
+# artifact like its two siblings above — committing it would report the projection stale every morning.
+data/ask-projection/v1/results.json
 
 # P257 · raw third-party soccer files stay local (public repository); only derived corpora are committed.
 data/internal/research/soccer/raw/

@@ -199,6 +199,64 @@ export const ASK_TOOLS = Object.freeze({
     },
   },
 
+  getProductRecord: {
+    version: 1,
+    kind: "results",
+    describe:
+      "The SETTLED record for a GameTime product (Bank Builder, Moonshot, Parlay Lab), from the canonical " +
+      "Results owner. Use for 'what is Bank Builder's record', 'how has Moonshot done'. Returns the CURRENT " +
+      "record the owner designated, its era components, and — separately — legacy-era rows that are settled " +
+      "history under a different policy. NEVER add a legacy row to the current record, and never add two " +
+      "eras together: the current figure is already whatever sum the owner intended. Pending is a count " +
+      "beside won and lost, never a loss. A product record counts CARDS, not legs.",
+    args: {
+      product: { kind: "enum", options: ["bank-builder", "moonshot", "parlay-lab"], required: true, describe: "Which product's record." },
+    },
+  },
+
+  getForecastRecord: {
+    version: 1,
+    kind: "results",
+    describe:
+      "The graded MODEL FORECAST record for one sport, from the canonical Results owner — how published " +
+      "forecasts actually turned out. Use for 'how accurate is the NFL model', 'what is GameTime's MLB " +
+      "record'. Distinct from getProductRecord: this grades forecasts, not product cards, and the two are " +
+      "never combined. Returns the owner's own counts and window; never compute a hit rate the owner did " +
+      "not publish.",
+    args: {
+      sport: { kind: "enum", options: SPORTS, required: true, describe: "The sport whose graded forecast record to read." },
+    },
+  },
+
+  getRecentResults: {
+    version: 1,
+    kind: "results",
+    describe:
+      "Recently SETTLED individual forecasts for a sport, newest first, each with what was predicted and " +
+      "what actually happened. Use for 'how did yesterday's forecasts do', 'show the latest settled EPL " +
+      "forecasts'. A row whose outcome is null is ungraded or still pending — it is NOT a loss and must not " +
+      "be counted as one. The list is bounded; `totalRecorded` is the true size of the feed, so never " +
+      "describe the returned rows as the complete record.",
+    args: {
+      sport: { kind: "enum", options: ["NFL", "EPL", "UFC"], required: true, describe: "The sport whose settled forecasts to list." },
+      fromDate: { kind: "isoDate", describe: "Earliest settlement date, inclusive." },
+      toDate: { kind: "isoDate", describe: "Latest settlement date, inclusive." },
+      limit: { kind: "integer", min: 1, max: 25, default: 10, describe: "How many rows to return." },
+    },
+  },
+
+  getPendingResults: {
+    version: 1,
+    kind: "results",
+    describe:
+      "What is recorded but NOT yet settled, plus any holes in the record the owner has disclosed. Use for " +
+      "'which forecasts are still pending', 'why is this result pending', 'is anything unsettled'. Pending " +
+      "is a count of things awaiting settlement — never a loss and never a zero. A disclosed gap is a " +
+      "period the owner has stated it cannot account for; report it as such rather than treating it as " +
+      "nothing to report.",
+    args: {},
+  },
+
   getLiveSlate: {
     version: 1,
     kind: "live",

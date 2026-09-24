@@ -172,6 +172,13 @@ export const ASK_INTENTS = Object.freeze([
   "PARLAY_REQUEST",
   "BANKROLL_PARLAY_REQUEST",
   "NAVIGATION_HELP",
+  /* v1.9 · Results. Four intents rather than one, because "what is the record", "how accurate is the
+     model", "what settled recently" and "what is still pending" are answered by four different owners
+     and must not be collapsed into a single RESULTS bucket the planner then has to disambiguate. */
+  "RESULTS_PRODUCT_RECORD",
+  "RESULTS_FORECAST_RECORD",
+  "RESULTS_RECENT",
+  "RESULTS_PENDING",
   "UNSUPPORTED_DATA",
   "AMBIGUOUS",
 ]);
@@ -369,6 +376,7 @@ export const askAssetPath = Object.freeze({
   forecasts: () => `${ASK_ASSET_PREFIX}/forecasts.json`,
   matchups: () => `${ASK_ASSET_PREFIX}/matchups.json`,
   parlays: () => `${ASK_ASSET_PREFIX}/parlays.json`,
+  results: () => `${ASK_ASSET_PREFIX}/results.json`,
   help: () => `${ASK_ASSET_PREFIX}/help.json`,
   routes: () => `${ASK_ASSET_PREFIX}/routes.json`,
   recent: (sport, shard) => `${ASK_ASSET_PREFIX}/recent/${String(sport).toLowerCase()}/${shard}.json`,
@@ -421,7 +429,12 @@ export const askStoredGzipped = (rel) => /^recent\//.test(rel);
  * Everything else — the entity index, the matchup registry, the help corpus, the Last-N shards — moves
  * with the research projection, changes rarely, and stays committed and checked.
  */
-export const ASK_DAILY_FILES = Object.freeze(["forecasts.json", "parlays.json"]);
+/*
+ * `results.json` is DAILY for the same reason the other two are: the canonical Results projection is
+ * rebuilt nightly by the settlement pipeline, so committing it would leave `ask:check` reporting the
+ * projection stale on `main` every morning — a currency check that cries wolf is one nobody reads.
+ */
+export const ASK_DAILY_FILES = Object.freeze(["forecasts.json", "parlays.json", "results.json"]);
 export const isAskDailyFile = (rel) => ASK_DAILY_FILES.includes(rel);
 
 /** The committed filename for a projection-relative path. The PUBLIC emit always writes plain JSON. */
