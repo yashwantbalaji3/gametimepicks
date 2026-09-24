@@ -85,17 +85,33 @@ It does not name a culprit page. Do not read it as 200 individual timeouts.
 - Local machine 8 vCPU / 16 GB builds this in **2 min 19 s** and has never wedged. Vercel builds it on
   **4 vCPU / 8 GB** (`standard`, `cle1`).
 
-## 6. INFERENCE (strong, not proven)
+## 6. MEASURED, a few hours later — it is MEMORY, and concurrency was the amplifier
 
-The static-generation phase sits at the edge of what a 4-vCPU / 8-GB container can hold. Overlapping
-builds on shared build infrastructure push it over; past the edge the whole process tree stalls for
-minutes at a time — which is why a wrapper that only writes to stdout misses its 30-second interval by
-seven minutes, why Next's own 60-second worker timeout does not fire until minute 44, and why killing two
-workers lets the last quarter of the route list finish in twenty seconds.
+§3 said concurrency was an amplifier and not the whole cause, because 11% of builds wedged with zero
+overlap. Turning Elastic Concurrency off (§7a) made that testable: with the queue serialised, the
+next wedge ran **completely alone**. It wedged anyway — and by then it carried the heartbeat from
+§7c, which read:
 
-**Not established:** which page, or whether a specific route family is implicated at all. The last
-progress print is simply Next's 75% mark; it names a quarter of the route list, not a page. Nothing here
-justifies calling it "a slow page", an OOM, or a Next.js bug.
+```
+180s · "Generating static pages (0/2492) ..."   · mem 5.13G/8.00G · load 3.1 · self 50M
+210s · "Generating static pages (623/2492)"     · mem 5.26G/8.00G · load 3.3 · self 50M
+240s · "Generating static pages (1869/2492)"    · mem 5.41G/8.00G · load 3.2 · self 50M
+270s · "Generating static pages (1869/2492)"    · mem 6.87G/8.00G · load 3.4 · self 39M
+```
+
+Then the log stops, as it always does.
+
+**Container memory takes +1.46 GB in thirty seconds and reaches 86% of 8 GB at exactly the
+three-quarter progress print where every wedge has stalled.** Load 3.1–3.4 on 4 vCPU is a busy
+machine, not a contended one. And `self` — the wrapper's own resident size, which exists as the
+control — stays flat at 39–50 MB, so the instrumentation is not part of what is consuming the box.
+
+That settles the family: **memory exhaustion during static generation**, with the container as the
+thing running out. Overlapping builds made it worse rather than caused it, and §4's "the log pipe
+stalled" describes a symptom of the same event.
+
+⚠ **Still not established, and still not claimed: which page.** 1869/2492 is Next's 75% mark; it
+names a quarter of the route list, not a page. Nothing here is evidence of a Next.js bug.
 
 ## 7. What changed
 
@@ -123,12 +139,30 @@ the log alone separates memory exhaustion from CPU contention from a blocked pip
 incident could not make. Every read is optional and wrapped; a missing cgroup file yields no field and
 cannot fail a build.
 
+**(d) Build machine `standard` → `enhanced`**, applied **2026-09-24T14:46Z** under a second explicit
+founder authorisation, on the §6 measurement: 4 vCPU / 8 GB → **8 vCPU / 16 GB**, same project,
+Elastic Concurrency still OFF. Nothing about application semantics, tests, static-generation
+coverage, worker behaviour or validation was changed alongside it — **the machine grew, the build did
+not shrink.**
+
+⚠ **Serialising has a cost, and this session paid it in public.** With Elastic Concurrency off, one
+wedge became head-of-line blocking: **18 deployments queued** behind the single wedged build, and
+production sat 15 commits behind on `678ee8d9` (built 13:26Z) because nothing could pass it. The
+wedged deployment was cancelled to start the drain. A queue is the right trade against 41 wedges a
+day, but it makes each remaining wedge cost the whole pipeline rather than one branch.
+
 ## 8. What is still open
 
-- Whether serialised builds still wedge. **One green build proves nothing** — the base rate at zero
-  concurrency is 11%. Compare wedge rate, median duration, and CPU-minutes over a meaningful sample
-  against §1–§3, and record queue time separately from build duration.
-- If they still wedge, the evidence-backed next question is the **8-vCPU / 16-GB machine class**, which is
-  a founder gate.
-- `/mlb` at 4.15 MB of HTML per page is the structural driver underneath all of this and is not addressed
-  here.
+- **One green build proves nothing.** Over a meaningful sample on the enhanced class, measure: queue
+  wait SEPARATELY from build duration, static-generation duration, peak `mem` from the heartbeat,
+  whether the 1869/2492 stall recurs at all, production lag, and the success/failure split — against
+  §1–§3 as the baseline.
+- **The machine is stabilisation, not a fix.** The build still asks for ~7 GB; it now has 16. The
+  demand has not moved.
+- `/mlb` at **4.15 MB of HTML per page**, and 1.35 GB of generated pages inside a 1.4 GB export, is
+  the structural driver underneath all of this. `P1_B2_EXPORT_REACHABILITY_2026-09-24.md` §4 ranks it
+  as the one reduction that would buy reliability as well as bytes.
+- **A checkpoint to come back down.** Once B2 materially reduces the build graph, test explicitly
+  whether the project can return to the standard class. This upgrade is reversible and should be
+  revisited, not assumed permanent.
+- Elastic Concurrency stays off until serialised builds on the enhanced class are reliably green.
