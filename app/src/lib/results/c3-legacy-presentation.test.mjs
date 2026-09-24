@@ -91,7 +91,13 @@ test("NEVER added to the current protected record — the composite declares its
 test("NEVER mixed into receipt-era performance", () => {
   const receipt = byId("cycle:-:bank-builder:RECEIPT_ERA:-");
   assert.ok(receipt, "the receipt-era cycle cell exists");
-  assert.deepEqual(receipt.window, { from: "2026-08-15", to: "2026-09-20" }, "the receipt era starts well after June");
+  /* `from` is the era boundary and is pinned; `to` is the settlement frontier and MOVES every night.
+     Pinning it froze this test to the day the branch was written — and the producer C2 schedules
+     rewrites this artifact nightly, so a literal here would red main every morning. The claim the
+     name makes is about where the era STARTS. */
+  assert.equal(receipt.window.from, "2026-08-15", "the receipt era starts well after June");
+  assert.ok(receipt.window.to >= receipt.window.from, "…and the window is well-formed");
+  assert.ok(receipt.window.from > "2026-06-30", "…strictly after the June ladders close");
   for (const id of [L1, L2]) {
     const l = byId(id);
     assert.ok(l.window.to < receipt.window.from, `${id} closes before the receipt era opens`);

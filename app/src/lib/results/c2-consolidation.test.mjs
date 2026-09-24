@@ -37,8 +37,14 @@ const juneLadders = () => committed.cells.filter((c) => c.era === ERAS.LEDGER_ON
 /* ── 1. the committed artifact really is the pre-C3 shape this guards against ──────────────────── */
 
 test("PREMISE: the committed artifact carries no `presentation` stamp — the thing that made the stamp untrustworthy", () => {
+  /* THE PREMISE CHANGED, exactly as this test said it would: "if a rebuilt artifact is committed this
+     premise changes, but the rule below must still hold by derivation." C2 commits a producer-built
+     artifact, so every cell now carries a stamp. That makes the derivation MORE load-bearing, not
+     less — a stamp is now present to be wrongly trusted — and the rule is proved two tests below by
+     `a stamped frame that contradicts its era is REFUSED, not believed`. */
   const stamped = committed.cells.filter((c) => c.presentation !== undefined);
-  assert.equal(stamped.length, 0, "if a rebuilt artifact is committed this premise changes, but the rule below must still hold by derivation");
+  assert.equal(stamped.length, committed.cells.length,
+    "the committed artifact is producer-built, so every cell carries a stamp the derivation must not trust");
   const ladders = juneLadders();
   assert.equal(ladders.length, 2, "both June completed ladders are present as typed cells");
   for (const c of ladders) {
@@ -75,7 +81,13 @@ test("POSITIVE CONTROL: a CURRENT cell from the same artifact is untouched", () 
   const cur = committed.cells.find((c) => c.cellId === "product:-:bank-builder:COMPOSITE:protected-record");
   assert.ok(cur, "the composite protected record is the bank-builder headline");
   assert.equal(cellPresentation(cur), PRESENTATION.CURRENT);
-  assert.equal(recordLabelOrNull(cur), "36–35", "the figure every current surface prints");
+  /* Checked against the INDEPENDENT owner rather than a frozen string. A literal was a snapshot of the
+     day this branch was written; the nightly producer moves the figure, and the point was never the
+     digits — it is that the canonical read model agrees with the owner the surfaces used to open
+     directly. The browser e2e asserts the same identity from the rendered page. */
+  const owner = JSON.parse(fs.readFileSync(path.join(APP, "public/data/mr-dub/portfolio.json"), "utf8")).record;
+  assert.equal(recordLabelOrNull(cur), `${owner.wins}\u2013${owner.losses}`,
+    "the figure every current surface prints agrees with the owner");
   assert.equal(mayShowIn(cur, PRESENTATION.CURRENT), true);
 });
 
