@@ -2,7 +2,7 @@
   "schema": "gtp.results-projection.v1",
   "artifact": "results-projection",
   "dataClass": "PUBLIC_DERIVED",
-  "builtAt": "2026-09-24T00:45:01Z",
+  "builtAt": "2026-09-24T14:34:52Z",
   "rules": {
     "pending": "a count, never a loss, never inside a W–L",
     "pushVoid": "counts beside the record, never decisive",
@@ -33,37 +33,37 @@
       "key": "gradedPicks.mlb",
       "present": true,
       "path": "mlb/graded-picks.json",
-      "generatedAt": "2026-09-23T20:57:54Z"
+      "generatedAt": "2026-09-24T14:34:05Z"
     },
     {
       "key": "gradedPicks.nfl",
       "present": true,
       "path": "nfl/graded-picks.json",
-      "generatedAt": "2026-09-23T16:35:34Z"
+      "generatedAt": "2026-09-24T14:34:05Z"
     },
     {
       "key": "gradedPicks.ufc",
       "present": true,
       "path": "ufc/graded-picks.json",
-      "generatedAt": "2026-09-23T16:35:34Z"
+      "generatedAt": "2026-09-24T14:34:05Z"
     },
     {
       "key": "gradedPicks.epl",
       "present": true,
       "path": "epl/graded-picks.json",
-      "generatedAt": "2026-09-23T16:35:34Z"
+      "generatedAt": "2026-09-24T14:34:05Z"
     },
     {
       "key": "mlbLifetime",
       "present": true,
       "path": "mlb/results/lifetime_summary.json",
-      "generatedAt": "2026-09-23T20:56:20.272150+00:00"
+      "generatedAt": "2026-09-24T14:33:16.045193+00:00"
     },
     {
       "key": "nbaLifetime",
       "present": true,
       "path": "results/lifetime_summary.json",
-      "generatedAt": "2026-09-23T16:34:43+00:00"
+      "generatedAt": "2026-09-24T14:33:13+00:00"
     },
     {
       "key": "riskLadder",
@@ -75,7 +75,7 @@
       "key": "labLedger",
       "present": true,
       "path": "parlays/lab-ledger.json",
-      "generatedAt": "2026-09-23T16:46:31Z"
+      "generatedAt": "2026-09-24T14:33:56Z"
     },
     {
       "key": "modelHealth",
@@ -87,14 +87,14 @@
       "key": "cycleTable",
       "present": true,
       "path": "data/internal/products/cycle-table/latest.json",
-      "generatedAt": "2026-09-24T00:45:01.364Z"
+      "generatedAt": "2026-09-24T14:34:52.714Z"
     },
     {
       "key": "receipts",
       "present": true,
       "path": "mr-dub/settled/<date>.json",
-      "generatedAt": "2026-09-23T09:59:53Z",
-      "count": 39
+      "generatedAt": "2026-09-24T14:34:01Z",
+      "count": 40
     }
   ],
   "headline": {
@@ -353,12 +353,12 @@
       "ownerState": null,
       "owner": {
         "path": "mr-dub/settled/<date>.json",
-        "generatedAt": "2026-09-23T09:59:53Z",
+        "generatedAt": "2026-09-24T14:34:01Z",
         "stampField": "settledAt"
       },
       "window": {
-        "from": "2026-09-22",
-        "to": "2026-09-22"
+        "from": "2026-09-23",
+        "to": "2026-09-23"
       },
       "status": "PENDING",
       "displayEligible": {
@@ -387,7 +387,7 @@
       "counts": {
         "won": null,
         "lost": null,
-        "pending": 0,
+        "pending": 1,
         "push": null,
         "void": null
       },
@@ -396,12 +396,12 @@
       "ownerState": null,
       "owner": {
         "path": "mr-dub/settled/<date>.json",
-        "generatedAt": "2026-09-23T09:59:53Z",
+        "generatedAt": "2026-09-24T14:34:01Z",
         "stampField": "settledAt"
       },
       "window": {
-        "from": "2026-09-22",
-        "to": "2026-09-22"
+        "from": "2026-09-23",
+        "to": "2026-09-23"
       },
       "status": "PENDING",
       "displayEligible": {
@@ -734,25 +734,25 @@
       "segment": "lifetime-summary",
       "modelOrPolicyVersion": null,
       "era": "LIVE_LEDGER",
-      "n": 46204,
+      "n": 46733,
       "counts": {
-        "won": 23221,
-        "lost": 22983,
+        "won": 23495,
+        "lost": 23238,
         "pending": null,
         "push": 0,
         "void": null
       },
-      "decisive": 46204,
-      "hitRate": 0.5026,
+      "decisive": 46733,
+      "hitRate": 0.5027,
       "ownerState": "partial (pending dates: 2026-06-16)",
       "owner": {
         "path": "mlb/results/lifetime_summary.json",
-        "generatedAt": "2026-09-23T20:56:20.272150+00:00",
+        "generatedAt": "2026-09-24T14:33:16.045193+00:00",
         "stampField": "generatedAt"
       },
       "window": {
         "from": "2026-05-16",
-        "to": "2026-09-22"
+        "to": "2026-09-23"
       },
       "status": "LIVE",
       "displayEligible": {
@@ -777,20 +777,20 @@
       "segment": "graded-picks",
       "modelOrPolicyVersion": null,
       "era": "LIVE_LEDGER",
-      "n": 49061,
+      "n": 49644,
       "counts": {
-        "won": 23221,
-        "lost": 22983,
+        "won": 23495,
+        "lost": 23238,
         "pending": 0,
         "push": null,
-        "void": 2857
+        "void": 2911
       },
-      "decisive": 46204,
-      "hitRate": 0.5026,
+      "decisive": 46733,
+      "hitRate": 0.5027,
       "ownerState": "ASSESSABLE",
       "owner": {
         "path": "mlb/graded-picks.json",
-        "generatedAt": "2026-09-23T20:57:54Z",
+        "generatedAt": "2026-09-24T14:34:05Z",
         "stampField": "generatedAt"
       },
       "window": {
@@ -833,7 +833,7 @@
       "ownerState": "EMERGING",
       "owner": {
         "path": "nfl/graded-picks.json",
-        "generatedAt": "2026-09-23T16:35:34Z",
+        "generatedAt": "2026-09-24T14:34:05Z",
         "stampField": "generatedAt"
       },
       "window": {
@@ -876,7 +876,7 @@
       "ownerState": "EMERGING",
       "owner": {
         "path": "ufc/graded-picks.json",
-        "generatedAt": "2026-09-23T16:35:34Z",
+        "generatedAt": "2026-09-24T14:34:05Z",
         "stampField": "generatedAt"
       },
       "window": {
@@ -919,7 +919,7 @@
       "ownerState": "EMERGING",
       "owner": {
         "path": "epl/graded-picks.json",
-        "generatedAt": "2026-09-23T16:35:34Z",
+        "generatedAt": "2026-09-24T14:34:05Z",
         "stampField": "generatedAt"
       },
       "window": {
@@ -962,7 +962,7 @@
       "ownerState": null,
       "owner": {
         "path": "results/lifetime_summary.json",
-        "generatedAt": "2026-09-23T16:34:43+00:00",
+        "generatedAt": "2026-09-24T14:33:13+00:00",
         "stampField": "generatedAt"
       },
       "window": {
@@ -1022,7 +1022,7 @@
       "composition": null,
       "cycles": null,
       "crossCheck": null,
-      "sameAs": "lab:-:parlay-lab:POLICY_V1:prior-policy"
+      "sameAs": null
     },
     {
       "cellId": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-tier-low",
@@ -1207,20 +1207,20 @@
       "segment": "prior-policy",
       "modelOrPolicyVersion": "1",
       "era": "POLICY_V1",
-      "n": 1823,
+      "n": 1847,
       "counts": {
-        "won": 356,
-        "lost": 1467,
+        "won": 362,
+        "lost": 1485,
         "pending": null,
         "push": null,
         "void": null
       },
-      "decisive": 1823,
+      "decisive": 1847,
       "hitRate": null,
       "ownerState": null,
       "owner": {
         "path": "parlays/lab-ledger.json",
-        "generatedAt": "2026-09-23T16:46:31Z",
+        "generatedAt": "2026-09-24T14:33:56Z",
         "stampField": "generatedAt"
       },
       "window": {
@@ -1237,7 +1237,7 @@
       "composition": null,
       "cycles": null,
       "crossCheck": null,
-      "sameAs": "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-overall"
+      "sameAs": null
     },
     {
       "cellId": "lab:mlb:parlay-lab:POLICY_V2:stream",
@@ -1250,33 +1250,33 @@
       "segment": "stream",
       "modelOrPolicyVersion": "2",
       "era": "POLICY_V2",
-      "n": 94,
+      "n": 97,
       "counts": {
         "won": 21,
-        "lost": 73,
+        "lost": 76,
         "pending": null,
         "push": 0,
         "void": null
       },
-      "decisive": 94,
-      "hitRate": 0.2234,
-      "ownerState": "live",
+      "decisive": 97,
+      "hitRate": 0.2165,
+      "ownerState": "not live — no price capture for 2026-09-24 yet — the sport's own generation runs later in the day (newest capture 2026-09-23); only 0 priced games — the ladder needs 4",
       "owner": {
         "path": "parlays/lab-ledger.json",
-        "generatedAt": "2026-09-23T16:46:31Z",
+        "generatedAt": "2026-09-24T14:33:56Z",
         "stampField": "generatedAt"
       },
       "window": {
         "from": "2026-08-17",
         "to": null
       },
-      "status": "LIVE",
+      "status": "FROZEN",
       "displayEligible": {
         "eligible": true,
         "reason": "the Lab's own per-stream card record under the current policy"
       },
       "presentation": "CURRENT",
-      "semantics": "lab-ledger stream mlb (MLB) under policy 2 since 2026-08-17: Legs disjoint across tiers · five-leg cap · ties on score resolve to the shorter card. The owner carries settledDays (35) rather than a last date (window.to null).",
+      "semantics": "lab-ledger stream mlb (MLB) under policy 2 since 2026-08-17: Legs disjoint across tiers · five-leg cap · ties on score resolve to the shorter card. The owner carries settledDays (36) rather than a last date (window.to null).",
       "composition": null,
       "cycles": null,
       "crossCheck": null,
@@ -1303,10 +1303,10 @@
       },
       "decisive": 0,
       "hitRate": null,
-      "ownerState": "not live — only 0 priced games — the ladder needs 4",
+      "ownerState": "not live — only 1 priced game — the ladder needs 4",
       "owner": {
         "path": "parlays/lab-ledger.json",
-        "generatedAt": "2026-09-23T16:46:31Z",
+        "generatedAt": "2026-09-24T14:33:56Z",
         "stampField": "generatedAt"
       },
       "window": {
@@ -1349,7 +1349,7 @@
       "ownerState": "live",
       "owner": {
         "path": "parlays/lab-ledger.json",
-        "generatedAt": "2026-09-23T16:46:31Z",
+        "generatedAt": "2026-09-24T14:33:56Z",
         "stampField": "generatedAt"
       },
       "window": {
@@ -1389,10 +1389,10 @@
       },
       "decisive": 12,
       "hitRate": 0.3333,
-      "ownerState": "not live — the last price capture is 3.8 days old",
+      "ownerState": "not live — the last price capture is 4.7 days old",
       "owner": {
         "path": "parlays/lab-ledger.json",
-        "generatedAt": "2026-09-23T16:46:31Z",
+        "generatedAt": "2026-09-24T14:33:56Z",
         "stampField": "generatedAt"
       },
       "window": {
@@ -1432,17 +1432,17 @@
       },
       "decisive": 0,
       "hitRate": null,
-      "ownerState": "live",
+      "ownerState": "not live — a cross-sport card needs two live sports; only UFC is cleared",
       "owner": {
         "path": "parlays/lab-ledger.json",
-        "generatedAt": "2026-09-23T16:46:31Z",
+        "generatedAt": "2026-09-24T14:33:56Z",
         "stampField": "generatedAt"
       },
       "window": {
         "from": "2026-08-17",
         "to": null
       },
-      "status": "LIVE",
+      "status": "FROZEN",
       "displayEligible": {
         "eligible": false,
         "reason": "nothing settled — the owner's rule refuses to print 0–0 as a record (a recorded zero stays in counts)"
@@ -1465,7 +1465,7 @@
       "segment": null,
       "modelOrPolicyVersion": null,
       "era": "RECEIPT_ERA",
-      "n": 23,
+      "n": 24,
       "counts": {
         "won": null,
         "lost": null,
@@ -1478,12 +1478,12 @@
       "ownerState": null,
       "owner": {
         "path": "data/internal/products/cycle-table/latest.json",
-        "generatedAt": "2026-09-24T00:45:01.364Z",
+        "generatedAt": "2026-09-24T14:34:52.714Z",
         "stampField": "generatedAt"
       },
       "window": {
         "from": "2026-08-15",
-        "to": "2026-09-22"
+        "to": "2026-09-23"
       },
       "status": "LIVE",
       "displayEligible": {
@@ -1494,15 +1494,15 @@
       "semantics": "Cycle completion is NOT a leg hit rate and NOT a W–L: a cycle is a ladder run from a seed to a loss, a completion, or an open rung. Counts are receipt-derived only (forensic-sourced counts are not carried). Show the PUBLISHED furthest step, with divergences disclosed.",
       "composition": null,
       "cycles": {
-        "started": 23,
-        "lost": 22,
+        "started": 24,
+        "lost": 24,
         "completed": 0,
-        "open": 1,
+        "open": 0,
         "furthestPublishedStepMax": 3,
-        "meanFurthestPublishedStep": 1.52,
+        "meanFurthestPublishedStep": 1.54,
         "cyclesWithPublishedStepDivergence": 4,
-        "placedLaneDays": 40,
-        "decidedLaneDays": 40,
+        "placedLaneDays": 42,
+        "decidedLaneDays": 42,
         "noPlayLaneDays": 38
       },
       "crossCheck": null,
@@ -1519,7 +1519,7 @@
       "segment": null,
       "modelOrPolicyVersion": null,
       "era": "RECEIPT_ERA",
-      "n": 35,
+      "n": 37,
       "counts": {
         "won": null,
         "lost": null,
@@ -1532,12 +1532,12 @@
       "ownerState": null,
       "owner": {
         "path": "data/internal/products/cycle-table/latest.json",
-        "generatedAt": "2026-09-24T00:45:01.364Z",
+        "generatedAt": "2026-09-24T14:34:52.714Z",
         "stampField": "generatedAt"
       },
       "window": {
         "from": "2026-08-15",
-        "to": "2026-09-22"
+        "to": "2026-09-23"
       },
       "status": "LIVE",
       "displayEligible": {
@@ -1548,15 +1548,15 @@
       "semantics": "Cycle completion is NOT a leg hit rate and NOT a W–L: a cycle is a ladder run from a seed to a loss, a completion, or an open rung. Counts are receipt-derived only (forensic-sourced counts are not carried). Show the PUBLISHED furthest step, with divergences disclosed.",
       "composition": null,
       "cycles": {
-        "started": 35,
-        "lost": 35,
+        "started": 37,
+        "lost": 36,
         "completed": 0,
-        "open": 0,
+        "open": 1,
         "furthestPublishedStepMax": 3,
         "meanFurthestPublishedStep": 1.11,
         "cyclesWithPublishedStepDivergence": 0,
-        "placedLaneDays": 39,
-        "decidedLaneDays": 39,
+        "placedLaneDays": 41,
+        "decidedLaneDays": 40,
         "noPlayLaneDays": 39
       },
       "crossCheck": null,
