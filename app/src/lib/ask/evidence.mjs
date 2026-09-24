@@ -26,6 +26,16 @@ import { ASK_BUDGET, ASK_STATUS } from "./contract.mjs";
  * @param {Array<object>} envelopes
  * @returns {{ items: Array<object>, facts: Array<{id:string,text:string}>, numbers: Set<string>, identifiers: Set<string>, links: Array<object>, unsupported: Array<object> }}
  */
+/**
+ * "covering 2026-06-09 to 2026-09-22", or nothing at all.
+ *
+ * ⚠ The first version interpolated the window unconditionally and produced "covering null to null" for
+ * a cell that carries no window — a missing value dressed up as a stated one, in the one family whose
+ * whole point is that missing is never zero.
+ */
+const windowClause = (cell) =>
+  cell?.window?.from && cell?.window?.to ? `, covering ${cell.window.from} to ${cell.window.to}` : "";
+
 export function buildEvidence(envelopes) {
   const items = [];
   const facts = [];
@@ -275,6 +285,69 @@ export function buildEvidence(envelopes) {
             [e.awayScore, e.homeScore]);
         }
         say(`a final score here is the provider's; GameTime's own grading of a game can land later`);
+        break;
+      }
+
+      /*
+       * RESULTS. The sentences below are the whole safety mechanism for this family: the writer is
+       * told to repeat them, and the verifier checks the finished answer's numbers against them. So
+       * each one states the ERA and the SCOPE it belongs to, and a legacy row is written as legacy in
+       * its own sentence. A writer handed "37–36" and "5–0" with no era words would add them; handed
+       * "37–36 across the current record" and "5–0, settled under an earlier policy and not part of
+       * the current record", it has to contradict its own evidence to do it.
+       */
+      case "getProductRecord": {
+        const c = d.current ?? {};
+        say(c.label
+          ? `${d.productLabel}'s current settled record is ${c.label} from ${c.n} cards${windowClause(c)}${c.asOf ? `, as of ${c.asOf}` : ""}`
+          : `${d.productLabel} has a current record entry with no settled cards yet`,
+          [c.counts?.won, c.counts?.lost, c.n]);
+        if (c.note) say(`the owner describes that figure as: ${c.note}`);
+        if (c.counts?.pending) say(`${c.counts.pending} ${d.productLabel} card(s) are still pending settlement and are counted separately, never as losses`, [c.counts.pending]);
+        for (const comp of (d.components ?? []).slice(0, 4)) {
+          say(`within that record, the ${comp.era} era${comp.segment ? ` (${comp.segment})` : ""} is ${comp.label} from ${comp.n} cards`, [comp.counts?.won, comp.counts?.lost, comp.n]);
+        }
+        for (const l of (d.legacy ?? []).slice(0, 4)) {
+          say(`separately, ${d.productLabel} has legacy history from the ${l.era} era${l.segment ? ` (${l.segment})` : ""} of ${l.label} — settled under an earlier policy and NOT part of the current record`, [l.counts?.won, l.counts?.lost]);
+        }
+        if (d.eraRule) say(d.eraRule);
+        break;
+      }
+
+      case "getForecastRecord": {
+        const c = d.current ?? {};
+        say(c.label
+          ? `GameTime's graded ${String(d.sport).toUpperCase()} forecast record is ${c.label} from ${c.decisive ?? c.n} decided forecasts${windowClause(c)}`
+          : `GameTime records ${String(d.sport).toUpperCase()} forecasts but publishes no decided record for them yet`,
+          [c.counts?.won, c.counts?.lost, c.decisive, c.n]);
+        if (c.ownerState) say(`the owner reports the state of that ${String(d.sport).toUpperCase()} record as ${c.ownerState}`);
+        if (c.counts?.pending) say(`${c.counts.pending} ${String(d.sport).toUpperCase()} forecast(s) are pending settlement, counted separately from wins and losses`, [c.counts.pending]);
+        say(`this grades published forecasts, and is a different thing from a product's card record`);
+        break;
+      }
+
+      case "getRecentResults": {
+        say(`GameTime has ${d.totalRecorded} graded ${String(d.sport).toUpperCase()} forecasts on record; ${d.matched} match this request, of which ${d.won} were correct and ${d.lost} were not${d.ungraded ? `, with ${d.ungraded} not yet graded` : ""}`,
+          [d.totalRecorded, d.matched, d.won, d.lost, d.ungraded]);
+        for (const r of (d.rows ?? []).slice(0, 8)) {
+          say(r.hit === null
+            ? `${r.when} — ${r.subject} (${r.market}): GameTime predicted ${r.predicted}; this one is not yet graded`
+            : `${r.when} — ${r.subject} (${r.market}): GameTime predicted ${r.predicted}, the actual result was ${r.actual}, ${r.hit ? "a correct forecast" : "an incorrect forecast"}`);
+        }
+        break;
+      }
+
+      case "getPendingResults": {
+        say(d.totalPending
+          ? `GameTime has ${d.totalPending} recorded item(s) awaiting settlement; pending is counted on its own and is never treated as a loss`
+          : `GameTime has nothing recorded that is awaiting settlement right now`,
+          [d.totalPending]);
+        for (const c of (d.pendingCells ?? []).filter((x) => x.pending).slice(0, 6)) {
+          say(`${c.product ?? c.sport ?? "one record"} has ${c.pending} item(s) pending in its ${c.era} era${c.segment ? ` (${c.segment})` : ""}`, [c.pending]);
+        }
+        for (const g of (d.disclosedGaps ?? []).slice(0, 4)) {
+          say(`the owner also discloses a gap in the ${g.product ?? g.sport ?? "record"} record for the ${g.era} era${g.note ? `: ${g.note}` : ""} — a period it cannot account for, which is not the same as nothing to report`);
+        }
         break;
       }
 
