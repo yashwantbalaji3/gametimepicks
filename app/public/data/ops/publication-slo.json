@@ -4,16 +4,15 @@
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHING",
-      "reason": "12 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-09-24T15:05:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 12 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 12,
-        "published": 0,
+        "published": 12,
         "missedCoverage": 0,
-        "awaiting": 12
-      },
-      "missed": []
+        "awaiting": 0
+      }
     },
     "nfl": {
       "state": "PUBLISHED",
@@ -50,20 +49,22 @@
       }
     }
   },
-  "checkedAt": "2026-09-24T14:34:58.410Z",
+  "checkedAt": "2026-09-24T16:50:49.403Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHING",
-  "reason": "today's slate is not published yet and is not late — the deadline is 2026-09-24T15:05:00.000Z",
-  "publishDeadlineUtc": "2026-09-24T15:05:00.000Z",
+  "state": "PUBLISHED",
+  "reason": "board published with 523 rows",
+  "publishDeadlineUtc": null,
   "scheduledGames": 12,
-  "pregameRemaining": 12,
-  "alreadyStarted": 0,
+  "pregameRemaining": 11,
+  "alreadyStarted": 1,
   "board": {
-    "present": false,
-    "leans": 0,
+    "present": true,
+    "leans": 523,
     "pendingReason": null,
-    "generatedAt": null
+    "generatedAt": "2026-09-24T14:37:14.448177+00:00",
+    "scheduledGames": 12,
+    "startedBeforeGeneration": 0
   },
   "games": [
     {
@@ -71,15 +72,15 @@
       "startUtc": "2026-09-24T16:35:00Z",
       "away": "St. Louis Cardinals",
       "home": "Pittsburgh Pirates",
-      "detailedState": "Pre-Game",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 824059,
       "startUtc": "2026-09-24T18:10:00Z",
       "away": "Chicago White Sox",
       "home": "Kansas City Royals",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -87,7 +88,7 @@
       "startUtc": "2026-09-24T18:20:00Z",
       "away": "Miami Marlins",
       "home": "Chicago Cubs",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -95,7 +96,7 @@
       "startUtc": "2026-09-24T18:35:00Z",
       "away": "New York Mets",
       "home": "Texas Rangers",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -103,7 +104,7 @@
       "startUtc": "2026-09-24T19:10:00Z",
       "away": "Arizona Diamondbacks",
       "home": "Colorado Rockies",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {

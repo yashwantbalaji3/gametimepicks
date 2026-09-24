@@ -1,0 +1,661 @@
+{
+ "schemaVersion": 1,
+ "artifact": "daily-product-receipt",
+ "dataClass": "PRIVATE_OPERATING_RECORD",
+ "date": "2026-09-24",
+ "generatedAt": "2026-09-24T16:00:06Z",
+ "states": [
+  "NOT_RUN",
+  "INPUTS_MISSING",
+  "STALE",
+  "INCIDENT",
+  "NO_PLAY",
+  "ACTIVE",
+  "PENDING_RESULT",
+  "SETTLED",
+  "VOID",
+  "OFF_SEASON"
+ ],
+ "lifecycleStates": [
+  "EVALUATING",
+  "ACTIVE",
+  "AWAITING_RESULT",
+  "SETTLED_WIN",
+  "SETTLED_LOSS",
+  "SETTLED_RECORDED",
+  "ADVANCED",
+  "RESTARTED",
+  "NO_PLAY",
+  "OFF_SEASON",
+  "INCIDENT"
+ ],
+ "inputs": {
+  "mlbBoard": {
+   "date": "2026-09-24",
+   "present": true,
+   "games": 12,
+   "leans": 523,
+   "hash": "bf42efe98269"
+  },
+  "nflMarket": {
+   "present": true,
+   "capturedAt": "2026-09-24T14:12:59Z",
+   "events": 31
+  },
+  "nflModelEligible": false,
+  "portfolioSource": "published mr-dub/daily-portfolio.json",
+  "nflNote": "NFL contributes NO legs: PUBLIC_EXPERIMENTAL — sportsbook prices are not a GameTimePicks pick"
+ },
+ "products": [
+  {
+   "product": "bank-builder",
+   "label": "Bank Builder",
+   "state": "ACTIVE",
+   "reason": "2 lane(s) qualified under the live activation policy",
+   "candidatesEvaluated": 4,
+   "rejections": [],
+   "card": [
+    {
+     "id": "bank-builder-lane-a-step-1",
+     "lane": "A",
+     "step": 1,
+     "legCount": 2,
+     "combinedOdds": 111,
+     "exposure": 100,
+     "potentialReturn": 211.32
+    },
+    {
+     "id": "bank-builder-lane-b-step-1",
+     "lane": "B",
+     "step": 1,
+     "legCount": 2,
+     "combinedOdds": 200,
+     "exposure": 100,
+     "potentialReturn": 300.48
+    }
+   ],
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "bank-builder@1",
+    "evidence": {
+     "policyVersion": "bank-builder@1",
+     "cardRef": "bank-builder-lane-a-step-1+bank-builder-lane-b-step-1",
+     "lockAt": "2026-09-24T16:00:03.398Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:bank-builder:2026-09-24"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-24:bf42efe98269"
+     }
+    ]
+   }
+  },
+  {
+   "product": "moonshot",
+   "label": "Moonshot",
+   "state": "ACTIVE",
+   "reason": "1 lane(s) qualified under the live activation policy",
+   "candidatesEvaluated": 2,
+   "rejections": [
+    {
+     "lane": "A",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "the 2026-09-23 Step 1 card is still open — no new card until it settles"
+    }
+   ],
+   "card": [
+    {
+     "id": "moonshot-lane-b-step-1",
+     "lane": "B",
+     "step": 1,
+     "legCount": 2,
+     "combinedOdds": 300,
+     "exposure": 25,
+     "potentialReturn": 100.01
+    }
+   ],
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "moonshot@2",
+    "evidence": {
+     "policyVersion": "moonshot@2",
+     "cardRef": "moonshot-lane-b-step-1",
+     "lockAt": "2026-09-24T16:00:03.398Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:moonshot:2026-09-24"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-24:bf42efe98269"
+     }
+    ]
+   }
+  },
+  {
+   "product": "end-zone-vault",
+   "label": "End Zone Vault",
+   "state": "NO_PLAY",
+   "reason": "scorerPrice: FAIL(NOT_REQUESTED — this authorization funds team markets only, so no touchdown price was asked for; whether the books offer one is unknown) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "end-zone-vault@1",
+    "evidence": {
+     "policyVersion": "end-zone-vault@1",
+     "reason": "scorerPrice: FAIL(NOT_REQUESTED — this authorization funds team markets only, so no touchdown price was asked for; whether the books offer one is unknown) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:end-zone-vault:2026-09-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-24:bf42efe98269"
+     }
+    ]
+   }
+  },
+  {
+   "product": "homer-nukes",
+   "label": "Homer Nukes",
+   "state": "ACTIVE",
+   "reason": "5 model-qualified home-run picks published for the slate",
+   "candidatesEvaluated": 5,
+   "rejections": [],
+   "card": [
+    {
+     "playerId": 700250,
+     "player": "Ben Rice",
+     "teamId": 147,
+     "teamAbbr": "NYY",
+     "teamName": "New York Yankees",
+     "opponentAbbr": "TB",
+     "opponentTeamId": 139,
+     "matchup": "TB @ NYY",
+     "gamePk": 823493,
+     "gameDate": "2026-09-24T23:05:00Z",
+     "venue": "Yankee Stadium",
+     "opposingPitcher": "Ian Seymour",
+     "opposingPitcherId": 693855,
+     "probability": 0.2775,
+     "seasonHr": 41,
+     "seasonPa": 654,
+     "seasonRate": 0.06269,
+     "adjustedRate": 0.07439,
+     "pitcherHrAllowed": 25,
+     "pitcherBattersFaced": 534,
+     "pitcherMultiplier": 1.35,
+     "reason": "41 HR in 654 plate appearances (6.3% of trips, league 3.0%). Ian Seymour has been more homer-prone than average (25 allowed in 534 batters faced), lifting it to 27.8%."
+    },
+    {
+     "playerId": 670541,
+     "player": "Yordan Alvarez",
+     "teamId": 117,
+     "teamAbbr": "HOU",
+     "teamName": "Houston Astros",
+     "opponentAbbr": "ATH",
+     "opponentTeamId": 133,
+     "matchup": "HOU @ ATH",
+     "gamePk": 824950,
+     "gameDate": "2026-09-25T01:40:00Z",
+     "venue": "Sutter Health Park",
+     "opposingPitcher": "Mason Barnett",
+     "opposingPitcherId": 686930,
+     "probability": 0.2774,
+     "seasonHr": 41,
+     "seasonPa": 673,
+     "seasonRate": 0.06092,
+     "adjustedRate": 0.07434,
+     "pitcherHrAllowed": 12,
+     "pitcherBattersFaced": 205,
+     "pitcherMultiplier": 1.379,
+     "reason": "41 HR in 673 plate appearances (6.1% of trips, league 3.0%). Mason Barnett has been more homer-prone than average (12 allowed in 205 batters faced), lifting it to 27.7%."
+    },
+    {
+     "playerId": 621566,
+     "player": "Matt Olson",
+     "teamId": 144,
+     "teamAbbr": "ATL",
+     "teamName": "Atlanta Braves",
+     "opponentAbbr": "CIN",
+     "opponentTeamId": 113,
+     "matchup": "CIN @ ATL",
+     "gamePk": 824866,
+     "gameDate": "2026-09-24T23:15:00Z",
+     "venue": "Truist Park",
+     "opposingPitcher": "Brady Singer",
+     "opposingPitcherId": 663903,
+     "probability": 0.2633,
+     "seasonHr": 41,
+     "seasonPa": 683,
+     "seasonRate": 0.06003,
+     "adjustedRate": 0.07008,
+     "pitcherHrAllowed": 31,
+     "pitcherBattersFaced": 707,
+     "pitcherMultiplier": 1.315,
+     "reason": "41 HR in 683 plate appearances (6.0% of trips, league 3.0%). Brady Singer has been more homer-prone than average (31 allowed in 707 batters faced), lifting it to 26.3%."
+    },
+    {
+     "playerId": 592450,
+     "player": "Aaron Judge",
+     "teamId": 147,
+     "teamAbbr": "NYY",
+     "teamName": "New York Yankees",
+     "opponentAbbr": "TB",
+     "opponentTeamId": 139,
+     "matchup": "TB @ NYY",
+     "gamePk": 823493,
+     "gameDate": "2026-09-24T23:05:00Z",
+     "venue": "Yankee Stadium",
+     "opposingPitcher": "Ian Seymour",
+     "opposingPitcherId": 693855,
+     "probability": 0.2528,
+     "seasonHr": 18,
+     "seasonPa": 285,
+     "seasonRate": 0.06316,
+     "adjustedRate": 0.06696,
+     "pitcherHrAllowed": 25,
+     "pitcherBattersFaced": 534,
+     "pitcherMultiplier": 1.35,
+     "reason": "18 HR in 285 plate appearances (6.3% of trips, league 3.0%). Ian Seymour has been more homer-prone than average (25 allowed in 534 batters faced), lifting it to 25.3%."
+    },
+    {
+     "playerId": 671277,
+     "player": "Luis García Jr.",
+     "teamId": 147,
+     "teamAbbr": "NYY",
+     "teamName": "New York Yankees",
+     "opponentAbbr": "TB",
+     "opponentTeamId": 139,
+     "matchup": "TB @ NYY",
+     "gamePk": 823493,
+     "gameDate": "2026-09-24T23:05:00Z",
+     "venue": "Yankee Stadium",
+     "opposingPitcher": "Ian Seymour",
+     "opposingPitcherId": 693855,
+     "probability": 0.2492,
+     "seasonHr": 30,
+     "seasonPa": 539,
+     "seasonRate": 0.05566,
+     "adjustedRate": 0.06587,
+     "pitcherHrAllowed": 25,
+     "pitcherBattersFaced": 534,
+     "pitcherMultiplier": 1.35,
+     "reason": "30 HR in 539 plate appearances (5.6% of trips, league 3.0%). Ian Seymour has been more homer-prone than average (25 allowed in 534 batters faced), lifting it to 24.9%."
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "homer-nukes@1",
+    "evidence": {
+     "policyVersion": "homer-nukes@1",
+     "cardRef": "card+card+card+card+card",
+     "lockAt": "2026-09-24T15:51:23.000Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:homer-nukes:2026-09-24"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-24:bf42efe98269"
+     }
+    ]
+   }
+  },
+  {
+   "product": "ufc-cards",
+   "label": "UFC paper cards",
+   "state": "NO_PLAY",
+   "reason": "no UFC event on 2026-09-24 — the ladder is published for 2026-09-26",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "ufc-cards@1",
+    "evidence": {
+     "policyVersion": "ufc-cards@1",
+     "reason": "no UFC event on 2026-09-24 — the ladder is published for 2026-09-26"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:ufc-cards:2026-09-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-24:bf42efe98269"
+     }
+    ]
+   }
+  },
+  {
+   "product": "epl-cards",
+   "label": "EPL paper cards",
+   "state": "NO_PLAY",
+   "reason": "no EPL event on 2026-09-24 — the ladder is published for 2026-10-10",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "epl-cards@1",
+    "evidence": {
+     "policyVersion": "epl-cards@1",
+     "reason": "no EPL event on 2026-09-24 — the ladder is published for 2026-10-10"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:epl-cards:2026-09-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-24:bf42efe98269"
+     }
+    ]
+   }
+  },
+  {
+   "product": "mlb-cards",
+   "label": "MLB suggested cards",
+   "state": "ACTIVE",
+   "reason": "3 paper cards published for the 2026-09-24 event",
+   "candidatesEvaluated": 3,
+   "rejections": [],
+   "card": [
+    {
+     "tier": "medium",
+     "tierLabel": "Medium risk",
+     "slipId": "opt_2026-09-24_public_low_mlb_c656b65289e8",
+     "combinedAmerican": 195,
+     "combinedDecimal": 2.95,
+     "legs": [
+      {
+       "player": "Chandler Simpson",
+       "team": "TB",
+       "opponent": "NYY",
+       "playerId": 802415,
+       "gameId": "db3b790ee721c10b3644dbeef61f370c",
+       "gamePk": 823493,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -188,
+       "result": null
+      },
+      {
+       "player": "Carter Jensen",
+       "team": "KC",
+       "opponent": "CWS",
+       "playerId": 695600,
+       "gameId": "f8c72a46effedf3f04b037fb99849fe6",
+       "gamePk": 824059,
+       "market": "batter_hits_runs_rbis",
+       "marketLabel": "Hits + Runs + RBIs",
+       "side": "Over",
+       "line": 1.5,
+       "odds": -108,
+       "result": null
+      }
+     ],
+     "status": "pending",
+     "tierRecord": {
+      "wins": 82,
+      "losses": 380,
+      "hitRate": 0.1775,
+      "roi": -0.0601
+     }
+    },
+    {
+     "tier": "high",
+     "tierLabel": "High risk",
+     "slipId": "opt_2026-09-24_public_medium_mlb_e966619bd13b",
+     "combinedAmerican": 561,
+     "combinedDecimal": 6.606,
+     "legs": [
+      {
+       "player": "Javier Sanoja",
+       "team": "MIA",
+       "opponent": "CHC",
+       "playerId": 691594,
+       "gameId": "1b1dbd4e7d948a1910402a33850d77c8",
+       "gamePk": 824623,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -176,
+       "result": null
+      },
+      {
+       "player": "Trevor Story",
+       "team": "BOS",
+       "opponent": "CLE",
+       "playerId": 596115,
+       "gameId": "d0e9c7cf726e88320154be5ef2ccf0a1",
+       "gamePk": 824707,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -174,
+       "result": null
+      },
+      {
+       "player": "Ketel Marte",
+       "team": "AZ",
+       "opponent": "COL",
+       "playerId": 606466,
+       "gameId": "c862b8f01d10ebafd1c1ee08cf8ba9ce",
+       "gamePk": 824298,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Under",
+       "line": 1.5,
+       "odds": -183,
+       "result": null
+      },
+      {
+       "player": "Jonathan Aranda",
+       "team": "TB",
+       "opponent": "NYY",
+       "playerId": 666018,
+       "gameId": "db3b790ee721c10b3644dbeef61f370c",
+       "gamePk": 823493,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -137,
+       "result": null
+      }
+     ],
+     "status": "pending",
+     "tierRecord": {
+      "wins": 61,
+      "losses": 401,
+      "hitRate": 0.132,
+      "roi": 0.1216
+     }
+    },
+    {
+     "tier": "longshot",
+     "tierLabel": "Longshot",
+     "slipId": "opt_2026-09-24_public_longshot_mlb_1c0d3f495159",
+     "combinedAmerican": 1689,
+     "combinedDecimal": 17.891,
+     "legs": [
+      {
+       "player": "Steven Kwan",
+       "team": "CLE",
+       "opponent": "BOS",
+       "playerId": 680757,
+       "gameId": "d0e9c7cf726e88320154be5ef2ccf0a1",
+       "gamePk": 824707,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -205,
+       "result": null
+      },
+      {
+       "player": "Brayan Rocchio",
+       "team": "CLE",
+       "opponent": "BOS",
+       "playerId": 677587,
+       "gameId": "d0e9c7cf726e88320154be5ef2ccf0a1",
+       "gamePk": 824707,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -145,
+       "result": null
+      },
+      {
+       "player": "Randy Arozarena",
+       "team": "SEA",
+       "opponent": "LAA",
+       "playerId": 668227,
+       "gameId": "4984d3511b9db396e1a2c120b9623bbb",
+       "gamePk": 823087,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -203,
+       "result": null
+      },
+      {
+       "player": "Brett Baty",
+       "team": "NYM",
+       "opponent": "TEX",
+       "playerId": 683146,
+       "gameId": "132107ced3ea1aec8e5cc920a6c36c02",
+       "gamePk": 822842,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -114,
+       "result": null
+      },
+      {
+       "player": "Tristan Peters",
+       "team": "CWS",
+       "opponent": "KC",
+       "playerId": 671976,
+       "gameId": "f8c72a46effedf3f04b037fb99849fe6",
+       "gamePk": 824059,
+       "market": "batter_hits",
+       "marketLabel": "Hits",
+       "side": "Under",
+       "line": 0.5,
+       "odds": 154,
+       "result": null
+      }
+     ],
+     "status": "pending",
+     "tierRecord": {
+      "wins": 32,
+      "losses": 433,
+      "hitRate": 0.0688,
+      "roi": -0.042
+     }
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "mlb-cards@1",
+    "evidence": {
+     "policyVersion": "mlb-cards@1",
+     "cardRef": "card+card+card",
+     "lockAt": "2026-09-24T16:00:04Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:mlb-cards:2026-09-24"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-24:bf42efe98269"
+     }
+    ]
+   }
+  },
+  {
+   "product": "multi-cards",
+   "label": "Multi-sport paper cards",
+   "state": "NO_PLAY",
+   "reason": "multi grid state NOT_ELIGIBLE — the stream opens only when two single-sport streams are live",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "multi-cards@1",
+    "evidence": {
+     "policyVersion": "multi-cards@1",
+     "reason": "multi grid state NOT_ELIGIBLE — the stream opens only when two single-sport streams are live"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:multi-cards:2026-09-24"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-24:bf42efe98269"
+     }
+    ]
+   }
+  },
+  {
+   "product": "nba-lanes",
+   "label": "NBA (all lanes)",
+   "state": "OFF_SEASON",
+   "reason": "the league is off-season by its own published schedule (results capture state OFF_SEASON); no NBA lane evaluates until real events and the activation gates exist",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": false
+  }
+ ],
+ "watchdog": [],
+ "authorities": {
+  "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
+  "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
+  "vault": "data/internal/nfl/end-zone-vault/ledger.json (append-only, owned by the Vault)",
+  "money": "NOT THIS SCRIPT — no money artifact is read for state or written at all"
+ },
+ "honesty": [
+  "INPUTS_MISSING is not NO_PLAY: a missing slate is an operational gap, and saying 'nothing qualified' would be a lie about a decision that never happened",
+  "every rejection reason is copied verbatim from the live activation policy — this receipt invents none",
+  "NFL contributes legs only when its MODEL layer is publishable; captured sportsbook prices never qualify a leg by themselves"
+ ]
+}
