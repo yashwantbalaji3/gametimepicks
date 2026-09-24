@@ -2,14 +2,14 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-09-24T18:57:21Z",
+ "generatedAt": "2026-09-24T19:52:17Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "ATL @ GB",
   "kickoffUtc": "2026-09-25T00:15Z",
   "seasonType": 2,
   "week": 3,
-  "hoursToKickoff": 5.29,
+  "hoursToKickoff": 4.38,
   "eventsInWindow": 17
  },
  "freshness": {
@@ -19,15 +19,15 @@
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-09-24T18:57:21Z (FRESH)"
+   "detail": "as of 2026-09-24T19:52:17Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-09-24T18:57:43Z (FRESH)"
+   "detail": "as of 2026-09-24T19:52:40Z (FRESH)"
   },
   "odds": {
    "state": "FRESH",
-   "detail": "as of 2026-09-24T18:37:12Z (FRESH)"
+   "detail": "as of 2026-09-24T19:52:17Z (FRESH)"
   }
  },
  "regularSeason": {
@@ -54,12 +54,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-09-24T18:57:43Z"
+    "detail": "injuries as of 2026-09-24T19:52:40Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-09-24T18:57:21Z"
+    "detail": "rosters as of 2026-09-24T19:52:17Z"
    },
    {
     "id": "participationRoles",
@@ -89,7 +89,7 @@
    {
     "id": "prices",
     "state": "AVAILABLE",
-    "detail": "prices as of 2026-09-24T18:37:12Z"
+    "detail": "prices as of 2026-09-24T19:52:17Z"
    }
   ]
  },
@@ -97,26 +97,33 @@
   "state": "CAPTURED",
   "events": 31,
   "books": 11,
-  "capturedAt": "2026-09-24T18:37:12Z",
+  "capturedAt": "2026-09-24T19:52:17Z",
   "propMarkets": {
-   "state": "NOT_PROBED",
-   "offeredMarkets": [],
+   "state": "PROBED",
+   "probedEventId": "nfl-401872948",
+   "offeredMarkets": [
+    "player_anytime_td",
+    "player_pass_yds",
+    "player_reception_yds",
+    "player_receptions",
+    "player_rush_yds"
+   ],
    "absentMarkets": []
   }
  },
  "credits": {
   "state": "UNKNOWN",
-  "programSpend": 144,
+  "programSpend": 152,
   "ceiling": null,
   "remainingProgram": null,
-  "providerRemaining": 11501,
+  "providerRemaining": 11493,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
    "providerRequestsUsed": 4342,
    "providerRequestsRemaining": 15658,
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
-  "requests": 202,
+  "requests": 206,
   "detail": "authorization receipt did not parse — no paid call may run"
  },
  "models": {
@@ -149,11 +156,11 @@
   }
  },
  "currentArtifacts": {
-  "total": 1140,
-  "contractValid": 1140,
-  "preStart": 116,
-  "settlementReady": 306,
-  "detail": "1140/1140 pass the current-event contract; 306 carry pinned settlement targets"
+  "total": 1156,
+  "contractValid": 1156,
+  "preStart": 132,
+  "settlementReady": 307,
+  "detail": "1156/1156 pass the current-event contract; 307 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
@@ -173,11 +180,6 @@
   "detail": "nfl-event-window.yml is deployed with two daily window passes, but a workflow file is not cadence proof — promotion waits for terminal scheduled receipts"
  },
  "blockers": [
-  {
-   "id": "player-markets-absent",
-   "state": "NOT_REQUESTED",
-   "detail": "no player price is held for this window, so no player family can publish. The current authorization funds team markets only (h2h, spreads, totals), so none was requested — this is a fact about our scope and not a retry target, and it is no evidence about what the books offer."
-  },
   {
    "id": "ops-webhook",
    "state": "FOUNDER_ACTION",
