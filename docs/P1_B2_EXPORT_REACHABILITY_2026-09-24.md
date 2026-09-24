@@ -72,6 +72,49 @@ What a future B2 program should target, in evidence order:
    wedge, so it is the one reduction that would buy reliability as well as bytes.
 3. **The copy-then-prune**, last, when a reader relocation is being done for another reason anyway.
 
+## 4b · THE TARGET, LOCATED — and it is a defect class this repo has already fixed once
+
+§4 ranked "generated page payload" second and named `/mlb`. Measured further, it is not diffuse:
+
+| | |
+|---|---|
+| `out/mlb` | 643 MB — **45% of the entire 1.4 GB export** |
+| `out/mlb/board` | **631 MB of that 643 MB** |
+| exported board dates | **124**, 2026-05-16 → 2026-09-29 |
+| one page (`2026-08-11`) | 6.30 MB — `<main>` **4.55 MB** (72%) + inline RSC **1.71 MB** (27%) |
+
+⚠ So this one is NOT the RSC-payload problem that `/mlb`'s hub page had. It is **server-rendered
+markup**: 35,642 elements in one `<main>`. Broken down:
+
+| component of `<main>` | count | bytes | share |
+|---|---|---|---|
+| **inline `style="…"` attributes** | **21,339** | **1.75 MB** | **38%** |
+| `class="…"` attributes | 24,312 | 0.89 MB | 20% |
+| inline `<svg>` | 642 | 0.78 MB | 17% |
+
+**The single largest component of the largest page family in the export is per-element inline
+styles** — 1.75 MB per page × 124 pages ≈ **217 MB of `style=` attributes**.
+
+⚠ **This repo has already diagnosed and fixed this exact class once.** `/results` measured 1,160 KB
+when per-cell style objects shipped once per cell, and `prediction-board.tsx` carries the lesson in
+its docstring: *"everything positional here is a class, and the only inline value is the rank
+counter."* The MLB board never got that treatment.
+
+**Why this is the right next B2 step**, where the 952 MB relocation was not:
+
+- it changes **no data, no model, no copy, no selector** — the same visual result, expressed as
+  classes instead of per-element attributes;
+- the pattern, the precedent and the guard idiom all already exist in this repo;
+- it reduces the thing that actually hurts — **static-generation memory**, the measured cause of the
+  46-minute wedge (`P0_VERCEL_WEDGE_CONCURRENCY_2026-09-24.md` §6) — as well as bytes. The 952 MB
+  copy would have bought 4.5 seconds and no reliability at all;
+- it is the precondition for the §8 checkpoint on returning to the standard build machine.
+
+A second, separable question the numbers raise: **124 fully-rendered historical board dates** is a
+lot of static surface for a beginner-first product. Whether every archived slate day needs a complete
+6 MB page, or a lighter archived form, is a product decision — not a build one — and is recorded here
+rather than assumed.
+
 ## 5 · What is NOT claimed
 
 No savings are claimed, because none were implemented. The prune's own guard continues to prove that
