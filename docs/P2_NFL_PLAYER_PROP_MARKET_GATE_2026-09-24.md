@@ -128,3 +128,45 @@ PR #656 fixed the presentation half, which needed no provider change: the MARKET
 "Market unavailable" with one honest board note instead of "No price" on forty-five rows, and the
 slot is ready to carry `line / over-under prices / book / capturedAt` the day a capture exists. The
 UI contract for §6 is in place and guarded on the built export.
+
+## 8 · THE GATE WAS ANSWERED — and the probe already exists
+
+**Founder decision, 2026-09-24:** use the existing paid The Odds API entitlement, with a hard session
+budget of **150 credits**, and purchase nothing — no new provider, plan, entitlement or feed. That
+resolves §5 in favour of a controlled probe, which was the recommendation.
+
+⚠ **AND §4's "requires a call, and a call is outside scope" needs one correction.** A read-only audit
+of the existing owner found the probe is **already built**. `scripts/nfl/capture-nfl-odds.mjs`
+documents its own call plan:
+
+> 2. OPTIONAL `--probe-props`: ONE event's `/events/{id}/odds` with the five NFL prop keys —
+>    worst-case **5**. A 422/absent market is `NO_MARKET` evidence, never a retry target.
+
+and declares exactly the five families this receipt is about:
+
+```js
+const PROP_PROBE_MARKETS = ["player_anytime_td", "player_pass_yds", "player_rush_yds",
+                            "player_reception_yds", "player_receptions"];
+```
+
+So `propMarkets.state: NOT_PROBED` was literal in a sharper sense than §2 implied: the probe was
+written, credit-guarded and dry-run-by-default, and simply never run, because the authorisation
+scoped props out. Worst case **5 credits against a 150 ceiling**.
+
+**What else the audit established, at zero credits:**
+
+| | |
+|---|---|
+| per-event props | already in production use for **MLB** (`capture-mlb-pregame-player-props.mjs`) |
+| free endpoint | `/v4/sports/{key}/events` — 0 credits, used for dry-run planning |
+| credit accounting | `x-requests-remaining` / `x-requests-last` response headers |
+| cost model | per-event props ≈ **events × markets**; bulk team markets = regions × markets, flat |
+| consensus policy | exists — `lib/sports/odds/consensus.mjs` `twoWayConsensus`, normalised so the pair sums to 1 |
+| event identity | `canonicalEventId: nfl-<espnId>` — proven on the team capture |
+| player identity | ⚠ **the missing join**: provider player → `nfl-athlete-<espnId>` |
+
+**There is no need for a second odds subsystem.** The contract in §6 extends `snapshot-contract.mjs`
+and `market-scope.mjs`; the capture extends the existing NFL owner. ⚠ The bookmaker DISPLAY policy
+(§P3.6) is still open: `twoWayConsensus` was built for two-way team markets, and whether it is the
+right primary line for a player prop — or whether a reference book should be named instead — is a
+founder choice that must not be settled by whichever row the API returns first.

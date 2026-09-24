@@ -12,7 +12,7 @@ rule. Every number here is from a real local build of `8cccf8a9`+ on this repo, 
 | `app/public` total | — | **1.0 GB / 4,814 files under `public/data`, 996.6 MB** |
 | `out/data` after the prune | — | **44.4 MB / 1,628 files** |
 | `out/` total | — | **1.4 GB / 6,706 files**, of which ~1.35 GB is GENERATED PAGES |
-| routes / pages | — | 2,492 routes → **2,476 HTML pages** |
+| routes / pages | — | 2,492 routes → **2,476 HTML pages** (⚠ **2,572 routes** after R0 refreshed the matchup registry — see §6) |
 
 **95.5% of the data the export copies is deleted again before deploy.**
 
@@ -120,3 +120,25 @@ rather than assumed.
 No savings are claimed, because none were implemented. The prune's own guard continues to prove that
 prohibited families do not reach the exported surface; nothing about it was weakened, and no
 selector, model, result or history was touched.
+
+## 6 · WHAT CHANGED LATER THE SAME DAY, AND WHY IT RAISES THE BAR
+
+Two measurements landed after this receipt was written, and both make the page-payload target
+(§4/§4b) **more** load-bearing, not less.
+
+**The build's real memory demand is 11.31 GB, not the ~7 GB estimated here from a partial reading.**
+The heartbeat shipped in #654 measured the enhanced machine directly: `mem 11.31G/16.00G` at exactly
+the `1867/2490` three-quarter print where every wedge on the 8 GB machine had died. A later
+production build, running concurrently, was already at `8.13G` by 180 s — past `standard`'s ENTIRE
+8 GB ceiling before reaching the point where it used to hang. **8 GB was never marginal; it was
+structurally insufficient.** Demand also scales with worker count, so 8 cores costs more memory than
+4, not less.
+
+**And the route count grew.** R0's refreshed matchup registry took the export from **2,492 to 2,572
+routes** — roughly 73 more pages of real forward coverage. That is correct product behaviour, and it
+means peak memory is now a moving target that rises as coverage improves.
+
+Together: returning to the standard 4-vCPU / 8-GB class is not a near-term option, and the gap to
+close is larger than this receipt originally implied. The `/mlb/board` reduction in §4b —
+~217 MB of inline `style=` attributes across 124 pages — remains the one change that would buy
+reliability and bytes at the same time, and it is now the explicit precondition for that checkpoint.
