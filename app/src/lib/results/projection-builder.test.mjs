@@ -11,7 +11,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-import { readSources, writeProjection, historyOf } from "../../../scripts/results/build-results-projection.mjs";
+import { readSources, writeProjection, historyOf, etSlateDate } from "../../../scripts/results/build-results-projection.mjs";
 import { buildProjection, assertProjectionShape } from "./projection-core.mjs";
 
 const APP = process.cwd();
@@ -86,7 +86,7 @@ test("rule 7 · write-once, dated: first write lands; identical re-run leaves th
   // a different date is a different file: it lands
   const other = run(["--now", "2026-09-23T18:00:00Z", "--out", out, "--write"]);
   assert.equal(other.status, 0, other.stderr);
-  assert.ok(fs.existsSync(path.join(out, "2026-09-23.json")), "the date defaults to the UTC date of --now");
+  assert.ok(fs.existsSync(path.join(out, "2026-09-23.json")), "the date defaults to the ET slate day of --now (18:00Z = 14:00 ET, same day)");
 });
 
 test("rule 7 · writeProjection in-process: the refusal compares cells + headline, not builtAt or source stamps", () => {
@@ -144,4 +144,53 @@ test("readSources cites owner paths relative to the data root (what a cell's own
   assert.equal(s.cycleTable.path, "data/internal/products/cycle-table/latest.json");
   assert.ok(s.receipts.length > 0 && s.receipts.every((r) => /^mr-dub\/settled\/\d{4}-\d{2}-\d{2}\.json$/.test(r.path)));
   assert.ok(Object.keys(s.gradedPicks).length >= 1);
+});
+
+/* ── THE DATE THE ARTIFACT IS FILED UNDER (2026-09-24 settlement outage) ─────────────────────────── */
+
+test("rule 7 · a dated projection is filed under the ET SLATE DAY, so an evening run cannot claim tomorrow", () => {
+  /*
+   * THE INCIDENT THIS PINS. The default was `--now`.slice(0,10) — the UTC date. Between 20:00 ET and
+   * ET midnight the UTC date is already tomorrow, so a producer run at 2026-09-23T20:45 ET wrote
+   * `2026-09-24.json` for a day whose settlement had not happened. The next morning the real
+   * nightly-settle computed different cells, rule 7 correctly refused to restate, and the job failed
+   * three times — taking morning-projections, mlb-daily-production and daily-products down with it,
+   * because all three chain off its success.
+   *
+   * The boundary is asserted on BOTH sides of ET midnight and BOTH sides of the UTC rollover, because
+   * a fix that only moved the bug four hours would pass a one-sided test.
+   */
+  assert.equal(etSlateDate("2026-09-23T23:59:59Z"), "2026-09-23", "19:59 ET is still that ET day");
+  assert.equal(etSlateDate("2026-09-24T00:45:51Z"), "2026-09-23", "THE INCIDENT: 20:45 ET, UTC already tomorrow");
+  assert.equal(etSlateDate("2026-09-24T03:59:59Z"), "2026-09-23", "23:59 ET is still that ET day");
+  assert.equal(etSlateDate("2026-09-24T04:00:00Z"), "2026-09-24", "ET midnight starts the new slate day");
+  assert.equal(etSlateDate("2026-09-24T14:07:00Z"), "2026-09-24", "and a daytime run is unremarkable");
+
+  // EST as well as EDT — the offset is 5 hours in January, and a hardcoded -4 would pass the cases above.
+  assert.equal(etSlateDate("2026-01-15T04:59:00Z"), "2026-01-14", "23:59 EST");
+  assert.equal(etSlateDate("2026-01-15T05:00:00Z"), "2026-01-15", "00:00 EST");
+
+  // END TO END: the CLI must file it under that day, not under the UTC one.
+  const root = scratchRoot(["mr-dub/portfolio.json"]);
+  const out = path.join(tmp(), "projection");
+  const r = run(["--now", "2026-09-24T00:45:51Z", "--write", "--root", root, "--internal-root", REAL_INTERNAL, "--out", out]);
+  assert.equal(r.status, 0, r.stderr);
+  assert.ok(fs.existsSync(path.join(out, "2026-09-23.json")), "filed under the ET slate day");
+  assert.ok(!fs.existsSync(path.join(out, "2026-09-24.json")), "and NOT under the UTC day it was not");
+});
+
+test("rule 7 · the write-once refusal itself is UNCHANGED — a genuine same-day restatement is still refused", () => {
+  /* The date basis moved; the protection did not. A second run on the SAME slate day whose cells
+     differ must still refuse and write nothing, or the fix would have bought recovery by removing
+     the guard that surfaced the problem. */
+  const out = path.join(tmp(), "projection");
+  const p = buildProjection(readSources(REAL_ROOT, REAL_INTERNAL), { now: NOW });
+  assertProjectionShape(p);
+  const date = etSlateDate("2026-09-24T14:07:00Z");
+  assert.equal(writeProjection(p, { outDir: out, date }).refused, null, "first write lands");
+  const changed = { ...p, cells: [{ ...p.cells[0], key: `${p.cells[0].key}-restated` }, ...p.cells.slice(1)] };
+  const r = writeProjection(changed, { outDir: out, date });
+  assert.match(r.refused ?? "", /REFUSED/, "a differing same-day re-run is still refused");
+  assert.deepEqual(r.wrote, [], "…and writes nothing");
+  assert.equal(historyOf(readJson(path.join(out, `${date}.json`))), historyOf(p), "the dated file is untouched");
 });
