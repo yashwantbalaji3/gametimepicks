@@ -14,6 +14,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const REPO = path.join(process.cwd(), process.cwd().endsWith("app") ? ".." : "");
 const PKG = [path.join(REPO, "app/src/lib/data-platform"), path.join(REPO, "app/scripts/data-platform")];
@@ -23,7 +24,7 @@ const walk = (dir, keep, acc = []) => {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
     if (e.isDirectory()) { if (!["node_modules", ".next", "out"].includes(e.name)) walk(p, keep, acc); }
-    else if (keep(e.name)) acc.push(p);
+    else if (!isTransientSource(e.name) && keep(e.name)) acc.push(p);
   }
   return acc;
 };

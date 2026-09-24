@@ -20,6 +20,7 @@ import {
   surfacesForDate,
   sportFromQuery,
 } from "./date-sport-route.ts";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const TODAY = "2026-08-27";
 
@@ -117,7 +118,7 @@ test("NO SECOND ROUTER · no surface hand-builds a dated url", () => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) { walk(full); continue; }
-      if (!/\.(ts|tsx)$/.test(entry.name)) continue;
+      if (!/\.(ts|tsx)$/.test(entry.name) || isTransientSource(entry.name)) continue;
       if (full === OWNER) continue;
       const src = fs.readFileSync(full, "utf8");
       /*

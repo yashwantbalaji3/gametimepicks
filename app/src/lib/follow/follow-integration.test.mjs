@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { FOLLOW_STORAGE_KEY, follow, emptyDocument, isFollowing, normalizeRef } from "./follow-schema.mjs";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const APP = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
@@ -81,7 +82,7 @@ test("S4 · ⚠ there is NO MLB player follow surface anywhere", () => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, e.name);
       if (e.isDirectory()) { walk(full); continue; }
-      if (!/\.(tsx|ts|mjs)$/.test(e.name) || /\.test\.mjs$/.test(e.name)) continue;
+      if (!/\.(tsx|ts|mjs)$/.test(e.name) || /\.test\.mjs$/.test(e.name) || isTransientSource(e.name)) continue;
       const body = fs.readFileSync(full, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
       if (/sport:\s*"MLB",\s*entityType:\s*"player"/.test(body) || /mlb(Player|Person|Athlete)Ref\(/.test(body)) {
         offenders.push(path.relative(APP, full));

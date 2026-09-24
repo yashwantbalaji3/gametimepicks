@@ -14,6 +14,7 @@ import crypto from "node:crypto";
 
 import { computeMarketReliability, historicalReliability } from "./mlb-reliability.ts";
 import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const app = process.cwd();
 const repo = path.join(app, "..");
@@ -87,7 +88,7 @@ function collectSources(dir, acc) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
     if (e.isDirectory()) { if (e.name !== "node_modules") collectSources(p, acc); }
-    else if (/\.(ts|tsx)$/.test(e.name)) acc.push(p);
+    else if (/\.(ts|tsx)$/.test(e.name) && !isTransientSource(e.name)) acc.push(p);
   }
   return acc;
 }
