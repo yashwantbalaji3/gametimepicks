@@ -63,12 +63,21 @@ const propPriceIndex = (() => {
   return { idx, meta };
 })();
 
-/** Events this capture actually asked about. Everything else is NOT_PROBED, not NOT_OFFERED. */
+/*
+ * Events this capture actually asked about. Everything else is NOT_PROBED, not NOT_OFFERED.
+ *
+ * ⚠ THIS READ A SINGULAR `probedEventId` while the capture probed one event. Once the sweep covers
+ * a whole week, a singular id would have called fifteen genuinely-probed events "never asked" — and
+ * before that, it was one rename away from the opposite error: calling un-probed events NOT_OFFERED,
+ * a negative nobody measured. Plural, from the owner, with the singular kept only as a fallback for
+ * an artifact written before the sweep existed.
+ */
 const probedEventIds = (() => {
   try {
     const mk = read(path.join(APP, "public/data/nfl/markets/latest.json"));
-    const id = mk?.propMarkets?.probedEventId;
-    return new Set(id ? [id] : []);
+    const pm = mk?.propMarkets ?? {};
+    const ids = pm.probedEventIds ?? (pm.probedEventId ? [pm.probedEventId] : []);
+    return new Set(ids);
   } catch { return new Set(); }
 })();
 

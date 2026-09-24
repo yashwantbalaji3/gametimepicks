@@ -65,7 +65,21 @@ export function parseSportAuthorizationReceipt(markdown, sport) {
       errors.push(`scope: this receipt also names \`${o.sportKey}\` — one receipt authorizes one sport`);
     }
   }
-  const ceilingMatch = text.match(/(?:Cumulative ceiling|cumulative maximum)[^0-9]*?([\d,]+)\s*credits/i);
+  /*
+   * AN AMENDED RECEIPT NEEDS ONE UNAMBIGUOUS CEILING.
+   *
+   * ⚠ This took the FIRST "Cumulative ceiling … credits" in the document. Amendments are appended,
+   * so on 2026-09-24 a founder decision raising the allowance was invisible to the code: the
+   * original 500 still matched first and the new figure sat in prose underneath it — the Markets
+   * row's problem again, one term over.
+   *
+   * An explicit `Effective cumulative ceiling` line WINS when present, so an amendment states the
+   * operative number in one place rather than relying on document order or on the reader noticing
+   * which of two numbers is current. Absent that line, the original term still governs, so an
+   * un-amended receipt behaves exactly as before.
+   */
+  const effective = text.match(/Effective cumulative ceiling[^0-9]*?([\d,]+)\s*credits/i);
+  const ceilingMatch = effective ?? text.match(/(?:Cumulative ceiling|cumulative maximum)[^0-9]*?([\d,]+)\s*credits/i);
   const ceiling = ceilingMatch ? Number(ceilingMatch[1].replace(/,/g, "")) : null;
   if (!(ceiling > 0)) errors.push("ceiling: no cumulative credit ceiling found");
   if (!/do not retry\s+blindly/i.test(text.replace(/\n/g, " "))) errors.push("discipline: no-blind-retry term not found");
@@ -159,7 +173,12 @@ export function parseAuthorizationReceipt(markdown) {
   // must still be found ("do not retry\n> blindly" is the founder's sentence, verbatim)
   const text = String(markdown ?? "").replace(/^>\s?/gm, "");
   if (!/NFL[- ]only/i.test(text) || !text.includes("`americanfootball_nfl`")) errors.push("scope: NFL-only + americanfootball_nfl key not found");
-  const ceilingMatch = text.match(/(?:Cumulative ceiling|cumulative maximum)[^0-9]*?([\d,]+)\s*credits/i);
+  /* An explicit `Effective cumulative ceiling` wins over the original term — see the note in
+     parseSportAuthorizationReceipt. Without it the original governs, so an un-amended receipt is
+     unchanged. ⚠ BOTH parsers need this: fixing only one leaves the NFL capture reading the old
+     number while the sport parser reads the new one, which is worse than either alone. */
+  const effectiveNfl = text.match(/Effective cumulative ceiling[^0-9]*?([\d,]+)\s*credits/i);
+  const ceilingMatch = effectiveNfl ?? text.match(/(?:Cumulative ceiling|cumulative maximum)[^0-9]*?([\d,]+)\s*credits/i);
   const ceiling = ceilingMatch ? Number(ceilingMatch[1].replace(/,/g, "")) : null;
   if (!(ceiling > 0)) errors.push("ceiling: no cumulative credit ceiling found");
   if (!/floor[^|]*\|\s*\*\*NONE/i.test(text) && !/There is no minimum remaining-balance floor/i.test(text)) {

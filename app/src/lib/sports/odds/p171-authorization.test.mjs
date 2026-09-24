@@ -218,3 +218,32 @@ test("the capture REFUSES an unauthorized prop market before any call, and says 
   assert.ok(src.indexOf("if (PROBE) {") < src.indexOf("await getJson") || !src.includes("await getJson"),
     "the scope gate must precede the first provider call");
 });
+
+test("an amended ceiling is read by BOTH parsers, not just the one someone edited", async () => {
+  const m = await import("./p171-authorization.mjs");
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+
+  /*
+   * ⚠ THIS FILE HAS TWO PARSERS, AND I EDITED THE WRONG ONE TWICE. `parseSportAuthorizationReceipt`
+   * and `parseAuthorizationReceipt` have near-identical bodies; a change to the first looks correct,
+   * tests green, and leaves the NFL capture — which uses the SECOND — reading the old value. That is
+   * worse than not fixing it at all, because the document and the spender then disagree while
+   * everything reports healthy.
+   *
+   * So the amended ceiling is asserted through both entry points on the REAL receipt.
+   */
+  const md = fs.readFileSync(path.join(process.cwd(), "..", "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md"), "utf8");
+  const a = m.parseAuthorizationReceipt(md);
+  const b = m.parseSportAuthorizationReceipt(md, "nfl");
+  assert.equal(a.ok, true, a.errors?.join("; "));
+  assert.equal(a.ceiling, 1160, "the NFL capture's parser must read the amended ceiling");
+  if (b.ok) assert.equal(b.ceiling, a.ceiling, "both parsers must agree on the operative ceiling");
+
+  /* The control is the REAL receipt with its effective line struck out: the original 500 must still
+     govern, which proves the new branch supersedes rather than simply hardcoding a bigger number. */
+  const unamended = md.replace(/\*\*Effective cumulative ceiling[^\n]*/i, "(struck)");
+  const c = m.parseAuthorizationReceipt(unamended);
+  assert.equal(c.ok, true, c.errors?.join("; "));
+  assert.equal(c.ceiling, 500, "without an effective line the ORIGINAL term still governs");
+});

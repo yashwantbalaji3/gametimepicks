@@ -98,3 +98,43 @@ This amendment makes the document and the behaviour agree **for the right reason
 authorized the probe — rather than by relying on a term nothing checks. Enforcing market scope in
 the parser is a separate, deliberate change and is NOT made here; it is recorded so the next reader
 knows the `Markets` row is currently documentation, not a control.
+
+---
+
+## AMENDMENT 2 — 2026-09-24 · full-week NFL pregame prop coverage
+
+**Provenance:** founder, in session, 2026-09-24, superseding the deliberately conservative
+experimental caps for this scoped NFL rollout. The provider/account hard limit still wins.
+
+> Credit conservation is not the priority for this phase. … You may spend up to 1,000 ADDITIONAL
+> Odds API credits during this NFL full-week rollout without asking me again, provided: every paid
+> request is accounted for; no blind retries occur; 401/403/422/provider errors remain fail-closed;
+> duplicate requests are avoided where the same fresh capture can be reused; requests exist to
+> produce or validate useful product data; credits are not burned solely to make a demo look
+> populated.
+
+### The operative number
+
+**Effective cumulative ceiling: 1,160 credits** — 160 spent when this amendment was written, plus the
+1,000 the founder authorized. This line is what `parseAuthorizationReceipt` reads; it exists because
+an appended amendment would otherwise lose to the original term simply by coming second in the file.
+
+### What changes
+
+| Term | Was | Now |
+|---|---|---|
+| Cumulative ceiling | 500 credits | **1,160 credits** — 160 spent at this amendment, plus the 1,000 authorized |
+| Events per prop run | one probe event | **every eligible pre-start event in the active NFL week** |
+| Window | 40-hour horizon | the canonical schedule owner's active `(seasonType, week)` |
+| Scheduled prop refreshes | none | **up to 4/day** during the active week, *provided the volume stays inside the ceiling* |
+
+Everything else is unchanged: NFL only, `us` region, the same five prop keys, pre-start only, no
+blind retries, a 422 or absent market recorded as `NO_MARKET` evidence rather than a retry target.
+
+### ⚠ The cadence is CONDITIONAL, and the arithmetic is the condition
+
+A full-week sweep is 16 events × 5 markets = **80 credits**, plus the 3-credit bulk team call. Four
+such sweeps a day is 320/day, and Thursday→Monday at that rate is ~1,500 — **over the authorization**.
+So "up to 4/day" cannot mean "4 full sweeps a day", and the schedule must be sized against the
+ceiling rather than against the sentence. The cadence actually configured is recorded with its
+arithmetic when it is set; the machine ceiling above is what enforces it either way.
