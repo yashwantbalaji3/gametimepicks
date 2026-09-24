@@ -79,13 +79,22 @@ export function confidenceLabel(c: RawConfidence | null | undefined): string {
  * now recomputes all three from the committed ledger and fails when a caption drifts, so a stale public
  * claim blocks the build instead of aging quietly. Deriving these automatically is the proper fix and is
  * on the Sprint 036 roadmap; until then the guard is what keeps them honest.
+ *
+ * LAST RESTATED 2026-09-24, against `public/data/mlb/results/settled_leans.jsonl` at main `bdf9058252`,
+ * after the settlement outage of that day was recovered and the backlog settled in one pass:
+ *   High    10359/20912 = 49.54%   (caption 49.3%, drift 0.24pp — inside tolerance, left alone)
+ *   Medium   3378/6687  = 50.52%   (caption WAS 50.0%, drift 0.52pp — FAILED the guard, now 50.5%)
+ *   Low      9758/19134 = 51.00%   (caption 51.0%, drift 0.00pp — left alone)
+ * The comparative claims still hold at those numbers: High remains the lowest, Low the highest.
+ * ⚠ High is drifting in the same direction and will cross the 0.5pp tolerance on its own; when it does,
+ * the fix is the same one — restate the measured value, never widen the tolerance.
  */
 export function confidenceCaption(c: RawConfidence | null | undefined): string {
   switch (c) {
     case "High":
       return "Model and market differed by 5pp or more. These have settled at 49.3% — the lowest of the three categories.";
     case "Medium":
-      return "Model and market differed by 2.5–5pp. These have settled at 50.0%.";
+      return "Model and market differed by 2.5–5pp. These have settled at 50.5%.";
     case "Low":
       return "Model and market differed by under 2.5pp, or the row was anomaly-flagged. These have settled at 51.0% — the highest of the three categories.";
     case "insufficient_data":
