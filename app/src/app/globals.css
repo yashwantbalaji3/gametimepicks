@@ -5401,3 +5401,109 @@ body {
   .ask-log { min-height: 300px; }
   .ask-bubble-assistant { max-width: 760px; }
 }
+
+/* ── PREDICTION BOARD ────────────────────────────────────────────────────────────────────────────
+ * One grammar for every published player prediction, and ONE set of markup for both layouts:
+ * stacked cards on a phone, a grid row from 768px. The field labels stay in the DOM at every width
+ * and are only hidden VISUALLY once the header row carries them, so assistive technology reads a
+ * labelled value on desktop too. Everything positional is a class — /results measured 1,160KB when
+ * per-cell style objects shipped once per cell, and these boards render up to 45 rows a week.
+ * `position: relative` on the wrapper is deliberate: a clipped label inside a non-positioned
+ * scroller escapes its container and drags the page sideways.
+ */
+.gtp-pred-wrap { position: relative; display: block; }
+
+.gtp-pred-head { display: none; }
+
+.gtp-pred-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.gtp-pred-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--vault-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--vault-panel) 60%, transparent);
+}
+
+.gtp-pred-rank { grid-column: 1; font-size: 11px; color: var(--vault-text-faint); }
+
+.gtp-pred-player { grid-column: 2; display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.gtp-pred-ident { display: flex; flex-direction: column; min-width: 0; }
+.gtp-pred-name { font-size: 14px; font-weight: 600; color: var(--vault-text); overflow-wrap: break-word; }
+.gtp-pred-team { font-size: 11px; color: var(--vault-text-faint); }
+
+.gtp-pred-cell { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.gtp-pred-k {
+  flex: 0 0 auto; min-width: 62px;
+  font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--vault-text-faint);
+}
+.gtp-pred-v { font-size: 12.5px; color: var(--vault-text); }
+.gtp-pred-sub { font-size: 11px; color: var(--vault-text-mute); }
+/* A typed absence is text, never an empty cell — a blank reads as zero. */
+.gtp-pred-absent { font-size: 11.5px; line-height: 1.45; color: var(--vault-text-mute); }
+
+/* MODEL is the headline this product publishes; MARKET sits beside it at readable weight. */
+.gtp-pred-model .gtp-pred-v { font-size: 14px; font-weight: 700; }
+
+.gtp-pred-link { font-size: 10px; color: var(--vault-gold-bright); }
+.gtp-pred-link:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); border-radius: 4px; }
+
+/* The reason an absent market is absent — once per board, not once per row. */
+.gtp-pred-note {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--vault-text-faint);
+  max-width: 720px;
+}
+
+@media (min-width: 768px) {
+  .gtp-pred-head,
+  .gtp-pred-row {
+    display: grid;
+    grid-template-columns: 22px minmax(186px, 2fr) 88px 112px 76px 78px 62px 58px;
+    gap: 0 10px;
+    align-items: center;
+  }
+  /* The rank and the range each exist only when the surface publishes them, and the template has to
+     agree with the DOM — a track the row has no child for silently shifts every later column. */
+  .gtp-pred-norank .gtp-pred-head,
+  .gtp-pred-norank .gtp-pred-row {
+    grid-template-columns: minmax(186px, 2fr) 88px 112px 76px 78px 62px 58px;
+  }
+  .gtp-pred-norange .gtp-pred-head,
+  .gtp-pred-norange .gtp-pred-row {
+    grid-template-columns: 22px minmax(186px, 2fr) 88px 112px 76px 78px 58px;
+  }
+  .gtp-pred-norank.gtp-pred-norange .gtp-pred-head,
+  .gtp-pred-norank.gtp-pred-norange .gtp-pred-row {
+    grid-template-columns: minmax(186px, 2fr) 88px 112px 76px 78px 58px;
+  }
+  .gtp-pred-head {
+    padding: 0 12px 6px;
+    font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--vault-text-faint);
+  }
+  .gtp-pred-list { gap: 0; }
+  .gtp-pred-row {
+    padding: 9px 12px;
+    border: 0;
+    border-top: 1px solid var(--vault-border);
+    border-radius: 0;
+    background: none;
+  }
+  .gtp-pred-rank,
+  .gtp-pred-player,
+  .gtp-pred-cell { grid-column: auto; min-width: 0; }
+  .gtp-pred-cell { display: block; }
+  /* Hidden visually, still announced: the header row names the column for sighted readers. */
+  .gtp-pred-k {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .gtp-pred-sub { display: block; }
+}

@@ -33,7 +33,8 @@ import Link from "next/link";
 import SportHubNav from "@/components/sports/sport-hub-nav";
 
 import EventCard from "@/components/event-card";
-import PlayerAvatar from "@/components/player-avatar";
+import PredictionBoard from "@/components/prediction/prediction-board";
+import { presentVaultCandidate } from "@/lib/prediction-presentation/nfl";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
 import SportOverviewHero from "@/components/sport-overview-hero";
@@ -76,10 +77,7 @@ const etDay = (iso: string) =>
  * Returns null for anything that is not that shape, so a schema change degrades to the initials
  * disc rather than requesting a nonsense URL.
  */
-const espnAthleteId = (playerId: string): number | null => {
-  const m = /^nfl-athlete-(\d+)$/.exec(playerId ?? "");
-  return m ? Number(m[1]) : null;
-};
+
 
 const etDayLabel = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" }).format(new Date(iso));
@@ -298,19 +296,20 @@ export default function NflHubPage() {
   const runsPhrase = (eventId: string) => { const n = simsByEvent.get(String(eventId)); return n ? `${n.toLocaleString()} runs` : null; };
   /* P246 §5: the weekly top boards render VERBATIM from the one canonical ranking owner
      (scripts/nfl/build-nfl-weekly-boards.mjs). The hub never ranks players itself. */
-  type WeeklyBoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; participation: string; value: number; p10?: number; median?: number; p90?: number; probability?: number };
+  type WeeklyBoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; participation: string; value: number; p10?: number; median?: number; p90?: number; probability?: number; pricingState?: string };
   const weeklyBoards = read("nfl/weekly-boards/latest.json") as
-    | { period: { seasonType: number; week: number }; scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number };
-        boards: Array<{ id: string; title: string; state: string; basis?: string; reason?: string; caveat?: string; rows?: WeeklyBoardRow[] }> }
+    | { generatedAt?: string; model?: { id?: string; version?: number | string } | null;
+        period: { seasonType: number; week: number }; scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number };
+        boards: Array<{ id: string; family: string; title: string; state: string; basis?: string; reason?: string; caveat?: string; rows?: WeeklyBoardRow[] }> }
     | null;
   // per-event calibration sentence, keyed the same way the index keys events
 
 
   // P174-E: Endzone Vault. Renders only when the evaluator produced candidates; a NO_VAULT or
   // INCIDENT window shows nothing here rather than an empty table pretending to be a product.
-  type VaultRow = { playerId: string; name: string; position: string | null; team: string; event: string; tdProbability: number; roleState: string };
+  type VaultRow = { playerId: string; name: string; position: string | null; team: string; opponent?: string | null; event: string; providerEventId?: string | null; kickoffUtc?: string | null; tdProbability: number; roleState: string; marketPrice?: { yesOdds?: number; sportsbook?: string; capturedAt?: string } | null };
   const vault = read("nfl/end-zone-vault/latest.json") as
-    | { state: string; reason: string; disclaimer: string; selections: VaultRow[]; watchlist: VaultRow[] }
+    | { state: string; reason: string; disclaimer: string; generatedAt?: string; selections: VaultRow[]; watchlist: VaultRow[] }
     | null;
   const propAbsence = markets?.propMarkets?.state === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0;
 
@@ -638,16 +637,26 @@ export default function NflHubPage() {
             the RSC payload — including `basis`, which carries internal model ids the public page
             must never carry. This ships the fields the component actually renders and nothing else.
           */}
-          <NflWeeklyBoards boards={weeklyBoards.boards.map((b: { id: string; title: string; state: string; reason?: string; rows?: Array<Record<string, unknown>> }) => ({
+          <NflWeeklyBoards
+            /* The stamp and the model cross ONCE, for all forty-five rows. */
+            generatedAt={String(weeklyBoards.generatedAt ?? "")}
+            model={weeklyBoards.model ? { id: weeklyBoards.model.id, version: weeklyBoards.model.version } : null}
+            boards={weeklyBoards.boards.map((b: { id: string; family: string; title: string; state: string; reason?: string; caveat?: string; rows?: Array<Record<string, unknown>> }) => ({
             id: b.id,
+            family: b.family,
             title: b.title,
             state: b.state,
             reason: b.reason,
+            caveat: b.caveat,
             rows: (b.rows ?? []).map((r) => ({
               playerId: String(r.playerId), name: String(r.name), team: String(r.team), opponent: String(r.opponent),
               kickoffUtc: String(r.kickoffUtc), providerEventId: String(r.providerEventId),
+              participation: String(r.participation ?? ""),
               value: Number(r.value), median: r.median as number | undefined,
               p10: r.p10 as number | undefined, p90: r.p90 as number | undefined,
+              probability: r.probability as number | undefined,
+              /* The builder's own pricing state, carried through. Never inferred here. */
+              pricingState: r.pricingState as string | undefined,
             })),
           }))}
             /* P251-F9: abbr → published club name, from the forecast artifact — the follow store
@@ -760,39 +769,22 @@ export default function NflHubPage() {
                pricing state stay one click away in Coverage and on /methodology. */
             sub="Who our model thinks is most likely to score"
           />
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
-              <thead>
-                <tr>
-                  {["Player", "Game", "Chance to score", "Playing time"].map((h) => (
-                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(vault.state === "ACTIVE" ? vault.selections : vault.watchlist).slice(0, 8).map((c) => (
-                  <tr key={c.playerId}>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
-                      {/* P177-B: the shared portrait, keyed by the ESPN athlete id already inside
-                          the Vault's own playerId ("nfl-athlete-4430807"). A dead id 404s cleanly
-                          and falls to the initials disc — the same policy every other sport uses. */}
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                        <PlayerAvatar playerId={espnAthleteId(c.playerId)} playerName={c.name} team={c.team} sport="nfl" size="sm" />
-                        <span>
-                          {c.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{c.position ?? ""} · {c.team}</span>
-                        </span>
-                      </span>
-                    </td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>{c.event}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{(c.tdProbability * 100).toFixed(1)}%</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-mute)" }}>
-                      {c.roleState === "ACTIVE_EXPECTED" ? "Expected to play" : "Playing time unknown"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* P177-B kept, one owner wider: the shared portrait is keyed by the ESPN athlete id
+              already inside the Vault's own playerId, and the Vault now renders through the SAME
+              prediction grammar as the five weekly boards — identity, game, start, market, model. */}
+          <PredictionBoard
+            predictions={(vault.state === "ACTIVE" ? vault.selections : vault.watchlist)
+              .slice(0, 8)
+              .map((c) =>
+                presentVaultCandidate(c, {
+                  forecastAt: vault.generatedAt ?? "",
+                  modelId: "nfl-anytime-td-v1",
+                  modelVersion: 1,
+                }),
+              )}
+            gameHref={(p) => (p.game.providerEventId ? `/nfl/game/${p.game.providerEventId}/` : null)}
+            showRank={false}
+          />
         </section>
       ) : null}
 
