@@ -78,12 +78,25 @@ export interface MarketSnapshot {
   frozen?: FrozenMarket;
 }
 
-/** The reader-facing wording for each absence. Short, factual, never apologetic and never a tease. */
+/**
+ * The reader-facing wording for each absence. Short, factual, never apologetic and never a tease.
+ *
+ * ⚠ V1.1 — SAY WHAT WE DON'T HAVE, NOT WHAT THE WORLD DOESN'T HAVE. The earlier wording opened "No
+ * sportsbook price", which a beginner reads as "no sportsbook prices this". Sportsbooks may well
+ * price it; what is true is that GameTimePicks does not currently hold an approved frozen market for
+ * this prediction. The distinction matters because the first reading is a claim about the betting
+ * market and we have no evidence for it.
+ *
+ * The states stay DISTINCT — "we have not asked", "we asked and the book does not offer it" and
+ * "this kind of prediction has no market counterpart" are three different facts, and collapsing them
+ * into one friendly sentence would be the same overclaim in the other direction. "pricing
+ * authorization" is gone because it describes our internal permissions, not the reader's world.
+ */
 const MARKET_NOTE: Record<Exclude<MarketState, "FROZEN_CAPTURE">, string> = {
-  NOT_AUTHORIZED: "No sportsbook price — we hold no current pricing authorization for this market.",
-  NOT_OFFERED: "No sportsbook price — our books do not offer this market.",
-  NOT_PROBED: "No sportsbook price — this market has not been checked.",
-  UNSUPPORTED: "No sportsbook price for this kind of prediction.",
+  NOT_AUTHORIZED: "GameTimePicks does not currently publish a sportsbook price for this market, so there is nothing to compare these numbers against yet.",
+  NOT_OFFERED: "We checked the sportsbooks we capture and none of them offered this market before kickoff.",
+  NOT_PROBED: "We have not checked the sportsbooks for this market, so we are not showing a price we do not hold.",
+  UNSUPPORTED: "This kind of prediction has no sportsbook market to sit beside it.",
 };
 
 /**

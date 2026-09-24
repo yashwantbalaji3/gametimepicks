@@ -13,6 +13,12 @@
  * is which. When no approved market capture exists the MARKET cell says so in words. It is never
  * blank — a blank reads as zero — and it never borrows a current line to stand in for the line at
  * publication.
+ *
+ * V1.1 · WHAT IS A COLUMN AND WHAT IS AN IDENTITY. Matchup and start time were columns, which made
+ * the desktop row eight tracks wide and made a reader scan sideways to assemble one fact: which game
+ * this number is about. They are now one line under the player's name, and the six remaining tracks
+ * are the ones a reader compares ACROSS rows. A column earns its place by being worth comparing
+ * down the page; "which game is this" is not that, it is part of the row's identity.
  */
 import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
@@ -31,21 +37,36 @@ export const etStart = (iso: string) =>
     : "—";
 
 /**
- * Playing time, in plain English. It belongs on the PLAYER, not in a column of its own: it is the
- * reason a conditional number is conditional, and a reader who sees "108 yds" deserves to see
- * "role uncertain" in the same glance rather than three columns away.
+ * AVAILABILITY, in plain English — and ONLY availability.
  *
- * An unrecognised state renders verbatim rather than being dropped — a participation we cannot
+ * ⚠ TWO DIFFERENT THINGS WORE THE SAME BADGE. `AVAILABLE_ROLE_UNCERTAIN` is not a report about the
+ * player; it is the MODEL saying its own evidence for how much this player will be used has not
+ * cleared its bar. `QUESTIONABLE` and `INACTIVE` are the opposite: facts an official source
+ * published about whether he can play at all. Rendering both as a grey phrase beside the name made
+ * 41 of 45 rows on the live Week-4 boards read "role uncertain", which a beginner reads as an injury
+ * report on nearly every player. It is not one, and burying the four REAL availability states in
+ * that noise is the actual harm.
+ *
+ * So this map now carries availability only. `PARTICIPATION_INTERNAL` names what is deliberately not
+ * rendered, rather than leaving it to fall through a default — an omission is invisible and a named
+ * exclusion is reviewable.
+ *
+ * ⚠ NOTHING IS DELETED. The state still travels on the row, still reaches the methodology and
+ * research surfaces, and still conditions the model. Only the primary public row stops repeating it.
+ *
+ * An unrecognised state still renders verbatim rather than being dropped — a participation we cannot
  * translate is still a participation the owner published, and silence would read as "no concern".
  */
 const PARTICIPATION_LABEL: Record<string, string> = {
   ACTIVE_EXPECTED: "expected to play",
   ACTIVE_PROJECTED: "projected active",
-  AVAILABLE_ROLE_UNCERTAIN: "role uncertain",
   QUESTIONABLE: "questionable",
   INACTIVE: "listed out",
 };
-const participationLabel = (s: string) => (s ? PARTICIPATION_LABEL[s] ?? s.toLowerCase().replace(/_/g, " ") : "");
+/** Internal model/role states. Owned, carried, conditioned on — but not shown on the primary row. */
+const PARTICIPATION_INTERNAL = new Set(["AVAILABLE_ROLE_UNCERTAIN"]);
+const participationLabel = (s: string) =>
+  !s || PARTICIPATION_INTERNAL.has(s) ? "" : PARTICIPATION_LABEL[s] ?? s.toLowerCase().replace(/_/g, " ");
 
 /** The model's headline number, in its own unit. A probability is a percentage; a count is a count. */
 function modelValue(m: ModelForecast): string {
@@ -57,13 +78,21 @@ function modelValue(m: ModelForecast): string {
 /**
  * The SHORT form of an absence, for the cell. The full sentence renders ONCE under the board.
  *
- * Both halves are needed. Repeating "No sportsbook price — we hold no current pricing authorization
- * for this market" on all forty-five rows is a wall of identical prose that a reader stops seeing,
- * which is its own kind of dishonesty; printing nothing at all reads as zero. So the cell states the
- * fact and the board states the reason, once.
+ * Both halves are needed. Repeating the full sentence on all forty-five rows is a wall of identical
+ * prose that a reader stops seeing, which is its own kind of dishonesty; printing nothing at all
+ * reads as zero. So the cell states the fact and the board states the reason, once.
+ *
+ * ⚠ V1.1 — "No price" was true and read as false. Repeated down forty-five rows it tells a beginner
+ * that no sportsbook prices this player, which is not what we mean and not something we have any
+ * evidence for. What is true is that GameTimePicks does not currently own an approved frozen market
+ * for this prediction, and the cell now says exactly that much and no more.
+ *
+ * The states stay DISTINCT: "we never asked" and "we asked and the book does not offer it" are
+ * different facts and must never collapse into one friendly phrase. The fallback is the
+ * least-claiming of them, because an unrecognised state is precisely the case where we know least.
  */
 const MARKET_SHORT: Record<string, string> = {
-  NOT_AUTHORIZED: "No price",
+  NOT_AUTHORIZED: "Market unavailable",
   NOT_OFFERED: "Not offered",
   NOT_PROBED: "Not checked",
   UNSUPPORTED: "n/a",
@@ -88,7 +117,7 @@ function MarketCell({ market }: { market: MarketSnapshot }) {
       </>
     );
   }
-  return <span className="gtp-pred-absent">{MARKET_SHORT[market.state] ?? "No price"}</span>;
+  return <span className="gtp-pred-absent">{MARKET_SHORT[market.state] ?? "Market unavailable"}</span>;
 }
 
 export function PredictionBoard({
@@ -127,8 +156,6 @@ export function PredictionBoard({
       <div className="gtp-pred-head" aria-hidden="true">
         {showRank ? <span /> : null}
         <span>Player</span>
-        <span>Matchup</span>
-        <span>Start</span>
         <span>Market</span>
         <span>Model</span>
         {hasRange ? <span>Range</span> : null}
@@ -141,27 +168,39 @@ export function PredictionBoard({
             <li key={p.predictionId} className="gtp-pred-row">
               {showRank ? <span className="gtp-pred-rank font-mono">{rankOf ? rankOf(p, i) : i + 1}</span> : null}
 
+              {/*
+                * ONE IDENTITY UNIT. Matchup and start time used to be columns of their own, so a
+                * reader scanned sideways to assemble facts that describe a single thing: which game
+                * this player's number is about. They now sit under the name, where the eye already
+                * is, and the row's remaining columns are the ones a reader actually compares across
+                * rows — MARKET beside MODEL.
+                *
+                * The team abbreviation is NOT repeated. "SEA · SEA vs WSH" said it twice; the
+                * matchup already names the club, so the line reads "SEA vs WSH · Sun 1:00 PM ET" and
+                * degrades to the club alone when no opponent is published.
+                *
+                * The sr-only keys stay. A sighted reader gets the header row; a screen-reader user
+                * still hears "Matchup" and "Start" before the values, at every width, which is the
+                * whole reason the labels live in the row rather than only in the header.
+                */}
               <span className="gtp-pred-player">
                 <PlayerAvatar playerId={p.player.portraitId} playerName={p.player.name} team={p.player.teamAbbr} sport="nfl" size="md" />
                 <span className="gtp-pred-ident">
                   <span className="gtp-pred-name">{p.player.name}</span>
-                  <span className="gtp-pred-team font-mono">
-                    {p.player.teamAbbr}
-                    {p.game.participation ? ` · ${participationLabel(p.game.participation)}` : ""}
+                  <span className="gtp-pred-context font-mono">
+                    <span className="gtp-pred-k">Matchup</span>
+                    <span>{p.game.opponentAbbr ? `${p.player.teamAbbr} vs ${p.game.opponentAbbr}` : p.player.teamAbbr}</span>
+                    <span aria-hidden="true"> · </span>
+                    <span className="gtp-pred-k">Start</span>
+                    <span>{etStart(p.game.startTimeUtc)}</span>
+                    {participationLabel(p.game.participation ?? "") ? (
+                      <>
+                        <span aria-hidden="true"> · </span>
+                        <span className="gtp-pred-avail">{participationLabel(p.game.participation ?? "")}</span>
+                      </>
+                    ) : null}
                   </span>
                 </span>
-              </span>
-
-              <span className="gtp-pred-cell">
-                <span className="gtp-pred-k">Matchup</span>
-                <span className="gtp-pred-v font-mono">
-                  {p.game.opponentAbbr ? `${p.player.teamAbbr} vs ${p.game.opponentAbbr}` : p.player.teamAbbr}
-                </span>
-              </span>
-
-              <span className="gtp-pred-cell">
-                <span className="gtp-pred-k">Start</span>
-                <span className="gtp-pred-v font-mono">{etStart(p.game.startTimeUtc)}</span>
               </span>
 
               <span className="gtp-pred-cell gtp-pred-market">
