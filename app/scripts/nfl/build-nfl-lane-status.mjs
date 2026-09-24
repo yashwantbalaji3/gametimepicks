@@ -133,9 +133,28 @@ if ((nextEvent?.seasonType ?? 0) === 1) blockers.push({ id: "preseason-participa
  */
 const propProbeState = markets?.propMarkets?.state ?? null;
 const probedAbsent = propProbeState === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0;
-const holdsPlayerPrice = (markets?.propMarkets?.offeredMarkets ?? []).length > 0;
+/*
+ * ⚠ THIS READ `offeredMarkets`, AND THE NAME WAS THE BUG.
+ *
+ * `holdsPlayerPrice` was computed from what the BOOKS offer — evidence about them — while its name
+ * claimed a fact about US. The two were indistinguishable for as long as the authorization funded
+ * team markets only, because we never probed and both were always empty. On 2026-09-24 a
+ * founder-authorized probe found all five families offered by seven-to-eight books, `offeredMarkets`
+ * filled, and the blocker VANISHED while we still published not one player price. The comment
+ * directly above this line already said the blocker must follow the CONDITION rather than the
+ * evidence for its reason; the expression underneath it did the opposite.
+ *
+ * It now reads the prices we actually publish. Three conditions, three different claims:
+ *   NO_MARKET       we asked and the books offer nothing — evidence about them
+ *   OFFERED_NOT_HELD  the books offer it and we hold none — evidence about US, and the state this
+ *                     lane sits in between a probe and a capture that publishes prices
+ *   NOT_REQUESTED   we never asked — a fact about our scope and evidence about nothing
+ */
+const holdsPlayerPrice = (markets?.propPrices?.rows ?? []).length > 0;
 if (probedAbsent) {
   blockers.push({ id: "player-markets-absent", state: "NO_MARKET", detail: "the authorized capture probed this window: the provider offers no NFL player-prop or anytime-TD market. Absence is evidence — not a retry target. Re-probe when the regular season opens." });
+} else if (!holdsPlayerPrice && propProbeState === "PROBED") {
+  blockers.push({ id: "player-markets-absent", state: "OFFERED_NOT_HELD", detail: `the authorized probe found these markets offered (${(markets.propMarkets.offeredMarkets ?? []).join(", ")}), but no player price is published for this window yet, so no player family can publish. This is a fact about what we hold, not a retry target, and the books' own offering is unaffected by it.` });
 } else if (!holdsPlayerPrice) {
   blockers.push({ id: "player-markets-absent", state: "NOT_REQUESTED", detail: "no player price is held for this window, so no player family can publish. The current authorization funds team markets only (h2h, spreads, totals), so none was requested — this is a fact about our scope and not a retry target, and it is no evidence about what the books offer." });
 }

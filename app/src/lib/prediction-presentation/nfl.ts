@@ -68,6 +68,24 @@ export interface WeeklyBoardRow {
   p90?: number;
   probability?: number;
   pricingState?: string;
+  /*
+   * A REAL CAPTURED PRICE, when the owner has one for this exact player, family and event.
+   *
+   * Present only when the reference sportsbook posted the market and the row joined a durable
+   * player id. Its absence is not a gap to be filled — it falls back to the TYPED `pricingState`,
+   * which is how a reader learns we hold no market rather than seeing a blank that reads as zero.
+   *
+   * The shape is FrozenMarket's, and `marketFromFrozenCapture` refuses it without a named book and
+   * a capture instant, so an unattributed price cannot reach a row even by mistake.
+   */
+  market?: {
+    line?: number;
+    overOdds?: number;
+    underOdds?: number;
+    yesOdds?: number;
+    sportsbook: string;
+    capturedAt: string;
+  };
 }
 
 export interface WeeklyBoard {
@@ -144,7 +162,8 @@ export function presentWeeklyBoardRow(
     marketLabel: family.label,
     player,
     game,
-    market: marketFromPricingState(row.pricingState),
+    /* A captured price wins over a typed absence; an absence is never rendered as a price. */
+    market: row.market ? marketFromFrozenCapture(row.market) : marketFromPricingState(row.pricingState),
     model,
   };
 }

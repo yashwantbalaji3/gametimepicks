@@ -17,8 +17,12 @@
  *    event has kicked off the board is REMAINING_EVENTS and says which events dropped out.
  *    (The frozen pregame week board is the per-run artifact written before first kickoff —
  *    boards are stamped, so the frozen-weekly edition is the last FULL_WEEK stamp.)
- *  - PRICING STATE, NEVER A PRICE CLAIM: NFL odds authorization is expired (P171); every row
- *    carries pricingState NOT_AUTHORIZED so a renderer cannot imply a current price exists.
+ *  - PRICING STATE, NEVER A PRICE CLAIM: a row carries a real captured price ONLY when the
+ *    reference sportsbook posted that exact player/family/event and the capture joined a durable
+ *    player id. Otherwise it carries a TYPED absence, so a renderer can never imply a price exists.
+ *    (Until 2026-09-24 the state was the hardcoded literal NOT_AUTHORIZED, written when the P171
+ *    authorization had lapsed. Props are authorized again and captured, so the state is now read
+ *    from the owner rather than asserted.)
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -34,6 +38,49 @@ const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required (regen is always pinned)"); process.exit(1); }
 
 const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
+
+/*
+ * CAPTURED PROP PRICES, FROM THE ONE OWNER THAT HAS THEM.
+ *
+ * `capture-nfl-odds.mjs` publishes `propPrices` — rows already filtered to the reference
+ * sportsbook, already joined to durable player ids, each carrying its book and capture instant.
+ * This builder only LOOKS THEM UP; it never fetches, never blends, and never substitutes a book.
+ *
+ * Absent file, absent block or absent row ⇒ the row keeps its typed absence. A missing price is a
+ * state to be stated, never a gap to be filled.
+ */
+const propPriceIndex = (() => {
+  const idx = new Map();
+  let meta = null;
+  try {
+    const mk = read(path.join(APP, "public/data/nfl/markets/latest.json"));
+    const pp = mk?.propPrices;
+    if (pp?.rows?.length) {
+      meta = { referenceBook: pp.referenceBook, capturedAt: pp.capturedAt };
+      for (const r of pp.rows) idx.set(`${r.canonicalEventId}|${r.playerId}|${r.family}`, r);
+    }
+  } catch { /* no capture yet — every row keeps its typed absence */ }
+  return { idx, meta };
+})();
+
+/** Events this capture actually asked about. Everything else is NOT_PROBED, not NOT_OFFERED. */
+const probedEventIds = (() => {
+  try {
+    const mk = read(path.join(APP, "public/data/nfl/markets/latest.json"));
+    const id = mk?.propMarkets?.probedEventId;
+    return new Set(id ? [id] : []);
+  } catch { return new Set(); }
+})();
+
+/** The captured price for this exact player+family+event, or null. Never a near match. */
+function capturedMarketFor(providerEventId, playerId, family) {
+  const r = propPriceIndex.idx.get(`nfl-${providerEventId}|${playerId}|${family}`);
+  if (!r) return null;
+  if (!r.sportsbook || !r.capturedAt) return null; // unattributed is not a price
+  return r.shape === "YES_ONLY"
+    ? { yesOdds: r.yesOdds, sportsbook: r.sportsbook, capturedAt: r.capturedAt }
+    : { line: r.line, overOdds: r.overOdds, underOdds: r.underOdds, sportsbook: r.sportsbook, capturedAt: r.capturedAt };
+}
 
 const forecasts = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
 const weekOf = new Map(
@@ -109,7 +156,24 @@ function rankRows(family, metric, topN) {
         // false precision, not accuracy.
         ...(m.p10 != null ? { p10: Math.round(m.p10), median: Math.round(m.median), p90: Math.round(m.p90) } : {}),
         ...(m.probability != null ? { probability: m.probability } : {}),
-        pricingState: "NOT_AUTHORIZED",
+        /*
+         * The board family and the provider's market key are the same vocabulary EXCEPT for
+         * anytime TD, which the boards call `anytime_td` and the provider calls
+         * `player_anytime_td`. The capture publishes under the BOARD's name so the lookup needs no
+         * translation table — one name, decided at the producer.
+         */
+        ...(capturedMarketFor(b.providerEventId, p.playerId, family)
+          ? { market: capturedMarketFor(b.providerEventId, p.playerId, family) }
+          /*
+           * ⚠ THE TWO ABSENCES ARE DIFFERENT FACTS AND MUST NOT COLLAPSE.
+           *
+           * NOT_OFFERED means we asked this event's books and the market was not posted.
+           * NOT_PROBED means we never asked about this event at all. Today only ONE event per
+           * capture is probed, so the overwhelming majority of rows are the second kind — calling
+           * them NOT_OFFERED would assert a negative we never measured, which is precisely the
+           * claim the whole typed-missingness grammar exists to prevent.
+           */
+          : { pricingState: probedEventIds.has(`nfl-${b.providerEventId}`) ? "NOT_OFFERED" : "NOT_PROBED" }),
       });
     }
   }

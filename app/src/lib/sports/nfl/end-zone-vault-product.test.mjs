@@ -120,13 +120,26 @@ test("today's real outcome is the honest one: candidates exist, a card does not"
     return;
   }
   assert.equal(vault.state, "WATCHLIST_ONLY");
-  /* false = an authorized probe looked and found nothing. null = no probe was requested, because
-     this receipt funds team markets only. Both block a card; only the first is evidence about the
-     books, and `true` must never appear while no card publishes. */
-  assert.notEqual(vault.gates.tdMarketOffered, true, "a card cannot be withheld while the market is offered");
-  assert.ok(vault.gates.tdMarketOffered === false || vault.gates.tdMarketOffered === null,
-    `the gate is proved-absent (false) or not-looked (null); got ${JSON.stringify(vault.gates.tdMarketOffered)}`);
-  assert.equal(vault.gates.pricedCandidates, 0);
+  /*
+   * ⚠ OFFERED IS NOT PRICED, AND THIS GUARD USED TO CONFLATE THEM.
+   *
+   * It asserted `tdMarketOffered !== true`, on the stated premise that no probe would ever run
+   * "because this receipt funds team markets only". On 2026-09-24 the founder authorized a
+   * one-event player-prop probe and eight books returned an anytime-touchdown market, so the
+   * premise expired and the proxy went false while nothing about the product had changed.
+   *
+   * The Vault's own gate has always named TWO conditions — "an offered anytime-touchdown market
+   * PLUS current role evidence" — so a state where the market is offered and the card is still
+   * withheld is anticipated, not contradictory. What must never happen is a card published without
+   * a PRICED candidate, and that is asserted directly below rather than through a stand-in.
+   *
+   * All three values stay meaningful: true = books offer it, false = we looked and they did not,
+   * null = we never asked.
+   */
+  assert.ok([true, false, null].includes(vault.gates.tdMarketOffered),
+    `tdMarketOffered is a three-state fact about the books; got ${JSON.stringify(vault.gates.tdMarketOffered)}`);
+  /* THE LOAD-BEARING CLAIM: no priced candidate ⇒ no card, whatever the books offer. */
+  assert.equal(vault.gates.pricedCandidates, 0, "no card publishes while no candidate carries a price");
   /* P245: role-ready candidates EXIST now (the weekly population + the injuries-fed role
      evidence produce them) — pinning 0 was true only while the input chain was empty, and
      punished the inputs arriving. The load-bearing claim is unchanged and asserted above and

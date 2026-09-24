@@ -63,10 +63,30 @@ test("blockers are typed and reality-gated, including the ones nobody can code a
      is a fact about our own scope and evidence about nothing. */
   const playerBlocker = byId["player-markets-absent"];
   assert.ok(playerBlocker, "no player price is held, so the blocker must be present whatever the reason");
-  assert.ok(["NO_MARKET", "NOT_REQUESTED"].includes(playerBlocker.state), `unexpected state ${playerBlocker.state}`);
+  /*
+   * A THIRD CONDITION EXISTS NOW, AND IT CAUGHT A REAL DEFECT (2026-09-24).
+   *
+   * While the authorization funded team markets only, "the books offer it" and "we hold a price"
+   * were indistinguishable — we never probed, so both were always empty. The generator exploited
+   * that by computing `holdsPlayerPrice` from `offeredMarkets`. A founder-authorized probe found
+   * all five families offered, that expression flipped true, and the blocker VANISHED while not one
+   * player price was published. THIS assertion is what caught it.
+   *
+   * So the third state is not a loosening — it is the condition the world now permits, and each of
+   * the three must still make its own distinct claim:
+   *   NO_MARKET         we asked, the books offer nothing      → evidence about THEM
+   *   OFFERED_NOT_HELD  they offer it, we publish none         → evidence about US
+   *   NOT_REQUESTED     we never asked                         → evidence about NOTHING
+   */
+  assert.ok(["NO_MARKET", "OFFERED_NOT_HELD", "NOT_REQUESTED"].includes(playerBlocker.state), `unexpected state ${playerBlocker.state}`);
   assert.match(playerBlocker.detail, /not a retry target/);
   if (playerBlocker.state === "NOT_REQUESTED") {
     assert.match(playerBlocker.detail, /no evidence about what the books offer/, "not looking is never evidence of absence");
+  }
+  if (playerBlocker.state === "OFFERED_NOT_HELD") {
+    assert.match(playerBlocker.detail, /offered/, "it must say the books DO offer the market");
+    assert.match(playerBlocker.detail, /no player price is published/, "…and that the absence is ours, not theirs");
+    assert.doesNotMatch(playerBlocker.detail, /funds team markets only/, "this state must never borrow the scope excuse — we did ask");
   }
   // P178: this pinned NOT_YET_OBSERVABLE, which was true until the first NFL forecast actually
   // settled — and then the guard failed for the best possible reason. A blocker that clears is the

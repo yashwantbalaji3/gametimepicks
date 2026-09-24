@@ -61,6 +61,12 @@ const SPORT_KEY = ODDS_SPORT_KEYS[SPORT];
 // authorized run proved the regular key holds zero current-window events (3 credits, recorded).
 const PRESEASON_KEY = "americanfootball_nfl_preseason";
 const TEAM_MARKETS = MARKET_SCOPE[SPORT]; // h2h, spreads, totals — the frozen team scope
+/*
+ * THE REFERENCE SPORTSBOOK for displayed prop prices (founder decision, 2026-09-24). One named
+ * book, attributed by name. Not a "best odds" rule and not a consensus — both would be policies
+ * this repo has never agreed, and a blended number has no book to attribute it to.
+ */
+const REFERENCE_BOOK = "draftkings";
 const PROP_PROBE_MARKETS = ["player_anytime_td", "player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"];
 const REGIONS = ["us"];
 const BASE = "https://api.the-odds-api.com/v4";
@@ -265,16 +271,64 @@ if (PROBE) {
         const joinRow = joinedByOddsId.get(target.providerEventId);
         const schedRow = canonicalRows.find((c) => c.canonicalEventId === joinRow.canonicalEventId)?.scheduleRow;
         const teamAbbrs = schedRow ? [schedRow.home.abbr, schedRow.away.abbr] : [];
+        /*
+         * ALL FIVE FAMILIES, NOT JUST ANYTIME TD (P3 · 2026-09-24).
+         *
+         * The first probe normalized only `player_anytime_td` and recorded the other four as
+         * availability evidence — "price normalization needs its own scoped contract before any
+         * model may read it". That contract is `lib/prediction-presentation/contract.ts`'s
+         * FrozenMarket, which already takes a `line`, an over/under PAIR, or a single yes price,
+         * and REFUSES to exist without a named book and a capture instant. So the shape was
+         * waiting; nothing had filled it.
+         *
+         * TWO SHAPES, KEPT APART. A yardage or receptions market is two-sided and carries a point:
+         * both sides must come from the SAME book at the SAME point, or the pair is not a pair. An
+         * anytime-TD market is one-sided and has no point — the opposite side is never inferred.
+         *
+         * IDENTITY IS UNCHANGED AND STILL FAIL-CLOSED: every outcome resolves through the durable
+         * registry against BOTH rosters, and anything unresolved or ambiguous quarantines rather
+         * than minting a player from a prop label.
+         */
+        const TWO_SIDED = new Set(["player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"]);
+        const propRows = [];
+        const propQuarantined = [];
         const atdRows = [];
         const atdQuarantined = [];
         for (const bk of probeRes.body?.bookmakers ?? []) {
           for (const mkt of bk.markets ?? []) {
-            if (mkt.key !== "player_anytime_td") continue;
+            if (!PROP_PROBE_MARKETS.includes(mkt.key)) continue;
+            /* Group a two-sided market by player AND point: one book can post several alternate
+               lines for the same player, and an Over at 71.5 does not pair with an Under at 74.5. */
+            const bySide = new Map();
             for (const o of mkt.outcomes ?? []) {
               const playerName = o.description ?? o.name;
               const hits = teamAbbrs.map((abbr) => resolvePlayerRef(registry, { name: playerName, teamAbbr: abbr })).filter((r) => r.state === "RESOLVED");
-              if (hits.length === 1) atdRows.push({ playerId: hits[0].playerId, name: playerName, bookmaker: bk.key, price: o.price, capturedAt: NOW, sourceAsOf: bk.last_update ?? NOW });
-              else atdQuarantined.push({ name: playerName, bookmaker: bk.key, reason: hits.length === 0 ? "unresolved against either roster — identity never minted from a prop label" : "ambiguous across both rosters — quarantined, never picked" });
+              if (hits.length !== 1) {
+                const q = { name: playerName, market: mkt.key, bookmaker: bk.key, reason: hits.length === 0 ? "unresolved against either roster — identity never minted from a prop label" : "ambiguous across both rosters — quarantined, never picked" };
+                if (mkt.key === "player_anytime_td") atdQuarantined.push({ name: playerName, bookmaker: bk.key, reason: q.reason });
+                else propQuarantined.push(q);
+                continue;
+              }
+              const playerId = hits[0].playerId;
+              if (mkt.key === "player_anytime_td") {
+                atdRows.push({ playerId, name: playerName, bookmaker: bk.key, price: o.price, capturedAt: NOW, sourceAsOf: bk.last_update ?? NOW });
+                continue;
+              }
+              if (!TWO_SIDED.has(mkt.key)) continue;
+              const key = `${playerId}|${o.point}`;
+              const slot = bySide.get(key) ?? { playerId, name: playerName, market: mkt.key, bookmaker: bk.key, line: o.point, capturedAt: NOW, sourceAsOf: bk.last_update ?? NOW };
+              if (String(o.name).toLowerCase() === "over") slot.overPrice = o.price;
+              else if (String(o.name).toLowerCase() === "under") slot.underPrice = o.price;
+              bySide.set(key, slot);
+            }
+            for (const slot of bySide.values()) {
+              /* A one-sided half of a two-sided market is NOT a market. The missing side is never
+                 inferred and never defaulted to -110 — it is recorded as incomplete and dropped. */
+              if (slot.overPrice == null || slot.underPrice == null || slot.line == null) {
+                propQuarantined.push({ name: slot.name, market: slot.market, bookmaker: slot.bookmaker, line: slot.line ?? null, reason: "incomplete two-sided market — one side or the point was missing, and the other side is never inferred" });
+                continue;
+              }
+              propRows.push(slot);
             }
           }
         }
@@ -284,7 +338,9 @@ if (PROBE) {
           canonicalEventId: joinRow.canonicalEventId,
           marketsSeen: Object.fromEntries([...marketsSeen.entries()].map(([k, v]) => [k, { bookmakers: v }])),
           absentMarkets: PROP_PROBE_MARKETS.filter((k) => !marketsSeen.has(k)),
-          anytimeTd: { rows: atdRows, quarantined: atdQuarantined, note: "yardage props are recorded as availability evidence only — price normalization needs its own scoped contract before any model may read it" },
+          anytimeTd: { rows: atdRows, quarantined: atdQuarantined },
+          /* Two-sided families, normalized to a point + BOTH prices from one book. */
+          lineProps: { rows: propRows, quarantined: propQuarantined },
         };
       }
     }
@@ -422,6 +478,35 @@ const publicArtifact = {
   propMarkets: propProbe?.state === "PROBED"
     ? { state: "PROBED", probedEventId: propProbe.canonicalEventId, offeredMarkets: Object.keys(propProbe.marketsSeen ?? {}), absentMarkets: propProbe.absentMarkets ?? [] }
     : { state: propProbe?.state ?? "NOT_PROBED", offeredMarkets: [], absentMarkets: [] },
+  /*
+   * THE DISPLAYED PRICES — one named book, never a blend (founder decision, 2026-09-24).
+   *
+   * DraftKings is the reference sportsbook for displayed NFL prop prices. The price a reader sees
+   * is DraftKings' own number, attributed to DraftKings. Nothing is averaged, no consensus is
+   * synthesised, and when DraftKings has not posted a player/market the row falls to a typed
+   * unavailable state — ANOTHER BOOK IS NEVER SILENTLY SUBSTITUTED, because the attribution on
+   * screen would then be a lie about where the number came from.
+   *
+   * ⚠ The private capture keeps EVERY book (see the snapshot's propProbe), so a comparison or
+   * best-line view can be built later from evidence already on disk without re-spending a credit.
+   * This block is display, not a model input: nothing here reaches a forecast.
+   */
+  propPrices: propProbe?.state === "PROBED"
+    ? {
+      referenceBook: REFERENCE_BOOK,
+      policy: "single named book; no averaging, no consensus, no substitution when absent",
+      probedEventId: propProbe.canonicalEventId,
+      capturedAt: NOW,
+      rows: [
+        ...(propProbe.anytimeTd?.rows ?? [])
+          .filter((r) => r.bookmaker === REFERENCE_BOOK)
+          .map((r) => ({ canonicalEventId: propProbe.canonicalEventId, playerId: r.playerId, family: "anytime_td", shape: "YES_ONLY", yesOdds: r.price, sportsbook: REFERENCE_BOOK, capturedAt: r.capturedAt })),
+        ...(propProbe.lineProps?.rows ?? [])
+          .filter((r) => r.bookmaker === REFERENCE_BOOK)
+          .map((r) => ({ canonicalEventId: propProbe.canonicalEventId, playerId: r.playerId, family: r.market, shape: "OVER_UNDER", line: r.line, overOdds: r.overPrice, underOdds: r.underPrice, sportsbook: REFERENCE_BOOK, capturedAt: r.capturedAt })),
+      ],
+    }
+    : null,
 };
 
 // leak-guard every artifact, then write

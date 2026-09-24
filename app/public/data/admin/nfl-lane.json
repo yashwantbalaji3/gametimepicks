@@ -2,14 +2,14 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-09-24T19:52:17Z",
+ "generatedAt": "2026-09-24T21:14:38Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "ATL @ GB",
   "kickoffUtc": "2026-09-25T00:15Z",
   "seasonType": 2,
   "week": 3,
-  "hoursToKickoff": 4.38,
+  "hoursToKickoff": 3.01,
   "eventsInWindow": 17
  },
  "freshness": {
@@ -180,6 +180,11 @@
   "detail": "nfl-event-window.yml is deployed with two daily window passes, but a workflow file is not cadence proof — promotion waits for terminal scheduled receipts"
  },
  "blockers": [
+  {
+   "id": "player-markets-absent",
+   "state": "OFFERED_NOT_HELD",
+   "detail": "the authorized probe found these markets offered (player_anytime_td, player_pass_yds, player_reception_yds, player_receptions, player_rush_yds), but no player price is published for this window yet, so no player family can publish. This is a fact about what we hold, not a retry target, and the books' own offering is unaffected by it."
+  },
   {
    "id": "ops-webhook",
    "state": "FOUNDER_ACTION",
