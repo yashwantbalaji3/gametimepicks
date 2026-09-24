@@ -54,6 +54,7 @@ import {
 import { loadStep5TargetStatus } from "@/lib/bank-builder-step5-target";
 import { RUNBOOKS } from "@/lib/launch/runbook-registry.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { currentProductRecord } from "@/lib/results/current-record";
 
 const BANK = getSportIdentity("bank_builder");
 
@@ -74,7 +75,7 @@ const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFract
  * `final`/record verbatim — never recomputes or invents a money figure. Returns [] on any read error
  * (fail-closed → the hero omits the proof rather than showing a fabricated number).
  */
-function readCompletedLadders(root: string): Array<{ start: number; final: number; recordLabel: string; pathLabel: string }> {
+function readCompletedLadders(root: string): Array<{ start: number; final: number; recordLabel: string; pathLabel: string; from: string; to: string }> {
   try {
     const banked = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "banked-ladders.json"), "utf8"));
     return (banked.ladders ?? [])
@@ -85,8 +86,16 @@ function readCompletedLadders(root: string): Array<{ start: number; final: numbe
         const losses = steps.filter((s: any) => s.result === "lost" || s.result === "loss").length;
         const start = Number(l.start ?? 100);
         const final = Number(l.final);
-        return { start, final, recordLabel: `${wins}–${losses}`, pathLabel: `${usd2(start)} → ${usd2(final)}` };
-      });
+        /* C3 allows a completed June ladder to render only WITH ITS EXACT DATES, so they are read from the
+           owner's own step dates / completedDate and an undated ladder is dropped rather than shown
+           undated — the same rule, and the same source, the /mr-dub legacy panel uses. */
+        const dates: string[] = steps.map((s: any) => s.date).filter((d: any) => typeof d === "string").sort();
+        const from = dates[0] ?? null;
+        const to = l.completedDate ?? dates[dates.length - 1] ?? null;
+        if (!from || !to) return null;
+        return { start, final, recordLabel: `${wins}–${losses}`, pathLabel: `${usd2(start)} → ${usd2(final)}`, from, to };
+      })
+      .filter(Boolean);
   } catch {
     return [];
   }
@@ -156,13 +165,12 @@ export default function BankBuilderPage() {
   // v1.7 audit S3: `pubSummary.record` is the completed-ladder run frozen 2026-06-13 (5–0) and read as
   // "the product's record" beside live lanes. The official Bank Builder record is the protected
   // settled-money owner (mr-dub/portfolio.json, Rule S fold) — the same number /, /today and /results print.
-  const officialRecord = (() => {
-    try {
-      const p = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "portfolio.json"), "utf8")) as { record?: { wins?: number; losses?: number; voids?: number } };
-      return p.record && Number.isFinite(p.record.wins) && Number.isFinite(p.record.losses) ? p.record : null;
-    } catch { return null; }
-  })();
-  const recordLabel = officialRecord ? `${officialRecord.wins}–${officialRecord.losses}${officialRecord.voids ? `–${officialRecord.voids}` : ""}` : "—";
+  // C2: read through the ONE canonical Results reader, not by opening the owner here. The figure is
+  // unchanged (36–35, the COMPOSITE protected record); what changes is that this page can no longer
+  // format a record its own way — voids are spelled by the canonical formatter, the same spelling / and
+  // /today print. "—" stays the no-figure rendering this page already used.
+  const officialRecordLabel = currentProductRecord("bank-builder").recordLabel;
+  const recordLabel = officialRecordLabel ?? "—";
   // Crown reached: bankroll has cleared the $10,000 goal (resolveLadderStep → null) with a
   // clean card — the ladder is COMPLETE. We pin the display rung to the final step (not the
   // Step-1 fallback) so labels read $3,500 → $10,000.

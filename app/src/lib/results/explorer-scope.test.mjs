@@ -11,6 +11,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { classifyPendingDate, isDefect } from "./pending-sweep-state.mjs";
+import { settlerDecidability } from "./pending-sweep-probe.mjs";
 
 const APP = process.cwd();
 const explorer = fs.readFileSync(path.join(APP, "src/components/results/results-explorer.tsx"), "utf8");
@@ -48,15 +50,45 @@ test("the nightly workflow sweeps finishable pending days", () => {
   assert.match(workflow, /complete-pending-days\.mjs --now "\$NOW" --window-days 30 --apply/, "the sweep runs after ET-yesterday settlement");
 });
 
-test("LIVE · no lab receipt in the last 30 days carries a pending card older than 3 days", () => {
+/**
+ * Ask the REAL settler whether a date's cards are decidable from committed data. Dry run: no
+ * `--apply`, so it writes nothing and settles nothing — it only reports what it COULD decide.
+ *
+ * Capped, because an uncapped child is how a single non-exiting process took the whole quality gate
+ * to its 25-minute ceiling with nothing to show for it. A cap turns that into a named failure, and
+ * an unreadable settler is classified BROKEN_SWEEP rather than quietly assumed to be source lag.
+ */
+test("LIVE · a stale pending card is EXPLAINED — upstream lag is disclosed, a broken sweep is a failure", () => {
+  /*
+   * This replaces a single assertion that collapsed two materially different states into one
+   * sentence: "the sweep exists so this cannot happen". It can. The 2026-09-19 EPL cards sat pending
+   * because their results arrived ~3.5 days after the matches, past a threshold that assumed three —
+   * while the sweep ran nightly and correctly reported `6/8 cards decided`. The old text sent the
+   * reader after a sweep that was working. Elapsed time cannot tell those apart; the settler's own
+   * decidability count can, so that is the evidence now.
+   */
   const dir = path.join(APP, "public/data/parlays/lab-settled");
   const today = new Date().toISOString().slice(0, 10);
+  const sweepWired = /complete-pending-days\.mjs[^\n]*--apply/.test(workflow);
+  const defects = [];
+  const disclosed = [];
+
   for (const f of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x))) {
     const date = f.slice(0, 10);
     const ageDays = (Date.parse(today) - Date.parse(date)) / 86_400_000;
-    if (ageDays <= 3 || ageDays > 30) continue; // fresh days may legitimately pend; older than the window is out of scope
+    if (ageDays <= 3 || ageDays > 30) continue; // fresh days may legitimately pend; older is out of window
     const doc = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
     const pending = (doc.cards ?? []).filter((c) => c.result === "pending");
-    assert.equal(pending.length, 0, `${date}: ${pending.map((c) => c.slipId).join(", ")} still pending after ${Math.floor(ageDays)} days — the sweep exists so this cannot happen`);
+    if (pending.length === 0) continue;
+
+    const { state, reason } = classifyPendingDate({ sweepWired, pendingCount: pending.length, decidability: settlerDecidability(APP, date) });
+    const line = `${date} [${state}] ${pending.map((c) => c.slipId).join(", ")} — ${reason}`;
+    (isDefect(state) ? defects : disclosed).push(line);
   }
+
+  /* A disclosed wait is printed, never hidden: the cards are real and still pending, and a reader
+     should be able to see that without the gate claiming a defect that is not there. */
+  for (const d of disclosed) console.log(`  [pending, explained] ${d}`);
+
+  assert.deepEqual(defects, [], `a stale pending card that upstream lag does NOT explain:\n  ${defects.join("\n  ")}`);
 });

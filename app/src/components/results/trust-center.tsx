@@ -38,6 +38,10 @@ function pct(r: number | null): string {
   return `${(r * 100).toFixed(1)}%`;
 }
 
+/** A legacy ladder's completion date — C3 permits these figures only with their exact dates. */
+const legacyDay = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+
 const CARD: React.CSSProperties = {
   background: "var(--gtp-card)",
   border: "1px solid var(--vault-rule)",
@@ -264,10 +268,19 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
                     : model.awaitingCards.length > 0
                       ? "Awaiting next qualified card (settled record)"
                       : "No active card",
-              detail:
-                model.completedCards.length > 0
-                  ? `${model.completedCards[0].name} completed ${model.completedCards[0].result}`
-                  : "Flagship paper ladder",
+              /*
+               * C2 · the SECOND rendered C3 violation this program found, and the sharper one. This read
+               * `completedCards[0]` — a JUNE completed ladder — so the tile said "Road to $10K completed
+               * 5–0" directly beside "2 paper cards published today", undated, unlabelled, inside a
+               * CURRENT products summary on the trust center. The decision forbids exactly that: a legacy
+               * completion may not contribute to a current-performance summary or stand as evidence for
+               * the methodology running today. The tile beside it had already been given this treatment
+               * for Moonshot (its comment names the same founder decision); Bank Builder was missed.
+               * It now carries the CURRENT record, through the one canonical reader, or no figure.
+               */
+              detail: model.bankBuilderRecordLabel
+                ? `Settled record ${model.bankBuilderRecordLabel}`
+                : "Flagship paper ladder",
             },
             {
               label: "Moonshot",
@@ -358,25 +371,42 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
             Open Bank Builder →
           </Link>
         </div>
-        {model.completedCards.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {model.completedCards.map((c) => (
-              <span
-                key={c.name}
-                className="rounded-[8px] px-3 py-2 flex flex-col gap-0.5"
-                style={CARD}
-              >
-                <span className="text-[12.5px]" style={{ color: "var(--vault-text)" }}>
-                  {c.name} · <span style={{ color: "var(--vault-gold-bright)" }}>{c.result}</span>
+        {/*
+          * C2 · the same C3 correction as the tile above, in the section beneath it. This rendered
+          * `completedCards` — "Road to $10K · 5–0 · $100.00 → $20,465.40 · official" — under a heading that
+          * reads as current ("Bank Builder — settled cards"), with no date and no era, directly above the
+          * CURRENT awaiting-lane note. Two things were wrong: the frame, and the row itself. The owner's
+          * `completedCards` is a conflated single row — ladder 1's 5–0 beside BOTH ladders' combined final —
+          * and it carries no date, so it cannot be shown honestly anywhere. The dated per-ladder source is
+          * drawn instead, inside its own labelled legacy panel.
+          */}
+        {model.legacyLadders.length > 0 && (
+          <div aria-label="Completed ladders — legacy history" className="flex flex-col gap-1.5">
+            <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+              Completed ladders · legacy history
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {model.legacyLadders.map((c) => (
+                <span
+                  key={c.name}
+                  className="rounded-[8px] px-3 py-2 flex flex-col gap-0.5"
+                  style={CARD}
+                >
+                  <span className="text-[12.5px]" style={{ color: "var(--vault-text)" }}>
+                    {c.name} · <span style={{ color: "var(--vault-gold-bright)" }}>{c.result}</span>
+                  </span>
+                  <span className="text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+                    {c.start != null && c.final != null ? `${usd(c.start)} → ${usd(c.final)}` : ""}{" "}
+                    · completed {legacyDay(c.completedDate)}
+                  </span>
                 </span>
-                <span className="text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-                  {c.start != null && c.final != null
-                    ? `${usd(c.start)} → ${usd(c.final)}`
-                    : ""}{" "}
-                  {c.official ? "· official" : ""}
-                </span>
-              </span>
-            ))}
+              ))}
+            </div>
+            <p className="m-0 text-[10.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
+              Run under the June 2026 multi-sport operator process — a different era from the Bank Builder
+              running today. Historical record, not evidence for the current methodology, and not part of the
+              current record above.
+            </p>
           </div>
         )}
         {model.awaitingCards.length > 0 && (

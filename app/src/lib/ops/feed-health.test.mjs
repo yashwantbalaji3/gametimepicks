@@ -46,3 +46,39 @@ test("summary: one down is DEGRADED, all down is DOWN, none is UNKNOWN", () => {
   assert.equal(summarizeFeeds([]).state, "UNKNOWN");
   assert.equal(summarizeFeeds([{ id: "a", ok: true }]).state, "OK");
 });
+
+/* ── B6 · the probe must request the shape the captures request ────────────────────────────────── */
+
+test("B6 · every ESPN scoreboard probe uses the CAPTURE's request form, not the bare endpoint", async () => {
+  /*
+   * THE DEFECT THIS PINS. From 2026-09-15 to 2026-09-22 the EPL, NFL, UFC and NBA results captures
+   * wrote nothing: ESPN began answering their `?dates=A-B` range form with 400. This watchdog stayed
+   * GREEN the whole week, because it fetched the BARE scoreboard — a different request, which kept
+   * answering 200. Measured again on 2026-09-23: bare 200 · range 400 · month 200.
+   *
+   * A watchdog that probes a request the system does not make cannot observe that system failing. So
+   * the probe URL is built from `espn-scoreboard-window`, the same plan the captures use.
+   */
+  const { scoreboardMonthUrls } = await import("../sports/espn-scoreboard-window.mjs");
+  const etDate = "2026-09-23";
+  const targets = feedTargets({ etDate }).filter((t) => /scoreboard/.test(t.id));
+  assert.ok(targets.length >= 3, `expected the ESPN scoreboard probes, got ${targets.length}`);
+
+  const day = new Date(`${etDate}T12:00:00Z`);
+  for (const t of targets) {
+    const sportPath = t.url.split("/sports/")[1].split("/scoreboard")[0];
+    const [expected] = scoreboardMonthUrls(sportPath, day, day);
+    assert.equal(t.url, expected, `${t.id} must probe exactly what a capture would fetch for ${sportPath}`);
+    // …and the load-bearing half: it must NOT be the bare form that lied for a week.
+    assert.match(t.url, /\?dates=\d{6}&limit=1000$/, `${t.id} must carry the capture's month form`);
+    assert.doesNotMatch(t.url, /scoreboard$/, `${t.id} must not probe the bare endpoint`);
+  }
+});
+
+test("B6 · NEGATIVE CONTROL: the bare endpoint would NOT satisfy this guard", () => {
+  /* Without this, the assertions above could be satisfied by a URL that merely looks plausible. The
+     exact string that was in the file until 2026-09-23 must fail both halves. */
+  const bare = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
+  assert.doesNotMatch(bare, /\?dates=\d{6}&limit=1000$/, "the old bare URL must not pass the form check");
+  assert.match(bare, /scoreboard$/, "…and must be recognised as the bare endpoint");
+});
