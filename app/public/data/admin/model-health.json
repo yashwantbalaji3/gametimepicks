@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-22T14:12:22Z",
+ "generatedAt": "2026-09-23T14:27:50Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 14,
@@ -21,20 +21,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 667,
+   "n": 682,
    "judgement": {
     "state": "BREACHED",
-    "n": 667,
+    "n": 682,
     "needed": 200,
-    "meanDiff": 0.033,
-    "lo95": 0.0127,
-    "hi95": 0.0525
+    "meanDiff": 0.0336,
+    "lo95": 0.0148,
+    "hi95": 0.0532
    },
    "context": {
-    "hitRate": 0.4918,
-    "meanPickProbability": 0.5878,
-    "modelMinusMarket": 0.032,
-    "pairedWithMarket": 667
+    "hitRate": 0.4941,
+    "meanPickProbability": 0.5882,
+    "modelMinusMarket": 0.0326,
+    "pairedWithMarket": 682
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -63,20 +63,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 702,
+   "n": 717,
    "judgement": {
     "state": "WATCH",
-    "n": 702,
+    "n": 717,
     "needed": 200,
-    "meanDiff": 0.0106,
-    "lo95": -0.0023,
-    "hi95": 0.0248
+    "meanDiff": 0.0103,
+    "lo95": -0.0031,
+    "hi95": 0.0243
    },
    "context": {
-    "hitRate": 0.5043,
-    "meanPickProbability": 0.5726,
-    "modelMinusMarket": 0.0354,
-    "pairedWithMarket": 700
+    "hitRate": 0.5063,
+    "meanPickProbability": 0.5725,
+    "modelMinusMarket": 0.0337,
+    "pairedWithMarket": 715
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -86,17 +86,17 @@
    "label": "MLB run line picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 702,
+   "n": 717,
    "judgement": {
     "state": "HOLDING",
-    "n": 702,
+    "n": 717,
     "needed": 200,
-    "meanDiff": -0.0349,
-    "lo95": -0.0507,
-    "hi95": -0.0186
+    "meanDiff": -0.033,
+    "lo95": -0.0486,
+    "hi95": -0.0178
    },
    "context": {
-    "hitRate": 0.6368,
+    "hitRate": 0.6318,
     "meanPickProbability": 0.5981,
     "modelMinusMarket": null,
     "pairedWithMarket": 0
@@ -164,18 +164,18 @@
    "id": "epl_forward_match_model",
    "sport": "epl",
    "label": "EPL blind forward test · match model vs the one it replaced",
-   "baseline": "the previous model (split Poisson), paired per match",
+   "baseline": "the previous model (epl-model-v1-split-poisson), paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 0,
+   "n": 10,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "watch": false,
     "needed": 60,
-    "meanDiff": null,
+    "meanDiff": -0.34,
     "lo95": null,
     "hi95": null,
-    "modelLogLoss": null,
-    "controlLogLoss": null,
+    "modelLogLoss": 1.0277,
+    "controlLogLoss": 1.3677,
     "modelId": "epl-model-v2-elo-poisson"
    },
    "context": null,
@@ -188,28 +188,28 @@
    "label": "EPL match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 36,
+   "n": 46,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 36,
+    "n": 46,
     "needed": 60,
-    "meanDiff": -0.0401,
+    "meanDiff": -0.0468,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "modelLogLoss": 1.0586,
+    "modelLogLoss": 1.0518,
     "market": {
      "model": {
-      "logLoss": 1.071727,
-      "brier": 0.668397
+      "logLoss": 1.05241,
+      "brier": 0.647273
      },
      "market": {
-      "logLoss": 1.079124,
-      "brier": 0.657505
+      "logLoss": 1.066038,
+      "brier": 0.646642
      },
-     "logLossDelta": -0.007397,
-     "brierDelta": 0.010892
+     "logLossDelta": -0.013628,
+     "brierDelta": 0.000631
     },
     "marketComparisonState": "MODEL_AHEAD",
     "stoppingRule": "CONTINUE"
@@ -222,11 +222,11 @@
    "label": "EPL totals SHADOW (research, not public) · club-specific total vs live P304",
    "baseline": "live P304 constant total, paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 0,
+   "n": 10,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "needed": 60,
-    "meanDiff": null,
+    "meanDiff": 0.027,
     "lo95": null,
     "hi95": null,
     "failedBars": null,
@@ -242,17 +242,17 @@
    "label": "Ligue 1 match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 9,
+   "n": 18,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 9,
+    "n": 18,
     "needed": 60,
-    "meanDiff": -0.0216,
+    "meanDiff": -0.1374,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "modelLogLoss": 1.077
+    "modelLogLoss": 0.9613
    },
    "source": "app/public/data/soccer/ligue-1/results/graded.json"
   },
@@ -262,7 +262,7 @@
    "label": "NFL blind forward test · anytime td",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 0,
+   "n": 267,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
@@ -278,7 +278,7 @@
    "label": "NFL blind forward test · pass yds",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 0,
+   "n": 35,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
@@ -294,7 +294,7 @@
    "label": "NFL blind forward test · reception yds",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 0,
+   "n": 200,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
@@ -310,7 +310,7 @@
    "label": "NFL blind forward test · receptions",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 0,
+   "n": 200,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
@@ -326,7 +326,7 @@
    "label": "NFL blind forward test · rush yds",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 0,
+   "n": 111,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
