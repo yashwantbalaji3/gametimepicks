@@ -139,7 +139,20 @@ export default function MrDubPage() {
 
       {/* 4 — The Bank Builder journey — the visual $100 → $10K ladders. Phase 4. */}
       <section>
-        <SectionHeader eyebrow="The record, as settled" title="The $100 → $10K ladders" sub="Two completed $100→$10K Bank Builder ladders banked the crown — ten winning legs, a small sample, not evidence the climb repeats. Today's lane climbs toward its next rung. Tap any rung for the card and its official result." />
+        {/*
+          * C2 · a FOURTH rendered C3 correction. This header carried three of the decision's prohibitions
+          * at once. Its eyebrow read "The record, as settled" — a CURRENT frame over two June ladders. It
+          * summed them in prose: "ten winning legs" is 5–0 + 5–0 = 10–0, the exact arithmetic C3 called the
+          * sharpest hole and taught `sumSameEra` to throw on; a hand-written total walks straight past that
+          * refusal. And it closed by pulling today's lane into the same sentence, which is the juxtaposition
+          * C3 removed from the banner a few lines above. The hedge ("a small sample, not evidence the climb
+          * repeats") was already right and is kept — it was the framing around it that undercut it.
+          */}
+        <SectionHeader
+          eyebrow="Completed ladders · legacy history"
+          title="The $100 → $10K ladders"
+          sub="Two $100→$10K Bank Builder paper ladders completed in June 2026 (Jun 9 – Jun 24), each 5–0 in its own run — a small sample, not evidence the climb repeats, and not part of the current record. They were run under the June multi-sport operator process, a different era from the Bank Builder running today. Tap any rung for the card and its official result."
+        />
         <div className="mt-2"><BankBuilderJourneySection journey={f.journey} /></div>
       </section>
 

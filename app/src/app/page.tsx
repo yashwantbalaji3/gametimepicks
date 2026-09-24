@@ -54,6 +54,7 @@ import { readPublicationSlo } from "@/lib/ops/read-publication-slo";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import YesterdayCard from "@/components/recap/yesterday-card";
 import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
+import { currentProductRecord } from "@/lib/results/current-record";
 
 export const metadata = withRouteMetadata("/", {
   title: "GameTime Picks — Simulate today's games. Review model picks. Track results.",
@@ -85,19 +86,14 @@ export default function HomePage() {
    * closed"; it did not. It starts at null now, so the card shows the real current record or no figure,
    * and the crown-summary import is gone from this page because nothing else on the front door used it.
    */
-  let recordLabel: string | null = null;
-  let pendingLabel: string | null = null;
-  try {
-    const p = JSON.parse(fs.readFileSync(path.join(dataRoot, "mr-dub", "portfolio.json"), "utf8"));
-    if (p.record && typeof p.record.wins === "number" && typeof p.record.losses === "number") {
-      recordLabel = `${p.record.wins}–${p.record.losses}`;
-      const settled = p.record.wins + p.record.losses + (p.record.voids ?? 0);
-      const pending = p.record.pending ?? 0;
-      pendingLabel = `${pending} pending · ${settled} settled`;
-    }
-  } catch {
-    /* fail closed → the product card omits any figure it cannot source canonically */
-  }
+  /*
+   * C2: asked through the ONE canonical Results reader instead of opening the owner here. The inline copy
+   * this replaces reached into `portfolio.json.record` directly — the same reach `/today` and
+   * `/bank-builder` each made separately. The projection picks the headline cell (today the COMPOSITE
+   * protected record, 36–35, exactly what this printed before); no context is passed, so a legacy era can
+   * never answer a front-door question. Absent artifact or absent cell ⇒ null ⇒ the card omits the figure.
+   */
+  const { recordLabel, pendingLabel } = currentProductRecord("bank-builder");
 
   const openExposureLabel = usd2(dailyPortfolio.openExposure);
 

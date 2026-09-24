@@ -31,9 +31,16 @@ test("no unsupported performance claim in the Play surfaces' rendered strings", 
 
 test("/bank-builder's record label is the official protected record, not the June-frozen public summary", () => {
   const src = stripComments(read("src/app/bank-builder/page.tsx"));
-  assert.ok(/mr-dub", "portfolio\.json"/.test(src), "reads the protected settled-money owner");
-  assert.ok(/const recordLabel = officialRecord/.test(src));
+  /* C2: the owner path was a proxy for "the OFFICIAL record". The official record is now the canonical
+     projection's designated headline cell for bank-builder, reached through `currentProductRecord`, which
+     passes no presentation context and therefore cannot return a legacy era (projection-core
+     `cellPresentation`). Pin that, and pin that the page no longer opens the owner or formats the figure
+     itself — a page that formats its own record is a page that can spell it differently from / and /today. */
+  assert.ok(/currentProductRecord\("bank-builder"\)/.test(src), "the record comes through the one canonical Results reader");
+  assert.ok(/const recordLabel = officialRecordLabel \?\? "—"/.test(src), "…and its absence renders as no figure");
+  assert.ok(!/mr-dub", "portfolio\.json"/.test(src), "the page must not open the record owner itself");
   assert.ok(!/const recordLabel = `\$\{rec\.wins\}/.test(src), "the stale 5–0 derivation must not return");
+  assert.ok(!/\$\{officialRecord\.wins\}/.test(src), "nor a hand-rolled record format beside the canonical one");
 });
 
 test("both Play pages mount today's eligible universe from the one availability owner, after the header and before the card", () => {
@@ -60,6 +67,10 @@ test("the availability loader reads only the public artifact and the component n
 test("Mr. Dub's headline names the ladders, not a dollar figure no artifact carries", () => {
   const src = read("src/app/mr-dub/page.tsx");
   assert.ok(src.includes('title="The $100 → $10K ladders"'));
-  assert.ok(src.includes('eyebrow="The record, as settled"'));
+  /* C2 restated the eyebrow clause. The invariant this test names is the LAST assertion — the headline
+     must not carry a dollar figure no artifact backs. The eyebrow was incidental, and "The record, as
+     settled" was itself the defect: a CURRENT frame over two June ladders, which C3 forbids. Pinned as
+     the corrected frame, plus the fabricated-figure rule that was always the point. */
+  assert.ok(src.includes('eyebrow="Completed ladders · legacy history"'), "the June ladders are framed as legacy history, not as the settled record");
   assert.ok(!/19\.5K/.test(src));
 });

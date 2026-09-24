@@ -114,9 +114,17 @@ test("5 · Bank Builder status is derived honestly (no-play / awaiting), never a
 
 // 6 — Record + open exposure sourced from canonical; no hardcoded literals in the components.
 test("6 · record + open exposure come from canonical artifacts (no hardcoded literals in components)", () => {
-  assert.match(page, /portfolio\.json/, "page reads portfolio.json for the record");
+  /* C2: "canonical" is the PROPERTY this test is about; `portfolio.json` and `p.record.wins` were only
+     ever a PROXY for it, and the proxy stopped being the canonical answer when the record moved behind the
+     one Results reader. Asserting the proxy here would have forced the front door to keep opening an owner
+     by hand — the exact duplication C2 exists to remove — so the assertion now names the property: the
+     record comes through `currentProductRecord`, and the page does NOT reach into an owner for it. The
+     second half is the load-bearing one; without it this test would pass for a page that did both. */
+  assert.match(page, /import \{ currentProductRecord \} from "@\/lib\/results\/current-record"/, "record comes through the one canonical Results reader");
+  assert.match(page, /currentProductRecord\("bank-builder"\)/, "…asked for the Bank Builder product");
+  assert.doesNotMatch(page, /mr-dub", "portfolio\.json"/, "the front door must not open the record owner itself");
+  assert.doesNotMatch(page, /p\.record\.wins/, "nor re-derive the record from an owner's raw fields");
   assert.match(page, /dailyPortfolio\.openExposure/, "page reads dailyPortfolio.openExposure");
-  assert.match(page, /p\.record\.wins.*p\.record\.losses/s, "record derived from portfolio.json fields");
   // No hardcoded money/record literals anywhere in the presentational home components.
   const hardcoded = /19[-–—]14|\$19,065|\$20,465|\$10,376|\$0\.00|\$0\b/;
   assert.ok(!hardcoded.test(COMPONENTS_ALL), "no hardcoded record/dollar literal in the home components");
