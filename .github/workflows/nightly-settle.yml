@@ -345,14 +345,6 @@ jobs:
       # the committed pair disagreed by exactly those rows (2026-09-07: 549) until the next cron
       # rebuilt it against a quiet aggregate. A consumer with an exact-match contract runs AFTER the
       # producer it reconciles with — the same rule this run applies to linescores-before-grading.
-      - name: Rebuild the public model-results index
-        if: ${{ github.event.inputs.dry_run != 'true' }}
-        run: |
-          set -euo pipefail
-          cd app
-          npx tsx scripts/results/build-model-results-index.mjs --apply \
-            || echo "::warning::model-results index refused to write — prior index retained"
-
       - name: Rebuild the risk-ladder record
         if: always()
         working-directory: app
@@ -580,6 +572,31 @@ jobs:
           mkdir -p ../data/internal/products
           npx --yes tsx scripts/products/build-lifecycle-coverage.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             || echo "::warning::lifecycle coverage failed — prior inventory retained"
+
+      # ---- THE PUBLIC MODEL-RESULTS INDEX ----
+      # MOVED HERE, and it is the position that matters. This step used to sit ~160 lines earlier, BEFORE
+      # "Refresh prediction history + learning artifacts" — which is where `export-mlb-calibration-rows.mjs`
+      # rewrites `public/data/mlb/results/calibration`, the corpus this index is BUILT FROM. The aggregate it
+      # reconciles against, `mlb/graded-picks.json`, had already been rewritten by an earlier step. So every
+      # night it compared TODAY's aggregate with YESTERDAY's corpus, correctly refused (exit 2), and the
+      # `|| echo` below turned that refusal into a warning nobody reads. Not every night — the same guards
+      # passed at 4dbd40a3b — but whenever new rows land between the two steps.
+      #
+      # Observed 2026-09-23 in run 35845995477: `##[warning]model-results index refused to write — prior
+      # index retained`. The job was GREEN, the settle committed, and main shipped an index claiming 22,938
+      # wins beside an aggregate claiming 23,204 — a 266-row disagreement that model-results-index.test.mjs
+      # then failed on. Run by hand after that same commit, the builder reconciles and would have written.
+      #
+      # NO `|| echo`. Once the corpus is fresh, a refusal means the detail genuinely does not reconcile with
+      # the published aggregate — a Results-truth problem, not a transient. Exit 1 is "no calibration rows",
+      # exit 2 is "does not reconcile"; both must stop the publish rather than annotate it.
+      - name: Rebuild the public model-results index
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          cd app
+          npx tsx scripts/results/build-model-results-index.mjs --apply
+
 
       # ---- THE CANONICAL RESULTS PROJECTION (v1.8 · C2) ----
       # Runs AFTER every owner above has been rebuilt and BEFORE the health gate, so the read model is a

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822841,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T00:52:29.852Z",
+  "availableAt": "2026-09-23T00:52:29.852Z",
+  "eventStartTime": "2026-09-24T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 690997,
+      "name": "Nolan McLean",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 6,
+      "lastStartDate": "2026-09-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 5.4,
+        "bbAvg": 3,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 8.1,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 172.67,
+        "k": 189,
+        "bb": 69,
+        "er": 61,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-23T00:52:29.852Z"
+  },
+  "recordHash": "be91f55f2e3be64070ff07d1005f4585b0c3899622b4cf374d4a51b8bbcfdaf8"
+}

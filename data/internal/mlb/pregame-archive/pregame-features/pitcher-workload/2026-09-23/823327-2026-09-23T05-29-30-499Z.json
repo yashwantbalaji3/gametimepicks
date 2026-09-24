@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823327,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T05:29:30.499Z",
+  "availableAt": "2026-09-23T05:29:30.499Z",
+  "eventStartTime": "2026-09-23T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669199,
+      "name": "Lake Bachar",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 3,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 9.33,
+        "ipAvg": 1.87,
+        "kAvg": 2,
+        "bbAvg": 1,
+        "erAvg": 0.6,
+        "hrAvg": 0.2,
+        "kPer9": 9.64,
+        "workloadIpLast5": 9.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 23.33,
+        "k": 26,
+        "bb": 13,
+        "er": 6,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 669461,
+      "name": "Matthew Liberatore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 7,
+      "lastStartDate": "2026-09-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 4.6,
+        "bbAvg": 2.2,
+        "erAvg": 3.8,
+        "hrAvg": 1.2,
+        "kPer9": 8.51,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 149.33,
+        "k": 148,
+        "bb": 55,
+        "er": 89,
+        "hr": 27
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-23T05:29:30.499Z"
+  },
+  "recordHash": "aa8bf231e3708559a8d744a1e249f4274debbbc5c570bfa37eed539d9053339c"
+}

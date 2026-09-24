@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824301,
+  "date": "2026-09-23",
+  "capturedAt": "2026-09-23T18:45:06.132Z",
+  "availableAt": "2026-09-23T18:45:06.132Z",
+  "eventStartTime": "2026-09-24T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-20",
+    "2026-09-21",
+    "2026-09-22"
+  ],
+  "home": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 77,
+      "relievers": [
+        {
+          "id": 688642,
+          "name": "Zach Agnos",
+          "appearances": 1,
+          "pitches": 53,
+          "outs": 12,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 693308,
+          "name": "Nick Frasso",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 154,
+      "relievers": [
+        {
+          "id": 663372,
+          "name": "Ryan Feltner",
+          "appearances": 1,
+          "pitches": 61,
+          "outs": 9,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 688642,
+          "name": "Zach Agnos",
+          "appearances": 1,
+          "pitches": 53,
+          "outs": 12,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 693308,
+          "name": "Nick Frasso",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 688642,
+        "name": "Zach Agnos",
+        "reason": "53 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 20,
+      "relievers": [
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 105,
+      "relievers": [
+        {
+          "id": 664199,
+          "name": "Taylor Clarke",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 669194,
+          "name": "Ryne Nelson",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        },
+        {
+          "id": 679885,
+          "name": "Justin Martinez",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 805299,
+          "name": "Brandyn Garcia",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-20"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-09-22"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-20,2026-09-21,2026-09-22) + feed/live box scores",
+    "capturedAt": "2026-09-23T18:45:06.132Z"
+  },
+  "recordHash": "229717af7dfcc544bef0326f5678e2f7263c90c1d75aefce5821df614119be2a"
+}
