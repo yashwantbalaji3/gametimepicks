@@ -76,8 +76,12 @@ const CHUNKS = [
       "product. Paused means GameTime has stopped publishing that market because its own graded record no " +
       "longer supports it — the MLB over/under market is paused for this reason. Experimental means " +
       "forecasts publish under a banner and are graded, but have not cleared the bar to become product " +
-      "picks; NFL and EPL forecasts are experimental. Ask will explain a paused market but will never " +
-      "present one as a forecast.",
+      "picks. NFL is mixed rather than wholly experimental: rushing yards, receiving yards, receptions and " +
+      "anytime touchdown are published, while passing yards is not — its over/under chance is not yet " +
+      "calibrated well enough, so its range is shown instead of a precise chance. Published as a forecast " +
+      "and eligible to appear as a parlay leg are different " +
+      "things — the signature products currently draw their legs from MLB only. Ask will explain a paused " +
+      "market but will never present one as a forecast.",
   },
   {
     id: "research-lab",
@@ -199,7 +203,7 @@ const CHUNKS = [
     id: "parlay-candidates",
     title: "Parlay candidates and risk styles",
     section: "Parlays",
-    route: "/parlay-lab/",
+    route: "/build/",
     keywords: ["parlay", "candidates", "risk", "low", "medium", "high", "longshot", "best parlay", "slip"],
     text:
       "GameTime's optimizer publishes parlay candidates each day in four risk styles: Low, Medium, High and " +
@@ -251,8 +255,10 @@ const CHUNKS = [
     keywords: ["sports", "coverage", "which sports", "nba", "ufc", "epl", "nfl", "mlb", "supported"],
     text:
       "MLB is GameTime's fully modelled sport: daily boards, full-game simulations, published predictions " +
-      "and nightly settlement. NFL and EPL publish experimental forecasts that are graded but do not enter " +
-      "product picks. UFC has fighter research and market-implied reads but no independent model. NBA is a " +
+      "and nightly settlement. NFL publishes graded forecasts too, several at published status — rushing " +
+      "yards, receiving yards, receptions and anytime touchdown — with passing yards not yet published. " +
+      "EPL publishes experimental forecasts that are graded. Neither sport currently supplies parlay legs: " +
+      "the signature products draw from MLB only. UFC has fighter research and market-implied reads. NBA is a " +
       "historical archive — its settled record stays published, but it is off-season with no live " +
       "projection capability, so it produces no current forecasts or parlay candidates.",
   },
