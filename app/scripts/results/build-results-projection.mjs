@@ -7,8 +7,8 @@
  *
  * Options: --root <public/data> (default app/public/data) · --internal-root <data/internal> (default
  * <repo>/data/internal) · --out <dir> (default <root>/results/projection) · --date <YYYY-MM-DD> (default:
- * the UTC date of --now). `--now` is required for --write so the artifact is replayable; a dry run
- * defaults it to the clock.
+ * the ET SLATE DATE of --now — see etSlateDate). `--now` is required for --write so the artifact is
+ * replayable; a dry run defaults it to the clock.
  *
  * READS ONLY THE OWNERS (docs/V19_RESULTS_TRUST_ARCHITECTURE.md §2). Every owner is optional except
  * mr-dub/portfolio.json: a missing owner means its cells are absent — never zero — and the build
@@ -74,6 +74,30 @@ export function readSources(root, internalRoot) {
   };
 }
 
+/**
+ * THE DATE THIS ARTIFACT IS FILED UNDER — the ET slate day, never the UTC day.
+ *
+ * ⚠ WHY THIS IS NOT `NOW.slice(0, 10)`. It was, until 2026-09-24. Between 20:00 ET and midnight ET the
+ * UTC date is ALREADY TOMORROW, so a producer run on the evening of 2026-09-23 wrote
+ * `2026-09-24.json` — a dated, write-once artifact for a day whose settlement had not happened yet.
+ * The next morning the real nightly-settle computed different cells, rule 7 correctly refused to
+ * restate history, and the job failed. It failed again at 12:13Z and again at 13:30Z, and because
+ * `morning-projections`, `mlb-daily-production` and `daily-products` all chain off it, NOTHING was
+ * produced that day. One timezone in a filename took the whole daily product chain down, and the
+ * write-once rule — which was doing exactly its job — was what surfaced it.
+ *
+ * Every other date in this pipeline is the ET slate day: nightly-settle's SETTLE_DATE is
+ * `TZ=America/New_York date -d yesterday`, the freshness observers judge by buildEtDate, and the
+ * ladders key cards to the slate day. This artifact now agrees with them, so "the projection for
+ * 2026-09-23" means the same day everywhere.
+ *
+ * The write-once protection itself is UNCHANGED. A genuine restatement — same day, different cells —
+ * is still refused, and must still be an operator decision.
+ */
+export const etSlateDate = (iso) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(iso));
+
 /** The history a dated file pins: cells + headline. Stamps are not history. */
 export const historyOf = (p) => JSON.stringify({ cells: p.cells, headline: p.headline });
 
@@ -123,7 +147,7 @@ function main() {
   const ROOT = path.resolve(arg("--root", path.join(APP, "public", "data")));
   const INTERNAL = path.resolve(arg("--internal-root", path.join(REPO, "data", "internal")));
   const OUT = path.resolve(arg("--out", path.join(ROOT, PROJECTION_REL)));
-  const DATE = arg("--date", NOW.slice(0, 10));
+  const DATE = arg("--date", etSlateDate(NOW));
   if (!/^\d{4}-\d{2}-\d{2}$/.test(DATE)) { console.error(`--date must be YYYY-MM-DD (got ${DATE})`); process.exit(2); }
 
   let projection;

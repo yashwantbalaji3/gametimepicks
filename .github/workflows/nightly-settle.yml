@@ -626,6 +626,11 @@ jobs:
           set -euo pipefail
           cd app
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          # The dated projection is filed under the ET SLATE DAY, not the UTC day (2026-09-24: an
+          # evening-ET producer run wrote tomorrow's dated file, and the write-once rule then refused
+          # every real settle run that day while morning-projections, mlb-daily-production and
+          # daily-products all skipped off the failure). This must name the SAME day the producer does.
+          PDATE="$(TZ=America/New_York date +%F)"
           mkdir -p ../data/internal/products/cycle-table
           npx --yes tsx scripts/products/derive-cycle-table.mjs --write
           set +e
@@ -633,7 +638,7 @@ jobs:
           rc=$?
           set -e
           if [ "$rc" -eq 1 ]; then
-            echo "::error title=Results projection refused a restatement::A dated projection for $(echo "$NOW" | cut -c1-10) already exists and differs from this run. The write-once rule refused it and wrote nothing. This is an operator decision: inspect the difference, and if the restatement is intended delete app/public/data/results/projection/$(echo "$NOW" | cut -c1-10).json deliberately and re-run. Do NOT make this step continue-on-error."
+            echo "::error title=Results projection refused a restatement::A dated projection for $PDATE already exists and differs from this run. The write-once rule refused it and wrote nothing. This is an operator decision: inspect the difference, and if the restatement is intended delete app/public/data/results/projection/$PDATE.json deliberately and re-run. Do NOT make this step continue-on-error."
           elif [ "$rc" -ne 0 ]; then
             echo "::error title=Results projection build failed (exit $rc)::exit 2 = bad arguments; exit 3 = the assembly refused an owner (a truth rule caught something). The prior artifact was left in place and nothing was published."
           fi
