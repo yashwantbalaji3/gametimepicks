@@ -8,7 +8,11 @@ Run:
 """
 from __future__ import annotations
 
+import json
+import pathlib
 import sys
+
+from . import settle_mlb_results as S
 
 from .settle_mlb_results import (
     _grade,
@@ -343,6 +347,115 @@ def test_population_reconciles_published_to_settled():
     print("  \033[0;32m✓\033[0m published population reconciles: settled + no-play + unavailable")
 
 
+# ── RERUN IDEMPOTENCY (main recovery · R4) ───────────────────────────────────────────────────────
+# `actual_unavailable` is recomputed from LIVE fetches every run, while the ledger is durable and
+# keyed by id. A lean settled on run 1 was re-counted as "unavailable" on run 2 whenever that run
+# could not re-fetch its boxscore, so the two populations overlapped.
+#
+# Observed 2026-09-23: re-running 2026-09-22 gave `predicted 613, accounted 615 (ledger 613 +
+# unavailable 2) -> -2 unexplained`. Nothing went missing; two rows were counted twice.
+#
+# The contract: running the settler twice over the same immutable evidence must not change canonical
+# accounting the second time.
+
+def _ledger(tmp, rows):
+    import json as _j
+    tmp.write_text("\n".join(_j.dumps(r) for r in rows) + "\n")
+
+
+def test_rerun_does_not_recount_a_ledgered_lean_as_unavailable():
+    """3 · unavailableCount must not increase on rerun."""
+    import tempfile, pathlib, json as _j
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as d:
+        led = pathlib.Path(d) / "mlb_settled_leans.jsonl"
+        _ledger(led, [{"id": "L1", "graded": True}, {"id": "L2", "graded": True}])
+        with mock.patch.object(S, "SETTLED_LEANS_PATH", led):
+            ids = S._settled_ids_in_ledger()
+    assert ids == {"L1", "L2"}, ids
+    # A lean the ledger holds is accounted for; one it does not hold is genuinely unavailable.
+    assert "L1" in ids and "L9" not in ids
+    print("  ✓ a ledgered lean is recognised as already accounted for")
+
+
+def test_only_graded_rows_count_as_already_settled():
+    """5/6 · pending is not loss, missing is not zero — an ungraded row is NOT 'already settled'."""
+    import tempfile, pathlib
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as d:
+        led = pathlib.Path(d) / "mlb_settled_leans.jsonl"
+        _ledger(led, [
+            {"id": "G", "graded": True},
+            {"id": "P", "graded": False},          # pending — must stay countable
+            {"id": "N"},                            # no graded field at all — must stay countable
+        ])
+        with mock.patch.object(S, "SETTLED_LEANS_PATH", led):
+            ids = S._settled_ids_in_ledger()
+    assert ids == {"G"}, ids
+    print("  ✓ only graded rows are treated as accounted for")
+
+
+def test_unreadable_ledger_fails_toward_counting():
+    """4 · a new genuinely unavailable row still counts once, even if the ledger cannot be read."""
+    import tempfile, pathlib
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as d:
+        led = pathlib.Path(d) / "missing.jsonl"
+        with mock.patch.object(S, "SETTLED_LEANS_PATH", led):
+            assert S._settled_ids_in_ledger() == set()
+        bad = pathlib.Path(d) / "bad.jsonl"
+        bad.write_text("{not json\n\n{\"id\": \"OK\", \"graded\": true}\n")
+        with mock.patch.object(S, "SETTLED_LEANS_PATH", bad):
+            assert S._settled_ids_in_ledger() == {"OK"}
+    print("  ✓ an absent or malformed ledger never makes a lean look accounted for")
+
+
+def test_loader_reads_the_PRODUCTION_ledger_not_only_a_fixture():
+    """ANTI-VACUITY · the gate is worthless if it reads the wrong file or the wrong field.
+
+    Every other test here feeds the loader a ledger it wrote itself, so all of them would still pass
+    if `_settled_ids_in_ledger` looked for a key the real artifact does not carry — and it nearly did:
+    the PUBLISHED ledger (app/public/data/mlb/results/settled_leans.jsonl) has no `graded` field at
+    all, only `outcome`. The pipeline ledger this reads is a different file that does. Pointing the
+    loader at the published one would silently return an empty set, and an empty set disables the fix
+    while every synthetic test stays green.
+
+    So: run it against the real artifact, unmocked, and require a large result containing an id taken
+    from the file itself. Stays true after the artifacts regenerate; fails the moment the path or the
+    field drifts."""
+    real = S.SETTLED_LEANS_PATH
+    assert real.exists(), f"the production ledger must exist at {real}"
+    first = None
+    for line_text in real.read_text().splitlines():
+        line_text = line_text.strip()
+        if not line_text:
+            continue
+        obj = json.loads(line_text)
+        if obj.get("graded") is True and obj.get("id"):
+            first = obj["id"]
+            break
+    assert first, "the production ledger must contain at least one graded row with an id"
+    ids = S._settled_ids_in_ledger()
+    assert len(ids) > 10_000, f"loader returned {len(ids)} ids from the production ledger — it is not reading it"
+    assert first in ids, f"a graded id read from the file itself ({first}) must be recognised"
+    print(f"  ✓ the loader reads the production ledger ({len(ids)} graded ids)")
+
+
+def test_reconciliation_identity_includes_the_new_bucket():
+    """1/2/7 · the population identity closes, and the new term is reconciled rather than dropped."""
+    src = pathlib.Path(__file__).with_name("settle_mlb_results.py").read_text()
+    assert "alreadySettledCount" in src, "the bucket must be published, not hidden"
+    assert "len(already_settled)" in src
+    # The identity must subtract AND add the new term in both places, or the remainder silently shifts.
+    assert "- len(already_settled)" in src, "unresolvedCount must account for it"
+    assert "+ len(already_settled)" in src, "reconciles must account for it"
+    # 8 · the protection itself
+    assert "previously_settled_ids" in src
+    assert 'lean.get("id") in previously_settled_ids' in src, "the ledger check must gate every unavailable append"
+    assert src.count('lean.get("id") in previously_settled_ids') == 3, "all three unavailable sites must be gated"
+    print("  ✓ the identity closes and all three unavailable paths are gated")
+
+
 def main() -> int:
     print("\n=== pipeline.mlb.settle_mlb_results tests ===")
     test_population_reconciles_published_to_settled()
@@ -360,6 +473,11 @@ def main() -> int:
     test_find_player_name_fallback_used_when_id_missing()
     test_find_player_returns_none_when_missing()
     test_gradable_markets_locked()
+    test_rerun_does_not_recount_a_ledgered_lean_as_unavailable()
+    test_only_graded_rows_count_as_already_settled()
+    test_unreadable_ledger_fails_toward_counting()
+    test_loader_reads_the_PRODUCTION_ledger_not_only_a_fixture()
+    test_reconciliation_identity_includes_the_new_bucket()
     print("\n\033[0;32m✓ all settle_mlb_results assertions passed\033[0m")
     return 0
 

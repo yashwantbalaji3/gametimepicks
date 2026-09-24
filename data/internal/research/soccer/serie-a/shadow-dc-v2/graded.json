@@ -10,35 +10,47 @@
  "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
  "frozenAt": "2026-09-11T19:49:08.471Z",
  "rule": "each forward match graded once, against its single pre-kickoff shadow forecast, from the corpus final score (openfootball since 2026-09-14; football-data.co.uk before — identical scores on every joined match)",
- "sampleState": "NONE",
+ "sampleState": "TOO_SMALL_TO_ASSESS",
  "summary": {
-  "matches": 0,
-  "logLoss": null,
-  "brier": null,
+  "matches": 9,
+  "logLoss": 0.9974,
+  "brier": 0.5823,
   "uniformLogLoss": 1.0986,
-  "sampleState": "NONE"
+  "sampleState": "TOO_SMALL_TO_ASSESS"
  },
  "decision": {
   "state": "INTERIM_DECIDES_NOTHING",
   "why": "before the single preregistered look — these figures are reported and decide nothing",
-  "n": 0,
+  "n": 9,
   "figures": {
    "dixonColes": {
-    "n": 0
+    "n": 9,
+    "logLoss": 0.9974,
+    "brier": 0.5823,
+    "rps": 0.2097,
+    "accuracy": 0.5556,
+    "ece": 0.1273,
+    "drawEce": 0.081
    },
    "empirical": {
-    "n": 0
+    "n": 9,
+    "logLoss": 1.0412,
+    "brier": 0.6268,
+    "rps": 0.2257,
+    "accuracy": 0.5556,
+    "ece": 0.0991,
+    "drawEce": 0.0508
    },
-   "drawEceNullBound": null,
+   "drawEceNullBound": 0.3192,
    "bars": {
-    "skill": null,
-    "drawEcePass": null,
-    "drawEceBeyondNoise": null
+    "skill": true,
+    "drawEcePass": false,
+    "drawEceBeyondNoise": false
    }
   },
   "due": false,
   "look": {
-   "seasonRowsInCorpus": 30,
+   "seasonRowsInCorpus": 50,
    "seasonMatches": 380,
    "deadline": "2027-07-01T00:00:00Z"
   },
@@ -46,7 +58,13 @@
  },
  "reportedNotGating": {
   "v1SplitPoisson": {
-   "n": 0
+   "n": 9,
+   "logLoss": 1.1183,
+   "brier": 0.6633,
+   "rps": 0.2455,
+   "accuracy": 0.4444,
+   "ece": 0.0628,
+   "drawEce": 0.1258
   },
   "marketClose": {
    "n": 0
@@ -54,10 +72,344 @@
   "rescheduled": 0
  },
  "population": {
-  "graded": 0,
-  "pendingResult": 9,
+  "graded": 9,
+  "pendingResult": 0,
   "excluded": []
  },
- "matches": [],
- "generatedAt": "2026-09-15T14:29:52.000Z"
+ "matches": [
+  {
+   "eventId": "soccer:serie-a:401874991",
+   "matchup": "Genoa v Frosinone",
+   "homeClub": "Genoa",
+   "awayClub": "Frosinone",
+   "kickoffUtc": "2026-09-12T13:00:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.371909,
+    "draw": 0.261054,
+    "away": 0.367037
+   },
+   "final": {
+    "home": 1,
+    "away": 1
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2611,
+   "logLoss": 1.343,
+   "brier": 0.8191,
+   "pairingKey": "2026-27|Genoa|Frosinone",
+   "actualKickoffUtc": "2026-09-12T13:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.502428,
+     "draw": 0.246368,
+     "away": 0.251204
+    },
+    "empirical": {
+     "home": 0.406954,
+     "draw": 0.27302,
+     "away": 0.320026
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:serie-a:401874941",
+   "matchup": "Lazio v AC Milan",
+   "homeClub": "Lazio",
+   "awayClub": "AC Milan",
+   "kickoffUtc": "2026-09-12T16:00:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.332987,
+    "draw": 0.28178,
+    "away": 0.385233
+   },
+   "final": {
+    "home": 2,
+    "away": 2
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2818,
+   "logLoss": 1.2666,
+   "brier": 0.7751,
+   "pairingKey": "2026-27|Lazio|Milan",
+   "actualKickoffUtc": "2026-09-12T16:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.362158,
+     "draw": 0.251234,
+     "away": 0.386608
+    },
+    "empirical": {
+     "home": 0.406954,
+     "draw": 0.27302,
+     "away": 0.320026
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:serie-a:401874979",
+   "matchup": "Atalanta v Cagliari",
+   "homeClub": "Atalanta",
+   "awayClub": "Cagliari",
+   "kickoffUtc": "2026-09-12T18:45:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.616093,
+    "draw": 0.224415,
+    "away": 0.159492
+   },
+   "final": {
+    "home": 1,
+    "away": 2
+   },
+   "result": "A",
+   "probabilityOfResult": 0.1595,
+   "logLoss": 1.8358,
+   "brier": 1.1364,
+   "pairingKey": "2026-27|Atalanta|Cagliari",
+   "actualKickoffUtc": "2026-09-12T18:45:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.703219,
+     "draw": 0.182482,
+     "away": 0.114299
+    },
+    "empirical": {
+     "home": 0.406954,
+     "draw": 0.27302,
+     "away": 0.320026
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:serie-a:401874936",
+   "matchup": "Lecce v Monza",
+   "homeClub": "Lecce",
+   "awayClub": "Monza",
+   "kickoffUtc": "2026-09-13T13:00:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.377344,
+    "draw": 0.301124,
+    "away": 0.321532
+   },
+   "final": {
+    "home": 3,
+    "away": 2
+   },
+   "result": "H",
+   "probabilityOfResult": 0.3773,
+   "logLoss": 0.9746,
+   "brier": 0.5818,
+   "pairingKey": "2026-27|Lecce|Monza",
+   "actualKickoffUtc": "2026-09-13T13:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.304318,
+     "draw": 0.29663,
+     "away": 0.399052
+    },
+    "empirical": {
+     "home": 0.406954,
+     "draw": 0.27302,
+     "away": 0.320026
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:serie-a:401874792",
+   "matchup": "Napoli v Bologna",
+   "homeClub": "Napoli",
+   "awayClub": "Bologna",
+   "kickoffUtc": "2026-09-13T16:00:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.502535,
+    "draw": 0.25959,
+    "away": 0.237874
+   },
+   "final": {
+    "home": 1,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.5025,
+   "logLoss": 0.6881,
+   "brier": 0.3714,
+   "pairingKey": "2026-27|Napoli|Bologna",
+   "actualKickoffUtc": "2026-09-13T16:00:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.518837,
+     "draw": 0.236981,
+     "away": 0.244182
+    },
+    "empirical": {
+     "home": 0.406954,
+     "draw": 0.27302,
+     "away": 0.320026
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:serie-a:401874750",
+   "matchup": "Sassuolo v Juventus",
+   "homeClub": "Sassuolo",
+   "awayClub": "Juventus",
+   "kickoffUtc": "2026-09-13T18:45:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.208348,
+    "draw": 0.246253,
+    "away": 0.545399
+   },
+   "final": {
+    "home": 3,
+    "away": 2
+   },
+   "result": "H",
+   "probabilityOfResult": 0.2083,
+   "logLoss": 1.5685,
+   "brier": 0.9848,
+   "pairingKey": "2026-27|Sassuolo|Juventus",
+   "actualKickoffUtc": "2026-09-13T18:45:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.218015,
+     "draw": 0.250853,
+     "away": 0.531132
+    },
+    "empirical": {
+     "home": 0.406954,
+     "draw": 0.27302,
+     "away": 0.320026
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:serie-a:401874933",
+   "matchup": "Como v Parma",
+   "homeClub": "Como",
+   "awayClub": "Parma",
+   "kickoffUtc": "2026-09-14T16:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.645061,
+    "draw": 0.226834,
+    "away": 0.128104
+   },
+   "final": {
+    "home": 2,
+    "away": 1
+   },
+   "result": "H",
+   "probabilityOfResult": 0.6451,
+   "logLoss": 0.4384,
+   "brier": 0.1938,
+   "pairingKey": "2026-27|Como|Parma",
+   "actualKickoffUtc": "2026-09-14T16:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.595463,
+     "draw": 0.242235,
+     "away": 0.162302
+    },
+    "empirical": {
+     "home": 0.406954,
+     "draw": 0.27302,
+     "away": 0.320026
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:serie-a:401874950",
+   "matchup": "Torino v AS Roma",
+   "homeClub": "Torino",
+   "awayClub": "AS Roma",
+   "kickoffUtc": "2026-09-14T16:30:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.18104,
+    "draw": 0.237506,
+    "away": 0.581454
+   },
+   "final": {
+    "home": 0,
+    "away": 2
+   },
+   "result": "A",
+   "probabilityOfResult": 0.5815,
+   "logLoss": 0.5422,
+   "brier": 0.2644,
+   "pairingKey": "2026-27|Torino|Roma",
+   "actualKickoffUtc": "2026-09-14T16:30:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.291578,
+     "draw": 0.310395,
+     "away": 0.398026
+    },
+    "empirical": {
+     "home": 0.406954,
+     "draw": 0.27302,
+     "away": 0.320026
+    },
+    "marketClose": null
+   }
+  },
+  {
+   "eventId": "soccer:serie-a:401874966",
+   "matchup": "Internazionale v Udinese",
+   "homeClub": "Internazionale",
+   "awayClub": "Udinese",
+   "kickoffUtc": "2026-09-14T18:45:00.000Z",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "probs": {
+    "home": 0.726629,
+    "draw": 0.1657,
+    "away": 0.107671
+   },
+   "final": {
+    "home": 5,
+    "away": 3
+   },
+   "result": "H",
+   "probabilityOfResult": 0.7266,
+   "logLoss": 0.3193,
+   "brier": 0.1138,
+   "pairingKey": "2026-27|Inter|Udinese",
+   "actualKickoffUtc": "2026-09-14T18:45:00.000Z",
+   "rescheduled": false,
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.737321,
+     "draw": 0.163637,
+     "away": 0.099042
+    },
+    "empirical": {
+     "home": 0.406954,
+     "draw": 0.27302,
+     "away": 0.320026
+    },
+    "marketClose": null
+   }
+  }
+ ],
+ "generatedAt": "2026-09-23T14:27:45.000Z"
 }
