@@ -8,9 +8,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { isTransientSource } from "../../ci/source-tree.mjs";
 
 const APP = process.cwd();
-const walk = (dir, out = []) => { for (const e of fs.readdirSync(dir, { withFileTypes: true })) { const p = path.join(dir, e.name); if (e.isDirectory()) walk(p, out); else if (/\.(ts|tsx|mjs)$/.test(e.name) && !/\.test\.mjs$/.test(e.name)) out.push(p); } return out; };
+const walk = (dir, out = []) => { for (const e of fs.readdirSync(dir, { withFileTypes: true })) { const p = path.join(dir, e.name); if (e.isDirectory()) walk(p, out); else if (/\.(ts|tsx|mjs)$/.test(e.name) && !/\.test\.mjs$/.test(e.name) && !isTransientSource(e.name)) out.push(p); } return out; };
 const src = walk(path.join(APP, "src"));
 const rel = (p) => path.relative(APP, p);
 

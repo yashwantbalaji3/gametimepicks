@@ -23,6 +23,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -44,7 +45,7 @@ function sources(dir) {
     for (const e of ents) {
       const p = path.join(d, e.name);
       if (e.isDirectory()) { if (e.name !== "node_modules") walk(p); continue; }
-      if (/\.(mjs|ts|tsx|js|jsx)$/.test(e.name) && !/\.test\./.test(e.name)) out.push(p);
+      if (/\.(mjs|ts|tsx|js|jsx)$/.test(e.name) && !/\.test\./.test(e.name) && !isTransientSource(e.name)) out.push(p);
     }
   };
   walk(dir);

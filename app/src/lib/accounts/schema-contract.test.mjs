@@ -12,10 +12,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { accountsConfig, accountsReady, accountsNotice } from "./config.mjs";
+import { isTransientSource, readSourceIfPresent } from "../ci/source-tree.mjs";
 
 const REPO = path.join(process.cwd(), "..");
 const SQL = fs.readFileSync(path.join(REPO, "db/accounts-schema.sql"), "utf8");
-const readOrEmpty = (p) => { try { return fs.readFileSync(p, "utf8"); } catch { return ""; } };
+const readOrEmpty = (p) => readSourceIfPresent(p) ?? "";
 const tables = [...SQL.matchAll(/create table if not exists public\.([a-z_]+)/g)].map((m) => m[1]);
 
 test("the schema creates the tables the product needs, and nothing anonymous", () => {
@@ -92,8 +93,9 @@ test("the service-role key never appears in client source — it bypasses every 
       // Test files are excluded: this very file names the variable in order to ban it, and a guard
       // that flags its own text would have to be weakened to pass, which defeats the guard.
       // Read defensively: the identity suite writes and deletes a probe file inside src, so a path
-      // from this walk can vanish before it is read. A file that is gone ships nothing.
-      else if (/\.(ts|tsx|mjs|js)$/.test(e.name) && !/\.test\./.test(e.name) && /SUPABASE_SERVICE_ROLE/.test(readOrEmpty(p))) hits.push(path.relative(process.cwd(), p));
+      // from this walk can vanish before it is read. A file that is gone ships nothing. The probe is
+      // now dropped by name as well; `readOrEmpty` tolerates ENOENT only, never a permission error.
+      else if (/\.(ts|tsx|mjs|js)$/.test(e.name) && !/\.test\./.test(e.name) && !isTransientSource(e.name) && /SUPABASE_SERVICE_ROLE/.test(readOrEmpty(p))) hits.push(path.relative(process.cwd(), p));
     }
   };
   walk(path.join(process.cwd(), "src"));

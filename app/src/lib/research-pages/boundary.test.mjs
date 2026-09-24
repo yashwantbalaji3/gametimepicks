@@ -23,6 +23,7 @@ import { openPlatform, readSportFromDisk, readStoreText } from "../data-platform
 import { assembleResearchProjection, assertNoForbiddenFields } from "./projection-build.mjs";
 import { RESEARCH_PROJECTION_DIR, RESEARCH_SPORTS, FORBIDDEN_PROJECTION_FIELDS } from "./contract.mjs";
 import { RESEARCH_PAGE_BUDGET } from "./eligibility.mjs";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const APP = process.cwd().endsWith("app") ? process.cwd() : path.join(process.cwd(), "app");
 const REPO = path.join(APP, "..");
@@ -34,7 +35,7 @@ const walk = (dir, keep, acc = []) => {
   if (!fs.existsSync(dir)) return acc;
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
-    if (e.isDirectory()) walk(p, keep, acc); else if (keep(e.name)) acc.push(p);
+    if (e.isDirectory()) walk(p, keep, acc); else if (!isTransientSource(e.name) && keep(e.name)) acc.push(p);
   }
   return acc;
 };

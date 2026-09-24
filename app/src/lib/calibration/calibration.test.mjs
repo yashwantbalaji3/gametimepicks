@@ -15,6 +15,7 @@ import crypto from "node:crypto";
 
 import { calibrate, blendProbabilities, reliabilityWeight, clamp01, dataQualityFactor } from "./index.ts";
 import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const app = process.cwd();
 
@@ -70,7 +71,7 @@ function collectSources(dir, acc) {
     if (entry.isDirectory()) {
       if (entry.name === "node_modules") continue;
       collectSources(p, acc);
-    } else if (/\.(ts|tsx)$/.test(entry.name)) {
+    } else if (/\.(ts|tsx)$/.test(entry.name) && !isTransientSource(entry.name)) {
       acc.push(p);
     }
   }

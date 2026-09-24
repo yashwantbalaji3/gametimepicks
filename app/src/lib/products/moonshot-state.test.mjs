@@ -18,6 +18,7 @@ import {
   MOONSHOT_HAS_SCHEDULED_GENERATOR,
   MOONSHOT_HAS_WIRED_SETTLER,
 } from "./moonshot-state.mjs";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const TODAY = "2026-09-01";
 
@@ -320,7 +321,7 @@ test("LIVE · no public surface claims Moonshot publishes daily", () => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, e.name);
       if (e.isDirectory()) { walk(full); continue; }
-      if (!/\.tsx?$/.test(e.name)) continue;
+      if (!/\.tsx?$/.test(e.name) || isTransientSource(e.name)) continue;
       const raw = fs.readFileSync(full, "utf8");
       if (!/moonshot/i.test(raw) && !/moonshot/i.test(path.relative(src, full))) continue;
       const code = raw.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\/\/.*$/gm, blank);

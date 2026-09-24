@@ -10,6 +10,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { isTransientSource, readSourceIfPresent } from "../ci/source-tree.mjs";
 
 const SRC = path.resolve(process.cwd(), "src");
 const sink = fs.readFileSync(path.join(SRC, "lib/analytics/sink.ts"), "utf8");
@@ -22,11 +23,13 @@ test("the sink reads both switches literally, so the build can inline them", () 
 test("no browser-facing file reads a NEXT_PUBLIC_ variable through an alias of process.env", () => {
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((x) => (x.isDirectory() ? walk(path.join(d, x.name)) : [path.join(d, x.name)]));
   const offenders = [];
-  for (const f of walk(SRC).filter((f) => /\.(ts|tsx|mjs)$/.test(f) && !/\.test\./.test(f))) {
+  for (const f of walk(SRC).filter((f) => /\.(ts|tsx|mjs)$/.test(f) && !/\.test\./.test(f) && !isTransientSource(f))) {
     // comments stripped (an explanatory comment quoting the bad form is not the bad form)
-    /* try/catch: a probe file written into src by another suite can vanish between the walk and this
-       read, and an ENOENT here would report as an analytics finding. */
-    let raw = ""; try { raw = fs.readFileSync(f, "utf8"); } catch { continue; }
+    /* A probe file written into src by another suite can vanish between the walk and this read, and
+       an ENOENT here would report as an analytics finding. The filter above drops it by name; this
+       tolerates ENOENT only, so an unreadable file is still loud rather than scanning as empty. */
+    const raw = readSourceIfPresent(f);
+    if (raw === null) continue;
     const s = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
     // an alias bound to the BARE process.env object (not process.env.SOMETHING), then a NEXT_PUBLIC_ read off it
     const alias = /(?:const|let|var)\s+(\w+)\s*=\s*[^;\n]*\bprocess\.env\b(?!\.)/.exec(s);

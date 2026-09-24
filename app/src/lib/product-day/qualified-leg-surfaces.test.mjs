@@ -26,6 +26,7 @@ import { adaptBuildLeg } from "./qualified-leg.ts";
 import { buildEngineLegs } from "../build-legs.ts";
 import { loadTodaySlate } from "../parlays/ui-loader.ts";
 import { loadTopReads } from "../top-reads.ts";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const app = process.cwd();
 
@@ -60,7 +61,7 @@ test("B4 · no probability zero-fill anywhere in source: absence stays typed", (
     for (const e of fs.readdirSync(d, { withFileTypes: true })) {
       const p = path.join(d, e.name);
       if (e.isDirectory()) { if (!/node_modules|\.next/.test(e.name)) walk(p); continue; }
-      if (!/\.(ts|tsx|mjs)$/.test(e.name) || e.name.endsWith(".test.mjs")) continue;
+      if (!/\.(ts|tsx|mjs)$/.test(e.name) || e.name.endsWith(".test.mjs") || isTransientSource(e.name)) continue;
       const src = fs.readFileSync(p, "utf8");
       /*
        * Targeted: a probability-named identifier coalesced/defaulted to 0 converts a typed

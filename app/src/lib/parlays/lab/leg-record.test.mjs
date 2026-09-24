@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { buildLegRecord, recordForLeg, sampleClass, familyKey } from "./leg-record.mjs";
+import { isTransientSource } from "../../ci/source-tree.mjs";
 
 const leg = (o = {}) => ({
   sport: "mlb", playerId: 1, market: "batter_hits", marketLabel: "Hits", side: "Over", line: 0.5,
@@ -178,7 +179,7 @@ test("no surface states a leg-family rate without saying whose legs they were", 
       if (e.isDirectory()) walk(p);
       /* A file that only imports the TYPE is passing the record along; a file that RENDERS the
          component is a surface, and a surface is what needs the caption. */
-      else if (/\.tsx?$/.test(e.name) && fs.readFileSync(p, "utf8").includes("<LegRecordList")) importers.push(path.relative(root, p));
+      else if (/\.tsx?$/.test(e.name) && !isTransientSource(e.name) && fs.readFileSync(p, "utf8").includes("<LegRecordList")) importers.push(path.relative(root, p));
     }
   };
   walk(root);

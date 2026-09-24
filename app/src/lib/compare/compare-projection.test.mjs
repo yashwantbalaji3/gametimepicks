@@ -29,6 +29,7 @@ import { MATCHUP_INDEXABLE_SPORTS, MATCHUP_PAGE_BUDGET, MATCHUP_WINDOWS } from "
 import { assembleCompareProjection, assertNoForbiddenCompareFields } from "./projection-build.mjs";
 import { parseCompareQuery } from "./query.mjs";
 import { readCompareFile, readPublishedMatchupIds, readResearchInput } from "./research-input.mjs";
+import { isTransientSource } from "../ci/source-tree.mjs";
 
 const APP = process.cwd().endsWith("app") ? process.cwd() : path.join(process.cwd(), "app");
 const REPO = path.join(APP, "..");
@@ -38,7 +39,7 @@ const walk = (dir, keep, acc = []) => {
   if (!fs.existsSync(dir)) return acc;
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
-    if (e.isDirectory()) walk(p, keep, acc); else if (keep(e.name)) acc.push(p);
+    if (e.isDirectory()) walk(p, keep, acc); else if (!isTransientSource(e.name) && keep(e.name)) acc.push(p);
   }
   return acc;
 };

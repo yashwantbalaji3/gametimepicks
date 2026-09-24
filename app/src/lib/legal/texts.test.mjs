@@ -8,17 +8,23 @@ import fs from "node:fs";
 import path from "node:path";
 import { LEGAL_DOCUMENTS, LEGAL_PARAMETERS, legalContentHash, legalReadiness, renderLegal } from "./texts.mjs";
 import { LEGAL_CONTENT_MANIFEST } from "./content-manifest.mjs";
+import { isTransientSource, readSourceIfPresent } from "../ci/source-tree.mjs";
 
 const SRC = path.resolve(process.cwd(), "src");
 const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
-const SOURCE = walk(SRC).filter((f) => /\.(ts|tsx|mjs|js)$/.test(f) && !/\.test\./.test(f));
+const SOURCE = walk(SRC).filter((f) => /\.(ts|tsx|mjs|js)$/.test(f) && !/\.test\./.test(f) && !isTransientSource(f));
 /*
  * READ DEFENSIVELY. The identity suite writes `settlement-lineage.mutation-probe.ts` into src and
  * deletes it again, so a file listed by the walk above can be gone by the time this reads it — and a
  * plain readFileSync then fails these tests with an ENOENT that looks like a privacy finding. A file
  * that no longer exists ships nothing and can violate nothing; it is skipped, not excused.
+ *
+ * The walk above now drops the probe copy by name, so this is the residual layer. It reads through
+ * `readSourceIfPresent`, which tolerates ENOENT and NOTHING ELSE — the old `catch { return ""; }`
+ * here also swallowed EACCES, and an unreadable src/ would have scanned as an empty one and passed
+ * every privacy assertion below without looking at a single byte.
  */
-const readSource = (f) => { try { return fs.readFileSync(f, "utf8"); } catch { return ""; } };
+const readSource = (f) => readSourceIfPresent(f) ?? "";
 
 test("TODAY · neither document can publish, and each says exactly why", () => {
   for (const id of Object.keys(LEGAL_DOCUMENTS)) {
