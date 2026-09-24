@@ -30,6 +30,13 @@ import { fileURLToPath } from "node:url";
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT_DIR = path.join(APP, "public", "data", "mlb", "statsapi-schedule");
 
+/** One side of a game: identity plus StatsAPI's own TBD-slot flag, added only when true. */
+const side = (t) => ({
+  id: t?.id ?? null,
+  name: t?.name ?? null,
+  ...(t?.placeholder === true ? { placeholder: true } : {}),
+});
+
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const has = (n) => process.argv.includes(n);
 
@@ -43,7 +50,20 @@ if (has("--offline")) {
   process.exit(0);
 }
 
-const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${DATE}`;
+/*
+ * ⚠ `hydrate=team` IS LOAD-BEARING, not decoration. StatsAPI only emits a team's `placeholder` flag —
+ * the field that tells an undecided postseason slot from a franchise — on the HYDRATED response. The
+ * bare schedule URL returns `AL #3 Seed` with no flag at all, which is how seven seed slots reached
+ * the follow registry as clubs. Measured 2026-09-23 on the live endpoint:
+ *
+ *   2026-09-29   bare: 8 sides, 0 flagged   ·   hydrate=team: 8 sides, 7 flagged
+ *   2026-10-06   bare: 4 sides, 0 flagged   ·   hydrate=team: 4 sides, 4 flagged
+ *   2026-10-10   bare: 4 sides, 0 flagged   ·   hydrate=team: 4 sides, 3 flagged  (one club already known)
+ *
+ * And it costs no write churn: on regular-season dates (09-24, 09-27) the reduced rows are IDENTICAL
+ * with and without it, 0 flags added — so the capture's skip-unchanged behaviour is untouched.
+ */
+const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${DATE}&hydrate=team`;
 let payload;
 try {
   const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
@@ -72,8 +92,17 @@ const rows = games
      */
     doubleHeader: g.doubleHeader ?? "N",
     gameNumber: g.gameNumber ?? 1,
-    away: { id: g.teams?.away?.team?.id ?? null, name: g.teams?.away?.team?.name ?? null },
-    home: { id: g.teams?.home?.team?.id ?? null, name: g.teams?.home?.team?.name ?? null },
+    /*
+     * `placeholder` is StatsAPI's OWN flag for a postseason slot whose seed is undecided — "NL Wild
+     * Card #2", "AL Higher Seed". Carried through because this capture otherwise reduces a side to
+     * {id, name}, and by the time it reaches the follow registry nothing distinguishes a TBD slot from
+     * a franchise. Verified 2026-09-23 in both directions: postseason sides carry it (4 of 4 on
+     * 2026-10-06), regular-season sides do not carry the key at all (0 of 32). An ABSENT flag therefore
+     * means "a real club", which is why every capture written before today keeps working unchanged and
+     * the field is only ever added when true — a real club's row stays byte-identical.
+     */
+    away: side(g.teams?.away?.team),
+    home: side(g.teams?.home?.team),
     venue: g.venue?.name ?? null,
   }))
   .filter((r) => r.gamePk != null)
