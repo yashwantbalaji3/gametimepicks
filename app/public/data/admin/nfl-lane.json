@@ -2,40 +2,38 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-09-22T23:30:30Z",
+ "generatedAt": "2026-09-23T23:26:45Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "ATL @ GB",
   "kickoffUtc": "2026-09-25T00:15Z",
   "seasonType": 2,
   "week": 3,
-  "hoursToKickoff": 48.74,
-  "eventsInWindow": 1
+  "hoursToKickoff": 24.8,
+  "eventsInWindow": 17
  },
  "freshness": {
   "schedule": {
-   "state": "STALE",
-   "detail": "as of 2026-09-15T14:18:35Z (STALE)"
+   "state": "FRESH",
+   "detail": "as of 2026-09-23T14:12:33Z (FRESH)"
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-09-22T23:30:30Z (FRESH)"
+   "detail": "as of 2026-09-23T23:26:45Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-09-22T23:30:40Z (FRESH)"
+   "detail": "as of 2026-09-23T23:27:10Z (FRESH)"
   },
   "odds": {
-   "state": "STALE",
-   "detail": "as of 2026-09-21T23:50:21Z (STALE)"
+   "state": "FRESH",
+   "detail": "as of 2026-09-23T23:26:45Z (FRESH)"
   }
  },
  "regularSeason": {
   "verdict": {
-   "state": "OPERATIONAL_GAPS",
-   "operationalGaps": [
-    "schedule:STALE"
-   ],
+   "state": "READY_WITH_DESIGN_CAPS",
+   "operationalGaps": [],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -45,8 +43,8 @@
   "matrix": [
    {
     "id": "schedule",
-    "state": "STALE",
-    "detail": "schedule as of 2026-09-15T14:18:35Z"
+    "state": "AVAILABLE",
+    "detail": "schedule as of 2026-09-23T14:12:33Z"
    },
    {
     "id": "teamStrength",
@@ -56,12 +54,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-09-22T23:30:40Z"
+    "detail": "injuries as of 2026-09-23T23:27:10Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-09-22T23:30:30Z"
+    "detail": "rosters as of 2026-09-23T23:26:45Z"
    },
    {
     "id": "participationRoles",
@@ -91,15 +89,15 @@
    {
     "id": "prices",
     "state": "AVAILABLE",
-    "detail": "prices as of 2026-09-21T23:50:21Z"
+    "detail": "prices as of 2026-09-23T23:26:45Z"
    }
   ]
  },
  "markets": {
   "state": "CAPTURED",
-  "events": 30,
+  "events": 31,
   "books": 11,
-  "capturedAt": "2026-09-21T23:50:21Z",
+  "capturedAt": "2026-09-23T23:26:45Z",
   "propMarkets": {
    "state": "NOT_PROBED",
    "offeredMarkets": [],
@@ -108,17 +106,17 @@
  },
  "credits": {
   "state": "UNKNOWN",
-  "programSpend": 132,
+  "programSpend": 138,
   "ceiling": null,
   "remainingProgram": null,
-  "providerRemaining": 12372,
+  "providerRemaining": 11778,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
    "providerRequestsUsed": 4342,
    "providerRequestsRemaining": 15658,
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
-  "requests": 186,
+  "requests": 194,
   "detail": "authorization receipt did not parse — no paid call may run"
  },
  "models": {
@@ -151,16 +149,16 @@
   }
  },
  "currentArtifacts": {
-  "total": 1028,
-  "contractValid": 1028,
-  "preStart": 4,
-  "settlementReady": 300,
-  "detail": "1028/1028 pass the current-event contract; 300 carry pinned settlement targets"
+  "total": 1092,
+  "contractValid": 1092,
+  "preStart": 68,
+  "settlementReady": 303,
+  "detail": "1092/1092 pass the current-event contract; 303 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
-  "date": "2026-09-22",
-  "entries": 30,
+  "date": "2026-09-23",
+  "entries": 31,
   "corrections": 0
  },
  "gate": {
