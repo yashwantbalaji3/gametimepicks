@@ -40,6 +40,32 @@ const readJson = (abs: string): any => {
   }
 };
 
+/**
+ * Is this schedule participant a canonical MLB club?
+ *
+ * TWO INDEPENDENT REASONS TO REFUSE, because neither covers both directions of time.
+ *
+ *   PROVIDER-STATED — StatsAPI marks an undecided postseason slot `placeholder: true`. Authoritative
+ *   where present, and the capture now records it. Absent means "a real club": verified 2026-09-23
+ *   that regular-season sides do not carry the key at all (0 of 32), so older captures are unaffected.
+ *
+ *   CORROBORATED — the flag cannot rescue an artifact written before it existed, and the committed
+ *   2026-09-29 capture is exactly that: seven TBD sides carrying only {id, name}. So membership is
+ *   also confirmed against the season's full-game simulations, which name only clubs that actually
+ *   play — a TBD seed has nothing to simulate. Measured that day: schedule union 37, simulations 30,
+ *   intersection exactly the 30 real clubs.
+ *
+ * Fail closed: a participant neither corroborated nor explicitly real is refused. A missing club is a
+ * visible absence; a fake club is a false claim, and R1 asserts the count is exactly 30 either way.
+ */
+export function isCanonicalMlbClub(
+  { name, flaggedPlaceholder, simulatedNames }:
+  { id?: string; name: string; flaggedPlaceholder: boolean; simulatedNames: Set<string> },
+): boolean {
+  if (flaggedPlaceholder) return false;
+  return simulatedNames.has(name);
+}
+
 let cache: { mlb: TeamEntry[]; nfl: TeamEntry[] } | null = null;
 
 function build(): { mlb: TeamEntry[]; nfl: TeamEntry[] } {
@@ -47,6 +73,8 @@ function build(): { mlb: TeamEntry[]; nfl: TeamEntry[] } {
 
   /* ── MLB: StatsAPI id + name, unioned across every schedule capture. ── */
   const mlbById = new Map<string, string>();
+  /** Sides StatsAPI itself marked as undecided postseason slots. */
+  const placeholderIds = new Set<string>();
   const schedDir = path.join(dataDir(), "mlb/statsapi-schedule");
   let schedFiles: string[] = [];
   try {
@@ -59,25 +87,52 @@ function build(): { mlb: TeamEntry[]; nfl: TeamEntry[] } {
     for (const g of j?.games ?? []) {
       for (const side of [g?.home, g?.away]) {
         if (side?.id !== undefined && typeof side?.name === "string") mlbById.set(String(side.id), side.name);
+        if (side?.placeholder === true) placeholderIds.add(String(side.id));
       }
     }
   }
   // Abbreviations come from the simulation slates, joined on the full name the two artifacts share.
   const abbrByMlbName = new Map<string, string>();
+  /** Every club the season's simulations name — the corroborating universe for membership below. */
+  const simulatedMlbNames = new Set<string>();
   const simDir = path.join(dataDir(), "mlb/full-game-simulations");
   try {
-    for (const f of fs.readdirSync(simDir).filter((x) => x.endsWith(".json")).sort().slice(-7)) {
+    /* THE SEASON, NOT A WINDOW. This read was `.slice(-7)`. Seven files is enough for abbreviations —
+       every club plays inside a week — but the set is now load-bearing for MEMBERSHIP below, and a
+       window is exactly what R1 exists to catch. Reading every published slate costs one pass. */
+    for (const f of fs.readdirSync(simDir).filter((x) => x.endsWith(".json")).sort()) {
       const j = readJson(path.join(simDir, f));
       for (const g of j?.games ?? []) {
-        if (g?.awayTeamName && g?.awayTeam) abbrByMlbName.set(g.awayTeamName, g.awayTeam);
-        if (g?.homeTeamName && g?.homeTeam) abbrByMlbName.set(g.homeTeamName, g.homeTeam);
+        if (g?.awayTeamName) { simulatedMlbNames.add(g.awayTeamName); if (g?.awayTeam) abbrByMlbName.set(g.awayTeamName, g.awayTeam); }
+        if (g?.homeTeamName) { simulatedMlbNames.add(g.homeTeamName); if (g?.homeTeam) abbrByMlbName.set(g.homeTeamName, g.homeTeam); }
       }
     }
   } catch {
     /* abbreviations are a convenience; ids and names still resolve without them */
   }
+  /*
+   * ⚠ A POSTSEASON SLOT IS NOT A CLUB, and the flag above cannot save an artifact written before it
+   * existed. On 2026-09-23 the committed 09-29 capture held seven TBD sides — "NL Wild Card #1",
+   * "AL #3 Seed" — carrying only {id, name}, so this registry resolved 37 "MLB clubs" and
+   * `mlbTeamRefByName("NL Wild Card #3")` returned a followable ref: an identity minted for something
+   * that is not an entity.
+   *
+   * So membership is CORROBORATED by a second owner rather than taken from the schedule alone. The
+   * full-game simulation slates name only clubs that actually play — a TBD seed has nothing to
+   * simulate. Measured that day: the schedule union held 37 ids, the season's simulations named
+   * exactly 30 clubs, and the intersection was exactly the 30 real ones.
+   *
+   * FAIL CLOSED, DELIBERATELY. A participant the simulations do not corroborate is dropped, not
+   * admitted. The cost is that a club nothing has simulated cannot be followed; the alternative is
+   * letting a non-entity be followed, and a missing club is a visible absence while a fake club is a
+   * false claim. R1 asserts the count is exactly 30, so any over- OR under-count is loud.
+   *
+   * Not an id range and not a name regex: both were considered and rejected as magic, and the provider
+   * publishes no contract that 4-digit ids are synthetic.
+   */
   const mlb: TeamEntry[] = [];
   for (const [id, name] of mlbById) {
+    if (!isCanonicalMlbClub({ id, name, flaggedPlaceholder: placeholderIds.has(id), simulatedNames: simulatedMlbNames })) continue;
     const ref = mlbTeamRef(id, name) as FollowRef | null;
     if (ref) mlb.push({ ref, name, abbr: abbrByMlbName.get(name) ?? null });
   }

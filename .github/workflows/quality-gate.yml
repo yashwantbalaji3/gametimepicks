@@ -65,7 +65,22 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # RAISED 25 -> 40 because the ceiling was cancelling the gate's LAST phase, not because any
+    # check was slow to pass. Measured on this same workflow:
+    #
+    #   last known green run (2026-09-22 22:39)  17m total  — unit 3.8m, build 4.6m, guards 1.6m,
+    #                                                          browser a11y 6.0m
+    #   one day later                            ~28m needed — unit 6.7m, build 9.2m, guards 3.4m
+    #
+    # Every phase roughly doubled as a day of artifacts landed. The job then hit 25m PART-WAY THROUGH
+    # browser a11y and cancelled it — after unit, build, rendered guards, Ask eval and structural a11y
+    # had all already SUCCEEDED. The run reported red without ever finishing the question it was asked.
+    #
+    # A higher ceiling therefore runs MORE validation, not less: nothing here is skipped, no browser
+    # coverage is dropped, no assertion is relaxed, no exit code is suppressed. #639's 60s child cap is
+    # what keeps this safe — a genuinely hung child now fails its own test in a minute instead of
+    # running out the clock, so the ceiling bounds cost rather than correctness.
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: app
