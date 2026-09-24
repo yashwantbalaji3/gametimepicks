@@ -36,6 +36,18 @@ on:
         description: "Pre-start window for artifact generation"
         required: false
         default: "18"
+      # P3 · 2026-09-24. The capture has always supported `--probe-props`: ONE pre-start event's
+      # per-event odds for the five NFL prop keys, worst case 5 credits, a 422 or absent market
+      # recorded as NO_MARKET evidence and never retried. Nothing ever passed the flag, so
+      # propMarkets.state has read NOT_PROBED on every capture — literally true: we never asked.
+      #
+      # DISPATCH-ONLY AND OFF BY DEFAULT. The three scheduled runs are unchanged and still spend
+      # exactly the bulk call's 3 credits; this can only be turned on by a human dispatching the
+      # workflow, under the 2026-09-24 amendment to docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md.
+      probe_props:
+        description: "Also probe ONE event's player props (worst case +5 credits, dispatch only)"
+        required: false
+        default: "false"
 
 concurrency:
   group: gtp-generated-artifacts
@@ -166,7 +178,8 @@ jobs:
             --now "${{ steps.window.outputs.now }}" \
             --authorized \
             --receipt docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md \
-            --lookahead-hours "${{ github.event.inputs.lookahead_hours || 40 }}"
+            --lookahead-hours "${{ github.event.inputs.lookahead_hours || 40 }}" \
+            ${{ github.event.inputs.probe_props == 'true' && '--probe-props auto' || '' }}
 
       # `!cancelled()` (P265): these three need ROSTERS and INJURIES, which are captured above and did
       # not fail — but GitHub skips every later step once one fails, so a refused PAID odds capture took

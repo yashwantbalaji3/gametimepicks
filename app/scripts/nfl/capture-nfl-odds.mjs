@@ -117,6 +117,28 @@ if (!authorization.ok) {
   console.error(`REFUSED: authorization did not parse: ${authorization.errors.join("; ")}`);
   process.exit(2);
 }
+/*
+ * THE RECEIPT'S MARKET ROW IS NOW A CONTROL, NOT A CAPTION (P3 · 2026-09-24).
+ *
+ * ⚠ Until today nothing compared the markets this run intends to request against the markets the
+ * committed receipt authorizes. The parser checked scope, ceiling, floor, retries and expiry, and
+ * its returned `terms` string claimed "supported props, anytime TD" regardless of what the document
+ * said — so on 2026-09-24 the code would have bought player props under a receipt whose own table
+ * read "props and every other market OUT OF SCOPE".
+ *
+ * This refuses BEFORE the free preflight, so an unauthorized market cannot reach the provider even
+ * as a question. Fail-closed: a receipt naming no prop keys yields an empty allowance and refuses
+ * the probe entirely, because "authorizes nothing" must never be read as "authorizes anything".
+ */
+if (PROBE) {
+  const allowed = new Set(authorization.propMarkets ?? []);
+  const unauthorized = PROP_PROBE_MARKETS.filter((k) => !allowed.has(k));
+  if (unauthorized.length) {
+    console.error(`REFUSED: the committed receipt does not authorize ${unauthorized.join(", ")} — it names ${allowed.size ? [...allowed].join(", ") : "no prop market at all"}. Nothing was spent.`);
+    process.exit(2);
+  }
+  console.log(`prop scope: ${PROP_PROBE_MARKETS.length} requested, all authorized by the receipt`);
+}
 if (!windowRows.length) { console.log("NO_EVENTS: no pre-start events in the window — an empty slate is an answer, not a call"); process.exit(0); }
 
 const secretState = classifyOddsSecret(process.env);

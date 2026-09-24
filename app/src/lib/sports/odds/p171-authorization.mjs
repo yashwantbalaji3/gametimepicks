@@ -101,6 +101,8 @@ export function parseSportAuthorizationReceipt(markdown, sport) {
     sportKey: spec.sportKey,
     ceiling,
     floor: 0,
+    /* The prop keys this receipt actually names. Empty unless an authorization row says otherwise. */
+    propMarkets: authorizedPropMarkets(text),
     expiry,
     ledgerRelPath: LEDGER_RELPATH[sport] ?? null,
   };
@@ -127,6 +129,30 @@ export function expiryTerm(receiptText) {
 }
 
 /** Parse the committed receipt. Fail-closed: every operative term must be present and exact. */
+/**
+ * THE PROP MARKET KEYS A RECEIPT AUTHORIZES — parsed, not assumed.
+ *
+ * ⚠ WHY THIS EXISTS. Until 2026-09-24 this module validated scope, ceiling, floor, no-blind-retry
+ * and expiry, and never read the receipt's `Markets` row at all — while the `terms` string it
+ * returns has always claimed "supported props, anytime TD". So the document said props were out of
+ * scope and the code would have permitted a prop call anyway. The Markets row was documentation
+ * wearing the costume of a control, exactly like the expiry term whose first half went unread for
+ * two programs.
+ *
+ * FAIL-CLOSED. No parseable authorization line ⇒ an EMPTY list ⇒ every prop market is refused. A
+ * receipt that authorizes nothing must never read as a receipt that authorizes everything, so the
+ * absent case and the empty case deliberately collapse to the same refusal.
+ *
+ * It reads only an explicit authorization row, so prose ELSEWHERE in the document that merely
+ * mentions a market key — the 2026-09-10 sentence explaining why props were excluded, for one —
+ * cannot widen the allowance.
+ */
+export function authorizedPropMarkets(markdown) {
+  const text = String(markdown ?? "").replace(/^>\s?/gm, "");
+  const row = /^.*(?:Markets added|Prop markets authorized)\b.*$/im.exec(text)?.[0] ?? "";
+  return [...row.matchAll(/`(player_[a-z0-9_]+)`/g)].map((m) => m[1]);
+}
+
 export function parseAuthorizationReceipt(markdown) {
   const errors = [];
   // blockquote markers are markdown formatting, not content — a term split across quoted lines
@@ -175,6 +201,8 @@ export function parseAuthorizationReceipt(markdown) {
     sportKey: "americanfootball_nfl",
     ceiling,
     floor: 0,
+    /* The prop keys this receipt actually names. Empty unless an authorization row says so. */
+    propMarkets: authorizedPropMarkets(text),
     terms: "NFL-only; preflight, discovery, team ML/spread/total, supported props, anytime TD, evidence-driven pre-start refreshes; no blind retries; stop before the cumulative ceiling",
   };
 }

@@ -167,3 +167,54 @@ test("capture script structure: dry-run precedes any network call; NFL-only; no 
   assert.match(canary, /parsed\.sport !== SPORT/, "the canary refuses a receipt whose scope differs from --sport");
   assert.match(canary, /const FLOOR = 50;/, "the legacy default floor literal survives the extension");
 });
+
+/* ── THE MARKETS ROW IS A CONTROL, NOT A CAPTION (P3 · 2026-09-24) ──────────────────────────────── */
+
+test("prop market scope is PARSED from the receipt, and fails closed when it is not named", async () => {
+  const { authorizedPropMarkets, parseAuthorizationReceipt } = await import("./p171-authorization.mjs");
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+
+  /*
+   * ⚠ THE DEFECT THIS PINS. Until 2026-09-24 nothing read the receipt's Markets row, while the
+   * parser's returned `terms` string claimed "supported props, anytime TD" unconditionally — so the
+   * code would have bought props under a receipt whose table said they were out of scope.
+   */
+  assert.deepEqual(authorizedPropMarkets("# a receipt that names no market"), [],
+    "no authorization row ⇒ EMPTY ⇒ every prop refused; 'authorizes nothing' must never read as 'authorizes anything'");
+  assert.deepEqual(authorizedPropMarkets(""), [], "an empty document authorizes nothing");
+
+  // Prose that merely MENTIONS a key must not widen the allowance — only an authorization row counts.
+  assert.deepEqual(
+    authorizedPropMarkets("We excluded `player_anytime_td` because no family was publishable."),
+    [], "a sentence explaining an exclusion is not an authorization");
+
+  assert.deepEqual(
+    authorizedPropMarkets("| Markets added | `player_rush_yds`, `player_receptions` — these two only |"),
+    ["player_rush_yds", "player_receptions"], "an explicit authorization row is read exactly");
+
+  // The committed receipt authorizes precisely the five families this program is about.
+  const APP = process.cwd();
+  const md = fs.readFileSync(path.join(APP, "..", "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md"), "utf8");
+  const parsed = parseAuthorizationReceipt(md);
+  assert.equal(parsed.ok, true, parsed.errors?.join("; "));
+  assert.deepEqual(parsed.propMarkets, [
+    "player_anytime_td", "player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions",
+  ], "the committed receipt authorizes exactly the five NFL prop families");
+});
+
+test("the capture REFUSES an unauthorized prop market before any call, and says nothing was spent", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/capture-nfl-odds.mjs"), "utf8");
+
+  const gate = /if \(PROBE\) \{[\s\S]*?\n\}/.exec(src)?.[0];
+  assert.ok(gate, "the prop-scope gate is no longer identifiable — this guard would assert nothing");
+  assert.match(gate, /authorization\.propMarkets/, "the gate must consult the RECEIPT, not a local constant");
+  assert.match(gate, /process\.exit\(2\)/, "an unauthorized market must refuse, not warn");
+  assert.match(gate, /Nothing was spent/, "the refusal must state that no credit was consumed");
+
+  // It has to sit BEFORE the first network call, or it is advice rather than a control.
+  assert.ok(src.indexOf("if (PROBE) {") < src.indexOf("await getJson") || !src.includes("await getJson"),
+    "the scope gate must precede the first provider call");
+});
