@@ -40,3 +40,61 @@ credits would fund nothing publishable. "Lavish" sets the ceiling at roughly thr
 The capture keeps one cumulative ledger (`data/internal/research/odds/nfl/p171-ledger.json`), which
 already records 69 credits spent under Program 171. They count against this ceiling too — the
 conservative direction for a circuit breaker.
+
+---
+
+## AMENDMENT — 2026-09-24 · one-event player-prop probe AUTHORIZED
+
+**Provenance:** founder, in session, 2026-09-24. This amendment narrows nothing and widens the
+`Markets` row above for a single, bounded purpose. The original allowance, its NFL-only scope and
+its 500-credit season ceiling are unchanged.
+
+### Authorization (founder, 2026-09-24)
+
+> Use the EXISTING paid The Odds API integration/entitlement first. You are authorized to use a
+> SMALL, CONTROLLED amount of our existing Odds API credits for real discovery/testing/verification.
+> Hard cap for this session: 150 Odds API credits.
+
+and, on the probe specifically:
+
+> DO NOT spend anything until the committed authorization receipt correctly records the
+> founder-approved prop probe. DO NOT exceed the 150-credit cap. DO NOT retry absent markets.
+> A provider 422 / absent market is evidence of NO_MARKET, not a retry target.
+
+### Why the original exclusion no longer holds
+
+The 2026-09-10 reasoning was: *"every NFL player family is rejected or held today, so those credits
+would fund nothing publishable."* That premise has changed. `app/public/data/nfl/model-status.json`
+now publishes **three** player families — `player_rush_yds`, `player_reception_yds`,
+`player_receptions` — and the held one states its own gate as *"An offered anytime-touchdown market
+plus current role evidence."* So a prop market is now a precondition for a published family rather
+than funding nothing.
+
+### Operative terms for this amendment
+
+| Term | Value |
+|---|---|
+| Purpose | DISCOVERY — establish whether the current plan returns NFL player props at all |
+| Scope | NFL only (`americanfootball_nfl`), pre-start events only — unchanged |
+| Markets added | `player_anytime_td`, `player_pass_yds`, `player_rush_yds`, `player_reception_yds`, `player_receptions` — **these five keys only** |
+| Endpoint | the per-event `/v4/sports/{key}/events/{id}/odds` route, for **ONE** event |
+| Events | **one** eligible pre-start event per probe run |
+| Regions | `us` — unchanged |
+| Session cap | **150 credits**, and the dry run's worst case for the run is **8** (3 bulk + 5 prop) |
+| Cumulative ceiling | **500** for the season — unchanged, 144 spent at the time of this amendment |
+| Absent market | a 422 or an absent market key is **`NO_MARKET` evidence**. It is never a retry target |
+| Retries | none. A failed-but-charged call still counts against the ledger |
+| Expiry | the ceiling — unchanged |
+
+### ⚠ A term this file states and the code does not enforce
+
+`parseAuthorizationReceipt` validates the NFL-only scope, the cumulative ceiling, the no-floor term,
+the no-blind-retry term and the expiry term. **It does not read the `Markets` row.** Its returned
+`terms` string has said *"supported props, anytime TD"* throughout, so on 2026-09-24 the code would
+have permitted a prop call while this document said props were out of scope — the same shape as the
+expiry term whose first half went unread for two programs.
+
+This amendment makes the document and the behaviour agree **for the right reason** — the founder has
+authorized the probe — rather than by relying on a term nothing checks. Enforcing market scope in
+the parser is a separate, deliberate change and is NOT made here; it is recorded so the next reader
+knows the `Markets` row is currently documentation, not a control.
