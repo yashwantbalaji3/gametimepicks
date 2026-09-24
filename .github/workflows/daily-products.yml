@@ -297,6 +297,61 @@ jobs:
       # docs/V17_WORKFLOW_AUDIT.md W6: quality-gate is path-filtered off app/public/data/** on purpose, so a
       # bot commit is the one path by which an internal artifact could land under app/public/data/products/
       # unchecked. The boundary guard runs here, on the working tree this run is about to commit.
+      # ── THE PROJECTION CHAIN GETS AN OWNER (R0 · 2026-09-24) ──────────────────────────────────
+      #
+      # WHAT WENT WRONG. `data/internal/platform/v1`, `data/research-projection`,
+      # `data/compare-projection` and `data/lab-projection` were all generated on 2026-09-17 and then
+      # NOTHING RAN THEM AGAIN — their builders were referenced by no workflow and by no step of
+      # refresh_daily_products.sh. Seven days later MLB's forward matchup window expired: 93 entries,
+      # zero in the future, while twelve MLB games were being played. `/players` (1,771 pages),
+      # `/teams`, `/compare`, `/matchups`, `/research/lab` and `/following` all read those artifacts,
+      # so public surfaces served week-old data and MF1 went red.
+      #
+      # THIS JOB IS THE RIGHT OWNER. The chain is NETWORK-FREE — every builder reads committed
+      # artifacts only — and it must run AFTER the day's data has landed. daily-products is the last
+      # link of settle → morning-projections → mlb-daily-production → daily-products, so by the time
+      # it runs, the bot commits this chain consumes are already on main. One owner, no second
+      # schedule, no parallel producer, no duplicated provider call (there are none to duplicate).
+      #
+      # ORDER IS NOT A PREFERENCE, IT IS A DEPENDENCY. Each builder reads the one above it and
+      # REFUSES a stale upstream (compare exits 2 on a stale research projection; lab exits 2 on a
+      # stale compare). Running them out of order fails loudly rather than producing a torn set.
+      #
+      # ⚠ THE POST-CONDITION IS THE LOAD-BEARING PART. `--check` on the three PROJECTIONS is
+      # transitively blind: run against the frozen 2026-09-17 tree each of them exited 0, because
+      # each matched its own equally-frozen upstream. Only the PLATFORM's check reaches artifacts
+      # that actually move, and it correctly exited 1. So the platform check runs here as a
+      # post-condition — if the builder silently no-ops, this step fails instead of committing
+      # nothing and reporting success.
+      #
+      # No continue-on-error, no `|| true`, no swallowed exit code: a projection that cannot be
+      # refreshed must fail this job, because the alternative is what already happened — a week-old
+      # public projection that nobody notices.
+      - name: Refresh the canonical projection chain (NETWORK-FREE — platform → research → compare → lab)
+        run: |
+          set -euo pipefail
+          cd app
+          node scripts/data-platform/build.mjs --all
+          node scripts/research/build-research-projections.mjs
+          node scripts/compare/build-compare-projections.mjs
+          node scripts/lab/build-lab-projections.mjs
+          # The Ask projection reads the same daily data. It is REBUILT by `npm run build`, and the
+          # quality gate asserts the committed copy is current (`npm run ask:check`) — but nothing
+          # staged it, so it survived only on whichever PR happened to rebuild it that day. The same
+          # defect as the four above, one artifact later: it goes red the moment the slate moves and
+          # no one commits a rebuild. Same owner, last in the chain, matching the build's own order.
+          npm run ask:build
+          # POST-CONDITIONS. The store must agree with the sources it was just built from, and the
+          # Ask projection must agree with what a fresh build would produce.
+          node scripts/data-platform/build.mjs --all --check
+          npm run ask:check
+          echo "[projections] chain refreshed and verified current against its committed sources"
+
+      - name: The refreshed matchup window must not be expired
+        run: |
+          set -euo pipefail
+          cd app && npx tsx --test src/lib/compare/matchup-window-freshness.test.mjs
+
       - name: Public data boundary (internal artifacts never under app/public/data/products)
         run: |
           set -euo pipefail
@@ -321,6 +376,13 @@ jobs:
           git add app/public/data/products/availability/ 2>/dev/null || true
           git add app/public/data/parlays/risk-ladder/ 2>/dev/null || true
           git add app/public/data/parlays/lab-ledger.json app/public/data/parlays/coverage-matrix.json 2>/dev/null || true
+          # R0: the canonical projection chain. Each builder hashes content and writes only on a real
+          # change, so an unchanged day stages nothing here rather than committing churn.
+          git add data/internal/platform/v1/ 2>/dev/null || true
+          git add data/research-projection/ 2>/dev/null || true
+          git add data/compare-projection/ 2>/dev/null || true
+          git add data/lab-projection/ 2>/dev/null || true
+          git add data/ask-projection/ 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no change — products already current for ${{ steps.d.outputs.date }}"
             exit 0
@@ -366,5 +428,5 @@ jobs:
           # used to fail the second one on a rebase conflict (2026-09-11 15:13 UTC). The helper retries the
           # push and resolves a conflict INSIDE these generated paths to this (later) run's copy; any other
           # conflict — and the protected money files, always — fails loud.
-          GENERATED_PATHS="app/public/data/mr-dub/daily-portfolio.json app/public/data/admin/ data/internal/products/ app/public/data/parlays/" \
+          GENERATED_PATHS="app/public/data/mr-dub/daily-portfolio.json app/public/data/admin/ data/internal/products/ app/public/data/parlays/ data/internal/platform/ data/research-projection/ data/compare-projection/ data/lab-projection/ data/ask-projection/" \
             bash scripts/ci/commit-generated.sh "auto: daily products ${{ steps.d.outputs.date }} [skip ci]"
