@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-24T14:42:44.296Z",
+  "generatedAt": "2026-09-24T14:44:40.263Z",
   "canonical": {
     "record": "37-36",
     "bankroll": 15990.4,
@@ -19,7 +19,7 @@
     "date": "2026-09-24",
     "dailyPortfolioDate": "2026-09-24",
     "activeBankroll": 15990.4,
-    "openExposure": 0,
+    "openExposure": 225,
     "worldCupGames": 0,
     "mlbGames": 12,
     "mlbSlate": "2026-09-24"
@@ -44,8 +44,8 @@
     ]
   },
   "productReadiness": {
-    "bankBuilder": "awaiting approval",
-    "moonshot": "awaiting approval",
+    "bankBuilder": "active · 2 lane(s)",
+    "moonshot": "active · 1 lane(s)",
     "top10": "live",
     "worldCup": "dormant (no board)",
     "mlb": "live · 12 game(s)",
@@ -53,32 +53,38 @@
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 0,
+      "activeLanes": 2,
       "lanes": [
         {
           "lane": "A",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 111,
           "stake": 100,
-          "potentialReturn": 100,
-          "selections": []
+          "potentialReturn": 211.32,
+          "selections": [
+            "Atlanta Braves to win",
+            "Seattle Mariners to win"
+          ]
         },
         {
           "lane": "B",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 200,
           "stake": 100,
-          "potentialReturn": 100,
-          "selections": []
+          "potentialReturn": 300.48,
+          "selections": [
+            "San Diego Padres +1.5",
+            "Over 8.5"
+          ]
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 0,
+      "activeLanes": 1,
       "lanes": [
         {
           "lane": "A",
@@ -92,13 +98,16 @@
         },
         {
           "lane": "B",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 300,
           "stake": 25,
-          "potentialReturn": 25,
-          "selections": []
+          "potentialReturn": 100.01,
+          "selections": [
+            "Colorado Rockies +1.5",
+            "Over 8"
+          ]
         }
       ]
     },
@@ -125,20 +134,20 @@
     }
   },
   "counts": {
-    "activeProducts": 1,
-    "pendingApprovals": 4
+    "activeProducts": 3,
+    "pendingApprovals": 1
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-24T14:42:43.774Z",
+    "lastRunAt": "2026-09-24T14:42:45.014Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-24",
-    "etTime": "10:42",
+    "etTime": "10:44",
     "stages": [
       {
         "stage": "schedule",
@@ -234,7 +243,7 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": false
+      "done": true
     },
     {
       "step": "No missing-data warnings",
@@ -247,7 +256,7 @@
   },
   "nextSettlementDate": "2026-09-24",
   "nextRefreshDate": "2026-09-25",
-  "nextAction": "No active Bank Builder lane for 2026-09-24 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-09-24's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
