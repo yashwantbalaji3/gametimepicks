@@ -6,9 +6,30 @@
  * that changes shape or goes dark does not fail loudly — the capture writes an empty file and the
  * model quietly runs on less. This names each feed, what it must contain, and whether it did.
  * Pure: the runner does the fetching.
+ *
+ * ⚠ B6 · THE PROBE MUST REQUEST THE SHAPE THE CAPTURES REQUEST. Until 2026-09-23 the three ESPN
+ * scoreboard checks fetched the BARE endpoint while every capture fetched `?dates=<YYYYMM>&limit=1000`
+ * through `espn-scoreboard-window`. From 2026-09-15 the captures' form answered 400 and the bare form
+ * answered 200, so this watchdog reported the feeds healthy for a WEEK while EPL, NFL, UFC and NBA
+ * results captures wrote nothing. Verified again on 2026-09-23: bare 200 · range 400 · month 200.
+ * A probe that tests a different request from the one it is watching cannot see that request fail —
+ * so the URLs below are built from the SAME plan the captures use, and a test pins that.
  */
 
+import { scoreboardMonthUrls } from "../sports/espn-scoreboard-window.mjs";
+
 const ESPN = "https://site.api.espn.com/apis/site/v2/sports";
+
+/**
+ * The scoreboard URL a CAPTURE would request for `etDate`, from the shared plan — never a hand-built
+ * one. Probing today's month is enough: the failure mode is the request FORM being refused, not a
+ * particular month being absent.
+ */
+function captureScoreboardUrl(sportPath, etDate) {
+  const d = new Date(`${etDate}T12:00:00Z`);
+  const [url] = scoreboardMonthUrls(sportPath, d, d);
+  return url;
+}
 
 /** openfootball season folder: "2026-27" for the season that starts in August 2026. */
 export function openfootballSeason(etDate) {
@@ -35,15 +56,15 @@ export function feedTargets({ etDate }) {
       check: json((j) => (Array.isArray(j.dates) ? null : "no dates array")) },
     { id: "espn-nfl-injuries", sport: "nfl", url: `${ESPN}/football/nfl/injuries`,
       check: json((j) => (Array.isArray(j.injuries) && j.injuries.length ? null : "no injuries")) },
-    { id: "espn-nfl-scoreboard", sport: "nfl", url: `${ESPN}/football/nfl/scoreboard`,
+    { id: "espn-nfl-scoreboard", sport: "nfl", url: captureScoreboardUrl("football/nfl", etDate),
       check: json((j) => (Array.isArray(j.events) ? null : "no events array")) },
     { id: "nflverse-games", sport: "nfl", url: "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv",
       check: csv(["game_id", "gameday", "gametime", "roof"], 1000) },
-    { id: "espn-ufc-scoreboard", sport: "ufc", url: `${ESPN}/mma/ufc/scoreboard`,
+    { id: "espn-ufc-scoreboard", sport: "ufc", url: captureScoreboardUrl("mma/ufc", etDate),
       check: json((j) => (Array.isArray(j.events) ? null : "no events array")) },
-    { id: "espn-epl-scoreboard", sport: "soccer", url: `${ESPN}/soccer/eng.1/scoreboard`,
+    { id: "espn-epl-scoreboard", sport: "soccer", url: captureScoreboardUrl("soccer/eng.1", etDate),
       check: json((j) => (Array.isArray(j.events) ? null : "no events array")) },
-    { id: "espn-ligue1-scoreboard", sport: "soccer", url: `${ESPN}/soccer/fra.1/scoreboard`,
+    { id: "espn-ligue1-scoreboard", sport: "soccer", url: captureScoreboardUrl("soccer/fra.1", etDate),
       check: json((j) => (Array.isArray(j.events) ? null : "no events array")) },
     { id: "openfootball-epl", sport: "soccer", url: `${OPENFOOTBALL}/${of}/en.1.json`,
       check: json((j) => (Array.isArray(j.matches) && j.matches.length ? null : "no matches")) },
