@@ -91,7 +91,13 @@ test("NEVER added to the current protected record — the composite declares its
 test("NEVER mixed into receipt-era performance", () => {
   const receipt = byId("cycle:-:bank-builder:RECEIPT_ERA:-");
   assert.ok(receipt, "the receipt-era cycle cell exists");
-  assert.deepEqual(receipt.window, { from: "2026-08-15", to: "2026-09-20" }, "the receipt era starts well after June");
+  /* `from` is the era boundary and is pinned; `to` is the settlement frontier and MOVES every night.
+     Pinning it froze this test to the day the branch was written — and the producer C2 schedules
+     rewrites this artifact nightly, so a literal here would red main every morning. The claim the
+     name makes is about where the era STARTS. */
+  assert.equal(receipt.window.from, "2026-08-15", "the receipt era starts well after June");
+  assert.ok(receipt.window.to >= receipt.window.from, "…and the window is well-formed");
+  assert.ok(receipt.window.from > "2026-06-30", "…strictly after the June ladders close");
   for (const id of [L1, L2]) {
     const l = byId(id);
     assert.ok(l.window.to < receipt.window.from, `${id} closes before the receipt era opens`);
@@ -171,8 +177,16 @@ test("RENDERED · the front door never falls back to a June ladder for its recor
   // The defect: `let recordLabel = crown?.recordLabel ?? null` seeded the homepage's record with the June
   // 5–0, so any failure to read portfolio.json rendered `Record 5–0` as the CURRENT record.
   assert.doesNotMatch(src, /let\s+recordLabel[^=]*=\s*crown\??\.\s*recordLabel/, "the record must not be seeded from the crown ladder");
-  assert.match(src, /let\s+recordLabel:\s*string\s*\|\s*null\s*=\s*null;/, "it must start at null and fail closed to no figure");
-  assert.doesNotMatch(src, /crownLadderSummary/, "and the front door no longer imports or calls the completed-ladder summary");
+  /* C2 restated this clause. C3 fixed the defect by making the local START at null; the invariant it was
+     protecting is "no legacy figure can reach the front door's record, and an unreadable source yields NO
+     figure". The `let … = null` spelling was one way to satisfy that. The front door now takes the record
+     from `currentProductRecord`, which passes no presentation context, so a LEGACY_HISTORY cell answers
+     null by construction (projection-core `cellPresentation`) — the guarantee is stronger than a seed
+     value, because the page can no longer name a legacy cell at all. Pinned as the property: it reads
+     through the canonical reader, and it reaches for no owner and no completed-ladder summary of its own. */
+  assert.match(src, /currentProductRecord\("bank-builder"\)/, "the record comes through the canonical Results reader, which defaults to the CURRENT frame");
+  assert.doesNotMatch(src, /LEGACY_HISTORY/, "the front door never declares the legacy frame");
+  assert.doesNotMatch(src, /banked-ladders|crownLadderSummary|crown-summary/, "and reaches for no completed-ladder source of its own");
 });
 
 test("RENDERED · the completed-ladder panel is labelled legacy, dated, and carries no current-performance figure", () => {

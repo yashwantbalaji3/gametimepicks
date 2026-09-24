@@ -597,6 +597,48 @@ jobs:
           cd app
           npx tsx scripts/results/build-model-results-index.mjs --apply
 
+
+      # ---- THE CANONICAL RESULTS PROJECTION (v1.8 · C2) ----
+      # Runs AFTER every owner above has been rebuilt and BEFORE the health gate, so the read model is a
+      # read model OF TONIGHT'S OWNERS rather than of yesterday's. C1 shipped the builder unscheduled and
+      # pinned a biconditional refusing "a reader with no producer"; C2 turns both halves on, so this step
+      # is now the producer half and must not silently stop running.
+      #
+      # DELIBERATELY NOT `continue-on-error`, and deliberately no `|| echo`. Both of those turn an explicit
+      # `exit 1` green — this repository has paid for that twice (a UFC odds capture that bought prices then
+      # threw, and a settle step whose `|| true` ran nothing). The builder is read-only and deterministic
+      # over artifacts that are already committed, so a failure here means an owner is malformed or the
+      # projection would contradict a dated file, and neither should publish.
+      #
+      # The cycle table is rebuilt first because the projection CITES it as an owner. `derive-cycle-table.mjs`
+      # was in no workflow at all, so its artifact froze the day it was written and the projection's two
+      # CYCLE_COMPLETION cells would have aged into a stale claim while every check stayed green.
+      #
+      # EXIT CODES ARE NAMED (contract in scripts/results/build-results-projection.mjs):
+      #   1 = write-once refusal — a dated projection for this UTC date exists and DIFFERS. nightly-settle
+      #       runs once a day so the normal path never reaches it; a manual re-run after an owner changed
+      #       does. That is an OPERATOR decision (delete the dated file deliberately, and say why), never a
+      #       silent restatement of history, so it surfaces by name instead of as a generic red settler.
+      #   2 = bad arguments · 3 = the assembly refused an owner (a truth rule caught something).
+      - name: Rebuild the canonical Results projection (read model over the settled owners)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          cd app
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          mkdir -p ../data/internal/products/cycle-table
+          npx --yes tsx scripts/products/derive-cycle-table.mjs --write
+          set +e
+          npx --yes tsx scripts/results/build-results-projection.mjs --now "$NOW" --write
+          rc=$?
+          set -e
+          if [ "$rc" -eq 1 ]; then
+            echo "::error title=Results projection refused a restatement::A dated projection for $(echo "$NOW" | cut -c1-10) already exists and differs from this run. The write-once rule refused it and wrote nothing. This is an operator decision: inspect the difference, and if the restatement is intended delete app/public/data/results/projection/$(echo "$NOW" | cut -c1-10).json deliberately and re-run. Do NOT make this step continue-on-error."
+          elif [ "$rc" -ne 0 ]; then
+            echo "::error title=Results projection build failed (exit $rc)::exit 2 = bad arguments; exit 3 = the assembly refused an owner (a truth rule caught something). The prior artifact was left in place and nothing was published."
+          fi
+          exit "$rc"
+
       - name: Health gate (abort publish on missing/stale/non-reconciling data)
         id: health
         if: ${{ github.event.inputs.dry_run != 'true' }}

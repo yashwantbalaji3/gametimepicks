@@ -45,6 +45,8 @@ import { buildDailyPortfolio } from "./mr-dub/daily-portfolio";
 import { currentSlateDate } from "./parlays/ui-loader";
 import { currentEtDate } from "./freshness";
 
+import { currentProductRecord } from "./results/current-record";
+
 const MR_DUB_DIR = path.join(process.cwd(), "public", "data", "mr-dub");
 
 function readMrDub<T>(rel: string): T | null {
@@ -144,8 +146,32 @@ export interface TrustMlbPerformance {
   byMarket: TrustMlbMarket[];
 }
 
+/**
+ * One completed June ladder, with its EXACT dates — the only form C3 permits it to render in.
+ *
+ * NOT the same as `completedCards`, which the owner writes as a single conflated row: one ladder's `5–0`
+ * beside BOTH ladders' combined final ($100 → $20,465.40), and no date at all. That row cannot be shown
+ * honestly in any frame, so the legacy panel draws the per-ladder source instead. The owner is not
+ * rewritten here — C2 repoints readers, it does not restate settlement.
+ */
+export interface TrustLegacyLadder {
+  name: string;
+  result: string;
+  start: number | null;
+  final: number | null;
+  completedDate: string;
+}
+
 export interface TrustCenterModel {
   money: TrustMoney | null;
+  /**
+   * The CURRENT Bank Builder record, from the canonical Results projection (C2). The products grid used
+   * to describe Bank Builder with `completedCards[0]` — a June completed ladder — so the tile read
+   * "Road to $10K completed 5–0" beside "2 paper cards published today". Null ⇒ the tile prints no figure.
+   */
+  bankBuilderRecordLabel: string | null;
+  /** The June completed ladders, dated, for an explicitly labelled legacy-history panel only. */
+  legacyLadders: TrustLegacyLadder[];
   completedCards: TrustCompletedCard[];
   awaitingCards: TrustAwaitingCard[];
   activeCardsCount: number;
@@ -236,6 +262,21 @@ export function getTrustCenterModel(): TrustCenterModel {
           typeof portfolio.generatedAt === "string" ? portfolio.generatedAt : null,
       }
     : null;
+
+  /* A ladder with no completedDate is DROPPED rather than rendered undated — the decision allows these
+     figures only with their exact dates, and the /mr-dub panel and the /bank-builder strip apply the same
+     rule to the same owner. */
+  const legacyLadders: TrustLegacyLadder[] = Array.isArray(portfolio?.completedLadders)
+    ? (portfolio!.completedLadders as Record<string, unknown>[])
+        .filter((l) => typeof l.completedDate === "string" && l.completedDate)
+        .map((l) => ({
+          name: String(l.name ?? "Completed ladder"),
+          result: String(l.result ?? ""),
+          start: typeof l.start === "number" ? l.start : null,
+          final: typeof l.final === "number" ? l.final : null,
+          completedDate: String(l.completedDate),
+        }))
+    : [];
 
   const completedCards: TrustCompletedCard[] = Array.isArray(portfolio?.completedCards)
     ? (portfolio!.completedCards as Record<string, unknown>[]).map((c) => ({
@@ -388,6 +429,9 @@ export function getTrustCenterModel(): TrustCenterModel {
 
   return {
     money,
+    /* No presentation context is passed anywhere on this path, so a legacy era cannot answer. */
+    bankBuilderRecordLabel: currentProductRecord("bank-builder").recordLabel,
+    legacyLadders,
     completedCards,
     awaitingCards,
     activeCardsCount,
