@@ -3,13 +3,13 @@
  "artifact": "selector-shadow-report",
  "dataClass": "internal-research",
  "status": "SHADOW_RUNNING · NOT ADOPTED",
- "reportedAt": "2026-09-22T14:40:54.593Z",
- "ledgerGeneratedAt": "2026-09-22T14:11:38.463Z",
- "days": 2,
+ "reportedAt": "2026-09-23T16:35:34.710Z",
+ "ledgerGeneratedAt": "2026-09-23T16:35:34.079Z",
+ "days": 3,
  "firstDate": "2026-09-21",
- "lastDate": "2026-09-22",
+ "lastDate": "2026-09-23",
  "candidatePool": {
-  "meanEligibleLegs": 57,
+  "meanEligibleLegs": 68,
   "minEligibleLegs": 18,
   "maxEligibleLegs": 96
  },
@@ -27,8 +27,8 @@
     "generatedAt": "2026-09-22T04:57:30.552Z",
     "retroactive": true,
     "rewrite": "INTACT",
-    "firstCommitAt": "2026-09-22T00:57:48-04:00",
-    "firstCommitHash": "e3f9c4b5ccf806a197f3f2d515af1a7309bb3772",
+    "firstCommitAt": "2026-09-23T16:30:24Z",
+    "firstCommitHash": "6eb31d9b727efc912be61d3de1a5760ffda2ebc0",
     "publicationFingerprint": "523c936a7699e56091f7973370810560962eea9eba63f143708b1fac7e47617b",
     "universeSha256": null,
     "eligibleLegs": 18,
@@ -44,69 +44,115 @@
     "generatedAt": "2026-09-22T14:22:28.563Z",
     "retroactive": false,
     "rewrite": "INTACT",
-    "firstCommitAt": "2026-09-22T14:22:34Z",
-    "firstCommitHash": "f2c613dabe696fd5d23e17877163db13696073a5",
+    "firstCommitAt": "2026-09-23T16:30:24Z",
+    "firstCommitHash": "6eb31d9b727efc912be61d3de1a5760ffda2ebc0",
     "publicationFingerprint": "bf5160be80bdf4300d82ce332e8808a94b3aea71fe5de24013a25e195bb2a206",
     "universeSha256": "2f1a9e2e49b5ae9c17047ce43502989ce8823256dab9a9a70389bf87a4291429",
     "eligibleLegs": 96,
     "eligibleByManifest": 96,
     "guardFailures": 0,
     "flags": []
+   },
+   {
+    "date": "2026-09-23",
+    "asOf": "2026-09-23T10:12:56Z",
+    "generatedAt": "2026-09-23T10:12:58.133Z",
+    "retroactive": false,
+    "rewrite": "INTACT",
+    "firstCommitAt": "2026-09-23T16:30:24Z",
+    "firstCommitHash": "6eb31d9b727efc912be61d3de1a5760ffda2ebc0",
+    "publicationFingerprint": "181a8a7e5ed1dfedefe389b57cf9e705f871af299cb28c09c00ecf4a7e5b1582",
+    "universeSha256": "e919fe90f7316f7482e5b2f23133b164c3e00710fab87efe063cb24c9a1b0015",
+    "eligibleLegs": 90,
+    "eligibleByManifest": 90,
+    "guardFailures": 0,
+    "flags": []
    }
   ]
  },
- "settlementDisagreements": [],
+ "settlementDisagreements": [
+  {
+   "date": "2026-09-22",
+   "policy": "BB-LEGACY",
+   "lane": "B",
+   "leg": "Tampa Bay Rays @ New York Yankees|New York Yankees to win",
+   "shadow": "won",
+   "live": "pending"
+  }
+ ],
  "policies": {
   "BB-LEGACY": {
    "policyId": "BB-LEGACY@7be1d5171769",
    "metrics": {
-    "laneDays": 4,
-    "placed": 3,
-    "decided": 1,
+    "laneDays": 6,
+    "placed": 5,
+    "decided": 3,
     "pending": 2,
-    "won": 1,
-    "lost": 0,
+    "won": 2,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": 1,
-    "survivalSe": 0,
+    "survivalPerStep": 0.667,
+    "survivalSe": 0.272,
     "byStep": {
      "1": {
+      "won": 1,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
       "won": 1,
       "lost": 0,
       "push": 0
      }
     },
     "completions": 0,
-    "furthestStep": 2,
+    "furthestStep": 3,
     "noPlayLaneDays": 1,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1
     },
-    "publicationRate": 0.75,
-    "expectedWinsUnderPublishedP": 0.38,
-    "meanJointP": 0.383
+    "publicationRate": 0.833,
+    "expectedWinsUnderPublishedP": 1,
+    "meanJointP": 0.333
    },
    "forwardOnlyMetrics": {
-    "laneDays": 2,
-    "placed": 2,
-    "decided": 0,
+    "laneDays": 4,
+    "placed": 4,
+    "decided": 2,
     "pending": 2,
-    "won": 0,
-    "lost": 0,
+    "won": 1,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": null,
-    "survivalSe": null,
-    "byStep": {},
+    "survivalPerStep": 0.5,
+    "survivalSe": 0.354,
+    "byStep": {
+     "1": {
+      "won": 0,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
+      "won": 1,
+      "lost": 0,
+      "push": 0
+     }
+    },
     "completions": 0,
-    "furthestStep": 2,
+    "furthestStep": 3,
     "noPlayLaneDays": 0,
     "noPlayByReason": {},
     "publicationRate": 1,
-    "expectedWinsUnderPublishedP": 0,
-    "meanJointP": null
+    "expectedWinsUnderPublishedP": 0.62,
+    "meanJointP": 0.308
    },
    "survivalByRung": {
     "1": {
+     "won": 1,
+     "lost": 1,
+     "push": 0,
+     "survival": 0.5
+    },
+    "2": {
      "won": 1,
      "lost": 0,
      "push": 0,
@@ -114,16 +160,16 @@
     }
    },
    "sportComposition": {
-    "mlb": 3
+    "mlb": 5
    },
    "probabilityBasis": {
-    "market-implied": 3
+    "market-implied": 5
    },
-   "ledgerAgrees": false,
+   "ledgerAgrees": true,
    "position": {
     "A": {
-     "step": 2,
-     "stake": 238.99,
+     "step": 3,
+     "stake": 700.74,
      "pending": true
     },
     "B": {
@@ -136,53 +182,75 @@
   "BB-C1": {
    "policyId": "BB-C1@b66731b335c2",
    "metrics": {
-    "laneDays": 4,
-    "placed": 3,
-    "decided": 1,
+    "laneDays": 6,
+    "placed": 5,
+    "decided": 3,
     "pending": 2,
-    "won": 1,
-    "lost": 0,
+    "won": 2,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": 1,
-    "survivalSe": 0,
+    "survivalPerStep": 0.667,
+    "survivalSe": 0.272,
     "byStep": {
      "1": {
+      "won": 1,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
       "won": 1,
       "lost": 0,
       "push": 0
      }
     },
     "completions": 0,
-    "furthestStep": 2,
+    "furthestStep": 3,
     "noPlayLaneDays": 1,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1
     },
-    "publicationRate": 0.75,
-    "expectedWinsUnderPublishedP": 0.38,
-    "meanJointP": 0.383
+    "publicationRate": 0.833,
+    "expectedWinsUnderPublishedP": 1.12,
+    "meanJointP": 0.372
    },
    "forwardOnlyMetrics": {
-    "laneDays": 2,
-    "placed": 2,
-    "decided": 0,
+    "laneDays": 4,
+    "placed": 4,
+    "decided": 2,
     "pending": 2,
-    "won": 0,
-    "lost": 0,
+    "won": 1,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": null,
-    "survivalSe": null,
-    "byStep": {},
+    "survivalPerStep": 0.5,
+    "survivalSe": 0.354,
+    "byStep": {
+     "1": {
+      "won": 0,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
+      "won": 1,
+      "lost": 0,
+      "push": 0
+     }
+    },
     "completions": 0,
-    "furthestStep": 2,
+    "furthestStep": 3,
     "noPlayLaneDays": 0,
     "noPlayByReason": {},
     "publicationRate": 1,
-    "expectedWinsUnderPublishedP": 0,
-    "meanJointP": null
+    "expectedWinsUnderPublishedP": 0.73,
+    "meanJointP": 0.367
    },
    "survivalByRung": {
     "1": {
+     "won": 1,
+     "lost": 1,
+     "push": 0,
+     "survival": 0.5
+    },
+    "2": {
      "won": 1,
      "lost": 0,
      "push": 0,
@@ -190,16 +258,16 @@
     }
    },
    "sportComposition": {
-    "mlb": 3
+    "mlb": 5
    },
    "probabilityBasis": {
-    "market-implied": 3
+    "market-implied": 5
    },
-   "ledgerAgrees": false,
+   "ledgerAgrees": true,
    "position": {
     "A": {
-     "step": 2,
-     "stake": 238.99,
+     "step": 3,
+     "stake": 700.74,
      "pending": true
     },
     "B": {
@@ -212,53 +280,75 @@
   "BB-C2b": {
    "policyId": "BB-C2b@61c455e7d375",
    "metrics": {
-    "laneDays": 4,
-    "placed": 3,
-    "decided": 1,
+    "laneDays": 6,
+    "placed": 5,
+    "decided": 3,
     "pending": 2,
-    "won": 1,
-    "lost": 0,
+    "won": 2,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": 1,
-    "survivalSe": 0,
+    "survivalPerStep": 0.667,
+    "survivalSe": 0.272,
     "byStep": {
      "1": {
+      "won": 1,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
       "won": 1,
       "lost": 0,
       "push": 0
      }
     },
     "completions": 0,
-    "furthestStep": 2,
+    "furthestStep": 3,
     "noPlayLaneDays": 1,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1
     },
-    "publicationRate": 0.75,
-    "expectedWinsUnderPublishedP": 0.38,
-    "meanJointP": 0.383
+    "publicationRate": 0.833,
+    "expectedWinsUnderPublishedP": 1.12,
+    "meanJointP": 0.372
    },
    "forwardOnlyMetrics": {
-    "laneDays": 2,
-    "placed": 2,
-    "decided": 0,
+    "laneDays": 4,
+    "placed": 4,
+    "decided": 2,
     "pending": 2,
-    "won": 0,
-    "lost": 0,
+    "won": 1,
+    "lost": 1,
     "push": 0,
-    "survivalPerStep": null,
-    "survivalSe": null,
-    "byStep": {},
+    "survivalPerStep": 0.5,
+    "survivalSe": 0.354,
+    "byStep": {
+     "1": {
+      "won": 0,
+      "lost": 1,
+      "push": 0
+     },
+     "2": {
+      "won": 1,
+      "lost": 0,
+      "push": 0
+     }
+    },
     "completions": 0,
-    "furthestStep": 2,
+    "furthestStep": 3,
     "noPlayLaneDays": 0,
     "noPlayByReason": {},
     "publicationRate": 1,
-    "expectedWinsUnderPublishedP": 0,
-    "meanJointP": null
+    "expectedWinsUnderPublishedP": 0.73,
+    "meanJointP": 0.367
    },
    "survivalByRung": {
     "1": {
+     "won": 1,
+     "lost": 1,
+     "push": 0,
+     "survival": 0.5
+    },
+    "2": {
      "won": 1,
      "lost": 0,
      "push": 0,
@@ -266,16 +356,16 @@
     }
    },
    "sportComposition": {
-    "mlb": 3
+    "mlb": 5
    },
    "probabilityBasis": {
-    "market-implied": 3
+    "market-implied": 5
    },
-   "ledgerAgrees": false,
+   "ledgerAgrees": true,
    "position": {
     "A": {
-     "step": 2,
-     "stake": 238.99,
+     "step": 3,
+     "stake": 700.74,
      "pending": true
     },
     "B": {
@@ -288,7 +378,7 @@
   "MS-LEGACY": {
    "policyId": "MS-LEGACY@311563f3927d",
    "metrics": {
-    "laneDays": 4,
+    "laneDays": 6,
     "placed": 1,
     "decided": 1,
     "pending": 0,
@@ -306,17 +396,17 @@
     },
     "completions": 0,
     "furthestStep": 1,
-    "noPlayLaneDays": 3,
+    "noPlayLaneDays": 5,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1,
-     "PRICE_UNAVAILABLE": 2
+     "PRICE_UNAVAILABLE": 4
     },
-    "publicationRate": 0.25,
+    "publicationRate": 0.167,
     "expectedWinsUnderPublishedP": 0.23,
     "meanJointP": 0.228
    },
    "forwardOnlyMetrics": {
-    "laneDays": 2,
+    "laneDays": 4,
     "placed": 0,
     "decided": 0,
     "pending": 0,
@@ -328,9 +418,9 @@
     "byStep": {},
     "completions": 0,
     "furthestStep": 0,
-    "noPlayLaneDays": 2,
+    "noPlayLaneDays": 4,
     "noPlayByReason": {
-     "PRICE_UNAVAILABLE": 2
+     "PRICE_UNAVAILABLE": 4
     },
     "publicationRate": 0,
     "expectedWinsUnderPublishedP": 0,
@@ -366,7 +456,7 @@
   "MS-C1": {
    "policyId": "MS-C1@cbd27cd0b408",
    "metrics": {
-    "laneDays": 4,
+    "laneDays": 6,
     "placed": 1,
     "decided": 1,
     "pending": 0,
@@ -384,17 +474,17 @@
     },
     "completions": 0,
     "furthestStep": 1,
-    "noPlayLaneDays": 3,
+    "noPlayLaneDays": 5,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1,
-     "PRICE_UNAVAILABLE": 2
+     "PRICE_UNAVAILABLE": 4
     },
-    "publicationRate": 0.25,
+    "publicationRate": 0.167,
     "expectedWinsUnderPublishedP": 0.23,
     "meanJointP": 0.228
    },
    "forwardOnlyMetrics": {
-    "laneDays": 2,
+    "laneDays": 4,
     "placed": 0,
     "decided": 0,
     "pending": 0,
@@ -406,9 +496,9 @@
     "byStep": {},
     "completions": 0,
     "furthestStep": 0,
-    "noPlayLaneDays": 2,
+    "noPlayLaneDays": 4,
     "noPlayByReason": {
-     "PRICE_UNAVAILABLE": 2
+     "PRICE_UNAVAILABLE": 4
     },
     "publicationRate": 0,
     "expectedWinsUnderPublishedP": 0,
@@ -444,7 +534,7 @@
   "MS-C4": {
    "policyId": "MS-C4@5da8e43d1124",
    "metrics": {
-    "laneDays": 4,
+    "laneDays": 6,
     "placed": 1,
     "decided": 1,
     "pending": 0,
@@ -462,18 +552,18 @@
     },
     "completions": 0,
     "furthestStep": 1,
-    "noPlayLaneDays": 3,
+    "noPlayLaneDays": 5,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1,
-     "CADENCE_WINDOW": 1,
-     "PRICE_UNAVAILABLE": 1
+     "CADENCE_WINDOW": 2,
+     "PRICE_UNAVAILABLE": 2
     },
-    "publicationRate": 0.25,
+    "publicationRate": 0.167,
     "expectedWinsUnderPublishedP": 0.23,
     "meanJointP": 0.228
    },
    "forwardOnlyMetrics": {
-    "laneDays": 2,
+    "laneDays": 4,
     "placed": 0,
     "decided": 0,
     "pending": 0,
@@ -485,10 +575,10 @@
     "byStep": {},
     "completions": 0,
     "furthestStep": 0,
-    "noPlayLaneDays": 2,
+    "noPlayLaneDays": 4,
     "noPlayByReason": {
-     "CADENCE_WINDOW": 1,
-     "PRICE_UNAVAILABLE": 1
+     "CADENCE_WINDOW": 2,
+     "PRICE_UNAVAILABLE": 2
     },
     "publicationRate": 0,
     "expectedWinsUnderPublishedP": 0,
@@ -529,29 +619,28 @@
    "allDays": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 1 < 20"
+     "decided 3 < 20"
     ],
     "measured": {
-     "shadowDecided": 1,
-     "shadowSurvival": 1,
-     "controlSurvival": 1,
-     "shadowPlaced": 3,
-     "controlPlaced": 3
+     "shadowDecided": 3,
+     "shadowSurvival": 0.667,
+     "controlSurvival": 0.667,
+     "shadowPlaced": 5,
+     "controlPlaced": 5
     },
     "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
    },
    "forwardOnly": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 0 < 20",
-     "survival not measurable yet"
+     "decided 2 < 20"
     ],
     "measured": {
-     "shadowDecided": 0,
-     "shadowSurvival": null,
-     "controlSurvival": null,
-     "shadowPlaced": 2,
-     "controlPlaced": 2
+     "shadowDecided": 2,
+     "shadowSurvival": 0.5,
+     "controlSurvival": 0.5,
+     "shadowPlaced": 4,
+     "controlPlaced": 4
     },
     "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
    },
@@ -564,29 +653,28 @@
    "allDays": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 1 < 20"
+     "decided 3 < 20"
     ],
     "measured": {
-     "shadowDecided": 1,
-     "shadowSurvival": 1,
-     "controlSurvival": 1,
-     "shadowPlaced": 3,
-     "controlPlaced": 3
+     "shadowDecided": 3,
+     "shadowSurvival": 0.667,
+     "controlSurvival": 0.667,
+     "shadowPlaced": 5,
+     "controlPlaced": 5
     },
     "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
    },
    "forwardOnly": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 0 < 20",
-     "survival not measurable yet"
+     "decided 2 < 20"
     ],
     "measured": {
-     "shadowDecided": 0,
-     "shadowSurvival": null,
-     "controlSurvival": null,
-     "shadowPlaced": 2,
-     "controlPlaced": 2
+     "shadowDecided": 2,
+     "shadowSurvival": 0.5,
+     "controlSurvival": 0.5,
+     "shadowPlaced": 4,
+     "controlPlaced": 4
     },
     "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
    },
