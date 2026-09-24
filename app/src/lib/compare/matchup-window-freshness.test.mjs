@@ -97,6 +97,9 @@ const CHAIN = [
   "scripts/research/build-research-projections.mjs",
   "scripts/compare/build-compare-projections.mjs",
   "scripts/lab/build-lab-projections.mjs",
+  /* The Ask projection is the fifth artifact with the same shape: a currency guard in CI
+     (`npm run ask:check`) and, until now, no producer staging it. */
+  "npm run ask:build",
 ];
 const OWNER = "daily-products.yml";
 

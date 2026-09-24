@@ -335,8 +335,16 @@ jobs:
           node scripts/research/build-research-projections.mjs
           node scripts/compare/build-compare-projections.mjs
           node scripts/lab/build-lab-projections.mjs
-          # POST-CONDITION: the store must now agree with the sources it was just built from.
+          # The Ask projection reads the same daily data. It is REBUILT by `npm run build`, and the
+          # quality gate asserts the committed copy is current (`npm run ask:check`) — but nothing
+          # staged it, so it survived only on whichever PR happened to rebuild it that day. The same
+          # defect as the four above, one artifact later: it goes red the moment the slate moves and
+          # no one commits a rebuild. Same owner, last in the chain, matching the build's own order.
+          npm run ask:build
+          # POST-CONDITIONS. The store must agree with the sources it was just built from, and the
+          # Ask projection must agree with what a fresh build would produce.
           node scripts/data-platform/build.mjs --all --check
+          npm run ask:check
           echo "[projections] chain refreshed and verified current against its committed sources"
 
       - name: The refreshed matchup window must not be expired
@@ -374,6 +382,7 @@ jobs:
           git add data/research-projection/ 2>/dev/null || true
           git add data/compare-projection/ 2>/dev/null || true
           git add data/lab-projection/ 2>/dev/null || true
+          git add data/ask-projection/ 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no change — products already current for ${{ steps.d.outputs.date }}"
             exit 0
@@ -419,5 +428,5 @@ jobs:
           # used to fail the second one on a rebase conflict (2026-09-11 15:13 UTC). The helper retries the
           # push and resolves a conflict INSIDE these generated paths to this (later) run's copy; any other
           # conflict — and the protected money files, always — fails loud.
-          GENERATED_PATHS="app/public/data/mr-dub/daily-portfolio.json app/public/data/admin/ data/internal/products/ app/public/data/parlays/ data/internal/platform/ data/research-projection/ data/compare-projection/ data/lab-projection/" \
+          GENERATED_PATHS="app/public/data/mr-dub/daily-portfolio.json app/public/data/admin/ data/internal/products/ app/public/data/parlays/ data/internal/platform/ data/research-projection/ data/compare-projection/ data/lab-projection/ data/ask-projection/" \
             bash scripts/ci/commit-generated.sh "auto: daily products ${{ steps.d.outputs.date }} [skip ci]"
