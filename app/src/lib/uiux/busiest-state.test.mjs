@@ -59,7 +59,14 @@ test("the four-lane fixture renders through the real Command Center and stays in
 });
 
 test("BUILT · fixture lanes + the page's non-lane words + the evening allowance fit under the ceiling", () => {
-  const p = path.join(process.cwd(), "out", "index.html");
+  /*
+   * ⚠ WRITTEN AS "out/index.html" ON PURPOSE. run-suite.mjs decides a test's PHASE by scanning its
+   * source for the export, and its pattern cannot span the `)` inside `path.join(process.cwd(), …)`.
+   * Spelled the old way this file was classified as a UNIT test, ran before the build, found no
+   * out/ and took the assert-when-built early return — so it passed blind in CI on every run since
+   * it was written. The literal `out/` is what puts it in the post-build phase, where it is real.
+   */
+  const p = path.join(process.cwd(), "out/index.html");
   if (!fs.existsSync(p)) return; // buildless lane: assert-when-built
   const page = fs.readFileSync(p, "utf8");
   const lanesOnPage = (page.match(/<section aria-labelledby="command-center-h"[\s\S]*?<\/section>/g) ?? []).reduce((s, x) => s + words(strip(x)), 0);

@@ -91,6 +91,32 @@ fi
 # next build. A failure therefore costs only the wait until the next app/-touching push.
 #
 # ':(top)' anchors each pathspec at the repo root regardless of the cwd Vercel runs us in.
+#
+# ── WHAT INSIDE app/ IS NOT A BUILD INPUT (P0 · 2026-09-24) ──────────────────────────────────
+# `:(top)app/` above is deliberately coarse, but it is not free: on 2026-09-24 commit 8cccf8a9
+# ("auto-refresh: zero Odds API credits") changed THREE files, all under app/public/data/ops/,
+# and triggered a full production build that wedged for 46 minutes and burned 180 CPU-minutes to
+# publish a byte-identical public site. 13 of the last 155 main commits (8.4%) were of exactly
+# that shape.
+#
+# `prune-internal-routes.mjs` DELETES these trees from the export — out/data/ops does not exist in
+# a built site, and neither does the /ops route. A commit confined to one of them therefore cannot
+# change a single byte the public site serves, so building for it is pure waste.
+#
+# THIS LIST IS NOT TAKEN ON TRUST. `internal-route-exclusion.test.mjs` runs in the post-build phase
+# and asserts, for every prefix named here, that (a) the source tree is non-empty — so the rule can
+# never be vacuous — and (b) the corresponding out/ tree is absent from a REAL build. The day
+# anything here starts shipping, the guard goes red and this exclusion must be revisited. Keep the
+# marker line below: the test parses this array out of this file.
+#
+# Direction of safety: an entry here can only ever cause LESS building. Every path not listed still
+# builds, and a malformed array makes `git diff` see the whole of app/ and build.
+# GTP-NON-BUILD-INPUTS-BEGIN
+NON_BUILD_INPUTS=(
+    'app/public/data/ops/'
+)
+# GTP-NON-BUILD-INPUTS-END
+
 BUILD_INPUTS=(
     ':(top)app/'
     ':(top)data/research-projection/'
@@ -101,8 +127,12 @@ BUILD_INPUTS=(
     ':(top)data/internal/nfl/forecast-receipts/'
     ':(top)data/internal/mlb/prediction-snapshots/'
 )
+for _nbi in "${NON_BUILD_INPUTS[@]}"; do
+    BUILD_INPUTS+=( ":(top,exclude)${_nbi}" )
+done
+
 if git diff --quiet "$BASE" HEAD -- "${BUILD_INPUTS[@]}"; then
-    echo "[ignore-build] no build-input changes (app/, data/*-projection, read internal paths) since deployed $BASE — skipping build"
+    echo "[ignore-build] no build-input changes (app/ minus ${NON_BUILD_INPUTS[*]}, data/*-projection, read internal paths) since deployed $BASE — skipping build"
     exit 0
 fi
 

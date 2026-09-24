@@ -150,6 +150,30 @@ test("a phase that hangs is DIAGNOSABLE from stdout alone: elapsed time, the las
   assert.match(alive2.at(-1), /no progress line seen yet/, "an honest 'nothing seen yet', never a stale counter");
 });
 
+test("a stalled heartbeat also reports the MACHINE, so the next wedge says whether it ran out of memory or CPU", () => {
+  /*
+   * P0 · 2026-09-24. The wedges were undiagnosable because the heartbeat proved the process was
+   * alive without saying anything about what it was alive ON. In the one wedge whose log survived,
+   * this wrapper's 30s interval fired at 292s/453s/439s gaps; the log could not distinguish memory
+   * exhaustion from CPU contention from a blocked pipe, so the incident stayed open.
+   *
+   * The assertion is on SHAPE, not on values — a build machine's real numbers are not this test's
+   * to predict. What must hold is that each field is present and parses as a number, on whatever
+   * platform the suite runs, because a "?" that silently replaced a reading would restore exactly
+   * the blindness this exists to remove.
+   */
+  const r = runPhase("t-res", ["-e", 'console.log("Generating static pages (1869/2493)"); setTimeout(() => {}, 2600)'], { heartbeat: 1 });
+  assert.equal(r.status, 0);
+  const alive = r.out.split("\n").filter((l) => /ALIVE\s+t-res/.test(l));
+  assert.ok(alive.length >= 1, "the heartbeat must fire while the phase is silent");
+  const last = alive.at(-1);
+  assert.match(last, /· mem \d+\.\d+G\/\d+\.\d+G/, "the heartbeat reports memory in use against the limit it actually has");
+  assert.match(last, /· load \d+\.\d+/, "…and the load average, which memory pressure alone does not explain");
+  assert.match(last, /· self \d+M/, "…and its OWN resident size, the control that says whether the instrumentation is the problem");
+  // The progress counter must SURVIVE the addition — resource state is extra, never a replacement.
+  assert.match(last, /Generating static pages \(1869\/2493\)/, "resource state must not displace the progress counter");
+});
+
 test("START is printed BEFORE the child runs, so the last phase to start is identifiable when it never ends", () => {
   const r = runPhase("t-order", ["-e", 'console.log("CHILD-RAN")']);
   const iStart = r.out.indexOf("START  t-order");
