@@ -1,61 +1,84 @@
 {
- "schemaVersion": 1,
- "artifact": "nfl-regular-season-public-card",
- "dataClass": "PUBLIC_DERIVED",
- "modelId": "nfl-regular-season-public-v1",
- "version": 2,
- "generatedAt": "2026-09-14T08:00:00Z",
- "launchState": "PUBLIC_EXPERIMENTAL",
- "note": "The public identity for regular-season team forecasts (P240). Version 2 (P298) swaps the win and margin heads for the two that the P297 historical replay found ELIGIBLE on 4,292 held-out games (2006-2021), under a registration committed before scoring; the previous single-rating pair remains the named fallback for any game where the new heads lack evidence or favour different sides. Every number it publishes is produced by the evaluated engines named in derivedFrom — nothing here is a new fit or a promotion. Promotion to any stronger label belongs exclusively to the frozen walk-forward contract (regular-season-evaluation-contract.json) and its own receipts; this card cannot satisfy that contract and does not claim to.",
- "derivedFrom": [
-  {
-   "modelId": "nfl-win-elo-mov-v1",
-   "version": 1,
-   "receipt": "reports/win-margin-historical-replay-evaluation.json",
-   "role": "win probability: Elo weighted by margin of victory, home advantage 36 (0 at neutral sites), K 20 — ELIGIBLE on held-out 2006-2021"
+  "schemaVersion": 1,
+  "artifact": "nfl-regular-season-public-card",
+  "dataClass": "PUBLIC_DERIVED",
+  "modelId": "nfl-regular-season-public-v1",
+  "version": 2,
+  "generatedAt": "2026-09-14T08:00:00Z",
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "note": "The public identity for regular-season team forecasts (P240). Version 2 (P298) swaps the win and margin heads for the two that the P297 historical replay found ELIGIBLE on 4,292 held-out games (2006-2021), under a registration committed before scoring; the previous single-rating pair remains the named fallback for any game where the new heads lack evidence or favour different sides. Every number it publishes is produced by the evaluated engines named in derivedFrom — nothing here is a new fit or a promotion. Promotion to any stronger label belongs exclusively to the frozen walk-forward contract (regular-season-evaluation-contract.json) and its own receipts; this card cannot satisfy that contract and does not claim to.",
+  "derivedFrom": [
+    {
+      "modelId": "nfl-win-elo-mov-v1",
+      "version": 1,
+      "receipt": "reports/win-margin-historical-replay-evaluation.json",
+      "role": "win probability: Elo weighted by margin of victory, home advantage 36 (0 at neutral sites), K 20 — ELIGIBLE on held-out 2006-2021"
+    },
+    {
+      "modelId": "nfl-margin-elo-hfa-v1",
+      "version": 1,
+      "receipt": "reports/win-margin-historical-replay-evaluation.json",
+      "role": "margin distribution: Elo with home advantage 36 (0 at neutral sites), normal margin with slope and sigma fit on 2022-2025 — ELIGIBLE on held-out 2006-2021"
+    },
+    {
+      "modelId": "nfl-model-v1-elo-analytic",
+      "version": 1,
+      "receipt": "reports/model-v1-evaluation.json",
+      "role": "the fallback single-rating win/margin pair, used per game when the adopted heads lack evidence or favour different sides"
+    },
+    {
+      "modelId": "nfl-gamesim-v1-joint-normal",
+      "version": 1,
+      "receipt": "reports/gamesim-v1-evaluation.json",
+      "role": "the joint score simulation the heads are published through"
+    }
+  ],
+  "separateFrom": "nfl-preseason-public-beta-v1 — the preseason identity and its coin-flip honest limit describe PRESEASON games only; the two identities never merge (the preseason-model-card precedent). Preseason games keep the preseason path and its abstentions.",
+  "plainEnglish": {
+    "what": "A simulated score range and win chance for every regular-season NFL game, from team ratings built on every final since 1999 and updated after each game day, frozen before kickoff.",
+    "honestLimit": "Our win chances come from a team rating that weights how decisively teams win. Tested on 4,281 past games it had never seen (2006–2021), it scored 0.629 on log loss (lower is better) — better than our previous rating's 0.642 and a coin flip's 0.693, but short of the sportsbooks' own odds at 0.610. It has NOT been shown to beat the sportsbook market. Where our win and margin ratings disagree on the favourite, the previous rating is used for that game. The 2026 season evaluation still runs under bars frozen in August, so every forecast stays experimental. These ratings are built from results, not from who is playing: they do not know that a starting quarterback has been ruled out. Our player projections do remove players who cannot play; the team win chance beside them does not. We tested whether adding that would help, using perfect hindsight about whether each team's main quarterback actually played — on 855 games from 2023 to 2025 it improved the win rating on average but was WORSE in one of the three seasons, so it did not clear the bar we hold these ratings to and we left the rating alone.",
+    "whatItIsGoodFor": "An honest, reproducible pre-kickoff read: which side is likelier, by how much, and how wide the range really is — on the held-out seasons the margin range held 77% of final margins, inside its 75–85% target.",
+    "whyPublishItAtAll": "The frozen evaluation contract requires pre-kickoff forecasts-of-record to exist before any of them can be judged. Publishing them, clearly labeled, is how the record accumulates without a single number being backfilled."
   },
-  {
-   "modelId": "nfl-margin-elo-hfa-v1",
-   "version": 1,
-   "receipt": "reports/win-margin-historical-replay-evaluation.json",
-   "role": "margin distribution: Elo with home advantage 36 (0 at neutral sites), normal margin with slope and sigma fit on 2022-2025 — ELIGIBLE on held-out 2006-2021"
+  "metrics": {
+    "heldOut": {
+      "seasons": "2006-2021",
+      "decisiveGames": 4281,
+      "win": {
+        "logLoss": 0.6291,
+        "previousRatingLogLoss": 0.642,
+        "coinLogLoss": 0.6931,
+        "marketLogLoss": 0.6101,
+        "ece": 0.0176
+      },
+      "margin": {
+        "mae": 10.785,
+        "interval80Coverage": 0.774
+      }
+    },
+    "previousVersion": {
+      "heldOutSeason": 2025,
+      "winner": {
+        "nDecisive": 285,
+        "logLoss": 0.6478,
+        "coinLogLoss": 0.6931,
+        "ece": 0.0446,
+        "regularSliceAccuracy": 0.639
+      },
+      "margin": {
+        "mae": 10.262
+      },
+      "total": {
+        "mae": 10.997
+      },
+      "scores": {
+        "teamScoreMAE": 7.584,
+        "interval80Coverage": 0.8015
+      }
+    }
   },
-  {
-   "modelId": "nfl-model-v1-elo-analytic",
-   "version": 1,
-   "receipt": "reports/model-v1-evaluation.json",
-   "role": "the fallback single-rating win/margin pair, used per game when the adopted heads lack evidence or favour different sides"
-  },
-  {
-   "modelId": "nfl-gamesim-v1-joint-normal",
-   "version": 1,
-   "receipt": "reports/gamesim-v1-evaluation.json",
-   "role": "the joint score simulation the heads are published through"
-  }
- ],
- "separateFrom": "nfl-preseason-public-beta-v1 — the preseason identity and its coin-flip honest limit describe PRESEASON games only; the two identities never merge (the preseason-model-card precedent). Preseason games keep the preseason path and its abstentions.",
- "plainEnglish": {
-  "what": "A simulated score range and win chance for every regular-season NFL game, from team ratings built on every final since 1999 and updated after each game day, frozen before kickoff.",
-  "honestLimit": "Our win chances come from a team rating that weights how decisively teams win. Tested on 4,281 past games it had never seen (2006–2021), it scored 0.629 on log loss (lower is better) — better than our previous rating's 0.642 and a coin flip's 0.693, but short of the sportsbooks' own odds at 0.610. It has NOT been shown to beat the sportsbook market. Where our win and margin ratings disagree on the favourite, the previous rating is used for that game. The 2026 season evaluation still runs under bars frozen in August, so every forecast stays experimental.",
-  "whatItIsGoodFor": "An honest, reproducible pre-kickoff read: which side is likelier, by how much, and how wide the range really is — on the held-out seasons the margin range held 77% of final margins, inside its 75–85% target.",
-  "whyPublishItAtAll": "The frozen evaluation contract requires pre-kickoff forecasts-of-record to exist before any of them can be judged. Publishing them, clearly labeled, is how the record accumulates without a single number being backfilled."
- },
- "metrics": {
-  "heldOut": {
-   "seasons": "2006-2021",
-   "decisiveGames": 4281,
-   "win": { "logLoss": 0.6291, "previousRatingLogLoss": 0.642, "coinLogLoss": 0.6931, "marketLogLoss": 0.6101, "ece": 0.0176 },
-   "margin": { "mae": 10.785, "interval80Coverage": 0.774 }
-  },
-  "previousVersion": {
-   "heldOutSeason": 2025,
-   "winner": { "nDecisive": 285, "logLoss": 0.6478, "coinLogLoss": 0.6931, "ece": 0.0446, "regularSliceAccuracy": 0.639 },
-   "margin": { "mae": 10.262 },
-   "total": { "mae": 10.997 },
-   "scores": { "teamScoreMAE": 7.584, "interval80Coverage": 0.8015 }
-  }
- },
- "trainedOn": "Ratings fold every REG+POST final since 1999 chronologically, with one-third regression to the mean at each season boundary; head parameters (home advantage, margin slope and sigma) were chosen on 2022-2025 only, before the 2006-2021 held-out seasons were scored once.",
- "lastEvaluated": "2026-09-14T06:30:00Z",
- "nextReview": "under the frozen 2026 walk-forward contract: first reading at 64 decisive games and 4 completed weeks, no promotion in either direction before that"
+  "trainedOn": "Ratings fold every REG+POST final since 1999 chronologically, with one-third regression to the mean at each season boundary; head parameters (home advantage, margin slope and sigma) were chosen on 2022-2025 only, before the 2006-2021 held-out seasons were scored once.",
+  "lastEvaluated": "2026-09-14T06:30:00Z",
+  "nextReview": "under the frozen 2026 walk-forward contract: first reading at 64 decisive games and 4 completed weeks, no promotion in either direction before that",
+  "availabilityEvidence": "reports/team-availability-ceiling-evaluation.json (internal; the ceiling study behind the honestLimit sentence)"
 }
