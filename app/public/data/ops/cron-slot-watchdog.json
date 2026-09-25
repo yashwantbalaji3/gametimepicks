@@ -1,6 +1,6 @@
 {
   "kind": "cron-slot-watchdog",
-  "generatedAt": "2026-09-25T15:38:13Z",
+  "generatedAt": "2026-09-25T18:48:50Z",
   "lookbackHours": 168,
   "sports": {
     "mlb": {
@@ -8,11 +8,11 @@
       "crons": [
         "17 11 * * *"
       ],
-      "createdAt": "2026-09-08T12:42:50.000Z",
+      "createdAt": "2026-09-08T19:57:24.000Z",
       "expected": 7,
       "ran": 100,
       "missed": [],
-      "lastConclusion": "skipped",
+      "lastConclusion": "success",
       "consecutiveFailures": 0,
       "state": "OK"
     },
@@ -24,21 +24,13 @@
         "0 11 * * 6",
         "0 13 * * 0,1,3,5"
       ],
-      "createdAt": "2026-09-08T12:42:50.000Z",
+      "createdAt": "2026-09-08T19:57:24.000Z",
       "expected": 7,
-      "ran": 51,
-      "missed": [
-        "2026-09-19T11:00:00.000Z",
-        "2026-09-20T13:00:00.000Z",
-        "2026-09-21T13:00:00.000Z",
-        "2026-09-22T11:00:00.000Z",
-        "2026-09-23T13:00:00.000Z",
-        "2026-09-24T11:00:00.000Z",
-        "2026-09-25T13:00:00.000Z"
-      ],
+      "ran": 53,
+      "missed": [],
       "lastConclusion": "success",
       "consecutiveFailures": 0,
-      "state": "MISSED"
+      "state": "OK"
     },
     "nfl": {
       "workflow": "nfl-event-window.yml",
@@ -48,22 +40,15 @@
         "30 14 * * *",
         "0 13 * * 5",
         "0 13 * * 6",
-        "0 13 * * 0",
-        "30 16 * * 0",
-        "0 23 * * 0",
-        "0 22 * * 1"
+        "0 13 * * 0"
       ],
-      "createdAt": "2026-09-08T12:42:50.000Z",
-      "expected": 27,
+      "createdAt": "2026-09-08T19:57:24.000Z",
+      "expected": 24,
       "ran": 100,
-      "missed": [
-        "2026-09-18T21:00:00.000Z",
-        "2026-09-22T21:00:00.000Z",
-        "2026-09-23T21:00:00.000Z"
-      ],
+      "missed": [],
       "lastConclusion": "success",
       "consecutiveFailures": 0,
-      "state": "MISSED"
+      "state": "OK"
     },
     "epl": {
       "workflow": "epl-matchweek.yml",
@@ -87,47 +72,29 @@
         "0 15 * * 0",
         "30 18 * * 1"
       ],
-      "createdAt": "2026-09-08T12:42:50.000Z",
+      "createdAt": "2026-09-08T19:57:24.000Z",
       "expected": 18,
       "ran": 100,
-      "missed": [
-        "2026-09-18T18:00:00.000Z",
-        "2026-09-19T10:30:00.000Z",
-        "2026-09-19T11:00:00.000Z",
-        "2026-09-20T12:00:00.000Z",
-        "2026-09-20T12:30:00.000Z",
-        "2026-09-20T21:00:00.000Z",
-        "2026-09-21T18:00:00.000Z",
-        "2026-09-21T18:30:00.000Z",
-        "2026-09-24T21:00:00.000Z"
-      ],
+      "missed": [],
       "lastConclusion": "success",
       "consecutiveFailures": 0,
-      "state": "MISSED"
+      "state": "OK"
     },
     "nba": {
       "workflow": "sport-schedules.yml",
       "crons": [
         "7 9 * * *"
       ],
-      "createdAt": "2026-09-08T12:42:50.000Z",
+      "createdAt": "2026-09-08T19:57:24.000Z",
       "expected": 7,
       "ran": 50,
-      "missed": [
-        "2026-09-19T09:07:00.000Z",
-        "2026-09-20T09:07:00.000Z",
-        "2026-09-21T09:07:00.000Z",
-        "2026-09-22T09:07:00.000Z",
-        "2026-09-23T09:07:00.000Z",
-        "2026-09-24T09:07:00.000Z",
-        "2026-09-25T09:07:00.000Z"
-      ],
+      "missed": [],
       "lastConclusion": "success",
       "consecutiveFailures": 0,
-      "state": "MISSED"
+      "state": "OK"
     }
   },
-  "missedTotal": 26,
+  "missedTotal": 0,
   "failingTotal": 0,
   "unknown": []
 }
