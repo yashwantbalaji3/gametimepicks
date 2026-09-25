@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824947,
+  "date": "2026-09-25",
+  "capturedAt": "2026-09-25T22:41:01.941Z",
+  "availableAt": "2026-09-25T22:41:01.941Z",
+  "eventStartTime": "2026-09-26T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 682052,
+    "name": "Jacob Lopez",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 686613,
+    "name": "Hunter Brown",
+    "pitchHand": "R"
+  },
+  "homeBatters": [
+    {
+      "playerId": 703607,
+      "name": "Henry Bolte",
+      "battingOrderSlot": 1,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 671732,
+      "name": "Lawrence Butler",
+      "battingOrderSlot": 2,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 669127,
+      "name": "Shea Langeliers",
+      "battingOrderSlot": 3,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 643446,
+      "name": "Jeff McNeil",
+      "battingOrderSlot": 4,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 680869,
+      "name": "Zack Gelof",
+      "battingOrderSlot": 5,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 622268,
+      "name": "Donovan Walton",
+      "battingOrderSlot": 6,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 666126,
+      "name": "Carlos Cortes",
+      "battingOrderSlot": 7,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 695720,
+      "name": "Tommy White",
+      "battingOrderSlot": 8,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 641680,
+      "name": "Jonah Heim",
+      "battingOrderSlot": 9,
+      "batSide": "S",
+      "platoonVsOpposingSP": "switch-advantage"
+    }
+  ],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-25T22:41:01.941Z"
+  },
+  "recordHash": "0a83dafa9d3107082a9c045b5fab83d7229c9feef5da7f62f2cfc23cc03c3764"
+}

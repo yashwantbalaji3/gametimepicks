@@ -1,0 +1,188 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823248-6790ff0874bd503a25d01de60dea8c3a",
+  "snapshotCreatedAt": "2026-09-25T22:40:57.914Z",
+  "snapshotReason": "VERIFY_DATE_IDENTITY_FIX",
+  "boardDateEt": "2026-09-25",
+  "eventId": "823248",
+  "gamePk": 823248,
+  "eventStartTime": "2026-09-26T01:40:00Z",
+  "homeTeam": "SD",
+  "awayTeam": "AZ",
+  "venue": "Petco Park",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "c11c81fac048e2590df775c84077b295",
+  "normalizedPayloadHash": "deea4c9bec5b38c5e96cd4579d9e48a6",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "PROJECTED_OR_UNPOSTED"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-09-25T22:40:57.914Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-25T22:40:57.914Z",
+      "timestampProven": true,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823248/feed/live",
+        "requestedAt": "2026-09-25T22:40:57.914Z",
+        "receivedAt": "2026-09-25T22:40:57.914Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Casey Mize",
+        "awayProbable": "Brandon Pfaadt",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-25T22:40:57.914Z",
+      "availableAt": "2026-09-25T22:40:57.914Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-25T22:40:57.914Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823248/feed/live",
+        "requestedAt": "2026-09-25T22:40:57.914Z",
+        "receivedAt": "2026-09-25T22:40:57.914Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Clear",
+        "temp": "75",
+        "wind": "10 mph, In From LF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-25T22:40:57.914Z",
+      "availableAt": "2026-09-25T22:40:57.914Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-25T22:40:57.914Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823248/feed/live",
+        "requestedAt": "2026-09-25T22:40:57.914Z",
+        "receivedAt": "2026-09-25T22:40:57.914Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Brennan Miller",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Ben May",
+            "type": "First Base"
+          },
+          {
+            "name": "John Tumpane",
+            "type": "Second Base"
+          },
+          {
+            "name": "Chris Segal",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-25T22:40:57.914Z",
+      "availableAt": "2026-09-25T22:40:57.914Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-25T22:40:57.914Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823248/feed/live",
+        "requestedAt": "2026-09-25T22:40:57.914Z",
+        "receivedAt": "2026-09-25T22:40:57.914Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

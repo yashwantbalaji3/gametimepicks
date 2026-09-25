@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823735,
+  "date": "2026-09-25",
+  "capturedAt": "2026-09-25T22:40:58.017Z",
+  "availableAt": "2026-09-25T22:40:58.017Z",
+  "eventStartTime": "2026-09-25T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 688107,
+      "name": "Robert Gasser",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4,
+        "bbAvg": 2.6,
+        "erAvg": 1.6,
+        "hrAvg": 0.2,
+        "kPer9": 7.3,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 98,
+        "k": 88,
+        "bb": 32,
+        "er": 45,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 700241,
+      "name": "Michael McGreevy",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 6,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 3.6,
+        "bbAvg": 2,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 6.07,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 164,
+        "k": 113,
+        "bb": 46,
+        "er": 70,
+        "hr": 21
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-25T22:40:58.017Z"
+  },
+  "recordHash": "d68f14b447792f403fe961588446de672e6a2e61bd159603d83b47bf84ef2b7e"
+}

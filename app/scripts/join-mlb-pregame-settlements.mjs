@@ -365,10 +365,22 @@ async function joinGame(date, gamePk, freeze, capturedLeans, existing) {
 
   const marketRows = [];
   for (const l of leanMap.values()) {
+    /*
+     * ⚠ A SHORT CODE PER ROW, AND THE SENTENCE ONLY ONCE ON THE RECORD.
+     *
+     * The first version of this wrote the full explanation into every row's `settlementReason`. On
+     * gamePk 824785 that is the same 95-character sentence 267 times, which took the committed file
+     * from under the cap to 144,049 bytes — past the 128 KiB metadata guard in mlb-pregame-capture.
+     * The one game the whole incident was about became the one file that could not be committed, so
+     * the repository kept a stale `pending` verdict for a game that had finished two days earlier.
+     * (It stayed contained only because a pending join yields no observations — by luck, not design.)
+     *
+     * This is the same lesson `ineligibleReason` a few lines below already carries: a per-row field
+     * multiplies by the number of rows, so it holds a code and the prose lives on the record, once,
+     * in `joinReason`.
+     */
     const g = supersededByReschedule || officialDateUnknown
-      ? { settlementStatus: "unavailable", actual: null, reason: supersededByReschedule
-          ? `game was played on ${game.officialDate}, not ${date} — this fixture is superseded and does not grade`
-          : `official date absent from the feed — cannot establish that ${date} is this game's date` }
+      ? { settlementStatus: "unavailable", actual: null, reason: supersededByReschedule ? "superseded_date" : "official_date_unknown" }
       : gradeLean(l, game);
     const reval = revalidateMarketEligibility({ inherited: l.researchEligible, capturedAt: l.capturedAt, availableAt: l.availableAt, eventStartTime: authoritativeStart });
     const researchEligible = reval.eligible;

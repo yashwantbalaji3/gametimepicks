@@ -249,15 +249,37 @@ test("MLB 8 · ⚠ MLB carries NO live player stats — and the reason is a miss
   const [live] = normalizeMlbSchedule(fixture("mlb-schedule.json"), FETCHED);
   assert.equal(live.playerStats, null);
 
+  /*
+   * ── NON-VACUITY, WITHOUT ASSUMING `ready` IS COMMON ────────────────────────────────────────────
+   *
+   * This read the NEWEST slate and required a `ready` game in it. That held only while `fullyReady`
+   * was satisfied by nine occupied lineup slots: READY ran 12-15 per slate. Now that it asks for nine
+   * POSTED PROP LINES per side (board-adapter.ts), a single slate can legitimately have none — the
+   * 2026-09-25 slate has zero — and this failed on its own precondition rather than on its subject.
+   *
+   * The subject is unchanged: a simulation must emit no per-player output, whatever its level. So the
+   * sample is taken across the recent slates, the size is asserted rather than assumed, and the
+   * `ready` ones are checked as a named subset when the window contains any.
+   */
   const simDate = path.join(APP_PUBLIC, "mlb/full-game-simulations");
-  const newest = fs.readdirSync(simDate).filter((f) => f.endsWith(".json")).sort().pop();
-  const slate = JSON.parse(fs.readFileSync(path.join(simDate, newest), "utf8"));
-  const ready = slate.games.filter((g) => g.status === "ready");
-  assert.ok(ready.length > 0, "the newest slate has a ready simulation — otherwise this proves nothing");
-  for (const g of ready) {
-    assert.ok(!Array.isArray(g.players) || g.players.length === 0,
-      `gamePk ${g.gamePk} now emits per-player output — revisit the MLB live player slice`);
-  }
+  const recent = fs.readdirSync(simDate).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().slice(-14);
+  const sims = recent.flatMap((f) => JSON.parse(fs.readFileSync(path.join(simDate, f), "utf8")).games ?? []);
+  assert.ok(sims.length >= 50, `expected a real sample of simulations, saw ${sims.length} across ${recent.length} slate(s)`);
+
+  const emitsPlayers = (g) => Array.isArray(g.players) && g.players.length > 0;
+  // Positive control: the predicate must actually fire on the thing it is looking for, or "none found"
+  // is a statement about the predicate rather than about the artifacts.
+  assert.equal(emitsPlayers({ gamePk: 1, status: "ready", players: [{ playerId: 1 }] }), true);
+  assert.equal(emitsPlayers({ gamePk: 1, status: "ready", players: [] }), false);
+  assert.equal(emitsPlayers({ gamePk: 1, status: "ready" }), false);
+
+  const emitting = sims.filter(emitsPlayers).map((g) => `gamePk ${g.gamePk} (${g.status})`);
+  assert.deepEqual(emitting, [],
+    `a simulation now emits per-player output — revisit the MLB live player slice:\n  ${emitting.join("\n  ")}`);
+
+  // And say plainly whether the window contained the level this was originally written about.
+  const ready = sims.filter((g) => g.status === "ready");
+  assert.ok(ready.length > 0, `no ready simulation in the last ${recent.length} slates — widen the window or check board-adapter.ts`);
 });
 
 test("MLB 9 · ⚠ a PRE game carries NO score — StatsAPI zeroes it an hour before first pitch", () => {

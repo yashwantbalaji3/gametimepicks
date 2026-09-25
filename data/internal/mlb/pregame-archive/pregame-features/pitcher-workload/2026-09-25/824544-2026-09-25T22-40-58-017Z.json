@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824544,
+  "date": "2026-09-25",
+  "capturedAt": "2026-09-25T22:40:58.017Z",
+  "availableAt": "2026-09-25T22:40:58.017Z",
+  "eventStartTime": "2026-09-25T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 680732,
+      "name": "Sean Burke",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22,
+        "ipAvg": 4.4,
+        "kAvg": 4,
+        "bbAvg": 3.4,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 8.18,
+        "workloadIpLast5": 22
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 137,
+        "k": 148,
+        "bb": 53,
+        "er": 58,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 608372,
+      "name": "Tomoyuki Sugano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 4,
+        "bbAvg": 1.6,
+        "erAvg": 4.2,
+        "hrAvg": 1,
+        "kPer9": 6.92,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 147.67,
+        "k": 91,
+        "bb": 36,
+        "er": 88,
+        "hr": 31
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-25T22:40:58.017Z"
+  },
+  "recordHash": "121ca050c9c9ca98cd8c549c9a58e2c743d055d5152af46edec26f368a197671"
+}

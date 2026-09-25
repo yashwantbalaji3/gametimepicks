@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823652,
+  "date": "2026-09-25",
+  "capturedAt": "2026-09-25T22:40:58.017Z",
+  "availableAt": "2026-09-25T22:40:58.017Z",
+  "eventStartTime": "2026-09-26T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 657746,
+      "name": "Joe Ryan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 4,
+        "bbAvg": 1,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 7.4,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 138.67,
+        "k": 151,
+        "bb": 30,
+        "er": 59,
+        "hr": 21
+      }
+    },
+    "away": {
+      "id": 594798,
+      "name": "Jacob deGrom",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 5,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 7.4,
+        "bbAvg": 1.2,
+        "erAvg": 1.4,
+        "hrAvg": 0.6,
+        "kPer9": 11.75,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 158.67,
+        "k": 196,
+        "bb": 43,
+        "er": 68,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-25T22:40:58.017Z"
+  },
+  "recordHash": "a38760f924b32b52f1db3b831fe7b1ebf05b730dab202f1c8c96c644f43a1ed3"
+}
