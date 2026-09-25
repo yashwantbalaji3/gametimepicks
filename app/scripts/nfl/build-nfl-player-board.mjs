@@ -377,7 +377,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const marketSlots = { priced: 0, absent: 0 };
   for (const pl of players) {
     for (const family of Object.keys(pl.markets)) {
-      const slot = propPrices.slotFor(doc.providerEventId, pl.playerId, family);
+      const slot = propPrices.slotFor(doc.providerEventId, pl.playerId, family, pl.name);
       if (slot.market) { pl.markets[family].market = slot.market; marketSlots.priced += 1; }
       else { pl.markets[family].pricingState = slot.pricingState; marketSlots.absent += 1; }
     }

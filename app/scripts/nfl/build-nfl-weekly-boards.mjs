@@ -150,7 +150,7 @@ function rankRows(family, metric, topN) {
          * means we never asked about this event at all. Collapsing them would assert a negative
          * nobody measured, which is the claim the whole typed-missingness grammar exists to stop.
          */
-        ...propPrices.slotFor(b.providerEventId, p.playerId, family),
+        ...propPrices.slotFor(b.providerEventId, p.playerId, family, p.name),
       });
     }
   }

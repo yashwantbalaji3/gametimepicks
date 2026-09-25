@@ -420,6 +420,20 @@ if (PROBE) {
           absentMarkets: PROP_PROBE_MARKETS.filter((k) => !marketsSeen.has(k)),
           atdRows: atdRows.length,
           lineRows: propRows.length,
+          /*
+           * ⚠ A MARKET WE COULD NOT MAP IS NOT A MARKET THAT DOES NOT EXIST.
+           *
+           * Without this list the two collapse: a quarantined provider label leaves no priced row,
+           * and every consumer downstream reports NOT_OFFERED — "we asked and the books do not post
+           * it" — about a market the books DO post. That is a confident, public, wrong statement
+           * about a third party, caused by our own join.
+           *
+           * Labels only. No id, no price, no team: this exists so a surface can say
+           * IDENTITY_UNRESOLVED instead of a falsehood, and nothing may ever be JOINED through it.
+           */
+          unresolvedIdentities: [...new Set([...atdQuarantined, ...propQuarantined]
+            .filter((q) => /unresolved against either roster|ambiguous across both/.test(q.reason ?? ""))
+            .map((q) => q.name))].sort(),
         });
       }
     }
@@ -577,7 +591,14 @@ const publicArtifact = {
       eventsProbed: propProbe.eventsProbed ?? 0,
       offeredMarkets: Object.keys(propProbe.marketsSeen ?? {}),
       absentMarkets: propProbe.absentMarkets ?? [],
-      perEvent: (propProbe.events ?? []).map((e) => ({ canonicalEventId: e.canonicalEventId, matchup: e.matchup, offeredMarkets: Object.keys(e.marketsSeen ?? {}), absentMarkets: e.absentMarkets })),
+      perEvent: (propProbe.events ?? []).map((e) => ({
+        canonicalEventId: e.canonicalEventId,
+        matchup: e.matchup,
+        offeredMarkets: Object.keys(e.marketsSeen ?? {}),
+        absentMarkets: e.absentMarkets,
+        /* Provider labels this event priced and we could not safely map. Never a join key. */
+        unresolvedIdentities: e.unresolvedIdentities ?? [],
+      })),
     }
     : { state: propProbe?.state ?? "NOT_PROBED", probedEventIds: [], offeredMarkets: [], absentMarkets: [] },
   /*

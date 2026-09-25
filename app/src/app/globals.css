@@ -5481,6 +5481,12 @@ body {
  * recommendation rather than an attribution.
  */
 .gtp-pred-book {
+  /* ⚠ `flex: 1 0 100%` ALONE PUT THE BOOK ON THE VALUE'S LINE AT DESKTOP, where the cell is
+     `display: block` and a flex basis means nothing: the export read "DRAFTKINGSYes -165" and
+     "GAMETIMEPICKS80.0%", run together with no space. `display: block` is what `.gtp-pred-sub`
+     already does for the same reason, and it holds under BOTH layouts — as a blockified flex item
+     at phone width, and as its own line in the desktop grid cell. */
+  display: block;
   flex: 1 0 100%;
   font-size: 9.5px; line-height: 1.5;
   color: var(--vault-gold);
@@ -5489,6 +5495,50 @@ body {
 
 .gtp-pred-link { font-size: 10px; color: var(--vault-gold-bright); }
 .gtp-pred-link:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); border-radius: 4px; }
+
+/*
+ * NFL HUB TABLE CELLS — classes, because the same declaration block was being SHIPPED once per cell.
+ *
+ * ⚠ MEASURED (2026-09-25). `/nfl/index.html` carried 1,377 `style="…"` attributes totalling 89KB of
+ * a 648KB document, and the page had crossed its 600KB budget. Seventy cells shipped the identical
+ * 114-character string; forty-six shipped another; forty a third. This is the /results defect
+ * ("per-cell style objects = 1,160KB") in a smaller room.
+ *
+ * The rule the budget encodes is "fix at the render owner, never by hiding records and never by
+ * raising the number". The records here are the sportsbook prices the sweep just bought — so what
+ * goes is the repetition, not the content.
+ */
+.gtp-nfl-td {
+  padding: 7px 10px;
+  border-top: 1px solid var(--vault-border);
+  font-size: 12.5px;
+}
+.gtp-nfl-td-13 { font-size: 13px; }
+.gtp-nfl-td-115 { font-size: 11.5px; }
+.gtp-nfl-td-mono { font-family: var(--font-mono, monospace); }
+.gtp-nfl-td-mute { color: var(--vault-text-mute); }
+.gtp-nfl-cell {
+  padding: 8px 9px;
+  border-top: 1px solid var(--vault-border);
+  font-size: 12.5px;
+}
+.gtp-nfl-cell-13 { font-size: 13px; }
+.gtp-nfl-cell-115 { font-size: 11.5px; }
+.gtp-nfl-cell-11 { font-size: 11px; }
+.gtp-nfl-nowrap { white-space: nowrap; }
+.gtp-nfl-mute { color: var(--vault-text-mute); }
+.gtp-nfl-faint { color: var(--vault-text-faint); }
+.gtp-nfl-w200 { max-width: 200px; }
+.gtp-nfl-w220 { max-width: 220px; }
+.gtp-nfl-inline { display: inline-flex; align-items: center; gap: 6px; }
+.gtp-nfl-th {
+  text-align: left;
+  padding: 7px 10px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vault-text-faint);
+}
 
 /* The reason an absent market is absent — once per board, not once per row. */
 .gtp-pred-note {
@@ -5503,7 +5553,7 @@ body {
   .gtp-pred-head,
   .gtp-pred-row {
     display: grid;
-    grid-template-columns: 22px minmax(240px, 2fr) 126px 92px 68px 58px;
+    grid-template-columns: 22px minmax(220px, 2fr) 152px 92px 68px 58px;
     gap: 0 10px;
     align-items: center;
   }
@@ -5511,15 +5561,15 @@ body {
      agree with the DOM — a track the row has no child for silently shifts every later column. */
   .gtp-pred-norank .gtp-pred-head,
   .gtp-pred-norank .gtp-pred-row {
-    grid-template-columns: minmax(240px, 2fr) 126px 92px 68px 58px;
+    grid-template-columns: minmax(220px, 2fr) 152px 92px 68px 58px;
   }
   .gtp-pred-norange .gtp-pred-head,
   .gtp-pred-norange .gtp-pred-row {
-    grid-template-columns: 22px minmax(240px, 2fr) 126px 92px 58px;
+    grid-template-columns: 22px minmax(220px, 2fr) 152px 92px 58px;
   }
   .gtp-pred-norank.gtp-pred-norange .gtp-pred-head,
   .gtp-pred-norank.gtp-pred-norange .gtp-pred-row {
-    grid-template-columns: minmax(240px, 2fr) 126px 92px 58px;
+    grid-template-columns: minmax(220px, 2fr) 152px 92px 58px;
   }
   .gtp-pred-head {
     padding: 0 12px 6px;

@@ -106,6 +106,10 @@ const MARKET_SHORT: Record<string, string> = {
   NOT_AUTHORIZED: "Market unavailable",
   NOT_OFFERED: "Not offered",
   NOT_PROBED: "Not checked",
+  /* ⚠ "OURS, NOT THEIRS." A market exists and we could not match it to this player, so the cell
+     must not say the books declined to post it. The full sentence under the board says whose
+     limitation it is; the cell says enough that a reader does not read it as the books'. */
+  IDENTITY_UNRESOLVED: "Not matched to this player",
   UNSUPPORTED: "n/a",
 };
 

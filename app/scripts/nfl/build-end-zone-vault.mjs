@@ -207,7 +207,7 @@ for (const f of upcoming) {
         /* The typed absence, for the rows that have no price — so the surface says which absence it
            is rather than falling back to a state about our own authorization, which is no longer
            true. Null when a price IS held; the two never coexist. */
-        pricingState: propPrices.pricingStateFor(f.providerEventId, p.playerId, "anytime_td"),
+        pricingState: propPrices.pricingStateFor(f.providerEventId, p.playerId, "anytime_td", p.name),
         shareBasis: p.shareBasis,
         modelVersion: calibration?.receipt ?? null,
       });

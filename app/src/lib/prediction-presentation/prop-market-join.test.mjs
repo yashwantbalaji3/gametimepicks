@@ -123,6 +123,36 @@ test("a yes/no capture keeps its shape — no point, no opposite side", () => {
   assert.equal(m.underOdds, undefined, "the opposite side of a yes/no market is never inferred");
 });
 
+test("a market we could not MAP is never reported as a market that does not EXIST", () => {
+  /*
+   * ⚠ MEASURED, 2026-09-25. The first full-week sweep quarantined eight players whose sportsbook
+   * label and roster name differed only by a generational suffix — James Cook / James Cook III
+   * among them. Each had a real, priced DraftKings market, and each reached a reader as
+   * "Not offered": a confident public statement that the BOOKS do not post a market they do post,
+   * caused entirely by our own join.
+   *
+   * The resolver now sets suffixes aside (fail-closed, unique matches only), so those eight resolve.
+   * This guards the state that catches the NEXT one, whatever shape it takes.
+   */
+  const capture = {
+    propMarkets: {
+      state: "PROBED",
+      probedEventIds: ["nfl-401872953"],
+      perEvent: [{ canonicalEventId: "nfl-401872953", absentMarkets: [], unresolvedIdentities: ["James Cook", "Zonovan Knight"] }],
+    },
+    propPrices: { rows: [] },
+  };
+  const idx = buildPropPriceIndex(capture);
+  assert.equal(idx.pricingStateFor("401872953", "nfl-athlete-4379399", "anytime_td", "James Cook III"), "IDENTITY_UNRESOLVED",
+    "the roster spells it with a suffix and the book does not — the same player, and the market exists");
+  assert.equal(idx.pricingStateFor("401872953", "nfl-athlete-1", "anytime_td", "Josh Allen"), "NOT_OFFERED",
+    "a player NOT in the unresolved list keeps the measured negative — the new state must not swallow the old one");
+  assert.equal(idx.pricingStateFor("401872953", "nfl-athlete-1", "anytime_td"), "NOT_OFFERED",
+    "with no name to compare, the least-claiming measured answer stands rather than a guess");
+  assert.equal(idx.pricingStateFor("401872999", "nfl-athlete-4379399", "anytime_td", "James Cook III"), "NOT_PROBED",
+    "an unprobed event is still NOT_PROBED — an unresolved label on ANOTHER event proves nothing here");
+});
+
 test("slotFor returns a price OR an absence — never both, never neither", () => {
   const idx = buildPropPriceIndex(CAPTURE);
   const priced = idx.slotFor("401872948", "nfl-athlete-4430807", "player_rush_yds");

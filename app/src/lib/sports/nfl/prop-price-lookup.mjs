@@ -20,6 +20,19 @@
  * consumer guessing — a consumer that guessed would assert a negative nobody measured.
  */
 
+/**
+ * A provider label reduced to a comparable key: lower case, no punctuation or accents, and with a
+ * trailing generational suffix set aside — the same shape `lib/sports/nfl/player-identity.mjs`
+ * compares on, and for the same measured reason (the books say "James Cook", ESPN says "James Cook
+ * III"). It is used ONLY to pick a display state, never to attach a price.
+ */
+const nameKey = (n) => {
+  const parts = String(n ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+  if (parts.length >= 3 && /^(jr|sr|ii|iii|iv|v)$/.test(parts[parts.length - 1])) parts.pop();
+  return parts.join(" ");
+};
+
 /** The families a board can ask about, spelled as the CAPTURE publishes them (board vocabulary). */
 export const PROP_FAMILIES = ["anytime_td", "player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"];
 
@@ -45,7 +58,23 @@ export function buildPropPriceIndex(markets) {
      which absence it is looking at; the displayed state is the same either way, and both are
      measured negatives, so nothing below branches on it. */
   const absentByEvent = new Map();
-  for (const e of pm.perEvent ?? []) absentByEvent.set(e.canonicalEventId, new Set(e.absentMarkets ?? []));
+  /*
+   * PROVIDER LABELS THIS EVENT PRICED AND THE CAPTURE COULD NOT SAFELY MAP.
+   *
+   * ⚠ IT IS A DISPLAY-STATE KEY AND NEVER A JOIN KEY. Matching a board row's NAME against these
+   * labels chooses between two words on a screen — "we could not identify this market" versus "the
+   * books did not post it" — and that is the entire extent of it. No price, no id and no team ever
+   * travels this path, so nothing here can mint an identity; the capture's own resolver remains the
+   * only thing that decides who a player is, and it stays fail-closed.
+   *
+   * Without it the two states collapse and a market the books DO post is reported as one they do
+   * not — a confident public statement about a third party, caused by our own join.
+   */
+  const unresolvedByEvent = new Map();
+  for (const e of pm.perEvent ?? []) {
+    absentByEvent.set(e.canonicalEventId, new Set(e.absentMarkets ?? []));
+    unresolvedByEvent.set(e.canonicalEventId, new Set((e.unresolvedIdentities ?? []).map(nameKey)));
+  }
 
   return {
     meta: pp ? { referenceBook: pp.referenceBook, fallbackOrder: pp.fallbackOrder, policy: pp.policy, capturedAt: pp.capturedAt } : null,
@@ -81,9 +110,17 @@ export function buildPropPriceIndex(markets) {
      * consumer seeing "no row for this player" cannot distinguish it from "no market", and guessing
      * would turn our own join failure into a claim about the books.
      */
-    pricingStateFor(providerEventId, playerId, family) {
+    pricingStateFor(providerEventId, playerId, family, playerName = null) {
       if (this.marketFor(providerEventId, playerId, family)) return null;
       if (!this.wasProbed(providerEventId)) return "NOT_PROBED";
+      /*
+       * ⚠ IDENTITY_UNRESOLVED BEFORE NOT_OFFERED, because only one of them is a claim about the
+       * books. If this event priced a label that matches this player's name and the capture could
+       * not map it, the market EXISTS and we failed to reach it — saying "not offered" there is a
+       * confident falsehood about a third party. Measured on 2026-09-25: eight players, including
+       * James Cook, read "Not offered" for exactly this reason.
+       */
+      if (playerName && unresolvedByEvent.get(`nfl-${providerEventId}`)?.has(nameKey(playerName))) return "IDENTITY_UNRESOLVED";
       /* Probed and unpriced is NOT_OFFERED, whether the family came back absent for the whole event
          or came back without THIS player. Both are things we asked and were not given, which is
          what the word means; the difference between them is evidence, not a different claim. */
@@ -94,9 +131,9 @@ export function buildPropPriceIndex(markets) {
      * The whole market slot for a row, as ONE value: either a price or a typed absence, never both.
      * Producers should use this rather than calling the two above and combining them by hand.
      */
-    slotFor(providerEventId, playerId, family) {
+    slotFor(providerEventId, playerId, family, playerName = null) {
       const market = this.marketFor(providerEventId, playerId, family);
-      return market ? { market } : { pricingState: this.pricingStateFor(providerEventId, playerId, family) };
+      return market ? { market } : { pricingState: this.pricingStateFor(providerEventId, playerId, family, playerName) };
     },
   };
 }
