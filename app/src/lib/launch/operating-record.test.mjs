@@ -14,19 +14,38 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
-import { execSync } from "node:child_process";
 
 import { RELEASE_HISTORY } from "./release-history.mjs";
 import { validateRecordHtml } from "../../../scripts/ops/build-operating-record.mjs";
 import { assessExtraction } from "../../../scripts/ops/verify-operating-record-pdf.mjs";
+import { conventionCommits, isShallowRepository, missingFromRegister, shaMatches } from "../../../scripts/ops/append-release-history.mjs";
 
-const RE = /\|P[0-9]{3} (R-[A-Z0-9]+|Phase 0|L)[ :]|\(P[0-9]{3} Releases? [A-Z0-9+]+\)|\(Release [A-Z0-9+/]+\)/;
 const recordPath = path.resolve(process.cwd(), "..", "data", "internal", "launch", "operating-record.html");
 
 test("CONSERVATION · every convention-era release commit in git appears in the committed register", () => {
-  const log = execSync('git log --reverse --format="%h|%s"', { encoding: "utf8" });
-  const commits = log.split("\n").filter((l) => RE.test(l)).map((l) => l.split("|")[0]);
-  const inRegister = new Set(RELEASE_HISTORY.map((r) => r.commit));
+  /*
+   * ── TWO WAYS THIS GUARD PASSED WITHOUT CHECKING ANYTHING ────────────────────────────────────
+   *
+   * 1. IT COMPARED TWO ABBREVIATIONS. Both sides were `%h`, and `%h` is not an identifier: git
+   *    scales it with the object count. The register was written when `%h` gave 9 characters and the
+   *    repo has since crossed into 10, so the string compare stopped matching on every row at once —
+   *    119 releases reading as missing from a register that held all 119. The derivation and the
+   *    prefix-against-`%H` comparison now live in append-release-history.mjs, imported here, so the
+   *    guard and the tool that repairs it can no longer disagree about what a match is.
+   *
+   * 2. IT RAN ON A SHALLOW CLONE. `git log` then returns only the fetched window, `commits` comes
+   *    back nearly empty, and "nothing missing" is true of nothing. That is the hole the first
+   *    defect hid behind for as long as it existed. A clone that cannot see the convention era must
+   *    fail, not pass.
+   */
+  assert.equal(
+    isShallowRepository(), false,
+    "shallow clone: git log cannot see the convention era, so this guard would pass by absence — check out with fetch-depth: 0",
+  );
+
+  const commits = conventionCommits();
+  assert.ok(commits.length >= 100, `expected the full convention era, saw ${commits.length} commits — history is truncated`);
+
   /*
    * The NEWEST convention commit alone may be in flight: a release row cannot contain its own
    * SHA, so each release registers its predecessor and the newest one is registered by the next.
@@ -34,10 +53,28 @@ test("CONSERVATION · every convention-era release commit in git appears in the 
    * and exposed the just-shipped release as a false conservation failure.) Anything that is not
    * the newest convention commit and is unregistered is a real hole in the record.
    */
-  const newestConvention = commits[commits.length - 1];
-  const missing = commits.filter((c) => !inRegister.has(c) && c !== newestConvention);
+  const newest = commits[commits.length - 1]?.commit;
+  const missing = missingFromRegister(commits).filter((c) => c.commit !== newest).map((c) => c.commit.slice(0, 12));
   assert.deepEqual(missing, [],
     `release commits missing from the register (run scripts/ops/append-release-history.mjs --emit):\n  ${missing.join("\n  ")}`);
+});
+
+test("CONSERVATION · the match is by commit identity, not by abbreviation length", () => {
+  /*
+   * The defect above, as a fixture. A register row holds a prefix of whatever length was current
+   * the day it was written; every one of these is the same commit and must read as registered.
+   */
+  const full = "2da735a7c5c3f8eed881c56f71d9424a03c5ac75";
+  for (const abbrev of [full.slice(0, 7), full.slice(0, 8), full.slice(0, 9), full.slice(0, 10), full.slice(0, 12), full]) {
+    assert.equal(shaMatches(abbrev, full), true, `${abbrev.length}-character prefix must match the same commit`);
+  }
+  // Too short to identify a commit, and a genuinely different commit, both refuse.
+  assert.equal(shaMatches(full.slice(0, 6), full), false, "six characters is not an identification");
+  assert.equal(shaMatches("2da735a7d", full), false, "a different commit is not a match");
+
+  // And the real register: its stored abbreviations must resolve against real full shas in git.
+  const registered = conventionCommits().filter((c) => RELEASE_HISTORY.some((r) => shaMatches(r.commit, c.commit)));
+  assert.ok(registered.length >= 100, `the register must match real commits, matched ${registered.length}`);
 });
 
 test("the committed record HTML validates: end marker, count, first/last, chronology", () => {

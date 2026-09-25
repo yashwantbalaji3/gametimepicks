@@ -94,7 +94,24 @@ jobs:
       run:
         working-directory: app
     steps:
+      # ── THE SUITE INCLUDES A GUARD THAT READS COMMIT HISTORY, AND A DEPTH-1 CHECKOUT MADE IT
+      #    VACUOUS ─────────────────────────────────────────────────────────────────────────────────
+      #
+      # `CONSERVATION · every convention-era release commit in git appears in the committed register`
+      # enumerates release commits from `git log`. On the default shallow checkout `git log` returns
+      # one commit, the derivation finds no convention-era releases, and "nothing is missing" is a
+      # true statement about an empty set. The guard has been green here for its whole life without
+      # ever checking the register — green by absence. It now refuses a shallow clone outright, so
+      # this checkout has to be able to answer it.
+      #
+      # `fetch-depth: 0` ALONE WOULD BE THE WRONG PRICE. The pack is 1.16 GiB and this job runs on
+      # every push and PR; a full clone buys history no test reads. The guard needs commit METADATA
+      # — subjects and shas — so `filter: blob:none` fetches every commit without the historical
+      # blobs, and the working tree is still materialised in full for the tests that read files.
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          filter: blob:none
 
       - uses: actions/setup-node@v5
         with:
