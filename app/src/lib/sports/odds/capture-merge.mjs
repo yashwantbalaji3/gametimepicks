@@ -44,3 +44,31 @@ export function mergeCaptureRows(priorRows, freshRows, { priorCapturedAt = null 
  * carried one. Every freshness judgement downstream should ask this, not the document.
  */
 export const rowCapturedAt = (row, doc) => row?.capturedAt ?? doc?.capturedAt ?? null;
+
+/**
+ * THE SAME RULE, ONE FIELD OVER: a run that did not ASK about player props must not erase the
+ * answer from the run that did.
+ *
+ * ⚠ THIS WOULD HAVE WIPED 775 PRICES AT THE NEXT SCHEDULED CAPTURE (found 2026-09-25, before it
+ * fired). Props are swept on six crons; the three ordinary NFL windows buy the 3-credit team call
+ * and pass no `--probe-props`. The capture wrote `propMarkets` and `propPrices` fresh from THIS
+ * run's probe every time, so the first ordinary window after a sweep would have published
+ * `state: "NOT_PROBED"`, `probedEventIds: []` and `propPrices: null` — and every board, game report
+ * and Vault row would have returned to "Not checked" a few hours after the sweep paid for them.
+ *
+ * Nobody would have seen a failure. The job is green, the artifact validates, and the site simply
+ * forgets — which is the shape of every expensive outage in this repo's history.
+ *
+ * A carried block keeps its OWN `capturedAt`, so staleness stays visible and is never re-dated to
+ * now. ⚠ It cannot leak across a week either: a carried `probedEventIds` names last week's events,
+ * so a new week's events are absent from it and read NOT_PROBED — which is exactly true of them.
+ *
+ * @param prior     the committed public capture, or null
+ * @param propProbe this run's probe result, or null when it did not probe
+ * @returns {{propMarkets, propPrices}|null} the block to carry, or null to use this run's own
+ */
+export function carryPropsForward(prior, propProbe) {
+  if (propProbe?.state === "PROBED") return null;            // this run asked and has its own answer
+  if (prior?.propMarkets?.state !== "PROBED") return null;   // nothing worth carrying
+  return { propMarkets: prior.propMarkets, propPrices: prior.propPrices ?? null };
+}

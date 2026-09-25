@@ -20,6 +20,8 @@
  * are the ones a reader compares ACROSS rows. A column earns its place by being worth comparing
  * down the page; "which game is this" is not that, it is part of the row's identity.
  */
+import type React from "react";
+
 import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import type { MarketSnapshot, ModelForecast, PredictionPresentation } from "@/lib/prediction-presentation/contract";
@@ -64,8 +66,17 @@ const PARTICIPATION_LABEL: Record<string, string> = {
   INACTIVE: "listed out",
 };
 /** Internal model/role states. Owned, carried, conditioned on — but not shown on the primary row. */
-const PARTICIPATION_INTERNAL = new Set(["AVAILABLE_ROLE_UNCERTAIN"]);
-const participationLabel = (s: string) =>
+const PARTICIPATION_INTERNAL = new Set(["AVAILABLE_ROLE_UNCERTAIN", "ROLE_UNCERTAIN"]);
+/*
+ * ⚠ EXPORTED, BECAUSE A SECOND COPY OF THIS RULE IS A SECOND ANSWER.
+ *
+ * The NFL game report had its own map (`AVAILABLE_ROLE_UNCERTAIN: "role uncertain"`) and its own
+ * inline fallback (`participation.toLowerCase().replaceAll("_", " ")`), which RENDERED THE BANNED
+ * PHRASE WITHOUT EVER CONTAINING IT — a grep for "available role uncertain" across the source
+ * returned nothing while the string was on the page, assembled at runtime from an enum value.
+ * One exported function, used by every surface, is the only version of this that stays fixed.
+ */
+export const participationLabel = (s: string) =>
   !s || PARTICIPATION_INTERNAL.has(s) ? "" : PARTICIPATION_LABEL[s] ?? s.toLowerCase().replace(/_/g, " ");
 
 /** The model's headline number, in its own unit. A probability is a percentage; a count is a count. */
@@ -95,29 +106,85 @@ const MARKET_SHORT: Record<string, string> = {
   NOT_AUTHORIZED: "Market unavailable",
   NOT_OFFERED: "Not offered",
   NOT_PROBED: "Not checked",
+  /* ⚠ "OURS, NOT THEIRS." A market exists and we could not match it to this player, so the cell
+     must not say the books declined to post it. The full sentence under the board says whose
+     limitation it is; the cell says enough that a reader does not read it as the books'. */
+  IDENTITY_UNRESOLVED: "Not matched to this player",
   UNSUPPORTED: "n/a",
 };
 
-/** The market cell. Numbers only from a real frozen capture; otherwise the owner's state, in words. */
+/**
+ * A sportsbook's own name, as a reader would recognise it. The provider's key is a slug
+ * (`williamhill_us`), and printing the slug makes an attributed price look like an internal id.
+ *
+ * ⚠ A BOOK THIS TABLE DOES NOT KNOW IS STILL NAMED, from its key, rather than dropped or relabelled.
+ * The whole point of the fallback ladder is that whichever book is chosen is the book on screen —
+ * a lookup miss must degrade to a slightly awkward name, never to a missing or borrowed one.
+ */
+const BOOK_NAME: Record<string, string> = {
+  draftkings: "DraftKings",
+  fanduel: "FanDuel",
+  betmgm: "BetMGM",
+  betrivers: "BetRivers",
+  fanatics: "Fanatics",
+  espnbet: "ESPN BET",
+  caesars: "Caesars",
+  williamhill_us: "Caesars",
+  bovada: "Bovada",
+  betonlineag: "BetOnline",
+  lowvig: "LowVig",
+  mybookieag: "MyBookie",
+  ballybet: "Bally Bet",
+  betanysports: "BetAnySports",
+  windcreek: "Wind Creek",
+};
+const bookName = (key: string) => BOOK_NAME[key] ?? key.replace(/_/g, " ").replace(/\b([a-z])/g, (m) => m.toUpperCase());
+
+/** American odds with the sign a book prints. `+106`, `-135` — never a bare `106`. */
+const odds = (v: number) => `${v > 0 ? "+" : ""}${v}`;
+
+/**
+ * When the price was taken, for a reader rather than for a log. "Captured Thu 5:36 PM ET" is the
+ * same fact as the ISO instant and is the version a person can act on.
+ *
+ * ⚠ IT IS NOT DECORATION. A price without its capture instant cannot be told apart from a live
+ * line, which is the single error the frozen-market shape exists to make impossible — so this never
+ * degrades to nothing. An unparseable instant falls back to printing it verbatim.
+ */
+const capturedAtLabel = (iso: string) => {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return iso;
+  return new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(t)) + " ET";
+};
+
+/**
+ * The market cell. Numbers only from a real frozen capture; otherwise the owner's state, in words.
+ *
+ * ⚠ THE BOOK'S NAME LEADS (P0 · 2026-09-24). It used to sit in the third sub-line, after the line
+ * and the two prices, in the provider's lowercase slug and beside a raw ISO instant. With one book
+ * that was merely untidy. With a FALLBACK LADDER it is a correctness problem: the whole guarantee
+ * is that the number belongs to the book named beside it, and a reader who reads the number and not
+ * the third grey line has taken a FanDuel price as DraftKings'. So the name comes FIRST and in the
+ * book's own spelling, which is also how the row in the brief reads.
+ */
 function MarketCell({ market }: { market: MarketSnapshot }) {
   if (market.state === "FROZEN_CAPTURE" && market.frozen) {
     const f = market.frozen;
     return (
       <>
+        <span className="gtp-pred-book font-mono uppercase tracking-[0.08em]">{bookName(f.sportsbook)}</span>
         <span className="gtp-pred-v">
-          {f.line != null ? `O/U ${f.line}` : "Yes"}
-          {f.yesOdds != null ? ` ${f.yesOdds > 0 ? "+" : ""}${f.yesOdds}` : ""}
+          {f.line != null ? f.line : "Yes"}
+          {f.yesOdds != null ? ` ${odds(f.yesOdds)}` : ""}
         </span>
         {f.overOdds != null && f.underOdds != null ? (
-          <span className="gtp-pred-sub">
-            O {f.overOdds > 0 ? "+" : ""}{f.overOdds} · U {f.underOdds > 0 ? "+" : ""}{f.underOdds}
-          </span>
+          <span className="gtp-pred-sub">O {odds(f.overOdds)} · U {odds(f.underOdds)}</span>
         ) : null}
-        <span className="gtp-pred-sub">{f.sportsbook} · captured {f.capturedAt}</span>
+        <span className="gtp-pred-sub">Captured {capturedAtLabel(f.capturedAt)}</span>
       </>
     );
   }
-  return <span className="gtp-pred-absent">{MARKET_SHORT[market.state] ?? "Market unavailable"}</span>;
+  return <span className="gtp-pred-absent">{MARKET_SHORT[market.state] ?? MARKET_SHORT.NOT_PROBED}</span>;
 }
 
 export function PredictionBoard({
@@ -125,6 +192,9 @@ export function PredictionBoard({
   gameHref,
   showRank = true,
   rankOf,
+  actionLabel = "Game →",
+  nameHref,
+  nameAdornment,
 }: {
   predictions: PredictionPresentation[];
   /** Where a row's action goes. Returns null when this surface has no game route for the row. */
@@ -135,6 +205,23 @@ export function PredictionBoard({
    * the published board instead — filtering must never renumber a ranking it did not produce.
    */
   rankOf?: (p: PredictionPresentation, i: number) => number;
+  /*
+   * ROUTE SHELLS MAY DIFFER; THE ROW GRAMMAR MAY NOT (P0 · 2026-09-24).
+   *
+   * The game report reached this component carrying two affordances the hub has no use for: a link
+   * to the player's research page on his name, and a follow control beside it. The alternative was
+   * a second row renderer for that surface — which is exactly how the hub and the week route came
+   * to disagree about a price in the first place, one level up.
+   *
+   * So the differences that are genuinely about the SURFACE are parameters, and everything that is
+   * about the PREDICTION — the market cell, the labels, the ordering of the identity block, the
+   * absence wording — stays here, identical on every page that renders a forecast.
+   */
+  actionLabel?: string;
+  /** Where the player's NAME links, per surface. Null (the default) renders plain text. */
+  nameHref?: (p: PredictionPresentation) => string | null;
+  /** A surface-specific control beside the name (the game report's follow toggle). */
+  nameAdornment?: (p: PredictionPresentation) => React.ReactNode;
 }) {
   if (predictions.length === 0) return null;
   /*
@@ -165,7 +252,21 @@ export function PredictionBoard({
         {predictions.map((p, i) => {
           const href = gameHref(p);
           return (
-            <li key={p.predictionId} className="gtp-pred-row">
+            /*
+             * `data-family` and `data-event` are for the RENDERED GUARDS, and they are load-bearing
+             * rather than decorative. A row's identity is (event, player, family), and neither half
+             * is otherwise derivable from the markup:
+             *
+             *   without the family, a surface showing one family at a time makes a guard compare a
+             *   rushing price against a passing row and fail for the wrong reason;
+             *   without the event, a player who appears in BOTH this week's board and a frozen
+             *   past week's makes the guard demand this week's price on last week's page — which
+             *   is exactly how `/nfl/week/2-02/` first failed.
+             *
+             * Two short attributes, together smaller than the composite id and readable on their
+             * own; this row markup is why `/results` once shipped 1,160KB, so it stays lean.
+             */
+            <li key={p.predictionId} className="gtp-pred-row" data-family={p.marketFamily} data-event={p.game.providerEventId}>
               {showRank ? <span className="gtp-pred-rank font-mono">{rankOf ? rankOf(p, i) : i + 1}</span> : null}
 
               {/*
@@ -186,7 +287,12 @@ export function PredictionBoard({
               <span className="gtp-pred-player">
                 <PlayerAvatar playerId={p.player.portraitId} playerName={p.player.name} team={p.player.teamAbbr} sport="nfl" size="md" />
                 <span className="gtp-pred-ident">
-                  <span className="gtp-pred-name">{p.player.name}</span>
+                  <span className="gtp-pred-name">
+                    {nameHref?.(p)
+                      ? <Link href={nameHref(p) as string} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 3 }}>{p.player.name}</Link>
+                      : p.player.name}
+                    {nameAdornment?.(p)}
+                  </span>
                   <span className="gtp-pred-context font-mono">
                     <span className="gtp-pred-k">Matchup</span>
                     <span>{p.game.opponentAbbr ? `${p.player.teamAbbr} vs ${p.game.opponentAbbr}` : p.player.teamAbbr}</span>
@@ -210,6 +316,9 @@ export function PredictionBoard({
 
               <span className="gtp-pred-cell gtp-pred-model">
                 <span className="gtp-pred-k">Model</span>
+                {/* Our name above our number, the book's above its own — so the comparison names
+                    both sides rather than leaving a reader to infer which column is whose. */}
+                <span className="gtp-pred-book font-mono uppercase tracking-[0.08em]">GameTimePicks</span>
                 <span className="gtp-pred-v font-mono">{modelValue(p.model)}</span>
                 {p.model.status === "ESTIMATE" ? <span className="gtp-pred-sub">estimate</span> : null}
               </span>
@@ -225,7 +334,7 @@ export function PredictionBoard({
 
               <span className="gtp-pred-cell gtp-pred-go">
                 {href ? (
-                  <Link href={href} className="gtp-pred-link font-mono uppercase tracking-[0.1em]">Game →</Link>
+                  <Link href={href} className="gtp-pred-link font-mono uppercase tracking-[0.1em]">{actionLabel}</Link>
                 ) : null}
               </span>
             </li>

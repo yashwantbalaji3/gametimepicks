@@ -40,12 +40,22 @@ export type PresentationSport = "nfl" | "mlb" | "epl" | "ufc";
  *   NOT_OFFERED      we asked and the book does not offer it. Maps from a capture's `absentMarkets`.
  *   NOT_PROBED       we have never asked. Maps from a capture's `propMarkets.state`.
  *   UNSUPPORTED      the family has no market counterpart to show.
+ *   IDENTITY_UNRESOLVED
+ *                    a real market exists for this event and we could not safely map it to this
+ *                    player. Maps from the capture's own quarantine list.
+ *
+ * ⚠ THE LAST ONE IS NOT A FLAVOUR OF NOT_OFFERED, AND THE DIFFERENCE IS WHO IT IS ABOUT.
+ * NOT_OFFERED is a claim about the SPORTSBOOKS; IDENTITY_UNRESOLVED is a claim about US. On
+ * 2026-09-25 eight players — James Cook among them — had real, priced DraftKings markets and read
+ * "Not offered", because the book spelled a name without the generational suffix the roster
+ * carries. A confident public statement about a third party, produced entirely by our own join.
  */
 export type MarketState =
   | "FROZEN_CAPTURE"
   | "NOT_AUTHORIZED"
   | "NOT_OFFERED"
   | "NOT_PROBED"
+  | "IDENTITY_UNRESOLVED"
   | "UNSUPPORTED";
 
 /** American odds, kept as the integer the book published (+125, -110). Never derived, never rounded. */
@@ -96,6 +106,7 @@ const MARKET_NOTE: Record<Exclude<MarketState, "FROZEN_CAPTURE">, string> = {
   NOT_AUTHORIZED: "GameTimePicks does not currently publish a sportsbook price for this market, so there is nothing to compare these numbers against yet.",
   NOT_OFFERED: "We checked the sportsbooks we capture and none of them offered this market before kickoff.",
   NOT_PROBED: "We have not checked the sportsbooks for this market, so we are not showing a price we do not hold.",
+  IDENTITY_UNRESOLVED: "A sportsbook does price this market, but we could not match it to this player with enough confidence to show it. That is our limitation, not the sportsbook's.",
   UNSUPPORTED: "This kind of prediction has no sportsbook market to sit beside it.",
 };
 
@@ -111,8 +122,9 @@ export function marketFromPricingState(pricingState: string | null | undefined):
   const state: MarketState =
     s === "NOT_AUTHORIZED" ? "NOT_AUTHORIZED"
       : s === "NOT_OFFERED" ? "NOT_OFFERED"
-        : s === "UNSUPPORTED" ? "UNSUPPORTED"
-          : "NOT_PROBED";
+        : s === "IDENTITY_UNRESOLVED" ? "IDENTITY_UNRESOLVED"
+          : s === "UNSUPPORTED" ? "UNSUPPORTED"
+            : "NOT_PROBED";
   return { state, note: MARKET_NOTE[state as Exclude<MarketState, "FROZEN_CAPTURE">] };
 }
 

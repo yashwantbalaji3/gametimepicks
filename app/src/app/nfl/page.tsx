@@ -512,7 +512,12 @@ export default function NflHubPage() {
                     ? { abbr: g.home.abbr, p: e.winProbability.home }
                     : { abbr: g.away.abbr, p: e.winProbability.away }
                   : null;
-                const td = (extra: Record<string, string | number> = {}) => ({ padding: "8px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, ...extra });
+                /* ⚠ THIS HELPER SHIPPED ITS DECLARATION BLOCK ONCE PER CELL. A `td()` that
+                   returns a style OBJECT reads like a shared rule and is not one: React serialises
+                   the whole block into every `style="…"`, so fourteen rows x eight columns put ~9KB
+                   of identical text in the document. The class does what the helper was pretending
+                   to do. (The comment two columns down already records this page hitting its weight
+                   budget once before, for the same reason.) */
                 /* The eleven-book median for THIS game, or null when no current authorized capture
                    covers it — never a zero, and never another game's price. */
                 const mkt = slateMarketRows.find((r) => String(r.providerEventId) === String(g.providerEventId)) ?? null;
@@ -520,23 +525,23 @@ export default function NflHubPage() {
                 const diff = e?.total && mktTotal != null ? e.total.median - mktTotal : null;
                 return (
                   <tr key={g.providerEventId}>
-                    <td className="font-mono" style={td({ color: "var(--vault-text-mute)", fontSize: 11.5, whiteSpace: "nowrap" })}>{etKickoff(g.dateUtc)}</td>
-                    <td style={td({ fontSize: 13 })}>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <td className="font-mono gtp-nfl-cell gtp-nfl-cell-115 gtp-nfl-mute gtp-nfl-nowrap">{etKickoff(g.dateUtc)}</td>
+                    <td className="gtp-nfl-cell gtp-nfl-cell-13">
+                      <span className="gtp-nfl-inline">
                         <TeamLogo team={g.away.abbr} sport="nfl" size="sm" ariaLabel={`${g.away.name} logo`} />
                         {g.away.abbr} at
                         <TeamLogo team={g.home.abbr} sport="nfl" size="sm" ariaLabel={`${g.home.name} logo`} />
                         {g.home.abbr}
                       </span>
                     </td>
-                    <td className="font-mono" style={td()}>{fav ? `${fav.abbr} ${(fav.p * 100).toFixed(1)}%` : "—"}</td>
-                    <td className="font-mono" style={td({ whiteSpace: "nowrap" })}>{sim ? `${g.away.abbr} ${sim.away} — ${sim.home} ${g.home.abbr}` : "—"}</td>
-                    <td className="font-mono" style={td()}>{e?.total ? <>{e.total.median} <span style={{ color: "var(--vault-text-faint)" }}>({e.total.p10}–{e.total.p90})</span></> : "—"}</td>
+                    <td className="font-mono gtp-nfl-cell">{fav ? `${fav.abbr} ${(fav.p * 100).toFixed(1)}%` : "—"}</td>
+                    <td className="font-mono gtp-nfl-cell gtp-nfl-nowrap">{sim ? `${g.away.abbr} ${sim.away} — ${sim.home} ${g.home.abbr}` : "—"}</td>
+                    <td className="font-mono gtp-nfl-cell">{e?.total ? <>{e.total.median} <span className="gtp-nfl-faint">({e.total.p10}–{e.total.p90})</span></> : "—"}</td>
                     {/* The books' own number and how far ours sits from it, in ONE cell: two columns
                         cost ~4KB of inline style across fourteen rows and put /nfl over its page-weight
                         budget, and the difference reads better beside the number it is a difference
                         from anyway. The books' muted tone — never styled as model output. */}
-                    <td className="font-mono" style={td({ color: "var(--vault-text-mute)", whiteSpace: "nowrap" })}>
+                    <td className="font-mono gtp-nfl-cell gtp-nfl-mute gtp-nfl-nowrap">
                       {mktTotal == null ? "—" : (
                         <>
                           {mktTotal}
@@ -550,15 +555,15 @@ export default function NflHubPage() {
                     </td>
                     {/* Conditions, not an input: the summary carries its own caveats (an unknown
                         roof says so inside the sentence), so the cell prints it whole. */}
-                    <td style={td({ fontSize: 11, color: wx?.notableWind ? "var(--vault-warn)" : "var(--vault-text-mute)", maxWidth: 200 })}>
+                    <td className={`gtp-nfl-cell gtp-nfl-cell-11 gtp-nfl-w200${wx?.notableWind ? "" : " gtp-nfl-mute"}`} style={wx?.notableWind ? { color: "var(--vault-warn)" } : undefined}>
                       {wx?.summary ?? "—"}
                     </td>
-                    <td style={td({ fontSize: 11, color: "var(--vault-text-mute)", maxWidth: 220 })}>
+                    <td className="gtp-nfl-cell gtp-nfl-cell-11 gtp-nfl-mute gtp-nfl-w220">
                       {started
                         ? sim ? "Kicked off · forecast frozen" : "Kicked off before a forecast was published — missed coverage, never backfilled."
                         : sim ? `Simulated${runsPhrase(g.providerEventId) ? ` · ${runsPhrase(g.providerEventId)}` : ""}` : "Simulation publishes closer to kickoff and says so here when it does."}
                     </td>
-                    <td style={td({ whiteSpace: "nowrap" })}>
+                    <td className="gtp-nfl-cell gtp-nfl-nowrap">
                       {sim ? (
                         <Link href={`/nfl/game/${g.providerEventId}/`} className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, color: "var(--vault-gold-bright)" }}>
                           View game →
@@ -815,26 +820,26 @@ export default function NflHubPage() {
               <thead>
                 <tr>
                   {["Game", "Kickoff", "Books", "Market win % (home / away)", "Spread (home)", "Total"].map((h) => (
-                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                    <th key={h} scope="col" className="gtp-nfl-th">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {slateMarketRows.map((r) => (
                   <tr key={r.providerEventId}>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <td className="gtp-nfl-td gtp-nfl-td-13">
+                      <span className="gtp-nfl-inline">
                         <TeamLogo team={r.away.abbr} sport="nfl" size="sm" ariaLabel={`${r.away.name} logo`} />
                         {r.away.abbr} at
                         <TeamLogo team={r.home.abbr} sport="nfl" size="sm" ariaLabel={`${r.home.name} logo`} />
                         {r.home.abbr}
                       </span>
                     </td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{etKickoff(r.kickoffUtc)}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{r.books.length}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{pct(r.consensus.homeWinProbNoVig)} / {pct(r.consensus.awayWinProbNoVig)}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{typeof r.consensus.spreadHome === "number" ? r.consensus.spreadHome.toFixed(1) : "—"}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{typeof r.consensus.total === "number" ? r.consensus.total.toFixed(1) : "—"}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-mute">{etKickoff(r.kickoffUtc)}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-mute">{r.books.length}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-mono">{pct(r.consensus.homeWinProbNoVig)} / {pct(r.consensus.awayWinProbNoVig)}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-mono">{typeof r.consensus.spreadHome === "number" ? r.consensus.spreadHome.toFixed(1) : "—"}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-mono">{typeof r.consensus.total === "number" ? r.consensus.total.toFixed(1) : "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -892,16 +897,16 @@ export default function NflHubPage() {
             <thead>
               <tr>
                 {["Layer", "Status", "What that means"].map((h) => (
-                  <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                  <th key={h} scope="col" className="gtp-nfl-th">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {coverage.map((c) => (
                 <tr key={c.layer}>
-                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>{c.layer}</td>
+                  <td className="gtp-nfl-td gtp-nfl-td-13">{c.layer}</td>
                   <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: c.state === "LIVE" || c.state === "DEPLOYED" ? "var(--gtp-success-on-dark)" : "var(--vault-text-mute)" }}>{c.state}</td>
-                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{c.detail}</td>
+                  <td className="gtp-nfl-td gtp-nfl-td-mute">{c.detail}</td>
                 </tr>
               ))}
             </tbody>
@@ -947,20 +952,20 @@ export default function NflHubPage() {
               <thead>
                 <tr>
                   {["Game", "We said", "Result", "Margin off by", "Total off by", "Inside our range"].map((h) => (
-                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                    <th key={h} scope="col" className="gtp-nfl-th">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {pregameAudit.games.map((g) => (
                   <tr key={g.matchup}>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
+                    <td className="gtp-nfl-td gtp-nfl-td-13">
                       {g.matchup}{g.tie ? <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}> · tie</span> : null}
                     </td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{g.predicted}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{g.actual}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{g.marginError}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{g.totalError}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-mono">{g.actual}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-mono">{g.marginError}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-mono">{g.totalError}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: g.inRange ? "var(--gtp-success-on-dark)" : "var(--vault-text-mute)" }}>{g.inRange ? "yes" : "no"}</td>
                   </tr>
                 ))}
@@ -973,7 +978,7 @@ export default function NflHubPage() {
             <div><dt style={{ color: "var(--vault-text-faint)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.08em" }}>Score off by, on average</dt>
               <dd style={{ margin: "2px 0 0", fontFamily: "var(--font-mono, monospace)" }}>{pregameAudit.teamScoreAverageError} points</dd></div>
             <div><dt style={{ color: "var(--vault-text-faint)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.08em" }}>Result inside our range</dt>
-              <dd style={{ margin: "2px 0 0", fontFamily: "var(--font-mono, monospace)" }}>margin {Math.round(pregameAudit.rangeHitRate.margin * 100)}% · total {Math.round(pregameAudit.rangeHitRate.total * 100)}% <span style={{ color: "var(--vault-text-faint)" }}>(aiming for {Math.round(pregameAudit.rangeHitRate.target * 100)}%)</span></dd></div>
+              <dd style={{ margin: "2px 0 0", fontFamily: "var(--font-mono, monospace)" }}>margin {Math.round(pregameAudit.rangeHitRate.margin * 100)}% · total {Math.round(pregameAudit.rangeHitRate.total * 100)}% <span className="gtp-nfl-faint">(aiming for {Math.round(pregameAudit.rangeHitRate.target * 100)}%)</span></dd></div>
           </dl>
           <p style={{ margin: "10px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 720 }}>
             {pregameAudit.versusSportsbooks}
@@ -1038,16 +1043,16 @@ export default function NflHubPage() {
               <thead>
                 <tr>
                   {["Product", "Result", "Candidates looked at", "Why none qualified"].map((h) => (
-                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                    <th key={h} scope="col" className="gtp-nfl-th">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {productReceipts.lanes.map((l) => (
                   <tr key={l.product}>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>{l.label}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-13">{l.label}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{l.state}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{l.candidatesConsidered}</td>
+                    <td className="gtp-nfl-td gtp-nfl-td-mono">{l.candidatesConsidered}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, lineHeight: 1.55, color: "var(--vault-text-mute)" }}>
                       {l.rejections.map((r) => `${r.count} × ${r.label}`).join("; ") || "—"}
                     </td>

@@ -27,6 +27,25 @@ import { hrefsFor } from "@/lib/research-pages/projection-store";
 import { nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
 import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
+import { participationLabel } from "@/components/prediction/prediction-board";
+
+/*
+ * ⚠ THIS PRINTED "available role uncertain" AND THE PHRASE APPEARS NOWHERE IN THE SOURCE.
+ *
+ * Two separate places on this page took the participation enum and lower-cased it with the
+ * underscores swapped for spaces. A repo-wide grep for the banned wording returned nothing while
+ * the words were on the scorecard, on most rows — an assembled string is invisible to a copy audit.
+ * Both now call the SAME exported rule, hoisted here so neither can drift from the other again.
+ *
+ * `participationLabel` renders genuine availability — questionable, listed out — and renders
+ * NOTHING for the model's own internal role states. The state is still carried on the row, still
+ * reaches the research surfaces and still conditions the model; it has simply stopped being
+ * repeated to a reader who reads it as an injury report.
+ */
+const availMark = (p: { participation: string }) => {
+  const label = participationLabel(p.participation);
+  return label && p.participation !== "ACTIVE_PROJECTED" ? ` · ${label}` : "";
+};
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
@@ -318,8 +337,6 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
            fallback for any family that ships without one (player_pass_int did). */
         const famLabel = (key: string, x: { label?: string }) =>
           x.label && x.label !== key ? x.label : key.replace(/^player_/, "").replace(/_/g, " ").replace(/\bint\b/, "interceptions");
-        const availMark = (p: { participation: string }) =>
-          p.participation === "ACTIVE_PROJECTED" ? "" : ` · ${p.participation.toLowerCase().replaceAll("_", " ")}`;
         const TeamCol = ({ t }: { t: { abbr: string; name: string } }) => (
           <div style={{ minWidth: 0 }}>
             <p className="font-mono" style={{ margin: 0, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
@@ -365,10 +382,27 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                 ))}
               </div>
             ) : null}
+            {/*
+              * ⚠ PRIOR-CLUB HISTORY WAS INTERRUPTING THE FORECAST IT IS NOT PART OF.
+              *
+              * A warn-coloured "NEW ARRIVALS · NOT IN THESE NUMBERS" heading sat in the primary
+              * scorecard, between this game's projections, followed by per-game averages from a
+              * DIFFERENT CLUB IN A DIFFERENT SEASON. The facts are real and worth keeping — a
+              * reader who came for a star the stint rule cannot place yet should not find silence —
+              * but presenting last year's usage at the same altitude as this week's forecast makes
+              * a reader compare two numbers that are not comparable, and the disclaimer under it
+              * was doing all the work.
+              *
+              * So it becomes an optional disclosure: closed by default, opened deliberately, and
+              * still stating exactly what it is. Nothing is removed and nothing is hidden — the
+              * primary forecast simply stops being interrupted by something that is not one.
+              */}
             {arrivalsOf(t.abbr).length ? (
-              <div style={{ marginTop: 10 }}>
-                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-warn)" }}>New arrivals · not in these numbers</p>
-                <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>Per game at their previous club — history, not a projection.</p>
+              <details style={{ marginTop: 10 }}>
+                <summary className="font-mono" style={{ cursor: "pointer", minHeight: 32, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+                  Recent signings ({arrivalsOf(t.abbr).length}) — last season&rsquo;s usage
+                </summary>
+                <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>What they did per game at their last team. It is history, and none of it is in this game&rsquo;s projections.</p>
                 {arrivalsOf(t.abbr).map((a) => (
                   <p key={a.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
                     <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{a.name}</span>{" "}
@@ -377,7 +411,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                     </span>
                   </p>
                 ))}
-              </div>
+              </details>
             ) : null}
             {hasRec && recTop(t.abbr).length ? (
               <div style={{ marginTop: 10 }}>
@@ -631,7 +665,10 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                     <li key={`out-${p.playerId}`} className="font-mono" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
                       <strong style={{ color: "var(--gtp-bank-heat)" }}>{(p.markets.anytime_td!.probability! * 100).toFixed(1)}%</strong>{" "}
                       <span style={{ color: "var(--vault-text)" }}>{p.name}</span> · {p.team}
-                      {p.participation !== "ACTIVE_PROJECTED" ? <span style={{ color: "var(--vault-text-faint)" }}> · {p.participation.toLowerCase().replaceAll("_", " ")}</span> : null}
+                      {/* The SECOND copy of the assembled label, in the scoring outlook. It printed
+                          the same banned wording from the same enum, and a grep for the phrase found
+                          neither — one exported rule, used everywhere, is the fix for both. */}
+                      {availMark(p) ? <span style={{ color: "var(--vault-text-faint)" }}>{availMark(p)}</span> : null}
                     </li>
                   ))}
                 </ul>

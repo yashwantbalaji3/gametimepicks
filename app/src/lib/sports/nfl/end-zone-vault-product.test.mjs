@@ -34,8 +34,15 @@ test("ONLY ACTIVE is a card — a watchlist carries no card, no return, no instr
      */
     /* "no current comparable touchdown price is available" joined the vocabulary on 2026-09-12,
        when the capture stopped probing props (out of the renewed receipt's scope). It is the same
-       statement — nothing was published, and here is the blocker — in the producer's own words. */
-    assert.match(vault.reason, /not a card|no card|no upcoming .* event|no .* to evaluate|no .* market is captured|no current comparable .* price is available/i,
+       statement — nothing was published, and here is the blocker — in the producer's own words.
+
+       ⚠ AND ON 2026-09-25 A STATE ARRIVED THAT NO BLOCKER DESCRIBES. With the capture wired in, the
+       data gates can BOTH be satisfied and the product still stay a watchlist — because publishing
+       a card is a DECISION, and this P0 deliberately does not take it. "the Vault stays a watchlist
+       until the card is authorized" is the honest sentence for that, and it belongs in this list
+       for the same reason the others do: it names what did not happen and why. Reusing one of the
+       price blockers instead would have been a false statement about the books. */
+    assert.match(vault.reason, /not a card|no card|no upcoming .* event|no .* to evaluate|no .* market is captured|no current comparable .* price is available|stays a watchlist until the card is authorized/i,
       `a non-active outcome must state that nothing was published; got "${vault.reason}"`);
   }
   const blob = JSON.stringify(vault);
@@ -77,7 +84,26 @@ test("candidates carry role state and probability, and the residual is disclosed
     assert.ok(["ACTIVE_EXPECTED", "ROLE_UNCERTAIN", "QUESTIONABLE"].includes(c.roleState));
     assert.ok(c.roleNote, "role state is explained in words");
     assert.match(c.probabilityRange.note, /never sums to 100%/, "the defence/ST residual is disclosed");
-    if (c.roleState !== "ACTIVE_EXPECTED") assert.equal(c.marketPrice, null, "an unpriced candidate shows no price");
+    /*
+     * ⚠ THIS READ `roleState !== ACTIVE_EXPECTED ⇒ marketPrice === null`, and it passed for a year
+     * because `marketPrice` was a hardcoded `null` on EVERY candidate. It was never a rule anyone
+     * chose: it was the literal, wearing the costume of an invariant. With real prices flowing, a
+     * QUESTIONABLE player with a genuine DraftKings number now fails it — and showing that number
+     * beside a labelled "questionable" is honest, not misleading.
+     *
+     * The two facts are independent and the rules that actually matter are asserted separately: a
+     * price, whenever present, must name its book and its instant; and the CARD (below) may only
+     * ever be built from role-ready candidates.
+     */
+    if (c.marketPrice) {
+      assert.ok(c.marketPrice.sportsbook, `${c.name}: a displayed price with no book is unattributable`);
+      assert.ok(Number.isFinite(Date.parse(c.marketPrice.capturedAt)), `${c.name}: a price must carry the instant it was captured`);
+      assert.equal(c.pricingState, null, `${c.name}: a priced candidate must not also claim an absence`);
+    } else {
+      assert.ok(["NOT_OFFERED", "NOT_PROBED", "IDENTITY_UNRESOLVED", "STALE", null].includes(c.pricingState ?? null),
+        `${c.name}: an unpriced candidate carries a typed absence, got ${JSON.stringify(c.pricingState)}`);
+    }
+    if (vault.isCard) assert.equal(c.roleState, "ACTIVE_EXPECTED", `${c.name}: a CARD is built only from role-ready candidates`);
   }
   assert.ok(vault.candidateCount >= rows.length);
 });
@@ -138,8 +164,23 @@ test("today's real outcome is the honest one: candidates exist, a card does not"
    */
   assert.ok([true, false, null].includes(vault.gates.tdMarketOffered),
     `tdMarketOffered is a three-state fact about the books; got ${JSON.stringify(vault.gates.tdMarketOffered)}`);
-  /* THE LOAD-BEARING CLAIM: no priced candidate ⇒ no card, whatever the books offer. */
-  assert.equal(vault.gates.pricedCandidates, 0, "no card publishes while no candidate carries a price");
+  /*
+   * THE LOAD-BEARING CLAIM: no priced candidate ⇒ no card, whatever the books offer.
+   *
+   * ⚠ IT WAS WRITTEN AS `pricedCandidates === 0`, WHICH IS THE CONTRAPOSITIVE OF NOTHING. That
+   * equality held only because `marketPrice` was a hardcoded `null`, so the guard asserted the
+   * defect rather than the rule — and the comment directly above it had the rule right the whole
+   * time ("what must never happen is a card published without a PRICED candidate"). With 146 priced
+   * candidates it fails while the product is behaving exactly as intended.
+   */
+  if (vault.isCard) {
+    assert.ok(vault.gates.pricedCandidates > 0, "no card publishes while no candidate carries a price");
+  }
+  /* And the decision is recorded as a decision, so a reader can tell a product that CANNOT publish
+     from one that has not been told to. */
+  assert.ok(["FOUNDER_DECISION_PENDING", "AUTHORIZED"].includes(vault.gates.cardActivation),
+    `cardActivation is a decision with a closed set of answers; got ${JSON.stringify(vault.gates.cardActivation)}`);
+  if (vault.gates.cardActivation !== "AUTHORIZED") assert.equal(vault.isCard, false, "an unauthorized card must not publish, whatever the data gates say");
   /* P245: role-ready candidates EXIST now (the weekly population + the injuries-fed role
      evidence produce them) — pinning 0 was true only while the input chain was empty, and
      punished the inputs arriving. The load-bearing claim is unchanged and asserted above and

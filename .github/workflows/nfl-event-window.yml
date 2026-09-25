@@ -26,6 +26,38 @@ on:
     - cron: "0 21 * * *" # 17:00 ET
     # Morning settle pass, AFTER sport-schedules (13:00Z) lands the previous night's finals.
     - cron: "30 14 * * *" # 10:30 ET
+    #
+    # ── PLAYER-PROP SWEEPS (P0-F · 2026-09-24) ────────────────────────────────────────────────
+    #
+    # The founder's amendment allows "up to 4 refreshes/day … provided the volume stays inside the
+    # ceiling", and ⚠ THE ARITHMETIC IS THE CONDITION, NOT THE SENTENCE. Four full sweeps a day is
+    # 4 x 78 = 312/day, and Thursday→Monday at that rate is ~1,500 — over an allowance of 1,000
+    # remaining. So the cadence is sized against the ceiling and gets DENSER NEARER KICKOFF, which
+    # is also where a price actually changes.
+    #
+    # ⚠ AND A COMPLETED GAME IS NEVER QUERIED, which makes the later passes cheap rather than
+    # merely permitted: the capture's window is pre-start events only, so by Sunday evening the
+    # slate has emptied itself down to the two night games.
+    #
+    #   Fri 09:00 ET   full sweep   15 events   78 credits
+    #   Sat 09:00 ET   full sweep   15 events   78
+    #   Sun 09:00 ET   full sweep   15 events   78
+    #   Sun 12:30 ET   T-30m        15 events   78     the last look before the 1pm ET kickoffs
+    #   Sun 19:00 ET   SNF + MNF     2 events   13     thirteen games have started; they are gone
+    #   Mon 18:00 ET   MNF only      1 event     8
+    #                                          ────
+    #                                           333 for the week, plus tonight's 78 backfill = 411
+    #
+    # That is 411 of the 1,000 the founder authorized, leaving real headroom for the ad-hoc
+    # refreshes a live week asks for. These crons recur, so a later week draws on the same
+    # allowance — the receipt's machine ceiling is what stops it, fail-closed, and a refusal there
+    # is a DECISION OWED rather than a broken job.
+    - cron: "0 13 * * 5"  # Fri 09:00 ET · full sweep
+    - cron: "0 13 * * 6"  # Sat 09:00 ET · full sweep
+    - cron: "0 13 * * 0"  # Sun 09:00 ET · full sweep
+    - cron: "30 16 * * 0" # Sun 12:30 ET · the last pre-kickoff look
+    - cron: "0 23 * * 0"  # Sun 19:00 ET · the night games only
+    - cron: "0 22 * * 1"  # Mon 18:00 ET · Monday night only
   workflow_dispatch:
     inputs:
       skip_odds:
@@ -194,8 +226,9 @@ jobs:
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           NOW: ${{ steps.window.outputs.now }}
-          PROBE_PROPS: ${{ github.event.inputs.probe_props || 'false' }}
-          WEEK_WINDOW: ${{ github.event.inputs.week_window || 'false' }}
+          PROBE_PROPS: ${{ github.event.inputs.probe_props || '' }}
+          WEEK_WINDOW: ${{ github.event.inputs.week_window || '' }}
+          FIRED_SCHEDULE: ${{ github.event.schedule }}
           MAX_PROP_EVENTS: ${{ github.event.inputs.max_prop_events || '20' }}
           LOOKAHEAD_HOURS: ${{ github.event.inputs.lookahead_hours || 40 }}
         run: |
@@ -218,6 +251,20 @@ jobs:
           # anywhere in a run block is an expression to GitHub, shell comment or not. Writing one
           # here made the whole workflow file unloadable — no job started, and the scheduled captures
           # went down with it — for a sequence that was never meant to execute.
+          # ⚠ THE CADENCE LIVES IN THE CRON LIST, NOT IN A SECOND NUMBER SOMEWHERE ELSE. A sweep
+          # window is identified by the cron expression that fired it (`github.event.schedule`),
+          # so adding or removing a sweep is one edit in one place and the schedule cannot drift
+          # from the arithmetic written beside it. A dispatch input still wins outright.
+          SWEEP_CRONS="0 13 * * 5|0 13 * * 6|0 13 * * 0|30 16 * * 0|0 23 * * 0|0 22 * * 1"
+          if [ -z "$PROBE_PROPS" ] || [ -z "$WEEK_WINDOW" ]; then
+            SWEEP=false
+            OLDIFS="$IFS"; IFS='|'
+            for c in $SWEEP_CRONS; do [ "$c" = "$FIRED_SCHEDULE" ] && SWEEP=true; done
+            IFS="$OLDIFS"
+            [ -z "$PROBE_PROPS" ] && { [ "$SWEEP" = true ] && PROBE_PROPS=all || PROBE_PROPS=false; }
+            [ -z "$WEEK_WINDOW" ] && { [ "$SWEEP" = true ] && WEEK_WINDOW=true || WEEK_WINDOW=false; }
+            echo "schedule '${FIRED_SCHEDULE:-<dispatch>}' → prop sweep: $SWEEP"
+          fi
           FLAGS=()
           case "$PROBE_PROPS" in
             all)       FLAGS+=(--probe-props all --max-prop-events "$MAX_PROP_EVENTS") ;;
@@ -337,6 +384,26 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/nfl/build-nfl-index.mjs --now "${{ steps.window.outputs.now }}"
+
+      # ── THE MARKET MATRIX ──────────────────────────────────────────────────────────────────────
+      #
+      # One row per (event, player, family) a public surface renders, with the book, the line, the
+      # prices, the capture instant, the join and the display status — read from the canonical
+      # artifacts rather than from a page.
+      #
+      # ⚠ A COUNT IS NOT COVERAGE. "39 rows priced" is compatible with every one of them being the
+      # wrong player and with a whole game being invisible, and the acceptance gate for this lane
+      # ("no eligible current-week event remains NOT_PROBED") is a claim about a POPULATION. So the
+      # population is enumerated every window, including the windows where the answer is bad — a
+      # coverage report that only runs when coverage is good measures nothing.
+      #
+      # `always()`, free, local, deterministic: it reads committed artifacts and makes no call.
+      - name: Audit the canonical market matrix (free, read-only)
+        if: always()
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/audit-nfl-market-matrix.mjs --now "${{ steps.window.outputs.now }}" --write
 
       # ── AND THE ARTIFACTS THAT SUMMARISE IT ────────────────────────────────────────────────────
       #

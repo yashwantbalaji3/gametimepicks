@@ -10,12 +10,20 @@
  * what keeps this honest and joinless: no identity is minted to reach across to the odds capture, and a
  * renderer cannot end up showing one game's price beside another game's forecast.
  *
- * MEASURED, FOR THE RECORD (2026-09-23 capture): the NFL odds lane owns game-level h2h/spreads/totals
- * and NO player props. Twenty of the forty-seven committed captures ran the prop probe, and every one
- * recorded `absentMarkets: [player_anytime_td, player_pass_yds, player_rush_yds, player_reception_yds,
- * player_receptions]` with `offeredMarkets: []` — all five families these boards publish. So the market
- * half of every card below is a typed absence today, and it will start carrying numbers the moment an
- * owner starts producing them, without a renderer change.
+ * MEASURED, FOR THE RECORD — AND THEN MEASURED AGAIN, WHICH IS THE POINT:
+ *
+ *   2026-09-23  the NFL odds lane owned game-level h2h/spreads/totals and NO player props. Twenty of
+ *               forty-seven committed captures had run the prop probe and every one recorded
+ *               `offeredMarkets: []` with all five published families in `absentMarkets`. So the
+ *               market half of every card here was a typed absence, correctly.
+ *   2026-09-24  the founder authorized the five families, the probe ran, and DraftKings returned
+ *               real lines. Nothing in this file changed to make that happen — the market half
+ *               started carrying numbers the day an owner started producing them, which is what the
+ *               sentence above promised.
+ *
+ * ⚠ A MEASUREMENT IS TRUE ON ITS DATE. The first reading was quoted in three places as though it
+ * were a property of the provider, and each of those places had to be found and corrected when the
+ * world moved. Dates are on the readings above for that reason.
  */
 import type {
   GameContext,
@@ -189,8 +197,15 @@ export interface VaultCandidate {
   kickoffUtc?: string | null;
   tdProbability: number;
   roleState: string;
-  /** The Vault's own price slot. It is `null` today and has never been anything else. */
+  /**
+   * The Vault's own price slot, filled by its producer from the canonical capture.
+   *
+   * ⚠ IT WAS THE LITERAL `null` UNTIL 2026-09-24, and nothing here could tell that apart from a
+   * genuine absence — which is why the branch below used to hardcode one.
+   */
   marketPrice?: { yesOdds?: number; sportsbook?: string; capturedAt?: string } | null;
+  /** The producer's typed absence for a row with no price. Null when a price IS held; never both. */
+  pricingState?: string | null;
 }
 
 /**
@@ -209,11 +224,25 @@ export function presentVaultCandidate(
   c: VaultCandidate,
   ctx: { forecastAt: string; modelId: string; modelVersion: number | string },
 ): PredictionPresentation {
+  /*
+   * ⚠ THE ABSENCE USED TO BE HARDCODED `NOT_AUTHORIZED`, AND IT BECAME A FALSE STATEMENT.
+   *
+   * That constant was defensible while the Vault's `marketPrice` was a literal `null` and the NFL
+   * odds authorization genuinely excluded props: there was no typed state on the row to read, and
+   * "we hold no authorization for this" was the true reason. Both halves changed on 2026-09-24 —
+   * the founder authorized the five families, and the Vault's producer now fills the slot from the
+   * canonical capture — so every unpriced Vault row was telling readers we lack an authorization we
+   * hold, ON THE SAME PAGE as weekly-board rows showing a DraftKings price for the same player.
+   *
+   * The row's own `pricingState` is read instead, exactly as a weekly-board row's is. The fallback
+   * stays the least-claiming state rather than the most convenient one: with no typed state on the
+   * row we do not know that we asked, so `marketFromPricingState` resolves it to NOT_PROBED.
+   */
   const price = c.marketPrice;
   const market =
     price && price.sportsbook && price.capturedAt
       ? marketFromFrozenCapture({ yesOdds: price.yesOdds, sportsbook: price.sportsbook, capturedAt: price.capturedAt })
-      : marketFromPricingState("NOT_AUTHORIZED");
+      : marketFromPricingState(c.pricingState);
 
   return {
     sport: "nfl",
@@ -237,4 +266,116 @@ export function presentVaultCandidate(
       forecastAt: ctx.forecastAt,
     },
   };
+}
+
+// ── GAME REPORT (the per-event player board, /nfl/game/[eventId]) ───────────────────────────────────
+
+/** One player's row on a per-game board, exactly as `build-nfl-player-board.mjs` writes it. */
+export interface PlayerBoardMarket {
+  mean?: number;
+  p10?: number;
+  median?: number;
+  p90?: number;
+  probability?: number;
+  /** A real captured price for this player, family and event. Never present beside `pricingState`. */
+  market?: { line?: number; overOdds?: number; underOdds?: number; yesOdds?: number; sportsbook: string; capturedAt: string };
+  /** The producer's typed absence. Never present beside `market`. */
+  pricingState?: string;
+}
+
+export interface PlayerBoardPlayer {
+  playerId: string;
+  name: string;
+  team: string;
+  participation: string;
+  markets: Record<string, PlayerBoardMarket>;
+}
+
+export interface PlayerBoardContext {
+  providerEventId: string;
+  kickoffUtc: string;
+  /** The two clubs, so the opponent is READ rather than parsed out of a rendered matchup string. */
+  teams: [string, string];
+  families: Record<string, { label?: string; state?: string; reason?: string; caveat?: string }>;
+  generatedAt: string;
+  model?: { id?: string; version?: number | string } | null;
+}
+
+/**
+ * One family of one player on a game report, in the SAME grammar the weekly boards use.
+ *
+ * ⚠ WHY THIS EXISTS: THE GAME REPORT WAS THE ONE NFL SURFACE WITH NO MARKET HALF AT ALL. The hub and
+ * the week route rendered "DraftKings · O/U 78.5 · O -111 · U -113" beside a model number; the game
+ * page — same player, same family, same game, one click away — rendered the model number alone.
+ * Silence is not a neutral default here: a reader who has just seen the price on the board and does
+ * not see it on the report reasonably concludes it does not apply to this game. That is the same
+ * error as the hub printing "Not checked" over a priced row, said a quieter way.
+ *
+ * NORMALISATION ONLY, and NO JOIN. The producer already stamped each family row with a price or a
+ * typed absence through `lib/sports/nfl/prop-price-lookup.mjs`; this names the parts. The opponent
+ * comes from the board's own two clubs, never from parsing the rendered matchup label.
+ *
+ * Returns null for a family this contract does not publish — fail-closed, for the same reason the
+ * weekly-board adapter does: a number with no unit beside a probability is the confusion the whole
+ * presentation contract exists to remove.
+ */
+export function presentPlayerBoardRow(
+  ctx: PlayerBoardContext,
+  player: PlayerBoardPlayer,
+  familyKey: string,
+): PredictionPresentation | null {
+  const family = NFL_FAMILIES[familyKey];
+  if (!family) return null;
+  const m = player.markets?.[familyKey];
+  if (!m) return null;
+  const famState = ctx.families?.[familyKey]?.state;
+  if (famState !== "PUBLISHED" && famState !== "ESTIMATE") return null;
+
+  const hasBand = m.p10 != null && m.p90 != null;
+  const opponent = ctx.teams.find((t) => t !== player.team) ?? "";
+
+  return {
+    sport: "nfl",
+    predictionId: `${familyKey}:${player.playerId}:${ctx.providerEventId}`,
+    marketFamily: familyKey,
+    marketLabel: family.label,
+    player: {
+      playerId: player.playerId,
+      name: player.name,
+      teamAbbr: player.team,
+      portraitId: espnAthleteId(player.playerId),
+    },
+    game: {
+      opponentAbbr: opponent,
+      providerEventId: ctx.providerEventId,
+      startTimeUtc: ctx.kickoffUtc,
+      participation: player.participation,
+    },
+    /* A captured price wins over a typed absence, and the two never coexist on a producer row. */
+    market: m.market ? marketFromFrozenCapture(m.market) : marketFromPricingState(m.pricingState),
+    model: {
+      kind: family.kind,
+      ...(family.kind === "PROBABILITY"
+        ? { probability: m.probability }
+        : { predictedValue: m.median != null ? Math.round(m.median) : undefined, unit: family.unit }),
+      ...(hasBand ? { p10: Math.round(m.p10 as number), p90: Math.round(m.p90 as number) } : {}),
+      status: (famState === "ESTIMATE" ? "ESTIMATE" : "PUBLISHED") as ModelStatus,
+      ...(ctx.families[familyKey]?.caveat ? { caveat: ctx.families[familyKey].caveat } : {}),
+      ...(ctx.families[familyKey]?.reason ? { reason: ctx.families[familyKey].reason } : {}),
+      modelId: ctx.model?.id ?? "nfl-regular-season-public-v1",
+      modelVersion: ctx.model?.version ?? 0,
+      forecastAt: ctx.generatedAt,
+    },
+  };
+}
+
+/** Every renderable row of ONE family on a game report, in the board's own order. */
+export function presentPlayerBoardFamily(
+  ctx: PlayerBoardContext,
+  players: PlayerBoardPlayer[],
+  familyKey: string,
+): PredictionPresentation[] {
+  return players
+    .map((p) => presentPlayerBoardRow(ctx, p, familyKey))
+    .filter((p): p is PredictionPresentation => p !== null);
 }

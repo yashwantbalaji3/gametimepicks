@@ -5,7 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { buildPlayerRegistry, resolvePlayerRef, normalizeRosterRow } from "./player-identity.mjs";
+import { buildPlayerRegistry, resolvePlayerRef, normalizeRosterRow, stripGenerationalSuffix } from "./player-identity.mjs";
 
 const CAP = (generatedAt, teams) => ({ generatedAt, teams });
 const P = (id, fullName, extra = {}) => ({ id, fullName, position: { abbreviation: "RB" }, jersey: "26", ...extra });
@@ -52,4 +52,58 @@ test("resolvePlayerRef: unique resolves, team scoping applies lineage, ambiguity
   assert.equal(resolvePlayerRef(reg, { name: "John Smith", teamAbbr: "DET" }).state, "RESOLVED", "team context disambiguates");
   assert.equal(resolvePlayerRef(reg, { name: "Ja'Marr Chase", teamAbbr: "DET" }).state, "UNRESOLVED", "wrong team context refuses — stale membership never joins");
   assert.equal(resolvePlayerRef(reg, { name: "Nobody Real" }).state, "UNRESOLVED");
+});
+
+/**
+ * GENERATIONAL SUFFIXES — the eight real markets a strict name match was hiding.
+ *
+ * ⚠ MEASURED, NOT IMAGINED. The first full-week NFL prop sweep quarantined twelve player labels as
+ * "unresolved against either roster". Eight were a suffix disagreement between the sportsbook and
+ * ESPN, in BOTH directions, and every one of them reached a reader as "Not offered" — a measured
+ * negative ABOUT THE BOOKS that was in fact a failure of our own join.
+ */
+test("resolvePlayerRef: a generational suffix is set aside — but only on a miss, and only when unique", () => {
+  const reg = buildPlayerRegistry([CAP("2026-09-25T00:00:00Z", [
+    { teamAbbr: "BUF", players: [P("10", "James Cook III"), P("11", "Josh Allen")] },
+    { teamAbbr: "LAC", players: [P("12", "Oronde Gadsden")] },
+  ])]);
+  // the book drops a suffix the roster carries…
+  const cook = resolvePlayerRef(reg, { name: "James Cook", teamAbbr: "BUF" });
+  assert.equal(cook.state, "RESOLVED");
+  assert.equal(cook.playerId, "nfl-athlete-10");
+  assert.equal(cook.basis, "generational-suffix-in-team", "the basis SAYS how it resolved — a looser match must be visible, never silent");
+  // …and the other direction: the book carries one the roster does not
+  assert.equal(resolvePlayerRef(reg, { name: "Oronde Gadsden II", teamAbbr: "LAC" }).playerId, "nfl-athlete-12");
+  // an exact match must never be beaten by a stripped one
+  assert.equal(resolvePlayerRef(reg, { name: "Josh Allen", teamAbbr: "BUF" }).basis, "unique-name-in-team");
+  // and a name that matches nothing, stripped or not, still refuses
+  assert.equal(resolvePlayerRef(reg, { name: "Dallen Bentley", teamAbbr: "BUF" }).state, "UNRESOLVED");
+});
+
+test("resolvePlayerRef: a father and son on ONE roster quarantine — the fallback never guesses", () => {
+  /*
+   * THE CONTROL THAT MAKES THE FALLBACK SAFE. Two players whose names differ only by a suffix
+   * collapse to the same stripped key. If the fallback picked either one it would be minting an
+   * identity from a label, which is the rule this whole module exists to enforce — so it refuses,
+   * and says that setting the suffix aside is what made them ambiguous.
+   */
+  const reg = buildPlayerRegistry([CAP("2026-09-25T00:00:00Z", [
+    { teamAbbr: "ARI", players: [P("20", "Marvin Harrison"), P("21", "Marvin Harrison Jr.")] },
+  ])]);
+  assert.equal(resolvePlayerRef(reg, { name: "Marvin Harrison Jr.", teamAbbr: "ARI" }).playerId, "nfl-athlete-21",
+    "an EXACT match still wins outright — the ambiguity below is only in the fallback");
+  const ambiguous = resolvePlayerRef(reg, { name: "Marvin Harrison III", teamAbbr: "ARI" });
+  assert.equal(ambiguous.state, "AMBIGUOUS");
+  assert.match(ambiguous.reason, /generational suffix is set aside/);
+  assert.equal(ambiguous.candidates.length, 2);
+});
+
+test("stripGenerationalSuffix never erases a name", () => {
+  assert.equal(stripGenerationalSuffix("james cook iii"), "james cook");
+  assert.equal(stripGenerationalSuffix("aaron jones sr"), "aaron jones");
+  /* Two tokens are a first and last name; stripping there could delete half an identity. */
+  assert.equal(stripGenerationalSuffix("john v"), "john v", "a two-token name is left alone");
+  assert.equal(stripGenerationalSuffix("ceedee lamb"), "ceedee lamb", "a non-suffix last token is untouched");
+  assert.equal(stripGenerationalSuffix("amonra st brown"), "amonra st brown");
+  assert.equal(stripGenerationalSuffix(""), "");
 });

@@ -152,13 +152,30 @@ test("new arrivals: a notable mover is published as prior-club FACT, never as a 
   assert.ok(total > 0, "the current week has movers — an empty derivation would mean the join broke");
 });
 
-test("both UIs render arrivals with the not-in-these-numbers frame", () => {
-  const board = readApp("src/components/nfl/player-board.tsx");
-  assert.match(board, /New arrivals · not in the simulated numbers above/);
-  assert.match(board, /history, not a projection/);
-  const page = readApp("src/app/nfl/game/[eventId]/page.tsx");
-  assert.match(page, /New arrivals · not in these numbers/);
-  assert.match(page, /history, not a projection/);
+test("both UIs keep arrivals framed as history — now as an OPTIONAL disclosure", () => {
+  /*
+   * ⚠ THIS PINNED THE EXACT SENTENCES, AND THE FOUNDER BANNED THEM (P0 · 2026-09-24).
+   *
+   * "NEW ARRIVALS · NOT IN THESE NUMBERS" and "Per game at their previous club — history, not a
+   * projection" were required copy here and are forbidden from the primary prediction UI there.
+   * Two rules, both real, and the resolution is not to drop either: what the founder objected to
+   * is prior-club averages from ANOTHER CLUB IN ANOTHER SEASON interrupting this week's forecast,
+   * not the honesty of the frame around them.
+   *
+   * So the context is DEMOTED into a `<details>` rather than deleted, and what this guard pins is
+   * the part that must survive the move: both surfaces still offer it, and both still say it is
+   * history and not part of the projections. The wording itself is now free to change — the
+   * rendered-export guard in `game-report-copy-built.test.mjs` is what holds the line on where it
+   * may appear, which a source scan could never have done anyway (the banned phrase it caught was
+   * assembled at runtime and appeared in no source file).
+   */
+  for (const [label, src] of [["player board", readApp("src/components/nfl/player-board.tsx")], ["game page", readApp("src/app/nfl/game/[eventId]/page.tsx")]]) {
+    assert.match(src, /<details/, `${label}: the arrivals context must be an optional disclosure`);
+    assert.match(src, /Recent signings/, `${label}: the disclosure must be findable by a reader who wants it`);
+    assert.match(src, /history/i, `${label}: it must still say these numbers are history`);
+    assert.match(src, /projections/i, `${label}: it must still say they are not in this game's projections`);
+    assert.ok(!/New arrivals · not in/.test(src), `${label}: the banned primary-UI heading must not return`);
+  }
 });
 
 test("LIVE · ONE ANSWER PER PLAYER — no surface calls a designated-out player expected to play", () => {
