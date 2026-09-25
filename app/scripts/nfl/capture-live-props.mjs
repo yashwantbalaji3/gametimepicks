@@ -26,7 +26,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildLiveRows, phaseOf, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
+import { buildLiveRows, phaseOf, selectLiveTargets, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -36,21 +36,51 @@ const NOW = arg("now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(2); }
 const nowMs = Date.parse(NOW);
 
-const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
-if (!schedule?.rows) { console.error("REFUSED: canonical schedule unreadable — live state is never attached to a guessed fixture"); process.exit(2); }
-
 /*
- * ⚠ ONLY GAMES THAT HAVE STARTED. A pre-kickoff read carries no stat and no score by design, so
- * fetching one buys nothing; and polling a fixture days out would be a request loop with no answer
- * in it. The window closes 8 hours after kickoff, by which point a finished game has settled.
+ * ── THE TARGET SET CANNOT COME FROM A FORWARD-ONLY WINDOW ───────────────────────────────────────
+ *
+ * This selected live games out of `nfl/schedule/latest.json`, and that file holds only FUTURE
+ * kickoffs. `capture-nfl-schedule.mjs` builds it through `mergeWindowEvents(responses, d0, d1)` with
+ * `d0 = new Date(NOW)` — the capture INSTANT, not its date — and `inWindow` keeps `t >= d0`. A game
+ * that has kicked off is dropped the next time the schedule is captured. Today's artifact proves it:
+ * generated 2026-09-25T14:34:12Z, 17 rows, earliest kickoff 2026-09-27 — Thursday's 00:15Z game,
+ * played hours earlier, is simply not in it, while a committed board for it still is (33 of the 49
+ * boards on disk are for games that have already started).
+ *
+ * So the two filters were mutually exclusive: the schedule keeps `kickoff > captureInstant` and this
+ * producer wants `kickoff <= now`. It found anything at all ONLY while the schedule happened to be
+ * stale relative to kickoff — and the lane's own header records that scheduled delivery here runs
+ * 1h40m to 4h55m late. A schedule capture arriving after the first Sunday kickoff would silently
+ * empty the target set for the rest of the slate, and a game already under way would never settle.
+ * "nothing to track" would look exactly like a quiet afternoon.
+ *
+ * THE BOARDS ARE THE RIGHT SOURCE, and they are the artifact this producer already depends on: it
+ * needs each board for the frozen lines anyway, each carries its own `providerEventId` and
+ * `kickoffUtc`, and they persist after kickoff instead of evaporating. Identity still comes from a
+ * committed canonical artifact, which is what the refusal below was protecting.
+ *
+ * The schedule is still read, and still consulted — but as a CROSS-CHECK, never as a filter. Two
+ * canonical artifacts disagreeing about a kickoff instant is a real integrity failure and is refused;
+ * a game the schedule has simply moved past is not.
  */
+const BOARD_DIR = path.join(APP, "public/data/nfl/player-board");
+
+const boards = (() => {
+  let files = [];
+  try { files = fs.readdirSync(BOARD_DIR).filter((f) => f.endsWith(".json")); } catch { return null; }
+  return files.map((f) => read(path.join(BOARD_DIR, f))).filter(Boolean);
+})();
+if (!boards?.length) { console.error("REFUSED: no readable NFL player boards — live state is never attached to a guessed fixture"); process.exit(2); }
+
+const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
 const only = arg("event");
-const targets = schedule.rows.filter((r) => {
-  if (only && r.providerEventId !== only) return false;
-  const k = Date.parse(String(r.dateUtc ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));
-  if (!Number.isFinite(k)) return false;
-  return k <= nowMs && nowMs - k <= 8 * 3600_000;
-});
+
+/* The rule itself lives in the library, where a behavioural test can hold it. This does IO. */
+const { targets, disagreements } = selectLiveTargets({ boards, scheduleRows: schedule?.rows ?? [], nowMs, only });
+if (disagreements.length) {
+  console.error(`REFUSED: board and schedule disagree on kickoff — live state is never attached to a contested fixture:\n  ${disagreements.join("\n  ")}`);
+  process.exit(2);
+}
 
 if (!targets.length) {
   console.log(`no NFL game is in its live window at ${NOW} — nothing to track`);

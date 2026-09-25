@@ -477,3 +477,70 @@ export function shouldPollEvent(prior, nowIso, windowMs = RECONCILIATION_WINDOW_
   }
   return { poll: false, reason: "reconciliation window closed — every prediction is canonical" };
 }
+
+/** The live window: a game is trackable from kickoff until 8 hours later. */
+export const LIVE_WINDOW_MS = 8 * 3600_000;
+
+/** `2026-09-27T17:00Z` and `2026-09-27T17:00:00Z` are one instant; boards write the short form. */
+export function kickoffMs(iso) {
+  return Date.parse(String(iso ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));
+}
+
+/**
+ * Which games are in their live window right now — chosen from the COMMITTED BOARDS.
+ *
+ * ── WHY NOT FROM THE SCHEDULE ────────────────────────────────────────────────────────────────────
+ *
+ * `nfl/schedule/latest.json` holds only FUTURE kickoffs. `capture-nfl-schedule.mjs` builds it through
+ * `mergeWindowEvents(responses, d0, d1)` with `d0 = new Date(NOW)` — the capture INSTANT, not its
+ * date — and `inWindow` keeps `t >= d0`, so a game that has kicked off is dropped the next time the
+ * schedule is captured. The producer needs the opposite: `kickoff <= now`. The two filters are
+ * mutually exclusive, and the lane found anything at all only while the schedule happened to be stale
+ * relative to kickoff. Since scheduled delivery in this repository runs 1h40m to 4h55m late, a
+ * schedule capture landing after the first Sunday kickoff would empty the target set for the rest of
+ * the slate and a game already under way would never settle — while the log said "nothing to track".
+ *
+ * The boards persist after kickoff, carry their own `providerEventId` and `kickoffUtc`, and are the
+ * artifact this producer already needs for the frozen lines. Identity still comes from a committed
+ * canonical artifact, which is what the original refusal protected.
+ *
+ * The schedule remains a CROSS-CHECK: where it still carries a board's event the two must agree on
+ * the kickoff instant, because one of them being wrong is how live state is attached to the wrong
+ * fixture. Where it has simply moved past the game, that says nothing and is not an error.
+ *
+ * @returns {{targets: Array, disagreements: string[]}} — a non-empty `disagreements` must REFUSE.
+ */
+export function selectLiveTargets({ boards = [], scheduleRows = [], nowMs, windowMs = LIVE_WINDOW_MS, only = null } = {}) {
+  const scheduled = new Map();
+  for (const r of scheduleRows) {
+    const id = r?.providerEventId == null ? null : String(r.providerEventId);
+    const k = kickoffMs(r?.dateUtc);
+    if (id && Number.isFinite(k)) scheduled.set(id, k);
+  }
+
+  const usable = [];
+  const disagreements = [];
+  for (const b of boards) {
+    const id = b?.providerEventId == null ? null : String(b.providerEventId);
+    const k = kickoffMs(b?.kickoffUtc);
+    if (!id || !Number.isFinite(k)) continue;
+    if (scheduled.has(id) && scheduled.get(id) !== k) {
+      disagreements.push(`${id}: board ${b.kickoffUtc} vs schedule ${new Date(scheduled.get(id)).toISOString()}`);
+      continue;
+    }
+    usable.push({ providerEventId: id, kickoffMs: k, dateUtc: b.kickoffUtc, shortName: b?.matchup ?? id });
+  }
+
+  /*
+   * ⚠ ONLY GAMES THAT HAVE STARTED. A pre-kickoff read carries no stat and no score by design, so
+   * fetching one buys nothing, and polling a fixture days out would be a request loop with no answer
+   * in it. The 8-hour close is also what bounds this to one slate rather than to every board ever
+   * committed — 33 of the 49 boards on disk are for games that have already been played.
+   */
+  const targets = usable
+    .filter((t) => (only ? t.providerEventId === only : true))
+    .filter((t) => t.kickoffMs <= nowMs && nowMs - t.kickoffMs <= windowMs)
+    .sort((a, b) => a.providerEventId.localeCompare(b.providerEventId));   // deterministic across runs
+
+  return { targets, disagreements };
+}

@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { buildLiveRows, espnAthleteId, shouldPollEvent } from "./live-prop-state.mjs";
+import { buildLiveRows, espnAthleteId, selectLiveTargets, shouldPollEvent } from "./live-prop-state.mjs";
 
 const SUMMARY = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/__fixtures__/espn-nfl-summary-401872932.json"), "utf8"));
 const hashOf = (o) => crypto.createHash("sha256").update(JSON.stringify(o)).digest("hex").slice(0, 16);
@@ -318,4 +318,93 @@ test("a canonical absence is never re-opened by a later read", () => {
   const s = row(tooLate, "player_reception_yds").settlement;
   assert.equal(s.state, "NO_MEASUREMENT", "a closed window is closed — the terminal record stands");
   assert.equal(s.finality, "CANONICAL");
+});
+
+/* ── THE TARGET SET (Phase C · 2026-09-25) ─────────────────────────────────────────────────────── */
+
+test("⚠ A FORWARD-ONLY SCHEDULE CANNOT CHOOSE THE LIVE GAMES — it drops them at kickoff", () => {
+  /*
+   * THE DEFECT. The producer selected targets from `nfl/schedule/latest.json`, which holds only
+   * FUTURE kickoffs: `capture-nfl-schedule.mjs` filters with `inWindow(e.date, d0, d1)` where
+   * `d0 = new Date(NOW)` — the capture INSTANT — so a game that has kicked off is gone the next time
+   * the schedule is captured. The producer wants `kickoff <= now`. The two are mutually exclusive, and
+   * the lane only ever found a game while the schedule happened to be stale relative to kickoff.
+   *
+   * The real artifact on 2026-09-25: generated 14:34:12Z, 17 rows, earliest kickoff 2026-09-27 —
+   * Thursday's 00:15Z game absent, while its committed board was still on disk. With delivery here
+   * running 1h40m to 4h55m late, a capture landing after the first Sunday kickoff would empty the
+   * target set for the rest of the slate and nothing would ever settle, while the log read
+   * "nothing to track".
+   */
+  const kickoff = "2026-09-27T17:00Z";
+  const boards = [{ providerEventId: "401872953", kickoffUtc: kickoff, matchup: "LAC @ BUF" }];
+  const nowMs = Date.parse("2026-09-27T19:30:00Z");   // 2h30m into the game
+
+  // A schedule recaptured mid-slate no longer contains the game at all. That must NOT hide it.
+  const recaptured = selectLiveTargets({ boards, scheduleRows: [], nowMs });
+  assert.deepEqual(recaptured.disagreements, [], "a game the schedule has moved past is not a conflict");
+  assert.equal(recaptured.targets.length, 1, "a started game stays trackable when the schedule has dropped it");
+  assert.equal(recaptured.targets[0].providerEventId, "401872953");
+  assert.equal(recaptured.targets[0].shortName, "LAC @ BUF", "labelled from the board's own matchup");
+
+  // And it behaves identically when the schedule does still carry it.
+  const stillListed = selectLiveTargets({
+    boards,
+    scheduleRows: [{ providerEventId: "401872953", dateUtc: kickoff }],
+    nowMs,
+  });
+  assert.equal(stillListed.targets.length, 1, "and it is the same answer either way");
+});
+
+test("the live window opens at kickoff and closes eight hours later", () => {
+  const boards = [{ providerEventId: "1", kickoffUtc: "2026-09-27T17:00Z", matchup: "A @ B" }];
+  const at = (iso) => selectLiveTargets({ boards, scheduleRows: [], nowMs: Date.parse(iso) }).targets.length;
+
+  assert.equal(at("2026-09-27T16:59:59Z"), 0, "a pre-kickoff read carries no stat and no score — do not fetch it");
+  assert.equal(at("2026-09-27T17:00:00Z"), 1, "open at kickoff");
+  assert.equal(at("2026-09-27T20:00:00Z"), 1, "still open mid-game");
+  assert.equal(at("2026-09-28T01:00:00Z"), 1, "open at eight hours");
+  assert.equal(at("2026-09-28T01:00:01Z"), 0, "closed after eight hours — this is what bounds it to one slate");
+
+  // The short and long ISO forms are ONE instant; a board writes the short one.
+  const long = [{ providerEventId: "1", kickoffUtc: "2026-09-27T17:00:00Z", matchup: "A @ B" }];
+  assert.equal(
+    selectLiveTargets({ boards: long, scheduleRows: [], nowMs: Date.parse("2026-09-27T18:00:00Z") }).targets.length, 1,
+    "`T17:00Z` and `T17:00:00Z` must not be different kickoffs",
+  );
+});
+
+test("⚠ two canonical artifacts disagreeing about kickoff REFUSES — and is not silently preferred", () => {
+  /*
+   * The schedule's forward filter is expected and benign. A schedule that still lists the game but at
+   * a DIFFERENT instant is not: one of the two is wrong, and attaching live state to the wrong fixture
+   * is the failure this whole lane exists to prevent. The caller must refuse, so the row is returned
+   * rather than dropped quietly, and the game is excluded from the targets either way.
+   */
+  const boards = [{ providerEventId: "1", kickoffUtc: "2026-09-27T17:00Z", matchup: "A @ B" }];
+  const out = selectLiveTargets({
+    boards,
+    scheduleRows: [{ providerEventId: "1", dateUtc: "2026-09-27T20:15Z" }],
+    nowMs: Date.parse("2026-09-27T19:30:00Z"),
+  });
+  assert.equal(out.disagreements.length, 1, "the conflict is reported, not resolved by picking one");
+  assert.match(out.disagreements[0], /board 2026-09-27T17:00Z vs schedule 2026-09-27T20:15:00/);
+  assert.deepEqual(out.targets, [], "and the contested fixture is not tracked");
+});
+
+test("a board with no id or an unreadable kickoff contributes nothing", () => {
+  const nowMs = Date.parse("2026-09-27T19:30:00Z");
+  for (const bad of [
+    { kickoffUtc: "2026-09-27T17:00Z" },                       // no event id
+    { providerEventId: "1" },                                   // no kickoff
+    { providerEventId: "1", kickoffUtc: "not a date" },
+    { providerEventId: "1", kickoffUtc: null },
+  ]) {
+    assert.deepEqual(selectLiveTargets({ boards: [bad], scheduleRows: [], nowMs }).targets, [], JSON.stringify(bad));
+  }
+  // A numeric provider id is still the same event as its string form.
+  assert.equal(
+    selectLiveTargets({ boards: [{ providerEventId: 401872953, kickoffUtc: "2026-09-27T17:00Z" }], scheduleRows: [{ providerEventId: "401872953", dateUtc: "2026-09-27T17:00Z" }], nowMs }).targets.length,
+    1, "a number and a string id must not read as two fixtures",
+  );
 });
