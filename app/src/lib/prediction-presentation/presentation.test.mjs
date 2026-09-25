@@ -162,7 +162,23 @@ test("the Vault reads its OWN game context — no identity is minted to reach a 
   assert.equal(p.game.startTimeUtc, "2026-09-27T20:05Z");
   assert.equal(p.game.providerEventId, "401872958");
   assert.equal(p.model.kind, "PROBABILITY");
-  assert.equal(p.market.state, "NOT_AUTHORIZED", "marketPrice is null, so the slot is a typed absence");
+  /*
+   * ⚠ THIS PINNED `NOT_AUTHORIZED`, WHICH THE PRESENTER USED TO HARDCODE. It was the right answer
+   * while the Vault's `marketPrice` was a literal `null` and props were outside the receipt: there
+   * was no typed state on the row to read. Both halves changed on 2026-09-24, and the constant
+   * became a claim that we lack an authorization we hold — printed beside weekly-board rows showing
+   * a DraftKings price for the same player.
+   *
+   * The invariant is that an unpriced row gets a TYPED absence, and that the fallback is the
+   * LEAST-claiming state rather than the most convenient one. A row with no typed state means we do
+   * not know that we asked, which is NOT_PROBED.
+   */
+  assert.equal(p.market.state, "NOT_PROBED", "no price and no typed state ⇒ the least-claiming absence, never an invented reason");
+  assert.equal(
+    presentVaultCandidate({ ...c, pricingState: "NOT_OFFERED" }, { forecastAt: "x", modelId: "m", modelVersion: 1 }).market.state,
+    "NOT_OFFERED",
+    "the producer's own typed state wins — the presenter never decides WHY a price is missing",
+  );
 
   // A Vault row that carries no opponent gets an EMPTY one, never a parse of the rendered label.
   const bare = presentVaultCandidate({ ...c, opponent: null, kickoffUtc: null, providerEventId: null },

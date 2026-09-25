@@ -5467,6 +5467,26 @@ body {
 /* MODEL is the headline this product publishes; MARKET sits beside it at readable weight. */
 .gtp-pred-model .gtp-pred-v { font-size: 14px; font-weight: 700; }
 
+/*
+ * WHOSE NUMBER IS THIS. The sportsbook's own name above its price, and ours above ours.
+ *
+ * ⚠ THE BOOK USED TO BE THE THIRD GREY SUB-LINE. With a single reference sportsbook that was
+ * untidy; with a DraftKings → FanDuel → most-complete LADDER it is a correctness problem, because
+ * the guarantee the ladder rests on is that the number belongs to the book printed beside it. A
+ * reader who takes in the line and skips a third grey line has read a FanDuel price as DraftKings'.
+ * So the attribution leads the cell, at a weight that is actually read.
+ *
+ * `--vault-gold` (never `--vault-gold-bright`, which fails contrast behind text — P-audit) for the
+ * book; our own name stays in the muted key colour, because the loud one here would read as a
+ * recommendation rather than an attribution.
+ */
+.gtp-pred-book {
+  flex: 1 0 100%;
+  font-size: 9.5px; line-height: 1.5;
+  color: var(--vault-gold);
+}
+.gtp-pred-model .gtp-pred-book { color: var(--vault-text-faint); }
+
 .gtp-pred-link { font-size: 10px; color: var(--vault-gold-bright); }
 .gtp-pred-link:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); border-radius: 4px; }
 

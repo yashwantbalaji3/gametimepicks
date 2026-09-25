@@ -14,6 +14,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
+import { presentPlayerBoardRow } from "../../prediction-presentation/nfl";
+
 const APP = process.cwd();
 const board = fs.readFileSync(path.join(APP, "src/components/nfl/player-board.tsx"), "utf8");
 const page = fs.readFileSync(path.join(APP, "src/app/nfl/game/[eventId]/page.tsx"), "utf8");
@@ -33,8 +35,26 @@ test("absence stays absent — no zero fabricated by a fallback, and one precisi
   assert.ok(!/\?\?\s*0\)/.test(page.slice(page.indexOf("player-board-h"))), "no `?? 0` in the player section of the page");
   assert.match(board, /const yd = \(v: number \| undefined\) =>.*"—"/, "yards formatter renders a dash for absence");
   assert.match(board, /const ct = \(v: number \| undefined\) =>.*"—"/, "count formatter renders a dash for absence");
-  // The old volume tabs share the policy instead of printing raw hundredths beside integers.
-  assert.match(board, /family === "player_receptions" \? ct\(m\.median\) : yd\(m\.median\)/, "volume tabs use the shared formatters");
+  /*
+   * ⚠ THIS PINNED THE PER-FAMILY TABLE'S OWN FORMATTER EXPRESSION, and that table is gone: the
+   * per-family view now renders through the SHARED prediction board, which is the whole point —
+   * a game report showing the same claim as a weekly board must show it the same way, market cell
+   * included. Pinning the expression made the correct refactor look like a regression.
+   *
+   * The invariant was never that expression. It is ONE display-precision policy, and the policy
+   * now has one owner per view: `ct`/`yd` in the combined table here, and the shared adapter's
+   * rounding for the per-family rows — asserted by executing it rather than by reading it.
+   */
+  assert.match(board, /<PredictionBoard/, "the per-family view delegates to the shared renderer, not a private table");
+  const p = presentPlayerBoardRow(
+    { providerEventId: "401872948", kickoffUtc: "2026-09-25T00:15Z", teams: ["ATL", "GB"], families: { player_rush_yds: { state: "PUBLISHED" } }, generatedAt: "2026-09-24T22:00:00Z" },
+    { playerId: "nfl-athlete-4430807", name: "Bijan Robinson", team: "ATL", participation: "ACTIVE_PROJECTED", markets: { player_rush_yds: { median: 63.7478, p10: 18.8873, p90: 153.2266 } } },
+    "player_rush_yds",
+  );
+  assert.equal(p.model.predictedValue, 64, "the shared adapter rounds — hundredths beside integers read as false precision");
+  assert.equal(p.model.p10, 19);
+  assert.equal(p.model.p90, 153);
+  assert.equal(p.model.unit, "yds", "and a numeric forecast always carries its unit");
 });
 
 test("the scoring outlook labels its shortlist size and points at the full list", () => {

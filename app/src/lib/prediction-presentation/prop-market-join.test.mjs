@@ -13,8 +13,18 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { marketFromFrozenCapture, marketFromPricingState } from "./contract.ts";
+import { buildPropPriceIndex } from "../sports/nfl/prop-price-lookup.mjs";
 
 const SRC = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/build-nfl-weekly-boards.mjs"), "utf8");
+
+/* A capture artifact of the shape the owner publishes: ONE probed event with ONE priced row. */
+const CAPTURE = {
+  propMarkets: { state: "PROBED", probedEventIds: ["nfl-401872948"], perEvent: [{ canonicalEventId: "nfl-401872948", absentMarkets: ["player_pass_yds"] }] },
+  propPrices: {
+    referenceBook: "draftkings",
+    rows: [{ canonicalEventId: "nfl-401872948", playerId: "nfl-athlete-4430807", family: "player_rush_yds", shape: "OVER_UNDER", line: 78.5, overOdds: -111, underOdds: -113, sportsbook: "draftkings", capturedAt: "2026-09-24T21:36:24Z" }],
+  },
+};
 
 test("a two-sided capture renders as a line with BOTH prices, attributed and stamped", () => {
   const m = marketFromFrozenCapture({ line: 71.5, overOdds: -115, underOdds: -105, sportsbook: "draftkings", capturedAt: "2026-09-24T19:52:17Z" });
@@ -52,17 +62,75 @@ test("the two absences stay different facts: asked-and-absent vs never-asked", (
    * we had never asked about — a negative we never measured, which is exactly the claim the typed
    * grammar exists to prevent.
    */
-  assert.match(SRC, /probedEventIds\.has\(`nfl-\$\{b\.providerEventId\}`\) \? "NOT_OFFERED" : "NOT_PROBED"/,
-    "the builder must decide the absence from whether THIS event was probed");
+  /*
+   * ⚠ THIS PINNED THE BUILDER'S SOURCE TEXT — the exact ternary, character for character. It caught
+   * nothing the rule could not be broken around, and it went red the day the decision moved into a
+   * shared lookup so three producers could stop each making it separately. A guard on the SHAPE of
+   * an expression fails a refactor that strengthens the behaviour and passes a rewrite that breaks
+   * it; the rule is now EXECUTED instead.
+   */
+  const idx = buildPropPriceIndex(CAPTURE);
+  assert.equal(idx.pricingStateFor("401872948", "nfl-athlete-9999999", "player_rush_yds"), "NOT_OFFERED",
+    "this event WAS probed, so an unpriced row on it is a measured negative");
+  assert.equal(idx.pricingStateFor("401872955", "nfl-athlete-9999999", "player_rush_yds"), "NOT_PROBED",
+    "this event was never asked about — calling it NOT_OFFERED asserts a negative nobody measured");
+  assert.equal(idx.pricingStateFor("401872948", "nfl-athlete-4430807", "player_rush_yds"), null,
+    "a row that HAS a price gets no absence at all — the two must never be stamped together");
+  /* And with no capture on disk at all, nothing is claimed about anybody's books. */
+  const empty = buildPropPriceIndex(null);
+  assert.equal(empty.pricingStateFor("401872948", "nfl-athlete-4430807", "player_rush_yds"), "NOT_PROBED");
 });
 
 test("the lookup is EXACT — never a near match on event, player or family", () => {
-  const fn = /function capturedMarketFor\([\s\S]*?\n\}/.exec(SRC)?.[0];
-  assert.ok(fn, "capturedMarketFor is no longer identifiable — this guard would scan nothing");
-  assert.match(fn, /`nfl-\$\{providerEventId\}\|\$\{playerId\}\|\$\{family\}`/,
-    "the key must be all three, so a price cannot land on the wrong player, game or market");
-  assert.match(fn, /if \(!r\.sportsbook \|\| !r\.capturedAt\) return null/,
-    "an unattributed row must be refused at the lookup too, not only at the contract");
+  /*
+   * ⚠ ALSO A SOURCE SCAN, over a function that has since moved. What it was trying to say is that
+   * a price may not land on the wrong player, the wrong game or the wrong market — which is a thing
+   * the lookup can simply be ASKED, one wrong key at a time.
+   */
+  const idx = buildPropPriceIndex(CAPTURE);
+  const hit = idx.marketFor("401872948", "nfl-athlete-4430807", "player_rush_yds");
+  assert.equal(hit.line, 78.5, "the exact triple resolves");
+  assert.equal(hit.sportsbook, "draftkings");
+  assert.equal(idx.marketFor("401872955", "nfl-athlete-4430807", "player_rush_yds"), null, "wrong event must not match");
+  assert.equal(idx.marketFor("401872948", "nfl-athlete-4430808", "player_rush_yds"), null, "wrong player must not match");
+  assert.equal(idx.marketFor("401872948", "nfl-athlete-4430807", "player_reception_yds"), null, "wrong family must not match");
+  assert.equal(idx.marketFor("nfl-401872948", "nfl-athlete-4430807", "player_rush_yds"), null,
+    "the lookup takes a PROVIDER event id and builds the canonical key itself — a pre-prefixed id is a caller error, not a near match to be tolerated");
+
+  /* An unattributed or unstamped row is refused at the lookup, not only at the contract. */
+  const naked = buildPropPriceIndex({
+    propMarkets: CAPTURE.propMarkets,
+    propPrices: { rows: [{ ...CAPTURE.propPrices.rows[0], sportsbook: undefined }] },
+  });
+  assert.equal(naked.marketFor("401872948", "nfl-athlete-4430807", "player_rush_yds"), null,
+    "a price with no book must not reach a row");
+  const unstamped = buildPropPriceIndex({
+    propMarkets: CAPTURE.propMarkets,
+    propPrices: { rows: [{ ...CAPTURE.propPrices.rows[0], capturedAt: undefined }] },
+  });
+  assert.equal(unstamped.marketFor("401872948", "nfl-athlete-4430807", "player_rush_yds"), null,
+    "a price with no capture instant cannot be told apart from a live line");
+});
+
+test("a yes/no capture keeps its shape — no point, no opposite side", () => {
+  const idx = buildPropPriceIndex({
+    propMarkets: CAPTURE.propMarkets,
+    propPrices: { rows: [{ canonicalEventId: "nfl-401872948", playerId: "nfl-athlete-4430807", family: "anytime_td", shape: "YES_ONLY", yesOdds: -140, sportsbook: "draftkings", capturedAt: "2026-09-24T21:36:24Z" }] },
+  });
+  const m = idx.marketFor("401872948", "nfl-athlete-4430807", "anytime_td");
+  assert.equal(m.yesOdds, -140);
+  assert.equal(m.line, undefined, "an anytime-TD market has no point — one must never be invented");
+  assert.equal(m.underOdds, undefined, "the opposite side of a yes/no market is never inferred");
+});
+
+test("slotFor returns a price OR an absence — never both, never neither", () => {
+  const idx = buildPropPriceIndex(CAPTURE);
+  const priced = idx.slotFor("401872948", "nfl-athlete-4430807", "player_rush_yds");
+  assert.ok(priced.market, "a priced row carries its market");
+  assert.equal(priced.pricingState, undefined, "…and makes no simultaneous claim of absence");
+  const missing = idx.slotFor("401872955", "nfl-athlete-4430807", "player_rush_yds");
+  assert.equal(missing.market, undefined);
+  assert.equal(missing.pricingState, "NOT_PROBED", "an unpriced row is typed, never blank");
 });
 
 test("the builder never fetches, blends or substitutes — it only looks up", () => {
