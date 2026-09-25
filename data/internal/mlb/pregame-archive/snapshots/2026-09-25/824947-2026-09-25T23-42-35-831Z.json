@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "824947-50cd7c82871441a128cdd317f8008b6c",
+  "snapshotCreatedAt": "2026-09-25T23:42:35.831Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-09-25",
+  "eventId": "824947",
+  "gamePk": 824947,
+  "eventStartTime": "2026-09-26T01:40:00Z",
+  "homeTeam": "ATH",
+  "awayTeam": "HOU",
+  "venue": "Sutter Health Park",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "317ad799a45347eda85bf1a0579a6ad0",
+  "normalizedPayloadHash": "5e3a109f3bf2281feba957b9eb0a0c2c",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          703607,
+          671732,
+          669127,
+          643446,
+          680869,
+          622268,
+          666126,
+          695720,
+          641680
+        ],
+        "away": [
+          665161,
+          670541,
+          670623,
+          514888,
+          673237,
+          572233,
+          701358,
+          828599,
+          678489
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-25T23:42:35.831Z",
+      "availableAt": "2026-09-25T23:42:35.831Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-25T23:42:35.831Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824947/feed/live",
+        "requestedAt": "2026-09-25T23:42:35.831Z",
+        "receivedAt": "2026-09-25T23:42:35.831Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Jacob Lopez",
+        "awayProbable": "Hunter Brown",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-25T23:42:35.831Z",
+      "availableAt": "2026-09-25T23:42:35.831Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-25T23:42:35.831Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824947/feed/live",
+        "requestedAt": "2026-09-25T23:42:35.831Z",
+        "receivedAt": "2026-09-25T23:42:35.831Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Clear",
+        "temp": "82",
+        "wind": "11 mph, Out To CF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-25T23:42:35.831Z",
+      "availableAt": "2026-09-25T23:42:35.831Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-25T23:42:35.831Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824947/feed/live",
+        "requestedAt": "2026-09-25T23:42:35.831Z",
+        "receivedAt": "2026-09-25T23:42:35.831Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Ryan Wills",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Gabe Morales",
+            "type": "First Base"
+          },
+          {
+            "name": "Ryan Additon",
+            "type": "Second Base"
+          },
+          {
+            "name": "Will Little",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-25T23:42:35.831Z",
+      "availableAt": "2026-09-25T23:42:35.831Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-25T23:42:35.831Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824947/feed/live",
+        "requestedAt": "2026-09-25T23:42:35.831Z",
+        "receivedAt": "2026-09-25T23:42:35.831Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

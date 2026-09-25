@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823085,
+  "date": "2026-09-25",
+  "capturedAt": "2026-09-25T23:42:35.916Z",
+  "availableAt": "2026-09-25T23:42:35.916Z",
+  "eventStartTime": "2026-09-26T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 682243,
+      "name": "Bryce Miller",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 5,
+        "bbAvg": 3.6,
+        "erAvg": 2.6,
+        "hrAvg": 1,
+        "kPer9": 9.78,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 107.67,
+        "k": 108,
+        "bb": 36,
+        "er": 48,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 672282,
+      "name": "Reid Detmers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 6,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 6.4,
+        "bbAvg": 0.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 9.6,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 179,
+        "k": 204,
+        "bb": 46,
+        "er": 69,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-25T23:42:35.916Z"
+  },
+  "recordHash": "d29517d349d3d0f81c2336e7d9bd6a00c901d7a6f578033ce919c3dc4ec95112"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823167,
+  "date": "2026-09-25",
+  "capturedAt": "2026-09-25T23:42:35.916Z",
+  "availableAt": "2026-09-25T23:42:35.916Z",
+  "eventStartTime": "2026-09-26T02:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 805074,
+      "name": "Yunior Marte",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 2,
+        "ipSum": 9.33,
+        "ipAvg": 4.67,
+        "kAvg": 2.5,
+        "bbAvg": 2.5,
+        "erAvg": 3.5,
+        "hrAvg": 0.5,
+        "kPer9": 4.82,
+        "workloadIpLast5": 9.33
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 9.33,
+        "k": 5,
+        "bb": 5,
+        "er": 7,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 669373,
+      "name": "Tarik Skubal",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 6,
+        "bbAvg": 1.2,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 8.71,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 151.67,
+        "k": 176,
+        "bb": 27,
+        "er": 48,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-25T23:42:35.916Z"
+  },
+  "recordHash": "3d1d48eda86947f7e29888fe26e1ec5c2ccac005d45707d17c8ae693c83c87f8"
+}
