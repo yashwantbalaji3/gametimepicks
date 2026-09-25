@@ -192,7 +192,32 @@ export function gameInputFromBoard(
   missingFamilies.push("park_run_factors", "weather", "batter_handedness_splits");
 
   const enoughToSimulate = away.realCount >= 6 && home.realCount >= 6;
-  const fullyReady = away.realCount >= LINEUP_SIZE && home.realCount >= LINEUP_SIZE && !!awayStarter && !!homeStarter;
+  /*
+   * ── `ready` ASKS ABOUT PROJECTIONS, NOT ABOUT SLOTS ────────────────────────────────────────────
+   *
+   * `fullyReady` read `realCount`, and that was the same number as `ratedCount` for as long as a
+   * batter existed only because a book had posted a line for him: the prop-derived path sets both
+   * from `real.length`. When the confirmed batting order landed (2026-08-22) the confirmed path
+   * began returning `realCount: LINEUP_SIZE` unconditionally — nine slots, filled from StatsAPI,
+   * whether or not any of the nine had a posted line — while `ratedCount` kept counting projections.
+   * `fullyReady` was still reading the first one, so it became a test a confirmed order could not
+   * fail, and `ready` stopped meaning what it had meant the day before.
+   *
+   * The jump is in the committed artifacts: 1-4 READY per slate through 2026-08-21, then 12-15 per
+   * slate from 2026-08-22, the day confirmed sides went 0 -> 15. The end of that drift is gamePk
+   * 824706 on 2026-09-25 — the second half of a doubleheader, both nine-man orders confirmed, zero
+   * of the eighteen batters with a posted line, every one of them priced at replacement level, and
+   * the artifact calling itself `ready`. Its own notes said "9 of 9 have no posted prop line" twice.
+   *
+   * Reading `ratedCount` restores the predicate the metric had before the two counts came apart.
+   * `enoughToSimulate` keeps reading `realCount`, because CAN THIS GAME BE SIMULATED is genuinely a
+   * question about occupied slots — a confirmed order answers it, a posted line is not required.
+   *
+   * Artifacts already published keep their level. They are frozen pregame claims, and the paid
+   * market snapshots that produced them are gone; a lower `ready` count from here forward is the
+   * repair, not a rewrite of what was claimed at the time.
+   */
+  const fullyReady = away.ratedCount >= LINEUP_SIZE && home.ratedCount >= LINEUP_SIZE && !!awayStarter && !!homeStarter;
   /*
    * ── THE PRE-EVENT BOUNDARY, ENFORCED IN THE ADAPTER ──────────────────────────────────────────
    *

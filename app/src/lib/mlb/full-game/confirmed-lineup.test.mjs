@@ -104,8 +104,35 @@ test("REAL SLATE · the confirmed order replaces padding, and the padding was th
   assert.ok(padded(before) > 0, "the premise: this slate WAS padded without confirmed orders");
   assert.equal(padded(after), 0, "and is not, with them");
 
+  /*
+   * THIS USED TO ASSERT `ready(after) > ready(before)`, AND THAT PROXY WAS THE DEFECT.
+   *
+   * A confirmed order supplies identities and slots. It does not post a single prop line, so it
+   * cannot make a batter RATED and has no business moving a level that is a claim about
+   * projections. The assertion passed only because `fullyReady` was reading `realCount`, which the
+   * confirmed path sets to nine unconditionally — so the test was measuring the inflation rather
+   * than the improvement, and it went green on the day READY per slate jumped from 1-4 to 12-15.
+   *
+   * What the confirmed order actually delivers is the line above: the padding is gone. The level is
+   * pinned UNCHANGED here, and the projections-not-slots rule is proven directly in
+   * completeness-level.test.mjs.
+   */
   const ready = (inputs) => inputs.filter((g) => g.completeness.level === "ready").length;
-  assert.ok(ready(after) > ready(before), `ready games must increase (${ready(before)} → ${ready(after)})`);
+  assert.equal(
+    ready(after), ready(before),
+    `a confirmed batting order posts no prop lines, so it must not move READY (${ready(before)} → ${ready(after)})`,
+  );
+  /*
+   * A confirmed order can only LOWER the rated count, never raise it: it posts no lines, and it
+   * drops the batters who had one but are not in the nine. On 2026-08-21 that is 241 -> 219 — the
+   * twenty-two priced batters the prop-derived lineup was simulating who were not starting. Slots
+   * go the other way (241 -> 270, the padding replaced), which is exactly why the two counts cannot
+   * answer each other's question.
+   */
+  const rated = (inputs) => inputs.reduce((n, g) => n + g.completeness.awayRatedCount + g.completeness.homeRatedCount, 0);
+  assert.ok(rated(after) <= rated(before), `a confirmed order posts no lines (${rated(before)} → ${rated(after)})`);
+  const slots = (inputs) => inputs.reduce((n, g) => n + g.completeness.awayLineupCount + g.completeness.homeLineupCount, 0);
+  assert.ok(slots(after) > slots(before), `and it does fill slots (${slots(before)} → ${slots(after)})`);
 
   // confirmed_batting_order was listed as permanently missing. It must now be absent from the games
   // that actually have one, and still present on any that do not.
