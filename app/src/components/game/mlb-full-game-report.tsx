@@ -149,7 +149,11 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
         <span className="font-display" style={{ color: p.predictedWinner ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: p.predictedWinner ? 26 : 18, fontWeight: 800, lineHeight: 1.05 }}>{winnerName}</span>
         <div className="text-right">
           <div className="font-display" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>
-            {p.homeTeam} {p.projectedScore.home} – {p.awayTeam} {p.projectedScore.away}
+            {/* ⚠ AWAY FIRST, like every other score on this page and the rest of the site. This line
+                read HOME-first while the head-to-head above it read AWAY-first, so the same game
+                appeared as "CHC 4 – 4 BOS" up top and "BOS 3 – CHC 4" here: a reader had to notice
+                that the two sides had swapped ends before they could even compare the numbers. */}
+            {p.awayTeam} {p.projectedScore.away} – {p.projectedScore.home} {p.homeTeam}
           </div>
           <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{p.projectedScore.label}</div>
         </div>
@@ -256,9 +260,28 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
           portraitSize={64}
           left={{ name: g.awayTeamName || awayCode, imageUrl: awayLogo ?? null, favoured: g.winProbability.away > g.winProbability.home }}
           right={{ name: g.homeTeamName || homeCode, imageUrl: homeLogo ?? null, favoured: g.winProbability.home >= g.winProbability.away }}
+          /*
+           * ⚠ THIS VERDICT USED TO ROUND THE MEAN AND CALL IT "Projected score" (P2 · 2026-09-25).
+           *
+           * `Math.round(mean)` is not a score, and labelling it as one contradicted the page's own
+           * canonical answer. Measured over the 2026-09-25 MLB slate, 12 games carried a full-game
+           * simulation and the rounded means:
+           *   - manufactured a TIE in 6 of them — CHC 4.36 v BOS 3.76 both round to 4, so a game
+           *     the model calls 54/46 read "CHC 4 – 4 BOS";
+           *   - disagreed with the canonical median on at least one side in 9 of them;
+           *   - disagreed about WHO SCORES MORE in 3 of them, directly against the median score
+           *     the PredictionHero renders three inches below this tile.
+           * MLB team runs cluster in 3.3–4.5, so the rounding attractor collapses most of the slate
+           * onto 4 — which is why a repeated "4 – 4" looked like a leaked default and was not one.
+           *
+           * The expected value is published as an EXPECTED VALUE, to one decimal, so it can never
+           * round two different numbers into a fake tie. The median — the one field the canonical
+           * owner (`buildGamePredictionDecision`) calls the projected score — is a row below, under
+           * the owner's own label. Two statistics, two names, one snapshot.
+           */
           verdict={{
-            label: "Projected score",
-            value: `${awayCode} ${Math.round(g.runs.away.mean)} – ${Math.round(g.runs.home.mean)} ${homeCode}`,
+            label: `Expected ${V.scoreUnit}`,
+            value: `${awayCode} ${one(g.runs.away.mean)} – ${one(g.runs.home.mean)} ${homeCode}`,
             sub: `${g.winProbability.home >= g.winProbability.away ? homeCode : awayCode} ${Math.round(Math.max(g.winProbability.away, g.winProbability.home) * 100)}% · from ${g.runCount.toLocaleString()} simulated games`,
           }}
           rows={[
@@ -266,9 +289,15 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
               left: `${Math.round(g.winProbability.away * 100)}%`,
               right: `${Math.round(g.winProbability.home * 100)}%`,
               better: g.winProbability.away > g.winProbability.home ? "left" : g.winProbability.home > g.winProbability.away ? "right" : null },
-            { label: `Projected ${(g.vocabulary ?? BASEBALL_VOCAB).scoreUnit}`,
-              left: one(g.runs.away.mean), right: one(g.runs.home.mean),
-              better: g.runs.away.mean > g.runs.home.mean ? "left" : g.runs.home.mean > g.runs.away.mean ? "right" : null },
+            /* The canonical projected score, read from the decision owner rather than re-derived
+               here, and carrying the owner's OWN label so this tile can never rename it. */
+            ...(prediction?.projectedScore ? [{
+              label: prediction.projectedScore.label,
+              left: String(prediction.projectedScore.away),
+              right: String(prediction.projectedScore.home),
+              better: (prediction.projectedScore.away > prediction.projectedScore.home ? "left"
+                : prediction.projectedScore.home > prediction.projectedScore.away ? "right" : null) as "left" | "right" | null,
+            }] : []),
             { label: "Likely range",
               left: `${g.runs.away.p10}–${g.runs.away.p90}`, right: `${g.runs.home.p10}–${g.runs.home.p90}` },
             ...(g.market?.moneyline?.away != null && g.market?.moneyline?.home != null ? [{
