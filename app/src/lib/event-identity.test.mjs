@@ -99,33 +99,7 @@ test("INVARIANT · no gamePk is claimed by more than one provider event", () => 
   );
 });
 
-/**
- * Artifacts PUBLISHED while `fullyReady` read occupied slots instead of posted projections.
- *
- * The confirmed batting order (2026-08-22) made `realCount` a constant nine for a confirmed side
- * while `ratedCount` went on counting batters with a posted line; `fullyReady` kept reading the
- * first, so a confirmed order could not fail it. gamePk 824706 is the end of that: both nine-man
- * orders confirmed, zero of the eighteen batters priced from a market, every one at replacement
- * level, and the artifact calling itself `ready` while its own notes said "9 of 9 have no posted
- * prop line" twice. Unclaimed by any market row — no book posted for the second half of the
- * doubleheader — so the classifier reads it, correctly, as OVERSTATED.
- *
- * The predicate is repaired at its owner (`board-adapter.ts`, pinned by
- * `mlb/full-game/completeness-level.test.mjs`). THIS artifact cannot be: it is a frozen pregame
- * claim, and the only honest window to restate it closed at its 22:05Z first pitch. Carrying it
- * named, dated and exactly stated is the same treatment PRE_FIX_BOARDS gives the 07-28 collision —
- * a nameless exclusion is how a real regression hides. The value is the reason, and the guard below
- * fails if any pin here stops matching what the artifact actually says.
- */
-const PUBLISHED_UNDER_SLOT_READY = new Map([
-  [
-    "2026-09-25: gamePk 824706 → PARTIAL_PRESENTED_AS_COMPLETE",
-    "CHC@BOS game 2 — confirmed 9+9, awayRatedCount 0, homeRatedCount 0, published `ready` before the fullyReady repair",
-  ],
-]);
-
 test("INVARIANT · every simulated game has a safe upstream source (orphans still hard-fail)", () => {
-  const pinnedSeen = new Set();
   // Program 092-095 Lane C. A full-game sim exists for every SCHEDULED game; leans arrive only as
   // books post odds. "No lean claims this pk" is therefore the normal MORNING state of an evening
   // game AND the signature of the 07-28 disaster (824490 simulated-but-unreachable beside a
@@ -148,18 +122,9 @@ test("INVARIANT · every simulated game has a safe upstream source (orphans stil
 
     for (const sim of sims) {
       const state = classifySim(sim, claimedPks, boardPks, dateHasCollision);
-      if (!isHardFailure(state)) continue;
-      const row = `${date}: gamePk ${sim?.gamePk} → ${state}`;
-      if (PUBLISHED_UNDER_SLOT_READY.get(row)) { pinnedSeen.add(row); continue; }
-      violations.push(row);
+      if (isHardFailure(state)) violations.push(`${date}: gamePk ${sim?.gamePk} → ${state}`);
     }
   }
-
-  // A pin that stops describing something real is a pin that will hide the next defect.
-  assert.deepEqual(
-    [...PUBLISHED_UNDER_SLOT_READY.keys()].filter((k) => !pinnedSeen.has(k)), [],
-    "a pinned artifact no longer classifies as it was pinned — re-read it and remove or restate the pin",
-  );
 
   assert.deepEqual(
     violations,
