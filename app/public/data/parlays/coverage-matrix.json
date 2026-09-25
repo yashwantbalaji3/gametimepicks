@@ -2,18 +2,18 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-24T15:42:51Z",
+ "generatedAt": "2026-09-25T10:25:05Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
   "PUBLISHED": 5,
-  "NO_PLAY": 3,
-  "LANE_CLOSED": 12,
+  "NO_PLAY": 7,
+  "LANE_CLOSED": 8,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-09-24",
+   "date": "2026-09-25",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,15 +23,15 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-24_public_low_mlb_c656b65289e8"
+     "slipId": "opt_2026-09-25_public_low_mlb_f38919208ae3"
     },
     "high": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-24_public_medium_mlb_e966619bd13b"
+     "slipId": "opt_2026-09-25_public_medium_mlb_bd5b7b4c2d2c"
     },
     "longshot": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-24_public_longshot_mlb_1c0d3f495159"
+     "slipId": "opt_2026-09-25_public_high_mlb_57ba287f82b6"
     }
    }
   },
@@ -39,23 +39,23 @@
    "lane": "epl",
    "date": "2026-10-10",
    "laneState": "CLOSED",
-   "laneReason": "the last price capture is 4.7 days old",
+   "laneReason": "the last price capture is 5.5 days old",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.7 days old"
+     "reason": "the last price capture is 5.5 days old"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.7 days old"
+     "reason": "the last price capture is 5.5 days old"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.7 days old"
+     "reason": "the last price capture is 5.5 days old"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.7 days old"
+     "reason": "the last price capture is 5.5 days old"
     }
    }
   },
@@ -86,48 +86,48 @@
   {
    "lane": "nfl",
    "date": "2026-08-24",
-   "laneState": "CLOSED",
-   "laneReason": "only 1 priced game — the ladder needs 4",
-   "tiers": {
-    "low": {
-     "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
-    },
-    "medium": {
-     "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
-    },
-    "high": {
-     "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
-    },
-    "longshot": {
-     "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
-    }
-   }
-  },
-  {
-   "lane": "multi",
-   "date": "2026-09-21",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-21T22:08:26Z; the next scheduled run re-evaluates under current eligibility"
+     "reason": "lane evaluation of record refused (NOT_PLAYING_TODAY) at 2026-08-24T18:05:09Z; the next scheduled run re-evaluates under current eligibility"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-21T22:08:26Z; the next scheduled run re-evaluates under current eligibility"
+     "reason": "lane evaluation of record refused (NOT_PLAYING_TODAY) at 2026-08-24T18:05:09Z; the next scheduled run re-evaluates under current eligibility"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-21T22:08:26Z; the next scheduled run re-evaluates under current eligibility"
+     "reason": "lane evaluation of record refused (NOT_PLAYING_TODAY) at 2026-08-24T18:05:09Z; the next scheduled run re-evaluates under current eligibility"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-21T22:08:26Z; the next scheduled run re-evaluates under current eligibility"
+     "reason": "lane evaluation of record refused (NOT_PLAYING_TODAY) at 2026-08-24T18:05:09Z; the next scheduled run re-evaluates under current eligibility"
+    }
+   }
+  },
+  {
+   "lane": "multi",
+   "date": "2026-09-24",
+   "laneState": "LIVE",
+   "laneReason": null,
+   "tiers": {
+    "low": {
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+    },
+    "medium": {
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+    },
+    "high": {
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+    },
+    "longshot": {
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
     }
    }
   }
