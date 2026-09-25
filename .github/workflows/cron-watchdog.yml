@@ -342,6 +342,28 @@ jobs:
             " || true
           fi
 
+      # ── WHO WAS IN THE FORECAST, AND WHO WAS KEPT OUT ─────────────────────────────────────────
+      #
+      # A forecast is only as good as its participants, and each sport answered "who is playing" in
+      # its own artifact and its own vocabulary — so the important question, whether a player who
+      # CANNOT play can still enter a simulation, had to be re-derived by reading four producers.
+      # This writes the answer down, daily, for all four.
+      #
+      # It reports and never repairs: every number comes from that sport's canonical producer, and a
+      # sport with no availability evidence is recorded as a named GAP rather than as a clean sheet.
+      # ⚠ An empty excluded list and no way to exclude anyone look identical until something says
+      # which one it is, which is why hardExclusionReachable travels beside the zero.
+      - name: Four-sport availability audit (read-only)
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          node app/scripts/ops/availability-audit.mjs \
+            --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --json data/internal/research/ops/availability-audit.json | tee /tmp/avail.txt || true
+          if grep -q "NOT REACHABLE" /tmp/avail.txt; then
+            echo "::notice::availability audit: at least one sport cannot exclude an unavailable participant — see data/internal/research/ops/availability-audit.json"
+          fi
+
       # ── A JOB THAT NEVER EXISTED LEAVES NO TRACE IN RUN HISTORY ────────────────────────────────
       #
       # Everything above watches JOBS: did a slot fire, and did the run end well. Neither could see
@@ -432,7 +454,8 @@ jobs:
           # Allowlisted single file. An artifact that is generated and never committed is the
           # 62-hour-outage shape, and this repo has hit it twice.
           git add app/public/data/ops/cron-slot-watchdog.json app/public/data/ops/lane-staleness.json \
-                  app/public/data/ops/cron-punctuality.json app/public/data/ops/feed-health.json 2>/dev/null || true
+                  app/public/data/ops/cron-punctuality.json app/public/data/ops/feed-health.json \
+                  data/internal/research/ops/availability-audit.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "no coverage change"; exit 0; fi
           git commit -m "auto: cron-slot coverage $(date -u +%Y-%m-%d) [skip ci]"
           for attempt in 1 2 3; do
