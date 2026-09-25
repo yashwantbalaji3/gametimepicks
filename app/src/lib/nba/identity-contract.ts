@@ -118,6 +118,37 @@ export function exhibitionOpponent(input: string | null | undefined): string | n
   return EXHIBITION_OPPONENTS.get(input.trim().toLowerCase()) ?? null;
 }
 
+/*
+ * A SIDE THAT IS NOT A CLUB AT ALL (2026-09-25).
+ *
+ * ESPN publishes NBA Cup knockout games months before the bracket resolves: the 2026-12-04 capture
+ * carries two rows reading "TBD @ TBD" with providerTeamId "-1" and "-2". These are neither a
+ * canonical franchise nor a registered exhibition club, and the full-slate coverage guard was
+ * therefore demanding that somebody "add TBD deliberately" — which would register a placeholder as
+ * a basketball team.
+ *
+ * MLB already has this exact category and already handles it: StatsAPI publishes undecided
+ * postseason games as "NL Wild Card #3" and friends, and they are excluded as placeholders rather
+ * than registered as clubs. This is the same third category, typed the same way.
+ *
+ * ⚠ IT IS KEYED ON THE PROVIDER'S OWN SIGNAL FIRST. A negative providerTeamId is ESPN saying the
+ * side is not determined; no real franchise carries one. The literal "TBD" spelling is accepted as
+ * a second, independent condition because a provider may drop the negative id without warning — and
+ * this file's own header REJECTS name regexes as IDENTITY, which this is not: a placeholder has no
+ * identity to get wrong, and the only thing this decides is that the side is excluded.
+ *
+ * A placeholder must never resolve as a club through either registry, and never counts toward
+ * league coverage.
+ */
+export function isPlaceholderSide(side: { abbr?: string | null; name?: string | null; providerTeamId?: string | number | null } | null | undefined): boolean {
+  if (!side) return false;
+  const pid = side.providerTeamId;
+  if (pid != null && String(pid).trim() !== "" && Number(pid) < 0) return true;
+  const abbr = String(side.abbr ?? "").trim().toLowerCase();
+  const name = String(side.name ?? "").trim().toLowerCase();
+  return abbr === "tbd" || name === "tbd";
+}
+
 export function sameTeam(a: string | null | undefined, b: string | null | undefined): boolean {
   const ca = canonicalTeamId(a), cb = canonicalTeamId(b);
   return ca !== null && ca === cb;
