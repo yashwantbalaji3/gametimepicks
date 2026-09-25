@@ -349,6 +349,22 @@ jobs:
           # above, so it must run AFTER it and re-run whenever it changes.
           node scripts/nfl/build-nfl-score-shape.mjs --now "${{ steps.window.outputs.now }}"
           node scripts/nfl/build-nfl-public-status.mjs --now "${{ steps.window.outputs.now }}"
+          # ⚠ THE TEAM FORECAST AND THE PLAYER BOARD DO NOT READ THE SAME WORLD (Phase 3B).
+          #
+          # The boards read participation, injuries, rosters and role shares. The team forecast a few
+          # lines above reads calibration, schedule, markets and history — every read call in it was
+          # enumerated, and it opens no availability artifact at all. So one game can be published
+          # from two worlds: Jayden Daniels is Out in our own capture and removed from our own board,
+          # and the Washington win probability was computed without knowing it.
+          #
+          # This records the exposure per game. It does NOT adjust anything: the team heads are
+          # validated Elo models with replay receipts, and inventing a "quarterback out" term here
+          # would be precisely the unvalidated model edit the status discipline forbids. It runs
+          # beside the forecast so the measurement can never be older than what it describes, and its
+          # output sits under reports/, which the commit step already carries.
+          node ../app/scripts/ops/forecast-input-state.mjs --now "${{ steps.window.outputs.now }}" \
+            --json data/internal/research/nfl/reports/forecast-input-state.json || \
+            echo "::warning::forecast input-state audit failed — the forecasts above are committed regardless"
           # P174-A: the canonical index every NFL surface consumes. Built LAST so it summarises
           # the artifacts this run just produced, and it refuses on any contradiction between them.
           # P174-E: End Zone Vault evaluates every window — ACTIVE, WATCHLIST_ONLY, NO_VAULT,
