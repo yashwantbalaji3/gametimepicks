@@ -33,25 +33,22 @@ const nameKey = (n) => {
   return parts.join(" ");
 };
 
-/**
- * The same label with its tokens SORTED — "james jordan" and "jordan james" collapse to one key.
+/*
+ * ⚠ THERE IS NO TRANSPOSED-NAME MATCHING HERE, AND THAT IS A DECISION (2026-09-25).
  *
- * ⚠ MEASURED, 2026-09-25. After the generational-suffix repair recovered eight players, ONE real
- * projected player was still reading "Not offered" against a market DraftKings does post: the book
- * calls him "James Jordan" and the roster calls him "Jordan James". A transposed first and last
- * name is not a suffix, so the suffix index cannot see it.
+ * DraftKings and six other books post anytime touchdown for the San Francisco back they call
+ * "James Jordan"; the roster calls him "Jordan James". A token-set key would collapse the two, and
+ * briefly did — for the DISPLAY STATE only, never a join. The founder refused it, and the reason
+ * holds: a generational suffix is a documented convention with one meaning, while an arbitrary
+ * transposition is a guess that happens to look right, and the provider gives us nothing to check
+ * it against. The Odds API's prop outcomes carry `description` (a name string), `name` (Over /
+ * Under / Yes) and a price — NO stable player identifier — so there is no metadata that could
+ * prove a unique alias. An evidence-backed alias mechanism is permitted; a heuristic is not, and
+ * without provider ids we cannot build the former.
  *
- * ⚠ AND THIS STILL DOES NOT JOIN ANYTHING. Like `nameKey`, it only ever chooses between two
- * sentences on a screen — "we could not identify this market" versus "the books did not post it".
- * No price, no player id and no team travels this path; the capture's own fail-closed resolver
- * remains the only thing that decides who a player is, and it still REFUSES the transposition.
- * Auto-joining a transposed name is a different and much riskier claim, and it stays a founder
- * decision rather than a heuristic.
- *
- * The worst case if two labels on one event collide under a sorted key is that a row shows the
- * WEAKER, more honest of the two sentences. That is the right direction to be wrong in.
+ * So that row reads NOT_OFFERED. It is the wrong answer for one player, arrived at honestly, and
+ * it is preferable to a rule that could silently attach a market to the wrong person.
  */
-const nameTokenSetKey = (n) => nameKey(n).split(" ").filter(Boolean).sort().join(" ");
 
 /** The families a board can ask about, spelled as the CAPTURE publishes them (board vocabulary). */
 export const PROP_FAMILIES = ["anytime_td", "player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"];
@@ -91,13 +88,20 @@ export function buildPropPriceIndex(markets) {
    * not — a confident public statement about a third party, caused by our own join.
    */
   const unresolvedByEvent = new Map();
-  /* The token-set index, consulted only when the exact key misses — see nameTokenSetKey. Kept as a
-     separate map for the same reason the suffix index is: a looser match can never beat an exact one. */
-  const unresolvedTokenSetByEvent = new Map();
   for (const e of pm.perEvent ?? []) {
     absentByEvent.set(e.canonicalEventId, new Set(e.absentMarkets ?? []));
-    unresolvedByEvent.set(e.canonicalEventId, new Set((e.unresolvedIdentities ?? []).map(nameKey)));
-    unresolvedTokenSetByEvent.set(e.canonicalEventId, new Set((e.unresolvedIdentities ?? []).map(nameTokenSetKey)));
+    /*
+     * nameKey -> Set(family), or null for a LEGACY capture whose entries are bare strings. Null
+     * means "some family on this event, and the artifact cannot say which", which is exactly the
+     * old over-broad behaviour — kept only so a carried-forward capture written before this change
+     * still renders, never as the shape a new capture may write.
+     */
+    const fam = new Map();
+    for (const u of e.unresolvedIdentities ?? []) {
+      if (typeof u === "string") fam.set(nameKey(u), null);
+      else if (u?.name) fam.set(nameKey(u.name), new Set(u.families ?? []));
+    }
+    unresolvedByEvent.set(e.canonicalEventId, fam);
   }
 
   return {
@@ -144,8 +148,16 @@ export function buildPropPriceIndex(markets) {
        * confident falsehood about a third party. Measured on 2026-09-25: eight players, including
        * James Cook, read "Not offered" for exactly this reason.
        */
-      if (playerName && unresolvedByEvent.get(`nfl-${providerEventId}`)?.has(nameKey(playerName))) return "IDENTITY_UNRESOLVED";
-      if (playerName && unresolvedTokenSetByEvent.get(`nfl-${providerEventId}`)?.has(nameTokenSetKey(playerName))) return "IDENTITY_UNRESOLVED";
+      /*
+       * ⚠ EVENT **AND FAMILY**. A flat per-event list made one unresolved anytime-touchdown label
+       * turn that player's rushing yards and receptions into IDENTITY_UNRESOLVED as well — families
+       * the books had genuinely not offered. Both sentences cannot be true, and the narrower one is
+       * the only one the capture has evidence for.
+       */
+      if (playerName) {
+        const fams = unresolvedByEvent.get(`nfl-${providerEventId}`)?.get(nameKey(playerName));
+        if (fams !== undefined && (fams === null || fams.has(family))) return "IDENTITY_UNRESOLVED";
+      }
       /* Probed and unpriced is NOT_OFFERED, whether the family came back absent for the whole event
          or came back without THIS player. Both are things we asked and were not given, which is
          what the word means; the difference between them is evidence, not a different claim. */
