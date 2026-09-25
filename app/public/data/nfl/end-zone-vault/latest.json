@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-09-25",
- "generatedAt": "2026-09-25T05:10:00Z",
+ "generatedAt": "2026-09-25T14:35:47Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "162 model candidates · the Vault stays a watchlist until the card is authorized — the model and price gates are met",
+ "reason": "161 model candidates · the Vault stays a watchlist until the card is authorized — the model and price gates are met",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -159,6 +159,30 @@
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   },
   {
+   "playerId": "nfl-athlete-4361370",
+   "name": "Chris Olave",
+   "position": "WR",
+   "team": "NO",
+   "opponent": "LV",
+   "event": "LV @ NO",
+   "providerEventId": "401872961",
+   "kickoffUtc": "2026-09-27T20:25Z",
+   "tdProbability": 0.441072,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": {
+    "yesOdds": 140,
+    "sportsbook": "draftkings",
+    "capturedAt": "2026-09-25T04:58:57Z"
+   },
+   "pricingState": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.46, g 35, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
+  },
+  {
    "playerId": "nfl-athlete-4696981",
    "name": "Cam Skattebo",
    "position": "RB",
@@ -180,30 +204,6 @@
    },
    "pricingState": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.10, g 7, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
-  },
-  {
-   "playerId": "nfl-athlete-4361370",
-   "name": "Chris Olave",
-   "position": "WR",
-   "team": "NO",
-   "opponent": "LV",
-   "event": "LV @ NO",
-   "providerEventId": "401872961",
-   "kickoffUtc": "2026-09-27T20:25Z",
-   "tdProbability": 0.439041,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": {
-    "yesOdds": 140,
-    "sportsbook": "draftkings",
-    "capturedAt": "2026-09-25T04:58:57Z"
-   },
-   "pricingState": null,
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.46, g 35, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   },
   {
@@ -303,7 +303,7 @@
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   }
  ],
- "candidateCount": 162,
+ "candidateCount": 161,
  "withheld": [
   {
    "event": "LAC @ BUF",
@@ -382,7 +382,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 146,
-  "roleReadyCandidates": 142,
+  "roleReadyCandidates": 141,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
