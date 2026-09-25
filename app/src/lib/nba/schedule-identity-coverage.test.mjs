@@ -15,7 +15,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { canonicalTeamId, exhibitionOpponent, NBA_CANONICAL_TRICODES } from "./identity-contract.ts";
+import { canonicalTeamId, exhibitionOpponent, isPlaceholderSide, NBA_CANONICAL_TRICODES } from "./identity-contract.ts";
 
 const capture = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/schedule/latest.json"), "utf8"));
 
@@ -29,8 +29,12 @@ test("every team in the committed capture resolves — canonical tricode or REGI
   const unresolved = [];
   const resolved = new Set();
   const exhibitions = new Set();
+  const placeholders = [];
   for (const r of capture.rows ?? []) {
     for (const side of ["home", "away"]) {
+      /* A not-yet-determined side is not a code to register — see isPlaceholderSide. Checked FIRST
+         so a placeholder can never be fuzzy-joined to a club on its way through the registries. */
+      if (isPlaceholderSide(r[side])) { placeholders.push(r.providerEventId ?? "?"); continue; }
       const raw = r[side]?.abbr ?? r[side]?.name ?? null;
       const canon = canonicalTeamId(raw);
       if (canon) { resolved.add(canon); continue; }
@@ -40,6 +44,13 @@ test("every team in the committed capture resolves — canonical tricode or REGI
     }
   }
   assert.deepEqual([...new Set(unresolved)], [], "a provider code in neither registry must be added deliberately, never fuzzy-joined");
+  /* Whatever the bracket looks like today, a placeholder must never have become a club. */
+  for (const raw of ["TBD", "tbd"]) {
+    assert.equal(canonicalTeamId(raw), null, `${raw} must never resolve as an NBA franchise`);
+    assert.equal(exhibitionOpponent(raw), null, `${raw} must never resolve as an exhibition club`);
+  }
+  assert.ok(isPlaceholderSide({ abbr: "TBD", name: "TBD", providerTeamId: "-1" }), "the placeholder predicate must recognise the shape the provider actually ships");
+  assert.ok(!isPlaceholderSide({ abbr: "BOS", name: "Celtics", providerTeamId: "2" }), "a real club is never a placeholder");
   assert.ok(resolved.size >= 28, `the confirmed window spans the league (${resolved.size} canonical teams resolved)`);
   for (const t of resolved) assert.ok(NBA_CANONICAL_TRICODES.includes(t));
   // Exhibition clubs never count toward league span and never resolve as NBA teams.

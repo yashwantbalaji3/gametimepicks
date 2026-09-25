@@ -51,15 +51,30 @@ const scheduleUnion = () => {
   return out;
 };
 
-test("PREMISE: the committed capture really does still carry the seven TBD sides", () => {
-  /* Anti-vacuity. If MLB resolves the seeds this premise changes — but the rule below must still hold,
-     and this test should then be read again rather than silently passing for a new reason. */
+test("PREMISE: the committed capture is still contaminated by TBD sides", () => {
+  /*
+   * ⚠ THIS PINNED THE EXACT NUMBER SEVEN, AND SEVEN WAS ALWAYS GOING TO EXPIRE (2026-09-25).
+   *
+   * The note here already said "if MLB resolves the seeds this premise changes… read this test
+   * again rather than silently passing". MLB then resolved two of them, the count became five, and
+   * the assertion failed on main — not because the rule below broke, but because a scheduled
+   * producer rewrites this artifact every night and the test was asserting today's bracket.
+   *
+   * What the premise is actually FOR is anti-vacuity: "exactly the 30 real clubs survive" proves
+   * nothing unless the raw union really does contain non-clubs. So that is what it asserts now —
+   * some contamination, named — and it still fails loudly if the contamination disappears
+   * ENTIRELY, which is the only change that would make the guards below meaningless.
+   *
+   * The seven names stay in KNOWN_PLACEHOLDERS: the rule test asserts none of them EVER resolves,
+   * and that assertion is correct whether or not a given seed is still undecided today.
+   */
   const union = scheduleUnion();
   const names = new Set([...union.values()].map((s) => s.name));
   const present = KNOWN_PLACEHOLDERS.filter((n) => names.has(n));
-  assert.equal(present.length, KNOWN_PLACEHOLDERS.length,
-    `expected all seven TBD sides in the committed schedule; found ${present.length}`);
-  assert.ok(union.size > 30, `the raw union must still be contaminated (got ${union.size})`);
+  assert.ok(present.length > 0,
+    `no known TBD side remains in the committed schedule, so the canonicalization guards below are vacuous — re-point them at whatever the provider now publishes for an undecided game, rather than deleting them. Known: ${KNOWN_PLACEHOLDERS.join(", ")}`);
+  assert.ok(union.size > 30,
+    `the raw union must still be contaminated for these guards to mean anything (got ${union.size})`);
 });
 
 test("exactly the 30 real clubs survive, and every placeholder is excluded", async () => {
