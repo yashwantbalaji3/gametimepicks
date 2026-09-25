@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "artifact": "team-availability-ceiling-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "program": "Phase 3B",
+  "registeredAt": "2026-09-25T17:20:00Z",
+  "researchOnly": "No public model, board, promotion state or page changes under this registration. An ELIGIBLE result only makes a team-level availability term eligible for a separately preregistered promotion program.",
+
+  "whyThisExists": "The NFL player boards read participation, injuries, rosters and role shares; the public TEAM forecast reads calibration, schedule, markets and history, and opens no availability artifact at all — every read call in build-nfl-public-forecasts.mjs was enumerated on 2026-09-25 to establish this. So a game is published from two worlds: Jayden Daniels was Out in our own capture and removed from our own board while the Washington win probability was computed without it. Whether that should change is a model question, and this registration is how it becomes decidable instead of arguable.",
+
+  "hypothesis": "Conditioning the team win and margin heads on whether a club's primary quarterback plays improves held-out log loss (win) and MAE (margin) versus the incumbent heads, on identical games.",
+
+  "⚠ THIS MEASURES A CEILING, NOT A PRODUCT": {
+    "problem": "Snap counts are POST-HOC. At forecast time nobody knows who will take a snap; they know an injury report. A replay that conditions on observed snaps is therefore using information the live model cannot have, and would overstate what an implementable feature could deliver.",
+    "whyRunItAnyway": "Because the ceiling is the cheap question and it can only refuse. If perfect foreknowledge of quarterback availability does NOT clear the bars, then a live version driven by noisy Wednesday injury reports certainly does not, and no ingestion path, no feature and no model change needs to be built. A ceiling that clears is not a promotion — it is permission to design the real, pregame-knowable feature and register that separately.",
+    "labelling": "Every output carries ceiling: true. No result from this registration may be described as a live or implementable improvement."
+  },
+
+  "data": {
+    "games": "data/internal/research/nfl/raw/nflverse/games.csv",
+    "participation": "data/internal/research/nfl/nflverse/participation-{2022,2023,2024,2025}.jsonl (offenseSnaps per player-game)",
+    "population": "2022-2025 REG+POST finals, 1,139 games / 2,278 team-games. Win-head metrics over DECISIVE games only; margin metrics include ties.",
+    "⚠ whyNot2006": "The registered win/margin held-out set is 2006-2021, and snap ground truth does not exist before 2022. This question CANNOT be asked on that set, so it uses its own — which is genuinely out-of-sample for the incumbent, because the incumbent was fit and evaluated on 2006-2021 and has never seen these seasons."
+  },
+
+  "feature": {
+    "primaryQuarterback": "Per (season, club): the quarterback with the most total offensive snaps that season.",
+    "absent": "That quarterback recorded zero offensive snaps in that team-game.",
+    "⚠ theProxyIsNotAvailability": "Zero snaps conflates 'was unavailable' with 'was rested', 'was benched' and 'was ejected'. Week 18 rest games are the largest known contaminant. The evaluation MUST report the same metrics with Week 18 excluded as a registered sensitivity, and a result that holds only with Week 18 included is REJECTED."
+  },
+
+  "seenBeforeRegistering": "The BASE RATE only: 374 of 2,278 team-games (16.4%) had the primary quarterback take zero offensive snaps. No win, margin, score, residual or market value was read for any game, and no association between the feature and any outcome has been computed.",
+
+  "incumbent": "The published heads as gated by win-margin-historical-replay-evaluation.json — nfl-win-elo-mov-v1 (win) and nfl-margin-elo-hfa-v1 (margin) — scored on the same 2022-2025 games with no availability term.",
+
+  "candidates": [
+    { "id": "qb-absent-elo-shift-v1", "description": "One fitted rating shift applied to a club whose primary quarterback is absent, estimated on a walk-forward basis (fit on seasons strictly before the scored season, never on the scored season)." },
+    { "id": "qb-absent-margin-widen-v1", "description": "The same indicator widening the margin head's sigma by a fitted factor, win head unchanged." }
+  ],
+
+  "frozenBars": {
+    "winHead": {
+      "logLossImprovement": "held-out mean log loss at least 0.005 BELOW the incumbent's on identical decisive games — the same threshold the incumbent heads were held to.",
+      "improvementIsNotNoise": "season-block bootstrap (resample the 4 held-out seasons with replacement, 2000 resamples, mulberry32 seed 20260925): 95% upper bound of mean(candidate - incumbent) log loss strictly below 0.",
+      "everySeason": "candidate mean log loss strictly below the incumbent's in every one of 2022, 2023, 2024, 2025 — four seasons is a small block count, so a result carried by one season is REJECTED.",
+      "marketHardStop": "on decisive games with both moneylines, candidate mean log loss less than 0.02 above the no-vig market's.",
+      "calibration": "expected calibration error (10 equal-width bins of p(home)) no more than 0.01 above the incumbent's.",
+      "week18Sensitivity": "every bar above must also pass with Week 18 games excluded."
+    },
+    "marginHead": {
+      "coverageBand": "80% interval coverage inside [0.75, 0.85] overall and in every season.",
+      "mae": "margin MAE not worse than the incumbent's by more than 0.5 points, and better on the point estimate.",
+      "week18Sensitivity": "as above."
+    }
+  },
+
+  "decisionRule": "Each candidate receives a WIN-HEAD and a MARGIN-HEAD verdict: ELIGIBLE only if every bar for that head passes, else REJECTED and recorded with its numbers. ELIGIBLE means only that a pregame-knowable version is worth designing and registering; it authorises no public change, no promotion and no label. A REJECTED candidate is never retried by adjusting it — a different candidate needs a different registration.",
+
+  "prohibitions": [
+    "No bar may be changed after any outcome has been scored.",
+    "No candidate may read the scored season's own data when fitting its shift.",
+    "No result may be published, labelled or described as a live improvement — see the ceiling clause.",
+    "The incumbent's receipt is never overwritten; the evaluation is a new file.",
+    "If the evaluation file already exists, the scorer refuses: ONE look."
+  ],
+
+  "outputsWhenRun": {
+    "evaluation": "data/internal/research/nfl/reports/team-availability-ceiling-evaluation.json",
+    "scorer": "app/scripts/research/nfl/replay-team-availability.mjs (not yet written — it is the next artifact, and it must refuse unless this file is committed and unmodified)"
+  }
+}
