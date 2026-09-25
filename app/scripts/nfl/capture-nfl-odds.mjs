@@ -430,10 +430,34 @@ if (PROBE) {
            *
            * Labels only. No id, no price, no team: this exists so a surface can say
            * IDENTITY_UNRESOLVED instead of a falsehood, and nothing may ever be JOINED through it.
+           *
+           * ⚠ AND IT IS SCOPED TO THE FAMILY (2026-09-25). This was a flat list of names per event,
+           * so ONE unresolved anytime-touchdown label made that player's rushing yards, receptions
+           * and receiving yards all read IDENTITY_UNRESOLVED too — families the books had genuinely
+           * not offered. That trades one wrong sentence for another: "we could not identify this
+           * market" is just as false as "the books do not post it" when there is no market at all.
+           *
+           * Measured on the 2026-09-25 sweep: the books post anytime touchdown for "James Jordan"
+           * at seven books and NOTHING else, while our board projects him for rushing yards too.
+           * Event + label + family is the narrowest true statement the capture can make.
            */
-          unresolvedIdentities: [...new Set([...atdQuarantined, ...propQuarantined]
-            .filter((q) => /unresolved against either roster|ambiguous across both/.test(q.reason ?? ""))
-            .map((q) => q.name))].sort(),
+          unresolvedIdentities: (() => {
+            const isUnresolved = (q) => /unresolved against either roster|ambiguous across both/.test(q.reason ?? "");
+            /* The board's vocabulary, not the provider's: `player_anytime_td` is `anytime_td`
+               everywhere downstream, and a key that does not match is a key that never matches. */
+            const boardFamily = (k) => (k === "player_anytime_td" ? "anytime_td" : k);
+            const byName = new Map();
+            const add = (name, family) => {
+              if (!name || !family) return;
+              if (!byName.has(name)) byName.set(name, new Set());
+              byName.get(name).add(boardFamily(family));
+            };
+            for (const q of atdQuarantined) if (isUnresolved(q)) add(q.name, "anytime_td");
+            for (const q of propQuarantined) if (isUnresolved(q)) add(q.name, q.market);
+            return [...byName.entries()]
+              .map(([name, fams]) => ({ name, families: [...fams].sort() }))
+              .sort((a, b) => (a.name < b.name ? -1 : 1));
+          })(),
         });
       }
     }

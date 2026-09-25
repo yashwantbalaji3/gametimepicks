@@ -196,17 +196,66 @@ export interface GameContext {
   participation: string;
 }
 
+/** Where the game is, as the provider reports it. `PRE` carries no stat and no score. */
+export type LiveGamePhase = "PRE" | "IN_PROGRESS" | "FINAL";
+
 /**
- * The live slots, DECLARED AND NOT IMPLEMENTED.
+ * FACTUAL LIVE STATE — what has happened, and nothing about what will.
  *
- * A later release adds factual live state (the stat so far) and, separately and only if separately
- * approved, a live market line. They are typed here so that the card can grow into them without the
- * frozen forecast or the frozen line being rewritten to make room — the whole point of keeping the
- * pre-game truths immutable. Nothing in this release populates them, and nothing derives a live
- * probability, an updated projection, an "on track" reading or a live edge from anything.
+ * ⚠ EVERY FIELD HERE IS AN OBSERVATION. There is no projected finish, no "on track" percentage and
+ * no live probability, because no conditional live model has been validated — and a number that
+ * looks like a forecast is read as one however it is labelled. A reader gets the pregame forecast,
+ * the frozen line and the stat so far, and does the comparison themselves.
+ *
+ * `statValue` is null while a game is PRE: a player who has not played has no yards, and zero is a
+ * measurement nobody took.
+ */
+export interface LiveFactual {
+  phase: LiveGamePhase;
+  /** The player's stat in this family so far, or null when the game has not started. */
+  statValue: number | null;
+  /** Provider clock, e.g. "8:42", and period 1-5. Both null outside IN_PROGRESS. */
+  clock: string | null;
+  period: number | null;
+  /** The game score as the provider reports it now. */
+  score: { home: number; away: number } | null;
+  /** Set only when the provider says this player's own availability changed during the game. */
+  participation: string | null;
+  /** When this observation was read. */
+  observedAt: string;
+  /** The provider that produced it, named on every row. */
+  source: string;
+}
+
+/**
+ * SETTLEMENT — the final stat and how it landed against the frozen line.
+ *
+ * `lineResult` is OVER / UNDER / PUSH against the line captured PRE-GAME, never a line the book
+ * moved to later. A family with no frozen line settles the stat and reports `lineResult: null`
+ * rather than inventing a benchmark.
+ */
+export interface LiveSettlement {
+  finalStat: number;
+  line: number | null;
+  lineResult: "OVER" | "UNDER" | "PUSH" | null;
+  /** For a one-sided anytime-touchdown market: did it happen. */
+  yesResult: boolean | null;
+  settledAt: string;
+  source: string;
+}
+
+/**
+ * The live slots.
+ *
+ * ⚠ `market` STAYS UNIMPLEMENTED AND THAT IS DELIBERATE. A live sportsbook price is a separate
+ * authorization, and the frozen capture is the whole point of this card: a price that moves after
+ * publication must never overwrite the price we published. Typing it as `never` means a future
+ * live-odds feed has to change this line — and read the sentence above — rather than quietly
+ * filling a slot.
  */
 export interface LiveSlots {
-  factual?: never;
+  factual?: LiveFactual;
+  settlement?: LiveSettlement;
   market?: never;
 }
 
