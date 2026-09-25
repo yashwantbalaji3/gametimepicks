@@ -3,10 +3,10 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-capture-window-health",
-  "lastUpdated": "2026-09-23T18:45:24.727Z",
-  "datesTracked": 63,
-  "averageWindowHealthScore": 0.984,
-  "latestWindowHealthScore": 1,
+  "lastUpdated": "2026-09-25T22:41:41.490Z",
+  "datesTracked": 64,
+  "averageWindowHealthScore": 0.979,
+  "latestWindowHealthScore": 0.647,
   "perDate": [
     {
       "date": "2026-07-21",
@@ -574,6 +574,15 @@
       "earliestFirstPitch": "2026-09-23T17:10:00Z",
       "earliestEligibleCapture": "2026-09-23T00:52:29.852Z",
       "gamesMissingPregameCapture": 0
+    },
+    {
+      "date": "2026-09-25",
+      "games": 17,
+      "gamesWithPregameCapture": 11,
+      "windowHealthScore": 0.647,
+      "earliestFirstPitch": "2026-09-25T17:05:00Z",
+      "earliestEligibleCapture": "2026-09-25T22:40:58.017Z",
+      "gamesMissingPregameCapture": 6
     }
   ],
   "note": "windowHealthScore = games with a leakage-safe pregame capture BEFORE first pitch / total games. A low score = a cadence risk (captures landing after first pitch → ineligible → 0% attachment). Remedy is an EARLIER capture cron, never retroactive eligibility or fabricated timestamps."
