@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "artifact": "pregame-availability-margin-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "program": "Phase 3B",
+  "registeredAt": "2026-09-25T18:05:00Z",
+  "researchOnly": "No public model, board, promotion state or page changes under this registration. An ELIGIBLE result makes the candidate eligible for a separately preregistered promotion program and nothing else.",
+
+  "whatAuthorisedThis": {
+    "ceiling": "data/internal/research/nfl/reports/team-availability-ceiling-evaluation.json",
+    "result": "qb-absent-elo-shift-v1 — WIN: REJECTED, MARGIN: ELIGIBLE, on both the full 2023-2025 set and with week 18 excluded.",
+    "reading": "A perfect availability oracle improved the margin head inside every registered bar. It did NOT clear the win head: the aggregate looked convincing (-0.01016 log loss, bootstrap upper bound -0.00358) but 2023 went the WRONG WAY (+0.00184), and the everySeason bar refused it."
+  },
+
+  "⚠ THE WIN HEAD IS OUT OF SCOPE, AND THAT IS A RULE NOT A CHOICE": "The ceiling is an upper bound: it had foreknowledge no live model can have. A pregame feature is strictly noisier than the oracle, so if the oracle cannot clear the win bars the pregame version cannot either. Registering a pregame win candidate would be retrying a REJECTED candidate by adjusting it, which the ceiling registration forbids by name. This registration covers the MARGIN head only.",
+
+  "hypothesis": "Conditioning the margin head on a PREGAME-KNOWABLE quarterback availability signal improves held-out margin MAE versus the incumbent margin head, while keeping 80% interval coverage inside the registered band, on identical games.",
+
+  "feature": {
+    "⚠ everyInputMustPredateKICKOFF": "Each signal is read from the most recent snapshot strictly BEFORE the game's date. A snapshot stamped on or after the gameday is never read, and the expected starter is derived walk-forward from games already played — never from season totals, which are post-hoc and are what made the ceiling a ceiling.",
+    "signals": [
+      {
+        "id": "depthChartQb1Change",
+        "source": "nflverse depth_charts_{season}.csv.gz — 219 dated snapshots in 2025 (2025-08-03 to 2026-03-14), so a strictly-prior snapshot genuinely exists for every game.",
+        "rule": "The club's pos_rank 1 quarterback in the latest snapshot before kickoff differs from the quarterback who has taken the most quarterback snaps in that club's games SO FAR this season (walk-forward, zero games so far = no signal)."
+      },
+      {
+        "id": "primaryQbOutOrDoubtful",
+        "source": "nflverse injuries_{season}.csv — the official game-status report, keyed by gsis_id.",
+        "rule": "The walk-forward expected starter carries report_status Out or Doubtful for that club-week."
+      }
+    ],
+    "combination": "absentPregame = depthChartQb1Change OR primaryQbOutOrDoubtful. Registered as a single indicator; no weighting between them is fitted.",
+    "⚠ knownIncompleteness": "The injury report does not carry players already on injured reserve, who drop off it entirely, and a benching appears only if the depth chart moves. The signal will therefore fire on FEWER games than the oracle's absences — 39 depth-chart quarterback-1 changes and 54 Out/Doubtful club-weeks in 2025, against roughly 85-90 oracle absences per season. That shortfall is the honest cost of using only what is knowable before kickoff and must not be repaired by reaching for post-hoc data."
+  },
+
+  "seenBeforeRegistering": "Signal FREQUENCY only, on 2025: 39 depth-chart quarterback-1 changes across 7,007 snapshots, and 54 club-weeks with the expected starter listed Out or Doubtful. No margin, score, outcome, residual or market value was read for any game, and no association between the signal and any outcome has been computed.",
+
+  "data": {
+    "games": "data/internal/research/nfl/raw/nflverse/games.csv, sha256 cf8632c85fdc82c8915c7866d0bd16465a88946052bccfbf83b44bee87d5d65e",
+    "depthCharts": "nflverse depth_charts_{2022..2025}.csv.gz — TO BE CAPTURED AND HASH-PINNED by the scorer's acquisition step before any scoring.",
+    "injuries": "nflverse injuries_{2022..2025}.csv — same.",
+    "snaps": "data/internal/research/nfl/nflverse/participation-{2022..2025}.jsonl, used ONLY to derive the walk-forward expected starter from games already played.",
+    "population": "2023-2025 REG+POST finals with both clubs rated by the incumbent fold. 2022 is fit-only warmup, exactly as the ceiling registration was amended to require."
+  },
+
+  "incumbent": "nfl-margin-elo-hfa-v1 as gated by win-margin-historical-replay-evaluation.json, scored through replayWinMarginHeads — the production walk-forward, not a reimplementation.",
+
+  "candidate": {
+    "id": "pregame-qb-availability-margin-v1",
+    "description": "One rating shift applied to a club carrying absentPregame, fitted walk-forward on seasons strictly earlier than the scored season, MINIMISING MARGIN MAE.",
+    "⚠ fittedForMarginThisTime": "The ceiling's margin result came from a shift fitted to minimise WIN log loss; the margin improvement there was incidental to the fit. This candidate is fitted for the head it is judged on, so an ELIGIBLE result cannot be an accident of a different objective."
+  },
+
+  "frozenBars": {
+    "mae": "held-out margin MAE strictly BELOW the incumbent's, and not worse by any amount — the ceiling cleared 10.337 to 10.189, so a pregame version that merely ties has not earned anything.",
+    "maeIsNotNoise": "season-block bootstrap (resample the 3 scored seasons with replacement, 2000 resamples, mulberry32 seed 20260925): 95% upper bound of mean(candidate - incumbent) absolute error strictly below 0.",
+    "everySeason": "candidate MAE strictly below the incumbent's in every scored season — the bar that refused the win head, kept.",
+    "coverageBand": "80% interval coverage inside [0.75, 0.85] overall and in every scored season.",
+    "week18Sensitivity": "every bar above must also pass with week 18 REG games excluded.",
+    "noLeakage": "the scorer must assert, per game, that every snapshot it read is stamped strictly before that game's date, and refuse if any is not."
+  },
+
+  "decisionRule": "ELIGIBLE only if every bar passes on both the full set and with week 18 excluded; otherwise REJECTED and recorded with its numbers. ELIGIBLE authorises no public change, no promotion and no label — adoption is its own separately preregistered, founder-approved step. A REJECTED candidate is never retried by adjusting it.",
+
+  "prohibitions": [
+    "No bar may be changed after any outcome has been scored.",
+    "No input stamped on or after a game's date may be read for that game.",
+    "The expected starter is never derived from season totals or from any game not already played.",
+    "The win head is out of scope — see the rule above.",
+    "The incumbent's receipt is never overwritten; the evaluation is a new file.",
+    "If the evaluation file already exists, the scorer refuses: ONE look."
+  ],
+
+  "outputsWhenRun": {
+    "evaluation": "data/internal/research/nfl/reports/pregame-availability-margin-evaluation.json",
+    "scorer": "scripts/research/nfl/replay-pregame-availability.mjs (next artifact; must refuse unless this file is committed and unmodified)"
+  }
+}

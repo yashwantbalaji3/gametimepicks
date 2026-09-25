@@ -40,6 +40,14 @@ on:
       - "app/tsconfig.json"
       - "pipeline/**"
       - "scripts/ci/**"
+      # ⚠ RESEARCH SCORERS ARE CODE, AND THEY WERE IN THE SAME BLIND SPOT app/api/** WAS (2026-09-25).
+      #
+      # scripts/research/** holds the replay scorers — replay-win-margin.mjs decides which heads the
+      # PUBLIC forecasts adopt, and replay-team-availability.mjs imports production model code to do
+      # it. Neither path was on either filter, so a change to a scorer ran nothing on push AND the
+      # pull request itself carried no quality check at all: green by absence rather than by test.
+      # Found when a PR containing a 300-line scorer showed no gate to skip.
+      - "scripts/research/**"
       # docs/V17_WORKFLOW_AUDIT.md W7: src/lib/workflow-failure-visibility.test.mjs and its siblings pin the
       # OTHER workflows' text (job-level continue-on-error, the shared writer queue, the push-failure shape),
       # yet only this file's own path was listed — an edit to nightly-settle.yml or daily-products.yml pushed
@@ -50,6 +58,7 @@ on:
       - "app/**"
       - "pipeline/**"
       - "scripts/ci/**"
+      - "scripts/research/**"
       - ".github/workflows/**"
   workflow_dispatch:
 
