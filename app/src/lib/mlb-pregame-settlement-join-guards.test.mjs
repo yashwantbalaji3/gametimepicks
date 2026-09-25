@@ -356,3 +356,62 @@ test("16e · one gamePk never contributes a graded join under two dates", () => 
 
   assert.deepEqual(scanDoubleGraded(JOIN_DIR), [], "one real-world game settled under two dates — its outcome enters the corpus twice");
 });
+
+test("16f · a superseded join still FITS the commit cap — a per-row reason multiplies by the rows", () => {
+  /*
+   * ⚠ THE REGRESSION THIS EXISTS TO STOP, WHICH WE SHIPPED ONCE.
+   *
+   * The first superseded implementation wrote the full explanation into every row's
+   * `settlementReason`. On gamePk 824785 that is the same 95-character sentence 267 times: the file
+   * went from 119,812 committed bytes to 145,619, past the 128 KiB metadata guard in
+   * mlb-pregame-capture — so the ONE game the whole incident was about became the one file that could
+   * not be committed, and main kept a stale `pending` verdict for a game finished two days earlier.
+   * It stayed contained only because a pending join yields no observations: luck, not design.
+   *
+   * The invariant is the shape, not the byte count: prose belongs on the RECORD once, and a per-row
+   * field carries a code. The size assertion below is the consequence, checked against the real
+   * 267-row shape so it cannot pass on a toy fixture.
+   */
+  const MAX_FILE_BYTES = 131072;   // mlb-pregame-capture.yml
+  const src = fs.readFileSync(path.join(app, "scripts/join-mlb-pregame-settlements.mjs"), "utf8");
+
+  // The per-row reason must be a SHORT CODE. A reason containing a space is a sentence.
+  const arm = /settlementStatus: "unavailable", actual: null, reason: supersededByReschedule \? "([^"]*)" : "([^"]*)"/.exec(src);
+  assert.ok(arm, "the superseded/unknown-date arm still sets a per-row reason");
+  for (const code of [arm[1], arm[2]]) {
+    assert.ok(code.length <= 32, `a per-row reason is a code, not prose: "${code}"`);
+    assert.ok(!code.includes(" "), `a per-row reason must not be a sentence: "${code}"`);
+  }
+  // And the human explanation must still exist, once, on the record.
+  assert.match(src, /joinReason: supersededByReschedule[\s\S]{0,400}was played on/, "the record carries the sentence");
+
+  // Against the widest real join committed, rewritten as superseded: still under the cap.
+  let widest = null;
+  if (fs.existsSync(JOIN_DIR)) {
+    for (const date of fs.readdirSync(JOIN_DIR).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
+      for (const f of fs.readdirSync(path.join(JOIN_DIR, date)).filter((x) => x.endsWith(".json"))) {
+        const j = readJson(path.join(JOIN_DIR, date, f));
+        if (j?.marketRows?.length && (!widest || j.marketRows.length > widest.marketRows.length)) widest = j;
+      }
+    }
+  }
+  if (!widest) return;   // no committed joins in this checkout
+  assert.ok(widest.marketRows.length >= 100, `expected a wide real join to test against, widest had ${widest.marketRows.length} rows`);
+
+  const asSuperseded = JSON.parse(JSON.stringify(widest));
+  asSuperseded.joinStatus = "superseded";
+  asSuperseded.officialDate = "2026-09-23";
+  asSuperseded.officialStartTime = "2026-09-23T17:35:00Z";
+  asSuperseded.joinReason = `superseded: this game was played on 2026-09-23, not ${widest.date} — the fixture under this date is kept as pregame evidence and does not grade`;
+  for (const r of asSuperseded.marketRows) {
+    r.settlementStatus = "unavailable";
+    r.actual = null;
+    r.settlementReason = arm[1];
+    r.countsAsSettledEligible = false;
+  }
+  const bytes = Buffer.byteLength(JSON.stringify(asSuperseded));
+  assert.ok(
+    bytes < MAX_FILE_BYTES,
+    `a superseded ${asSuperseded.marketRows.length}-row join is ${bytes} bytes, at or over the ${MAX_FILE_BYTES}-byte commit cap — it would be silently skipped and the verdict would never reach the repository`,
+  );
+});
