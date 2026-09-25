@@ -123,6 +123,34 @@ export function normalizeNflScoreboard(payload, fetchedAt) {
  * ESTIMATE (below its own bar) and P318 is STOP, so there is no published range to compare against
  * and a live passing-yards row would be a number with nothing truthful beside it.
  */
+/*
+ * The PUBLISHED prop families, and only those. Each key is `<group name>:<column label>` as ESPN's
+ * own box score spells them, verified against a real finished game (event 401872948, ATL @ GB, whose
+ * groups are passing / rushing / receiving / fumbles / defensive / interceptions / kickReturns /
+ * puntReturns / kicking / punting).
+ *
+ * ── WHY PASSING YARDS IS ABSENT THOUGH THE COLUMN IS RIGHT THERE ────────────────────────────────
+ *
+ * `passing:YDS` exists in every payload and is trivially mappable. It stays out because
+ * `player_pass_yds` is an ESTIMATE family and P318 is STOP: the decomposed candidate failed at its
+ * preregistered calibration bar, so there is no published range for a live value to be compared
+ * against. A live number beside a forecast that was rejected at its own bar presents unvalidated
+ * model output as a live comparison. `adapters.test.mjs` NFL 8 keeps the passing group in its fixture
+ * precisely so this remains a live assertion rather than an accident.
+ *
+ * ── AND WHY ANYTIME TOUCHDOWN IS NOT HERE ──────────────────────────────────────────────────────
+ *
+ * There is no single TD column to map. A player's touchdowns are spread across `rushing:TD`,
+ * `receiving:TD`, `defensive:TD`, `interceptions:TD`, `kickReturns:TD` and `puntReturns:TD`, and two
+ * of those OVERLAP — a pick-six is counted by both `defensive` and `interceptions` — while
+ * `passing:TD` is touchdowns THROWN, which the thrower did not score.
+ *
+ * The exact fix would be event-level scoring plays, and that is checked, not assumed: on the same
+ * real payload `scoringPlays[].athletesInvolved` is EMPTY and each play carries only prose
+ * ("Christian Watson 4 Yd pass from Jordan Love"). Reading a scorer out of that means matching a
+ * name, which is the one thing this adapter exists to avoid. So ATD stays out of the live row until a
+ * feed states the scorer by id, rather than shipping a count assembled from overlapping columns.
+ */
 const MARKET_BY_GROUP_LABEL = Object.freeze({
   "receiving:YDS": "player_reception_yds",
   "receiving:REC": "player_receptions",

@@ -339,6 +339,70 @@ export function indexLiveProps(artifact: { rows?: LivePropRow[] } | null | undef
   return out;
 }
 
+/**
+ * ONE ROW TYPE, ONE PHASE VOCABULARY — whichever source built the row.
+ *
+ * `LivePropRow.live.phase` is the producer's vocabulary (`PRE | IN_PROGRESS | FINAL`). The live
+ * gateway's envelope speaks a wider one (`PRE | LIVE | FINAL | POSTPONED | CANCELLED | DELAYED |
+ * UNKNOWN`). Two words for "in play" reaching one field is how a consumer ends up checking for the
+ * one its own author happened to know, so the translation happens HERE, once, and the row type goes
+ * on having a single phase language.
+ *
+ * A state we cannot express as a factual in-play observation — postponed, cancelled, unknown —
+ * produces NO ROW. The alternative is choosing a phase for it, and that is a claim about a game
+ * rather than a reading of one.
+ *
+ * ⚠ THE GATEWAY IS THE CANONICAL FACTUAL OWNER, and this adapter is the only door in. It does not
+ * compute a stat, fill a gap, or carry a default: `statValue` is `null` where the box score had no
+ * number, exactly as the gateway read it, because a blank cell is not a zero.
+ */
+type LiveEnvelope = {
+  state?: string | null;
+  /** `clock` is already null unless the game is LIVE — the gateway refuses to show 0:00 on a final. */
+  period?: { number?: number | null; clock?: string | null } | null;
+  /** An OBJECT, not an array: the gateway resolves the sides by homeAway and hands them over named. */
+  competitors?: { home?: { score?: number | null } | null; away?: { score?: number | null } | null } | null;
+  playerStats?: Array<{ playerId?: string | null; market?: string | null; value?: number | null }> | null;
+};
+
+const PHASE_BY_LIVE_STATE: Record<string, "IN_PROGRESS" | "FINAL"> = {
+  LIVE: "IN_PROGRESS",
+  DELAYED: "IN_PROGRESS",
+  FINAL: "FINAL",
+};
+
+export function liveRowsFromEnvelope(envelope: LiveEnvelope | null | undefined): LivePropRow[] {
+  const phase = PHASE_BY_LIVE_STATE[String(envelope?.state ?? "")];
+  if (!phase) return [];
+
+  /*
+   * The score comes from the sides the gateway already resolved by homeAway — never by array
+   * position. A side without a stated score leaves the WHOLE score null: "21 - null" is not a
+   * scoreline, and half a score is worse than none.
+   */
+  const home = envelope?.competitors?.home?.score;
+  const away = envelope?.competitors?.away?.score;
+  const score = typeof home === "number" && typeof away === "number" ? { home, away } : null;
+
+  // A clock and a period are a "now", and only a game in play has one. The gateway already nulls the
+  // clock outside LIVE; this does not reinstate it from the period label on a finished game.
+  const clock = phase === "IN_PROGRESS" ? envelope?.period?.clock ?? null : null;
+  const period = phase === "IN_PROGRESS" ? envelope?.period?.number ?? null : null;
+
+  const rows: LivePropRow[] = [];
+  for (const s of envelope?.playerStats ?? []) {
+    // An unmapped player keeps a null playerId upstream and is honest live fact there — but it cannot
+    // be joined to a forecast, and a row that cannot be joined has nothing to say on a prop line.
+    if (!s?.playerId || !s?.market) continue;
+    rows.push({
+      playerId: s.playerId,
+      family: s.market,
+      live: { phase, statValue: typeof s.value === "number" ? s.value : null, clock, period, score },
+    });
+  }
+  return rows;
+}
+
 export function presentPlayerBoardRow(
   ctx: PlayerBoardContext,
   player: PlayerBoardPlayer,

@@ -10,7 +10,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { indexLiveProps, presentPlayerBoardRow } from "./nfl.ts";
+import { indexLiveProps, liveRowsFromEnvelope, presentPlayerBoardRow } from "./nfl.ts";
 
 const APP = process.cwd();
 const ctx = {
@@ -88,4 +88,127 @@ test("the live line spans the row rather than adding a column", () => {
   const tsx = fs.readFileSync(path.join(APP, "src/components/prediction/prediction-board.tsx"), "utf8");
   const head = /<div className="gtp-pred-head"[\s\S]*?<\/div>/.exec(tsx);
   assert.ok(head && !/Live/.test(head[0]), "no Live header cell — that would imply a column the templates do not have");
+});
+
+/* ── AND THE SLOT MUST BE REACHABLE (Phase B · 2026-09-25) ─────────────────────────────────────── */
+
+test("⚠ THE BOARD MUST ACTUALLY PASS A LIVE INDEX — the adapter accepted one and nobody supplied it", () => {
+  /*
+   * THE DEFECT THESE TESTS COULD NOT SEE. Every assertion above hands `presentPlayerBoardRow` a
+   * synthetic artifact, so they proved the JOIN worked for the whole of Phase 5 while the only real
+   * caller — `components/nfl/player-board.tsx` — called `presentPlayerBoardFamily(ctx, rows, family)`
+   * with the fourth argument omitted. `liveIndex` was `undefined` on every page, every lookup missed,
+   * and the live slot could not appear anywhere. An empty live panel looks exactly like a quiet night.
+   *
+   * Source-read on purpose, and narrowly: the wiring is a fact about a React component's arguments,
+   * and there is no rendered NFL player board in the export to exercise (the live half is
+   * client-fetched and the flag is off in this build), so a behavioural test here would assert
+   * nothing. It reads the CALL, not the formatting around it.
+   */
+  const src = fs.readFileSync(path.join(APP, "src/components/nfl/player-board.tsx"), "utf8");
+
+  const call = /presentPlayerBoardFamily\(([^)]*)\)/.exec(src);
+  assert.ok(call, "the board still renders through presentPlayerBoardFamily");
+  const args = call[1].split(",").map((s) => s.trim()).filter(Boolean);
+  assert.equal(args.length, 4, `the live index is the 4th argument and must be passed — saw (${call[1]})`);
+  assert.match(args[3], /liveIndex/, "and it must be the live index, not some other value");
+
+  // The index has to come from the canonical gateway envelope, through the one polling loop.
+  assert.match(src, /useLiveEvent\(\s*"nfl"/, "the live half comes from the gateway's single poller");
+  assert.match(src, /liveRowsFromEnvelope\(live\.envelope\)/, "and is adapted from its envelope");
+
+  // A second poller, or a read of the producer's committed artifact from the component, would be a
+  // competing source of truth for the same fact.
+  assert.ok(!/fetch\(/.test(src), "the board never fetches directly — the hook owns every request");
+  assert.ok(!src.includes("live-props/"), "and never reads the batch artifact as a second live source");
+});
+
+test("the envelope adapter speaks ONE phase vocabulary, and refuses states it cannot express", () => {
+  const env = (state, over = {}) => ({
+    state,
+    period: { number: 3, clock: "8:42" },
+    competitors: { home: { score: 17 }, away: { score: 21 } },
+    playerStats: [{ playerId: "nfl-athlete-4379399", market: "player_reception_yds", value: 163 }],
+    ...over,
+  });
+
+  // The gateway says LIVE / DELAYED; the row type says IN_PROGRESS. One field, one vocabulary.
+  for (const s of ["LIVE", "DELAYED"]) {
+    const [row] = liveRowsFromEnvelope(env(s));
+    assert.equal(row.live.phase, "IN_PROGRESS", `${s} is in play`);
+    assert.equal(row.live.statValue, 163);
+    assert.equal(row.live.clock, "8:42");
+    assert.equal(row.live.period, 3);
+    assert.deepEqual(row.live.score, { home: 17, away: 21 });
+  }
+
+  // FINAL keeps the stat and the score and drops the clock — "0:00" reads as a live clock.
+  const [fin] = liveRowsFromEnvelope(env("FINAL"));
+  assert.equal(fin.live.phase, "FINAL");
+  assert.equal(fin.live.statValue, 163);
+  assert.equal(fin.live.clock, null, "a finished game has no clock");
+  assert.equal(fin.live.period, null);
+
+  // A state we cannot express as a factual observation yields NO ROW rather than a chosen phase.
+  for (const s of ["PRE", "POSTPONED", "CANCELLED", "UNKNOWN", "", null, undefined]) {
+    assert.deepEqual(liveRowsFromEnvelope(env(s)), [], `${String(s)} must not produce a live row`);
+  }
+  assert.deepEqual(liveRowsFromEnvelope(null), [], "and neither does no envelope at all");
+});
+
+test("⚠ the adapter never turns an absence into a number", () => {
+  const base = { state: "LIVE", period: { number: 2, clock: "1:00" }, competitors: { home: { score: 7 }, away: { score: 3 } } };
+
+  // A null stat stays null. This is the value that becomes a settled UNDER if it is allowed to be 0.
+  const [nul] = liveRowsFromEnvelope({ ...base, playerStats: [{ playerId: "nfl-athlete-1", market: "player_rush_yds", value: null }] });
+  assert.equal(nul.live.statValue, null, "no measurement is not zero");
+
+  // A measured zero survives, because it IS a result.
+  const [zero] = liveRowsFromEnvelope({ ...base, playerStats: [{ playerId: "nfl-athlete-1", market: "player_rush_yds", value: 0 }] });
+  assert.equal(zero.live.statValue, 0, "a measured zero is a result and must not be discarded");
+
+  // Half a score is not a score.
+  const [half] = liveRowsFromEnvelope({ ...base, competitors: { home: { score: 7 }, away: { score: null } }, playerStats: [{ playerId: "nfl-athlete-1", market: "player_rush_yds", value: 5 }] });
+  assert.equal(half.live.score, null, "'7 - null' is not a scoreline");
+
+  // A player the gateway could not identify cannot be joined, so it contributes no row.
+  assert.deepEqual(
+    liveRowsFromEnvelope({ ...base, playerStats: [{ playerId: null, market: "player_rush_yds", value: 40 }] }), [],
+    "an unjoinable stat has nothing to say on a prop line",
+  );
+  assert.deepEqual(
+    liveRowsFromEnvelope({ ...base, playerStats: [{ playerId: "nfl-athlete-1", market: null, value: 40 }] }), [],
+    "and neither does a stat with no family",
+  );
+});
+
+test("the gateway maps only PUBLISHED families, and does not fake anytime touchdown", () => {
+  const adapter = fs.readFileSync(path.join(APP, "src/lib/live/adapters/espn-nfl.mjs"), "utf8");
+  /*
+   * Verified against event 401872948 (ATL @ GB): the box score's groups are passing / rushing /
+   * receiving / fumbles / defensive / interceptions / kickReturns / puntReturns / kicking / punting.
+   */
+  for (const [key, family] of [
+    ['"receiving:YDS"', "player_reception_yds"],
+    ['"receiving:REC"', "player_receptions"],
+    ['"rushing:YDS"', "player_rush_yds"],
+  ]) {
+    assert.match(adapter, new RegExp(`${key}:\\s*"${family}"`), `${key} must map to ${family}`);
+  }
+  /*
+   * ⚠ AND PASSING YARDS MUST STAY OUT. The column is right there and trivially mappable; mapping it
+   * was tried in this very change and `adapters.test.mjs` NFL 8 caught it. `player_pass_yds` is an
+   * ESTIMATE family and P318 is STOP, so there is no published range for a live value to sit against.
+   */
+  assert.ok(!adapter.replace(/\/\*[\s\S]*?\*\//g, " ").includes("player_pass_yds"),
+    "an ESTIMATE family must not reach the live view — P318 is STOP");
+  /*
+   * ATD MUST STAY ABSENT UNTIL A FEED NAMES THE SCORER BY ID. Touchdowns are spread across six
+   * columns, `defensive:TD` and `interceptions:TD` both count a pick-six, and `passing:TD` is TDs
+   * thrown. `scoringPlays[].athletesInvolved` is empty on the real payload, so the exact fix is not
+   * available without name matching. A single mapped TD column would be a wrong count, quietly.
+   */
+  const body = adapter.replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.ok(!/:TD"\s*:/.test(body), "no TD column is mapped — the count would be wrong and unattributable");
+  assert.ok(!body.includes("player_anytime_td"), "ATD is not served from box-score columns");
 });

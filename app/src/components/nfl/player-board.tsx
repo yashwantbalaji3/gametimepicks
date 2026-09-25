@@ -21,7 +21,9 @@ import Link from "next/link";
 import FollowToggle from "@/components/follow/follow-toggle";
 import { nflPlayerRef } from "@/lib/follow/follow-schema.mjs";
 import PredictionBoard, { participationLabel } from "@/components/prediction/prediction-board";
-import { presentPlayerBoardFamily, type PlayerBoardContext, type PlayerBoardPlayer } from "@/lib/prediction-presentation/nfl";
+import { indexLiveProps, liveRowsFromEnvelope, presentPlayerBoardFamily, type PlayerBoardContext, type PlayerBoardPlayer } from "@/lib/prediction-presentation/nfl";
+import { useLiveEvent } from "@/components/live/use-live-event";
+import { etDateOf } from "@/lib/live/client";
 
 /**
  * v1.1.2: the player's name cell, with a follow star keyed on the board's own `nfl-athlete-<id>` —
@@ -180,8 +182,39 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
   );
 
   /*
-   * The filtered rows, expressed in the SHARED presentation contract. Built from the artifact the
-   * producer already stamped — no join, no lookup, no second opinion about which book is on screen.
+   * ── THE LIVE HALF OF THE ROW, FROM THE ONE POLLING LOOP ────────────────────────────────────────
+   *
+   * The frozen pregame values on these rows come from the committed board artifact and do not move.
+   * The factual live stat comes from the gateway, through `useLiveEvent` — the single poller, whose
+   * cadence, hidden-tab backoff, terminal stop and CDN caching are all enforced there rather than
+   * here. `liveReadyFor` is checked inside the hook before the first fetch, so a build with NFL live
+   * off costs exactly zero requests and this is a no-op.
+   *
+   * ⚠ WHY THIS EXISTS AT ALL. The presentation adapter has accepted a `liveIndex` since Phase 5 and
+   * this component never passed one, so `presentPlayerBoardRow` looked up every row in `undefined`
+   * and the live slot could not appear on any page. `live-slot.test.mjs` pinned the index KEYING with
+   * a synthetic artifact — it proved the join worked while nothing proved the join was wired, which
+   * is the one failure mode an isolated adapter test cannot see. A guard below now fails if this
+   * argument is dropped again.
+   *
+   * ⚠ AND THE STAT IS READ, NEVER DERIVED. The gateway reads box-score columns by label, keys players
+   * by ESPN athlete id, and returns early on a blank cell so it can never become 0. Nothing here adds
+   * an on-track percentage, a projected finish or a remaining-opportunity estimate: the first live
+   * release is factual.
+   */
+  const live = useLiveEvent("nfl", board.providerEventId ?? null, {
+    players: true,
+    etDate: etDateOf(board.kickoffUtc),
+  });
+  const liveIndex = useMemo(
+    () => indexLiveProps({ rows: liveRowsFromEnvelope(live.envelope) }),
+    [live.envelope],
+  );
+
+  /*
+   * The filtered rows, expressed in the SHARED presentation contract. The frozen half is built from
+   * the artifact the producer already stamped — no join, no lookup, no second opinion about which
+   * book is on screen — and the live half is joined by explicit key, never by string equality.
    */
   const presented = useMemo(() => {
     if (isCombined || !family) return [];
@@ -192,8 +225,8 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
       families: board.families,
       generatedAt: board.generatedAt ?? "",
     };
-    return presentPlayerBoardFamily(ctx, rows as PlayerBoardPlayer[], family);
-  }, [board.providerEventId, board.kickoffUtc, board.families, board.generatedAt, teams, rows, family, isCombined]);
+    return presentPlayerBoardFamily(ctx, rows as PlayerBoardPlayer[], family, liveIndex);
+  }, [board.providerEventId, board.kickoffUtc, board.families, board.generatedAt, teams, rows, family, isCombined, liveIndex]);
 
   if (publishedFamilies.length === 0) return null;
 
