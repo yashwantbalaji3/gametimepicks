@@ -4,19 +4,110 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-09-24",
- "generatedAt": "2026-09-25T04:58:57Z",
+ "generatedAt": "2026-09-25T14:35:47Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401872948",
+   "providerEventId": "401872948",
    "matchup": "ATL @ GB",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-09-25T00:15Z",
-   "observed": "no result row"
-  },
+   "seasonType": 2,
+   "week": 3,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-09-24/401872948-rev-2346Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "ee492af1841b3047",
+    "forecastGeneratedAt": "2026-09-24T23:46:49Z",
+    "revisionChain": [
+     {
+      "file": "401872948.json",
+      "generatedAt": "2026-09-24T14:12:59Z",
+      "inputHash": "f83abb27a9e39764"
+     },
+     {
+      "file": "401872948-rev-1837Z.json",
+      "generatedAt": "2026-09-24T18:37:12Z",
+      "inputHash": "9c12448bc83376e4"
+     },
+     {
+      "file": "401872948-rev-1857Z.json",
+      "generatedAt": "2026-09-24T18:57:21Z",
+      "inputHash": "fae88551624e1e60"
+     },
+     {
+      "file": "401872948-rev-1952Z.json",
+      "generatedAt": "2026-09-24T19:52:17Z",
+      "inputHash": "730ecfc81d553df4"
+     },
+     {
+      "file": "401872948-rev-2136Z.json",
+      "generatedAt": "2026-09-24T21:36:24Z",
+      "inputHash": "e88160ddfe62ecd5"
+     },
+     {
+      "file": "401872948-rev-2346Z.json",
+      "generatedAt": "2026-09-24T23:46:49Z",
+      "inputHash": "ee492af1841b3047"
+     }
+    ],
+    "marketCapturedAt": "2026-09-24T21:36:24Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-09-25T14:34:19Z",
+    "settledAt": "2026-09-25T14:35:47Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 14,
+     "away": 35,
+     "margin": -21,
+     "total": 49,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false
+    },
+    "margin": {
+     "projected": 5,
+     "actual": -21,
+     "absError": 26,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 45,
+     "actual": 49,
+     "absError": 4,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 25,
+      "away": 20,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 26
+    },
+    "probabilistic": {
+     "brier": 0.448364,
+     "logLoss": 1.107451
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.681696,
+    "brier": 0.464709,
+    "logLoss": 1.144748,
+    "totalAbsError": 6,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
+  }
+ ],
+ "pending": [
   {
    "canonicalEventId": "nfl-401872949",
    "matchup": "CAR @ CLE",
@@ -111,24 +202,33 @@
  "quarantined": [],
  "accounting": {
   "receipts": 16,
-  "settled": 0,
-  "pending": 16,
+  "settled": 1,
+  "pending": 15,
   "quarantined": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
   "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerAccuracy": 0,
+  "marginMAE": 26,
+  "totalMAE": 4,
+  "marginInterval80Coverage": 0,
+  "totalInterval80Coverage": 1,
+  "brier": 0.4484,
+  "logLoss": 1.1075
  },
- "marketBenchmark": null,
- "comparison": null
+ "marketBenchmark": {
+  "n": 1,
+  "brier": 0.4647,
+  "logLoss": 1.1447,
+  "totalMAE": 6
+ },
+ "comparison": {
+  "modelBrier": 0.4484,
+  "marketBrier": 0.4647,
+  "note": "shown side by side because the founder asked for transparency; a single slate cannot establish which is better and this is not a claim that it does"
+ }
 }
