@@ -248,11 +248,21 @@ export function PredictionBoard({
         {predictions.map((p, i) => {
           const href = gameHref(p);
           return (
-            /* `data-family` is for the RENDERED GUARDS, and it is load-bearing rather than
-               decorative: a surface can show one family at a time, so a guard matching rows by
-               player name alone compares a rushing price against a passing row and fails for the
-               wrong reason. The family is not otherwise derivable from the markup. */
-            <li key={p.predictionId} className="gtp-pred-row" data-family={p.marketFamily}>
+            /*
+             * `data-family` and `data-event` are for the RENDERED GUARDS, and they are load-bearing
+             * rather than decorative. A row's identity is (event, player, family), and neither half
+             * is otherwise derivable from the markup:
+             *
+             *   without the family, a surface showing one family at a time makes a guard compare a
+             *   rushing price against a passing row and fail for the wrong reason;
+             *   without the event, a player who appears in BOTH this week's board and a frozen
+             *   past week's makes the guard demand this week's price on last week's page — which
+             *   is exactly how `/nfl/week/2-02/` first failed.
+             *
+             * Two short attributes, together smaller than the composite id and readable on their
+             * own; this row markup is why `/results` once shipped 1,160KB, so it stays lean.
+             */
+            <li key={p.predictionId} className="gtp-pred-row" data-family={p.marketFamily} data-event={p.game.providerEventId}>
               {showRank ? <span className="gtp-pred-rank font-mono">{rankOf ? rankOf(p, i) : i + 1}</span> : null}
 
               {/*

@@ -99,15 +99,22 @@ test("a priced row shows the SAME book, line and prices on every page that rende
      * rushing price from a passing row and fail for the wrong reason; and a page rendering the same
      * player in two families would have let either row satisfy the other's check.
      *
+     * ⚠ AND THE EVENT IS PART OF THE IDENTITY TOO. A player appears in this week's board AND in the
+     * frozen board of a week he already played, so matching on (player, family) made the guard
+     * demand THIS week's DraftKings price on `/nfl/week/2-02/`, a page that is correctly showing
+     * last week's numbers and no price at all. A row is (event, player, family) or it is not a row.
+     *
      * "The page does not render this forecast" is not divergence — showing it with the wrong market
-     * is. So the unit is the ROW, identified by `data-family`, and the coverage question (does the
-     * page render priced rows at all?) is asked separately, below, where it can be answered
-     * honestly instead of by a name appearing somewhere in the HTML.
+     * is. So the unit is the ROW, identified by `data-family` and `data-event`, and the coverage
+     * question (does the page render priced rows at all?) is asked separately, below, where it can
+     * be answered honestly instead of by a name appearing somewhere in the HTML.
      */
     for (const { f, main } of pages) {
       const rel = path.relative(OUT, f);
       const rows = (main.match(/<li class="gtp-pred-row"[^>]*>[\s\S]*?<\/li>/g) ?? [])
-        .filter((r) => r.includes(`data-family="${board.family}"`) && r.includes(row.name));
+        .filter((r) => r.includes(`data-family="${board.family}"`)
+          && r.includes(`data-event="${row.providerEventId}"`)
+          && r.includes(row.name));
       if (rows.length === 0) continue;
       comparisons += 1;
       const blob = textOf(rows.join(" "));
@@ -183,7 +190,9 @@ test("a game report renders the prices its own producer artifact holds", () => {
 
     for (const [fam, priced] of pricedByFamily) {
       for (const { player, market } of priced) {
-        const rows = rendered.filter((r) => r.includes(`data-family="${fam}"`) && r.includes(player.name));
+        const rows = rendered.filter((r) => r.includes(`data-family="${fam}"`)
+          && r.includes(`data-event="${board.providerEventId}"`)
+          && r.includes(player.name));
         if (rows.length === 0) continue; // this player's family is not the rendered tab
         const blob = textOf(rows.join(" "));
         checkedRows += 1;
