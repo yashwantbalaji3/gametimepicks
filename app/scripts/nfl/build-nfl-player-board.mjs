@@ -35,6 +35,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveNewArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
+import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
 import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelEstimateMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -43,6 +44,13 @@ const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -
 const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const nowMs = Date.parse(NOW);
+
+/* The ONE lookup over captured prop prices — the same index the weekly boards read, so the two
+   surfaces cannot key the join differently. Absent capture ⇒ every row keeps a typed absence. */
+const propPrices = (() => {
+  try { return buildPropPriceIndex(JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/markets/latest.json"), "utf8"))); }
+  catch { return buildPropPriceIndex(null); }
+})();
 const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
 /* Newest current-event artifact per event, scanning the recent date dirs (a week's artifacts can
@@ -349,6 +357,32 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
       pl.volumeNote = "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise";
     }
   }
+  /*
+   * THE SPORTSBOOK SLOT, ON THE SAME ROW AS THE FORECAST IT SITS BESIDE (P0 · 2026-09-24).
+   *
+   * ⚠ THE GAME REPORT WAS THE ONE NFL SURFACE WITH NO MARKET AT ALL. The weekly boards carried a
+   * captured price and the game page — the SAME player, the SAME family, the SAME game, one click
+   * away — showed the model number alone. A reader comparing the two pages would reasonably
+   * conclude the price applied to one and not the other, which is the identical defect as the hub
+   * saying "Not checked" over a priced row, just expressed as silence instead of a wrong word.
+   *
+   * ⚠ IT IS A LOOKUP, AT THE PRODUCER, THROUGH THE ONE OWNER. No identity is minted, no book is
+   * chosen here, and no route joins anything: `slotFor` returns either a real captured price or a
+   * typed absence, exactly as it does for the weekly boards, so the two surfaces cannot disagree
+   * about a row without the shared lookup being wrong for both.
+   *
+   * Sportsbook data is CONTEXT. Nothing below reads it: the distributions, the probabilities, the
+   * withholding gates and the ordering are all computed before this point and are untouched by it.
+   */
+  const marketSlots = { priced: 0, absent: 0 };
+  for (const pl of players) {
+    for (const family of Object.keys(pl.markets)) {
+      const slot = propPrices.slotFor(doc.providerEventId, pl.playerId, family);
+      if (slot.market) { pl.markets[family].market = slot.market; marketSlots.priced += 1; }
+      else { pl.markets[family].pricingState = slot.pricingState; marketSlots.absent += 1; }
+    }
+  }
+
   const cleaned = players.filter((p) => Object.keys(p.markets).length > 0);
   players.length = 0; players.push(...cleaned);
 
@@ -372,6 +406,9 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     departedFiltered,
     /* Share-level forecast use for this board: rows joined, rows dropped by the roster gate, rows without an ESPN id. */
     shareLevel: shareLevel ? { markets: [...shareLevel.markets].sort(), rows: shareLevel.players.length, rosterDropped: shareLevelRosterDropped, withoutEspnId: shareLevel.withoutEspnId } : null,
+    /* Market coverage for THIS board, so a surface's price count can be checked against the
+       producer's rather than counted off the screen. `probed` is the capture's own answer. */
+    marketCoverage: { probed: propPrices.wasProbed(doc.providerEventId), priced: marketSlots.priced, absent: marketSlots.absent, referenceBook: propPrices.meta?.referenceBook ?? null },
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
     disclaimer: "Model projections. Educational.",
   };

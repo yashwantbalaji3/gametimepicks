@@ -27,6 +27,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
+
 const APP = process.cwd();
 const BOARD_DIR = path.join(APP, "public/data/nfl/player-board");
 const OUT_DIR = path.join(APP, "public/data/nfl/weekly-boards");
@@ -42,54 +44,22 @@ const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 /*
  * CAPTURED PROP PRICES, FROM THE ONE OWNER THAT HAS THEM.
  *
- * `capture-nfl-odds.mjs` publishes `propPrices` — rows already filtered to the reference
- * sportsbook, already joined to durable player ids, each carrying its book and capture instant.
- * This builder only LOOKS THEM UP; it never fetches, never blends, and never substitutes a book.
+ * `capture-nfl-odds.mjs` publishes `propPrices` — rows already put through the display ladder,
+ * already joined to durable player ids, each carrying its book and capture instant. This builder
+ * only LOOKS THEM UP; it never fetches, never blends, and never substitutes a book.
+ *
+ * ⚠ THE INDEX AND THE TWO ABSENCES MOVED OUT. They were written here first and then needed by the
+ * game report and the Endzone Vault, and three copies of a join is three chances to key it
+ * differently — which is the same class of defect as the hand-copied row list that opened this P0,
+ * one layer down. lib/sports/nfl/prop-price-lookup.mjs is the one lookup; this reads it.
  *
  * Absent file, absent block or absent row ⇒ the row keeps its typed absence. A missing price is a
  * state to be stated, never a gap to be filled.
  */
-const propPriceIndex = (() => {
-  const idx = new Map();
-  let meta = null;
-  try {
-    const mk = read(path.join(APP, "public/data/nfl/markets/latest.json"));
-    const pp = mk?.propPrices;
-    if (pp?.rows?.length) {
-      meta = { referenceBook: pp.referenceBook, capturedAt: pp.capturedAt };
-      for (const r of pp.rows) idx.set(`${r.canonicalEventId}|${r.playerId}|${r.family}`, r);
-    }
-  } catch { /* no capture yet — every row keeps its typed absence */ }
-  return { idx, meta };
+const propPrices = (() => {
+  try { return buildPropPriceIndex(read(path.join(APP, "public/data/nfl/markets/latest.json"))); }
+  catch { return buildPropPriceIndex(null); } // no capture yet — every row keeps its typed absence
 })();
-
-/*
- * Events this capture actually asked about. Everything else is NOT_PROBED, not NOT_OFFERED.
- *
- * ⚠ THIS READ A SINGULAR `probedEventId` while the capture probed one event. Once the sweep covers
- * a whole week, a singular id would have called fifteen genuinely-probed events "never asked" — and
- * before that, it was one rename away from the opposite error: calling un-probed events NOT_OFFERED,
- * a negative nobody measured. Plural, from the owner, with the singular kept only as a fallback for
- * an artifact written before the sweep existed.
- */
-const probedEventIds = (() => {
-  try {
-    const mk = read(path.join(APP, "public/data/nfl/markets/latest.json"));
-    const pm = mk?.propMarkets ?? {};
-    const ids = pm.probedEventIds ?? (pm.probedEventId ? [pm.probedEventId] : []);
-    return new Set(ids);
-  } catch { return new Set(); }
-})();
-
-/** The captured price for this exact player+family+event, or null. Never a near match. */
-function capturedMarketFor(providerEventId, playerId, family) {
-  const r = propPriceIndex.idx.get(`nfl-${providerEventId}|${playerId}|${family}`);
-  if (!r) return null;
-  if (!r.sportsbook || !r.capturedAt) return null; // unattributed is not a price
-  return r.shape === "YES_ONLY"
-    ? { yesOdds: r.yesOdds, sportsbook: r.sportsbook, capturedAt: r.capturedAt }
-    : { line: r.line, overOdds: r.overOdds, underOdds: r.underOdds, sportsbook: r.sportsbook, capturedAt: r.capturedAt };
-}
 
 const forecasts = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
 const weekOf = new Map(
@@ -171,18 +141,16 @@ function rankRows(family, metric, topN) {
          * `player_anytime_td`. The capture publishes under the BOARD's name so the lookup needs no
          * translation table — one name, decided at the producer.
          */
-        ...(capturedMarketFor(b.providerEventId, p.playerId, family)
-          ? { market: capturedMarketFor(b.providerEventId, p.playerId, family) }
-          /*
-           * ⚠ THE TWO ABSENCES ARE DIFFERENT FACTS AND MUST NOT COLLAPSE.
-           *
-           * NOT_OFFERED means we asked this event's books and the market was not posted.
-           * NOT_PROBED means we never asked about this event at all. Today only ONE event per
-           * capture is probed, so the overwhelming majority of rows are the second kind — calling
-           * them NOT_OFFERED would assert a negative we never measured, which is precisely the
-           * claim the whole typed-missingness grammar exists to prevent.
-           */
-          : { pricingState: probedEventIds.has(`nfl-${b.providerEventId}`) ? "NOT_OFFERED" : "NOT_PROBED" }),
+        /*
+         * ⚠ EITHER A PRICE OR A TYPED ABSENCE — never both, and never neither. `slotFor` returns
+         * exactly one of them, which is why the choice is made in the lookup rather than by each
+         * consumer assembling `market` and `pricingState` side by side and getting it right.
+         *
+         * NOT_OFFERED means we asked this event's books and the market was not posted; NOT_PROBED
+         * means we never asked about this event at all. Collapsing them would assert a negative
+         * nobody measured, which is the claim the whole typed-missingness grammar exists to stop.
+         */
+        ...propPrices.slotFor(b.providerEventId, p.playerId, family),
       });
     }
   }

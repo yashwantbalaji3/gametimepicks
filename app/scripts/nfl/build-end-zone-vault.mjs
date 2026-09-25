@@ -27,6 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { validateVaultLedgerAppend } from "../../src/lib/sports/nfl/end-zone-vault.mjs";
+import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
 import { teamTdDistribution, anytimeTdProbability, loadScoringBridgeMapping, loadTdCalibrationReceipt, flattenPoolShares } from "../../src/lib/sports/nfl/td-engine.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -54,8 +55,28 @@ export const VAULT_PRODUCT_CARD = Object.freeze({
   exclusions: ["first/last TD markets", "2+ TD markets", "defensive scorers", "players without durable identity"],
 });
 
+/*
+ * WHETHER THE VAULT PUBLISHES A CARD IS A FOUNDER DECISION, AND IT IS NOT TAKEN HERE.
+ *
+ * ⚠ FILLING A SLOT MUST NOT SHIP A PRODUCT. Until 2026-09-24 `marketPrice` was the literal `null`,
+ * so `priced.length` was always 0 and the ACTIVE branch was unreachable — the product had been in
+ * WATCHLIST_ONLY for reasons that included an input nothing ever supplied. Wiring the capture in
+ * fixes the display, and on its own it would ALSO have flipped this product into publishing paper
+ * selections, on a slate, with no one having decided that.
+ *
+ * So the data gates and the publication decision are separated. The gates are measured as before
+ * and reported in `gates`; this constant is the decision, it is currently PENDING, and flipping it
+ * to "AUTHORIZED" is a one-line change a founder can make deliberately. Nothing about the model,
+ * the candidates or the watchlist depends on it.
+ */
+const CARD_ACTIVATION = "FOUNDER_DECISION_PENDING";
+const CARD_ACTIVATION_NOTE = "the Vault stays a watchlist until the card is authorized — the model and price gates are met";
+
 const forecasts = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
 const markets = read(path.join(APP, "public/data/nfl/markets/latest.json"));
+/* The ONE lookup over captured prop prices — the same index the weekly boards and the game reports
+   read, so three surfaces cannot key the same join three ways. */
+const propPrices = buildPropPriceIndex(markets);
 const shares = read(path.join(ROOT, "data/internal/research/nfl/role-shares-v1/current.json"));
 const mapping = loadScoringBridgeMapping({ fs, path, cwd: APP });
 const calibration = loadTdCalibrationReceipt({ fs, path, cwd: APP });
@@ -166,7 +187,27 @@ for (const f of upcoming) {
           ?? (questionable
             ? "published designation: questionable"
             : available ? "roster and injury evidence support expected participation" : "no source-backed evidence yet of how much this player will play in this game"),
-        marketPrice: null,
+        /*
+         * ⚠ THIS WAS THE LITERAL `null`, AND IT MADE THE VAULT'S OWN GATE UNREACHABLE.
+         *
+         * The Vault's price slot existed, the presenter rendered a typed absence off it, and the
+         * product's ACTIVE condition counted `marketPrice != null` — so the product could never
+         * reach ACTIVE, not because no book prices an anytime touchdown but because this line never
+         * asked. Meanwhile the /nfl hub rendered these rows beside weekly-board rows that DID carry
+         * a DraftKings price for the same player in the same game: one page, two answers.
+         *
+         * It is a LOOKUP, through the one owner, keyed by the canonical event this candidate
+         * already carries. `anytime_td` is the board's family name and the name the capture
+         * publishes under, so nothing is translated and no identity is minted.
+         *
+         * ⚠ FILLING THE SLOT IS NOT ACTIVATING THE PRODUCT. See the gate below: whether the Vault
+         * publishes a card is a founder decision that this P0 deliberately does not take.
+         */
+        marketPrice: propPrices.marketFor(f.providerEventId, p.playerId, "anytime_td"),
+        /* The typed absence, for the rows that have no price — so the surface says which absence it
+           is rather than falling back to a state about our own authorization, which is no longer
+           true. Null when a price IS held; the two never coexist. */
+        pricingState: propPrices.pricingStateFor(f.providerEventId, p.playerId, "anytime_td"),
         shareBasis: p.shareBasis,
         modelVersion: calibration?.receipt ?? null,
       });
@@ -192,7 +233,7 @@ if (missing.length) {
 } else if (!candidates.length) {
   state = "NO_VAULT";
   reason = `the evaluator ran over a real pool and no player cleared the ${VAULT_PRODUCT_CARD.minCandidateProbability} candidate probability`;
-} else if (priced.length >= VAULT_PRODUCT_CARD.minSelectionsForCard && roleReady.length >= VAULT_PRODUCT_CARD.minSelectionsForCard) {
+} else if (CARD_ACTIVATION === "AUTHORIZED" && priced.length >= VAULT_PRODUCT_CARD.minSelectionsForCard && roleReady.length >= VAULT_PRODUCT_CARD.minSelectionsForCard) {
   state = "ACTIVE";
   selections = priced.filter((c) => c.roleState === "ACTIVE_EXPECTED").slice(0, VAULT_PRODUCT_CARD.maxSelections);
   reason = `${selections.length} selection(s) cleared every product gate`;
@@ -205,6 +246,13 @@ if (missing.length) {
     if (tdMarketOffered === false) blockers.push("no touchdown market is captured for these games");
   else if (!priced.length) blockers.push("no current comparable touchdown price is available");
   if (!roleReady.length) blockers.push("playing time is not established yet");
+  /*
+   * ⚠ AND IF NOTHING IS BLOCKING, SAY THAT. With prices now flowing, the two data gates can both
+   * be satisfied and the product still stay a watchlist — because publishing a card is a decision,
+   * not a consequence. A reason that listed no blocker at all would read as an unexplained refusal,
+   * and reusing one of the price blockers above would be a false statement about the books.
+   */
+  if (!blockers.length) blockers.push(CARD_ACTIVATION_NOTE);
   /* P250-GD5 (founder): the badge already says WATCHLIST. The reason names the blocker once,
      for the Coverage table that consumes it — no repetition, no instruction-to-bet sermon. */
   reason = `${candidates.length} model candidates · ${blockers.join(" and ")}`;
@@ -229,6 +277,9 @@ const publicArtifact = {
     tdMarketOffered,
     pricedCandidates: priced.length,
     roleReadyCandidates: roleReady.length,
+    /* The data gates above are MEASURED; this one is DECIDED. Kept apart so a reader can tell a
+       product that cannot publish from a product that has not been told to. */
+    cardActivation: CARD_ACTIVATION,
   },
   disclaimer: "Model touchdown probabilities. Educational.",
 };
