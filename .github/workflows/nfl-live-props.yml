@@ -1,0 +1,90 @@
+# NFL live player-prop tracking (Phase 5 · V1).
+#
+# ⚠ WHY THIS IS DENSE AND SCHEDULED EARLY, not "every 5 minutes from kickoff".
+#
+# GitHub's scheduled delivery in this repository is min 1h40m, median 2h52m, max 4h55m late over 40
+# observations — not one punctual run. A cron asking to fire at kickoff fires somewhere in the
+# second half. What a dense schedule DOES deliver is a dense STREAM: publication-watchdog runs every
+# 30 minutes and its runs arrive a median of 27 minutes apart. So the slots sit EARLIER than the
+# band they cover, and the producer decides what is actually live from the canonical schedule.
+#
+# THE PRODUCER OWNS THE LIFECYCLE, NOT THE CRON:
+#   pregame           outside the window — no fetch, and a PRE read publishes no stat and no score
+#   kickoff passed    inside the window — factual polling begins
+#   in progress       the stat so far, the clock and the score are refreshed
+#   final             the final stat is captured and the prediction settles ONCE
+#   settled           the game leaves the loop and is not polled again
+#
+# FREE. ESPN's public summary endpoint: no provider credit, no key, and no paid lane is touched —
+# which is why a fifteen-minute cadence is affordable at all.
+name: nfl-live-props
+
+on:
+  schedule:
+    # Sunday: the 1pm and 4pm ET blocks and the night game. Slots run 13:00-23:45Z so the delivered
+    # stream covers roughly 16:00Z through the small hours.
+    - cron: "*/15 13-23 * * 0"
+    # Monday night, and the tail of Sunday night that spills past midnight UTC.
+    - cron: "*/15 0-4 * * 1"
+    - cron: "*/15 20-23 * * 1"
+    # Thursday night.
+    - cron: "*/15 20-23 * * 4"
+    - cron: "*/15 0-4 * * 5"
+  workflow_dispatch:
+    inputs:
+      event:
+        description: "A single providerEventId to track, or empty for every live game"
+        required: false
+      dry_run:
+        description: "Read and report, write nothing"
+        required: false
+        default: "false"
+
+concurrency:
+  group: gtp-generated-artifacts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Capture live player-prop state
+        id: capture
+        working-directory: app
+        run: |
+          set -euo pipefail
+          ARGS=(--now "$(date -u +%Y-%m-%dT%H:%M:%SZ)")
+          if [ -n "${{ github.event.inputs.event }}" ]; then ARGS+=(--event "${{ github.event.inputs.event }}"); fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then ARGS+=(--dry-run); fi
+          node scripts/nfl/capture-live-props.mjs "${ARGS[@]}" | tee /tmp/live.txt
+
+      # A run with no live game is the normal case for most of the week and must not look like a
+      # failure, so the commit step exits clean when nothing changed.
+      - name: Commit the live state
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add app/public/data/nfl/live-props/
+          if git diff --cached --quiet; then echo "no live change"; exit 0; fi
+          git commit -m "auto: nfl live props $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          for attempt in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push origin HEAD:main; then
+              echo "live state published (attempt ${attempt})"
+              exit 0
+            fi
+            echo "::warning::live-props push attempt ${attempt} failed — retrying"
+            sleep $((attempt * 5))
+          done
+          echo "::error::live player-prop state could not be published after 3 attempts"
+          exit 1

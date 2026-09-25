@@ -17,6 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const APP = process.cwd();
+const REPO_ROOT = path.resolve(APP, "..");
 const SCRIPT = path.join(APP, "scripts/nfl/capture-live-props.mjs");
 function run(args) {
   try {
@@ -99,4 +100,45 @@ test("the library owns the sealing rule and the durable-id join", async () => {
 
   assert.equal(espnAthleteId("nfl-athlete-42"), "42");
   assert.equal(espnAthleteId("42"), null, "a bare number is not a durable board id — the loose pattern is how the third copy of this rule went wrong");
+});
+
+test("a FINAL, fully settled game is not polled again", async () => {
+  /*
+   * ⚠ MY FIRST VERSION SCANNED THE SOURCE and a probe defeated it by prefixing the condition with
+   * `false &&` — the string was still there, so the guard stayed green while the rule was dead. The
+   * rule now lives in the library as a pure function and is tested by what it RETURNS.
+   */
+  const { shouldPollEvent } = await import("./live-prop-state.mjs");
+  const settled = (state) => ({ phase: "FINAL", rows: [{ settlement: { state } }, { settlement: { state: "SETTLED" } }] });
+
+  assert.equal(shouldPollEvent(null).poll, true, "never observed — poll it");
+  assert.equal(shouldPollEvent({ phase: "IN_PROGRESS", rows: [] }).poll, true);
+  assert.equal(shouldPollEvent(settled("SETTLED")).poll, false, "final and terminal — leave the loop");
+
+  /* ⚠ NO_MEASUREMENT MUST COUNT AS TERMINAL. A game where one player never appeared never reaches
+     all-SETTLED, so counting only SETTLED keeps a finished game in the loop forever. */
+  assert.equal(shouldPollEvent(settled("NO_MEASUREMENT")).poll, false,
+    "one absent receiver must not keep a finished game polling indefinitely");
+  assert.equal(shouldPollEvent(settled("PENDING")).poll, true, "a prediction that has not settled keeps it alive");
+  assert.equal(shouldPollEvent({ phase: "FINAL", rows: [] }).poll, true, "final with no rows has settled nothing");
+});
+
+test("the producer delegates the polling decision too", () => {
+  const src = fs.readFileSync(SCRIPT, "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.match(src, /shouldPollEvent\(/, "the decision comes from the library");
+  assert.ok(!/phase === "FINAL"/.test(src), "and the script keeps no second copy of the rule");
+});
+
+test("the live cadence is dense, kickoff-relative, and spends nothing", () => {
+  const wf = fs.readFileSync(path.join(REPO_ROOT, ".github/workflows/nfl-live-props.yml"), "utf8");
+  const crons = [...wf.matchAll(/^\s*-\s*cron:\s*"([^"]+)"/gm)].map((m) => m[1]);
+  assert.ok(crons.length >= 3, "the live window spans several game days");
+  for (const c of crons) {
+    const step = /^\*\/(\d+)$/.exec(c.trim().split(/\s+/)[0]);
+    assert.ok(step && Number(step[1]) <= 15,
+      `"${c}" is too sparse — individual runs here are hours late, so only a dense STREAM lands inside a live game`);
+  }
+  assert.ok(crons.some((c) => /\*\s*0$/.test(c.trim())), "Sunday must be covered");
+  assert.ok(!/ODDS_API_KEY/.test(wf), "live tracking reads a free endpoint; a provider key here would put a paid lane on a 15-minute cadence");
+  assert.match(wf, /group:\s*gtp-generated-artifacts/, "it commits generated data and must share the writer queue");
 });

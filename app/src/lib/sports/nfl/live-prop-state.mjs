@@ -397,3 +397,28 @@ export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, pri
   }
   return { rows, frozenRefusedNewerBoard, frozenRefusedNoPregameSnapshot, reconciled };
 }
+
+/**
+ * Should this event still be polled?
+ *
+ * ⚠ A SETTLED GAME LEAVES THE LOOP. Settlement is idempotent, so a further read can only confirm
+ * what is already recorded or raise a reconciliation — polling on regardless is how a "live"
+ * tracker spends the rest of the week re-reading Sunday's box scores.
+ *
+ * ⚠ AND "FULLY SETTLED" MUST INCLUDE NO_MEASUREMENT. A game where one player never appeared in the
+ * box score never reaches all-SETTLED, so a rule that only counts SETTLED would poll that game
+ * forever — one absent receiver keeping a finished game in the loop indefinitely.
+ *
+ * The caller's time window is a BACKSTOP, not this rule: a game that finishes in three hours should
+ * stop being polled in three, not when the window happens to close.
+ */
+export function shouldPollEvent(prior) {
+  if (!prior || prior.phase !== "FINAL") return { poll: true, reason: prior ? "not final yet" : "never observed" };
+  const rows = prior.rows ?? [];
+  if (!rows.length) return { poll: true, reason: "final, but no rows were recorded — nothing has settled" };
+  const terminal = (r) => r.settlement?.state === "SETTLED" || r.settlement?.state === "NO_MEASUREMENT";
+  const pending = rows.filter((r) => !terminal(r)).length;
+  return pending === 0
+    ? { poll: false, reason: "final and every prediction has reached a terminal state" }
+    : { poll: true, reason: `final, but ${pending} prediction(s) have not settled` };
+}

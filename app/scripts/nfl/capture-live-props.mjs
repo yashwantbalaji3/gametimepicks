@@ -26,7 +26,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildLiveRows, espnAthleteId, phaseOf } from "../../src/lib/sports/nfl/live-prop-state.mjs";
+import { buildLiveRows, phaseOf, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -59,7 +59,23 @@ if (!targets.length) {
 
 const outDir = path.join(APP, "public/data/nfl/live-props");
 let wrote = 0;
+let skippedSettled = 0;
 for (const ev of targets) {
+  /*
+   * ⚠ A SETTLED GAME LEAVES THE LOOP. Once the provider has said FINAL and every row has reached a
+   * terminal state, there is nothing left to observe — and settlement is idempotent, so a further
+   * read could only ever confirm what is already recorded or raise a reconciliation. Polling on
+   * regardless is how a "live" tracker spends the rest of the week re-reading Sunday's box scores.
+   *
+   * ⚠ The 8-hour window would eventually stop it anyway. That is a backstop, not the rule: a game
+   * that finishes in three hours should stop being polled in three hours, not five later.
+   */
+  const decision = shouldPollEvent(read(path.join(outDir, `${ev.providerEventId}.json`)));
+  if (!decision.poll) {
+    skippedSettled += 1;
+    console.log(`${ev.shortName}: not polled — ${decision.reason}`);
+    continue;
+  }
   const board = read(path.join(APP, `public/data/nfl/player-board/${ev.providerEventId}.json`));
   if (!board?.players) { console.log(`${ev.shortName}: no player board — skipped (a live row without a frozen forecast is not a row)`); continue; }
 
@@ -99,4 +115,4 @@ for (const ev of targets) {
     wrote += 1;
   }
 }
-if (!DRY) console.log(`wrote ${wrote} live-prop artifact(s)`);
+if (!DRY) console.log(`wrote ${wrote} live-prop artifact(s)${skippedSettled ? `; ${skippedSettled} already settled and skipped` : ""}`);
