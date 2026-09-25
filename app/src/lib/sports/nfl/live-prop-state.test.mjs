@@ -125,3 +125,53 @@ test("nothing in this module produces an on-track reading or a projected finish"
   const row = liveRow({ frozen: {}, summary: SUMMARY, espnId: STBROWN, family: "player_reception_yds", observedAt: AT });
   assert.deepEqual(Object.keys(row.live).sort(), ["factual", "settlement"], "the live slot holds observations and settlement, nothing else");
 });
+
+/* A constructed summary — clearly not a replay. Used only for scoring shapes the DET @ BUF fixture
+   does not contain (returns, defence), so the real-response tests above stay replays. */
+const constructed = (blocks) => ({
+  header: { competitions: [{ status: { type: { state: "post", completed: true } }, competitors: [{ homeAway: "home", score: "20" }, { homeAway: "away", score: "17" }] }] },
+  boxscore: { players: [{ team: { abbreviation: "XX" }, statistics: Object.entries(blocks).map(([name, o]) => ({ name, labels: o.labels, athletes: [{ athlete: { id: "999", displayName: "Constructed Player" }, stats: o.stats }] })) }] },
+});
+
+test("⚠ A TOUCHDOWN IS NOT POSITION-SPECIFIC — returns and defence score too", () => {
+  /* A returner who never touches the rushing or receiving block still scored. Settling him on those
+     blocks alone would report a loss on a game he won the market in. */
+  const kick = constructed({ kickReturns: { labels: ["NO", "YDS", "AVG", "LONG", "TD"], stats: ["3", "104", "34.7", "99", "1"] } });
+  assert.equal(touchdownsScored(kick, "999"), 1, "a kick-return touchdown counts");
+
+  const punt = constructed({ puntReturns: { labels: ["NO", "YDS", "AVG", "LONG", "TD"], stats: ["2", "61", "30.5", "55", "1"] } });
+  assert.equal(touchdownsScored(punt, "999"), 1, "a punt-return touchdown counts");
+
+  const both = constructed({
+    rushing: { labels: ["CAR", "YDS", "AVG", "TD", "LONG"], stats: ["9", "41", "4.6", "1", "12"] },
+    kickReturns: { labels: ["NO", "YDS", "AVG", "LONG", "TD"], stats: ["2", "70", "35.0", "50", "1"] },
+  });
+  assert.equal(touchdownsScored(both, "999"), 2, "two touchdowns in different blocks are two touchdowns");
+});
+
+test("⚠ A PICK-SIX IS ONE TOUCHDOWN, NOT TWO", () => {
+  /*
+   * ESPN reports a pick-six in BOTH the defensive block and the interceptions block. Summing them
+   * displays 2 for a player who scored once — and the count is shown to readers, so the error is
+   * visible even though the yes/no market settles the same either way.
+   */
+  const pickSix = constructed({
+    defensive: { labels: ["TOT", "SOLO", "SACKS", "TFL", "PD", "QB HTS", "TD"], stats: ["6", "4", "0", "1", "2", "0", "1"] },
+    interceptions: { labels: ["INT", "YDS", "TD"], stats: ["1", "42", "1"] },
+  });
+  assert.equal(touchdownsScored(pickSix, "999"), 1, "the same touchdown reported twice is still one touchdown");
+  assert.equal(settle({ summary: pickSix, espnId: "999", family: "anytime_td", settledAt: AT }).yesResult, true);
+
+  /* And a defender who did NOT score still resolves as a zero rather than an absence. */
+  const noScore = constructed({ defensive: { labels: ["TOT", "SOLO", "SACKS", "TFL", "PD", "QB HTS", "TD"], stats: ["8", "5", "1", "2", "1", "3", "0"] } });
+  assert.equal(touchdownsScored(noScore, "999"), 0, "present in a scoring block and did not score is zero, not null");
+  assert.equal(settle({ summary: noScore, espnId: "999", family: "anytime_td", settledAt: AT }).yesResult, false);
+});
+
+test("a player in NO scoring block is absent, even when the game is final", () => {
+  const empty = constructed({ passing: { labels: ["C/ATT", "YDS", "AVG", "TD", "INT", "SACKS", "QBR", "RTG"], stats: ["20/30", "240", "8.0", "3", "0", "1-7", "88.0", "110.0"] } });
+  assert.equal(touchdownsScored(empty, "999"), null,
+    "the passing block is not a scoring block — a quarterback who only threw touchdowns has no ANYTIME-TD measurement from it");
+  assert.equal(settle({ summary: empty, espnId: "999", family: "anytime_td", settledAt: AT }), null,
+    "and an absent measurement never settles");
+});

@@ -23,9 +23,10 @@
  * FREE. ESPN's public summary endpoint; no provider credit is spent and no key is used.
  */
 import fs from "node:fs";
+import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { LIVE_FAMILIES, liveFactual, phaseOf, settle } from "../../src/lib/sports/nfl/live-prop-state.mjs";
+import { buildLiveRows, espnAthleteId, phaseOf } from "../../src/lib/sports/nfl/live-prop-state.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -37,11 +38,6 @@ const nowMs = Date.parse(NOW);
 
 const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
 if (!schedule?.rows) { console.error("REFUSED: canonical schedule unreadable — live state is never attached to a guessed fixture"); process.exit(2); }
-
-const espnId = (playerId) => {
-  const m = /^nfl-athlete-(\d+)$/.exec(String(playerId ?? ""));
-  return m ? m[1] : null;
-};
 
 /*
  * ⚠ ONLY GAMES THAT HAVE STARTED. A pre-kickoff read carries no stat and no score by design, so
@@ -72,37 +68,22 @@ for (const ev of targets) {
   const summary = await res.json();
   const phase = phaseOf(summary);
 
-  const rows = [];
-  for (const p of board.players) {
-    const id = espnId(p.playerId);
-    if (!id) continue;                       // no durable id, no join — never fall back to a name
-    for (const family of LIVE_FAMILIES) {
-      const slot = p.markets?.[family];
-      if (!slot) continue;                   // this board does not carry the family
-      const factual = liveFactual({ summary, espnId: id, family, observedAt: NOW });
-      const settlement = settle({ summary, espnId: id, family, frozenLine: slot.market?.line ?? null, settledAt: NOW });
-      rows.push({
-        playerId: p.playerId, espnId: id, name: p.name, team: p.team, family,
-        /* Copied from the committed board, never recomputed. */
-        frozen: {
-          projection: { median: slot.median ?? null, p10: slot.p10 ?? null, p90: slot.p90 ?? null },
-          market: slot.market ?? null,
-          pricingState: slot.pricingState ?? null,
-          participation: p.participation ?? null,
-          forecastGeneratedAt: board.generatedAt,
-        },
-        live: factual,
-        settlement,
-      });
-    }
-  }
+  /* The sealing rule, the settlement idempotency and the join all live in the library — see
+     buildLiveRows. This script does IO and nothing else. */
+  const priorPath = path.join(outDir, `${ev.providerEventId}.json`);
+  const { rows, frozenRefusedNewerBoard } = buildLiveRows({
+    providerEventId: ev.providerEventId,
+    board, summary, prior: read(priorPath), observedAt: NOW,
+    hashOf: (o) => crypto.createHash("sha256").update(JSON.stringify(o)).digest("hex").slice(0, 16),
+  });
+  if (frozenRefusedNewerBoard) console.log(`  note: ${frozenRefusedNewerBoard} prediction(s) had a NEWER board value that was refused — the published frozen block stands`);
 
   const artifact = {
     schemaVersion: 1, artifact: "nfl-live-props", dataClass: "PUBLIC_DERIVED",
     providerEventId: ev.providerEventId, matchup: ev.shortName, kickoffUtc: ev.dateUtc,
     phase, observedAt: NOW, source: "espn-nfl-summary (free)",
     frozenFrom: board.generatedAt,
-    counts: { rows: rows.length, withLiveStat: rows.filter((r) => r.live.statValue != null).length, settled: rows.filter((r) => r.settlement).length },
+    counts: { rows: rows.length, withLiveStat: rows.filter((r) => r.live.statValue != null).length, settled: rows.filter((r) => r.settlement).length, frozenRefusedNewerBoard },
     disclaimer: "Live figures are the provider's factual game state. The projection and the sportsbook line beside them are our pre-kickoff record and do not change during the game. No live probability, projected finish or on-track reading is shown.",
     rows,
   };

@@ -61,17 +61,30 @@ test("V1 publishes no inferred live number, anywhere in the producer", () => {
   }
 });
 
-test("the frozen block is COPIED from the committed board, never recomputed", () => {
-  const src = fs.readFileSync(SCRIPT, "utf8");
-  assert.match(src, /frozen:\s*\{[\s\S]*?forecastGeneratedAt: board\.generatedAt/,
-    "the frozen slot must carry the board's own stamp, so a published forecast cannot be silently re-derived here");
+test("the producer DELEGATES the rules — it does not carry a second copy of them", () => {
+  /*
+   * ⚠ REPOINTED, NOT DELETED (2026-09-25). These two guards used to scan this script for the
+   * sealing expression and the athlete-id regex. Both moved into live-prop-state.mjs when the row
+   * builder was extracted, so the guards went red while the invariants were perfectly intact —
+   * the classic reason a guard gets quietly removed. They now assert the thing that actually
+   * matters at this layer: that the script owns NO rule of its own.
+   */
+  const src = fs.readFileSync(SCRIPT, "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.match(src, /buildLiveRows/, "row building must come from the library");
+  assert.ok(!/nfl-athlete-\(/.test(src),
+    "the athlete-id rule has ONE owner (espnAthleteId); a second copy here is how the three-copies-of-the-ESPN-id-rule defect happened before");
+  assert.ok(!/previous\?\.frozen|priorById/.test(src),
+    "the sealing rule has one owner too — a producer that can decide what 'frozen' means can unfreeze it");
   assert.ok(!/simulate|buildGamePredictionDecision|projectMlb/.test(src),
     "a live producer that can compute a forecast can overwrite one");
 });
 
-test("the join is by durable id and no name is ever compared", () => {
-  const src = fs.readFileSync(SCRIPT, "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
-  assert.match(src, /nfl-athlete-\(\\d\+\)/, "the espn id must be extracted from the durable board id");
-  assert.ok(!/\.name\s*===|normalizePlayerName|nameKey/.test(src),
-    "comparing names here would reopen the identity defect that published \"Not offered\" for eight priced players");
+test("the library owns the sealing rule and the durable-id join", () => {
+  const lib = fs.readFileSync(path.join(APP, "src/lib/sports/nfl/live-prop-state.mjs"), "utf8");
+  assert.match(lib, /const frozen = previous\?\.frozen \?\? fresh;/,
+    "a prediction already published keeps its frozen block");
+  assert.match(lib, /previous\?\.settlement \?\? settle\(/,
+    "and a settled prediction keeps its original settlement");
+  assert.match(lib, /\^nfl-athlete-\(\\d\+\)\$/,
+    "the join is anchored to the durable board id — a loose pattern would accept a bare number, which is exactly how the third copy of this rule went wrong");
 });
