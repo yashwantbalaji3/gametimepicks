@@ -17,6 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const APP = process.cwd();
+const REPO_ROOT = path.resolve(APP, "..");
 const SCRIPT = path.join(APP, "scripts/nfl/capture-live-props.mjs");
 function run(args) {
   try {
@@ -61,17 +62,86 @@ test("V1 publishes no inferred live number, anywhere in the producer", () => {
   }
 });
 
-test("the frozen block is COPIED from the committed board, never recomputed", () => {
-  const src = fs.readFileSync(SCRIPT, "utf8");
-  assert.match(src, /frozen:\s*\{[\s\S]*?forecastGeneratedAt: board\.generatedAt/,
-    "the frozen slot must carry the board's own stamp, so a published forecast cannot be silently re-derived here");
+test("the producer DELEGATES the rules — it does not carry a second copy of them", () => {
+  /*
+   * ⚠ REPOINTED, NOT DELETED (2026-09-25). These two guards used to scan this script for the
+   * sealing expression and the athlete-id regex. Both moved into live-prop-state.mjs when the row
+   * builder was extracted, so the guards went red while the invariants were perfectly intact —
+   * the classic reason a guard gets quietly removed. They now assert the thing that actually
+   * matters at this layer: that the script owns NO rule of its own.
+   */
+  const src = fs.readFileSync(SCRIPT, "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.match(src, /buildLiveRows/, "row building must come from the library");
+  assert.ok(!/nfl-athlete-\(/.test(src),
+    "the athlete-id rule has ONE owner (espnAthleteId); a second copy here is how the three-copies-of-the-ESPN-id-rule defect happened before");
+  assert.ok(!/previous\?\.frozen|priorById/.test(src),
+    "the sealing rule has one owner too — a producer that can decide what 'frozen' means can unfreeze it");
   assert.ok(!/simulate|buildGamePredictionDecision|projectMlb/.test(src),
     "a live producer that can compute a forecast can overwrite one");
 });
 
-test("the join is by durable id and no name is ever compared", () => {
+test("the library owns the sealing rule and the durable-id join", async () => {
+  /*
+   * ⚠ THIS SCANNED FOR AN EXACT EXPRESSION AND BROKE WHEN THE EXPRESSION CHANGED SHAPE — twice now,
+   * first when the rule moved out of the producer and again when pregame provenance was added. The
+   * invariant never moved; only the line did. So it is asserted BEHAVIOURALLY: feed the builder a
+   * prior and a newer board, and check what comes out. A source scan can only ever pin today's
+   * phrasing, and a guard that breaks on a refactor teaches people to delete it.
+   */
+  const { buildLiveRows, espnAthleteId } = await import("./live-prop-state.mjs");
+  const board = (line, at) => ({ generatedAt: "2026-09-17T14:00:00Z", players: [{ playerId: "nfl-athlete-1", name: "P", markets: {
+    player_rush_yds: { median: 50, market: { line, sportsbook: "draftkings", capturedAt: at } } } }] });
+  const args = { providerEventId: "E", kickoffUtc: "2026-09-18T00:15:00Z", summary: { header: { competitions: [{ status: { type: { state: "pre" } } }] } }, hashOf: (o) => JSON.stringify(o) };
+  const first = buildLiveRows({ ...args, board: board(38.5, "2026-09-17T14:00:00Z"), observedAt: "t1" });
+  assert.equal(first.rows[0].frozen.market.line, 38.5);
+  const later = buildLiveRows({ ...args, board: board(44.5, "2026-09-17T14:00:00Z"), prior: first, observedAt: "t2" });
+  assert.equal(later.rows[0].frozen.market.line, 38.5, "a published frozen block survives a newer board");
+  assert.equal(later.frozenRefusedNewerBoard, 1, "and the refusal is counted");
+
+  assert.equal(espnAthleteId("nfl-athlete-42"), "42");
+  assert.equal(espnAthleteId("42"), null, "a bare number is not a durable board id — the loose pattern is how the third copy of this rule went wrong");
+});
+
+test("a FINAL game stays in the loop until its reconciliation window closes", async () => {
+  /*
+   * ⚠ THIS USED TO STOP AT THE FIRST FINAL RESPONSE, and that was wrong: ESPN can mark a game final
+   * before every player block has published, so a merely-delayed player became permanently
+   * ungraded — and because polling had stopped, no later read could correct it. The window is the
+   * fix, and it is bounded so termination stays deterministic.
+   */
+  const { shouldPollEvent } = await import("./live-prop-state.mjs");
+  const FIRST = "2026-09-18T04:00:00Z";
+  const artifact = (rows) => ({ phase: "FINAL", finalFirstObservedAt: FIRST, rows });
+  const settled = [{ settlement: { state: "SETTLED" } }, { settlement: { state: "NO_MEASUREMENT" } }];
+
+  assert.equal(shouldPollEvent(null, FIRST).poll, true, "never observed — poll it");
+  assert.equal(shouldPollEvent({ phase: "IN_PROGRESS", rows: [] }, FIRST).poll, true);
+  assert.equal(shouldPollEvent({ phase: "FINAL", rows: [] }, FIRST).poll, true,
+    "final with no recorded first-final instant — this read establishes it");
+
+  assert.equal(shouldPollEvent(artifact(settled), "2026-09-18T05:00:00Z").poll, true,
+    "an hour after FINAL a late stat or correction can still arrive");
+  assert.equal(shouldPollEvent(artifact(settled), "2026-09-18T07:30:00Z").poll, false,
+    "past the window the game is canonical and leaves the loop");
+  assert.match(shouldPollEvent(artifact(settled), "2026-09-18T07:30:00Z").reason, /window closed/);
+});
+
+test("the producer delegates the polling decision too", () => {
   const src = fs.readFileSync(SCRIPT, "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
-  assert.match(src, /nfl-athlete-\(\\d\+\)/, "the espn id must be extracted from the durable board id");
-  assert.ok(!/\.name\s*===|normalizePlayerName|nameKey/.test(src),
-    "comparing names here would reopen the identity defect that published \"Not offered\" for eight priced players");
+  assert.match(src, /shouldPollEvent\(/, "the decision comes from the library");
+  assert.ok(!/phase === "FINAL"/.test(src), "and the script keeps no second copy of the rule");
+});
+
+test("the live cadence is dense, kickoff-relative, and spends nothing", () => {
+  const wf = fs.readFileSync(path.join(REPO_ROOT, ".github/workflows/nfl-live-props.yml"), "utf8");
+  const crons = [...wf.matchAll(/^\s*-\s*cron:\s*"([^"]+)"/gm)].map((m) => m[1]);
+  assert.ok(crons.length >= 3, "the live window spans several game days");
+  for (const c of crons) {
+    const step = /^\*\/(\d+)$/.exec(c.trim().split(/\s+/)[0]);
+    assert.ok(step && Number(step[1]) <= 15,
+      `"${c}" is too sparse — individual runs here are hours late, so only a dense STREAM lands inside a live game`);
+  }
+  assert.ok(crons.some((c) => /\*\s*0$/.test(c.trim())), "Sunday must be covered");
+  assert.ok(!/ODDS_API_KEY/.test(wf), "live tracking reads a free endpoint; a provider key here would put a paid lane on a 15-minute cadence");
+  assert.match(wf, /group:\s*gtp-generated-artifacts/, "it commits generated data and must share the writer queue");
 });

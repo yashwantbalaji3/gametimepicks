@@ -47,8 +47,10 @@ test("a player with no row is ABSENT, never zero", () => {
   assert.equal(statFor(SUMMARY, "999999999", "player_rush_yds"), null,
     "a player who does not appear in the block has no measurement — zero would be a claim nobody made");
   assert.equal(touchdownsScored(SUMMARY, "999999999"), null);
-  assert.equal(settle({ summary: SUMMARY, espnId: "999999999", family: "player_rush_yds", frozenLine: 40.5, settledAt: AT }), null,
-    "and an absent player never settles");
+  const absent = settle({ summary: SUMMARY, espnId: "999999999", family: "player_rush_yds", frozenLine: 40.5, settledAt: AT });
+  assert.equal(absent.state, "NO_MEASUREMENT", "an absent player does not settle");
+  assert.equal(absent.lineResult, null, "⚠ and is NEVER graded UNDER just because zero is below the line");
+  assert.equal(absent.bookRuleUnknown, true, "whether a book voids or settles this is its rule, not ours");
 });
 
 test("settlement grades against the FROZEN line, and only when the provider says FINAL", () => {
@@ -69,16 +71,24 @@ test("settlement grades against the FROZEN line, and only when the provider says
   assert.equal(noLine.lineResult, null, "with no frozen line the stat settles and no benchmark is invented");
 
   const atd = settle({ summary: SUMMARY, espnId: STBROWN, family: "anytime_td", settledAt: AT });
-  assert.equal(atd.yesResult, true);
-  assert.equal(settle({ summary: SUMMARY, espnId: GOFF, family: "anytime_td", settledAt: AT }).yesResult, false);
+  assert.equal(atd.lineResult, "YES");
+  assert.equal(settle({ summary: SUMMARY, espnId: GOFF, family: "anytime_td", settledAt: AT }).lineResult, "NO");
+
+  /* OUR record is separate from the fact: did the side our projection implied land? */
+  const ourWin = settle({ summary: SUMMARY, espnId: STBROWN, family: "player_reception_yds", frozenLine: 79.5, projection: 88, settledAt: AT });
+  assert.equal(ourWin.forecastResult, "WIN", "we projected over the line and it went over");
+  const ourLoss = settle({ summary: SUMMARY, espnId: GIBBS, family: "player_rush_yds", frozenLine: 74.5, projection: 80, settledAt: AT });
+  assert.equal(ourLoss.forecastResult, "LOSS", "we projected over and it went under — our claim, graded");
 });
 
 test("an unfinished game NEVER settles", () => {
   const inPlay = structuredClone(SUMMARY);
   inPlay.header.competitions[0].status = { type: { state: "in", completed: false }, displayClock: "8:42", period: 3 };
   assert.equal(phaseOf(inPlay), "IN_PROGRESS");
-  assert.equal(settle({ summary: inPlay, espnId: STBROWN, family: "player_reception_yds", frozenLine: 79.5, settledAt: AT }), null,
-    "a settled result on a game still being played is the worst thing this module could emit");
+  const pending = settle({ summary: inPlay, espnId: STBROWN, family: "player_reception_yds", frozenLine: 79.5, settledAt: AT });
+  assert.equal(pending.state, "PENDING", "a settled result on a game still being played is the worst thing this module could emit");
+  assert.equal(pending.lineResult, null, "⚠ PENDING IS NOT A LOSS");
+  assert.equal(pending.forecastResult, null);
   const f = liveFactual({ summary: inPlay, espnId: STBROWN, family: "player_reception_yds", observedAt: AT });
   assert.equal(f.statValue, 142, "the stat so far is still reported");
   assert.equal(f.clock, "8:42");
@@ -124,4 +134,110 @@ test("nothing in this module produces an on-track reading or a projected finish"
   }
   const row = liveRow({ frozen: {}, summary: SUMMARY, espnId: STBROWN, family: "player_reception_yds", observedAt: AT });
   assert.deepEqual(Object.keys(row.live).sort(), ["factual", "settlement"], "the live slot holds observations and settlement, nothing else");
+});
+
+/* A constructed summary — clearly not a replay. Used only for scoring shapes the DET @ BUF fixture
+   does not contain (returns, defence), so the real-response tests above stay replays. */
+const constructed = (blocks) => ({
+  header: { competitions: [{ status: { type: { state: "post", completed: true } }, competitors: [{ homeAway: "home", score: "20" }, { homeAway: "away", score: "17" }] }] },
+  boxscore: { players: [{ team: { abbreviation: "XX" }, statistics: Object.entries(blocks).map(([name, o]) => ({ name, labels: o.labels, athletes: [{ athlete: { id: "999", displayName: "Constructed Player" }, stats: o.stats }] })) }] },
+});
+
+test("⚠ A TOUCHDOWN IS NOT POSITION-SPECIFIC — returns and defence score too", () => {
+  /* A returner who never touches the rushing or receiving block still scored. Settling him on those
+     blocks alone would report a loss on a game he won the market in. */
+  const kick = constructed({ kickReturns: { labels: ["NO", "YDS", "AVG", "LONG", "TD"], stats: ["3", "104", "34.7", "99", "1"] } });
+  assert.equal(touchdownsScored(kick, "999"), 1, "a kick-return touchdown counts");
+
+  const punt = constructed({ puntReturns: { labels: ["NO", "YDS", "AVG", "LONG", "TD"], stats: ["2", "61", "30.5", "55", "1"] } });
+  assert.equal(touchdownsScored(punt, "999"), 1, "a punt-return touchdown counts");
+
+  const both = constructed({
+    rushing: { labels: ["CAR", "YDS", "AVG", "TD", "LONG"], stats: ["9", "41", "4.6", "1", "12"] },
+    kickReturns: { labels: ["NO", "YDS", "AVG", "LONG", "TD"], stats: ["2", "70", "35.0", "50", "1"] },
+  });
+  assert.equal(touchdownsScored(both, "999"), 2, "two touchdowns in different blocks are two touchdowns");
+});
+
+test("⚠ A PICK-SIX IS ONE TOUCHDOWN, NOT TWO", () => {
+  /*
+   * ESPN reports a pick-six in BOTH the defensive block and the interceptions block. Summing them
+   * displays 2 for a player who scored once — and the count is shown to readers, so the error is
+   * visible even though the yes/no market settles the same either way.
+   */
+  const pickSix = constructed({
+    defensive: { labels: ["TOT", "SOLO", "SACKS", "TFL", "PD", "QB HTS", "TD"], stats: ["6", "4", "0", "1", "2", "0", "1"] },
+    interceptions: { labels: ["INT", "YDS", "TD"], stats: ["1", "42", "1"] },
+  });
+  assert.equal(touchdownsScored(pickSix, "999"), 1, "the same touchdown reported twice is still one touchdown");
+  assert.equal(settle({ summary: pickSix, espnId: "999", family: "anytime_td", settledAt: AT }).lineResult, "YES");
+
+  /* And a defender who did NOT score still resolves as a zero rather than an absence. */
+  const noScore = constructed({ defensive: { labels: ["TOT", "SOLO", "SACKS", "TFL", "PD", "QB HTS", "TD"], stats: ["8", "5", "1", "2", "1", "3", "0"] } });
+  assert.equal(touchdownsScored(noScore, "999"), 0, "present in a scoring block and did not score is zero, not null");
+  assert.equal(settle({ summary: noScore, espnId: "999", family: "anytime_td", settledAt: AT }).lineResult, "NO");
+});
+
+test("a player in NO scoring block is absent, even when the game is final", () => {
+  const empty = constructed({ passing: { labels: ["C/ATT", "YDS", "AVG", "TD", "INT", "SACKS", "QBR", "RTG"], stats: ["20/30", "240", "8.0", "3", "0", "1-7", "88.0", "110.0"] } });
+  assert.equal(touchdownsScored(empty, "999"), null,
+    "the passing block is not a scoring block — a quarterback who only threw touchdowns has no ANYTIME-TD measurement from it");
+  assert.equal(settle({ summary: empty, espnId: "999", family: "anytime_td", settledAt: AT }).state, "NO_MEASUREMENT",
+    "⚠ and an absent measurement is NOT an anytime-touchdown loss");
+});
+
+test("⚠ A MEASURED ZERO AND NO MEASUREMENT MUST NEVER COLLAPSE", () => {
+  /*
+   * These are different facts with different consequences, and anti-fabrication logic is exactly
+   * the kind of change that quietly merges them — "don't show zeros" is one line away from
+   * "discard a real zero", and "absence means nothing happened" is one line away from grading a
+   * player who never dressed as an Under.
+   *
+   *   measured zero   the provider reports 0 → a RESULT. Settles, and settles UNDER a positive line.
+   *   empty cell      the provider reports "" → NOT a measurement. ⚠ `Number("")` is 0, which is
+   *                   how a blank silently became a measured zero until this test existed.
+   *   absent player   no row at all → NOT a measurement.
+   *
+   * Only the first may ever be graded.
+   */
+  const withStats = (stats, id = "7") => ({
+    header: { competitions: [{ status: { type: { state: "post", completed: true } }, competitors: [] }] },
+    boxscore: { players: [{ team: { abbreviation: "X" }, statistics: [
+      { name: "receiving", labels: ["REC", "YDS", "AVG", "TD", "LONG", "TGTS"], athletes: [{ athlete: { id }, stats }] },
+    ] }] },
+  });
+  const grade = (s, espnId) => settle({ summary: s, espnId, family: "player_receptions", frozenLine: 2.5, projection: 3, settledAt: AT });
+
+  // 1 — a real zero is a result
+  const zero = withStats(["0", "0", "0.0", "0", "0", "3"]);
+  assert.equal(statFor(zero, "7", "player_receptions"), 0, "a reported 0 is a measurement");
+  assert.equal(liveFactual({ summary: zero, espnId: "7", family: "player_receptions", observedAt: AT }).statValue, 0,
+    "and it must reach the live row as 0, not be swallowed as falsy");
+  assert.equal(grade(zero, "7").state, "SETTLED");
+  assert.equal(grade(zero, "7").lineResult, "UNDER", "he was targeted three times and caught none — that is an Under");
+  assert.equal(grade(zero, "7").forecastResult, "LOSS", "we projected over the line; it landed under");
+
+  // 2 — an empty cell is not a measurement
+  const blank = withStats(["", "", "", "", "", ""]);
+  assert.equal(statFor(blank, "7", "player_receptions"), null, "⚠ Number(\"\") is 0 — a blank must not become a measured zero");
+  assert.equal(grade(blank, "7").state, "NO_MEASUREMENT");
+  assert.equal(grade(blank, "7").lineResult, null, "and it is never graded");
+
+  // 3 — an absent player is not a measurement
+  assert.equal(statFor(zero, "999999", "player_receptions"), null);
+  assert.equal(grade(zero, "999999").state, "NO_MEASUREMENT");
+
+  // 4 — the same distinction for the one-sided market
+  const tdZero = {
+    header: { competitions: [{ status: { type: { state: "post", completed: true } }, competitors: [] }] },
+    boxscore: { players: [{ team: { abbreviation: "X" }, statistics: [
+      { name: "rushing", labels: ["CAR", "YDS", "AVG", "TD", "LONG"], athletes: [{ athlete: { id: "7" }, stats: ["11", "38", "3.5", "0", "9"] }] },
+    ] }] },
+  };
+  assert.equal(touchdownsScored(tdZero, "7"), 0, "he carried eleven times and did not score — a measured zero");
+  assert.equal(settle({ summary: tdZero, espnId: "7", family: "anytime_td", settledAt: AT }).lineResult, "NO",
+    "which settles the anytime market NO");
+  assert.equal(touchdownsScored(tdZero, "999999"), null, "while a player in no scoring block has no measurement");
+  assert.equal(settle({ summary: tdZero, espnId: "999999", family: "anytime_td", settledAt: AT }).lineResult, null,
+    "⚠ and is NOT settled NO — an absence is not a failure to score");
 });

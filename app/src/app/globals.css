@@ -5595,3 +5595,28 @@ body {
   }
   .gtp-pred-sub { display: block; }
 }
+
+/* ── LIVE PROP LINE (Phase 5 · V1) ───────────────────────────────────────────────────────────────
+   A full-width line inside the prediction row, never a sixth column: this grid already carries four
+   template variants (rank on/off × range on/off) that must each agree with the DOM, and a track the
+   row has no child for silently shifts every later column. `1 / -1` spans whichever template is in
+   force, so none of them needs to change. */
+.gtp-pred-live {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--vault-border);
+  min-width: 0;
+}
+.gtp-pred-live-tag { font-size: 9.5px; color: var(--vault-gold); }
+.gtp-pred-live[data-phase="FINAL"] .gtp-pred-live-tag { color: var(--vault-text-faint); }
+.gtp-pred-live-v { font-family: var(--font-mono, ui-monospace), monospace; font-size: 13px; font-weight: 700; color: var(--vault-text); font-variant-numeric: tabular-nums; }
+.gtp-pred-live-sub { font-family: var(--font-mono, ui-monospace), monospace; font-size: 10.5px; color: var(--vault-text-mute); }
+.gtp-pred-live-absent { font-size: 11px; color: var(--vault-text-faint); }
+.gtp-pred-live-res { font-family: var(--font-mono, ui-monospace), monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--vault-text-mute); }
+.gtp-pred-live-res[data-result="OVER"], .gtp-pred-live-res[data-result="YES"] { color: var(--vault-success); }
+.gtp-pred-live-res[data-result="UNDER"], .gtp-pred-live-res[data-result="NO"] { color: var(--vault-text-mute); }
