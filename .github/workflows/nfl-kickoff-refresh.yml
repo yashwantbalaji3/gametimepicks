@@ -1,0 +1,96 @@
+# NFL kickoff-aware pregame refresh.
+#
+# ⚠ WHY THIS EXISTS INSTEAD OF A CRON AT T-30m (2026-09-25).
+#
+# The player-prop cadence carried a Sunday 12:30 ET slot whose purpose was "the last look before the
+# 1pm ET kickoffs". GitHub's scheduled delivery in this repository, measured over 14 days and 40
+# observations, was min 1h40m, median 2h52m, max 4h55m late — and not one run was punctual. A 16:30Z
+# slot therefore lands at 18:10Z at the very best, seventy minutes AFTER a 17:00Z kickoff, and the
+# capture's window is pre-start events only, so those games are simply gone from it.
+#
+# Shifting that cron earlier does not fix a delay that VARIES by more than three hours; it only
+# changes which games get missed. So this workflow stops asking for an instant and asks a QUESTION
+# OFTEN: is a kickoff close, and are our prices old?
+#
+# A dense schedule still DELIVERS densely even when each run is hours late. publication-watchdog
+# fires every 30 minutes and its runs arrive with a median gap of 27 minutes and a worst in-window
+# gap of 99 (its ~940-minute gaps are overnight, where it has no slots). Individual runs are late;
+# the STREAM is not.
+#
+# THE SLOTS ARE DELIBERATELY EARLIER THAN THE BAND THEY COVER, because a run arrives roughly three
+# hours after its slot. Sunday slots run 09:00-22:30Z so the delivered stream covers roughly
+# 12:00Z-01:00Z — the 1pm ET block, the 4pm block and the night game.
+#
+# THIS WORKFLOW SPENDS NOTHING. It reads committed artifacts and dispatches nfl-event-window only
+# when a refresh is genuinely owed. The spend guard lives in lib/ops/kickoff-refresh.mjs and reads
+# propPrices.capturedAt — the prices that actually LANDED, not the run that was meant to produce
+# them — so a sweep cron arriving three hours late suppresses the recovery instead of being bought
+# on top of.
+name: nfl-kickoff-refresh
+
+on:
+  schedule:
+    - cron: "*/30 9-22 * * 0"   # Sunday: the 1pm/4pm blocks and SNF
+    - cron: "*/30 17-21 * * 1"  # Monday: MNF
+    - cron: "*/30 17-21 * * 4"  # Thursday: TNF
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Decide and report, but never dispatch"
+        required: false
+        default: "false"
+
+concurrency:
+  group: nfl-kickoff-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  decide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      # A sweep that is already queued or running will write prices shortly. Dispatching on top of
+      # it buys the same week twice.
+      - name: Is an nfl-event-window run already in flight?
+        id: inflight
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          N="$(gh run list --workflow=nfl-event-window.yml --limit 10 --json status \
+                --jq '[.[] | select(.status != "completed")] | length' || echo 0)"
+          echo "count=$N"
+          if [ "$N" != "0" ]; then echo "value=true" >> "$GITHUB_OUTPUT"; else echo "value=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Decide whether a pregame refresh is owed
+        id: decide
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/decide-kickoff-refresh.mjs \
+            --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --run-in-flight "${{ steps.inflight.outputs.value }}"
+
+      - name: Dispatch the pregame sweep
+        if: steps.decide.outputs.decision == 'DISPATCH' && github.event.inputs.dry_run != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run nfl-event-window.yml --ref main \
+            -f probe_props=all -f week_window=true -f lookahead_hours=18
+          echo "::notice::nfl-kickoff-refresh dispatched nfl-event-window — ${{ steps.decide.outputs.state }}: ${{ steps.decide.outputs.reason }}"
+
+      - name: Report a hold
+        if: steps.decide.outputs.decision != 'DISPATCH'
+        run: |
+          echo "::notice::nfl-kickoff-refresh held — ${{ steps.decide.outputs.state }}: ${{ steps.decide.outputs.reason }}"

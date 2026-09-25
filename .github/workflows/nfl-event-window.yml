@@ -52,12 +52,23 @@ on:
     # refreshes a live week asks for. These crons recur, so a later week draws on the same
     # allowance — the receipt's machine ceiling is what stops it, fail-closed, and a refusal there
     # is a DECISION OWED rather than a broken job.
+    #
+    # ⚠ THREE DEADLINE-CRITICAL SLOTS WERE RETIRED HERE (2026-09-25), NOT SHIFTED.
+    #
+    # "Sun 12:30 ET · the last pre-kickoff look" (30 16 * * 0), "Sun 19:00 ET · the night games"
+    # (0 23 * * 0) and "Mon 18:00 ET · Monday night only" (0 22 * * 1) all assumed a punctual
+    # scheduler. Measured over 14 days and 40 observations, delivery here is min 1h40m, median
+    # 2h52m, max 4h55m late, and NOT ONE RUN WAS PUNCTUAL — so a 16:30Z slot lands at 18:10Z at
+    # best, after a 17:00Z kickoff, and the capture's pre-start window has already dropped those
+    # games. The slot could not do its job on any observed delivery time.
+    #
+    # Moving them earlier does not fix a delay that VARIES by three hours. They are replaced by
+    # nfl-kickoff-refresh.yml, which asks "is a kickoff close and are our prices old?" on a dense
+    # schedule and dispatches this workflow when the answer is yes. The three surviving slots below
+    # are morning sweeps with a whole day to arrive, which is a deadline this scheduler can meet.
     - cron: "0 13 * * 5"  # Fri 09:00 ET · full sweep
     - cron: "0 13 * * 6"  # Sat 09:00 ET · full sweep
     - cron: "0 13 * * 0"  # Sun 09:00 ET · full sweep
-    - cron: "30 16 * * 0" # Sun 12:30 ET · the last pre-kickoff look
-    - cron: "0 23 * * 0"  # Sun 19:00 ET · the night games only
-    - cron: "0 22 * * 1"  # Mon 18:00 ET · Monday night only
   workflow_dispatch:
     inputs:
       skip_odds:
@@ -255,7 +266,9 @@ jobs:
           # window is identified by the cron expression that fired it (`github.event.schedule`),
           # so adding or removing a sweep is one edit in one place and the schedule cannot drift
           # from the arithmetic written beside it. A dispatch input still wins outright.
-          SWEEP_CRONS="0 13 * * 5|0 13 * * 6|0 13 * * 0|30 16 * * 0|0 23 * * 0|0 22 * * 1"
+          # Must match the schedule block above. The retired pre-kickoff slots are gone from both;
+          # nfl-kickoff-refresh dispatches this workflow with explicit inputs instead of a cron.
+          SWEEP_CRONS="0 13 * * 5|0 13 * * 6|0 13 * * 0"
           if [ -z "$PROBE_PROPS" ] || [ -z "$WEEK_WINDOW" ]; then
             SWEEP=false
             OLDIFS="$IFS"; IFS='|'

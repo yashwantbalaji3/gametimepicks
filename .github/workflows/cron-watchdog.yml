@@ -303,15 +303,28 @@ jobs:
       # does not look at output — those sports have quiet weeks (no card, a bye, an international
       # break) and alarming on "produced nothing" would cry wolf every one of them.
       #
-      # REPORTS ONLY, ON PURPOSE. It does not page and does not dispatch. On its first live run this
-      # check raised five missed slots and every one predated the workflow existing; the creation
-      # floor that fixed it is one commit old. A check that has never been quiet through a real week
-      # has not earned the right to wake anyone, so it writes a ::notice:: and nothing else until it
-      # has. Promoting it to ops_alert.sh is a deliberate follow-up, not an oversight.
+      # IT NOW PAGES AND RECOVERS, BECAUSE THE DETECTOR IS FINALLY TRUSTWORTHY (2026-09-25).
+      #
+      # It stayed report-only for a good reason and then for a bad one. The good reason was the
+      # creation floor. The bad one was that its matcher asked "is there a run within ±2h of this
+      # slot", while measured delivery here is min 1h40m / median 2h52m / max 4h55m late — so the
+      # MEDIAN delivery fell outside the tolerance and it reported 26 missed slots across five
+      # sports, every UFC one of which had a successful run behind it. Staying quiet was masking a
+      # miscalibration, and it meant a GENUINE miss would be invisible among the false ones.
+      #
+      # missedSlots now delegates to cron-punctuality's attribution (one run consumes one slot, runs
+      # before their slot rejected, dense schedules refused rather than guessed). Against the live
+      # fleet that took 26 missed slots to 0. A check that can tell late from absent has earned the
+      # right to wake someone.
+      #
+      # ⚠ THE RECOVERY DISPATCH IS THE CHEAP WINDOW, NEVER A SWEEP. A bare nfl-event-window run buys
+      # the 3-credit team call (0 on an empty slate). Buying the 78-credit prop sweep on a missed
+      # slot would let an alerting path spend real money on a schedule hiccup; the sweep has its own
+      # owner in nfl-kickoff-refresh.yml, which holds when the committed prices are already fresh.
       #
       # `continue-on-error` + `|| true`: this is an observer bolted onto the MLB recovery job, and it
       # must never be the reason that job fails.
-      - name: Cron-slot coverage (report only)
+      - name: Cron-slot coverage (pages, and recovers the NFL window)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
@@ -324,7 +337,26 @@ jobs:
             --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --json "$OUT" | tee /tmp/slots.txt || true
           MISSED="$(node -e "try{console.log(require('./$OUT').missedTotal)}catch{console.log(0)}")"
           if [ "$MISSED" != "0" ]; then
-            echo "::notice::cron-slot watchdog: $MISSED missed slot(s) — see $OUT (report-only; not paging yet)"
+            echo "::warning::cron-slot watchdog: $MISSED missed slot(s) — see $OUT"
+            node -e "
+              const r = require('./$OUT');
+              for (const [s, v] of Object.entries(r.sports ?? {}))
+                if (v && Array.isArray(v.missed) && v.missed.length)
+                  console.log('::warning::' + s + ' (' + v.workflow + '): missed ' + v.missed.join(', '));
+            " || true
+          fi
+          # Recover the NFL window specifically: it anchors the public index, and a missed slot has
+          # already cost this project a day of stale slate. Cheap window only, and never on top of a
+          # run that is already queued or going.
+          NFL_MISSED="$(node -e "try{const r=require('./$OUT');console.log((r.sports?.nfl?.missed||[]).length)}catch{console.log(0)}")"
+          if [ "$NFL_MISSED" != "0" ]; then
+            INFLIGHT="$(gh run list --workflow=nfl-event-window.yml --limit 10 --json status --jq '[.[] | select(.status != "completed")] | length' || echo 0)"
+            if [ "$INFLIGHT" = "0" ]; then
+              gh workflow run nfl-event-window.yml --ref main || true
+              echo "::warning::cron-slot watchdog dispatched nfl-event-window to recover $NFL_MISSED missed slot(s)"
+            else
+              echo "::notice::nfl-event-window already in flight ($INFLIGHT run[s]) — recovery not dispatched"
+            fi
           fi
           # A workflow that FIRES AND FAILS is not a quiet week. nfl-event-window failed all three of
           # its daily slots on 2026-08-21 while this watchdog reported OK, because it only ever asked

@@ -16,6 +16,7 @@
  * Pure and clock-injected: every function takes its time bounds, so the tests do not depend on when
  * they run.
  */
+import { attributeRuns, attributionHorizonMs, effectiveHorizonMs, PUNCTUALITY_BANDS } from "./cron-punctuality.mjs";
 
 /** Match one cron field against a value. Supports `*`, n, a-b, a,b,c and any of those with /step. */
 function fieldMatches(field, value, min, max) {
@@ -64,18 +65,61 @@ export function expectedSlots(exprs, fromMs, toMs) {
 /**
  * Slots with no run attributable to them.
  *
- * `toleranceMs` is generous ON PURPOSE: GitHub's scheduler is best-effort and has been observed here
- * drifting an hour or more, so a tight window would report lateness as absence and make the watchdog
- * the thing that cries wolf.
+ * ⚠ THIS USED TO ASK "IS THERE A RUN WITHIN ±2h OF THIS SLOT", AND THAT IS THREE BUGS (2026-09-25).
  *
- * Slots newer than `toleranceMs` before `nowMs` are EXCLUDED — a run that has not fired yet is not a
- * run that was missed, and alarming on it would fire every single time the watchdog ran.
+ * MEASURED: nfl-event-window's scheduled delivery over 14 days was min 1h40m, median 2h52m, max
+ * 4h55m late — n=40, and NOT ONE RUN WAS PUNCTUAL. Against a ±2h window the median delivery falls
+ * OUTSIDE the tolerance, so the watchdog reported 26 "missed" slots across five sports, and every
+ * UFC one I checked had a successful run behind it (11:00Z slot → 15:31Z run, called MISSED). The
+ * response had been to leave the watchdog on `report-only; not paging yet` — which silenced the
+ * miscalibration instead of fixing it, and meant a genuine miss would be invisible among the false
+ * ones.
+ *
+ * The three defects, all fixed by using ONE pairing rule:
+ *   1. the tolerance was narrower than the delay it was meant to absorb;
+ *   2. membership was INDEPENDENT, so a single run could satisfy several slots at once — a
+ *      workflow that fired once for three slots read as fully served;
+ *   3. the window was symmetric, so a run BEFORE a slot could claim it. A scheduled run fires at
+ *      or after its slot, never before, and an earlier unrelated run is not evidence.
+ *
+ * So this now delegates to `attributeRuns` in cron-punctuality.mjs, which already got this right in
+ * P253: greedy in slot order, one run consumes one slot, runs before their slot rejected, horizon
+ * capped by the schedule's own gap and by MAX_ATTRIBUTION_MS (8h — clear of the worst drift seen).
+ * The two modules still answer different questions — this one "did it run", that one "was it on
+ * time" — but they now answer them from the SAME pairing, so they can never disagree about which
+ * run served which slot.
  */
-export function missedSlots(slots, runStartMs, { nowMs, toleranceMs = 2 * 3600_000 } = {}) {
-  const runs = [...runStartMs].sort((a, b) => a - b);
-  return slots
-    .filter((s) => s <= nowMs - toleranceMs)
-    .filter((s) => !runs.some((r) => r >= s - toleranceMs && r <= s + toleranceMs));
+export function missedSlots(slots, runStartMs, { nowMs, horizonMs } = {}) {
+  return slotAttribution(slots, runStartMs, { nowMs, horizonMs }).missed;
+}
+
+/**
+ * The full pairing: which slots were served, which were missed, and whether we may claim either.
+ *
+ * ⚠ `attributable: false` IS A REFUSAL, NOT A ZERO. A schedule whose own slots are closer together
+ * than the drift we must tolerate cannot distinguish a late run from an absent one — a run at 18:40
+ * could be the 14:30 slot four hours late or the 15:00 slot equally late, and nothing in the run
+ * list separates them. Such a workflow reports `missed: []` with `attributable: false`, and a caller
+ * that renders that as "no misses" is making a claim the data does not support. `coverageRatio` is
+ * the honest window-level answer available at that cadence: runs observed ÷ slots owed.
+ */
+export function slotAttribution(slots, runStartMs, { nowMs, horizonMs } = {}) {
+  const sorted = [...(slots ?? [])].sort((a, b) => a - b);
+  const runs = [...(runStartMs ?? [])];
+  const gap = attributionHorizonMs(sorted);
+  const attributable = !Number.isFinite(gap) || gap / 60_000 > PUNCTUALITY_BANDS.DEGRADED_MAX_MIN;
+  const horizon = Number.isFinite(horizonMs) ? horizonMs : effectiveHorizonMs(sorted);
+  const pairs = attributeRuns(sorted, runs, { nowMs, horizonMs: horizon });
+  const judged = pairs.length;
+  const served = pairs.filter((p) => p.runMs !== null);
+  return {
+    attributable,
+    judgedSlots: judged,
+    servedSlots: attributable ? served.length : null,
+    missed: attributable ? pairs.filter((p) => p.runMs === null).map((p) => p.slotMs) : [],
+    coverageRatio: judged > 0 ? Math.min(1, runs.length / judged) : null,
+    pairs,
+  };
 }
 
 /**
