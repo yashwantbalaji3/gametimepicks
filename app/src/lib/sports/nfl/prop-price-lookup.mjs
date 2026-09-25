@@ -33,6 +33,26 @@ const nameKey = (n) => {
   return parts.join(" ");
 };
 
+/**
+ * The same label with its tokens SORTED — "james jordan" and "jordan james" collapse to one key.
+ *
+ * ⚠ MEASURED, 2026-09-25. After the generational-suffix repair recovered eight players, ONE real
+ * projected player was still reading "Not offered" against a market DraftKings does post: the book
+ * calls him "James Jordan" and the roster calls him "Jordan James". A transposed first and last
+ * name is not a suffix, so the suffix index cannot see it.
+ *
+ * ⚠ AND THIS STILL DOES NOT JOIN ANYTHING. Like `nameKey`, it only ever chooses between two
+ * sentences on a screen — "we could not identify this market" versus "the books did not post it".
+ * No price, no player id and no team travels this path; the capture's own fail-closed resolver
+ * remains the only thing that decides who a player is, and it still REFUSES the transposition.
+ * Auto-joining a transposed name is a different and much riskier claim, and it stays a founder
+ * decision rather than a heuristic.
+ *
+ * The worst case if two labels on one event collide under a sorted key is that a row shows the
+ * WEAKER, more honest of the two sentences. That is the right direction to be wrong in.
+ */
+const nameTokenSetKey = (n) => nameKey(n).split(" ").filter(Boolean).sort().join(" ");
+
 /** The families a board can ask about, spelled as the CAPTURE publishes them (board vocabulary). */
 export const PROP_FAMILIES = ["anytime_td", "player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"];
 
@@ -71,9 +91,13 @@ export function buildPropPriceIndex(markets) {
    * not — a confident public statement about a third party, caused by our own join.
    */
   const unresolvedByEvent = new Map();
+  /* The token-set index, consulted only when the exact key misses — see nameTokenSetKey. Kept as a
+     separate map for the same reason the suffix index is: a looser match can never beat an exact one. */
+  const unresolvedTokenSetByEvent = new Map();
   for (const e of pm.perEvent ?? []) {
     absentByEvent.set(e.canonicalEventId, new Set(e.absentMarkets ?? []));
     unresolvedByEvent.set(e.canonicalEventId, new Set((e.unresolvedIdentities ?? []).map(nameKey)));
+    unresolvedTokenSetByEvent.set(e.canonicalEventId, new Set((e.unresolvedIdentities ?? []).map(nameTokenSetKey)));
   }
 
   return {
@@ -121,6 +145,7 @@ export function buildPropPriceIndex(markets) {
        * James Cook, read "Not offered" for exactly this reason.
        */
       if (playerName && unresolvedByEvent.get(`nfl-${providerEventId}`)?.has(nameKey(playerName))) return "IDENTITY_UNRESOLVED";
+      if (playerName && unresolvedTokenSetByEvent.get(`nfl-${providerEventId}`)?.has(nameTokenSetKey(playerName))) return "IDENTITY_UNRESOLVED";
       /* Probed and unpriced is NOT_OFFERED, whether the family came back absent for the whole event
          or came back without THIS player. Both are things we asked and were not given, which is
          what the word means; the difference between them is evidence, not a different claim. */
