@@ -119,8 +119,27 @@ export function joinNflPlayerBoard(board, liveStats, { markets = COMPARABLE_NFL_
  * bands are the team-level simulation output the report page already publishes; a combined over/under
  * is the paused market and does not appear.
  */
+/*
+ * ⚠ AND IT USED TO REFUSE EVERY `degraded` GAME, WHICH IS MOST OF THEM (2026-09-25).
+ *
+ * The gate was `status !== "ready"`. On the 2026-09-25 slate that is 10 of the 12 simulated games —
+ * so ten MLB pages published "Expected runs CHC 4.4 – 3.8 BOS · 54% · from 10,000 simulated games"
+ * in the Overview and, directly below it in the live module, "No GameTime pregame forecast for this
+ * game." Two surfaces on one page disagreeing about whether a forecast EXISTS.
+ *
+ * `degraded` does not mean absent. It means the inputs carry a labelled weaker state — a
+ * prop-derived lineup instead of a confirmed batting order — and the report renders those games in
+ * full, which is what the sentence above this function already claims this projection mirrors: "the
+ * team-level simulation output the report page already publishes".
+ *
+ * So the gate is now the same test the report makes: a simulation with per-team runs is publishable.
+ * `unavailable` still refuses, because that genuinely has no simulation. The input state travels with
+ * the forecast rather than being silently dropped, so a caller can label a degraded forecast as one
+ * instead of having to choose between showing it unqualified and not showing it at all.
+ */
 export function projectMlbForecast(simGame) {
-  if (!simGame || simGame.status !== "ready" || !simGame.runs) return null;
+  if (!simGame || !simGame.runs) return null;
+  if (simGame.status === "unavailable") return null;
   const side = (s) =>
     s && typeof s.median === "number"
       ? { median: round1(s.median), rangeLow: round1(s.p10), rangeHigh: round1(s.p90) }
@@ -133,6 +152,7 @@ export function projectMlbForecast(simGame) {
     generatedAt: simGame.generatedAt ?? null,
     runs: { home, away },
     winProbability: simGame.winProbability ?? null,
+    inputState: simGame.completeness?.level ?? simGame.status ?? null,
   };
 }
 
