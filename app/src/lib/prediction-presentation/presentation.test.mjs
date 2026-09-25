@@ -185,8 +185,25 @@ test("every row of every published weekly board presents — measured on the com
     for (const p of out) {
       assert.ok(p.player.name && p.player.teamAbbr, `${b.id}: a row without a player is not renderable`);
       assert.ok(p.game.startTimeUtc, `${b.id}: the kickoff is in the artifact and must reach the card`);
-      assert.notEqual(p.market.state, "FROZEN_CAPTURE", `${b.id}: no NFL player-prop capture exists — a price here would be invented`);
-      assert.ok(p.market.note, `${b.id}: the absent market must still say why`);
+      /*
+       * ⚠ THIS FORBADE `FROZEN_CAPTURE` OUTRIGHT — "no NFL player-prop capture exists, a price here
+       * would be invented". That was TRUE and MEASURED when it was written (2026-09-23: every probe
+       * recorded all five families absent), and it stopped being true on 2026-09-24 when the
+       * founder authorized the probe and DraftKings returned real lines. A guard whose premise is a
+       * fact about the world needs the fact re-read, not the guard deleted.
+       *
+       * What must never happen is a price with NOTHING BEHIND IT. So a frozen capture now has to
+       * name its book and its capture instant — the two fields an invented price would not have —
+       * and an absence still has to say why. Invention is still caught; a real capture no longer
+       * is.
+       */
+      if (p.market.state === "FROZEN_CAPTURE") {
+        assert.ok(p.market.frozen, `${b.id}: a FROZEN_CAPTURE with no frozen block is a price with nothing behind it`);
+        assert.ok(p.market.frozen.sportsbook, `${b.id}: a displayed price must name the book it came from`);
+        assert.ok(Number.isFinite(Date.parse(p.market.frozen.capturedAt)), `${b.id}: a price without its capture instant cannot be told from a live line`);
+      } else {
+        assert.ok(p.market.note, `${b.id}: the absent market must still say why`);
+      }
       if (p.model.kind === "NUMERIC") assert.ok(p.model.unit, `${b.id}: a numeric forecast needs its unit`);
       else assert.ok(p.model.probability != null, `${b.id}: a probability family must publish one`);
     }

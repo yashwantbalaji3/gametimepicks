@@ -37,6 +37,7 @@ import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordReques
 import { buildPlayerRegistry, resolvePlayerRef } from "../../src/lib/sports/nfl/player-identity.mjs";
 import { twoWayConsensus, medianOf } from "../../src/lib/sports/odds/consensus.mjs";
 import { mergeCaptureRows } from "../../src/lib/sports/odds/capture-merge.mjs";
+import { REFERENCE_BOOK, FALLBACK_ORDER, selectPropPrices } from "../../src/lib/sports/odds/prop-display-selection.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -49,6 +50,7 @@ const AUTHORIZED = has("--authorized");
 const RECEIPT_PATH = arg("--receipt");
 const PROBE = arg("--probe-props");
 const LOOKAHEAD_H = Number(arg("--lookahead-hours", "40"));
+const MAX_PROP_EVENTS = Number(arg("--max-prop-events", "20"));
 // price-refresh policy: an identical request inside this window is refused as a duplicate, so a
 // re-run of the event-window chain re-uses the capture it already holds instead of re-buying it.
 const REFRESH_MINUTES = Number(arg("--refresh-minutes", "45"));
@@ -62,11 +64,10 @@ const SPORT_KEY = ODDS_SPORT_KEYS[SPORT];
 const PRESEASON_KEY = "americanfootball_nfl_preseason";
 const TEAM_MARKETS = MARKET_SCOPE[SPORT]; // h2h, spreads, totals — the frozen team scope
 /*
- * THE REFERENCE SPORTSBOOK for displayed prop prices (founder decision, 2026-09-24). One named
- * book, attributed by name. Not a "best odds" rule and not a consensus — both would be policies
- * this repo has never agreed, and a blended number has no book to attribute it to.
+ * The displayed-price policy — reference book, fallback ladder, per-row selection — now lives in
+ * lib/sports/odds/prop-display-selection.mjs, where it is executed against constructed evidence
+ * instead of pattern-matched in this file's source text. Behaviour is unchanged.
  */
-const REFERENCE_BOOK = "draftkings";
 const PROP_PROBE_MARKETS = ["player_anytime_td", "player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"];
 const REGIONS = ["us"];
 const BASE = "https://api.the-odds-api.com/v4";
@@ -76,10 +77,30 @@ const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 // ---------------------------------------------------------------- window + canonical schedule
 const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
 const nowMs = Date.parse(NOW);
-const windowRows = schedule.rows.filter((r) => {
+/*
+ * THE WINDOW IS THE NFL WEEK, NOT A CLOCK (P0 · 2026-09-24).
+ *
+ * ⚠ A 40-HOUR HORIZON CANNOT COVER AN NFL WEEK. On Thursday evening 16 of the 17 pre-start events
+ * were week 3, and exactly ONE of them — the Thursday-night game — sat inside 40 hours. The other
+ * fifteen were 66–98 hours out with their markets already posted, so every Sunday and Monday row on
+ * the site read "Not checked" for reasons that had nothing to do with the books.
+ *
+ * `--week-window` follows the canonical schedule owner's own (seasonType, week) of the NEXT
+ * pre-start event, which is what "the active week" means everywhere else in this repo. The hour
+ * horizon stays available and stays the DEFAULT, because the scheduled team-market captures are
+ * built around it and a bulk call costs the same 3 credits whatever the window holds.
+ */
+const WEEK_WINDOW = has("--week-window");
+const scheduledAhead = schedule.rows
+  .filter((r) => Date.parse(r.dateUtc) > Date.parse(NOW) && r.statusRaw === "STATUS_SCHEDULED")
+  .sort((a, b) => (a.dateUtc < b.dateUtc ? -1 : 1));
+const activePeriod = scheduledAhead[0] ? { seasonType: scheduledAhead[0].seasonType, week: scheduledAhead[0].week } : null;
+const windowRows = WEEK_WINDOW
+  ? scheduledAhead.filter((r) => activePeriod && r.seasonType === activePeriod.seasonType && r.week === activePeriod.week)
+  : schedule.rows.filter((r) => {
   const t = Date.parse(r.dateUtc);
   return t > nowMs && t <= nowMs + LOOKAHEAD_H * 3.6e6 && r.statusRaw === "STATUS_SCHEDULED";
-});
+  });
 const canonicalRows = windowRows.map((r) => ({ canonicalEventId: `nfl-${r.providerEventId}`, home: r.home.name, away: r.away.name, startTimeUtc: r.dateUtc, scheduleRow: r }));
 
 const seasonTypes = new Set(windowRows.map((r) => r.seasonType));
@@ -87,15 +108,16 @@ const keyPlan = [];
 if (seasonTypes.has(1)) keyPlan.push({ key: PRESEASON_KEY, label: "preseason" });
 if (seasonTypes.has(2) || seasonTypes.has(3)) keyPlan.push({ key: SPORT_KEY, label: "regular/post" });
 const worstCaseBulk = keyPlan.length * TEAM_MARKETS.length * REGIONS.length;
-const worstCaseProbe = PROBE ? PROP_PROBE_MARKETS.length * REGIONS.length : 0;
+const probeEventCount = !PROBE ? 0 : PROBE === "all" ? Math.min(windowRows.length, MAX_PROP_EVENTS) : 1;
+const worstCaseProbe = probeEventCount * PROP_PROBE_MARKETS.length * REGIONS.length;
 
 // ---------------------------------------------------------------- ledger + authorization
 const ledgerPath = path.join(ROOT, P171_LEDGER_RELPATH);
 let ledger = fs.existsSync(ledgerPath) ? read(ledgerPath) : emptyLedger(RECEIPT_PATH ?? "docs/receipts/ODDS_AUTHORIZATION_P171.md");
 const authorization = RECEIPT_PATH ? parseAuthorizationReceipt(fs.readFileSync(path.isAbsolute(RECEIPT_PATH) ? RECEIPT_PATH : path.join(ROOT, RECEIPT_PATH), "utf8")) : { ok: false, errors: ["no --receipt supplied"] };
 
-console.log(`window: ${windowRows.length} pre-start events within ${LOOKAHEAD_H}h of ${NOW} (keys: ${keyPlan.map((k) => k.label).join("+") || "none"})`);
-console.log(`plan: [free] /sports + /events per key → [${worstCaseBulk} worst-case] bulk ${TEAM_MARKETS.join(",")} regions=${REGIONS.join(",")} × ${keyPlan.length} key(s)${PROBE ? ` → [${worstCaseProbe} worst-case] prop probe ${PROP_PROBE_MARKETS.join(",")}` : ""}`);
+console.log(`window: ${windowRows.length} pre-start events ${WEEK_WINDOW ? `in the active NFL week (seasonType ${activePeriod?.seasonType}, week ${activePeriod?.week})` : `within ${LOOKAHEAD_H}h`} of ${NOW} (keys: ${keyPlan.map((k) => k.label).join("+") || "none"})`);
+console.log(`plan: [free] /sports + /events per key → [${worstCaseBulk} worst-case] bulk ${TEAM_MARKETS.join(",")} regions=${REGIONS.join(",")} × ${keyPlan.length} key(s)${PROBE ? ` → [${worstCaseProbe} worst-case] prop probe on ${probeEventCount} event(s) × ${PROP_PROBE_MARKETS.join(",")}` : ""}`);
 console.log(`budget: cumulative ${ledger.cumulativeCredits} of ${authorization.ok ? authorization.ceiling : "?"} — worst case this run ${worstCaseBulk + worstCaseProbe}`);
 
 if (!AUTHORIZED) {
@@ -246,20 +268,70 @@ const rowsUnjoined = rows.length - rowsJoined.length;
 // ---------------------------------------------------------------- 2. optional prop probe
 let propProbe = null;
 if (PROBE) {
-  const target = PROBE === "auto"
-    ? oddsEvents.filter((e) => joinedByOddsId.has(e.providerEventId)).sort((a, b) => (a.scheduledStartUtc < b.scheduledStartUtc ? -1 : 1))[0]
-    : oddsEvents.find((e) => e.providerEventId === PROBE);
-  if (!target) {
+  /*
+   * ONE EVENT WAS THE PROOF; THE WEEK IS THE PRODUCT (P0 · 2026-09-24).
+   *
+   * `auto` probed the single earliest joined event — right for a capability probe, and not
+   * something a populated site can live on: every Sunday and Monday row read "Not checked" while
+   * the books had posted those markets days earlier. `all` probes every joined pre-start event.
+   *
+   * COST IS LINEAR AND STATED UP FRONT: one per-event call each, markets × regions, so sixteen
+   * week-3 events cost 16 × 5 = 80 credits. `--max-prop-events` caps it, every call passes the SAME
+   * assertCallAllowed gate the single probe did, and the sweep STOPS at the first refusal rather
+   * than walking the rest of the slate into a ceiling.
+   */
+  const joinedPre = oddsEvents
+    .filter((e) => joinedByOddsId.has(e.providerEventId))
+    .sort((a, b) => (a.scheduledStartUtc < b.scheduledStartUtc ? -1 : 1));
+  const targets = PROBE === "all" ? joinedPre.slice(0, MAX_PROP_EVENTS)
+    : PROBE === "auto" ? joinedPre.slice(0, 1)
+      : joinedPre.filter((e) => e.providerEventId === PROBE);
+  const perEvent = [];
+  const atdAll = { rows: [], quarantined: [] };
+  const lineAll = { rows: [], quarantined: [] };
+  const seenUnion = new Map();
+  let refusal = null;
+  if (!targets.length) {
     propProbe = { state: "NO_TARGET", reason: "no joined pre-start event to probe" };
   } else {
-    const gateProbe = assertCallAllowed({ authorization, ledger, worstCaseCredits: worstCaseProbe, purpose: "player-prop probe" });
+   for (const target of targets) {
+    const gateProbe = assertCallAllowed({ authorization, ledger, worstCaseCredits: PROP_PROBE_MARKETS.length * REGIONS.length, purpose: "player-prop probe" });
     if (!gateProbe.ok) {
-      propProbe = { state: "REFUSED_BUDGET", reason: gateProbe.errors.join("; ") };
-    } else {
+      /* Stop the WHOLE sweep at the first refusal — continuing would spend the rest of the slate
+         against a ceiling the gate has already declined. */
+      refusal = gateProbe.errors.join("; ");
+      break;
+    }
+    {
       const probeRes = await get(`/sports/${target.sportKey}/events/${target.providerEventId}/odds?regions=${REGIONS.join(",")}&markets=${PROP_PROBE_MARKETS.join(",")}&oddsFormat=american`);
       ledger = recordRequest(ledger, { at: NOW, purpose: `player-prop probe on ${target.away} @ ${target.home}`, endpoint: `/sports/${target.sportKey}/events/${target.providerEventId}/odds`, events: 1, markets: PROP_PROBE_MARKETS, regions: REGIONS, status: probeRes.status, headers: probeRes.headers, charged: probeRes.status === 200 });
       if (probeRes.status !== 200) {
-        propProbe = { state: "NO_MARKET", oddsEventId: target.providerEventId, status: probeRes.status, reason: "provider does not offer these prop markets for this event (422/absent) — typed evidence, never retried" };
+        /*
+         * ⚠ A REFUSED EVENT IS STILL A PROBED EVENT, AND IT MUST SURVIVE THE SWEEP.
+         *
+         * The single-event shape wrote this straight onto `propProbe`, which the assembly below
+         * then overwrote the moment ANY other event returned markets. On a 15-event sweep that
+         * erases the 422 entirely: the event vanishes from `probedEventIds`, and every consumer
+         * downstream reports it NOT_PROBED — "we never asked" — when we asked and were told no.
+         * The two states drive different actions (ask later vs. do not ask again), so collapsing
+         * them is how a measured negative turns back into an unmeasured one.
+         *
+         * So it lands in `perEvent` like any other: queried, zero markets offered, all five
+         * families absent. That is exactly what NOT_OFFERED means, and it is never retried.
+         */
+        const joinRowFailed = joinedByOddsId.get(target.providerEventId);
+        perEvent.push({
+          oddsEventId: target.providerEventId,
+          canonicalEventId: joinRowFailed.canonicalEventId,
+          matchup: `${target.away} @ ${target.home}`,
+          providerStatus: probeRes.status,
+          providerResultClass: classifyProviderResult({ status: probeRes.status, body: probeRes.body }).class,
+          marketsSeen: {},
+          absentMarkets: [...PROP_PROBE_MARKETS],
+          atdRows: 0,
+          lineRows: 0,
+          note: "provider returned no prop markets for this event (422/absent) — typed evidence, never retried",
+        });
       } else {
         const marketsSeen = new Map();
         for (const bk of probeRes.body?.bookmakers ?? []) for (const mkt of bk.markets ?? []) {
@@ -332,18 +404,39 @@ if (PROBE) {
             }
           }
         }
-        propProbe = {
-          state: "PROBED",
+        /* Every row carries its OWN canonical event — a sweep must never let one event's id stand
+           in for another's, which the single-event shape could not have revealed. */
+        const stamp = (r) => ({ ...r, canonicalEventId: joinRow.canonicalEventId });
+        atdAll.rows.push(...atdRows.map(stamp));
+        atdAll.quarantined.push(...atdQuarantined.map(stamp));
+        lineAll.rows.push(...propRows.map(stamp));
+        lineAll.quarantined.push(...propQuarantined.map(stamp));
+        for (const [k, v] of marketsSeen) seenUnion.set(k, (seenUnion.get(k) ?? 0) + v);
+        perEvent.push({
           oddsEventId: target.providerEventId,
           canonicalEventId: joinRow.canonicalEventId,
+          matchup: `${target.away} @ ${target.home}`,
           marketsSeen: Object.fromEntries([...marketsSeen.entries()].map(([k, v]) => [k, { bookmakers: v }])),
           absentMarkets: PROP_PROBE_MARKETS.filter((k) => !marketsSeen.has(k)),
-          anytimeTd: { rows: atdRows, quarantined: atdQuarantined },
-          /* Two-sided families, normalized to a point + BOTH prices from one book. */
-          lineProps: { rows: propRows, quarantined: propQuarantined },
-        };
+          atdRows: atdRows.length,
+          lineRows: propRows.length,
+        });
       }
     }
+   }
+   propProbe = perEvent.length
+     ? {
+       state: "PROBED",
+       events: perEvent,
+       eventsProbed: perEvent.length,
+       eventsRequested: targets.length,
+       ...(refusal ? { stoppedEarly: refusal } : {}),
+       marketsSeen: Object.fromEntries([...seenUnion.entries()].map(([k, v]) => [k, { bookmakers: v }])),
+       absentMarkets: PROP_PROBE_MARKETS.filter((k) => !seenUnion.has(k)),
+       anytimeTd: atdAll,
+       lineProps: lineAll,
+     }
+     : { state: refusal ? "REFUSED_BUDGET" : "NO_MARKET", reason: refusal ?? "no event returned a prop market" };
   }
 }
 
@@ -476,16 +569,27 @@ const publicArtifact = {
   // surface can say NO_MARKET instead of the stale AUTH_REQUIRED language. Prices are never
   // published here; only which market families the provider offers for this window.
   propMarkets: propProbe?.state === "PROBED"
-    ? { state: "PROBED", probedEventId: propProbe.canonicalEventId, offeredMarkets: Object.keys(propProbe.marketsSeen ?? {}), absentMarkets: propProbe.absentMarkets ?? [] }
-    : { state: propProbe?.state ?? "NOT_PROBED", offeredMarkets: [], absentMarkets: [] },
+    ? {
+      state: "PROBED",
+      /* EVERY event probed, not the first. A single id here is what let a downstream consumer call
+         fifteen un-probed events "NOT_OFFERED" — a negative nobody had measured. */
+      probedEventIds: (propProbe.events ?? []).map((e) => e.canonicalEventId),
+      eventsProbed: propProbe.eventsProbed ?? 0,
+      offeredMarkets: Object.keys(propProbe.marketsSeen ?? {}),
+      absentMarkets: propProbe.absentMarkets ?? [],
+      perEvent: (propProbe.events ?? []).map((e) => ({ canonicalEventId: e.canonicalEventId, matchup: e.matchup, offeredMarkets: Object.keys(e.marketsSeen ?? {}), absentMarkets: e.absentMarkets })),
+    }
+    : { state: propProbe?.state ?? "NOT_PROBED", probedEventIds: [], offeredMarkets: [], absentMarkets: [] },
   /*
    * THE DISPLAYED PRICES — one named book, never a blend (founder decision, 2026-09-24).
    *
-   * DraftKings is the reference sportsbook for displayed NFL prop prices. The price a reader sees
-   * is DraftKings' own number, attributed to DraftKings. Nothing is averaged, no consensus is
-   * synthesised, and when DraftKings has not posted a player/market the row falls to a typed
-   * unavailable state — ANOTHER BOOK IS NEVER SILENTLY SUBSTITUTED, because the attribution on
-   * screen would then be a lie about where the number came from.
+   * The price a reader sees is ONE sportsbook's own number, attributed to THAT sportsbook by name.
+   * Nothing is averaged and no consensus is synthesised. DraftKings is the reference book; when it
+   * has not posted a player/market the ladder falls to FanDuel and then to the deterministic
+   * most-complete book — and the fallback is never SILENT, because the row carries the book it was
+   * actually taken from and the UI names it. Substituting a book while keeping the old label is
+   * the failure this guards against; substituting the book AND the label is just coverage.
+   * When no book has a complete market the row falls to a typed unavailable state.
    *
    * ⚠ The private capture keeps EVERY book (see the snapshot's propProbe), so a comparison or
    * best-line view can be built later from evidence already on disk without re-spending a credit.
@@ -494,17 +598,12 @@ const publicArtifact = {
   propPrices: propProbe?.state === "PROBED"
     ? {
       referenceBook: REFERENCE_BOOK,
-      policy: "single named book; no averaging, no consensus, no substitution when absent",
-      probedEventId: propProbe.canonicalEventId,
+      fallbackOrder: FALLBACK_ORDER,
+      policy: "DraftKings first, FanDuel second, then the returned book with the most complete markets (ties by provider key). One book per row, always named. No averaging, no consensus, no cross-book pair, never chosen by price.",
+      probedEventIds: (propProbe.events ?? []).map((e) => e.canonicalEventId),
       capturedAt: NOW,
-      rows: [
-        ...(propProbe.anytimeTd?.rows ?? [])
-          .filter((r) => r.bookmaker === REFERENCE_BOOK)
-          .map((r) => ({ canonicalEventId: propProbe.canonicalEventId, playerId: r.playerId, family: "anytime_td", shape: "YES_ONLY", yesOdds: r.price, sportsbook: REFERENCE_BOOK, capturedAt: r.capturedAt })),
-        ...(propProbe.lineProps?.rows ?? [])
-          .filter((r) => r.bookmaker === REFERENCE_BOOK)
-          .map((r) => ({ canonicalEventId: propProbe.canonicalEventId, playerId: r.playerId, family: r.market, shape: "OVER_UNDER", line: r.line, overOdds: r.overPrice, underOdds: r.underPrice, sportsbook: REFERENCE_BOOK, capturedAt: r.capturedAt })),
-      ],
+      /* Each row keeps the canonical event IT came from — never the sweep's first. */
+      rows: selectPropPrices(propProbe),
     }
     : null,
 };

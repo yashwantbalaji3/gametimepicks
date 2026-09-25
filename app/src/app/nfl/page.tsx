@@ -648,7 +648,22 @@ export default function NflHubPage() {
             state: b.state,
             reason: b.reason,
             caveat: b.caveat,
+            /*
+             * ⚠ SPREAD FIRST, THEN COERCE. This used to ENUMERATE the fields it copied, and that
+             * list is how the hub and the week route diverged: the capture owner started publishing
+             * a real `market` on priced rows, `/nfl/week/[key]` passes the artifact to the shared
+             * presenter untouched and rendered a DraftKings line, and this route — copying field by
+             * field — silently dropped it and fell through to the typed absence. Same artifact, same
+             * player, same market: one page showed "O/U 78.5 · O -111 · U -113 · draftkings" and the
+             * other said "Not checked".
+             *
+             * A hand-maintained field list is a second, invisible schema. It cannot fail loudly: the
+             * row still renders, still looks right, and simply omits whatever the owner added last.
+             * Spreading first means a new field reaches every surface the day the owner publishes
+             * it, and the coercions below still defend the fields this route actually depends on.
+             */
             rows: (b.rows ?? []).map((r) => ({
+              ...r,
               playerId: String(r.playerId), name: String(r.name), team: String(r.team), opponent: String(r.opponent),
               kickoffUtc: String(r.kickoffUtc), providerEventId: String(r.providerEventId),
               participation: String(r.participation ?? ""),

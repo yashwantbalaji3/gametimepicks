@@ -36,6 +36,12 @@ export interface BoardRow {
   probability?: number;
   /** The builder's own pricing state. Read, never inferred — see the prediction contract. */
   pricingState?: string;
+  /*
+   * A REAL CAPTURED MARKET, when the owner published one for this row. Declared here so the hub's
+   * pass-through is type-visible rather than accidental — the two routes diverged once already
+   * because this field existed in the artifact and in the week route, and nowhere in between.
+   */
+  market?: { line?: number; overOdds?: number; underOdds?: number; yesOdds?: number; sportsbook: string; capturedAt: string };
 }
 export interface Board {
   id: string;

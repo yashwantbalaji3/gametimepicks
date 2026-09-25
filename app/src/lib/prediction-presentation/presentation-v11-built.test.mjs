@@ -93,19 +93,44 @@ test("V1 · a REAL availability state still reaches the reader — the hide is t
 
 test("V2 · an absent market reads as a product sentence, and never as a bare `No price`", () => {
   const rows = liveRows();
-  assert.ok(rows.some((r) => r.pricingState === "NOT_AUTHORIZED"),
-    "no committed row is NOT_AUTHORIZED — this guard would pass without exercising the copy it pins");
+  /*
+   * ⚠ THE ANTI-VACUITY PRECONDITION NAMED ONE STATE, AND THE STATE STOPPED BEING PRODUCED.
+   *
+   * It required a committed row with `pricingState === "NOT_AUTHORIZED"` — correct while the NFL
+   * odds authorization excluded props and every row carried that stamp. On 2026-09-24 the founder
+   * authorized the five families, rows became NOT_PROBED, NOT_OFFERED or genuinely priced, and this
+   * guard went red for the reason it was written to make possible.
+   *
+   * The precondition is now about the SHAPE of the slate rather than one value in it: whichever
+   * absences the committed rows actually carry, their wording must reach a reader. And a slate with
+   * no absence left is not a free pass — it is measured from the other side, because a board where
+   * every row is priced must actually name the books.
+   */
+  const absent = [...new Set(rows.map((r) => r.pricingState).filter(Boolean))];
+  const priced = rows.filter((r) => r.market);
+  assert.ok(absent.length > 0 || priced.length > 0,
+    "the committed rows carry neither a price nor a typed absence — this guard would pass without exercising anything");
+  const SHORT = { NOT_AUTHORIZED: "Market unavailable", NOT_OFFERED: "Not offered", NOT_PROBED: "Not checked", UNSUPPORTED: "n/a" };
+  /* Identity, not a raw substring: a page may print "DraftKings" for the provider key `draftkings`. */
+  const bookKey = (x) => String(x).toLowerCase().replace(/[^a-z]/g, "");
   let seen = 0;
+  let seenBook = 0;
   for (const { f, main } of renderedBoardPages()) {
     const text = textOf(main);
     assert.ok(!/\bNo price\b/.test(text), `${path.relative(OUT, f)} still prints "No price"`);
-    if (text.includes("Market unavailable")) seen += 1;
+    if (absent.some((s) => SHORT[s] && text.includes(SHORT[s]))) seen += 1;
+    if (priced.some((r) => bookKey(text).includes(bookKey(r.market.sportsbook)))) seenBook += 1;
     // Whatever it says, it must never look like a quote: no American odds in an absent market cell.
     for (const cell of main.match(/<span class="gtp-pred-absent">[\s\S]*?<\/span>/g) ?? []) {
       assert.ok(!/[+-]\d{3}/.test(cell), `${path.relative(OUT, f)}: an absent market cell carries something shaped like odds`);
     }
   }
-  assert.ok(seen > 0, "no page rendered the replacement copy — the state is produced but never reaches a reader");
+  if (absent.length) {
+    assert.ok(seen > 0, `committed rows carry ${absent.join("/")} but no page rendered the wording — the state is produced and never reaches a reader`);
+  }
+  if (priced.length) {
+    assert.ok(seenBook > 0, `${priced.length} committed row(s) carry a captured price but no page names the sportsbook it came from — an unattributed price is not a fact`);
+  }
 });
 
 test("V3 · matchup and start are in the player's identity line, keys intact, columns gone", () => {

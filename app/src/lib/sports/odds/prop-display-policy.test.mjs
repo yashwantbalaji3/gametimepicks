@@ -1,17 +1,19 @@
 /**
- * THE DISPLAYED PROP PRICE COMES FROM ONE NAMED BOOK (founder decision, 2026-09-24).
+ * THE CAPTURE SIDE of the displayed-prop-price policy — what the script must never DO to a market
+ * before a book is chosen. The choosing itself moved to lib/sports/odds/prop-display-selection.mjs
+ * and is executed there against constructed evidence; this file guards what can only be seen in
+ * the capture's own source, where the provider response is taken apart.
  *
- * DraftKings is the reference sportsbook for displayed NFL prop prices. The number a reader sees is
- * DraftKings' own, attributed to DraftKings. This pins the three ways that could quietly stop being
- * true, because each would put a price on screen under an attribution that does not own it:
+ * ⚠ THE FIRST TEST HERE PINNED A SINGLE-BOOK FILTER and went red when the founder authorized the
+ * DraftKings → FanDuel → most-complete ladder on 2026-09-24. It had been asserting the SHAPE of
+ * the code ("two `.filter(r => r.bookmaker === REFERENCE_BOOK)` calls") rather than the rule, so a
+ * legitimate policy change read as a regression while a genuine mis-attribution would have read as
+ * a pass. Deleting it would have left the rule unguarded; it was replaced by executable guards
+ * instead, and what remains below is the part that is genuinely about this file.
  *
- *   1. SUBSTITUTION — falling back to another book when DraftKings has not posted. The row would
- *      say "DraftKings" over someone else's number.
- *   2. BLENDING — averaging, median-ing or otherwise synthesising across books. A blended price has
- *      no book to attribute it to, and `twoWayConsensus` was built for two-way TEAM markets, not
- *      for a one-sided anytime-TD price.
- *   3. INFERENCE — completing a half-returned two-sided market, or defaulting a missing side to
+ *   1. INFERENCE — completing a half-returned two-sided market, or defaulting a missing side to
  *      -110. The opposite side of a market is never a thing we know.
+ *   2. CROSS-PAIRING — an Over at 71.5 is not an Under at 74.5, even from the same book.
  *
  * Run: npx tsx --test src/lib/sports/odds/prop-display-policy.test.mjs
  */
@@ -22,33 +24,7 @@ import path from "node:path";
 
 const SRC = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/capture-nfl-odds.mjs"), "utf8");
 
-test("exactly ONE reference book is named, and the published rows are filtered to it", () => {
-  const decl = /const REFERENCE_BOOK = "([a-z_]+)";/.exec(SRC);
-  assert.ok(decl, "no REFERENCE_BOOK declared — the display policy has no single owner");
-  assert.equal(decl[1], "draftkings", "the founder named DraftKings as the reference sportsbook");
-
-  const block = /propPrices: propProbe\?\.state === "PROBED"[\s\S]*?\n    : null,/.exec(SRC)?.[0];
-  assert.ok(block, "the propPrices block is no longer identifiable — this guard would scan nothing");
-
-  // Every published row is filtered to the reference book, and says so.
-  const filters = [...block.matchAll(/\.filter\(\(r\) => r\.bookmaker === REFERENCE_BOOK\)/g)];
-  assert.equal(filters.length, 2, "both families (anytime TD and the two-sided lines) must filter to the reference book");
-  assert.match(block, /sportsbook: REFERENCE_BOOK/, "each row must be ATTRIBUTED to the book it came from");
-});
-
-test("no substitution, no blending, no inferred side", () => {
-  const block = /propPrices: propProbe\?\.state === "PROBED"[\s\S]*?\n    : null,/.exec(SRC)[0];
-
-  // 2 · blending
-  for (const banned of ["medianOf", "twoWayConsensus", "average", "consensusPrice"]) {
-    assert.ok(!block.includes(banned),
-      `${banned} must not build a DISPLAYED prop price — a blended number has no book to attribute it to`);
-  }
-
-  // 1 · substitution — the only book mentioned in the published block is the reference book
-  const books = [...block.matchAll(/"(draftkings|fanduel|betmgm|betrivers|fanatics|bovada|betonlineag|williamhill_us)"/g)].map((m) => m[1]);
-  assert.deepEqual([...new Set(books)], [], "no book should be hardcoded in the published block — it must go through REFERENCE_BOOK");
-
+test("a half-returned market is quarantined, never completed or defaulted", () => {
   // 3 · inference — a half-returned two-sided market is quarantined, never completed
   const pairing = /for \(const slot of bySide\.values\(\)\) \{[\s\S]*?\n            \}/.exec(SRC)?.[0];
   assert.ok(pairing, "the two-sided pairing block is no longer identifiable");
@@ -60,6 +36,17 @@ test("no substitution, no blending, no inferred side", () => {
      search for that literal matches the sentence promising not to do it. Strip comments first. */
   const code = pairing.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
   assert.ok(!/-110/.test(code), "a missing side must never be defaulted to -110 in code");
+});
+
+test("the capture never blends a displayed prop price", () => {
+  /* twoWayConsensus/medianOf are imported for TEAM markets and legitimately used there. The ban is
+     that neither may touch the PROP path, so the scan is scoped to the prop-probe block. */
+  const propBlock = /if \(PROBE\) \{[\s\S]*?\n\/\/ -+ artifacts/.exec(SRC)?.[0];
+  assert.ok(propBlock, "the prop-probe block is no longer identifiable — this guard would scan nothing");
+  for (const banned of ["medianOf", "twoWayConsensus", "consensusPrice"]) {
+    assert.ok(!propBlock.includes(banned),
+      `${banned} must not touch a prop price — a blended number has no book to attribute it to`);
+  }
 });
 
 test("a two-sided market pairs by player AND point — an Over at 71.5 is not an Under at 74.5", () => {
