@@ -3,13 +3,13 @@
  "artifact": "selector-shadow-report",
  "dataClass": "internal-research",
  "status": "SHADOW_RUNNING · NOT ADOPTED",
- "reportedAt": "2026-09-24T14:34:05.847Z",
- "ledgerGeneratedAt": "2026-09-24T14:34:05.149Z",
- "days": 3,
+ "reportedAt": "2026-09-25T10:12:52.883Z",
+ "ledgerGeneratedAt": "2026-09-25T10:12:52.047Z",
+ "days": 4,
  "firstDate": "2026-09-21",
- "lastDate": "2026-09-23",
+ "lastDate": "2026-09-24",
  "candidatePool": {
-  "meanEligibleLegs": 68,
+  "meanEligibleLegs": 69,
   "minEligibleLegs": 18,
   "maxEligibleLegs": 96
  },
@@ -27,8 +27,8 @@
     "generatedAt": "2026-09-22T04:57:30.552Z",
     "retroactive": true,
     "rewrite": "INTACT",
-    "firstCommitAt": "2026-09-24T10:30:25-04:00",
-    "firstCommitHash": "391c4c0e96eb95857ff91115208a810674960b2a",
+    "firstCommitAt": "2026-09-25T07:24:41Z",
+    "firstCommitHash": "0ee018549b6cf6a547b062cd45cdb2d2c4babe9b",
     "publicationFingerprint": "523c936a7699e56091f7973370810560962eea9eba63f143708b1fac7e47617b",
     "universeSha256": null,
     "eligibleLegs": 18,
@@ -44,8 +44,8 @@
     "generatedAt": "2026-09-22T14:22:28.563Z",
     "retroactive": false,
     "rewrite": "INTACT",
-    "firstCommitAt": "2026-09-24T10:30:25-04:00",
-    "firstCommitHash": "391c4c0e96eb95857ff91115208a810674960b2a",
+    "firstCommitAt": "2026-09-25T07:24:41Z",
+    "firstCommitHash": "0ee018549b6cf6a547b062cd45cdb2d2c4babe9b",
     "publicationFingerprint": "bf5160be80bdf4300d82ce332e8808a94b3aea71fe5de24013a25e195bb2a206",
     "universeSha256": "2f1a9e2e49b5ae9c17047ce43502989ce8823256dab9a9a70389bf87a4291429",
     "eligibleLegs": 96,
@@ -59,12 +59,27 @@
     "generatedAt": "2026-09-23T10:12:58.133Z",
     "retroactive": false,
     "rewrite": "INTACT",
-    "firstCommitAt": "2026-09-24T10:30:25-04:00",
-    "firstCommitHash": "391c4c0e96eb95857ff91115208a810674960b2a",
+    "firstCommitAt": "2026-09-25T07:24:41Z",
+    "firstCommitHash": "0ee018549b6cf6a547b062cd45cdb2d2c4babe9b",
     "publicationFingerprint": "181a8a7e5ed1dfedefe389b57cf9e705f871af299cb28c09c00ecf4a7e5b1582",
     "universeSha256": "e919fe90f7316f7482e5b2f23133b164c3e00710fab87efe063cb24c9a1b0015",
     "eligibleLegs": 90,
     "eligibleByManifest": 90,
+    "guardFailures": 0,
+    "flags": []
+   },
+   {
+    "date": "2026-09-24",
+    "asOf": "2026-09-24T14:44:41Z",
+    "generatedAt": "2026-09-24T14:44:42.754Z",
+    "retroactive": false,
+    "rewrite": "INTACT",
+    "firstCommitAt": "2026-09-25T07:24:41Z",
+    "firstCommitHash": "0ee018549b6cf6a547b062cd45cdb2d2c4babe9b",
+    "publicationFingerprint": "cfd8ce33d40756adce0479be5a5701f9204d4d0100b74912dd724169cc2a338f",
+    "universeSha256": "410e21011e99a412542cb0d2be523a3a27b79ff77579f5d2baab25d50de39193",
+    "eligibleLegs": 72,
+    "eligibleByManifest": 72,
     "guardFailures": 0,
     "flags": []
    }
@@ -92,19 +107,133 @@
   "BB-LEGACY": {
    "policyId": "BB-LEGACY@7be1d5171769",
    "metrics": {
-    "laneDays": 6,
-    "placed": 5,
-    "decided": 5,
+    "laneDays": 8,
+    "placed": 7,
+    "decided": 7,
     "pending": 0,
-    "won": 3,
-    "lost": 2,
+    "won": 4,
+    "lost": 3,
     "push": 0,
-    "survivalPerStep": 0.6,
-    "survivalSe": 0.219,
+    "survivalPerStep": 0.571,
+    "survivalSe": 0.187,
     "byStep": {
      "1": {
       "won": 2,
+      "lost": 2,
+      "push": 0
+     },
+     "2": {
+      "won": 2,
+      "lost": 0,
+      "push": 0
+     },
+     "3": {
+      "won": 0,
       "lost": 1,
+      "push": 0
+     }
+    },
+    "completions": 0,
+    "furthestStep": 3,
+    "noPlayLaneDays": 1,
+    "noPlayByReason": {
+     "CONCENTRATION_TOO_HIGH": 1
+    },
+    "publicationRate": 0.875,
+    "expectedWinsUnderPublishedP": 2.5,
+    "meanJointP": 0.357
+   },
+   "forwardOnlyMetrics": {
+    "laneDays": 6,
+    "placed": 6,
+    "decided": 6,
+    "pending": 0,
+    "won": 3,
+    "lost": 3,
+    "push": 0,
+    "survivalPerStep": 0.5,
+    "survivalSe": 0.204,
+    "byStep": {
+     "1": {
+      "won": 1,
+      "lost": 2,
+      "push": 0
+     },
+     "2": {
+      "won": 2,
+      "lost": 0,
+      "push": 0
+     },
+     "3": {
+      "won": 0,
+      "lost": 1,
+      "push": 0
+     }
+    },
+    "completions": 0,
+    "furthestStep": 3,
+    "noPlayLaneDays": 0,
+    "noPlayByReason": {},
+    "publicationRate": 1,
+    "expectedWinsUnderPublishedP": 2.11,
+    "meanJointP": 0.352
+   },
+   "survivalByRung": {
+    "1": {
+     "won": 2,
+     "lost": 2,
+     "push": 0,
+     "survival": 0.5
+    },
+    "2": {
+     "won": 2,
+     "lost": 0,
+     "push": 0,
+     "survival": 1
+    },
+    "3": {
+     "won": 0,
+     "lost": 1,
+     "push": 0,
+     "survival": 0
+    }
+   },
+   "sportComposition": {
+    "mlb": 7
+   },
+   "probabilityBasis": {
+    "market-implied": 7
+   },
+   "ledgerAgrees": true,
+   "position": {
+    "A": {
+     "step": 1,
+     "stake": 100,
+     "pending": false
+    },
+    "B": {
+     "step": 3,
+     "stake": 898.11,
+     "pending": false
+    }
+   }
+  },
+  "BB-C1": {
+   "policyId": "BB-C1@b66731b335c2",
+   "metrics": {
+    "laneDays": 8,
+    "placed": 7,
+    "decided": 7,
+    "pending": 0,
+    "won": 3,
+    "lost": 4,
+    "push": 0,
+    "survivalPerStep": 0.429,
+    "survivalSe": 0.187,
+    "byStep": {
+     "1": {
+      "won": 2,
+      "lost": 3,
       "push": 0
      },
      "2": {
@@ -124,24 +253,24 @@
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1
     },
-    "publicationRate": 0.833,
-    "expectedWinsUnderPublishedP": 1.76,
-    "meanJointP": 0.352
+    "publicationRate": 0.875,
+    "expectedWinsUnderPublishedP": 2.84,
+    "meanJointP": 0.405
    },
    "forwardOnlyMetrics": {
-    "laneDays": 4,
-    "placed": 4,
-    "decided": 4,
+    "laneDays": 6,
+    "placed": 6,
+    "decided": 6,
     "pending": 0,
     "won": 2,
-    "lost": 2,
+    "lost": 4,
     "push": 0,
-    "survivalPerStep": 0.5,
-    "survivalSe": 0.25,
+    "survivalPerStep": 0.333,
+    "survivalSe": 0.192,
     "byStep": {
      "1": {
       "won": 1,
-      "lost": 1,
+      "lost": 3,
       "push": 0
      },
      "2": {
@@ -160,15 +289,15 @@
     "noPlayLaneDays": 0,
     "noPlayByReason": {},
     "publicationRate": 1,
-    "expectedWinsUnderPublishedP": 1.38,
-    "meanJointP": 0.344
+    "expectedWinsUnderPublishedP": 2.45,
+    "meanJointP": 0.409
    },
    "survivalByRung": {
     "1": {
      "won": 2,
-     "lost": 1,
+     "lost": 3,
      "push": 0,
-     "survival": 0.667
+     "survival": 0.4
     },
     "2": {
      "won": 1,
@@ -184,10 +313,10 @@
     }
    },
    "sportComposition": {
-    "mlb": 5
+    "mlb": 7
    },
    "probabilityBasis": {
-    "market-implied": 5
+    "market-implied": 7
    },
    "ledgerAgrees": true,
    "position": {
@@ -198,121 +327,7 @@
     },
     "B": {
      "step": 2,
-     "stake": 299.65,
-     "pending": false
-    }
-   }
-  },
-  "BB-C1": {
-   "policyId": "BB-C1@b66731b335c2",
-   "metrics": {
-    "laneDays": 6,
-    "placed": 5,
-    "decided": 5,
-    "pending": 0,
-    "won": 2,
-    "lost": 3,
-    "push": 0,
-    "survivalPerStep": 0.4,
-    "survivalSe": 0.219,
-    "byStep": {
-     "1": {
-      "won": 1,
-      "lost": 2,
-      "push": 0
-     },
-     "2": {
-      "won": 1,
-      "lost": 0,
-      "push": 0
-     },
-     "3": {
-      "won": 0,
-      "lost": 1,
-      "push": 0
-     }
-    },
-    "completions": 0,
-    "furthestStep": 3,
-    "noPlayLaneDays": 1,
-    "noPlayByReason": {
-     "CONCENTRATION_TOO_HIGH": 1
-    },
-    "publicationRate": 0.833,
-    "expectedWinsUnderPublishedP": 1.99,
-    "meanJointP": 0.398
-   },
-   "forwardOnlyMetrics": {
-    "laneDays": 4,
-    "placed": 4,
-    "decided": 4,
-    "pending": 0,
-    "won": 1,
-    "lost": 3,
-    "push": 0,
-    "survivalPerStep": 0.25,
-    "survivalSe": 0.217,
-    "byStep": {
-     "1": {
-      "won": 0,
-      "lost": 2,
-      "push": 0
-     },
-     "2": {
-      "won": 1,
-      "lost": 0,
-      "push": 0
-     },
-     "3": {
-      "won": 0,
-      "lost": 1,
-      "push": 0
-     }
-    },
-    "completions": 0,
-    "furthestStep": 3,
-    "noPlayLaneDays": 0,
-    "noPlayByReason": {},
-    "publicationRate": 1,
-    "expectedWinsUnderPublishedP": 1.61,
-    "meanJointP": 0.401
-   },
-   "survivalByRung": {
-    "1": {
-     "won": 1,
-     "lost": 2,
-     "push": 0,
-     "survival": 0.333
-    },
-    "2": {
-     "won": 1,
-     "lost": 0,
-     "push": 0,
-     "survival": 1
-    },
-    "3": {
-     "won": 0,
-     "lost": 1,
-     "push": 0,
-     "survival": 0
-    }
-   },
-   "sportComposition": {
-    "mlb": 5
-   },
-   "probabilityBasis": {
-    "market-implied": 5
-   },
-   "ledgerAgrees": true,
-   "position": {
-    "A": {
-     "step": 1,
-     "stake": 100,
-     "pending": false
-    },
-    "B": {
-     "step": 1,
-     "stake": 100,
+     "stake": 219.96,
      "pending": false
     }
    }
@@ -320,19 +335,19 @@
   "BB-C2b": {
    "policyId": "BB-C2b@61c455e7d375",
    "metrics": {
-    "laneDays": 6,
-    "placed": 5,
-    "decided": 5,
+    "laneDays": 8,
+    "placed": 7,
+    "decided": 7,
     "pending": 0,
-    "won": 2,
-    "lost": 3,
+    "won": 3,
+    "lost": 4,
     "push": 0,
-    "survivalPerStep": 0.4,
-    "survivalSe": 0.219,
+    "survivalPerStep": 0.429,
+    "survivalSe": 0.187,
     "byStep": {
      "1": {
-      "won": 1,
-      "lost": 2,
+      "won": 2,
+      "lost": 3,
       "push": 0
      },
      "2": {
@@ -352,24 +367,24 @@
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1
     },
-    "publicationRate": 0.833,
-    "expectedWinsUnderPublishedP": 1.99,
-    "meanJointP": 0.398
+    "publicationRate": 0.875,
+    "expectedWinsUnderPublishedP": 2.84,
+    "meanJointP": 0.405
    },
    "forwardOnlyMetrics": {
-    "laneDays": 4,
-    "placed": 4,
-    "decided": 4,
+    "laneDays": 6,
+    "placed": 6,
+    "decided": 6,
     "pending": 0,
-    "won": 1,
-    "lost": 3,
+    "won": 2,
+    "lost": 4,
     "push": 0,
-    "survivalPerStep": 0.25,
-    "survivalSe": 0.217,
+    "survivalPerStep": 0.333,
+    "survivalSe": 0.192,
     "byStep": {
      "1": {
-      "won": 0,
-      "lost": 2,
+      "won": 1,
+      "lost": 3,
       "push": 0
      },
      "2": {
@@ -388,15 +403,15 @@
     "noPlayLaneDays": 0,
     "noPlayByReason": {},
     "publicationRate": 1,
-    "expectedWinsUnderPublishedP": 1.61,
-    "meanJointP": 0.401
+    "expectedWinsUnderPublishedP": 2.45,
+    "meanJointP": 0.409
    },
    "survivalByRung": {
     "1": {
-     "won": 1,
-     "lost": 2,
+     "won": 2,
+     "lost": 3,
      "push": 0,
-     "survival": 0.333
+     "survival": 0.4
     },
     "2": {
      "won": 1,
@@ -412,10 +427,10 @@
     }
    },
    "sportComposition": {
-    "mlb": 5
+    "mlb": 7
    },
    "probabilityBasis": {
-    "market-implied": 5
+    "market-implied": 7
    },
    "ledgerAgrees": true,
    "position": {
@@ -425,8 +440,8 @@
      "pending": false
     },
     "B": {
-     "step": 1,
-     "stake": 100,
+     "step": 2,
+     "stake": 219.96,
      "pending": false
     }
    }
@@ -434,7 +449,7 @@
   "MS-LEGACY": {
    "policyId": "MS-LEGACY@311563f3927d",
    "metrics": {
-    "laneDays": 6,
+    "laneDays": 8,
     "placed": 1,
     "decided": 1,
     "pending": 0,
@@ -452,17 +467,17 @@
     },
     "completions": 0,
     "furthestStep": 1,
-    "noPlayLaneDays": 5,
+    "noPlayLaneDays": 7,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1,
-     "PRICE_UNAVAILABLE": 4
+     "PRICE_UNAVAILABLE": 6
     },
-    "publicationRate": 0.167,
+    "publicationRate": 0.125,
     "expectedWinsUnderPublishedP": 0.23,
     "meanJointP": 0.228
    },
    "forwardOnlyMetrics": {
-    "laneDays": 4,
+    "laneDays": 6,
     "placed": 0,
     "decided": 0,
     "pending": 0,
@@ -474,9 +489,9 @@
     "byStep": {},
     "completions": 0,
     "furthestStep": 0,
-    "noPlayLaneDays": 4,
+    "noPlayLaneDays": 6,
     "noPlayByReason": {
-     "PRICE_UNAVAILABLE": 4
+     "PRICE_UNAVAILABLE": 6
     },
     "publicationRate": 0,
     "expectedWinsUnderPublishedP": 0,
@@ -512,7 +527,7 @@
   "MS-C1": {
    "policyId": "MS-C1@cbd27cd0b408",
    "metrics": {
-    "laneDays": 6,
+    "laneDays": 8,
     "placed": 1,
     "decided": 1,
     "pending": 0,
@@ -530,17 +545,17 @@
     },
     "completions": 0,
     "furthestStep": 1,
-    "noPlayLaneDays": 5,
+    "noPlayLaneDays": 7,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1,
-     "PRICE_UNAVAILABLE": 4
+     "PRICE_UNAVAILABLE": 6
     },
-    "publicationRate": 0.167,
+    "publicationRate": 0.125,
     "expectedWinsUnderPublishedP": 0.23,
     "meanJointP": 0.228
    },
    "forwardOnlyMetrics": {
-    "laneDays": 4,
+    "laneDays": 6,
     "placed": 0,
     "decided": 0,
     "pending": 0,
@@ -552,9 +567,9 @@
     "byStep": {},
     "completions": 0,
     "furthestStep": 0,
-    "noPlayLaneDays": 4,
+    "noPlayLaneDays": 6,
     "noPlayByReason": {
-     "PRICE_UNAVAILABLE": 4
+     "PRICE_UNAVAILABLE": 6
     },
     "publicationRate": 0,
     "expectedWinsUnderPublishedP": 0,
@@ -590,7 +605,7 @@
   "MS-C4": {
    "policyId": "MS-C4@5da8e43d1124",
    "metrics": {
-    "laneDays": 6,
+    "laneDays": 8,
     "placed": 1,
     "decided": 1,
     "pending": 0,
@@ -608,18 +623,18 @@
     },
     "completions": 0,
     "furthestStep": 1,
-    "noPlayLaneDays": 5,
+    "noPlayLaneDays": 7,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1,
      "CADENCE_WINDOW": 2,
-     "PRICE_UNAVAILABLE": 2
+     "PRICE_UNAVAILABLE": 4
     },
-    "publicationRate": 0.167,
+    "publicationRate": 0.125,
     "expectedWinsUnderPublishedP": 0.23,
     "meanJointP": 0.228
    },
    "forwardOnlyMetrics": {
-    "laneDays": 4,
+    "laneDays": 6,
     "placed": 0,
     "decided": 0,
     "pending": 0,
@@ -631,10 +646,10 @@
     "byStep": {},
     "completions": 0,
     "furthestStep": 0,
-    "noPlayLaneDays": 4,
+    "noPlayLaneDays": 6,
     "noPlayByReason": {
      "CADENCE_WINDOW": 2,
-     "PRICE_UNAVAILABLE": 2
+     "PRICE_UNAVAILABLE": 4
     },
     "publicationRate": 0,
     "expectedWinsUnderPublishedP": 0,
@@ -675,30 +690,30 @@
    "allDays": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 5 < 20",
-     "survival 0.4 < control 0.6"
+     "decided 7 < 20",
+     "survival 0.429 < control 0.571"
     ],
     "measured": {
-     "shadowDecided": 5,
-     "shadowSurvival": 0.4,
-     "controlSurvival": 0.6,
-     "shadowPlaced": 5,
-     "controlPlaced": 5
+     "shadowDecided": 7,
+     "shadowSurvival": 0.429,
+     "controlSurvival": 0.571,
+     "shadowPlaced": 7,
+     "controlPlaced": 7
     },
     "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
    },
    "forwardOnly": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 4 < 20",
-     "survival 0.25 < control 0.5"
+     "decided 6 < 20",
+     "survival 0.333 < control 0.5"
     ],
     "measured": {
-     "shadowDecided": 4,
-     "shadowSurvival": 0.25,
+     "shadowDecided": 6,
+     "shadowSurvival": 0.333,
      "controlSurvival": 0.5,
-     "shadowPlaced": 4,
-     "controlPlaced": 4
+     "shadowPlaced": 6,
+     "controlPlaced": 6
     },
     "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
    },
@@ -711,30 +726,30 @@
    "allDays": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 5 < 20",
-     "survival 0.4 < control 0.6"
+     "decided 7 < 20",
+     "survival 0.429 < control 0.571"
     ],
     "measured": {
-     "shadowDecided": 5,
-     "shadowSurvival": 0.4,
-     "controlSurvival": 0.6,
-     "shadowPlaced": 5,
-     "controlPlaced": 5
+     "shadowDecided": 7,
+     "shadowSurvival": 0.429,
+     "controlSurvival": 0.571,
+     "shadowPlaced": 7,
+     "controlPlaced": 7
     },
     "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
    },
    "forwardOnly": {
     "state": "NOT_YET",
     "reasons": [
-     "decided 4 < 20",
-     "survival 0.25 < control 0.5"
+     "decided 6 < 20",
+     "survival 0.333 < control 0.5"
     ],
     "measured": {
-     "shadowDecided": 4,
-     "shadowSurvival": 0.25,
+     "shadowDecided": 6,
+     "shadowSurvival": 0.333,
      "controlSurvival": 0.5,
-     "shadowPlaced": 4,
-     "controlPlaced": 4
+     "shadowPlaced": 6,
+     "controlPlaced": 6
     },
     "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
    },
