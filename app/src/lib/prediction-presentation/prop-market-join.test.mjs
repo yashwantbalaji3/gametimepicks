@@ -170,45 +170,93 @@ test("the builder never fetches, blends or substitutes — it only looks up", ()
   }
 });
 
-test("a TRANSPOSED name is also a market we could not map, not one that does not exist", () => {
+test("a TRANSPOSED name stays FAIL-CLOSED — no join, and no unresolved state either", () => {
   /*
-   * ⚠ MEASURED, 2026-09-25, on the sweep that proved the suffix repair. Eight players came back;
-   * one did not. DraftKings posts receptions and receiving yards for the San Francisco running back
-   * it calls "James Jordan"; the roster calls him "Jordan James". Two public rows on
-   * /nfl/game/401872958 read "Not offered" — again a confident statement about what the BOOKS do,
-   * caused by our own join.
+   * ⚠ FOUNDER DECISION, 2026-09-25. Seven books post anytime touchdown for the San Francisco back
+   * they call "James Jordan"; the roster calls him "Jordan James". A token-set key would collapse
+   * the two and briefly did, for the DISPLAY STATE only. It was refused, and the reason holds: a
+   * generational suffix is a documented convention with one meaning, an arbitrary transposition is
+   * a guess, and The Odds API gives us nothing to check it against — its prop outcomes carry a name
+   * string, an Over/Under/Yes label and a price, and NO stable player identifier. An evidence-backed
+   * alias is permitted; without provider ids one cannot be built.
    *
-   * The capture still REFUSES to join him: a transposed name is a far riskier identity claim than a
-   * dropped suffix, and minting one is a founder decision, not a heuristic. What changes is only
-   * which of two sentences the row shows.
+   * So this row reads NOT_OFFERED: the wrong answer for one player, arrived at honestly, and safer
+   * than a rule that could attach a market to the wrong person.
    */
   const capture = {
     propMarkets: {
       state: "PROBED",
       probedEventIds: ["nfl-401872958"],
-      perEvent: [{ canonicalEventId: "nfl-401872958", absentMarkets: [], unresolvedIdentities: ["James Jordan"] }],
+      perEvent: [{ canonicalEventId: "nfl-401872958", absentMarkets: [], unresolvedIdentities: [{ name: "James Jordan", families: ["anytime_td"] }] }],
     },
     propPrices: { rows: [] },
   };
   const idx = buildPropPriceIndex(capture);
-  assert.equal(idx.pricingStateFor("401872958", "nfl-athlete-4685397", "player_receptions", "Jordan James"), "IDENTITY_UNRESOLVED",
-    "the book transposes his name — the market exists and we could not reach it");
-  assert.equal(idx.pricingStateFor("401872958", "nfl-athlete-9", "player_receptions", "Brock Purdy"), "NOT_OFFERED",
-    "an unrelated player keeps the measured negative — the looser key must not swallow it");
-  assert.equal(idx.marketFor("401872958", "nfl-athlete-4685397", "player_receptions"), null,
-    "the display state must not have attached a price — this path never joins");
+  assert.equal(idx.pricingStateFor("401872958", "nfl-athlete-4685397", "anytime_td", "Jordan James"), "NOT_OFFERED",
+    "a transposition must not be recognised — not as a join, and not as a display state");
+  assert.equal(idx.marketFor("401872958", "nfl-athlete-4685397", "anytime_td"), null,
+    "and above all no price may ever be attached through it");
+});
+
+test("UNRESOLVED IDENTITY IS SCOPED TO THE FAMILY, not smeared across the player", () => {
+  /*
+   * ⚠ MEASURED. The unresolved list was flat per event, so one unresolved anytime-touchdown label
+   * made that player's rushing yards and receptions read IDENTITY_UNRESOLVED too — families the
+   * books had genuinely not offered. "We could not identify this market" is exactly as false as
+   * "the books do not post it" when there is no market at all.
+   */
+  const capture = {
+    propMarkets: {
+      state: "PROBED",
+      probedEventIds: ["nfl-401872953"],
+      perEvent: [{ canonicalEventId: "nfl-401872953", absentMarkets: [], unresolvedIdentities: [{ name: "James Cook", families: ["anytime_td"] }] }],
+    },
+    propPrices: { rows: [] },
+  };
+  const idx = buildPropPriceIndex(capture);
+  assert.equal(idx.pricingStateFor("401872953", "nfl-athlete-4379399", "anytime_td", "James Cook III"), "IDENTITY_UNRESOLVED",
+    "the family the books DID post, and we could not map, is unresolved");
+  for (const other of ["player_rush_yds", "player_receptions", "player_reception_yds"]) {
+    assert.equal(idx.pricingStateFor("401872953", "nfl-athlete-4379399", other, "James Cook III"), "NOT_OFFERED",
+      `${other} was never offered for this player — claiming we could not identify it is a different falsehood`);
+  }
+});
+
+test("a LEGACY flat capture still renders, with its old over-broad meaning named as such", () => {
+  /* A capture written before the family scoping cannot say which family it meant. Carrying it
+     forward must not crash and must not silently claim precision the artifact does not have. */
+  const capture = {
+    propMarkets: {
+      state: "PROBED",
+      probedEventIds: ["nfl-401872953"],
+      perEvent: [{ canonicalEventId: "nfl-401872953", absentMarkets: [], unresolvedIdentities: ["James Cook"] }],
+    },
+    propPrices: { rows: [] },
+  };
+  const idx = buildPropPriceIndex(capture);
+  for (const fam of ["anytime_td", "player_rush_yds"]) {
+    assert.equal(idx.pricingStateFor("401872953", "nfl-athlete-4379399", fam, "James Cook III"), "IDENTITY_UNRESOLVED",
+      "a legacy entry applies to every family, because the artifact cannot narrow it");
+  }
 });
 
 test("the committed capture's own unresolved list drives the state for a real projected player", () => {
   /* Against the REAL artifact, not a fixture: if the sweep stops recording unresolvedIdentities,
-     or Jordan James stops being unresolved, this says so instead of passing quietly. */
+     or stops scoping them by family, this says so instead of passing quietly. */
   const p = path.join(process.cwd(), "public/data/nfl/markets/latest.json");
   if (!fs.existsSync(p)) return;
   const capture = JSON.parse(fs.readFileSync(p, "utf8"));
   if (capture?.propMarkets?.state !== "PROBED") return;
   const ev = (capture.propMarkets.perEvent ?? []).find((e) => e.canonicalEventId === "nfl-401872958");
-  if (!ev || !(ev.unresolvedIdentities ?? []).includes("James Jordan")) return;
-  const idx = buildPropPriceIndex(capture);
-  assert.equal(idx.pricingStateFor("401872958", "nfl-athlete-4685397", "player_receptions", "Jordan James"), "IDENTITY_UNRESOLVED",
-    "a real projected player whose market the books post must never read NOT_OFFERED");
+  if (!ev) return;
+  const entries = ev.unresolvedIdentities ?? [];
+  if (!entries.length) return;
+  /* Once a capture is produced by the family-aware writer every entry is an object. Until then the
+     legacy strings are expected, so this asserts the shape the CURRENT artifact actually has. */
+  const objects = entries.filter((u) => u && typeof u === "object");
+  if (!objects.length) return;
+  for (const u of objects) {
+    assert.ok(Array.isArray(u.families) && u.families.length > 0,
+      `unresolved entry ${JSON.stringify(u)} carries no family — the scoping would fall back to the old over-broad behaviour`);
+  }
 });
