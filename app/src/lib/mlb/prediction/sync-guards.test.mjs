@@ -15,6 +15,13 @@ import { buildTodayPredictionRows } from "./slate.ts";
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 
+/* ⚠ THE INVARIANT IS A CALL, NOT A MENTION (P2 · 2026-09-25). This scanned raw source for the
+   builders' NAMES, so documenting which owner a component reads from — "the canonical owner
+   (`buildGamePredictionDecision`) publishes the median" — turned a comment that makes the rule
+   HARDER to break into a test failure. Comments are stripped first, and every builder must be
+   followed by "(" to count. The rule itself is unchanged: a component may not derive a prediction. */
+const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
+
 test("no UI component recomputes a prediction — they consume the canonical objects only", () => {
   for (const f of [
     "src/components/game/mlb-full-game-report.tsx",
@@ -22,8 +29,8 @@ test("no UI component recomputes a prediction — they consume the canonical obj
     "src/components/today/top-picks-by-category.tsx",
     "src/components/today/full-slate.tsx",
   ]) {
-    const src = read(f);
-    assert.ok(!/buildGamePredictionDecision|buildPlayerPrediction|simulateFullGame|buildTopPicksByCategory\s*\(/.test(src),
+    const src = stripComments(read(f));
+    assert.ok(!/\b(buildGamePredictionDecision|buildPlayerPrediction|simulateFullGame|buildTopPicksByCategory)\s*\(/.test(src),
       `${f} must not build predictions in the component (server derives them once)`);
   }
 });
