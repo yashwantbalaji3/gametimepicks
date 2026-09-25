@@ -1,45 +1,48 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-25",
-  "checkedAt": "2026-09-25T10:13:56.089Z",
-  "treeHead": "0ee018549",
+  "checkedAt": "2026-09-25T10:22:53.180Z",
+  "treeHead": "08f6fd6ca",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 17,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-25T15:35:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-25T15:35:00.000Z",
+      "receiptAt": "2026-09-25T10:15:34.723752+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-09-25.json"
     },
     {
       "id": "mlb-markets",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-25T16:05:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-25T16:05:00.000Z",
+      "receiptAt": "2026-09-25T10:17:48.037Z",
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/team-markets/2026-09-25.json"
     },
     {
       "id": "mlb-simulations",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-25T16:05:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-25T16:05:00.000Z",
+      "receiptAt": "2026-09-25T10:17:50.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/game-simulations/2026-09-25.json"
     },
     {
       "id": "risk-ladder",
@@ -67,7 +70,7 @@
     {
       "id": "schedules",
       "state": "STALE",
-      "reason": "receipt is 44.0h old against a 24h bound",
+      "reason": "receipt is 44.2h old against a 24h bound",
       "dueAtIso": "2026-09-25T13:00:00.000Z",
       "receiptAt": "2026-09-23T14:12:33Z",
       "label": "Schedule capture (NFL) + injury capture",
