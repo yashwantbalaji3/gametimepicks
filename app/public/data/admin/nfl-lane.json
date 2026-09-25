@@ -2,15 +2,15 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-09-24T21:36:24Z",
+ "generatedAt": "2026-09-25T04:58:57Z",
  "program": "P171",
  "nextWindow": {
-  "matchup": "ATL @ GB",
-  "kickoffUtc": "2026-09-25T00:15Z",
+  "matchup": "LAC @ BUF",
+  "kickoffUtc": "2026-09-27T17:00Z",
   "seasonType": 2,
   "week": 3,
-  "hoursToKickoff": 2.64,
-  "eventsInWindow": 17
+  "hoursToKickoff": 60.02,
+  "eventsInWindow": 16
  },
  "freshness": {
   "schedule": {
@@ -19,21 +19,23 @@
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-09-24T21:36:24Z (FRESH)"
+   "detail": "as of 2026-09-25T04:58:57Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-09-24T21:36:42Z (FRESH)"
+   "detail": "as of 2026-09-25T04:59:17Z (FRESH)"
   },
   "odds": {
    "state": "FRESH",
-   "detail": "as of 2026-09-24T21:36:24Z (FRESH)"
+   "detail": "as of 2026-09-25T04:58:57Z (FRESH)"
   }
  },
  "regularSeason": {
   "verdict": {
-   "state": "READY_WITH_DESIGN_CAPS",
-   "operationalGaps": [],
+   "state": "OPERATIONAL_GAPS",
+   "operationalGaps": [
+    "schedule:STALE"
+   ],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -43,7 +45,7 @@
   "matrix": [
    {
     "id": "schedule",
-    "state": "AVAILABLE",
+    "state": "STALE",
     "detail": "schedule as of 2026-09-23T14:12:33Z"
    },
    {
@@ -54,12 +56,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-09-24T21:36:42Z"
+    "detail": "injuries as of 2026-09-25T04:59:17Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-09-24T21:36:24Z"
+    "detail": "rosters as of 2026-09-25T04:58:57Z"
    },
    {
     "id": "participationRoles",
@@ -89,18 +91,35 @@
    {
     "id": "prices",
     "state": "AVAILABLE",
-    "detail": "prices as of 2026-09-24T21:36:24Z"
+    "detail": "prices as of 2026-09-25T04:58:57Z"
    }
   ]
  },
  "markets": {
   "state": "CAPTURED",
-  "events": 31,
+  "events": 46,
   "books": 11,
-  "capturedAt": "2026-09-24T21:36:24Z",
+  "capturedAt": "2026-09-25T04:58:57Z",
   "propMarkets": {
    "state": "PROBED",
-   "probedEventId": "nfl-401872948",
+   "probedEventIds": [
+    "nfl-401872953",
+    "nfl-401872949",
+    "nfl-401872950",
+    "nfl-401872954",
+    "nfl-401872951",
+    "nfl-401872957",
+    "nfl-401872952",
+    "nfl-401872956",
+    "nfl-401872955",
+    "nfl-401872958",
+    "nfl-401872959",
+    "nfl-401872960",
+    "nfl-401872961",
+    "nfl-401872962",
+    "nfl-401872963"
+   ],
+   "eventsProbed": 15,
    "offeredMarkets": [
     "player_anytime_td",
     "player_pass_yds",
@@ -108,22 +127,204 @@
     "player_receptions",
     "player_rush_yds"
    ],
-   "absentMarkets": []
+   "absentMarkets": [],
+   "perEvent": [
+    {
+     "canonicalEventId": "nfl-401872953",
+     "matchup": "Los Angeles Chargers @ Buffalo Bills",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872949",
+     "matchup": "Carolina Panthers @ Cleveland Browns",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872950",
+     "matchup": "Cincinnati Bengals @ Pittsburgh Steelers",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872954",
+     "matchup": "New York Jets @ Detroit Lions",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872951",
+     "matchup": "Houston Texans @ Indianapolis Colts",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872957",
+     "matchup": "New England Patriots @ Jacksonville Jaguars",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872952",
+     "matchup": "Kansas City Chiefs @ Miami Dolphins",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872956",
+     "matchup": "Tennessee Titans @ New York Giants",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872955",
+     "matchup": "Seattle Seahawks @ Washington Commanders",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872958",
+     "matchup": "Arizona Cardinals @ San Francisco 49ers",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872959",
+     "matchup": "Minnesota Vikings @ Tampa Bay Buccaneers",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872960",
+     "matchup": "Baltimore Ravens @ Dallas Cowboys",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872961",
+     "matchup": "Las Vegas Raiders @ New Orleans Saints",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872962",
+     "matchup": "Los Angeles Rams @ Denver Broncos",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    },
+    {
+     "canonicalEventId": "nfl-401872963",
+     "matchup": "Philadelphia Eagles @ Chicago Bears",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": []
+    }
+   ]
   }
  },
  "credits": {
   "state": "UNKNOWN",
-  "programSpend": 160,
+  "programSpend": 238,
   "ceiling": null,
   "remainingProgram": null,
-  "providerRemaining": 11485,
+  "providerRemaining": 11317,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
    "providerRequestsUsed": 4342,
    "providerRequestsRemaining": 15658,
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
-  "requests": 210,
+  "requests": 229,
   "detail": "authorization receipt did not parse — no paid call may run"
  },
  "models": {
@@ -156,16 +357,16 @@
   }
  },
  "currentArtifacts": {
-  "total": 1172,
-  "contractValid": 1172,
-  "preStart": 148,
-  "settlementReady": 308,
-  "detail": "1172/1172 pass the current-event contract; 308 carry pinned settlement targets"
+  "total": 1203,
+  "contractValid": 1203,
+  "preStart": 165,
+  "settlementReady": 324,
+  "detail": "1203/1203 pass the current-event contract; 324 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
-  "date": "2026-09-24",
-  "entries": 32,
+  "date": "2026-09-25",
+  "entries": 33,
   "corrections": 0
  },
  "gate": {
