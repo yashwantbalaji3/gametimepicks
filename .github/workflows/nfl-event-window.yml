@@ -209,10 +209,15 @@ jobs:
           # still bought a 40h window and left that game unpriced — and the bulk call costs the same
           # 3 credits whatever the window holds, so a wider one is free coverage, never extra spend.
           #
-          # ⚠ THE FLAGS ARE ASSEMBLED IN SHELL, NOT IN A `${{ }}` TERNARY. A conditional expression
+          # ⚠ THE FLAGS ARE ASSEMBLED IN SHELL, NOT IN AN EXPRESSION TERNARY. A conditional expression
           # that expands to an empty string is invisible in the rendered command, so an input that
           # silently did nothing looked exactly like an input that worked. An unrecognised value now
           # REFUSES rather than quietly capturing the default.
+          #
+          # ⚠ And this comment may not SHOW you the ternary it is warning about: a dollar-brace-brace
+          # anywhere in a run block is an expression to GitHub, shell comment or not. Writing one
+          # here made the whole workflow file unloadable — no job started, and the scheduled captures
+          # went down with it — for a sequence that was never meant to execute.
           FLAGS=()
           case "$PROBE_PROPS" in
             all)       FLAGS+=(--probe-props all --max-prop-events "$MAX_PROP_EVENTS") ;;
