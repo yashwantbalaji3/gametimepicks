@@ -189,9 +189,7 @@ jobs:
       # failure. (The carry-forward in capture-nfl-rosters.mjs stops that particular blip at source;
       # this stops the NEXT one, whatever it turns out to be.)
       - name: Authorized odds capture (receipt-gated, the only credit-bearing step)
-        if: >-
-          !cancelled() && steps.window.outputs.events != '0'
-          && github.event.inputs.skip_odds != 'true'
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' && github.event.inputs.skip_odds != 'true' }}
         working-directory: app
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
