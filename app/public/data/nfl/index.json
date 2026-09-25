@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-25T17:39:15Z",
+ "generatedAt": "2026-09-25T18:25:54Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -11,7 +11,7 @@
   "phaseLabel": "regular-season",
   "plainEnglish": {
    "what": "A simulated score range and win chance for every regular-season NFL game, from team ratings built on every final since 1999 and updated after each game day, frozen before kickoff.",
-   "honestLimit": "Our win chances come from a team rating that weights how decisively teams win. Tested on 4,281 past games it had never seen (2006–2021), it scored 0.629 on log loss (lower is better) — better than our previous rating's 0.642 and a coin flip's 0.693, but short of the sportsbooks' own odds at 0.610. It has NOT been shown to beat the sportsbook market. Where our win and margin ratings disagree on the favourite, the previous rating is used for that game. The 2026 season evaluation still runs under bars frozen in August, so every forecast stays experimental.",
+   "honestLimit": "Our win chances come from a team rating that weights how decisively teams win. Tested on 4,281 past games it had never seen (2006–2021), it scored 0.629 on log loss (lower is better) — better than our previous rating's 0.642 and a coin flip's 0.693, but short of the sportsbooks' own odds at 0.610. It has NOT been shown to beat the sportsbook market. Where our win and margin ratings disagree on the favourite, the previous rating is used for that game. The 2026 season evaluation still runs under bars frozen in August, so every forecast stays experimental. These ratings are built from results, not from who is playing: they do not know that a starting quarterback has been ruled out. Our player projections do remove players who cannot play; the team win chance beside them does not. We tested whether adding that would help, using perfect hindsight about whether each team's main quarterback actually played — on 855 games from 2023 to 2025 it improved the win rating on average but was WORSE in one of the three seasons, so it did not clear the bar we hold these ratings to and we left the rating alone.",
    "whatItIsGoodFor": "An honest, reproducible pre-kickoff read: which side is likelier, by how much, and how wide the range really is — on the held-out seasons the margin range held 77% of final margins, inside its 75–85% target.",
    "whyPublishItAtAll": "The frozen evaluation contract requires pre-kickoff forecasts-of-record to exist before any of them can be judged. Publishing them, clearly labeled, is how the record accumulates without a single number being backfilled."
   }
@@ -33,7 +33,7 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-25T15:24:12Z",
+  "generatedAt": "2026-09-25T17:39:15Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -107,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "2fa2dde42e0a6465",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "3f9c591159f1cb1e",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -152,8 +152,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "d2d967b2d3f9e798",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "50ca24981d36a456",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -193,8 +193,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "6cad17e7e9540700",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "a9c98f6300e76ad6",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -238,8 +238,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "69ad631488e804c6",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "8af448974a11c6da",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -283,8 +283,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "52f6adbeb3eb2591",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "96d478b55b1fa3c1",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -328,8 +328,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "e1bb9cbe5f353c26",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "4dda0ecb7042bbf2",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -373,8 +373,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "b1b00ee909fe9780",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "4ff7259485884e24",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -414,8 +414,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "7e72e540bea9867f",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "162c929997ed14b3",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -459,8 +459,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "965d54c19c7cf72d",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "e09e691afa7e2afd",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -500,8 +500,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "a52002899a375d61",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "4cc63a6f4431df59",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -545,8 +545,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "91c35f3b2fc51c1a",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "f0d4c951af2d5ece",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -586,8 +586,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "949caed52eb861a2",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "b164cd51bc5ad39c",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -627,8 +627,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "243259a36ead5576",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "ee05fb0cd1bc41e5",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -672,8 +672,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "73bd37a09186604f",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "9ca02927ae6e559d",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
@@ -717,8 +717,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "7c44cdd8efe4ade1",
-    "generatedAt": "2026-09-25T17:39:15Z"
+    "inputHash": "8ae9bc291c084c12",
+    "generatedAt": "2026-09-25T18:25:54Z"
    }
   },
   {
