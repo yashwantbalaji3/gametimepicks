@@ -17,6 +17,7 @@ import { buildLiveRows, espnAthleteId } from "./live-prop-state.mjs";
 const SUMMARY = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/__fixtures__/espn-nfl-summary-401872932.json"), "utf8"));
 const hashOf = (o) => crypto.createHash("sha256").update(JSON.stringify(o)).digest("hex").slice(0, 16);
 const EVENT = "401872932";
+const KICKOFF = "2026-09-18T00:15:00Z";   // the real DET @ BUF kickoff
 const STBROWN = "nfl-athlete-4374302";   // 9 rec, 142 yds, 2 rec TD
 
 /** The committed board shape, with the two families we assert on. */
@@ -39,7 +40,7 @@ const phased = (state) => {
       : { type: { state: "post", completed: true } };
   return s;
 };
-const build = (state, prior, at) => buildLiveRows({ providerEventId: EVENT, board: board(79.5), summary: phased(state), prior, observedAt: at, hashOf });
+const build = (state, prior, at) => buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: board(79.5), summary: phased(state), prior, observedAt: at, hashOf });
 const row = (r, family) => r.rows.find((x) => x.family === family);
 
 test("PREGAME emits no stat, no score, and no settlement", () => {
@@ -48,7 +49,7 @@ test("PREGAME emits no stat, no score, and no settlement", () => {
   assert.equal(y.live.phase, "PRE");
   assert.equal(y.live.statValue, null, "zero would be a measurement nobody took");
   assert.equal(y.live.score, null);
-  assert.equal(y.settlement, null, "a game that has not started cannot settle");
+  assert.equal(y.settlement.state, "PENDING", "a game that has not started cannot settle");
   assert.equal(y.frozen.market.line, 79.5, "the frozen line is present from the first write");
 });
 
@@ -60,7 +61,7 @@ test("LIVE reports the stat so far, the clock and the score — and still does n
   assert.equal(y.live.clock, "8:42");
   assert.equal(y.live.period, 3);
   assert.deepEqual(y.live.score, { home: 41, away: 31 });
-  assert.equal(y.settlement, null, "an unfinished game never settles");
+  assert.equal(y.settlement.state, "PENDING", "an unfinished game never settles");
 });
 
 test("FINAL settles against the FROZEN line, across families", () => {
@@ -70,7 +71,7 @@ test("FINAL settles against the FROZEN line, across families", () => {
   assert.equal(y.settlement.line, 79.5);
   assert.equal(y.settlement.lineResult, "OVER");
   const td = row(r, "anytime_td");
-  assert.equal(td.settlement.yesResult, true, "he caught two — the anytime market settles yes");
+  assert.equal(td.settlement.lineResult, "YES", "he caught two — the anytime market settles yes");
 });
 
 test("⚠ A LATER RUN CANNOT REWRITE THE FROZEN BLOCK, EVEN WITH A NEWER BOARD", () => {
@@ -80,7 +81,7 @@ test("⚠ A LATER RUN CANNOT REWRITE THE FROZEN BLOCK, EVEN WITH A NEWER BOARD",
    * comparison would be against a number nobody saw.
    */
   const first = build("in", null, "2026-09-18T01:30:00Z");
-  const movedLine = buildLiveRows({ providerEventId: EVENT, board: board(96.5), summary: phased("post"), prior: first, observedAt: "2026-09-18T04:00:00Z", hashOf });
+  const movedLine = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: board(96.5), summary: phased("post"), prior: first, observedAt: "2026-09-18T04:00:00Z", hashOf });
   const y = row(movedLine, "player_reception_yds");
   assert.equal(y.frozen.market.line, 79.5, "the published line stands");
   assert.equal(y.frozen.market.capturedAt, "2026-09-17T14:00:00Z");
@@ -108,8 +109,9 @@ test("⚠ PENDING IS NEVER A LOSS", () => {
   for (const state of ["pre", "in"]) {
     const r = build(state, null, "2026-09-18T01:30:00Z");
     for (const x of r.rows) {
-      assert.equal(x.settlement, null, `${state}: settlement must be null, never a result`);
-      assert.ok(!("lineResult" in x), "a row carries no top-level result that could read as a grade");
+      assert.equal(x.settlement.state, "PENDING", `${state}: settlement must be PENDING, never a result`);
+      assert.equal(x.settlement.lineResult, null, "and PENDING carries no direction that could read as a grade");
+      assert.equal(x.settlement.forecastResult, null);
     }
   }
 });
@@ -119,17 +121,18 @@ test("an athlete id that is not ours fails closed — no row, never a name fallb
   assert.equal(espnAthleteId("4374302"), null, "a bare number is not a durable board id");
   assert.equal(espnAthleteId("espn-4374302"), null);
   assert.equal(espnAthleteId(null), null);
-  const bad = buildLiveRows({ providerEventId: EVENT, summary: phased("post"), observedAt: "x", hashOf,
+  const bad = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, summary: phased("post"), observedAt: "x", hashOf,
     board: { generatedAt: "t", players: [{ playerId: "mlb-person-12345", name: "Wrong Sport", markets: { anytime_td: { median: 1 } } }] } });
   assert.deepEqual(bad.rows, [], "an unrecognised id produces no row at all");
 });
 
 test("a player the provider never reports gets NO fabricated progress", () => {
-  const ghost = buildLiveRows({ providerEventId: EVENT, summary: phased("post"), observedAt: "2026-09-18T04:00:00Z", hashOf,
-    board: { generatedAt: "t", players: [{ playerId: "nfl-athlete-999999999", name: "Did Not Dress", markets: { player_rush_yds: { median: 40, market: { line: 38.5, sportsbook: "draftkings", capturedAt: "t" } } } }] } });
+  const ghost = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, summary: phased("post"), observedAt: "2026-09-18T04:00:00Z", hashOf,
+    board: { generatedAt: "2026-09-17T14:00:00Z", players: [{ playerId: "nfl-athlete-999999999", name: "Did Not Dress", markets: { player_rush_yds: { median: 40, market: { line: 38.5, sportsbook: "draftkings", capturedAt: "t" } } } }] } });
   const r = ghost.rows[0];
   assert.equal(r.live.statValue, null, "absent from every block is absent, not zero");
-  assert.equal(r.settlement, null, "and an absent measurement never settles, even at FINAL");
+  assert.equal(r.settlement.state, "NO_MEASUREMENT", "⚠ and an absent measurement is NOT an Under, even at FINAL");
+  assert.equal(r.settlement.lineResult, null);
 });
 
 test("the frozen identity is stable across runs that change nothing", () => {
@@ -137,4 +140,74 @@ test("the frozen identity is stable across runs that change nothing", () => {
   const b = build("in", null, "2026-09-18T02:30:00Z");
   assert.equal(row(a, "player_reception_yds").frozenIdentity, row(b, "player_reception_yds").frozenIdentity,
     "an identity that moved on every observation could not detect a real change");
+});
+
+test("⚠ A POST-KICKOFF BOARD IS NEVER FROZEN RETROACTIVELY", () => {
+  /*
+   * ⚠ THIS PRODUCER ONLY RUNS AFTER KICKOFF, so the first write ALWAYS happens with the game under
+   * way. Without a provenance check it would freeze whatever the board says at that moment —
+   * including a board the event window regenerated mid-game and a price the odds capture bought
+   * after the first snap. That is a post-kickoff line published as the pre-kickoff one: the exact
+   * dishonesty the frozen slot exists to prevent, arriving through the front door.
+   */
+  const lateBoard = { ...board(79.5), generatedAt: "2026-09-18T01:00:00Z" }; // 45 min AFTER kickoff
+  const r = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: lateBoard, summary: phased("in"), observedAt: "2026-09-18T01:30:00Z", hashOf });
+  const y = row(r, "player_reception_yds");
+  assert.equal(y.frozen, null, "no frozen block is minted from post-kickoff evidence");
+  assert.match(y.frozenRefusal, /at or after kickoff/, "and the refusal says why, in words");
+  assert.equal(r.frozenRefusedNoPregameSnapshot, 2, "both families refuse, and the refusal is counted");
+  assert.equal(y.live.statValue, 142, "the LIVE state still renders — only the pregame claim is withheld");
+  assert.equal(y.settlement.state, "PENDING");
+});
+
+test("a price captured after kickoff is refused even when the board predates it", () => {
+  /* The board can be pregame while the odds capture that filled it is not. Both must predate. */
+  const lateLine = {
+    generatedAt: "2026-09-17T14:00:00Z",
+    players: [{ playerId: STBROWN, name: "Amon-Ra St. Brown", team: "DET", participation: "P",
+      markets: { player_reception_yds: { median: 79, p10: 41, p90: 118, market: { line: 79.5, sportsbook: "draftkings", capturedAt: "2026-09-18T00:40:00Z" } } } }],
+  };
+  const r = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: lateLine, summary: phased("in"), observedAt: "2026-09-18T01:30:00Z", hashOf });
+  assert.equal(r.rows[0].frozen, null);
+  assert.match(r.rows[0].frozenRefusal, /captured at .* at or after kickoff/);
+});
+
+test("⚠ A CORRECTED FINAL STAT IS RECORDED BESIDE THE SETTLEMENT, NOT OVER IT", () => {
+  /*
+   * Providers revise box scores. Overwriting loses what we published; refusing to look makes a real
+   * correction invisible. The original settlement is the record and never changes; a later FINAL
+   * observation that disagrees sits beside it with its own instant.
+   */
+  const settled = build("post", null, "2026-09-18T04:00:00Z");
+  assert.equal(row(settled, "player_reception_yds").settlement.finalStat, 142);
+
+  const corrected = structuredClone(SUMMARY);
+  for (const tg of corrected.boxscore.players) {
+    for (const st of tg.statistics) {
+      if (st.name !== "receiving") continue;
+      const a = st.athletes.find((x) => x.athlete.id === "4374302");
+      if (a) a.stats[st.labels.indexOf("YDS")] = "138";   // the provider revises it down
+    }
+  }
+  const after = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: board(79.5), summary: corrected, prior: settled, observedAt: "2026-09-19T12:00:00Z", hashOf });
+  const y = row(after, "player_reception_yds");
+  assert.equal(y.settlement.finalStat, 142, "what we published is unchanged");
+  assert.equal(y.settlement.settledAt, "2026-09-18T04:00:00Z");
+  assert.equal(y.reconciliation.finalStat, 138, "the correction is visible");
+  assert.equal(y.reconciliation.differsFrom, 142, "and it says what it disagrees with");
+  assert.equal(after.reconciled, 1);
+
+  /* A re-run that agrees records nothing new. */
+  const agreeing = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: board(79.5), summary: phased("post"), prior: settled, observedAt: "2026-09-19T13:00:00Z", hashOf });
+  assert.equal(row(agreeing, "player_reception_yds").reconciliation, null, "an unchanged stat is not a correction");
+});
+
+test("NO_MEASUREMENT survives a re-run and never ripens into a loss", () => {
+  const ghostBoard = { generatedAt: "2026-09-17T14:00:00Z", players: [{ playerId: "nfl-athlete-999999999", name: "Did Not Dress", participation: "CONFIRMED_OUT",
+    markets: { player_rush_yds: { median: 40, market: { line: 38.5, sportsbook: "draftkings", capturedAt: "2026-09-17T14:00:00Z" } } } }] };
+  const first = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: ghostBoard, summary: phased("post"), observedAt: "2026-09-18T04:00:00Z", hashOf });
+  assert.equal(first.rows[0].settlement.state, "NO_MEASUREMENT");
+  assert.equal(first.rows[0].settlement.participationAtFreeze, "CONFIRMED_OUT", "the participation we held is carried into the record");
+  const again = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: ghostBoard, summary: phased("post"), prior: first, observedAt: "2026-09-20T04:00:00Z", hashOf });
+  assert.deepEqual(again.rows[0].settlement, first.rows[0].settlement, "it is preserved, not re-graded into an Under on a later pass");
 });

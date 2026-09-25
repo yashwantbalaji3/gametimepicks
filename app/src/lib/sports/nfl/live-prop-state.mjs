@@ -85,9 +85,22 @@ function blockIndex(summary, blockName) {
  * ⚠ interceptions AND defensive OVERLAP, SO THEY ARE NOT SUMMED. A pick-six is a defensive
  * touchdown AND an interception-return touchdown, and ESPN reports it in both blocks — adding them
  * would display 2 for a player who scored once. The larger of the two is taken, which cannot
- * double-count and still catches either. The cost is under-counting the vanishingly rare player who
- * records a pick-six and a separate fumble-return touchdown in one game; showing "2" for one
- * touchdown is the likelier error and the worse one.
+ * double-count and still catches either.
+ *
+ * ⚠ AND THIS IS A V1 HEURISTIC OVER AGGREGATES, NOT AN EXACT COUNT. It is stated plainly because
+ * the number reaches a reader. Taking the larger UNDER-counts the player who records a pick-six AND
+ * a separate fumble-return touchdown in the same game — real, rare, and wrong in the safer
+ * direction, since showing "2" for one touchdown is the likelier error and the more damaging.
+ *
+ *   THE STRONGER IMPLEMENTATION IS EVENT-LEVEL, NOT AGGREGATE. ESPN's summary carries
+ *   `scoringPlays`, each with its own scorer and play type. Counting distinct scoring PLAYS
+ *   attributed to an athlete is exact by construction: it cannot double-count one play reported in
+ *   two stat blocks, and it cannot merge two genuinely separate ones. That is the correct future
+ *   implementation and it is recorded here as owed work rather than left implied by silence.
+ *
+ *   V1 uses the aggregate because the yes/no market — which is what is actually settled — is
+ *   identical under both readings: `finalStat > 0` is unaffected by the de-duplication choice. Only
+ *   the DISPLAYED count can differ, and only in the rare double-defensive-score case.
  *
  * Returns null when the player appears in NO scoring block — absent is not zero.
  */
@@ -180,35 +193,82 @@ export function liveFactual({ summary, espnId, family, observedAt, source = "esp
 }
 
 /**
+ * SETTLEMENT STATES. Every one is a claim a reader can act on, and the absences are typed apart.
+ *
+ *   PENDING           the game is not final. Never a result, and never a field that reads like one.
+ *   SETTLED           a measurement exists and was graded against the frozen line.
+ *   NO_MEASUREMENT    the game is final and the provider reports no stat row for this player.
+ *
+ * ⚠ NO_MEASUREMENT IS NOT AN UNDER, AND IT IS NOT AN ANYTIME-TOUCHDOWN LOSS. A player who never
+ * appears in a stat block may have been inactive, may have dressed and not recorded one, or may be
+ * missing from a feed that has not finished updating. Those settle differently at different books,
+ * and WE DO NOT HOLD THE BOOK'S RULE. Grading it as a loss because zero is less than the line would
+ * be inventing a void rule and stating it as fact.
+ */
+export const SETTLEMENT_STATES = Object.freeze(["PENDING", "SETTLED", "NO_MEASUREMENT"]);
+
+/**
  * Settlement against the FROZEN line — the price we published, never one the book moved to.
  *
- * Returns null unless the provider says the game is FINAL: a settled result on an unfinished game
- * is the single worst thing this module could emit.
+ * Returns PENDING unless the provider says the game is FINAL: a settled result on an unfinished
+ * game is the single worst thing this module could emit.
+ *
+ * TWO RESULTS, KEPT APART. `lineResult` is a FACT about the stat and the line (OVER / UNDER / PUSH,
+ * or YES / NO for a one-sided market). `forecastResult` is OUR record: did the side our projection
+ * implied land? A reader comparing the two is comparing a fact to a claim, which is the point.
  */
-export function settle({ summary, espnId, family, frozenLine = null, settledAt, source = "espn-nfl-summary" }) {
-  if (phaseOf(summary) !== "FINAL") return null;
+export function settle({ summary, espnId, family, frozenLine = null, projection = null, participation = null, settledAt, source = "espn-nfl-summary" }) {
+  if (phaseOf(summary) !== "FINAL") {
+    return { state: "PENDING", finalStat: null, line: frozenLine ?? null, lineResult: null, forecastResult: null, settledAt: null, source };
+  }
   const finalStat = statFor(summary, espnId, family);
-  if (finalStat == null) return null;                 // no row is not a zero
+  if (finalStat == null) {
+    return {
+      state: "NO_MEASUREMENT",
+      finalStat: null, line: frozenLine ?? null, lineResult: null, forecastResult: null,
+      participationAtFreeze: participation ?? null,
+      reason: "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
+      bookRuleUnknown: true,
+      settledAt, source,
+    };
+  }
   if (family === "anytime_td") {
-    return { finalStat, line: null, lineResult: null, yesResult: finalStat > 0, settledAt, source };
+    const yes = finalStat > 0;
+    return {
+      state: "SETTLED", finalStat, line: null, lineResult: yes ? "YES" : "NO",
+      /* A one-sided market has no projected side to grade unless a probability was published. */
+      forecastResult: "NOT_APPLICABLE",
+      settledAt, source,
+    };
   }
   let lineResult = null;
+  let forecastResult = null;
   if (typeof frozenLine === "number" && Number.isFinite(frozenLine)) {
     lineResult = finalStat > frozenLine ? "OVER" : finalStat < frozenLine ? "UNDER" : "PUSH";
+    if (typeof projection === "number" && Number.isFinite(projection)) {
+      const impliedSide = projection > frozenLine ? "OVER" : projection < frozenLine ? "UNDER" : null;
+      forecastResult = impliedSide === null ? "PUSH"
+        : lineResult === "PUSH" ? "PUSH"
+          : impliedSide === lineResult ? "WIN" : "LOSS";
+    }
   }
-  return { finalStat, line: frozenLine ?? null, lineResult, yesResult: null, settledAt, source };
+  return { state: "SETTLED", finalStat, line: frozenLine ?? null, lineResult, forecastResult, settledAt, source };
 }
 
 /**
- * The whole live row: the frozen truths passed straight through, plus the observation.
- *
- * `frozen` is returned by reference and never copied-with-changes, so there is no code path here
- * that can rewrite a published forecast or a captured price.
+ * One live row from a frozen block the caller already holds. Thin; `buildLiveRows` is the owner of
+ * the sealing, provenance and reconciliation rules.
  */
 export function liveRow({ frozen, summary, espnId, family, observedAt }) {
   const factual = liveFactual({ summary, espnId, family, observedAt });
-  const settlement = settle({ summary, espnId, family, frozenLine: frozen?.market?.line ?? null, settledAt: observedAt });
-  return { frozen, live: settlement ? { factual, settlement } : { factual } };
+  const settlement = settle({
+    summary, espnId, family,
+    frozenLine: frozen?.market?.line ?? null,
+    projection: frozen?.projection?.median ?? null,
+    participation: frozen?.participation ?? null,
+    settledAt: observedAt,
+  });
+  return { frozen, live: { factual, settlement } };
 }
 
 /** The ESPN athlete id inside a durable board id, or null. Never a name, never a bare number. */
@@ -232,11 +292,40 @@ export function espnAthleteId(playerId) {
  *
  * Pure: the caller supplies the board, the provider payload, the previous artifact and the clock.
  */
-export function buildLiveRows({ providerEventId, board, summary, prior = null, observedAt, hashOf }) {
+export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, prior = null, observedAt, hashOf }) {
   const priorById = new Map((prior?.rows ?? []).map((r) => [r.predictionId, r]));
   const identityOf = hashOf ?? ((o) => JSON.stringify(o));
+  const kickoffMs = Date.parse(String(kickoffUtc ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));
   const rows = [];
   let frozenRefusedNewerBoard = 0;
+  let frozenRefusedNoPregameSnapshot = 0;
+  let reconciled = 0;
+
+  /*
+   * ⚠ A FROZEN BLOCK MAY ONLY BE MINTED FROM EVIDENCE CAPTURED BEFORE KICKOFF.
+   *
+   * This producer only runs once a game has STARTED, so the first write always happens after
+   * kickoff — which means without this check it would happily freeze whatever the board says at
+   * that moment, including a board the event window regenerated mid-game and a price the odds
+   * capture bought after the first snap. That is a post-kickoff line presented as the pre-kickoff
+   * one: the exact dishonesty the frozen slot exists to prevent, arriving through the front door.
+   *
+   * So a snapshot must PROVE it predates kickoff. Anything else fails closed to no frozen block —
+   * the live state still renders, and the row says plainly that it has nothing to compare against.
+   */
+  const pregameProvenance = (fresh) => {
+    if (!Number.isFinite(kickoffMs)) return { ok: false, reason: "no parseable kickoff for this event — a pregame claim cannot be checked, so none is made" };
+    const boardMs = Date.parse(fresh.forecastGeneratedAt ?? "");
+    if (!Number.isFinite(boardMs)) return { ok: false, reason: "the board carries no generation stamp, so it cannot show it predates kickoff" };
+    if (boardMs >= kickoffMs) return { ok: false, reason: `the board was generated at ${fresh.forecastGeneratedAt}, at or after kickoff ${kickoffUtc} — freezing it would publish a post-kickoff forecast as a pregame one` };
+    const capturedAt = fresh.market?.capturedAt ?? null;
+    if (capturedAt) {
+      const marketMs = Date.parse(capturedAt);
+      if (!Number.isFinite(marketMs)) return { ok: false, reason: "the market price carries no usable capture instant" };
+      if (marketMs >= kickoffMs) return { ok: false, reason: `the price was captured at ${capturedAt}, at or after kickoff ${kickoffUtc} — it is not the line a reader was shown` };
+    }
+    return { ok: true };
+  };
 
   for (const p of board?.players ?? []) {
     const id = espnAthleteId(p.playerId);
@@ -253,16 +342,45 @@ export function buildLiveRows({ providerEventId, board, summary, prior = null, o
         forecastGeneratedAt: board.generatedAt ?? null,
       };
       const previous = priorById.get(predictionId);
-      const frozen = previous?.frozen ?? fresh;
-      const frozenIdentity = previous?.frozenIdentity ?? identityOf(fresh);
-      if (previous && identityOf(fresh) !== frozenIdentity) frozenRefusedNewerBoard += 1;
+
+      let frozen = previous?.frozen ?? null;
+      let frozenIdentity = previous?.frozenIdentity ?? null;
+      let frozenRefusal = previous?.frozenRefusal ?? null;
+      if (!frozen && !previous) {
+        const prov = pregameProvenance(fresh);
+        if (prov.ok) { frozen = fresh; frozenIdentity = identityOf(fresh); }
+        else { frozenRefusal = prov.reason; frozenRefusedNoPregameSnapshot += 1; }
+      } else if (previous?.frozen && identityOf(fresh) !== previous.frozenIdentity) {
+        frozenRefusedNewerBoard += 1;
+      }
+
+      const live = liveFactual({ summary, espnId: id, family, observedAt });
+      const settlement = previous?.settlement?.state === "SETTLED" || previous?.settlement?.state === "NO_MEASUREMENT"
+        ? previous.settlement
+        : settle({ summary, espnId: id, family, frozenLine: frozen?.market?.line ?? null, projection: frozen?.projection?.median ?? null, participation: frozen?.participation ?? null, settledAt: observedAt });
+
+      /*
+       * ⚠ IDEMPOTENT, BUT NOT SEALED AGAINST A CORRECTION. Providers do revise a box score. The
+       * original settlement is the record of what we published and never changes; a later FINAL
+       * observation that DISAGREES is recorded beside it, with its own instant, so the initial
+       * result and the reconciled truth stay distinguishable. Overwriting would lose the first;
+       * refusing to look would make a real correction invisible.
+       */
+      let reconciliation = previous?.reconciliation ?? null;
+      if (settlement.state === "SETTLED" && phaseOf(summary) === "FINAL") {
+        const latest = statFor(summary, id, family);
+        if (latest != null && settlement.finalStat != null && latest !== settlement.finalStat) {
+          reconciliation = { finalStat: latest, differsFrom: settlement.finalStat, observedAt, source: "espn-nfl-summary", note: "the provider now reports a different final stat; the settlement above is what was published and is unchanged" };
+          if (!previous?.reconciliation) reconciled += 1;
+        }
+      }
 
       rows.push({
-        predictionId, playerId: p.playerId, espnId: id, name: p.name, team: p.team, family, frozenIdentity, frozen,
-        live: liveFactual({ summary, espnId: id, family, observedAt }),
-        settlement: previous?.settlement ?? settle({ summary, espnId: id, family, frozenLine: frozen.market?.line ?? null, settledAt: observedAt }),
+        predictionId, playerId: p.playerId, espnId: id, name: p.name, team: p.team, family,
+        frozenIdentity, frozen, frozenRefusal,
+        live, settlement, reconciliation,
       });
     }
   }
-  return { rows, frozenRefusedNewerBoard };
+  return { rows, frozenRefusedNewerBoard, frozenRefusedNoPregameSnapshot, reconciled };
 }

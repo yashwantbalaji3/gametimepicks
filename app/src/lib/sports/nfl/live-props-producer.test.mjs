@@ -79,12 +79,24 @@ test("the producer DELEGATES the rules — it does not carry a second copy of th
     "a live producer that can compute a forecast can overwrite one");
 });
 
-test("the library owns the sealing rule and the durable-id join", () => {
-  const lib = fs.readFileSync(path.join(APP, "src/lib/sports/nfl/live-prop-state.mjs"), "utf8");
-  assert.match(lib, /const frozen = previous\?\.frozen \?\? fresh;/,
-    "a prediction already published keeps its frozen block");
-  assert.match(lib, /previous\?\.settlement \?\? settle\(/,
-    "and a settled prediction keeps its original settlement");
-  assert.match(lib, /\^nfl-athlete-\(\\d\+\)\$/,
-    "the join is anchored to the durable board id — a loose pattern would accept a bare number, which is exactly how the third copy of this rule went wrong");
+test("the library owns the sealing rule and the durable-id join", async () => {
+  /*
+   * ⚠ THIS SCANNED FOR AN EXACT EXPRESSION AND BROKE WHEN THE EXPRESSION CHANGED SHAPE — twice now,
+   * first when the rule moved out of the producer and again when pregame provenance was added. The
+   * invariant never moved; only the line did. So it is asserted BEHAVIOURALLY: feed the builder a
+   * prior and a newer board, and check what comes out. A source scan can only ever pin today's
+   * phrasing, and a guard that breaks on a refactor teaches people to delete it.
+   */
+  const { buildLiveRows, espnAthleteId } = await import("./live-prop-state.mjs");
+  const board = (line, at) => ({ generatedAt: "2026-09-17T14:00:00Z", players: [{ playerId: "nfl-athlete-1", name: "P", markets: {
+    player_rush_yds: { median: 50, market: { line, sportsbook: "draftkings", capturedAt: at } } } }] });
+  const args = { providerEventId: "E", kickoffUtc: "2026-09-18T00:15:00Z", summary: { header: { competitions: [{ status: { type: { state: "pre" } } }] } }, hashOf: (o) => JSON.stringify(o) };
+  const first = buildLiveRows({ ...args, board: board(38.5, "2026-09-17T14:00:00Z"), observedAt: "t1" });
+  assert.equal(first.rows[0].frozen.market.line, 38.5);
+  const later = buildLiveRows({ ...args, board: board(44.5, "2026-09-17T14:00:00Z"), prior: first, observedAt: "t2" });
+  assert.equal(later.rows[0].frozen.market.line, 38.5, "a published frozen block survives a newer board");
+  assert.equal(later.frozenRefusedNewerBoard, 1, "and the refusal is counted");
+
+  assert.equal(espnAthleteId("nfl-athlete-42"), "42");
+  assert.equal(espnAthleteId("42"), null, "a bare number is not a durable board id — the loose pattern is how the third copy of this rule went wrong");
 });

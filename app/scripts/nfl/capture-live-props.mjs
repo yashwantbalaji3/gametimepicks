@@ -71,19 +71,22 @@ for (const ev of targets) {
   /* The sealing rule, the settlement idempotency and the join all live in the library — see
      buildLiveRows. This script does IO and nothing else. */
   const priorPath = path.join(outDir, `${ev.providerEventId}.json`);
-  const { rows, frozenRefusedNewerBoard } = buildLiveRows({
+  const { rows, frozenRefusedNewerBoard, frozenRefusedNoPregameSnapshot, reconciled } = buildLiveRows({
     providerEventId: ev.providerEventId,
+    kickoffUtc: ev.dateUtc,
     board, summary, prior: read(priorPath), observedAt: NOW,
     hashOf: (o) => crypto.createHash("sha256").update(JSON.stringify(o)).digest("hex").slice(0, 16),
   });
   if (frozenRefusedNewerBoard) console.log(`  note: ${frozenRefusedNewerBoard} prediction(s) had a NEWER board value that was refused — the published frozen block stands`);
+  if (frozenRefusedNoPregameSnapshot) console.log(`  ⚠ ${frozenRefusedNoPregameSnapshot} prediction(s) have NO frozen block: no snapshot proved it predates kickoff, so none was minted`);
+  if (reconciled) console.log(`  note: ${reconciled} settled prediction(s) now disagree with the provider — recorded beside the settlement, which is unchanged`);
 
   const artifact = {
     schemaVersion: 1, artifact: "nfl-live-props", dataClass: "PUBLIC_DERIVED",
     providerEventId: ev.providerEventId, matchup: ev.shortName, kickoffUtc: ev.dateUtc,
     phase, observedAt: NOW, source: "espn-nfl-summary (free)",
     frozenFrom: board.generatedAt,
-    counts: { rows: rows.length, withLiveStat: rows.filter((r) => r.live.statValue != null).length, settled: rows.filter((r) => r.settlement).length, frozenRefusedNewerBoard },
+    counts: { rows: rows.length, withLiveStat: rows.filter((r) => r.live.statValue != null).length, settled: rows.filter((r) => r.settlement?.state === "SETTLED").length, noMeasurement: rows.filter((r) => r.settlement?.state === "NO_MEASUREMENT").length, frozenRefusedNewerBoard, frozenRefusedNoPregameSnapshot, reconciled },
     disclaimer: "Live figures are the provider's factual game state. The projection and the sportsbook line beside them are our pre-kickoff record and do not change during the game. No live probability, projected finish or on-track reading is shown.",
     rows,
   };
