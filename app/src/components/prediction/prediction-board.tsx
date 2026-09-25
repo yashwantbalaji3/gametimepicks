@@ -187,6 +187,48 @@ function MarketCell({ market }: { market: MarketSnapshot }) {
   return <span className="gtp-pred-absent">{MARKET_SHORT[market.state] ?? MARKET_SHORT.NOT_PROBED}</span>;
 }
 
+/**
+ * THE LIVE LINE — facts a reader can compare, and nothing that looks like a new forecast.
+ *
+ * ⚠ IT IS A FULL-WIDTH LINE, NOT A SIXTH COLUMN. This grid already carries four template variants
+ * (rank on/off × range on/off) that must each agree with the DOM, and a track the row has no child
+ * for silently shifts every later column. Adding a column would double those to eight for a cell
+ * that is absent on every pregame board — so the live state spans the row instead, which is also
+ * how it reads on a phone.
+ *
+ * ⚠ AND IT PUBLISHES NO INFERENCE. No on-track percentage, no projected finish, no live
+ * probability: the pregame projection and the frozen line are already on the row above, and a
+ * reader comparing them to the stat so far is doing the only comparison we can honestly support.
+ */
+function LiveLine({ live }: { live: NonNullable<PredictionPresentation["live"]> }) {
+  const f = live.factual;
+  const s = live.settlement;
+  if (!f && !s) return null;
+  const settled = s && s.state === "SETTLED";
+  const noMeasure = s && s.state === "NO_MEASUREMENT";
+  return (
+    <div className="gtp-pred-live" data-phase={f?.phase ?? (settled ? "FINAL" : "PENDING")}>
+      <span className="gtp-pred-live-tag font-mono uppercase tracking-[0.08em]">
+        {settled || noMeasure ? "Final" : "Live"}
+      </span>
+      {noMeasure ? (
+        /* Never an Under, never a loss — we do not hold the book's rule for a player who never
+           appeared in the box score, and saying so is the honest result. */
+        <span className="gtp-pred-live-absent">No stat recorded · not graded</span>
+      ) : (
+        <>
+          <span className="gtp-pred-live-v">
+            {(settled ? s?.finalStat : f?.statValue) ?? "—"}
+          </span>
+          {settled && s?.lineResult ? <span className="gtp-pred-live-res" data-result={s.lineResult}>{s.lineResult}</span> : null}
+          {!settled && f?.period != null ? <span className="gtp-pred-live-sub">{f.period}Q · {f.clock ?? "—"}</span> : null}
+          {f?.score ? <span className="gtp-pred-live-sub">{f.score.away} – {f.score.home}</span> : null}
+        </>
+      )}
+    </div>
+  );
+}
+
 export function PredictionBoard({
   predictions,
   gameHref,
@@ -337,6 +379,10 @@ export function PredictionBoard({
                   <Link href={href} className="gtp-pred-link font-mono uppercase tracking-[0.1em]">{actionLabel}</Link>
                 ) : null}
               </span>
+
+              {/* Last, and spanning: the frozen forecast and the frozen line are above it, so the
+                  comparison reads downward the way the founder's own sketch does. */}
+              {p.live ? <LiveLine live={p.live} /> : null}
             </li>
           );
         })}

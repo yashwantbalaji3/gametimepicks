@@ -319,10 +319,31 @@ export interface PlayerBoardContext {
  * weekly-board adapter does: a number with no unit beside a probability is the confusion the whole
  * presentation contract exists to remove.
  */
+/**
+ * The live rows for one game, indexed for the adapter below.
+ *
+ * ⚠ KEYED EXPLICITLY, NOT BY STRING EQUALITY. The live artifact's own predictionId is
+ * `event:player:family` and the presentation's is `family:player:event` — the same three parts in a
+ * different order. Comparing them directly would silently match nothing, and a live panel that is
+ * simply always empty is the hardest kind of bug to notice.
+ */
+export type LivePropRow = {
+  playerId: string;
+  family: string;
+  live?: { phase: string; statValue: number | null; clock: string | null; period: number | null; score: { home: number; away: number } | null } | null;
+  settlement?: { state: string; finalStat: number | null; line: number | null; lineResult: string | null; forecastResult: string | null } | null;
+};
+export function indexLiveProps(artifact: { rows?: LivePropRow[] } | null | undefined): Map<string, LivePropRow> {
+  const out = new Map<string, LivePropRow>();
+  for (const r of artifact?.rows ?? []) if (r?.playerId && r?.family) out.set(`${r.playerId}|${r.family}`, r);
+  return out;
+}
+
 export function presentPlayerBoardRow(
   ctx: PlayerBoardContext,
   player: PlayerBoardPlayer,
   familyKey: string,
+  liveIndex?: Map<string, LivePropRow>,
 ): PredictionPresentation | null {
   const family = NFL_FAMILIES[familyKey];
   if (!family) return null;
@@ -366,7 +387,23 @@ export function presentPlayerBoardRow(
       modelVersion: ctx.model?.version ?? 0,
       forecastAt: ctx.generatedAt,
     },
+    /*
+     * ⚠ THE LIVE SLOT IS FILLED FROM THE CANONICAL LIVE ARTIFACT AND FROM NOTHING ELSE. It is not
+     * derived here, not inferred from the model, and not defaulted — a row with no live artifact has
+     * no live slot at all, which is how a pregame board stays a pregame board.
+     */
+    ...(liveSlotFor(liveIndex, player.playerId, familyKey) ?? {}),
   };
+}
+
+/** The live slot for one row, or undefined. PRE is treated as no slot: it carries no observation. */
+function liveSlotFor(index: Map<string, LivePropRow> | undefined, playerId: string, familyKey: string) {
+  const r = index?.get(`${playerId}|${familyKey}`);
+  if (!r) return undefined;
+  const factual = r.live && r.live.phase !== "PRE" ? r.live : null;
+  const settlement = r.settlement && r.settlement.state !== "PENDING" ? r.settlement : null;
+  if (!factual && !settlement) return undefined;
+  return { live: { ...(factual ? { factual } : {}), ...(settlement ? { settlement } : {}) } } as Partial<PredictionPresentation>;
 }
 
 /** Every renderable row of ONE family on a game report, in the board's own order. */
@@ -374,8 +411,9 @@ export function presentPlayerBoardFamily(
   ctx: PlayerBoardContext,
   players: PlayerBoardPlayer[],
   familyKey: string,
+  liveIndex?: Map<string, LivePropRow>,
 ): PredictionPresentation[] {
   return players
-    .map((p) => presentPlayerBoardRow(ctx, p, familyKey))
+    .map((p) => presentPlayerBoardRow(ctx, p, familyKey, liveIndex))
     .filter((p): p is PredictionPresentation => p !== null);
 }

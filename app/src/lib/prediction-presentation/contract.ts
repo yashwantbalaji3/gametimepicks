@@ -228,19 +228,33 @@ export interface LiveFactual {
 }
 
 /**
- * SETTLEMENT — the final stat and how it landed against the frozen line.
+ * SETTLEMENT — the final stat, how it landed against the FROZEN line, and how our claim did.
  *
- * `lineResult` is OVER / UNDER / PUSH against the line captured PRE-GAME, never a line the book
- * moved to later. A family with no frozen line settles the stat and reports `lineResult: null`
- * rather than inventing a benchmark.
+ *   PENDING          the game is not final. Carries no direction and no grade.
+ *   SETTLED          a measurement exists and was graded.
+ *   NO_MEASUREMENT   final, and the provider reports no stat row for this player.
+ *
+ * ⚠ NO_MEASUREMENT IS NOT AN UNDER AND NOT AN ANYTIME-TOUCHDOWN LOSS. A player may have been
+ * inactive, may have dressed without recording one, or may be missing from a feed still updating.
+ * Those settle differently at different books and we do not hold the book's rule, so none is applied.
+ *
+ * TWO RESULTS, KEPT APART. `lineResult` is a FACT about the stat and the line (OVER / UNDER / PUSH,
+ * or YES / NO on a one-sided market). `forecastResult` is OUR claim graded. A reader comparing them
+ * is comparing a fact to a claim, which is the whole point of showing both.
  */
+export type SettlementState = "PENDING" | "SETTLED" | "NO_MEASUREMENT";
+export type LineResult = "OVER" | "UNDER" | "PUSH" | "YES" | "NO";
+export type ForecastResult = "WIN" | "LOSS" | "PUSH" | "NOT_APPLICABLE";
+
 export interface LiveSettlement {
-  finalStat: number;
+  state: SettlementState;
+  finalStat: number | null;
   line: number | null;
-  lineResult: "OVER" | "UNDER" | "PUSH" | null;
-  /** For a one-sided anytime-touchdown market: did it happen. */
-  yesResult: boolean | null;
-  settledAt: string;
+  lineResult: LineResult | null;
+  forecastResult: ForecastResult | null;
+  /** Present only on NO_MEASUREMENT: we do not hold the book's void rule and say so. */
+  bookRuleUnknown?: boolean;
+  settledAt: string | null;
   source: string;
 }
 
