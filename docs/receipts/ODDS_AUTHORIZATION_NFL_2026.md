@@ -138,3 +138,54 @@ such sweeps a day is 320/day, and Thursday→Monday at that rate is ~1,500 — *
 So "up to 4/day" cannot mean "4 full sweeps a day", and the schedule must be sized against the
 ceiling rather than against the sentence. The cadence actually configured is recorded with its
 arithmetic when it is set; the machine ceiling above is what enforces it either way.
+
+---
+
+## CADENCE RECORD — 2026-09-25 · the configured prop-sweep schedule, with its arithmetic
+
+Amendment 2 left the cadence to be "recorded with its arithmetic when it is set". This is that
+record. It is not a new authorization: nothing here widens scope, markets, regions or the ceiling.
+
+### What is configured
+
+Six `nfl-event-window.yml` cron entries sweep player props; every other scheduled run is unchanged
+and still spends exactly the bulk call's three credits.
+
+| When (ET) | Cron (UTC) | Pre-start events | Credits |
+|---|---|---|---|
+| Fri 09:00 | `0 13 * * 5` | 15 | 78 |
+| Sat 09:00 | `0 13 * * 6` | 15 | 78 |
+| Sun 09:00 | `0 13 * * 0` | 15 | 78 |
+| Sun 12:30 | `30 16 * * 0` | 15 | 78 |
+| Sun 19:00 | `0 23 * * 0` | 2 (SNF, MNF) | 13 |
+| Mon 18:00 | `0 22 * * 1` | 1 (MNF) | 8 |
+| **Week total** | | | **333** |
+
+Plus the one-off full-week backfill that opens the rollout: **78**. Rollout week = **411** of the
+1,000 the founder authorized.
+
+### Why this shape
+
+- **Denser nearer kickoff, because that is where a line moves.** Two of the six sit inside the last
+  four hours before the first kickoff.
+- **A completed game is never queried.** The capture's window is pre-start events only, so the
+  slate empties itself: by Sunday evening thirteen games have started and the sweep costs 13
+  credits rather than 78. The taper is a property of the window, not a rule someone must remember.
+- **"Up to 4 refreshes/day" is a ceiling on permission, not an instruction.** Four full sweeps a
+  day is 312/day and ~1,500 Thursday→Monday — over the allowance. The cadence is sized against the
+  arithmetic instead of against the sentence.
+
+### ⚠ These crons recur, and the allowance does not
+
+A later week draws on the same 1,000. At roughly 333/week the allowance funds about three weeks
+including this one. Nothing here renews itself: `assertCallAllowed` refuses before the first call
+whose worst case would cross **1,160 cumulative**, and that refusal is a DECISION OWED to the
+founder, not a broken job — the chain runs on the last committed capture for zero credits either
+way.
+
+### Where the cadence lives
+
+In the cron list itself. The odds step identifies a sweep window by the cron expression that fired
+it (`github.event.schedule`), so adding or removing a sweep is one edit in one place and the
+schedule cannot drift from the arithmetic written beside it. A `workflow_dispatch` input overrides
+outright, in both directions.
