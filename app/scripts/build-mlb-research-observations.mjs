@@ -161,6 +161,24 @@ function main() {
     for (const jf of fs.readdirSync(jdir).filter((x) => x.endsWith(".json"))) {
       const join = readJson(path.join(jdir, jf));
       if (!join) continue;
+      /*
+       * ── A FIXTURE THE SCHEDULE LEFT BEHIND IS NOT AN OBSERVATION ───────────────────────────────
+       *
+       * `observationId` is `sha(gamePk|player|market|selection|line)` and carries NO date, which is
+       * correct — a real-world game is one game. It also means that a gamePk filed under two dates
+       * produces the SAME id twice, and the quality gate reads that, correctly, as one observation
+       * recorded twice. gamePk 824785 (TOR @ BAL, played 2026-09-23) had a join left under 09-22 from
+       * before the schedule moved; the box-score feed is keyed by gamePk alone, so it graded against
+       * the 23rd's result and put 201 already-recorded official outcomes into the corpus a second time.
+       *
+       * Refused on TWO independent facts rather than on the writer having run: the join's own status,
+       * and its recorded `officialDate` against the directory it sits in. The second catches every
+       * join written before that field existed, which is all of the rot already on disk. A join with
+       * no `officialDate` at all is not assumed correct — it cannot prove this is its date, so it
+       * yields nothing.
+       */
+      if (join.joinStatus === "superseded") { summary.supersededJoins = (summary.supersededJoins || 0) + 1; continue; }
+      if (join.officialDate != null && join.officialDate !== date) { summary.misdatedJoins = (summary.misdatedJoins || 0) + 1; continue; }
       const freeze = readJson(path.join(FREEZE_DIR, date, `${join.gamePk}.json`));
       if (!freeze) continue;
       const pf = pregameFeatures(date, freeze);

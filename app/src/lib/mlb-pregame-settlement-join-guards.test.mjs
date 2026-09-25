@@ -13,6 +13,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import os from "node:os";
 import { settleOverUnder, settleMoneyline, settleRunLine, gradeLean, gradePlayerLean, gradeTeamLean, extractOfficialGame, findPlayer, mergeLeanKeys, SUPPORTED_JOIN_MARKETS } from "../../scripts/join-mlb-pregame-settlements.mjs";
 import { settleOverUnder as ouCanon, settleMlbMoneyline, settleMlbRunLine } from "./mlb/product-settlement/mlb-markets.ts";
 import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
@@ -203,4 +204,155 @@ test("15 · REGRESSION: lean merge keeps the LATEST capturedAt (older capture ne
 
 test("14 · money md5 unchanged (settlement-join is internal + money-independent)", () => {
   assertProtectedLedgerIntact(app); // P256: history + crown fixed; bankroll = July base + Rule S fold (was a whole-file md5 pin)
+});
+
+/* ── ONE gamePk BELONGS TO ONE DATE (2026-09-25) ───────────────────────────────────────────────── */
+
+test("16 · the official date is extracted from the feed the grader already fetches", () => {
+  const feed = {
+    gameData: {
+      status: { abstractGameState: "Final", codedGameState: "F", detailedState: "Final" },
+      datetime: { dateTime: "2026-09-23T17:35:00Z", officialDate: "2026-09-23", originalDate: "2026-09-23" },
+      teams: { home: { name: "Baltimore Orioles", abbreviation: "BAL" }, away: { name: "Toronto Blue Jays", abbreviation: "TOR" } },
+    },
+    liveData: { linescore: { teams: { home: { runs: 4 }, away: { runs: 2 } } }, boxscore: { teams: { home: { players: {} }, away: { players: {} } } } },
+  };
+  const g = extractOfficialGame(feed);
+  assert.equal(g.officialDate, "2026-09-23", "the day the game was played");
+  assert.equal(g.officialStartTime, "2026-09-23T17:35:00Z");
+  assert.equal(g.isFinal, true);
+
+  // A feed with no datetime block must report null rather than a guess.
+  const bare = extractOfficialGame({ gameData: { status: { abstractGameState: "Final", codedGameState: "F" } }, liveData: {} });
+  assert.equal(bare.officialDate, null, "absent is null, never inferred");
+  assert.equal(bare.officialStartTime, null);
+});
+
+test("16b · a join under a date the game was not played on is refused by the observation builder", async () => {
+  /*
+   * THE DEFECT. `/game/<gamePk>/feed/live` is keyed by gamePk alone and carries no date, so every date
+   * directory holding a join for one gamePk grades against the same box score. gamePk 824785 (TOR @ BAL)
+   * held a join under 2026-09-22 claiming a 22:35Z first pitch and another under 2026-09-23 claiming
+   * 17:35Z. `officialDate` says the 23rd. The 22nd's fixture graded flawlessly anyway — 267 rows settled
+   * under a day on which nothing happened, 201 of them the SAME official outcome already recorded under
+   * the 23rd. `observationId` is sha(gamePk|player|market|selection|line) and carries no date, so those
+   * 201 arrived as duplicate ids, the observation-quality gate refused to commit, and the pregame archive
+   * stopped growing for three days.
+   *
+   * Pinned on the BUILDER because that is the fail-closed reader: it must refuse regardless of whether
+   * the writer has re-stamped the file.
+   */
+  const mod = await import("../../scripts/build-mlb-research-observations.mjs");
+  const src = fs.readFileSync(path.join(app, "scripts/build-mlb-research-observations.mjs"), "utf8");
+  assert.ok(mod.buildObservation, "the builder still exports buildObservation");
+
+  // The refusal must rest on TWO independent facts, so a join written before officialDate existed is
+  // still caught by its own recorded date, and a superseded one by its status.
+  assert.match(src, /joinStatus === "superseded"/, "a superseded join yields no observations");
+  assert.match(src, /join\.officialDate != null && join\.officialDate !== date/, "and a misdated one is refused on its own recorded date");
+});
+
+test("16c · the writer marks a rescheduled fixture superseded, grades nothing, and destroys nothing", () => {
+  const src = fs.readFileSync(path.join(app, "scripts/join-mlb-pregame-settlements.mjs"), "utf8");
+
+  // superseded is its own status, not folded into unsupported — a game the schedule moved and a game we
+  // cannot grade are different facts.
+  assert.match(src, /joinStatus = supersededByReschedule\s*\n?\s*\? "superseded"/, "the status exists");
+  assert.match(src, /game\.officialDate != null && game\.officialDate !== date/, "and is decided by the official date");
+
+  // An unknown official date must not be a licence to grade.
+  assert.match(src, /officialDateUnknown = game\.isFinal && game\.officialDate == null/);
+
+  /*
+   * AND THE ROT MUST BE REACHABLE. The 09-22 fixture was `isFinal` and `joined`, which made it terminal,
+   * so every later run reused it verbatim — a fix in joinGame alone would never have touched it. Terminal
+   * now requires that the date attribution was actually established.
+   */
+  assert.match(src, /const dateEstablished = existing\?\.officialDate != null;/);
+  assert.match(src, /const terminal =[^;]*dateEstablished/s, "an unchecked record is not terminal");
+
+  // Evidence-preserving: the superseded path must not delete or skip writing the file.
+  assert.ok(!/unlinkSync|rmSync/.test(src), "a superseded fixture is kept, never deleted");
+});
+
+/**
+ * The two corpus scans, as pure functions over a join root, so each can be run against the committed
+ * archive AND against a fixture that is known to be defective. A scan whose only subject is healthy
+ * data has not been shown to detect anything — which is the exact failure mode this whole lane is
+ * about, so neither of these ships without a positive control.
+ */
+function scanMisdated(root) {
+  const out = [];
+  if (!fs.existsSync(root)) return out;
+  for (const date of fs.readdirSync(root).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
+    for (const f of fs.readdirSync(path.join(root, date)).filter((x) => x.endsWith(".json"))) {
+      const j = readJson(path.join(root, date, f));
+      if (!j?.officialDate) continue;   // written before the field existed — the builder refuses those by status
+      if (j.officialDate !== date && j.joinStatus !== "superseded") out.push(`${date}/${f}: officialDate ${j.officialDate}, joinStatus ${j.joinStatus}`);
+    }
+  }
+  return out;
+}
+function scanDoubleGraded(root) {
+  const gradedDates = new Map();
+  if (!fs.existsSync(root)) return [];
+  for (const date of fs.readdirSync(root).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
+    for (const f of fs.readdirSync(path.join(root, date)).filter((x) => x.endsWith(".json"))) {
+      const j = readJson(path.join(root, date, f));
+      if (!j) continue;
+      // Only a join that actually produces settled rows can double-count an outcome.
+      if (!(j.counts?.marketSettledEligible > 0)) continue;
+      if (!gradedDates.has(j.gamePk)) gradedDates.set(j.gamePk, []);
+      gradedDates.get(j.gamePk).push(date);
+    }
+  }
+  return [...gradedDates.entries()].filter(([, ds]) => ds.length > 1).map(([pk, ds]) => `gamePk ${pk} grades under ${ds.join(" and ")}`);
+}
+
+/** The real 824785 shape: one gamePk, two dates, both grading, the feed's officialDate naming one of them. */
+function writeReschedulFixture(root) {
+  const mk = (date, officialDate, settled, joinStatus) => {
+    fs.mkdirSync(path.join(root, date), { recursive: true });
+    fs.writeFileSync(path.join(root, date, "824785.json"), JSON.stringify({
+      gamePk: 824785, date, officialDate, joinStatus,
+      counts: { marketSettledEligible: settled },
+    }));
+  };
+  mk("2026-09-22", "2026-09-23", 241, "joined");   // the fixture the schedule left behind, grading anyway
+  mk("2026-09-23", "2026-09-23", 252, "joined");   // the game as played
+}
+
+test("16d · every committed join sits under the date its own officialDate names", (t) => {
+  // POSITIVE CONTROL FIRST: the scan must fail on the real defect before its verdict on our data means
+  // anything. Written before the officialDate field existed, every committed join is currently exempt by
+  // design, so without this the assertion below would be an empty set congratulating itself.
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-join-"));
+  try {
+    writeReschedulFixture(tmp);
+    const caught = scanMisdated(tmp);
+    assert.equal(caught.length, 1, `the scan must catch a join filed under the wrong date, caught ${JSON.stringify(caught)}`);
+    assert.match(caught[0], /2026-09-22.*officialDate 2026-09-23/);
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+
+  assert.deepEqual(scanMisdated(JOIN_DIR), [], "a join graded under a date its game was not played on");
+});
+
+test("16e · one gamePk never contributes a graded join under two dates", () => {
+  // POSITIVE CONTROL: the 824785 shape, which is what BLOCKED the capture for three days.
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-join-"));
+  try {
+    writeReschedulFixture(tmp);
+    const caught = scanDoubleGraded(tmp);
+    assert.deepEqual(caught, ["gamePk 824785 grades under 2026-09-22 and 2026-09-23"], "the scan must catch one outcome graded twice");
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+
+  // And it is a real scan of real data, not an empty directory walk.
+  const graded = fs.existsSync(JOIN_DIR)
+    ? fs.readdirSync(JOIN_DIR).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
+        .flatMap((d) => fs.readdirSync(path.join(JOIN_DIR, d)).filter((x) => x.endsWith(".json")).map((f) => readJson(path.join(JOIN_DIR, d, f))))
+        .filter((j) => j?.counts?.marketSettledEligible > 0).length
+    : 0;
+  assert.ok(graded > 100, `expected the committed archive to hold graded joins, saw ${graded}`);
+
+  assert.deepEqual(scanDoubleGraded(JOIN_DIR), [], "one real-world game settled under two dates — its outcome enters the corpus twice");
 });

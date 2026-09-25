@@ -125,8 +125,23 @@ export function extractOfficialGame(feed) {
       };
     }
   }
+  /*
+   * ── WHICH DAY THIS GAME WAS ACTUALLY PLAYED ON ─────────────────────────────────────────────────
+   *
+   * Read from `gameData.datetime`, out of a feed this function is already handed. The feed is keyed
+   * by gamePk ALONE — `/game/<gamePk>/feed/live` carries no date — so every date directory that
+   * holds a join for one gamePk fetches the same bytes and grades against the same box score. When a
+   * game moves, the join left behind under its old date therefore grades perfectly, against a game
+   * that was played on a different day.
+   *
+   * `officialDate` is the authority on which day that was. Without it nothing downstream can tell a
+   * rotted fixture from a real one.
+   */
+  const dt = feed?.gameData?.datetime || {};
   return {
     isFinal, abstractGameState, codedGameState, detailedState, postponedSuspended,
+    officialDate: dt.officialDate ?? null,
+    officialStartTime: dt.dateTime ?? null,
     homeRuns, awayRuns,
     homeName: teams.home?.name ?? null, awayName: teams.away?.name ?? null,
     homeAbbr: teams.home?.abbreviation ?? null, awayAbbr: teams.away?.abbreviation ?? null,
@@ -319,9 +334,42 @@ async function joinGame(date, gamePk, freeze, capturedLeans, existing) {
   // "pregame" upstream may actually be post-first-pitch here. Inherited booleans are never trusted without this
   // re-check; post-start rows are downgraded to researchEligible=false + kept as evidence (never deleted).
   const authoritativeStart = freeze.eventStartTime ?? null;
+
+  /*
+   * ── ONE gamePk BELONGS TO ONE DATE, AND IT IS THE DATE THE GAME WAS PLAYED ─────────────────────
+   *
+   * gamePk 824785 (TOR @ BAL) held a join under BOTH 2026-09-22, claiming a 22:35Z first pitch, and
+   * 2026-09-23, claiming 17:35Z. The game was played on the 23rd — `officialDate` says so. The 22nd's
+   * join was a fixture captured before the schedule moved, and because the box-score feed is keyed by
+   * gamePk alone it graded flawlessly against the 23rd's result: 267 rows settled under a date on
+   * which nothing happened, 201 of them the SAME official outcome already recorded under the 23rd.
+   *
+   * That is what BLOCKED the capture for three days. The observation-quality gate refuses on
+   * duplicate observationIds, and `sha(gamePk|player|market|selection|line)` carries no date — so a
+   * game filed twice IS the same observation twice. The gate was right; every run since 2026-09-23
+   * failed closed and the committed pregame archive stopped growing, while the simulation went on
+   * consuming in-run captures nobody could audit afterwards. Five gamePks carry this rot in all,
+   * four of them from July with no or almost no rows; 824785 is the first with a full slate on both
+   * sides, which is why it took the corpus past the duplicate threshold.
+   *
+   * A superseded join keeps every byte it had — the freeze reference, the captured leans, the
+   * eligibility evidence — and simply does not grade. Deleting it would destroy the record of what
+   * was captured pregame for a game that genuinely was scheduled then; grading it invents a day.
+   *
+   * An unknown officialDate is NOT a licence to grade. A feed that does not say which day it was
+   * played cannot establish that this is the right date, so the join stays pending rather than
+   * settling on a guess.
+   */
+  const supersededByReschedule = game.isFinal && game.officialDate != null && game.officialDate !== date;
+  const officialDateUnknown = game.isFinal && game.officialDate == null;
+
   const marketRows = [];
   for (const l of leanMap.values()) {
-    const g = gradeLean(l, game);
+    const g = supersededByReschedule || officialDateUnknown
+      ? { settlementStatus: "unavailable", actual: null, reason: supersededByReschedule
+          ? `game was played on ${game.officialDate}, not ${date} — this fixture is superseded and does not grade`
+          : `official date absent from the feed — cannot establish that ${date} is this game's date` }
+      : gradeLean(l, game);
     const reval = revalidateMarketEligibility({ inherited: l.researchEligible, capturedAt: l.capturedAt, availableAt: l.availableAt, eventStartTime: authoritativeStart });
     const researchEligible = reval.eligible;
     const countsAsSettledEligible = researchEligible && (g.settlementStatus === "win" || g.settlementStatus === "loss");
@@ -347,7 +395,11 @@ async function joinGame(date, gamePk, freeze, capturedLeans, existing) {
     contextualAmbiguous: ctx.filter((r) => r.outcomeStatus === "ambiguous").length,
   };
 
-  const joinStatus = !game.isFinal ? "pending" : marketRows.length + ctx.length === 0 ? "unsupported" : "joined";
+  const joinStatus = supersededByReschedule
+    ? "superseded"
+    : officialDateUnknown
+      ? "pending"
+      : !game.isFinal ? "pending" : marketRows.length + ctx.length === 0 ? "unsupported" : "joined";
   const record = {
     schemaVersion: SCHEMA_VERSION, public: false, approvedForProduction: false, productEligible: false,
     kind: "mlb-pregame-settlement-join",
@@ -359,9 +411,17 @@ async function joinGame(date, gamePk, freeze, capturedLeans, existing) {
     researchEligibleFamilies: freeze.coverageSummary?.eligibleFamilies ?? [],
     officialSource: { source: "MLB Stats API (official)", endpoint: `${HOST}/api/v1.1/game/${gamePk}/feed/live`, sourceType: "official_league", fetchedAt },
     gameFinalStatus: { isFinal: game.isFinal, abstractGameState: game.abstractGameState, codedGameState: game.codedGameState, detailedState: game.detailedState, postponedSuspended: game.postponedSuspended },
+    // The authority on which day this game happened, recorded so a later reader need not refetch to
+    // tell a real fixture from one the schedule left behind.
+    officialDate: game.officialDate, officialStartTime: game.officialStartTime,
     teamOutcome: { homeTeam: game.homeName, awayTeam: game.awayName, homeRuns: game.homeRuns, awayRuns: game.awayRuns, totalRuns: isNum(game.homeRuns) && isNum(game.awayRuns) ? game.homeRuns + game.awayRuns : null, winner: game.winner },
     marketRows, contextualRows: ctx, counts,
-    joinStatus, joinReason: !game.isFinal ? `game not final (${game.detailedState}) — remains pending` : "official box score joined",
+    joinStatus,
+    joinReason: supersededByReschedule
+      ? `superseded: this game was played on ${game.officialDate}, not ${date} — the fixture under this date is kept as pregame evidence and does not grade`
+      : officialDateUnknown
+        ? `official date absent from the feed — cannot establish that ${date} is this game's date, so nothing grades`
+        : !game.isFinal ? `game not final (${game.detailedState}) — remains pending` : "official box score joined",
   };
   // idempotency: contentHash excludes wall-clock fields; only rewrite when the deterministic content changes
   const contentHash = sha256({ ...record, officialSource: { ...record.officialSource, fetchedAt: undefined } });
@@ -394,20 +454,33 @@ async function main() {
   const dates = dateList(args).filter((d) => fs.existsSync(path.join(FREEZE_DIR, d)));
   if (!dates.length) { console.log("[join] no archived freeze dates in range — nothing to join"); return; }
 
-  const summary = { dates: [], gamesJoined: 0, gamesPending: 0, gamesUnsupported: 0, gamesWritten: 0, gamesUnchanged: 0, marketSettledEligible: 0, marketPush: 0, marketPending: 0, marketAmbiguous: 0, marketUnavailable: 0, marketUnsupported: 0, contextualLinked: 0 };
+  const summary = { dates: [], gamesJoined: 0, gamesPending: 0, gamesUnsupported: 0, gamesSuperseded: 0, gamesWritten: 0, gamesUnchanged: 0, marketSettledEligible: 0, marketPush: 0, marketPending: 0, marketAmbiguous: 0, marketUnavailable: 0, marketUnsupported: 0, contextualLinked: 0 };
   for (const date of dates) {
     const freezes = fs.readdirSync(path.join(FREEZE_DIR, date)).filter((f) => f.endsWith(".json"));
     const captured = gatherCapturedLeans(date);
     const outDir = path.join(JOIN_DIR, date);
-    let joined = 0, pending = 0, unsupported = 0, written = 0, unchanged = 0, se = 0, push = 0, pend = 0, amb = 0, unav = 0, unsup = 0, ctxL = 0;
+    let joined = 0, pending = 0, unsupported = 0, superseded = 0, written = 0, unchanged = 0, se = 0, push = 0, pend = 0, amb = 0, unav = 0, unsup = 0, ctxL = 0;
     for (const ff of freezes) {
       const freeze = readJson(path.join(FREEZE_DIR, date, ff));
       if (!freeze) continue;
       const gamePk = freeze.gamePk;
       const existing = readJson(path.join(outDir, `${gamePk}.json`));
-      // a FINAL game is terminal — re-fetching/re-grading it every run is wasteful and can never change the
-      // official outcome. Reuse the existing joined record (still counted) unless --refresh-final is passed.
-      const terminal = existing?.gameFinalStatus?.isFinal === true && existing.joinStatus === "joined" && !FORCE_FINAL;
+      /*
+       * A FINAL game is terminal — re-fetching/re-grading it every run is wasteful and can never change
+       * the official outcome. Reuse the existing joined record (still counted) unless --refresh-final.
+       *
+       * ── EXCEPT THAT "TERMINAL" WAS ALSO HOW THE ROT BECAME PERMANENT ───────────────────────────
+       *
+       * gamePk 824785's join under 2026-09-22 was `isFinal` and `joined`, because it graded cleanly
+       * against a box score it had no business reading — the game was played on the 23rd. That made it
+       * terminal, so every later run reused it verbatim and no amount of fixing `joinGame` would ever
+       * have reached it. A record is only terminal once its date attribution has actually been
+       * established, and `officialDate` is the evidence of that. Every join written before this field
+       * existed is therefore re-checked once, at no cost beyond one free StatsAPI read, and only for
+       * the dates in the run's own lookback window.
+       */
+      const dateEstablished = existing?.officialDate != null;
+      const terminal = existing?.gameFinalStatus?.isFinal === true && existing.joinStatus === "joined" && dateEstablished && !FORCE_FINAL;
       let res;
       if (terminal) { res = { record: existing, changed: false }; }
       else {
@@ -415,7 +488,12 @@ async function main() {
         catch (e) { console.log(`  [${date}] gamePk ${gamePk}: StatsAPI fetch failed (${String(e).slice(0, 60)}) — skipped, nothing written`); continue; }
       }
       const r = res.record;
-      if (r.joinStatus === "joined") joined++; else if (r.joinStatus === "pending") pending++; else unsupported++;
+      // `superseded` counts as itself. Folding it into `unsupported` would report a game the schedule
+      // moved as a game we cannot grade, and those are different facts.
+      if (r.joinStatus === "joined") joined++;
+      else if (r.joinStatus === "pending") pending++;
+      else if (r.joinStatus === "superseded") superseded++;
+      else unsupported++;
       se += r.counts.marketSettledEligible; push += r.counts.marketPush; pend += r.counts.marketPending;
       amb += r.counts.marketAmbiguous; unav += r.counts.marketUnavailable; unsup += r.counts.marketUnsupported; ctxL += r.counts.contextualLinked;
       if (WRITE) {
@@ -426,13 +504,13 @@ async function main() {
       }
     }
     summary.dates.push(date);
-    summary.gamesJoined += joined; summary.gamesPending += pending; summary.gamesUnsupported += unsupported;
+    summary.gamesJoined += joined; summary.gamesPending += pending; summary.gamesUnsupported += unsupported; summary.gamesSuperseded += superseded;
     summary.gamesWritten += written; summary.gamesUnchanged += unchanged;
     summary.marketSettledEligible += se; summary.marketPush += push; summary.marketPending += pend;
     summary.marketAmbiguous += amb; summary.marketUnavailable += unav; summary.marketUnsupported += unsup; summary.contextualLinked += ctxL;
-    console.log(`[join] ${date}: ${freezes.length} games · joined ${joined} · pending ${pending} · settled-eligible ${se} · push ${push} · market-pending ${pend} · ambiguous ${amb} · unavailable ${unav} · contextual-linked ${ctxL}${WRITE ? ` · wrote ${written} (unchanged ${unchanged})` : " · DRY-RUN"}`);
+    console.log(`[join] ${date}: ${freezes.length} games · joined ${joined} · pending ${pending}${superseded ? ` · SUPERSEDED ${superseded} (played on another date)` : ""} · settled-eligible ${se} · push ${push} · market-pending ${pend} · ambiguous ${amb} · unavailable ${unav} · contextual-linked ${ctxL}${WRITE ? ` · wrote ${written} (unchanged ${unchanged})` : " · DRY-RUN"}`);
   }
-  console.log(`\n[join] ${WRITE ? "WROTE" : "DRY-RUN"} · dates ${summary.dates.join(",")} · games joined ${summary.gamesJoined} / pending ${summary.gamesPending} · SETTLED-ELIGIBLE ROWS ${summary.marketSettledEligible} (push ${summary.marketPush}, pending ${summary.marketPending}, ambiguous ${summary.marketAmbiguous}, unavailable ${summary.marketUnavailable}) · contextual linked ${summary.contextualLinked}`);
+  console.log(`\n[join] ${WRITE ? "WROTE" : "DRY-RUN"} · dates ${summary.dates.join(",")} · games joined ${summary.gamesJoined} / pending ${summary.gamesPending} / superseded ${summary.gamesSuperseded} · SETTLED-ELIGIBLE ROWS ${summary.marketSettledEligible} (push ${summary.marketPush}, pending ${summary.marketPending}, ambiguous ${summary.marketAmbiguous}, unavailable ${summary.marketUnavailable}) · contextual linked ${summary.contextualLinked}`);
   if (!WRITE) console.log(`[join] dry-run — pass --write to persist settlement-joins/<date>/<gamePk>.json`);
   return summary;
 }

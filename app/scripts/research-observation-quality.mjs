@@ -34,7 +34,7 @@ function main() {
 
   const violations = { duplicateIds: [], notSettled: [], missingOutcome: [], futureTimestamp: [], leakage: [], impossibleStat: [] };
   const warnings = { missingMarketProbability: 0 };
-  const ids = new Set();
+  const ids = new Map();
   let total = 0, withMarketProb = 0, coverageSum = 0;
   const byDate = {};
 
@@ -46,7 +46,22 @@ function main() {
       let o; try { o = JSON.parse(line); } catch { continue; }
       total++; byDate[date]++;
       const id = o.observationId;
-      if (id) { if (ids.has(id)) violations.duplicateIds.push(id); else ids.add(id); }
+      /*
+       * A DUPLICATE REPORT MUST SAY WHAT COLLIDED. This pushed the bare sha, so a BLOCKED report was
+       * five opaque hashes and the note "duplicate IDs" — nothing to grep for and nothing naming the
+       * game, the date or the other file. The 2026-09-23 block (gamePk 824785 graded under two dates,
+       * 203 collisions) cost a full download of the run's archive to identify, because the report that
+       * refused the commit could not say which game it was about.
+       *
+       * `observationId` carries no date by design — a real-world game is one game — so the pair of
+       * DATES is the whole diagnosis, and it is the one thing the id cannot tell you.
+       */
+      if (id) {
+        const where = { date, gamePk: o.game?.gamePk ?? null, market: o.market?.key ?? null, selection: o.market?.selection ?? null, line: o.market?.line ?? null, playerId: o.player?.playerId ?? null, player: o.player?.name ?? null };
+        const prior = ids.get(id);
+        if (prior) violations.duplicateIds.push({ id, first: prior, second: where });
+        else ids.set(id, where);
+      }
       const st = o.settlement_result?.status;
       if (!SETTLED.has(st)) violations.notSettled.push({ id, status: st ?? null });
       if (o.actual_outcome?.actual == null) violations.missingOutcome.push({ id, market: o.market?.key });
