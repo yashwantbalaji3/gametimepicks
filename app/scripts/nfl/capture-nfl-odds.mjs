@@ -37,6 +37,7 @@ import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordReques
 import { buildPlayerRegistry, resolvePlayerRef } from "../../src/lib/sports/nfl/player-identity.mjs";
 import { twoWayConsensus, medianOf } from "../../src/lib/sports/odds/consensus.mjs";
 import { mergeCaptureRows } from "../../src/lib/sports/odds/capture-merge.mjs";
+import { REFERENCE_BOOK, FALLBACK_ORDER, selectPropPrices } from "../../src/lib/sports/odds/prop-display-selection.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -63,72 +64,10 @@ const SPORT_KEY = ODDS_SPORT_KEYS[SPORT];
 const PRESEASON_KEY = "americanfootball_nfl_preseason";
 const TEAM_MARKETS = MARKET_SCOPE[SPORT]; // h2h, spreads, totals — the frozen team scope
 /*
- * THE REFERENCE SPORTSBOOK for displayed prop prices (founder decision, 2026-09-24). One named
- * book, attributed by name. Not a "best odds" rule and not a consensus — both would be policies
- * this repo has never agreed, and a blended number has no book to attribute it to.
+ * The displayed-price policy — reference book, fallback ladder, per-row selection — now lives in
+ * lib/sports/odds/prop-display-selection.mjs, where it is executed against constructed evidence
+ * instead of pattern-matched in this file's source text. Behaviour is unchanged.
  */
-const REFERENCE_BOOK = "draftkings";
-/*
- * THE FALLBACK LADDER (founder decision, 2026-09-24). Coverage beats an empty row, but never at the
- * cost of attribution: whichever book is chosen is the book NAMED on screen.
- *
- *   1. DraftKings — if it has a complete valid market for that player/event/family
- *   2. FanDuel    — if DraftKings does not
- *   3. deterministic — among the books that actually returned a complete market for that
- *      event+family, the one with the most complete markets; ties broken by provider key, ascending
- *
- * ⚠ NOT LINE SHOPPING. The ordering never looks at the PRICE, so it cannot drift into "best odds"
- * — a policy nobody has agreed and which would make the displayed number a recommendation. It looks
- * only at coverage and, failing that, at a stable alphabetical key.
- *
- * ⚠ NEVER CROSS-BOOK. A two-sided market is taken whole from ONE book: an Over from DraftKings and
- * an Under from FanDuel is not a market, it is two halves of different markets wearing one label.
- * `lineProps` rows are already complete pairs from a single book, so choosing a row IS choosing a
- * book — the pair can never be split by construction.
- */
-const FALLBACK_ORDER = [REFERENCE_BOOK, "fanduel"];
-
-/** Books that returned a complete market for this event+family, ranked by coverage then key. */
-function rankBooks(rows) {
-  const byBook = new Map();
-  for (const r of rows) byBook.set(r.bookmaker, (byBook.get(r.bookmaker) ?? 0) + 1);
-  return [...byBook.entries()]
-    .sort((a, b) => (b[1] - a[1]) || (a[0] < b[0] ? -1 : 1))
-    .map(([b]) => b);
-}
-
-/**
- * Pick ONE book per (event, player, family) and emit the display row. Returns [] rather than
- * guessing when nothing complete exists — an absent price is a state, never a gap to be filled.
- */
-function selectPropPrices(probe) {
-  const out = [];
-  const pick = (candidates) => {
-    if (!candidates.length) return null;
-    const ranked = rankBooks(candidates);
-    const book = FALLBACK_ORDER.find((b) => candidates.some((c) => c.bookmaker === b)) ?? ranked[0];
-    return candidates.find((c) => c.bookmaker === book) ?? null;
-  };
-  /* Group by the triple the UI keys on, so a choice is made per row and not per event. */
-  const group = (rows, family) => {
-    const g = new Map();
-    for (const r of rows) {
-      const k = `${r.canonicalEventId}|${r.playerId}|${family ?? r.market}`;
-      (g.get(k) ?? g.set(k, []).get(k)).push(r);
-    }
-    return g;
-  };
-  for (const [, cands] of group(probe.anytimeTd?.rows ?? [], "anytime_td")) {
-    const c = pick(cands);
-    if (c) out.push({ canonicalEventId: c.canonicalEventId, playerId: c.playerId, family: "anytime_td", shape: "YES_ONLY", yesOdds: c.price, sportsbook: c.bookmaker, capturedAt: c.capturedAt, booksAvailable: rankBooks(cands).length });
-  }
-  for (const [, cands] of group(probe.lineProps?.rows ?? [], null)) {
-    const c = pick(cands);
-    if (c) out.push({ canonicalEventId: c.canonicalEventId, playerId: c.playerId, family: c.market, shape: "OVER_UNDER", line: c.line, overOdds: c.overPrice, underOdds: c.underPrice, sportsbook: c.bookmaker, capturedAt: c.capturedAt, booksAvailable: rankBooks(cands).length });
-  }
-  return out;
-}
-
 const PROP_PROBE_MARKETS = ["player_anytime_td", "player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"];
 const REGIONS = ["us"];
 const BASE = "https://api.the-odds-api.com/v4";
@@ -367,7 +306,32 @@ if (PROBE) {
       const probeRes = await get(`/sports/${target.sportKey}/events/${target.providerEventId}/odds?regions=${REGIONS.join(",")}&markets=${PROP_PROBE_MARKETS.join(",")}&oddsFormat=american`);
       ledger = recordRequest(ledger, { at: NOW, purpose: `player-prop probe on ${target.away} @ ${target.home}`, endpoint: `/sports/${target.sportKey}/events/${target.providerEventId}/odds`, events: 1, markets: PROP_PROBE_MARKETS, regions: REGIONS, status: probeRes.status, headers: probeRes.headers, charged: probeRes.status === 200 });
       if (probeRes.status !== 200) {
-        propProbe = { state: "NO_MARKET", oddsEventId: target.providerEventId, status: probeRes.status, reason: "provider does not offer these prop markets for this event (422/absent) — typed evidence, never retried" };
+        /*
+         * ⚠ A REFUSED EVENT IS STILL A PROBED EVENT, AND IT MUST SURVIVE THE SWEEP.
+         *
+         * The single-event shape wrote this straight onto `propProbe`, which the assembly below
+         * then overwrote the moment ANY other event returned markets. On a 15-event sweep that
+         * erases the 422 entirely: the event vanishes from `probedEventIds`, and every consumer
+         * downstream reports it NOT_PROBED — "we never asked" — when we asked and were told no.
+         * The two states drive different actions (ask later vs. do not ask again), so collapsing
+         * them is how a measured negative turns back into an unmeasured one.
+         *
+         * So it lands in `perEvent` like any other: queried, zero markets offered, all five
+         * families absent. That is exactly what NOT_OFFERED means, and it is never retried.
+         */
+        const joinRowFailed = joinedByOddsId.get(target.providerEventId);
+        perEvent.push({
+          oddsEventId: target.providerEventId,
+          canonicalEventId: joinRowFailed.canonicalEventId,
+          matchup: `${target.away} @ ${target.home}`,
+          providerStatus: probeRes.status,
+          providerResultClass: classifyProviderResult({ status: probeRes.status, body: probeRes.body }).class,
+          marketsSeen: {},
+          absentMarkets: [...PROP_PROBE_MARKETS],
+          atdRows: 0,
+          lineRows: 0,
+          note: "provider returned no prop markets for this event (422/absent) — typed evidence, never retried",
+        });
       } else {
         const marketsSeen = new Map();
         for (const bk of probeRes.body?.bookmakers ?? []) for (const mkt of bk.markets ?? []) {
@@ -619,11 +583,13 @@ const publicArtifact = {
   /*
    * THE DISPLAYED PRICES — one named book, never a blend (founder decision, 2026-09-24).
    *
-   * DraftKings is the reference sportsbook for displayed NFL prop prices. The price a reader sees
-   * is DraftKings' own number, attributed to DraftKings. Nothing is averaged, no consensus is
-   * synthesised, and when DraftKings has not posted a player/market the row falls to a typed
-   * unavailable state — ANOTHER BOOK IS NEVER SILENTLY SUBSTITUTED, because the attribution on
-   * screen would then be a lie about where the number came from.
+   * The price a reader sees is ONE sportsbook's own number, attributed to THAT sportsbook by name.
+   * Nothing is averaged and no consensus is synthesised. DraftKings is the reference book; when it
+   * has not posted a player/market the ladder falls to FanDuel and then to the deterministic
+   * most-complete book — and the fallback is never SILENT, because the row carries the book it was
+   * actually taken from and the UI names it. Substituting a book while keeping the old label is
+   * the failure this guards against; substituting the book AND the label is just coverage.
+   * When no book has a complete market the row falls to a typed unavailable state.
    *
    * ⚠ The private capture keeps EVERY book (see the snapshot's propProbe), so a comparison or
    * best-line view can be built later from evidence already on disk without re-spending a credit.

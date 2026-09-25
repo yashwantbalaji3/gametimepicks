@@ -61,8 +61,33 @@ test("blockers are typed and reality-gated, including the ones nobody can code a
      and the blocker vanished from the lane while the thing it describes was unchanged. Two honest
      states, and they are different claims — NO_MARKET is evidence about the books, NOT_REQUESTED
      is a fact about our own scope and evidence about nothing. */
+  /*
+   * ⚠ AND THEN WE STARTED HOLDING PRICES (P0 · 2026-09-24), so "the blocker must be present" became
+   * an assertion about a world that had ended. The first full-week sweep published real player
+   * prices, `holdsPlayerPrice` went true for the RIGHT reason, the blocker cleared — and this guard
+   * went red for the best possible reason, exactly as `first-settlement` below once did.
+   *
+   * The fix is NOT to delete the assertion. The invariant was never "the blocker exists"; it was
+   * "the blocker exists exactly when no player price is held". Pinning one side of a biconditional
+   * only ever caught one direction, and it was about to be weakened into catching neither. So BOTH
+   * directions are asserted against the canonical artifact the generator itself reads:
+   *
+   *   no price held  ⇒ the blocker is present, and its state says WHY
+   *   price held     ⇒ the blocker is absent, and does not linger as a stale claim
+   *
+   * That is strictly stronger than what was here, and it is what would have caught the original
+   * defect (a blocker vanishing while nothing was published) without also failing the day the
+   * system finally worked.
+   */
+  const heldPlayerPrices = (read(path.join(APP, "public/data/nfl/markets/latest.json")).propPrices?.rows ?? []).length;
   const playerBlocker = byId["player-markets-absent"];
-  assert.ok(playerBlocker, "no player price is held, so the blocker must be present whatever the reason");
+  if (heldPlayerPrices === 0) {
+    assert.ok(playerBlocker, "no player price is held, so the blocker must be present whatever the reason");
+  } else {
+    assert.equal(playerBlocker, undefined,
+      `${heldPlayerPrices} player price(s) are published for this window — the "no player market" blocker must clear itself`);
+    return; // nothing further to assert about a blocker that correctly does not exist
+  }
   /*
    * A THIRD CONDITION EXISTS NOW, AND IT CAUGHT A REAL DEFECT (2026-09-24).
    *

@@ -30,6 +30,13 @@ test("ONE ranking owner — the hub renders the artifact verbatim and never rank
   assert.match(SRC, /w\.seasonType === period\.seasonType && w\.week === period\.week/, "membership is (seasonType, week)");
 });
 
+/* The canonical owner of prop prices, keyed exactly as a board row identifies itself. The capture
+   publishes anytime TD under the BOARD's family name (`anytime_td`), so no translation is needed. */
+const pricedKeys = new Map(
+  ((read("public/data/nfl/markets/latest.json")?.propPrices?.rows) ?? [])
+    .map((r) => [`${String(r.canonicalEventId).replace(/^nfl-/, "")}|${r.playerId}|${r.family}`, r]),
+);
+
 test("LIVE · published boards obey the contract (skip-free when the artifact exists)", () => {
   if (!wb) return; // pre-first-run tree
   assert.ok(["FULL_WEEK", "REMAINING_EVENTS"].includes(wb.scope.kind), "scope is declared");
@@ -45,7 +52,44 @@ test("LIVE · published boards obey the contract (skip-free when the artifact ex
       assert.notEqual(r.participation, "INACTIVE", `${r.name}: a confirmed-out player never ranks on a default board`);
       assert.ok(r.value <= prev, `${b.id}: rows out of rank order`);
       prev = r.value;
-      assert.equal(r.pricingState, "NOT_AUTHORIZED", "no row may imply a current authorized price exists");
+      /*
+       * ⚠ THIS PINNED `NOT_AUTHORIZED` — a state the world left behind (P0 · 2026-09-24).
+       *
+       * While props were out of the receipt's scope, "no row implies a price" and "every row says
+       * NOT_AUTHORIZED" were the same sentence, so the guard pinned the easier one. The founder
+       * then authorized the five prop families, real prices arrived, and the guard failed for the
+       * best possible reason — a proxy outliving the thing it stood for.
+       *
+       * The invariant was never the literal. It is that a row makes EXACTLY ONE claim about price
+       * and that the claim is true:
+       *
+       *   a market     ⇒ a real captured price, attributed to a named book, stamped — and NO
+       *                  simultaneous claim of absence
+       *   no market    ⇒ a TYPED absence, and never a bare "unavailable"
+       *
+       * and, the direction that actually shipped the bug this P0 exists to fix, an absence must
+       * agree with the canonical capture: a row may not say "not checked" about a player the
+       * owner has priced.
+       */
+      const priceClaim = pricedKeys.get(`${r.providerEventId}|${r.playerId}|${b.family}`);
+      if (r.market) {
+        assert.equal(r.pricingState, undefined, `${r.name}: a priced row must not also claim an absence`);
+        assert.ok(r.market.sportsbook, `${r.name}: a price with no named book cannot be attributed`);
+        assert.ok(Number.isFinite(Date.parse(r.market.capturedAt)), `${r.name}: a price must carry the instant it was captured`);
+        if (b.family === "anytime_td") {
+          assert.ok(Number.isFinite(r.market.yesOdds), `${r.name}: an anytime-TD row needs its yes price`);
+          assert.equal(r.market.overOdds, undefined, `${r.name}: a one-sided market must not grow a second side`);
+        } else {
+          assert.ok(Number.isFinite(r.market.line), `${r.name}: a two-sided row needs its point`);
+          assert.ok(Number.isFinite(r.market.overOdds) && Number.isFinite(r.market.underOdds),
+            `${r.name}: both sides come from the named book, or it is not a market`);
+        }
+      } else {
+        assert.ok(["NOT_OFFERED", "NOT_PROBED", "IDENTITY_UNRESOLVED", "STALE"].includes(r.pricingState),
+          `${r.name}: an unpriced row must carry a TYPED absence, got ${JSON.stringify(r.pricingState)}`);
+        assert.equal(priceClaim, undefined,
+          `${r.name}: the canonical capture prices this row (${priceClaim?.sportsbook}), so the board may not say ${r.pricingState}`);
+      }
       assert.ok(r.opponent && r.kickoffUtc && r.providerEventId, `${r.name}: row identity incomplete`);
     }
     // No duplicate player rows across the board.

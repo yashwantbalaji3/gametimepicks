@@ -45,9 +45,26 @@ on:
       # exactly the bulk call's 3 credits; this can only be turned on by a human dispatching the
       # workflow, under the 2026-09-24 amendment to docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md.
       probe_props:
-        description: "Also probe ONE event's player props (worst case +5 credits, dispatch only)"
+        description: "Player props: false | one (1 event, +5 credits) | all (every event in the window)"
         required: false
         default: "false"
+      # P0 · 2026-09-24. A 40-hour horizon CANNOT COVER AN NFL WEEK: on a Thursday evening 16 of 17
+      # pre-start events were week 3 and exactly ONE sat inside 40 hours, so every Sunday and Monday
+      # row read "Not checked" for reasons that had nothing to do with the books. `week_window`
+      # follows the canonical schedule owner's own (seasonType, week) instead of a clock.
+      #
+      # ⚠ IT CHANGES THE PROP COST AND NOTHING ELSE. The bulk team call is markets x regions — three
+      # credits whatever the window holds — so a wider window is free for team markets and linear for
+      # props: 15 events x 5 families = 75. The capture PRINTS that arithmetic before its first call
+      # and the receipt gate refuses at the ceiling either way.
+      week_window:
+        description: "Capture the whole active NFL (seasonType, week) instead of the hour horizon"
+        required: false
+        default: "false"
+      max_prop_events:
+        description: "Hard cap on events probed when probe_props=all"
+        required: false
+        default: "20"
 
 concurrency:
   group: gtp-generated-artifacts
@@ -159,27 +176,64 @@ jobs:
           set -euo pipefail
           node scripts/sports/capture-injuries.mjs --now "${{ steps.window.outputs.now }}"
 
+      # `!cancelled()` (P0 · 2026-09-24) — THE SAME LESSON AS THE BLOCK BELOW, ONE STEP EARLIER.
+      #
+      # ⚠ A FREE FRESHNESS INPUT MUST NOT BE ABLE TO SKIP THE PAID CAPTURE. On 2026-09-24 ESPN
+      # answered 404 for ONE team for a few minutes; the roster capture wrote 31 teams, the role-share
+      # build correctly refused a league whose abbreviations disagree with the corpus and exited 3 —
+      # and GitHub skipped every step after it, including this one. The job went red for a roster blip
+      # and the week's prices were never bought, which is the opposite of what that guard is for.
+      #
+      # This step keeps its OWN preconditions: the window must hold events, skip_odds must be unset,
+      # and the receipt gate still refuses fail-closed. What it no longer inherits is somebody else's
+      # failure. (The carry-forward in capture-nfl-rosters.mjs stops that particular blip at source;
+      # this stops the NEXT one, whatever it turns out to be.)
       - name: Authorized odds capture (receipt-gated, the only credit-bearing step)
-        if: steps.window.outputs.events != '0' && github.event.inputs.skip_odds != 'true'
+        if: >-
+          !cancelled() && steps.window.outputs.events != '0'
+          && github.event.inputs.skip_odds != 'true'
         working-directory: app
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          NOW: ${{ steps.window.outputs.now }}
+          PROBE_PROPS: ${{ github.event.inputs.probe_props || 'false' }}
+          WEEK_WINDOW: ${{ github.event.inputs.week_window || 'false' }}
+          MAX_PROP_EVENTS: ${{ github.event.inputs.max_prop_events || '20' }}
+          LOOKAHEAD_HOURS: ${{ github.event.inputs.lookahead_hours || 40 }}
         run: |
           set -euo pipefail
-          # P256 · Task 7: the founder's 2026-09-10 authorization (team markets, 500-credit season
-          # ceiling, expiry at the ceiling). The P171 receipt lapsed at its program's close and refused
-          # every capture since. Player props are OUT of this receipt's scope, so the per-event prop
-          # probe is no longer requested.
+          # P256 · Task 7: the founder's 2026-09-10 authorization, as amended 2026-09-24 — team
+          # markets, the five player-prop families, and an effective 1,160-credit cumulative ceiling
+          # that BOTH parsers read. The P171 receipt lapsed at its program's close and refused every
+          # capture since; this one is the receipt the capture reads.
           # The capture's window follows the SAME input as the gate above, defaulting to 40h. Two
           # separate numbers could disagree — a dispatch widening the gate to include Monday night
           # still bought a 40h window and left that game unpriced — and the bulk call costs the same
           # 3 credits whatever the window holds, so a wider one is free coverage, never extra spend.
+          #
+          # ⚠ THE FLAGS ARE ASSEMBLED IN SHELL, NOT IN A `${{ }}` TERNARY. A conditional expression
+          # that expands to an empty string is invisible in the rendered command, so an input that
+          # silently did nothing looked exactly like an input that worked. An unrecognised value now
+          # REFUSES rather than quietly capturing the default.
+          FLAGS=()
+          case "$PROBE_PROPS" in
+            all)       FLAGS+=(--probe-props all --max-prop-events "$MAX_PROP_EVENTS") ;;
+            one|true)  FLAGS+=(--probe-props auto) ;;
+            false|"")  : ;;
+            *) echo "REFUSED: probe_props must be false|one|all (got '$PROBE_PROPS')"; exit 2 ;;
+          esac
+          case "$WEEK_WINDOW" in
+            true)      FLAGS+=(--week-window) ;;
+            false|"")  : ;;
+            *) echo "REFUSED: week_window must be true|false (got '$WEEK_WINDOW')"; exit 2 ;;
+          esac
+          echo "odds capture flags: ${FLAGS[*]:-<none>}"
           node scripts/nfl/capture-nfl-odds.mjs \
-            --now "${{ steps.window.outputs.now }}" \
+            --now "$NOW" \
             --authorized \
             --receipt docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md \
-            --lookahead-hours "${{ github.event.inputs.lookahead_hours || 40 }}" \
-            ${{ github.event.inputs.probe_props == 'true' && '--probe-props auto' || '' }}
+            --lookahead-hours "$LOOKAHEAD_HOURS" \
+            ${FLAGS[@]+"${FLAGS[@]}"}
 
       # `!cancelled()` (P265): these three need ROSTERS and INJURIES, which are captured above and did
       # not fail — but GitHub skips every later step once one fails, so a refused PAID odds capture took
