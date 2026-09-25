@@ -305,7 +305,7 @@ export function espnAthleteId(playerId) {
  *
  * Pure: the caller supplies the board, the provider payload, the previous artifact and the clock.
  */
-export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, prior = null, observedAt, hashOf }) {
+export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, prior = null, observedAt, hashOf, reconciliationWindowMs = RECONCILIATION_WINDOW_MS }) {
   const priorById = new Map((prior?.rows ?? []).map((r) => [r.predictionId, r]));
   const identityOf = hashOf ?? ((o) => JSON.stringify(o));
   const kickoffMs = Date.parse(String(kickoffUtc ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));
@@ -313,6 +313,13 @@ export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, pri
   let frozenRefusedNewerBoard = 0;
   let frozenRefusedNoPregameSnapshot = 0;
   let reconciled = 0;
+  let recoveredFromNoMeasurement = 0;
+
+  /* The first instant we saw this game FINAL. It anchors the reconciliation window, so it is
+     recorded once and carried, never recomputed from the current clock on every read. */
+  const isFinal = phaseOf(summary) === "FINAL";
+  const finalFirstObservedAt = prior?.finalFirstObservedAt ?? (isFinal ? observedAt : null);
+  const finality = isFinal ? finalityAt({ finalFirstObservedAt, nowIso: observedAt, windowMs: reconciliationWindowMs }) : null;
 
   /*
    * ⚠ A FROZEN BLOCK MAY ONLY BE MINTED FROM EVIDENCE CAPTURED BEFORE KICKOFF.
@@ -368,9 +375,36 @@ export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, pri
       }
 
       const live = liveFactual({ summary, espnId: id, family, observedAt });
-      const settlement = previous?.settlement?.state === "SETTLED" || previous?.settlement?.state === "NO_MEASUREMENT"
-        ? previous.settlement
-        : settle({ summary, espnId: id, family, frozenLine: frozen?.market?.line ?? null, projection: frozen?.projection?.median ?? null, participation: frozen?.participation ?? null, settledAt: observedAt });
+      const prevS = previous?.settlement ?? null;
+      const attempt = () => settle({ summary, espnId: id, family, frozenLine: frozen?.market?.line ?? null, projection: frozen?.projection?.median ?? null, participation: frozen?.participation ?? null, settledAt: observedAt });
+
+      let settlement;
+      if (prevS?.state === "SETTLED") {
+        /* Idempotent: the published result and its instant never change. Only the window closing is
+           allowed to advance, because that is a statement about the window and not about the grade. */
+        settlement = { ...prevS, finality: finality ?? prevS.finality ?? "PROVISIONAL" };
+      } else if (prevS?.state === "NO_MEASUREMENT" && prevS.finality === "CANONICAL") {
+        settlement = prevS;                                   // terminal: the window already closed on it
+      } else {
+        /*
+         * ⚠ A PROVISIONAL NO_MEASUREMENT IS RE-ATTEMPTED. This is the whole point of the window: a
+         * stat block that had not published when the game first read FINAL gets another look, and a
+         * player who was merely late is graded rather than left permanently ungraded on the strength
+         * of one response.
+         */
+        settlement = attempt();
+        if (isFinal) settlement.finality = finality;
+        /* A re-observed absence keeps the instant we FIRST saw it. Restamping on every read would
+           make "when did this become unmeasured" drift forward until the window closed. */
+        if (prevS?.state === "NO_MEASUREMENT" && settlement.state === "NO_MEASUREMENT") {
+          settlement.settledAt = prevS.settledAt;
+          settlement.reObservedAt = observedAt;
+        }
+        if (prevS?.state === "NO_MEASUREMENT" && settlement.state === "SETTLED") {
+          settlement.recoveredFrom = { state: "NO_MEASUREMENT", firstObservedAt: prevS.settledAt, note: "the provider reported no stat for this player when the game first read FINAL, and reported one on a later read inside the reconciliation window" };
+          recoveredFromNoMeasurement += 1;
+        }
+      }
 
       /*
        * ⚠ IDEMPOTENT, BUT NOT SEALED AGAINST A CORRECTION. Providers do revise a box score. The
@@ -395,30 +429,51 @@ export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, pri
       });
     }
   }
-  return { rows, frozenRefusedNewerBoard, frozenRefusedNoPregameSnapshot, reconciled };
+  return { rows, finalFirstObservedAt, finality, frozenRefusedNewerBoard, frozenRefusedNoPregameSnapshot, reconciled, recoveredFromNoMeasurement };
+}
+
+/**
+ * ⚠ A GAME GOING FINAL IS NOT THE SAME INSTANT AS ITS STAT BLOCKS BEING COMPLETE.
+ *
+ * ESPN can report a game FINAL before every player block has landed, and it revises box scores
+ * afterwards. My first rule said "FINAL and every row SETTLED-or-NO_MEASUREMENT → stop forever",
+ * which quietly made a merely-DELAYED player permanently ungraded: the absence became terminal on
+ * the strength of one response, and the reconciliation path could never fire because no further
+ * observation was ever taken.
+ *
+ * So the lifecycle has a bounded tail:
+ *
+ *   LIVE → FINAL_PROVISIONAL → (reconciliation window) → FINAL_CANONICAL → stop
+ *
+ * An observed measurement still settles IMMEDIATELY — nothing waits. What the window buys is the
+ * chance to see a late stat, a late correction, or a block that simply had not published yet. It
+ * closes on the clock, so termination is deterministic and a completed game cannot linger.
+ */
+export const RECONCILIATION_WINDOW_MS = 3 * 3600_000;
+
+/** PROVISIONAL while the post-final window is open; CANONICAL once it has closed. */
+export function finalityAt({ finalFirstObservedAt, nowIso, windowMs = RECONCILIATION_WINDOW_MS }) {
+  const first = Date.parse(finalFirstObservedAt ?? "");
+  const now = Date.parse(nowIso ?? "");
+  if (!Number.isFinite(first) || !Number.isFinite(now)) return "PROVISIONAL";
+  return now - first >= windowMs ? "CANONICAL" : "PROVISIONAL";
 }
 
 /**
  * Should this event still be polled?
  *
- * ⚠ A SETTLED GAME LEAVES THE LOOP. Settlement is idempotent, so a further read can only confirm
- * what is already recorded or raise a reconciliation — polling on regardless is how a "live"
- * tracker spends the rest of the week re-reading Sunday's box scores.
- *
- * ⚠ AND "FULLY SETTLED" MUST INCLUDE NO_MEASUREMENT. A game where one player never appeared in the
- * box score never reaches all-SETTLED, so a rule that only counts SETTLED would poll that game
- * forever — one absent receiver keeping a finished game in the loop indefinitely.
- *
- * The caller's time window is a BACKSTOP, not this rule: a game that finishes in three hours should
- * stop being polled in three, not when the window happens to close.
+ * ⚠ "FULLY SETTLED" IS NOT ENOUGH ON ITS OWN, and neither is NO_MEASUREMENT. A game stops being
+ * polled when its reconciliation window has CLOSED — not when the first FINAL response happens to
+ * look complete. That is what gives a late stat somewhere to arrive.
  */
-export function shouldPollEvent(prior) {
-  if (!prior || prior.phase !== "FINAL") return { poll: true, reason: prior ? "not final yet" : "never observed" };
-  const rows = prior.rows ?? [];
-  if (!rows.length) return { poll: true, reason: "final, but no rows were recorded — nothing has settled" };
-  const terminal = (r) => r.settlement?.state === "SETTLED" || r.settlement?.state === "NO_MEASUREMENT";
-  const pending = rows.filter((r) => !terminal(r)).length;
-  return pending === 0
-    ? { poll: false, reason: "final and every prediction has reached a terminal state" }
-    : { poll: true, reason: `final, but ${pending} prediction(s) have not settled` };
+export function shouldPollEvent(prior, nowIso, windowMs = RECONCILIATION_WINDOW_MS) {
+  if (!prior) return { poll: true, reason: "never observed" };
+  if (prior.phase !== "FINAL") return { poll: true, reason: "not final yet" };
+  if (!prior.finalFirstObservedAt) return { poll: true, reason: "final, but no first-final instant recorded — this read establishes it" };
+  const finality = finalityAt({ finalFirstObservedAt: prior.finalFirstObservedAt, nowIso, windowMs });
+  if (finality === "PROVISIONAL") {
+    const pending = (prior.rows ?? []).filter((r) => r.settlement?.state === "NO_MEASUREMENT").length;
+    return { poll: true, reason: pending ? `reconciliation window open; ${pending} prediction(s) have no measurement yet` : "reconciliation window open — a late correction can still arrive" };
+  }
+  return { poll: false, reason: "reconciliation window closed — every prediction is canonical" };
 }

@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { buildLiveRows, espnAthleteId } from "./live-prop-state.mjs";
+import { buildLiveRows, espnAthleteId, shouldPollEvent } from "./live-prop-state.mjs";
 
 const SUMMARY = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/__fixtures__/espn-nfl-summary-401872932.json"), "utf8"));
 const hashOf = (o) => crypto.createHash("sha256").update(JSON.stringify(o)).digest("hex").slice(0, 16);
@@ -100,8 +100,14 @@ test("⚠ SETTLEMENT HAPPENS ONCE — a re-read cannot restamp or re-grade it", 
   const again = build("post", settled, "2026-09-19T12:00:00Z");
   const a = row(settled, "player_reception_yds").settlement;
   const b = row(again, "player_reception_yds").settlement;
-  assert.deepEqual(b, a, "the original settlement is preserved byte for byte");
+  for (const k of ["state", "finalStat", "line", "lineResult", "forecastResult", "settledAt"]) {
+    assert.deepEqual(b[k], a[k], `the published ${k} is preserved`);
+  }
   assert.equal(b.settledAt, "2026-09-18T04:00:00Z", "including WHEN it settled");
+  /* ⚠ Only `finality` may advance — that is a statement about the reconciliation window, not about
+     the grade. Everything a reader was shown is unchanged. */
+  assert.equal(a.finality, "PROVISIONAL");
+  assert.equal(b.finality, "CANONICAL", "a day later the window has closed");
 });
 
 test("⚠ PENDING IS NEVER A LOSS", () => {
@@ -209,5 +215,107 @@ test("NO_MEASUREMENT survives a re-run and never ripens into a loss", () => {
   assert.equal(first.rows[0].settlement.state, "NO_MEASUREMENT");
   assert.equal(first.rows[0].settlement.participationAtFreeze, "CONFIRMED_OUT", "the participation we held is carried into the record");
   const again = buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: ghostBoard, summary: phased("post"), prior: first, observedAt: "2026-09-20T04:00:00Z", hashOf });
-  assert.deepEqual(again.rows[0].settlement, first.rows[0].settlement, "it is preserved, not re-graded into an Under on a later pass");
+  const s2 = again.rows[0].settlement;
+  assert.equal(s2.state, "NO_MEASUREMENT", "it is preserved, not re-graded into an Under on a later pass");
+  assert.equal(s2.lineResult, null);
+  assert.equal(s2.settledAt, first.rows[0].settlement.settledAt, "and it keeps the instant we first saw the absence");
+  assert.equal(s2.finality, "CANONICAL", "two days later the window has closed and the absence is terminal");
+});
+
+/* A FINAL response whose receiving block omits, blanks, or reports our player. */
+const finalWith = (mode) => {
+  const s = phased("post");
+  for (const tg of s.boxscore.players) {
+    for (const st of tg.statistics) {
+      if (st.name !== "receiving") continue;
+      const i = st.athletes.findIndex((a) => a.athlete.id === "4374302");
+      if (i < 0) continue;
+      if (mode === "missing") st.athletes.splice(i, 1);
+      else if (mode === "blank") st.athletes[i].stats = st.labels.map(() => "");
+      else if (mode === "zero") st.athletes[i].stats = st.labels.map((l) => (l === "REC" ? "0" : l === "YDS" ? "0" : "0"));
+      else if (mode === "eightySeven") st.athletes[i].stats[st.labels.indexOf("YDS")] = "87";
+    }
+  }
+  return s;
+};
+const buildWith = (summary, prior, at) => buildLiveRows({ providerEventId: EVENT, kickoffUtc: KICKOFF, board: board(79.5), summary, prior, observedAt: at, hashOf });
+
+test("⚠ FINAL #1 missing → NO_MEASUREMENT, and FINAL #2 reporting 0 RECONCILES it", () => {
+  /*
+   * ESPN can mark a game FINAL before every player block has published. Treating the first response
+   * as terminal makes a merely-DELAYED player permanently ungraded — and because polling would have
+   * stopped, no later observation could ever correct it.
+   */
+  const first = buildWith(finalWith("missing"), null, "2026-09-18T04:00:00Z");
+  const a = row(first, "player_reception_yds").settlement;
+  assert.equal(a.state, "NO_MEASUREMENT", "absent at the first FINAL read");
+  assert.equal(a.finality, "PROVISIONAL", "⚠ but NOT terminal — the window is open");
+  assert.equal(a.lineResult, null, "and never graded in the meantime");
+  assert.equal(shouldPollEvent({ phase: "FINAL", finalFirstObservedAt: "2026-09-18T04:00:00Z", rows: first.rows }, "2026-09-18T04:30:00Z").poll, true,
+    "so the game stays in the loop");
+
+  /* ⚠ A LATE ZERO IS A REAL MEASUREMENT. He dressed, played, and caught nothing — that settles UNDER. */
+  const second = buildWith(finalWith("zero"), first, "2026-09-18T05:00:00Z");
+  const b = row(second, "player_reception_yds").settlement;
+  assert.equal(b.state, "SETTLED");
+  assert.equal(b.finalStat, 0);
+  assert.equal(b.lineResult, "UNDER", "a measured zero is below a 79.5 line");
+  assert.equal(b.recoveredFrom.state, "NO_MEASUREMENT", "and the record says it recovered from an absence");
+  assert.equal(b.recoveredFrom.firstObservedAt, "2026-09-18T04:00:00Z");
+  /* ⚠ TWO, not one. The player carries two families on this board and BOTH were absent at the first
+     FINAL read, so both recover when he reappears — the anytime-TD row settles NO off the same
+     receiving block. I asserted 1; the counter is per PREDICTION, which is the number worth having. */
+  assert.equal(second.recoveredFromNoMeasurement, 2);
+  assert.equal(row(second, "anytime_td").settlement.lineResult, "NO", "he reappeared with no touchdown");
+});
+
+test("⚠ FINAL #1 missing → NO_MEASUREMENT, and FINAL #2 reporting 87 RECONCILES it", () => {
+  const first = buildWith(finalWith("missing"), null, "2026-09-18T04:00:00Z");
+  assert.equal(row(first, "player_reception_yds").settlement.state, "NO_MEASUREMENT");
+
+  const second = buildWith(finalWith("eightySeven"), first, "2026-09-18T05:00:00Z");
+  const b = row(second, "player_reception_yds").settlement;
+  assert.equal(b.state, "SETTLED");
+  assert.equal(b.finalStat, 87);
+  assert.equal(b.lineResult, "OVER", "87 clears a 79.5 line");
+  /* ⚠ I asserted WIN here while the message beside it argued LOSS — the message was right. Our
+     median 79 sits BELOW the 79.5 line, so our implied side was UNDER; the stat went OVER. */
+  assert.equal(b.forecastResult, "LOSS", "we projected 79 against a 79.5 line — under — and it went over");
+});
+
+test("a blank cell at FINAL behaves like a missing one, and also reconciles", () => {
+  const first = buildWith(finalWith("blank"), null, "2026-09-18T04:00:00Z");
+  assert.equal(row(first, "player_reception_yds").settlement.state, "NO_MEASUREMENT",
+    "⚠ Number(\"\") is 0 — a blank must not settle as a measured zero");
+  const second = buildWith(finalWith("eightySeven"), first, "2026-09-18T05:30:00Z");
+  assert.equal(row(second, "player_reception_yds").settlement.finalStat, 87);
+});
+
+test("a genuinely missing player reaches TERMINAL NO_MEASUREMENT, and polling stops", () => {
+  /* The window is bounded, so this cannot poll forever — but it must not close early either. */
+  let artifact = buildWith(finalWith("missing"), null, "2026-09-18T04:00:00Z");
+  const mid = shouldPollEvent({ phase: "FINAL", finalFirstObservedAt: "2026-09-18T04:00:00Z", rows: artifact.rows }, "2026-09-18T06:00:00Z");
+  assert.equal(mid.poll, true, "two hours in, a late stat can still arrive");
+
+  artifact = buildWith(finalWith("missing"), artifact, "2026-09-18T07:30:00Z");   // past the 3h window
+  const s = row(artifact, "player_reception_yds").settlement;
+  assert.equal(s.state, "NO_MEASUREMENT");
+  assert.equal(s.finality, "CANONICAL", "the window closed and the absence is now terminal");
+  assert.equal(s.settledAt, "2026-09-18T04:00:00Z", "it keeps the instant we first saw the absence");
+  assert.equal(s.lineResult, null, "and is never graded, at any point");
+
+  const done = shouldPollEvent({ phase: "FINAL", finalFirstObservedAt: "2026-09-18T04:00:00Z", rows: artifact.rows }, "2026-09-18T07:30:00Z");
+  assert.equal(done.poll, false, "polling terminates deterministically");
+  assert.match(done.reason, /window closed/);
+});
+
+test("a canonical absence is never re-opened by a later read", () => {
+  const first = buildWith(finalWith("missing"), null, "2026-09-18T04:00:00Z");
+  const closed = buildWith(finalWith("missing"), first, "2026-09-18T08:00:00Z");
+  assert.equal(row(closed, "player_reception_yds").settlement.finality, "CANONICAL");
+  /* Even if the provider later produces a figure, the window has closed and the record stands. */
+  const tooLate = buildWith(finalWith("eightySeven"), closed, "2026-09-19T12:00:00Z");
+  const s = row(tooLate, "player_reception_yds").settlement;
+  assert.equal(s.state, "NO_MEASUREMENT", "a closed window is closed — the terminal record stands");
+  assert.equal(s.finality, "CANONICAL");
 });

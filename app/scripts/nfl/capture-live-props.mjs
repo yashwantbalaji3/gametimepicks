@@ -70,7 +70,7 @@ for (const ev of targets) {
    * ⚠ The 8-hour window would eventually stop it anyway. That is a backstop, not the rule: a game
    * that finishes in three hours should stop being polled in three hours, not five later.
    */
-  const decision = shouldPollEvent(read(path.join(outDir, `${ev.providerEventId}.json`)));
+  const decision = shouldPollEvent(read(path.join(outDir, `${ev.providerEventId}.json`)), NOW);
   if (!decision.poll) {
     skippedSettled += 1;
     console.log(`${ev.shortName}: not polled — ${decision.reason}`);
@@ -87,7 +87,7 @@ for (const ev of targets) {
   /* The sealing rule, the settlement idempotency and the join all live in the library — see
      buildLiveRows. This script does IO and nothing else. */
   const priorPath = path.join(outDir, `${ev.providerEventId}.json`);
-  const { rows, frozenRefusedNewerBoard, frozenRefusedNoPregameSnapshot, reconciled } = buildLiveRows({
+  const { rows, finalFirstObservedAt, finality, frozenRefusedNewerBoard, frozenRefusedNoPregameSnapshot, reconciled, recoveredFromNoMeasurement } = buildLiveRows({
     providerEventId: ev.providerEventId,
     kickoffUtc: ev.dateUtc,
     board, summary, prior: read(priorPath), observedAt: NOW,
@@ -96,11 +96,12 @@ for (const ev of targets) {
   if (frozenRefusedNewerBoard) console.log(`  note: ${frozenRefusedNewerBoard} prediction(s) had a NEWER board value that was refused — the published frozen block stands`);
   if (frozenRefusedNoPregameSnapshot) console.log(`  ⚠ ${frozenRefusedNoPregameSnapshot} prediction(s) have NO frozen block: no snapshot proved it predates kickoff, so none was minted`);
   if (reconciled) console.log(`  note: ${reconciled} settled prediction(s) now disagree with the provider — recorded beside the settlement, which is unchanged`);
+  if (recoveredFromNoMeasurement) console.log(`  note: ${recoveredFromNoMeasurement} prediction(s) had NO measurement at the first FINAL read and were graded from a later one`);
 
   const artifact = {
     schemaVersion: 1, artifact: "nfl-live-props", dataClass: "PUBLIC_DERIVED",
     providerEventId: ev.providerEventId, matchup: ev.shortName, kickoffUtc: ev.dateUtc,
-    phase, observedAt: NOW, source: "espn-nfl-summary (free)",
+    phase, finality, finalFirstObservedAt, observedAt: NOW, source: "espn-nfl-summary (free)",
     frozenFrom: board.generatedAt,
     counts: { rows: rows.length, withLiveStat: rows.filter((r) => r.live.statValue != null).length, settled: rows.filter((r) => r.settlement?.state === "SETTLED").length, noMeasurement: rows.filter((r) => r.settlement?.state === "NO_MEASUREMENT").length, frozenRefusedNewerBoard, frozenRefusedNoPregameSnapshot, reconciled },
     disclaimer: "Live figures are the provider's factual game state. The projection and the sportsbook line beside them are our pre-kickoff record and do not change during the game. No live probability, projected finish or on-track reading is shown.",

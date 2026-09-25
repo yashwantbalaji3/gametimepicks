@@ -102,25 +102,28 @@ test("the library owns the sealing rule and the durable-id join", async () => {
   assert.equal(espnAthleteId("42"), null, "a bare number is not a durable board id — the loose pattern is how the third copy of this rule went wrong");
 });
 
-test("a FINAL, fully settled game is not polled again", async () => {
+test("a FINAL game stays in the loop until its reconciliation window closes", async () => {
   /*
-   * ⚠ MY FIRST VERSION SCANNED THE SOURCE and a probe defeated it by prefixing the condition with
-   * `false &&` — the string was still there, so the guard stayed green while the rule was dead. The
-   * rule now lives in the library as a pure function and is tested by what it RETURNS.
+   * ⚠ THIS USED TO STOP AT THE FIRST FINAL RESPONSE, and that was wrong: ESPN can mark a game final
+   * before every player block has published, so a merely-delayed player became permanently
+   * ungraded — and because polling had stopped, no later read could correct it. The window is the
+   * fix, and it is bounded so termination stays deterministic.
    */
   const { shouldPollEvent } = await import("./live-prop-state.mjs");
-  const settled = (state) => ({ phase: "FINAL", rows: [{ settlement: { state } }, { settlement: { state: "SETTLED" } }] });
+  const FIRST = "2026-09-18T04:00:00Z";
+  const artifact = (rows) => ({ phase: "FINAL", finalFirstObservedAt: FIRST, rows });
+  const settled = [{ settlement: { state: "SETTLED" } }, { settlement: { state: "NO_MEASUREMENT" } }];
 
-  assert.equal(shouldPollEvent(null).poll, true, "never observed — poll it");
-  assert.equal(shouldPollEvent({ phase: "IN_PROGRESS", rows: [] }).poll, true);
-  assert.equal(shouldPollEvent(settled("SETTLED")).poll, false, "final and terminal — leave the loop");
+  assert.equal(shouldPollEvent(null, FIRST).poll, true, "never observed — poll it");
+  assert.equal(shouldPollEvent({ phase: "IN_PROGRESS", rows: [] }, FIRST).poll, true);
+  assert.equal(shouldPollEvent({ phase: "FINAL", rows: [] }, FIRST).poll, true,
+    "final with no recorded first-final instant — this read establishes it");
 
-  /* ⚠ NO_MEASUREMENT MUST COUNT AS TERMINAL. A game where one player never appeared never reaches
-     all-SETTLED, so counting only SETTLED keeps a finished game in the loop forever. */
-  assert.equal(shouldPollEvent(settled("NO_MEASUREMENT")).poll, false,
-    "one absent receiver must not keep a finished game polling indefinitely");
-  assert.equal(shouldPollEvent(settled("PENDING")).poll, true, "a prediction that has not settled keeps it alive");
-  assert.equal(shouldPollEvent({ phase: "FINAL", rows: [] }).poll, true, "final with no rows has settled nothing");
+  assert.equal(shouldPollEvent(artifact(settled), "2026-09-18T05:00:00Z").poll, true,
+    "an hour after FINAL a late stat or correction can still arrive");
+  assert.equal(shouldPollEvent(artifact(settled), "2026-09-18T07:30:00Z").poll, false,
+    "past the window the game is canonical and leaves the loop");
+  assert.match(shouldPollEvent(artifact(settled), "2026-09-18T07:30:00Z").reason, /window closed/);
 });
 
 test("the producer delegates the polling decision too", () => {
