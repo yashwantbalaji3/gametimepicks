@@ -185,3 +185,59 @@ test("a player in NO scoring block is absent, even when the game is final", () =
   assert.equal(settle({ summary: empty, espnId: "999", family: "anytime_td", settledAt: AT }).state, "NO_MEASUREMENT",
     "⚠ and an absent measurement is NOT an anytime-touchdown loss");
 });
+
+test("⚠ A MEASURED ZERO AND NO MEASUREMENT MUST NEVER COLLAPSE", () => {
+  /*
+   * These are different facts with different consequences, and anti-fabrication logic is exactly
+   * the kind of change that quietly merges them — "don't show zeros" is one line away from
+   * "discard a real zero", and "absence means nothing happened" is one line away from grading a
+   * player who never dressed as an Under.
+   *
+   *   measured zero   the provider reports 0 → a RESULT. Settles, and settles UNDER a positive line.
+   *   empty cell      the provider reports "" → NOT a measurement. ⚠ `Number("")` is 0, which is
+   *                   how a blank silently became a measured zero until this test existed.
+   *   absent player   no row at all → NOT a measurement.
+   *
+   * Only the first may ever be graded.
+   */
+  const withStats = (stats, id = "7") => ({
+    header: { competitions: [{ status: { type: { state: "post", completed: true } }, competitors: [] }] },
+    boxscore: { players: [{ team: { abbreviation: "X" }, statistics: [
+      { name: "receiving", labels: ["REC", "YDS", "AVG", "TD", "LONG", "TGTS"], athletes: [{ athlete: { id }, stats }] },
+    ] }] },
+  });
+  const grade = (s, espnId) => settle({ summary: s, espnId, family: "player_receptions", frozenLine: 2.5, projection: 3, settledAt: AT });
+
+  // 1 — a real zero is a result
+  const zero = withStats(["0", "0", "0.0", "0", "0", "3"]);
+  assert.equal(statFor(zero, "7", "player_receptions"), 0, "a reported 0 is a measurement");
+  assert.equal(liveFactual({ summary: zero, espnId: "7", family: "player_receptions", observedAt: AT }).statValue, 0,
+    "and it must reach the live row as 0, not be swallowed as falsy");
+  assert.equal(grade(zero, "7").state, "SETTLED");
+  assert.equal(grade(zero, "7").lineResult, "UNDER", "he was targeted three times and caught none — that is an Under");
+  assert.equal(grade(zero, "7").forecastResult, "LOSS", "we projected over the line; it landed under");
+
+  // 2 — an empty cell is not a measurement
+  const blank = withStats(["", "", "", "", "", ""]);
+  assert.equal(statFor(blank, "7", "player_receptions"), null, "⚠ Number(\"\") is 0 — a blank must not become a measured zero");
+  assert.equal(grade(blank, "7").state, "NO_MEASUREMENT");
+  assert.equal(grade(blank, "7").lineResult, null, "and it is never graded");
+
+  // 3 — an absent player is not a measurement
+  assert.equal(statFor(zero, "999999", "player_receptions"), null);
+  assert.equal(grade(zero, "999999").state, "NO_MEASUREMENT");
+
+  // 4 — the same distinction for the one-sided market
+  const tdZero = {
+    header: { competitions: [{ status: { type: { state: "post", completed: true } }, competitors: [] }] },
+    boxscore: { players: [{ team: { abbreviation: "X" }, statistics: [
+      { name: "rushing", labels: ["CAR", "YDS", "AVG", "TD", "LONG"], athletes: [{ athlete: { id: "7" }, stats: ["11", "38", "3.5", "0", "9"] }] },
+    ] }] },
+  };
+  assert.equal(touchdownsScored(tdZero, "7"), 0, "he carried eleven times and did not score — a measured zero");
+  assert.equal(settle({ summary: tdZero, espnId: "7", family: "anytime_td", settledAt: AT }).lineResult, "NO",
+    "which settles the anytime market NO");
+  assert.equal(touchdownsScored(tdZero, "999999"), null, "while a player in no scoring block has no measurement");
+  assert.equal(settle({ summary: tdZero, espnId: "999999", family: "anytime_td", settledAt: AT }).lineResult, null,
+    "⚠ and is NOT settled NO — an absence is not a failure to score");
+});

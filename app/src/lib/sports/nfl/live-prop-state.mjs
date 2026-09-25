@@ -45,9 +45,22 @@ const FAMILY_READS = Object.freeze({
 
 export const LIVE_FAMILIES = Object.freeze([...Object.keys(FAMILY_READS), "anytime_td"]);
 
+/**
+ * A provider cell as a number, or null when it is not a measurement.
+ *
+ * ⚠ AN EMPTY CELL IS NOT A ZERO, AND `Number("")` IS 0. That coercion is the trap: a blank or
+ * whitespace-only cell would arrive as a measured zero, which is a stat we were never told. A player
+ * who genuinely recorded nothing and a player the provider has no figure for must stay
+ * distinguishable all the way to settlement — one settles UNDER, the other is NO_MEASUREMENT and is
+ * never graded at all. "--" and "-" already failed to parse; "" did not.
+ *
+ * A REAL zero still passes through as 0, because a measured zero IS a result.
+ */
 const num = (v) => {
   if (v == null) return null;
-  const n = Number(String(v).replace(/,/g, ""));
+  const raw = String(v).trim();
+  if (raw === "") return null;
+  const n = Number(raw.replace(/,/g, ""));
   return Number.isFinite(n) ? n : null;
 };
 
