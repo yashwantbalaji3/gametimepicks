@@ -354,3 +354,28 @@ test("P298 · without the replay receipts every forecast keeps the incumbent pai
     assert.match(f.model.winHead.fallbackReason, /no win\/margin historical replay evaluation on file/);
   }
 });
+
+test("the card states the availability blindness, and keeps the receipt out of public copy", () => {
+  /*
+   * ⚠ MEASURED AND THEN REFUSED (2026-09-25). The team rating is built from results and does not
+   * know a starting quarterback has been ruled out, while the player boards beside it already
+   * remove him. A ceiling study with perfect hindsight improved the win rating on average and was
+   * WORSE in one of three seasons, so it did not clear the bar and the rating was left alone. A
+   * limitation that is decided and then not written down is indistinguishable from one nobody
+   * noticed, so the reader-facing card carries it.
+   *
+   * ⚠ AND THE RECEIPT PATH STAYS OUT OF plainEnglish. Only that block is published; putting an
+   * internal research path in it made the builder refuse with `public forecasts would carry
+   * "data/internal"` — a good guard, and the reason the reference lives on the card's own top level
+   * instead.
+   */
+  const card = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/nfl/regular-season-public-card-v1.json"), "utf8"));
+  assert.match(card.plainEnglish.honestLimit, /not from who is playing/i,
+    "the published limit must say the rating does not know who is playing");
+  assert.match(card.plainEnglish.honestLimit, /player projections do remove/i,
+    "and must say the player side DOES remove them, because the two disagreeing is the actual finding");
+  for (const v of Object.values(card.plainEnglish)) {
+    assert.ok(!String(v).includes("data/internal"),
+      "plainEnglish is published verbatim — an internal path in it leaks the research tree to readers");
+  }
+});
