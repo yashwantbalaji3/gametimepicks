@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mergeCaptureRows, rowCapturedAt } from "./capture-merge.mjs";
+import { mergeCaptureRows, rowCapturedAt, carryPropsForward } from "./capture-merge.mjs";
 
 const row = (id, kickoff, capturedAt) => ({ providerEventId: id, kickoffUtc: kickoff, capturedAt });
 const EARLY = "2026-09-13T17:00Z";
@@ -51,4 +51,43 @@ test("nothing prior, nothing carried — and an empty run carries everything it 
   assert.equal(mergeCaptureRows(null, null, {}).rows.length, 0);
   // An empty capture is refused elsewhere, but if it ever reached here the prices must survive it.
   assert.equal(mergeCaptureRows([row("a", EARLY, SAT)], [], { priorCapturedAt: SAT }).carried, 1);
+});
+
+/**
+ * PROPS SURVIVE A RUN THAT DID NOT ASK ABOUT THEM.
+ *
+ * ⚠ CAUGHT BEFORE IT FIRED, 2026-09-25. A full-week sweep published 775 prop prices. Props are
+ * swept on six crons; the three ordinary NFL windows buy only the 3-credit team call. The capture
+ * rebuilt `propMarkets`/`propPrices` from THIS run's probe unconditionally, so the first ordinary
+ * window a few hours later would have published `NOT_PROBED` and `null` — every board, game report
+ * and Vault row back to "Not checked", with a green job and a valid artifact.
+ */
+test("a run that did not probe carries the prior prop block forward, unchanged", () => {
+  const prior = {
+    propMarkets: { state: "PROBED", probedEventIds: ["nfl-401872953"], offeredMarkets: ["player_anytime_td"] },
+    propPrices: { capturedAt: "2026-09-25T04:58:57Z", rows: [{ canonicalEventId: "nfl-401872953", playerId: "nfl-athlete-1", family: "anytime_td", yesOdds: -135, sportsbook: "draftkings", capturedAt: "2026-09-25T04:58:57Z" }] },
+  };
+  const carried = carryPropsForward(prior, null);
+  assert.ok(carried, "a team-only run must not publish an empty prop block over a real one");
+  assert.deepEqual(carried.propMarkets, prior.propMarkets);
+  assert.deepEqual(carried.propPrices, prior.propPrices);
+  assert.equal(carried.propPrices.rows[0].capturedAt, "2026-09-25T04:58:57Z",
+    "a carried price keeps its OWN instant — re-dating it to now would launder a stale price as fresh");
+  /* Same answer whatever shape "did not probe" took. */
+  for (const probe of [undefined, { state: "NO_TARGET" }, { state: "NO_MARKET" }, { state: "REFUSED_BUDGET" }]) {
+    assert.ok(carryPropsForward(prior, probe), `state ${JSON.stringify(probe)} must still carry`);
+  }
+});
+
+test("a run that DID probe keeps its own answer — a carry must never beat a fresh measurement", () => {
+  const prior = { propMarkets: { state: "PROBED", probedEventIds: ["nfl-401872953"] }, propPrices: { rows: [{}] } };
+  assert.equal(carryPropsForward(prior, { state: "PROBED", events: [] }), null,
+    "this run asked; its answer wins, including when the answer is that nothing is offered now");
+});
+
+test("nothing worth carrying is not carried", () => {
+  assert.equal(carryPropsForward(null, null), null);
+  assert.equal(carryPropsForward({}, null), null);
+  assert.equal(carryPropsForward({ propMarkets: { state: "NOT_PROBED", probedEventIds: [] } }, null), null,
+    "a prior that never probed carries nothing — an empty block must not be laundered into evidence");
 });

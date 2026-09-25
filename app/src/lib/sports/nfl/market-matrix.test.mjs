@@ -22,12 +22,27 @@ const APP = process.cwd().endsWith("app") ? process.cwd() : path.join(process.cw
 const SCRIPT = path.join(APP, "scripts/nfl/audit-nfl-market-matrix.mjs");
 const SRC = fs.readFileSync(SCRIPT, "utf8");
 
-/** Pinned to the committed schedule's own clock so the report is reproducible run to run. */
+/**
+ * Pinned to THE CAPTURE'S OWN INSTANT, so the report is reproducible and — more importantly — asks
+ * its question at the moment the question was answered.
+ *
+ * ⚠ PINNING TO THE EARLIEST KICKOFF WAS WRONG, and the coverage gate below is what showed it. That
+ * instant is hours BEFORE the capture ran, so the eligible set included a game that had already
+ * kicked off by the time the sweep happened — and the guard reported a "partial sweep" for an event
+ * the lane is REQUIRED not to query. Coverage is a claim about a moment: "when we last asked, had
+ * we asked about every eligible event?" Evaluating it at a different moment measures a different
+ * population, and the arithmetic then disagrees with a lane that behaved perfectly.
+ */
 const pinnedNow = () => {
+  const capturedAt = (() => {
+    try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/markets/latest.json"), "utf8")).capturedAt; } catch { return null; }
+  })();
+  if (capturedAt && Number.isFinite(Date.parse(capturedAt))) return capturedAt;
+  /* No capture on disk: fall back to just before the earliest scheduled kickoff, which at least
+     gives the guards below a populated week to inspect. */
   const s = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/schedule/latest.json"), "utf8"));
   const pre = (s.rows ?? []).filter((r) => r.statusRaw === "STATUS_SCHEDULED").sort((a, b) => (a.dateUtc < b.dateUtc ? -1 : 1));
   if (!pre.length) return null;
-  /* One second before the earliest scheduled kickoff: every pre-start event of that week is in. */
   return new Date(Date.parse(pre[0].dateUtc) - 1000).toISOString().replace(/\.\d{3}Z$/, "Z");
 };
 
@@ -114,4 +129,34 @@ test("NOT_PROBED is named per event, so the acceptance gate can be read rather t
     if (e.state === "PROBED") assert.ok(e.probed);
     if (e.state === "NOT_PROBED") assert.ok(!e.probed && e.boardPublished);
   }
+});
+
+/**
+ * THE ACCEPTANCE GATE ITSELF (§P0-B): once this week has been swept, NO eligible pre-start event of
+ * it may remain NOT_PROBED.
+ *
+ * ⚠ THE CONDITION IS "ONCE SWEPT", AND IT IS NOT A SOFTENING. A brand-new week exists for hours
+ * before its first sweep, and every event in it is legitimately unasked; a guard that failed there
+ * would be red every Tuesday and would be switched off by the second week. What the lane must never
+ * do is sweep PART of a week — buy prices for nine games and leave six reading "not checked" — and
+ * that is precisely what this asserts: if the capture probed ANY event of the current period, it
+ * must have probed EVERY eligible one.
+ *
+ * Events only ever LEAVE the eligible set (they kick off), so `probed ⊇ eligible` holds for the
+ * whole week once a sweep has run. A partial sweep is the only way to break it.
+ */
+test("no eligible current-week event is left NOT_PROBED once the week has been swept", () => {
+  const now = pinnedNow();
+  if (!now) return;
+  const r = runMatrix(now);
+  const withBoard = r.events.filter((e) => e.boardPublished);
+  if (withBoard.length === 0) return; // nothing published yet: nothing is claimed either way
+  const probed = withBoard.filter((e) => e.probed).length;
+  if (probed === 0) {
+    /* Stated, not silent: this is the pre-sweep state and the guard is inert in it. */
+    console.log(`# note: no event of ${r.period.seasonType}-${r.period.week} has been probed yet — the coverage gate is inert until the first sweep`);
+    return;
+  }
+  assert.equal(r.coverage.eventsNotProbed, 0,
+    `the week was swept (${probed} of ${withBoard.length} events probed) and ${r.coverage.eventsNotProbed} eligible event(s) are still NOT_PROBED: ${r.coverage.notProbedEvents.join(", ")} — a partial sweep leaves real games reading "not checked"`);
 });

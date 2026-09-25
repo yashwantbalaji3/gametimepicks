@@ -36,7 +36,7 @@ import { joinOddsBatch } from "../../src/lib/sports/odds/event-join.mjs";
 import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordRequest, assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { buildPlayerRegistry, resolvePlayerRef } from "../../src/lib/sports/nfl/player-identity.mjs";
 import { twoWayConsensus, medianOf } from "../../src/lib/sports/odds/consensus.mjs";
-import { mergeCaptureRows } from "../../src/lib/sports/odds/capture-merge.mjs";
+import { mergeCaptureRows, carryPropsForward } from "../../src/lib/sports/odds/capture-merge.mjs";
 import { REFERENCE_BOOK, FALLBACK_ORDER, selectPropPrices } from "../../src/lib/sports/odds/prop-display-selection.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -568,6 +568,29 @@ if (!publicRows.length && (priorPublic?.eventCount ?? 0) > 0) {
   publicRows.push(...merged.rows);
 }
 
+/*
+ * DEFENCE 4: A RUN THAT DID NOT ASK ABOUT PROPS MUST NOT ERASE THE ANSWER FROM THE RUN THAT DID.
+ *
+ * ⚠ THIS WOULD HAVE WIPED 775 PRICES AT THE NEXT SCHEDULED CAPTURE. Props are swept on six crons;
+ * the three ordinary windows buy the 3-credit team call and pass no `--probe-props`. `propMarkets`
+ * and `propPrices` were written fresh from THIS run's probe every time, so the first ordinary
+ * window after a sweep would have published `state: "NOT_PROBED"`, `probedEventIds: []` and
+ * `propPrices: null` — and every board, game report and Vault row would have gone back to
+ * "Not checked" a few hours after the sweep paid for them. Nobody would have seen a failure: the
+ * job is green, the artifact is valid, and the site simply forgets.
+ *
+ * It is DEFENCE 3's rule, one field over, and the same sentence covers both: a price captured
+ * before kickoff is not undone by a later run. A carried block keeps its OWN `capturedAt`, so
+ * staleness stays visible and is never re-dated to now.
+ *
+ * ⚠ It cannot leak across a week. A carried `probedEventIds` names last week's events, so a NEW
+ * week's events are absent from it and read NOT_PROBED — which is exactly true of them.
+ */
+const carriedProps = carryPropsForward(priorPublic, propProbe);
+if (carriedProps) {
+  console.log(`carried forward ${carriedProps.propPrices?.rows?.length ?? 0} prop price(s) from ${carriedProps.propPrices?.capturedAt ?? "the prior capture"} — this run did not probe`);
+}
+
 const publicArtifact = {
   schemaVersion: 1,
   artifact: "nfl-market-capture",
@@ -582,7 +605,7 @@ const publicArtifact = {
   // player-market availability, from the authorized probe — absence is EVIDENCE, so the public
   // surface can say NO_MARKET instead of the stale AUTH_REQUIRED language. Prices are never
   // published here; only which market families the provider offers for this window.
-  propMarkets: propProbe?.state === "PROBED"
+  propMarkets: carriedProps ? carriedProps.propMarkets : propProbe?.state === "PROBED"
     ? {
       state: "PROBED",
       /* EVERY event probed, not the first. A single id here is what let a downstream consumer call
@@ -616,7 +639,7 @@ const publicArtifact = {
    * best-line view can be built later from evidence already on disk without re-spending a credit.
    * This block is display, not a model input: nothing here reaches a forecast.
    */
-  propPrices: propProbe?.state === "PROBED"
+  propPrices: carriedProps ? carriedProps.propPrices : propProbe?.state === "PROBED"
     ? {
       referenceBook: REFERENCE_BOOK,
       fallbackOrder: FALLBACK_ORDER,
