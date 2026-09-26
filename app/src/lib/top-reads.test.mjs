@@ -69,11 +69,34 @@ test("sportPanelReads is timeframe-pure for every sport in the set", async () =>
   }
 });
 
-test("homepage + hubs consume the split selectors, never a mixed population under a today title", () => {
+test("homepage + hubs consume the split selectors, never a mixed population under a today title", async () => {
+  const { topToday, topUpcoming, UPCOMING_READS_SHOWN } = await import("./top-reads.ts");
   const home = fs.readFileSync(path.join(process.cwd(), "src/app/page.tsx"), "utf8");
-  assert.match(home, /topToday\(topReads, 10\)/, "homepage today panel uses topToday");
-  assert.match(home, /topUpcoming\(topReads, 10\)/, "homepage upcoming panel uses topUpcoming");
+  /*
+   * ⚠ THE SELECTOR IS THE CLAIM; THE COUNT IS NOT. This pinned `topUpcoming(topReads, 10)` with the
+   * digit in the pattern, so lowering the dated-ahead cap to clear the first-viewport ceiling failed a
+   * test whose stated subject is timeframe purity. A guard that breaks on a number it does not care
+   * about trains people to edit the guard, which is how a real one gets weakened. The count is asserted
+   * below, as a property, against the value the page actually passes.
+   */
+  assert.match(home, /topToday\(topReads,/, "homepage today panel uses topToday");
+  assert.match(home, /topUpcoming\(topReads,/, "homepage upcoming panel uses topUpcoming");
   assert.doesNotMatch(home, /topOverall\(topReads/, "homepage no longer ranks a mixed population");
+
+  /*
+   * And the populations are timeframe-PURE at whatever count the page passes — the property the title
+   * of this test is about, asserted over the selectors rather than over the source text.
+   */
+  const mixed = { reads: [
+    { timeframe: "today", probability: 0.9 }, { timeframe: "upcoming", probability: 0.88 },
+    { timeframe: "today", probability: 0.8 }, { timeframe: "upcoming", probability: 0.78 },
+  ] };
+  for (const n of [1, UPCOMING_READS_SHOWN, 10, 50]) {
+    assert.ok(topToday(mixed, n).every((r) => r.timeframe === "today"), `topToday(${n}) is pure`);
+    assert.ok(topUpcoming(mixed, n).every((r) => r.timeframe === "upcoming"), `topUpcoming(${n}) is pure`);
+  }
+  assert.ok(Number.isInteger(UPCOMING_READS_SHOWN) && UPCOMING_READS_SHOWN > 0 && UPCOMING_READS_SHOWN <= 10,
+    `UPCOMING_READS_SHOWN is a sane preview size, got ${UPCOMING_READS_SHOWN}`);
   for (const hub of ["epl", "ufc", "mlb"]) {
     const s = fs.readFileSync(path.join(process.cwd(), `src/app/${hub}/page.tsx`), "utf8");
     assert.match(s, /sportPanelReads\(topReads/, `${hub} hub uses the timeframe-pure selector`);

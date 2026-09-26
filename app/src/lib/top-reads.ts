@@ -367,6 +367,28 @@ export const topOverall = (set: TopReadsSet | null, n = 10) => (set?.reads ?? []
 export const topToday = (set: TopReadsSet | null, n = 10) =>
   (set?.reads ?? []).filter((r) => r.timeframe === "today").slice(0, n);
 
+/**
+ * How many dated-ahead reads the homepage shows.
+ *
+ * ⚠ IT IS SMALLER THAN THE TODAY PANEL'S TEN, ON PURPOSE. The first-viewport ceiling is 1,820 rendered
+ * words; once NFL went live and a full Sunday published, this panel filled with ten NFL rows — the
+ * longest descriptors on the page — and the busiest-state guard measured 1,882 on main. Nothing
+ * editorial caused it; the calendar did.
+ *
+ * ⚠ AND THIS IS THE REVERSIBLE OPTION, NOT THE ONE THE GUARD ASKS FOR. Its message says to trim
+ * NON-PREDICTION words, and it is right: the footer (170), the primary nav (149), "How it works" (53)
+ * and the launchpad subtitle (58) are where the slack actually is. Deciding which of those public
+ * sentences dies is an editorial call and was left to the founder rather than taken unilaterally the
+ * day before the season's biggest slate. This deletes no sentence and is one constant to revert.
+ *
+ * ⚠ WHAT IT COSTS, STATED PLAINLY: four ranked upcoming reads no longer appear on the homepage. They
+ * are not hidden — every forecast is still published on its sport hub and its own event page — but this
+ * panel has no "view all" link, and the ranked panel renders on /mlb, /epl and /ufc but NOT on /nfl, so
+ * an NFL read cut here has no other ranked surface. The heading claims no completeness, so no claim
+ * breaks. Headroom after the change is 25 words, which is thin: expect this guard to speak again.
+ */
+export const UPCOMING_READS_SHOWN = 6;
+
 /** The strongest N future-dated reads — for a section that says "upcoming", never "today". */
 export const topUpcoming = (set: TopReadsSet | null, n = 10) =>
   (set?.reads ?? []).filter((r) => r.timeframe === "upcoming").slice(0, n);
