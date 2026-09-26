@@ -25,7 +25,8 @@
  * clock times, ordinals, percentages already in evidence, list numbering and the numbers the user
  * themselves supplied are all explicitly allowed. Every exemption here is narrow and named.
  */
-import { ASK_ERROR, ASK_FORBIDDEN_EV_COPY, ASK_FORBIDDEN_WAGERING_COPY, isApprovedLink } from "./contract.mjs";
+import { ASK_ERROR, ASK_FORBIDDEN_EV_COPY,
+  ASK_FORBIDDEN_LIVE_SETTLEMENT_COPY, ASK_FORBIDDEN_WAGERING_COPY, isApprovedLink } from "./contract.mjs";
 
 /**
  * Numbers that are never a sports claim, scrubbed before the numeric scan.
@@ -59,6 +60,11 @@ export function verifyAnswer(answer, evidence, opts = {}) {
   const lower = text.toLowerCase();
   for (const phrase of ASK_FORBIDDEN_WAGERING_COPY) {
     if (containsAsClaim(lower, phrase)) violations.push({ code: ASK_ERROR.FORBIDDEN_COPY, detail: `wagering copy: "${phrase}"` });
+  }
+  for (const phrase of ASK_FORBIDDEN_LIVE_SETTLEMENT_COPY) {
+    /* A leg is not decided until something settles it, and Ask has no per-leg live tool to read.
+       Refused even when the rest of the answer is correct — the same standing as an EV claim. */
+    if (containsAsClaim(lower, phrase)) violations.push({ code: ASK_ERROR.FORBIDDEN_COPY, detail: `in-flight settlement claim: "${phrase}"` });
   }
   for (const phrase of ASK_FORBIDDEN_EV_COPY) {
     // An EV claim is refused even when the answer is otherwise correct: GameTime publishes no

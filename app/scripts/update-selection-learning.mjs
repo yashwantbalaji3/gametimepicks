@@ -90,6 +90,33 @@ function normRes(r) {
 function datesInWindow(through) {
   const out = [];
   const end = new Date(through + "T00:00:00Z");
+  /*
+   * ⚠ A CRASH WHERE A REFUSAL BELONGS. `through` is derived by collecting `d.date` from the
+   * settled ledger; when NO row carries that field the set is empty, `through` is undefined, and
+   * `new Date("undefinedT00:00:00Z")` reaches `toISOString()` as an Invalid Date and throws
+   * `RangeError: Invalid time value` inside `nightly-settle`.
+   *
+   * Measured 2026-09-26 — it is not hypothetical and it is not a missing row:
+   *
+   *     mlb   50,592 rows · 50,592 dated   public/data/mlb/results/settled_leans.jsonl
+   *     epl       46 rows ·      0 dated   public/data/soccer/epl/results/graded-forecasts.jsonl
+   *     nfl/ufc/nba                        ledger MISSING entirely
+   *
+   * 🔴 EPL's ledger dates its rows by `kickoffUtc`. It has no `date` field at all, so the reader is
+   * looking for a key this sport's schema does not use — two ledger schemas, one reader. Deriving
+   * the date from `kickoffUtc` is the real fix and it CHANGES WHAT THE POLICY COMPUTES, so it is a
+   * deliberate change and not a night-before one.
+   *
+   * What changes here is only legibility: the same non-zero exit, the same workflow branch, the
+   * same "prior policy retained" fallback — with the cause stated instead of a stack trace.
+   */
+  if (!Number.isFinite(end.getTime())) {
+    console.error(`REFUSED: no settled row for "${SPORT}" carries a \`date\`, so no window can be derived (through=${JSON.stringify(through)}).`);
+    console.error(`  ledger: ${SETTLED}`);
+    console.error("  EPL's ledger dates by `kickoffUtc` and carries no `date` field — reading the right key is a deliberate change to what the policy computes, not a guard.");
+    console.error("  Prior policy is retained by the caller. Nothing is written.");
+    process.exit(1);
+  }
   for (let i = 0; i < WINDOW; i++) {
     const d = new Date(end); d.setUTCDate(end.getUTCDate() - i);
     out.push(d.toISOString().slice(0, 10));

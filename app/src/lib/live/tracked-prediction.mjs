@@ -135,6 +135,13 @@ export const RAIL_STATE = Object.freeze({
      reader to keep waiting for a number that is not coming. */
   NOT_LIVE_TRACKABLE: "NOT_LIVE_TRACKABLE",
 
+  /* ⚠ THE EVENT IS OVER AND NOTHING HAS SETTLED IT. Between a provider's "Final" and the canonical
+     result there is a real interval — minutes for a box score, longer for a corrected one — and it
+     had no word of its own. A bout that had finished rendered "Live — unresolved", and a completed
+     game's yardage rendered "Currently above line", both of which describe a present that has
+     ended. It is NOT a result state: it says the measurement is complete and the grading is not. */
+  FINAL_AWAITING_SETTLEMENT: "FINAL_AWAITING_SETTLEMENT",
+
   // after settlement, and only after settlement
   FINAL_WIN: "FINAL_WIN",
   FINAL_LOSS: "FINAL_LOSS",
@@ -256,6 +263,17 @@ export function railStateOf(p) {
         /* Canonical, but nothing graded it. That is an honest unknown, not a loss. */
         return R.FINAL_NO_MEASUREMENT;
     }
+  }
+
+  /* ── 1b · the provider says the event is over, and nobody has settled it ───────────────────── */
+  if (p.final?.finality === FINALITY.FINAL_PROVISIONAL) {
+    /* ⚠ ONCE THE EVENT IS OVER, "not trackable live" is the wrong tense. A market nothing could
+       measure did not fail to settle — it ended without a measurement, which is what
+       FINAL_NO_MEASUREMENT says, and it matches what the same row reads once settlement lands. The
+       REASON stays on the row (`pregame.provenance`), where the UI renders it. */
+    if (p.live?.measurementState === M.MARKET_UNSUPPORTED) return R.FINAL_NO_MEASUREMENT;
+    if (p.live?.measurementState === M.EVENT_NOT_TRACKABLE) return R.FINAL_VOID;
+    return R.FINAL_AWAITING_SETTLEMENT;
   }
 
   /* ── 2 · the event cannot produce a measurement ────────────────────────────────────────────── */

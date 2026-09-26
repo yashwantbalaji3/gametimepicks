@@ -251,6 +251,33 @@ export const ASK_FORBIDDEN_EV_COPY = Object.freeze([
 ]);
 
 /**
+ * IN-FLIGHT SETTLEMENT LANGUAGE (§5.2, §11.2) — a leg that is decided before anything settled it.
+ *
+ * ⚠ ADDED AFTER A MEASURED FAILURE, NOT FROM IMAGINATION. Asked "has Derrick Henry already hit his
+ * receiving yards line tonight?", the pipeline published "He has already hit it — that leg is a
+ * winner." with `verified: true`. Verification passed because the sentence carries NO NUMBER: the
+ * numeric-faithfulness gate had nothing to check, the link gate had no link, and the wagering and
+ * expected-value lists do not contain this shape. An unsourceable claim with no digits in it walked
+ * straight through every existing gate to the reader.
+ *
+ * It is the §5.2 rule on the Ask surface. The live contract cannot spell a win outside
+ * FINAL_CANONICAL and neither may a sentence — and Ask is further from being able to than any other
+ * surface, because the tool registry has NO per-leg live tool at all. There is no path by which a
+ * correct answer to that question exists today.
+ *
+ * ⚠ DELIBERATELY NARROW. The list is "already decided" locutions, not the words `won` or `hit`,
+ * which a settled record legitimately uses ("Bank Builder is 37–36", "the forecast hit"). Six
+ * verifier false-positive classes have already cost this product a correct answer apiece; a blunt
+ * ban on `won` would be the seventh.
+ */
+export const ASK_FORBIDDEN_LIVE_SETTLEMENT_COPY = Object.freeze([
+  "already hit it", "already hit his", "already hit her", "already hit their", "already hit the line",
+  "already won", "already cashed", "already a winner", "already a loser", "already a lock",
+  "already cleared the line", "has cleared the line", "already over the line", "already under the line",
+  "leg is a winner", "leg is a loser", "leg has won", "leg has lost", "that's a winner already",
+]);
+
+/**
  * THE APPROVED LINK REGISTRY. Every href Ask can emit is built by code from one of these patterns.
  * The model refers to a link by ID; it never writes a URL. An href that does not match one of these
  * is refused by the answer validator (§99 — no sportsbook link, no affiliate link, no invented route).

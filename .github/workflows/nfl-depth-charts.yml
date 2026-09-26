@@ -1,0 +1,85 @@
+# ── THE DEPTH-CHART REFRESH ─────────────────────────────────────────────────────────────────────
+#
+# WHY THIS EXISTS. `acquire-depth-chart-research.mjs` has been in the repository since 2026-09-08
+# and appeared in NO workflow, so the committed artifact had exactly ONE commit in the repository's
+# history and its newest snapshot was eighteen days old. Measured against the 2026-09-27 slate —
+# 28 team-board questions across fourteen games:
+#
+#     committed (newest 2026-09-08)     3/7/14-day bound → RESOLVED  0 / 28,  age 18.3 days
+#     refreshed (newest 2026-09-26)     3-day bound      → RESOLVED 28 / 28,  age  0.3 days
+#
+# The upstream source was current the whole time. Nothing was fetching it. This is the prerequisite
+# for the founder decision on publishing a starter per pool (§12.2): a current-role claim made from
+# a snapshot that predates three games is a claim about a different present.
+#
+# ⚠ NOT ON SUNDAY, AND THAT IS DELIBERATE. Wednesday and Saturday bracket the NFL week — late
+# enough to catch midweek depth changes, and clear of the day the slate is live and every other bot
+# is pushing. A research refresh has no business competing for main during an acceptance window.
+#
+# FREE AND KEYLESS: nflverse-data, the same source and attribution the acquirer already records. No
+# provider authorization, no credit, no ledger.
+#
+# ⚠ CONTENT-ADDRESSED, so this cannot fight anything. Each distinct upstream file lands as
+# `<season>-<sha16>.{json,csv.gz}` written with `flag: "wx"`, so an unchanged source writes nothing
+# and no filename can ever be rewritten with different bytes.
+#
+# PRIVATE RESEARCH. `dataClass: PRIVATE_RESEARCH`; no public artifact, route or model consumes it.
+# The consumer that reads it (`src/lib/sports/nfl/depth-chart.mjs`) is shadow and requires an
+# explicit staleness bound, so a stale refresh degrades to a refusal rather than to a wrong starter.
+name: nfl-depth-charts
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 08:12 UTC Wednesday and Saturday. Never Sunday.
+    - cron: "12 8 * * 3"
+    - cron: "12 8 * * 6"
+
+concurrency:
+  group: nfl-depth-charts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    name: refresh the NFL depth-chart research snapshots
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      # A source failure is a REAL failure: this job does one thing, and if it cannot do it the run
+      # must be red. There is no `|| true` and no `continue-on-error` — a green step that fetched
+      # nothing is how the eighteen days would have happened again with a workflow in place.
+      - name: Acquire the current season's depth charts
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/acquire-depth-chart-research.mjs --season "$(date -u +%Y)"
+
+      - name: Commit the snapshot if the source changed
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          # Path-scoped to exactly what this job produces. A writer whose output is outside its
+          # job's allowlist is an artifact that is built and never published.
+          git add data/internal/research/nfl/depth-charts/
+          # An unchanged upstream file writes nothing (`flag: "wx"`), which is the normal case on
+          # most runs and must not look like a failure.
+          if git diff --cached --quiet; then echo "source unchanged — nothing to commit"; exit 0; fi
+          git commit -m "auto: nfl depth-chart snapshots $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          for attempt in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push origin HEAD:main; then
+              echo "depth charts published (attempt ${attempt})"
+              exit 0
+            fi
+            echo "::warning::depth-chart push attempt ${attempt} failed — retrying"
+            sleep $((attempt * 5))
+          done
+          echo "::error::depth-chart snapshots could not be published after 3 attempts"
+          exit 1

@@ -142,6 +142,26 @@ jobs:
           fi
           OUT=$(npx tsx scripts/epl/capture-epl-fixtures.mjs --now "$NOW" --from "$TXT" 2>&1) && CODE=0 || CODE=$?
           echo "$OUT"
+          if [ "$CODE" -eq 3 ]; then
+            # ⚠ EXIT 3 IS "THE SOURCE IS PROVISIONAL", WHICH IS NOT A FAILURE.
+            #
+            # openfootball publishes a matchday as ONE placeholder kickoff slot until broadcasters
+            # assign times, so a round a fortnight out is provisional most weeks by construction.
+            # The capture correctly refuses to publish it and the committed capture stands.
+            #
+            # Treating that as a red run cost this workflow EIGHT of its last fourteen (2026-09-14 →
+            # 09-26) while every other capture in those runs succeeded — 30/30 EPL teams, 563
+            # players, NFL, NBA and UFC all fine. A red run nobody reads is a red run that stops
+            # being read, and the next REAL capture failure would have arrived into a workflow
+            # everyone had learned to ignore.
+            #
+            # A WARNING, NEVER SILENCE: it is annotated on the run and it is NOT written to
+            # "$REFUSALS", which is the only thing that decides the run's colour. Every other
+            # non-zero code falls through to the branch below and still turns the run red.
+            echo "::warning::EPL fixtures: the source is publishing a provisional matchday block — nothing published, the committed capture stands"
+            echo "state=SOURCE_PROVISIONAL" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ "$CODE" -ne 0 ]; then
             # A refusal (partial parse, unresolved club, wrong count) means the SOURCE moved under
             # us — surface it as a failure so the run is red and the reason is in the log.

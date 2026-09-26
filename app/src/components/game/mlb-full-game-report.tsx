@@ -548,6 +548,36 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
   );
 }
 
+/**
+ * The provenance of THIS game's simulation, from the artifact alone.
+ *
+ * 🔴 THE ARTIFACT'S TOP-LEVEL `generatedAt` IS NOT EVERY GAME'S GENERATION TIME, and the header
+ * printed it as though it were. The producer carries a game's pregame forecast FORWARD verbatim
+ * when a later run happens after its first pitch — "never regenerated and never destroyed" — and a
+ * carried game keeps NO per-game timestamp. So on 2026-09-26 the slate's `generatedAt` is 21:24Z
+ * while three games with 20:05–20:10Z first pitches are correctly `startedBeforeGeneration: false`,
+ * and the header rendered "Simulated 5:24 PM · pregame" — a clock from after kickoff attached to a
+ * forecast made before it. Each half is defensible; together they are the contradiction §7 names.
+ *
+ * ⚠ AND AN INSTANT COMPARISON HERE IS WORSE, NOT BETTER. My first cut fell back to
+ * `generatedAt < firstPitch`, which labels exactly those three genuine pregame forecasts "after
+ * first pitch". The producer's flag is the only field that knows, and re-deriving it in a component
+ * makes this a second owner with strictly less information.
+ */
+type SimProvenance = "PREGAME" | "PREGAME_CARRIED" | "AFTER_FIRST_PITCH" | "UNSTATED";
+
+export function simProvenance(g: FullGameSimGame, meta: FullGameArtifactMeta | null): SimProvenance {
+  const started = (g.completeness as { startedBeforeGeneration?: boolean } | null)?.startedBeforeGeneration;
+  if (started === true) return "AFTER_FIRST_PITCH";
+  /* An artifact written before the flag existed says nothing, so neither does this. */
+  if (started !== false) return "UNSTATED";
+  const gen = Date.parse(meta?.generatedAt ?? "");
+  const first = Date.parse(g.firstPitch ?? "");
+  if (!Number.isFinite(gen) || !Number.isFinite(first)) return "PREGAME";
+  /* Pregame, but the slate's clock is a LATER run's and is not this game's. */
+  return gen >= first ? "PREGAME_CARRIED" : "PREGAME";
+}
+
 function Methodology({ g, meta }: { g: FullGameSimGame; meta: FullGameArtifactMeta | null }) {
   return (
     <div className="flex flex-col gap-3 text-[12px]" style={{ color: "var(--vault-text-mute)", lineHeight: 1.6 }}>
@@ -637,8 +667,37 @@ export default function MlbFullGameReport({
           <Chip tone="ok">{g.runCount ? `${g.runCount.toLocaleString()} game simulations` : "Full-game sim"}</Chip>
           {g.status === "degraded" ? <Chip tone="warn">Degraded inputs</Chip> : g.status === "ready" ? <Chip tone="ok">Complete inputs</Chip> : <Chip tone="warn">Unavailable</Chip>}
         </div>
+        {/*
+          🔴 THIS SAID "· pregame" UNCONDITIONALLY.
+          §7's rule has no exception: `generatedAt > eventStart` is NOT pregame. On today's slate
+          3 of 13 games carry `completeness.startedBeforeGeneration`, and this header rendered an
+          "Unavailable" chip and "Simulated 21:24 · pregame" side by side — the same artifact
+          calling itself both. A post-start report may be useful; it cannot be called a pregame
+          simulation.
+
+          The sibling component `mlb-simulation-report-v2.tsx` already states this rule in its own
+          header ("Never labels a post-first-pitch capture as pregame"). Two components, one rule,
+          and only one of them kept it.
+
+          Derived from the artifact's own fields, never from a clock: the producer has already
+          decided, and re-deciding here would be a second owner.
+        */}
         {meta?.generatedAt ? (
-          <span className="font-mono" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>Simulated {formatEtTime(meta.generatedAt)} · pregame</span>
+          <span className="font-mono" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>
+            {(() => {
+              switch (simProvenance(g, meta)) {
+                case "AFTER_FIRST_PITCH":
+                  return `Simulated ${formatEtTime(meta.generatedAt)} · after first pitch`;
+                /* No time: the slate's clock belongs to a later run, not to this forecast. */
+                case "PREGAME_CARRIED":
+                  return "Pregame · carried forward from an earlier run";
+                case "PREGAME":
+                  return `Simulated ${formatEtTime(meta.generatedAt)} · pregame`;
+                default:
+                  return `Simulated ${formatEtTime(meta.generatedAt)}`;
+              }
+            })()}
+          </span>
         ) : null}
       </div>
 

@@ -101,7 +101,9 @@ test("FINAL_PROVISIONAL is not a settlement — a provider 'Final' still shows a
     final: { finality: FINALITY.FINAL_PROVISIONAL, actualValue: 91 },
     settlement: { status: SETTLEMENT_STATUS.SETTLED, forecastResult: "HIT" },
   });
-  assert.equal(railStateOf(p), R.CURRENTLY_ABOVE_LINE, "provisional must not spend the result");
+  assert.equal(railStateOf(p), R.FINAL_AWAITING_SETTLEMENT,
+    "a completed event must not describe a present that has ended — and must not spend the result either");
+  assert.equal(isResultState(railStateOf(p)), false);
 });
 
 test("only FINAL_CANONICAL spells an outcome, and each outcome maps once", () => {
