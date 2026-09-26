@@ -24,6 +24,7 @@
  * The stage logic lives in app/src/lib/sports/nfl/lifecycle-trace.mjs and is tested there against
  * synthetic slates, so the rules are exercised without waiting for a Sunday.
  */
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -48,6 +49,41 @@ const flag = (k) => argv.includes(`--${k}`);
 const NOW = arg("now") ?? new Date().toISOString();
 const JSON_OUT = flag("json");
 const ONE_EVENT = arg("event");
+
+/**
+ * The set of live-props artifacts git actually TRACKS, as `<eventId>` strings.
+ *
+ * ⚠ WHY THIS COMMAND AND NOT A `fs.existsSync`. This trace's contract is "committed artifacts only",
+ * and a local producer run leaves files on disk that satisfy `existsSync` while belonging to no
+ * commit. `git ls-files` is the only reading of "committed" that the contract's wording can mean.
+ *
+ * Returns null — meaning "not determined" — when git cannot answer (no repository, no git binary, a
+ * tarball checkout). Null is NOT false: an unanswerable question must not accuse a real artifact.
+ */
+function trackedLiveEventIds() {
+  const tracked = gitList(["ls-files", "-z", "--", "app/public/data/nfl/live-props"]);
+  return tracked === null ? null : new Set(tracked.map((f) => path.basename(f, ".json")));
+}
+
+/** A git plumbing read that answers null — "not determined" — rather than throwing or guessing. */
+function gitList(args) {
+  try {
+    const out = execFileSync("git", args, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    return out.split("\0").filter(Boolean);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Files present under a trace input path that belong to no commit.
+ *
+ * The same shadow class as `liveCommitted`, reported as a banner rather than a stage because these
+ * paths feed stages whose semantics are settlement's, not this trace's, to change.
+ */
+function untrackedUnder(repoRelDir) {
+  return gitList(["ls-files", "-z", "--others", "--exclude-standard", "--", repoRelDir]);
+}
 
 function readJson(p, fallback = null) {
   try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return fallback; }
@@ -109,12 +145,29 @@ if (fs.existsSync(P.settlement)) {
   }
 }
 
+const trackedLive = trackedLiveEventIds();
+
+/*
+ * ⚠ THE SHADOW BANNER. This trace promises "committed artifacts only" and then reads a filesystem.
+ * A local producer run leaves artifacts that are indistinguishable on disk from the bot's, and they
+ * are worse than cosmetic: the bot commits these exact filenames, so an untracked one makes the next
+ * `git pull` abort with "untracked working tree files would be overwritten" — on Sunday morning,
+ * reproduced 2026-09-26. The live-props case is a per-game stage; the settlement ledger is here.
+ */
+const shadowSettlement = untrackedUnder("data/internal/nfl/prop-settlement") ?? [];
+if (shadowSettlement.length > 0 && !JSON_OUT) {
+  console.log(`\n!! ${shadowSettlement.length} UNCOMMITTED file(s) under data/internal/nfl/prop-settlement/ —`);
+  console.log(`   a local shadow, not committed evidence. Remove them before the next pull:`);
+  for (const f of shadowSettlement.slice(0, 5)) console.log(`     ${f}`);
+}
+
 const traces = events.map((ev) => traceGame({
   providerEventId: ev.providerEventId,
   matchup: ev.shortName,
   kickoffUtc: ev.dateUtc,
   board: readJson(path.join(P.boards, `${ev.providerEventId}.json`)),
   live: readJson(path.join(P.live, `${ev.providerEventId}.json`)),
+  liveCommitted: trackedLive === null ? null : trackedLive.has(String(ev.providerEventId)),
   settlementRows: settlementByEvent.get(String(ev.providerEventId)) ?? [],
   inResults: inResults.has(String(ev.providerEventId)),
   now: NOW,
