@@ -142,6 +142,31 @@ test("the live cadence is dense, kickoff-relative, and spends nothing", () => {
       `"${c}" is too sparse — individual runs here are hours late, so only a dense STREAM lands inside a live game`);
   }
   assert.ok(crons.some((c) => /\*\s*0$/.test(c.trim())), "Sunday must be covered");
-  assert.ok(!/ODDS_API_KEY/.test(wf), "live tracking reads a free endpoint; a provider key here would put a paid lane on a 15-minute cadence");
+  /*
+   * ⚠ A PAID LANE MAY LIVE HERE ONLY IF IT BOUNDS ITSELF.
+   *
+   * This asserted `!/ODDS_API_KEY/` — no provider key in this workflow at all — because a paid call
+   * on a 15-minute cron spends by the clock. The fear is exactly right and the blanket ban was the
+   * wrong shape for it: on 2026-09-26 the founder authorized a bounded in-play odds probe and pilot,
+   * and this is the only job that runs WHILE games are in play, so it is where they belong.
+   *
+   * The property that actually matters is that the CRON IS NEVER THE SPEND CONTROL. So a step given
+   * the key must run a script that enforces its own interval against the last recorded call and its
+   * own credit budget — both read from the ledger, neither from the schedule. A future paid step
+   * added here without those bounds fails this, which is what the blanket ban was reaching for.
+   */
+  const keyedSteps = [...wf.matchAll(/- name: ([^\n]+)\n(?:(?!\n      - name:)[\s\S])*?ODDS_API_KEY[\s\S]*?run: ([^\n]+)/g)];
+  if (/ODDS_API_KEY/.test(wf)) {
+    assert.ok(keyedSteps.length > 0, "a provider key appears but no step could be attributed to it");
+    for (const [, name, run] of keyedSteps) {
+      const script = /scripts\/[\w/-]+\.mjs/.exec(run)?.[0];
+      assert.ok(script, `"${name}" is given the key but runs no identifiable script`);
+      const src = fs.readFileSync(path.join(REPO_ROOT, "app", script), "utf8");
+      const selfBounded =
+        /MIN_INTERVAL_MS|ALREADY PROBED/.test(src) &&        // its own cadence, or fires once ever
+        /purposeBudget|assertCallAllowed/.test(src);          // and its own ceiling
+      assert.ok(selfBounded, `"${name}" runs ${script} on a 15-minute cron without its own interval and budget bounds`);
+    }
+  }
   assert.match(wf, /group:\s*gtp-generated-artifacts/, "it commits generated data and must share the writer queue");
 });

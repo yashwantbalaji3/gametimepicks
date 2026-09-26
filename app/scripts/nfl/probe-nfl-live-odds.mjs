@@ -37,7 +37,7 @@ import {
   inPlayAuthorization, parseSportAuthorizationReceipt, purposeBudget, recordRequest, spentOnPurpose, supersededBy,
   LEDGER_RELPATH,
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
-import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, gradeLiveMarketEvidence } from "../../src/lib/sports/odds/live-market-contract.mjs";
+import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, foldLiveStates, gradeLiveMarketEvidence, readLiveStates } from "../../src/lib/sports/odds/live-market-contract.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -131,18 +131,18 @@ const etDateOf = (iso) => {
 
 /* The free live gateway — no credits, no key. The same owner every other live surface reads. */
 const liveBase = process.env.GTP_LIVE_ENDPOINT || "https://gametimepicks.yashwantbalaji.com/api/live/";
-async function liveStatesFor(etDate) {
-  try {
-    const res = await fetch(`${liveBase}?sport=nfl&date=${etDate}`, { signal: AbortSignal.timeout(20_000), headers: { accept: "application/json" } });
-    if (!res.ok) return new Map();
-    const j = await res.json();
-    return new Map((j?.events ?? []).map((e) => [String(e.providerEventId ?? e.eventId), e.state]));
-  } catch { return new Map(); }
-}
 
 const dates = [...new Set(boards.map((b) => etDateOf(b.kickoffUtc)).filter(Boolean))].sort();
-const states = new Map();
-for (const d of dates.slice(-3)) for (const [k, v] of await liveStatesFor(d)) states.set(k, v);
+const reads = [];
+for (const d of dates.slice(-3)) reads.push(await readLiveStates({ base: liveBase, etDate: d }));
+const live0 = foldLiveStates(reads);
+if (!live0.known) {
+  console.error(`LIVENESS UNKNOWN — the live gateway could not be read, so no game can be shown to be in progress:
+  ${live0.failures.join("\n  ")}`);
+  console.error("No credit spent. This is NOT the same as a quiet slate, and the probe stays armed.");
+  process.exit(4);
+}
+const states = live0.states;
 
 const candidates = [];
 for (const b of boards) {

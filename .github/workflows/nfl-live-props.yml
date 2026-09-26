@@ -67,6 +67,36 @@ jobs:
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then ARGS+=(--dry-run); fi
           node scripts/nfl/capture-live-props.mjs "${ARGS[@]}" | tee /tmp/live.txt
 
+      # ── PHASE H · THE LIVE-ODDS PROBE, THEN THE BOUNDED PILOT ───────────────────────────────────
+      #
+      # Both are hosted here because this is the only job that runs WHILE games are in play, and both
+      # decide for themselves whether to spend. Nothing about this cron's timing is load-bearing:
+      #
+      #   the probe    fires once, ever, on the first run that finds a game genuinely in progress,
+      #                and is a no-op on every run afterwards whatever its verdict
+      #   the pilot    refuses until the probe has PASSED, enforces its own ~30-minute interval
+      #                against the last recorded call, and stops at 90 Phase H credits
+      #
+      # So a fifteen-minute cron cannot overspend a thirty-minute cadence, and the repository's own
+      # measured cron lateness (1h40m to 4h55m) cannot either — the bounds are on the ledger, not on
+      # the schedule. `continue-on-error` because a provider hiccup must not fail the live-stat lane
+      # that shares this job; the credit ledger records a charged failure either way.
+      - name: Phase H · live-odds probe (one 3-credit call, only while a game is in play)
+        if: github.event.inputs.dry_run != 'true'
+        continue-on-error: true
+        working-directory: app
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: node scripts/nfl/probe-nfl-live-odds.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --authorized
+
+      - name: Phase H · bounded live-odds pilot (refuses until the probe passes)
+        if: github.event.inputs.dry_run != 'true'
+        continue-on-error: true
+        working-directory: app
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: node scripts/nfl/capture-nfl-live-odds.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --authorized --write
+
       # ── THE DURABLE RECORD (Phase D) ────────────────────────────────────────────────────────────
       #
       # The artifacts above are the CURRENT state and are rewritten on every poll; the ledger is the
@@ -90,7 +120,12 @@ jobs:
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
           # Path-scoped: the live artifacts this run rewrote, and the ledger they were folded into.
-          git add app/public/data/nfl/live-props/ data/internal/nfl/prop-settlement/
+          # Path-scoped: the live artifacts, the settlement ledger, and Phase H's probe verdict,
+          # credit ledger and current-market artifact. A writer whose output is outside its job's
+          # allowlist is an artifact that is built and never published — this repo has lost three
+          # days of an archive to exactly that.
+          git add app/public/data/nfl/live-props/ data/internal/nfl/prop-settlement/ \
+                  data/internal/research/odds/nfl/ app/public/data/nfl/live-markets/
           if git diff --cached --quiet; then echo "no live change"; exit 0; fi
           git commit -m "auto: nfl live props $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
           for attempt in 1 2 3; do
