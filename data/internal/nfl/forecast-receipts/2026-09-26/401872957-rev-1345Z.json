@@ -1,0 +1,108 @@
+{
+ "providerEventId": "401872957",
+ "canonicalEventId": "nfl-401872957",
+ "matchup": "NE @ JAX",
+ "home": {
+  "abbr": "JAX",
+  "name": "Jacksonville Jaguars"
+ },
+ "away": {
+  "abbr": "NE",
+  "name": "New England Patriots"
+ },
+ "kickoffUtc": "2026-09-27T17:00Z",
+ "seasonType": 2,
+ "week": 3,
+ "venue": "EverBank Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 2,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "d3215a6c70a240da",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-win-elo-mov-v1@v1",
+   "nfl-margin-elo-hfa-v1@v1",
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v3-play-efficiency",
+   "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+   "gamesFolded": 7309,
+   "foldedThrough": "2026-09-24",
+   "sigma": 13.32677
+  },
+  "winHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-win-elo-mov-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  },
+  "marginHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-margin-elo-hfa-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the Elo-logistic win head over a 871-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-09-26T13:45:13Z",
+ "evidence": {
+  "schedule": "2026-09-26T13:43:45Z",
+  "strengthCutoff": "2026-09-26T13:45:13Z",
+  "strengthGamesFolded": 871,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 22,
+   "away": 20,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.5038,
+   "away": 0.4667,
+   "tieMass": 0.0295,
+   "homeUnrounded": 0.5038023865591554,
+   "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+  },
+  "margin": {
+   "median": 1,
+   "p10": -17,
+   "p90": 18
+  },
+  "total": {
+   "median": 42,
+   "p10": 25,
+   "p90": 59,
+   "head": "matchup-totals-v3-play-efficiency"
+  },
+  "scoreRange": {
+   "homeP10": 9,
+   "homeP90": 34,
+   "awayP10": 8,
+   "awayP90": 33
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-09-25T17:39:15Z",
+  "books": 9,
+  "marketHomeWinPct": 0.586311,
+  "marketSpreadHome": -3,
+  "marketTotal": 46,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
+  "modelVsMarketTotal": -4
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401872957",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "revisionOf": "401872957.json",
+ "priorInputHash": "773bc1f4d08c5846"
+}
