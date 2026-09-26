@@ -72,7 +72,7 @@ test("§5.2 · a provider FINAL still renders a measurement, never a result", ()
     }),
   }));
   assert.equal(html.includes(WIN_FILL), false, "a provisional final spent the result");
-  assert.match(text(html), /Currently above line/i);
+  assert.match(text(html), /Final . awaiting settlement/i);
 });
 
 test("only a SETTLED canonical final renders the win treatment", () => {

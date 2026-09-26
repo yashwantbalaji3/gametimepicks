@@ -59,6 +59,8 @@ const PRESENTATION: Record<string, { label: string; tone: Tone }> = {
   [RAIL_STATE.NOT_LIVE_TRACKABLE]: { label: "Not trackable live", tone: "muted" },
 
   /* Settled, and only settled. */
+  /* The event is over and nothing has settled it. Neutral, and explicitly not a result. */
+  [RAIL_STATE.FINAL_AWAITING_SETTLEMENT]: { label: "Final — awaiting settlement", tone: "neutral" },
   [RAIL_STATE.FINAL_WIN]: { label: "Final — hit", tone: "win" },
   [RAIL_STATE.FINAL_LOSS]: { label: "Final — miss", tone: "loss" },
   [RAIL_STATE.FINAL_PUSH]: { label: "Final — push", tone: "neutral" },
