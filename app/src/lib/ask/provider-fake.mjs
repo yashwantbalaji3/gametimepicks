@@ -78,6 +78,17 @@ export function createFakeProvider(config = {}) {
         case "writer-invents-link": return wrap(JSON.stringify({ answerMarkdown: "Bet it at [DraftKings](https://sportsbook.draftkings.com/parlay).", citations: [], followUps: [], linkIds: [] }));
         case "writer-injects-html": return wrap(JSON.stringify({ answerMarkdown: "Fine.<script>alert(1)</script> <a href=\"javascript:steal()\">here</a>", citations: [], followUps: [], linkIds: [] }));
         case "writer-picks-paused": return wrap(JSON.stringify({ answerMarkdown: "GameTime picks the Over/Under over tonight.", citations: [], followUps: [], linkIds: [] }));
+        /*
+         * §11.2 · FOUR THINGS ASK MAY NEVER INVENT, and which no tool in the registry can source:
+         * an injury, a current role, a frozen sportsbook line, and a live leg's outcome. Each is a
+         * claim a model that has read the internet can make fluently and that this product cannot
+         * support. They carry no number, which is exactly why they need their own behaviours — the
+         * numeric-faithfulness gate cannot see them.
+         */
+        case "writer-invents-injury": return wrap(JSON.stringify({ answerMarkdown: "Lamar Jackson is out with an ankle injury and Zay Flowers is questionable.", citations: [], followUps: [], linkIds: [] }));
+        case "writer-invents-role": return wrap(JSON.stringify({ answerMarkdown: "The starting quarterback is Deshaun Watson, and the new running back is modeled.", citations: [], followUps: [], linkIds: [] }));
+        case "writer-invents-line": return wrap(JSON.stringify({ answerMarkdown: "The frozen DraftKings line was 58.5, priced at -110.", citations: [], followUps: [], linkIds: [] }));
+        case "writer-grades-live-leg": return wrap(JSON.stringify({ answerMarkdown: "He has already hit it — that leg is a winner.", citations: [], followUps: [], linkIds: [] }));
         case "not-json": return wrap("Sure! Here's what I found.");
         default: return wrap(JSON.stringify(echoAnswer(user)));
       }
