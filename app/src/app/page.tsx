@@ -26,7 +26,7 @@ import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { sportStateFromProductDay, stateLabel, partitionSports } from "@/lib/home/simulation-hub.mjs";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import TopReadsPanel from "@/components/top-reads-panel";
-import { loadTopReads, topToday, topUpcoming } from "@/lib/top-reads";
+import { loadTopReads, topToday, topUpcoming, UPCOMING_READS_SHOWN } from "@/lib/top-reads";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildProductDays, type ProductDay } from "@/lib/product-day/product-day";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
@@ -354,10 +354,21 @@ export default function HomePage() {
           title="The model's strongest reads today"
         />
       ) : null}
-      {topReads && topUpcoming(topReads, 10).length > 0 ? (
+      {/*
+        ⚠ SIX, NOT TEN — THE SECONDARY PANEL WAS SIZED LIKE THE PRIMARY ONE AND DID NOT NEED TO BE.
+        The first-viewport ceiling is 1,820 rendered words and the busiest-state guard measured 1,882
+        on main: 62 over. Nothing editorial caused it. NFL went live, tomorrow's fourteen forecasts
+        published, and this dated-ahead panel — which had been mostly empty — filled with ten NFL rows
+        whose descriptors are the longest on the page ("Sun, Sep 27 · NFL · Game winner · SEA @ WSH ·
+        projected 26–20 · total median 46" is fourteen words before the probability).
+        Today's reads are the page's purpose and keep their ten; this dated-ahead preview shows six.
+        See UPCOMING_READS_SHOWN in lib/top-reads.ts for what that costs and why the alternative — the
+        non-prediction trim the guard actually asks for — was left as a founder call.
+      */}
+      {topReads && topUpcoming(topReads, UPCOMING_READS_SHOWN).length > 0 ? (
         <TopReadsPanel
           set={topReads}
-          reads={topUpcoming(topReads, 10)}
+          reads={topUpcoming(topReads, UPCOMING_READS_SHOWN)}
           eyebrow="Dated ahead"
           title="The model's next reads — upcoming"
           /* Its own id: the today panel keeps "#top-reads", which the filter scrolls to. */
