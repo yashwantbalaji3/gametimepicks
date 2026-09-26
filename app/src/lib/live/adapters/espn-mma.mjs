@@ -37,7 +37,31 @@ import { LIVE_STATES } from "../contract.mjs";
 export function mapMmaState(status) {
   const t = status?.type ?? {};
   if (t.state === "post" || t.completed === true) return "FINAL";
-  if (t.state === "in") return "LIVE";
+  if (t.state === "in") {
+    /*
+     * ⚠ WALKOUTS ARE NOT LIVE — THE SAME RULE `mlb-statsapi.mjs` ALREADY KEEPS.
+     *
+     * Observed on the real card of 2026-09-26 at 21:10Z, ten minutes after the bout "started":
+     *
+     *   type.name "STATUS_FIGHTERS_WALKING" · description "Walkouts"
+     *   state "in" · period 0 · clock 0.0 · displayClock "-"
+     *   details[] "Walkout", "Walkout", "Fight Open"
+     *
+     * The fighters are walking to the cage. ESPN's `state` says `in` because the broadcast segment
+     * has begun; the bout has not. MLB's adapter makes exactly this call for StatsAPI's "Warmup"
+     * (abstract state "Live", coded state "P") after a production incident in which `/live`, the
+     * game page and Since Your Last Visit all claimed a game was under way before a pitch was
+     * thrown. The provider's own period is its statement that play has not begun.
+     *
+     * TWO PIECES OF EVIDENCE, AND THE STRUCTURAL ONE IS THE GENERAL RULE. The named state is what
+     * was observed; a bout in progress is always in SOME round, so `period: 0` means it is not. The
+     * error direction is deliberate: reading a not-yet-started bout as PRE understates liveness for
+     * a few seconds, where the reverse tells a reader a fight is happening that is not.
+     */
+    const round = Number(status?.period);
+    if (t.name === "STATUS_FIGHTERS_WALKING" || !Number.isFinite(round) || round < 1) return "PRE";
+    return "LIVE";
+  }
   if (t.state === "pre") return "PRE";
   const name = String(t.name ?? "");
   if (name.includes("POSTPONED")) return "POSTPONED";

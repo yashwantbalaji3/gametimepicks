@@ -211,6 +211,11 @@ function ufcRows(DATE) {
    * capture uses):
    *   competitor.id      ESPN athlete id — present in PRE as well as POST  (⚠ it is `competitor.id`,
    *                      NOT `competitor.athlete.id`, which is null)
+   *
+   * ⚠ AND `state: "in"` IS NOT "THE BOUT IS UNDER WAY". Observed on the live card of 2026-09-26:
+   * ESPN reported `in` with `period: 0` and `displayClock: "-"` for ten minutes across two
+   * different pre-bout statuses ("Pre-fight", then STATUS_FIGHTERS_WALKING / "Walkouts"). The
+   * adapter reads those as PRE, which is the rule MLB already keeps for StatsAPI's "Warmup".
    *   competitor.winner  the winner, by that id
    *   status.period      the round the bout ended in
    *   status.displayClock the time at the end
@@ -221,7 +226,7 @@ function ufcRows(DATE) {
    */
   const FINALS = {
     winner: { live: "bout state · round · clock (unresolved until the end)", final: "competitor.winner by ESPN athlete id", settle: "winner-only settlement contract", ok: true },
-    rounds: { live: "status.period — the round in progress", final: "status.period + displayClock at the end", settle: "not settled — the contract grades winner only", ok: false,
+    rounds: { live: "status.period — but ONLY once a round has begun", final: "status.period + displayClock at the end", settle: "not settled — the contract grades winner only", ok: false,
               why: "the end round is observable, but settlement is winner-only and a rounds result is not graded" },
     method: { live: null, final: null, settle: null, ok: false,
               why: "the registered source states no KO/SUB/DEC; inferring one from prose is the name-matching this product refuses" },

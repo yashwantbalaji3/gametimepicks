@@ -24,6 +24,8 @@ const AT = "2026-09-26T20:25:00Z";
 const finalBouts = normalizeMmaScoreboard(FIX("mma-scoreboard-final"), AT);
 const preBouts = normalizeMmaScoreboard(FIX("mma-scoreboard-pre"), AT);
 const liveBouts = normalizeMmaScoreboard(FIX("mma-scoreboard-live"), AT);
+const inRoundBouts = normalizeMmaScoreboard(FIX("mma-scoreboard-inround"), AT);
+const settledBouts = normalizeMmaScoreboard(FIX("mma-scoreboard-settled"), AT);
 
 /** A card whose bouts are the REAL completed ones, so the replay is a real join. */
 const card = (o = {}) => ({
@@ -226,23 +228,34 @@ test("§6 · UFC is reachable through the registry and the bout is the event uni
   }
 });
 
-test("🔴 §3 · a LIVE bout reporting period 0 is in NO round, and `-` is not a clock", () => {
+test("🔴 §3 · a bout ESPN calls `in` with period 0 has NOT started — walkouts are not live", () => {
   /*
-   * ⚠ THE LIVE CARD FOUND THIS; THE FIXTURES DID NOT. A scheduled card and a completed one both
+   * ⚠ THE LIVE CARD FOUND THIS; TWO FIXTURES COULD NOT. A scheduled card and a completed one both
    * looked right with `state === "PRE"` as the only guard. On the real card of 2026-09-26 the first
-   * bout went `in` while ESPN still reported `period: 0` and `displayClock: "-"`, and the tracked
-   * row rendered `R0` — a round no bout has ever been in — with a dash for a clock.
+   * bout went `in` and stayed there:
    *
-   * A row that says R0 is worse than a row that says nothing: it looks like a measurement.
+   *     21:02Z  type.name STATUS_..., detail "Pre-fight",  period 0, displayClock "-"
+   *     21:10Z  type.name STATUS_FIGHTERS_WALKING, "Walkouts", period 0, displayClock "-",
+   *             details[] "Walkout", "Walkout", "Fight Open"
+   *
+   * ESPN's `state` is `in` because the broadcast segment has begun; the bout has not. The first cut
+   * rendered `R0` with a dash for a clock — and a row that says R0 is worse than a row that says
+   * nothing, because it looks like a measurement.
+   *
+   * This is the rule `mlb-statsapi.mjs` already keeps for StatsAPI's "Warmup" (abstract state
+   * "Live", coded state "P"), adopted after `/live` claimed a game was under way before a pitch was
+   * thrown. TWO pre-bout `in` states were observed in eight minutes, which is why the general rule
+   * is structural — a bout in progress is always in SOME round — rather than a list of names.
    */
   assert.equal(liveBouts.length, 1);
   const b = liveBouts[0];
-  assert.equal(b.state, "LIVE", "the fixture must actually be in progress, or this proves nothing");
+  assert.equal(b.state, "PRE", "a bout in walkouts has not started");
   assert.equal(b.round, null, "period 0 is the provider saying 'not yet'");
   assert.equal(b.clock, null, "`-` is a placeholder, not a time");
-  assert.equal(b.winnerAthleteId, null, "a live bout has no winner");
+  assert.equal(b.winnerAthleteId, null);
+  assert.ok(b.stateDetail, "the provider's own words are kept verbatim");
 
-  // And it reaches the tracked row as absence, with the honest rail state.
+  // And it reaches the tracked row as a pregame row, not a live one.
   const card2 = card({ bouts: [{
     boutId: b.boutId, scheduledRounds: 3,
     red: { athleteId: b.fighters[0].athleteId, name: b.fighters[0].name },
@@ -250,9 +263,53 @@ test("🔴 §3 · a LIVE bout reporting period 0 is in NO round, and `-` is not 
     prediction: { winner: { name: b.fighters[1].name, probability: 0.64 }, method: { most: "DEC" }, rounds: { endsIn: "3+" } },
   }] });
   const r = pick(ufcTrackedRows({ card: card2, bouts: liveBouts }), b.boutId, "fight_winner");
+  assert.equal(r.live.measurementState, M.AWAITING_EVENT);
   assert.equal(r.live.periodState, null, "no R0 may reach the row");
-  assert.equal(r.live.clock, null);
-  assert.equal(railStateOf(r), R.LIVE_UNRESOLVED, "§9's honest answer for a bout in progress");
+  assert.equal(railStateOf(r), R.PRE, "not LIVE_UNRESOLVED — nothing is unresolved yet");
+});
+
+test("🔴 §9 · the SAME bout, once a round begins, is LIVE with a real round and a ticking clock", () => {
+  /*
+   * The pair is the point. `mma-scoreboard-live.json` and this fixture are the SAME bout eight
+   * minutes apart — period 0 during walkouts, then period 1 with a clock counting down. Captured
+   * live on 2026-09-26, because neither shape exists once a card is over.
+   *
+   * It also proves the walkout rule costs nothing: the feed DOES publish a live round, and the
+   * adapter reads it the moment there is one.
+   */
+  assert.equal(inRoundBouts.length, 1);
+  const b = inRoundBouts[0];
+  assert.equal(b.boutId, liveBouts[0].boutId, "the fixtures must be the same bout, or the pair proves nothing");
+  assert.equal(b.state, "LIVE");
+  assert.equal(b.round, 1);
+  assert.match(b.clock, /^\d+:\d{2}$/, "a real clock, not a placeholder");
+  assert.equal(b.winnerAthleteId, null, "a bout in progress has no winner");
+
+  const card2 = card({ bouts: [{
+    boutId: b.boutId, scheduledRounds: 3,
+    red: { athleteId: b.fighters[0].athleteId, name: b.fighters[0].name },
+    blue: { athleteId: b.fighters[1].athleteId, name: b.fighters[1].name },
+    prediction: { winner: { name: b.fighters[1].name, probability: 0.64 }, method: { most: "DEC" }, rounds: { endsIn: "3+" } },
+  }] });
+  const rows = ufcTrackedRows({ card: card2, bouts: inRoundBouts });
+  const w = pick(rows, b.boutId, "fight_winner");
+  assert.equal(w.live.measurementState, M.MEASURED);
+  assert.equal(w.live.periodState, "R1");
+  assert.equal(w.live.clock, b.clock);
+  assert.equal(railStateOf(w), R.LIVE_UNRESOLVED, "§9: PREGAME · LIVE — unresolved · round/time · FINAL");
+  assert.equal(isResultState(railStateOf(w)), false);
+  // Method stays refused even mid-bout, and no result leaks onto it.
+  assert.equal(railStateOf(pick(rows, b.boutId, "fight_method")), R.NOT_LIVE_TRACKABLE);
+});
+
+test("the error direction is deliberate — an unknown period reads as not-started, never as live", () => {
+  for (const status of [{ period: 0 }, { period: null }, { period: "x" }, {}]) {
+    assert.equal(mapMmaState({ ...status, type: { state: "in", name: "STATUS_X" } }), "PRE",
+      `an unusable period must not read as a bout in progress: ${JSON.stringify(status)}`);
+  }
+  // A real round is live, and a final is final whatever the period says.
+  assert.equal(mapMmaState({ period: 1, type: { state: "in", name: "STATUS_IN_PROGRESS" } }), "LIVE");
+  assert.equal(mapMmaState({ period: 0, type: { state: "post", completed: true } }), "FINAL");
 });
 
 test("a real round and clock still travel — the guard rejects placeholders, not values", () => {
@@ -262,4 +319,47 @@ test("a real round and clock still travel — the guard rejects placeholders, no
     { id: "e" }, AT);
   assert.equal(withRound.round, 2);
   assert.equal(withRound.clock, "3:41");
+});
+
+test("🔴 §9 · ONE REAL BOUT, whole lifecycle — walkouts → round 1 → final → settled", () => {
+  /*
+   * The three fixtures are the SAME bout, captured live on 2026-09-26 as it happened, because none
+   * of these shapes is reconstructable once a card is over:
+   *
+   *   21:0xZ  state in  · period 0 · clock "-"    walkouts — NOT started
+   *   21:1xZ  state in  · period 1 · clock 3:58   under way
+   *   21:2xZ  state post· period 1 · clock 1:02   finished, R1 at 1:02, winner by athlete id
+   *
+   * And the rule that matters held at every step: the provider named a winner and the product did
+   * NOT call the prediction a hit until a settlement said so.
+   */
+  const [walk, round1, done] = [liveBouts[0], inRoundBouts[0], settledBouts[0]];
+  assert.equal(new Set([walk.boutId, round1.boutId, done.boutId]).size, 1, "one bout, three moments");
+  assert.deepEqual([walk.state, round1.state, done.state], ["PRE", "LIVE", "FINAL"]);
+  assert.deepEqual([walk.round, round1.round, done.round], [null, 1, 1]);
+  assert.equal(done.winnerAthleteId, done.fighters.find((f) => f.winner).athleteId);
+  assert.equal(walk.winnerAthleteId, null);
+  assert.equal(round1.winnerAthleteId, null);
+
+  const predicted = done.winnerAthleteId; // the model picked the fighter who won
+  const c = card({ bouts: [{ boutId: done.boutId, scheduledRounds: 3,
+    red: { athleteId: done.fighters[0].athleteId, name: done.fighters[0].name },
+    blue: { athleteId: done.fighters[1].athleteId, name: done.fighters[1].name },
+    prediction: { winner: { name: done.fighters.find((f) => f.athleteId === predicted).name, probability: 0.64 },
+                  method: { most: "DEC" }, rounds: { endsIn: "3+" } } }] });
+
+  // Provider FINAL: the winner is known and the forecast is NOT graded.
+  const prov = pick(ufcTrackedRows({ card: c, bouts: settledBouts }), done.boutId, "fight_winner");
+  assert.equal(prov.final.finality, FINALITY.FINAL_PROVISIONAL);
+  assert.equal(prov.settlement.forecastResult, null);
+  assert.equal(railStateOf(prov), R.FINAL_AWAITING_SETTLEMENT);
+  assert.equal(isResultState(railStateOf(prov)), false, "the provider's word is not a settlement");
+
+  // Settlement: and only now.
+  const st = { [done.boutId]: { canonical: true, canonicalAt: AT, status: SETTLEMENT_STATUS.SETTLED, forecastResult: "HIT" } };
+  const rows = ufcTrackedRows({ card: c, bouts: settledBouts, settlement: st });
+  assert.equal(railStateOf(pick(rows, done.boutId, "fight_winner")), R.FINAL_WIN);
+  // ⚠ and the HIT must not leak sideways onto the families that were never graded.
+  assert.equal(railStateOf(pick(rows, done.boutId, "fight_rounds")), R.FINAL_NO_MEASUREMENT);
+  assert.equal(railStateOf(pick(rows, done.boutId, "fight_method")), R.FINAL_NO_MEASUREMENT);
 });
