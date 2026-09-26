@@ -117,6 +117,13 @@ if (parsed.length !== 380) { console.error(`REFUSED: parsed ${parsed.length} fix
  * does damage where a forecast is about to be built on it, so only rounds with a fixture inside the
  * next fortnight are judged. Beyond that, "not yet scheduled" is the truth.
  */
+/**
+ * The source is publishing a placeholder, which is normal and recurring — distinct from the source
+ * having moved under us, which is what every other refusal in this file means. The caller turns
+ * this into a warning; every other non-zero code stays a failed run.
+ */
+const EXIT_SOURCE_PROVISIONAL = 3;
+
 const NEAR_DAYS = 14;
 const nowMs = Date.parse(NOW);
 const nearCutoff = Number.isFinite(nowMs) ? nowMs + NEAR_DAYS * 86_400_000 : null;
@@ -136,7 +143,25 @@ if (provisional.length) {
   const rounds = provisional.map(([md, slots]) => `md${md} (all at ${[...slots][0]})`).join(", ");
   console.error(`REFUSED: ${provisional.length} matchday(s) carry a single kickoff slot for every fixture — that is a provisional block, not a schedule: ${rounds}`);
   console.error("The previously committed capture stands. Re-run once the source publishes real broadcast slots.");
-  process.exit(1);
+  /*
+   * ⚠ EXIT 3, NOT 1, AND IT IS THE ONLY PATH IN THIS FILE THAT DOES.
+   *
+   * Every other refusal here means THE SOURCE MOVED UNDER US — a partial parse, an unresolved club,
+   * the wrong fixture count — and those must make the run red. This one means the source is doing
+   * exactly what it always does: openfootball publishes a matchday as one placeholder slot until
+   * broadcasters assign times, so a round roughly a fortnight out is provisional most weeks by
+   * construction.
+   *
+   * Reporting a correct, expected, recurring refusal as a FAILURE cost `sport-schedules` eight of
+   * its last fourteen runs (2026-09-14 → 09-26) while every other capture in those runs succeeded —
+   * 30/30 EPL teams, 563 players, NFL, NBA and UFC all fine. A red run nobody reads is a red run
+   * that stops being read, and the next REAL capture failure would have arrived into a workflow
+   * everyone had learned to ignore.
+   *
+   * The caller must still surface it. `SOURCE_PROVISIONAL` is a warning with a reason, never
+   * silence, and nothing is published either way — the committed capture stands.
+   */
+  process.exit(EXIT_SOURCE_PROVISIONAL);
 }
 
 const index = buildEplClubIndex();
