@@ -144,3 +144,7 @@ data/internal/research/nfl/raw/nflverse/
 
 # v1.7 NBA roster owner: raw ESPN payloads are kept as a 14-day workflow artifact, not in git
 data/internal/research/nba/rosters/raw/
+# `vercel link` writes the linked project id here, and `vercel env pull` writes secrets beside it.
+# (It also appends a blanket `.env*`, which is left out on purpose: line 34 above says .env.example
+# IS committed, and the specific patterns there already cover the files that hold secrets.)
+.vercel

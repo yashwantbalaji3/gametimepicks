@@ -67,6 +67,20 @@ jobs:
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then ARGS+=(--dry-run); fi
           node scripts/nfl/capture-live-props.mjs "${ARGS[@]}" | tee /tmp/live.txt
 
+      # ── THE DURABLE RECORD (Phase D) ────────────────────────────────────────────────────────────
+      #
+      # The artifacts above are the CURRENT state and are rewritten on every poll; the ledger is the
+      # append-only record they feed. It runs here so a settled row is recorded in the same run that
+      # settled it, and AGAIN in the daily lifecycle — because an official stat correction arrives
+      # long after this workflow has stopped running for that game, and the fold only ever re-reads
+      # committed evidence, so applying one later costs nothing and reopens no polling.
+      #
+      # It grades nothing: every result is copied from the settlement the producer already wrote.
+      - name: Fold settled rows into the prop-settlement ledger
+        if: github.event.inputs.dry_run != 'true'
+        working-directory: app
+        run: node scripts/nfl/settle-nfl-live-props.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write
+
       # A run with no live game is the normal case for most of the week and must not look like a
       # failure, so the commit step exits clean when nothing changed.
       - name: Commit the live state
@@ -75,7 +89,8 @@ jobs:
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add app/public/data/nfl/live-props/
+          # Path-scoped: the live artifacts this run rewrote, and the ledger they were folded into.
+          git add app/public/data/nfl/live-props/ data/internal/nfl/prop-settlement/
           if git diff --cached --quiet; then echo "no live change"; exit 0; fi
           git commit -m "auto: nfl live props $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
           for attempt in 1 2 3; do

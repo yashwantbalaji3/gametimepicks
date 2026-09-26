@@ -27,6 +27,7 @@ import { hrefsFor } from "@/lib/research-pages/projection-store";
 import { nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
 import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
+import LivePanel from "@/components/live/live-panel";
 import { participationLabel } from "@/components/prediction/prediction-board";
 
 /*
@@ -284,6 +285,37 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <Stat label="Total points (both teams)" value={`${s.total.median}`} sub={`8 in 10 simulations landed between ${s.total.p10} and ${s.total.p90}`} />
           <Stat label={`${f.home.abbr} winning margin`} value={`${s.margin.median > 0 ? "+" : ""}${s.margin.median}`} sub={`a minus means ${f.away.abbr} wins by that much · 8 in 10 between ${s.margin.p10} and ${s.margin.p90}`} />
         </div>
+
+        {/*
+          * LIVE GAME STATE, BESIDE THE FROZEN GAME FORECAST (Phase G).
+          *
+          * The panel renders two labelled regions and never interleaves them: the provider's factual
+          * score, period and clock on one side, and the numbers above — projected score and pregame
+          * win chance — on the other, frozen and stamped.
+          *
+          * ⚠ NO `playerBoard` IS PASSED, ON PURPOSE. The per-prop live lines are owned by the player
+          * board further down this page; handing them to this panel too would put the same
+          * (player, family) in two places on one page and give a reader two things to reconcile.
+          * This region answers the GAME-level question only.
+          *
+          * ⚠ AND THE WIN CHANCE DOES NOT MOVE. It is the pregame number, shown as one. A probability
+          * that responded to the live score would be a live model, and none here has cleared a bar.
+          *
+          * Self-gates on `liveReadyFor("nfl")`: with the flag off it renders nothing and fetches
+          * nothing.
+          */}
+        <LivePanel
+          sport="nfl"
+          eventId={params.eventId}
+          nflForecast={{
+            away: { abbr: f.away.abbr, projected: s.projectedScore.away, winPct: Math.round(s.winProbability.away * 100) },
+            home: { abbr: f.home.abbr, projected: s.projectedScore.home, winPct: Math.round(s.winProbability.home * 100) },
+          }}
+          forecastGeneratedAt={f.generatedAt ?? null}
+          startTime={f.kickoffUtc ?? null}
+          showBetaHeading
+        />
+
         {/* P246 (founder): the calibration paragraph left the browsing path — it lives in an
             optional disclosure here and in the artifact itself, not beside every number. */}
         <details style={{ marginTop: 12, maxWidth: 760 }}>

@@ -1,13 +1,18 @@
 /**
- * STAGE 2 ROLLOUT GATE (MLB-only public Live beta).
+ * THE ROLLOUT GATE — what a build is ALLOWED to serve, per sport.
  *
- * The founder decision this file encodes: MLB Live goes public; the ESPN-backed NFL surface stays
- * internal until the provider posture is separately approved. NFL Live is not deleted — adapter,
- * fixtures, identity join and player-stat mapping all remain and are still tested — so the ONLY
- * thing standing between a production reader and ESPN is this gate. It is therefore tested from
- * both directions: MLB must work, and NFL must be refused even when asked for directly.
+ * Stage 2 made MLB Live public and held the ESPN-backed NFL surface internal until the provider
+ * posture was separately approved. That approval was granted on 2026-09-25 and Production now sets
+ * `LIVE_PUBLIC_SPORTS=mlb,nfl` and `NEXT_PUBLIC_LIVE_SPORTS=mlb,nfl`.
  *
- * Every default here is closed. Forgetting an environment variable yields MLB-only, never more.
+ * ⚠ NOT ONE ASSERTION BELOW CHANGED, AND NONE SHOULD. Every test here is written against an EXPLICIT
+ * environment object, so what they pin is the PROPERTY — every default is closed, a typo opens
+ * nothing, an unknown name is dropped, and the kill switch outranks the allowlist — not whatever
+ * Production happens to be set to. ROLLOUT 4 already proved `mlb,nfl` is the documented enable path,
+ * which is precisely why the enabling was a configuration change and not a code change.
+ *
+ * Read from both directions: MLB must work, NFL must be refused when it is not on the list, and
+ * neither may be opened by forgetting a variable.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -163,4 +168,72 @@ test("ROLLOUT 11 · the frozen-at stamp is rendered in ET, never as a raw ISO in
     assert.equal(/forecastGeneratedAt=\{[^}]*etStamp/.test(el), false,
       `${rel} pre-formats the stamp — the panel already does, and two formatters drift`);
   }
+});
+
+/* ───────────── NFL ENABLED 2026-09-25 — and every default stays closed ───────────── */
+
+test("ROLLOUT 12 · the CLIENT predicate is the zero-request gate, and it is closed by default", async () => {
+  /*
+   * The founder enabled NFL live on 2026-09-25 by setting LIVE_PUBLIC_SPORTS and
+   * NEXT_PUBLIC_LIVE_SPORTS to `mlb,nfl` in Production. Nothing above changed: every assertion in
+   * this file is written against an EXPLICIT env object, so "the default is closed" is still the
+   * property being tested, and ROLLOUT 4 already proved `mlb,nfl` is the documented enable path.
+   *
+   * What was missing was the client half of "zero provider requests when the flag is off".
+   * ROLLOUT 3 proves the GATEWAY builds no upstream URL for a refused sport. This proves the browser
+   * never asks in the first place — `useLiveEvent` evaluates `liveReadyFor(sport)` BEFORE its first
+   * fetch, so a build with NFL off costs nothing rather than costing a refusal per reader.
+   *
+   * Read behaviourally, against the real module, by moving the environment it reads.
+   */
+  const { liveReadyFor, liveSportEnabled } = await import("./client.ts");
+  const saved = { en: process.env.NEXT_PUBLIC_LIVE_ENABLED, sp: process.env.NEXT_PUBLIC_LIVE_SPORTS };
+  try {
+    process.env.NEXT_PUBLIC_LIVE_ENABLED = "1";
+
+    delete process.env.NEXT_PUBLIC_LIVE_SPORTS;
+    assert.equal(liveSportEnabled("mlb"), true, "unset still means MLB");
+    assert.equal(liveReadyFor("nfl"), false, "unset must NOT open NFL — the default is closed");
+
+    process.env.NEXT_PUBLIC_LIVE_SPORTS = "";
+    assert.equal(liveReadyFor("nfl"), false, "empty is not a wildcard");
+
+    process.env.NEXT_PUBLIC_LIVE_SPORTS = "mlb";
+    assert.equal(liveReadyFor("nfl"), false, "MLB-only means NFL asks for nothing");
+    assert.equal(liveReadyFor("mlb"), true);
+
+    // The deliberate setting now live in Production.
+    process.env.NEXT_PUBLIC_LIVE_SPORTS = "mlb,nfl";
+    assert.equal(liveReadyFor("nfl"), true, "and the approved setting does open it");
+    assert.equal(liveReadyFor("mlb"), true, "without closing MLB");
+
+    // The master kill switch still outranks the allowlist on the client too.
+    process.env.NEXT_PUBLIC_LIVE_ENABLED = "0";
+    assert.equal(liveReadyFor("nfl"), false, "OFF means nothing is fetched, whatever the allowlist says");
+    assert.equal(liveReadyFor("mlb"), false);
+  } finally {
+    if (saved.en === undefined) delete process.env.NEXT_PUBLIC_LIVE_ENABLED; else process.env.NEXT_PUBLIC_LIVE_ENABLED = saved.en;
+    if (saved.sp === undefined) delete process.env.NEXT_PUBLIC_LIVE_SPORTS; else process.env.NEXT_PUBLIC_LIVE_SPORTS = saved.sp;
+  }
+});
+
+test("ROLLOUT 13 · the gate is evaluated BEFORE the first fetch, not after it", () => {
+  /*
+   * A predicate that is only consulted after the request has gone out is not a cost gate. Read as an
+   * ordering fact about the hook: the effect that starts polling returns early on `liveReadyFor`, and
+   * the only `fetch(` in the module sits inside `poll`, which that effect is the sole first caller of.
+   */
+  const hook = read("src/components/live/use-live-event.ts");
+  const body = codeOnly(hook);
+
+  const gateIdx = body.indexOf("if (!liveReadyFor(sport) || !eventId) {");
+  const startIdx = body.indexOf("void poll();");
+  assert.ok(gateIdx > 0 && startIdx > 0, "both the gate and the first poll are present — otherwise vacuous");
+  assert.ok(gateIdx < startIdx, "the gate must precede the first poll");
+
+  // Exactly one fetch in the module, and it is inside poll — not at module scope or in an effect.
+  const fetches = body.match(/\bfetch\(/g) || [];
+  assert.equal(fetches.length, 1, `the hook must own exactly one fetch call site, found ${fetches.length}`);
+  const pollIdx = body.indexOf("const poll = useCallback");
+  assert.ok(pollIdx > 0 && body.indexOf("fetch(") > pollIdx, "the fetch lives inside poll");
 });

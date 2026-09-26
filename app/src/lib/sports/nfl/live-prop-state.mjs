@@ -424,6 +424,17 @@ export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, pri
 
       rows.push({
         predictionId, playerId: p.playerId, espnId: id, name: p.name, team: p.team, family,
+        /*
+         * ⚠ THE FAMILY'S PUBLICATION STATE TRAVELS WITH THE ROW.
+         *
+         * This producer tracks every family the board carries, including ones that are ESTIMATE
+         * rather than PUBLISHED — `player_pass_yds` is ESTIMATE because P318 is STOP. Tracking one
+         * internally is research; PUBLISHING its record is a claim about a model that failed its own
+         * preregistered bar. Carrying the state here means the publication boundary downstream can
+         * read it off the record instead of re-deriving it from a board it may no longer have, and
+         * a row whose state is unknown fails closed rather than being assumed publishable.
+         */
+        familyState: board?.families?.[family]?.state ?? null,
         frozenIdentity, frozen, frozenRefusal,
         live, settlement, reconciliation,
       });
