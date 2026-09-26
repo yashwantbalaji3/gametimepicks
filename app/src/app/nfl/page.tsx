@@ -51,6 +51,7 @@ import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NflWeeklyBoards from "@/components/nfl/weekly-boards";
 import FollowLegacyMigration from "@/components/follow/follow-legacy-migration";
+import DeferUntilVisible from "@/components/defer-until-visible";
 import { legacyNameMap, nflTeamRefsByAbbr } from "@/lib/follow/entity-registry";
 import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { availableWeekKeys, weekKeyOf } from "@/lib/sports/nfl/week-keys";
@@ -757,6 +758,18 @@ export default function NflHubPage() {
             title={laterTitle}
             sub={schedule ? `From the committed schedule capture (${schedule.generatedAt}). Simulations publish inside each game's own event window, not weeks ahead.` : "No schedule capture is readable — shown as missing rather than guessed."}
           />
+          {/*
+           * P695 — SIXTEEN SCHEDULE CARDS MOUNT ON SCROLL.
+           *
+           * The second-largest block left on the page after the ranked boards: 24.8KB, and it
+           * grew from 4.2KB to that in a single morning as Week 4 filled in — the same
+           * calendar-driven growth that put the homepage 62 words over its ceiling in #692.
+           * These cards carry no forecast, no record and no price: matchup, kickoff and venue,
+           * a navigation list. Deferring them delays when they enter the DOM and changes nothing
+           * about what publishes. Nothing links to #nfl-later, and the heading stays eager, so
+           * the section is still findable by a reader scanning the page.
+           */}
+          <DeferUntilVisible minHeight={320} label="Loading the rest of the schedule…">
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 10 }}>
             {laterGames.map((g) => (
               <EventCard
@@ -770,6 +783,7 @@ export default function NflHubPage() {
               />
             ))}
           </div>
+          </DeferUntilVisible>
         </section>
       ) : null}
 
