@@ -18,6 +18,7 @@ import PredictionBoard from "@/components/prediction/prediction-board";
 import { presentWeeklyBoard } from "@/lib/prediction-presentation/nfl";
 import type { PredictionPresentation } from "@/lib/prediction-presentation/contract";
 import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
+import DeferUntilVisible from "@/components/defer-until-visible";
 import FollowToggle from "@/components/follow/follow-toggle";
 import type { FollowRef } from "@/lib/follow/follow-store";
 
@@ -139,6 +140,31 @@ export default function NflWeeklyBoards({ boards, generatedAt, model, teamNames 
         ) : null}
       </div>
 
+      {/*
+       * P695 — THE FORTY-FIVE ROWS MOUNT ON SCROLL. THE CHIPS ABOVE THEM DO NOT.
+       *
+       * `/nfl` breached its 600KB ceiling at 631KB and blocked every PR's quality gate. The page
+       * is 336KB of server DOM plus 309KB of RSC flight — the double-carry a static export pays —
+       * and these five tables are 90KB of that DOM, the largest block on the page, beginning
+       * ~67KB into the document and below the fold at every viewport.
+       *
+       * ⚠ THE FIRST CUT WRAPPED THE WHOLE COMPONENT AND A GUARD CAUGHT IT. Deferring the block
+       * took the team chips and the search box with it, and `BUILT · the NFL hub's ranked boards
+       * can be filtered` went red: "the NFL hub renders 0 controls for 22 clubs". That guard is
+       * right, and it is the reason the wrapper sits HERE rather than around the component — the
+       * affordance P251-F5 added is the point of this component, and weight is not a reason to
+       * lose it. The chips, the search box and the shown-of-published count all render eagerly.
+       *
+       * ⚠ NO RECORD IS HIDDEN, which is the weight guard's own instruction. DeferUntilVisible
+       * still passes every row through the RSC payload; it delays inserting them into the DOM
+       * until the reader scrolls within 800px. Same forty-five rows, same ranking, same states,
+       * same filters. /mlb has carried its legacy shell this way since Phase 5F.
+       *
+       * The 800px margin is what makes the interaction safe: the chips cannot be on screen
+       * without the rows below them being inside the observer's range, so a filter never acts on
+       * an unmounted list.
+       */}
+      <DeferUntilVisible minHeight={560} label="Loading the ranked boards…">
       <div className="flex flex-col gap-5">
         {filtered.map(({ board: b, rows, published }) =>
           (b.state === "PUBLISHED" || b.state === "ESTIMATE") && (b.rows?.length ?? 0) > 0 ? (
@@ -174,6 +200,7 @@ export default function NflWeeklyBoards({ boards, generatedAt, model, teamNames 
           ),
         )}
       </div>
+      </DeferUntilVisible>
     </div>
   );
 }
