@@ -199,3 +199,75 @@ should not be positive in the first place.
 - **I recorded in the Engine V2A audit that MLB player identity is absent.** It is absent from the
   *predictions and props* path; the optimizer's leg pool carries `playerId` on **371 of 371** rows.
   The gap is a path, not the sport. That document is corrected in the same commit series.
+
+---
+
+## 8 · Bank Builder and Moonshot (§14 / §15)
+
+Same method, same day, same rule: measured against committed artifacts only.
+
+### 8.1 The records
+
+| product | bets | W–L | stake | profit | last settled | freshness label |
+|---|---|---|---|---|---|---|
+| Bank Builder | 73 | **37–36** | 100 | +15,890.40 | 2026-09-22 | fresh |
+| Moonshot | 7 | **0–7** | 175 | −175 | **2026-07-06** | fresh |
+| World Cup Specials | 18 | **0–18** | 180 | −180 | 2026-07-07 | stale |
+| Homer Nukes | 0 | — | 0 | 0 | never | stale |
+
+**Bank Builder is a coin flip at the card level: 37–36, 50.7% over 73 bets.** Its +15,890 is a
+compounding ladder on a $100 base, not a per-bet return, and the ROI column in the artifact
+(`15890.4`) is that multiple rather than a rate — it should not be read as 1,589,040%.
+
+⚠ **And the ladder's headline is a June run on sports the product no longer covers.** The public
+ledger's five entries — 2026-06-09 to 06-13, **5 wins from 5** — took $100 to $10,376.17 and are
+marked `nextPickStatus: "completed"`. Their sports: MLB ×1, **NBA ×2**, **World Cup ×1**, Mixed
+(World Cup + MLB) ×1. NBA is not part of the current public prediction product and the World Cup
+lane is retired. Two thirds of the number that defines this product came from lanes that no longer
+exist. (That artifact is referenced only by tests, not by a rendered component — but it is the
+`public-ledger-latest.json` a reader would find, and the ladder it describes is the one the product
+is named for.)
+
+**Moonshot is 0 for 7, lifetime.** Its side-lane companion, World Cup Specials, is 0 for 18. The two
+together are −355 on 355 staked: **−100%**.
+
+### 8.2 ⚠ Moonshot publishes daily and its record has not moved in 82 days
+
+`freshness: "fresh"` beside `lastSettledDate: 2026-07-06` looks like a defect and is not one:
+`freshnessFor` answers *"is there a card for today's slate?"*, says so in its own docstring, and
+today's portfolio does carry a Moonshot card (exposure 25, 1 pending). The product is running.
+
+The real finding is what sits behind that. The lifecycle store settled two Moonshot cards on
+**2026-08-17** and deliberately did not write them to the money record:
+
+> grading cards frozen on 2026-08-17 in place would restate financial history that predates this
+> settlement. Outcomes are recorded here instead; the money record is unchanged.
+
+That reasoning is sound — a settlement owner should not silently restate history. The consequence
+is not: **the public Moonshot record is 82 days old while the product publishes a card a day**, and
+the lifecycle artifact that holds the newer outcomes was itself last generated **2026-09-07**, with
+`settled: 1, held: 3`. A reader cannot tell from either artifact that the product has been running.
+
+⚠ This is the same shape as the nightly-settle defect in the overnight handoff: work is computed
+and then not published, and the surface that would show it stays at its last good value. It is not
+the same bug, and it needs its own decision.
+
+### 8.3 What this means against §14 and §15
+
+- **"Effectively MLB-only" is confirmed for the constructor** (371/371 MLB legs today) and
+  *inverted* for the historical Bank Builder record, which is mostly NBA and World Cup. Neither is
+  the MLB+NFL+UFC target.
+- **Neither product has a model probability**, for the same reason the Parlay Lab does not: the
+  legs it selects from do not carry one. Every published Bank Builder and Moonshot probability is
+  a de-vigged market price. That is honest as *market context* (§3) and it is not a model.
+- **Bank Builder at 37–36 is not evidence of a working selector**, and it is not evidence of a
+  broken one either. It is 73 observations of something indistinguishable from the price.
+- **Moonshot at 0–7 is too small to judge** and too small to publish as a record. §30's NO PLAY
+  state and a shadow period are the right posture, not a rebuild justified by seven cards.
+
+### 8.4 The one thing that must come first
+
+Every recommendation in §6 applies here unchanged, and step 1 applies hardest: **a settled card
+must record the probability the model gave it.** Until then Bank Builder's 37–36, Moonshot's 0–7
+and the Parlay Lab's tier table are all measurements of the *market's* probability, and no amount
+of further auditing can separate the selector's contribution from the price it inherited.
