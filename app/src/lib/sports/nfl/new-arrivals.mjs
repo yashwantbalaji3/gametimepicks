@@ -107,3 +107,36 @@ export function deriveNewArrivals({ corpusSeasons, roleEvidence, shares }) {
   }
   return out;
 }
+
+/*
+ * P693 — THE ARRIVALS STRIP MUST NOT CONTRADICT THE BOARD ABOVE IT.
+ *
+ * `deriveNewArrivals` asks one pool (`role-shares-v1/current.json`, a snapshot on its own cadence)
+ * whether a player can be placed, while the board publishes from another (the WEEKLY share-level
+ * forward forecast). A player who entered the second between the first's snapshots was listed as a
+ * mover the model cannot place AND projected on the same page — 28 of 52 arrivals on the
+ * 2026-09-27 slate, across 13 of 14 games, Mike Evans and Stefon Diggs and Keenan Allen among
+ * them. Each carried a note asserting "he is NOT in this game's simulated team numbers", published
+ * in a PUBLIC_DERIVED artifact and false for every one of the 28.
+ *
+ * Two pools cannot answer a question about a third. The board's OWN published rows can, so the
+ * board asks them — after its roster gate, designation join, withholding pass and empty-markets
+ * sweep, because only then is `players` what a reader will see.
+ *
+ * This is deliberately NOT a fix to either pool's freshness. A strip whose correctness depends on
+ * two producers staying in step is wrong even while they are in step.
+ */
+export function shadowProjectedArrivals({ arrivals, players }) {
+  const projected = new Set((players ?? []).map((p) => `${p.team}:${p.playerId}`));
+  const kept = {};
+  let shadowed = 0;
+  for (const [abbr, list] of Object.entries(arrivals ?? {})) {
+    const keep = (list ?? []).filter((a) => {
+      if (!projected.has(`${a.team}:${a.playerId}`)) return true;
+      shadowed += 1;
+      return false;
+    });
+    if (keep.length) kept[abbr] = keep;
+  }
+  return { newArrivals: kept, arrivalsShadowed: shadowed };
+}
