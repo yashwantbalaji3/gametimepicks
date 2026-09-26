@@ -2,7 +2,7 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-26T14:57:48Z",
+ "generatedAt": "2026-09-26T15:07:26Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
   "PUBLISHED": 8,
@@ -67,19 +67,19 @@
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "no card priced into this band — 2 legs → +140 (medium)"
+     "reason": "no card priced into this band — 2 legs → +139 (medium)"
     },
     "medium": {
      "state": "PUBLISHED",
      "slipId": "ufc-medium-2026-09-26"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "no card priced into this band — 2 legs → +146 (medium); 3 legs → +299 (medium); 4 legs → +1517 (longshot)"
+     "state": "PUBLISHED",
+     "slipId": "ufc-high-2026-09-26"
     },
     "longshot": {
-     "state": "PUBLISHED",
-     "slipId": "ufc-longshot-2026-09-26"
+     "state": "NO_PLAY",
+     "reason": "no card priced into this band — 2 legs → +463 (high)"
     }
    }
   },
