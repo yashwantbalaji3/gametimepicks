@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824949,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T00:48:19.101Z",
+  "availableAt": "2026-09-26T00:48:19.101Z",
+  "eventStartTime": "2026-09-27T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-23",
+    "2026-09-24",
+    "2026-09-25"
+  ],
+  "home": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 124,
+      "relievers": [
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-09-23",
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 664129,
+          "name": "Geoff Hartlieb",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 5,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 656240,
+          "name": "Scott Blewett",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 663687,
+          "name": "Hogan Harris",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 688297,
+          "name": "Chris Roycroft",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 117,
+    "teamName": "Houston Astros",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 208,
+      "relievers": [
+        {
+          "id": 623352,
+          "name": "Josh Hader",
+          "appearances": 1,
+          "pitches": 44,
+          "outs": 4,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 699044,
+          "name": "Miguel Ullola",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 9,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 650556,
+          "name": "Bryan Abreu",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 7,
+          "dates": [
+            "2026-09-23",
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 681973,
+          "name": "Josh Hendrickson",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 805123,
+          "name": "AJ Blubaugh",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 687911,
+          "name": "Bryan King",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 656986,
+          "name": "Bennett Sousa",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 701121,
+          "name": "Logan VanWey",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-09-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-23,2026-09-24,2026-09-25) + feed/live box scores",
+    "capturedAt": "2026-09-26T00:48:19.101Z"
+  },
+  "recordHash": "e0db9dcefacf8ea94014b3f75fa34803ac1018f68db964ee485084d29cba047a"
+}

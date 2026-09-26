@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824057,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T00:48:18.335Z",
+  "availableAt": "2026-09-26T00:48:18.335Z",
+  "eventStartTime": "2026-09-26T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608379,
+      "name": "Michael Wacha",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 6,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.67,
+        "ipAvg": 6.33,
+        "kAvg": 5.6,
+        "bbAvg": 2.2,
+        "erAvg": 1.8,
+        "hrAvg": 1.2,
+        "kPer9": 7.96,
+        "workloadIpLast5": 31.67
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 194.33,
+        "k": 154,
+        "bb": 53,
+        "er": 72,
+        "hr": 28
+      }
+    },
+    "away": {
+      "id": 676440,
+      "name": "Tanner Bibee",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 32,
+      "restDays": 7,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 3.8,
+        "bbAvg": 2,
+        "erAvg": 3.8,
+        "hrAvg": 0.6,
+        "kPer9": 6.66,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 32,
+        "ip": 182,
+        "k": 142,
+        "bb": 54,
+        "er": 88,
+        "hr": 29
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-26T00:48:18.335Z"
+  },
+  "recordHash": "198ecf60be49a93eb53aa11c72ed461760282d59fd5f2a0c329dc36b31ef6fc3"
+}

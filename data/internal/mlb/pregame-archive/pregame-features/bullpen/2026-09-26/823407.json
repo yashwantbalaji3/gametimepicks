@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823407,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T00:48:19.101Z",
+  "availableAt": "2026-09-26T00:48:19.101Z",
+  "eventStartTime": "2026-09-26T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-23",
+    "2026-09-24",
+    "2026-09-25"
+  ],
+  "home": {
+    "teamId": 143,
+    "teamName": "Philadelphia Phillies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 109,
+      "relievers": [
+        {
+          "id": 686934,
+          "name": "Alex McFarlane",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 621383,
+          "name": "Tanner Banks",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 621237,
+          "name": "José Alvarado",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 1,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 641835,
+          "name": "Tim Mayza",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 663767,
+          "name": "Chase Shugart",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 676661,
+          "name": "Max Lazar",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 156,
+      "relievers": [
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 2,
+          "pitches": 46,
+          "outs": 7,
+          "dates": [
+            "2026-09-23",
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 811315,
+          "name": "Brody Hopkins",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 4,
+          "dates": [
+            "2026-09-23",
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 663765,
+          "name": "Jake Woodford",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 4,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 642121,
+          "name": "Cole Sulser",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-09-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-23,2026-09-24,2026-09-25) + feed/live box scores",
+    "capturedAt": "2026-09-26T00:48:19.101Z"
+  },
+  "recordHash": "821df6b76f165f71a12f093b42088bc4b130b864b4c869128444fbba0de0a405"
+}

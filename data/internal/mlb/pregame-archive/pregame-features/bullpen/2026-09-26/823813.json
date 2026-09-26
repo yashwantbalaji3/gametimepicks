@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823813,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T00:48:19.101Z",
+  "availableAt": "2026-09-26T00:48:19.101Z",
+  "eventStartTime": "2026-09-26T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-23",
+    "2026-09-24",
+    "2026-09-25"
+  ],
+  "home": {
+    "teamId": 146,
+    "teamName": "Miami Marlins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 110,
+      "relievers": [
+        {
+          "id": 694795,
+          "name": "Josh Ekness",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 5,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 667652,
+          "name": "Jack Ralston",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 4,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 806188,
+          "name": "Cade Gibson",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 656848,
+          "name": "Michael Petersen",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 645261,
+          "name": "Sandy Alcantara",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 680767,
+          "name": "Victor Vodnik",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 676534,
+          "name": "Calvin Faucher",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 126,
+      "relievers": [
+        {
+          "id": 700363,
+          "name": "AJ Smith-Shawver",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 6,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 6,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 663158,
+          "name": "Robert Suarez",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 628452,
+          "name": "Raisel Iglesias",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 1,
+          "dates": [
+            "2026-09-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-23,2026-09-24,2026-09-25) + feed/live box scores",
+    "capturedAt": "2026-09-26T00:48:19.101Z"
+  },
+  "recordHash": "d39eb19bb74ae8982fa7c56e68ea1cd08ae664801d1bfc1ad7910dcecbb91ef0"
+}

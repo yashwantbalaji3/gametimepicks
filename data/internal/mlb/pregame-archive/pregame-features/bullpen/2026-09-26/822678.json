@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822678,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T00:48:19.101Z",
+  "availableAt": "2026-09-26T00:48:19.101Z",
+  "eventStartTime": "2026-09-26T16:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-23",
+    "2026-09-24",
+    "2026-09-25"
+  ],
+  "home": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 136,
+      "relievers": [
+        {
+          "id": 695418,
+          "name": "Brad Lord",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 10,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 702021,
+          "name": "Will Dion",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 6,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 672442,
+          "name": "Yovanny Cruz",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 680899,
+          "name": "Erik Tolman",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 2,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 695378,
+          "name": "Jack Sinclair",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-09-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 121,
+    "teamName": "New York Mets",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 90,
+      "relievers": [
+        {
+          "id": 672335,
+          "name": "Cionel Pérez",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 681810,
+          "name": "Austin Warren",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 674073,
+          "name": "Jack Weisenburger",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 642376,
+          "name": "Jefry Yan",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 2,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 642207,
+          "name": "Devin Williams",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-23,2026-09-24,2026-09-25) + feed/live box scores",
+    "capturedAt": "2026-09-26T00:48:19.101Z"
+  },
+  "recordHash": "0af2c501774759d978ae30e3dd801c5f59f890f3f59834467edcbd75d2c1d776"
+}

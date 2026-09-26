@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822759,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T00:48:19.101Z",
+  "availableAt": "2026-09-26T00:48:19.101Z",
+  "eventStartTime": "2026-09-26T19:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-23",
+    "2026-09-24",
+    "2026-09-25"
+  ],
+  "home": {
+    "teamId": 141,
+    "teamName": "Toronto Blue Jays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 83,
+      "relievers": [
+        {
+          "id": 676454,
+          "name": "Brendan Cellucci",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 695445,
+          "name": "Chase Lee",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 692064,
+          "name": "José Rodríguez",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 623149,
+          "name": "Paul Sewald",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 663893,
+          "name": "Brendon Little",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 113,
+    "teamName": "Cincinnati Reds",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 126,
+      "relievers": [
+        {
+          "id": 685112,
+          "name": "Zach McCambley",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 5,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 683175,
+          "name": "Connor Phillips",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 572955,
+          "name": "Pierce Johnson",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 622088,
+          "name": "Tejay Antone",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 641941,
+          "name": "Emilio Pagán",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 668933,
+          "name": "Graham Ashcraft",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 682825,
+          "name": "Luis Mey",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 1,
+          "dates": [
+            "2026-09-23"
+          ]
+        },
+        {
+          "id": 656271,
+          "name": "Brock Burke",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-23,2026-09-24,2026-09-25) + feed/live box scores",
+    "capturedAt": "2026-09-26T00:48:19.101Z"
+  },
+  "recordHash": "28f43470680dad39a87e9f12c7f4707d3aa9ebe4d18edda2eeb600f00df0298e"
+}
