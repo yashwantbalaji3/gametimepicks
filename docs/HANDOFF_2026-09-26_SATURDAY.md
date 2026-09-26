@@ -162,6 +162,16 @@ artifacts, 72 carry an unhonoured claim — 135 in total, first on 2026-06-10.**
 `_sgp_leg_quality`, written after a 0-23 run, already penalises edge and drops the confidence
 label — and is wired only to the SGP/NBA paths. #698 makes this a standing check.
 
+**And it is the steady state, not a drift** — measured by month with the merged checker:
+
+| | | | | |
+|---|---|---|---|---|
+| 2026-05 | 2026-06 | 2026-07 | 2026-08 | 2026-09 |
+| 0 of 6 | 9 of 18 | 8 of 10 | **29 of 29** | **26 of 26** |
+
+Intermittent from June, **continuous since August**. Every card published in the last two months
+came from a scorer whose artifact says two of its inputs were removed and did not remove them.
+
 ### D5 · The records, measured
 
 | | |
