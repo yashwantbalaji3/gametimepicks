@@ -2,44 +2,44 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-09-26T14:54:20Z",
+  "generatedAt": "2026-09-26T16:50:35Z",
   "nextCluster": {
     "kickoffUtc": "2026-10-10T11:30:00.000Z",
     "fixtures": 1,
-    "hoursAway": 332.59
+    "hoursAway": 330.66
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-09-25T23:50:44Z",
-      "ageHours": 15.06
+      "stampedAt": "2026-09-26T16:50:13Z",
+      "ageHours": 0.01
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-09-19T22:35:26Z",
-      "ageHours": 160.31
+      "ageHours": 162.25
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-09-26T14:54:17Z",
+      "stampedAt": "2026-09-26T16:50:31Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-09-26T14:54:19Z",
+      "stampedAt": "2026-09-26T16:50:32Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-09-26T14:54:04Z",
-      "ageHours": 0
+      "stampedAt": "2026-09-26T16:50:16Z",
+      "ageHours": 0.01
     }
   },
   "cadence": {
     "lineupCoverage": {
       "state": "EVERY_CLUSTER_SERVED",
-      "clusters": 8,
-      "covered": 8,
+      "clusters": 9,
+      "covered": 9,
       "uncoveredMatches": 0,
       "uncovered": []
     },
@@ -52,18 +52,18 @@
       "headroom": 48,
       "kickoffWindowHours": 30,
       "spendingFirings": 175,
-      "skippedFirings": 462
+      "skippedFirings": 460
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-09-26T14:54:17Z",
+    "generatedAt": "2026-09-26T16:50:31Z",
     "counts": {
       "READY_EXCEPT_ODDS": 10
     },
     "rows": 10
   },
   "playerSet": {
-    "generatedAt": "2026-09-26T14:54:19Z",
+    "generatedAt": "2026-09-26T16:50:32Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
       "fixtures": 10,
@@ -104,7 +104,7 @@
   },
   "productLane": {
     "live": false,
-    "blocked": "the last price capture is 6.7 days old"
+    "blocked": "the last price capture is 6.8 days old"
   },
   "blockers": [
     {
@@ -115,7 +115,7 @@
     {
       "id": "product-lane-closed",
       "state": "REALITY_GATED",
-      "detail": "the Lab gate has closed this lane: the last price capture is 6.7 days old. It reopens by itself when the evidence returns."
+      "detail": "the Lab gate has closed this lane: the last price capture is 6.8 days old. It reopens by itself when the evidence returns."
     }
   ]
 }
