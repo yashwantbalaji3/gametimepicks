@@ -107,6 +107,16 @@ export function traceGame({ providerEventId, matchup = null, kickoffUtc = null, 
   } else if (kickMs != null && ms(board.generatedAt) != null && ms(board.generatedAt) >= kickMs) {
     stages.push(stage("BOARD", "INCONSISTENT",
       `board generatedAt ${board.generatedAt} is at or after kickoff ${kickoffUtc ?? board.kickoffUtc} — it is not a pregame record`));
+  } else if (kickoffUtc != null && board.kickoffUtc != null && ms(board.kickoffUtc) != null && kickMs != null && ms(board.kickoffUtc) !== ms(kickoffUtc)) {
+    /*
+     * ⚠ THIS FINDING USED TO BE A WHOLE-SLATE OUTAGE. The live producer excludes a game whose board
+     * and schedule disagree on kickoff — correctly, per game — but its caller escalated that to
+     * `exit 2`, so one moved fixture anywhere in the forty-nine-board archive stopped live tracking
+     * for every other game. The exclusion stayed; the escalation went, and the finding lives here
+     * instead, where an operator reads it against the ONE game it concerns.
+     */
+    stages.push(stage("BOARD", "INCONSISTENT",
+      `board says kickoff ${board.kickoffUtc} but the schedule says ${kickoffUtc} — this fixture is EXCLUDED from live tracking until they agree`));
   } else if (published.length === 0) {
     // Honest, and common: every family can fail its bar. There is nothing to track live.
     stages.push(stage("BOARD", "OK", "board present; no family cleared its publication bar (nothing is trackable live)"));

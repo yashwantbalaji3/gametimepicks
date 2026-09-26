@@ -109,9 +109,35 @@ if (promoted === 0) console.log("no artifact was awaiting promotion to CANONICAL
 if (PROMOTE_ONLY) process.exit(0);
 
 /* The rule itself lives in the library, where a behavioural test can hold it. This does IO. */
-const { targets, disagreements } = selectLiveTargets({ boards, scheduleRows: schedule?.rows ?? [], nowMs, only });
+const { targets, disagreements, verdict } = selectLiveTargets({ boards, scheduleRows: schedule?.rows ?? [], nowMs, only });
+
+/*
+ * ⚠ A CONTESTED FIXTURE IS EXCLUDED, NOT A REASON TO ABANDON THE SLATE.
+ *
+ * `selectLiveTargets` already drops any game whose board and schedule disagree on kickoff — that is
+ * the fail-closed part, and it is per game. This caller used to escalate that into `exit 2`, which
+ * meant ONE disagreement anywhere killed live tracking for every other game.
+ *
+ * And "anywhere" was the whole archive: the loop reads all forty-nine committed boards, thirty-three
+ * of them for games already played, against a schedule capture that refreshes daily. A provider
+ * correcting the kickoff of a game from three weeks ago would have taken down the live product for
+ * the current slate. Excluding the contested game is the truthful response; taking down thirteen
+ * honest games with it is not more truthful, only less available.
+ *
+ * ⚠ SYSTEMIC IS STILL FATAL. If disagreements exist and NOT ONE target survived, this is not one
+ * moved fixture — it is a schedule capture that cannot be reconciled with any board, and that refuses.
+ *
+ * ⚠ AND THE EXIT CODE IS NOT THE SIGNAL. Exiting non-zero here would mark the run failed and SKIP the
+ * commit step below, discarding the honest artifacts this run just produced — the shape that has cost
+ * this repository real archives. The disagreement is surfaced instead by
+ * `app/scripts/ops/nfl-lifecycle-trace.mjs`, which reports it as BOARD · INCONSISTENT for the one game
+ * it concerns.
+ */
 if (disagreements.length) {
-  console.error(`REFUSED: board and schedule disagree on kickoff — live state is never attached to a contested fixture:\n  ${disagreements.join("\n  ")}`);
+  console.error(`::warning::${disagreements.length} fixture(s) EXCLUDED — board and schedule disagree on kickoff, so no live state is attached to them:\n  ${disagreements.join("\n  ")}`);
+}
+if (verdict === "REFUSE_UNRECONCILABLE") {
+  console.error("REFUSED: not one board reconciled with the schedule — this is not one moved fixture, it is a capture that cannot be reconciled with any of them");
   process.exit(2);
 }
 

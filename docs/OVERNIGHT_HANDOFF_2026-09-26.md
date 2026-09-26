@@ -105,6 +105,23 @@ artifact rather than only games inside the 8-hour live window.
 
 ---
 
+## D2 · Tomorrow has two neutral-site internationals, and they found a P0
+
+`BAL VS DAL` at the **Maracanã** (20:25Z) and `IND VS WSH` at **Tottenham** are written by ESPN with
+`VS`, not `@`. Four places split that label on `@` and each broke differently — worst of them, the
+Phase H probe's join returned false, so the **one authorized 3-credit call** could have been spent on
+a game it then could not find and closed the lane on a string format. Fixed in #691 with one shared
+rule, and the away-first ordering is now a test over the committed capture rather than a comment.
+
+**Checked and NOT a defect** — the weather lane. Both venues are correctly geocoded (Rio and London),
+`public-view.mjs` drops a weather-null row, and nothing false is published. But the "outside the US
+gets no forecast" rule is enforced by the National Weather Service returning 404 rather than by the
+`country: "non-US"` field the table already carries, and `NO_FORECAST` therefore cannot be told apart
+from "NWS was down for a US stadium". Verified live: Rio 404, London 404, Highmark 200. Deliberately
+**not** changed hours before a live slate — spawned as its own task.
+
+---
+
 ## E · Phase H — armed, bounded, and not forced
 
 | | |

@@ -609,5 +609,22 @@ export function selectLiveTargets({ boards = [], scheduleRows = [], nowMs, windo
     .filter((t) => t.kickoffMs <= nowMs && nowMs - t.kickoffMs <= windowMs)
     .sort((a, b) => a.providerEventId.localeCompare(b.providerEventId));   // deterministic across runs
 
-  return { targets, disagreements };
+  /*
+   * ⚠ THE VERDICT IS THE LIBRARY'S, NOT THE SCRIPT'S. The caller used to decide, and it decided that
+   * ANY disagreement meant `exit 2` — so one moved fixture anywhere in the forty-nine-board archive
+   * stopped live tracking for the whole current slate. Exclusion is per game and already happened
+   * above; the escalation was the defect, and a decision that lives in a script is a decision no test
+   * can hold, which is why this is returned rather than inferred there.
+   *
+   * ⚠ `usable`, NOT `targets`. A Tuesday has no target because nothing is in the live window, and that
+   * must never read as an unreconcilable capture. `usable` asks the reconciliation question alone,
+   * independent of the clock.
+   */
+  const verdict = disagreements.length === 0
+    ? "PROCEED"
+    : usable.length > 0
+      ? "PROCEED_EXCLUDING_CONTESTED"
+      : "REFUSE_UNRECONCILABLE";
+
+  return { targets, disagreements, verdict, usableCount: usable.length };
 }

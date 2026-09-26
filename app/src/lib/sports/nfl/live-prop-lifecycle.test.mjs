@@ -498,3 +498,47 @@ test("⚠ buildLiveRows THREADS the board's family state — the gate must survi
   assert.equal(row(run("PUBLISHED"), "player_reception_yds").settlement.forecastResult, "LOSS");
   assert.equal(row(run("ESTIMATE"), "player_reception_yds").settlement.forecastResult, "NOT_PUBLISHED");
 });
+
+// ══ A CONTESTED FIXTURE IS EXCLUDED, NOT A REASON TO ABANDON THE SLATE ═════════════════════════
+
+test("⚠ one moved fixture excludes ITSELF and the rest of the slate still runs", () => {
+  const boards = [
+    { providerEventId: "1", kickoffUtc: "2026-09-27T17:00:00Z", matchup: "A @ B" },
+    { providerEventId: "2", kickoffUtc: "2026-09-27T17:05:00Z", matchup: "C @ D" },   // schedule says 17:00
+    { providerEventId: "3", kickoffUtc: "2026-09-27T17:00:00Z", matchup: "E @ F" },
+  ];
+  const scheduleRows = boards.map((b) => ({ providerEventId: b.providerEventId, dateUtc: "2026-09-27T17:00:00Z" }));
+  const r = selectLiveTargets({ boards, scheduleRows, nowMs: Date.parse("2026-09-27T18:00:00Z") });
+
+  assert.equal(r.verdict, "PROCEED_EXCLUDING_CONTESTED");
+  assert.equal(r.disagreements.length, 1);
+  assert.deepEqual(r.targets.map((t) => t.providerEventId), ["1", "3"], "the other two games are untouched");
+});
+
+test("⚠ but a capture that reconciles with NOTHING still refuses", () => {
+  const boards = [
+    { providerEventId: "1", kickoffUtc: "2026-09-27T17:05:00Z", matchup: "A @ B" },
+    { providerEventId: "2", kickoffUtc: "2026-09-27T17:05:00Z", matchup: "C @ D" },
+  ];
+  const scheduleRows = boards.map((b) => ({ providerEventId: b.providerEventId, dateUtc: "2026-09-27T17:00:00Z" }));
+  const r = selectLiveTargets({ boards, scheduleRows, nowMs: Date.parse("2026-09-27T18:00:00Z") });
+  assert.equal(r.verdict, "REFUSE_UNRECONCILABLE");
+  assert.equal(r.targets.length, 0);
+});
+
+test("⚠ AND A QUIET TUESDAY IS NOT AN UNRECONCILABLE CAPTURE — the verdict asks about reconciliation, not the clock", () => {
+  const boards = [{ providerEventId: "1", kickoffUtc: "2026-09-27T17:00:00Z", matchup: "A @ B" },
+                  { providerEventId: "2", kickoffUtc: "2026-09-27T17:05:00Z", matchup: "C @ D" }];
+  const scheduleRows = boards.map((b) => ({ providerEventId: b.providerEventId, dateUtc: "2026-09-27T17:00:00Z" }));
+  const r = selectLiveTargets({ boards, scheduleRows, nowMs: Date.parse("2026-09-30T12:00:00Z") });   // days later
+  assert.equal(r.targets.length, 0, "nothing is in the live window");
+  assert.equal(r.verdict, "PROCEED_EXCLUDING_CONTESTED", "a target count of zero must not be read as a broken capture");
+});
+
+test("no disagreement at all is a plain PROCEED", () => {
+  const boards = [{ providerEventId: "1", kickoffUtc: "2026-09-27T17:00Z", matchup: "A @ B" }];
+  const r = selectLiveTargets({ boards, scheduleRows: [{ providerEventId: "1", dateUtc: "2026-09-27T17:00:00Z" }], nowMs: Date.parse("2026-09-27T18:00:00Z") });
+  assert.equal(r.verdict, "PROCEED");
+  assert.equal(r.usableCount, 1);
+  assert.equal(r.targets.length, 1, "the short and long ISO forms are one instant");
+});

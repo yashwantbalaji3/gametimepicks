@@ -137,3 +137,21 @@ test("a slate folds to ATTENTION if ANY game needs it, and never hides it behind
   assert.equal(f.attention, 1);
   assert.equal(f.inFlight, 1);
 });
+
+test("⚠ a board/schedule kickoff disagreement is INCONSISTENT for THAT game, and only that game", () => {
+  const contested = { ...board(), kickoffUtc: "2026-09-27T17:05:00Z" };   // schedule says 17:00
+  const t = traceGame({ providerEventId: "E1", kickoffUtc: KICK, board: contested, live: null, settlementRows: [], inResults: false, now: at(-7200_000) });
+  const s = stageOf(t, "BOARD");
+  assert.equal(s.state, "INCONSISTENT");
+  assert.match(s.note, /EXCLUDED from live tracking/);
+
+  // The same instant written two ways is NOT a disagreement — boards write the short form.
+  const short = { ...board(), kickoffUtc: "2026-09-27T17:00Z" };
+  assert.equal(stageOf(traceGame({ providerEventId: "E1", kickoffUtc: KICK, board: short, settlementRows: [], inResults: false, now: at(-7200_000) }), "BOARD").state, "OK");
+
+  // And it does not spread: a healthy game beside it still folds as IN_FLIGHT, not ATTENTION.
+  const healthy = trace({ board: board(), live: live({ phase: "PRE", counts: { rows: 1, withLiveStat: 0 } }), now: at(-7200_000) });
+  const f = foldTraces([t, healthy]);
+  assert.equal(f.attention, 1);
+  assert.equal(f.inFlight, 1);
+});
