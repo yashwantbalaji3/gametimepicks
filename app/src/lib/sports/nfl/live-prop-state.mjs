@@ -230,7 +230,7 @@ export const SETTLEMENT_STATES = Object.freeze(["PENDING", "SETTLED", "NO_MEASUR
  * or YES / NO for a one-sided market). `forecastResult` is OUR record: did the side our projection
  * implied land? A reader comparing the two is comparing a fact to a claim, which is the point.
  */
-export function settle({ summary, espnId, family, frozenLine = null, projection = null, participation = null, settledAt, source = "espn-nfl-summary" }) {
+export function settle({ summary, espnId, family, frozenLine = null, projection = null, participation = null, familyState = null, settledAt, source = "espn-nfl-summary" }) {
   if (phaseOf(summary) !== "FINAL") {
     return { state: "PENDING", finalStat: null, line: frozenLine ?? null, lineResult: null, forecastResult: null, settledAt: null, source };
   }
@@ -258,7 +258,23 @@ export function settle({ summary, espnId, family, frozenLine = null, projection 
   let forecastResult = null;
   if (typeof frozenLine === "number" && Number.isFinite(frozenLine)) {
     lineResult = finalStat > frozenLine ? "OVER" : finalStat < frozenLine ? "UNDER" : "PUSH";
-    if (typeof projection === "number" && Number.isFinite(projection)) {
+    /*
+     * ⚠ A FORECAST IS ONLY GRADED WHERE THE FORECAST WAS PUBLISHED.
+     *
+     * `lineResult` above is a FACT — the final stat against the frozen line — and a fact is reported
+     * whatever we think of our own model. `forecastResult` is a CLAIM: "the side our projection
+     * implied landed". Grading that for a family which did not clear its publication bar builds a
+     * track record for a model we decided not to show, and it does it silently.
+     *
+     * This was not hypothetical. On the 2026-09-27 boards `player_pass_yds` is ESTIMATE (its decomposed
+     * successor stopped at the calibration bar) and twenty-eight of its entries carry a frozen line
+     * anyway, because the odds capture buys prices per market and does not consult a model verdict. The
+     * only reason nothing had been graded yet is that the one completed game's four ESTIMATE rows
+     * happened to have no line. That is luck, not a rule — so here is the rule.
+     */
+    if (familyState != null && familyState !== "PUBLISHED") {
+      forecastResult = "NOT_PUBLISHED";
+    } else if (typeof projection === "number" && Number.isFinite(projection)) {
       const impliedSide = projection > frozenLine ? "OVER" : projection < frozenLine ? "UNDER" : null;
       forecastResult = impliedSide === null ? "PUSH"
         : lineResult === "PUSH" ? "PUSH"
@@ -272,10 +288,10 @@ export function settle({ summary, espnId, family, frozenLine = null, projection 
  * One live row from a frozen block the caller already holds. Thin; `buildLiveRows` is the owner of
  * the sealing, provenance and reconciliation rules.
  */
-export function liveRow({ frozen, summary, espnId, family, observedAt }) {
+export function liveRow({ frozen, summary, espnId, family, familyState = null, observedAt }) {
   const factual = liveFactual({ summary, espnId, family, observedAt });
   const settlement = settle({
-    summary, espnId, family,
+    summary, espnId, family, familyState,
     frozenLine: frozen?.market?.line ?? null,
     projection: frozen?.projection?.median ?? null,
     participation: frozen?.participation ?? null,
@@ -376,7 +392,7 @@ export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, pri
 
       const live = liveFactual({ summary, espnId: id, family, observedAt });
       const prevS = previous?.settlement ?? null;
-      const attempt = () => settle({ summary, espnId: id, family, frozenLine: frozen?.market?.line ?? null, projection: frozen?.projection?.median ?? null, participation: frozen?.participation ?? null, settledAt: observedAt });
+      const attempt = () => settle({ summary, espnId: id, family, familyState: board?.families?.[family]?.state ?? null, frozenLine: frozen?.market?.line ?? null, projection: frozen?.projection?.median ?? null, participation: frozen?.participation ?? null, settledAt: observedAt });
 
       let settlement;
       if (prevS?.state === "SETTLED") {
@@ -478,15 +494,55 @@ export function finalityAt({ finalFirstObservedAt, nowIso, windowMs = RECONCILIA
  * look complete. That is what gives a late stat somewhere to arrive.
  */
 export function shouldPollEvent(prior, nowIso, windowMs = RECONCILIATION_WINDOW_MS) {
-  if (!prior) return { poll: true, reason: "never observed" };
-  if (prior.phase !== "FINAL") return { poll: true, reason: "not final yet" };
-  if (!prior.finalFirstObservedAt) return { poll: true, reason: "final, but no first-final instant recorded — this read establishes it" };
+  if (!prior) return { poll: true, promote: false, reason: "never observed" };
+  if (prior.phase !== "FINAL") return { poll: true, promote: false, reason: "not final yet" };
+  if (!prior.finalFirstObservedAt) return { poll: true, promote: false, reason: "final, but no first-final instant recorded — this read establishes it" };
   const finality = finalityAt({ finalFirstObservedAt: prior.finalFirstObservedAt, nowIso, windowMs });
   if (finality === "PROVISIONAL") {
     const pending = (prior.rows ?? []).filter((r) => r.settlement?.state === "NO_MEASUREMENT").length;
-    return { poll: true, reason: pending ? `reconciliation window open; ${pending} prediction(s) have no measurement yet` : "reconciliation window open — a late correction can still arrive" };
+    return { poll: true, promote: false, reason: pending ? `reconciliation window open; ${pending} prediction(s) have no measurement yet` : "reconciliation window open — a late correction can still arrive" };
   }
-  return { poll: false, reason: "reconciliation window closed — every prediction is canonical" };
+  /*
+   * ⚠ THE WINDOW HAS CLOSED, AND THE ARTIFACT MAY NOT KNOW IT YET. See `promoteFinality` below: this
+   * branch used to say "every prediction is canonical" and stop, which is what made CANONICAL
+   * unreachable. `promote` is true exactly once per game — on the first run after closure — and never
+   * asks for a fetch.
+   */
+  return { poll: false, promote: prior.finality !== "CANONICAL", reason: prior.finality === "CANONICAL" ? "reconciliation window closed — every prediction is canonical" : "reconciliation window closed — promoting the artifact to CANONICAL (no fetch needed)" };
+}
+
+/**
+ * PROMOTE A CLOSED-WINDOW ARTIFACT TO CANONICAL — WITHOUT A FETCH.
+ *
+ * ⚠ CANONICAL WAS A DEAD STATE, AND EVERY TEST PASSED ANYWAY. The lifecycle is documented as
+ *
+ *   LIVE → FINAL_PROVISIONAL → (reconciliation window) → FINAL_CANONICAL → stop
+ *
+ * but the two clocks were the same clock. `shouldPollEvent` polled only while `finalityAt` said
+ * PROVISIONAL, and `buildLiveRows` stamped whatever `finalityAt` said at that same instant — so every
+ * moment that would have written CANONICAL was a moment at which nothing was written. Probed against
+ * the one completed game: at window−1min poll=YES stamping PROVISIONAL, at window+0min poll=no
+ * stamping CANONICAL. The reachable set was {PROVISIONAL}, permanently, for every NFL prop ever
+ * settled. `finalityAt` was correct and unit-tested; the composition was the defect.
+ *
+ * It needs no provider call, because promotion is a pure statement about the CLOCK and the recorded
+ * first-final instant — not about the game. So this reads the published artifact and returns it with
+ * one field advanced at the artifact level and on each settled row.
+ *
+ * ⚠ IT ADVANCES NOTHING ELSE. Not a grade, not a `settledAt`, not a frozen block, not a live value. A
+ * promotion that could change a result would be a re-grade wearing a clock's clothes.
+ *
+ * @returns the promoted artifact, or `null` when there is nothing to promote.
+ */
+export function promoteFinality(prior, nowIso, windowMs = RECONCILIATION_WINDOW_MS) {
+  if (!prior || prior.phase !== "FINAL" || !prior.finalFirstObservedAt) return null;
+  if (finalityAt({ finalFirstObservedAt: prior.finalFirstObservedAt, nowIso, windowMs }) !== "CANONICAL") return null;
+  if (prior.finality === "CANONICAL") return null;
+  return {
+    ...prior,
+    finality: "CANONICAL",
+    rows: (prior.rows ?? []).map((r) => (r.settlement ? { ...r, settlement: { ...r.settlement, finality: "CANONICAL" } } : r)),
+  };
 }
 
 /** The live window: a game is trackable from kickoff until 8 hours later. */

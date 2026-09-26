@@ -74,7 +74,7 @@ let wrote = 0;
 for (const date of [...byDate.keys()].sort()) {
   const outPath = path.join(OUT_DIR, `${date}.json`);
   const prior = read(outPath);
-  const { rows, added, corrected, unchanged, skipped, counts } = buildLedger({ prior, artifacts: byDate.get(date), nowIso: NOW });
+  const { rows, added, corrected, promoted, unchanged, skipped, counts } = buildLedger({ prior, artifacts: byDate.get(date), nowIso: NOW });
 
   const record = {
     schemaVersion: 1,
@@ -100,7 +100,7 @@ for (const date of [...byDate.keys()].sort()) {
   const changed = contentOf(prior) !== contentOf(record);
 
   console.log(
-    `${date}: ${counts.rows} row(s) · +${added} new · ${corrected} corrected · ${unchanged} unchanged · ${skipped} not terminal` +
+    `${date}: ${counts.rows} row(s) · +${added} new · ${corrected} corrected · ${promoted} promoted to canonical · ${unchanged} unchanged · ${skipped} not terminal` +
     ` · ${counts.observed} observed / ${counts.noMeasurement} no-measurement · ${counts.decided} decided (${counts.forecastWins}W ${counts.forecastLosses}L)` +
     ` · ${counts.push} push · ${counts.notApplicable} n/a · ${counts.canonical} canonical` +
     (changed ? "" : " · UNCHANGED"),

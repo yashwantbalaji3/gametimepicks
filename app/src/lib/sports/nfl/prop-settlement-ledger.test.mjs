@@ -237,14 +237,23 @@ test("a NO_MEASUREMENT that later resolves is a correction, not a new row", () =
   assert.deepEqual(r.corrections[0].changes.measurementState, { from: "NO_MEASUREMENT", to: "OBSERVED" });
 });
 
-test("finality advancing PROVISIONAL → CANONICAL is recorded, and does not touch the result", () => {
+test("finality advancing PROVISIONAL → CANONICAL advances, and does not touch the result", () => {
+  /*
+   * ⚠ THIS TEST ONCE ASSERTED THE OPPOSITE. It required the advance to APPEND A CORRECTION, and it
+   * passed — the composition it was describing had simply never run, because CANONICAL was unreachable
+   * until `promoteFinality` existed. The first time it did run it appended a correction to all
+   * fifty-seven rows of a completed game and reported `corrected: 57`, which reads as "the whole slate
+   * was re-graded". The clock running out is the lifecycle working, not an answer changing.
+   */
   const first = foldEventIntoLedger([], artifact([row()]), NOW);
   assert.equal(first.rows[0].finality, "PROVISIONAL");
   const after = foldEventIntoLedger(first.rows, artifact([row()], { finality: "CANONICAL" }), "2026-09-28T00:00:00Z");
   const r = after.rows[0];
   assert.equal(r.finality, "CANONICAL");
   assert.equal(r.forecastResult, "WIN", "the answer is unchanged");
-  assert.deepEqual(r.corrections[0].changes, { finality: { from: "PROVISIONAL", to: "CANONICAL" } });
+  assert.equal(after.promoted, 1);
+  assert.equal(after.corrected, 0);
+  assert.deepEqual(r.corrections, [], "a promotion is not a correction");
   assert.equal(countsOf([r]).canonical, 1);
 });
 
@@ -425,4 +434,66 @@ test("⚠ THE REPORT SAMPLES ACROSS FAMILIES — twelve rows of one family prove
   assert.match(body, /byFamily/, "rows are grouped by family before sampling");
   assert.match(body, /perFamily/, "and the limit is spread across them");
   assert.match(body, /rank\s*=/, "settled and no-measurement rows are preferred over unremarkable ones");
+});
+
+// ══ A PROMOTION IS NOT A CORRECTION ════════════════════════════════════════════════════════════
+//
+// ⚠ FOLDED AS ONE, the first completed game reported `corrected: 57` — telling any reader that the
+// whole slate had been re-graded, when all that happened was a clock running out. A correction count
+// that fires on the ordinary happy path is a correction count nobody can use.
+
+const artifactAt = (finality, rowFinality = finality) => ({
+  providerEventId: "E9", matchup: "A @ B", kickoffUtc: "2026-09-27T17:00:00Z", finality,
+  rows: [{
+    predictionId: "E9:nfl-athlete-1:player_rush_yds", playerId: "nfl-athlete-1", name: "P", team: "A",
+    family: "player_rush_yds", familyState: "PUBLISHED", frozenIdentity: "abc",
+    frozen: { projection: { median: 63 }, market: { line: 59.5 } },
+    settlement: { state: "SETTLED", finalStat: 80, lineResult: "OVER", forecastResult: "WIN", settledAt: "2026-09-28T03:00:00Z", finality: rowFinality },
+  }],
+});
+
+test("⚠ PROVISIONAL → CANONICAL counts as promoted, appends NO correction, and moves no answer", () => {
+  const first = buildLedger({ prior: null, artifacts: [artifactAt("PROVISIONAL")], nowIso: "2026-09-28T03:05:00Z" });
+  assert.equal(first.added, 1);
+  assert.equal(first.rows[0].finality, "PROVISIONAL");
+
+  const second = buildLedger({ prior: first, artifacts: [artifactAt("CANONICAL")], nowIso: "2026-09-28T06:35:00Z" });
+  assert.equal(second.promoted, 1);
+  assert.equal(second.corrected, 0, "the lifecycle reaching its documented terminus is not a correction");
+  assert.equal(second.added, 0);
+  assert.equal(second.rows[0].finality, "CANONICAL");
+  assert.deepEqual(second.rows[0].corrections, []);
+  assert.equal(second.counts.canonical, 1);
+  assert.equal(second.counts.corrected, 0);
+
+  // The answer and the original record are untouched.
+  assert.equal(second.rows[0].forecastResult, "WIN");
+  assert.equal(second.rows[0].settledAt, "2026-09-28T03:00:00Z");
+  assert.equal(second.rows[0].original.finality, "PROVISIONAL", "what was published at the time stays what was published");
+
+  // Idempotent: folding the same canonical artifact again is neither a promotion nor a correction.
+  const third = buildLedger({ prior: second, artifacts: [artifactAt("CANONICAL")], nowIso: "2026-09-28T09:00:00Z" });
+  assert.equal(third.promoted, 0);
+  assert.equal(third.corrected, 0);
+  assert.equal(third.unchanged, 1);
+});
+
+test("⚠ CANONICAL → PROVISIONAL is a REGRESSION and is still recorded — a closed window reopening", () => {
+  const a = buildLedger({ prior: null, artifacts: [artifactAt("CANONICAL")], nowIso: "2026-09-28T06:35:00Z" });
+  const b = buildLedger({ prior: a, artifacts: [artifactAt("PROVISIONAL")], nowIso: "2026-09-28T07:00:00Z" });
+  assert.equal(b.promoted, 0);
+  assert.equal(b.corrected, 1, "the promotion exemption is one-directional by design");
+  assert.equal(b.rows[0].corrections.length, 1);
+  assert.deepEqual(b.rows[0].corrections[0].changes.finality, { from: "CANONICAL", to: "PROVISIONAL" });
+});
+
+test("a real change ARRIVING WITH the promotion is still a correction, not swallowed by it", () => {
+  const a = buildLedger({ prior: null, artifacts: [artifactAt("PROVISIONAL")], nowIso: "2026-09-28T03:05:00Z" });
+  const revised = artifactAt("CANONICAL");
+  revised.rows[0].settlement = { ...revised.rows[0].settlement, finalStat: 55, lineResult: "UNDER", forecastResult: "LOSS" };
+  const b = buildLedger({ prior: a, artifacts: [revised], nowIso: "2026-09-28T06:35:00Z" });
+  assert.equal(b.promoted, 0, "the exemption is for a finality-ONLY change");
+  assert.equal(b.corrected, 1);
+  assert.equal(b.rows[0].forecastResult, "LOSS");
+  assert.equal(b.rows[0].finality, "CANONICAL");
 });

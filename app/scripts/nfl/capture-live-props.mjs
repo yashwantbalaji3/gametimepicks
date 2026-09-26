@@ -26,7 +26,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildLiveRows, phaseOf, selectLiveTargets, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
+import { buildLiveRows, phaseOf, promoteFinality, selectLiveTargets, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -74,6 +74,39 @@ if (!boards?.length) { console.error("REFUSED: no readable NFL player boards —
 
 const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
 const only = arg("event");
+const OUT_DIR = path.join(APP, "public/data/nfl/live-props");
+
+/*
+ * ── THE PROMOTION SWEEP — PROVISIONAL → CANONICAL, AND WHY IT IS NOT IN THE LOOP BELOW ────────────
+ *
+ * ⚠ CANONICAL WAS UNREACHABLE. See `promoteFinality`: polling stopped at the exact instant the stamp
+ * would have changed, so every NFL prop settlement ever written was permanently PROVISIONAL and the
+ * documented terminus of the lifecycle had never once been reached.
+ *
+ * ⚠ AND IT CANNOT RIDE THE LIVE WINDOW. The obvious fix — promote inside the target loop — is wrong
+ * for the same reason the defect existed: `selectLiveTargets` only yields a game for eight hours after
+ * kickoff, and Thursday night kicks at 00:15Z with its window closing at 06:30Z, after this workflow's
+ * last Friday slot at 04:45Z. A promotion that depends on a cron overlapping a three-hour window is a
+ * promotion that silently does not happen. So the sweep walks every committed artifact, on every
+ * invocation, before any liveness question is asked — and `nfl-event-window.yml` calls it daily with
+ * `--promote-only` so a game whose closure falls outside every live slot still reaches CANONICAL.
+ *
+ * FREE AND FETCH-FREE. Promotion is a statement about the clock and the recorded first-final instant,
+ * so no provider is touched and nothing but `finality` moves.
+ */
+const PROMOTE_ONLY = process.argv.includes("--promote-only");
+let promoted = 0;
+for (const f of (() => { try { return fs.readdirSync(OUT_DIR).filter((x) => x.endsWith(".json")); } catch { return []; } })()) {
+  const prior = read(path.join(OUT_DIR, f));
+  const next = promoteFinality(prior, NOW);
+  if (!next) continue;
+  promoted += 1;
+  if (DRY) { console.log(`${next.matchup}: would promote ${next.rows.filter((r) => r.settlement).length} settlement(s) to CANONICAL (dry run)`); continue; }
+  fs.writeFileSync(path.join(OUT_DIR, f), `${JSON.stringify(next, null, 2)}\n`);
+  console.log(`${next.matchup}: reconciliation window closed — ${next.rows.filter((r) => r.settlement).length} settlement(s) now CANONICAL`);
+}
+if (promoted === 0) console.log("no artifact was awaiting promotion to CANONICAL");
+if (PROMOTE_ONLY) process.exit(0);
 
 /* The rule itself lives in the library, where a behavioural test can hold it. This does IO. */
 const { targets, disagreements } = selectLiveTargets({ boards, scheduleRows: schedule?.rows ?? [], nowMs, only });
@@ -87,7 +120,7 @@ if (!targets.length) {
   process.exit(0);
 }
 
-const outDir = path.join(APP, "public/data/nfl/live-props");
+const outDir = OUT_DIR;
 let wrote = 0;
 let skippedSettled = 0;
 for (const ev of targets) {
