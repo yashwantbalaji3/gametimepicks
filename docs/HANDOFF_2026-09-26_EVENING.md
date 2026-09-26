@@ -136,6 +136,91 @@ artifact, frozen sportsbook provenance, simulation explanation, `NO_MEASUREMENT`
 
 ---
 
+## C2 · Three more defects, and one founder recommendation corrected
+
+### 🔴 Founder gate #2's prerequisite is a refresh job, not a publishing decision
+
+§E gate #2 and §F move #4 both recommend publishing one starter per pool after Sunday "from the
+depth-chart source already committed". Measured against tomorrow's real slate — 28 team-board
+questions across all fourteen games:
+
+| freshness bound | resolved |
+|---|---|
+| 3 days | **0 / 28** |
+| 7 days | **0 / 28** |
+| 14 days | **0 / 28** |
+| 30 days | 28 / 28 — and 30 days is not a bound on a weekly role |
+
+Every snapshot is **18.3 days old**. The newest is `2026-09-08`, which predates three games,
+`acquire-depth-chart-research.mjs` appears in **no workflow**, and the artifact has **one commit**
+in the repository's history. ⚠ It is also **quarterbacks only** — the snapshot field is literally
+`quarterbacks` — so it can resolve ONE pool, not "one starter per pool". That pool is the right one
+(the 243% Cleveland violation is a quarterback problem), but the scope is narrower than the
+recommendation implies.
+
+The consumer is built and shadow-only. It enforces point-in-time reading — no bound, however
+generous, can reach a snapshot from after the instant asked about, which is the leakage guard the
+rejected historical QB study lacked — and its staleness bound **throws if omitted**, because a
+default is where an 18-day-old answer gets returned to a caller who never thought about it.
+
+### `sport-schedules` was red 8 of 14 days because the source was behaving normally
+
+openfootball publishes a matchday as one placeholder kickoff slot until broadcasters assign times.
+The capture correctly refuses to publish a placeholder as a schedule, and **every other capture in
+those runs succeeded** — 30/30 EPL teams, 563 players, NFL, NBA and UFC all fine. A correct,
+recurring refusal was reddening the whole workflow.
+
+It now warns, via an exit code exactly one path produces (`EXIT_SOURCE_PROVISIONAL = 3`); every
+other refusal still writes to the file that decides the run's colour, and the gate is untouched.
+⚠ My first test executed an inline COPY of the workflow shell, so deleting the line that makes a
+real refusal fail the run changed nothing. It extracts the branch from the workflow file now.
+
+### A live bout found what two fixtures could not
+
+The UFC adapter was verified against a scheduled card and a completed card, both fine. Tonight's
+card went live and the first bout produced `round=R0  clock="-"` — ESPN reports `period: 0` and a
+dash for a bout that has started but whose first round has not begun. **A row that says R0 is worse
+than a row that says nothing: it looks like a measurement.** Both are null now, pinned by a third
+fixture that only exists while a card is running.
+
+Everything else was right on live data first time: `fight_winner` and `fight_rounds` read
+MEASURED → LIVE_UNRESOLVED, `fight_method` NOT_LIVE_TRACKABLE, and no winner was read from a bout
+in progress.
+
+---
+
+## C3 · 🔴 §18 measured, and deliberately NOT fixed tonight
+
+`nightly-settle` fails **10 of its last 20 runs**, every time on:
+
+> `A dated projection for <date> already exists and differs from this run. The write-once rule
+> refused it and wrote nothing.`
+
+It runs four times a day. The first run writes the dated projection; runs 2–4 recompute one that
+legitimately differs (more games have settled), the write-once rule correctly refuses, and **the
+step exits 1**. The commit step at line 715 has **no `if: always()`** — so every settlement computed
+in steps 149–607 (MLB props, the Bank Builder ladder, Moonshot, the protected-record fold, the daily
+portfolio, the selector shadow, picks-vs-outcomes, the risk ladder, Homer Nukes, paper cards,
+prediction history, the model-results index) is computed and discarded.
+
+That is §18's defect exactly, and it is the same shape as the `sport-schedules` finding above: a
+correct refusal reported as a failure. **I did not change it.** The boundary touches money ledgers
+and the protected record, and `nightly-settle` fires at 01:17 ET Sunday — hours before the
+acceptance. §27 P1 #18 makes the fix conditional on isolation from Sunday risk, and it is not.
+
+**The design, for after Sunday:** give the write-once refusal its own exit code, exactly as the EPL
+provisional refusal now has, and let the workflow treat "already published, and this run's
+recomputation is not a restatement anyone asked for" as a warning that does not skip the commit —
+while any other projection failure still fails the run. §18's own words: preserve write-once
+integrity, distinguish publish refusal from invalid settlement, and never a blind `always()`.
+
+A separate, smaller crash in the same workflow WAS fixed, because its outcome is unchanged:
+`update-selection-learning.mjs` threw `RangeError: Invalid time value` for EPL, whose ledger dates by
+`kickoffUtc` and carries no `date` key at all — two ledger schemas, one reader. It refuses with the
+cause now, at the same exit code; MLB still exits 0 with a byte-identical policy.
+
+---
+
 ## D · What landed, by section
 
 | § | unit | state |
@@ -147,6 +232,9 @@ artifact, frozen sportsbook provenance, simulation explanation, `NO_MEASUREMENT`
 | §9 | UFC adapter + ESPN MMA normaliser, replayed on a completed card | `#704` |
 | §13/§14 | Recommendation Receipt + ProductEligibleLeg V2 | `#704` |
 | §11 | Ask settlement-copy guard + 12 eval cases | `#704` |
+| §12.1 | depth-chart consumer + the founder-gate measurement (shadow) | `#704` |
+| §18 | `sport-schedules` provisional refusal; the selection-learning crash | `#704` |
+| §9 | the live-bout `R0` / placeholder-clock fix, from tonight's real card | `#704` |
 
 **§5.2 is enforced structurally, not by discipline.** `railStateOf` cannot return a result state
 outside `FINAL_CANONICAL`, proved across 1,344 input combinations each carrying a SETTLED/HIT
@@ -188,7 +276,9 @@ present that has ended.
    `*/15 0-4` Monday). Its crons have never run. If it commits, `git pull` and re-run the trace —
    which will now say `✓ LIVE_ARTIFACT` from *committed* evidence, and mean it.
 3. **Do not force Phase H.** One probe, on the first run finding a game genuinely in progress.
-4. **Wire the rail to a route** — it is built, tested and rendered, and nothing imports it. That is a
+4. **Fix §18's publication boundary** (see §C3) — it is designed, measured and deliberately unmerged.
+5. **Refresh the depth charts** before reopening founder gate #2 (see §C2).
+6. **Wire the rail to a route** — it is built, tested and rendered, and nothing imports it. That is a
    public-behaviour change and the NFL live gating is a founder area, so it is the first thing to
    put in front of the founder rather than the first thing to merge.
 
