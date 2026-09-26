@@ -1,6 +1,6 @@
 # Handoff — 2026-09-26, Saturday afternoon (the day before NFL Week 4's Sunday)
 
-**Terminal state:** `SUNDAY READY · #695 MERGED · FIVE PRs OPEN BEHIND IT`.
+**Terminal state:** `SUNDAY READY · #695/#696/#697 MERGED AND ON PRODUCTION · #693/#694/#698 IN CI`.
 Repository recovered, Sunday's slate verified. **I spent no credit**, and the scheduled pre-slate
 capture did: the ledger moved **394 → 472 of 1,160** at 16:49Z (78 credits, 318 rows, 18 requests),
 which is the authorized `nfl-event-window` odds step on its normal cadence — captures also ran
@@ -69,16 +69,22 @@ reason to lose an affordance.
 
 ## C · The six open PRs, in merge order
 
-`#695` is **merged** (`8359240dcc`, 2026-09-26T17:05Z) — the gate is open and `origin/main` has
-been merged into each branch below.
+**Merged:** `#695` (`8359240dcc`, 17:05Z), `#696`, `#697`. The gate is open and `origin/main` is
+merged into every branch below.
+
+**#695 verified on Production**, not just in CI — `/nfl` serves **534KB** against the 600KB
+ceiling, both placeholders present, the filter chips and search box still server-rendered, and all
+45 board rows' props still in the RSC flight (`providerEventId` ×45, `playerId` ×53, Jonathan
+Taylor and Puka Nacua among the names). **No record is hidden**, on the live site.
 
 | # | what | risk |
 |---|---|---|
-| 693 | the arrivals strip may not contradict the board above it | producer only; boards self-correct at the next window |
-| 694 | measure opportunity conservation on the published board | new files only; measurement, never a refusal |
-| 698 | check whether the learning policy did what it says it did | new files only; read-only |
-| 696 | Engine V2A current-role audit (docs) | docs |
-| 697 | higher-level products audit (docs) | docs |
+| 693 | the arrivals strip may not contradict the board above it | **in CI** · producer only; boards self-correct at the next window |
+| 694 | measure opportunity conservation on the published board | **in CI** · new files only; measurement, never a refusal |
+| 698 | check whether the learning policy did what it says it did | **in CI** · new files only; read-only |
+| ~~696~~ | Engine V2A current-role audit (docs) | **merged** |
+| ~~697~~ | higher-level products audit (docs) | **merged** |
+| 699 | this handoff | docs |
 
 Each already carries `origin/main` as of `8359240dcc`. **Never rebase.**
 
@@ -173,8 +179,8 @@ homepage non-prediction trim, P305 soccer totals) are unchanged and untouched.
 
 ## F · The next session's first four moves
 
-1. **Merge 693, 694, 698, 696, 697 and 699 on green.** #695 is already in; main is already merged
-   into each of them.
+1. **Merge 693, 694, 698 and 699 on green.** 695/696/697 are already in; main is already merged
+   into each remaining branch.
 2. **Run the Sunday trace** against the live slate through the day; after the night game settles and
    the reconciliation window closes, a `CLEAN` line for fourteen games is the acceptance.
 3. **Do not force Phase H.** One probe, on the first run finding a game genuinely in progress. A
@@ -189,6 +195,22 @@ own probability per leg, no further auditing can separate the selector's contrib
 price it inherited — and a V2 built without it will be unmeasurable in exactly the same way.
 
 ---
+
+## G-0 · ⚠ The browser pane cannot verify anything gated on IntersectionObserver
+
+Worth its own heading because it nearly produced a false rollback. After merging #695 I went to
+watch the deferred boards mount and they did not — still "Loading the ranked boards" after
+scrolling them to centre with a real 1280×900 viewport. React *had* hydrated (40 of 40 interactive
+nodes carried fibers).
+
+**The control settled it.** `/mlb`'s `DeferUntilVisible`, shipped since Phase 5F and untouched
+today, behaved identically. A direct probe then showed why: an IntersectionObserver on a fixed,
+on-screen 200×200 div with `rootMargin: 800px` **never fires in the pane at all** — it does not
+composite, so no callback runs.
+
+**Verify a deferral by fetching the HTML and asserting the children's props are still in the RSC
+flight**, which is what §C records for Production. Do not read a browser-pane negative on
+IO-gated content as a defect, and run the control first.
 
 ## G · Three mistakes I made today, recorded because the patterns recur
 
