@@ -1,29 +1,29 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-09-26",
-  "generatedAt": "2026-09-26T09:53:43.561Z",
+  "generatedAt": "2026-09-26T10:06:33.542Z",
   "activeBankroll": 15990.4,
   "crownBankroll": 20465.4,
-  "openExposure": 0,
-  "availableBankroll": 15990.4,
-  "potentialReturn": 0,
+  "openExposure": 225,
+  "availableBankroll": 15765.4,
+  "potentialReturn": 1101.45,
   "products": {
     "bankBuilder": {
-      "exposure": 0,
+      "exposure": 200,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 0
+        "pending": 2
       }
     },
     "moonshot": {
-      "exposure": 0,
+      "exposure": 25,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 0
+        "pending": 1
       }
     }
   },
@@ -35,27 +35,91 @@
       "lane": "A",
       "step": 2,
       "clearedSteps": 1,
-      "status": "awaiting",
+      "status": "active",
       "stake": 201.19,
       "exposure": 100,
       "targetReturn": 700,
-      "fitsTarget": false,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 201.19,
-      "legCount": 0,
+      "fitsTarget": true,
+      "combinedOdds": 248,
+      "combinedDecimal": 3.4799,
+      "potentialReturn": 700.13,
+      "legCount": 3,
       "targetLegs": 2,
-      "legs": [],
-      "correlationNote": "Correlation checked: no shared game with Lane B — the two lanes can advance independently.",
-      "shortfallNote": "Fewer than 2 eligible legs available — awaiting a full card.",
-      "whyThisCard": [
-        "Awaiting a full card — fewer than 2 eligible legs available.",
-        "No combo reaches the $700 goal — strongest available shown as a candidate."
+      "legs": [
+        {
+          "id": "MLB:93809969d7d5e6b21cc1e8a6070121e9:mlb_moneyline:Los_Angeles_Dodgers_to_win",
+          "matchup": "Los Angeles Dodgers @ San Francisco Giants",
+          "market": "Moneyline",
+          "selection": "Los Angeles Dodgers to win",
+          "player": null,
+          "odds": -336,
+          "provider": "draftkings",
+          "modelConfidence": 0.7372,
+          "impliedProbability": 0.7372,
+          "probabilityBasis": "market-implied",
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "4:06 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null,
+          "eventId": "93809969d7d5e6b21cc1e8a6070121e9",
+          "startUtc": "2026-09-26T20:06:00Z",
+          "marketKey": "mlb_moneyline",
+          "line": null
+        },
+        {
+          "id": "MLB:bff2944df94a062f85abadcd9aab1086:mlb_moneyline:Milwaukee_Brewers_to_win",
+          "matchup": "St. Louis Cardinals @ Milwaukee Brewers",
+          "market": "Moneyline",
+          "selection": "Milwaukee Brewers to win",
+          "player": null,
+          "odds": -192,
+          "provider": "draftkings",
+          "modelConfidence": 0.6282,
+          "impliedProbability": 0.6282,
+          "probabilityBasis": "market-implied",
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "7:11 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null,
+          "eventId": "bff2944df94a062f85abadcd9aab1086",
+          "startUtc": "2026-09-26T23:11:00Z",
+          "marketKey": "mlb_moneyline",
+          "line": null
+        },
+        {
+          "id": "MLB:c067c47b7d8f62f37eeeaba15f35ae55:mlb_moneyline:Atlanta_Braves_to_win",
+          "matchup": "Atlanta Braves @ Miami Marlins",
+          "market": "Moneyline",
+          "selection": "Atlanta Braves to win",
+          "player": null,
+          "odds": -131,
+          "provider": "draftkings",
+          "modelConfidence": 0.5424,
+          "impliedProbability": 0.5424,
+          "probabilityBasis": "market-implied",
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "4:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null,
+          "eventId": "c067c47b7d8f62f37eeeaba15f35ae55",
+          "startUtc": "2026-09-26T20:11:00Z",
+          "marketKey": "mlb_moneyline",
+          "line": null
+        }
       ],
-      "jointProbabilityBasis": null,
+      "correlationNote": "Correlation checked: no shared game with Lane B — the two lanes can advance independently.",
+      "shortfallNote": null,
+      "whyThisCard": [
+        "Safest-fit (MLB): chosen to MAXIMIZE the chance all 3 legs land — a market-implied 25% chance that every leg lands at Tier 2 (moderate) (what the prices imply, not a forecast), not the longest-odds card.",
+        "Combined +248 rides $201.19 toward the $700 rung goal (avg market-implied leg probability 64%)."
+      ],
+      "jointProbabilityBasis": "market-implied",
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-26 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
       }
     },
     {
@@ -65,27 +129,70 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 100,
       "exposure": 100,
       "targetReturn": 200,
-      "fitsTarget": false,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 100,
-      "legCount": 0,
+      "fitsTarget": true,
+      "combinedOdds": 201,
+      "combinedDecimal": 3.0112,
+      "potentialReturn": 301.12,
+      "legCount": 2,
       "targetLegs": 2,
-      "legs": [],
-      "correlationNote": "Correlation checked: no shared game with Lane A — the two lanes can advance independently.",
-      "shortfallNote": "Fewer than 2 eligible legs available — awaiting a full card.",
-      "whyThisCard": [
-        "Awaiting a full card — fewer than 2 eligible legs available.",
-        "No combo reaches the $200 goal — strongest available shown as a candidate."
+      "legs": [
+        {
+          "id": "MLB:9b8ec8bc261ab6b47fd213703849325e:mlb_run_line:Athletics_+1.5",
+          "matchup": "Houston Astros @ Athletics",
+          "market": "Run Line",
+          "selection": "Athletics +1.5",
+          "player": null,
+          "odds": -136,
+          "provider": "draftkings",
+          "modelConfidence": 0.5511,
+          "impliedProbability": 0.5511,
+          "probabilityBasis": "market-implied",
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "9:41 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null,
+          "eventId": "9b8ec8bc261ab6b47fd213703849325e",
+          "startUtc": "2026-09-27T01:41:00Z",
+          "marketKey": "mlb_run_line",
+          "line": 1.5
+        },
+        {
+          "id": "MLB:eba81e8f90abe50ccdfcee55fe0080b8:mlb_run_line:Los_Angeles_Angels_+1.5",
+          "matchup": "Los Angeles Angels @ Seattle Mariners",
+          "market": "Run Line",
+          "selection": "Los Angeles Angels +1.5",
+          "player": null,
+          "odds": -136,
+          "provider": "draftkings",
+          "modelConfidence": 0.5511,
+          "impliedProbability": 0.5511,
+          "probabilityBasis": "market-implied",
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "9:41 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null,
+          "eventId": "eba81e8f90abe50ccdfcee55fe0080b8",
+          "startUtc": "2026-09-27T01:41:00Z",
+          "marketKey": "mlb_run_line",
+          "line": 1.5
+        }
       ],
-      "jointProbabilityBasis": null,
+      "correlationNote": "Correlation checked: no shared game with Lane A — the two lanes can advance independently.",
+      "shortfallNote": null,
+      "whyThisCard": [
+        "Value lane (MLB): the most SURVIVABLE 2-leg card inside the +200..+700 band — a market-implied ~30% chance that every leg lands at Tier 3 (higher variance) (what the prices imply, not a forecast), picked for a bigger jump per win without chasing the longest price.",
+        "Combined +201 rides $100 → $301.12 (clears the $200 rung goal; avg market-implied leg probability 55%)."
+      ],
+      "jointProbabilityBasis": "market-implied",
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-26 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
       }
     },
     {
@@ -124,30 +231,77 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 25,
       "exposure": 25,
       "targetReturn": 100,
-      "fitsTarget": false,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 25,
-      "legCount": 0,
+      "fitsTarget": true,
+      "combinedOdds": 301,
+      "combinedDecimal": 4.01,
+      "potentialReturn": 100.2,
+      "legCount": 2,
       "targetLegs": 2,
-      "legs": [],
-      "jointProbabilityBasis": null,
-      "correlationNote": null,
-      "shortfallNote": "Fewer than two eligible legs on the slate — awaiting a full card.",
-      "whyThisCard": [],
+      "legs": [
+        {
+          "id": "MLB:f6f4976b029249f664cf53c32044f64a:mlb_run_line:Detroit_Tigers_+1.5",
+          "matchup": "Pittsburgh Pirates @ Detroit Tigers",
+          "market": "Run Line",
+          "selection": "Detroit Tigers +1.5",
+          "player": null,
+          "odds": -193,
+          "provider": "draftkings",
+          "modelConfidence": 0.6305,
+          "impliedProbability": 0.6305,
+          "probabilityBasis": "market-implied",
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "1:11 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null,
+          "eventId": "f6f4976b029249f664cf53c32044f64a",
+          "startUtc": "2026-09-26T17:11:00Z",
+          "marketKey": "mlb_run_line",
+          "line": 1.5
+        },
+        {
+          "id": "MLB:a0fc8eb52d64679d94e7eaa311299d74:mlb_run_line:Arizona_Diamondbacks_-1.5",
+          "matchup": "Arizona Diamondbacks @ San Diego Padres",
+          "market": "Run Line",
+          "selection": "Arizona Diamondbacks -1.5",
+          "player": null,
+          "odds": 164,
+          "provider": "draftkings",
+          "modelConfidence": 0.3623,
+          "impliedProbability": 0.3623,
+          "probabilityBasis": "market-implied",
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "8:41 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null,
+          "eventId": "a0fc8eb52d64679d94e7eaa311299d74",
+          "startUtc": "2026-09-27T00:41:00Z",
+          "marketKey": "mlb_run_line",
+          "line": -1.5
+        }
+      ],
+      "jointProbabilityBasis": "market-implied",
+      "correlationNote": "Two different games — the legs do not share a result.",
+      "shortfallNote": null,
+      "whyThisCard": [
+        "Day 1: $25 needs 4.00× to reach $100.",
+        "Of every two-leg pair from different games that reaches it, this one has the best market-implied chance of both landing (22.8% — what the prices imply, not a forecast).",
+        "Both legs win → the whole payout carries to the next day. Either leg loses → the lane restarts at $25."
+      ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-26 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
       }
     }
   ],
   "settlement": {
-    "status": "none",
+    "status": "pending",
     "realizedPnl": 0
   },
-  "note": "Daily paper portfolio candidates — no exposure placed; active bankroll and crown unchanged."
+  "note": "Active daily paper portfolio — open exposure is at risk; active bankroll and crown are unchanged until official settlement."
 }
