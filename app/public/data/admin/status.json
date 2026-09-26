@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-26T10:06:35.358Z",
+  "generatedAt": "2026-09-26T14:52:14.303Z",
   "canonical": {
     "record": "37-36",
     "bankroll": 15990.4,
@@ -113,25 +113,114 @@
       ]
     },
     "forwardCoverage": {
-      "present": false,
-      "date": "2026-09-26"
+      "present": true,
+      "date": "2026-09-26",
+      "generatedAt": "2026-09-26T10:06:41Z",
+      "sports": [
+        {
+          "sport": "epl",
+          "state": "DERIVED",
+          "counts": {
+            "scheduled": 0,
+            "priced": 0,
+            "generated": 0,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": []
+        },
+        {
+          "sport": "ufc",
+          "state": "DERIVED",
+          "counts": {
+            "scheduled": 12,
+            "priced": 9,
+            "generated": 10,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": []
+        },
+        {
+          "sport": "nfl",
+          "state": "SCHEDULE_ONLY",
+          "counts": {
+            "scheduled": 17,
+            "priced": 17,
+            "generated": 0,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": [
+            "MODEL_ABSENT_BY_DECISION:17 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+          ]
+        },
+        {
+          "sport": "mlb",
+          "state": "DAILY_BY_CONTRACT",
+          "counts": {
+            "scheduled": 13,
+            "priced": 13,
+            "generated": 13,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": [
+            "FUTURE_STAGING_ABSENT_BY_DESIGN:game-specific inputs (probables, lineups, current odds) arrive per game day; a pre-series artifact would be dishonest for repeated matchups"
+          ]
+        }
+      ]
     },
     "dailyLifecycle": {
       "receiptDate": "2026-09-26",
-      "present": false,
+      "present": true,
+      "generatedAt": "2026-09-26T10:06:40Z",
       "watchdog": [
         {
-          "product": "bank-builder",
-          "kind": "MISSING_DAILY_EVALUATION",
-          "detail": "no daily receipt exists for 2026-09-26"
+          "product": "end-zone-vault",
+          "kind": "INCIDENT_OPEN",
+          "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-26"
         },
         {
-          "product": "moonshot",
-          "kind": "MISSING_DAILY_EVALUATION",
-          "detail": "no daily receipt exists for 2026-09-26"
+          "product": "ufc-cards",
+          "kind": "STALE_ACTIVE_CARD",
+          "detail": "locked 2026-09-25T18:29:51Z, still ACTIVE"
         }
       ],
-      "states": null
+      "states": {
+        "bank-builder": {
+          "state": "ACTIVE",
+          "policyVersion": "bank-builder@1"
+        },
+        "moonshot": {
+          "state": "ACTIVE",
+          "policyVersion": "moonshot@2"
+        },
+        "end-zone-vault": {
+          "state": "INCIDENT",
+          "policyVersion": "end-zone-vault@1"
+        },
+        "homer-nukes": {
+          "state": "ACTIVE",
+          "policyVersion": "homer-nukes@1"
+        },
+        "ufc-cards": {
+          "state": "ACTIVE",
+          "policyVersion": "ufc-cards@1"
+        },
+        "epl-cards": {
+          "state": "NO_PLAY",
+          "policyVersion": "epl-cards@1"
+        },
+        "mlb-cards": {
+          "state": "ACTIVE",
+          "policyVersion": "mlb-cards@1"
+        },
+        "multi-cards": {
+          "state": "NO_PLAY",
+          "policyVersion": "multi-cards@1"
+        }
+      }
     }
   },
   "counts": {
@@ -139,7 +228,7 @@
     "pendingApprovals": 1
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-26T10:04:09.415Z",
+    "lastRunAt": "2026-09-26T14:52:13.549Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
@@ -148,7 +237,7 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-26",
-    "etTime": "06:06",
+    "etTime": "10:52",
     "stages": [
       {
         "stage": "schedule",
