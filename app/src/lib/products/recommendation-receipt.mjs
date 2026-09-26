@@ -87,6 +87,11 @@ export function makeRecommendationReceipt(input) {
     eventId: str(input.eventId),
     participantId: input.participantId == null ? null : String(input.participantId),
     participantName: str(input.participantName),
+    /* ⚠ TEAM AND OPPONENT ARE RECORDED BECAUSE §15 NEEDS THEM, and because they were already in
+       every optimizer leg. A correlation taxonomy that claims to detect same-team or opposing-side
+       dependence from a receipt that carries neither is a detector that never fires. */
+    team: str(input.team),
+    opponent: str(input.opponent),
     marketFamily: str(input.marketFamily),
     side: str(input.side),
 

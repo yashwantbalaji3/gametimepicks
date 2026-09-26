@@ -53,6 +53,8 @@ export function correlationTagsFor(receipt) {
   if (receipt.eventId) tags.push(`event:${receipt.eventId}`);
   if (receipt.participantId) tags.push(`participant:${receipt.participantId}`);
   if (receipt.marketFamily) tags.push(`family:${receipt.marketFamily}`);
+  if (receipt.team) tags.push(`team:${receipt.team}`);
+  if (receipt.opponent) tags.push(`opponent:${receipt.opponent}`);
   return tags;
 }
 
