@@ -42,7 +42,7 @@ import {
   inPlayAuthorization, parseSportAuthorizationReceipt, purposeBudget, recordRequest, spentOnPurpose, supersededBy,
   LEDGER_RELPATH,
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
-import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, linesOf } from "../../src/lib/sports/odds/live-market-contract.mjs";
+import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, foldLiveStates, linesOf, readLiveStates } from "../../src/lib/sports/odds/live-market-contract.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -137,19 +137,19 @@ const etDateOf = (iso) => {
 };
 
 const liveBase = process.env.GTP_LIVE_ENDPOINT || "https://gametimepicks.yashwantbalaji.com/api/live/";
-async function liveStatesFor(etDate) {
-  try {
-    const res = await fetch(`${liveBase}?sport=nfl&date=${etDate}`, { signal: AbortSignal.timeout(20_000), headers: { accept: "application/json" } });
-    if (!res.ok) return new Map();
-    const j = await res.json();
-    return new Map((j?.events ?? []).map((e) => [String(e.providerEventId ?? e.eventId), e.state]));
-  } catch { return new Map(); }
-}
 
-const states = new Map();
+const reads = [];
 for (const d of [...new Set(boards.map((b) => etDateOf(b.kickoffUtc)).filter(Boolean))].sort().slice(-3)) {
-  for (const [k, v] of await liveStatesFor(d)) states.set(k, v);
+  reads.push(await readLiveStates({ base: liveBase, etDate: d }));
 }
+const live0 = foldLiveStates(reads);
+if (!live0.known) {
+  console.error(`LIVENESS UNKNOWN — the live gateway could not be read:
+  ${live0.failures.join("\n  ")}`);
+  console.error("No credit spent. This is NOT the same as a slate with nothing in play.");
+  process.exit(4);
+}
+const states = live0.states;
 
 const live = boards
   .map((b) => ({ b, v: eventIsGenuinelyLive({ liveState: states.get(String(b.providerEventId)) ?? null, kickoffUtc: b.kickoffUtc, nowIso: NOW }) }))

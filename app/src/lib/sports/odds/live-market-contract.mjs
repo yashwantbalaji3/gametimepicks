@@ -163,3 +163,48 @@ export function linesOf(providerEvent) {
   }
   return out;
 }
+
+/**
+ * READ THE FREE LIVE GATEWAY — and keep "nothing is live" apart from "I could not ask".
+ *
+ * ⚠ COLLAPSING THOSE TWO IS HOW A SUNDAY PASSES WITH NOTHING FIRING AND THE LOG READING LIKE A QUIET
+ * AFTERNOON. Both callers refuse to spend on either — an unestablished liveness is not a live game —
+ * so the only thing at stake is whether a human can tell afterwards which one happened. Found by
+ * pointing the probe at an unreachable host at 19:30Z on a Sunday, two and a half hours after
+ * kickoff: it reported "NO LIVE NFL GAME" and nothing else.
+ *
+ * Returns a TYPED result rather than an empty Map, because an empty Map is the shape both answers
+ * would otherwise take.
+ *
+ * @param {object} args.fetchImpl  injected for testing; defaults to global fetch
+ * @returns {Promise<{ok: boolean, reason: string|null, states: Map<string,string>}>}
+ */
+export async function readLiveStates({ base, etDate, fetchImpl = globalThis.fetch, timeoutMs = 20_000 } = {}) {
+  try {
+    const res = await fetchImpl(`${base}?sport=nfl&date=${etDate}`, { signal: AbortSignal.timeout(timeoutMs), headers: { accept: "application/json" } });
+    if (!res?.ok) return { ok: false, reason: `gateway HTTP ${res?.status ?? "?"}`, states: new Map() };
+    const j = await res.json();
+    /* A typed refusal from the gateway is an answer about the GATEWAY, not about the slate. */
+    if (j?.unavailable) return { ok: false, reason: `gateway refused: ${j.reason}`, states: new Map() };
+    return { ok: true, reason: null, states: new Map((j?.events ?? []).map((e) => [String(e.providerEventId ?? e.eventId), e.state])) };
+  } catch (e) {
+    return { ok: false, reason: `gateway unreachable: ${String(e?.message ?? e).slice(0, 60)}`, states: new Map() };
+  }
+}
+
+/**
+ * Fold several days' gateway reads into one answer.
+ *
+ * `UNKNOWN` only when EVERY read failed: one bad day beside a good one still tells us what is live,
+ * and refusing on a partial failure would make the lane hostage to the quietest date in the window.
+ */
+export function foldLiveStates(results) {
+  const states = new Map();
+  const failures = [];
+  for (const r of results ?? []) {
+    if (!r?.ok) { failures.push(r?.reason ?? "unknown failure"); continue; }
+    for (const [k, v] of r.states) states.set(k, v);
+  }
+  if (failures.length && !states.size) return { known: false, failures, states: new Map() };
+  return { known: true, failures, states };
+}

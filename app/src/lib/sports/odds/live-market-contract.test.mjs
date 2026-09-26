@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, gradeLiveMarketEvidence, linesOf } from "./live-market-contract.mjs";
+import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, foldLiveStates, gradeLiveMarketEvidence, linesOf, readLiveStates } from "./live-market-contract.mjs";
 import { inPlayAuthorization, purposeBudget, spentOnPurpose, supersededBy } from "./p171-authorization.mjs";
 
 const ROOT = path.resolve(process.cwd(), "..");
@@ -356,4 +356,79 @@ test("⚠ BOTH PHASE H WRITERS HAVE A SCHEDULED OWNER AND ARE COMMITTED BY IT", 
   assert.match(WORKFLOW, /app\/public\/data\/nfl\/live-markets\//, "and so is the current-market artifact");
   assert.match(WORKFLOW, /ODDS_API_KEY: \$\{\{ secrets\.ODDS_API_KEY \}\}/, "both are given the key they need");
   assert.match(WORKFLOW, /schedule:/, "the job itself is scheduled");
+});
+
+test("⚠ 'NOTHING IS LIVE' AND 'I COULD NOT ASK' ARE DIFFERENT ANSWERS — behaviourally", () => {
+  /*
+   * Both refuse to spend; an unestablished liveness is not a live game. The difference is whether a
+   * human can tell afterwards which one happened.
+   *
+   * Found by pointing the probe at an unreachable host at 19:30Z on a Sunday, two and a half hours
+   * after kickoff: it reported "NO LIVE NFL GAME" and nothing else. On the real Sunday that is a
+   * silent no-fire indistinguishable from a quiet afternoon.
+   *
+   * ⚠ MY FIRST GUARD FOR THIS WAS VACUOUS. It scanned the scripts for "LIVENESS UNKNOWN" and
+   * `process.exit(4)`, so disabling the branch while leaving the strings in place still passed — I
+   * probed it, it did not fail, and that is how I know. The reader moved into this module so the
+   * behaviour itself can be exercised.
+   */
+  const ok = (events) => ({ ok: true, json: async () => ({ events }) });
+
+  // A healthy gateway that simply has nothing live: KNOWN, and empty.
+  const quiet = foldLiveStates([{ ok: true, reason: null, states: new Map() }]);
+  assert.equal(quiet.known, true, "an answered question is known even when the answer is 'nothing'");
+  assert.equal(quiet.states.size, 0);
+
+  // Every read failed: UNKNOWN.
+  const dark = foldLiveStates([
+    { ok: false, reason: "gateway unreachable: fetch failed", states: new Map() },
+    { ok: false, reason: "gateway HTTP 503", states: new Map() },
+  ]);
+  assert.equal(dark.known, false, "no read succeeded — liveness cannot be established");
+  assert.deepEqual(dark.failures, ["gateway unreachable: fetch failed", "gateway HTTP 503"]);
+
+  // ONE bad day beside a good one is still known — refusing on a partial failure would make the
+  // lane hostage to the quietest date in the window.
+  const partial = foldLiveStates([
+    { ok: false, reason: "gateway HTTP 500", states: new Map() },
+    { ok: true, reason: null, states: new Map([["401872953", "LIVE"]]) },
+  ]);
+  assert.equal(partial.known, true);
+  assert.equal(partial.states.get("401872953"), "LIVE");
+  assert.equal(partial.failures.length, 1, "and the failure is still reported");
+});
+
+test("the gateway reader returns a TYPED failure, never an empty map that means two things", async () => {
+  const base = "https://example.invalid/api/live/";
+
+  const good = await readLiveStates({ base, etDate: "2026-09-27", fetchImpl: async () => ({ ok: true, json: async () => ({ events: [{ providerEventId: "1", state: "LIVE" }] }) }) });
+  assert.equal(good.ok, true);
+  assert.equal(good.states.get("1"), "LIVE");
+
+  const http = await readLiveStates({ base, etDate: "2026-09-27", fetchImpl: async () => ({ ok: false, status: 503 }) });
+  assert.equal(http.ok, false);
+  assert.match(http.reason, /gateway HTTP 503/);
+
+  // A typed refusal from the gateway is an answer about the GATEWAY, not about the slate.
+  const refused = await readLiveStates({ base, etDate: "2026-09-27", fetchImpl: async () => ({ ok: true, json: async () => ({ unavailable: true, reason: "UNSUPPORTED_SPORT" }) }) });
+  assert.equal(refused.ok, false);
+  assert.match(refused.reason, /gateway refused: UNSUPPORTED_SPORT/);
+
+  const thrown = await readLiveStates({ base, etDate: "2026-09-27", fetchImpl: async () => { throw new Error("fetch failed"); } });
+  assert.equal(thrown.ok, false);
+  assert.match(thrown.reason, /gateway unreachable: fetch failed/);
+
+  // Every failure yields an empty map AND ok:false — the map alone could never tell them apart.
+  for (const r of [http, refused, thrown]) assert.equal(r.states.size, 0);
+});
+
+test("both callers exit distinctly on unknown liveness, and spend nothing", () => {
+  /* The exit code is what makes a scheduled run that never fired visible in a workflow log.
+     Verified by running them: exit 4 on an unreachable gateway, exit 0 on a genuinely quiet slate. */
+  for (const [label, src] of [["probe", PROBE_SRC], ["pilot", PILOT_SRC]]) {
+    assert.match(src, /foldLiveStates\(reads\)/, `${label}: uses the shared fold`);
+    assert.match(src, /if \(!live0\.known\)/, `${label}: refuses on unknown`);
+    assert.match(src, /LIVENESS UNKNOWN/, `${label}: and says which state it is in`);
+    assert.match(src, /process\.exit\(4\)/, `${label}: with a distinct code`);
+  }
 });
