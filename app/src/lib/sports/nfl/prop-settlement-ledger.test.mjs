@@ -381,3 +381,48 @@ test("the ledger writer contacts no provider — every input is already in the r
   assert.equal(/\bfetch\(|https?:\/\//.test(src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ")), false,
     "a fold over committed evidence must not reach for a provider — that is what lets it run days later for free");
 });
+
+/* ── THE ACCEPTANCE REPORT (Phase F · F3) ──────────────────────────────────────────────────────── */
+
+test("the acceptance report is READ-ONLY and reads the record, not a fresh fetch", () => {
+  /*
+   * ⚠ IF IT FETCHED, THE ONE THING IT EXISTS TO CATCH WOULD BE INVISIBLE.
+   *
+   * Real-game acceptance asks what the system PUBLISHED. A report that re-fetched would print what a
+   * provider says right now, so a disagreement between the published record and the provider — the
+   * single most interesting finding it could surface — would be silently resolved in the provider's
+   * favour before anyone saw it. It reads the committed artifact and the committed ledger, and that
+   * is also why it can be run days later and still describe the game as it was settled.
+   */
+  const src = fs.readFileSync(path.resolve(process.cwd(), "scripts/nfl/live-acceptance-report.mjs"), "utf8");
+  const body = src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+
+  assert.equal(/\bfetch\(|https?:\/\//.test(body), false, "it must contact no provider");
+  assert.equal(/writeFileSync|mkdirSync|appendFileSync|rmSync|unlinkSync/.test(body), false, "and write nothing at all");
+
+  // It must read BOTH halves: the live artifact and the ledger that records corrections.
+  assert.match(body, /live-props/, "reads the live artifact");
+  assert.match(body, /prop-settlement/, "and the settlement ledger, so a later correction is visible");
+
+  // Every field real-game acceptance asks for must actually be emitted.
+  for (const field of [
+    "player", "family", "frozenSportsbook", "frozenLine", "pregameCaptureTime", "forecast",
+    "liveStat", "score", "clock", "period", "providerObservedAt", "finalMeasurement",
+    "measurementState", "lineResult", "forecastResult", "reconciliation", "corrections",
+  ]) {
+    assert.ok(body.includes(field), `the report must record \`${field}\``);
+  }
+});
+
+test("⚠ THE REPORT SAMPLES ACROSS FAMILIES — twelve rows of one family prove nothing about the rest", () => {
+  /*
+   * Acceptance asks for several families. A naive `slice(0, limit)` over a board sorted by projection
+   * would return twelve receiving-yards rows and look complete, so the sampling is per-family and the
+   * lifecycle states are ranked ahead of whoever happens to sort first.
+   */
+  const body = fs.readFileSync(path.resolve(process.cwd(), "scripts/nfl/live-acceptance-report.mjs"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.match(body, /byFamily/, "rows are grouped by family before sampling");
+  assert.match(body, /perFamily/, "and the limit is spread across them");
+  assert.match(body, /rank\s*=/, "settled and no-measurement rows are preferred over unremarkable ones");
+});
