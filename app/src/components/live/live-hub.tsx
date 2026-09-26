@@ -154,11 +154,16 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
     const out: Record<string, Array<{ game: HubRosterGame; envelope: any }>> = { LIVE_NOW: [], UPCOMING: [], FINAL_TODAY: [] };
     for (const game of roster.games) {
       const envelope = byGamePk[game.gamePk] ?? null;
-      const life = derivePresentationState({ envelope, settlement: game.settlement });
+      /* ⚠ The hub knows whether it asked and was refused; the lifecycle function cannot. Without
+         this a first load during an outage renders every started game as "Scheduled" (§9). */
+      const life = derivePresentationState({
+        envelope, settlement: game.settlement,
+        feedState: unavailable ? "REFUSED" : "NOT_ASKED",
+      });
       out[hubGroupFor(life.state)].push({ game, envelope });
     }
     return out;
-  }, [roster.games, byGamePk]);
+  }, [roster.games, byGamePk, unavailable]);
 
   const secs = ageSeconds(freshness.ageMs);
 
