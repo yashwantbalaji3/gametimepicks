@@ -206,10 +206,23 @@ function LiveLine({ live }: { live: NonNullable<PredictionPresentation["live"]> 
   if (!f && !s) return null;
   const settled = s && s.state === "SETTLED";
   const noMeasure = s && s.state === "NO_MEASUREMENT";
+  /*
+   * ⚠ A FINISHED GAME IS NOT LIVE, AND IT USED TO SAY IT WAS.
+   *
+   * The tag read `settled || noMeasure ? "Final" : "Live"`, so a game the PROVIDER has called final
+   * rendered "LIVE 41" for as long as settlement had not run — which is the window between the
+   * final whistle and the nightly settle, i.e. hours. Reproduced on this component with a real
+   * board row (401872960): phase FINAL, no settlement → `tag="Live" data-phase="FINAL"`.
+   *
+   * The state has a name in the live contract — FINAL_AWAITING_SETTLEMENT — and it is the one honest
+   * thing to say here: the event is over, and this product has not graded it. It is NOT a result,
+   * so nothing about the row's colour or its outcome copy changes; only the claim about the present.
+   */
+  const providerFinal = !settled && !noMeasure && f?.phase === "FINAL";
   return (
     <div className="gtp-pred-live" data-phase={f?.phase ?? (settled ? "FINAL" : "PENDING")}>
       <span className="gtp-pred-live-tag font-mono uppercase tracking-[0.08em]">
-        {settled || noMeasure ? "Final" : "Live"}
+        {settled || noMeasure || providerFinal ? "Final" : "Live"}
       </span>
       {noMeasure ? (
         /* Never an Under, never a loss — we do not hold the book's rule for a player who never
@@ -221,7 +234,10 @@ function LiveLine({ live }: { live: NonNullable<PredictionPresentation["live"]> 
             {(settled ? s?.finalStat : f?.statValue) ?? "—"}
           </span>
           {settled && s?.lineResult ? <span className="gtp-pred-live-res" data-result={s.lineResult}>{s.lineResult}</span> : null}
-          {!settled && f?.period != null ? <span className="gtp-pred-live-sub">{f.period}Q · {f.clock ?? "—"}</span> : null}
+          {/* Final, ungraded: say which half is missing rather than leaving a bare number that reads
+              as a result. No colour and no outcome word — this is not a settlement. */}
+          {providerFinal ? <span className="gtp-pred-live-sub">result pending</span> : null}
+          {!settled && !providerFinal && f?.period != null ? <span className="gtp-pred-live-sub">{f.period}Q · {f.clock ?? "—"}</span> : null}
           {f?.score ? <span className="gtp-pred-live-sub">{f.score.away} – {f.score.home}</span> : null}
         </>
       )}
