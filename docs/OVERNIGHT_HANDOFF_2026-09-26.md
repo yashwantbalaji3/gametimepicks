@@ -122,6 +122,40 @@ from "NWS was down for a US stadium". Verified live: Rio 404, London 404, Highma
 
 ---
 
+## D3 · ⚠ `nightly-settle` has been discarding computed settlement since 09-24
+
+Not an NFL lane, and not touched tonight — it needs a decision on the money path. Diagnosed precisely:
+
+| date | runs |
+|---|---|
+| 09-19 → 09-23 | 3–5 per day, **all success** |
+| 09-24 | 1 success, **4 failure** |
+| 09-25 | 1 success, **3 failure** |
+| 09-26 | 1 success so far |
+
+The failing step is *Rebuild the canonical Results projection*, and its refusal is **correct**:
+
+> `REFUSED: 2026-09-25.json exists and DIFFERS from this run. A dated projection is not rewritten
+> silently.`
+
+Four cron slots write one dated projection. The first slot writes it; if settlement advances between
+slots — a late game finalising, a doubleheader, a catch-up settle — a later slot computes a different
+answer for the same ET date and write-once refuses. The rule is deliberate and money-protective, and
+the step says in its own comment not to make it `continue-on-error`.
+
+⚠ **The bug is what the refusal takes with it.** `Commit and push if results changed` is step 30 and
+has no `always()`, so it is skipped — and steps 5–23 (Parlay Lab ledger, MLB prop settlement, Bank
+Builder ladder, the Rule S fold, the portfolio roll, the model-results index) had already computed
+into the working tree. That is the built-but-never-published shape, again.
+
+⚠ **And the obvious fix is wrong.** `always()` on the commit would also skip past the *health gate* at
+step 25, whose whole job is to abort a publish on stale or non-reconciling data. Whether a
+partially-updated tree is a legitimate commit at all is a founder/operator question. Spawned as its own
+task with the full diagnosis, including the specific thing to measure: whether the work self-heals via
+the catch-up path (a publication lag) or is permanently lost.
+
+---
+
 ## E · Phase H — armed, bounded, and not forced
 
 | | |
@@ -151,7 +185,7 @@ verdict closes the lane for 3 credits and that is the result.
 | 688 | Engine V2 historical source search | **no defensible source — UNEVALUATED, not rejected** |
 | 689 | cross-sport live capability matrix | measured; two traps found |
 | 690 | P0 — a live value could attach to an ESTIMATE family | shipped |
-| 691 | lifecycle trace + CANONICAL reachable + publication-gated grading | **open, CI running** |
+| 691 | lifecycle trace · CANONICAL reachable · publication-gated grading · the `BAL VS DAL` P0 · fixture isolation | **open, CI running** |
 
 ---
 
@@ -163,6 +197,18 @@ verdict closes the lane for 3 credits and that is the result.
 2. **MLB finals backfill** — a yes/no, unchanged.
 3. **P305 soccer totals** — bars pass on four leagues but are REJECTED on a 1X2 ECE ceiling the
    control also fails. Decision pending; not touched tonight.
+
+---
+
+## G2 · Spawned rather than rushed
+
+Two findings that are real but not NFL-live and not safe to change hours before a slate:
+
+1. **`nightly-settle` discards computed settlement on a projection refusal** (§D3). Needs a decision on
+   whether a partially-updated tree may be committed and whether the health gate can run first.
+2. **The non-US weather rule is enforced by the NWS returning 404**, not by the `country` field the
+   stadium table already carries — so `NO_FORECAST` cannot be told apart from "NWS was down for a US
+   stadium". No false claim is published today.
 
 ---
 
