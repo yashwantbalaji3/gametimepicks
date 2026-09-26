@@ -23,6 +23,7 @@ const FIX = (n) => JSON.parse(fs.readFileSync(path.join(process.cwd(), `src/lib/
 const AT = "2026-09-26T20:25:00Z";
 const finalBouts = normalizeMmaScoreboard(FIX("mma-scoreboard-final"), AT);
 const preBouts = normalizeMmaScoreboard(FIX("mma-scoreboard-pre"), AT);
+const liveBouts = normalizeMmaScoreboard(FIX("mma-scoreboard-live"), AT);
 
 /** A card whose bouts are the REAL completed ones, so the replay is a real join. */
 const card = (o = {}) => ({
@@ -223,4 +224,42 @@ test("§6 · UFC is reachable through the registry and the bout is the event uni
     assert.notEqual(r.eventId, "600061266", "the CARD must never be the event id");
     assert.match(String(r.eventId), /^4019\d+$/, "the bout id is the event unit");
   }
+});
+
+test("🔴 §3 · a LIVE bout reporting period 0 is in NO round, and `-` is not a clock", () => {
+  /*
+   * ⚠ THE LIVE CARD FOUND THIS; THE FIXTURES DID NOT. A scheduled card and a completed one both
+   * looked right with `state === "PRE"` as the only guard. On the real card of 2026-09-26 the first
+   * bout went `in` while ESPN still reported `period: 0` and `displayClock: "-"`, and the tracked
+   * row rendered `R0` — a round no bout has ever been in — with a dash for a clock.
+   *
+   * A row that says R0 is worse than a row that says nothing: it looks like a measurement.
+   */
+  assert.equal(liveBouts.length, 1);
+  const b = liveBouts[0];
+  assert.equal(b.state, "LIVE", "the fixture must actually be in progress, or this proves nothing");
+  assert.equal(b.round, null, "period 0 is the provider saying 'not yet'");
+  assert.equal(b.clock, null, "`-` is a placeholder, not a time");
+  assert.equal(b.winnerAthleteId, null, "a live bout has no winner");
+
+  // And it reaches the tracked row as absence, with the honest rail state.
+  const card2 = card({ bouts: [{
+    boutId: b.boutId, scheduledRounds: 3,
+    red: { athleteId: b.fighters[0].athleteId, name: b.fighters[0].name },
+    blue: { athleteId: b.fighters[1].athleteId, name: b.fighters[1].name },
+    prediction: { winner: { name: b.fighters[1].name, probability: 0.64 }, method: { most: "DEC" }, rounds: { endsIn: "3+" } },
+  }] });
+  const r = pick(ufcTrackedRows({ card: card2, bouts: liveBouts }), b.boutId, "fight_winner");
+  assert.equal(r.live.periodState, null, "no R0 may reach the row");
+  assert.equal(r.live.clock, null);
+  assert.equal(railStateOf(r), R.LIVE_UNRESOLVED, "§9's honest answer for a bout in progress");
+});
+
+test("a real round and clock still travel — the guard rejects placeholders, not values", () => {
+  const withRound = normalizeMmaBout(
+    { id: "1", status: { period: 2, displayClock: "3:41", type: { state: "in" } },
+      competitors: [{ id: "a", athlete: { displayName: "A" } }, { id: "b", athlete: { displayName: "B" } }] },
+    { id: "e" }, AT);
+  assert.equal(withRound.round, 2);
+  assert.equal(withRound.clock, "3:41");
 });

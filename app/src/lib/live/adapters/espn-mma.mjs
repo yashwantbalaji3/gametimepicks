@@ -46,6 +46,12 @@ export function mapMmaState(status) {
 }
 
 const str = (x) => (typeof x === "string" && x.length ? x : null);
+
+/** A provider placeholder is not a clock. `-` and the empty string are absence, stated as such. */
+function cleanClock(x) {
+  const v = str(x);
+  return v === null || v === "-" || v === "--" ? null : v;
+}
 const int = (x) => (Number.isFinite(Number(x)) && x !== null && x !== "" ? Number(x) : null);
 
 /**
@@ -78,9 +84,20 @@ export function normalizeMmaBout(competition, event, fetchedAt) {
     state: LIVE_STATES.includes(state) ? state : "UNKNOWN",
     /* The provider's own words, shown verbatim so we never paraphrase a feed. */
     stateDetail: str(status?.type?.detail),
-    /* Null, not 1. A bout that has not started is in no round. */
-    round: state === "PRE" ? null : int(status?.period),
-    clock: state === "PRE" ? null : str(status?.displayClock),
+    /*
+     * ⚠ NULL, NOT 0 AND NOT 1 — AND THE LIVE CARD IS WHAT PROVED IT.
+     *
+     * The fixtures (a scheduled card and a completed one) both looked right with `state === "PRE"`
+     * as the only guard. On the real card of 2026-09-26, the first bout went `in` while ESPN still
+     * reported `period: 0` and `displayClock: "-"`, and the tracked row rendered `R0` — a round no
+     * bout has ever been in — with a dash for a clock.
+     *
+     * A period of 0 is the provider saying "not yet", exactly as an absent one does, and `-` is a
+     * placeholder rather than a time. Both become null, because a row that says R0 is worse than a
+     * row that says nothing: it looks like a measurement.
+     */
+    round: int(status?.period) > 0 ? int(status?.period) : null,
+    clock: cleanClock(status?.displayClock),
     fighters,
     /* The winner's ESPN athlete id, or null. Never a name. */
     winnerAthleteId: final ? (fighters.find((f) => f.winner)?.athleteId ?? null) : null,
