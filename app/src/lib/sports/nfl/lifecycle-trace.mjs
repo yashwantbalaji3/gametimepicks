@@ -83,11 +83,12 @@ export const GAME_DURATION_MS = 4 * 3600_000;
  * @param {string|null} g.kickoffUtc     from the schedule/board, not from a clock
  * @param {object|null} g.board          committed player-board, or null if none exists
  * @param {object|null} g.live           committed live-props artifact, or null
+ * @param {boolean|null} g.liveCommitted  is `live` in the COMMITTED tree? null = the caller did not ask
  * @param {object[]} g.settlementRows    prop-settlement rows for THIS event (may be empty)
  * @param {boolean} g.inResults          does the public results surface carry this event
  * @param {string} g.now                 the instant the trace is taken AS
  */
-export function traceGame({ providerEventId, matchup = null, kickoffUtc = null, board = null, live = null, settlementRows = [], inResults = false, now }) {
+export function traceGame({ providerEventId, matchup = null, kickoffUtc = null, board = null, live = null, liveCommitted = null, settlementRows = [], inResults = false, now }) {
   const nowMs = ms(now);
   const kickMs = ms(kickoffUtc ?? board?.kickoffUtc ?? live?.kickoffUtc);
   const started = kickMs != null && nowMs != null && nowMs >= kickMs;
@@ -128,6 +129,23 @@ export function traceGame({ providerEventId, matchup = null, kickoffUtc = null, 
   if (!live) {
     stages.push(stage("LIVE_ARTIFACT", pastGrace ? "MISSING" : "NOT_YET",
       pastGrace ? "kicked off but no live-props artifact — the live producer never ran for this game" : "not kicked off yet"));
+  } else if (liveCommitted === false) {
+    /*
+     * ⚠ A LOCAL SHADOW IS NOT EVIDENCE. This file's first line promises "committed artifacts only",
+     * but the CLI reads a filesystem, and a live artifact left behind by a local producer run is
+     * indistinguishable on disk from one the bot published. On 2026-09-26 that gap reported
+     * `✓ LIVE_ARTIFACT ... frozen 2026-09-25T18:25:54Z` for all fourteen Sunday games from sixteen
+     * untracked files that NO commit in the repository's history had ever touched — the handoff
+     * recorded it as slate health, and a clean checkout showed `not kicked off yet` instead.
+     *
+     * It is INCONSISTENT rather than MISSING because the product is fine; the EVIDENCE is not. The
+     * operator's action is to remove the shadow, not to chase the producer — and removing it is
+     * load-bearing for a second reason: the bot commits these exact `<eventId>.json` names, and an
+     * untracked file of the same name makes `git pull` abort with "untracked working tree files
+     * would be overwritten", on Sunday morning, at the one moment the artifacts are wanted.
+     */
+    stages.push(stage("LIVE_ARTIFACT", "INCONSISTENT",
+      "live artifact exists in the working tree but is NOT COMMITTED — this trace reads committed evidence only, so it is a local shadow, and its filename will block the next `git pull` of the bot's real artifact"));
   } else if (!live.frozenFrom) {
     stages.push(stage("LIVE_ARTIFACT", "INCONSISTENT", "live artifact carries no frozenFrom — the pregame provenance is unstamped"));
   } else if (pastGrace && live.phase === "PRE") {
