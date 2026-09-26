@@ -149,7 +149,10 @@ jobs:
           # Path-scoped: this job produces exactly two artifacts and must not carry anything else.
           # app/public/data/ops carries the publication-SLO verdict written by the step above. Without
           # it in scope the check would run eight times a day and its answer would never reach the site.
-          git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions app/public/data/ops data/internal/mlb/prediction-snapshots data/internal/research/mlb/engine-level-shadow 2>/dev/null || true
+          # data/internal/mlb/input-snapshots: the provenance record the generator writes beside each
+          # forecast. A writer whose output is outside its job's allowlist is an artifact that is built
+          # and never published, and a forecast whose lineage is uncommitted is the defect this closes.
+          git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions app/public/data/ops data/internal/mlb/prediction-snapshots data/internal/research/mlb/engine-level-shadow data/internal/mlb/input-snapshots 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no lineup has changed the simulation since the last run"
             exit 0

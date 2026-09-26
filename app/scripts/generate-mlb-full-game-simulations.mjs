@@ -19,6 +19,7 @@ import { selectConfirmedLineup } from "../src/lib/mlb/full-game/confirmed-lineup
 import { simulateFullGame } from "../src/lib/mlb/full-game/simulate.ts";
 import { stableHash } from "../src/lib/game-simulations/rng.ts";
 import { ENGINE_LEVEL_CANDIDATE_V1, engineParamsFor } from "../src/lib/mlb/full-game/engine-candidates.ts";
+import { INPUT_SNAPSHOT_VERSION, foldSnapshot, snapshotRowFor } from "../src/lib/mlb/full-game/input-snapshot.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
@@ -165,6 +166,8 @@ if (mismatch) {
  * probe, deterministically: the started set and the prior bytes are both fixed inputs.
  */
 let carriedForward = 0;
+/* Which games kept a PRIOR run's forecast. Their inputs are that run's, not this one's. */
+const carriedPks = new Set();
 if (priorArtifact?.games?.length) {
   const priorByPk = new Map(priorArtifact.games.map((g) => [g.gamePk, g]));
   artifact.games = artifact.games.map((g) => {
@@ -180,6 +183,7 @@ if (priorArtifact?.games?.length) {
       && Date.parse(priorArtifact.generatedAt) <= Date.parse(g.firstPitch);
     if (priorIsPregame) {
       carriedForward += 1;
+      carriedPks.add(g.gamePk);
       return prior;
     }
     return g;
@@ -240,11 +244,63 @@ for (const g of artifact.games) {
   });
 }
 
+/*
+ * ── THE INPUT SNAPSHOT (lineage) ───────────────────────────────────────────────────────────────
+ *
+ * A committed simulation says `awayLineupSource: "confirmed"` and never says WHICH confirmed
+ * lineup, when it was captured, or who was in it — `players` is null by design. So a published
+ * forecast could not be reconstructed from repository evidence even once that evidence was
+ * committed. gamePk 824706 read `confirmed / ready` at 20:37Z and `prop-derived / unavailable` at
+ * 21:46Z on the same date, and nothing in either artifact distinguished the two inputs.
+ *
+ * Recorded HERE, from the inputs this run actually simulated, under this run's `--now`. Re-deriving
+ * it later from the archive would answer "what would we use today", and a late capture would make
+ * the record silently disagree with the forecast it claims to describe.
+ *
+ * It writes an INTERNAL artifact and changes no published byte: `artifactHash` covers the whole game
+ * object, so putting provenance on `completeness` would rewrite every hash and ripple into the
+ * predictions layer. The join is both ways — keyed by (date, gamePk), carrying the forecast's own
+ * artifactHash.
+ */
+const snapshotRows = [];
+for (const g of artifact.games) {
+  /*
+   * ⚠ A CARRIED-FORWARD GAME KEEPS AN EARLIER RUN'S FORECAST, AND THIS RUN STILL BUILT AN INPUT FOR
+   * IT. Pairing the two would file today's lineup against a forecast that never consumed it — a
+   * provenance record that is precisely, confidently wrong, which is worse than none. Verified on
+   * 2026-09-25: two games carried a pregame forecast whose `startedBeforeGeneration` is false while
+   * this run's input for them says true.
+   */
+  if (carriedPks.has(g.gamePk)) continue;
+  const input = lastInputs.find((i) => i.gamePk === g.gamePk);
+  if (!input) continue;
+  snapshotRows.push(snapshotRowFor({ input, game: g, confirmed: confirmedByGamePk.get(g.gamePk) ?? null }));
+}
+
 if (write) {
   const outDir = path.join(DATA, "mlb", "full-game-simulations");
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, `${date}.json`), JSON.stringify(artifact, null, 2));
   console.log(`\n✓ wrote public/data/mlb/full-game-simulations/${date}.json`);
+
+  const snapDir = path.join(APP, "..", "data/internal/mlb/input-snapshots");
+  const snapFile = path.join(snapDir, `${date}.json`);
+  const prior = readJson(`../../data/internal/mlb/input-snapshots/${date}.json`) ?? (() => { try { return JSON.parse(fs.readFileSync(snapFile, "utf8")); } catch { return null; } })();
+  const folded = foldSnapshot({ prior, rows: snapshotRows });
+  fs.mkdirSync(snapDir, { recursive: true });
+  fs.writeFileSync(snapFile, JSON.stringify({
+    schemaVersion: INPUT_SNAPSHOT_VERSION,
+    artifact: "mlb-input-snapshot",
+    dataClass: "PRIVATE_RESEARCH",
+    what: "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+    date,
+    modelVersion: MODEL_VERSION,
+    simulationVersion: SIMULATION_VERSION,
+    sourceBoardHash: artifact.sourceBoardHash,
+    updatedAt: artifact.generatedAt,
+    games: folded.games,
+  }, null, 1) + "\n");
+  console.log(`✓ wrote data/internal/mlb/input-snapshots/${date}.json · +${folded.added} new · ${folded.updated} updated · ${folded.carried} carried`);
   if (shadowRows.length) {
     fs.mkdirSync(SHADOW_DIR, { recursive: true });
     const shadowFile = path.join(SHADOW_DIR, `${date}.json`);
