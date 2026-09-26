@@ -156,6 +156,32 @@ the catch-up path (a publication lag) or is permanently lost.
 
 ---
 
+## D4 · 🔴 The homepage was 62 words over its first-viewport ceiling — PR #692
+
+**This blocked every PR's quality gate**, and NFL going live is why. Measured by building `origin/main`
+in a clean worktree, because my first instinct was that my own branch had caused it:
+
+| | busiest | non-lane | fixture lanes | started chips | vs ceiling 1,820 |
+|---|---|---|---|---|---|
+| `origin/main` | **1,882** | 1,427 | 386 | 69 | **62 over** |
+| after #692 | **1,795** | 1,340 | 386 | 69 | 25 under |
+
+`main` was six words *worse* than the branch I was blaming. Nothing editorial changed: the dated-ahead
+reads panel, previously near-empty, filled with ten NFL rows whose descriptors are the longest on the
+page (`Sun, Sep 27 · NFL · Game winner · SEA @ WSH · projected 26–20 · total median 46` — fourteen words
+before the probability, 21.75 words per row measured).
+
+⚠ **#692 is the reversible fix, not the one the guard asks for.** Its message says trim
+*non-prediction* words and it is right — the footer (170), primary nav (149), "How it works" (53) and
+the launchpad subtitle (58) are where the slack is. `UPCOMING_READS_SHOWN = 6` deletes no sentence and
+is one constant to revert. **Which public sentences to cut instead is a founder call** (see §G).
+
+⚠ **Headroom is 25 words.** Thin, on a guard that measures whatever the calendar produces. Tomorrow's
+*today* panel will itself fill with NFL rows. Expect this to speak again — and the rule is trim, never
+raise.
+
+---
+
 ## E · Phase H — armed, bounded, and not forced
 
 | | |
@@ -195,7 +221,10 @@ verdict closes the lane for 3 credits and that is the result.
    `LIVE_ODDS_DECISION_PACKAGE.md` has the numbers, including the correction that the operative
    ceiling is 1,160 (not the 3,000 a superseded receipt reported).
 2. **MLB finals backfill** — a yes/no, unchanged.
-3. **P305 soccer totals** — bars pass on four leagues but are REJECTED on a 1X2 ECE ceiling the
+3. **The homepage's non-prediction trim** (§D4) — which of the footer, primary nav, "How it works" or
+   the launchpad subtitle gives up words. #692 bought 25 words of headroom mechanically without
+   deleting a sentence; the durable answer is editorial.
+4. **P305 soccer totals** — bars pass on four leagues but are REJECTED on a 1X2 ECE ceiling the
    control also fails. Decision pending; not touched tonight.
 
 ---
