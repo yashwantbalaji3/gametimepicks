@@ -63,7 +63,9 @@ const cellById = (doc, id) => (doc.cells ?? []).find((c) => c.cellId === id) ?? 
  * cell with a real meaning and no W–L, and inventing "0–0" for it would turn a disclosed hole in the
  * record into a perfect one.
  */
-function recordLabel(cell) {
+/* Exported so the golden eval derives its expectation from THIS rule rather than re-typing a record —
+   see nflHeadlineRecord() in scripts/ask/golden.mjs. Two formatters would be two rules. */
+export function recordLabel(cell) {
   const c = cell?.counts;
   if (!c || c.won == null || c.lost == null) return null;
   const parts = [`${c.won}–${c.lost}`];

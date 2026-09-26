@@ -13,6 +13,38 @@
  * cannot be satisfied by accident.
  */
 
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { recordLabel } from "../../src/lib/ask/tools/results.mjs";
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+
+/*
+ * ⚠ A RECORD IN AN EXPECTATION IS DERIVED, NEVER TYPED.
+ *
+ * `res-06` asserted the answer mentions "32–27". Thursday night's game graded, NFL became 32–28, and a
+ * case whose subject is "does the answer state the record" failed on a record that had simply moved —
+ * blocking every PR's quality gate on a Saturday morning. This repo already enforces the same rule for
+ * provenance sentences (top-reads.test.mjs: "a count of graded events must be read from the ledger, not
+ * written into the sentence"); the eval broke it in its own expectation.
+ *
+ * Derived from the SAME artifact the tool reads, through the SAME label rule it uses, so two formatters
+ * cannot drift into two rules. Only the W–L is asserted: the answer need not carry the "· 2 void" tail.
+ */
+function nflHeadlineRecord() {
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "data/ask-projection/v1/results.json"), "utf8"));
+  const cell = (doc.cells ?? []).find((c) => c.cellId === doc.headline?.bySport?.nfl);
+  const label = recordLabel(cell);
+  if (!label) {
+    /* Loud, not lenient: an eval that silently drops its own expectation measures nothing, and this
+       artifact is committed, so an unreadable one is a real defect rather than a missing fixture. */
+    throw new Error("golden res-06: no NFL headline record in data/ask-projection/v1/results.json — the expectation cannot be derived");
+  }
+  return label.split(" · ")[0];
+}
+
 const help = (id, q, mustMention, expectLink = "/") => ({
   id, category: "site help", q, expectIntent: undefined, expectTools: ["searchGameTimeHelp"], expectGrounded: true, mustMention, expectLink,
 });
@@ -216,7 +248,7 @@ export const GOLDEN = [
   {
     id: "res-06", category: "results", q: "How accurate is the NFL model?",
     expectIntent: "RESULTS_FORECAST_RECORD", expectTools: ["getForecastRecord"], expectGrounded: true,
-    mustMention: ["32–27"],
+    mustMention: [nflHeadlineRecord()],
   },
   {
     id: "res-07", category: "results", q: "Show me the settled NFL forecasts from 2026-09-14 to 2026-09-16",
