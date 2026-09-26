@@ -278,3 +278,82 @@ test("the operative receipt's ceiling is unchanged by the Phase H amendment", ()
   assert.match(RECEIPT, /## AMENDMENT 3 — 2026-09-26/, "the Phase H amendment is in the governing document");
   assert.match(RECEIPT, /1,160 credits — UNCHANGED/, "and states plainly that it bought scope, not headroom");
 });
+
+/* ── THE BOUNDED PILOT, AND ITS OWNER ──────────────────────────────────────────────────────────── */
+
+const PILOT_SRC = fs.readFileSync(path.resolve(process.cwd(), "scripts/nfl/capture-nfl-live-odds.mjs"), "utf8");
+const WORKFLOW = fs.readFileSync(path.join(ROOT, ".github/workflows/nfl-live-props.yml"), "utf8");
+
+test("⚠ THE PILOT CANNOT START UNTIL THE PROBE HAS PASSED", () => {
+  /*
+   * "only if the 3-credit probe proves that the provider is actually returning valid post-kickoff
+   * market movement" — a precondition read from the committed verdict, not from memory. Verified by
+   * running it: no verdict file refuses, a failed verdict closes the lane, and neither spends.
+   */
+  const verdictRead = PILOT_SRC.indexOf("const probe = read(VERDICT_PATH)");
+  const paidCall = PILOT_SRC.indexOf("await fetch(`${BASE}${endpoint}");
+  assert.ok(verdictRead > 0 && paidCall > 0, "both landmarks exist — otherwise this guard is vacuous");
+  assert.ok(verdictRead < paidCall, "the probe's verdict must be read before anything is bought");
+
+  assert.match(PILOT_SRC, /NOT STARTED: no probe verdict on disk/, "an absent verdict refuses");
+  assert.match(PILOT_SRC, /probe\.verdict !== "LIVE_MARKET_SUPPORTED"/, "and anything other than a pass closes the lane");
+  assert.match(PILOT_SRC, /forbids spending further to obtain a better answer/, "stated where a reader will meet it");
+});
+
+test("⚠ THREE BOUNDS, ALL ON THE LEDGER RATHER THAN ON THE SCHEDULE", () => {
+  /*
+   * The workflow hosting this runs every FIFTEEN minutes and the founder authorized a THIRTY-minute
+   * cadence. Sizing the spend by how often the cron is supposed to fire would be sizing it by a
+   * number this repository has measured to be wrong by up to five hours, so each bound is checked
+   * against what was actually recorded.
+   */
+  assert.match(PILOT_SRC, /spent \+ WORST_CASE > budget/, "the 90-credit Phase H budget");
+  assert.match(PILOT_SRC, /assertCallAllowed\(/, "the receipt's cumulative ceiling");
+  assert.match(PILOT_SRC, /gap < MIN_INTERVAL_MS/, "and the interval, against the LAST RECORDED CALL");
+  assert.match(PILOT_SRC, /MIN_INTERVAL_MS = 28 \* 60_000/, "~30 minutes with slack for cron jitter");
+
+  // The budget is summed from the ledger's own records for this purpose, not from a counter.
+  assert.match(PILOT_SRC, /spentOnPurpose\(ledger, PURPOSE_PREFIX\)/);
+  // And exactly one paid call site, on the bulk endpoint — never per-event, which is the prop shape.
+  assert.equal((PILOT_SRC.match(/await fetch\(`\$\{BASE\}/g) ?? []).length, 1);
+  assert.equal(/events\/\$\{[^}]+\}\/odds/.test(PILOT_SRC), false, "never the per-event endpoint");
+});
+
+test("a terminal game leaves the loop — the slate empties itself", () => {
+  /* `eventIsGenuinelyLive` already refuses FINAL, so the last capture of the day costs nothing. */
+  assert.equal(eventIsGenuinelyLive({ liveState: "FINAL", kickoffUtc: KICK, nowIso: AFTER }).live, false);
+  assert.match(PILOT_SRC, /eventIsGenuinelyLive\(/, "the pilot uses that same predicate");
+  assert.match(PILOT_SRC, /no NFL game in play/, "and says so rather than calling");
+});
+
+test("⚠ WHAT THE PILOT WRITES IS A THIRD LAYER, NOT THE FROZEN LINE", () => {
+  /*
+   * The receipt requires three things kept apart. This artifact is the CURRENT sportsbook market,
+   * stamped with its own capture instant and the book's own last_update. It must say which layer it
+   * is, because a consumer rendering it where "the line you were shown before kickoff" is claimed
+   * would merge two of them.
+   */
+  assert.match(PILOT_SRC, /layer: "CURRENT_SPORTSBOOK_MARKET"/, "the artifact names its own layer");
+  assert.match(PILOT_SRC, /NOT the frozen pregame line, and not a GameTimePicks forecast/, "and says so in its disclaimer");
+  assert.match(PILOT_SRC, /lastUpdate: b\.last_update/, "the provider's own freshness stamp, never inferred");
+
+  // It must not write anywhere the frozen pregame block lives.
+  for (const frozenPath of ["player-board", "live-props/", "forecasts", "markets/latest"]) {
+    assert.equal(new RegExp(`writeFileSync[^;]*${frozenPath}`).test(PILOT_SRC), false, `the pilot must never write ${frozenPath}`);
+  }
+  assert.match(PILOT_SRC, /live-markets/, "it writes its own directory");
+});
+
+test("⚠ BOTH PHASE H WRITERS HAVE A SCHEDULED OWNER AND ARE COMMITTED BY IT", () => {
+  /*
+   * A writer with no owner is an artifact that is built and never published, and a writer whose
+   * output is outside its job's commit allowlist is the same thing with extra steps. This repository
+   * has lost three days of a research archive to exactly that.
+   */
+  assert.match(WORKFLOW, /probe-nfl-live-odds\.mjs/, "the probe runs on a schedule");
+  assert.match(WORKFLOW, /capture-nfl-live-odds\.mjs/, "and so does the pilot");
+  assert.match(WORKFLOW, /data\/internal\/research\/odds\/nfl\//, "the verdict and credit ledger are committed");
+  assert.match(WORKFLOW, /app\/public\/data\/nfl\/live-markets\//, "and so is the current-market artifact");
+  assert.match(WORKFLOW, /ODDS_API_KEY: \$\{\{ secrets\.ODDS_API_KEY \}\}/, "both are given the key they need");
+  assert.match(WORKFLOW, /schedule:/, "the job itself is scheduled");
+});
