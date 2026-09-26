@@ -245,3 +245,21 @@ test("the panel self-gates per sport, so NFL off costs nothing on this page", ()
   assert.match(panel, /liveReadyFor\(\s*sport\s*\)/, "gated on the sport it was asked for, not on the master flag");
   assert.equal(/\bliveEnabled\(\)/.test(panel), false, "a sport-blind gate would render a panel the gateway then refuses");
 });
+
+test("⚠ THE PANEL'S OWN COPY FOLLOWS THE SPORT — 'first pitch' on a football page is a false statement", () => {
+  /*
+   * Caught on the Preview deployment, not in a test: the explanatory sentence was written when MLB
+   * was the only sport that reached this panel, and Phase G mounted it on NFL pages. It read "the
+   * GameTime forecast made before first pitch" above an ATL @ GB game. Small, and still a page
+   * telling a reader something untrue about its own sport.
+   */
+  const panel = read("src/components/live/live-panel.tsx");
+  const body = codeOnly(panel);
+  assert.match(panel, /sport === "nfl" \? "kickoff" : "first pitch"/, "the word must follow the sport");
+
+  // And no baseball noun may be hard-coded anywhere the NFL arm can reach.
+  const nflArm = body.slice(body.indexOf("nflForecast ? ("), body.indexOf(") : playerBoard ? ("));
+  for (const baseballism of ["first pitch", "inning", "runs", "pitcher"]) {
+    assert.equal(nflArm.toLowerCase().includes(baseballism), false, `"${baseballism}" must not reach an NFL page`);
+  }
+});

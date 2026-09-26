@@ -289,9 +289,17 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, nf
           Live beta
         </span>
       </div>
+      {/*
+        * ⚠ "FIRST PITCH" IS A BASEBALL WORD, AND THIS PANEL IS NOW MOUNTED ON NFL PAGES TOO.
+        *
+        * The sentence was written when MLB was the only sport that reached it, and it read
+        * "before first pitch" on a football game the moment Phase G mounted it — small, but it is a
+        * page telling a reader something untrue about its own sport. The word follows the sport.
+        */}
       <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: "0 0 10px", maxWidth: 620, lineHeight: 1.55 }}>
         The left side is what the live source reports right now. The right side is the GameTime
-        forecast made before first pitch — it is frozen and does not change while the game is played.
+        forecast made before {sport === "nfl" ? "kickoff" : "first pitch"} — it is frozen and does not
+        change while the game is played.
       </p>
       {grid}
     </section>
