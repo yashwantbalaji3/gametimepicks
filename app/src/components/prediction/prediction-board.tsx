@@ -25,6 +25,7 @@ import type React from "react";
 import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import type { MarketSnapshot, ModelForecast, PredictionPresentation } from "@/lib/prediction-presentation/contract";
+import { RAIL_STATE, railGeometry, railStateOf } from "@/lib/live/tracked-prediction.mjs";
 
 /** ET, once, for every surface that renders a prediction. */
 export const etStart = (iso: string) =>
@@ -200,6 +201,111 @@ function MarketCell({ market }: { market: MarketSnapshot }) {
  * probability: the pregame projection and the frozen line are already on the row above, and a
  * reader comparing them to the stat so far is doing the only comparison we can honestly support.
  */
+/**
+ * The rail's tone, from the canonical rail state. Live states are electric, never green — and the
+ * green is unreachable here because `railStateOf` cannot return a result outside FINAL_CANONICAL.
+ */
+const RAIL_TONE: Record<string, string> = {
+  [RAIL_STATE.CURRENTLY_ABOVE_LINE]: "var(--vault-info)",
+  [RAIL_STATE.CURRENTLY_BELOW_LINE]: "var(--vault-info)",
+  [RAIL_STATE.CURRENTLY_AT_LINE]: "var(--vault-info)",
+  [RAIL_STATE.CURRENTLY_ABOVE_RANGE]: "var(--vault-info)",
+  [RAIL_STATE.CURRENTLY_INSIDE_RANGE]: "var(--vault-info)",
+  [RAIL_STATE.CURRENTLY_BELOW_RANGE]: "var(--vault-info)",
+  [RAIL_STATE.PROVIDER_DELAY]: "var(--vault-warn)",
+  /*
+   * ⚠ NEUTRAL MEANS NEUTRAL, AND `--vault-border-strong` IS NOT. Measured in the browser, it
+   * resolves to `rgba(52, 211, 153, 0.58)` — this theme's mint green — so a finished-but-ungraded
+   * row was painted a colour a reader reads as a win. The unit test asserted the TOKEN NAME and
+   * passed throughout, which is the "matched the mention, not the thing" shape again, this time in
+   * a colour. `--vault-border`, `--vault-rule` and `--vault-border-strong` are all that same green.
+   * `--vault-text-mute` (#B4BEB8) is an actual grey.
+   */
+  [RAIL_STATE.FINAL_AWAITING_SETTLEMENT]: "var(--vault-text-mute)",
+  [RAIL_STATE.FINAL_WIN]: "var(--vault-success)",
+  [RAIL_STATE.FINAL_LOSS]: "var(--vault-loss-red)",
+  [RAIL_STATE.FINAL_PUSH]: "var(--vault-text-mute)",
+};
+
+/**
+ * THE PROGRESS RAIL ON A PREDICTION ROW (§5, §2.2).
+ *
+ * The row above already carries every part of §3.2's frozen block — the book, the line, both prices
+ * and the capture instant — and the live line carries the current value, the clock and the score.
+ * What no surface had was the one thing the founder's reference actually demonstrates: a visual
+ * comparison of the two.
+ *
+ * ⚠ IT RENDERS ONLY WHERE THERE IS SOMETHING TO COMPARE. No live value, or no frozen target, and
+ * there is no bar — a rail drawn from a missing number is a measurement claim.
+ *
+ * ⚠ AND IT IS DECORATION. `aria-hidden`, because everything it shows is already in the words beside
+ * it. Its state comes from `railStateOf`, the same function whose result states are unreachable
+ * outside FINAL_CANONICAL, so no live value can paint a win here.
+ */
+function ProgressRail({ live, market, model }: {
+  live: NonNullable<PredictionPresentation["live"]>;
+  market: PredictionPresentation["market"];
+  model: PredictionPresentation["model"];
+}) {
+  const f = live.factual;
+  const s = live.settlement;
+  const settled = s && s.state === "SETTLED";
+  const value = settled ? s?.finalStat ?? null : f?.statValue ?? null;
+  if (typeof value !== "number") return null;
+
+  /* A PURCHASED line is the target when one exists; otherwise the top of the model's band. The
+     distinction matters and is already spoken on the row — this only decides what to draw against. */
+  const frozenLine = market.state === "FROZEN_CAPTURE" ? market.frozen?.line ?? null : null;
+  const target = typeof frozenLine === "number" ? frozenLine : model.p90 ?? null;
+  if (typeof target !== "number" || target <= 0) return null;
+
+  const geo = railGeometry({ currentValue: value, line: target });
+  if (!geo) return null;
+
+  const state = railStateOf({
+    marketKind: "ADDITIVE",
+    pregame: {
+      line: frozenLine,
+      modelPrediction: model.predictedValue ?? null,
+      modelRange: { low: model.p10 ?? null, high: model.p90 ?? null },
+      capturedAt: market.state === "FROZEN_CAPTURE" ? market.frozen?.capturedAt ?? null : null,
+    },
+    live: { measurementState: "MEASURED", currentValue: value },
+    /* ⚠ THREE FINALITIES, NOT TWO. The first cut collapsed provider-FINAL into NOT_FINAL, so a
+       finished but ungraded row kept the LIVE tone — the same defect the tag beside it had, made
+       again one function away from where it was fixed. */
+    final: {
+      finality: settled ? "FINAL_CANONICAL" : f?.phase === "FINAL" ? "FINAL_PROVISIONAL" : "NOT_FINAL",
+    },
+    settlement: settled
+      ? { status: "SETTLED", forecastResult: s?.forecastResult ?? null }
+      : { status: "PENDING" },
+  });
+
+  /*
+   * ⚠ THE FILL AND THE TICK ARE CHILDREN, AND THE FIRST CUT RENDERED NEITHER.
+   *
+   * The container alone carried the custom properties and the CSS styled three elements — so every
+   * row drew an empty grey track with no bar and no target marker, on all six states. The unit
+   * tests passed throughout, because they asserted the container's style attribute rather than what
+   * was drawn. A screenshot at 375px found it in one look, which is the argument for §3.5.
+   */
+  return (
+    <div
+      aria-hidden="true"
+      className="gtp-pred-progress"
+      style={{
+        ["--gtp-rail-value" as string]: `${(geo.valueFraction * 100).toFixed(1)}%`,
+        ["--gtp-rail-target" as string]: `${(geo.targetFraction * 100).toFixed(1)}%`,
+        ["--gtp-rail-tone" as string]: RAIL_TONE[state] ?? "var(--vault-border-strong)",
+      }}
+    >
+      <span className="gtp-pred-progress-fill" />
+      <span className="gtp-pred-progress-tick" />
+    </div>
+  );
+}
+
 function LiveLine({ live }: { live: NonNullable<PredictionPresentation["live"]> }) {
   const f = live.factual;
   const s = live.settlement;
@@ -399,6 +505,9 @@ export function PredictionBoard({
               {/* Last, and spanning: the frozen forecast and the frozen line are above it, so the
                   comparison reads downward the way the founder's own sketch does. */}
               {p.live ? <LiveLine live={p.live} /> : null}
+              {/* §5 · the visual comparison the frozen block and the live line each state in words.
+                  Renders only where both a live value and a frozen target exist. */}
+              {p.live ? <ProgressRail live={p.live} market={p.market} model={p.model} /> : null}
             </li>
           );
         })}
