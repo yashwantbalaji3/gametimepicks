@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823733,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T18:10:40.946Z",
+  "availableAt": "2026-09-26T18:10:40.946Z",
+  "eventStartTime": "2026-09-26T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669160,
+      "name": "Dustin May",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 4,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 18.33,
+        "ipAvg": 3.67,
+        "kAvg": 4.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.2,
+        "hrAvg": 0.8,
+        "kPer9": 10.31,
+        "workloadIpLast5": 18.33
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 142.67,
+        "k": 139,
+        "bb": 49,
+        "er": 74,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 687273,
+      "name": "Quinn Mathews",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 6,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 5.2,
+        "bbAvg": 2.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 7.71,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 44.33,
+        "k": 39,
+        "bb": 18,
+        "er": 18,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-26T18:10:40.946Z"
+  },
+  "recordHash": "dad3a4865659864b87d962715aecec478b9e886770fe95166a2922fb84f81aa9"
+}

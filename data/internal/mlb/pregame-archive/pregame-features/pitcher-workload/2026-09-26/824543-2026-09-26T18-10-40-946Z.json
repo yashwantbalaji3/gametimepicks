@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824543,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T18:10:40.946Z",
+  "availableAt": "2026-09-26T18:10:40.946Z",
+  "eventStartTime": "2026-09-26T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663436,
+      "name": "Davis Martin",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 18,
+        "ipAvg": 3.6,
+        "kAvg": 2.8,
+        "bbAvg": 1.4,
+        "erAvg": 1,
+        "hrAvg": 0.6,
+        "kPer9": 7,
+        "workloadIpLast5": 18
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 140,
+        "k": 121,
+        "bb": 44,
+        "er": 61,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 500779,
+      "name": "Jose Quintana",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 7,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 2,
+        "bbAvg": 1.4,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 4.35,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 45,
+        "k": 22,
+        "bb": 18,
+        "er": 27,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-26T18:10:40.946Z"
+  },
+  "recordHash": "f3dc3f0246397f2b6c68e325db48e2bf1efae02955407b23b105b6885b690f08"
+}
