@@ -234,7 +234,8 @@ cause now, at the same exit code; MLB still exits 0 with a byte-identical policy
 | §11 | Ask settlement-copy guard + 12 eval cases | `#704` |
 | §12.1 | depth-chart consumer + the founder-gate measurement (shadow) | `#704` |
 | §18 | `sport-schedules` provisional refusal; the selection-learning crash | `#704` |
-| §9 | the live-bout `R0` / placeholder-clock fix, from tonight's real card | `#704` |
+| §9 | the live-bout `R0` / placeholder-clock fix, and one REAL bout through its whole lifecycle | `#704` |
+| §15 | the correlation taxonomy (step 3 — the last pure-definition step) | `#704` |
 
 **§5.2 is enforced structurally, not by discipline.** `railStateOf` cannot return a result state
 outside `FINAL_CANONICAL`, proved across 1,344 input combinations each carrying a SETTLED/HIT
@@ -245,6 +246,45 @@ branch that decides a win, so a colour cannot get ahead of the truth.
 the canonical result there is a real interval that had no word — a finished bout rendered
 "Live — unresolved" and a completed game's yardage rendered "Currently above line", both describing a
 present that has ended.
+
+---
+
+## D2 · §9 is proved on a real bout, not on fixtures
+
+Tonight's card ran while this was being built. The SAME bout was captured at three moments, none of
+which is reconstructable once a card is over:
+
+```
+21:0xZ   state in   · period 0 · clock "-"     walkouts — NOT started
+21:1xZ   state in   · period 1 · clock 3:58    under way
+21:2xZ   state post · period 1 · clock 1:02    finished, R1, winner by athlete id
+```
+
+🔴 **The first is a defect two fixtures could not find.** ESPN reports `state: "in"` for a bout that
+has not started — for ten minutes, across two different pre-bout statuses ("Pre-fight", then
+`STATUS_FIGHTERS_WALKING`). The first cut rendered `R0` with a dash for a clock, and a row that says
+R0 is worse than a row that says nothing: it looks like a measurement. This is the rule
+`mlb-statsapi.mjs` already keeps for StatsAPI's "Warmup". The general rule is **structural** — a
+bout in progress is always in some round — because two different pre-bout names appeared in eight
+minutes.
+
+**And the rule that matters held at every step.** At provider FINAL, ESPN names the winner by
+athlete id and the product does not say the prediction hit:
+
+| | `fight_winner` | `fight_rounds` / `fight_method` |
+|---|---|---|
+| provider FINAL | `FINAL_AWAITING_SETTLEMENT`, result **null** | `FINAL_NO_MEASUREMENT` |
+| with a settlement | `FINAL_CANONICAL` · HIT · `FINAL_WIN` | still **null** — no sideways leak |
+
+## D3 · §13 → §14 → §15 now exist as one chain, all shadow
+
+The receipt records what the model said; ProductEligibleLeg answers whether a leg may be
+considered and why not; the taxonomy answers what a card may not assume is independent. **None of
+them selects, scores, or produces a joint probability** — there is no coefficient anywhere, because
+a label cannot be multiplied and a ρ can.
+
+Three of §15's nine kinds are undetectable from a receipt (game script, weather, lineup) and are
+**named on every answer, including an allowed one**. `NONE_OBSERVED` is not independence.
 
 ---
 
@@ -262,6 +302,11 @@ present that has ended.
 - **Browser verification found three things unit tests did not** — a terminal market rendering the
   join's internal `1` beside a fighter's name, `104 / 96 hi` leaking internal shorthand, and the
   round printed twice. All three are pinned by tests written *after* the screenshot.
+- **A vacuous detector, three hours old.** `DETECTABLE` claimed same-team and opposing-side
+  correlation were detectable while the receipt carried neither `team` nor `opponent` — both of
+  which were already in every optimizer leg. The same narrowing-projection defect I had just
+  documented, in my own new code. Every "detectable" claim is now backed by a case that makes it
+  fire.
 - **A stacked PR auto-closed** when I deleted its base branch on merge, and GitHub will not reopen a
   PR whose base is gone. Same accident as `#693` yesterday. **Merge stacked PRs base-first and
   retarget the child before deleting anything.**
