@@ -33,7 +33,7 @@ export default function UpcomingSportsPage() {
   const sports = (allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[])
     .map((s) => ({ ...s, resultsNote: resultsTrackingNote(s.sport) }));
   return (
-    <main style={{ maxWidth: 860, margin: "0 auto", padding: "32px 20px 64px" }}>
+    <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 20px 64px" }}>
       <p style={{ margin: 0, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--text-mute)" }}>
         Upcoming sports
       </p>
@@ -53,6 +53,6 @@ export default function UpcomingSportsPage() {
       <div style={{ marginTop: 24 }}>
         <UpcomingSportsSections sports={sports} />
       </div>
-    </main>
+    </div>
   );
 }

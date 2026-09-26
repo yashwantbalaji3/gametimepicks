@@ -288,6 +288,73 @@ Three of §15's nine kinds are undetectable from a receipt (game script, weather
 
 ---
 
+## D4 · Launch Integrity P0s — four public defects, each with a root cause the prose did not name
+
+§5 of the continuation prompt says reproduce before patching. It earned its place four times: every
+observation was real, and not one root cause was what the report described.
+
+### 🔴 §3.3 · a finished game said LIVE on every NFL prediction row
+
+Reproduced on the real component with a real committed board row. The tag read
+`settled || noMeasure ? "Final" : "Live"`, so a game the PROVIDER had called final rendered as LIVE
+until settlement ran — the final whistle to the nightly settle, **hours**, on the surface tomorrow's
+acceptance is watched from. It now reads `Final · result pending`, with no colour and no outcome
+word, and a finished game no longer carries "4Q · 0:00".
+
+### 🔴 §6 · Results contradicted its own correct arithmetic
+
+`batter_hits` is `total 197 · 100–76 · pushes 0 · voids 21 · rate 56.8%`. The page printed
+"100–76 · **197 dec** · 56.8%", so a reader dividing 100 by 197 gets 50.8% and concludes the rate is
+broken. **It is not** — the data reconciles at every level (headline, byMarket, byConfidence all
+satisfy `total = W+L+P+V`). The component rendered `b.total` under the label "dec". Three of four
+markets affected.
+
+⚠ And `MlbBucket` had **dropped `voids`** — the producer always wrote it, the type never declared
+it, so **44 voided rows** were unrenderable. Fourth instance this session of the same
+narrowing-projection shape.
+
+### 🔴 §7 · the slate's clock was stamped on forecasts it did not produce
+
+The artifact's top-level `generatedAt` is **not every game's generation time**. When a later run
+happens after a game's first pitch the producer carries that game's pregame forecast forward
+verbatim, and a carried game keeps NO per-game timestamp. So the 21:24Z slate stamp appeared beside
+three games with 20:05–20:10Z first pitches, correctly flagged `startedBeforeGeneration: false` —
+"Simulated 5:24 PM · pregame", a clock from after kickoff on a forecast made before it.
+
+⚠ **The producer was never the problem** and an instant comparison is worse, not better: my first
+fix labelled those three genuine pregame forecasts "after first pitch". Four typed states now, all
+read from the artifact — `PREGAME_CARRIED` prints no time at all, because the time is not ours.
+
+### 🔴 §9 · a refused live feed turned every started game back into "Scheduled"
+
+`derivePresentationState` returned `PRE` for both "live is off" (honest) and "we asked and were
+refused" (not). On a first load during an outage the hub has no envelope for any game, so a game
+that started two hours ago read "Scheduled".
+
+⚠ **Both hooks were already right** — neither clears its last good payload on a refusal or a throw,
+so a mid-session outage never blanked anything. Only the never-succeeded case regressed, and that
+is now `Status unknown`. The hub's grouping memo also had to gain `unavailable` as a dependency, or
+the fix would never have reached the screen.
+
+---
+
+## D5 · Sunday's producer, dry-run against tomorrow's real slate
+
+`nfl-live-props.yml` fires on its own schedule for the first time in its history tomorrow. Run in
+`--dry-run` against the committed boards, it works and writes nothing:
+
+```
+as of 2026-09-27T17:05Z    9 games covered
+as of 2026-09-27T21:00Z   13 games covered
+as of 2026-09-28T01:00Z   14 games covered      ← the whole slate
+each game: PRE · 47–70 rows · 0 with a live stat · 0 settled
+```
+
+Coverage ramps with the kickoff windows exactly as it should, and `git status` over the artifact
+paths is clean afterwards.
+
+---
+
 ## E · Defects I wrote and caught, recorded because the patterns recur
 
 - **A fabricated line.** The rail's first cut read `line ?? modelPrediction` and said
@@ -302,6 +369,13 @@ Three of §15's nine kinds are undetectable from a receipt (game script, weather
 - **Browser verification found three things unit tests did not** — a terminal market rendering the
   join's internal `1` beside a fighter's name, `104 / 96 hi` leaking internal shorthand, and the
   round printed twice. All three are pinned by tests written *after* the screenshot.
+- **A guard that read the explanation instead of the thing, three times.** An inline COPY of
+  workflow shell; `/kickoffUtc/` matched against a comment; `|| true` matched against the comment
+  saying the workflow uses no `|| true`. All three now strip comments or extract the real branch.
+- **A fixture that made its own assertion vacuous.** My provider-FINAL row had `period: null`, and
+  the guard it tested is `f?.period != null` — so it passed whether or not the guard existed.
+- **A regex that matched the wrong number.** The empty-cohort assertion searched the whole page for
+  `/0\.0%/` and matched the headline's "50.0%".
 - **A vacuous detector, three hours old.** `DETECTABLE` claimed same-team and opposing-side
   correlation were detectable while the receipt carried neither `team` nor `opponent` — both of
   which were already in every optimizer leg. The same narrowing-projection defect I had just

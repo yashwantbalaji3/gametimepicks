@@ -55,7 +55,7 @@ export function generateMetadata({ params }: { params: { sport: string; gameId: 
 /** Honest disambiguation view for a doubleheader's shared (legacy) base slug — never silently resolves one game. */
 function GameDisambiguation({ sport, options }: { sport: string; options: Array<{ slug: string; urlSport: string; title: string; simReady: boolean }> }) {
   return (
-    <main className="mx-auto max-w-2xl px-4 py-16">
+    <div className="mx-auto max-w-2xl px-4 py-16">
       <p className="font-mono uppercase tracking-[0.12em] mb-2" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
         Two games · one matchup
       </p>
@@ -81,7 +81,7 @@ function GameDisambiguation({ sport, options }: { sport: string; options: Array<
       <p className="mt-6">
         <Link href={`/${sport === "world-cup" ? "world-cup" : sport}`} className="text-[12px]" style={{ color: "var(--vault-gold)" }}>← Back to the {sport === "world-cup" ? "World Cup" : sport.toUpperCase()} board</Link>
       </p>
-    </main>
+    </div>
   );
 }
 

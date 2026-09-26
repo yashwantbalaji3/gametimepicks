@@ -41,7 +41,7 @@ export default function ProductInDevelopment({
   scheduleLabel: string;
 }) {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-7 overflow-x-hidden">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-7 overflow-x-hidden">
       <header className="flex flex-col gap-2.5">
         <span className="font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
           {product.sportLabel} · signature product · in development
@@ -132,6 +132,6 @@ export default function ProductInDevelopment({
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

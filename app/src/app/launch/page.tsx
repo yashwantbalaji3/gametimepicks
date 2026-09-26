@@ -420,7 +420,7 @@ export default function LaunchCommandCenter() {
             ))}
           </nav>
 
-          <main>
+          <div>
             {/* ════ OVERVIEW ══════════════════════════════════════════════════════════════ */}
             {/* ── Health strip (P162 · Release C): the console's first row. Every tile links to
                    the evidence section it summarizes — a tile is a doorway, never the proof. ── */}
@@ -2023,7 +2023,7 @@ export default function LaunchCommandCenter() {
                 </details>
               </div>
             </section>
-          </main>
+          </div>
         </div>
       </div>
     </>

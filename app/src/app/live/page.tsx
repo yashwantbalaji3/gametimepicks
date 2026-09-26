@@ -38,7 +38,7 @@ export default function LivePage() {
   const roster = buildHubRoster();
 
   return (
-    <main className="mx-auto px-4 py-8 sm:py-10" style={{ maxWidth: 1040 }}>
+    <div className="mx-auto px-4 py-8 sm:py-10" style={{ maxWidth: 1040 }}>
       <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(26px,5vw,36px)", color: "var(--vault-text)", margin: "0 0 8px", letterSpacing: "-0.02em" }}>
         Live
       </h1>
@@ -56,6 +56,6 @@ export default function LivePage() {
       <p style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", marginTop: 28, textTransform: "uppercase", letterSpacing: "0.12em" }}>
         Paper-only · educational · not betting advice
       </p>
-    </main>
+    </div>
   );
 }

@@ -24,7 +24,7 @@ export default function MyGameTimePage() {
   // ONE build instant (Phase 6): the read model is resolved at the build's stamped asOf, not a fresh clock.
   const model = buildMyReadModel({ nowIso: buildAsOfIso() });
   return (
-    <main className="mx-auto px-4 py-8 sm:py-10" style={{ maxWidth: 1040 }}>
+    <div className="mx-auto px-4 py-8 sm:py-10" style={{ maxWidth: 1040 }}>
       <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(26px,5vw,34px)", color: "var(--vault-text)", margin: "0 0 6px", letterSpacing: "-0.02em" }}>
         My GameTime
       </h1>
@@ -33,6 +33,6 @@ export default function MyGameTimePage() {
         you follow and save on this device.
       </p>
       <MyGameTime model={model} />
-    </main>
+    </div>
   );
 }

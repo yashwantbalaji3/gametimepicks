@@ -145,7 +145,7 @@ export default function SportSchedulePage(p: SportScheduleProps) {
   const accent = p.accent ?? "var(--vault-gold)";
 
   return (
-    <main style={{ maxWidth: 860, margin: "0 auto", padding: "32px 20px 64px" }}>
+    <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 20px 64px" }}>
       <p className="font-mono uppercase" style={{ margin: 0, fontSize: 11, letterSpacing: "0.14em", color: "var(--vault-text-mute)" }}>
         {p.title}
       </p>
@@ -184,6 +184,6 @@ export default function SportSchedulePage(p: SportScheduleProps) {
         simulations today, and <Link href="/sports/" style={{ color: accent }}>Sports · Schedules</Link>{" "}
         lists every sport&apos;s coverage state.
       </p>
-    </main>
+    </div>
   );
 }

@@ -22,7 +22,7 @@ export const metadata = withRouteMetadata("/following/", {
 
 export default function FollowingPage() {
   return (
-    <main className="mx-auto px-4 py-8 sm:py-10" style={{ maxWidth: 820 }}>
+    <div className="mx-auto px-4 py-8 sm:py-10" style={{ maxWidth: 820 }}>
       <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(26px,5vw,34px)", color: "var(--vault-text)", margin: "0 0 6px", letterSpacing: "-0.02em" }}>
         Following
       </h1>
@@ -34,6 +34,6 @@ export default function FollowingPage() {
       <p style={{ fontSize: 12.5, color: "var(--vault-text-faint)", marginTop: 24 }}>
         See what these teams and players are doing now on <Link href="/my/" style={{ color: "var(--vault-gold-bright)" }}>My GameTime</Link>.
       </p>
-    </main>
+    </div>
   );
 }

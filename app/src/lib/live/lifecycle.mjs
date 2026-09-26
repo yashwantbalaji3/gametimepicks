@@ -55,13 +55,18 @@ export const LIFECYCLE_LABEL = Object.freeze({
  *                   work without it, which is why it is optional rather than required.
  * @param settlement the canonical graded result for this game, or null. Its mere PRESENCE is what
  *                   makes a game SETTLED; no provider field can stand in for it.
+ * @param feedState  what the CALLER knows about the live feed, because this function cannot:
+ *                   "NOT_ASKED" (live is off, or nothing has been fetched yet) or "REFUSED" (we
+ *                   asked and the gateway refused). It only matters when there is no envelope at
+ *                   all — see the default branch. Defaults to NOT_ASKED so existing callers are
+ *                   unchanged.
  */
 /**
- * @param {{ envelope?: any, settlement?: any }} [input]
+ * @param {{ envelope?: any, settlement?: any, feedState?: "NOT_ASKED" | "REFUSED" }} [input]
  * @returns {{ state: string, label: string, pollingAllowed: boolean, showsFrozenForecast: boolean,
  *             showsPostgameReview: boolean, isCanonicallyGraded: boolean, reason: string }}
  */
-export function derivePresentationState({ envelope = null, settlement = null } = {}) {
+export function derivePresentationState({ envelope = null, settlement = null, feedState = "NOT_ASKED" } = {}) {
   const provider = envelope?.state ?? null;
 
   /*
@@ -101,7 +106,31 @@ export function derivePresentationState({ envelope = null, settlement = null } =
     case "UNKNOWN":
       return frame("UNKNOWN", { polling: true, frozenForecast: true, postgameReview: false, reason: "PROVIDER_UNKNOWN" });
     default:
-      // No envelope at all: Live is off, or the feed refused. The page is still a forecast page.
+      /*
+       * 🔴 NO ENVELOPE USED TO MEAN "PRE", AND THAT IS A CLAIM.
+       *
+       * Two very different situations shared this branch. Live being OFF is a build with no live
+       * half at all — the page is a forecast page and the schedule's "Scheduled" is honest. A feed
+       * that was ASKED and REFUSED is not: on a first load during an outage the hub had no envelope
+       * for any game, so a game that started two hours ago rendered "Scheduled".
+       *
+       * §9 is explicit — a provider failure must NEVER turn known LIVE or FINAL state back into
+       * SCHEDULED/PRE. And the mirror rule is already enforced on this page for the other
+       * direction: a static page may not assert "live" either. "Status unknown" is the only
+       * honest answer when we asked and were refused.
+       *
+       * ⚠ THE CALLER STATES WHICH IT IS, because only the caller knows. Deriving it here from a
+       * clock would make this function a second owner of the event's schedule, and it is pure over
+       * {envelope, settlement} on purpose. `NOT_ASKED` is the default so every existing caller
+       * keeps its behaviour exactly.
+       *
+       * Note this branch is only reached with NO envelope at all. Once one good read has landed,
+       * both hooks keep it and let it age — a later refusal never blanks what is already known.
+       */
+      if (feedState === "REFUSED") {
+        return frame("UNKNOWN", { polling: true, frozenForecast: true, postgameReview: false, reason: "FEED_REFUSED_NO_PRIOR_STATE" });
+      }
+      // Live is off, or nothing has been asked yet. The page is still a forecast page.
       return frame("PRE", { polling: false, frozenForecast: true, postgameReview: false, reason: "NO_LIVE_STATE" });
   }
 }

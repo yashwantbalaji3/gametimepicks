@@ -38,7 +38,7 @@ export default function ParlayLabRecordPage() {
   const shapeRecord = loadCardShapeRecord(dataRoot);
 
   return (
-    <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-4 py-6">
       {/* P252: `as="h1"` — the page's own title. SectionHeader defaults to h2 because it is
           usually a SECTION header, so this route shipped no h1 and the document had no name. */}
       <SectionHeader
@@ -228,6 +228,6 @@ export default function ParlayLabRecordPage() {
         <Link href="/results/parlays" style={{ color: "var(--vault-text-mute)" }}>Saved slips (a different record)</Link>
         <Link href="/build" style={{ color: "var(--vault-text-mute)" }}>Build a card</Link>
       </nav>
-    </main>
+    </div>
   );
 }

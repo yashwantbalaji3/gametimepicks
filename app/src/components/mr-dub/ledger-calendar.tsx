@@ -7,8 +7,9 @@
  * day drawer with every settled ticket for that day. PRESENTATION ONLY — all figures come from the
  * canonical daily-summary via buildLedgerCalendar; nothing here computes or mutates money.
  */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback , useRef} from "react";
 import { PRODUCT_META, type CalMonth, type CalStats, type CalCell, type LedgerDay, type LedgerEvent } from "@/lib/mr-dub/ledger-calendar";
+import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 
 const usd = (n: number | null | undefined) => n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const usd0 = (n: number | null | undefined) => n == null ? "—" : `$${Math.round(Number(n)).toLocaleString("en-US")}`;
@@ -105,15 +106,16 @@ function EventRow({ e }: { e: LedgerEvent }) {
 }
 
 function DayDrawer({ day, onClose }: { day: LedgerDay; onClose: () => void }) {
-  const esc = useCallback((e: KeyboardEvent) => { if (e.key === "Escape") onClose(); }, [onClose]);
-  useEffect(() => { document.addEventListener("keydown", esc); return () => document.removeEventListener("keydown", esc); }, [esc]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  /* Escape was handled; Tab was not contained and focus never came back. All three from one place. */
+  useDialogFocus(dialogRef, { onClose });
   // group the day's events by product category, in a stable product order
   const order = ["bank_builder", "moonshot", "wc_specials", "specials", "homer_nukes", "mlb"];
   const groups = new Map<string, LedgerEvent[]>();
   for (const e of day.events ?? []) { const k = e.category ?? "other"; (groups.get(k) ?? groups.set(k, []).get(k)!).push(e); }
   const orderedKeys = [...groups.keys()].sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
   return (
-    <div role="dialog" aria-modal="true" aria-label={`Ledger detail for ${day.date}`} className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center" onClick={onClose}>
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`Ledger detail for ${day.date}`} className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center" onClick={onClose}>
       <div className="absolute inset-0" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 62%, transparent)", backdropFilter: "blur(2px)" }} />
       <div onClick={(e) => e.stopPropagation()} className="relative w-full sm:max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl px-4 py-4 animate-[slideup_.18s_ease-out]"
         style={{ background: "var(--vault-surface, #140d09)", border: "1px solid var(--vault-rule)", boxShadow: "0 -8px 40px color-mix(in srgb, var(--vault-ink-black) 50%, transparent)" }}>

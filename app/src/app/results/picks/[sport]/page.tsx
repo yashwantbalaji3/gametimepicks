@@ -54,7 +54,7 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
   const gameRecord = params.sport === "mlb" ? loadMlbGameRecord() : null;
 
   return (
-    <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-4 py-6">
       <SectionHeader
         as="h1"
         eyebrow={`Track record · ${lane.label}`}
@@ -141,6 +141,6 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
         ))}
         <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
       </nav>
-    </main>
+    </div>
   );
 }
