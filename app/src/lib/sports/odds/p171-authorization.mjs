@@ -167,6 +167,90 @@ export function authorizedPropMarkets(markdown) {
   return [...row.matchAll(/`(player_[a-z0-9_]+)`/g)].map((m) => m[1]);
 }
 
+/**
+ * HAS THIS RECEIPT BEEN SUPERSEDED BY A LATER ONE?
+ *
+ * ⚠ A SUPERSEDED RECEIPT DOES NOT ANNOUNCE ITSELF AT THE POINT OF USE. On 2026-09-26 a live-odds
+ * decision package was written against `ODDS_AUTHORIZATION_P171.md` and reported "3,000 ceiling,
+ * 2,606 remaining" to the founder, who decided on those numbers. P171 had been replaced on
+ * 2026-09-10 by `ODDS_AUTHORIZATION_NFL_2026.md` — whose own header says so — and the real position
+ * was 1,160 effective with 766 remaining. Nothing was overspent, because P171's lapsed expiry
+ * happens to refuse every call; the reporting was wrong, not the spending.
+ *
+ * The replacement receipt states the fact, so the superseded one can be detected from the corpus
+ * rather than from someone remembering. Reads the REPLACEMENT's claim, not the old file's silence:
+ * a document cannot be relied on to know it has been replaced.
+ */
+export function supersededBy(receiptFilename, corpus) {
+  for (const [name, text] of Object.entries(corpus ?? {})) {
+    if (name === receiptFilename) continue;
+    const re = new RegExp(`replaces\\s+\`?${receiptFilename.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\`?`, "i");
+    if (re.test(String(text ?? "").replace(/\n/g, " "))) return name;
+  }
+  return null;
+}
+
+/**
+ * IS IN-PLAY CAPTURE AUTHORIZED, AND FOR WHICH MARKETS — parsed, not assumed.
+ *
+ * ⚠ THE SAME MISTAKE THIS MODULE HAS ALREADY MADE TWICE. The expiry term went unread for two
+ * programs, and the `Markets` row was "documentation wearing the costume of a control" until
+ * 2026-09-24. The permitted-purposes row is the third of the same kind: `assertCallAllowed` checks
+ * the CEILING and nothing else, so until now a call could have been made for any purpose at all and
+ * the receipt's own list of purposes would not have stopped it.
+ *
+ * In-play capture is the first purpose added since that list was written, so it gets a real control
+ * rather than a sentence. FAIL-CLOSED: no explicit authorization row ⇒ NOT authorized ⇒ every
+ * in-play call is refused. A receipt that authorizes nothing must never read as one that authorizes
+ * everything.
+ *
+ * Reads only an explicit row, so prose elsewhere that merely mentions in-play — the decision package
+ * this amendment answers, for one — cannot widen the allowance.
+ */
+export function inPlayAuthorization(markdown) {
+  const text = String(markdown ?? "").replace(/^>\s?/gm, "");
+  const row = /^\|\s*In-play capture authorized\s*\|(.+?)\|\s*$/mi.exec(text)?.[1] ?? "";
+  if (!/\bYES\b/.test(row)) return { authorized: false, markets: [], reason: "no explicit in-play authorization row" };
+  const markets = [...row.matchAll(/`([a-z0-9_]+)`/g)].map((m) => m[1]);
+  if (!markets.length) return { authorized: false, markets: [], reason: "in-play row names no market keys" };
+  /* An in-play PROP allowance must be stated in its own right and is separately refused today. */
+  const props = /^\|\s*In-play player props\s*\|(.+?)\|\s*$/mi.exec(text)?.[1] ?? "";
+  const propsAuthorized = /\bYES\b/.test(props);
+  return { authorized: true, markets, propsAuthorized, reason: null };
+}
+
+/**
+ * A SUB-BUDGET INSIDE THE CEILING — the founder's "hard incremental Phase-H budget of 90 credits".
+ *
+ * The 3,000-credit ceiling is a circuit breaker for the whole allowance; this is a smaller, purpose-
+ * scoped cap that binds long before it. Enforcing only the outer one would let a pilot authorized
+ * for 90 credits quietly spend 2,606, which is the difference between a bounded experiment and an
+ * open tab.
+ *
+ * FAIL-CLOSED: an unparseable or absent budget row yields null, and the caller must refuse rather
+ * than fall back to the outer ceiling.
+ */
+export function purposeBudget(markdown, label = "Phase H incremental budget") {
+  const text = String(markdown ?? "").replace(/^>\s?/gm, "");
+  const re = new RegExp(`^\\|\\s*${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\|(.+?)\\|\\s*$`, "mi");
+  const row = re.exec(text)?.[1] ?? "";
+  const m = row.match(/\*?\*?([\d,]+)\*?\*?\s*credits/i);
+  const n = m ? Number(m[1].replace(/,/g, "")) : null;
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * What has already been spent under one purpose, from the ledger's own records.
+ *
+ * Matched on the purpose PREFIX the caller stamps, so the sub-budget is computed from what was
+ * actually charged rather than from a counter someone has to remember to increment.
+ */
+export function spentOnPurpose(ledger, purposePrefix) {
+  return (ledger?.requests ?? [])
+    .filter((r) => String(r?.purpose ?? "").startsWith(purposePrefix))
+    .reduce((n, r) => n + (r.creditsUsed ?? 0), 0);
+}
+
 export function parseAuthorizationReceipt(markdown) {
   const errors = [];
   // blockquote markers are markdown formatting, not content — a term split across quoted lines

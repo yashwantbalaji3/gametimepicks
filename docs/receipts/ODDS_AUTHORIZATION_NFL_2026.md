@@ -189,3 +189,87 @@ In the cron list itself. The odds step identifies a sweep window by the cron exp
 it (`github.event.schedule`), so adding or removing a sweep is one edit in one place and the
 schedule cannot drift from the arithmetic written beside it. A `workflow_dispatch` input overrides
 outright, in both directions.
+
+---
+
+## AMENDMENT 3 — 2026-09-26 · NFL in-play team-market capture, and a bounded Phase H pilot
+
+**Provenance:** given by the founder in session on 2026-09-26, answering
+[`docs/LIVE_ODDS_DECISION_PACKAGE.md`](../LIVE_ODDS_DECISION_PACKAGE.md).
+
+> ⚠ **The decision package this answers cited the wrong receipt.** It read `ODDS_AUTHORIZATION_P171.md`
+> — superseded by THIS document on 2026-09-10 — and therefore reported "3,000 ceiling, 394 spent,
+> 2,606 remaining". The operative position is the **1,160-credit effective ceiling above, 394 spent,
+> 766 remaining**, and the package also omitted the **333 credits/week** the configured prop cadence
+> already commits. The founder's decision is recorded here against the corrected numbers.
+
+### Authorization (verbatim, founder, 2026-09-26)
+
+> Extend P171's permitted purpose to include NFL in-play team-market capture only, using the
+> existing provider and existing authorization ceiling.
+>
+> You are authorized to make one 3-credit probe during a genuinely live NFL game to determine
+> whether the provider returns legitimate post-kickoff team-market data.
+>
+> If the probe succeeds you are pre-authorized to continue autonomously into a limited NFL
+> game-level live-odds pilot for Sunday's slate at approximately 30-minute cadence, with a hard
+> incremental Phase-H budget of 90 credits for the Sunday slate.
+>
+> Do not build or purchase live player-prop odds in this phase.
+
+The founder named P171; P171 is superseded, so the extension is applied to the receipt that actually
+governs NFL spend. Nothing else about it changes.
+
+### What changes
+
+| Term | Was | Now |
+|---|---|---|
+| In-play capture authorized | not permitted — "pre-kickoff only" | **YES — NFL team markets only** (`h2h`, `spreads`, `totals`) |
+| In-play player props | out of scope | **NO — explicitly refused in this phase** |
+| Probe allowance | none | **exactly ONE** call, worst case 3 credits, only while a game is genuinely in progress |
+| Phase H incremental budget | none | **90 credits** for the Sunday slate |
+| Pilot cadence | none | approximately 30 minutes, live games only, stopping when a game is terminal |
+| Cumulative ceiling | 1,160 credits | **1,160 credits — UNCHANGED.** This amendment buys scope, not headroom |
+
+Pre-start capture, the five prop keys, the `us` region, the bulk and per-event endpoints and the
+no-blind-retry discipline are all unchanged.
+
+### The live-market truth contract
+
+A probe or pilot response may be recorded as live-market evidence only when all of these hold:
+
+1. the event is already in progress at capture time;
+2. the provider's capture instant is after kickoff;
+3. sportsbook attribution is preserved (a named book, never an aggregate);
+4. market identity is preserved (the provider's own market key, and only the three authorized);
+5. the value is **not** merely the frozen pregame snapshot replayed back;
+6. the frozen pregame block is untouched by the capture.
+
+Failing any of these the lane is marked unsupported with this provider, and **no further probe is
+made to obtain a more favourable result**.
+
+### Three layers, never merged
+
+```
+FROZEN PREGAME GAMETIMEPICKS FORECAST   ours, immutable
+CURRENT FACTUAL LIVE GAME STATE         the provider's facts
+CURRENT SPORTSBOOK MARKET               a third thing, separately owned and separately stamped
+```
+
+A later live sportsbook value must never be displayed as though GameTimePicks had seen it before
+kickoff. The frozen line, the frozen book, the frozen projection and the original pregame capture
+timestamp are immutable.
+
+### ⚠ What 93 credits actually costs, against the real position
+
+| | credits |
+|---|---|
+| Effective ceiling | 1,160 |
+| Spent | 394 |
+| **Remaining** | **766** |
+| Already committed each week by the configured prop cadence | **333** |
+| Phase H probe + pilot | **93** |
+
+At the configured burn there are roughly **two weeks** of season inside the remaining allowance, and
+Phase H takes about **28% of one week**. That is affordable and it is not free; a further extension
+of the season's pregame cadence is the thing it trades against.

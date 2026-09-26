@@ -1,8 +1,37 @@
 # Live Odds & Line Movement — Decision Package (Phase H)
 
-**Date:** 2026-09-26
+**Date:** 2026-09-26 · **corrected 2026-09-26**
 **Scope:** NFL. Every other sport key is out of scope of the authorization this rests on.
-**Status:** decision-support, not a decision. **Nothing here is approved, and no live-odds call has been made.**
+**Status:** decided — see [`AMENDMENT 3`](receipts/ODDS_AUTHORIZATION_NFL_2026.md). No live-odds call
+has been made yet.
+
+---
+
+## ⚠ CORRECTION — this package originally cited the wrong receipt
+
+The version the founder decided on read **`ODDS_AUTHORIZATION_P171.md`** and reported a 3,000-credit
+ceiling with **2,606 remaining**. P171 was superseded on 2026-09-10 by
+`ODDS_AUTHORIZATION_NFL_2026.md`, which says so in its own header — and P171's expiry is
+program-scoped and lapsed, so it does not even parse. I read a document that governs nothing.
+
+The operative position, and the two things the original missed:
+
+| | credits |
+|---|---|
+| Effective cumulative ceiling (`NFL_2026`, amendment 2) | **1,160** |
+| Spent (shared NFL ledger) | **394** |
+| **Remaining** | **766** — not 2,606 |
+| **Already committed each week** by the configured prop-sweep cadence | **333** |
+
+So the season has roughly **two weeks** of runway inside the allowance, and Phase H's 93 credits is
+about **28% of one week's burn** rather than 3.5% of a large reserve. The recommendation below does
+not change — game-level live odds remain cheap and player props remain unaffordable — but the
+headroom is smaller than stated and the thing it trades against is the rest of the season's pregame
+cadence.
+
+Two lessons worth keeping: a superseded receipt does not announce itself at the point of use, and
+**one shared ledger serves two allowances**, so `cumulativeCredits` alone never told anyone which
+ceiling was binding.
 
 ---
 
@@ -84,17 +113,19 @@ A Sunday slate runs roughly 13:00Z → 04:00Z, about **15 hours**.
 
 | | |
 |---|---|
-| P171 cumulative ceiling | **3,000 credits** |
+| ~~P171 cumulative ceiling~~ (superseded, see the correction above) | ~~3,000 credits~~ |
+| **Operative ceiling** (`NFL_2026`, effective) | **1,160 credits** |
 | Used to date | **394** |
-| **Remaining under authorization** | **2,606** |
+| **Remaining under authorization** | **766** |
+| Committed per week by the existing prop cadence | **333** |
 | Provider balance remaining | 10,987 (measured 2026-09-25T17:39Z) |
 
-**Game-level live odds are comfortably affordable.** A 15-minute cadence costs 180 credits per
-Sunday — about 7% of the remaining authorization per week, and the provider balance is not the
-binding constraint.
+**Game-level live odds are affordable.** A 30-minute cadence costs 90 credits per Sunday — about 12%
+of the remaining 766, and roughly a quarter of one week's existing burn. The provider balance
+(10,987) is not the binding constraint; the self-imposed season ceiling is.
 
-**Live player-prop odds are not.** One Sunday at a 15-minute cadence costs **3,060 credits** — more
-than the entire remaining authorization, and more than the whole P171 ceiling. Even a 30-minute
+**Live player-prop odds are not.** One Sunday at a 15-minute cadence costs **3,060 credits** — four
+times the entire remaining authorization, and more than twice the whole season ceiling. Even a 30-minute
 cadence spends 1,530 in a day. This is a per-event endpoint with no bulk leverage, and fifteen
 concurrent games is the worst case for it.
 
@@ -102,14 +133,17 @@ concurrent games is the worst case for it.
 
 ## 3. Authorization — this is the actual blocker, and it is not about money
 
-[`docs/receipts/ODDS_AUTHORIZATION_P171.md`](receipts/ODDS_AUTHORIZATION_P171.md), verbatim:
+[`docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md`](receipts/ODDS_AUTHORIZATION_NFL_2026.md) — the
+receipt that actually governs — carries this in its operative terms:
 
-> Use the budget for preflight, supported-market discovery, current team markets, available NFL
-> player props, anytime-touchdown markets, and **evidence-driven pre-start refreshes**.
+> | Cadence | the scheduled `nfl-event-window.yml` captures, **pre-kickoff only** |
 
-Every permitted purpose is **pre-start**. In-play capture is not among them, and it is not a smaller
-version of any of them — it is a different purpose, producing a different artifact, making a different
-claim on the page.
+and amendment 2 leaves it untouched: "the same five prop keys, **pre-start only**". The superseded
+P171 said the same thing in its own words ("evidence-driven pre-start refreshes"), so the constraint
+is not an artifact of reading the wrong file — but the row above is the one with code behind it.
+
+In-play capture is not a smaller version of a pre-start refresh — it is a different purpose,
+producing a different artifact, making a different claim on the page.
 
 **So even the cheap option is a founder gate**, and it would be one at zero credits. The 90-credit
 30-minute cadence is well inside the numeric ceiling and still outside the stated scope.
