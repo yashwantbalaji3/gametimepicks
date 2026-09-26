@@ -1,0 +1,4642 @@
+{
+ "schemaVersion": 1,
+ "artifact": "product-eligible-legs",
+ "dataClass": "internal",
+ "date": "2026-09-26",
+ "asOf": "2026-09-26T10:06:37Z",
+ "generatedAt": "2026-09-26T10:06:38.540Z",
+ "marketPricedLegPolicy": {
+  "state": "ADMITTED_PENDING_FOUNDER_DECISION",
+  "gate": "F1",
+  "since": "2026-09-21"
+ },
+ "counts": {
+  "total": 96,
+  "eligible": 78
+ },
+ "legs": [
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822678:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "822678",
+   "eventStartUtc": "2026-09-26T16:35:00Z",
+   "entityIds": [
+    "mlb-team-120",
+    "mlb-team-121"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4509,
+   "oddsForSide": {
+    "american": 112,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822678",
+    "family:team_result",
+    "entity:mlb:mlb-team-120",
+    "entity:mlb:mlb-team-121",
+    "start:994689"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "New York Mets @ Washington Nationals",
+   "displaySelection": "Washington Nationals to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822678:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "822678",
+   "eventStartUtc": "2026-09-26T16:35:00Z",
+   "entityIds": [
+    "mlb-team-121",
+    "mlb-team-120"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5491,
+   "oddsForSide": {
+    "american": -135,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822678",
+    "family:team_result",
+    "entity:mlb:mlb-team-121",
+    "entity:mlb:mlb-team-120",
+    "start:994689"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "New York Mets @ Washington Nationals",
+   "displaySelection": "New York Mets to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822678:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "822678",
+   "eventStartUtc": "2026-09-26T16:35:00Z",
+   "entityIds": [
+    "mlb-team-120",
+    "mlb-team-121"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5716,
+   "oddsForSide": {
+    "american": -149,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822678",
+    "family:team_spread",
+    "entity:mlb:mlb-team-120",
+    "entity:mlb:mlb-team-121",
+    "start:994689"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "New York Mets @ Washington Nationals",
+   "displaySelection": "Washington Nationals +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822678:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "822678",
+   "eventStartUtc": "2026-09-26T16:35:00Z",
+   "entityIds": [
+    "mlb-team-121",
+    "mlb-team-120"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4284,
+   "oddsForSide": {
+    "american": 123,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822678",
+    "family:team_spread",
+    "entity:mlb:mlb-team-121",
+    "entity:mlb:mlb-team-120",
+    "start:994689"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "New York Mets @ Washington Nationals",
+   "displaySelection": "New York Mets -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822678:mlb_total_runs:over:8.5",
+   "sport": "mlb",
+   "eventId": "822678",
+   "eventStartUtc": "2026-09-26T16:35:00Z",
+   "entityIds": [
+    "mlb-team-120",
+    "mlb-team-121"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4892,
+   "oddsForSide": {
+    "american": -105,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822678",
+    "family:team_total",
+    "entity:mlb:mlb-team-120",
+    "entity:mlb:mlb-team-121",
+    "start:994689"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "New York Mets @ Washington Nationals",
+   "displaySelection": "Over 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822678:mlb_total_runs:under:8.5",
+   "sport": "mlb",
+   "eventId": "822678",
+   "eventStartUtc": "2026-09-26T16:35:00Z",
+   "entityIds": [
+    "mlb-team-120",
+    "mlb-team-121"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5108,
+   "oddsForSide": {
+    "american": -115,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822678",
+    "family:team_total",
+    "entity:mlb:mlb-team-120",
+    "entity:mlb:mlb-team-121",
+    "start:994689"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "New York Mets @ Washington Nationals",
+   "displaySelection": "Under 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824219:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "824219",
+   "eventStartUtc": "2026-09-26T17:10:00Z",
+   "entityIds": [
+    "mlb-team-116",
+    "mlb-team-134"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5108,
+   "oddsForSide": {
+    "american": -115,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824219",
+    "family:team_result",
+    "entity:mlb:mlb-team-116",
+    "entity:mlb:mlb-team-134",
+    "start:994690"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Pittsburgh Pirates @ Detroit Tigers",
+   "displaySelection": "Detroit Tigers to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824219:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "824219",
+   "eventStartUtc": "2026-09-26T17:10:00Z",
+   "entityIds": [
+    "mlb-team-134",
+    "mlb-team-116"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4892,
+   "oddsForSide": {
+    "american": -105,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824219",
+    "family:team_result",
+    "entity:mlb:mlb-team-134",
+    "entity:mlb:mlb-team-116",
+    "start:994690"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Pittsburgh Pirates @ Detroit Tigers",
+   "displaySelection": "Pittsburgh Pirates to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824219:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "824219",
+   "eventStartUtc": "2026-09-26T17:10:00Z",
+   "entityIds": [
+    "mlb-team-116",
+    "mlb-team-134"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.6305,
+   "oddsForSide": {
+    "american": -193,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824219",
+    "family:team_spread",
+    "entity:mlb:mlb-team-116",
+    "entity:mlb:mlb-team-134",
+    "start:994690"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Pittsburgh Pirates @ Detroit Tigers",
+   "displaySelection": "Detroit Tigers +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824219:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "824219",
+   "eventStartUtc": "2026-09-26T17:10:00Z",
+   "entityIds": [
+    "mlb-team-134",
+    "mlb-team-116"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.3695,
+   "oddsForSide": {
+    "american": 159,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824219",
+    "family:team_spread",
+    "entity:mlb:mlb-team-134",
+    "entity:mlb:mlb-team-116",
+    "start:994690"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Pittsburgh Pirates @ Detroit Tigers",
+   "displaySelection": "Pittsburgh Pirates -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824219:mlb_total_runs:over:8.5",
+   "sport": "mlb",
+   "eventId": "824219",
+   "eventStartUtc": "2026-09-26T17:10:00Z",
+   "entityIds": [
+    "mlb-team-116",
+    "mlb-team-134"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4892,
+   "oddsForSide": {
+    "american": -105,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824219",
+    "family:team_total",
+    "entity:mlb:mlb-team-116",
+    "entity:mlb:mlb-team-134",
+    "start:994690"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Pittsburgh Pirates @ Detroit Tigers",
+   "displaySelection": "Over 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824219:mlb_total_runs:under:8.5",
+   "sport": "mlb",
+   "eventId": "824219",
+   "eventStartUtc": "2026-09-26T17:10:00Z",
+   "entityIds": [
+    "mlb-team-116",
+    "mlb-team-134"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5108,
+   "oddsForSide": {
+    "american": -115,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824219",
+    "family:team_total",
+    "entity:mlb:mlb-team-116",
+    "entity:mlb:mlb-team-134",
+    "start:994690"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Pittsburgh Pirates @ Detroit Tigers",
+   "displaySelection": "Under 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822759:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "822759",
+   "eventStartUtc": "2026-09-26T19:07:00Z",
+   "entityIds": [
+    "mlb-team-141",
+    "mlb-team-113"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5987,
+   "oddsForSide": {
+    "american": -168,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822759",
+    "family:team_result",
+    "entity:mlb:mlb-team-141",
+    "entity:mlb:mlb-team-113",
+    "start:994694"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cincinnati Reds @ Toronto Blue Jays",
+   "displaySelection": "Toronto Blue Jays to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822759:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "822759",
+   "eventStartUtc": "2026-09-26T19:07:00Z",
+   "entityIds": [
+    "mlb-team-113",
+    "mlb-team-141"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4013,
+   "oddsForSide": {
+    "american": 138,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822759",
+    "family:team_result",
+    "entity:mlb:mlb-team-113",
+    "entity:mlb:mlb-team-141",
+    "start:994694"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cincinnati Reds @ Toronto Blue Jays",
+   "displaySelection": "Cincinnati Reds to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822759:mlb_run_line:home:-1.5",
+   "sport": "mlb",
+   "eventId": "822759",
+   "eventStartUtc": "2026-09-26T19:07:00Z",
+   "entityIds": [
+    "mlb-team-141",
+    "mlb-team-113"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4087,
+   "oddsForSide": {
+    "american": 134,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822759",
+    "family:team_spread",
+    "entity:mlb:mlb-team-141",
+    "entity:mlb:mlb-team-113",
+    "start:994694"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cincinnati Reds @ Toronto Blue Jays",
+   "displaySelection": "Toronto Blue Jays -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822759:mlb_run_line:away:1.5",
+   "sport": "mlb",
+   "eventId": "822759",
+   "eventStartUtc": "2026-09-26T19:07:00Z",
+   "entityIds": [
+    "mlb-team-113",
+    "mlb-team-141"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5913,
+   "oddsForSide": {
+    "american": -162,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822759",
+    "family:team_spread",
+    "entity:mlb:mlb-team-113",
+    "entity:mlb:mlb-team-141",
+    "start:994694"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cincinnati Reds @ Toronto Blue Jays",
+   "displaySelection": "Cincinnati Reds +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822759:mlb_total_runs:over:8",
+   "sport": "mlb",
+   "eventId": "822759",
+   "eventStartUtc": "2026-09-26T19:07:00Z",
+   "entityIds": [
+    "mlb-team-141",
+    "mlb-team-113"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 8,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4902,
+   "oddsForSide": {
+    "american": -105,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822759",
+    "family:team_total",
+    "entity:mlb:mlb-team-141",
+    "entity:mlb:mlb-team-113",
+    "start:994694"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cincinnati Reds @ Toronto Blue Jays",
+   "displaySelection": "Over 8",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:822759:mlb_total_runs:under:8",
+   "sport": "mlb",
+   "eventId": "822759",
+   "eventStartUtc": "2026-09-26T19:07:00Z",
+   "entityIds": [
+    "mlb-team-141",
+    "mlb-team-113"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 8,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5098,
+   "oddsForSide": {
+    "american": -114,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:822759",
+    "family:team_total",
+    "entity:mlb:mlb-team-141",
+    "entity:mlb:mlb-team-113",
+    "start:994694"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cincinnati Reds @ Toronto Blue Jays",
+   "displaySelection": "Under 8",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823165:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "823165",
+   "eventStartUtc": "2026-09-26T20:05:00Z",
+   "entityIds": [
+    "mlb-team-137",
+    "mlb-team-119"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.2628,
+   "oddsForSide": {
+    "american": 264,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823165",
+    "family:team_result",
+    "entity:mlb:mlb-team-137",
+    "entity:mlb:mlb-team-119",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Dodgers @ San Francisco Giants",
+   "displaySelection": "San Francisco Giants to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823165:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "823165",
+   "eventStartUtc": "2026-09-26T20:05:00Z",
+   "entityIds": [
+    "mlb-team-119",
+    "mlb-team-137"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.7372,
+   "oddsForSide": {
+    "american": -336,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823165",
+    "family:team_result",
+    "entity:mlb:mlb-team-119",
+    "entity:mlb:mlb-team-137",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Dodgers @ San Francisco Giants",
+   "displaySelection": "Los Angeles Dodgers to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823165:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "823165",
+   "eventStartUtc": "2026-09-26T20:05:00Z",
+   "entityIds": [
+    "mlb-team-137",
+    "mlb-team-119"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.3874,
+   "oddsForSide": {
+    "american": 147,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823165",
+    "family:team_spread",
+    "entity:mlb:mlb-team-137",
+    "entity:mlb:mlb-team-119",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Dodgers @ San Francisco Giants",
+   "displaySelection": "San Francisco Giants +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823165:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "823165",
+   "eventStartUtc": "2026-09-26T20:05:00Z",
+   "entityIds": [
+    "mlb-team-119",
+    "mlb-team-137"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.6126,
+   "oddsForSide": {
+    "american": -178,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823165",
+    "family:team_spread",
+    "entity:mlb:mlb-team-119",
+    "entity:mlb:mlb-team-137",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Dodgers @ San Francisco Giants",
+   "displaySelection": "Los Angeles Dodgers -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823165:mlb_total_runs:over:7.5",
+   "sport": "mlb",
+   "eventId": "823165",
+   "eventStartUtc": "2026-09-26T20:05:00Z",
+   "entityIds": [
+    "mlb-team-137",
+    "mlb-team-119"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4902,
+   "oddsForSide": {
+    "american": -105,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823165",
+    "family:team_total",
+    "entity:mlb:mlb-team-137",
+    "entity:mlb:mlb-team-119",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Dodgers @ San Francisco Giants",
+   "displaySelection": "Over 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823165:mlb_total_runs:under:7.5",
+   "sport": "mlb",
+   "eventId": "823165",
+   "eventStartUtc": "2026-09-26T20:05:00Z",
+   "entityIds": [
+    "mlb-team-137",
+    "mlb-team-119"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5098,
+   "oddsForSide": {
+    "american": -114,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823165",
+    "family:team_total",
+    "entity:mlb:mlb-team-137",
+    "entity:mlb:mlb-team-119",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Dodgers @ San Francisco Giants",
+   "displaySelection": "Under 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823813:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "823813",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-146",
+    "mlb-team-144"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4576,
+   "oddsForSide": {
+    "american": 109,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823813",
+    "family:team_result",
+    "entity:mlb:mlb-team-146",
+    "entity:mlb:mlb-team-144",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Atlanta Braves @ Miami Marlins",
+   "displaySelection": "Miami Marlins to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823813:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "823813",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-144",
+    "mlb-team-146"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5424,
+   "oddsForSide": {
+    "american": -131,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823813",
+    "family:team_result",
+    "entity:mlb:mlb-team-144",
+    "entity:mlb:mlb-team-146",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Atlanta Braves @ Miami Marlins",
+   "displaySelection": "Atlanta Braves to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823813:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "823813",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-146",
+    "mlb-team-144"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5716,
+   "oddsForSide": {
+    "american": -149,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823813",
+    "family:team_spread",
+    "entity:mlb:mlb-team-146",
+    "entity:mlb:mlb-team-144",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Atlanta Braves @ Miami Marlins",
+   "displaySelection": "Miami Marlins +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823813:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "823813",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-144",
+    "mlb-team-146"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4284,
+   "oddsForSide": {
+    "american": 123,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823813",
+    "family:team_spread",
+    "entity:mlb:mlb-team-144",
+    "entity:mlb:mlb-team-146",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Atlanta Braves @ Miami Marlins",
+   "displaySelection": "Atlanta Braves -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823813:mlb_total_runs:over:8.5",
+   "sport": "mlb",
+   "eventId": "823813",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-146",
+    "mlb-team-144"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5108,
+   "oddsForSide": {
+    "american": -115,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823813",
+    "family:team_total",
+    "entity:mlb:mlb-team-146",
+    "entity:mlb:mlb-team-144",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Atlanta Braves @ Miami Marlins",
+   "displaySelection": "Over 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823813:mlb_total_runs:under:8.5",
+   "sport": "mlb",
+   "eventId": "823813",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-146",
+    "mlb-team-144"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4892,
+   "oddsForSide": {
+    "american": -105,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823813",
+    "family:team_total",
+    "entity:mlb:mlb-team-146",
+    "entity:mlb:mlb-team-144",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Atlanta Braves @ Miami Marlins",
+   "displaySelection": "Under 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823653:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "823653",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-142",
+    "mlb-team-140"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4588,
+   "oddsForSide": {
+    "american": 108,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823653",
+    "family:team_result",
+    "entity:mlb:mlb-team-142",
+    "entity:mlb:mlb-team-140",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Texas Rangers @ Minnesota Twins",
+   "displaySelection": "Minnesota Twins to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823653:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "823653",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-140",
+    "mlb-team-142"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5412,
+   "oddsForSide": {
+    "american": -131,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823653",
+    "family:team_result",
+    "entity:mlb:mlb-team-140",
+    "entity:mlb:mlb-team-142",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Texas Rangers @ Minnesota Twins",
+   "displaySelection": "Texas Rangers to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823653:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "823653",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-142",
+    "mlb-team-140"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5919,
+   "oddsForSide": {
+    "american": -163,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823653",
+    "family:team_spread",
+    "entity:mlb:mlb-team-142",
+    "entity:mlb:mlb-team-140",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Texas Rangers @ Minnesota Twins",
+   "displaySelection": "Minnesota Twins +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823653:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "823653",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-140",
+    "mlb-team-142"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4081,
+   "oddsForSide": {
+    "american": 134,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823653",
+    "family:team_spread",
+    "entity:mlb:mlb-team-140",
+    "entity:mlb:mlb-team-142",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Texas Rangers @ Minnesota Twins",
+   "displaySelection": "Texas Rangers -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823653:mlb_total_runs:over:8",
+   "sport": "mlb",
+   "eventId": "823653",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-142",
+    "mlb-team-140"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 8,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5055,
+   "oddsForSide": {
+    "american": -112,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823653",
+    "family:team_total",
+    "entity:mlb:mlb-team-142",
+    "entity:mlb:mlb-team-140",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Texas Rangers @ Minnesota Twins",
+   "displaySelection": "Over 8",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823653:mlb_total_runs:under:8",
+   "sport": "mlb",
+   "eventId": "823653",
+   "eventStartUtc": "2026-09-26T20:10:00Z",
+   "entityIds": [
+    "mlb-team-142",
+    "mlb-team-140"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 8,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4945,
+   "oddsForSide": {
+    "american": -107,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823653",
+    "family:team_total",
+    "entity:mlb:mlb-team-142",
+    "entity:mlb:mlb-team-140",
+    "start:994696"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Texas Rangers @ Minnesota Twins",
+   "displaySelection": "Under 8",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824057:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "824057",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-118",
+    "mlb-team-114"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4576,
+   "oddsForSide": {
+    "american": 109,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824057",
+    "family:team_result",
+    "entity:mlb:mlb-team-118",
+    "entity:mlb:mlb-team-114",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cleveland Guardians @ Kansas City Royals",
+   "displaySelection": "Kansas City Royals to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824057:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "824057",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-114",
+    "mlb-team-118"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5424,
+   "oddsForSide": {
+    "american": -131,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824057",
+    "family:team_result",
+    "entity:mlb:mlb-team-114",
+    "entity:mlb:mlb-team-118",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cleveland Guardians @ Kansas City Royals",
+   "displaySelection": "Cleveland Guardians to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824057:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "824057",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-118",
+    "mlb-team-114"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5809,
+   "oddsForSide": {
+    "american": -155,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824057",
+    "family:team_spread",
+    "entity:mlb:mlb-team-118",
+    "entity:mlb:mlb-team-114",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cleveland Guardians @ Kansas City Royals",
+   "displaySelection": "Kansas City Royals +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824057:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "824057",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-114",
+    "mlb-team-118"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4191,
+   "oddsForSide": {
+    "american": 128,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824057",
+    "family:team_spread",
+    "entity:mlb:mlb-team-114",
+    "entity:mlb:mlb-team-118",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cleveland Guardians @ Kansas City Royals",
+   "displaySelection": "Cleveland Guardians -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824057:mlb_total_runs:over:8.5",
+   "sport": "mlb",
+   "eventId": "824057",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-118",
+    "mlb-team-114"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4957,
+   "oddsForSide": {
+    "american": -108,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824057",
+    "family:team_total",
+    "entity:mlb:mlb-team-118",
+    "entity:mlb:mlb-team-114",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cleveland Guardians @ Kansas City Royals",
+   "displaySelection": "Over 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824057:mlb_total_runs:under:8.5",
+   "sport": "mlb",
+   "eventId": "824057",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-118",
+    "mlb-team-114"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5043,
+   "oddsForSide": {
+    "american": -112,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824057",
+    "family:team_total",
+    "entity:mlb:mlb-team-118",
+    "entity:mlb:mlb-team-114",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Cleveland Guardians @ Kansas City Royals",
+   "displaySelection": "Under 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824543:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "824543",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-145",
+    "mlb-team-115"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.6735,
+   "oddsForSide": {
+    "american": -238,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824543",
+    "family:team_result",
+    "entity:mlb:mlb-team-145",
+    "entity:mlb:mlb-team-115",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Colorado Rockies @ Chicago White Sox",
+   "displaySelection": "Chicago White Sox to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824543:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "824543",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-115",
+    "mlb-team-145"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.3265,
+   "oddsForSide": {
+    "american": 193,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824543",
+    "family:team_result",
+    "entity:mlb:mlb-team-115",
+    "entity:mlb:mlb-team-145",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Colorado Rockies @ Chicago White Sox",
+   "displaySelection": "Colorado Rockies to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824543:mlb_run_line:home:-1.5",
+   "sport": "mlb",
+   "eventId": "824543",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-145",
+    "mlb-team-115"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4945,
+   "oddsForSide": {
+    "american": -107,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824543",
+    "family:team_spread",
+    "entity:mlb:mlb-team-145",
+    "entity:mlb:mlb-team-115",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Colorado Rockies @ Chicago White Sox",
+   "displaySelection": "Chicago White Sox -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824543:mlb_run_line:away:1.5",
+   "sport": "mlb",
+   "eventId": "824543",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-115",
+    "mlb-team-145"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5055,
+   "oddsForSide": {
+    "american": -112,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824543",
+    "family:team_spread",
+    "entity:mlb:mlb-team-115",
+    "entity:mlb:mlb-team-145",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Colorado Rockies @ Chicago White Sox",
+   "displaySelection": "Colorado Rockies +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824543:mlb_total_runs:over:8",
+   "sport": "mlb",
+   "eventId": "824543",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-145",
+    "mlb-team-115"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 8,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5174,
+   "oddsForSide": {
+    "american": -118,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824543",
+    "family:team_total",
+    "entity:mlb:mlb-team-145",
+    "entity:mlb:mlb-team-115",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Colorado Rockies @ Chicago White Sox",
+   "displaySelection": "Over 8",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824543:mlb_total_runs:under:8",
+   "sport": "mlb",
+   "eventId": "824543",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-145",
+    "mlb-team-115"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 8,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4826,
+   "oddsForSide": {
+    "american": -102,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824543",
+    "family:team_total",
+    "entity:mlb:mlb-team-145",
+    "entity:mlb:mlb-team-115",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Colorado Rockies @ Chicago White Sox",
+   "displaySelection": "Under 8",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823733:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "823733",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-158",
+    "mlb-team-138"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.6282,
+   "oddsForSide": {
+    "american": -192,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823733",
+    "family:team_result",
+    "entity:mlb:mlb-team-158",
+    "entity:mlb:mlb-team-138",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "St. Louis Cardinals @ Milwaukee Brewers",
+   "displaySelection": "Milwaukee Brewers to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823733:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "823733",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-138",
+    "mlb-team-158"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.3718,
+   "oddsForSide": {
+    "american": 157,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823733",
+    "family:team_result",
+    "entity:mlb:mlb-team-138",
+    "entity:mlb:mlb-team-158",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "St. Louis Cardinals @ Milwaukee Brewers",
+   "displaySelection": "St. Louis Cardinals to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823733:mlb_run_line:home:-1.5",
+   "sport": "mlb",
+   "eventId": "823733",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-158",
+    "mlb-team-138"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4369,
+   "oddsForSide": {
+    "american": 119,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823733",
+    "family:team_spread",
+    "entity:mlb:mlb-team-158",
+    "entity:mlb:mlb-team-138",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "St. Louis Cardinals @ Milwaukee Brewers",
+   "displaySelection": "Milwaukee Brewers -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823733:mlb_run_line:away:1.5",
+   "sport": "mlb",
+   "eventId": "823733",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-138",
+    "mlb-team-158"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5631,
+   "oddsForSide": {
+    "american": -143,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823733",
+    "family:team_spread",
+    "entity:mlb:mlb-team-138",
+    "entity:mlb:mlb-team-158",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "St. Louis Cardinals @ Milwaukee Brewers",
+   "displaySelection": "St. Louis Cardinals +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823733:mlb_total_runs:over:7.5",
+   "sport": "mlb",
+   "eventId": "823733",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-158",
+    "mlb-team-138"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5087,
+   "oddsForSide": {
+    "american": -114,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823733",
+    "family:team_total",
+    "entity:mlb:mlb-team-158",
+    "entity:mlb:mlb-team-138",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "St. Louis Cardinals @ Milwaukee Brewers",
+   "displaySelection": "Over 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823733:mlb_total_runs:under:7.5",
+   "sport": "mlb",
+   "eventId": "823733",
+   "eventStartUtc": "2026-09-26T23:10:00Z",
+   "entityIds": [
+    "mlb-team-158",
+    "mlb-team-138"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4913,
+   "oddsForSide": {
+    "american": -106,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823733",
+    "family:team_total",
+    "entity:mlb:mlb-team-158",
+    "entity:mlb:mlb-team-138",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "St. Louis Cardinals @ Milwaukee Brewers",
+   "displaySelection": "Under 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823407:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "823407",
+   "eventStartUtc": "2026-09-26T23:15:00Z",
+   "entityIds": [
+    "mlb-team-143",
+    "mlb-team-139"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4902,
+   "oddsForSide": {
+    "american": -105,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823407",
+    "family:team_result",
+    "entity:mlb:mlb-team-143",
+    "entity:mlb:mlb-team-139",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Philadelphia Phillies",
+   "displaySelection": "Philadelphia Phillies to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823407:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "823407",
+   "eventStartUtc": "2026-09-26T23:15:00Z",
+   "entityIds": [
+    "mlb-team-139",
+    "mlb-team-143"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5098,
+   "oddsForSide": {
+    "american": -114,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823407",
+    "family:team_result",
+    "entity:mlb:mlb-team-139",
+    "entity:mlb:mlb-team-143",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Philadelphia Phillies",
+   "displaySelection": "Tampa Bay Rays to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823407:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "823407",
+   "eventStartUtc": "2026-09-26T23:15:00Z",
+   "entityIds": [
+    "mlb-team-143",
+    "mlb-team-139"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.6351,
+   "oddsForSide": {
+    "american": -198,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823407",
+    "family:team_spread",
+    "entity:mlb:mlb-team-143",
+    "entity:mlb:mlb-team-139",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Philadelphia Phillies",
+   "displaySelection": "Philadelphia Phillies +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823407:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "823407",
+   "eventStartUtc": "2026-09-26T23:15:00Z",
+   "entityIds": [
+    "mlb-team-139",
+    "mlb-team-143"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.3649,
+   "oddsForSide": {
+    "american": 162,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823407",
+    "family:team_spread",
+    "entity:mlb:mlb-team-139",
+    "entity:mlb:mlb-team-143",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Philadelphia Phillies",
+   "displaySelection": "Tampa Bay Rays -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823407:mlb_total_runs:over:7",
+   "sport": "mlb",
+   "eventId": "823407",
+   "eventStartUtc": "2026-09-26T23:15:00Z",
+   "entityIds": [
+    "mlb-team-143",
+    "mlb-team-139"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 7,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4913,
+   "oddsForSide": {
+    "american": -106,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823407",
+    "family:team_total",
+    "entity:mlb:mlb-team-143",
+    "entity:mlb:mlb-team-139",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Philadelphia Phillies",
+   "displaySelection": "Over 7",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823407:mlb_total_runs:under:7",
+   "sport": "mlb",
+   "eventId": "823407",
+   "eventStartUtc": "2026-09-26T23:15:00Z",
+   "entityIds": [
+    "mlb-team-143",
+    "mlb-team-139"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 7,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5087,
+   "oddsForSide": {
+    "american": -114,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823407",
+    "family:team_total",
+    "entity:mlb:mlb-team-143",
+    "entity:mlb:mlb-team-139",
+    "start:994702"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Philadelphia Phillies",
+   "displaySelection": "Under 7",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823245:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "823245",
+   "eventStartUtc": "2026-09-27T00:40:00Z",
+   "entityIds": [
+    "mlb-team-135",
+    "mlb-team-109"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5313,
+   "oddsForSide": {
+    "american": -125,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823245",
+    "family:team_result",
+    "entity:mlb:mlb-team-135",
+    "entity:mlb:mlb-team-109",
+    "start:994705"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Arizona Diamondbacks @ San Diego Padres",
+   "displaySelection": "San Diego Padres to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823245:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "823245",
+   "eventStartUtc": "2026-09-27T00:40:00Z",
+   "entityIds": [
+    "mlb-team-109",
+    "mlb-team-135"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4687,
+   "oddsForSide": {
+    "american": 104,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823245",
+    "family:team_result",
+    "entity:mlb:mlb-team-109",
+    "entity:mlb:mlb-team-135",
+    "start:994705"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Arizona Diamondbacks @ San Diego Padres",
+   "displaySelection": "Arizona Diamondbacks to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823245:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "823245",
+   "eventStartUtc": "2026-09-27T00:40:00Z",
+   "entityIds": [
+    "mlb-team-135",
+    "mlb-team-109"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.6377,
+   "oddsForSide": {
+    "american": -200,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823245",
+    "family:team_spread",
+    "entity:mlb:mlb-team-135",
+    "entity:mlb:mlb-team-109",
+    "start:994705"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Arizona Diamondbacks @ San Diego Padres",
+   "displaySelection": "San Diego Padres +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823245:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "823245",
+   "eventStartUtc": "2026-09-27T00:40:00Z",
+   "entityIds": [
+    "mlb-team-109",
+    "mlb-team-135"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.3623,
+   "oddsForSide": {
+    "american": 164,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823245",
+    "family:team_spread",
+    "entity:mlb:mlb-team-109",
+    "entity:mlb:mlb-team-135",
+    "start:994705"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Arizona Diamondbacks @ San Diego Padres",
+   "displaySelection": "Arizona Diamondbacks -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823245:mlb_total_runs:over:7.5",
+   "sport": "mlb",
+   "eventId": "823245",
+   "eventStartUtc": "2026-09-27T00:40:00Z",
+   "entityIds": [
+    "mlb-team-135",
+    "mlb-team-109"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5055,
+   "oddsForSide": {
+    "american": -112,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823245",
+    "family:team_total",
+    "entity:mlb:mlb-team-135",
+    "entity:mlb:mlb-team-109",
+    "start:994705"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Arizona Diamondbacks @ San Diego Padres",
+   "displaySelection": "Over 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823245:mlb_total_runs:under:7.5",
+   "sport": "mlb",
+   "eventId": "823245",
+   "eventStartUtc": "2026-09-27T00:40:00Z",
+   "entityIds": [
+    "mlb-team-135",
+    "mlb-team-109"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4945,
+   "oddsForSide": {
+    "american": -107,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823245",
+    "family:team_total",
+    "entity:mlb:mlb-team-135",
+    "entity:mlb:mlb-team-109",
+    "start:994705"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Arizona Diamondbacks @ San Diego Padres",
+   "displaySelection": "Under 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824949:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "824949",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-133",
+    "mlb-team-117"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4369,
+   "oddsForSide": {
+    "american": 119,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824949",
+    "family:team_result",
+    "entity:mlb:mlb-team-133",
+    "entity:mlb:mlb-team-117",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Houston Astros @ Athletics",
+   "displaySelection": "Athletics to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824949:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "824949",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-117",
+    "mlb-team-133"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5631,
+   "oddsForSide": {
+    "american": -143,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824949",
+    "family:team_result",
+    "entity:mlb:mlb-team-117",
+    "entity:mlb:mlb-team-133",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Houston Astros @ Athletics",
+   "displaySelection": "Houston Astros to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824949:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "824949",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-133",
+    "mlb-team-117"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5511,
+   "oddsForSide": {
+    "american": -136,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824949",
+    "family:team_spread",
+    "entity:mlb:mlb-team-133",
+    "entity:mlb:mlb-team-117",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Houston Astros @ Athletics",
+   "displaySelection": "Athletics +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824949:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "824949",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-117",
+    "mlb-team-133"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4489,
+   "oddsForSide": {
+    "american": 113,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824949",
+    "family:team_spread",
+    "entity:mlb:mlb-team-117",
+    "entity:mlb:mlb-team-133",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Houston Astros @ Athletics",
+   "displaySelection": "Houston Astros -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824949:mlb_total_runs:over:8.5",
+   "sport": "mlb",
+   "eventId": "824949",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-133",
+    "mlb-team-117"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4957,
+   "oddsForSide": {
+    "american": -108,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824949",
+    "family:team_total",
+    "entity:mlb:mlb-team-133",
+    "entity:mlb:mlb-team-117",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Houston Astros @ Athletics",
+   "displaySelection": "Over 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:824949:mlb_total_runs:under:8.5",
+   "sport": "mlb",
+   "eventId": "824949",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-133",
+    "mlb-team-117"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 8.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5043,
+   "oddsForSide": {
+    "american": -112,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:824949",
+    "family:team_total",
+    "entity:mlb:mlb-team-133",
+    "entity:mlb:mlb-team-117",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Houston Astros @ Athletics",
+   "displaySelection": "Under 8.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823083:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "823083",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-136",
+    "mlb-team-108"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.6326,
+   "oddsForSide": {
+    "american": -196,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823083",
+    "family:team_result",
+    "entity:mlb:mlb-team-136",
+    "entity:mlb:mlb-team-108",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Angels @ Seattle Mariners",
+   "displaySelection": "Seattle Mariners to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823083:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "823083",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-108",
+    "mlb-team-136"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.3674,
+   "oddsForSide": {
+    "american": 160,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823083",
+    "family:team_result",
+    "entity:mlb:mlb-team-108",
+    "entity:mlb:mlb-team-136",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Angels @ Seattle Mariners",
+   "displaySelection": "Los Angeles Angels to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823083:mlb_run_line:home:-1.5",
+   "sport": "mlb",
+   "eventId": "823083",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-136",
+    "mlb-team-108"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4489,
+   "oddsForSide": {
+    "american": 113,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823083",
+    "family:team_spread",
+    "entity:mlb:mlb-team-136",
+    "entity:mlb:mlb-team-108",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Angels @ Seattle Mariners",
+   "displaySelection": "Seattle Mariners -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823083:mlb_run_line:away:1.5",
+   "sport": "mlb",
+   "eventId": "823083",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-108",
+    "mlb-team-136"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5511,
+   "oddsForSide": {
+    "american": -136,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823083",
+    "family:team_spread",
+    "entity:mlb:mlb-team-108",
+    "entity:mlb:mlb-team-136",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Angels @ Seattle Mariners",
+   "displaySelection": "Los Angeles Angels +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823083:mlb_total_runs:over:7.5",
+   "sport": "mlb",
+   "eventId": "823083",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-136",
+    "mlb-team-108"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5108,
+   "oddsForSide": {
+    "american": -115,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823083",
+    "family:team_total",
+    "entity:mlb:mlb-team-136",
+    "entity:mlb:mlb-team-108",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Angels @ Seattle Mariners",
+   "displaySelection": "Over 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:823083:mlb_total_runs:under:7.5",
+   "sport": "mlb",
+   "eventId": "823083",
+   "eventStartUtc": "2026-09-27T01:40:00Z",
+   "entityIds": [
+    "mlb-team-136",
+    "mlb-team-108"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4892,
+   "oddsForSide": {
+    "american": -105,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-09-26T09:58:53.037Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-09-26T09:58:53.037Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:823083",
+    "family:team_total",
+    "entity:mlb:mlb-team-136",
+    "entity:mlb:mlb-team-108",
+    "start:994707"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-09-26.json",
+    "mlb/statsapi-schedule/2026-09-26.json"
+   ],
+   "displayMatchup": "Los Angeles Angels @ Seattle Mariners",
+   "displaySelection": "Under 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401911630:ufc_h2h:Raoni Barcelos",
+   "sport": "ufc",
+   "eventId": "401911630",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Raoni Barcelos",
+    "ufc-fighter-name:Raul Rosas Jr."
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Raoni Barcelos",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.4291845493562232,
+   "oddsForSide": {
+    "american": 133,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401911630",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Raoni Barcelos",
+    "entity:ufc:ufc-fighter-name:Raul Rosas Jr."
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Raoni Barcelos vs Raul Rosas Jr.",
+   "displaySelection": "Raoni Barcelos to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401911630:ufc_h2h:Raul Rosas Jr.",
+   "sport": "ufc",
+   "eventId": "401911630",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Raoni Barcelos",
+    "ufc-fighter-name:Raul Rosas Jr."
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Raul Rosas Jr.",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6108949416342413,
+   "oddsForSide": {
+    "american": -157,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401911630",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Raoni Barcelos",
+    "entity:ufc:ufc-fighter-name:Raul Rosas Jr."
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Raoni Barcelos vs Raul Rosas Jr.",
+   "displaySelection": "Raul Rosas Jr. to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914471:ufc_h2h:Norma Dumont",
+   "sport": "ufc",
+   "eventId": "401914471",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Norma Dumont",
+    "ufc-fighter-name:Ailin Perez"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Norma Dumont",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.423728813559322,
+   "oddsForSide": {
+    "american": 136,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914471",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Norma Dumont",
+    "entity:ufc:ufc-fighter-name:Ailin Perez"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Norma Dumont vs Ailin Perez",
+   "displaySelection": "Norma Dumont to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914471:ufc_h2h:Ailin Perez",
+   "sport": "ufc",
+   "eventId": "401914471",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Norma Dumont",
+    "ufc-fighter-name:Ailin Perez"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Ailin Perez",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6153846153846154,
+   "oddsForSide": {
+    "american": -160,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914471",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Norma Dumont",
+    "entity:ufc:ufc-fighter-name:Ailin Perez"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Norma Dumont vs Ailin Perez",
+   "displaySelection": "Ailin Perez to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401924683:ufc_h2h:Sedriques Dumas",
+   "sport": "ufc",
+   "eventId": "401924683",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Sedriques Dumas",
+    "ufc-fighter-name:Luis Hernandez"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Sedriques Dumas",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.33444816053511706,
+   "oddsForSide": {
+    "american": 199,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401924683",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Sedriques Dumas",
+    "entity:ufc:ufc-fighter-name:Luis Hernandez"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Sedriques Dumas vs Luis Hernandez",
+   "displaySelection": "Sedriques Dumas to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401924683:ufc_h2h:Luis Hernandez",
+   "sport": "ufc",
+   "eventId": "401924683",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Sedriques Dumas",
+    "ufc-fighter-name:Luis Hernandez"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Luis Hernandez",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7101449275362319,
+   "oddsForSide": {
+    "american": -245,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401924683",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Sedriques Dumas",
+    "entity:ufc:ufc-fighter-name:Luis Hernandez"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Sedriques Dumas vs Luis Hernandez",
+   "displaySelection": "Luis Hernandez to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914468:ufc_h2h:Brady Hiestand",
+   "sport": "ufc",
+   "eventId": "401914468",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Brady Hiestand",
+    "ufc-fighter-name:Rinya Nakamura"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Brady Hiestand",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.24691358024691357,
+   "oddsForSide": {
+    "american": 305,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914468",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Brady Hiestand",
+    "entity:ufc:ufc-fighter-name:Rinya Nakamura"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Brady Hiestand vs Rinya Nakamura",
+   "displaySelection": "Brady Hiestand to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914468:ufc_h2h:Rinya Nakamura",
+   "sport": "ufc",
+   "eventId": "401914468",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Brady Hiestand",
+    "ufc-fighter-name:Rinya Nakamura"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Rinya Nakamura",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7938144329896907,
+   "oddsForSide": {
+    "american": -385,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914468",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Brady Hiestand",
+    "entity:ufc:ufc-fighter-name:Rinya Nakamura"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Brady Hiestand vs Rinya Nakamura",
+   "displaySelection": "Rinya Nakamura to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401911631:ufc_h2h:Robert Bryczek",
+   "sport": "ufc",
+   "eventId": "401911631",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Robert Bryczek",
+    "ufc-fighter-name:Rodolfo Vieira"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Robert Bryczek",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.4132231404958678,
+   "oddsForSide": {
+    "american": 142,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401911631",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Robert Bryczek",
+    "entity:ufc:ufc-fighter-name:Rodolfo Vieira"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Robert Bryczek vs Rodolfo Vieira",
+   "displaySelection": "Robert Bryczek to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401911631:ufc_h2h:Rodolfo Vieira",
+   "sport": "ufc",
+   "eventId": "401911631",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Robert Bryczek",
+    "ufc-fighter-name:Rodolfo Vieira"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Rodolfo Vieira",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6282527881040892,
+   "oddsForSide": {
+    "american": -169,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401911631",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Robert Bryczek",
+    "entity:ufc:ufc-fighter-name:Rodolfo Vieira"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Robert Bryczek vs Rodolfo Vieira",
+   "displaySelection": "Rodolfo Vieira to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914467:ufc_h2h:Christian Edwards",
+   "sport": "ufc",
+   "eventId": "401914467",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Christian Edwards",
+    "ufc-fighter-name:Rodolfo Bellato"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Christian Edwards",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.3937007874015748,
+   "oddsForSide": {
+    "american": 154,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914467",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Christian Edwards",
+    "entity:ufc:ufc-fighter-name:Rodolfo Bellato"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Christian Edwards vs Rodolfo Bellato",
+   "displaySelection": "Christian Edwards to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914467:ufc_h2h:Rodolfo Bellato",
+   "sport": "ufc",
+   "eventId": "401914467",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Christian Edwards",
+    "ufc-fighter-name:Rodolfo Bellato"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Rodolfo Bellato",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.647887323943662,
+   "oddsForSide": {
+    "american": -184,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914467",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Christian Edwards",
+    "entity:ufc:ufc-fighter-name:Rodolfo Bellato"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Christian Edwards vs Rodolfo Bellato",
+   "displaySelection": "Rodolfo Bellato to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914466:ufc_h2h:Ricky Simon",
+   "sport": "ufc",
+   "eventId": "401914466",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Ricky Simon",
+    "ufc-fighter-name:Montel Jackson"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Ricky Simon",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.35714285714285715,
+   "oddsForSide": {
+    "american": 180,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914466",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Ricky Simon",
+    "entity:ufc:ufc-fighter-name:Montel Jackson"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Ricky Simon vs Montel Jackson",
+   "displaySelection": "Ricky Simon to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914466:ufc_h2h:Montel Jackson",
+   "sport": "ufc",
+   "eventId": "401914466",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Ricky Simon",
+    "ufc-fighter-name:Montel Jackson"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Montel Jackson",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6825396825396826,
+   "oddsForSide": {
+    "american": -215,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914466",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Ricky Simon",
+    "entity:ufc:ufc-fighter-name:Montel Jackson"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Ricky Simon vs Montel Jackson",
+   "displaySelection": "Montel Jackson to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914469:ufc_h2h:Alatengheili",
+   "sport": "ufc",
+   "eventId": "401914469",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Alatengheili",
+    "ufc-fighter-name:John Castaneda"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Alatengheili",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": null,
+   "oddsForSide": null,
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_UNAVAILABLE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914469",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Alatengheili",
+    "entity:ufc:ufc-fighter-name:John Castaneda"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Alatengheili vs John Castaneda",
+   "displaySelection": "Alatengheili to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914469:ufc_h2h:John Castaneda",
+   "sport": "ufc",
+   "eventId": "401914469",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Alatengheili",
+    "ufc-fighter-name:John Castaneda"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "John Castaneda",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7987927565392354,
+   "oddsForSide": {
+    "american": -397,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914469",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Alatengheili",
+    "entity:ufc:ufc-fighter-name:John Castaneda"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Alatengheili vs John Castaneda",
+   "displaySelection": "John Castaneda to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914472:ufc_h2h:Vanessa Demopoulos",
+   "sport": "ufc",
+   "eventId": "401914472",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Vanessa Demopoulos",
+    "ufc-fighter-name:Yazmin Jauregui"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Vanessa Demopoulos",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.13986013986013987,
+   "oddsForSide": {
+    "american": 615,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_OUT_OF_RANGE",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914472",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Vanessa Demopoulos",
+    "entity:ufc:ufc-fighter-name:Yazmin Jauregui"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Vanessa Demopoulos vs Yazmin Jauregui",
+   "displaySelection": "Vanessa Demopoulos to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914472:ufc_h2h:Yazmin Jauregui",
+   "sport": "ufc",
+   "eventId": "401914472",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Vanessa Demopoulos",
+    "ufc-fighter-name:Yazmin Jauregui"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Yazmin Jauregui",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.9047619047619048,
+   "oddsForSide": {
+    "american": -950,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-09-25T18:29:10Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-09-25T18:29:10Z",
+   "asOf": "2026-09-26T10:06:37Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_OUT_OF_RANGE",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914472",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Vanessa Demopoulos",
+    "entity:ufc:ufc-fighter-name:Yazmin Jauregui"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Vanessa Demopoulos vs Yazmin Jauregui",
+   "displaySelection": "Yazmin Jauregui to win",
+   "registryState": "SCAFFOLD_ONLY"
+  }
+ ]
+}
