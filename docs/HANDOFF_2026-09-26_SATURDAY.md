@@ -1,9 +1,11 @@
 # Handoff — 2026-09-26, Saturday afternoon (the day before NFL Week 4's Sunday)
 
-**Terminal state:** `SUNDAY READY · SIX PRs OPEN · THE QUALITY GATE WAS BLOCKED AND IS UNBLOCKED BY #695`.
-Repository recovered, Sunday's slate verified, **no credit spent** — the ledger is unchanged at
-394 of 1,160 and Phase H stands at 0 of its 90. No registry, model promotion, policy constant,
-secret or provider plan changed. Nothing published to a reader changed.
+**Terminal state:** `SUNDAY READY · #695 MERGED · FIVE PRs OPEN BEHIND IT`.
+Repository recovered, Sunday's slate verified. **I spent no credit**, and the scheduled pre-slate
+capture did: the ledger moved **394 → 472 of 1,160** at 16:49Z (78 credits, 318 rows, 18 requests),
+which is the authorized `nfl-event-window` odds step on its normal cadence — captures also ran
+09-24, and twice on 09-25. **Phase H is untouched at 0 of 90.** No registry, model promotion,
+policy constant, secret or provider plan changed. Nothing published to a reader changed.
 
 Supersedes [`OVERNIGHT_HANDOFF_2026-09-26.md`](./OVERNIGHT_HANDOFF_2026-09-26.md) for state;
 that document's §D–§G are still the reference for the Sunday mechanics and the standing gates.
@@ -22,8 +24,12 @@ Verified twice today (15:54Z and 16:56Z), unchanged both times:
 ```
 SLATE: IN_FLIGHT — 14 game(s): 0 clean, 14 in flight, 0 needing attention
   every game: ✓ BOARD (4 published families) · ✓ LIVE_ARTIFACT phase PRE, frozen 2026-09-25T18:25:54Z
-  spent 394 / ceiling 1,160 · Phase H 0 of 90
+  spent 472 / ceiling 1,160 · remaining 688 · Phase H 0 of 90
 ```
+
+⚠ **The two trace runs were before the 16:49Z capture and read 394.** The number above is the
+position after it. A handoff that states a ledger position it measured an hour earlier is how the
+next session reconciles against the wrong baseline.
 
 **The morning baseline is saved** at
 [`evidence/nfl-trace-2026-09-27-morning.txt`](./evidence/nfl-trace-2026-09-27-morning.txt); §I of the overnight handoff still describes the acceptance
@@ -63,16 +69,18 @@ reason to lose an affordance.
 
 ## C · The six open PRs, in merge order
 
+`#695` is **merged** (`8359240dcc`, 2026-09-26T17:05Z) — the gate is open and `origin/main` has
+been merged into each branch below.
+
 | # | what | risk |
 |---|---|---|
-| **695** | **merge first** — unblocks the gate; `/nfl` 631 → 531KB | render-location only, no record hidden |
 | 693 | the arrivals strip may not contradict the board above it | producer only; boards self-correct at the next window |
 | 694 | measure opportunity conservation on the published board | new files only; measurement, never a refusal |
 | 698 | check whether the learning policy did what it says it did | new files only; read-only |
 | 696 | Engine V2A current-role audit (docs) | docs |
 | 697 | higher-level products audit (docs) | docs |
 
-693, 694, 696, 697 and 698 each need `merge origin/main` after 695 lands. **Never rebase.**
+Each already carries `origin/main` as of `8359240dcc`. **Never rebase.**
 
 ---
 
@@ -165,7 +173,8 @@ homepage non-prediction trim, P305 soccer totals) are unchanged and untouched.
 
 ## F · The next session's first four moves
 
-1. **Merge #695.** Then `git merge origin/main` into 693, 694, 698, 696, 697 and merge each on green.
+1. **Merge 693, 694, 698, 696, 697 and 699 on green.** #695 is already in; main is already merged
+   into each of them.
 2. **Run the Sunday trace** against the live slate through the day; after the night game settles and
    the reconciliation window closes, a `CLEAN` line for fourteen games is the acceptance.
 3. **Do not force Phase H.** One probe, on the first run finding a game genuinely in progress. A
