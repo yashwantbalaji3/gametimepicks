@@ -381,11 +381,14 @@ export const topToday = (set: TopReadsSet | null, n = 10) =>
  * sentences dies is an editorial call and was left to the founder rather than taken unilaterally the
  * day before the season's biggest slate. This deletes no sentence and is one constant to revert.
  *
- * ⚠ WHAT IT COSTS, STATED PLAINLY: four ranked upcoming reads no longer appear on the homepage. They
- * are not hidden — every forecast is still published on its sport hub and its own event page — but this
- * panel has no "view all" link, and the ranked panel renders on /mlb, /epl and /ufc but NOT on /nfl, so
- * an NFL read cut here has no other ranked surface. The heading claims no completeness, so no claim
- * breaks. Headroom after the change is 25 words, which is thin: expect this guard to speak again.
+ * ⚠ WHAT IT COSTS, STATED PLAINLY — AND I FIRST OVERSTATED IT. Four ranked upcoming reads leave the
+ * homepage. This panel has no "view all" link and the cross-sport ranked panel renders on /mlb, /epl and
+ * /ufc but not /nfl, so I wrote that a cut NFL read "has no other ranked surface". That is wrong: /nfl
+ * carries "Every forecast we published" (the twelve latest-kickoff forecasts) and "Weekly top boards",
+ * and every read links to its own event page. What is actually lost is only a row's place in the
+ * cross-sport probability ranking on one page. The heading claims no completeness, so no claim breaks.
+ *
+ * Headroom after the change is 25 words, which is thin: expect this guard to speak again.
  */
 export const UPCOMING_READS_SHOWN = 6;
 
