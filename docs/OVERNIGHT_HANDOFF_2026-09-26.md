@@ -211,6 +211,18 @@ derive the value or assert the shape.
 | pilot | refuses until the probe PASSES · ~30-min interval enforced against the ledger · stops at 90 |
 | spent so far | **0** |
 
+**Verified as safe no-ops tonight**, run with no `ODDS_API_KEY` in the environment so a paid call was
+impossible either way:
+
+```
+probe   → "NO LIVE NFL GAME at 2026-09-26T11:33Z — no credit spent."
+           nearest kickoff: CAR @ CLE at 2026-09-27T17:00Z · armed, will fire on the next live run
+pilot   → "NOT STARTED: no probe verdict on disk — the pilot begins only after the probe has run."
+ledger  → 394 credits / 265 requests, identical before and after
+```
+
+Liveness is refused *before* the key is read, which is why the probe cannot misfire on a pre-kickoff run.
+
 Both live in `nfl-live-props.yml` and bound themselves on the **ledger**, not on the cron — so a
 15-minute schedule cannot overspend a 30-minute cadence and the repository's cron lateness cannot
 either. **Do not re-probe for a better answer.** One probe is the authorization; a pregame-only
