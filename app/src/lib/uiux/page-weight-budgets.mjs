@@ -50,7 +50,16 @@ export const BUDGET_KB = Object.freeze({
   /* P308 (2026-09-15): measured 268KB after the explorer moved to on-open loading; ~2x headroom, shrink-only. */
   "simulate/index.html": 600,         // measured 268KB
   "ufc/index.html": 1000,             // measured 514KB
-  "nfl/index.html": 600,              // measured 279KB
+  /* P695 (2026-09-26): the comment below said "measured 279KB" and that stopped being true when NFL
+     went live. The page reached 631KB — 31KB OVER — and blocked every PR's quality gate, on a
+     breach nothing in the diff caused: the slate filled. Two below-the-fold blocks now mount on
+     scroll (the 45 ranked board rows, keeping their filter chips eager, and the 16 schedule cards),
+     which hides no record and re-measures at 531KB. The ceiling is NOT raised, per the rule above.
+     ⚠ HEADROOM IS 11%, and only the server DOM can be bought back this way: the page is 251KB of
+     DOM against 302KB of RSC flight, and DeferUntilVisible still ships every deferred child in the
+     flight. The next lever is the flight, which is the architecture change /build/custom's note
+     below already describes — not another deferral. */
+  "nfl/index.html": 600,              // measured 531KB (2026-09-26, 14-game slate)
   "methodology/index.html": 500,      // measured 236KB
   "epl/index.html": 500,              // measured 226KB
   "bank-builder/index.html": 400,     // measured 181KB
