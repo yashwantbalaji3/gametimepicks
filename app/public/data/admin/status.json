@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-25T16:01:35.417Z",
+  "generatedAt": "2026-09-26T10:04:10.210Z",
   "canonical": {
     "record": "37-36",
     "bankroll": 15990.4,
@@ -16,13 +16,13 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-09-25",
-    "dailyPortfolioDate": "2026-09-25",
+    "date": "2026-09-26",
+    "dailyPortfolioDate": "2026-09-26",
     "activeBankroll": 15990.4,
-    "openExposure": 225,
+    "openExposure": 0,
     "worldCupGames": 0,
-    "mlbGames": 17,
-    "mlbSlate": "2026-09-25"
+    "mlbGames": 13,
+    "mlbSlate": "2026-09-26"
   },
   "sportsbook": {
     "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
@@ -30,61 +30,55 @@
       {
         "source": "mlb/team-markets",
         "state": "CURRENT",
-        "artifactDate": "2026-09-25",
-        "generatedAt": "2026-09-25T10:17:48.037Z",
+        "artifactDate": "2026-09-26",
+        "generatedAt": "2026-09-26T09:58:53.037Z",
         "ageDays": 0
       },
       {
         "source": "mlb/player-props",
         "state": "CURRENT",
-        "artifactDate": "2026-09-25",
-        "generatedAt": "2026-09-25T10:17:48.913Z",
+        "artifactDate": "2026-09-26",
+        "generatedAt": "2026-09-26T09:58:53.903Z",
         "ageDays": 0
       }
     ]
   },
   "productReadiness": {
-    "bankBuilder": "active · 2 lane(s)",
-    "moonshot": "active · 1 lane(s)",
+    "bankBuilder": "awaiting approval",
+    "moonshot": "awaiting approval",
     "top10": "live",
     "worldCup": "dormant (no board)",
-    "mlb": "live · 17 game(s)",
+    "mlb": "live · 13 game(s)",
     "wcSpecials": "0 card(s)"
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 2,
+      "activeLanes": 0,
       "lanes": [
         {
           "lane": "A",
-          "status": "active",
-          "step": 1,
-          "legs": 2,
-          "combinedOdds": 101,
-          "stake": 100,
+          "status": "awaiting",
+          "step": 2,
+          "legs": 0,
+          "combinedOdds": 0,
+          "stake": 201.19,
           "potentialReturn": 201.19,
-          "selections": [
-            "Los Angeles Dodgers to win",
-            "Tampa Bay Rays +1.5"
-          ]
+          "selections": []
         },
         {
           "lane": "B",
-          "status": "active",
-          "step": 2,
-          "legs": 2,
-          "combinedOdds": 201,
-          "stake": 300.48,
-          "potentialReturn": 904.82,
-          "selections": [
-            "New York Mets to win",
-            "Toronto Blue Jays to win"
-          ]
+          "status": "awaiting",
+          "step": 1,
+          "legs": 0,
+          "combinedOdds": 0,
+          "stake": 100,
+          "potentialReturn": 100,
+          "selections": []
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 1,
+      "activeLanes": 0,
       "lanes": [
         {
           "lane": "A",
@@ -98,134 +92,53 @@
         },
         {
           "lane": "B",
-          "status": "active",
+          "status": "awaiting",
           "step": 1,
-          "legs": 2,
-          "combinedOdds": 300,
+          "legs": 0,
+          "combinedOdds": 0,
           "stake": 25,
-          "potentialReturn": 100.12,
-          "selections": [
-            "Atlanta Braves -1.5",
-            "Cleveland Guardians to win"
-          ]
+          "potentialReturn": 25,
+          "selections": []
         }
       ]
     },
     "forwardCoverage": {
-      "present": true,
-      "date": "2026-09-25",
-      "generatedAt": "2026-09-25T15:43:14Z",
-      "sports": [
-        {
-          "sport": "epl",
-          "state": "DERIVED",
-          "counts": {
-            "scheduled": 0,
-            "priced": 0,
-            "generated": 0,
-            "frozen": 0,
-            "started": 0
-          },
-          "findings": []
-        },
-        {
-          "sport": "ufc",
-          "state": "DERIVED",
-          "counts": {
-            "scheduled": 12,
-            "priced": 9,
-            "generated": 10,
-            "frozen": 0,
-            "started": 0
-          },
-          "findings": []
-        },
-        {
-          "sport": "nfl",
-          "state": "SCHEDULE_ONLY",
-          "counts": {
-            "scheduled": 17,
-            "priced": 17,
-            "generated": 0,
-            "frozen": 0,
-            "started": 0
-          },
-          "findings": [
-            "MODEL_ABSENT_BY_DECISION:17 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
-          ]
-        },
-        {
-          "sport": "mlb",
-          "state": "DAILY_BY_CONTRACT",
-          "counts": {
-            "scheduled": 17,
-            "priced": 17,
-            "generated": 17,
-            "frozen": 0,
-            "started": 0
-          },
-          "findings": [
-            "FUTURE_STAGING_ABSENT_BY_DESIGN:game-specific inputs (probables, lineups, current odds) arrive per game day; a pre-series artifact would be dishonest for repeated matchups"
-          ]
-        }
-      ]
+      "present": false,
+      "date": "2026-09-26"
     },
     "dailyLifecycle": {
-      "receiptDate": "2026-09-25",
-      "present": true,
-      "generatedAt": "2026-09-25T15:43:13Z",
-      "watchdog": [],
-      "states": {
-        "bank-builder": {
-          "state": "ACTIVE",
-          "policyVersion": "bank-builder@1"
+      "receiptDate": "2026-09-26",
+      "present": false,
+      "watchdog": [
+        {
+          "product": "bank-builder",
+          "kind": "MISSING_DAILY_EVALUATION",
+          "detail": "no daily receipt exists for 2026-09-26"
         },
-        "moonshot": {
-          "state": "ACTIVE",
-          "policyVersion": "moonshot@2"
-        },
-        "end-zone-vault": {
-          "state": "NO_PLAY",
-          "policyVersion": "end-zone-vault@1"
-        },
-        "homer-nukes": {
-          "state": "ACTIVE",
-          "policyVersion": "homer-nukes@1"
-        },
-        "ufc-cards": {
-          "state": "NO_PLAY",
-          "policyVersion": "ufc-cards@1"
-        },
-        "epl-cards": {
-          "state": "NO_PLAY",
-          "policyVersion": "epl-cards@1"
-        },
-        "mlb-cards": {
-          "state": "ACTIVE",
-          "policyVersion": "mlb-cards@1"
-        },
-        "multi-cards": {
-          "state": "NO_PLAY",
-          "policyVersion": "multi-cards@1"
+        {
+          "product": "moonshot",
+          "kind": "MISSING_DAILY_EVALUATION",
+          "detail": "no daily receipt exists for 2026-09-26"
         }
-      }
+      ],
+      "states": null
     }
   },
   "counts": {
-    "activeProducts": 3,
-    "pendingApprovals": 1
+    "activeProducts": 1,
+    "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-25T15:56:43.000Z",
-    "ageHours": 0.1,
+    "lastRunAt": "2026-09-26T10:04:09.415Z",
+    "ageHours": 0,
     "ok": true,
     "status": "pass",
     "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
-    "etDate": "2026-09-25",
-    "etTime": "12:01",
+    "etDate": "2026-09-26",
+    "etTime": "06:04",
     "stages": [
       {
         "stage": "schedule",
@@ -278,12 +191,12 @@
   },
   "learningLoop": {
     "signal": "GREEN",
-    "summary": "learning data complete through 2026-09-24 (50126 rows)",
+    "summary": "learning data complete through 2026-09-25 (50592 rows)",
     "freshness": {
       "healthy": true,
-      "asOfSettledDate": "2026-09-24",
-      "corpusRows": 50126,
-      "ledgerRows": 50126,
+      "asOfSettledDate": "2026-09-25",
+      "corpusRows": 50592,
+      "ledgerRows": 50592,
       "lagDays": 0,
       "problems": []
     },
@@ -321,7 +234,7 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": true
+      "done": false
     },
     {
       "step": "No missing-data warnings",
@@ -332,9 +245,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-09-25",
-  "nextRefreshDate": "2026-09-26",
-  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-09-25's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
+  "nextSettlementDate": "2026-09-26",
+  "nextRefreshDate": "2026-09-27",
+  "nextAction": "No active Bank Builder lane for 2026-09-26 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
