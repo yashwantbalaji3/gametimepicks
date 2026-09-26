@@ -155,3 +155,37 @@ test("⚠ a board/schedule kickoff disagreement is INCONSISTENT for THAT game, a
   assert.equal(f.attention, 1);
   assert.equal(f.inFlight, 1);
 });
+
+test("an UNCOMMITTED live artifact is INCONSISTENT — a local shadow is not committed evidence", () => {
+  /*
+   * ⚠ THE DEFECT THIS PINS, measured on 2026-09-26. Sixteen live-props artifacts sat untracked in a
+   * working tree; NO commit in the repository's history had ever touched that path. The trace read
+   * them off the filesystem and reported `✓ LIVE_ARTIFACT ... frozen 2026-09-25T18:25:54Z` for all
+   * fourteen Sunday games, and the handoff recorded that as slate health. A clean checkout of the
+   * same commit said `not kicked off yet` for all fourteen.
+   */
+  const shadow = live({ phase: "PRE", counts: { rows: 2, withLiveStat: 0 } });
+  const t = trace({ board: board(), live: shadow, liveCommitted: false, now: at(-7200_000) });
+  assert.equal(stageOf(t, "LIVE_ARTIFACT").state, "INCONSISTENT");
+  assert.match(stageOf(t, "LIVE_ARTIFACT").note, /NOT COMMITTED/);
+  assert.equal(t.verdict, "ATTENTION", "a shadow must reach the operator, not sit inside an IN_FLIGHT line");
+
+  // And the same artifact, committed, is the healthy pregame state it claims to be.
+  const committed = trace({ board: board(), live: shadow, liveCommitted: true, now: at(-7200_000) });
+  assert.equal(stageOf(committed, "LIVE_ARTIFACT").state, "OK");
+  assert.equal(committed.verdict, "IN_FLIGHT");
+});
+
+test("`liveCommitted: null` means NOT DETERMINED and must accuse nothing", () => {
+  /*
+   * Null is not false. Where git cannot answer — a tarball, no git binary, a non-repository — an
+   * unanswerable question must leave the stage exactly as it was before this check existed, or the
+   * guard invents a defect on every machine that cannot run `git ls-files`.
+   */
+  const l = live({ phase: "PRE", counts: { rows: 2, withLiveStat: 0 } });
+  for (const liveCommitted of [null, undefined]) {
+    const t = trace({ board: board(), live: l, liveCommitted, now: at(-7200_000) });
+    assert.equal(stageOf(t, "LIVE_ARTIFACT").state, "OK");
+    assert.equal(t.verdict, "IN_FLIGHT");
+  }
+});
