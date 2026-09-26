@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-09-26",
-  "platformState": "INCIDENT",
+  "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -27,16 +27,22 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "3 event(s) have no forecast and the earliest one's deadline (2026-09-26T19:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-09-26T19:30:00.000Z",
+      "state": "PUBLISHING",
+      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-09-26T22:30:00.000Z",
       "counts": {
         "scheduled": 12,
         "published": 9,
-        "missedCoverage": 0,
-        "awaiting": 3
+        "missedCoverage": 1,
+        "awaiting": 2
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "401914470",
+          "label": "Elves Brener vs Josiah Harrell",
+          "startUtc": "2026-09-26T21:00Z"
+        }
+      ]
     },
     "epl": {
       "state": "NO_EVENT",
@@ -50,15 +56,15 @@
       }
     }
   },
-  "checkedAt": "2026-09-26T20:01:55.051Z",
+  "checkedAt": "2026-09-26T21:24:57.147Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
   "reason": "board published with 569 rows",
   "publishDeadlineUtc": null,
   "scheduledGames": 13,
-  "pregameRemaining": 10,
-  "alreadyStarted": 3,
+  "pregameRemaining": 7,
+  "alreadyStarted": 6,
   "board": {
     "present": true,
     "leans": 569,
@@ -81,7 +87,7 @@
       "startUtc": "2026-09-26T17:10:00Z",
       "away": "Pittsburgh Pirates",
       "home": "Detroit Tigers",
-      "detailedState": "In Progress",
+      "detailedState": "Final",
       "pregameAtCheck": false
     },
     {
@@ -97,8 +103,8 @@
       "startUtc": "2026-09-26T20:05:00Z",
       "away": "Los Angeles Dodgers",
       "home": "San Francisco Giants",
-      "detailedState": "Warmup",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 823653,
@@ -106,15 +112,15 @@
       "away": "Texas Rangers",
       "home": "Minnesota Twins",
       "detailedState": "Delayed Start",
-      "pregameAtCheck": true
+      "pregameAtCheck": false
     },
     {
       "gamePk": 823813,
       "startUtc": "2026-09-26T20:10:00Z",
       "away": "Atlanta Braves",
       "home": "Miami Marlins",
-      "detailedState": "Warmup",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 824057,
@@ -137,7 +143,7 @@
       "startUtc": "2026-09-26T23:10:00Z",
       "away": "St. Louis Cardinals",
       "home": "Milwaukee Brewers",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -153,7 +159,7 @@
       "startUtc": "2026-09-27T00:40:00Z",
       "away": "Arizona Diamondbacks",
       "home": "San Diego Padres",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
