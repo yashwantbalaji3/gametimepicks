@@ -88,6 +88,10 @@ let events = allEvents.filter((r) => etDate(r.dateUtc) === DATE);
 if (ONE_EVENT) events = allEvents.filter((r) => String(r.providerEventId) === ONE_EVENT);
 events.sort((a, b) => String(a.dateUtc).localeCompare(String(b.dateUtc)) || String(a.shortName).localeCompare(String(b.shortName)));
 
+/* With --event the slate label must be the EVENT's date, not today's — a header naming the wrong day
+   is the kind of small lie that makes an operator distrust the rest of the output. */
+const LABEL_DATE = ONE_EVENT ? (etDate(events[0]?.dateUtc) ?? DATE) : DATE;
+
 const graded = readJson(P.graded)?.picks ?? [];
 const inResults = new Set([
   ...resultRows.filter((r) => r.statusRaw === "STATUS_FINAL").map((r) => String(r.providerEventId)),
@@ -119,13 +123,13 @@ const traces = events.map((ev) => traceGame({
 const fold = foldTraces(traces);
 
 if (JSON_OUT) {
-  console.log(JSON.stringify({ artifact: "nfl-lifecycle-trace", date: DATE, now: NOW, ...fold }, null, 2));
+  console.log(JSON.stringify({ artifact: "nfl-lifecycle-trace", date: LABEL_DATE, now: NOW, ...fold }, null, 2));
 } else {
   const MARK = { OK: "✓", NOT_YET: "·", MISSING: "✗", INCONSISTENT: "!" };
-  console.log(`NFL LIFECYCLE TRACE · slate ${DATE} · as of ${NOW}`);
+  console.log(`NFL LIFECYCLE TRACE · slate ${LABEL_DATE} · as of ${NOW}`);
   console.log(`(✓ done  · not yet  ✗ missing  ! inconsistent)\n`);
   if (fold.state === "NO_GAMES") {
-    console.log(`NO_GAMES — the schedule has no NFL game on ${DATE}. Nothing to trace; this is a result, not a gap.`);
+    console.log(`NO_GAMES — the schedule has no NFL game on ${LABEL_DATE}. Nothing to trace; this is a result, not a gap.`);
   } else {
     const w = Math.max(...STAGES.map((s) => s.length));
     for (const t of traces) {

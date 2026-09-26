@@ -165,6 +165,14 @@ export function traceGame({ providerEventId, matchup = null, kickoffUtc = null, 
   } else if (observedMs != null && kickMs != null && observedMs < kickMs) {
     stages.push(stage("LIVE_OBSERVATION", "INCONSISTENT",
       `observedAt ${live.observedAt} precedes kickoff — this is a pregame read presented as live`));
+  } else if (withLive === 0 && pastGrace && live.phase === "PRE") {
+    /*
+     * ⚠ TWO STAGES MUST NOT CONTRADICT EACH OTHER. This branch used to read "kicked off, artifact
+     * refreshed, but not one live value landed" on a stale-PRE artifact — directly beside
+     * LIVE_ARTIFACT saying it had NOT been refreshed. One cause, one finding: the stale artifact is
+     * already reported above, so here it is only echoed as a consequence.
+     */
+    stages.push(stage("LIVE_OBSERVATION", "MISSING", "no live value, because the artifact above was never refreshed past PRE"));
   } else if (withLive === 0 && pastGrace) {
     stages.push(stage("LIVE_OBSERVATION", "MISSING", "kicked off, artifact refreshed, but not one live value landed"));
   } else if (withLive === 0) {
