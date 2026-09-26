@@ -456,12 +456,29 @@ export function presentPlayerBoardRow(
      * derived here, not inferred from the model, and not defaulted — a row with no live artifact has
      * no live slot at all, which is how a pregame board stays a pregame board.
      */
-    ...(liveSlotFor(liveIndex, player.playerId, familyKey) ?? {}),
+    ...(liveSlotFor(liveIndex, player.playerId, familyKey, famState) ?? {}),
   };
 }
 
 /** The live slot for one row, or undefined. PRE is treated as no slot: it carries no observation. */
-function liveSlotFor(index: Map<string, LivePropRow> | undefined, playerId: string, familyKey: string) {
+function liveSlotFor(index: Map<string, LivePropRow> | undefined, playerId: string, familyKey: string, famState?: string) {
+  /*
+   * ⚠ A LIVE VALUE ONLY ATTACHES TO A PUBLISHED FAMILY, AND THE STATE IS PER GAME.
+   *
+   * A row renders for PUBLISHED *and* ESTIMATE, because an estimate is a real number shown with the
+   * bar it failed. A live stat beside it is a different claim: it invites the reader to compare an
+   * actual against a forecast that did not clear, which is the comparison an ESTIMATE label exists to
+   * withhold.
+   *
+   * `player_pass_yds` is kept out at the gateway because it is ESTIMATE everywhere (P318 is STOP).
+   * That is a GLOBAL decision and it is not enough on its own: `player_rush_yds` is PUBLISHED on 32
+   * committed boards and ESTIMATE on 16, so the same family is publishable in one game and not in the
+   * next. Only a per-row check can tell those apart, and without it a live rushing number would have
+   * appeared beside an estimate the first time a board downgraded that family.
+   *
+   * Unknown fails closed: a state we cannot read is not permission.
+   */
+  if (famState !== "PUBLISHED") return undefined;
   const r = index?.get(`${playerId}|${familyKey}`);
   if (!r) return undefined;
   const factual = r.live && r.live.phase !== "PRE" ? r.live : null;

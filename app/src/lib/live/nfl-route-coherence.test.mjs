@@ -263,3 +263,39 @@ test("⚠ THE PANEL'S OWN COPY FOLLOWS THE SPORT — 'first pitch' on a football
     assert.equal(nflArm.toLowerCase().includes(baseballism), false, `"${baseballism}" must not reach an NFL page`);
   }
 });
+
+test("⚠ A LIVE VALUE ONLY ATTACHES TO A PUBLISHED FAMILY — and the state is PER GAME", () => {
+  /*
+   * A row renders for PUBLISHED *and* ESTIMATE, because an estimate is a real number shown with the
+   * bar it failed. A live stat beside it is a different claim: it invites the reader to compare an
+   * actual against a forecast that did not clear — the comparison the ESTIMATE label exists to
+   * withhold.
+   *
+   * ⚠ KEEPING `player_pass_yds` OUT AT THE GATEWAY IS NOT ENOUGH. That is a global decision, and the
+   * state is per game: `player_rush_yds` is PUBLISHED on 32 committed boards and ESTIMATE on 16. The
+   * same family is publishable in one game and not the next, so only a per-row check separates them.
+   * Without it, a live rushing number would have appeared beside an estimate the first time a board
+   * downgraded that family — and 16 of 48 boards do.
+   */
+  const index = indexLiveProps({ rows: liveRowsFromEnvelope(envelope()) });
+
+  const published = presentPlayerBoardRow(
+    { ...ctx, families: { player_reception_yds: { state: "PUBLISHED" } } },
+    player(), "player_reception_yds", index,
+  );
+  assert.equal(published.live.factual.statValue, 61, "a PUBLISHED family carries its live value");
+
+  for (const state of ["ESTIMATE", "WITHHELD", "PAUSED", undefined]) {
+    const row = presentPlayerBoardRow(
+      { ...ctx, families: { player_reception_yds: { state } } },
+      player(), "player_reception_yds", index,
+    );
+    if (state === "ESTIMATE") {
+      assert.ok(row, "an ESTIMATE row still RENDERS — the number is real and carries its caveat");
+      assert.equal(row.live, undefined, "but it must not grow a live comparison");
+      assert.equal(row.model.predictedValue, 57, "and the forecast itself is untouched");
+    } else {
+      assert.equal(row, null, `${state} does not render a row at all`);
+    }
+  }
+});
