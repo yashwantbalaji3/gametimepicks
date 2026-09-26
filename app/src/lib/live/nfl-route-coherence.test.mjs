@@ -192,3 +192,56 @@ test("a surface with NO live index renders the frozen row unchanged — live is 
   assert.equal(withoutLive.market.frozen.line, 45.5);
   assert.equal(withoutLive.model.predictedValue, 57);
 });
+
+/* ── GAME-LEVEL LIVE TRACKING (Phase G) ────────────────────────────────────────────────────────── */
+
+test("⚠ THE FROZEN WIN CHANCE IS A PREGAME NUMBER AND CANNOT MOVE WITH THE SCORE", () => {
+  /*
+   * The whole risk of putting a live score beside a forecast is that someone later makes the forecast
+   * respond to it. A win probability that moved with the score would be a LIVE MODEL, and no live
+   * model here has cleared any bar — a number that looks like a forecast is read as one however it is
+   * labelled. So the panel's NFL forecast is a plain prop computed on the server from the committed
+   * artifact, and nothing in the component may derive it from the envelope.
+   */
+  const panel = codeOnly(read("src/components/live/live-panel.tsx"));
+
+  // The forecast region must not read the live envelope at all.
+  const region = panel.slice(panel.indexOf("nflForecast ? ("), panel.indexOf(") : playerBoard ? ("));
+  assert.ok(region.length > 100, "the NFL forecast region exists — otherwise this guard is vacuous");
+  assert.equal(/envelope/.test(region), false, "the frozen region must not touch the live envelope");
+  assert.equal(/score|statValue|period|clock/.test(region.replace(/winPct|projected/g, "")), false,
+    "and must not derive anything from live state");
+
+  // No live-model vocabulary anywhere in the panel.
+  for (const banned of ["liveWinProbability", "updatedWinProbability", "inGameWinProb", "onTrack", "projectedFinish", "impliedFinish"]) {
+    assert.equal(panel.includes(banned), false, `${banned} would be an unvalidated live model`);
+  }
+});
+
+test("the NFL game page mounts the game-level panel WITHOUT the player board", () => {
+  /*
+   * The per-prop live lines are owned by the player board on the same page. Passing `playerBoard`
+   * here too would render the same (player, family) twice on one page and give a reader two things to
+   * reconcile — a coherence failure that is not a wrong number, which is the kind that survives.
+   */
+  /*
+   * Read RAW here, not through `codeOnly`: it blanks string-literal contents, so `sport="nfl"` would
+   * read as `sport=""` and the assertion would be about nothing. The mount block itself carries no
+   * comments — the explanation sits above it — so slicing the raw source is safe.
+   */
+  const page = read("src/app/nfl/game/[eventId]/page.tsx");
+  const mount = page.slice(page.indexOf("<LivePanel"), page.indexOf("/>", page.indexOf("<LivePanel")) + 2);
+  assert.ok(mount.length > 80 && mount.length < 1200, `the mount block should be one element, got ${mount.length} chars`);
+  assert.ok(mount.includes("sport=\"nfl\""), "it is the NFL panel");
+  assert.ok(mount.includes("nflForecast"), "and it carries the frozen game forecast");
+  assert.equal(mount.includes("playerBoard"), false, "it must NOT also render the prop rows");
+
+  // The player board is still mounted separately — the prop rows have exactly one home.
+  assert.match(page, /<NflPlayerBoard/, "the player board still owns the per-prop live lines");
+});
+
+test("the panel self-gates per sport, so NFL off costs nothing on this page", () => {
+  const panel = codeOnly(read("src/components/live/live-panel.tsx"));
+  assert.match(panel, /liveReadyFor\(\s*sport\s*\)/, "gated on the sport it was asked for, not on the master flag");
+  assert.equal(/\bliveEnabled\(\)/.test(panel), false, "a sport-blind gate would render a panel the gateway then refuses");
+});

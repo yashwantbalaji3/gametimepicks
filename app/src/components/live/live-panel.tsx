@@ -63,6 +63,19 @@ export interface LivePanelProps {
   playerBoard?: any | null;
   /** The frozen MLB per-team run bands (never a combined total — MLB totals are PAUSED). */
   mlbForecast?: { runs: { home: any; away: any }; generatedAt: string | null } | null;
+  /**
+   * The frozen NFL GAME forecast: the projected score and the pregame win probability, exactly as
+   * the report already publishes them.
+   *
+   * ⚠ NEITHER NUMBER MOVES DURING THE GAME. A win probability that responded to the live score would
+   * be a live model, and no live model here has cleared anything — a number that looks like a
+   * forecast is read as one however it is labelled. The live side of this panel is the provider's
+   * factual state and nothing else; the two sit beside each other and never mix.
+   */
+  nflForecast?: {
+    away: { abbr: string; projected: number; winPct: number };
+    home: { abbr: string; projected: number; winPct: number };
+  } | null;
   /** When the pregame forecast was frozen, as a UTC ISO instant. Rendered in ET by this component. */
   forecastGeneratedAt?: string | null;
   /** The event's scheduled start (UTC ISO), used ONLY to scope the provider slate to its ET date. */
@@ -79,7 +92,7 @@ export interface LivePanelProps {
   showBetaHeading?: boolean;
 }
 
-export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, forecastGeneratedAt, startTime, showBetaHeading, settlement }: LivePanelProps) {
+export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, nflForecast, forecastGeneratedAt, startTime, showBetaHeading, settlement }: LivePanelProps) {
   const players = sport === "nfl" && Boolean(playerBoard);
   const { envelope, unavailable, freshness, loading } = useLiveEvent(sport, eventId, {
     players,
@@ -91,7 +104,7 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, fo
   const life = derivePresentationState({ envelope, settlement });
   const review = mlbForecast ? postgameRunComparison({ settlement, forecast: mlbForecast }) : null;
   /** Is there actually a forecast to stamp? A board with zero comparable rows is not one. */
-  const hasForecast = Boolean(mlbForecast) || Boolean(playerBoard);
+  const hasForecast = Boolean(mlbForecast) || Boolean(nflForecast) || Boolean(playerBoard);
   const join = playerBoard ? joinNflPlayerBoard(playerBoard, envelope?.playerStats ?? []) : { rows: [] };
   // Rows a reader would learn nothing from are hidden until the game starts producing them.
   const visibleRows = envelope && envelope.state !== "PRE" ? join.rows.filter((r: any) => r.value !== null) : [];
@@ -167,6 +180,26 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, fo
                   {mlbForecast.runs[side].median}{" "}
                   <span style={{ color: "var(--vault-text-faint)" }}>
                     ({mlbForecast.runs[side].rangeLow}–{mlbForecast.runs[side].rangeHigh})
+                  </span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ) : nflForecast ? (
+          /*
+           * THE GAME, NOT THE PLAYERS. The per-prop live lines live on the player board below, which
+           * owns them; repeating them here would put the same (player, family) in two places on one
+           * page. This region answers the game-level question only: what we projected, and how
+           * likely we thought each side was to win — both frozen before kickoff.
+           */
+          <dl style={{ margin: 0 }}>
+            {(["away", "home"] as const).map((side) => (
+              <div key={side} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "4px 0" }}>
+                <dt style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>{nflForecast[side].abbr}</dt>
+                <dd style={{ fontFamily: MONO, fontSize: 12, color: "var(--vault-text)", margin: 0, fontVariantNumeric: "tabular-nums" }}>
+                  {nflForecast[side].projected}{" "}
+                  <span style={{ color: "var(--vault-text-faint)" }}>
+                    ({nflForecast[side].winPct}% pregame win chance)
                   </span>
                 </dd>
               </div>
