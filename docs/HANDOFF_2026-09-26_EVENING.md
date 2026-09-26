@@ -12,12 +12,12 @@ findings and §E gates are unchanged except where corrected below.
 
 | | |
 |---|---|
-| `origin/main` | `ee3bf0bc54` |
-| Production | `ee3bf0bc` — **identical** |
+| `origin/main` | `a2cb1e1d68` — **#704 and #705 both merged** |
+| Production | `a2cb1e1d` — **identical**, and the public change is verified below |
 | Sunday slate | `IN_FLIGHT · 14 games · 0 clean · 0 needing attention` |
 | Odds ledger | `475 / 1,160` · 685 remaining · **Phase H 0 / 90** |
-| Merged today (evening) | `#701`, `#702` |
-| Open | `#704` — five units, in CI |
+| Merged today (evening) | `#701`, `#702`, `#704` (15 units), `#705` (3 units) |
+| Open | — |
 
 ---
 
@@ -355,6 +355,43 @@ paths is clean afterwards.
 
 ---
 
+## D6 · Both PRs merged, and the public change verified ON PRODUCTION
+
+| | |
+|---|---|
+| `#704` | MERGED `22:37:27Z` · `0785efad88` · ancestry confirmed |
+| `#705` | MERGED `23:37:26Z` · `a2cb1e1d68` · ancestry confirmed |
+| Production | `a2cb1e1d` at `23:38:35Z` — the merge commit |
+| main quality | lint clean · suite **8277 · 0 fail** |
+
+⚠ Each gate was verified to have run on the EXACT branch head before merging, not on an earlier
+push — `gh run list` filtered by `headSha`, because a green tick beside a stale SHA is not a green
+build.
+
+### The Results fix, read off the live page
+
+```
+Hits               100 – 76 · 176 dec · 21 void   56.8%     ← was "197 dec", and 100/197 = 50.8%
+Total Bases         15 – 32 ·  47 dec ·  2 void   31.9%     ← was "49 dec"
+Hits + Runs + RBIs  91 – 85 · 176 dec · 21 void   51.7%
+Strikeouts           5 – 18 ·  23 dec             21.7%
+High               106 –117 · 223 dec · 22 void   47.5%
+```
+
+Every row reconciles, the rate divides by the number printed beside it, and **44 voided rows are
+visible for the first time**.
+
+### The landmark fix, on the pages that had two
+
+`/live/ · /my/ · /following/ · /sports/ · /results/picks/ · /results/picks/mlb/ · /cards/nfl/ ·
+/mr-dub/ · /results/model-audit/` — all `<main>×1` on Production, none with content missing.
+
+⚠ The first production probe grepped the raw HTML and matched `47596 dec` inside a script payload.
+Rendered text has to be extracted from `<main>` with scripts stripped, or the probe is measuring the
+bundle.
+
+---
+
 ## E · Defects I wrote and caught, recorded because the patterns recur
 
 - **A fabricated line.** The rail's first cut read `line ?? modelPrediction` and said
@@ -369,6 +406,12 @@ paths is clean afterwards.
 - **Browser verification found three things unit tests did not** — a terminal market rendering the
   join's internal `1` beside a fighter's name, `104 / 96 hi` leaking internal shorthand, and the
   round printed twice. All three are pinned by tests written *after* the screenshot.
+- **Seven guards that matched the MENTION rather than the THING**, which is now the single most
+  recurrent mistake in this session: an inline COPY of workflow shell; `/kickoffUtc/` against a
+  comment; `|| true` against the comment saying the workflow uses none; `/useDialogFocus/` on a file
+  whose CALL was deleted but whose import remained; `/e.key === "Escape"/` on the line that DEFERS
+  to the hook; `/<[A-Za-z]/` on TypeScript generics; `/return\s*\(/` on an effect's cleanup. Every
+  one was caught by mutation-probing, none by review.
 - **A guard that read the explanation instead of the thing, three times.** An inline COPY of
   workflow shell; `/kickoffUtc/` matched against a comment; `|| true` matched against the comment
   saying the workflow uses no `|| true`. All three now strip comments or extract the real branch.
