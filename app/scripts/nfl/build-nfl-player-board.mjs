@@ -34,7 +34,7 @@ import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { deriveNewArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
+import { deriveNewArrivals, shadowProjectedArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
 import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelEstimateMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
 
@@ -386,6 +386,15 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const cleaned = players.filter((p) => Object.keys(p.markets).length > 0);
   players.length = 0; players.push(...cleaned);
 
+  /* P693 — a projected player may never appear in the strip that says he is not projected.
+     The rule and the full finding live in new-arrivals.mjs; it is applied HERE because only after
+     the roster gate, the designation join, the withholding pass and the empty-markets sweep is
+     `players` what a reader will actually see. Counted, never silent. */
+  const { newArrivals, arrivalsShadowed } = shadowProjectedArrivals({
+    arrivals: newArrivalsByEvent.get(doc.providerEventId) ?? {},
+    players,
+  });
+
   const artifact = {
     schemaVersion: 1,
     artifact: "nfl-player-board",
@@ -401,7 +410,10 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     families,
     /* New arrivals per team: factual prior-club per-game usage for notable movers the stint rule
        cannot yet place. NOT part of the simulated numbers, and each row says so. */
-    newArrivals: newArrivalsByEvent.get(doc.providerEventId) ?? {},
+    newArrivals,
+    /* Arrivals dropped because the board projects them after all: the strip claims a player is
+       absent from the simulated numbers, so a projected player may never appear in it. */
+    arrivalsShadowed,
     /* Rows removed because the player is no longer on that roster — counted, never silent. */
     departedFiltered,
     /* Share-level forecast use for this board: rows joined, rows dropped by the roster gate, rows without an ESPN id. */
