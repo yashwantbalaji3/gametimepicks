@@ -180,6 +180,25 @@ is one constant to revert. **Which public sentences to cut instead is a founder 
 *today* panel will itself fill with NFL rows. Expect this to speak again — and the rule is trim, never
 raise.
 
+### D4b · And a second calendar-driven breakage in the same PR
+
+The Ask golden eval typed records that move. `res-06` asserted `"32–27"`; Thursday's game graded, NFL
+became 32–28, and a case whose subject is *"does the answer state the record"* failed on a record that
+had simply moved. All seven hard gates passed — a soft failure still exits 1.
+
+⚠ **The dangerous half was `mustNotMention`.** `res-01` (Bank Builder 37–36) and `res-02` (Moonshot
+4–35) were not failing yet, but their refusals — 42–36, 47–36, 4–42 — were hand-derived *from* the
+correct record to catch an era boundary crossed silently. When a card settles the composite moves and
+the wrong foldings move with it, and a stale `mustNotMention` **does not go red; it stops catching
+anything.** A guard that decays into a no-op is worse than one that fails.
+
+All three now derive from the artifact `getForecastRecord` reads, through its own `recordLabel` rule.
+Probed by simulating a Bank Builder win: the refusals followed to 43–36 / 48–36 in lockstep.
+
+**The pattern to carry forward:** two of tonight's CI breakages were data-driven, not code-driven, and
+both blocked every merge. A date- or record-pinned expectation plus a scheduled producer is a time bomb;
+derive the value or assert the shape.
+
 ---
 
 ## E · Phase H — armed, bounded, and not forced
