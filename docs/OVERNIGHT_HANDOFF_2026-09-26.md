@@ -281,8 +281,18 @@ win probability · live player-prop pricing · any new paid provider · any dest
 
 ## I · The next session's first three moves
 
-1. Merge #691 once CI is green, then **dispatch `nfl-event-window` once** to exercise the new
-   promotion step in CI before tomorrow's games — it has only ever run locally.
+1. Merge #691 once CI is green, then exercise the new promotion step in CI before tomorrow's games — it
+   has only ever run locally:
+
+   ```bash
+   gh workflow run nfl-event-window.yml -f skip_odds=true
+   ```
+
+   ⚠ **`skip_odds=true` is not optional.** An earlier draft of this line said "dispatch
+   `nfl-event-window` once" with no flag, and that would have been wrong: step 8 of that workflow is
+   *"Authorized odds capture (receipt-gated, the only credit-bearing step)"*, so a bare dispatch spends
+   against the 766-credit remainder. `skip_odds=true` skips it without failing it, and the settle step
+   that hosts the promotion has no `if:` of its own, so it still runs.
 2. Run the trace against the live slate and keep the morning output; it is the baseline the evening
    one is read against.
 3. After the night game settles and the window closes, run the trace again. **A `CLEAN` line for
