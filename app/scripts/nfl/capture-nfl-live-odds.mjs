@@ -42,7 +42,7 @@ import {
   inPlayAuthorization, parseSportAuthorizationReceipt, purposeBudget, recordRequest, spentOnPurpose, supersededBy,
   LEDGER_RELPATH,
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
-import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, foldLiveStates, linesOf, readLiveStates } from "../../src/lib/sports/odds/live-market-contract.mjs";
+import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, foldLiveStates, linesOf, readLiveStates, providerEventMatches } from "../../src/lib/sports/odds/live-market-contract.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -200,8 +200,11 @@ console.log(`provider ${res.status} (${resultClass.class}) · charged ${charged}
 const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z]/g, "");
 const rows = [];
 for (const g of live) {
-  const [away, home] = String(g.matchup).split("@").map((x) => norm(x));
-  const ev = (Array.isArray(body) ? body : []).find((e) => norm(e?.away_team).includes(away.slice(0, 5)) && norm(e?.home_team).includes(home.slice(0, 5)));
+  /* One shared join, in live-market-contract.mjs. The local copy this replaced split the label on
+     "@", so a neutral-site "BAL VS DAL" silently failed to match — and, lacking the probe's
+     both-halves guard, a label with no separator at all would have thrown after the credits were
+     charged. */
+  const ev = (Array.isArray(body) ? body : []).find((e) => providerEventMatches(e, { id: g.id, matchup: g.matchup }));
   if (!ev) { rows.push({ providerEventId: g.id, matchup: g.matchup, state: "NOT_OFFERED_LIVE", note: "the provider did not return this in-play game" }); continue; }
   const lines = [...linesOf(ev)].map(([key, value]) => { const [book, market, outcome] = key.split("|"); return { book, market, outcome, value }; });
   rows.push({

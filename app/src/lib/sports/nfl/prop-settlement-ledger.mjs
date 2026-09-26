@@ -83,12 +83,12 @@ function diff(before, after) {
  * @param {object[]} priorRows   the ledger as committed (append-only; never reordered here)
  * @param {object}   artifact    one `live-props/<eventId>.json`
  * @param {string}   nowIso      the fold instant — used only for a correction's own timestamp
- * @returns {{rows: object[], added: number, corrected: number, unchanged: number, skipped: number}}
+ * @returns {{rows: object[], added: number, corrected: number, promoted: number, unchanged: number, skipped: number}}
  */
 export function foldEventIntoLedger(priorRows, artifact, nowIso) {
   const byId = new Map((priorRows ?? []).map((r) => [r.settlementId, r]));
   const order = (priorRows ?? []).map((r) => r.settlementId);
-  let added = 0, corrected = 0, unchanged = 0, skipped = 0;
+  let added = 0, corrected = 0, promoted = 0, unchanged = 0, skipped = 0;
 
   for (const row of artifact?.rows ?? []) {
     const id = settlementIdOf(row);
@@ -151,7 +151,24 @@ export function foldEventIntoLedger(priorRows, artifact, nowIso) {
      * APPENDED correction rather than as an edit.
      */
     const changes = diff(existing, now);
-    if (Object.keys(changes).length === 0) { unchanged += 1; continue; }
+    const changed = Object.keys(changes);
+    if (changed.length === 0) { unchanged += 1; continue; }
+
+    /*
+     * ⚠ A PROMOTION IS NOT A CORRECTION. `PROVISIONAL → CANONICAL` is the documented terminus of the
+     * lifecycle — the reconciliation window closing on the clock — and no answer moves with it. Folded
+     * as a correction it appended one to all fifty-seven rows of the first completed game and reported
+     * `corrected: 57`, which would have told a reader the entire slate had been re-graded. A correction
+     * count that fires on the ordinary happy path is a correction count nobody can use.
+     *
+     * A REGRESSION IS. `CANONICAL → PROVISIONAL` means a closed window reopened, which is an integrity
+     * event, so it deliberately falls through to the correction path below.
+     */
+    if (changed.length === 1 && changed[0] === "finality" && changes.finality.from === "PROVISIONAL" && changes.finality.to === "CANONICAL") {
+      existing.finality = "CANONICAL";
+      promoted += 1;
+      continue;
+    }
 
     existing.corrections = [
       ...(existing.corrections ?? []),
@@ -172,13 +189,13 @@ export function foldEventIntoLedger(priorRows, artifact, nowIso) {
   }
 
   // Insertion order is preserved: an append-only record must read the same way twice.
-  return { rows: order.map((id) => byId.get(id)), added, corrected, unchanged, skipped };
+  return { rows: order.map((id) => byId.get(id)), added, corrected, promoted, unchanged, skipped };
 }
 
 /** Fold a whole slate. Events are taken in a deterministic order so two runs agree byte for byte. */
 export function buildLedger({ prior = null, artifacts = [], nowIso }) {
   let rows = prior?.rows ?? [];
-  const totals = { added: 0, corrected: 0, unchanged: 0, skipped: 0 };
+  const totals = { added: 0, corrected: 0, promoted: 0, unchanged: 0, skipped: 0 };
   for (const a of [...artifacts].sort((x, y) => String(x?.providerEventId).localeCompare(String(y?.providerEventId)))) {
     const r = foldEventIntoLedger(rows, a, nowIso);
     rows = r.rows;

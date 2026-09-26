@@ -26,7 +26,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildLiveRows, phaseOf, selectLiveTargets, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
+import { buildLiveRows, phaseOf, promoteFinality, selectLiveTargets, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -74,11 +74,70 @@ if (!boards?.length) { console.error("REFUSED: no readable NFL player boards —
 
 const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
 const only = arg("event");
+const OUT_DIR = path.join(APP, "public/data/nfl/live-props");
+
+/*
+ * ── THE PROMOTION SWEEP — PROVISIONAL → CANONICAL, AND WHY IT IS NOT IN THE LOOP BELOW ────────────
+ *
+ * ⚠ CANONICAL WAS UNREACHABLE. See `promoteFinality`: polling stopped at the exact instant the stamp
+ * would have changed, so every NFL prop settlement ever written was permanently PROVISIONAL and the
+ * documented terminus of the lifecycle had never once been reached.
+ *
+ * ⚠ AND IT CANNOT RIDE THE LIVE WINDOW. The obvious fix — promote inside the target loop — is wrong
+ * for the same reason the defect existed: `selectLiveTargets` only yields a game for eight hours after
+ * kickoff, and Thursday night kicks at 00:15Z with its window closing at 06:30Z, after this workflow's
+ * last Friday slot at 04:45Z. A promotion that depends on a cron overlapping a three-hour window is a
+ * promotion that silently does not happen. So the sweep walks every committed artifact, on every
+ * invocation, before any liveness question is asked — and `nfl-event-window.yml` calls it daily with
+ * `--promote-only` so a game whose closure falls outside every live slot still reaches CANONICAL.
+ *
+ * FREE AND FETCH-FREE. Promotion is a statement about the clock and the recorded first-final instant,
+ * so no provider is touched and nothing but `finality` moves.
+ */
+const PROMOTE_ONLY = process.argv.includes("--promote-only");
+let promoted = 0;
+for (const f of (() => { try { return fs.readdirSync(OUT_DIR).filter((x) => x.endsWith(".json")); } catch { return []; } })()) {
+  const prior = read(path.join(OUT_DIR, f));
+  const next = promoteFinality(prior, NOW);
+  if (!next) continue;
+  promoted += 1;
+  if (DRY) { console.log(`${next.matchup}: would promote ${next.rows.filter((r) => r.settlement).length} settlement(s) to CANONICAL (dry run)`); continue; }
+  fs.writeFileSync(path.join(OUT_DIR, f), `${JSON.stringify(next, null, 2)}\n`);
+  console.log(`${next.matchup}: reconciliation window closed — ${next.rows.filter((r) => r.settlement).length} settlement(s) now CANONICAL`);
+}
+if (promoted === 0) console.log("no artifact was awaiting promotion to CANONICAL");
+if (PROMOTE_ONLY) process.exit(0);
 
 /* The rule itself lives in the library, where a behavioural test can hold it. This does IO. */
-const { targets, disagreements } = selectLiveTargets({ boards, scheduleRows: schedule?.rows ?? [], nowMs, only });
+const { targets, disagreements, verdict } = selectLiveTargets({ boards, scheduleRows: schedule?.rows ?? [], nowMs, only });
+
+/*
+ * ⚠ A CONTESTED FIXTURE IS EXCLUDED, NOT A REASON TO ABANDON THE SLATE.
+ *
+ * `selectLiveTargets` already drops any game whose board and schedule disagree on kickoff — that is
+ * the fail-closed part, and it is per game. This caller used to escalate that into `exit 2`, which
+ * meant ONE disagreement anywhere killed live tracking for every other game.
+ *
+ * And "anywhere" was the whole archive: the loop reads all forty-nine committed boards, thirty-three
+ * of them for games already played, against a schedule capture that refreshes daily. A provider
+ * correcting the kickoff of a game from three weeks ago would have taken down the live product for
+ * the current slate. Excluding the contested game is the truthful response; taking down thirteen
+ * honest games with it is not more truthful, only less available.
+ *
+ * ⚠ SYSTEMIC IS STILL FATAL. If disagreements exist and NOT ONE target survived, this is not one
+ * moved fixture — it is a schedule capture that cannot be reconciled with any board, and that refuses.
+ *
+ * ⚠ AND THE EXIT CODE IS NOT THE SIGNAL. Exiting non-zero here would mark the run failed and SKIP the
+ * commit step below, discarding the honest artifacts this run just produced — the shape that has cost
+ * this repository real archives. The disagreement is surfaced instead by
+ * `app/scripts/ops/nfl-lifecycle-trace.mjs`, which reports it as BOARD · INCONSISTENT for the one game
+ * it concerns.
+ */
 if (disagreements.length) {
-  console.error(`REFUSED: board and schedule disagree on kickoff — live state is never attached to a contested fixture:\n  ${disagreements.join("\n  ")}`);
+  console.error(`::warning::${disagreements.length} fixture(s) EXCLUDED — board and schedule disagree on kickoff, so no live state is attached to them:\n  ${disagreements.join("\n  ")}`);
+}
+if (verdict === "REFUSE_UNRECONCILABLE") {
+  console.error("REFUSED: not one board reconciled with the schedule — this is not one moved fixture, it is a capture that cannot be reconciled with any of them");
   process.exit(2);
 }
 
@@ -87,7 +146,7 @@ if (!targets.length) {
   process.exit(0);
 }
 
-const outDir = path.join(APP, "public/data/nfl/live-props");
+const outDir = OUT_DIR;
 let wrote = 0;
 let skippedSettled = 0;
 for (const ev of targets) {

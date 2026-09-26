@@ -26,6 +26,8 @@
  * attribution.
  */
 
+import { splitMatchup } from "../nfl/matchup.mjs";
+
 /** The only market keys this contract will consider. Props are refused in this phase, by name. */
 export const IN_PLAY_TEAM_MARKETS = Object.freeze(["h2h", "spreads", "totals"]);
 
@@ -207,4 +209,36 @@ export function foldLiveStates(results) {
   }
   if (failures.length && !states.size) return { known: false, failures, states: new Map() };
   return { known: true, failures, states };
+}
+
+/**
+ * DOES THIS PROVIDER EVENT NAME THE GAME WE ASKED ABOUT?
+ *
+ * ⚠ ONE JOIN, BECAUSE THERE WERE TWO AND BOTH WERE WRONG. The probe and the pilot each carried their
+ * own copy, splitting the board's matchup label on `@`. ESPN writes a neutral-site game as
+ * "BAL VS DAL" (Maracanã) and "IND VS WSH" (Tottenham), and on that form BOTH copies silently failed
+ * to match: the label split to one part, so the comparison was `"baltimoreravens".includes("balvs")`.
+ *
+ * The consequence is not cosmetic. The ONE authorized 3-credit Phase H probe could be spent on a game
+ * it then could not find, recording a false LIVE_MARKET_UNSUPPORTED — closing the whole lane on a
+ * string format, with an explicit instruction not to probe again for a better answer.
+ *
+ * ⚠ AND THE PILOT'S COPY COULD THROW, though not on that form: it lacked the probe's both-halves
+ * guard, so a label with NO separator ("BAL") left `home` undefined and reached `home.slice(0, 5)`
+ * once the away name matched. `&&` short-circuited the `VS` case before it got there, which is
+ * exactly why reading the code was not enough — I claimed a throw, ran it, and was wrong. The fix
+ * covers both: unreadable labels return false, and nothing here can throw.
+ *
+ * ⚠ THE PROVIDER'S EVENT ID IS ITS OWN, not ESPN's, so the id path below almost never hits and the
+ * name fallback is load-bearing rather than a safety net.
+ */
+export function providerEventMatches(providerEvent, target) {
+  if (!providerEvent || !target) return false;
+  if (target.id != null && String(providerEvent.id ?? "") === String(target.id)) return true;
+  const { away, home } = splitMatchup(target.matchup);
+  if (!away || !home) return false;
+  const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z]/g, "");
+  const a = norm(away), h = norm(home);
+  if (!a || !h) return false;
+  return norm(providerEvent.away_team).includes(a.slice(0, 5)) && norm(providerEvent.home_team).includes(h.slice(0, 5));
 }

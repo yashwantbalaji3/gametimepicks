@@ -573,6 +573,19 @@ jobs:
           # committed evidence here costs no provider call, reopens no polling, and cannot damage the
           # record — the frozen block, the original answer and the original settlement instant are
           # immutable, and a changed answer appends to `corrections`.
+          # ── PROVISIONAL → CANONICAL (the lifecycle's terminus) ────────────────────────────────
+          #
+          # ⚠ CANONICAL HAD NEVER ONCE BEEN REACHED. The live producer polled a finished game only
+          # while its reconciliation window was OPEN and stamped whatever the clock said at that same
+          # instant — so the moment the stamp would have become CANONICAL was the moment polling
+          # stopped. Every NFL prop settlement in the repository was permanently PROVISIONAL.
+          #
+          # It runs HERE, daily, and not in the live workflow, because a window can close outside every
+          # live slot: Thursday night kicks at 00:15Z and closes at ~06:30Z, after the last Friday
+          # cron at 04:45Z. Fetch-free — promotion is a statement about the clock, so it costs nothing
+          # and must run before the fold below so the ledger copies the promoted state in the same run.
+          node scripts/nfl/capture-live-props.mjs --now "$NOW" --promote-only
+
           node scripts/nfl/settle-nfl-live-props.mjs --now "$NOW" --write
 
       # ── THE MODEL'S OWN CALIBRATION RECORD ────────────────────────────────────────────────────
@@ -631,8 +644,13 @@ jobs:
           # P296: the week report and the official lines it graded (created on the first reconciled week).
           if [ -d app/public/data/nfl/reconciliation ]; then git add app/public/data/nfl/reconciliation/; fi
           if [ -d data/internal/nfl/official-stats ]; then git add data/internal/nfl/official-stats/; fi
-          # Phase D: the prop-settlement ledger, when the later-correction fold above has touched it.
+          # Phase D: the prop-settlement ledger, when the later-correction fold above has touched it,
+          # and the live artifacts the promotion step may have advanced to CANONICAL. The earlier
+          # commit in this workflow covers app/public/data/nfl/ but runs BEFORE that step, so without
+          # this line a promotion would be computed and never published — this repository has lost
+          # three days of an archive to exactly that shape of omission.
           if [ -d data/internal/nfl/prop-settlement ]; then git add data/internal/nfl/prop-settlement/; fi
+          if [ -d app/public/data/nfl/live-props ]; then git add app/public/data/nfl/live-props/; fi
           if git diff --cached --quiet; then echo "no settlement change"; exit 0; fi
           git commit -m "auto: nfl settlement receipts [skip ci]"
           git pull --rebase --autostash origin main

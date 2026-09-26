@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { buildLiveRows, espnAthleteId, selectLiveTargets, shouldPollEvent } from "./live-prop-state.mjs";
+import { buildLiveRows, espnAthleteId, promoteFinality, selectLiveTargets, settle, shouldPollEvent, RECONCILIATION_WINDOW_MS } from "./live-prop-state.mjs";
 
 const SUMMARY = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/__fixtures__/espn-nfl-summary-401872932.json"), "utf8"));
 const hashOf = (o) => crypto.createHash("sha256").update(JSON.stringify(o)).digest("hex").slice(0, 16);
@@ -407,4 +407,138 @@ test("a board with no id or an unreadable kickoff contributes nothing", () => {
     selectLiveTargets({ boards: [{ providerEventId: 401872953, kickoffUtc: "2026-09-27T17:00Z" }], scheduleRows: [{ providerEventId: "401872953", dateUtc: "2026-09-27T17:00Z" }], nowMs }).targets.length,
     1, "a number and a string id must not read as two fixtures",
   );
+});
+
+// ══ PROVISIONAL → CANONICAL: THE TERMINUS THAT HAD NEVER BEEN REACHED ═══════════════════════════
+//
+// Both clocks were the same clock: the producer polled only while `finalityAt` said PROVISIONAL and
+// stamped whatever it said at that same instant, so every moment that would have written CANONICAL
+// was a moment nothing was written. `finalityAt` was correct and tested; the COMPOSITION was the bug.
+
+test("⚠ the window closing yields promote, not silence — CANONICAL is reachable", () => {
+  const ffo = "2026-09-25T03:30:00Z";
+  const prior = { phase: "FINAL", finalFirstObservedAt: ffo, finality: "PROVISIONAL", rows: [{ settlement: { state: "SETTLED", finality: "PROVISIONAL" } }] };
+  const before = new Date(Date.parse(ffo) + RECONCILIATION_WINDOW_MS - 60_000).toISOString();
+  const after = new Date(Date.parse(ffo) + RECONCILIATION_WINDOW_MS + 60_000).toISOString();
+
+  const open = shouldPollEvent(prior, before);
+  assert.equal(open.poll, true);
+  assert.equal(open.promote, false, "nothing is promoted while a late stat can still arrive");
+
+  const closed = shouldPollEvent(prior, after);
+  assert.equal(closed.poll, false, "a closed window must not reopen polling");
+  assert.equal(closed.promote, true, "…but it must not be silent either — that is what made CANONICAL dead");
+
+  // Already promoted: neither poll nor promote. Otherwise every later run rewrites the artifact.
+  const done = shouldPollEvent({ ...prior, finality: "CANONICAL" }, after);
+  assert.equal(done.poll, false);
+  assert.equal(done.promote, false);
+});
+
+test("⚠ promoteFinality advances finality and NOTHING else — not a grade, not an instant", () => {
+  const ffo = "2026-09-25T03:30:00Z";
+  const after = new Date(Date.parse(ffo) + RECONCILIATION_WINDOW_MS + 60_000).toISOString();
+  const prior = {
+    phase: "FINAL", finalFirstObservedAt: ffo, finality: "PROVISIONAL", observedAt: ffo,
+    rows: [
+      { predictionId: "p1", frozen: { projection: { median: 63 } }, live: { statValue: 194 }, settlement: { state: "SETTLED", finalStat: 194, lineResult: "OVER", forecastResult: "WIN", settledAt: ffo, finality: "PROVISIONAL" } },
+      { predictionId: "p2", frozen: { projection: { median: 10 } }, live: { statValue: null }, settlement: { state: "NO_MEASUREMENT", finalStat: null, settledAt: ffo, finality: "PROVISIONAL" } },
+      { predictionId: "p3", frozen: null },   // no settlement at all — must pass through untouched
+    ],
+  };
+  const next = promoteFinality(prior, after);
+  assert.equal(next.finality, "CANONICAL");
+  assert.deepEqual(next.rows.map((r) => r.settlement?.finality ?? null), ["CANONICAL", "CANONICAL", null]);
+
+  // Everything that is not `finality` is byte-identical.
+  const strip = (a) => JSON.stringify({ ...a, finality: 0, rows: a.rows.map((r) => (r.settlement ? { ...r, settlement: { ...r.settlement, finality: 0 } } : r)) });
+  assert.equal(strip(next), strip(prior), "a promotion that can change a result is a re-grade wearing a clock's clothes");
+
+  assert.equal(promoteFinality(next, after), null, "idempotent");
+  assert.equal(promoteFinality(prior, new Date(Date.parse(ffo) + RECONCILIATION_WINDOW_MS - 1).toISOString()), null, "not before the window closes");
+  assert.equal(promoteFinality({ ...prior, phase: "IN_PROGRESS" }, after), null, "never for a game still in progress");
+  assert.equal(promoteFinality({ ...prior, finalFirstObservedAt: null }, after), null, "no first-final instant means no window to close");
+});
+
+// ══ A FORECAST IS GRADED ONLY WHERE IT WAS PUBLISHED ═══════════════════════════════════════════
+//
+// ⚠ NOT HYPOTHETICAL. On the 2026-09-27 boards `player_pass_yds` is ESTIMATE and twenty-eight of its
+// entries carry a frozen line anyway — the odds capture buys prices per market and never consults a
+// model verdict. The only reason nothing had been graded yet is that the one completed game's four
+// ESTIMATE rows happened to have no line. That is luck, not a rule.
+
+test("⚠ an unpublished family gets the FACT but never the CLAIM", () => {
+  const ESPN = "4374302";                        // St. Brown: 142 reception yards, real payload
+  const args = { summary: phased("post"), espnId: ESPN, family: "player_reception_yds", frozenLine: 79.5, projection: 79, settledAt: "2026-09-18T04:00:00Z" };
+
+  const published = settle({ ...args, familyState: "PUBLISHED" });
+  assert.equal(published.lineResult, "OVER", "142 is over 79.5");
+  assert.equal(published.forecastResult, "LOSS", "we projected 79 against a 79.5 line — UNDER — and it went over");
+
+  for (const state of ["ESTIMATE", "WITHHELD", "STOPPED"]) {
+    const r = settle({ ...args, familyState: state });
+    assert.equal(r.lineResult, "OVER", `${state}: the final stat against the frozen line is a fact either way`);
+    assert.equal(r.forecastResult, "NOT_PUBLISHED", `${state}: no track record for a model we chose not to show`);
+  }
+
+  // An artifact with no label keeps the previous behaviour rather than silently refusing to grade a
+  // family that WAS published.
+  assert.equal(settle({ ...args, familyState: null }).forecastResult, "LOSS");
+});
+
+test("⚠ buildLiveRows THREADS the board's family state — the gate must survive the real call path", () => {
+  const withStates = (state) => ({
+    ...board(79.5),
+    families: { player_reception_yds: { state }, anytime_td: { state: "PUBLISHED" } },
+  });
+  const run = (state) => buildLiveRows({
+    providerEventId: EVENT, kickoffUtc: KICKOFF, board: withStates(state),
+    summary: phased("post"), prior: null, observedAt: "2026-09-18T04:00:00Z", hashOf,
+  });
+  assert.equal(row(run("PUBLISHED"), "player_reception_yds").settlement.forecastResult, "LOSS");
+  assert.equal(row(run("ESTIMATE"), "player_reception_yds").settlement.forecastResult, "NOT_PUBLISHED");
+});
+
+// ══ A CONTESTED FIXTURE IS EXCLUDED, NOT A REASON TO ABANDON THE SLATE ═════════════════════════
+
+test("⚠ one moved fixture excludes ITSELF and the rest of the slate still runs", () => {
+  const boards = [
+    { providerEventId: "1", kickoffUtc: "2026-09-27T17:00:00Z", matchup: "A @ B" },
+    { providerEventId: "2", kickoffUtc: "2026-09-27T17:05:00Z", matchup: "C @ D" },   // schedule says 17:00
+    { providerEventId: "3", kickoffUtc: "2026-09-27T17:00:00Z", matchup: "E @ F" },
+  ];
+  const scheduleRows = boards.map((b) => ({ providerEventId: b.providerEventId, dateUtc: "2026-09-27T17:00:00Z" }));
+  const r = selectLiveTargets({ boards, scheduleRows, nowMs: Date.parse("2026-09-27T18:00:00Z") });
+
+  assert.equal(r.verdict, "PROCEED_EXCLUDING_CONTESTED");
+  assert.equal(r.disagreements.length, 1);
+  assert.deepEqual(r.targets.map((t) => t.providerEventId), ["1", "3"], "the other two games are untouched");
+});
+
+test("⚠ but a capture that reconciles with NOTHING still refuses", () => {
+  const boards = [
+    { providerEventId: "1", kickoffUtc: "2026-09-27T17:05:00Z", matchup: "A @ B" },
+    { providerEventId: "2", kickoffUtc: "2026-09-27T17:05:00Z", matchup: "C @ D" },
+  ];
+  const scheduleRows = boards.map((b) => ({ providerEventId: b.providerEventId, dateUtc: "2026-09-27T17:00:00Z" }));
+  const r = selectLiveTargets({ boards, scheduleRows, nowMs: Date.parse("2026-09-27T18:00:00Z") });
+  assert.equal(r.verdict, "REFUSE_UNRECONCILABLE");
+  assert.equal(r.targets.length, 0);
+});
+
+test("⚠ AND A QUIET TUESDAY IS NOT AN UNRECONCILABLE CAPTURE — the verdict asks about reconciliation, not the clock", () => {
+  const boards = [{ providerEventId: "1", kickoffUtc: "2026-09-27T17:00:00Z", matchup: "A @ B" },
+                  { providerEventId: "2", kickoffUtc: "2026-09-27T17:05:00Z", matchup: "C @ D" }];
+  const scheduleRows = boards.map((b) => ({ providerEventId: b.providerEventId, dateUtc: "2026-09-27T17:00:00Z" }));
+  const r = selectLiveTargets({ boards, scheduleRows, nowMs: Date.parse("2026-09-30T12:00:00Z") });   // days later
+  assert.equal(r.targets.length, 0, "nothing is in the live window");
+  assert.equal(r.verdict, "PROCEED_EXCLUDING_CONTESTED", "a target count of zero must not be read as a broken capture");
+});
+
+test("no disagreement at all is a plain PROCEED", () => {
+  const boards = [{ providerEventId: "1", kickoffUtc: "2026-09-27T17:00Z", matchup: "A @ B" }];
+  const r = selectLiveTargets({ boards, scheduleRows: [{ providerEventId: "1", dateUtc: "2026-09-27T17:00:00Z" }], nowMs: Date.parse("2026-09-27T18:00:00Z") });
+  assert.equal(r.verdict, "PROCEED");
+  assert.equal(r.usableCount, 1);
+  assert.equal(r.targets.length, 1, "the short and long ISO forms are one instant");
 });
