@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823653,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T05:50:58.440Z",
+  "availableAt": "2026-09-26T05:50:58.440Z",
+  "eventStartTime": "2026-09-26T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641927,
+      "name": "Bailey Ober",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 11,
+      "lastStartDate": "2026-09-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.2,
+        "bbAvg": 2.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 7.88,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 123,
+        "k": 88,
+        "bb": 36,
+        "er": 59,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 543135,
+      "name": "Nathan Eovaldi",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 50,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 5.4,
+        "bbAvg": 1.6,
+        "erAvg": 3,
+        "hrAvg": 1,
+        "kPer9": 8.89,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 132.67,
+        "k": 137,
+        "bb": 32,
+        "er": 62,
+        "hr": 24
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-26T05:50:58.440Z"
+  },
+  "recordHash": "42d4f9cf059dac654c7b72e0f82c4152d41170c28a4482f3beec5e5f2c266ea6"
+}

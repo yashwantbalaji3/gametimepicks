@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823083,
   "date": "2026-09-26",
-  "capturedAt": "2026-09-26T00:48:19.101Z",
-  "availableAt": "2026-09-26T00:48:19.101Z",
+  "capturedAt": "2026-09-26T05:50:59.034Z",
+  "availableAt": "2026-09-26T05:50:59.034Z",
   "eventStartTime": "2026-09-27T01:40:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,34 @@
     "teamId": 136,
     "teamName": "Seattle Mariners",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 43,
+      "relievers": [
+        {
+          "id": 700187,
+          "name": "Troy Taylor",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-25"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 8,
-      "pitches": 135,
+      "appearances": 10,
+      "pitches": 178,
       "relievers": [
         {
           "id": 681867,
@@ -37,6 +58,16 @@
           "dates": [
             "2026-09-23",
             "2026-09-24"
+          ]
+        },
+        {
+          "id": 700187,
+          "name": "Troy Taylor",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-09-25"
           ]
         },
         {
@@ -98,23 +129,91 @@
           "dates": [
             "2026-09-23"
           ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-25"
+          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 700187,
+        "name": "Troy Taylor",
+        "reason": "31 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 108,
     "teamName": "Los Angeles Angels",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 4,
+      "pitches": 67,
+      "relievers": [
+        {
+          "id": 684665,
+          "name": "Luke Murphy",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 3,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 696147,
+          "name": "Sam Bachman",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 2,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 642048,
+          "name": "Tayler Saucedo",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-09-25"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 116,
+      "appearances": 11,
+      "pitches": 183,
       "relievers": [
+        {
+          "id": 684665,
+          "name": "Luke Murphy",
+          "appearances": 2,
+          "pitches": 41,
+          "outs": 5,
+          "dates": [
+            "2026-09-23",
+            "2026-09-25"
+          ]
+        },
         {
           "id": 671111,
           "name": "Sammy Peralta",
@@ -136,33 +235,35 @@
           ]
         },
         {
-          "id": 820862,
-          "name": "José Fermin",
+          "id": 696147,
+          "name": "Sam Bachman",
           "appearances": 1,
-          "pitches": 17,
+          "pitches": 26,
           "outs": 2,
           "dates": [
-            "2026-09-23"
+            "2026-09-25"
           ]
         },
         {
-          "id": 684665,
-          "name": "Luke Murphy",
-          "appearances": 1,
-          "pitches": 12,
-          "outs": 2,
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 5,
           "dates": [
-            "2026-09-23"
+            "2026-09-23",
+            "2026-09-25"
           ]
         },
         {
           "id": 642048,
           "name": "Tayler Saucedo",
-          "appearances": 1,
-          "pitches": 11,
-          "outs": 1,
+          "appearances": 2,
+          "pitches": 16,
+          "outs": 2,
           "dates": [
-            "2026-09-23"
+            "2026-09-23",
+            "2026-09-25"
           ]
         },
         {
@@ -192,7 +293,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-23,2026-09-24,2026-09-25) + feed/live box scores",
-    "capturedAt": "2026-09-26T00:48:19.101Z"
+    "capturedAt": "2026-09-26T05:50:59.034Z"
   },
-  "recordHash": "f6f645b86373290c39421dc8d959b19aa7fcd4a7a0d532d9029c213d759c0abe"
+  "recordHash": "135a966ba436526a1c49ccc8961d62f631e13d27f7fed4a1b41ac43428c32a2e"
 }

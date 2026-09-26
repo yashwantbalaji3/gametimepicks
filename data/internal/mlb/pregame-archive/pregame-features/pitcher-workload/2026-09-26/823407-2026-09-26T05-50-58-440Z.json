@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823407,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T05:50:58.440Z",
+  "availableAt": "2026-09-26T05:50:58.440Z",
+  "eventStartTime": "2026-09-26T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 643377,
+      "name": "Griffin Jax",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 4.6,
+        "bbAvg": 1,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 9.13,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 100.33,
+        "k": 105,
+        "bb": 28,
+        "er": 36,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-26T05:50:58.440Z"
+  },
+  "recordHash": "eb9d8840fcd258baedc656e0f965d3face2ea054f3be30d6678b71c864851e63"
+}

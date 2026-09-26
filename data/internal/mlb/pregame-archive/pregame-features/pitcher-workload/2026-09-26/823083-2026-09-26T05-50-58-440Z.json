@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823083,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T05:50:58.440Z",
+  "availableAt": "2026-09-26T05:50:58.440Z",
+  "eventStartTime": "2026-09-27T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 807739,
+      "name": "Kade Anderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 6,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 4.6,
+        "bbAvg": 1.2,
+        "erAvg": 2.4,
+        "hrAvg": 0.4,
+        "kPer9": 7.76,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 32.33,
+        "k": 28,
+        "bb": 8,
+        "er": 15,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 696270,
+      "name": "Ryan Johnson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 5.2,
+        "bbAvg": 1.6,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 8.46,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 90,
+        "k": 73,
+        "bb": 36,
+        "er": 44,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-26T05:50:58.440Z"
+  },
+  "recordHash": "3877319eb56cecacd1b24e79d4a516c57aa5878fdd05c44abf59b975eeb64d91"
+}
