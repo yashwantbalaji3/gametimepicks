@@ -33,16 +33,48 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".
  * Derived from the SAME artifact the tool reads, through the SAME label rule it uses, so two formatters
  * cannot drift into two rules. Only the W–L is asserted: the answer need not carry the "· 2 void" tail.
  */
-function nflHeadlineRecord() {
-  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "data/ask-projection/v1/results.json"), "utf8"));
-  const cell = (doc.cells ?? []).find((c) => c.cellId === doc.headline?.bySport?.nfl);
-  const label = recordLabel(cell);
-  if (!label) {
-    /* Loud, not lenient: an eval that silently drops its own expectation measures nothing, and this
-       artifact is committed, so an unreadable one is a real defect rather than a missing fixture. */
-    throw new Error("golden res-06: no NFL headline record in data/ask-projection/v1/results.json — the expectation cannot be derived");
-  }
+const RESULTS_DOC = JSON.parse(fs.readFileSync(path.join(ROOT, "data/ask-projection/v1/results.json"), "utf8"));
+
+/** One cell, by id. Loud when absent: this artifact is committed, so a miss is a defect not a gap. */
+function cell(cellId) {
+  const c = (RESULTS_DOC.cells ?? []).find((x) => x.cellId === cellId);
+  if (!c) throw new Error(`golden: no cell "${cellId}" in data/ask-projection/v1/results.json — an expectation cannot be derived`);
+  return c;
+}
+
+/** The W–L a correct answer must state, through the tool's OWN label rule. */
+function recordWL(cellId) {
+  const label = recordLabel(cell(cellId));
+  if (!label) throw new Error(`golden: cell "${cellId}" carries no decisive counts — an expectation cannot be derived`);
   return label.split(" · ")[0];
+}
+
+/**
+ * The W–L a WRONG folding would produce — the era boundary crossed silently.
+ *
+ * ⚠ THIS IS THE HALF THAT FAILS SILENTLY. `mustNotMention` was typed as "42–36" and "47–36", each
+ * derived by hand from a composite that was 37–36 when the case was written. The moment one card
+ * settles, the composite moves, the wrong foldings move with it — and a stale `mustNotMention` does not
+ * go red, it simply stops catching the defect it exists for. Both halves are derived, so they cannot
+ * drift apart.
+ */
+function foldedWith(baseCellId, ...addCellIds) {
+  const sum = [baseCellId, ...addCellIds].reduce(
+    (a, id) => { const c = cell(id).counts; return { won: a.won + (c.won ?? 0), lost: a.lost + (c.lost ?? 0) }; },
+    { won: 0, lost: 0 },
+  );
+  /* Both dashes: the answer could write either, and only one of them is a real refusal. */
+  return [`${sum.won}–${sum.lost}`, `${sum.won}-${sum.lost}`];
+}
+
+const BB_COMPOSITE = "product:-:bank-builder:COMPOSITE:protected-record";
+const BB_LADDER_1 = "product:-:bank-builder:LEDGER_ONLY:ladder-1";
+const BB_LADDER_2 = "product:-:bank-builder:LEDGER_ONLY:ladder-2";
+const MS_CURRENT = "product:-:moonshot:RECEIPT_ERA:-";
+const MS_LEGACY = "product:-:moonshot:LEGACY_PRODUCT_LEDGER:-";
+
+function nflHeadlineRecord() {
+  return recordWL(RESULTS_DOC.headline?.bySport?.nfl);
 }
 
 const help = (id, q, mustMention, expectLink = "/") => ({
@@ -217,17 +249,18 @@ export const GOLDEN = [
   {
     id: "res-01", category: "results", q: "What is Bank Builder's record?",
     expectIntent: "RESULTS_PRODUCT_RECORD", expectTools: ["getProductRecord"], expectGrounded: true,
-    mustMention: ["37–36", "bank builder"], expectLink: "/bank-builder/",
-    /* 42–36 is 37–36 plus one of the 5–0 legacy ladders; 47–36 is plus both. Either would mean the
-       era boundary had been crossed silently, which is the defect Track C shipped to close. */
-    mustNotMention: ["42–36", "47–36", "42-36", "47-36"],
+    mustMention: [recordWL(BB_COMPOSITE), "bank builder"], expectLink: "/bank-builder/",
+    /* The composite plus one legacy ladder, and plus both. Either would mean the era boundary had been
+       crossed silently, which is the defect Track C shipped to close. Derived, so they track the
+       composite instead of quietly ceasing to match it. */
+    mustNotMention: [...foldedWith(BB_COMPOSITE, BB_LADDER_1), ...foldedWith(BB_COMPOSITE, BB_LADDER_1, BB_LADDER_2)],
   },
   {
     id: "res-02", category: "results", q: "What is Moonshot's current record?",
     expectIntent: "RESULTS_PRODUCT_RECORD", expectTools: ["getProductRecord"], expectGrounded: true,
-    mustMention: ["4–35"], expectLink: "/moonshot/",
-    /* 4–42 is the current era plus the legacy 0–7 ledger. */
-    mustNotMention: ["4–42", "4-42"],
+    mustMention: [recordWL(MS_CURRENT)], expectLink: "/moonshot/",
+    /* The current era folded with the legacy ledger — derived for the same reason as above. */
+    mustNotMention: foldedWith(MS_CURRENT, MS_LEGACY),
   },
   {
     id: "res-03", category: "results", q: "Does Bank Builder's record include the old June ladders?",
