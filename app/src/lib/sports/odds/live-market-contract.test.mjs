@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, foldLiveStates, gradeLiveMarketEvidence, linesOf, readLiveStates } from "./live-market-contract.mjs";
+import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, foldLiveStates, gradeLiveMarketEvidence, linesOf, readLiveStates, providerEventMatches } from "./live-market-contract.mjs";
 import { inPlayAuthorization, purposeBudget, spentOnPurpose, supersededBy } from "./p171-authorization.mjs";
 
 const ROOT = path.resolve(process.cwd(), "..");
@@ -431,4 +431,40 @@ test("both callers exit distinctly on unknown liveness, and spend nothing", () =
     assert.match(src, /LIVENESS UNKNOWN/, `${label}: and says which state it is in`);
     assert.match(src, /process\.exit\(4\)/, `${label}: with a distinct code`);
   }
+});
+
+// ══ ONE JOIN, AND IT SURVIVES A NEUTRAL-SITE LABEL ═════════════════════════════════════════════
+//
+// ESPN writes a neutral-site game as "BAL VS DAL" (Maracanã) and "IND VS WSH" (Tottenham). The probe
+// and the pilot each carried their own `@`-splitting copy of this join. On that form both silently
+// returned false — so the single authorized 3-credit probe could be spent on a game it then could not
+// find. The pilot additionally lacked the probe's both-halves guard, so a label with NO separator
+// reached `home.slice(0, 5)` with `home` undefined; `&&` short-circuited the VS case before that, so
+// the throw was latent rather than the VS symptom.
+
+test("⚠ the provider join reads BOTH matchup forms — a neutral-site game must not close the lane", () => {
+  const providerEvent = { id: "odds-abc", away_team: "Baltimore Ravens", home_team: "Dallas Cowboys" };
+  for (const matchup of ["BAL @ DAL", "BAL VS DAL", "BAL vs DAL", "BAL vs. DAL"]) {
+    assert.equal(providerEventMatches(providerEvent, { id: "401872960", matchup }), true, matchup);
+  }
+});
+
+test("⚠ AND IT NEVER THROWS on a label it cannot read — it returns false", () => {
+  const providerEvent = { id: "odds-abc", away_team: "Baltimore Ravens", home_team: "Dallas Cowboys" };
+  for (const matchup of [null, undefined, "", "BAL", "BAL/DAL", "BAL DAL SFO"]) {
+    assert.doesNotThrow(() => providerEventMatches(providerEvent, { id: "x", matchup }), JSON.stringify(matchup));
+    assert.equal(providerEventMatches(providerEvent, { id: "x", matchup }), false, JSON.stringify(matchup));
+  }
+  assert.equal(providerEventMatches(null, { id: "x", matchup: "BAL @ DAL" }), false);
+  assert.equal(providerEventMatches({ away_team: "x" }, null), false);
+});
+
+test("the provider's own id still wins when it happens to agree", () => {
+  assert.equal(providerEventMatches({ id: "401872960" }, { id: "401872960", matchup: "nonsense" }), true);
+});
+
+test("⚠ it does not match the WRONG game — the name fallback is a join, not a wildcard", () => {
+  const providerEvent = { id: "odds-abc", away_team: "Baltimore Ravens", home_team: "Dallas Cowboys" };
+  assert.equal(providerEventMatches(providerEvent, { id: "1", matchup: "SF @ SEA" }), false);
+  assert.equal(providerEventMatches(providerEvent, { id: "1", matchup: "DAL @ BAL" }), false, "the sides are reversed — that is a different game");
 });

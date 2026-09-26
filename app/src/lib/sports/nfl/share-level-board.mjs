@@ -23,6 +23,7 @@
  * team; the board builder keeps a row only when the player is on the team's CURRENT roster (fail-closed).
  */
 import { ESPN_TO_NFLVERSE_TEAM } from "./snap-share.mjs";
+import { splitMatchup } from "./matchup.mjs";
 
 export const SHARE_LEVEL_MODEL_ID = "nfl-player-share-level-v1";
 export const SHARE_LEVEL_TD_MODEL_ID = "nfl-anytime-td-opportunity-v1";
@@ -72,8 +73,10 @@ export function seasonOfKickoff(kickoffUtc) {
  */
 export function shareLevelRowsForEvent({ forecast, matchup, week, seasonType, markets }) {
   if (!forecast || seasonType !== 2 || forecast.week !== week || !markets?.size) return null;
-  const [away, home] = String(matchup ?? "").split(" @ ").map((s) => s.trim());
-  if (!away || !home || away === home) return null;
+  /* ⚠ ESPN writes a neutral-site game as "BAL VS DAL"; `split(" @ ")` failed closed on it and this
+     whole feature went silently absent for those games. One rule, in matchup.mjs. */
+  const { away, home } = splitMatchup(matchup);
+  if (!away || !home) return null;
   const col = Object.fromEntries((forecast.columns ?? []).map((c, i) => [c, i]));
   if (REQUIRED_COLUMNS.some((k) => !(k in col))) return null;
   const espnFor = new Map([[toNflverse(home), home], [toNflverse(away), away]]);

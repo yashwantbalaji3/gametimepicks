@@ -25,6 +25,7 @@
  *    from the owner rather than asserted.)
  */
 import fs from "node:fs";
+import { opponentIn } from "../../src/lib/sports/nfl/matchup.mjs";
 import path from "node:path";
 
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
@@ -108,10 +109,12 @@ for (const key of familyKeys) {
       : { label: first.label, state: "WITHHELD", reason: first.reason ?? [...states].join("/") };
 }
 
-const opponentOf = (b, team) => {
-  const [away, home] = String(b.matchup).split(" @ ").map((t) => t.trim());
-  return team === away ? home : away;
-};
+/*
+ * ⚠ NOT `split(" @ ")`. ESPN writes a neutral-site game as "BAL VS DAL", which that split returned
+ * whole — so a public board printed BOTH teams' opponent as "BAL VS DAL". `opponentIn` also returns
+ * null rather than the other club when `team` is in neither, so a bad label cannot masquerade.
+ */
+const opponentOf = (b, team) => opponentIn(b.matchup, team);
 
 function rankRows(family, metric, topN) {
   const rows = [];

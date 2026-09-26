@@ -37,7 +37,7 @@ import {
   inPlayAuthorization, parseSportAuthorizationReceipt, purposeBudget, recordRequest, spentOnPurpose, supersededBy,
   LEDGER_RELPATH,
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
-import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, foldLiveStates, gradeLiveMarketEvidence, readLiveStates } from "../../src/lib/sports/odds/live-market-contract.mjs";
+import { IN_PLAY_TEAM_MARKETS, eventIsGenuinelyLive, foldLiveStates, gradeLiveMarketEvidence, readLiveStates, providerEventMatches } from "../../src/lib/sports/odds/live-market-contract.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -252,14 +252,10 @@ console.log(graded.ok
 
 /* ── helpers ────────────────────────────────────────────────────────────────────────────────── */
 
-function matchEvent(e, t) {
-  if (String(e?.id ?? "") === t.id) return true;
-  /* The odds provider's event id is its own, not ESPN's, so fall back to the matchup the board
-     already names — normalised, and only when the commence_time is the same day. */
-  const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z]/g, "");
-  const [away, home] = String(t.matchup).split("@").map((x) => norm(x));
-  return Boolean(away && home && norm(e?.away_team).includes(away.slice(0, 5)) && norm(e?.home_team).includes(home.slice(0, 5)));
-}
+/* The join lives in live-market-contract.mjs — one rule, shared with the pilot. A local copy split
+   the label on "@" and returned false for a neutral-site "BAL VS DAL", which could have spent this
+   probe's single authorized call on a game it then could not find. */
+const matchEvent = (e, t) => providerEventMatches(e, t);
 
 /** The most recent COMMITTED pregame team-market capture for this game, or null. */
 function pregameSnapshotFor(eventId, matchup) {
