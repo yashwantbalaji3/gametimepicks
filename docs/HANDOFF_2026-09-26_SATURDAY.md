@@ -1,6 +1,6 @@
 # Handoff — 2026-09-26, Saturday afternoon (the day before NFL Week 4's Sunday)
 
-**Terminal state:** `SUNDAY READY · FIVE MERGED AND ON PRODUCTION · #693 AND #700 IN CI`.
+**Terminal state:** `SUNDAY READY · ALL SEVEN MERGED · THE ARRIVALS FIX VERIFIED ON BOT-PRODUCED ARTIFACTS`.
 Repository recovered, Sunday's slate verified. **I spent no credit**, and the scheduled pre-slate
 capture did: the ledger moved **394 → 472 of 1,160** at 16:49Z (78 credits, 318 rows, 18 requests),
 which is the authorized `nfl-event-window` odds step on its normal cadence — captures also ran
@@ -77,18 +77,18 @@ ceiling, both placeholders present, the filter chips and search box still server
 45 board rows' props still in the RSC flight (`providerEventId` ×45, `playerId` ×53, Jonathan
 Taylor and Puka Nacua among the names). **No record is hidden**, on the live site.
 
-| # | what | state |
-|---|---|---|
-| ~~694~~ | measure opportunity conservation on the published board | **merged** |
-| ~~695~~ | `/nfl` page weight — unblocked the gate | **merged · verified on Production** |
-| ~~696~~ | Engine V2A current-role audit (docs) | **merged** |
-| ~~697~~ | higher-level products audit (docs) | **merged** |
-| ~~698~~ | check whether the learning policy did what it says it did | **merged** |
-| 693 | the arrivals strip may not contradict the board above it | in CI |
-| 700 | the ESPN ↔ FPL crosswalk candidates | in CI |
-| 699 | this handoff | docs |
+All merged. Verified per PR with `state` / `mergedAt`, not from a listing — see C2.
 
-Each carries `origin/main`. **Never rebase.**
+| # | what | merged |
+|---|---|---|
+| 695 | `/nfl` page weight — unblocked the gate | 17:05Z · **verified on Production** |
+| 696 | Engine V2A current-role audit (docs) | 17:12Z |
+| 697 | higher-level products audit (docs) | 17:12Z |
+| 694 | measure opportunity conservation on the published board | 17:24Z |
+| 698 | check whether the learning policy did what it says it did | 17:31Z |
+| 700 | the ESPN ↔ FPL crosswalk candidates | 17:41Z |
+| 693 | the arrivals strip may not contradict the board above it | 17:49Z · **verified on bot artifacts** |
+| 699 | this handoff | — |
 
 ### ⚠ C2 · #693 was CLOSED, unmerged, by nobody who meant to
 
@@ -100,6 +100,23 @@ I noticed only because a `gh pr list --limit 6` happened to make the gap visible
 #487. The repository's own rule is *"verify merged is not being confused with deployed"*; extend it
 one step — **check `state` and `mergedAt` per PR, never infer from a listing**, and re-check after
 any batch merge.
+
+### C4 · #693 VERIFIED ON BOT-PRODUCED ARTIFACTS, after the merge
+
+`nfl-event-window` dispatched with `skip_odds=true` (run `36260408088`, success). **Step 9, the
+only credit-bearing step, SKIPPED** — the ledger is 472 before and after, Phase H still 0 of 90.
+Main is now `fa11b7cdd8` and the boards are the bots', not mine.
+
+| | before | after the bots ran |
+|---|---|---|
+| contradictions on the Sunday slate | 28 across 13 games | **0 across 0** |
+| genuine unplaced movers still shown | 24 | **24** — not over-filtered |
+| boards carrying `arrivalsShadowed` | 0 of 48 | 15 of 48 |
+| the P693 LIVE guard | vacuous (0 armed) | **armed · 15 of 48 · 6 pass** |
+
+And the ownership split held: every Sunday game still reads `✓ LIVE_ARTIFACT phase PRE, frozen
+from 2026-09-25T18:25:54Z` — the same frozen instant as this morning — with the slate at
+`IN_FLIGHT · 14 games · 0 needing attention`.
 
 ### C3 · #693 pre-verified against the canonical producer, then reverted
 
