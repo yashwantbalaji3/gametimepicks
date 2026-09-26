@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-09-26",
- "generatedAt": "2026-09-26T10:06:40Z",
+ "generatedAt": "2026-09-26T14:57:45Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -80,7 +80,7 @@
     "evidence": {
      "policyVersion": "bank-builder@1",
      "cardRef": "bank-builder-lane-a-step-2+bank-builder-lane-b-step-1",
-     "lockAt": "2026-09-26T10:06:33.542Z"
+     "lockAt": "2026-09-26T14:57:39.688Z"
     },
     "transitions": [
      {
@@ -127,7 +127,7 @@
     "evidence": {
      "policyVersion": "moonshot@2",
      "cardRef": "moonshot-lane-b-step-1",
-     "lockAt": "2026-09-26T10:06:33.542Z"
+     "lockAt": "2026-09-26T14:57:39.688Z"
     },
     "transitions": [
      {
@@ -144,18 +144,18 @@
   {
    "product": "end-zone-vault",
    "label": "End Zone Vault",
-   "state": "NOT_RUN",
-   "reason": "the Vault ledger holds no entry for 2026-09-26",
+   "state": "NO_PLAY",
+   "reason": "scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(QUESTIONABLE) · participation: FAIL(INACTIVE)",
    "candidatesEvaluated": 0,
    "rejections": [],
    "card": null,
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "INCIDENT",
+    "state": "NO_PLAY",
     "policyVersion": "end-zone-vault@1",
     "evidence": {
      "policyVersion": "end-zone-vault@1",
-     "incidentRef": "NOT_RUN: the Vault ledger holds no entry for 2026-09-26"
+     "reason": "scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(QUESTIONABLE) · participation: FAIL(INACTIVE)"
     },
     "transitions": [
      {
@@ -163,8 +163,8 @@
       "runId": "open:end-zone-vault:2026-09-26"
      },
      {
-      "to": "INCIDENT",
-      "runId": "eval:2026-09-26:NOT_RUN"
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-26:c8a670439772"
      }
     ]
    }
@@ -305,7 +305,7 @@
     "evidence": {
      "policyVersion": "homer-nukes@1",
      "cardRef": "card+card+card+card+card",
-     "lockAt": "2026-09-26T09:59:04.000Z"
+     "lockAt": "2026-09-26T14:47:12.000Z"
     },
     "transitions": [
      {
@@ -711,7 +711,7 @@
     "evidence": {
      "policyVersion": "mlb-cards@1",
      "cardRef": "card+card+card",
-     "lockAt": "2026-09-26T10:06:35Z"
+     "lockAt": "2026-09-26T14:57:41Z"
     },
     "transitions": [
      {
@@ -728,18 +728,204 @@
   {
    "product": "multi-cards",
    "label": "Multi-sport paper cards",
-   "state": "NO_PLAY",
-   "reason": "multi grid state PUBLISHED — the stream opens only when two single-sport streams are live",
-   "candidatesEvaluated": 0,
+   "state": "ACTIVE",
+   "reason": "3 multi-sport cards frozen for 2026-09-26",
+   "candidatesEvaluated": 3,
    "rejections": [],
-   "card": null,
+   "card": [
+    {
+     "band": "medium",
+     "slipId": "multi-medium-2026-09-26",
+     "combinedAmerican": 156,
+     "combinedDecimal": 2.557,
+     "legs": [
+      {
+       "sport": "mlb",
+       "eventId": "a0fc8eb52d64679d94e7eaa311299d74",
+       "player": "Geraldo Perdomo",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -178,
+       "decimal": 1.5617977528089888,
+       "score": 0,
+       "team": "AZ",
+       "opponent": "SD",
+       "marketLabel": "Hits"
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401911630",
+       "player": "Raul Rosas Jr.",
+       "market": "fight_winner",
+       "side": "win",
+       "line": null,
+       "odds": -157,
+       "decimal": 1.6369426751592355,
+       "score": 0,
+       "team": null,
+       "opponent": "Raoni Barcelos",
+       "marketLabel": "Fight winner"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    },
+    {
+     "band": "high",
+     "slipId": "multi-high-2026-09-26",
+     "combinedAmerican": 506,
+     "combinedDecimal": 6.059,
+     "legs": [
+      {
+       "sport": "mlb",
+       "eventId": "0112f4a595862d820eb4e9640d31ea4c",
+       "player": "Josh Smith",
+       "market": "batter_hits_runs_rbis",
+       "side": "Under",
+       "line": 1.5,
+       "odds": -145,
+       "decimal": 1.6896551724137931,
+       "score": 0,
+       "team": "TOR",
+       "opponent": "CIN",
+       "marketLabel": "Hits + Runs + RBIs"
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401914466",
+       "player": "Montel Jackson",
+       "market": "fight_winner",
+       "side": "win",
+       "line": null,
+       "odds": -215,
+       "decimal": 1.4651162790697674,
+       "score": 0,
+       "team": null,
+       "opponent": "Ricky Simon",
+       "marketLabel": "Fight winner"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "f6f4976b029249f664cf53c32044f64a",
+       "player": "Brandon Lowe",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -186,
+       "decimal": 1.5376344086021505,
+       "score": 0,
+       "team": "PIT",
+       "opponent": "DET",
+       "marketLabel": "Hits"
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401911631",
+       "player": "Rodolfo Vieira",
+       "market": "fight_winner",
+       "side": "win",
+       "line": null,
+       "odds": -169,
+       "decimal": 1.5917159763313609,
+       "score": 0,
+       "team": null,
+       "opponent": "Robert Bryczek",
+       "marketLabel": "Fight winner"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    },
+    {
+     "band": "longshot",
+     "slipId": "multi-longshot-2026-09-26",
+     "combinedAmerican": 768,
+     "combinedDecimal": 8.681,
+     "legs": [
+      {
+       "sport": "mlb",
+       "eventId": "f6f4976b029249f664cf53c32044f64a",
+       "player": "Max Clark",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -182,
+       "decimal": 1.5494505494505495,
+       "score": 0,
+       "team": "DET",
+       "opponent": "PIT",
+       "marketLabel": "Hits"
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401914467",
+       "player": "Rodolfo Bellato",
+       "market": "fight_winner",
+       "side": "win",
+       "line": null,
+       "odds": -184,
+       "decimal": 1.5434782608695652,
+       "score": 0,
+       "team": null,
+       "opponent": "Christian Edwards",
+       "marketLabel": "Fight winner"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "93809969d7d5e6b21cc1e8a6070121e9",
+       "player": "Shohei Ohtani",
+       "market": "batter_hits",
+       "side": "Under",
+       "line": 1.5,
+       "odds": -234,
+       "decimal": 1.4273504273504274,
+       "score": 0,
+       "team": "LAD",
+       "opponent": "SF",
+       "marketLabel": "Hits"
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401914471",
+       "player": "Ailin Perez",
+       "market": "fight_winner",
+       "side": "win",
+       "line": null,
+       "odds": -160,
+       "decimal": 1.625,
+       "score": 0,
+       "team": null,
+       "opponent": "Norma Dumont",
+       "marketLabel": "Fight winner"
+      },
+      {
+       "sport": "mlb",
+       "eventId": "9b8ec8bc261ab6b47fd213703849325e",
+       "player": "Shea Langeliers",
+       "market": "batter_hits",
+       "side": "Over",
+       "line": 0.5,
+       "odds": -177,
+       "decimal": 1.5649717514124295,
+       "score": 0,
+       "team": "ATH",
+       "opponent": "HOU",
+       "marketLabel": "Hits"
+      }
+     ],
+     "status": "pending",
+     "record": null
+    }
+   ],
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "NO_PLAY",
+    "state": "ACTIVE",
     "policyVersion": "multi-cards@1",
     "evidence": {
      "policyVersion": "multi-cards@1",
-     "reason": "multi grid state PUBLISHED — the stream opens only when two single-sport streams are live"
+     "cardRef": "card+card+card",
+     "lockAt": "2026-09-26T14:41:20Z"
     },
     "transitions": [
      {
@@ -747,8 +933,8 @@
       "runId": "open:multi-cards:2026-09-26"
      },
      {
-      "to": "NO_PLAY",
-      "runId": "eval:2026-09-26:c8a670439772"
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-26:c8a670439772"
      }
     ]
    }
@@ -765,11 +951,6 @@
   }
  ],
  "watchdog": [
-  {
-   "product": "end-zone-vault",
-   "kind": "INCIDENT_OPEN",
-   "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-26"
-  },
   {
    "product": "ufc-cards",
    "kind": "STALE_ACTIVE_CARD",
