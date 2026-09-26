@@ -132,9 +132,26 @@ function BucketCard({
                   {b.wins}–{b.losses}
                   {b.pushes > 0 ? `–${b.pushes}P` : ""}
                 </span>
+                {/*
+                  ⚠ THIS NUMBER USED TO BE `b.total`, LABELLED "dec".
+                  Measured on the committed artifact (comparison_report_2026-09-25): batter_hits is
+                  `total 197 · wins 100 · losses 76 · pushes 0 · voids 21`. The row therefore read
+                  "100–76 · 197 dec · 56.8%", and a reader who divides 100 by 197 gets 50.8% and
+                  concludes the RATE is wrong. It is not: the rate is 100/176 and the artifact
+                  reconciles at every level — headline, byMarket and byConfidence all satisfy
+                  total = wins + losses + pushes + voids. The display contradicted correct data,
+                  which is the harder defect to notice and the same loss of trust.
+                  The denominator shown is now exactly the one the rate is computed over.
+                */}
                 <span style={{ color: "var(--vault-text-faint)" }}>
-                  · {b.total} dec
+                  · {b.wins + b.losses} dec
                 </span>
+                {/* And the voids are named rather than absorbed into a total nobody can explain.
+                    The repo's own words for this elsewhere: a condition that did not hold is never
+                    scored as a miss. 21 of batter_hits' 197 were invisible. */}
+                {b.voids > 0 ? (
+                  <span style={{ color: "var(--vault-text-faint)" }}>· {b.voids} void</span>
+                ) : null}
                 <span
                   className="font-display font-semibold"
                   style={{

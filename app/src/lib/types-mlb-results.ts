@@ -29,10 +29,20 @@ export interface MlbSettledLean {
 
 export interface MlbBucket {
   label: string;
+  /** wins + losses + pushes + voids. NOT the decisive denominator — see `voids`. */
   total: number;
   wins: number;
   losses: number;
   pushes: number;
+  /**
+   * ⚠ THE PRODUCER HAS ALWAYS WRITTEN THIS AND THE TYPE DID NOT DECLARE IT, so no consumer could
+   * render it. On comparison_report_2026-09-25, batter_hits is `total 197 · 100–76 · pushes 0 ·
+   * voids 21`: twenty-one rows that exist in the cohort, are correctly excluded from the rate, and
+   * were invisible on the page — while the number shown beside the rate was `total`, labelled
+   * "dec". A field a producer writes and a type drops is a field no surface can be honest about.
+   */
+  voids: number;
+  /** wins / (wins + losses). Never over `total`. */
   hitRate: number | null;
   /** Per-game bucket also carries the matchup label + gameDate. */
   matchup?: string;
