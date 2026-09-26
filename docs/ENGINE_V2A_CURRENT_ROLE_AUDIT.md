@@ -37,7 +37,7 @@ or unjoined.
 
 | field | NFL | MLB | EPL | UFC |
 |---|:--:|:--:|:--:|:--:|
-| stable participant identity | ✓ | **✗** | ✓ | ✓ |
+| stable participant identity | ✓ | **✗ on the published path** | ✓ | ✓ |
 | current team | ✓ | ~ | ✓ | n/a |
 | roster status | ✓ | ~ | ~ | ✓ |
 | availability (injury/suspension) | ~ | ~ | **✗** | ✗ |
@@ -113,10 +113,18 @@ players.
 
 ## 3 · MLB — measured
 
-**Identity is the gap, and it is total.** Every published MLB player prediction carries
-`playerId: null` and `team: ""` — 65 of 65 on 2026-09-26, and 7/7, 15/15, 20/20 on the three prior
-days. Upstream is worse: the props feed is **1,191 rows, 0 with any player id**, `team: null`,
-`opponent: null`; its `id` is a hash of `gameId:market:name:line` — a row key, not an identity.
+**Identity is the gap on the published path — and it is a PATH, not the sport.** Every published
+MLB player prediction carries `playerId: null` and `team: ""` — 65 of 65 on 2026-09-26, and 7/7,
+15/15, 20/20 on the three prior days. Upstream of it the props feed is **1,191 rows, 0 with any
+player id**, `team: null`, `opponent: null`; its `id` is a hash of `gameId:market:name:line` — a
+row key, not an identity.
+
+⚠ **CORRECTION to my own first reading of this.** I wrote that MLB has no stable participant
+identity. That is too broad: the parlay optimizer's leg pool carries a real StatsAPI `playerId` on
+**371 of 371** rows for the same slate. So the identity exists in this product and one branch of
+it throws the identity away. That is a better problem to have than an absent one, and a different
+fix — join the published path to the producer that already resolves it, rather than build a
+resolver. See `PARLAY_LAB_METHODOLOGY_AUDIT.md` §7.
 
 A canonical store exists — `data/internal/platform/v1/players/MLB.jsonl.gz`, 747 players keyed
 `mlb-player-<statsapi id>` — but:
@@ -228,7 +236,7 @@ Registration first, per §27, and none of it is started:
 | NFL player boards, 2026-09-27 | 13 of 14 games | arrivals contradiction — **fixed #693**, artifacts correct at the next event window |
 | NFL player boards, 2026-09-27 | 38 of 78 team-pools | opportunity over-allocated — **measured #694**, numbers unchanged pending §7.1 |
 | NFL player boards | 24 movers | genuinely unplaced; correctly shown as history, honestly framed |
-| MLB player predictions | 100% of rows | no stable participant identity |
+| MLB player predictions | 100% of rows | identity dropped on the published path (the optimizer resolves it) |
 | EPL player projections | all fixtures | limitation sentence overstates the provider gap |
 | UFC bouts | none measured | no current-state defect found |
 
@@ -245,6 +253,9 @@ generated artifact — #693 changes a producer, and its boards correct themselve
   own `nflverseTeam` rather than restating it. **Two normalisers, one rule.**
 - **I nearly reported MLB's midday `prop-derived` lineups as a defect.** Checking three completed
   slates showed confirmed orders arrive. A pregame state is not a gap.
+- **I wrote that MLB has no stable participant identity.** The published predictions path drops
+  it; the parlay optimizer resolves a real StatsAPI id on 371 of 371 rows for the same slate. An
+  absent capability and a discarded one need different fixes, and I had named the wrong one.
 - **I first read the SF board as inflating survivors** because Σ receptions ≈ a full team total.
   It does not: `predictAllocation` folds the residual into `other`. The real defect was the
   *opposite* shape — the pool is over-subscribed before the gate, not renormalised after it.
