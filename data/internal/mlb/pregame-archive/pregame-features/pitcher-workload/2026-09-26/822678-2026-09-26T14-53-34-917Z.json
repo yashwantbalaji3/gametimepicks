@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822678,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T14:53:34.917Z",
+  "availableAt": "2026-09-26T14:53:34.917Z",
+  "eventStartTime": "2026-09-26T16:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 813349,
+      "name": "Connelly Early",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 88,
+      "lastStartDate": "2026-06-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 6,
+        "bbAvg": 2.2,
+        "erAvg": 2.2,
+        "hrAvg": 0.8,
+        "kPer9": 10.66,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 91.67,
+        "k": 93,
+        "bb": 34,
+        "er": 35,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 804636,
+      "name": "Jonah Tong",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 3,
+        "ipSum": 15.67,
+        "ipAvg": 5.22,
+        "kAvg": 6,
+        "bbAvg": 2,
+        "erAvg": 2.67,
+        "hrAvg": 0.33,
+        "kPer9": 10.34,
+        "workloadIpLast5": 15.67
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 15.67,
+        "k": 18,
+        "bb": 6,
+        "er": 8,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-26T14:53:34.917Z"
+  },
+  "recordHash": "47ab7dd0b5e1b938d670ed1df8d16941f4581f0ed1774c54582f9400f1181807"
+}

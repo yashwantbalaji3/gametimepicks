@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824949,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T14:53:34.917Z",
+  "availableAt": "2026-09-26T14:53:34.917Z",
+  "eventStartTime": "2026-09-27T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 678022,
+      "name": "Jack Perkins",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 5.4,
+        "bbAvg": 2,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 9.47,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 76.33,
+        "k": 86,
+        "bb": 33,
+        "er": 55,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 669713,
+      "name": "Hayden Wesneski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 7,
+      "lastStartDate": "2026-09-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 3.8,
+        "bbAvg": 1.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 6.49,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 54,
+        "k": 41,
+        "bb": 19,
+        "er": 21,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-26T14:53:34.917Z"
+  },
+  "recordHash": "4236ee7fa705c06e9e382d44bf07db675043210ccb4930e449246fb37bfb0cf0"
+}

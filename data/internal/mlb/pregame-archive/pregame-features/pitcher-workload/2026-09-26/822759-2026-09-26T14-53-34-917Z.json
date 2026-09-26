@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822759,
+  "date": "2026-09-26",
+  "capturedAt": "2026-09-26T14:53:34.917Z",
+  "availableAt": "2026-09-26T14:53:34.917Z",
+  "eventStartTime": "2026-09-26T19:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 702056,
+      "name": "Trey Yesavage",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-09-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 5,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 10.89,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 95.67,
+        "k": 94,
+        "bb": 46,
+        "er": 39,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 695076,
+      "name": "Rhett Lowder",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.33,
+        "ipAvg": 4.07,
+        "kAvg": 3.6,
+        "bbAvg": 2.2,
+        "erAvg": 4.8,
+        "hrAvg": 0.6,
+        "kPer9": 7.97,
+        "workloadIpLast5": 20.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 120.33,
+        "k": 98,
+        "bb": 49,
+        "er": 84,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-26T14:53:34.917Z"
+  },
+  "recordHash": "3d5aa1e8fd88e9b7aaf2b117a647662145792a669cfebb3f1767d07b63b0840a"
+}
