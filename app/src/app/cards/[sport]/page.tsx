@@ -74,7 +74,7 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
   const coverageNote = params.sport === "ufc" ? loadUfcResultsCoverage().note : null;
 
   return (
-    <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-4 py-6">
       {/* P252: `as="h1"` — this is the page's own title, and SectionHeader defaults to h2 because
           it is usually a SECTION header. Without it these three routes shipped no h1 at all: the
           only heading a screen reader could land on was a section, and the document had no name. */}
@@ -151,6 +151,6 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
         <Link href="/results" style={{ color: "var(--vault-text-mute)" }}>Settled track record → Results</Link>
         <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
       </nav>
-    </main>
+    </div>
   );
 }

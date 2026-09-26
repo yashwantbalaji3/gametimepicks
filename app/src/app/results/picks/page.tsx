@@ -33,7 +33,7 @@ export default function AllGradedPicksPage() {
   const mlbGames = loadMlbGameRecord();
 
   return (
-    <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
+    <div className="mx-auto w-full max-w-[1100px] px-4 py-6">
       <SectionHeader
         as="h1"
         eyebrow="Track record · every sport"
@@ -125,6 +125,6 @@ export default function AllGradedPicksPage() {
         <Link href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)" }}>Suggested-card record →</Link>
         <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
       </nav>
-    </main>
+    </div>
   );
 }

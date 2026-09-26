@@ -80,7 +80,7 @@ export default function ModelAuditPage() {
   const audit = loadModelAudit();
   if (!audit) {
     return (
-      <main className="mx-auto max-w-[1080px] px-4 sm:px-6 py-10">
+      <div className="mx-auto max-w-[1080px] px-4 sm:px-6 py-10">
         <h1
           className="font-display tracking-tight"
           style={{ color: "var(--vault-text)", fontSize: 28 }}
@@ -99,7 +99,7 @@ export default function ModelAuditPage() {
           </Link>{" "}
           is unaffected.
         </p>
-      </main>
+      </div>
     );
   }
 
@@ -108,7 +108,7 @@ export default function ModelAuditPage() {
   const mlb = audit.sports.mlb;
 
   return (
-    <main className="mx-auto max-w-[1080px] px-4 sm:px-6 py-8">
+    <div className="mx-auto max-w-[1080px] px-4 sm:px-6 py-8">
       <Breadcrumb />
       <PageHero artifact={audit} />
       <CrossSportRow audit={audit} />
@@ -146,7 +146,7 @@ export default function ModelAuditPage() {
       <CandidateReadout rows={candidateRows} auditRange={candidateAuditRange} />
 
       <HonestyFooter generatedAt={audit.generatedAt} />
-    </main>
+    </div>
   );
 }
 

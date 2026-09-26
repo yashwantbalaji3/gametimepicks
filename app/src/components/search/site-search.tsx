@@ -15,6 +15,7 @@
  * it opens, and there is no version of that which is worth the convenience.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 
 interface Row { k: number; l: string; s: string; h: string; t: string }
 interface Index { kinds: string[]; rows: Row[] }
@@ -29,6 +30,7 @@ export default function SiteSearch() {
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(() => {
     if (index || loading) return;
@@ -40,23 +42,24 @@ export default function SiteSearch() {
       .finally(() => setLoading(false));
   }, [index, loading]);
 
-  /* "/" opens it from anywhere, unless the reader is already typing somewhere. Escape closes. */
+  /* "/" opens it from anywhere, unless the reader is already typing somewhere. Escape, Tab
+     containment and focus return are the shared dialog primitive's, not this component's. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = document.activeElement as HTMLElement | null;
       const typing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
       if (e.key === "/" && !typing && !open) { e.preventDefault(); setOpen(true); }
-      else if (e.key === "Escape" && open) setOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  const closeSearch = useCallback(() => setOpen(false), []);
+  useDialogFocus(dialogRef, { onClose: closeSearch, active: open, initialFocus: inputRef });
+
   useEffect(() => {
     if (!open) return;
     load();
-    const t = setTimeout(() => inputRef.current?.focus(), 20);
-    return () => clearTimeout(t);
   }, [open, load]);
 
   const results = useMemo(() => {
@@ -110,6 +113,7 @@ export default function SiteSearch() {
 
       {open ? (
         <div
+          ref={dialogRef}
           role="dialog"
           aria-modal="true"
           aria-label="Search"

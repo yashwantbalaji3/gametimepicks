@@ -21,6 +21,7 @@ import { createContext as createSimContext, advance, scriptForReadiness, PHASE_C
 import { themeFor } from "@/lib/simulate/themes";
 import SimulationScene from "@/components/simulate/scenes";
 import type { SimDayEvent } from "@/lib/simulate/day-view";
+import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 
 /** The machine context, at the TS boundary (the .mjs module's literal inference is too narrow). */
 interface SimCtx {
@@ -39,19 +40,17 @@ export default function SimulationStage({ event, onClose }: { event: SimDayEvent
     createSimContext({ sport: event.sport, eventId: event.id, productDate: null, readiness: event.state, href: event.href }) as unknown as SimCtx,
   );
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const stepRef = useRef(0);
   const pausedRef = useRef(false);
   const [paused, setPaused] = useState(false);
 
   const close = useCallback(() => onClose(), [onClose]);
 
-  // Focus in; Escape cancels; the opener's focus restores via the parent (it re-renders the card).
-  useEffect(() => {
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [close]);
+  /* Focus in, contained, and back out — from the shared primitive. This stage moved focus in and
+     handled Escape; it did not contain Tab, and it left the opener's restore to "the parent
+     re-renders the card", which is not a focus contract. */
+  useDialogFocus(dialogRef, { onClose: close, initialFocus: closeRef });
 
   // Hidden tab ⇒ pause the narration timer AND the scene's animations.
   useEffect(() => {
@@ -109,6 +108,7 @@ export default function SimulationStage({ event, onClose }: { event: SimDayEvent
       onClick={close}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={`${theme.label} simulation · ${event.matchup}`}

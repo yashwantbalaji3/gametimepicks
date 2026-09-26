@@ -24,6 +24,7 @@ import { takeNewestFirst } from "@/lib/recent-form-order";
 import { humanMarketLabel } from "@/lib/market-label";
 import { PlayerPortrait, TeamLogo } from "@/components/entity";
 import RecentFormSparkline from "./recent-form-sparkline";
+import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 
 interface Props {
   leg: ParlayLeg | null;
@@ -32,20 +33,20 @@ interface Props {
 
 export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [showLast10, setShowLast10] = useState(false);
+
+  /* Tab containment, Escape and focus RETURN all come from the shared primitive. This drawer
+     handled Escape and moved focus in, and did neither of the other two: Shift+Tab left the open
+     drawer, and dismissing it dropped focus onto <body>. */
+  useDialogFocus(dialogRef, { onClose, active: Boolean(leg), initialFocus: closeRef });
 
   useEffect(() => {
     if (!leg) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKey);
     // Lock body scroll while modal is open.
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    setTimeout(() => closeRef.current?.focus(), 0);
     return () => {
-      document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
   }, [leg, onClose]);
@@ -102,6 +103,7 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={`Recent form for ${leg.playerName}`}

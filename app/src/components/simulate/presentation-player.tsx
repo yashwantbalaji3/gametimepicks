@@ -45,6 +45,7 @@ import type {
   PresentationStat,
 } from "@/lib/simulate/presentation/types";
 import { isPresentable } from "@/lib/simulate/presentation/types";
+import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 
 /** Frame shapes. `natural` is the in-page default; the rest are Release D's recording compositions. */
 export type FrameRatio = "natural" | "portrait" | "landscape" | "feed";
@@ -302,13 +303,10 @@ export default function PresentationPlayer({
     }) as PlayerCtx);
   }, [presentation.eventId, chapters.length, manifest, presentation]);
 
-  /* Focus in, and back out to whatever opened this. */
-  useEffect(() => {
-    openerRef.current = (document.activeElement as HTMLElement) ?? null;
-    closeRef.current?.focus();
-    const opener = openerRef.current;
-    return () => { try { opener?.focus?.(); } catch { /* the opener may have unmounted */ } };
-  }, []);
+  /* ⚠ THIS COMPONENT HAD THE ONLY CORRECT IMPLEMENTATION IN THE PRODUCT — focus in, Tab contained,
+     opener restored — and it was the only one. It now consumes the shared primitive instead, so
+     there is one implementation rather than one good one and five partial ones. */
+  useDialogFocus(dialogRef, { onClose, initialFocus: closeRef });
 
   /* Background scroll is locked ONLY while open, and restored on every exit path including unmount. */
   useEffect(() => {
@@ -348,21 +346,11 @@ export default function PresentationPlayer({
     return () => window.clearTimeout(t);
   }, [ctx, hidden, reduced, chapters, act]);
 
-  /* Keyboard: Escape closes, Tab is trapped, arrows and space drive the chapters. */
+  /* Keyboard: arrows and space drive the chapters. Escape and Tab are the dialog primitive’s. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { e.preventDefault(); onClose(); return; }
-      if (e.key === "Tab") {
-        const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
-        );
-        if (!focusables?.length) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-        return;
-      }
+      /* Escape and Tab belong to `useDialogFocus`; this handler owns only the chapter controls. */
+      if (e.key === "Escape" || e.key === "Tab") return;
       if (!manifest) return;
       if (e.key === "ArrowRight") { e.preventDefault(); act("NEXT"); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); act("PREV"); }

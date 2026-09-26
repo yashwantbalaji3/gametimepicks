@@ -29,6 +29,7 @@ import {
 } from "@/lib/nav-active-route";
 import { destinationsFor, NAV_GROUP_LABEL, groupChangedAt } from "@/lib/navigation";
 import { useSavedForecasts } from "@/lib/saved/saved-store";
+import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 
 // Lightweight inline glyphs. Tiny SVGs keep the bundle slim and let
 // us use `currentColor` for active/inactive theming. Not branded icons.
@@ -160,33 +161,26 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
  */
 function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: string }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
   /* Phase 5O: the Saved row carries the reader's own count, read from the browser-local store only (no account). */
   const saved = useSavedForecasts();
   const savedCount = saved.ready ? saved.items.length : 0;
   const barHrefs = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
   const items = destinationsFor("rail").filter((d) => !barHrefs.has(d.href));
-  useEffect(() => {
-    /*
-     * FOCUS GOES IN, AND IT COMES BACK (Phase 6 · P605).
-     *
-     * Opening the sheet moved focus to Close, which is right. Closing it moved focus nowhere — the dialog
-     * unmounted and focus fell to <body>, so a keyboard or screen-reader user who dismissed the menu lost their
-     * place in the bar entirely and had to tab from the top of the page. The element that opened the sheet is the
-     * Menu button itself, so remembering the active element at mount and restoring it on unmount returns focus to
-     * exactly the control the reader pressed, whether they left via Close, Escape, or the scrim.
-     */
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      opener?.focus();
-    };
-  }, [onClose]);
+  /*
+   * FOCUS GOES IN, IS CONTAINED, AND COMES BACK — all three now, from one primitive.
+   *
+   * This sheet already moved focus to Close and returned it to the Menu button (Phase 6 · P605).
+   * What it did NOT do was contain Tab: `aria-modal="true"` tells assistive technology the rest of
+   * the page is inert and does nothing to a real browser's Tab key, so Shift+Tab from Close walked
+   * straight out of the open menu into the page behind it. `useDialogFocus` owns all of it, and the
+   * same hook now serves every dialog in the product.
+   */
+  useDialogFocus(sheetRef, { onClose, initialFocus: closeRef });
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" }} onClick={onClose}>
       <div
+        ref={sheetRef}
         role="dialog" aria-modal="true" aria-label="Menu"
         className="rounded-t-[16px] max-h-[78vh] overflow-y-auto px-4 pb-8 pt-3"
         onClick={(e) => e.stopPropagation()}

@@ -86,7 +86,7 @@ export default function MrDubPage() {
   });
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
+    <div className="mx-auto w-full max-w-4xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
       {/* 0 — Completed ladders, stated factually from the canonical ledger. Not framed as proof of skill:
           two ladders is a sample of two, and the banner copy says so. */}
       {/* The flagship read per sport, including the two that are named but not built. */}
@@ -227,6 +227,6 @@ export default function MrDubPage() {
       <p className="text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
         Paper-only educational tracking. No wagers are placed. Mr. Dub is not a sportsbook and this is not financial advice. Canonical money moves only through official settlement; every figure on this page is derived from the settled ledger and reconciles to the {`$${f.kpis.bankroll.toLocaleString("en-US", { minimumFractionDigits: 2 })}`} paper bankroll.
       </p>
-    </main>
+    </div>
   );
 }

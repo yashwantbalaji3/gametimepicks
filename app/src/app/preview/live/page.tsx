@@ -43,7 +43,7 @@ export default function LivePreviewPage() {
   ];
 
   return (
-    <main className="mx-auto px-4 py-10" style={{ maxWidth: 960 }}>
+    <div className="mx-auto px-4 py-10" style={{ maxWidth: 960 }}>
       <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--vault-text-faint)", margin: 0 }}>
         Internal preview · not public
       </p>
@@ -87,6 +87,6 @@ export default function LivePreviewPage() {
           />
         </section>
       ))}
-    </main>
+    </div>
   );
 }
