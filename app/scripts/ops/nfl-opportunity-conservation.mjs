@@ -84,7 +84,10 @@ for (const b of boards) {
 const fold = foldConservation(per);
 
 if (JSON_OUT) {
-  console.log(JSON.stringify({ artifact: "nfl-opportunity-conservation", asOf: new Date().toISOString(), scope: DATE ?? (ALL ? "all" : "future"), fold, unmeasurable, boards: per }, null, 1));
+  /* ⚠ fs.writeSync, NOT console.log. On a PIPE node's stdout is async, and `process.exit()` discards
+     whatever has not flushed — this silently truncated a 68KB report at exactly 65536 bytes and
+     handed the consumer invalid JSON with a success exit code. A synchronous write cannot be lost. */
+  fs.writeSync(1, JSON.stringify({ artifact: "nfl-opportunity-conservation", asOf: new Date().toISOString(), scope: DATE ?? (ALL ? "all" : "future"), fold, unmeasurable, boards: per }, null, 1) + "\n");
   process.exit(fold.overAllocated ? 1 : 0);
 }
 
