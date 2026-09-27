@@ -20,6 +20,8 @@ import CardShapeList, { type ShapeRecordView } from "./card-shape-list";
  */
 
 interface Candidate {
+  /** §14 — the bench filter needs it, and this local shape is what crosses the untyped .mjs edge. */
+  readonly sport: string;
   readonly player: string;
   readonly market: string;
   readonly gameId: string;
@@ -80,6 +82,10 @@ const pctPair = (before: number | null, after: number | null): [string, string] 
 };
 
 const toCandidate = (l: BuildLeg): Candidate => ({
+  /* §14: without this the bench filter compares undefined to undefined and lets any sport through.
+     `benchFor` now refuses a target with no sport, so omitting it here would silently kill the
+     feature instead — both halves have to be right. */
+  sport: String(l.sport),
   player: l.slipLeg?.player ?? l.label,
   market: l.market,
   gameId: String(l.gameId ?? ""),

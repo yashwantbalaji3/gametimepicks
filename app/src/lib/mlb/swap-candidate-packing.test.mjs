@@ -29,7 +29,7 @@ test("an official headshot packs to mlbPersonId and the bench rebuilds the same 
   assert.equal(c.mlbPersonId, "624413");
   assert.equal(c.photoUrl ?? mlbHeadshotUrl(c.mlbPersonId), mlbHeadshotUrl(624413));
   assert.deepEqual({ ...c, mlbPersonId: undefined }, {
-    player: "Pete Alonso", mlbPersonId: undefined, teamAbbr: "NYM", opponentAbbr: "BAL", market: "Total bases", marketLabel: "Total bases",
+    sport: "mlb", player: "Pete Alonso", mlbPersonId: undefined, teamAbbr: "NYM", opponentAbbr: "BAL", market: "Total bases", marketLabel: "Total bases",
     side: "Over", line: 1.5, americanOdds: 120, gameId: "bal-nym", matchup: "BAL @ NYM",
   });
 });

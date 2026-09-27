@@ -5,7 +5,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { benchFor, repriceCard, bandFor, toAmerican, decimalOdds } from "./leg-swap.ts";
 
+/* §14: every candidate and target now declares a sport — benchFor refuses a sportless target. */
 const c = (player, market, odds, gameId, extra = {}) => ({
+  sport: "mlb",
   player, market, marketLabel: market, side: "Over", line: 0.5,
   americanOdds: odds, gameId, matchup: `${gameId} matchup`,
   photoUrl: null, teamAbbr: null, opponentAbbr: null, ...extra,
@@ -19,8 +21,8 @@ const POOL = [
   c("Same Game As Other Leg", "batter_hits", -175, "gOTHER"),
   c("Already On Card", "batter_hits", -185, "g6"),
 ];
-const TARGET = { player: "Outgoing", market: "batter_hits", gameId: "g1", americanOdds: -180 };
-const ON_CARD = [TARGET, { player: "Already On Card", market: "batter_hits", gameId: "gOTHER", americanOdds: -150 }];
+const TARGET = { sport: "mlb", player: "Outgoing", market: "batter_hits", gameId: "g1", americanOdds: -180 };
+const ON_CARD = [TARGET, { sport: "mlb", player: "Already On Card", market: "batter_hits", gameId: "gOTHER", americanOdds: -150 }];
 
 test("substitutes like-for-like: same market only", () => {
   const bench = benchFor(POOL, TARGET, ON_CARD);
@@ -58,7 +60,7 @@ test("price distance is measured in decimal space, not raw American", () => {
   // +110 and −110 are neighbours in probability but 220 apart as integers. Sorting the raw number
   // would call a near-identical price a wild swing.
   const pool = [c("Just Over Even", "m", +110, "gA"), c("Far Favourite", "m", -900, "gB")];
-  const bench = benchFor(pool, { player: "x", market: "m", gameId: "g0", americanOdds: -110 }, []);
+  const bench = benchFor(pool, { sport: "mlb", player: "x", market: "m", gameId: "g0", americanOdds: -110 }, []);
   assert.equal(bench[0].player, "Just Over Even");
 });
 

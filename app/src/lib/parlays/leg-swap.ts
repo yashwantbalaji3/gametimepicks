@@ -24,6 +24,14 @@
  */
 
 export interface SwapCandidate {
+  /**
+   * REQUIRED (§14). `benchFor` matched on `market` alone, and `SwapCandidate` had no sport at all —
+   * so any two sports sharing a market label ("Total", "Moneyline", "Shots") could offer each
+   * other's players as replacements. `leg-swap-panel` even accepted a `sport` prop and never passed
+   * it to the filter. Making this required means a new construction site is a compile error rather
+   * than a silent cross-sport swap.
+   */
+  readonly sport: string;
   readonly player: string;
   /** A portrait URL verbatim; absent when `mlbPersonId` carries an official StatsAPI headshot instead. */
   readonly photoUrl?: string | null;
@@ -41,6 +49,8 @@ export interface SwapCandidate {
 }
 
 export interface SwapTarget {
+  /** REQUIRED for the same reason as on SwapCandidate — a target without a sport cannot constrain. */
+  readonly sport: string;
   readonly player: string;
   readonly market: string;
   readonly gameId: string;
@@ -83,10 +93,32 @@ export function benchFor(
   onCard: readonly SwapTarget[],
   limit = 6,
 ): SwapCandidate[] {
+  /*
+   * ⚠ A MISSING SPORT IS A REFUSAL, NOT A FREE PASS. `slip-insight.mjs` reaches this function
+   * through an UNTYPED .mjs boundary, so TypeScript cannot force a sport on those candidates — and
+   * with a plain `c.sport === target.sport` filter, `undefined === undefined` is true and the whole
+   * constraint silently no-ops on exactly the path that needed it most: a sportless target and a
+   * sportless candidate would match. Offering no bench is the safe failure; offering a cross-sport
+   * bench is not.
+   *
+   * This refusal plus a plain equality below is the MINIMAL pair that is fully load-bearing. An
+   * earlier version also tested `Boolean(c.sport)` in the filter, which was redundant — a sportless
+   * candidate already fails equality against a sported target — and a probe removing either line on
+   * its own changed nothing, which is how redundancy hides itself from a mutation test.
+   */
+  if (!target.sport) return [];
+
   const usedGames = new Set(onCard.filter((l) => l.gameId !== target.gameId).map((l) => l.gameId));
   const usedPlayers = new Set(onCard.map((l) => l.player));
 
   return pool
+    /*
+     * ⚠ SPORT FIRST. Same market LABEL is not the same market: two sports can both call something
+     * "Total" or "Moneyline", and without this filter an MLB prop was a legal replacement for a
+     * soccer leg. No live collision is demonstrable today — the /build pool is currently empty — so
+     * this is preventative, and the synthetic tests are what prove it works.
+     */
+    .filter((c) => c.sport === target.sport)
     .filter((c) => c.market === target.market)          // same position
     .filter((c) => !usedGames.has(c.gameId))            // no doubling up on a game already on the card
     .filter((c) => !usedPlayers.has(c.player))          // and never the same player twice
