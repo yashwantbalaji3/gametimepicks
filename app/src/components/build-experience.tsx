@@ -16,7 +16,7 @@
  *
  * Paper-only, educational; nothing here is placed or recorded.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { BuildLeg } from "@/lib/build-legs";
 import { hydrateBuildLegs, type BuildLegAtoms } from "@/lib/build/leg-atoms";
 import { pregameOnly } from "@/lib/parlays/explorer-legs";
@@ -27,6 +27,7 @@ import { tierFromOdds } from "@/lib/build/risk-tier.mjs";
 import { americanToDecimal, decimalToAmerican, formatAmerican } from "@/lib/odds-math";
 import StakePayoutInput from "@/components/ui/stake-payout-input";
 import StatusChip from "@/components/ui/status-chip";
+import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 import PlayerAvatar from "@/components/player-avatar";
 import { classifyAgainstSelection, cardHealth } from "@/lib/build/compatibility.mjs";
 import { gradeLeg } from "@/lib/build/grade.mjs";
@@ -136,6 +137,17 @@ export default function BuildExperience({
   const [risk, setRisk] = useState<string>("All");
   const [q, setQ] = useState("");
   const [slipOpen, setSlipOpen] = useState(false);
+  /* §12: the sheet's own element and its Close button, so `useDialogFocus` can trap Tab inside it
+     and land focus somewhere deliberate rather than on whatever happens to be first. */
+  const slipSheetRef = useRef<HTMLDivElement>(null);
+  const slipCloseRef = useRef<HTMLButtonElement>(null);
+  /*
+   * ⚠ useCallback IS LOAD-BEARING, NOT TIDINESS. `useDialogFocus` lists `onClose` in its deps, so an
+   * inline arrow would give the effect a new identity every render — tearing down and re-running it,
+   * which re-focuses the sheet on each render and fights the reader's own Tab.
+   */
+  const closeSlip = useCallback(() => setSlipOpen(false), []);
+  useDialogFocus(slipSheetRef, { onClose: closeSlip, active: slipOpen, initialFocus: slipCloseRef });
   const [gameFilter, setGameFilter] = useState<string | null>(null);
   const [seedNote, setSeedNote] = useState<string | null>(null);
 
@@ -530,10 +542,30 @@ export default function BuildExperience({
         )}
         {slipOpen && (
           <div className="fixed inset-0 z-50 flex flex-col justify-end" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" }} onClick={() => setSlipOpen(false)}>
-            <div className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3" onClick={(e) => e.stopPropagation()} style={{ background: "var(--vault-bg)", borderTop: "1px solid var(--vault-border-strong)" }}>
+            {/*
+              * §12: THE ONE MODAL IN THIS CODEBASE THAT BYPASSED THE SHARED PRIMITIVE.
+              *
+              * This mobile sheet had no `role`, no accessible name, no Escape, no focus trap and no
+              * focus return — it was a full-screen `fixed inset-0` overlay that left focus on the
+              * page behind it, which is the reported "View-card mobile sheet" defect exactly. Every
+              * other dialog was fixed in #705; this one renders from a component rather than a
+              * route, so a survey of dialogs missed it.
+              *
+              * §12 says not to patch routes independently when a shared primitive is the root fix,
+              * so it consumes `useDialogFocus` rather than growing its own handlers.
+              */}
+            <div
+              ref={slipSheetRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Your card and paper stake"
+              className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3"
+              onClick={(e) => e.stopPropagation()}
+              style={{ background: "var(--vault-bg)", borderTop: "1px solid var(--vault-border-strong)" }}
+            >
               <div className="flex items-center justify-between gap-2 mb-2 px-1">
                 <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Your card &amp; paper stake</span>
-                <button type="button" onClick={() => setSlipOpen(false)} className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)", fontSize: 11, minHeight: 44, minWidth: 44 }}>Close ✕</button>
+                <button ref={slipCloseRef} type="button" onClick={() => setSlipOpen(false)} className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)", fontSize: 11, minHeight: 44, minWidth: 44 }}>Close ✕</button>
               </div>
               {betslipCard}
             </div>
