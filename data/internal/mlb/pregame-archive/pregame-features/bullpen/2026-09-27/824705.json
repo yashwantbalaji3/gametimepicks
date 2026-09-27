@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824705,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T00:48:47.591Z",
+  "availableAt": "2026-09-27T00:48:47.591Z",
+  "eventStartTime": "2026-09-27T19:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-24",
+    "2026-09-25",
+    "2026-09-26"
+  ],
+  "home": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 245,
+      "relievers": [
+        {
+          "id": 699151,
+          "name": "Jedixson Paez",
+          "appearances": 1,
+          "pitches": 77,
+          "outs": 15,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 687562,
+          "name": "Jake Bennett",
+          "appearances": 1,
+          "pitches": 65,
+          "outs": 11,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 670103,
+          "name": "Raymond Burgos",
+          "appearances": 2,
+          "pitches": 61,
+          "outs": 12,
+          "dates": [
+            "2026-09-24",
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 663776,
+          "name": "Patrick Sandoval",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 112,
+    "teamName": "Chicago Cubs",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 129,
+      "relievers": [
+        {
+          "id": 650644,
+          "name": "Aaron Civale",
+          "appearances": 1,
+          "pitches": 38,
+          "outs": 7,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 665871,
+          "name": "Javier Assad",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 7,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 694037,
+          "name": "Daniel Palencia",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 573204,
+          "name": "Caleb Thielbar",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 1,
+          "dates": [
+            "2026-09-25"
+          ]
+        },
+        {
+          "id": 666171,
+          "name": "Ryan Zeferjahn",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-24"
+          ]
+        },
+        {
+          "id": 668970,
+          "name": "Gavin Hollowell",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-09-25"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-24,2026-09-25,2026-09-26) + feed/live box scores",
+    "capturedAt": "2026-09-27T00:48:47.591Z"
+  },
+  "recordHash": "f21a0cbae0756a0ad57a31ae7b4f2dc1465551d15dae60635320ea82bb36c1cd"
+}
