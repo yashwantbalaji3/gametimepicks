@@ -39,6 +39,19 @@ on:
         description: "Read and report, write nothing"
         required: false
         default: "false"
+      # ⚠ DELIBERATELY NOT AN OVERLOAD OF dry_run. The two answer different questions:
+      #     dry_run=true        do not execute the real factual capture/write path at all
+      #     skip_phase_h=true   DO execute the real FREE factual capture and publish it,
+      #                         but run no paid live-odds step
+      #   Collapsing them would make "refresh the free player stats" impossible to ask for, which is
+      #   exactly the gap this exists to close.
+      #
+      #   DISPATCH-ONLY AND OFF BY DEFAULT: the scheduled Phase H policy is unchanged, because a
+      #   `schedule` event supplies no inputs, so this reads empty and both paid steps run as before.
+      skip_phase_h:
+        description: "Run the FREE ESPN factual capture only — no paid live-odds probe or pilot, zero credits"
+        required: false
+        default: "false"
 
 concurrency:
   group: gtp-generated-artifacts
@@ -82,7 +95,7 @@ jobs:
       # the schedule. `continue-on-error` because a provider hiccup must not fail the live-stat lane
       # that shares this job; the credit ledger records a charged failure either way.
       - name: Phase H · live-odds probe (one 3-credit call, only while a game is in play)
-        if: github.event.inputs.dry_run != 'true'
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.skip_phase_h != 'true' }}
         continue-on-error: true
         working-directory: app
         env:
@@ -90,7 +103,7 @@ jobs:
         run: node scripts/nfl/probe-nfl-live-odds.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --authorized
 
       - name: Phase H · bounded live-odds pilot (refuses until the probe passes)
-        if: github.event.inputs.dry_run != 'true'
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.skip_phase_h != 'true' }}
         continue-on-error: true
         working-directory: app
         env:
