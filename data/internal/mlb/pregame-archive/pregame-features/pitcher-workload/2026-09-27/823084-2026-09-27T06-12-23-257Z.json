@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823084,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T06:12:23.257Z",
+  "availableAt": "2026-09-27T06:12:23.257Z",
+  "eventStartTime": "2026-09-27T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669302,
+      "name": "Logan Gilbert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 7,
+        "bbAvg": 1.8,
+        "erAvg": 3.8,
+        "hrAvg": 1.6,
+        "kPer9": 11.81,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 182,
+        "k": 197,
+        "bb": 48,
+        "er": 77,
+        "hr": 29
+      }
+    },
+    "away": {
+      "id": 579328,
+      "name": "Yusei Kikuchi",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 4.6,
+        "bbAvg": 2.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 7.76,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 62.67,
+        "k": 60,
+        "bb": 29,
+        "er": 34,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T06:12:23.257Z"
+  },
+  "recordHash": "16c196c59c1ced9fdeb3f149b48fba9d6cd4962e6e079d1601532b805479c781"
+}
