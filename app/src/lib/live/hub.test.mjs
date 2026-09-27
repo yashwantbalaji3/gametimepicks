@@ -19,28 +19,70 @@ import { codeOnly, jsxElement, renderedStrings } from "./testing/source-scan.mjs
 const APP = path.join(path.dirname(new URL(import.meta.url).pathname), "..", "..", "..");
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 
-/* ───────────── 1 · the hub cannot reach NFL ───────────── */
+/* ───────────── 1 · which sports the hub may reach, and how ───────────── */
 
-test("HUB 1 · ⚠ nothing the hub can ask for produces an NFL upstream call", () => {
-  const allowed = publicSports({}); // production default
-  assert.deepEqual(allowed, ["mlb"]);
+test("HUB 1 · the SERVER allowlist still defaults to MLB only — NFL renders only where it is enabled", () => {
+  /*
+   * ⚠ THIS GUARD CHANGED WHEN /live GAINED NFL (v1.2). It used to assert "nothing the hub can ask
+   *   for produces an NFL upstream call", which is no longer the contract: the NFL hub asks for its
+   *   own sport on purpose.
+   *
+   *   What survives, and is the part that actually protects us, is that BOTH halves still default
+   *   CLOSED. The server allowlist below is MLB-only unless a deployment opts in, so a hub that asks
+   *   for NFL against a default deployment is REFUSED rather than served. Forgetting to enable
+   *   either half yields MLB only — never an accidental NFL upstream call.
+   */
+  assert.deepEqual(publicSports({}), ["mlb"], "the production default must stay closed");
 
-  // The only request the hub makes, under the production allowlist.
-  const plan = planRequest({ sport: "mlb" }, allowed);
-  assert.equal(plan.ok, true);
-  assert.equal(plan.mode, "scoreboard");
-  const urls = upstreamUrls(plan);
-  assert.match(urls.scoreboard, /^https:\/\/statsapi\.mlb\.com\//);
-  assert.equal(urls.summary, null, "the hub never triggers the heavy per-event summary call");
-  assert.equal(JSON.stringify(urls).includes("espn"), false);
+  const refused = planRequest({ sport: "nfl" }, publicSports({}));
+  assert.equal(refused.ok, false, "a default deployment must refuse NFL, not serve it");
 
-  // And the hub's own code cannot name another sport.
-  const hook = codeOnly(read("src/components/live/use-live-slate.ts"));
-  const hub = codeOnly(read("src/components/live/live-hub.tsx"));
-  assert.equal(/["'`]nfl["'`]/i.test(hook + hub), false, "no hub source may name another sport");
-  const el = jsxElement(read("src/app/live/page.tsx"), "LiveHub");
-  assert.ok(el, "the hub is mounted — otherwise this guard is vacuous");
-  assert.equal(/sport=/.test(el), false, "the page passes no sport; the hook is typed to mlb");
+  /* And when a deployment DOES enable it, the request is still the cheap batch one. */
+  const allowed = publicSports({ LIVE_PUBLIC_SPORTS: "mlb,nfl" });
+  assert.deepEqual([...allowed].sort(), ["mlb", "nfl"], "order is not part of the contract");
+  for (const [sport, host] of [["mlb", /^https:\/\/statsapi\.mlb\.com\//], ["nfl", /espn/]]) {
+    const plan = planRequest({ sport }, allowed);
+    assert.equal(plan.ok, true);
+    assert.equal(plan.mode, "scoreboard");
+    const urls = upstreamUrls(plan);
+    assert.match(urls.scoreboard, host);
+    assert.equal(urls.summary, null, `the ${sport} hub never triggers the heavy per-event summary call`);
+  }
+});
+
+test("HUB 1b · each sport's hub names only its OWN sport, and both are mounted", () => {
+  /*
+   * The anti-vacuity check that caught this guard when /live changed shape: it looked for
+   * `<LiveHub` on the page, which now mounts through `LiveSportTabs`. A guard whose precondition
+   * silently stops matching is a guard that passes over nothing, so the mount is re-asserted here
+   * against the component that actually renders each hub.
+   */
+  /*
+   * The WHOLE chain, page → tabs → each hub. Asserting only that the tabs file mounts both hubs is
+   * not enough: a page that stopped rendering the tabs altogether would still satisfy it, which the
+   * mutation probe demonstrated. Every link is checked so no single break passes silently.
+   */
+  assert.ok(jsxElement(read("src/app/live/page.tsx"), "LiveSportTabs"),
+    "the page must mount the tabs — otherwise everything below is vacuous");
+  const tabs = read("src/components/live/live-sport-tabs.tsx");
+  for (const el of ["LiveHub", "NflLiveHub"]) {
+    assert.ok(jsxElement(tabs, el), `${el} must be mounted — otherwise this guard is vacuous`);
+  }
+
+  /*
+   * ⚠ READ RAW, NOT `codeOnly`. `partition()` discards string CONTENTS, so the sport name — which
+   *   only ever appears as a string literal — is exactly what it removes. The guard this replaced
+   *   asserted `/["\'`]nfl["\'`]/.test(codeOnly(hub)) === false` and therefore could never fail for
+   *   the thing it was written to catch: the sport it was hunting for had already been stripped.
+   *   The mutation probe for this pair is "make the MLB hub ask for nfl", and it must go red.
+   */
+  const mlbHub = read("src/components/live/live-hub.tsx");
+  assert.match(mlbHub, /useLiveSlate\("mlb"\)/, "the MLB hub asks for its own sport explicitly");
+  assert.equal(/useLiveSlate\("nfl"\)/.test(mlbHub), false, "the MLB hub must not ask for NFL");
+
+  const nflHub = read("src/components/live/nfl-live-hub.tsx");
+  assert.match(nflHub, /useLiveSlate\("nfl"\)/, "the NFL hub asks for its own sport explicitly");
+  assert.equal(/useLiveSlate\("mlb"\)/.test(nflHub), false, "the NFL hub must not ask for MLB");
 });
 
 test("HUB 2 · the hub asks in BATCH mode — one request for the slate, never one per card", () => {
