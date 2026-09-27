@@ -59,6 +59,28 @@ export const POLICIES = Object.freeze({
   "MS-C2": ms({ noPlayFloor: { step1: 0.20, later: 0.20, final: 0.32 }, legsPerCard: [2, 3] }),
   "MS-C3": ms({ noPlayFloor: { step1: 0.20, later: 0.20, final: 0.32 }, pool: "eligible-universe" }),
   "MS-C4": ms({ noPlayFloor: { step1: 0.20, later: 0.20, final: 0.32 }, cadenceDays: 3 }),
+
+  /*
+   * ── THE POOL VARIABLE, ISOLATED (shadow only) ────────────────────────────────────────────────
+   *
+   * 🔴 THE LIVE POLICIES ARE HARD-LOCKED TO ONE SPORT by the `pool: "mlb-only"` default above, and
+   * `select.mjs` enforces it in one line. That is the structural reason Bank Builder and Moonshot
+   * are MLB-only — not a normalizer gap, not missing prices.
+   *
+   * ⚠ BB-C3 AND MS-C3 ALREADY FLIP THE POOL, AND THEY CANNOT ANSWER THE QUESTION. Each also adds a
+   * `noPlayFloor`, so a difference against the control could come from either change. And neither is
+   * in `SHADOW_POLICIES`, so no evidence is being collected on them at all.
+   *
+   * These two are the CONTROL WITH EXACTLY ONE CHANGE: every BB-LEGACY / MS-LEGACY setting, pool
+   * flipped to the eligible universe. A delta against the live policy is therefore attributable to
+   * the pool and nothing else.
+   *
+   * ⚠ SHADOW, NOT LIVE. `LIVE_POLICY` below is untouched. Flipping the live pool is the founder's
+   * promotion decision; this exists to give it evidence. Today the delta is expected to be ZERO,
+   * because no NFL, UFC or EPL leg is eligible — every Sunday NFL player is role-uncertain.
+   */
+  "BB-XSPORT": bb({ laneB: "value-band", valueBand: [200, 700], concentration: { ...BASE_CONCENTRATION, sameEntity: "record", opponent: "record" }, pool: "eligible-universe" }),
+  "MS-XSPORT": ms({ concentration: { ...BASE_CONCENTRATION, sameEntity: "record", opponent: "record" }, pool: "eligible-universe" }),
 });
 
 export function policyHash(name) {

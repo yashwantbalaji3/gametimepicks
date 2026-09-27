@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824705,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T06:12:23.257Z",
+  "availableAt": "2026-09-27T06:12:23.257Z",
+  "eventStartTime": "2026-09-27T19:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T06:12:23.257Z"
+  },
+  "recordHash": "87337535958138dea3c03c9e998bd9b75202a9263c1a82af525e44d75071bc86"
+}

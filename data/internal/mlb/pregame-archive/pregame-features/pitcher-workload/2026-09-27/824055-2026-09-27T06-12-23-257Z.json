@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824055,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T06:12:23.257Z",
+  "availableAt": "2026-09-27T06:12:23.257Z",
+  "eventStartTime": "2026-09-27T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663738,
+      "name": "Daniel Lynch IV",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 2.2,
+        "bbAvg": 1.8,
+        "erAvg": 3.6,
+        "hrAvg": 1,
+        "kPer9": 4.43,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 34.67,
+        "k": 19,
+        "bb": 14,
+        "er": 27,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 800048,
+      "name": "Parker Messick",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 7,
+        "bbAvg": 1.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 11.12,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 183.33,
+        "k": 191,
+        "bb": 48,
+        "er": 52,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T06:12:23.257Z"
+  },
+  "recordHash": "df36b4211f4de5eebda4810492a4f86c2e5cb1bdf929770d249ad7d048590bcc"
+}
