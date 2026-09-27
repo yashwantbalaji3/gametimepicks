@@ -89,12 +89,25 @@ const etTime = (iso: string | null) => {
   }).format(new Date(t)) + " ET";
 };
 
-/** `Q2 · 08:41`. Built only from what the envelope states; a missing clock just shortens the line. */
+/**
+ * `Q1 · 7:27`. Built from the STRUCTURED period fields, never by decorating the label.
+ *
+ * 🔴 ESPN's NFL label ALREADY CONTAINS THE CLOCK — `"7:27 - 1st"`, with `clock: "7:27"` beside it.
+ *    Appending the clock to it rendered "7:27 - 1st · 7:27" on every live card in Production.
+ *    Observed on the real feed at 2026-09-27T17:19Z, minutes after the first kickoff.
+ *
+ *    So the quarter and the clock are composed from `number` and `clock`, which carry one fact
+ *    each. The label is used only when there is no quarter to name — "Final", "Halftime", "End of
+ *    1st" — where it is the whole statement rather than half of one.
+ */
 const periodLine = (envelope: any): string | null => {
-  const label = envelope?.period?.label;
-  const clock = envelope?.period?.clock;
-  if (typeof label !== "string" || !label) return null;
-  return typeof clock === "string" && clock ? `${label} · ${clock}` : label;
+  const p = envelope?.period ?? {};
+  const label = typeof p.label === "string" && p.label ? p.label : null;
+  const clock = typeof p.clock === "string" && p.clock ? p.clock : null;
+  const n = typeof p.number === "number" && p.number > 0 ? p.number : null;
+  /* A running quarter is the only case with two facts to join. */
+  if (n !== null && clock !== null) return `Q${n} · ${clock}`;
+  return label;
 };
 
 const num = (n: number | null | undefined, dp = 0) =>
