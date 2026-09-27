@@ -78,6 +78,14 @@ export interface PublicSuggestedCard {
     slipLeg?: import("@/lib/slip/leg-identity").SlipLegInput;
   }>;
   combinedAmericanOdds: number;
+  /**
+   * Full-precision combined multiplier (§13). REQUIRED, so adding a card producer cannot silently
+   * reintroduce the lossy `americanToDecimal(combinedAmericanOdds)` round-trip that displayed
+   * $412.00 for a slip worth $412.23. Where a producer publishes ONLY a combined American price,
+   * this is `americanToDecimal` of it — that is the source, not a rounding, and is documented as
+   * the one exception in parlay-payout.ts.
+   */
+  combinedDecimal: number;
   defaultStake: number | null;
   isPublic: boolean;
   bankBuilderEligible: boolean;
@@ -127,6 +135,12 @@ export function normalizeWcCards(parlays: WcParlays | null): PublicSuggestedCard
       result: l.result,
     })),
     combinedAmericanOdds: c.combinedAmericanOdds,
+    /* THE DOCUMENTED EXCEPTION (§13). This producer publishes a combined American price as its own
+       authoritative figure, so that price is the source rather than a rounding of something we
+       hold, and converting it loses nothing. Deliberately NOT recomputed from the per-leg prices:
+       that would silently move a published payout, which is a product decision, not a precision
+       fix. */
+    combinedDecimal: americanToDecimal(c.combinedAmericanOdds),
     defaultStake: c.defaultStake,
     isPublic: true,
     bankBuilderEligible: false,
@@ -402,6 +416,10 @@ export function normalizeOptimizerSlips(
         };
       }),
       combinedAmericanOdds: s.combinedAmerican ?? decimalToAmerican(dec),
+      /* THE PATH THAT CARRIED THE DEFECT. Every leg here is guaranteed to have a price (the `legs`
+         filter above drops any that do not), so `dec` is the exact product and is strictly more
+         precise than the American figure beside it. This is the +133/-130 → $412.23 fix. */
+      combinedDecimal: dec,
       defaultStake: null,
       isPublic: true,
       bankBuilderEligible: false,
@@ -476,6 +494,10 @@ export function normalizeUfcCards(
       americanOdds: 0, // model-only V1: no market odds → stake/payout not shown for UFC
     })),
     combinedAmericanOdds: 0,
+    /* No market price exists for these, so there is no multiplier. 0 makes `payoutFromDecimal`
+       return null, which is the same "—" the 0 American already produces — a missing payout rather
+       than a $0.00 one. */
+    combinedDecimal: 0,
     defaultStake: null,
     isPublic: true,
     bankBuilderEligible: false,

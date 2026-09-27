@@ -78,6 +78,14 @@ export interface CustomParlayEvaluation {
    *  oddsForSide. Null when any leg is missing odds (we never
    *  fabricate a payout). */
   combinedOdds: number | null;
+  /**
+   * Full-precision combined multiplier (§13). The SAME defect as the suggested cards: this file
+   * computed the exact product and then returned only `decimalToAmerican` of it, so the UI had to
+   * convert back and lost the tail — a +133/-130 pair shows a $312.00 profit per $100 instead of
+   * $312.23. Null under exactly the same condition as `combinedOdds`, so the two can never
+   * disagree about whether a payout exists.
+   */
+  combinedDecimal: number | null;
   /** Same-game-aware risk label. "Custom evaluation" surface only —
    *  not a profile name. */
   riskLabel: CustomRiskLabel;
@@ -102,6 +110,7 @@ export function evaluateCustomParlay(
       averageEdgePct: null,
       modelRating: 0,
       combinedOdds: null,
+      combinedDecimal: null,
       riskLabel: "Lower variance",
       warnings: [],
       starHeavy: false,
@@ -136,7 +145,8 @@ export function evaluateCustomParlay(
   const modelRating = Math.max(0, scoreSum - correlation);
 
   // Combined American odds — only when every leg has odds.
-  const combinedOdds = computeCombinedAmericanOdds(legs);
+  const combinedDecimal = computeCombinedDecimalOdds(legs);
+  const combinedOdds = combinedDecimal == null ? null : decimalToAmerican(combinedDecimal);
 
   // Star composition.
   let starLegs = 0;
@@ -172,6 +182,7 @@ export function evaluateCustomParlay(
     averageEdgePct,
     modelRating,
     combinedOdds,
+    combinedDecimal,
     riskLabel,
     warnings,
     starHeavy,
@@ -214,7 +225,11 @@ function decimalToAmerican(decimal: number): number {
   return Math.round(-100 / (decimal - 1));
 }
 
-export function computeCombinedAmericanOdds(
+/**
+ * The exact combined multiplier. This is the value any payout must be built from; the American
+ * form below is for display.
+ */
+export function computeCombinedDecimalOdds(
   legs: ReadonlyArray<OptimizerLeg>,
 ): number | null {
   if (legs.length === 0) return null;
@@ -223,7 +238,15 @@ export function computeCombinedAmericanOdds(
     if (typeof leg.oddsForSide !== "number") return null;
     combinedDecimal *= americanToDecimal(leg.oddsForSide);
   }
-  return decimalToAmerican(combinedDecimal);
+  return combinedDecimal;
+}
+
+export function computeCombinedAmericanOdds(
+  legs: ReadonlyArray<OptimizerLeg>,
+): number | null {
+  const dec = computeCombinedDecimalOdds(legs);
+  /* DISPLAY ONLY — American format cannot hold 4.1223. Derived from the decimal, never the reverse. */
+  return dec == null ? null : decimalToAmerican(dec);
 }
 
 /** Returns the `legPool` from the snapshot if present, else an empty
