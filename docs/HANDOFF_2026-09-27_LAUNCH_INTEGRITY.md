@@ -3,7 +3,11 @@
 **Point-in-time snapshot.** The canonical docs and the live repo override this.
 `git log origin/main` and `gh pr list` are current truth.
 
-Known main at writing: **`a158e58739`** (PR #720).
+Known main at writing: **`a8fb69b040`** (PR #721). Production serves the same SHA.
+
+**Sunday acceptance is now live** — see
+[`acceptance/SUNDAY_2026-09-27_NFL_ACCEPTANCE.md`](./acceptance/SUNDAY_2026-09-27_NFL_ACCEPTANCE.md)
+for the per-phase record. That document, not this one, is current during the slate.
 
 ---
 
@@ -23,8 +27,19 @@ Known main at writing: **`a158e58739`** (PR #720).
 | #719 | — | EPL identity: `REVIEW_MONONYM`, still not a mapping |
 | #720 | §8 | follow-up: an "awaiting" lane is not a published card (my own off-by-one) |
 
-**Open:** #721 (§12 e2e dialog test; gate runs playwright, which I could not run locally).
-**Draft, MUST NOT MERGE:** #716 (§18 publication boundary) — see §4 below.
+| #721 | §12 | e2e dialog test — and the claim that modal focus-trapping was N/A |
+| #722 | — | handoff refresh |
+
+**Open:** none except the draft below.
+**Draft, MUST NOT MERGE before acceptance:** #716 (§18 publication boundary) — see §4.
+
+⚠ #721 NEEDED A SECOND COMMIT, and the reason is the session's sharpest lesson. Its first version
+passed the gate having **skipped**: the /build sheet test needs an eligible leg and the pool was
+empty, so it took its skip branch while CI printed "9 skipped · 432 passed" with a reporter that
+prints no titles. A test that skips on a data condition is a guard-shaped thing that reports success.
+Fixed by adding the mobile **Menu** case, which needs no data and is the originally reported defect.
+Proof it then ran: **432 → 435 passed** (+3 = three browser engines), skips unchanged at 9, and the
+/build skip now announces itself in the log.
 
 ---
 
