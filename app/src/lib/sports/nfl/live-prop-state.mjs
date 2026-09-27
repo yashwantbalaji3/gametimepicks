@@ -371,7 +371,22 @@ export function buildLiveRows({ providerEventId, kickoffUtc, board, summary, pri
       if (!slot) continue;
       const predictionId = `${providerEventId}:${p.playerId}:${family}`;
       const fresh = {
-        projection: { median: slot.median ?? null, p10: slot.p10 ?? null, p90: slot.p90 ?? null },
+        /*
+         * A family states EITHER a number or a chance, never both, and the record must carry
+         * whichever it has. Volume families publish median/p10/p90; `anytime_td` publishes a
+         * probability, and dropping it used to leave the frozen record incomplete — a card could
+         * show a touchdown's live status with no pregame claim beside it.
+         *
+         * ⚠ A MISSING PROBABILITY STAYS null. It is never synthesised from the price: `yesOdds` is
+         *   a bookmaker's number, and presenting it as our model's chance would be the exact
+         *   substitution the product forbids.
+         */
+        projection: {
+          median: slot.median ?? null,
+          p10: slot.p10 ?? null,
+          p90: slot.p90 ?? null,
+          probability: slot.probability ?? null,
+        },
         market: slot.market ?? null,
         pricingState: slot.pricingState ?? null,
         participation: p.participation ?? null,
