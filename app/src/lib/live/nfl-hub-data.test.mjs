@@ -224,3 +224,33 @@ test("the portrait is compact on a phone and larger on desktop", () => {
   /* ⚠ !important is load-bearing here: PlayerAvatar sets width/height INLINE, which otherwise wins. */
   assert.match(css, /sizes itself with INLINE width\/height/, "the reason must be stated, not rediscovered");
 });
+
+test("🔴 the quarter line never repeats the clock ESPN already put in the label", () => {
+  /*
+   * Shipped to Production and caught there: every live card read "7:27 - 1st · 7:27". ESPN's NFL
+   * envelope carries `label: "7:27 - 1st"` AND `clock: "7:27"`, so decorating the label duplicates
+   * it. Payloads below are copied from the real feed at 2026-09-27T17:19Z.
+   */
+  const src = code("src/components/live/nfl-live-hub.tsx");
+  assert.equal(/\$\{label\} · \$\{clock\}/.test(src), false,
+    "the label already contains the clock — composing from it duplicates the time");
+  assert.match(src, /`Q\$\{n\} · \$\{clock\}`/, "the quarter line is composed from number and clock");
+
+  /* And the behaviour itself, on the shapes that actually occur. */
+  /* Evaluate the SHIPPED function, with only its TS annotations removed — so this tests the real
+     implementation rather than a restatement of it that could drift from the component. */
+  const body = /const periodLine =[\s\S]*?^};/m.exec(src)[0]
+    .replace("const periodLine =", "const f =")
+    .replace("(envelope: any): string | null =>", "(envelope) =>")
+    .replace(/ as [A-Za-z<>\[\]|]+/g, "");
+  assert.equal(/:\s*(any|string|number)\b/.test(body), false, `annotations remain: ${body.slice(0, 120)}`);
+  const fn = new Function("envelope", `${body}\nreturn f(envelope);`);
+  assert.equal(fn({ period: { number: 1, clock: "7:27", label: "7:27 - 1st" } }), "Q1 · 7:27");
+  assert.equal(fn({ period: { number: 4, clock: null, label: "Final" } }), "Final", "a finished game states itself");
+  assert.equal(fn({ period: { number: 2, clock: null, label: "Halftime" } }), "Halftime");
+  assert.equal(fn({ period: { number: 0, clock: null, label: null } }), null, "nothing known, nothing claimed");
+  for (const out of ["Q1 · 7:27", "Final", "Halftime"]) {
+    const times = (out.match(/\d+:\d\d/g) ?? []).length;
+    assert.ok(times <= 1, `${out} states the clock at most once`);
+  }
+});
