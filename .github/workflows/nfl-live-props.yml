@@ -124,8 +124,23 @@ jobs:
           # credit ledger and current-market artifact. A writer whose output is outside its job's
           # allowlist is an artifact that is built and never published — this repo has lost three
           # days of an archive to exactly that.
-          git add app/public/data/nfl/live-props/ data/internal/nfl/prop-settlement/ \
-                  data/internal/research/odds/nfl/ app/public/data/nfl/live-markets/
+          # ⚠ EACH PATH GUARDED, because `git add` on a pathspec that matches nothing exits 128 and
+          #   `set -e` takes the whole step down with it. Three of these four directories do not
+          #   exist yet: `live-props/` is created by the capture only once a game is live,
+          #   `prop-settlement/` only once something settles, and `live-markets/` only if Phase H
+          #   ever fires. So the step could not survive its own first live run: the capture would
+          #   write the artifact, the very next pathspec would abort the step, and the live state
+          #   would be BUILT AND NEVER PUBLISHED — the exact failure the note above is about.
+          #
+          #   Observed, not theorised: run 36333844396 (2026-09-27T16:36Z, pre-kickoff) failed here
+          #   with `fatal: pathspec 'app/public/data/nfl/live-props/' did not match any files` after
+          #   the free capture had already succeeded.
+          #
+          #   Same `[ -d ]` guard the sibling nfl-event-window.yml already uses for its optional paths.
+          for P in app/public/data/nfl/live-props/ data/internal/nfl/prop-settlement/ \
+                   data/internal/research/odds/nfl/ app/public/data/nfl/live-markets/; do
+            if [ -d "$P" ]; then git add "$P"; fi
+          done
           if git diff --cached --quiet; then echo "no live change"; exit 0; fi
           git commit -m "auto: nfl live props $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
           for attempt in 1 2 3; do
