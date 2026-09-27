@@ -3,7 +3,7 @@
 **Point-in-time snapshot.** The canonical docs and the live repo override this.
 `git log origin/main` and `gh pr list` are current truth.
 
-Known main at writing: **`96a5ddecc2`** (PR #714).
+Known main at writing: **`a158e58739`** (PR #720).
 
 ---
 
@@ -18,8 +18,12 @@ Known main at writing: **`96a5ddecc2`** (PR #714).
 | #712 | §11 | keep the legal gap honest while it is open |
 | #713 | §14 | a leg replacement must come from the same sport |
 | #714 | §12 | the one modal that bypassed the shared dialog primitive |
+| #715 | §8 | the shared card lifecycle — and the money standing in for it |
+| #718 | §9 | last-known-good live state |
+| #719 | — | EPL identity: `REVIEW_MONONYM`, still not a mapping |
+| #720 | §8 | follow-up: an "awaiting" lane is not a published card (my own off-by-one) |
 
-**Open:** #715 (§8 card lifecycle, gate running).
+**Open:** #721 (§12 e2e dialog test; gate runs playwright, which I could not run locally).
 **Draft, MUST NOT MERGE:** #716 (§18 publication boundary) — see §4 below.
 
 ---
@@ -101,6 +105,28 @@ positive property: a synchronous write is complete.
 
 ---
 
+## 3b. Two later findings, both mine
+
+**I shipped an off-by-one an hour after merging §8** (#720). Running the new derivation against
+today's LIVE portfolio confirmed the original defect on real data — `realizedPnl: 0` with three
+active lanes at **$100 + $100 + $25 = $225**, the exact figure the external review reported. It also
+showed `publishedCount` reading **4** where three cards exist: `lib/daily-portfolio/exposure.ts`
+states plainly that `awaiting`/`candidate` lanes have "no placed card behind them". A second latent
+bug came with it — settled and void were counted over ALL lanes, so the parts could exceed the whole.
+
+**The e2e layer carried a claim that had expired two releases ago** (#721).
+`e2e/accessibility.spec.ts` asserted "no modal focus-trapping to verify — N/A by construction". True
+when written; false from #705, and more false from #714. The one layer that could prove Shift+Tab
+containment in a real browser was opting out on expired evidence. Found while failing to verify #714
+on production: the sheet is `{slipOpen && …}` so it is absent from the static export until a click,
+and the `Your card & paper stake` string that IS in the HTML is the DESKTOP sidebar, correctly not a
+dialog.
+
+⚠ A criterion asserted N/A is only honest while it stays N/A. Grep for other N/A claims before
+trusting one.
+
+---
+
 ## 4. #716 — prepared, must not merge
 
 §2.7 is explicit: implement, test, probe and prepare the PR; **do not merge the behavioural
@@ -115,6 +141,33 @@ The boundary keeps the step exiting 1 (the job still ends red, an operator still
 dated projection so write-once integrity holds. Exit 2/3 set no flag — those mean the settlement
 itself may be wrong.
 
+### How often it actually fires — measured, and why the fix is still held
+
+Four crons (05:17, 06:43, 08:11, 09:37 UTC), arriving late. **Every day the first run succeeds and
+the next three fail:**
+
+    2026-09-26   09:51 success · 11:49 FAIL · 13:00 FAIL · 13:51 FAIL
+    2026-09-25   10:10 success · 12:16 FAIL · 13:41 FAIL · 14:43 FAIL
+
+Cause confirmed, not inferred: the failing step is named `Rebuild the canonical Results projection`,
+exit 1 — which that step's own contract defines as the write-once refusal. Consequence confirmed:
+those runs commit NOTHING. There is exactly one `auto: nightly settle …` commit per day, from the
+first run.
+
+Settlement runs BEFORE the projection, so run 1 files a projection reflecting its own settlement. By
+run 2 more games have finished and other producers have committed, so the rebuilt projection
+legitimately differs — and is refused.
+
+**§2.7's exception was NOT invoked, deliberately.** This is chronic and already documented
+(`82f9d8ff7a docs: record the two spawned findings — nightly-settle discarding work`), and §18 opens
+with "A known issue remains" — so the hold instruction was written WITH this defect known. The day's
+first run still publishes. And merging a workflow failure-boundary change hours before the acceptance
+event adds risk on the day there is least reason to take it. Evidence is on the PR.
+
+⚠ ALSO WORTH A FOUNDER DECISION: the projection step's comment says "nightly-settle runs once a day
+so the normal path never reaches it." It has FOUR crons, so the normal path reaches it three times a
+day. The comment and the schedule contradict each other.
+
 ---
 
 ## 5. Sunday acceptance readiness (verified, not assumed)
@@ -127,6 +180,16 @@ itself may be wrong.
 - **No untracked live-props files remain**, so the `git pull` abort hazard reported earlier is gone.
 - `nfl-live-props.yml` cron `*/15 13-23 * * 0` fires **for the first time today** from 13:00Z. Its
   one manual dispatch (2026-09-25) succeeded, so the job itself works.
+- No dated Results projection exists for 2026-09-27 yet, so today's first settle run writes the first
+  one and the write-once refusal is not expected to fire on it.
+- Production verified on both user-visible changes: `/mlb` ships full-precision multipliers
+  (`2.639`, `5.322` — corrections of −10¢ and +20¢ per $100), and `/results` now reads "Settled"
+  where it said "no-play day". All six remaining "no-play" strings on that page are the legitimate
+  explanatory prose.
+- ⚠ NOT verified in production: §12's mobile dialog semantics. The sheet only mounts on a click, so
+  it is absent from the static export, and the browser pane was unavailable (another session held
+  port 4173). Git ancestry confirms the change is deployed and the unit guards pass; #721 closes the
+  behavioural gap in CI.
 
 ---
 
@@ -142,6 +205,9 @@ itself may be wrong.
 - §14's remaining half: imports must preserve date, provenance, eligibility state and source.
   `SlipLegInput` carries only `sport`. This is a **persisted** browser-local draft schema, so it needs
   a migration, and §14's own long-term answer is ProductEligibleLeg V2 — that work belongs there.
-- §16 Simple/Analyst, §17 event-quality panel, §18's diagnostics half, EPL identity/availability.
+- §16 Simple/Analyst, §17 event-quality panel, §18's diagnostics half.
+- EPL: 82 of the 133 no-candidate rows are a CORPUS COVERAGE gap (606 ESPN squad players vs 667 FPL
+  elements) and 46 are genuine cross-club surname collisions. Neither is a name-matching bug —
+  accents account for only 17%, and all 460 AUTO_EXACT rows agree with the corpus on club.
 - Wiring the §15 clock contract into surfaces (deliberately deferred: re-labelling a published
   surface waits for acceptance).
