@@ -5620,3 +5620,40 @@ body {
 .gtp-pred-live-res { font-family: var(--font-mono, ui-monospace), monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--vault-text-mute); }
 .gtp-pred-live-res[data-result="OVER"], .gtp-pred-live-res[data-result="YES"] { color: var(--vault-success); }
 .gtp-pred-live-res[data-result="UNDER"], .gtp-pred-live-res[data-result="NO"] { color: var(--vault-text-mute); }
+
+/*
+ * THE PROGRESS RAIL (§5) — the live value against the frozen target, on one row.
+ *
+ * ⚠ CLASSES, NOT PER-ROW STYLE OBJECTS. A per-cell style object took one page of this product to
+ * 1,160KB; only the two offsets that genuinely vary per row are inline, as CSS custom properties.
+ *
+ * ⚠ AND THE FILL IS NEVER GREEN BEFORE SETTLEMENT. Its colour comes from `--gtp-rail-tone`, which
+ * the component sets from `railStateOf` — and `railStateOf` cannot return a result state outside
+ * FINAL_CANONICAL. There is no selector here that can paint a win on a live row.
+ */
+.gtp-pred-progress {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 5px;
+  margin-top: 5px;
+  border-radius: 3px;
+  background: var(--vault-panel-elevated);
+  overflow: visible;
+  min-width: 0;
+}
+.gtp-pred-progress-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: 3px;
+  width: var(--gtp-rail-value, 0%);
+  background: var(--gtp-rail-tone, var(--vault-info));
+}
+/* The frozen target. Gold, the same marker language the range rows already use. */
+.gtp-pred-progress-tick {
+  position: absolute; top: -3px;
+  left: var(--gtp-rail-target, 80%);
+  width: 2px; height: 11px;
+  background: var(--vault-gold);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .gtp-pred-progress-fill { transition: width 240ms ease-out; }
+}
