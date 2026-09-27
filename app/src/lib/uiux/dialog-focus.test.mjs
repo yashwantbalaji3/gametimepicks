@@ -42,6 +42,37 @@ function tsxFiles(dir, acc = []) {
   return acc;
 }
 
+
+/**
+ * The attribute text of the JSX tag that carries `role="dialog"`.
+ *
+ * ⚠ A FILE-LEVEL `aria-label` CHECK IS TOO COARSE, and a probe proved it: /build's sheet also holds
+ * `aria-label="Paper stake"` on the stake input and `aria-label` on each Remove button, so deleting
+ * the DIALOG's own name changed nothing. The name has to be read off the dialog element.
+ *
+ * Walks from the tag's `<` to its closing `>`, tracking brace depth and quotes — JSX attribute values
+ * contain `>` inside arrow functions (`onClick={(e) => ...}`), so a plain indexOf(">") cuts the tag
+ * short and drops the attributes after it.
+ */
+function dialogTags(src) {
+  const tags = [];
+  for (const m of src.matchAll(/role=["']dialog["']/g)) {
+    let start = src.lastIndexOf("<", m.index);
+    if (start === -1) continue;
+    let depth = 0, quote = null, end = -1;
+    for (let i = start; i < src.length; i++) {
+      const ch = src[i];
+      if (quote) { if (ch === quote) quote = null; continue; }
+      if (ch === '"' || ch === "'" || ch === "`") { quote = ch; continue; }
+      if (ch === "{") depth += 1;
+      else if (ch === "}") depth -= 1;
+      else if (ch === ">" && depth === 0) { end = i; break; }
+    }
+    tags.push(src.slice(start, end === -1 ? src.length : end + 1));
+  }
+  return tags;
+}
+
 test("the shared hook does all five things a dialog owes a keyboard", () => {
   const src = code(HOOK);
   assert.match(src, /document\.activeElement/, "1 · it must remember the opener");
@@ -115,4 +146,56 @@ test("the hook renders nothing and makes no claim the markup must make", () => {
   for (const banned of [/role=["']/, /aria-modal=/, /aria-label=/]) {
     assert.equal(banned.test(src), false, `the hook must not own markup (${banned})`);
   }
+});
+
+test("🔴 a FULL-SCREEN OVERLAY is a dialog — found by structure, not by the attribute it omits", () => {
+  /*
+   * ⚠ THE GUARD ABOVE WAS BLIND TO EXACTLY THE DEFECT §12 REPORTED, and I proved it: strip both
+   * `role="dialog"` and the hook call from the /build mobile sheet and all six tests still pass.
+   * That guard enumerates files CONTAINING `role="dialog"` — so a modal missing the attribute is
+   * invisible to it. It looked for the symptom's presence, and a broken modal is defined by its
+   * absence. That is why the 2026-09-26 survey found four dialogs and not five.
+   *
+   * So this one searches by STRUCTURE. A `fixed inset-0` element is a full-screen overlay: it covers
+   * the page, it takes the reader's attention, and whatever it is, a keyboard must be able to get
+   * into it, move around inside it, and leave. Missing the attribute is not an exemption.
+   */
+  const offenders = [];
+  for (const f of tsxFiles(path.join(APP, "src"))) {
+    const src = code(f);
+    if (!/className=["'][^"']*fixed inset-0/.test(src)) continue;
+    const rel = path.relative(APP, f);
+    const missing = [];
+    if (!/role=["']dialog["']/.test(src)) missing.push("role=dialog");
+    if (!/aria-modal/.test(src)) missing.push("aria-modal");
+    /* Read off the DIALOG's own tag — see dialogTags. */
+    const named = dialogTags(src).some((t) => /aria-label(ledby)?=/.test(t));
+    if (!named) missing.push("an accessible name ON the dialog element");
+    if (!/useDialogFocus\s*\(/.test(src)) missing.push("useDialogFocus");
+    if (missing.length) offenders.push(`${rel} — missing ${missing.join(", ")}`);
+  }
+  assert.deepEqual(offenders, [], "a full-screen overlay that a keyboard cannot use");
+});
+
+test("the overlay guard actually finds overlays — it must not pass by finding none", () => {
+  /* A structural guard whose selector matches nothing is worse than no guard: it reports success.
+     This is the count that made the guard above meaningful when it was written. */
+  const withOverlay = tsxFiles(path.join(APP, "src")).filter((f) =>
+    /className=["'][^"']*fixed inset-0/.test(code(f)));
+  assert.ok(withOverlay.length >= 5, `expected the known full-screen overlays, found ${withOverlay.length}`);
+});
+
+test("the accessible-name check reads the dialog's OWN tag, not the whole file", () => {
+  /* Pins the fix for the coarse check: a file where only a NON-dialog element is labelled must fail
+     the name requirement. */
+  const unlabelled = '<div role="dialog" aria-modal="true" className="fixed inset-0">' +
+    '<input aria-label="Paper stake" />';
+  assert.equal(dialogTags(unlabelled).some((t) => /aria-label/.test(t)), false,
+    "a label on a child must not satisfy the dialog's own name");
+
+  /* And an attribute after an arrow function is still inside the tag — a plain indexOf(">") would
+     have cut the tag at the `=>` and lost the name. */
+  const afterArrow = '<div role="dialog" onClick={(e) => e.stopPropagation()} aria-label="Named">';
+  assert.equal(dialogTags(afterArrow).some((t) => /aria-label="Named"/.test(t)), true,
+    "the tag walker must survive a `>` inside an attribute expression");
 });
