@@ -24,6 +24,7 @@
  * READ-ONLY: this module never writes; it only reads committed JSON.
  */
 import fs from "node:fs";
+import { cardLifecycleOf } from "@/lib/lifecycle/card-lifecycle.mjs";
 import path from "node:path";
 
 import {
@@ -103,6 +104,14 @@ export interface TrustSettlement {
   realizedPnl: number;
   date: string | null;
   generatedAt: string | null;
+  /**
+   * §8 canonical lifecycle for this date. 🔴 The page used to derive its own from
+   * `status === "none" || realizedPnl === 0`, and `realizedPnl` is 0 on a day with published,
+   * unsettled cards — so /results printed "no-play day" over real published exposure.
+   */
+  lifecycle: string;
+  /** How many cards the date actually published. The count the old condition never consulted. */
+  publishedCount: number;
 }
 
 export interface TrustMoonshot {
@@ -301,6 +310,16 @@ export function getTrustCenterModel(): TrustCenterModel {
     ? (portfolio!.activeCards as unknown[]).length
     : 0;
 
+  /*
+   * §8: the lifecycle comes from COUNTS of lanes, never from money. `daily.lanes` is the authoritative
+   * list for the date; `activeCardsCount` is the fallback when a portfolio predates the lanes array.
+   */
+  const dailyLanes = Array.isArray(daily?.lanes) ? (daily!.lanes as Array<Record<string, unknown>>) : null;
+  const laneStatus = (l: Record<string, unknown>) => String(l.status ?? "").toLowerCase();
+  const publishedCount = dailyLanes ? dailyLanes.length : activeCardsCount;
+  const settledCount = dailyLanes ? dailyLanes.filter((l) => /^(won|lost|settled|push)$/.test(laneStatus(l))).length : 0;
+  const voidedCount = dailyLanes ? dailyLanes.filter((l) => /^(void|no_action|scratched)$/.test(laneStatus(l))).length : 0;
+
   const settlement: TrustSettlement | null = daily
     ? {
         status: String(
@@ -312,6 +331,18 @@ export function getTrustCenterModel(): TrustCenterModel {
         date: typeof daily.date === "string" ? daily.date : null,
         generatedAt:
           typeof daily.generatedAt === "string" ? daily.generatedAt : null,
+        publishedCount,
+        /*
+         * `eventStateObserved` is deliberately FALSE: a daily-portfolio lane carries "active" vs
+         * settled and no event state, so this page cannot honestly say "not started". It says
+         * "not settled", which is all it knows.
+         */
+        lifecycle: cardLifecycleOf({
+          published: publishedCount,
+          settled: settledCount,
+          voided: voidedCount,
+          eventStateObserved: false,
+        }),
       }
     : null;
 
