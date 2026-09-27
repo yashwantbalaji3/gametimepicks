@@ -27,6 +27,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 
+import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import FollowedMark from "@/components/today/followed-mark";
 import { liveReadyFor } from "@/lib/live/client";
@@ -132,10 +133,32 @@ function PredictionRow({ p, envelope, started }: { p: TrackedPrediction; envelop
 
   return (
     <li style={{ listStyle: "none", padding: "8px 0", borderTop: "1px solid var(--vault-border)" }}>
-      <p style={{ fontSize: 12.5, color: "var(--vault-text)", margin: "0 0 1px", fontWeight: 500 }}>{p.player}</p>
-      <p style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-        {p.marketLabel}
-      </p>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+        {/*
+          * The portrait is resolved from the CANONICAL board id upstream; this component never
+          * guesses one from a name. When the id resolves nothing, `photoUrl` is null and
+          * PlayerAvatar renders its initials-and-team-chip disc — so the row keeps its shape and
+          * a missing face never becomes a broken image or, worse, the wrong player's.
+          */}
+        <span className="gtp-live-portrait" style={{ flexShrink: 0 }}>
+          <PlayerAvatar
+            photoUrl={p.portraitUrl}
+            playerName={p.player}
+            team={p.teamAbbr || null}
+            sport="nfl"
+            size="sm"
+            flat
+          />
+        </span>
+        <span style={{ minWidth: 0 }}>
+          <span style={{ display: "block", fontSize: 12.5, color: "var(--vault-text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {p.player}
+          </span>
+          <span style={{ display: "block", fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            {p.marketLabel}
+          </span>
+        </span>
+      </div>
 
       {isProbability ? (
         /* A probability family. No rail, and no claim about whether it has happened yet. */
