@@ -7,7 +7,7 @@
  "modelVersion": "mlb-fullgame-2026.08-pa-v2",
  "simulationVersion": 1,
  "sourceBoardHash": "acd50c71e864af90b3d57dc7ca0a2d3fea66acdf41fed794ac8c81bdd14db1e9",
- "updatedAt": "2026-09-27T15:41:41.000Z",
+ "updatedAt": "2026-09-27T19:49:23.000Z",
  "games": [
   {
    "gamePk": 822679,
@@ -16,9 +16,9 @@
    "awayTeam": "NYM",
    "homeTeam": "WSH",
    "firstPitch": "2026-09-27T17:05:00Z",
-   "artifactHash": "8c9619b08cd97682e5396442815df1b11b8144bcd9b0e5a808c4bf904beec813",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "ecedecb7611a4b9f431c3102fae6eefc900f1d39e07f3cd363725365c4f110d4",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
     "source": "confirmed",
     "capturedAt": "2026-09-27T15:31:45.762Z",
@@ -70,7 +70,8 @@
    "missingFamilies": [
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   },
   {
@@ -80,32 +81,32 @@
    "awayTeam": "CIN",
    "homeTeam": "TOR",
    "firstPitch": "2026-09-27T19:07:00Z",
-   "artifactHash": "d075dba2e684517e08e4f22cbebce9c4c00db05ddbb72e627364826b8cabc024",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "8787c7d410f2096b967fdd818fdba530b3166eb07815be7c49fd4052b46328b5",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T18:46:53.428Z",
+    "minutesToFirstPitch": 20,
     "batterIds": [
-     701398,
      699115,
      682829,
-     663886,
-     682877,
+     701398,
      668709,
+     682877,
+     699302,
      680574,
-     -8,
-     -9
+     677943,
+     665828
     ],
-    "realCount": 7,
-    "ratedCount": 7,
+    "realCount": 9,
+    "ratedCount": 6,
     "paddedSlots": 0
    },
    "home": {
     "source": "confirmed",
-    "capturedAt": "2026-09-27T15:31:45.762Z",
-    "minutesToFirstPitch": 215,
+    "capturedAt": "2026-09-27T18:46:53.428Z",
+    "minutesToFirstPitch": 20,
     "batterIds": [
      543807,
      703520,
@@ -132,10 +133,10 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   },
   {
@@ -145,45 +146,45 @@
    "awayTeam": "LAA",
    "homeTeam": "SEA",
    "firstPitch": "2026-09-27T19:10:00Z",
-   "artifactHash": "ad22428b23a61fd2a4e516f04184ed58e0cff5994de2d550064f5e6152644fec",
+   "artifactHash": "c0571f8d87d92ba77321a6bb33b39a2ae142b32e4d7171390e249cc2e2e77ed6",
    "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     687093,
-     685133,
-     545361,
      687263,
+     685133,
+     687093,
+     694208,
      694203,
-     695681,
      666139,
-     669326,
-     -9
+     672724,
+     695681,
+     669326
     ],
-    "realCount": 8,
-    "ratedCount": 8,
+    "realCount": 9,
+    "ratedCount": 7,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
+     641487,
      668227,
      686527,
-     702284,
-     641487,
-     647304,
      663728,
-     703197,
-     642215,
-     -9
+     677594,
+     647304,
+     702284,
+     640902,
+     642215
     ],
-    "realCount": 8,
-    "ratedCount": 8,
+    "realCount": 9,
+    "ratedCount": 7,
     "paddedSlots": 0
    },
    "awayStarter": {
@@ -197,7 +198,6 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
@@ -210,45 +210,45 @@
    "awayTeam": "LAD",
    "homeTeam": "SF",
    "firstPitch": "2026-09-27T19:05:00Z",
-   "artifactHash": "c5ebfef380bd3d5443701f5ae8374ad8067736100885e5feca4458bba1007cc4",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "2ee761c56d4409a67312dff818f3f4d785d4bcbecaa53942111a9d21d6a19c6d",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T18:46:53.428Z",
+    "minutesToFirstPitch": 18,
     "batterIds": [
-     605141,
      660271,
+     605141,
      518692,
-     669242,
-     681624,
      663656,
+     606192,
      571970,
+     681624,
      676439,
-     -9
+     669242
     ],
-    "realCount": 8,
+    "realCount": 9,
     "ratedCount": 8,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T18:46:53.428Z",
+    "minutesToFirstPitch": 18,
     "batterIds": [
-     806367,
      813841,
-     682674,
      815589,
-     668800,
-     683766,
-     695391,
+     682674,
+     691785,
+     694376,
+     701852,
      814154,
-     694376
+     683766,
+     687551
     ],
     "realCount": 9,
-    "ratedCount": 9,
+    "ratedCount": 6,
     "paddedSlots": 0
    },
    "awayStarter": null,
@@ -259,10 +259,10 @@
    },
    "missingFamilies": [
     "away_probable_starter",
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   },
   {
@@ -272,44 +272,44 @@
    "awayTeam": "AZ",
    "homeTeam": "SD",
    "firstPitch": "2026-09-27T19:10:00Z",
-   "artifactHash": "e52689179a513ceb85afc6bd054190efc936a617afcf22207a8235276498ff84",
-   "completenessLevel": "unavailable",
+   "artifactHash": "4f72ed379d802d0c249f879578de2d4c9d9bc1db4bf6a7a0b3cb982fd33be0e1",
+   "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     -1,
-     -2,
-     -3,
-     -4,
-     -5,
-     -6,
-     -7,
-     -8,
-     -9
+     663457,
+     606466,
+     672695,
+     571448,
+     682998,
+     656976,
+     694374,
+     543510,
+     691783
     ],
-    "realCount": 0,
+    "realCount": 9,
     "ratedCount": 0,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     -1,
-     -2,
-     -3,
-     -4,
-     -5,
-     -6,
-     -7,
-     -8,
-     -9
+     687957,
+     592518,
+     664034,
+     657757,
+     669720,
+     630105,
+     666023,
+     823550,
+     687749
     ],
-    "realCount": 0,
+    "realCount": 9,
     "ratedCount": 0,
     "paddedSlots": 0
    },
@@ -324,7 +324,6 @@
     "hasStrikeoutProjection": false
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
@@ -337,9 +336,9 @@
    "awayTeam": "TB",
    "homeTeam": "PHI",
    "firstPitch": "2026-09-27T19:05:00Z",
-   "artifactHash": "4166b385bc5c544bce4d56e47ab675340dfd1fce02f454ce3f1ce1da28c7a7f1",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "83fc34473d1dc163bbe47299f84f243a77a870d04490da4a9410963a5c52ff90",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
     "source": "prop-derived",
     "capturedAt": null,
@@ -392,7 +391,8 @@
     "confirmed_batting_order",
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   },
   {
@@ -402,9 +402,9 @@
    "awayTeam": "BAL",
    "homeTeam": "NYY",
    "firstPitch": "2026-09-27T17:05:00Z",
-   "artifactHash": "c8e5c34dfde3c6605a8374c8c7ad144ed7b0790b07871a93d02a56508f4b500d",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "e9bf1d943d6d6379f2ae452f4457e68e9a482e15802cd1e6db3023850c5cfe1c",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
     "source": "confirmed",
     "capturedAt": "2026-09-27T15:31:45.762Z",
@@ -457,7 +457,8 @@
     "confirmed_batting_order",
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   },
   {
@@ -467,45 +468,45 @@
    "awayTeam": "TEX",
    "homeTeam": "MIN",
    "firstPitch": "2026-09-27T19:10:00Z",
-   "artifactHash": "ee50f70b8cbb461adbd9b6780239ba8bd845b341e8ad7b488e877069949b20a2",
+   "artifactHash": "a38e20f30d48ff685ea7e9b89a4060e076dd8ddc0ef418e7a383cec7962ca84d",
    "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     608369,
      607043,
-     683227,
-     677649,
      694671,
-     670032,
+     608369,
+     669394,
+     677649,
      696030,
      643376,
+     670032,
      694497
     ],
     "realCount": 9,
-    "ratedCount": 9,
+    "ratedCount": 8,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
      807712,
-     686797,
-     680777,
-     605137,
-     668885,
      701785,
+     605137,
+     680777,
+     665019,
      668904,
-     691181,
-     -9
+     686797,
+     668885,
+     805805
     ],
-    "realCount": 8,
-    "ratedCount": 8,
+    "realCount": 9,
+    "ratedCount": 7,
     "paddedSlots": 0
    },
    "awayStarter": {
@@ -519,7 +520,6 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
@@ -532,45 +532,45 @@
    "awayTeam": "STL",
    "homeTeam": "MIL",
    "firstPitch": "2026-09-27T19:10:00Z",
-   "artifactHash": "3b8626234d5ff33a14a5f3a5c9073047ef8db26b8b2aac98a876ad216362552f",
+   "artifactHash": "8e469c71c8da0a7368c019d7afb712b10d68389d597cd5f8b62c486c12f9d2f8",
    "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     676475,
      691023,
-     802139,
+     671056,
+     699024,
+     669357,
      695336,
-     663494,
      701675,
-     -7,
-     -8,
-     -9
+     665877,
+     693409,
+     686780
     ],
-    "realCount": 6,
-    "ratedCount": 6,
+    "realCount": 9,
+    "ratedCount": 3,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     694192,
-     661388,
      669003,
-     668930,
-     592885,
-     687401,
      641343,
+     694192,
+     668930,
+     596142,
+     592885,
+     806198,
      686217,
-     806198
+     666152
     ],
     "realCount": 9,
-    "ratedCount": 9,
+    "ratedCount": 7,
     "paddedSlots": 0
    },
    "awayStarter": {
@@ -584,7 +584,6 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
@@ -597,45 +596,45 @@
    "awayTeam": "ATL",
    "homeTeam": "MIA",
    "firstPitch": "2026-09-27T19:10:00Z",
-   "artifactHash": "7c83e36651e1fc9aeabf9601ccc8b8c947818f8e1063940528c81de434cb4c95",
+   "artifactHash": "5c02d415a9fc6b254f9cc4a936315553ccbbe319d0e4ccf3ce67d69af8893eb5",
    "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     671739,
-     686948,
+     643289,
+     645277,
      621566,
      663586,
-     645277,
      573262,
      669221,
-     -8,
-     -9
+     673490,
+     676551,
+     680577
     ],
-    "realCount": 7,
-    "ratedCount": 7,
+    "realCount": 9,
+    "ratedCount": 5,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     672640,
-     691594,
-     669065,
      665052,
-     805300,
+     691594,
+     681715,
      682663,
-     691788,
      688363,
-     -9
+     665923,
+     691277,
+     691858,
+     640459
     ],
-    "realCount": 8,
-    "ratedCount": 8,
+    "realCount": 9,
+    "ratedCount": 4,
     "paddedSlots": 0
    },
    "awayStarter": {
@@ -649,7 +648,6 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
@@ -662,45 +660,45 @@
    "awayTeam": "CLE",
    "homeTeam": "KC",
    "firstPitch": "2026-09-27T19:10:00Z",
-   "artifactHash": "5966373ce790ab6d81fbeda435223fcf6e858cf1d58f63ae709a0e2e47aca10a",
+   "artifactHash": "3dd3f6bc8890afa67cda0ad8f71473e5c92aebb32c5e269721286900cb7609c8",
    "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     666176,
-     800050,
-     680757,
-     677587,
+     682657,
      683953,
+     666176,
+     663993,
      681807,
+     694197,
      595978,
-     -8,
-     -9
+     682177,
+     690984
     ],
-    "realCount": 7,
-    "ratedCount": 7,
+    "realCount": 9,
+    "ratedCount": 4,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
+     672580,
      677951,
      695506,
-     672580,
      521692,
      686469,
-     695600,
-     686681,
+     686555,
+     686475,
      664728,
-     670231
+     571912
     ],
     "realCount": 9,
-    "ratedCount": 9,
+    "ratedCount": 6,
     "paddedSlots": 0
    },
    "awayStarter": {
@@ -714,7 +712,6 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
@@ -727,32 +724,32 @@
    "awayTeam": "PIT",
    "homeTeam": "DET",
    "firstPitch": "2026-09-27T19:10:00Z",
-   "artifactHash": "3fe625635f129d25f3a4312cdd367d6e970047e0f63d14d509143918c5eb7bf4",
+   "artifactHash": "f07daa548f455d32868650f475658d179ded4e2c3875167a9e09bcc67345a5d5",
    "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
      804606,
-     693304,
-     665833,
-     664040,
-     668804,
      656811,
-     663968,
+     668804,
+     804668,
      687462,
-     -9
+     693304,
+     663968,
+     694378,
+     695257
     ],
-    "realCount": 8,
-    "ratedCount": 8,
+    "realCount": 9,
+    "ratedCount": 6,
     "paddedSlots": 0
    },
    "home": {
     "source": "confirmed",
-    "capturedAt": "2026-09-27T15:31:45.762Z",
-    "minutesToFirstPitch": 218,
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
      703601,
      701678,
@@ -779,7 +776,6 @@
     "hasStrikeoutProjection": false
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
@@ -792,32 +788,32 @@
    "awayTeam": "COL",
    "homeTeam": "CWS",
    "firstPitch": "2026-09-27T19:10:00Z",
-   "artifactHash": "7879d5291e9fd21cd51dbc907110f7cb515a8bdc7f105583087d5aa4fa29b182",
+   "artifactHash": "596ec49aeb9e37cc011d024e84295fd1b21685f63e6fd5d4672b7bd93375c220",
    "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
-     696100,
      664983,
-     694249,
      681393,
-     681198,
+     696100,
+     694249,
      691720,
      691182,
-     678662,
-     687597
+     687859,
+     687597,
+     678662
     ],
     "realCount": 9,
-    "ratedCount": 9,
+    "ratedCount": 8,
     "paddedSlots": 0
    },
    "home": {
     "source": "confirmed",
-    "capturedAt": "2026-09-27T15:31:45.762Z",
-    "minutesToFirstPitch": 218,
+    "capturedAt": "2026-09-27T19:08:06.297Z",
+    "minutesToFirstPitch": 2,
     "batterIds": [
      545341,
      502054,
@@ -844,7 +840,6 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
@@ -857,44 +852,44 @@
    "awayTeam": "CHC",
    "homeTeam": "BOS",
    "firstPitch": "2026-09-27T19:05:00Z",
-   "artifactHash": "24aae830b9c12b605804d01008435c0c1440ec87ec39fb1cdb1a13e52e65e39b",
+   "artifactHash": "acebdeecfa76e3592675936d4e2232d37e6f03508be196742d071f3f279c3f4b",
    "completenessLevel": "unavailable",
-   "startedBeforeGeneration": false,
+   "startedBeforeGeneration": true,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T18:46:53.428Z",
+    "minutesToFirstPitch": 18,
     "batterIds": [
-     -1,
-     -2,
-     -3,
-     -4,
-     -5,
-     -6,
-     -7,
-     -8,
-     -9
+     691718,
+     608324,
+     683737,
+     664023,
+     624424,
+     663538,
+     699393,
+     621020,
+     665804
     ],
-    "realCount": 0,
+    "realCount": 9,
     "ratedCount": 0,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T18:46:53.428Z",
+    "minutesToFirstPitch": 18,
     "batterIds": [
-     -1,
-     -2,
-     -3,
-     -4,
-     -5,
-     -6,
-     -7,
-     -8,
-     -9
+     701350,
+     668939,
+     575929,
+     677800,
+     678882,
+     686765,
+     702332,
+     596115,
+     655316
     ],
-    "realCount": 0,
+    "realCount": 9,
     "ratedCount": 0,
     "paddedSlots": 0
    },
@@ -903,10 +898,10 @@
    "missingFamilies": [
     "away_probable_starter",
     "home_probable_starter",
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   },
   {
@@ -916,45 +911,45 @@
    "awayTeam": "HOU",
    "homeTeam": "ATH",
    "firstPitch": "2026-09-27T19:05:00Z",
-   "artifactHash": "03813b058a2eb4a73c4d4456e0b2486daf23fa5ba045cfd6098fbb0e77c571ac",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "8591eaa1da949d21c30c19786c7c8bca43a70c1d4b30d7866ed902a2b10978a8",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T18:46:53.428Z",
+    "minutesToFirstPitch": 18,
     "batterIds": [
-     673237,
+     665161,
      670541,
-     514888,
      670623,
+     514888,
+     673237,
      572233,
-     701358,
      828599,
-     -8,
-     -9
+     701358,
+     666211
     ],
-    "realCount": 7,
+    "realCount": 9,
     "ratedCount": 7,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-09-27T18:46:53.428Z",
+    "minutesToFirstPitch": 18,
     "batterIds": [
      703607,
-     669127,
      671732,
-     643446,
+     669127,
      680869,
-     666126,
-     641680,
+     643446,
      622268,
-     675961
+     811965,
+     666126,
+     661531
     ],
     "realCount": 9,
-    "ratedCount": 9,
+    "ratedCount": 7,
     "paddedSlots": 0
    },
    "awayStarter": {
@@ -968,10 +963,10 @@
     "hasStrikeoutProjection": false
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   }
  ]
