@@ -45,12 +45,14 @@ const GAME: NflHubRosterGame = {
       market: "player_reception_yds", marketLabel: "Receiving yards",
       gtp: 108, pregameProbability: null, line: 90.5,
       sportsbook: "draftkings", capturedAt: "2026-09-26T16:49:46Z", liveTrackable: true,
+      portraitUrl: "https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/4430878.png&w=96&h=96",
     },
     {
       playerId: "nfl-athlete-3122840", player: "Zach Ertz", teamAbbr: "WSH",
       market: "player_receptions", marketLabel: "Receptions",
       gtp: 4.2, pregameProbability: null, line: 4.5,
       sportsbook: "draftkings", capturedAt: "2026-09-26T16:49:46Z", liveTrackable: true,
+      portraitUrl: "https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/3122840.png&w=96&h=96",
     },
     {
       /* A probability family: no rail, and no claim about whether it has happened. */
@@ -58,6 +60,9 @@ const GAME: NflHubRosterGame = {
       market: "anytime_td", marketLabel: "Anytime touchdown",
       gtp: null, pregameProbability: 0.627, line: null,
       sportsbook: null, capturedAt: "2026-09-26T16:49:46Z", liveTrackable: false,
+      /* Deliberately null: this row is the FALLBACK case, so every render of this fixture shows
+         both treatments side by side rather than only the happy path. */
+      portraitUrl: null,
     },
   ],
   boardGeneratedAt: "2026-09-26T23:23:23Z",

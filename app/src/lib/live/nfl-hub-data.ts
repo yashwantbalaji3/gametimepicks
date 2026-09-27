@@ -53,6 +53,8 @@ export interface TrackedPrediction {
    * own map, so a rail is never offered for a stat nothing can fill. `anytime_td` is false.
    */
   liveTrackable: boolean;
+  /** ESPN headshot resolved from the canonical id, or null when the id does not resolve one. */
+  portraitUrl: string | null;
 }
 
 export interface NflHubRosterGame {
@@ -113,6 +115,29 @@ const etDateOf = (iso: string | null): string | null => {
   }).format(new Date(t));
 };
 
+/**
+ * The ESPN headshot for a canonical board player id, or null.
+ *
+ * ⚠ CANONICAL ID ONLY, NEVER A NAME. Board ids are `nfl-athlete-<espnAthleteId>`; the numeric tail
+ *   is the ESPN athlete id the headshot CDN is keyed by. Anything that does not match that exact
+ *   shape returns null and falls back — a portrait resolved by name-matching is how the wrong face
+ *   ends up beside a prediction, and no near-miss is worth that.
+ *
+ * ⚠ THROUGH THE COMBINER, NOT THE RAW PATH. `/i/headshots/nfl/players/full/<id>.png` ignores `w`/`h`
+ *   and serves ~266 KB; the combiner returns the same image at 96px for ~11 KB. Measured, not
+ *   assumed: 266,360 → 11,343 bytes for id 4430878. Thirty distinct players on today's preview set
+ *   is ~8 MB the raw path, ~340 KB this way.
+ *
+ * ⚠ AND THE FALLBACK STILL WORKS. An unknown id returns a clean 404 through the combiner (verified),
+ *   not the HTTP-200 generic silhouette that cdn.nba.com serves for ESPN ids — so `PlayerAvatar`'s
+ *   onError lands on the initials-and-team-chip disc rather than rendering a stranger.
+ */
+export function espnNflHeadshotUrl(playerId: string | null | undefined): string | null {
+  const m = /^nfl-athlete-(\d+)$/.exec(String(playerId ?? ""));
+  if (!m) return null;
+  return `https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${m[1]}.png&w=96&h=96`;
+}
+
 /** ESPN's club logo CDN, the same path `TeamLogo` resolves. */
 const logoUrl = (abbr: string) => `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr.toLowerCase()}.png`;
 
@@ -157,6 +182,7 @@ function trackedFor(board: any): TrackedPrediction[] {
         /* Widened deliberately: the adapter's set is narrowly typed, and the board's family key is
            an arbitrary string. The membership test is the point — the cast does not weaken it. */
         liveTrackable: (LIVE_TRACKABLE_MARKETS as readonly string[]).includes(market),
+        portraitUrl: espnNflHeadshotUrl(p.playerId),
       });
     }
   }
