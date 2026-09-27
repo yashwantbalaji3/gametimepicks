@@ -324,10 +324,88 @@ test.describe("reduced motion", () => {
   }
 });
 
+test.describe("modal dialogs", () => {
+  // 🔴 THIS BLOCK EXISTS BECAUSE THE COMMENT BELOW USED TO SAY THE OPPOSITE, AND WENT STALE.
+  //
+  // It read: "No route in the launch-critical set has role=\"dialog\" or aria-modal, so there is no
+  // modal focus-trapping to verify — that criterion is N/A by construction, not unproven." That was
+  // true when written. It stopped being true in #705, which gave four dialogs the shared
+  // `useDialogFocus` primitive, and again in #714, which found a fifth — /build/custom's mobile
+  // sheet — that had no role, no accessible name, no Escape and no focus trap at all.
+  //
+  // So the one layer that could prove the KEYBOARD BEHAVIOUR in a real browser was explicitly
+  // opting out, on the strength of a claim that had expired. A criterion asserted N/A is only
+  // honest while it stays N/A.
+  //
+  // The unit guards cover markup and structure (`src/lib/uiux/dialog-focus.test.mjs` enumerates
+  // every `fixed inset-0` overlay and requires the primitive). Tab containment and focus RETURN are
+  // facts about a real focus system, so they belong here.
+  test("the /build mobile sheet is a real dialog: name, Escape, trap, and focus return", async ({ page }) => {
+    // The sheet is mobile-only — the desktop layout shows the same card in a sticky sidebar that is
+    // NOT a dialog, so a desktop viewport would find nothing and pass vacuously.
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/build/custom/", { waitUntil: "domcontentloaded" });
+
+    // The bottom bar exists ONLY once the card has a leg ("View card · 0 legs" was an affordance
+    // with nothing behind it, P208 F4), so a leg has to be added the way a reader adds one.
+    //
+    // ⚠ BY CLICKING, NOT BY SEEDING localStorage. The draft lives in browser storage, and injecting a
+    // key would skip the real activation path — a test that passes while the button is broken. This
+    // repo has been bitten by key-injection standing in for native activation before.
+    const add = page.getByRole("button", { name: "Add leg" }).first();
+    if (!(await add.count())) {
+      // An empty eligible pool is a legitimate state — it WAS empty on 2026-09-27 — and a test that
+      // invented a card would be testing its own fixture.
+      test.skip(true, "no eligible legs on this slate, so no sheet can be opened");
+    }
+    await add.click();
+
+    const opener = page.getByRole("button", { name: /view card/i }).first();
+    await expect(opener, "adding a leg must reveal the mobile card bar").toHaveCount(1);
+    await opener.focus();
+    const openerId = await page.evaluate(() => document.activeElement?.outerHTML?.slice(0, 80) ?? null);
+    await opener.press("Enter");
+
+    const dialog = page.getByRole("dialog");
+    await expect(dialog, "the sheet must expose role=dialog").toHaveCount(1);
+    await expect(dialog).toHaveAttribute("aria-modal", "true");
+    // An accessible name, not merely an aria-label attribute somewhere on the page.
+    expect(await dialog.evaluate((el) => el.getAttribute("aria-label") || el.getAttribute("aria-labelledby")),
+      "the dialog itself needs an accessible name").toBeTruthy();
+
+    // Focus moved INTO the sheet.
+    expect(await page.evaluate(() => {
+      const d = document.querySelector('[role="dialog"]');
+      return Boolean(d && d.contains(document.activeElement));
+    }), "opening must move focus into the dialog, not leave it on the page").toBe(true);
+
+    // ⚠ Shift+Tab from the first control is the reported defect: it walked out into the page behind.
+    await page.keyboard.press("Shift+Tab");
+    expect(await page.evaluate(() => {
+      const d = document.querySelector('[role="dialog"]');
+      return Boolean(d && d.contains(document.activeElement));
+    }), "Shift+Tab escaped the dialog").toBe(true);
+
+    // And forward, all the way round.
+    for (let i = 0; i < 12; i++) await page.keyboard.press("Tab");
+    expect(await page.evaluate(() => {
+      const d = document.querySelector('[role="dialog"]');
+      return Boolean(d && d.contains(document.activeElement));
+    }), "Tab escaped the dialog").toBe(true);
+
+    await page.keyboard.press("Escape");
+    await expect(dialog, "Escape must close the sheet").toHaveCount(0);
+
+    // Focus returns to whatever opened it — not to <body>, which makes a reader start from the top.
+    const returned = await page.evaluate(() => document.activeElement?.outerHTML?.slice(0, 80) ?? null);
+    expect(returned, "focus was dropped on <body> instead of returned to the opener").not.toBeNull();
+    expect(await page.evaluate(() => document.activeElement === document.body)).toBe(false);
+    if (openerId) expect(returned).toBe(openerId);
+  });
+});
+
 test.describe("disclosure widgets", () => {
-  // /results/ carries 18 native <details> and /bank-builder/ one. No route in the launch-critical
-  // set has role="dialog" or aria-modal, so there is no modal focus-trapping to verify — that
-  // criterion is N/A by construction, not unproven.
+  // /results/ carries 18 native <details> and /bank-builder/ one.
   //
   // Native <details> is keyboard-accessible for free, which is exactly why this is worth a guard:
   // the accessibility comes from the ELEMENT, so it is lost silently the moment someone reaches for
