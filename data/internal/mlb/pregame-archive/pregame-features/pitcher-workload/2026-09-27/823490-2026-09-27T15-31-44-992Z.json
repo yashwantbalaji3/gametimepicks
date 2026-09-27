@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823490,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T15:31:44.992Z",
+  "availableAt": "2026-09-27T15:31:44.992Z",
+  "eventStartTime": "2026-09-27T17:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 695684,
+      "name": "Elmer Rodríguez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 27,
+      "lastStartDate": "2026-08-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 3.6,
+        "bbAvg": 2.4,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 7.15,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 26.67,
+        "k": 21,
+        "bb": 16,
+        "er": 16,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 669358,
+      "name": "Shane Baz",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 6,
+      "lastStartDate": "2026-09-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 3.8,
+        "bbAvg": 2.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 6.04,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 179.67,
+        "k": 154,
+        "bb": 63,
+        "er": 82,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T15:31:44.992Z"
+  },
+  "recordHash": "7f93579ebfb2fe2b55d866f7b0b9e5b37f92bb8ef45813036b97becc2b87b80f"
+}

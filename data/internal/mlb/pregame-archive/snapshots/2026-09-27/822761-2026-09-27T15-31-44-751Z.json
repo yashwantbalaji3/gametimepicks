@@ -1,0 +1,188 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "822761-dfe6d993301573e456dc7144b26e475f",
+  "snapshotCreatedAt": "2026-09-27T15:31:44.751Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-09-27",
+  "eventId": "822761",
+  "gamePk": 822761,
+  "eventStartTime": "2026-09-27T19:07:00Z",
+  "homeTeam": "TOR",
+  "awayTeam": "CIN",
+  "venue": "Rogers Centre",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "11be9355d32f37704a6c8d24e4f71e59",
+  "normalizedPayloadHash": "a56f0b09a7e79b33686164e40ef1a528",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "PROJECTED_OR_UNPOSTED"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-09-27T15:31:44.751Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-27T15:31:44.751Z",
+      "timestampProven": true,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822761/feed/live",
+        "requestedAt": "2026-09-27T15:31:44.751Z",
+        "receivedAt": "2026-09-27T15:31:44.751Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Max Scherzer",
+        "awayProbable": "Brandon Williamson",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-27T15:31:44.751Z",
+      "availableAt": "2026-09-27T15:31:44.751Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-27T15:31:44.751Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822761/feed/live",
+        "requestedAt": "2026-09-27T15:31:44.751Z",
+        "receivedAt": "2026-09-27T15:31:44.751Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "73",
+        "wind": "13 mph, In From CF",
+        "roofType": "Retractable",
+        "dayNight": "day",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-27T15:31:44.751Z",
+      "availableAt": "2026-09-27T15:31:44.751Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-27T15:31:44.751Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822761/feed/live",
+        "requestedAt": "2026-09-27T15:31:44.751Z",
+        "receivedAt": "2026-09-27T15:31:44.751Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "John Bacon",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Quinn Wolcott",
+            "type": "First Base"
+          },
+          {
+            "name": "Adrian Johnson",
+            "type": "Second Base"
+          },
+          {
+            "name": "Paul Clemons",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-27T15:31:44.751Z",
+      "availableAt": "2026-09-27T15:31:44.751Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-27T15:31:44.751Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822761/feed/live",
+        "requestedAt": "2026-09-27T15:31:44.751Z",
+        "receivedAt": "2026-09-27T15:31:44.751Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
