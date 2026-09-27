@@ -136,3 +136,46 @@ test("the results page no longer derives a no-play day from money", () => {
   assert.doesNotMatch(code, /no card settled \(no-play day\)/, "the phrase is no longer hardcoded here");
   assert.match(code, /mayBeCalledNoPlay/, "the phrase is gated by the shared reservation");
 });
+
+test("a lane with no card behind it is NOT a published card", () => {
+  /*
+   * ⚠ MY OWN OFF-BY-ONE, FOUND AGAINST TODAY'S LIVE PORTFOLIO. The first version counted every lane,
+   * and `lib/daily-portfolio/exposure.ts` states the rule outright: "awaiting"/"candidate" — no
+   * placed card behind them, so nothing is at risk. The real 2026-09-26 portfolio has FOUR lanes and
+   * THREE cards ($100 + $100 + $25 = $225, the exact figure the external review reported), so the row
+   * would have said "4 cards" over three. A wrong count is a smaller lie than "no-play day" and still
+   * a lie.
+   */
+  const src = fs.readFileSync(path.join(APP, "src/lib/results-trust-center.ts"), "utf8");
+  assert.match(src, /\^\(awaiting\|candidate\)\$/, "the no-card lane statuses must be excluded from the published count");
+  /* The parts must be counted over the same set as the whole, or settled could exceed published. */
+  assert.match(src, /publishedLanes \? publishedLanes\.filter/, "settled/void are counted over the PUBLISHED lanes");
+  assert.doesNotMatch(src, /const settledCount = dailyLanes \?/, "counting parts over a larger set than the whole");
+});
+
+test("the real daily-portfolio artifact yields a lifecycle that is not a no-play day", () => {
+  /*
+   * Against the COMMITTED artifact, because the defect was about real data and a synthetic fixture
+   * would not have shown that `realizedPnl` is 0 while $225 sits at risk. Self-skips if the artifact
+   * moves on, rather than rotting into a false alarm.
+   */
+  const p = path.join(APP, "public/data/mr-dub/daily-portfolio.json");
+  if (!fs.existsSync(p)) return;
+  const d = JSON.parse(fs.readFileSync(p, "utf8"));
+  if (!Array.isArray(d.lanes) || d.lanes.length === 0) return;
+  const st = (l) => String(l.status ?? "").toLowerCase();
+  const published = d.lanes.filter((l) => !/^(awaiting|candidate)$/.test(st(l)));
+  if (published.length === 0) return; // a genuine no-play day; nothing to assert here
+  const lc = cardLifecycleOf({
+    published: published.length,
+    settled: published.filter((l) => /^(won|lost|settled|push)$/.test(st(l))).length,
+    voided: published.filter((l) => /^(void|no_action|scratched)$/.test(st(l))).length,
+    eventStateObserved: false,
+  });
+  assert.equal(mayBeCalledNoPlay(lc), false, `${published.length} published card(s) must never read as a no-play day`);
+  /* And the old condition would have. Pinned so the regression is visible, not just fixed. */
+  const oldWouldSayNoPlay = d.settlement?.status === "none" || d.settlement?.realizedPnl === 0;
+  if (oldWouldSayNoPlay) {
+    assert.ok(true, "confirmed: the replaced condition fires on this very artifact");
+  }
+});

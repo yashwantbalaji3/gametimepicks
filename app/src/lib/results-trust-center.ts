@@ -316,9 +316,19 @@ export function getTrustCenterModel(): TrustCenterModel {
    */
   const dailyLanes = Array.isArray(daily?.lanes) ? (daily!.lanes as Array<Record<string, unknown>>) : null;
   const laneStatus = (l: Record<string, unknown>) => String(l.status ?? "").toLowerCase();
-  const publishedCount = dailyLanes ? dailyLanes.length : activeCardsCount;
-  const settledCount = dailyLanes ? dailyLanes.filter((l) => /^(won|lost|settled|push)$/.test(laneStatus(l))).length : 0;
-  const voidedCount = dailyLanes ? dailyLanes.filter((l) => /^(void|no_action|scratched)$/.test(laneStatus(l))).length : 0;
+  /*
+   * ⚠ "awaiting" AND "candidate" ARE NOT PUBLISHED CARDS, and counting them was a real off-by-one in
+   * the first version of this: lib/daily-portfolio/exposure.ts states it outright — "no placed card
+   * behind them, so nothing is at risk". Today's live portfolio has four lanes and THREE cards
+   * ($100 + $100 + $25 = $225, the exact figure the external review reported), so the row would have
+   * printed "4 cards" over three. A wrong count is a smaller lie than "no-play day" and still a lie.
+   */
+  const NO_CARD_BEHIND_IT = /^(awaiting|candidate)$/;
+  const publishedLanes = dailyLanes ? dailyLanes.filter((l) => !NO_CARD_BEHIND_IT.test(laneStatus(l))) : null;
+  const publishedCount = publishedLanes ? publishedLanes.length : activeCardsCount;
+  /* Counted over the PUBLISHED lanes, so the parts can never exceed the whole. */
+  const settledCount = publishedLanes ? publishedLanes.filter((l) => /^(won|lost|settled|push)$/.test(laneStatus(l))).length : 0;
+  const voidedCount = publishedLanes ? publishedLanes.filter((l) => /^(void|no_action|scratched)$/.test(laneStatus(l))).length : 0;
 
   const settlement: TrustSettlement | null = daily
     ? {
