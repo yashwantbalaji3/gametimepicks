@@ -117,6 +117,9 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
     : card.combinedAmerican;
 
   const swapTargets = legs.map((l) => ({
+    /* The ladder board is MLB-scoped (see the TeamLogo and headshot calls below), and the onSwap
+       replacement already declared it. The TARGET needs it too, or the bench cannot be constrained. */
+    sport: "mlb",
     player: l.player, market: l.marketLabel, gameId: String(l.opponent ?? ""), americanOdds: l.odds ?? 0,
     marketLabel: l.marketLabel, side: l.side, line: l.line,
     photoUrl: l.playerId ? mlbHeadshotUrl(l.playerId) : null, teamAbbr: l.team,

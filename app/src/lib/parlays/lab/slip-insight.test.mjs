@@ -41,8 +41,9 @@ test("linked pairs are named with the engine's reason, provable conflicts first"
 test("the alternative is shorter-priced, from the published pool, and reprices the whole card", () => {
   const draft = [leg({ player: "Long", gameId: "g1", odds: 400 }), leg({ player: "Short", gameId: "g2", odds: -150 })];
   const pool = [
-    { player: "Nearer", market: "batter_hits", gameId: "g3", americanOdds: 250, marketLabel: "Hits", side: "Over", line: 0.5, photoUrl: null, teamAbbr: null, opponentAbbr: null, matchup: "" },
-    { player: "Longer", market: "batter_hits", gameId: "g4", americanOdds: 600, marketLabel: "Hits", side: "Over", line: 0.5, photoUrl: null, teamAbbr: null, opponentAbbr: null, matchup: "" },
+    /* §14: candidates declare a sport, matching the draft legs' own. */
+    { sport: "mlb", player: "Nearer", market: "batter_hits", gameId: "g3", americanOdds: 250, marketLabel: "Hits", side: "Over", line: 0.5, photoUrl: null, teamAbbr: null, opponentAbbr: null, matchup: "" },
+    { sport: "mlb", player: "Longer", market: "batter_hits", gameId: "g4", americanOdds: 600, marketLabel: "Hits", side: "Over", line: 0.5, photoUrl: null, teamAbbr: null, opponentAbbr: null, matchup: "" },
   ];
   const s = shorterAlternative(pool, draft);
   assert.equal(s.outgoing.player, "Long", "the longest-priced leg is the one offered a stand-in");

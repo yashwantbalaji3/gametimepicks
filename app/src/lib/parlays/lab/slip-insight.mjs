@@ -92,8 +92,11 @@ export function shorterAlternative(pool, draft) {
     if (decimalOdds(priced[i].americanOdds) > decimalOdds(priced[index].americanOdds)) index = i;
   }
   const target = priced[index];
-  const onCard = priced.map((l) => ({ player: l.player, market: l.market, gameId: l.gameId, americanOdds: l.americanOdds }));
-  const shorter = benchFor(pool, { player: target.player, market: target.market, gameId: target.gameId, americanOdds: target.americanOdds }, onCard, 12)
+  /* ⚠ THE SPORT HAS TO TRAVEL. This rebuilt the target field-by-field and dropped it, so `benchFor`
+     saw a sportless target and (correctly) refused every bench — the cross-sport constraint would
+     have silently disabled the stand-in feature outright rather than narrowing it. */
+  const onCard = priced.map((l) => ({ sport: l.sport, player: l.player, market: l.market, gameId: l.gameId, americanOdds: l.americanOdds }));
+  const shorter = benchFor(pool, { sport: target.sport, player: target.player, market: target.market, gameId: target.gameId, americanOdds: target.americanOdds }, onCard, 12)
     .filter((c) => decimalOdds(c.americanOdds) < decimalOdds(target.americanOdds));
   if (!shorter.length) return null;
   // Closest shorter price — a neighbour, not the shortest thing on the board.

@@ -16,6 +16,9 @@ import { mlbHeadshotUrl, mlbPersonIdFromHeadshotUrl } from "@/lib/player-headsho
 export function toSwapCandidate(p: BoardProp): SwapCandidate {
   const mlbPersonId = mlbPersonIdFromHeadshotUrl(p.photoUrl);
   return {
+    /* This mapping is MLB-only by construction — it takes a BoardProp. Stated rather than inferred,
+       so the swap filter can refuse a cross-sport replacement (§14). */
+    sport: "mlb",
     player: p.player, ...(mlbPersonId ? { mlbPersonId } : { photoUrl: p.photoUrl ?? null }),
     teamAbbr: p.teamAbbr ?? null, opponentAbbr: p.opponentAbbr ?? null,
     market: p.marketLabel, marketLabel: p.marketLabel, side: p.selection, line: p.point,
