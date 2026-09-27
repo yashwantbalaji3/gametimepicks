@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824542,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T01:01:54.906Z",
+  "availableAt": "2026-09-27T01:01:54.906Z",
+  "eventStartTime": "2026-09-27T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641743,
+      "name": "Anthony Kay",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21,
+        "ipAvg": 4.2,
+        "kAvg": 3.4,
+        "bbAvg": 1.4,
+        "erAvg": 3.4,
+        "hrAvg": 0.6,
+        "kPer9": 7.29,
+        "workloadIpLast5": 21
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 146,
+        "k": 124,
+        "bb": 51,
+        "er": 74,
+        "hr": 20
+      }
+    },
+    "away": {
+      "id": 607536,
+      "name": "Kyle Freeland",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 2.6,
+        "bbAvg": 1.2,
+        "erAvg": 2.8,
+        "hrAvg": 1.2,
+        "kPer9": 5.09,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 131.33,
+        "k": 106,
+        "bb": 29,
+        "er": 96,
+        "hr": 27
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T01:01:54.906Z"
+  },
+  "recordHash": "61300f5e327894bfd1e71331d68ddc0f41ea674ec15385278aabf5143de1daa5"
+}

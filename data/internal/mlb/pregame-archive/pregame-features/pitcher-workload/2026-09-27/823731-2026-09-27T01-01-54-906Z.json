@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823731,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T01:01:54.906Z",
+  "availableAt": "2026-09-27T01:01:54.906Z",
+  "eventStartTime": "2026-09-27T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694819,
+      "name": "Jacob Misiorowski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 7,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 6.2,
+        "bbAvg": 1.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.2,
+        "kPer9": 11.47,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 169.33,
+        "k": 247,
+        "bb": 42,
+        "er": 35,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 669467,
+      "name": "Andre Pallante",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 2.8,
+        "bbAvg": 1.8,
+        "erAvg": 2.6,
+        "hrAvg": 0.2,
+        "kPer9": 4.67,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 157,
+        "k": 106,
+        "bb": 49,
+        "er": 63,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T01:01:54.906Z"
+  },
+  "recordHash": "7e06fc3fa4d9c06d3b3362384dec960596aea616d764c0f2d3bc122397139478"
+}

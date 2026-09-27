@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823246,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T01:01:54.906Z",
+  "availableAt": "2026-09-27T01:01:54.906Z",
+  "eventStartTime": "2026-09-27T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 647336,
+      "name": "Michael Soroka",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 5.4,
+        "bbAvg": 1.8,
+        "erAvg": 2,
+        "hrAvg": 0.4,
+        "kPer9": 9.59,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 107.33,
+        "k": 106,
+        "bb": 26,
+        "er": 38,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T01:01:54.906Z"
+  },
+  "recordHash": "fd2668816776854a7932761ea74dc4e243a5fe6a0b68fb5168841bc74c1f624d"
+}
