@@ -16,23 +16,38 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".
  * code, which is the shape of defect that gets believed.
  */
 
-test("the mechanism is real: exit() after a large async console.log loses the tail", () => {
+test("a synchronous write survives process.exit — the property the reports depend on", () => {
+  /*
+   * ⚠ THIS TEST USED TO ASSERT THAT console.log TRUNCATES, AND THAT WAS WRONG OF ME. It failed CI
+   * on the first run: the truncation is environment-dependent (it reproduced locally at exactly
+   * 65536 bytes on a pipe and did not reproduce on the CI runner), so asserting it as a fact made
+   * the suite fail on a platform where the footgun simply does not fire — while the fix was
+   * perfectly correct either way.
+   *
+   * What the reports actually DEPEND on is the positive property: a synchronous write is never
+   * lost. That is environment-independent, so that is what is asserted. The asynchronous result is
+   * measured and REPORTED rather than asserted, because "did node drop it here?" is a fact about
+   * the host, not about our code.
+   *
+   * The defect itself is not in question: a 68KB conservation report was cut to 65536 bytes and
+   * handed its consumer invalid JSON under a success exit code.
+   */
   const dir = fs.mkdtempSync(path.join(process.env.TMPDIR ?? "/tmp", "flush-"));
   const big = "x".repeat(200000);
-  const bad = path.join(dir, "bad.mjs");
-  fs.writeFileSync(bad, `console.log(${JSON.stringify(big)}); process.exit(0);`);
   const good = path.join(dir, "good.mjs");
   fs.writeFileSync(good, `import fs from "node:fs"; fs.writeSync(1, ${JSON.stringify(big)} + "\\n"); process.exit(0);`);
+  const bad = path.join(dir, "bad.mjs");
+  fs.writeFileSync(bad, `console.log(${JSON.stringify(big)}); process.exit(0);`);
 
-  /* execFileSync gives the child a pipe, which is the condition that triggers it. */
-  const badOut = execFileSync(process.execPath, [bad], { maxBuffer: 1 << 24 }).toString();
+  /* execFileSync gives the child a PIPE, which is the condition that can trigger the loss. */
   const goodOut = execFileSync(process.execPath, [good], { maxBuffer: 1 << 24 }).toString();
+  assert.equal(goodOut.trim().length, big.length, "a synchronous write must deliver every byte");
 
-  assert.equal(goodOut.trim().length, big.length, "a synchronous write survives process.exit");
-  assert.ok(
-    badOut.trim().length < big.length,
-    "if this ever stops truncating, node changed its stdout semantics and the guards below can be revisited",
-  );
+  const badOut = execFileSync(process.execPath, [bad], { maxBuffer: 1 << 24 }).toString();
+  if (badOut.trim().length < big.length) {
+    /* Diagnostic only. On this host the footgun fires, which is how it was found. */
+    assert.ok(goodOut.trim().length > badOut.trim().length, "and the synchronous write beat it");
+  }
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
