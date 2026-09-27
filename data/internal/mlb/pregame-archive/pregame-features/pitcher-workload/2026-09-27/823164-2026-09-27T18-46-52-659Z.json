@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823164,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T18:46:52.659Z",
+  "availableAt": "2026-09-27T18:46:52.659Z",
+  "eventStartTime": "2026-09-27T19:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693313,
+      "name": "Carson Seymour",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 676263,
+      "name": "Jack Dreyer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 7,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 2,
+        "ipSum": 2,
+        "ipAvg": 1,
+        "kAvg": 2,
+        "bbAvg": 0.5,
+        "erAvg": 0.5,
+        "hrAvg": 0,
+        "kPer9": 18,
+        "workloadIpLast5": 2
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 2,
+        "k": 4,
+        "bb": 1,
+        "er": 1,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T18:46:52.659Z"
+  },
+  "recordHash": "4f77e245b33b6a0a461624696e8849ff68ee147a8ee665c0e51e7d99d1590491"
+}
