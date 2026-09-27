@@ -46,6 +46,22 @@ export interface MarketCoverage {
   requiredData: string[];
   settlementSupport: SettlementSupport;
   publicExplanation: string;
+  /**
+   * 🔴 THE CALIBRATION FAMILIES THIS ROW ACTUALLY COVERS — the join that did not exist.
+   *
+   * This registry keys on COARSE market names (`player_props`) while the calibration registry keys
+   * on FAMILIES (`batter_hits`, `pitcher_strikeouts`, `batter_total_bases`). With no join between
+   * them, `player_props` could be described as "projected from game logs vs the line · settled from
+   * the official box score" — capable, neutral, and true as far as it went — while every family it
+   * covers carries `DEMOTE_TO_MARKET_CONTEXT`: the model loses to the market on Brier AND log loss
+   * across 18,659 settled leans. The row beside it, `full_game_sim`, discloses its own limitation;
+   * this one had no mechanism to.
+   *
+   * Naming the families makes the contradiction CHECKABLE: `market-coverage-drift.test.mjs` fails
+   * if a row whose families are demoted does not say so, or claims a status that implies it is
+   * usable. Prose that can drift from the registry that governs it is prose that will.
+   */
+  governedBy?: readonly string[];
 }
 
 /** NFL coverage (Program 175 · Release C). Every row states what the market actually is today. */
@@ -124,10 +140,19 @@ export const MARKET_COVERAGE: readonly MarketCoverage[] = [
   },
   {
     sport: "mlb", market: "player_props", publicLabel: "Player props (K / hits / TB)",
-    status: "conditional", predictionSource: "projection_only",
+    /*
+     * 🔴 `conditional` SAID "supported once an input exists". THE INPUT IS NOT WHAT IS MISSING.
+     *
+     * Every family this row covers carries `DEMOTE_TO_MARKET_CONTEXT`: across 18,659 settled leans
+     * the model loses to the market on Brier AND log loss, and is overconfident at every level.
+     * `experimental` is this registry's own word for "never product-eligible until validated",
+     * which is what is actually true — and it is what `full_game_sim` beside it already says.
+     */
+    status: "experimental", predictionSource: "projection_only",
+    governedBy: ["pitcher_strikeouts", "batter_hits", "batter_total_bases", "batter_hits_runs_rbis"],
     requiredData: ["MLB StatsAPI game logs", "10k prop simulation artifact"],
     settlementSupport: "supported",
-    publicExplanation: "Strikeouts / hits / total bases projected from game logs vs the line; a 10,000-run prop sim is shown only where the artifact exists. Settled from the official box score.",
+    publicExplanation: "Strikeouts / hits / total bases projected from game logs vs the line; a 10,000-run prop sim is shown only where the artifact exists. Settled from the official box score. Not market-proven: across 18,659 settled leans none of these markets' model probabilities out-predict the sportsbook price on Brier or log loss, so the model number is a market-anchored research signal and the market price is the better probability.",
   },
   {
     sport: "mlb", market: "full_game_sim", publicLabel: "Full-game score simulation",

@@ -63,6 +63,8 @@ import { buildAllGameDetails } from "../../src/lib/game-detail.ts";
 import { nflPageIds, buildMyPlayerRows } from "../../src/lib/my/read-model.ts";
 import { loadEplForecasts, reportableRows, eplMatchHref } from "../../src/lib/sports/epl/forecast-view.ts";
 import { combinedParlayPayoutPer100 } from "../../src/lib/odds-math.ts";
+import { MARKET_COVERAGE } from "../../src/lib/market-coverage.ts";
+import { MLB_MARKET_CALIBRATION, isCalibrationFailed } from "../../src/lib/mlb/model-calibration-status.ts";
 import { buildHelpCorpus } from "../../src/lib/ask/help-source.mjs";
 import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-model.mjs";
 
@@ -745,12 +747,74 @@ const add = (rel, doc) => {
   artifacts.set(rel, text);
 };
 
+
+/**
+ * THE COVERAGE PROJECTION (§10, §2.3) — what is published, what has been measured, and whether the
+ * measurement allows it to be called a forecast.
+ *
+ * ⚠ THE DERIVATION LIVES HERE, NOT IN THE TOOL. Ask answers from `api/ask.mjs`, a plain-node
+ * serverless function that cannot load a `.ts` module, and both owners below are TypeScript. The
+ * first cut imported them straight into the tool: it worked under the test runner and would have
+ * thrown in production. No other Ask tool imports a `.ts` file, which was the signal. This script
+ * already runs under `tsx` and already imports a dozen `.ts` owners, so the derivation belongs here
+ * and the tool reads the result like every other asset.
+ *
+ * ⚠ AND THE FIVE LEVELS STAY APART (§10). They fail INDEPENDENTLY, and MLB is the standing proof:
+ * its player props are engineering-ready in every respect — canonical ids, a frozen market on every
+ * row, the model's own probability — and are not eligible to be called a forecast, because across
+ * 18,659 settled leans the model loses to the market. `modelExists` is not `historicallyTested` is
+ * not `currentValidationState` is not `publicEligible` is not `settlementSupported`.
+ */
+function buildCoverage() {
+  const rows = Array.isArray(MARKET_COVERAGE) ? MARKET_COVERAGE : Object.values(MARKET_COVERAGE ?? {});
+  /* ⚠ NO TIMESTAMP. Every other doc here is deterministic so the COMMITTED projection is
+     byte-stable across builds; stamping this one would make it churn on every run. */
+  return {
+    schemaVersion: ASK_PROJECTION_SCHEMA_VERSION,
+    artifact: "ask-coverage",
+    count: rows.length,
+    markets: rows.map((r) => {
+      const families = r.governedBy ?? [];
+      const governed = families.filter((f) => MLB_MARKET_CALIBRATION[f]);
+      const demoted = governed.filter((f) => isCalibrationFailed(f));
+      return {
+        sport: r.sport,
+        market: r.market,
+        label: r.publicLabel,
+        status: r.status,
+        predictionSource: r.predictionSource,
+        settlementSupport: r.settlementSupport,
+        /* Something is published for this market at all. */
+        modelExists: r.predictionSource !== "none",
+        /* A calibration verdict exists — it has actually been measured against outcomes. */
+        historicallyTested: governed.length > 0,
+        /* And what that measurement said. UNMEASURED is its own answer, never a pass. */
+        currentValidationState: governed.length === 0
+          ? "UNMEASURED"
+          : demoted.length === governed.length
+            ? "DEMOTED_TO_MARKET_CONTEXT"
+            : demoted.length > 0
+              ? "PARTIALLY_DEMOTED"
+              : "VALIDATED",
+        /* May a reader treat this as a GameTimePicks forecast today? */
+        publicEligible: r.status === "supported" || r.status === "conditional",
+        settlementSupported: r.settlementSupport === "supported",
+        demotedFamilies: demoted,
+        governedFamilies: governed,
+        /* The registry's own words, unchanged. A limitation paraphrased is a limitation softened. */
+        limitation: r.publicExplanation,
+      };
+    }).sort((a, b) => (a.sport < b.sport ? -1 : a.sport > b.sport ? 1 : a.market < b.market ? -1 : 1)),
+  };
+}
+
 add("entities.json", buildEntities());
 add("matchups.json", buildMatchups());
 add("forecasts.json", buildForecasts());
 add("parlays.json", buildParlays());
 for (const [key, doc] of Object.entries(buildRecent())) add(`recent/${key}.json`, doc);
 add("results.json", buildResults());
+add("coverage.json", buildCoverage());
 const help = buildHelpCorpus();
 assertLinks("help corpus", help.chunks.flatMap((c) => (c.route ? [{ href: c.route }] : [])));
 add("help.json", help);

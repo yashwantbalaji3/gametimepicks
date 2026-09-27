@@ -351,6 +351,34 @@ export function buildEvidence(envelopes) {
         break;
       }
 
+      case "getCoverage": {
+        /*
+         * §10 · FIVE LEVELS, SAID SEPARATELY. The whole point of the coverage registry is that
+         * "we built it", "we measured it", "the measurement passed", "a reader may treat it as a
+         * forecast" and "we can grade it" are different facts. Collapsing them into one sentence —
+         * "we cover MLB player props" — is exactly the claim the page used to make.
+         */
+        if (d.covered === false) { say(d.note ?? `GameTimePicks publishes no coverage entry for that ${d.sport} market`); break; }
+        for (const m of (d.markets ?? []).slice(0, 8)) {
+          const eligible = m.publicEligible
+            ? "may be read as a GameTimePicks forecast"
+            : "is NOT eligible to be read as a GameTimePicks forecast";
+          say(`${String(d.sport).toUpperCase()} · ${m.label}: status ${m.status}, ${eligible}`);
+          /* The verdict, and the families it actually governs — never a summary of them. */
+          if (m.currentValidationState === "DEMOTED_TO_MARKET_CONTEXT") {
+            say(`${m.label} has been measured against outcomes and DEMOTED to market context${m.demotedFamilies?.length ? ` (${m.demotedFamilies.join(", ")})` : ""} — the model does not out-predict the sportsbook price, so the market price is the better probability`);
+          } else if (m.currentValidationState === "PARTIALLY_DEMOTED") {
+            say(`part of ${m.label} has been demoted to market context: ${m.demotedFamilies.join(", ")}`);
+          } else if (m.currentValidationState === "UNMEASURED") {
+            say(`${m.label} has no calibration verdict — it has not been measured against outcomes, which is not the same as having passed`);
+          }
+          if (!m.settlementSupported) say(`${m.label} cannot be graded: settlement is ${m.settlementSupport}`);
+          /* The registry's own words, verbatim — a limitation paraphrased is a limitation softened. */
+          if (m.limitation) say(`the published limitation for ${m.label} reads: ${m.limitation}`);
+        }
+        break;
+      }
+
       case "searchGameTimeHelp":
         for (const s of d.sections ?? []) say(`GameTimePicks help — ${s.title}: ${s.text}`);
         break;
@@ -407,6 +435,7 @@ function registerNumber(set, v) {
 function unsupportedSentence(env) {
   const what = {
     getLiveSlate: `GameTimePicks does not currently hold live game state for ${env.arguments?.sport ?? "that sport"}`,
+    getCoverage: `GameTimePicks publishes no coverage registry for ${env.arguments?.sport ?? "that sport"}`,
     runGameFinder: `GameTimePicks does not currently hold recorded team game results for ${env.arguments?.sport ?? "that sport"}`,
     getSeasonExplorer: `GameTimePicks does not currently hold recorded season totals for ${env.arguments?.sport ?? "that sport"}`,
     runPlayerResearchQuery: "GameTimePicks does not currently hold that recorded player data",

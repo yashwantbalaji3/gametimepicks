@@ -89,6 +89,14 @@ export function createFakeProvider(config = {}) {
         case "writer-invents-role": return wrap(JSON.stringify({ answerMarkdown: "The starting quarterback is Deshaun Watson, and the new running back is modeled.", citations: [], followUps: [], linkIds: [] }));
         case "writer-invents-line": return wrap(JSON.stringify({ answerMarkdown: "The frozen DraftKings line was 58.5, priced at -110.", citations: [], followUps: [], linkIds: [] }));
         case "writer-grades-live-leg": return wrap(JSON.stringify({ answerMarkdown: "He has already hit it — that leg is a winner.", citations: [], followUps: [], linkIds: [] }));
+        /*
+         * §4.3 · A DEMOTED MARKET DESCRIBED AS A VALIDATED FORECAST. Every MLB player-prop family
+         * carries DEMOTE_TO_MARKET_CONTEXT — the model loses to the market on Brier AND log loss
+         * across 18,659 settled leans — so "our model projects / we like the over" is a claim the
+         * product's own audit refuses. It carries no number, which is why the numeric gate cannot
+         * see it and it needs a behaviour of its own.
+         */
+        case "writer-promotes-demoted-market": return wrap(JSON.stringify({ answerMarkdown: "GameTimePicks' model projects 1.4 hits and we like the over on that line.", citations: [], followUps: [], linkIds: [] }));
         case "not-json": return wrap("Sure! Here's what I found.");
         default: return wrap(JSON.stringify(echoAnswer(user)));
       }
@@ -124,6 +132,34 @@ function routePlan(user) {
 
   const needsNow = has("today", "tonight", "now", "current", "this weekend");
   if (needsNow) push("getGameTimeNow");
+
+  /*
+   * COVERAGE — "do you cover this, and may it be treated as a forecast?" — AND IT MUST BE MATCHED
+   * BEFORE THE FORECAST AND HELP BLOCKS.
+   *
+   * ⚠ MEASURED, NOT ASSUMED. Without this rule the three coverage cases routed to
+   * `getPublishedForecasts` and `searchGameTimeHelp`, so they passed on the ROUTER's choice of
+   * intent while `getCoverage` was never called — the vacuous-eval shape. Worse, "does GameTimePicks
+   * predict MLB player props?" answered with published MONEYLINE and RUN LINE forecasts, complete
+   * with model probabilities: a different market, read as a yes.
+   *
+   * The discriminator is that the question is about the PRODUCT'S COVERAGE rather than about a
+   * game: "do you cover / do you predict / which markets / is it validated". A question naming a
+   * specific matchup is still a forecast question and falls through.
+   */
+  const coverageAsk = has("do you cover", "does gametimepicks cover", "do you predict", "does gametimepicks predict",
+                          "which markets", "what markets", "is it validated", "model validated", "markets does gametimepicks");
+  if (coverageAsk) {
+    /* A planner that heard a specific market would narrow to it; without the hint the answer opens
+       on whichever row sorts first, which reads as evasion of the question actually asked. */
+    const marketHint = ["player props", "batter hits", "total bases", "strikeouts", "anytime touchdown",
+                        "receiving yards", "rushing yards", "receptions", "moneyline", "run line", "total"]
+      .find((m) => question.includes(m));
+    const args = { sport: (sportOf(question) ?? "MLB").toLowerCase() };
+    if (marketHint) args.market = marketHint;
+    push("getCoverage", args, needsNow ? ["c0"] : []);
+    return { intent: "COVERAGE", needsClarification: false, clarification: null, calls };
+  }
 
   /*
    * A FACTUAL SEARCH BEATS A HELP MATCH. "Find MLB games from this season" contains "season", but the

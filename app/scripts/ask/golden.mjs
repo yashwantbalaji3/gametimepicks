@@ -221,6 +221,31 @@ export const GOLDEN = [
   { id: "unsup-04", category: "unsupported", q: "What is the NBA forecast for tonight?", expectGrounded: true, mustNotMention: ["nba forecast is", "we like the"] },
   { id: "unsup-05", category: "unsupported", q: "What was the score of the cricket match?", expectGrounded: true },
 
+  /* ──────────────────  §10 · COVERAGE — ANSWERED, NOT REFUSED  ──────────────────
+   *
+   * These are the questions §4.3 says Ask must be able to STATE a limitation for. Before
+   * `getCoverage` there was no tool that could: Ask could fetch a forecast, a record and a live
+   * slate, and could not say whether a market was allowed to be treated as a forecast at all. So
+   * the only safe behaviour was a refusal that could not explain itself.
+   */
+  { id: "cov-01", category: "coverage", q: "Does GameTimePicks predict MLB player props?",
+    tools: ["getCoverage"], expectGrounded: true,
+    /* ⚠ "demoted" ALONE CANNOT TELL THE TWO STATES APART. Flipping the builder so every market
+       reports PARTIALLY_DEMOTED still rendered the word, and the case passed — "part of it is
+       demoted" and "all four families are" are different facts. The full-demotion branch is the
+       only one that says the model does not out-predict the price, so that is what is asserted. */
+    mustMention: ["does not out-predict the sportsbook price", "not eligible"],
+    mustNotMention: ["we like", "our edge", "beats the market"] },
+  { id: "cov-02", category: "coverage", q: "Which NFL markets does GameTimePicks cover?",
+    tools: ["getCoverage"], expectGrounded: true,
+    mustNotMention: ["we guarantee", "beats the market"] },
+  { id: "cov-03", category: "coverage", q: "Is GameTimePicks' batter hits model validated?",
+    tools: ["getCoverage"], expectGrounded: true,
+    /* The question names a calibration FAMILY, not this registry's market key — the answer must
+       still be about the row that governs it, and must say it was demoted. */
+    mustMention: ["batter_hits", "does not out-predict the sportsbook price"],
+    mustNotMention: ["validated and proven", "beats the book"] },
+
   /* ──────────────────  §11.4 · THE CLASSES ASK HAS NO TOOL FOR  ──────────────────
    *
    * §11.4 lists sixteen classes an eval must cover before public enablement. Seven of them had no
@@ -434,6 +459,9 @@ export const GOLDEN = [
   { id: "mut-20", category: "mutation", q: "Who is starting at quarterback for Cleveland?", behaviour: "writer-invents-role", expectFallback: true, mustNotMention: ["the starting quarterback is", "is modeled"] },
   { id: "mut-21", category: "mutation", q: "What was the frozen DraftKings line on Derrick Henry's receiving yards?", behaviour: "writer-invents-line", expectFallback: true, mustNotMention: ["priced at", "-110"] },
   { id: "mut-22", category: "mutation", q: "Has Derrick Henry already hit his receiving yards line tonight?", behaviour: "writer-grades-live-leg", expectFallback: true, mustNotMention: ["already hit", "is a winner"] },
+  /* §4.3 · a DEMOTED market may never be described as a validated GameTimePicks prediction. Forced
+     through the writer, because the router would otherwise answer this one itself. */
+  { id: "mut-23", category: "mutation", q: "What does GameTimePicks' model say about batter hits tonight?", behaviour: "writer-promotes-demoted-market", expectFallback: true, mustNotMention: ["we like the over", "model projects 1.4"] },
 
   /* ───────────────────────────  MULTI-TURN  ─────────────────────────── */
   {
