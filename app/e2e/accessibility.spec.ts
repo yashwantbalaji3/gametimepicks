@@ -340,6 +340,56 @@ test.describe("modal dialogs", () => {
   // The unit guards cover markup and structure (`src/lib/uiux/dialog-focus.test.mjs` enumerates
   // every `fixed inset-0` overlay and requires the primitive). Tab containment and focus RETURN are
   // facts about a real focus system, so they belong here.
+  /**
+   * ⚠ THIS CASE EXISTS BECAUSE THE /build ONE CAN SILENTLY NEVER RUN.
+   *
+   * That test needs an eligible leg to add, and the /build pool was EMPTY on 2026-09-27 — so it took
+   * its honest skip branch and the gate went green having proved nothing about Tab containment. A
+   * test that skips on a data condition is not a guard; it is a guard-shaped thing that reports
+   * success. CI printed "9 skipped · 432 passed" and its reporter prints no titles, so I could not
+   * even tell from the log which had skipped.
+   *
+   * The mobile Menu needs no data. It is on every page at phone width, and it is the ORIGINALLY
+   * REPORTED defect — "mobile Menu allows Shift+Tab escape into background" — so the keyboard
+   * contract is proved on every run, and the /build sheet becomes the extra case when a pool exists.
+   */
+  test("the mobile Menu contains Tab both ways, closes on Escape, and returns focus", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/today/", { waitUntil: "domcontentloaded" });
+
+    const opener = page.getByRole("button", { name: /^Menu \u2014/ });
+    await expect(opener, "the mobile Menu button is on every page at phone width \u2014 no data needed").toHaveCount(1);
+    await opener.focus();
+    const openerBefore = await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? null);
+    await opener.press("Enter");
+
+    const dialog = page.getByRole("dialog", { name: "Menu" });
+    await expect(dialog).toHaveCount(1);
+    await expect(dialog).toHaveAttribute("aria-modal", "true");
+
+    const inside = () => page.evaluate(() => {
+      const d = document.querySelector('[role="dialog"]');
+      return Boolean(d && d.contains(document.activeElement));
+    });
+    expect(await inside(), "opening must move focus into the sheet").toBe(true);
+
+    // \u26a0 THE REPORTED DEFECT: Shift+Tab from the first control walked out into the page behind.
+    await page.keyboard.press("Shift+Tab");
+    expect(await inside(), "Shift+Tab escaped the Menu into the background").toBe(true);
+
+    for (let i = 0; i < 20; i++) await page.keyboard.press("Tab");
+    expect(await inside(), "Tab escaped the Menu").toBe(true);
+
+    await page.keyboard.press("Escape");
+    await expect(dialog, "Escape must close the Menu").toHaveCount(0);
+
+    expect(await page.evaluate(() => document.activeElement === document.body),
+      "focus was dropped on <body> instead of returned to the opener").toBe(false);
+    if (openerBefore) {
+      expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? null)).toBe(openerBefore);
+    }
+  });
+
   test("the /build mobile sheet is a real dialog: name, Escape, trap, and focus return", async ({ page }) => {
     // The sheet is mobile-only — the desktop layout shows the same card in a sticky sidebar that is
     // NOT a dialog, so a desktop viewport would find nothing and pass vacuously.
@@ -356,6 +406,9 @@ test.describe("modal dialogs", () => {
     if (!(await add.count())) {
       // An empty eligible pool is a legitimate state — it WAS empty on 2026-09-27 — and a test that
       // invented a card would be testing its own fixture.
+      // The Menu case above runs unconditionally, so a skip here no longer leaves the keyboard
+      // contract unproven — and it announces itself instead of vanishing into a skip count.
+      console.log("[a11y] /build sheet SKIPPED: no eligible legs on this slate");
       test.skip(true, "no eligible legs on this slate, so no sheet can be opened");
     }
     await add.click();
