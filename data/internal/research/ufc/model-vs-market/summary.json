@@ -3,31 +3,31 @@
  "artifact": "ufc-model-vs-market-summary",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-09-20T12:56:43Z",
- "gradedTotal": 41,
+ "generatedAt": "2026-09-27T13:40:10Z",
+ "gradedTotal": 49,
  "note": "Model and market scored on identical bouts, both recorded before the card. Not a calibration verdict — that needs preregistered bars and a sample.",
  "latestRun": {
-  "n": 10,
+  "n": 8,
   "model": {
-   "logLoss": 0.662955,
-   "brier": 0.231667,
-   "accuracy": 0.7
+   "logLoss": 0.52971,
+   "brier": 0.173734,
+   "accuracy": 0.875
   },
   "market": {
-   "logLoss": 0.589354,
-   "brier": 0.204663
+   "logLoss": 0.611702,
+   "brier": 0.211195
   }
  },
  "cumulative": {
-  "n": 41,
+  "n": 49,
   "model": {
-   "logLoss": 0.698308,
-   "brier": 0.245726,
-   "accuracy": 0.609756
+   "logLoss": 0.670782,
+   "brier": 0.233972,
+   "accuracy": 0.653061
   },
   "market": {
-   "logLoss": 0.659004,
-   "brier": 0.235707
+   "logLoss": 0.651281,
+   "brier": 0.231705
   }
  },
  "reconciliation": [
@@ -79,6 +79,18 @@
    "void": 0,
    "pending": 0,
    "pendingBoutIds": [],
+   "reconciles": true
+  },
+  {
+   "slateDate": "2026-09-26",
+   "event": "UFC Fight Night: Rosas Jr. vs. Barcelos",
+   "frozen": 9,
+   "graded": 8,
+   "void": 0,
+   "pending": 1,
+   "pendingBoutIds": [
+    "2026-09-26:mickey gall|sedriques dumas"
+   ],
    "reconciles": true
   }
  ]
