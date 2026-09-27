@@ -199,3 +199,45 @@ test("the accessible-name check reads the dialog's OWN tag, not the whole file",
   assert.equal(dialogTags(afterArrow).some((t) => /aria-label="Named"/.test(t)), true,
     "the tag walker must survive a `>` inside an attribute expression");
 });
+
+test("🔴 a dialog whose OPENER UNMOUNTS needs its own focus-return", () => {
+  /*
+   * Caught by the e2e test in CI, not by any unit guard — and only because the /build pool finally had
+   * a leg in it. On #721 that test SKIPPED (empty pool) and the defect shipped.
+   *
+   * `useDialogFocus` remembers the opener and focuses it on unmount. /build's sheet is opened by a bar
+   * rendered under `{!slipOpen && …}`, so opening it UNMOUNTS the button that opened it. The cleanup
+   * then calls `.focus()` on a node no longer in the document — a silent no-op — and focus lands on
+   * <body>. A reader dismissing the sheet was returned to the top of the page.
+   *
+   * The fix is local: React re-mounts the bar when `slipOpen` goes false, and an effect declared AFTER
+   * the hook focuses it. Declaration order matters — React runs cleanups then effects in order, so the
+   * hook's no-op restore happens first and this effect has the real node.
+   */
+  const src = code(path.join(APP, "src/components/build-experience.tsx"));
+  assert.match(src, /const slipOpenerRef = useRef<HTMLButtonElement>\(null\)/, "the opener needs a ref to survive unmounting");
+  assert.match(src, /ref=\{slipOpenerRef\}/, "and the ref must actually be attached to the bar");
+  assert.match(src, /if \(wasSlipOpen\.current && !slipOpen\) slipOpenerRef\.current\?\.focus\(\)/,
+    "focus must be restored on the close transition, after the bar re-mounts");
+  /* The effect must come AFTER the hook, or its cleanup would run last and steal focus back. */
+  assert.ok(src.indexOf("useDialogFocus(slipSheetRef") < src.indexOf("wasSlipOpen.current && !slipOpen"),
+    "the restore effect must be declared after useDialogFocus");
+});
+
+test("the openers of the OTHER dialogs persist, so the shared primitive still suffices", () => {
+  /*
+   * Stated so the local fix is not mistaken for a gap in the primitive. Widening `useDialogFocus` to
+   * cover an unmounting opener would put five working dialogs through an untested path; each of these
+   * renders its opener unconditionally relative to the dialog's own open state.
+   */
+  const unmountingOpeners = [];
+  for (const f of tsxFiles(path.join(APP, "src"))) {
+    const src = code(f);
+    if (!/useDialogFocus\s*\(/.test(src)) continue;
+    if (f.endsWith("build-experience.tsx")) continue; // the known case, fixed above
+    /* A `{!<state> && …}` wrapper around a button is the shape that unmounts an opener. */
+    if (/\{\s*!\w*[Oo]pen\w*\s*&&[\s\S]{0,400}?<button/.test(src)) unmountingOpeners.push(path.relative(APP, f));
+  }
+  assert.deepEqual(unmountingOpeners, [],
+    "these dialogs hide their opener while open, so the primitive's focus-return is a no-op for them too");
+});
