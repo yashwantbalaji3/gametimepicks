@@ -25,6 +25,7 @@ import type { OptimizerLeg } from "./parlay-optimizer";
 import { filterBuildYourOwnLegs, type SportEligibility } from "./sport-capabilities";
 import {
   computeCombinedAmericanOdds,
+  computeCombinedDecimalOdds,
   evaluateCustomParlay,
   type CustomParlayEvaluation,
 } from "./custom-parlay";
@@ -76,8 +77,15 @@ export interface GeneratedSlip {
   /** The actual legs (already on disk — never invented). */
   legs: OptimizerLeg[];
   /** Combined American odds across all legs (null if any leg
-   *  has unknown odds). */
+   *  has unknown odds). DISPLAY ONLY — see `combinedDecimal`. */
   combinedOdds: number | null;
+  /**
+   * Full-precision combined multiplier (§13), and the only thing a payout may be built from. The
+   * card used to convert `combinedOdds` back to decimal, which quantises: a +133/-130 pair showed
+   * $312.00 profit per $100 on a slip worth $312.23. Null under the same condition as
+   * `combinedOdds`, so they cannot disagree about whether a payout exists.
+   */
+  combinedDecimal: number | null;
   /** Full leg-pool evaluation (correlation, diversity, etc.). */
   evaluation: CustomParlayEvaluation;
   /** True if any leg in this slip would have been blocked by the
@@ -281,6 +289,7 @@ function _buildSlips(
       if (sports.size < 2) continue;
     }
     const evaluation = evaluateCustomParlay(slipLegs);
+    const combinedDecimal = computeCombinedDecimalOdds(slipLegs);
     const combinedOdds = computeCombinedAmericanOdds(slipLegs);
     const containsRiskLeg = slipLegs.some((l) => !_isDnpSafe(l, risk));
     const sportLabel: GeneratedSlip["sport"] =
@@ -294,6 +303,7 @@ function _buildSlips(
       legCount: slipLegs.length,
       legs: slipLegs,
       combinedOdds,
+      combinedDecimal,
       evaluation,
       containsRiskLeg,
     });

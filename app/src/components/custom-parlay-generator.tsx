@@ -32,13 +32,16 @@ import { americanToDecimal, formatAmerican } from "@/lib/odds-math";
 import { canUseInBuildYourOwn } from "@/lib/sport-capabilities";
 import { buildSportScopeOptions } from "@/lib/build-a-parlay-config";
 
-/** Local helper: convert combined American odds → profit per $100
- *  staked. Same math as `combinedParlayPayoutPer100` but takes the
- *  already-combined American number as input. */
-function _profitPer100(american: number | null): number | null {
-  if (typeof american !== "number" || !Number.isFinite(american)) return null;
-  const decimal = americanToDecimal(american);
-  return (decimal - 1) * 100;
+/**
+ * Profit per $100 from the FULL-PRECISION multiplier (§13).
+ *
+ * ⚠ This took the already-combined AMERICAN number and converted back, which is the round-trip the
+ * canonical convention forbids: +133/-130 quantises to +312, so this reported $312.00 profit on a
+ * slip worth $312.23. The American value is display-only.
+ */
+function _profitPer100(combinedDecimal: number | null): number | null {
+  if (typeof combinedDecimal !== "number" || !Number.isFinite(combinedDecimal) || combinedDecimal <= 0) return null;
+  return (combinedDecimal - 1) * 100;
 }
 
 interface Props {
@@ -373,7 +376,7 @@ function GeneratorResultsView({
 
 function GeneratedSlipCard({ slip }: { slip: GeneratedSlip }) {
   const american = slip.combinedOdds;
-  const profit = _profitPer100(american);
+  const profit = _profitPer100(slip.combinedDecimal);
   return (
     <article
       className="rounded-[8px] p-3 flex flex-col gap-2"

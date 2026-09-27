@@ -117,7 +117,7 @@ export default function SuggestedCard({
           </span>
         </div>
       ) : card.combinedAmericanOdds !== 0 ? (
-        <StakePayoutInput combinedAmerican={card.combinedAmericanOdds} defaultStake={card.defaultStake} lockedStake={lockedStake} />
+        <StakePayoutInput combinedAmerican={card.combinedAmericanOdds} combinedDecimal={card.combinedDecimal} defaultStake={card.defaultStake} lockedStake={lockedStake} />
       ) : (
         <div className="rounded-[8px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>

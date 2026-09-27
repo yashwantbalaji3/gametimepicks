@@ -319,7 +319,7 @@ export default function BuildExperience({
               </div>
             ))}
           </div>
-          <StakePayoutInput combinedAmerican={combinedAmerican} />
+          <StakePayoutInput combinedAmerican={combinedAmerican} combinedDecimal={combinedDecimal} />
 
           {/* P261: what this card IS — the chance its price implies beside the published record at
               the same price, the linked pairs by name, and one shorter-priced stand-in to trade for. */}
