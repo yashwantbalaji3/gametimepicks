@@ -85,6 +85,30 @@ test("EQUIVALENCE · nfl day equals the index's own canonical counts; a PAST kic
       assert.match(nfl.note, /forecasts published/, "…and names the week's coverage instead of a false no-simulation state");
       assert.doesNotMatch(nfl.note, /has been played/, "a live forecast week is never described by the retired preseason lane");
     }
+  } else if (forecastsUpcoming > 0) {
+    /*
+     * 🔴 THE FIRST KICKOFF USED TO SEND A LIVE SLATE DOWN THE RETIRED PRESEASON BRANCH.
+     *
+     * `windowStillAhead` reads the index's NEXT kickoff, which goes stale the moment the first game
+     * starts and stays stale until the next event-window run. From 17:00Z on 2026-09-27 this test
+     * therefore fell through to the legacy `game-simulations` equivalence — and that artifact was
+     * still the one generated on 2026-08-29 holding ONE preseason game. It demanded that a live
+     * fourteen-game regular-season slate equal 1, and main went red mid-acceptance.
+     *
+     * A passed kickoff with published forecasts is not a legacy day: it is TODAY, live. The
+     * retired lane is not consulted at all here, which is the point — the P250 rule is that the
+     * regular-season lane is the product.
+     */
+    assert.ok(["LIVE", "EVENT_UPCOMING"].includes(nfl.state),
+      `a day with ${forecastsUpcoming} published forecasts and a passed kickoff is live (got ${nfl.state})`);
+    assert.ok(nfl.events > 0, "a day with published forecasts is never a zero-event day");
+    assert.equal(nfl.events, nfl.eligible, "every event this lane counts is one it can act on");
+    /* The count and the sentence a reader sees must be the SAME number — the note is the claim. */
+    const said = /(\d+) game forecasts today/.exec(nfl.note ?? "");
+    assert.ok(said, `the note must name today's forecast count (got ${JSON.stringify(nfl.note)})`);
+    assert.equal(Number(said[1]), nfl.events, "the note and the count cannot disagree");
+    assert.doesNotMatch(nfl.note ?? "", /has been played/,
+      "a live regular-season day is never described by the retired preseason lane");
   } else {
     const sims = readJson("nfl", "game-simulations", "latest.json");
     const games = (sims?.games ?? []).length;
