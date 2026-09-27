@@ -9,7 +9,17 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { buildCrosswalk, resolveClubs, normaliseName, isTokenPrefix, availabilityByEspnId, FPL_TO_ESPN_CLUB, FPL_STATUS } from "./fpl-crosswalk.mjs";
+import {
+  buildCrosswalk,
+  resolveClubs,
+  normaliseName,
+  isTokenPrefix,
+  availabilityByEspnId,
+  FPL_TO_ESPN_CLUB,
+  FPL_STATUS,
+  isMononymLeadingToken,
+  ROW_STATES,
+} from "./fpl-crosswalk.mjs";
 
 const team = (id, name, short) => ({ id, name, short_name: short });
 const squad = (teamId, abbreviation, players) => ({ teamId, teamName: abbreviation, abbreviation, players });
@@ -171,4 +181,57 @@ test("P700 · counts reconcile to the element total — no row is invented or lo
   assert.equal(c.fplElements, 3);
   assert.equal(c.autoExact + c.reviewPrefix + c.unresolved, c.fplElements);
   assert.equal(cw.rows.length, c.fplElements);
+});
+
+/* ── REVIEW_MONONYM ─────────────────────────────────────────────────────────────────────────── */
+
+test("a mononym that is the leading token gets its own review state, not silence", () => {
+  /*
+   * 🔴 THE GAP. `isTokenPrefix` requires BOTH names to carry two or more tokens, so ESPN's
+   * "Richarlison" against FPL's "Richarlison de Andrade" was rejected outright — and NINE
+   * Portuguese/Brazilian players sat in UNRESOLVED with no candidate at all, giving a reviewer
+   * nothing to look at. Measured on the 2026-09-26 capture: Alysson, Rayan, Estêvão, Kevin,
+   * Emersonn, Florentino, Joelinton, Murillo, Richarlison — every one unique inside its club, and
+   * every one a mononym. A coherent class, not a fuzzy fallback.
+   */
+  assert.equal(isMononymLeadingToken("richarlison de andrade", "richarlison"), true);
+  assert.equal(isMononymLeadingToken("richarlison", "richarlison de andrade"), true, "argument order must not matter");
+  assert.equal(isMononymLeadingToken("joelinton cassio apolinario de lira", "joelinton"), true);
+});
+
+test("the mononym must be the LEADING token, not any token", () => {
+  /* Otherwise a shared surname would qualify, which is exactly the weak evidence the stronger rule
+     refuses. "Santos" appears in a great many Brazilian full names. */
+  assert.equal(isMononymLeadingToken("murillo costa dos santos", "santos"), false);
+  assert.equal(isMononymLeadingToken("alysson edward franco da rocha dos santos", "rocha"), false);
+  assert.equal(isMononymLeadingToken("kevin santos lopes de macedo", "macedo"), false);
+});
+
+test("two mononyms, or two full names, are not a mononym match", () => {
+  assert.equal(isMononymLeadingToken("richarlison", "richarlison"), false, "identical single tokens are AUTO_EXACT's business");
+  assert.equal(isMononymLeadingToken("mikel merino zazon", "mikel merino"), false, "two multi-token names belong to isTokenPrefix");
+  assert.equal(isMononymLeadingToken("", "richarlison"), false);
+  assert.equal(isMononymLeadingToken("richarlison de andrade", ""), false);
+});
+
+test("the mononym rule does not weaken isTokenPrefix", () => {
+  /*
+   * Deliberately a separate predicate rather than a relaxation. `isTokenPrefix`'s two-token floor is
+   * CORRECT for what it claims, and loosening it would have quietly reclassified every existing
+   * REVIEW_PREFIX row. These assertions fail if someone merges the two rules.
+   */
+  assert.equal(isTokenPrefix("richarlison de andrade", "richarlison"), false, "isTokenPrefix must still reject a mononym");
+  assert.equal(isTokenPrefix("mikel merino zazon", "mikel merino"), true, "and must still accept a real prefix");
+});
+
+test("REVIEW_MONONYM is in the state list, and is NOT a mapping", () => {
+  assert.ok(ROW_STATES.includes("REVIEW_MONONYM"));
+  /* Ordered after the stronger review state: one token of evidence must never outrank two. */
+  assert.ok(ROW_STATES.indexOf("REVIEW_MONONYM") > ROW_STATES.indexOf("REVIEW_PREFIX"));
+  /* The mapping export takes an ALLOWLIST, so a new state is excluded by construction. */
+  const cw = { rows: [{ espnPlayerId: "1", state: "REVIEW_MONONYM", availability: "INJURED" }] };
+  assert.equal(availabilityByEspnId(cw).size, 0, "a review state must never reach an availability mapping");
+  assert.equal(availabilityByEspnId(cw, { require: ["AUTO_EXACT", "REVIEWED"] }).size, 0);
+  /* And it only enters when a reviewer explicitly asks for it. */
+  assert.equal(availabilityByEspnId(cw, { require: ["REVIEW_MONONYM"] }).size, 1);
 });
