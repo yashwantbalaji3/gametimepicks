@@ -10,9 +10,14 @@
  *   family state from nfl/model-status.json, participation from the board row, line/price/capturedAt
  *   from the board's own frozen `market` block. `NO QUALIFYING PLAY` is a valid, correct answer.
  *
- * Usage:
- *   node app/scripts/ops/sunday-candidate-universe.mjs --date 2026-09-27
- *   node app/scripts/ops/sunday-candidate-universe.mjs --date 2026-09-27 --json
+ * Usage — npx tsx, NOT bare node:
+ *   npx tsx app/scripts/ops/sunday-candidate-universe.mjs --date 2026-09-27
+ *   npx tsx app/scripts/ops/sunday-candidate-universe.mjs --date 2026-09-27 --json
+ *
+ * ⚠ tsx IS REQUIRED because this imports the V2 contract, which imports V1, which imports
+ *   `sport-capability-registry.ts`. Bare node fails with ERR_UNKNOWN_FILE_EXTENSION. The same chain
+ *   means a PLAIN-NODE consumer — `api/ask.mjs` is the live example — can never import V2 directly;
+ *   anything it needs must be derived into a committed artifact first.
  *
  * EXIT CODES — a report describes.
  *   0  it ran   ·   2  it could not run
@@ -22,6 +27,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { evaluateCandidate, foldUniverse, CANDIDATE_STATE, SETTLEMENT_SUPPORT } from "../../src/lib/products/candidate-universe.mjs";
+import { candidatesFromNflBoard } from "../../src/lib/products/eligible-leg/from-nfl-board.mjs";
+import { PROBABILITY_BASIS, evaluateLegV2, eligibilityFunnel } from "../../src/lib/products/eligible-leg/v2.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.resolve(HERE, "..", "..");
@@ -84,40 +91,31 @@ function settlementSupportFor(fam) {
   return settlerScheduled ? SETTLEMENT_SUPPORT.SCHEDULED_UNPROVEN : SETTLEMENT_SUPPORT.UNSUPPORTED;
 }
 
+const basisFor = ({ projection, probability }) =>
+  probability != null ? PROBABILITY_BASIS.MODEL_PUBLISHED
+  : projection != null ? PROBABILITY_BASIS.MODEL_DISTRIBUTION_UNCONVERTED
+  : PROBABILITY_BASIS.NONE;
+const modelVersionFor = (fam) => status.playerFamilies.find((f) => f.key === fam)?.modelId ?? null;
+
 const candidates = [];
+const unknown = new Set();
 for (const b of boards) {
-  for (const p of b.players ?? []) {
-    for (const [fam, m] of Object.entries(p.markets ?? {})) {
-      const mk = m?.market ?? null;
-      candidates.push({
-        sport: "nfl",
-        eventId: b.providerEventId ? `nfl-${b.providerEventId}` : null,
-        matchup: b.matchup ?? null,
-        kickoffUtc: b.kickoffUtc ?? null,
-        participantId: p.playerId ?? null,
-        participant: p.name ?? null,
-        team: p.team ?? null,
-        marketFamily: fam,
-        familyState: familyState.get(fam) ?? null,
-        binary: BINARY.has(fam),
-        line: mk?.line ?? null,
-        price: mk?.overOdds ?? mk?.price ?? mk?.yesOdds ?? null,
-        sportsbook: mk?.sportsbook ?? null,
-        marketCapturedAt: mk?.capturedAt ?? null,
-        /* A DISTRIBUTION, not a probability — see the contract's note on why that matters. */
-        modelProjection: m?.median ?? m?.mean ?? null,
-        modelProbability: m?.probability ?? null,
-        probabilityBasis: m?.probability != null ? "PUBLISHED" : null,
-        participation: p.participation ?? null,
-        /* Derived, not assumed: PROVEN only when this family already appears in the graded record. */
-        settlementSupport: settlementSupportFor(fam),
-      });
-    }
-  }
+  const r = candidatesFromNflBoard(b, { familyState, settlementSupportFor, probabilityBasisFor: basisFor, modelVersionFor });
+  candidates.push(...r.candidates);
+  for (const u of r.unknownFamilies) unknown.add(u);
 }
+if (unknown.size) console.error(`⚠ UNDECLARED FAMILIES SKIPPED: ${[...unknown].join(", ")} — add them to NFL_FAMILY_MARKET_SHAPE rather than letting them read as unpriced`);
 
 const evaluated = candidates.map((c) => evaluateCandidate(c, { asOf, maxPriceAgeMs: MAX_PRICE_AGE_MS }));
 const fold = foldUniverse(evaluated);
+
+/* The V2 contract over the same candidates, and the funnel the products are judged on. */
+const v2legs = candidates.map((c) => evaluateLegV2(c, { asOf, maxPriceAgeMs: MAX_PRICE_AGE_MS }));
+const funnel = eligibilityFunnel(v2legs);
+const basisMix = {};
+for (const l of v2legs) basisMix[l.probabilityBasis] = (basisMix[l.probabilityBasis] ?? 0) + 1;
+/* The anti-masquerade invariant, checked on real data rather than asserted in a comment. */
+const masquerading = v2legs.filter((l) => l.modelProbability != null && l.probabilityBasis !== PROBABILITY_BASIS.MODEL_PUBLISHED);
 
 if (JSON_OUT) {
   /* Synchronous — console.log + process.exit truncates a large payload on a pipe at 65536 bytes. */
@@ -125,7 +123,8 @@ if (JSON_OUT) {
     artifact: "sunday-candidate-universe", readOnly: true, relaxesNoGate: true,
     date: DATE, asOf, boards: boards.length, maxPriceAgeHours: MAX_PRICE_AGE_MS / 3_600_000,
     familyStates: Object.fromEntries(familyState),
-    fold, candidates: evaluated,
+    fold, funnel, probabilityBasis: basisMix, masqueradingLegs: masquerading.length,
+    candidates: evaluated, v2: v2legs,
   }, null, 1) + "\n");
   process.exit(0);
 }
@@ -162,6 +161,14 @@ for (const [k, n] of Object.entries(settleMix).sort((a, b) => b[1] - a[1])) cons
 
 console.log("\nEVERY failing gate (a row can fail several — a first-fail count would mislead):");
 for (const [s, n] of Object.entries(allGates).sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(4)}  ${s}`);
+
+console.log("\nELIGIBILITY FUNNEL (each stage is a SUBSET of the one above, so drops are attributable):");
+for (const st of funnel.stages) console.log(`  ${String(st.remaining).padStart(4)}  ${st.stage}`);
+console.log(`  BINDING STAGE: ${funnel.bindingStage ?? "(none — nothing was lost outright)"}`);
+
+console.log("\nprobabilityBasis (a market-implied number can never be read as ours):");
+for (const [k, n] of Object.entries(basisMix).sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(4)}  ${k}`);
+console.log(`  masquerading legs (a modelProbability on a non-model basis): ${masquerading.length}`);
 
 if (fold.eligible === 0) {
   console.log("\nNO QUALIFYING PLAY for NFL on this slate — a correct output, not a failure.");
