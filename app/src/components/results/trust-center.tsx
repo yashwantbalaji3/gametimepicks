@@ -16,6 +16,7 @@
  * Bank Builder steps). Presentational otherwise.
  */
 import Link from "next/link";
+import { LIFECYCLE_PHRASE, mayBeCalledNoPlay } from "@/lib/lifecycle/card-lifecycle.mjs";
 
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import BankBuilderResults from "@/components/bank-builder-results";
@@ -211,11 +212,21 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
             <Eyebrow>Latest slate</Eyebrow>
             <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>
               {settlement?.date ?? "—"}
-              {settlement && (settlement.status === "none" || settlement.realizedPnl === 0)
-                ? " · no card settled (no-play day)"
-                : settlement
-                  ? ` · ${settlement.status}`
-                  : ""}
+              {/*
+                * 🔴 THIS LINE PRINTED "no-play day" OVER PUBLISHED EXPOSURE (§8).
+                *
+                * It was `status === "none" || realizedPnl === 0`, and realized P&L is exactly 0 on a
+                * day whose cards are published and unsettled — `placed-lanes.mjs` emits
+                * `{ status: "pending", realizedPnl: 0 }` precisely when cards ARE active. So a date
+                * with three published paper cards read as a day on which nothing was played.
+                *
+                * The phrase is now reserved by `mayBeCalledNoPlay` to the ONE lifecycle that means
+                * it, and the lifecycle is derived from lane COUNTS — money is not an input to it.
+                */}
+              {settlement ? ` · ${LIFECYCLE_PHRASE[settlement.lifecycle] ?? settlement.status}` : ""}
+              {settlement && settlement.publishedCount > 0 && !mayBeCalledNoPlay(settlement.lifecycle)
+                ? ` (${settlement.publishedCount} card${settlement.publishedCount === 1 ? "" : "s"})`
+                : ""}
             </span>
           </div>
           <div className="flex flex-col gap-0.5">
