@@ -33,9 +33,21 @@ export const FPL_TO_ESPN_CLUB = Object.freeze({ MCI: "MNC", MUN: "MAN" });
  *                 Zazón" / "Mikel Merino"), so this is strong — and it is still NOT a mapping.
  *                 It is excluded from `availabilityByEspnId` by default: a review queue, sorted
  *                 by strength, not a second auto-matcher wearing a label.
+ *   REVIEW_MONONYM one provider carries a SINGLE-TOKEN name that is the leading token of the
+ *                 other's, unique inside the club. Weaker than REVIEW_PREFIX and separate from it,
+ *                 because one token is less evidence than two — but it is a real and explainable
+ *                 class, not a fuzzy fallback: every instance found is a Portuguese/Brazilian
+ *                 mononym where ESPN publishes "Richarlison" and FPL the full legal name
+ *                 "Richarlison de Andrade". `isTokenPrefix` rejects all of them outright because it
+ *                 requires BOTH names to have two or more tokens, so nine such players sat in
+ *                 UNRESOLVED with no candidate at all and nothing for a reviewer to look at.
  *   UNRESOLVED    everything else, with whatever candidates a reviewer should look at.
+ *
+ * ⚠ NEITHER REVIEW STATE IS A MAPPING. `availabilityByEspnId` takes an ALLOWLIST
+ * (`["AUTO_EXACT", "REVIEWED"]`), so a new state is excluded by construction rather than by someone
+ * remembering to exclude it. That is why adding one is safe.
  */
-export const ROW_STATES = Object.freeze(["AUTO_EXACT", "REVIEW_PREFIX", "UNRESOLVED"]);
+export const ROW_STATES = Object.freeze(["AUTO_EXACT", "REVIEW_PREFIX", "REVIEW_MONONYM", "UNRESOLVED"]);
 
 /** Token lists where one is a leading prefix of the other, and neither is a single token. */
 export function isTokenPrefix(a, b) {
@@ -43,6 +55,27 @@ export function isTokenPrefix(a, b) {
   if (x.length < 2 || y.length < 2 || x.length === y.length) return false;
   const [short, long] = x.length < y.length ? [x, y] : [y, x];
   return short.every((t, i) => long[i] === t);
+}
+
+/**
+ * One name is a SINGLE token, and it is the leading token of the other.
+ *
+ * Deliberately separate from `isTokenPrefix` rather than a relaxation of it. That function's
+ * `x.length < 2 || y.length < 2` guard is CORRECT for what it claims — a bare surname sharing one
+ * token is weak evidence — and loosening it would have quietly weakened every existing
+ * REVIEW_PREFIX row. A mononym is a different, narrower claim: the whole published name is one
+ * token, and it is the FIRST token of the other name, which is how Brazilian and Portuguese players
+ * are conventionally published.
+ *
+ * ⚠ STILL NOT A MAPPING. Uniqueness inside the club is enforced by the caller, and the result goes
+ * into a review queue.
+ */
+export function isMononymLeadingToken(a, b) {
+  const x = a.split(" ").filter(Boolean);
+  const y = b.split(" ").filter(Boolean);
+  const [one, many] = x.length === 1 ? [x, y] : y.length === 1 ? [y, x] : [null, null];
+  if (!one || many.length < 2) return false;
+  return many[0] === one[0];
 }
 
 /** The FPL availability vocabulary, stated rather than inferred. */
@@ -149,6 +182,17 @@ export function buildCrosswalk({ fplElements = [], fplTeams = [], espnSquads = [
       const prefixed = (squad.players ?? []).filter((p) => isTokenPrefix(fplNorm, normaliseName(p.name)));
       if (prefixed.length === 1) {
         rows.push({ ...base, espnPlayerId: String(prefixed[0].playerId), espnName: prefixed[0].name, state: "REVIEW_PREFIX", reason: "one name's tokens are a leading prefix of the other's, unique inside the club — awaiting review", candidates: [] });
+        continue;
+      }
+      /*
+       * Tried only AFTER the stronger rule, and only when it found nothing: a mononym is one token
+       * of evidence and must never outrank two. Nine Portuguese/Brazilian players were landing in
+       * UNRESOLVED with NO candidate — nothing for a reviewer to even look at — because
+       * `isTokenPrefix` requires both names to carry two or more tokens.
+       */
+      const mononym = (squad.players ?? []).filter((p) => isMononymLeadingToken(fplNorm, normaliseName(p.name)));
+      if (mononym.length === 1) {
+        rows.push({ ...base, espnPlayerId: String(mononym[0].playerId), espnName: mononym[0].name, state: "REVIEW_MONONYM", reason: "the provider publishes a single-token name that is the leading token of the other, unique inside the club — awaiting review", candidates: [] });
         continue;
       }
     }
