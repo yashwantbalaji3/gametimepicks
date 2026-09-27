@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { buildNflHubRoster } from "./nfl-hub-data.ts";
+import { buildNflHubRoster, espnNflHeadshotUrl } from "./nfl-hub-data.ts";
 import { LIVE_TRACKABLE_MARKETS } from "./adapters/espn-nfl.mjs";
 import { PRODUCT_CLEARED_FAMILY_STATES } from "../products/candidate-universe.mjs";
 
@@ -158,4 +158,69 @@ test("a provider failure keeps the last known state and never regresses a live g
   assert.match(src, /feedState: unavailable \? "REFUSED" : "NOT_ASKED"/);
   const hook = code("src/components/live/use-live-slate.ts");
   assert.match(hook, /lastObservedAt: fetchedAt/, "the observed instant must be the last SUCCESS, not the refusal");
+});
+
+/* ── portraits (v1.2 follow-up) ──────────────────────────────────────────────────────────────── */
+
+test("a portrait comes from the CANONICAL id or not at all — never from a name", () => {
+  /*
+   * The whole risk of this feature in one test. A portrait resolved by name-matching puts the wrong
+   * face beside a prediction, and there is no acceptable rate of that. So the id must match the
+   * exact board shape and anything else returns null.
+   */
+  assert.equal(
+    espnNflHeadshotUrl("nfl-athlete-4430878"),
+    "https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/4430878.png&w=96&h=96",
+  );
+  for (const bad of [
+    null, undefined, "", "Jaxon Smith-Njigba", "nfl-athlete-", "nfl-athlete-abc",
+    "nfl-athlete-4430878x", "mlb-person-12345", "4430878", "nfl-athlete-44 30878",
+  ]) {
+    assert.equal(espnNflHeadshotUrl(bad), null, `${JSON.stringify(bad)} must not resolve a portrait`);
+  }
+});
+
+test("the portrait goes through the COMBINER, not the raw headshot path", () => {
+  /*
+   * Measured, not assumed: the raw path ignores w/h and serves 266,360 bytes; the combiner returns
+   * the same image at 96px for 11,343. Across the slate that is ~8 MB against ~340 KB, on phones.
+   */
+  const url = espnNflHeadshotUrl("nfl-athlete-4430878");
+  assert.match(url, /\/combiner\/i\?img=/, "the raw path cannot be resized and must not be used");
+  assert.match(url, /[?&]w=96(&|$)/);
+  assert.match(url, /[?&]h=96(&|$)/);
+});
+
+test("every prediction on today's real slate resolves a portrait from its id", () => {
+  const r = buildNflHubRoster(SUNDAY, { previewPerGame: 1000 });
+  const players = [...new Map(r.games.flatMap((g) => g.trackedPredictions).map((p) => [p.playerId, p])).values()];
+  assert.ok(players.length > 200, `expected a large player set, got ${players.length}`);
+  const unresolved = players.filter((p) => p.portraitUrl === null);
+  /* Not a coverage assertion — a shape one. Every board id is `nfl-athlete-<digits>`, so any null
+     here means the id shape changed upstream and the portrait silently disappeared. */
+  assert.deepEqual(unresolved.map((p) => p.playerId), [], "a board id that stopped resolving is a regression, not a gap");
+  for (const p of players) assert.ok(p.portraitUrl.includes(p.playerId.replace("nfl-athlete-", "")),
+    `${p.player}: the url must carry that player's OWN id`);
+});
+
+test("the row renders the portrait from photoUrl and keeps a clean fallback", () => {
+  const src = code("src/components/live/nfl-live-hub.tsx");
+  assert.match(src, /photoUrl=\{p\.portraitUrl\}/, "the row passes the resolved url, it does not build one");
+  assert.match(src, /playerName=\{p\.player\}/);
+  assert.match(src, /sport="nfl"/);
+  /* The component must not be handed an id to derive a URL from: that path is the 266 KB one. */
+  assert.equal(/playerId=\{/.test(src), false, "passing playerId would bypass the combiner url");
+  /* And the fixture must exercise BOTH treatments, or the fallback is never actually looked at. */
+  const fx = fs.readFileSync(path.join(APP, "src/app/preview/live-nfl-states/page.tsx"), "utf8");
+  assert.match(fx, /portraitUrl: null/, "the fixture must include a portrait-less row");
+  assert.ok((fx.match(/portraitUrl: "https/g) ?? []).length >= 2, "and at least two with portraits");
+});
+
+test("the portrait is compact on a phone and larger on desktop", () => {
+  const css = fs.readFileSync(path.join(APP, "src/app/globals.css"), "utf8");
+  const block = css.slice(css.indexOf(".gtp-live-portrait"));
+  assert.match(block, /width: 28px !important/, "compact beside the name on a phone");
+  assert.match(block, /@media \(min-width: 640px\)[\s\S]{0,200}width: 36px !important/, "slightly larger from sm up");
+  /* ⚠ !important is load-bearing here: PlayerAvatar sets width/height INLINE, which otherwise wins. */
+  assert.match(css, /sizes itself with INLINE width\/height/, "the reason must be stated, not rediscovered");
 });

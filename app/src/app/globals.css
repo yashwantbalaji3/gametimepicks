@@ -5657,3 +5657,22 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   .gtp-pred-progress-fill { transition: width 240ms ease-out; }
 }
+
+/*
+ * NFL Live tracked-prediction portraits (v1.2).
+ *
+ * `PlayerAvatar` sizes itself with INLINE width/height from its `size` prop, so a plain class rule
+ * loses to it — hence `!important` here rather than a new prop on a component six other surfaces
+ * already use. Compact beside the player name on a phone, slightly larger from the `sm` breakpoint
+ * up, which is the only thing this rule does.
+ */
+.gtp-live-portrait .gtp-player-avatar {
+  width: 28px !important;
+  height: 28px !important;
+}
+@media (min-width: 640px) {
+  .gtp-live-portrait .gtp-player-avatar {
+    width: 36px !important;
+    height: 36px !important;
+  }
+}
