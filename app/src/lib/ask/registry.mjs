@@ -269,6 +269,24 @@ export const ASK_TOOLS = Object.freeze({
     },
   },
 
+  getCoverage: {
+    version: 1,
+    kind: "coverage",
+    describe:
+      "What GameTimePicks actually covers for a sport, and whether each market may be treated as a " +
+      "forecast. Call this BEFORE answering any question about whether we predict something, or when " +
+      "a market's status is in doubt. Returns five SEPARATE levels — modelExists, historicallyTested, " +
+      "currentValidationState, publicEligible, settlementSupported — because they fail independently: " +
+      "a market can be fully built, fully settleable, and still not eligible to be called a forecast " +
+      "(MLB player props are exactly that today). Never describe a market as a GameTimePicks " +
+      "prediction when currentValidationState is DEMOTED_TO_MARKET_CONTEXT; state the limitation " +
+      "verbatim from the row's `limitation` field.",
+    args: {
+      sport: { kind: "enum", options: ["mlb", "nfl", "ufc", "soccer"], required: true, describe: "Which sport to describe." },
+      market: { kind: "string", maxLength: 60, required: false, describe: "Optional market key or label fragment to narrow to." },
+    },
+  },
+
   searchGameTimeHelp: {
     version: 1,
     kind: "help",

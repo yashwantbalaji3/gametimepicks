@@ -179,6 +179,12 @@ export const ASK_INTENTS = Object.freeze([
   "RESULTS_FORECAST_RECORD",
   "RESULTS_RECENT",
   "RESULTS_PENDING",
+  /* §10 · COVERAGE. Its own intent for the same reason the four Results intents are four: it has
+     its own owner (the coverage registry joined to the calibration verdicts) and answers a question
+     none of the others can — "may this market be treated as a GameTimePicks forecast at all?".
+     Collapsing it into SITE_HELP would route it to the help corpus, which is prose about the
+     product rather than the registry that governs it. */
+  "COVERAGE",
   "UNSUPPORTED_DATA",
   "AMBIGUOUS",
 ]);
@@ -406,6 +412,9 @@ export const askAssetPath = Object.freeze({
   results: () => `${ASK_ASSET_PREFIX}/results.json`,
   help: () => `${ASK_ASSET_PREFIX}/help.json`,
   routes: () => `${ASK_ASSET_PREFIX}/routes.json`,
+  /* §10's coverage registry, projected for Ask: what is published, what has been measured, and
+     whether the measurement allows it to be called a forecast. */
+  coverage: () => `${ASK_ASSET_PREFIX}/coverage.json`,
   recent: (sport, shard) => `${ASK_ASSET_PREFIX}/recent/${String(sport).toLowerCase()}/${shard}.json`,
 });
 
