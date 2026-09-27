@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-27T15:29:05.064Z",
+  "generatedAt": "2026-09-27T15:45:42.806Z",
   "canonical": {
     "record": "37-36",
     "bankroll": 15990.4,
@@ -114,7 +114,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-09-27",
-      "generatedAt": "2026-09-27T10:46:12Z",
+      "generatedAt": "2026-09-27T15:29:08Z",
       "sports": [
         {
           "sport": "epl",
@@ -146,14 +146,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 30,
-            "priced": 30,
+            "scheduled": 31,
+            "priced": 31,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:30 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:31 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -175,14 +175,8 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-27",
       "present": true,
-      "generatedAt": "2026-09-27T10:46:12Z",
-      "watchdog": [
-        {
-          "product": "end-zone-vault",
-          "kind": "INCIDENT_OPEN",
-          "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-09-27"
-        }
-      ],
+      "generatedAt": "2026-09-27T15:29:07Z",
+      "watchdog": [],
       "states": {
         "bank-builder": {
           "state": "ACTIVE",
@@ -193,7 +187,7 @@
           "policyVersion": "moonshot@2"
         },
         "end-zone-vault": {
-          "state": "INCIDENT",
+          "state": "NO_PLAY",
           "policyVersion": "end-zone-vault@1"
         },
         "homer-nukes": {
@@ -224,7 +218,7 @@
     "pendingApprovals": 1
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-27T15:27:10.812Z",
+    "lastRunAt": "2026-09-27T15:45:42.234Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
@@ -233,7 +227,7 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-27",
-    "etTime": "11:29",
+    "etTime": "11:45",
     "stages": [
       {
         "stage": "schedule",
