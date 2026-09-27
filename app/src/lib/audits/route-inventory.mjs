@@ -111,6 +111,7 @@ export const ROUTE_TABLE = Object.freeze({
   "/ops": { classification: "internal", owner: "ops", purpose: "ops dashboard (pruned)", dataOwner: "admin status", freshness: "per-artifact" },
   "/preview/epl": { classification: "internal", owner: "research", purpose: "EPL artifact preview (pruned)", dataOwner: "epl lane artifacts", freshness: "per-artifact" },
   "/preview/live": { classification: "internal", owner: "engineering", purpose: "GameTime Live v1.1 preview — live feed beside the frozen pregame forecast (pruned)", dataOwner: "live gateway (read-time) + committed nfl/mlb forecast artifacts (build-time)", freshness: "live half per gateway TTL; forecast half per artifact" },
+  "/preview/live-nfl-states": { classification: "internal", owner: "engineering", purpose: "NFL Live card lifecycle fixture — deterministic PRE/LIVE/FINAL/stale/unavailable states rendered through the REAL card (pruned)", dataOwner: "hard-coded synthetic envelopes; no artifact and no network read", freshness: "fixed inputs — deliberately comparable across runs" },
   "/preview/june20": { classification: "internal", owner: "research", purpose: "dated preview fixture (pruned)", dataOwner: "fixtures", freshness: "frozen" },
   // Redirect stubs — every one must be ONE hop to a real destination.
   "/picks": { classification: "redirect", owner: "product", purpose: "legacy Picks Lab alias", redirectTo: "/build" },
