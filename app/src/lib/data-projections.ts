@@ -69,6 +69,8 @@ export interface GameMarketSummary {
 }
 
 /** Normalized player lean, sport-agnostic. */
+const numOrNull = (x: unknown): number | null => (typeof x === "number" && Number.isFinite(x) ? x : null);
+
 export interface ProjectionsLean {
   sport: SportKey;
   gameId: string;
@@ -88,6 +90,28 @@ export interface ProjectionsLean {
   recentSeries: number[] | null;
   bookmaker: string | null;
   reason: string | null;
+  /**
+   * 🔴 THE MODEL'S OWN PROBABILITY, WHICH THIS PROJECTION USED TO DROP.
+   *
+   * Measured 2026-09-26 on the real slate: every one of the 371 legs in the optimizer pool traces
+   * to a board lean carrying `modelProbOver`, and NOT ONE leg carried a probability. The audit
+   * recorded it as "0 of 371 legs have a probability"; the sharper truth is that the probability
+   * exists for all 371 and is discarded HERE, in the step that narrows a lean into a leg. §13's
+   * Recommendation Receipt cannot be populated from a record that never carried the field, and
+   * §15's correlation framework has no marginals without it.
+   *
+   * ⚠ CARRIED IS NOT PROMOTED. Every MLB market these come from is `DEMOTE_TO_MARKET_CONTEXT`, so
+   * the number is preserved for the RECEIPT to record and for `probabilityBasisFor` to mark
+   * unusable — never for a selector to multiply. Nothing downstream reads these fields yet, and
+   * `recommendation-receipt.mjs` drops the value into `unusableProbability` for exactly these
+   * markets. The same shape as the NFL frozen line and MLB's StatsAPI identity: a field a producer
+   * writes and a projection drops is a field no consumer can be honest about.
+   *
+   * Both sides are kept. Which one matters depends on the leg's `side`, and choosing here would
+   * make this function the owner of a decision the receipt should make.
+   */
+  modelProbOver: number | null;
+  modelProbUnder: number | null;
 }
 
 export interface ProjectionsDate {
@@ -205,10 +229,19 @@ function _normalizeNbaLean(lean: PropLean): ProjectionsLean {
     recentSeries: Array.isArray(lean.recent10) ? lean.recent10 : null,
     bookmaker: lean.bookmaker ?? null,
     reason: lean.reason ?? null,
+    /* NBA boards carry no probability; null is the honest answer, not a zero. */
+    modelProbOver: numOrNull((lean as { modelProbOver?: unknown }).modelProbOver),
+    modelProbUnder: numOrNull((lean as { modelProbUnder?: unknown }).modelProbUnder),
   };
 }
 
-function _normalizeMlbLean(lean: MlbBoardLean): ProjectionsLean {
+/**
+ * ⚠ EXPORTED FOR THE GUARD, AND ONLY FOR IT. `loadProjectionsPayload` reads a combined board file,
+ * so the narrowing step itself could not be exercised without one — and the field this function
+ * used to drop is precisely what needs a test. The underscore keeps it marked private by
+ * convention; nothing in the app imports it.
+ */
+export function _normalizeMlbLean(lean: MlbBoardLean): ProjectionsLean {
   return {
     sport: "mlb",
     gameId: lean.gameId ?? "",
@@ -228,6 +261,8 @@ function _normalizeMlbLean(lean: MlbBoardLean): ProjectionsLean {
     recentSeries: Array.isArray(lean.recentSeries) ? lean.recentSeries : null,
     bookmaker: lean.bookmaker ?? null,
     reason: lean.reason ?? null,
+    modelProbOver: numOrNull((lean as { modelProbOver?: unknown }).modelProbOver),
+    modelProbUnder: numOrNull((lean as { modelProbUnder?: unknown }).modelProbUnder),
   };
 }
 
