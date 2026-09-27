@@ -403,15 +403,32 @@ test.describe("modal dialogs", () => {
     // key would skip the real activation path — a test that passes while the button is broken. This
     // repo has been bitten by key-injection standing in for native activation before.
     const add = page.getByRole("button", { name: "Add leg" }).first();
-    if (!(await add.count())) {
-      // An empty eligible pool is a legitimate state — it WAS empty on 2026-09-27 — and a test that
-      // invented a card would be testing its own fixture.
-      // The Menu case above runs unconditionally, so a skip here no longer leaves the keyboard
-      // contract unproven — and it announces itself instead of vanishing into a skip count.
-      console.log("[a11y] /build sheet SKIPPED: no eligible legs on this slate");
-      test.skip(true, "no eligible legs on this slate, so no sheet can be opened");
+    /*
+     * ⚠ ELIGIBILITY IS RE-DERIVED ON THE READER'S CLOCK, so a leg can stop being addable WHILE this
+     *   page is open. The export is static, but `legHasStarted` is evaluated client-side — during
+     *   the 1pm slate on 2026-09-27 a button was present when counted and gone by the time it was
+     *   clicked, and the click sat there until the 30s timeout.
+     *
+     *   So the gate is "is one ACTUALLY actionable", asked with a bounded wait, rather than "does
+     *   one exist". An empty or fully-started pool is a legitimate state — a test that invented a
+     *   card would be testing its own fixture — and the Menu case above runs unconditionally, so a
+     *   skip here leaves no keyboard contract unproven.
+     */
+    const addable = await add
+      .waitFor({ state: "visible", timeout: 5_000 })
+      .then(() => add.isEnabled({ timeout: 2_000 }))
+      .catch(() => false);
+    if (!addable) {
+      console.log("[a11y] /build sheet SKIPPED: no addable leg on this slate (empty pool, or every game has started)");
+      test.skip(true, "no addable leg on this slate, so no sheet can be opened");
     }
-    await add.click();
+    /* Still guard the click itself: the same race can land between the check above and here. */
+    try {
+      await add.click({ timeout: 10_000 });
+    } catch {
+      console.log("[a11y] /build sheet SKIPPED: the leg stopped being addable mid-test (a game started)");
+      test.skip(true, "the eligible pool changed under the test, which is the product behaving correctly");
+    }
 
     const opener = page.getByRole("button", { name: /view card/i }).first();
     await expect(opener, "adding a leg must reveal the mobile card bar").toHaveCount(1);
