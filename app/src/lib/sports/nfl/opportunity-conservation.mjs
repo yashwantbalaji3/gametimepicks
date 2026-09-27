@@ -100,6 +100,10 @@ export function conservationForBoard({ board, shareOf }) {
     /* The single biggest holder, because an over-allocation caused by one implausible row is a
        different defect from one spread over twenty. */
     largest: r.players.length ? r.players.reduce((a, b) => (b.share > a.share ? b : a)) : null,
+    /* Every holder, not just the biggest. A consumer asking "what would removing one of these do?"
+       cannot answer it from `largest` alone, and rebuilding the pool join on its own side would be
+       a second normaliser for one rule. */
+    players: r.players.slice().sort((a, b) => b.share - a.share),
   }));
   rows.sort((a, b) => b.sum - a.sum || a.team.localeCompare(b.team));
   return {
