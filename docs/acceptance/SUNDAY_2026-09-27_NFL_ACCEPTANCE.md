@@ -11,11 +11,11 @@ Run at **2026-09-27 ~08:05Z**, before the first live-props cron (13:00Z).
 
 | # | Check | Result |
 |---|-------|--------|
-| 1 | `origin/main` | `a8fb69b040fff6876b72bcdf3067ec9d7a0b6304` |
+| 1 | `origin/main` | `a8fb69b040…` at Phase A; **`46e0f8bb3b`** after #724/#725/#726/#727 merged |
 | 2 | Production SHA | `a8fb69b0` — **identical to main**; `builtAt 2026-09-27T05:14:44.991Z` |
 | 3 | #721 merged + ancestry | `mergedAt 2026-09-27T05:13:38Z`, commit `a8fb69b040ff`, confirmed ancestor of `origin/main` |
 | 4 | #716 still a draft | `state=OPEN draft=true mergeState=CLEAN` — held, as required |
-| 5 | Frozen 14-game baseline | 14 boards · **ONE** `generatedAt` = `2026-09-26T23:23:23Z` · 5 families · last board commit `0f9881527e` at `2026-09-26T23:24:00Z` · **0 modified tracked files**, so byte-identical to `origin/main` |
+| 5 | Frozen 14-game baseline | 14 boards · **ONE** `generatedAt` = `2026-09-26T23:23:23Z` · 5 families · last board commit `0f9881527e` at `2026-09-26T23:24:00Z` · **0 modified tracked files** · re-verified after every merge, aggregate sha256 of all 14 board bytes = `e2cb1b0283e83d46` |
 | 6 | Canonical lifecycle trace | `IN_FLIGHT — 14 game(s): 0 clean, 14 in flight, 0 needing attention` |
 | 7 | Untracked live-props artifacts | **none** — 10 untracked files, all local strategy docs (`vp/`, loose handoffs). `git pull` cannot abort on them |
 | 8 | Live scheduler armed | `nfl-live-props` **state=active**; cron `*/15 13-23 * * 0` on main at `fb56df5c08`; **no** workflow disabled anywhere (37 checked) |
@@ -47,23 +47,38 @@ returned real payloads.
 
 ---
 
-## Phase B — today's first nightly-settle run
+## Phase B — today's first nightly-settle run · ✅ SUCCEEDED
 
-**Pending.** Watched by a live monitor. Expected ~09:30Z given the measured ~4h dispatch lateness
-against the 05:17Z cron.
+**Not a new incident. #716 stays held.**
 
-The measured chronic pattern (recorded on #716):
+| | |
+|---|---|
+| run id | `36312869138` |
+| started | `2026-09-27T10:32:33Z` |
+| conclusion | **success** |
+| projection step | SUCCESS — `Rebuild the canonical Results projection` |
+| health gate | SUCCESS |
+| commit step | SUCCESS |
+| published | `c34a3b83dd auto: nightly settle 2026-09-27 06:34 ET` — two minutes after the run began |
 
-    first daily run  → succeeds, commits, publishes
-    runs 2-4         → write-once Results projection refusal → red → NO commit
+Every step in the job either succeeded or was skipped; nothing failed.
 
+**⚠ It arrived 5h15m after its cron.** The `05:17Z` slot delivered at `10:32Z` — worse than the
+~200-minute median lateness the four-cron hedge was sized against. It still published at `10:34Z`,
+comfortably inside P256's "READY BY 8:00 AM ET" (`12:00Z`) target, so **the hedge did its job.**
+
+That is the clearest evidence yet against **option B** on #716. Reducing the cron count would have
+removed the hedge that just absorbed a five-hour delay — the slot which actually delivered was the
+FIRST of four, and it was still five hours late. A single `05:30` slot would have published at
+~10:30Z at best, and possibly not at all.
+
+The later three crons have not arrived. Under the measured chronic pattern they are expected to fail
+at the write-once projection refusal — the KNOWN condition, not a new incident, and it changes
+nothing about the hold:
+
+    2026-09-27   10:32 SUCCESS ← published
     2026-09-26   09:51 success · 11:49 FAIL · 13:00 FAIL · 13:51 FAIL
     2026-09-25   10:10 success · 12:16 FAIL · 13:41 FAIL · 14:43 FAIL
-
-**A first-run failure would be a NEW incident** and would trigger the §2.7 reassessment. A
-failure in runs 2-4 is the known chronic condition and changes nothing.
-
----
 
 ## Phase C — slate lifecycle (14 expected games)
 
