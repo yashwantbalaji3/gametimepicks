@@ -60,3 +60,14 @@ test("a featured row keeps its portrait (canonical id URL) or its initials fallb
     assert.ok(html.includes("headshots/nfl/players/full/1.png"), "the resolved combiner URL renders");
   }
 });
+
+test("V2C · full club names, a real touch target for View all, and a deterministic kickoff label", () => {
+  const pre = renderToStaticMarkup(React.createElement("ul", null, React.createElement(NflGameCard, { game: GAME, ...CASES[0][1] })));
+  const text = pre.replace(/<[^>]+>/g, " ");
+  assert.match(text, /Washington Commanders/, "the full club name is rendered, never truncated in the markup");
+  assert.match(pre, /<a[^>]*min-height:44px[^>]*href="\/nfl\/game\/401\/?"/, "View all is a 44px touch target to the game's forecasts");
+  assert.match(text, /View all 51 forecasts/, "the honest eligible count");
+  /* Kickoff from the schedule fact in a FIXED zone — no 'tonight', which would need the reader's clock. */
+  assert.match(text, /Sun · 1:00 PM ET/);
+  assert.doesNotMatch(text, /\btonight\b/i);
+});

@@ -20,8 +20,6 @@
 import PlayerAvatar from "@/components/player-avatar";
 import type { FeaturedForecast } from "@/lib/live/nfl-hub-data";
 
-const MONO = "var(--font-mono)";
-
 export interface ForecastTracking {
   rail: string;
   liveValue: number | null;
@@ -34,31 +32,42 @@ export interface ForecastTracking {
   landmarks: { line: number | null; gtp: number | null; live: number | null; liveOverflow: boolean } | null;
 }
 
+/*
+ * V2C · IDENTITY FIRST, NUMBERS SECOND, RAIL THIRD, STATUS FOURTH. Sans labels at a readable size
+ * instead of tiny monospace; tabular figures keep the three numbers aligned; the model's number wears
+ * the product's green, the live number the info blue, the line stays neutral.
+ */
+const SANS = "var(--font-display)";
+const label = { display: "block", fontFamily: SANS, fontSize: 10.5, fontWeight: 500, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.08em" } as const;
+const figure = { display: "block", fontFamily: SANS, fontSize: 20, fontWeight: 600, lineHeight: 1.15, fontVariantNumeric: "tabular-nums", letterSpacing: "-0.01em" } as const;
+const statusBase = { fontFamily: SANS, fontSize: 11, fontWeight: 600, margin: "8px 0 0", textTransform: "uppercase", letterSpacing: "0.06em" } as const;
 const S = {
-  row: { listStyle: "none", padding: "10px 0", borderTop: "1px solid var(--vault-border)" } as const,
-  head: { display: "flex", alignItems: "center", gap: 10, marginBottom: 8, minWidth: 0 } as const,
-  name: { display: "block", fontSize: 13, color: "var(--vault-text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } as const,
-  sub: { display: "block", fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.08em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } as const,
-  nums: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 } as const,
-  numLabel: { display: "block", fontFamily: MONO, fontSize: 8.5, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.1em" } as const,
-  numValue: { display: "block", fontFamily: MONO, fontSize: 15, fontVariantNumeric: "tabular-nums", color: "var(--vault-text)" } as const,
-  numLive: { display: "block", fontFamily: MONO, fontSize: 15, fontVariantNumeric: "tabular-nums", color: "var(--vault-info)" } as const,
+  row: { listStyle: "none", padding: "14px 0 12px", borderTop: "1px solid var(--vault-border)" } as const,
+  head: { display: "flex", alignItems: "center", gap: 12, marginBottom: 10, minWidth: 0 } as const,
+  name: { display: "block", fontFamily: SANS, fontSize: 14.5, fontWeight: 600, color: "var(--vault-text)", lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } as const,
+  sub: { display: "block", fontFamily: SANS, fontSize: 11, fontWeight: 500, color: "var(--vault-text-mute)", textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } as const,
+  nums: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 } as const,
+  numLabel: label,
+  numValue: { ...figure, color: "var(--vault-text)" } as const,
+  numGtp: { ...figure, color: "var(--vault-accent)" } as const,
+  numLive: { ...figure, color: "var(--vault-info)" } as const,
   /* A TD status is words, not a number: smaller, and allowed to wrap without shouting. */
-  tdText: { display: "block", fontFamily: MONO, fontSize: 12, lineHeight: 1.35, color: "var(--vault-text)", textTransform: "uppercase", letterSpacing: "0.04em" } as const,
-  tdTextLive: { display: "block", fontFamily: MONO, fontSize: 12, lineHeight: 1.35, color: "var(--vault-info)", textTransform: "uppercase", letterSpacing: "0.04em" } as const,
-  numDash: { display: "block", fontFamily: MONO, fontSize: 15, color: "var(--vault-text-faint)" } as const,
-  railWrap: { position: "relative", height: 16, margin: "10px 2px 2px" } as const,
-  track: { position: "absolute", left: 0, right: 0, top: 6, height: 4, borderRadius: 2, background: "var(--vault-border)" } as const,
-  fillBase: { position: "absolute", left: 0, top: 6, height: 4, borderRadius: 2, background: "var(--vault-info)" } as const,
-  lineTick: { position: "absolute", top: 1, width: 2, height: 14, marginLeft: -1, background: "var(--vault-text-mute)" } as const,
-  gtpMark: { position: "absolute", top: 4, width: 8, height: 8, marginLeft: -4, transform: "rotate(45deg)", border: "2px solid var(--vault-accent)", background: "var(--vault-panel)" } as const,
-  liveDot: { position: "absolute", top: 3, width: 10, height: 10, marginLeft: -5, borderRadius: "50%", background: "var(--vault-info)", boxShadow: "0 0 0 2px var(--vault-panel)" } as const,
-  legend: { display: "flex", flexWrap: "wrap", gap: "2px 12px", fontFamily: MONO, fontSize: 8.5, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "4px 0 0" } as const,
-  status: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-mute)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
-  statusLive: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-info)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
-  statusWin: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-success)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
-  statusLoss: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-loss-red)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
-  statusWarn: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-warn)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
+  tdText: { display: "block", fontFamily: SANS, fontSize: 13, fontWeight: 600, lineHeight: 1.3, color: "var(--vault-text)", textTransform: "uppercase", letterSpacing: "0.04em" } as const,
+  tdTextLive: { display: "block", fontFamily: SANS, fontSize: 13, fontWeight: 600, lineHeight: 1.3, color: "var(--vault-info)", textTransform: "uppercase", letterSpacing: "0.04em" } as const,
+  numDash: { ...figure, color: "var(--vault-text-faint)" } as const,
+  railWrap: { position: "relative", height: 20, margin: "12px 3px 0" } as const,
+  track: { position: "absolute", left: 0, right: 0, top: 7, height: 6, borderRadius: 3, background: "var(--vault-border)" } as const,
+  fillBase: { position: "absolute", left: 0, top: 7, height: 6, borderRadius: 3, background: "var(--vault-info)" } as const,
+  lineTick: { position: "absolute", top: 1, width: 2, height: 18, marginLeft: -1, borderRadius: 1, background: "var(--vault-text-mute)" } as const,
+  gtpMark: { position: "absolute", top: 5, width: 10, height: 10, marginLeft: -5, transform: "rotate(45deg)", border: "2px solid var(--vault-accent)", background: "var(--vault-panel)" } as const,
+  liveDot: { position: "absolute", top: 4, width: 12, height: 12, marginLeft: -6, borderRadius: "50%", background: "var(--vault-info)", boxShadow: "0 0 0 3px var(--vault-panel)" } as const,
+  legend: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: "2px 14px", fontFamily: SANS, fontSize: 10, fontWeight: 500, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "6px 0 0" } as const,
+  legendZero: { marginRight: "auto", fontVariantNumeric: "tabular-nums" } as const,
+  status: { ...statusBase, color: "var(--vault-text-mute)" } as const,
+  statusLive: { ...statusBase, color: "var(--vault-info)" } as const,
+  statusWin: { ...statusBase, color: "var(--vault-success)" } as const,
+  statusLoss: { ...statusBase, color: "var(--vault-loss-red)" } as const,
+  statusWarn: { ...statusBase, color: "var(--vault-warn)" } as const,
 };
 
 const fmt = (n: number | null, dp: number) => (typeof n === "number" && Number.isFinite(n) ? n.toFixed(dp) : null);
@@ -74,13 +83,13 @@ export function ageText(ageMs: number | null): string | null {
   return `Updated ${Math.round(m / 60)}h ago`;
 }
 
-function Num({ label, value, live = false, hint }: { label: string; value: string | null; live?: boolean; hint?: string }) {
+function Num({ label: text, value, tone = "plain", hint }: { label: string; value: string | null; tone?: "plain" | "gtp" | "live"; hint?: string }) {
   return (
     <span style={{ minWidth: 0 }}>
-      <span style={S.numLabel}>{label}</span>
+      <span style={S.numLabel}>{text}</span>
       {value === null
         ? <span style={S.numDash} title={hint}>—</span>
-        : <span style={live ? S.numLive : S.numValue}>{value}</span>}
+        : <span style={tone === "gtp" ? S.numGtp : tone === "live" ? S.numLive : S.numValue}>{value}</span>}
     </span>
   );
 }
@@ -121,10 +130,10 @@ export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForeca
         {binary ? (
           /* ── TOUCHDOWN: binary, so no rail. A pregame number appears only if one was frozen. ── */
           <div style={S.nums}>
-            <Num label="GTP pregame" value={f.modelProbability !== null ? `${(f.modelProbability * 100).toFixed(1)}%` : null} hint="No pregame probability was frozen for this row" />
+            <Num label="GTP pregame" tone="gtp" value={f.modelProbability !== null ? `${(f.modelProbability * 100).toFixed(1)}%` : null} hint="No pregame probability was frozen for this row" />
             <span style={{ minWidth: 0, gridColumn: "span 2" }}>
               <span style={S.numLabel}>{final ? "Final status" : "Live status"}</span>
-              <span style={measured !== null && measured >= 1 ? S.tdTextLive : S.tdText}>
+              <span style={!final && measured !== null && measured >= 1 ? S.tdTextLive : S.tdText}>
                 {final ? (measured !== null && measured >= 1 ? "Touchdown scored" : "No TD recorded") : t.status}
               </span>
             </span>
@@ -132,9 +141,9 @@ export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForeca
         ) : (
           <>
             <div style={S.nums}>
-              <Num label="GTP" value={fmtModel(f.modelValue)} />
+              <Num label="GTP" tone="gtp" value={fmtModel(f.modelValue)} />
               <Num label="Line" value={fmt(f.line, 1)} />
-              <Num label={final ? "Final" : "Live"} value={fmtModel(measured)} live={!final} />
+              <Num label={final ? "Final" : "Live"} value={fmtModel(measured)} tone={final ? "plain" : "live"} />
             </div>
             {t.landmarks ? (
               <>
@@ -146,6 +155,7 @@ export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForeca
                   {t.landmarks.live !== null ? <div style={{ ...S.liveDot, left: `${t.landmarks.live}%` }} /> : null}
                 </div>
                 <p style={S.legend}>
+                  <span style={S.legendZero}>0</span>
                   {t.landmarks.live !== null ? <span>● {final ? "Final" : "Live"}{t.landmarks.liveOverflow ? " ▸" : ""}</span> : null}
                   {t.landmarks.line !== null ? <span>│ Line</span> : null}
                   <span>◆ GTP</span>
