@@ -211,8 +211,29 @@ export function eligibleForecastCount(artifact) {
 
 /* ─────────────────────────────  TRACKING — frozen forecast × live fact  ───────────────────────────── */
 
-/** The game's lifecycle, as the card knows it. */
-export const GAME_PHASE = Object.freeze({ PRE: "PRE", LIVE: "LIVE", FINAL: "FINAL" });
+/** The game's lifecycle, as the card knows it. UNKNOWN makes no claim about the present at all. */
+export const GAME_PHASE = Object.freeze({ PRE: "PRE", LIVE: "LIVE", FINAL: "FINAL", UNKNOWN: "UNKNOWN", NOT_PLAYED: "NOT_PLAYED" });
+
+/**
+ * The lifecycle owner's presentation state (`lifecycle.mjs` LIFECYCLE_STATES) → the tracker's phase.
+ * An EXPLICIT table. ⚠ The first version defaulted every unrecognised state to LIVE, so during a gateway
+ * outage — when the lifecycle honestly says UNKNOWN — a game that had not kicked off was told
+ * "live tracking temporarily unavailable" and its record was fetched. Unknown is not live.
+ */
+const LIFECYCLE_TO_PHASE = Object.freeze({
+  PRE: "PRE",
+  LIVE: "LIVE",
+  DELAYED: "LIVE",
+  FINAL_PENDING_SETTLEMENT: "FINAL",
+  SETTLED: "FINAL",
+  POSTPONED: "NOT_PLAYED",
+  CANCELLED: "NOT_PLAYED",
+  UNKNOWN: "UNKNOWN",
+});
+/** @param {string} state @returns {"PRE" | "LIVE" | "FINAL" | "UNKNOWN" | "NOT_PLAYED"} */
+export function gamePhaseForLifecycle(state) {
+  return Object.hasOwn(LIFECYCLE_TO_PHASE, state) ? LIFECYCLE_TO_PHASE[state] : "UNKNOWN";
+}
 
 /** Whether we hold a live-props record for this game at all. */
 export const FEED = Object.freeze({ OK: "OK", UNAVAILABLE: "UNAVAILABLE", NOT_ASKED: "NOT_ASKED" });
@@ -277,7 +298,7 @@ export const LIVE_STALE_AFTER_MS = DELAYED_MAX_MS;
  */
 /**
  * @param {any} forecast
- * @param {{ gamePhase?: "PRE" | "LIVE" | "FINAL", liveRow?: any, feed?: "OK" | "UNAVAILABLE" | "NOT_ASKED", observedAt?: string | null, nowMs?: number | null }} [ctx]
+ * @param {{ gamePhase?: "PRE" | "LIVE" | "FINAL" | "UNKNOWN" | "NOT_PLAYED", liveRow?: any, feed?: "OK" | "UNAVAILABLE" | "NOT_ASKED", observedAt?: string | null, nowMs?: number | null }} [ctx]
  */
 export function trackForecast(forecast, { gamePhase = GAME_PHASE.PRE, liveRow = null, feed = FEED.NOT_ASKED, observedAt = null, nowMs = null } = {}) {
   const binary = forecast.kind === "PROBABILITY";
@@ -288,7 +309,8 @@ export function trackForecast(forecast, { gamePhase = GAME_PHASE.PRE, liveRow = 
   const stale = gamePhase === GAME_PHASE.LIVE && ageMs !== null && ageMs > LIVE_STALE_AFTER_MS;
 
   let measurementState;
-  if (gamePhase === GAME_PHASE.PRE) measurementState = MEASUREMENT_STATES.AWAITING_EVENT;
+  /* Before kickoff — and whenever the game's state is not known — no live number exists to show. */
+  if (gamePhase === GAME_PHASE.PRE || gamePhase === GAME_PHASE.UNKNOWN || gamePhase === GAME_PHASE.NOT_PLAYED) measurementState = MEASUREMENT_STATES.AWAITING_EVENT;
   else if (value !== null) measurementState = stale ? MEASUREMENT_STATES.SOURCE_STALE : MEASUREMENT_STATES.MEASURED;
   else measurementState = MEASUREMENT_STATES.NO_MEASUREMENT;
 
@@ -317,7 +339,7 @@ export function trackForecast(forecast, { gamePhase = GAME_PHASE.PRE, liveRow = 
   return {
     rail,
     /* Shown only when it is a real measurement; never a zero standing in for "not yet". */
-    liveValue: gamePhase === GAME_PHASE.PRE ? null : value,
+    liveValue: gamePhase === GAME_PHASE.LIVE || gamePhase === GAME_PHASE.FINAL ? value : null,
     finalStat,
     observedAt: at,
     ageMs,
@@ -325,7 +347,7 @@ export function trackForecast(forecast, { gamePhase = GAME_PHASE.PRE, liveRow = 
     feed,
     settlement: settled,
     status: settledStatusFor(settled) ?? statusFor({ rail, binary, gamePhase, feed, value: gamePhase === GAME_PHASE.FINAL ? finalStat : value, line: forecast.line, stale, hasRow: Boolean(liveRow) }),
-    landmarks: binary ? null : railLandmarks({ line: forecast.line, gtp: forecast.modelValue, high: forecast.modelHigh, live: gamePhase === GAME_PHASE.FINAL ? finalStat : value }),
+    landmarks: binary ? null : railLandmarks({ line: forecast.line, gtp: forecast.modelValue, high: forecast.modelHigh, live: gamePhase === GAME_PHASE.FINAL ? finalStat : gamePhase === GAME_PHASE.LIVE ? value : null }),
   };
 }
 
@@ -336,6 +358,8 @@ export function trackForecast(forecast, { gamePhase = GAME_PHASE.PRE, liveRow = 
 export function statusFor({ rail, binary, gamePhase, feed, value, line, stale, hasRow = true }) {
   const R = RAIL_STATE;
   if (gamePhase === GAME_PHASE.PRE) return rail === R.PRE_GAME_SNAPSHOT_MISSING ? "Pregame snapshot missing" : "Starts at kickoff";
+  if (gamePhase === GAME_PHASE.UNKNOWN) return "Game status unavailable";
+  if (gamePhase === GAME_PHASE.NOT_PLAYED) return "No live tracking for this game";
   if (gamePhase === GAME_PHASE.FINAL) {
     if (binary) return value !== null && value >= 1 ? "Final · touchdown scored · grading pending" : "Final · no TD recorded · grading pending";
     return value === null ? "Final · grading pending · no measurement yet" : "Final · grading pending";

@@ -32,7 +32,7 @@ import FollowedMark from "@/components/today/followed-mark";
 import { liveReadyFor } from "@/lib/live/client";
 import { derivePresentationState } from "@/lib/live/lifecycle.mjs";
 import type { NflHubRoster, NflHubRosterGame } from "@/lib/live/nfl-hub-data";
-import { FEED, GAME_PHASE, trackForecast } from "@/lib/live/featured-forecasts.mjs";
+import { FEED, GAME_PHASE, gamePhaseForLifecycle, trackForecast } from "@/lib/live/featured-forecasts.mjs";
 import FeaturedForecastRow from "./featured-forecast-row";
 import { liveRefreshPlan } from "@/lib/live/live-refresh-plan.mjs";
 import { NOT_ASKED, useLivePropsStore, useNowMs, type LivePropsState } from "./use-live-props";
@@ -113,11 +113,8 @@ const periodLine = (envelope: any): string | null => {
   return label;
 };
 
-/** The card's lifecycle state → the phase the tracker understands. Unknown states are treated as live. */
-const gamePhaseOf = (state: string) =>
-  state === "PRE" || state === "POSTPONED" ? GAME_PHASE.PRE
-    : state === "FINAL_PENDING_SETTLEMENT" || state === "SETTLED" ? GAME_PHASE.FINAL
-      : GAME_PHASE.LIVE;
+/** The card's lifecycle state → the tracker's phase, through the owner's explicit table. */
+const gamePhaseOf = (state: string) => gamePhaseForLifecycle(state);
 
 function TeamRow({ abbr, name, score, sport = "nfl" as const }: { abbr: string; name: string; score: number | null; sport?: "nfl" }) {
   return (

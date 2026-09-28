@@ -329,4 +329,18 @@ test("a touchdown is a line result, never a forecast win; unknown vocabulary is 
   const odd = trackForecast(VOL, { gamePhase: "FINAL", feed: FEED.OK, liveRow: settledRow({ finality: "CANONICAL", state: "SETTLED", forecastResult: "HIT", lineResult: "CASHED" }) });
   assert.equal(odd.status, "Settled", "HIT is not the owner's word and CASHED is no line result — both dropped");
   assert.doesNotMatch(odd.status, /HIT|CASHED/);
+/* ──────────────────────────────  lifecycle → phase  ────────────────────────────── */
+
+test("🔴 unknown is not live: every lifecycle state maps explicitly, and nothing unrecognised becomes LIVE", async () => {
+  const { LIFECYCLE_STATES } = await import("./lifecycle.mjs");
+  const { gamePhaseForLifecycle } = await import("./featured-forecasts.mjs");
+  const want = { PRE: "PRE", LIVE: "LIVE", DELAYED: "LIVE", FINAL_PENDING_SETTLEMENT: "FINAL", SETTLED: "FINAL", POSTPONED: "NOT_PLAYED", CANCELLED: "NOT_PLAYED", UNKNOWN: "UNKNOWN" };
+  assert.deepEqual([...LIFECYCLE_STATES].sort(), Object.keys(want).sort(), "the table covers the lifecycle owner's whole vocabulary — a new state must be mapped on purpose");
+  for (const s of LIFECYCLE_STATES) assert.equal(gamePhaseForLifecycle(s), want[s], s);
+  for (const odd of ["", "IN_PROGRESS", "constructor", "live"]) assert.equal(gamePhaseForLifecycle(odd), "UNKNOWN", `"${odd}" must not be read as live`);
+  /* And the tracker makes no live claim for an unknown or unplayed game. */
+  const u = trackForecast(VOL, { gamePhase: "UNKNOWN", feed: FEED.UNAVAILABLE, nowMs: NOW });
+  assert.equal(u.status, "Game status unavailable");
+  assert.equal(u.liveValue, null);
+  assert.equal(trackForecast(VOL, { gamePhase: "NOT_PLAYED", feed: FEED.OK, liveRow: lr(40) }).liveValue, null, "no live number for a postponed game");
 });
