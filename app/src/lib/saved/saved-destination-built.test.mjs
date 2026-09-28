@@ -19,7 +19,10 @@ const manifest = buildSavedRouteManifest();
 
 test("SDB1 · every route in the manifest is exported, and every board date renders a board (not 'date unavailable')", () => {
   const games = Object.values(manifest.mlbGamePathByPk);
-  assert.ok(games.length > 0 && manifest.mlbBoardDates.length > 50, "real routes — otherwise this proves nothing");
+  /* The anti-vacuity is the >50 exported board dates. Today's game pages are a CALENDAR fact — on
+     2026-09-28, the day after the regular season, there were none — so they are checked when present. */
+  assert.ok(manifest.mlbBoardDates.length > 50, "real routes — otherwise this proves nothing");
+  if (games.length === 0) console.log("[SDB1] no MLB game on today's slate — board routes checked; game routes have no subject today");
   for (const href of games) assert.ok(fs.existsSync(pageFile(href)), `game page exported: ${href}`);
   for (const date of manifest.mlbBoardDates) {
     const f = pageFile(`/mlb/board/${date}/`);
@@ -55,7 +58,14 @@ test("SDB2 · ⚠ every GRADED MLB game in the ledger resolves to an exported pa
 });
 
 test("SDB3 · current slate: a saved game on today's slate keeps its canonical game page", () => {
-  const [pk, href] = Object.entries(manifest.mlbGamePathByPk)[0];
+  /* The RULE, on a fixed manifest — so no calendar can leave it without a subject. */
+  const fixed = { ...manifest, mlbGamePathByPk: { 999001: "/games/mlb/aaa-vs-bbb-2026-10-01/" } };
+  const r = resolveSavedDestination({ sport: "mlb", href: "/games/mlb/aaa-vs-bbb-2026-10-01/", startUtc: "2026-01-01T00:00:00Z", settlement: { kind: "mlb-game", gamePk: 999001, family: "Winner" } }, fixed);
+  assert.deepEqual([r.kind, r.href], ["GAME", "/games/mlb/aaa-vs-bbb-2026-10-01/"], "a game on the current slate resolves to its canonical page");
+  /* And on the real export, whenever today's slate has a game. */
+  const first = Object.entries(manifest.mlbGamePathByPk)[0];
+  if (!first) { console.log("[SDB3] no MLB game on today's slate — the rule is proved on the fixed manifest above"); return; }
+  const [pk, href] = first;
   const d = resolveSavedDestination({ sport: "mlb", href, startUtc: "2026-01-01T00:00:00Z", settlement: { kind: "mlb-game", gamePk: Number(pk), family: "Winner" } }, manifest);
   assert.deepEqual([d.kind, d.href], ["GAME", href]);
   assert.ok(fs.existsSync(pageFile(href)));
