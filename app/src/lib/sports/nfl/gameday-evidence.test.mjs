@@ -96,7 +96,7 @@ test("LIVE · every board's evidence is no older than the artifact that built it
   );
 });
 
-test("LIVE · no published row belongs to a player who is off that team's roster", () => {
+test("LIVE · no published row belongs to a player who is off that team's roster", (t) => {
   /*
    * P250-GD4: the Aug-13 share snapshot still listed movers under the club they LEFT, so the pool
    * did not merely omit them — it attributed their volume to the wrong team. Quinn Ewers was
@@ -112,15 +112,31 @@ test("LIVE · no published row belongs to a player who is off that team's roster
   }
   const dir = path.join(APP, "public/data/nfl/player-board");
   if (!fs.existsSync(dir)) return;
+  /*
+   * ⚠ SCOPE (2026-09-28). The roster is TODAY's; a board is frozen at kickoff and is the historical
+   * record of what we published for that game. J.J. McCarthy was rostered at MIN when the 09-13,
+   * 09-20 and 09-27 boards froze, and at NYG in the 09-28 capture — comparing those frozen boards to
+   * today's roster called a correct record a false statement. The invariant is about boards a reader
+   * can still act on: those whose game kicks off AFTER the roster was captured. Frozen boards are
+   * never regenerated; how many were checked is announced so the scope is never silent.
+   */
+  const rosterAt = Date.parse(rosters.generatedAt);
+  assert.ok(Number.isFinite(rosterAt), "the roster capture carries its generatedAt — without it no board can be scoped");
+  let checked = 0, frozen = 0;
   for (const f of fs.readdirSync(dir).filter((x) => /^\d+\.json$/.test(x))) {
     const b = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    assert.equal(typeof b.departedFiltered, "number", "the board records how many rows the roster filter removed");
+    const kickoff = Date.parse(b.kickoffUtc);
+    assert.ok(Number.isFinite(kickoff), `${f}: a board without a kickoff cannot be scoped — it is checked, never skipped`);
+    if (kickoff <= rosterAt) { frozen += 1; continue; }
+    checked += 1;
     for (const p of b.players ?? []) {
       const roster = byTeam.get(p.team);
       if (!roster) continue; // capture gap for that team — the builder fails closed rather than wiping a board
       assert.ok(roster.has(p.playerId), `${p.name} is projected for ${p.team} in ${b.matchup} and is not on its roster`);
     }
-    assert.equal(typeof b.departedFiltered, "number", "the board records how many rows the roster filter removed");
   }
+  t.diagnostic(`roster ${rosters.generatedAt}: ${checked} upcoming board(s) checked, ${frozen} frozen (kicked off before the capture) left as published`);
 });
 
 test("new arrivals: a notable mover is published as prior-club FACT, never as a projection", () => {

@@ -28,7 +28,7 @@ export default function ViewModeToggle({ compact = false }: { compact?: boolean 
         {OPTIONS.map((o) => {
           const on = mode === o.value;
           return (
-            <label key={o.value} title={o.hint} className="gtp-view-mode-option" style={{
+            <label key={o.value} htmlFor={`${name}-${o.value}`} title={o.hint} className="gtp-view-mode-option" style={{
               position: "relative", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               minHeight: compact ? 36 : 44, padding: "0 10px", borderRadius: 7, cursor: "pointer",
               fontFamily: "var(--font-display)", fontSize: 13, fontWeight: on ? 700 : 500,
@@ -37,7 +37,7 @@ export default function ViewModeToggle({ compact = false }: { compact?: boolean 
               boxShadow: on ? "inset 0 0 0 1px var(--vault-border-strong)" : "none",
             }}>
               <input
-                type="radio" name={name} value={o.value} checked={on}
+                id={`${name}-${o.value}`} type="radio" name={name} value={o.value} checked={on}
                 onChange={() => setMode(o.value)}
                 className="gtp-view-mode-input"
                 style={{ position: "absolute", opacity: 0, width: 1, height: 1, margin: 0 }}
