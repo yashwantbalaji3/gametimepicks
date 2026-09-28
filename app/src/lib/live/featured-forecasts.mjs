@@ -406,3 +406,35 @@ export function railLandmarks({ line = null, gtp = null, high = null, live = nul
     liveOverflow: liveN !== null && liveN > max,
   };
 }
+
+/* ─────────────────────────────  V2D · card-level freshness  ───────────────────────────── */
+
+/**
+ * How current the card's live measurements are, in words — or null when there is nothing honest to say.
+ *
+ *   LIVE, record read, age ≤ window   → "Live measurements · Updated 42s ago"
+ *   LIVE, record read, older          → "Last known state · Updated 3m ago"   (values stay visible)
+ *   LIVE, record could not be read    → "Live tracking temporarily unavailable"
+ *   PRE / UNKNOWN / FINAL / no clock  → null
+ *
+ * ⚠ HYDRATION-SAFE BY CONSTRUCTION: with `nowMs === null` (the server render, and the first client
+ *   render) it returns null, so no build-time age can be baked into the HTML and no reader-clock text
+ *   can differ between the server and the browser. Staleness never turns a live game back into PRE,
+ *   and a missing record is never presented as a zero.
+ *
+ * @param {{ gamePhase: string, feed: string, observedAt: string | null, nowMs: number | null }} p
+ * @returns {{ kind: "FRESH" | "STALE" | "UNAVAILABLE", text: string } | null}
+ */
+export function cardFreshness({ gamePhase, feed, observedAt, nowMs }) {
+  if (gamePhase !== GAME_PHASE.LIVE || nowMs === null || nowMs === undefined) return null;
+  if (feed === FEED.UNAVAILABLE) return { kind: "UNAVAILABLE", text: "Live tracking temporarily unavailable" };
+  if (feed !== FEED.OK) return null;
+  const t = Date.parse(observedAt ?? "");
+  if (!Number.isFinite(t)) return null;
+  const age = Math.max(0, nowMs - t);
+  const s = Math.round(age / 1000);
+  const ago = s < 60 ? `${s}s ago` : s < 3600 ? `${Math.round(s / 60)}m ago` : `${Math.round(s / 3600)}h ago`;
+  return age > LIVE_STALE_AFTER_MS
+    ? { kind: "STALE", text: `Last known state · Updated ${ago}` }
+    : { kind: "FRESH", text: `Live measurements · Updated ${ago}` };
+}

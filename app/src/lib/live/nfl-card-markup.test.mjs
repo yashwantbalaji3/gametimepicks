@@ -65,9 +65,18 @@ test("V2C · full club names, a real touch target for View all, and a determinis
   const pre = renderToStaticMarkup(React.createElement("ul", null, React.createElement(NflGameCard, { game: GAME, ...CASES[0][1] })));
   const text = pre.replace(/<[^>]+>/g, " ");
   assert.match(text, /Washington Commanders/, "the full club name is rendered, never truncated in the markup");
-  assert.match(pre, /<a[^>]*min-height:44px[^>]*href="\/nfl\/game\/401\/?"/, "View all is a 44px touch target to the game's forecasts");
+  assert.match(pre, /<a[^>]*min-height:44px[^>]*href="\/nfl\/game\/401\/?#player-board"/, "View all is a 44px touch target to the game report's family-grouped player board");
   assert.match(text, /View all 51 forecasts/, "the honest eligible count");
   /* Kickoff from the schedule fact in a FIXED zone — no 'tonight', which would need the reader's clock. */
   assert.match(text, /Sun · 1:00 PM ET/);
   assert.doesNotMatch(text, /\btonight\b/i);
+});
+
+test("V2D · the card's freshness line never renders on the server (no build-time age in the HTML)", () => {
+  /* LIVE case, no nowMs passed → the server render must carry no age text at all. */
+  const html = renderToStaticMarkup(React.createElement("ul", null, React.createElement(NflGameCard, { game: GAME, ...CASES[1][1], nowMs: null })));
+  assert.doesNotMatch(html.replace(/<[^>]+>/g, " "), /Updated \d+[smh] ago|Live measurements|Last known state/);
+  /* And with a reader clock, the same card says how current it is. */
+  const withClock = renderToStaticMarkup(React.createElement("ul", null, React.createElement(NflGameCard, { game: GAME, ...CASES[1][1] })));
+  assert.match(withClock.replace(/<[^>]+>/g, " "), /Live measurements · Updated 30s ago/);
 });
