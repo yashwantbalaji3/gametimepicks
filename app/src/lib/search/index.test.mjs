@@ -93,11 +93,24 @@ test("a player is indexed because a BOARD published him, never because a roster 
   assert.match(src, /EPL_PLAYERS_RENDERED/, "…capped to what the fixture page actually renders");
 });
 
-test("LIVE · every sport that publishes players has them in the index", { skip: !hasExport && "no export" }, () => {
+test("LIVE · a sport's players are indexed exactly when the export has pages that name them", { skip: !hasExport && "no export" }, () => {
+  /*
+   * ⚠ THIS ASSERTED THAT ALL FOUR SPORTS PUBLISH PLAYERS TODAY — a claim about the calendar. The day
+   *   after MLB's regular season (2026-09-28) no MLB game page existed, the index (correctly, once it
+   *   read the page owner) held no MLB player, and the guard failed a correct state. The contract is a
+   *   biconditional per sport: players in the index ⇔ the export has that sport's player-bearing pages.
+   *   That is stronger than before — it also fails an index that names players with no page to land on.
+   */
   const players = idx.rows.filter((r) => r.k === 1);
-  for (const [sport, marker] of [["NFL", /NFL ·/], ["MLB", /MLB ·/], ["UFC", /UFC ·/], ["Premier League", /Premier League ·/]]) {
-    assert.ok(players.some((p) => marker.test(p.s)), `no ${sport} player is indexed, but that sport publishes them`);
+  const pagesIn = (rel) => { const d = path.join(OUT, rel); return fs.existsSync(d) && fs.readdirSync(d).some((x) => fs.existsSync(path.join(d, x, "index.html"))); };
+  let checkedWithPages = 0;
+  for (const [sport, marker, rel] of [["NFL", /NFL ·/, "nfl/game"], ["MLB", /MLB ·/, "games/mlb"], ["UFC", /UFC ·/, "ufc/bout"], ["Premier League", /Premier League ·/, "epl/match"]]) {
+    const indexed = players.some((p) => marker.test(p.s));
+    const pages = pagesIn(rel);
+    if (pages) checkedWithPages += 1;
+    assert.equal(indexed, pages, pages ? `${sport} has pages naming players but none is indexed` : `${sport} players are indexed but no ${rel} page exists to land on`);
   }
+  assert.ok(checkedWithPages >= 1, "anti-vacuity: at least one sport has player pages in the export");
 });
 
 test("LIVE · an indexed EPL player is one the fixture page actually names", { skip: !hasExport && "no export" }, () => {

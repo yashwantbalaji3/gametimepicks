@@ -159,11 +159,17 @@ test("CB6 discovery CTAs appear only where their destination exists", () => {
     if (has) nflCta += 1;
   }
   let mlbCta = 0;
-  for (const slug of fs.readdirSync(path.join(OUT, "games/mlb"))) {
-    if (!fs.existsSync(path.join(OUT, "games/mlb", slug, "index.html"))) continue;
+  /* ⚠ No MLB game page exists on a day without MLB (2026-09-28, the day after the regular season): the
+     directory is simply absent. The rule is per page, so it is checked on every page that exists; the
+     NFL half keeps the test non-vacuous, and a day with MLB pages must still find MLB CTAs. */
+  const mlbDir = path.join(OUT, "games/mlb");
+  const mlbPages = fs.existsSync(mlbDir) ? fs.readdirSync(mlbDir).filter((slug) => fs.existsSync(path.join(mlbDir, slug, "index.html"))) : [];
+  for (const slug of mlbPages) {
     for (const m of htmlOf(`/games/mlb/${slug}/`).matchAll(/href="\/matchups\/mlb\/(\d+)\/"/g)) { assert.ok(ids.has(m[1]), `${slug} → ${m[1]}`); mlbCta += 1; }
   }
-  assert.ok(nflCta > 0 && mlbCta > 0, `non-vacuous: NFL ${nflCta}, MLB ${mlbCta}`);
+  assert.ok(nflCta > 0, `non-vacuous: NFL ${nflCta}`);
+  if (mlbPages.length === 0) console.log("[CB6] no MLB game page in this export (no MLB slate today) — the MLB half has no subject");
+  else assert.ok(mlbCta > 0, `non-vacuous: ${mlbPages.length} MLB game pages but ${mlbCta} matchup CTAs`);
 });
 
 test("CB7 compare and matchup page code makes no Live request and no provider call", () => {
