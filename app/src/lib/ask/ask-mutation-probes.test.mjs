@@ -195,7 +195,76 @@ test("PROBE 12 · a paused market cannot be presented as a forecast in either wo
     "GameTime picks the Over/Under over tonight.",
     "GameTime recommends the Over/Under over.",
   ]) {
-    assert.equal(verifyAnswer(bad, evidence).ok, false, `"${bad}" must be refused`);
+    const r = verifyAnswer(bad, evidence);
+    assert.equal(r.ok, false, `"${bad}" must be refused`);
+    /* Refused FOR THE PAUSE, not merely refused: the unsourced-pick check (PROBE 13) would also refuse
+       these, and a probe that any rule can satisfy no longer proves its own rule is load-bearing. */
+    assert.ok(r.violations.some((v) => v.detail.includes("presents the paused market")), `"${bad}" must be refused by the pause rule`);
   }
   assert.equal(verifyAnswer("The Over/Under is paused and publishes no pick.", evidence).ok, true);
+});
+
+/*
+ * PROBE 13 · AN UNSOURCED PICK IS REFUSED WHATEVER THE SLATE HOLDS (mut-18, 2026-09-27).
+ *
+ * The pause rule needs a paused market in evidence to recognise a pick against. The night nothing was
+ * published, "GameTime picks the Over/Under over tonight" had no subject, carried no number, and was
+ * published verified. These run on constructed evidence only, so no calendar can empty them.
+ */
+test("PROBE 13 · a GameTime pick claim must restate a pick the evidence holds", () => {
+  const nothing = ev(["the current GameTime product date is 2026-09-17 (Eastern)"]);
+  const picks = ev([
+    "NYM @ PHI · Moneyline: GameTime's pick is NYM, model probability 55%, market-implied 52%, confidence lean",
+    "for MIN @ CHC (mlb), GameTime has a published forecast; its Moneyline pick is MIN, confidence lean",
+  ]);
+  const unsourced = (text, evidence) => verifyAnswer(text, evidence).violations.some((v) => v.detail.includes("pick the evidence does not hold"));
+
+  // Nothing published: every affirmative pick is unsourced — the exact mut-18 night.
+  for (const bad of ["GameTime picks the Over/Under over tonight.", "GameTime leans NYM.", "GameTime's pick is the Mets.", "We like the over on that line."]) {
+    assert.ok(unsourced(bad, nothing), `"${bad}" must be refused with nothing published`);
+  }
+  // Picks published: a pick the evidence does not hold is still refused; one it holds is not.
+  assert.ok(unsourced("GameTime picks PHI tonight.", picks), "a pick for the other side must be refused");
+  assert.ok(unsourced("GameTime picks the Over/Under over tonight.", picks), "a pick on a market with no pick must be refused");
+  for (const good of [
+    "GameTime picks NYM on the moneyline.",
+    "Moneyline: GameTime picks MIN.",
+    "NYM @ PHI · Moneyline: GameTime's pick is NYM, confidence lean.",
+  ]) {
+    assert.equal(unsourced(good, picks), false, `"${good}" restates the evidence and must pass`);
+  }
+});
+
+test("PROBE 13b · the brand name and the honest negatives are not pick claims", () => {
+  const nothing = ev(["the current GameTime product date is 2026-09-17 (Eastern)"]);
+  for (const fine of [
+    "GameTime Picks is an educational analytics project.",   // the product's NAME, capital P
+    "GameTime's pick is none stated for that market.",
+    "For LAR @ DEN, GameTime has an EXPERIMENTAL forecast, which is graded but is not a product pick.",
+    "GameTime does not pick paused markets.",
+  ]) {
+    assert.equal(verifyAnswer(fine, nothing).ok, true, `"${fine}" must pass`);
+  }
+});
+
+/*
+ * PROBE 14 · AN INJURY STATUS OR A CURRENT ROLE NEEDS A SOURCE (§11.2). mut-19/20 never exercised this
+ * — their writer never ran — and forced through a turn that does reach the writer, both sentences were
+ * published verified. A restatement of evidence that DOES carry the phrase is allowed.
+ */
+test("PROBE 14 · availability and role claims are refused unless the evidence states them", () => {
+  const nothing = ev(["the current GameTime product date is 2026-09-17 (Eastern)"]);
+  for (const bad of [
+    "Lamar Jackson is out with an ankle injury.",
+    "Zay Flowers is questionable.",
+    "The starting quarterback is Deshaun Watson.",
+    "Jameis Winston will start at quarterback.",
+  ]) {
+    const r = verifyAnswer(bad, nothing);
+    assert.equal(r.ok, false, `"${bad}" must be refused`);
+    assert.ok(r.violations.some((v) => v.detail.includes("availability or role status")), `"${bad}" must be refused by the status rule`);
+  }
+  assert.equal(verifyAnswer("GameTime does not say whether he is questionable.", nothing).ok, true, "a denial is not a claim");
+  const sourced = ev(["the official report says Zay Flowers is questionable"]);
+  assert.equal(verifyAnswer("Zay Flowers is questionable, per the official report.", sourced).ok, true, "a restatement of evidence is allowed");
 });
