@@ -71,9 +71,20 @@ const ALWAYS_PUBLIC_DATA = ["build-info.json", "search/index.json"];
  *                  (scripts/lab/emit-lab-assets.mjs from data/lab-projection/v1; guarded by
  *                  lib/lab/lab-projection.test.mjs and lab-built.test.mjs). /research/lab/ assembles
  *                  `/data/lab/v1/<mode>/<sport>/{index,rows,<season>}.json` from the query the reader builds.
+ *   nfl/live-props/ — v2 Live Hub: one artifact per NFL game, emitted by the free ESPN capture
+ *                  (scripts/nfl/capture-live-props.mjs). The game cards fetch
+ *                  `/data/nfl/live-props/<providerEventId>.json`, a name assembled from the slate at
+ *                  read time, so no literal reference can exist per file.
+ *
+ *                  ⚠ AN INTENTIONAL PUBLICATION DECISION, not an accident of the sweep. These
+ *                    artifacts are dataClass PUBLIC_DERIVED and carry only the frozen pregame
+ *                    prediction, market context already published elsewhere, and factual game and
+ *                    player state. Guarded by lib/live/live-props-public.test.mjs, which fails if
+ *                    the declaration is removed or an artifact stops being public.
+ *
  * A runtime-assembled `/data/` reference is tolerated ONLY under one of these prefixes; anything else still refuses.
  */
-const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/", "lab/v1/", "ask/v1/"];
+const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/", "lab/v1/", "ask/v1/", "nfl/live-props/"];
 const underPublicDir = (rel) => ALWAYS_PUBLIC_DATA_DIRS.some((d) => rel === d.slice(0, -1) || rel.startsWith(d));
 
 if (process.env.NEXT_PUBLIC_INTERNAL_ROUTES === "1") {
