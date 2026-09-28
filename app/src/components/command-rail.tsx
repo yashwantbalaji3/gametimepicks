@@ -17,6 +17,7 @@ import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
 import { usePathname } from "next/navigation";
 import BrandMark from "./brand-mark";
 import SiteSearch from "@/components/search/site-search";
+import ViewModeToggle from "@/components/view-mode/view-mode-toggle";
 
 // June-12 IA restructure — the rail is organised around user intent
 // ("what do I want to do?"), not internal implementation routes:
@@ -119,6 +120,11 @@ export default function CommandRail() {
           to know which page to open before they could look anything up. */}
       <div className="px-4 pb-1">
         <SiteSearch />
+      </div>
+
+      {/* Simple | Analyst — one site-wide presentation choice, remembered on this device. */}
+      <div className="px-4 pt-2 pb-1">
+        <ViewModeToggle compact />
       </div>
 
       <nav aria-label="Primary (rail)" className="flex-1 px-3 py-2 flex flex-col gap-0.5 overflow-y-auto">

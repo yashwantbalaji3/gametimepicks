@@ -94,6 +94,7 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
     "lib/follow/follow-store.ts",
     "lib/my/observation-store.ts",
     "lib/prefs/reader-prefs.ts",
+    "lib/prefs/view-mode.ts",
     "lib/saved/saved-store.ts",
     "lib/slip/slip-store.ts",
   ], "a new browser-storage use exists — describe it in the privacy notice, then update this list");
@@ -103,6 +104,8 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
   // v1.1.4: My GameTime's observation record (lib/my/observation-*) is a sixth use, and the notice must name it.
   assert.match(renderLegal("privacy").text, /short record of how far the games of the teams you follow, and your saved forecasts, had got/, "the observation record is described in the notice");
   assert.match(renderLegal("privacy").text, /holds no scores, pages or browsing history, stays in your browser and is never sent to us/);
+  // SA1: the Simple / Analyst detail level (lib/prefs/view-mode.ts, key gtp.view.v1) is a seventh use.
+  assert.match(renderLegal("privacy").text, /whether you read in the Simple or Analyst view/, "the Simple / Analyst preference is described in the notice");
   assert.ok(!SOURCE.some((f) => /\bindexedDB\b/.test(readSource(f))), "IndexedDB is not described");
 });
 
