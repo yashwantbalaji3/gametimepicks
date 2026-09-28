@@ -18,7 +18,9 @@
  *   three rail offsets, which genuinely vary per row, are computed inline.
  */
 import PlayerAvatar from "@/components/player-avatar";
-import type { FeaturedForecast } from "@/lib/live/nfl-hub-data";
+import type { FeaturedForecast, LiveModelStatus } from "@/lib/live/nfl-hub-data";
+import AnalystOnly from "@/components/view-mode/analyst-only";
+import ForecastDetail from "./forecast-detail";
 
 export interface ForecastTracking {
   rail: string;
@@ -94,7 +96,11 @@ function Num({ label: text, value, tone = "plain", hint }: { label: string; valu
   );
 }
 
-export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForecast; t: ForecastTracking; final: boolean }) {
+export default function FeaturedForecastRow({ f, t, final, modelStatus = null, liveSource = null, lastObservedAt = null }: {
+  f: FeaturedForecast; t: ForecastTracking; final: boolean;
+  /** Analyst detail only — the row's values and status are identical in both modes. */
+  modelStatus?: LiveModelStatus | null; liveSource?: string | null; lastObservedAt?: string | null;
+}) {
   const binary = f.kind === "PROBABILITY";
   const measured = final ? t.finalStat : t.liveValue;
   /* Colour follows the OWNER's canonical forecast result only; the words carry it too. */
@@ -170,6 +176,10 @@ export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForeca
           ? (age || final ? <p style={statusStyle}>{final ? (t.settlement ? t.status : "Grading pending") : age}</p> : null)
           : <p style={statusStyle}>{t.status}{age ? ` · ${age}` : ""}</p>}
       </div>
+      {/* Analyst: the model detail beneath the row. Not aria-hidden — it is real, readable content. */}
+      <AnalystOnly>
+        <ForecastDetail f={f} modelStatus={modelStatus} liveSource={liveSource} lastObservedAt={lastObservedAt} />
+      </AnalystOnly>
     </li>
   );
 }

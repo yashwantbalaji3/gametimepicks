@@ -116,6 +116,9 @@ const periodLine = (envelope: any): string | null => {
   return label;
 };
 
+/** Where a live-props record's measurement comes from, in reader words (Analyst detail). */
+const LIVE_SOURCE_LABEL: Record<string, string> = { "espn-nfl-summary": "ESPN public box score" };
+
 /** The card's lifecycle state → the tracker's phase, through the owner's explicit table. */
 const gamePhaseOf = (state: string) => gamePhaseForLifecycle(state);
 
@@ -146,10 +149,12 @@ function TeamRow({ abbr, name, score, sport = "nfl" as const }: { abbr: string; 
  * arrive as props from the page's single owner (`useLivePropsStore` + one `useNowMs` in NflLiveHub),
  * or from the fixture — so the fixture renders THIS component with inputs the page would pass.
  */
-export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKED, nowMs = null }: {
+export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKED, nowMs = null, modelStatus = null }: {
   game: NflHubRosterGame; envelope: any; state: string; label: string;
   liveProps?: LivePropsState;
   nowMs?: number | null;
+  /** Analyst detail only: the Model Lab's status for ranges and touchdowns. */
+  modelStatus?: NflHubRoster["modelStatus"] | null;
 }) {
   const away = envelope?.competitors?.away?.score ?? null;
   const home = envelope?.competitors?.home?.score ?? null;
@@ -216,6 +221,9 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
                 <FeaturedForecastRow
                   key={f.predictionId}
                   f={f}
+                  modelStatus={(f.kind === "PROBABILITY" ? modelStatus?.touchdowns : modelStatus?.ranges) ?? null}
+                  liveSource={liveProps.feed === "OK" ? LIVE_SOURCE_LABEL[liveProps.artifact?.source] ?? "ESPN public game feed" : null}
+                  lastObservedAt={liveProps.feed === "OK" ? byId.get(f.predictionId)?.live?.observedAt ?? liveProps.artifact?.observedAt ?? null : null}
                   final={phase === GAME_PHASE.FINAL}
                   t={trackForecast(f, { gamePhase: phase, liveRow: byId.get(f.predictionId) ?? null, feed, observedAt: liveProps.artifact?.observedAt ?? null, nowMs })}
                 />
@@ -322,7 +330,7 @@ export default function NflLiveHub({ roster }: { roster: NflHubRoster }) {
                 {rows.map((r) => (
                   <NflGameCard
                     key={r.game.providerEventId} game={r.game} envelope={r.envelope} state={r.state} label={r.label}
-                    liveProps={liveProps[r.game.providerEventId] ?? NOT_ASKED} nowMs={nowMs}
+                    liveProps={liveProps[r.game.providerEventId] ?? NOT_ASKED} nowMs={nowMs} modelStatus={roster.modelStatus ?? null}
                   />
                 ))}
               </ul>

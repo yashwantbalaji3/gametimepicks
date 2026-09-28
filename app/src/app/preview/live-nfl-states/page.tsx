@@ -35,11 +35,11 @@ const FROZEN_AT = "2026-09-27T14:42:05Z";
 
 /* The five a real selection would feature — receiving · rushing · receptions · anytime TD · fill. */
 const FEATURED: FeaturedForecast[] = [
-  { predictionId: `${EID}:nfl-athlete-4430878:player_reception_yds`, playerId: "nfl-athlete-4430878", playerName: "Jaxon Smith-Njigba", team: "SEA", family: "player_reception_yds", kind: "VOLUME", label: "Receiving yards", modelValue: 107.5, modelLow: 58, modelHigh: 168, modelProbability: null, line: 92.5, sportsbook: "draftkings", frozenAt: FROZEN_AT, portraitUrl: hs("4430878") },
-  { predictionId: `${EID}:nfl-athlete-4430807:player_rush_yds`, playerId: "nfl-athlete-4430807", playerName: "Jacory Croskey-Merritt", team: "WSH", family: "player_rush_yds", kind: "VOLUME", label: "Rushing yards", modelValue: 61.2, modelLow: 22, modelHigh: 110, modelProbability: null, line: 55.5, sportsbook: "draftkings", frozenAt: FROZEN_AT, portraitUrl: hs("4430807") },
-  { predictionId: `${EID}:nfl-athlete-2976212:player_receptions`, playerId: "nfl-athlete-2976212", playerName: "Stefon Diggs", team: "SEA", family: "player_receptions", kind: "VOLUME", label: "Receptions", modelValue: 5, modelLow: 2, modelHigh: 8, modelProbability: null, line: 5, sportsbook: "draftkings", frozenAt: FROZEN_AT, portraitUrl: hs("2976212") },
-  { predictionId: `${EID}:nfl-athlete-4567048:anytime_td`, playerId: "nfl-athlete-4567048", playerName: "Kenneth Walker III", team: "SEA", family: "anytime_td", kind: "PROBABILITY", label: "Anytime touchdown", modelValue: null, modelLow: null, modelHigh: null, modelProbability: 0.614, line: null, sportsbook: "draftkings", frozenAt: FROZEN_AT, portraitUrl: null },
-  { predictionId: `${EID}:nfl-athlete-3122840:player_reception_yds`, playerId: "nfl-athlete-3122840", playerName: "Zach Ertz", team: "WSH", family: "player_reception_yds", kind: "VOLUME", label: "Receiving yards", modelValue: 38.4, modelLow: 12, modelHigh: 71, modelProbability: null, line: 34.5, sportsbook: "draftkings", frozenAt: FROZEN_AT, portraitUrl: hs("3122840") },
+  { predictionId: `${EID}:nfl-athlete-4430878:player_reception_yds`, playerId: "nfl-athlete-4430878", playerName: "Jaxon Smith-Njigba", team: "SEA", family: "player_reception_yds", kind: "VOLUME", label: "Receiving yards", modelValue: 107.5, modelLow: 58, modelHigh: 168, modelProbability: null, line: 92.5, sportsbook: "draftkings", frozenAt: FROZEN_AT, marketCapturedAt: "2026-09-26T16:49:46Z", familyState: "PUBLISHED", portraitUrl: hs("4430878") },
+  { predictionId: `${EID}:nfl-athlete-4430807:player_rush_yds`, playerId: "nfl-athlete-4430807", playerName: "Jacory Croskey-Merritt", team: "WSH", family: "player_rush_yds", kind: "VOLUME", label: "Rushing yards", modelValue: 61.2, modelLow: 22, modelHigh: 110, modelProbability: null, line: 55.5, sportsbook: "draftkings", frozenAt: FROZEN_AT, marketCapturedAt: "2026-09-26T16:49:46Z", familyState: "PUBLISHED", portraitUrl: hs("4430807") },
+  { predictionId: `${EID}:nfl-athlete-2976212:player_receptions`, playerId: "nfl-athlete-2976212", playerName: "Stefon Diggs", team: "SEA", family: "player_receptions", kind: "VOLUME", label: "Receptions", modelValue: 5, modelLow: 2, modelHigh: 8, modelProbability: null, line: 5, sportsbook: "draftkings", frozenAt: FROZEN_AT, marketCapturedAt: "2026-09-26T16:49:46Z", familyState: "PUBLISHED", portraitUrl: hs("2976212") },
+  { predictionId: `${EID}:nfl-athlete-4567048:anytime_td`, playerId: "nfl-athlete-4567048", playerName: "Kenneth Walker III", team: "SEA", family: "anytime_td", kind: "PROBABILITY", label: "Anytime touchdown", modelValue: null, modelLow: null, modelHigh: null, modelProbability: 0.614, line: null, sportsbook: "draftkings", frozenAt: FROZEN_AT, marketCapturedAt: "2026-09-26T16:49:46Z", familyState: "PUBLISHED", portraitUrl: null },
+  { predictionId: `${EID}:nfl-athlete-3122840:player_reception_yds`, playerId: "nfl-athlete-3122840", playerName: "Zach Ertz", team: "WSH", family: "player_reception_yds", kind: "VOLUME", label: "Receiving yards", modelValue: 38.4, modelLow: 12, modelHigh: 71, modelProbability: null, line: 34.5, sportsbook: "draftkings", frozenAt: FROZEN_AT, marketCapturedAt: "2026-09-26T16:49:46Z", familyState: "PUBLISHED", portraitUrl: hs("3122840") },
 ];
 
 const GAME: NflHubRosterGame = {
@@ -60,6 +60,12 @@ const GAME: NflHubRosterGame = {
   featuredSource: "live-props",
   eligibleForecastCount: 51,
   boardGeneratedAt: FROZEN_AT,
+};
+
+/** Analyst detail: a fixed Model Lab status, in the owner's shape (never read from today's artifact). */
+const FIXTURE_MODEL_STATUS = {
+  ranges: { state: "FORWARD_TEST", label: "Forward test running", headline: "Graded on new games against the prior model" },
+  touchdowns: { state: "WATCH", label: "Watch", headline: "Watch · scorers off expectation" },
 };
 
 /** The pinned reader clock. "Fresh" is 30s before it; "stale" is 3 minutes before it. */
@@ -197,6 +203,7 @@ export default function NflLiveStatesFixture() {
                 label={c.label}
                 liveProps={c.liveProps}
                 nowMs={NOW_MS}
+                modelStatus={FIXTURE_MODEL_STATUS}
               />
             </ul>
           </section>
