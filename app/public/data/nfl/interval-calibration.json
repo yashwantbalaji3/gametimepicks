@@ -3,9 +3,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-interval-calibration",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-28T00:17:41Z",
+  "generatedAt": "2026-09-28T17:38:33Z",
   "modelVersion": "nfl-regular-season-public-v1",
-  "ledgerGeneratedAt": "2026-09-28T00:17:41Z",
+  "ledgerGeneratedAt": "2026-09-28T17:38:33Z",
   "bars": {
     "minSample": 20,
     "zThreshold": 2
@@ -41,30 +41,30 @@
     },
     {
       "label": "regular-season",
-      "n": 17,
+      "n": 31,
       "margin": {
-        "state": "INSUFFICIENT",
-        "z": null,
-        "observed": null,
-        "expected": null,
-        "n": 17,
-        "covered": 11,
-        "impliedScale": null,
-        "claim": "17 settled forecast(s) — below the 20-game floor, so no calibration claim is made"
+        "state": "CALIBRATED",
+        "z": -0.359,
+        "observed": 0.7742,
+        "expected": 24.8,
+        "n": 31,
+        "covered": 24,
+        "impliedScale": 1.058,
+        "claim": "an interval printed as 80% contained the result 77.4% of the time over 31 settled forecasts — consistent with the label"
       },
       "total": {
-        "state": "INSUFFICIENT",
-        "z": null,
-        "observed": null,
-        "expected": null,
-        "n": 17,
-        "covered": 14,
-        "impliedScale": null,
-        "claim": "17 settled forecast(s) — below the 20-game floor, so no calibration claim is made"
+        "state": "CALIBRATED",
+        "z": 0.539,
+        "observed": 0.8387,
+        "expected": 24.8,
+        "n": 31,
+        "covered": 26,
+        "impliedScale": 0.915,
+        "claim": "an interval printed as 80% contained the result 83.9% of the time over 31 settled forecasts — consistent with the label"
       },
-      "winnerAccuracy": 0.4706,
-      "marginMAE": 13.7059,
-      "totalMAE": 12.4706
+      "winnerAccuracy": 0.5806,
+      "marginMAE": 10,
+      "totalMAE": 11.8065
     }
   ],
   "worst": "OVERCONFIDENT",

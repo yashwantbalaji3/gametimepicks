@@ -3,17 +3,71 @@
  "artifact": "nfl-current-settlement",
  "dataClass": "PRIVATE_PAPER_RECORD",
  "date": "2026-09-28",
- "generatedAt": "2026-09-28T00:17:41Z",
+ "generatedAt": "2026-09-28T17:38:33Z",
  "scope": "NFL current-artifact settlement — a SEPARATE paper record. It never reads or writes MLB money, Bank Builder, Moonshot, or Mr. Dub.",
  "whatIsGraded": "the PRE-START MARKET consensus pinned in each artifact (favourite / home spread / over total). The team model ABSTAINS in preseason, so this is a market-accuracy record and is never reported as model performance.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401872962",
+   "providerEventId": "401872962",
    "matchup": "LAR @ DEN",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-09-28T00:20Z"
-  },
+   "kickoffUtc": "2026-09-28T00:20Z",
+   "artifactFile": "data/internal/nfl/current/2026-09-28/401872962-0017Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-09-28T00:17:41Z",
+    "marketCapturedAt": "2026-09-27T23:40:42Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-09-27T14:40:28Z"
+     },
+     "rosters": {
+      "asOf": "2026-09-28T00:17:41Z"
+     },
+     "injuries": {
+      "asOf": "2026-09-28T00:18:06Z"
+     },
+     "odds": {
+      "asOf": "2026-09-27T23:40:42Z"
+     },
+     "strengthCutoff": "2026-09-28T00:17:41Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-09-28T17:38:33Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 30,
+    "away": 26
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "away",
+     "line": null,
+     "label": "market favourite (51.1% no-vig)",
+     "outcome": "LOSS",
+     "reason": "final 30-26: home, leg took away"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": 1,
+     "label": "home +1",
+     "outcome": "WIN",
+     "reason": "margin 4 covers 1"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 44,
+     "label": "over 44",
+     "outcome": "WIN",
+     "reason": "total 56 vs 44"
+    }
+   ]
+  }
+ ],
+ "pending": [
   {
    "canonicalEventId": "nfl-401872963",
    "matchup": "PHI @ CHI",
@@ -23,15 +77,15 @@
  ],
  "accounting": {
   "artifactsForDate": 2,
-  "settled": 0,
-  "pending": 2,
+  "settled": 1,
+  "pending": 1,
   "reconciles": true,
-  "legs": 0,
-  "wins": 0,
-  "losses": 0,
+  "legs": 3,
+  "wins": 2,
+  "losses": 1,
   "pushes": 0,
   "voids": 0,
-  "decisive": 0,
+  "decisive": 3,
   "note": "decisive = WIN + LOSS only; pushes and voids are reported separately and pending is never a loss"
  }
 }
