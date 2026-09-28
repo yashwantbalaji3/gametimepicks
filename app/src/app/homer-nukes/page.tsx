@@ -102,6 +102,7 @@ export default function HomerNukesPage() {
         buildTimeToday={date}
         latestSlate={date}
         latestSlateHasGames={(board?.slate.games ?? 0) > 0}
+        scope="MLB"
         archiveHref="/results"
         archiveLabel="See results & receipts"
         includeMlbNote

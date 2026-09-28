@@ -41,6 +41,10 @@ interface Props {
    * claim the slate is late; it falls back to the plain "not published yet" wording.
    */
   publishDeadlineUtc?: string | null;
+  /** "known" | "unknown" — whether today's emptiness is proven (cross-sport callers). */
+  todayEvidence?: "known" | "unknown";
+  /** A sport-scoped page's scope, e.g. "MLB" → "No MLB games today". */
+  scope?: string | null;
 }
 
 export default function SlateLivenessBanner({
@@ -52,6 +56,8 @@ export default function SlateLivenessBanner({
   includeMlbNote = false,
   includeWcFocus = true,
   publishDeadlineUtc = null,
+  todayEvidence,
+  scope = null,
 }: Props) {
   // Seed with the build-time date (matches SSR, no hydration mismatch), then
   // switch to the visitor's real ET clock after mount.
@@ -75,6 +81,8 @@ export default function SlateLivenessBanner({
     leagueNotes: includeMlbNote ? [mlbBreakNote(today)].filter((x): x is string => !!x) : [],
     publishDeadlineUtc,
     nowMs,
+    todayEvidence,
+    scope,
   });
 
   // Genuinely live today → don't clutter the page.
@@ -104,7 +112,7 @@ export default function SlateLivenessBanner({
               ? "Late"
               : liveness.status === "slate-pending"
                 ? "Publishing"
-                : "No games today"}
+                : scope ? `No ${scope} games today` : "No games today"}
         </span>
         <span className="text-[14px] font-semibold" style={{ color: "var(--vault-text)" }}>
           {liveness.headline}

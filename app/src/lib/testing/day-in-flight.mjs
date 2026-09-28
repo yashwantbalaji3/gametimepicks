@@ -95,8 +95,19 @@ export function scheduleShowsNoGames({ appDir, date, producer }) {
 }
 
 export function artifactAbsence({ appDir, relDir, date, producer, nowUtcMs = Date.now() }) {
-  const present = fs.existsSync(path.join(appDir, relDir, `${date}.json`));
-  if (present) return { inFlight: false, present: true, reason: null };
+  const file = path.join(appDir, relDir, `${date}.json`);
+  const present = fs.existsSync(file);
+  if (present) {
+    /* Present but EMPTY on a date the schedule shows with no games is the same legitimate fact as
+       absent: the producer ran and correctly simulated nothing (2026-09-28's lineup refresh wrote
+       zero-game artifacts). An empty artifact on a SCHEDULED day is not excused — callers proceed. */
+    let rows = null;
+    try { const j = JSON.parse(fs.readFileSync(file, "utf8")); rows = Array.isArray(j.games) ? j.games.length : Array.isArray(j.predictions) ? j.predictions.length : null; } catch { rows = null; }
+    if (rows === 0 && scheduleShowsNoGames({ appDir, date, producer })) {
+      return { inFlight: true, noSlate: true, present: true, reason: `no games are scheduled on ${date} (committed schedule) — ${relDir}/${date}.json is present and correctly empty` };
+    }
+    return { inFlight: false, present: true, reason: null };
+  }
   /* Legitimately absent: nothing was scheduled, so nothing is owed. Callers treat `inFlight` as "state
      the reason and return" — `noSlate` says which of the two legitimate reasons it was. */
   if (scheduleShowsNoGames({ appDir, date, producer })) {
