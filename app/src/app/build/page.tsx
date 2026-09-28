@@ -161,7 +161,7 @@ export default function ParlayCenterSuggestedPage() {
               <span aria-hidden="true" style={{ color: "var(--vault-text-faint)" }}>▾</span>
             </summary>
             <div className="px-2 pb-3 sm:px-3">
-              <PicksExperience cards={suggestedCards} />
+              <PicksExperience cards={suggestedCards} slateDate={ladderDate} slateIsCurrent={ladderDate >= currentEtDate()} />
             </div>
           </details>
         ) : (
