@@ -72,6 +72,9 @@ test("only explicitly cleared families, and never by substring", () => {
   assert.deepEqual(got, ["ok"], "a state must be cleared by name, not by containing a hopeful word");
   /* "NOT_PUBLISHED" contains "PUBLISHED": a substring test would admit it. */
   assert.equal(FEATURED_FAMILY_STATES.has("NOT_PUBLISHED"), false);
+  /* An inherited key is not an allowlisted family: `"constructor" in FAMILY_KIND` is true. */
+  const proto = featuredForecasts({ rows: [row({ playerId: "proto", family: "constructor", familyState: "PUBLISHED", median: 1, line: 1 })], phase: "PRE" });
+  assert.equal(proto.length, 0, "a prototype key must not pass the family allowlist");
   const s = fs.readFileSync(path.join(APP, "src/lib/live/featured-forecasts.mjs"), "utf8");
   assert.equal(/familyState.*\.includes\(|includes\(.*familyState/.test(s), false, "no substring matching on state");
 });

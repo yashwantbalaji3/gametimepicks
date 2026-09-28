@@ -44,6 +44,13 @@ export const FAMILY_KIND = Object.freeze({
   anytime_td: "PROBABILITY",
 });
 
+/**
+ * Is this a family the card knows how to shape? An OWN key of FAMILY_KIND, never `in`: `in` also
+ * answers true for inherited names ("constructor", "toString"), which is an allowlist that admits
+ * whatever the prototype happens to carry.
+ */
+export const isFeaturedFamily = (family) => typeof family === "string" && Object.hasOwn(FAMILY_KIND, family);
+
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
 /**
@@ -99,7 +106,7 @@ export function featuredForecasts(artifact, { portraitFor = null, limit = FEATUR
   const phase = artifact?.phase ?? null;
 
   const eligible = rows.filter(
-    (r) => r && typeof r.predictionId === "string" && FEATURED_FAMILY_STATES.has(r.familyState) && r.family in FAMILY_KIND,
+    (r) => r && typeof r.predictionId === "string" && FEATURED_FAMILY_STATES.has(r.familyState) && isFeaturedFamily(r.family),
   );
 
   const picked = [];
@@ -129,5 +136,5 @@ export function featuredForecasts(artifact, { portraitFor = null, limit = FEATUR
 /** How many eligible predictions the game actually has — the "View all N" figure. */
 export function eligibleForecastCount(artifact) {
   const rows = Array.isArray(artifact?.rows) ? artifact.rows : [];
-  return rows.filter((r) => FEATURED_FAMILY_STATES.has(r?.familyState) && r?.family in FAMILY_KIND).length;
+  return rows.filter((r) => FEATURED_FAMILY_STATES.has(r?.familyState) && isFeaturedFamily(r?.family)).length;
 }
