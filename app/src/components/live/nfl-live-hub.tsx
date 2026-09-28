@@ -34,7 +34,8 @@ import { derivePresentationState } from "@/lib/live/lifecycle.mjs";
 import type { NflHubRoster, NflHubRosterGame } from "@/lib/live/nfl-hub-data";
 import { FEED, GAME_PHASE, trackForecast } from "@/lib/live/featured-forecasts.mjs";
 import FeaturedForecastRow from "./featured-forecast-row";
-import { useLiveProps, useNowMs, type LivePropsState } from "./use-live-props";
+import { liveRefreshPlan } from "@/lib/live/live-refresh-plan.mjs";
+import { NOT_ASKED, useLivePropsStore, useNowMs, type LivePropsState } from "./use-live-props";
 import { useLiveSlate } from "./use-live-slate";
 
 const MONO = "var(--font-mono)";
@@ -140,24 +141,21 @@ function TeamRow({ abbr, name, score, sport = "nfl" as const }: { abbr: string; 
  * A fixture that reimplements the component proves the fixture works. This is the same component the
  * public hub mounts; only its inputs are synthetic.
  */
-export function NflGameCard({ game, envelope, state, label, liveProps: injected, nowMs: injectedNow }: {
+/**
+ * ⚠ THE CARD OWNS NO TIMER AND MAKES NO REQUEST. Its game's live-props record and the reader's clock
+ * arrive as props from the page's single owner (`useLivePropsStore` + one `useNowMs` in NflLiveHub),
+ * or from the fixture — so the fixture renders THIS component with inputs the page would pass.
+ */
+export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKED, nowMs = null }: {
   game: NflHubRosterGame; envelope: any; state: string; label: string;
-  /** Fixture-only: a synthetic live-props record, so the fixture renders THIS component with no fetch. */
   liveProps?: LivePropsState;
-  /** Fixture-only: a pinned reader clock, so a stale state is reproducible. */
-  nowMs?: number;
+  nowMs?: number | null;
 }) {
   const away = envelope?.competitors?.away?.score ?? null;
   const home = envelope?.competitors?.home?.score ?? null;
   const started = state !== "PRE";
   const when = started ? periodLine(envelope) : etTime(game.kickoffUtc);
   const phase = gamePhaseOf(state);
-
-  /* ONE static request per game, and only once the game has started; refreshed only while it is live. */
-  const fetched = useLiveProps(game.providerEventId, { active: !injected && phase !== GAME_PHASE.PRE && game.featured.length > 0, poll: phase === GAME_PHASE.LIVE });
-  const liveProps = injected ?? fetched;
-  const clock = useNowMs();
-  const nowMs = injectedNow ?? clock;
 
   const byId = useMemo(() => {
     const m = new Map<string, any>();
@@ -252,6 +250,15 @@ export default function NflLiveHub({ roster }: { roster: NflHubRoster }) {
     return out;
   }, [roster.games, byGamePk, unavailable]);
 
+  /* THE ONE REFRESH OWNER: which games need their live-props record, fetched on one shared clock. */
+  const plan = useMemo(() => liveRefreshPlan(
+    (Object.values(grouped).flat() as Array<{ game: NflHubRosterGame; state: string }>).map((r) => ({
+      id: r.game.providerEventId, phase: gamePhaseOf(r.state), featured: r.game.featured.length,
+    })),
+  ), [grouped]);
+  const liveProps = useLivePropsStore(plan);
+  const nowMs = useNowMs();
+
   return (
     <div>
       {!enabled ? (
@@ -294,7 +301,10 @@ export default function NflLiveHub({ roster }: { roster: NflHubRoster }) {
               {/* Stacked on a phone; two columns only when there is genuinely room. */}
               <ul style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))", margin: 0, padding: 0 }}>
                 {rows.map((r) => (
-                  <NflGameCard key={r.game.providerEventId} game={r.game} envelope={r.envelope} state={r.state} label={r.label} />
+                  <NflGameCard
+                    key={r.game.providerEventId} game={r.game} envelope={r.envelope} state={r.state} label={r.label}
+                    liveProps={liveProps[r.game.providerEventId] ?? NOT_ASKED} nowMs={nowMs}
+                  />
                 ))}
               </ul>
             </section>
