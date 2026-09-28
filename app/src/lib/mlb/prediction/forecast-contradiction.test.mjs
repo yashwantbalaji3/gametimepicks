@@ -63,7 +63,10 @@ test("the canonical projected score IS the median, and it carries its own label"
  */
 test("a rounded mean really does contradict the median on real slate data", () => {
   let games = 0, differs = 0, ties = 0;
-  for (const a of slates().slice(0, 3)) {
+  /* Sample the SAME slates the guards check — the newest three that carry a simulation. The newest FILES
+     can be an empty off-day artifact (2026-09-28: 0 games) or a slate whose rows are all unsimulated
+     (09-27: 15 rows, 0 simulated); sampling those made this guard report itself vacuous at season end. */
+  for (const a of slates().filter((x) => simulated(x).length).slice(0, 3)) {
     for (const g of simulated(a)) {
       games += 1;
       const rA = Math.round(g.runs.away.mean), rH = Math.round(g.runs.home.mean);
