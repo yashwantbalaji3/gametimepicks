@@ -38,7 +38,7 @@ import { liveRefreshPlan } from "@/lib/live/live-refresh-plan.mjs";
 import { NOT_ASKED, useLivePropsStore, useNowMs, type LivePropsState } from "./use-live-props";
 import { useLiveSlate } from "./use-live-slate";
 
-const MONO = "var(--font-mono)";
+const SANS = "var(--font-display)";
 
 /**
  * The four sections §4 asks for.
@@ -76,9 +76,9 @@ function StateChip({ state, label }: { state: string; label: string }) {
   const c = CHIP[state] ?? CHIP.UNKNOWN;
   return (
     <span style={{
-      fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.1em", textTransform: "uppercase",
+      fontFamily: SANS, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
       color: c.fg, background: c.bg, border: `1px solid ${c.border}`,
-      borderRadius: 3, padding: "2px 6px", whiteSpace: "nowrap",
+      borderRadius: 4, padding: "3px 8px", whiteSpace: "nowrap",
     }}>{label}</span>
   );
 }
@@ -87,9 +87,12 @@ const etTime = (iso: string | null) => {
   if (!iso) return null;
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return null;
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York", hour: "numeric", minute: "2-digit", hour12: true,
-  }).format(new Date(t)) + " ET";
+  /* Weekday + time in a FIXED zone from the schedule fact — identical on the server and in any reader's
+     browser, so it can never cause a hydration mismatch (no "tonight", which needs a reader clock). */
+  const d = new Date(t);
+  const day = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short" }).format(d);
+  const time = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit", hour12: true }).format(d);
+  return `${day} · ${time} ET`;
 };
 
 /**
@@ -121,13 +124,12 @@ const gamePhaseOf = (state: string) =>
 
 function TeamRow({ abbr, name, score, sport = "nfl" as const }: { abbr: string; name: string; score: number | null; sport?: "nfl" }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0" }}>
-      <TeamLogo team={abbr} sport={sport} size="sm" />
-      <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)", width: 34, flexShrink: 0 }}>{abbr}</span>
-      <span style={{ fontSize: 13.5, color: "var(--vault-text)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "4px 0", minWidth: 0 }}>
+      <TeamLogo team={abbr} sport={sport} size="md" />
+      <span style={{ fontFamily: SANS, fontSize: 16, fontWeight: 600, color: "var(--vault-text)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {name}
       </span>
-      <span style={{ fontFamily: MONO, fontSize: 17, fontVariantNumeric: "tabular-nums", color: "var(--vault-text)", flexShrink: 0 }}>
+      <span style={{ fontFamily: SANS, fontSize: 26, fontWeight: 700, lineHeight: 1, fontVariantNumeric: "tabular-nums", color: score === null ? "var(--vault-text-faint)" : "var(--vault-text)", flexShrink: 0, minWidth: 28, textAlign: "right" }}>
         {/* An absent score is an em dash. A 0 before kickoff would be a score nobody reported. */}
         {score === null ? "—" : score}
       </span>
@@ -176,14 +178,15 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
   return (
     <li style={{ listStyle: "none" }}>
       <div style={{
-        border: "1px solid var(--vault-border)", borderRadius: 8,
-        background: "var(--vault-panel)", padding: "12px 14px",
+        border: "1px solid var(--vault-border)", borderRadius: 12,
+        background: "var(--vault-panel)", padding: "16px 18px 12px",
       }}>
         <span className="sr-only">{spoken}</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+        {/* One lifecycle chip, one time string — never the provider's label AND a clock. */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
           <StateChip state={state} label={label} />
           <FollowedMark entities={[game.awayRef, game.homeRef].filter((r): r is NonNullable<typeof r> => r !== null)} />
-          {when ? <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)" }}>{when}</span> : null}
+          {when ? <span style={{ marginLeft: "auto", fontFamily: SANS, fontSize: 13, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: started ? "var(--vault-text)" : "var(--vault-text-mute)" }}>{when}</span> : null}
         </div>
 
         <div aria-hidden="true">
@@ -192,13 +195,14 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
         </div>
 
         {shown.length === 0 ? (
-          <p style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", margin: "10px 0 0" }}>
+          <p style={{ fontFamily: SANS, fontSize: 12, color: "var(--vault-text-faint)", margin: "14px 0 0" }}>
             No GameTimePicks forecasts for this game
           </p>
         ) : (
           <>
             {/* FEATURED — never "top", "best" or "locks": nothing here is a calibrated cross-family rank. */}
-            <p style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", margin: "12px 0 2px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+            <p style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: SANS, fontSize: 11, fontWeight: 700, color: "var(--vault-accent)", margin: "18px 0 4px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--vault-accent)", flexShrink: 0 }} />
               Featured GameTimePicks forecasts
             </p>
             <ul style={{ margin: 0, padding: 0 }}>
@@ -215,7 +219,7 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
         )}
 
         <p style={{ margin: "10px 0 0" }}>
-          <Link href={`/nfl/game/${game.providerEventId}/`} style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-accent)", textDecoration: "none", display: "inline-block", minHeight: 24, lineHeight: "24px" }}>
+          <Link href={`/nfl/game/${game.providerEventId}/`} style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: "var(--vault-accent)", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
             {total > shown.length ? `View all ${total} forecasts →` : "Game forecasts →"}
           </Link>
         </p>
@@ -262,44 +266,49 @@ export default function NflLiveHub({ roster }: { roster: NflHubRoster }) {
   return (
     <div>
       {!enabled ? (
-        <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)", margin: "0 0 16px" }}>
+        <p style={{ fontFamily: SANS, fontSize: 12.5, color: "var(--vault-text-mute)", margin: "0 0 16px" }}>
           Live tracking for NFL is currently turned off. Scheduled games and frozen forecasts are unaffected.
         </p>
       ) : unavailable ? (
         /* §9 — a provider failure keeps the last known state and says so. It never blanks a card
            and never turns a game that was live back into a scheduled one. */
         <div role="status" style={{ border: "1px solid var(--vault-warn)", borderRadius: 6, padding: "10px 12px", margin: "0 0 16px" }}>
-          <p style={{ fontFamily: MONO, fontSize: 10.5, color: "var(--vault-warn)", margin: 0, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+          <p style={{ fontFamily: SANS, fontSize: 12, fontWeight: 700, color: "var(--vault-warn)", margin: 0, textTransform: "uppercase", letterSpacing: "0.08em" }}>
             Live data temporarily unavailable
           </p>
           <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: "4px 0 0" }}>
             Showing last known state.{lastObservedAt ? ` Last observed: ${lastObservedAt}` : " No live state has been observed yet."}
           </p>
           <button type="button" onClick={retry} style={{
-            fontFamily: MONO, fontSize: 10, marginTop: 8, minHeight: 32, padding: "0 12px",
+            fontFamily: SANS, fontSize: 12.5, fontWeight: 600, marginTop: 8, minHeight: 44, padding: "0 16px",
             background: "transparent", color: "var(--vault-text)",
             border: "1px solid var(--vault-border-strong)", borderRadius: 4, cursor: "pointer",
           }}>Retry</button>
         </div>
       ) : loading ? (
-        <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)", margin: "0 0 16px" }}>Checking the live feed…</p>
+        <p style={{ fontFamily: SANS, fontSize: 12.5, color: "var(--vault-text-mute)", margin: "0 0 16px" }}>Checking the live feed…</p>
       ) : null}
 
       {!roster.boardsPresent ? (
-        <p style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)" }}>No NFL forecasts have been published yet.</p>
+        <p style={{ fontFamily: SANS, fontSize: 13, color: "var(--vault-text-mute)" }}>No NFL forecasts have been published yet.</p>
       ) : roster.games.length === 0 ? (
-        <p style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)" }}>No NFL games are scheduled for {roster.etDate}.</p>
+        <p style={{ fontFamily: SANS, fontSize: 13, color: "var(--vault-text-mute)" }}>No NFL games are scheduled for {roster.etDate}.</p>
       ) : (
         SECTIONS.map(({ key, label }) => {
           const rows = grouped[key];
           if (rows.length === 0) return null;
           return (
             <section key={key} aria-label={label} style={{ marginBottom: 24 }}>
-              <h3 style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--vault-text-faint)", margin: "0 0 10px", fontWeight: 400 }}>
+              <h3 style={{ fontFamily: SANS, fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--vault-text-mute)", margin: "0 0 12px" }}>
                 {label} <span>· {rows.length}</span>
               </h3>
               {/* Stacked on a phone; two columns only when there is genuinely room. */}
-              <ul style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))", margin: 0, padding: 0 }}>
+              {/*
+                * V2C: one column on a phone and a tablet, TWO on a desktop. A card needs ~440px for the
+                * logos, full club names, score, portraits, three figures and a rail; three columns would
+                * need more room than this page ever has, so a third column never appears.
+                */}
+              <ul style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 440px), 1fr))", margin: 0, padding: 0 }}>
                 {rows.map((r) => (
                   <NflGameCard
                     key={r.game.providerEventId} game={r.game} envelope={r.envelope} state={r.state} label={r.label}

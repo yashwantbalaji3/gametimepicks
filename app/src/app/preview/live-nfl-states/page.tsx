@@ -182,7 +182,7 @@ export default function NflLiveStatesFixture() {
         Fixed inputs · comparable across runs
       </p>
 
-      <div style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))" }}>
+      <div style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 440px), 1fr))" }}>
         {CASES.map((c) => (
           <section key={c.title} aria-label={c.title}>
             <h2 style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text)", margin: "0 0 4px", fontWeight: 400 }}>
