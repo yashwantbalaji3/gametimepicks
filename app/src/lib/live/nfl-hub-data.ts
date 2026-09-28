@@ -28,6 +28,30 @@ import { currentEtDate } from "@/lib/freshness";
 import { PRODUCT_CLEARED_FAMILY_STATES } from "@/lib/products/candidate-universe.mjs";
 import { LIVE_TRACKABLE_MARKETS } from "./adapters/espn-nfl.mjs";
 import { type FollowRef, labelForRef, nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
+import { featuredForecasts, eligibleForecastCount } from "./featured-forecasts.mjs";
+import { featuredSelectionRows } from "./featured-source.mjs";
+
+/**
+ * One FEATURED GAMETIMEPICKS FORECAST as the card receives it — frozen halves only. The live half is
+ * joined in the browser from the game's live-props record (`trackForecast`), never at build time.
+ */
+export interface FeaturedForecast {
+  predictionId: string;
+  playerId: string;
+  playerName: string;
+  team: string | null;
+  family: string;
+  kind: "VOLUME" | "PROBABILITY" | null;
+  label: string | null;
+  modelValue: number | null;
+  modelLow: number | null;
+  modelHigh: number | null;
+  modelProbability: number | null;
+  line: number | null;
+  sportsbook: string | null;
+  frozenAt: string | null;
+  portraitUrl: string | null;
+}
 
 /** One frozen GameTimePicks prediction, with the frozen line it was published against. */
 export interface TrackedPrediction {
@@ -74,6 +98,15 @@ export interface NflHubRosterGame {
   homeRef: FollowRef | null;
   trackedPredictionCount: number;
   trackedPredictions: TrackedPrediction[];
+  /**
+   * V2B · the five FEATURED forecasts (featured-forecasts.mjs), selected from frozen pregame data only
+   * — the live-props frozen record when one is committed, the board otherwise (featured-source.mjs).
+   */
+  featured: FeaturedForecast[];
+  /** Which owner supplied the selection rows. */
+  featuredSource: "live-props" | "board";
+  /** Legitimate published forecasts for the game — the honest "View all N". */
+  eligibleForecastCount: number;
   /** When the frozen board was published — the provenance of every number above. */
   boardGeneratedAt: string | null;
 }
@@ -237,6 +270,15 @@ export function buildNflHubRoster(
     const awayRef = nflTeamRefByAbbr(awayAbbr);
     const homeRef = nflTeamRefByAbbr(homeAbbr);
     const tracked = trackedFor(board);
+    const artifact = readJson(path.join(process.cwd(), "public/data/nfl/live-props", `${id}.json`));
+    const selection = featuredSelectionRows({ board: { ...board, providerEventId: id }, artifact });
+    /* Frozen halves only: the live half of each row is joined in the browser. */
+    const featured = (featuredForecasts({ rows: selection.rows }, { portraitFor: espnNflHeadshotUrl }) as any[]).map((f) => ({
+      predictionId: f.predictionId, playerId: f.playerId, playerName: f.playerName, team: f.team, family: f.family,
+      kind: f.kind, label: f.label, modelValue: f.modelValue, modelLow: f.modelLow, modelHigh: f.modelHigh,
+      modelProbability: f.modelProbability, line: f.line, sportsbook: f.sportsbook, frozenAt: f.frozenAt,
+      portraitUrl: f.portraitUrl,
+    })) as FeaturedForecast[];
     games.push({
       providerEventId: id,
       matchup: board.matchup,
@@ -252,6 +294,9 @@ export function buildNflHubRoster(
       homeRef,
       trackedPredictionCount: tracked.length,
       trackedPredictions: tracked.slice(0, Math.max(0, previewPerGame)),
+      featured,
+      featuredSource: selection.source as "live-props" | "board",
+      eligibleForecastCount: eligibleForecastCount({ rows: selection.rows }),
       boardGeneratedAt: normalizeInstant(board?.generatedAt),
     });
   }

@@ -19,7 +19,14 @@
  * forecast in a receipt or a log.
  */
 
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 const FORECASTS = "/data/ask/v1/forecasts.json";
+const PARLAYS = "/data/ask/v1/parlays.json";
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const frozen = (name) => JSON.parse(fs.readFileSync(path.join(HERE, "fixtures", name), "utf8"));
 
 const forecastsDoc = (forecasts) => ({
   schemaVersion: 1,
@@ -56,6 +63,17 @@ export const EVAL_FIXTURES = Object.freeze({
         links: [{ id: "report", label: "Open the MLB game report", href: "/games/mlb/fixture-mlb-paused/" }],
       },
     ]),
+  },
+
+  /*
+   * A REAL parlay slate, frozen (the published Ask projection for 2026-09-27). ⚠ 2026-09-28: the
+   * optimizer published 0 slips on a day with no MLB game, and six parlay cases fell to the
+   * deterministic fallback — correct behaviour for the day, but the cases test the parlay TOOL and the
+   * writer's grounding over candidates, which needs candidates to exist. parlay-01 and parlay-05 still
+   * run against the published assets, so whatever today holds — candidates or none — is also exercised.
+   */
+  "parlay-slate": {
+    [PARLAYS]: frozen("parlays-2026-09-27.json"),
   },
 
   /* Nothing published at all — the night mut-18 found. Any pick claim is then unsourced by definition. */

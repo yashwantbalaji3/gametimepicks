@@ -21,6 +21,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+/* Run under tsx (package.json): the MLB page owner is TypeScript, and the index must ask IT which games
+   have pages rather than re-derive the answer beside it. */
+import { activeMlbDate } from "../src/lib/data-mlb.ts";
+import { buildAllGameDetails } from "../src/lib/game-detail.ts";
+
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
 const arg = (f, d = null) => { const i = process.argv.indexOf(f); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -44,15 +49,22 @@ for (const f of read("nfl/forecasts/latest.json")?.forecasts ?? []) {
   add("event", f.matchup, `NFL · ${f.week ? `Week ${f.week}` : "this week"}`, `/nfl/game/${f.providerEventId}/`,
     [f.home?.name, f.away?.name, f.home?.abbr, f.away?.abbr, "nfl", "football"].filter(Boolean));
 }
-/* MLB has no `latest.json` for simulations — the newest dated file IS the latest, the same way
-   every MLB surface resolves it. */
-const mlbSimDate = (() => {
-  const d = path.join(DATA, "mlb", "game-simulations");
-  if (!fs.existsSync(d)) return null;
-  const dates = fs.readdirSync(d).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort();
-  return dates.length ? dates[dates.length - 1].replace(/\.json$/, "") : null;
-})();
-const mlbSims = mlbSimDate ? read(`mlb/game-simulations/${mlbSimDate}.json`) : null;
+/*
+ * ⚠ AN INDEX ENTRY MAY ONLY POINT AT A PAGE THAT EXISTS (2026-09-28).
+ *
+ * This used to take the NEWEST dated simulation file. The MLB game pages are built by a different
+ * owner — `buildAllGameDetails()` over the ACTIVE slate (`activeMlbDate()`). The day after the regular
+ * season ended the active slate was 2026-09-28 with no games, the newest simulation file was still
+ * 09-27, and the index shipped 300 entries (events, teams, players) pointing at 15 game pages the export
+ * did not contain. Two owners of one answer disagree the first time the calendar moves.
+ *
+ * So the date is the page owner's date, and every MLB entry is filtered to a slug the page owner
+ * actually builds — an index entry without a page is impossible by construction.
+ */
+const mlbSimDate = activeMlbDate();
+const mlbPageSlugs = new Set(buildAllGameDetails().filter((d) => d.sport === "mlb").map((d) => d.slug));
+const mlbSimsRaw = mlbSimDate ? read(`mlb/game-simulations/${mlbSimDate}.json`) : null;
+const mlbSims = mlbSimsRaw ? { ...mlbSimsRaw, games: (mlbSimsRaw.games ?? []).filter((g) => g.slug && mlbPageSlugs.has(g.slug)) } : null;
 for (const g of mlbSims?.games ?? []) {
   const [away, home] = [g.teams?.away, g.teams?.home];
   if (!g.slug) continue;

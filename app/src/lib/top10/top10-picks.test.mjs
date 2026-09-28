@@ -19,7 +19,10 @@ const nowMs = Date.parse(`${date}T09:00:00-04:00`);
 const board = buildTop10Board(root, date, nowMs);
 
 test("board builds from real artifacts with picks in every populated category", () => {
-  assert.ok(board.overall.length > 0, "overall has picks");
+  /* ⚠ "Overall has picks" asserted the CALENDAR (2026-09-28: the day after MLB's regular season, no
+     pregame market remained and main went red on a correct empty board). The board's rules below hold
+     for any board; an empty one is a legitimate state and is announced, not failed. */
+  if (board.overall.length === 0) console.log("[top10] no pregame picks in today's committed artifacts — the board is legitimately empty; structural rules still checked");
   // The Top 10 "team" tab shows WC knockout team picks while the tournament is live; when the WC board is
   // empty/complete it FALLS BACK to MLB team-market CONTEXT rows (de-vigged market read / watchlist). Either
   // way every team-tab row is kind "team"; if MLB market-context rows are absent too, the tab is cleanly empty.
