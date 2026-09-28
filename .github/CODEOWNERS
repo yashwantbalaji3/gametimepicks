@@ -1,0 +1,51 @@
+# CODEOWNERS — founder review for the SENSITIVE paths only.
+#
+# Why these and not everything: see docs/ENGINEERING_START_HERE.md §8. Routine UI, tests, reliability,
+# performance, accessibility and docs are ordinary PR review. Requiring the founder on every change
+# would make one person the bottleneck for the whole team.
+#
+# Bots push generated data straight to main (no PR), so nothing here affects scheduled automation.
+# Keep patterns narrow; add a path only when it decides one of: model publication/promotion,
+# probability semantics, settlement semantics, provider spend, production workflows, public-data
+# exposure, Ask safety, or legal copy.
+
+# Production workflows and this file itself
+/.github/workflows/                                   @yashwantbalaji3
+/.github/CODEOWNERS                                   @yashwantbalaji3
+
+# Provider authorization and paid spend
+/docs/receipts/                                       @yashwantbalaji3
+/app/src/lib/sports/odds/                             @yashwantbalaji3
+/app/scripts/ops/reconcile-odds-charge.mjs            @yashwantbalaji3
+
+# Probability semantics and product eligibility
+/app/src/lib/products/eligible-leg/                   @yashwantbalaji3
+
+# Model publication / promotion policy
+/app/src/lib/model-eval/                              @yashwantbalaji3
+/app/scripts/model-eval/                              @yashwantbalaji3
+/app/scripts/nfl/evaluate-nfl-player-families.mjs     @yashwantbalaji3
+/app/scripts/nfl/evaluate-nfl-player-props.mjs        @yashwantbalaji3
+/app/scripts/research/build-model-registry.mjs        @yashwantbalaji3
+/app/src/lib/command-center/model-status.ts           @yashwantbalaji3
+/app/src/lib/sports/nfl/current-event-contract.mjs    @yashwantbalaji3
+/app/src/lib/sports/nfl/participation-states.mjs      @yashwantbalaji3
+
+# Settlement semantics and the frozen/live/settled boundary
+/app/src/lib/settlement/                              @yashwantbalaji3
+/pipeline/settlement/                                 @yashwantbalaji3
+/app/scripts/**/settle-*.mjs                          @yashwantbalaji3
+/app/src/lib/sports/nfl/live-prop-state.mjs           @yashwantbalaji3
+/app/src/lib/sports/nfl/prop-settlement-ledger.mjs    @yashwantbalaji3
+
+# What the static export publishes
+/app/scripts/prune-internal-routes.mjs                @yashwantbalaji3
+
+# Ask GameTime safety
+/app/src/lib/ask/verifier.mjs                         @yashwantbalaji3
+/app/src/lib/ask/contract.mjs                         @yashwantbalaji3
+
+# Legal / policy copy
+/app/src/app/terms/                                   @yashwantbalaji3
+/app/src/app/privacy/                                 @yashwantbalaji3
+/app/src/app/responsible-use/                         @yashwantbalaji3

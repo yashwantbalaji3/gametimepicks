@@ -1,0 +1,82 @@
+name: Engineering contract
+description: A scoped unit of work — the contract Yash, DP and AI coding agents all work from.
+title: "[Area] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One issue = one coherent PR (or a named, staged PR series). Read `docs/ENGINEERING_START_HERE.md` first.
+        Never paste secrets, keys or personal contact details into an issue.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: The outcome, in one or two sentences. What is true when this is done?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: The user or reliability problem this solves, with evidence (incident, run id, screenshot, measurement).
+    validations:
+      required: true
+  - type: dropdown
+    id: owner
+    attributes:
+      label: Owner
+      options: [Yash, DP, Shared]
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Issues/PRs that must land first, and anything this blocks.
+  - type: textarea
+    id: allowed
+    attributes:
+      label: Allowed scope
+      description: Files, modules and behaviours this work may change.
+    validations:
+      required: true
+  - type: textarea
+    id: forbidden
+    attributes:
+      label: Forbidden scope
+      description: What must NOT change. Defaults below always apply.
+      value: |
+        - No fabricated odds, lines, probabilities, projections, identities, availability, roles, results or stats.
+        - No promotion of REJECTED / STOP / PAUSED / HOLDING / ESTIMATE / DEMOTE_TO_MARKET_CONTEXT states.
+        - No market probability presented as model probability; no invented confidence.
+        - No outcome language (HIT/MISS/WIN/LOSS) outside canonical settlement.
+        - No hand-edited generated artifacts; no new competing source for an existing owner.
+        - No paid provider spend, workflow re-enable or secret handling without founder authorization.
+        - No weakening a guard to make CI green.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Observable, checkable statements. Each one should be provable by a test or a production check.
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Tests
+      description: |
+        Behavioural guards and mutation probes. Guards must not depend on what today's slate happens to hold;
+        prefer pure functions and deterministic fixtures. Each mutation probe must assert the mutation applied.
+    validations:
+      required: true
+  - type: textarea
+    id: production
+    attributes:
+      label: Production verification
+      description: |
+        How we confirm it on Production after merge (deployed SHA at /data/build-info.json, routes, viewports,
+        real data states). Merged ≠ deployed ≠ verified.
+    validations:
+      required: true
