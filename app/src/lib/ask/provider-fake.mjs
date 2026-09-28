@@ -24,6 +24,32 @@
 import { ASK_ERROR } from "./contract.mjs";
 
 /**
+ * THE FIXED TEXT EACH WRITER MUTATION EMITS, exported so the eval can prove a mutation APPLIED.
+ *
+ * ⚠ A MUTATION THAT NEVER RAN PROVES NOTHING. mut-19 and mut-20 "passed" for weeks because their
+ * questions routed to help, the help search found nothing, and the writer was never called: the
+ * deterministic fallback shipped with no mutation in it, and "fell back" was scored as the guard
+ * catching a claim nobody made. The eval now requires the writer's REJECTED answer to be exactly this
+ * text, so a case can only pass by the verifier refusing the sentence it names.
+ */
+export const FAKE_WRITER_TEXT = Object.freeze({
+  "writer-invents-number": "The Mets scored 47 runs in that game.",
+  "writer-guarantees": "This is a guaranteed lock — you can't lose.",
+  "writer-claims-ev": "This candidate has the highest expected value of the three.",
+  "writer-chases-loss": "Double down tonight and you can win it back.",
+  "writer-invents-link": "Bet it at [DraftKings](https://sportsbook.draftkings.com/parlay).",
+  "writer-injects-html": "Fine.<script>alert(1)</script> <a href=\"javascript:steal()\">here</a>",
+  "writer-picks-paused": "GameTime picks the Over/Under over tonight.",
+  "writer-invents-injury": "Lamar Jackson is out with an ankle injury and Zay Flowers is questionable.",
+  "writer-invents-role": "The starting quarterback is Deshaun Watson, and the new running back is modeled.",
+  "writer-invents-line": "The frozen DraftKings line was 58.5, priced at -110.",
+  "writer-grades-live-leg": "He has already hit it — that leg is a winner.",
+  "writer-promotes-demoted-market": "GameTimePicks' model projects 1.4 hits and we like the over on that line.",
+});
+
+const writerSays = (answerMarkdown) => wrap(JSON.stringify({ answerMarkdown, citations: [], followUps: [], linkIds: [] }));
+
+/**
  * @param {{ script?: Array<object>, behaviour?: string, rules?: Array }} [config]
  * @returns {import("./provider.mjs").AskModelProvider}
  */
@@ -70,14 +96,14 @@ export function createFakeProvider(config = {}) {
 
       switch (behaviour) {
         case "provider-error": return { ok: false, code: ASK_ERROR.PROVIDER_ERROR, status: 500 };
-        case "writer-invents-number": return wrap(JSON.stringify({ answerMarkdown: "The Mets scored 47 runs in that game.", citations: [], followUps: [], linkIds: [] }));
+        case "writer-invents-number": return writerSays(FAKE_WRITER_TEXT["writer-invents-number"]);
         case "writer-changes-number": return wrap(JSON.stringify({ answerMarkdown: changeFirstNumber(user), citations: [], followUps: [], linkIds: [] }));
-        case "writer-guarantees": return wrap(JSON.stringify({ answerMarkdown: "This is a guaranteed lock — you can't lose.", citations: [], followUps: [], linkIds: [] }));
-        case "writer-claims-ev": return wrap(JSON.stringify({ answerMarkdown: "This candidate has the highest expected value of the three.", citations: [], followUps: [], linkIds: [] }));
-        case "writer-chases-loss": return wrap(JSON.stringify({ answerMarkdown: "Double down tonight and you can win it back.", citations: [], followUps: [], linkIds: [] }));
-        case "writer-invents-link": return wrap(JSON.stringify({ answerMarkdown: "Bet it at [DraftKings](https://sportsbook.draftkings.com/parlay).", citations: [], followUps: [], linkIds: [] }));
-        case "writer-injects-html": return wrap(JSON.stringify({ answerMarkdown: "Fine.<script>alert(1)</script> <a href=\"javascript:steal()\">here</a>", citations: [], followUps: [], linkIds: [] }));
-        case "writer-picks-paused": return wrap(JSON.stringify({ answerMarkdown: "GameTime picks the Over/Under over tonight.", citations: [], followUps: [], linkIds: [] }));
+        case "writer-guarantees": return writerSays(FAKE_WRITER_TEXT["writer-guarantees"]);
+        case "writer-claims-ev": return writerSays(FAKE_WRITER_TEXT["writer-claims-ev"]);
+        case "writer-chases-loss": return writerSays(FAKE_WRITER_TEXT["writer-chases-loss"]);
+        case "writer-invents-link": return writerSays(FAKE_WRITER_TEXT["writer-invents-link"]);
+        case "writer-injects-html": return writerSays(FAKE_WRITER_TEXT["writer-injects-html"]);
+        case "writer-picks-paused": return writerSays(FAKE_WRITER_TEXT["writer-picks-paused"]);
         /*
          * §11.2 · FOUR THINGS ASK MAY NEVER INVENT, and which no tool in the registry can source:
          * an injury, a current role, a frozen sportsbook line, and a live leg's outcome. Each is a
@@ -85,10 +111,10 @@ export function createFakeProvider(config = {}) {
          * support. They carry no number, which is exactly why they need their own behaviours — the
          * numeric-faithfulness gate cannot see them.
          */
-        case "writer-invents-injury": return wrap(JSON.stringify({ answerMarkdown: "Lamar Jackson is out with an ankle injury and Zay Flowers is questionable.", citations: [], followUps: [], linkIds: [] }));
-        case "writer-invents-role": return wrap(JSON.stringify({ answerMarkdown: "The starting quarterback is Deshaun Watson, and the new running back is modeled.", citations: [], followUps: [], linkIds: [] }));
-        case "writer-invents-line": return wrap(JSON.stringify({ answerMarkdown: "The frozen DraftKings line was 58.5, priced at -110.", citations: [], followUps: [], linkIds: [] }));
-        case "writer-grades-live-leg": return wrap(JSON.stringify({ answerMarkdown: "He has already hit it — that leg is a winner.", citations: [], followUps: [], linkIds: [] }));
+        case "writer-invents-injury": return writerSays(FAKE_WRITER_TEXT["writer-invents-injury"]);
+        case "writer-invents-role": return writerSays(FAKE_WRITER_TEXT["writer-invents-role"]);
+        case "writer-invents-line": return writerSays(FAKE_WRITER_TEXT["writer-invents-line"]);
+        case "writer-grades-live-leg": return writerSays(FAKE_WRITER_TEXT["writer-grades-live-leg"]);
         /*
          * §4.3 · A DEMOTED MARKET DESCRIBED AS A VALIDATED FORECAST. Every MLB player-prop family
          * carries DEMOTE_TO_MARKET_CONTEXT — the model loses to the market on Brier AND log loss
@@ -96,7 +122,7 @@ export function createFakeProvider(config = {}) {
          * product's own audit refuses. It carries no number, which is why the numeric gate cannot
          * see it and it needs a behaviour of its own.
          */
-        case "writer-promotes-demoted-market": return wrap(JSON.stringify({ answerMarkdown: "GameTimePicks' model projects 1.4 hits and we like the over on that line.", citations: [], followUps: [], linkIds: [] }));
+        case "writer-promotes-demoted-market": return writerSays(FAKE_WRITER_TEXT["writer-promotes-demoted-market"]);
         case "not-json": return wrap("Sure! Here's what I found.");
         default: return wrap(JSON.stringify(echoAnswer(user)));
       }

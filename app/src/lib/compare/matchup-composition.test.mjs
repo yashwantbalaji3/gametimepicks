@@ -56,7 +56,35 @@ test("MF1 forecast links only for exact-id forecasts the owner publishes; player
     assert.equal(!!f, !!(d?.prediction && d.prediction.status !== "unavailable"), `MLB ${e.gameId}: link ⇔ an available prediction`);
     if (f) mlbWith += 1; else mlbWithout += 1;
   }
-  assert.ok(mlbWith > 0 && mlbWithout > 0, `non-vacuous MLB: ${mlbWith} with, ${mlbWithout} without (players listed: ${players})`);
+  /*
+   * The SAME defect the NFL half above was already fixed for, in the opposite direction.
+   *
+   * This demanded that some MLB matchup HAVE a forecast link and some LACK one. Late on 2026-09-27
+   * every listed matchup had an unavailable prediction — 0 with, 156 without — which is a correct
+   * state for the hour, and the guard went red on it. A test that requires the day's data to be
+   * mixed will eventually meet a day that is not.
+   *
+   * The contract is the biconditional asserted inside the loop — a link EXACTLY when an available
+   * prediction exists — and that is what must be proved non-vacuous: the loop has to have evaluated
+   * it over a real set, and the exclusion path is proved by probe rather than by hoping the day
+   * supplies one. An all-unavailable slate announces itself instead of failing.
+   */
+  assert.ok(mlbWith + mlbWithout > 0, "the MLB biconditional must be evaluated over a non-empty set");
+  assert.equal(matchupForecast("MLB", "mlb-000000000"), null, "an id the owner never published gets no forecast link");
+  /*
+   * BOTH directions proved on the pure decision itself, so neither depends on what the slate
+   * happens to hold. `mlbForecastLink` is exported for exactly this — its own docstring says the
+   * committed slate may hold no unavailable prediction to test with.
+   */
+  assert.equal(mlbForecastLink({ prediction: { status: "unavailable" } }, "/mlb/game/x/"), null, "an unavailable prediction gets no link");
+  assert.equal(mlbForecastLink({ prediction: null }, "/mlb/game/x/"), null, "no prediction, no link");
+  assert.equal(mlbForecastLink({ prediction: { status: "ready" } }, null), null, "no page, no link");
+  const included = mlbForecastLink({ prediction: { status: "ready" } }, "/mlb/game/x");
+  assert.ok(included, "an available prediction with a page DOES get a link — the inclusion path");
+  assert.equal(included.href, "/mlb/game/x/", "and the href is normalised with a trailing slash");
+  if (mlbWith === 0) {
+    console.log(`[MF1] every MLB matchup is currently unavailable (${mlbWithout} listed, players listed: ${players}) — a legitimate state, announced so it is not silent`);
+  }
   // The paused/unavailable branch, which the committed slate may not exercise: never a link.
   assert.equal(mlbForecastLink({ prediction: { status: "unavailable" } }, "/games/mlb/x"), null);
   assert.equal(mlbForecastLink({ prediction: null }, "/games/mlb/x"), null);

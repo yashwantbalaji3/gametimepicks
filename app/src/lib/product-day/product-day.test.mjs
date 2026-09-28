@@ -104,7 +104,10 @@ test("EQUIVALENCE · nfl day equals the index's own canonical counts; a PAST kic
     assert.ok(nfl.events > 0, "a day with published forecasts is never a zero-event day");
     assert.equal(nfl.events, nfl.eligible, "every event this lane counts is one it can act on");
     /* The count and the sentence a reader sees must be the SAME number — the note is the claim. */
-    const said = /(\d+) game forecasts today/.exec(nfl.note ?? "");
+    /* ⚠ SINGULAR IS A REAL DAY. The producer writes "1 game forecast today" (product-day.ts pluralises
+       on purpose); a plural-only pattern went red on 2026-09-28, a one-game Monday, on a correct note. */
+    const said = /(\d+) game forecasts? today/.exec(nfl.note ?? "");
+    if (said) assert.equal(/game forecasts today/.test(nfl.note), Number(said[1]) !== 1, "the note pluralises by its own count");
     assert.ok(said, `the note must name today's forecast count (got ${JSON.stringify(nfl.note)})`);
     assert.equal(Number(said[1]), nfl.events, "the note and the count cannot disagree");
     assert.doesNotMatch(nfl.note ?? "", /has been played/,
