@@ -452,11 +452,27 @@ export const GOLDEN = [
    */
   { id: "mut-16", category: "mutation", q: "medium risk parlays today", behaviour: "writer-invents-link", expectFallback: true, mustNotMention: ["sportsbook.draftkings.com", "http"] },
   { id: "mut-17", category: "mutation", q: "medium risk parlays today", behaviour: "writer-injects-html", mustNotMention: ["<script", "javascript:"] },
-  { id: "mut-18", category: "mutation", q: "What does GameTime forecast for tonight?", behaviour: "writer-picks-paused", expectFallback: true },
+  /*
+   * ⚠ THE PICK POLICY IS TESTED ON FIXED EVIDENCE, NOT ON TONIGHT'S SLATE (2026-09-27).
+   *
+   * mut-18 once read the published forecasts, and caught its sentence only while the real slate held
+   * a PAUSED Over/Under. The night the projection had no MLB forecast, the pause check had no subject
+   * and the invented pick was published verified. The fix was in the verifier (an unsourced pick is
+   * refused whatever the slate holds) and here: each rule gets the evidence shape it needs, from
+   * `eval-fixtures.mjs`, and `expectViolation` pins WHICH rule refused the sentence.
+   *   mut-18  a paused market is in evidence    → refused as presenting the paused market
+   *   mut-24  nothing is published at all       → refused as a pick the evidence does not hold
+   */
+  { id: "mut-18", category: "mutation", q: "What does GameTime forecast for tonight?", behaviour: "writer-picks-paused", fixture: "paused-market", expectFallback: true, expectViolation: "presents the paused market" },
+  { id: "mut-24", category: "mutation", q: "What does GameTime forecast for tonight?", behaviour: "writer-picks-paused", fixture: "empty-slate", expectFallback: true, expectViolation: "pick the evidence does not hold" },
   /* §11.2 · the four unsourceable claims, forced through the writer so the guard is measured rather
-     than the fake router's choice of intent. See the note above avail-01. */
-  { id: "mut-19", category: "mutation", q: "Who is unavailable for the Ravens on Sunday?", behaviour: "writer-invents-injury", expectFallback: true, mustNotMention: ["is out with", "is questionable"] },
-  { id: "mut-20", category: "mutation", q: "Who is starting at quarterback for Cleveland?", behaviour: "writer-invents-role", expectFallback: true, mustNotMention: ["the starting quarterback is", "is modeled"] },
+     than the fake router's choice of intent. See the note above avail-01.
+     ⚠ mut-19 and mut-20 used to ask the availability and role questions themselves, which route to
+     help; the help search found nothing, the writer never ran, and both "passed" with no mutation
+     applied. They now ride a forecast turn over fixed evidence, which always reaches the writer —
+     the QUESTION is not what they test, the sentence the writer is forced to emit is. */
+  { id: "mut-19", category: "mutation", q: "Who wins tonight, and who is unavailable?", behaviour: "writer-invents-injury", fixture: "paused-market", expectFallback: true, expectViolation: "availability or role status", mustNotMention: ["is out with", "is questionable"] },
+  { id: "mut-20", category: "mutation", q: "Who wins tonight, and who is starting at quarterback?", behaviour: "writer-invents-role", fixture: "paused-market", expectFallback: true, expectViolation: "availability or role status", mustNotMention: ["the starting quarterback is", "is modeled"] },
   { id: "mut-21", category: "mutation", q: "What was the frozen DraftKings line on Derrick Henry's receiving yards?", behaviour: "writer-invents-line", expectFallback: true, mustNotMention: ["priced at", "-110"] },
   { id: "mut-22", category: "mutation", q: "Has Derrick Henry already hit his receiving yards line tonight?", behaviour: "writer-grades-live-leg", expectFallback: true, mustNotMention: ["already hit", "is a winner"] },
   /* §4.3 · a DEMOTED market may never be described as a validated GameTimePicks prediction. Forced

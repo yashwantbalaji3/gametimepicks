@@ -14,6 +14,8 @@
  *   3. COPY     no guarantee language, no loss-chasing, no expected-value claim. Checked on OUTPUT
  *               rather than instructed in a prompt, because a prompt is a request and this is a rule.
  *   4. PAUSE    a market the evidence says is PAUSED must not be described with a pick.
+ *   5. PICK     "GameTime picks / leans / likes …" must restate a pick the evidence actually holds.
+ *   6. STATUS   an injury status or a current role must not be asserted unless the evidence says it.
  *
  * WHAT IT DELIBERATELY DOES NOT DO. It does not attempt full NLP. It has no opinion on whether a
  * sentence is well-argued, and it does not try to parse claims into logic. It is a conservative net
@@ -26,7 +28,8 @@
  * themselves supplied are all explicitly allowed. Every exemption here is narrow and named.
  */
 import { ASK_ERROR, ASK_FORBIDDEN_EV_COPY,
-  ASK_FORBIDDEN_LIVE_SETTLEMENT_COPY, ASK_FORBIDDEN_WAGERING_COPY, isApprovedLink } from "./contract.mjs";
+  ASK_FORBIDDEN_LIVE_SETTLEMENT_COPY, ASK_FORBIDDEN_WAGERING_COPY, ASK_UNSOURCEABLE_STATUS_COPY,
+  isApprovedLink } from "./contract.mjs";
 
 /**
  * Numbers that are never a sports claim, scrubbed before the numeric scan.
@@ -123,6 +126,38 @@ export function verifyAnswer(answer, evidence, opts = {}) {
       if (flagged) break;
     }
     if (flagged) violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `presents the paused market "${market}" as a forecast` });
+  }
+
+  /* ── 5. UNSOURCED PICKS ──────────────────────────────────────────────────────────────────── */
+  /*
+   * ⚠ CHECK 3 NEEDED A SUBJECT, AND THE SLATE DOES NOT ALWAYS PROVIDE ONE (mut-18, 2026-09-27).
+   *
+   * "GameTime picks the Over/Under over tonight" was rejected only when the evidence happened to hold
+   * a PAUSED Over/Under to recognise it against. The night the projection carried no MLB forecast at
+   * all, the same sentence was published with `verified: true`: it has no number, no link, no
+   * wagering word, and no paused market in context — nothing any check could see.
+   *
+   * The pause was never the real rule. A pick is a claim, and like a number it must come from the
+   * evidence. So a claim clause is supported only when a pick the evidence holds — "Moneyline:
+   * GameTime's pick is MIN" — is restated in it; with no pick in evidence, no pick claim is supported.
+   * That holds whatever tonight's slate looks like, which is what a safety check has to do.
+   */
+  for (const clause of pickClaimClauses(text)) {
+    if (!pickIsSupported(clause, evidencePicks(evidence.facts))) {
+      violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `states a GameTime pick the evidence does not hold: "${clause.slice(0, 80)}"` });
+    }
+  }
+
+  /* ── 6. UNSOURCEABLE STATUS ──────────────────────────────────────────────────────────────── */
+  /*
+   * An injury status or a current role (§11.2). No tool sources either, so a phrase asserting one is
+   * allowed only as a restatement of the evidence — the same answer-key rule the numeric check uses.
+   */
+  const evidenceLower = evidence.facts.map((f) => String(f.text).toLowerCase()).join("\n");
+  for (const phrase of ASK_UNSOURCEABLE_STATUS_COPY) {
+    if (containsAsClaim(lower, phrase) && !evidenceLower.includes(phrase)) {
+      violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `asserts an availability or role status no tool sourced: "${phrase}"` });
+    }
   }
 
   /* ── 4. NUMERIC ──────────────────────────────────────────────────────────────────────────── */
@@ -222,6 +257,60 @@ function isAllowedNumber(value, raw, allowed) {
 }
 
 const escapeRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/*
+ * A PICK CLAIM: GameTime (or "we") as the subject of a directional verb, or "GameTime's pick is …".
+ *
+ * ⚠ THE BRAND IS "GameTime Picks". With a capital P it is the product's NAME — "GameTime Picks is an
+ * educational analytics project" — and read case-insensitively it is also "GameTime picks", the claim.
+ * So the capitalised brand is collapsed to "GameTime" first, and only a lower-case "picks" is a verb.
+ * "forecasts" is deliberately not a verb here: "12 GameTime forecasts match" is a count, not a pick.
+ */
+const PICK_CLAIM = /\bGameTime(?:['’]s?)?(?:\s+(?:model|engine))?\s+(?:picks|picked|is picking|leans|is leaning|likes)\b|\bGameTime['’]s?\s+(?:model['’]s\s+)?pick\s+(?:is\b|:)|\b[Ww]e\s+(?:like|pick|lean|are picking|are leaning)\b/g;
+/* A clause ends at a sentence stop (not a decimal point), or a market separator the evidence uses. */
+const CLAUSE_END = /(?<!\d)\.(?!\d)|[;\n•|·!?]/;
+
+/** Every affirmative pick-claim clause in the answer. A negated clause ("GameTime's pick is none") is not a claim. */
+function pickClaimClauses(text) {
+  const normalised = text.replace(/\bGameTime\s?Picks\b/g, "GameTime");
+  const clauses = [];
+  for (const m of normalised.matchAll(PICK_CLAIM)) {
+    const before = normalised.slice(0, m.index).split(CLAUSE_END).at(-1);
+    const after = normalised.slice(m.index).split(CLAUSE_END)[0];
+    const clause = `${before}${after}`.trim();
+    if (NEGATION.test(clause) || /\bnone\b/i.test(clause)) continue;
+    clauses.push(clause);
+  }
+  return clauses;
+}
+
+/**
+ * The picks the evidence actually holds, as {label, value}. Two sentence shapes carry one
+ * (evidence.mjs, getPublishedForecasts): "· Moneyline: GameTime's pick is MIN at …, model …" and
+ * the headline form "its Moneyline pick is MIN, confidence …". "none stated" is the absence of a pick.
+ */
+function evidencePicks(facts) {
+  const picks = [];
+  for (const f of facts) {
+    const t = String(f.text);
+    for (const m of t.matchAll(/(?:·\s*([^·:]+?):\s*)?GameTime['’]s pick is (.+?)(?=\s+at\s+[-+]?\d|,|;|$)/g)) picks.push({ label: m[1] ?? "", value: m[2] });
+    for (const m of t.matchAll(/\bits\s+([^,;]+?)\s+pick is (.+?)(?=,|;|$)/g)) picks.push({ label: m[1], value: m[2] });
+  }
+  return picks.filter((p) => p.value && !/^(?:none\b|unavailable\b|null\b)/i.test(p.value.trim()));
+}
+
+/**
+ * A claim is supported when some evidence pick's VALUE appears in it as a word, once that pick's own
+ * market label is removed — otherwise "Over" would be found inside "Over/Under" and every Over/Under
+ * sentence would support itself.
+ */
+function pickIsSupported(clause, picks) {
+  const lowerClause = clause.toLowerCase();
+  return picks.some(({ label, value }) => {
+    const rest = label ? lowerClause.split(label.toLowerCase().trim()).join(" ") : lowerClause;
+    return new RegExp(`(?:^|[^\\w])${escapeRe(value.toLowerCase().trim())}(?:[^\\w]|$)`).test(rest);
+  });
+}
 
 /** Words that flip a phrase from a claim into its denial, within a short window before it. */
 const NEGATION = /\b(?:no|not|never|without|cannot|can't|does not|doesn't|don't|isn't|is not|are not|aren't)\b/i;
