@@ -69,7 +69,7 @@ live value as a result; a UI never "fixes" a frozen number.
   width or live performance.
 - **Frozen values never mutate after kickoff.** A producer that sees a newer board keeps the frozen
   record and counts the refusal; it does not backfill.
-- **An unsupported state does not become public because a UI wants a value.** Promotion is an
+- **Unsupported model states stay unsupported.** A state does not become public because a UI wants a value. Promotion is an
   explicit allowlist decision made upstream (§4), never a UI default.
 - **Stable IDs beat names.** Players join by canonical provider id (ESPN athlete id,
   `predictionId = {providerEventId}:{playerId}:{family}`). No fuzzy name matching anywhere.
@@ -170,20 +170,24 @@ decision.
 
 ---
 
-## 7. Current roadmap
+## 7. Current roadmap and team lanes
 
-Tracked in the GitHub Project. In priority order:
+The GitHub Project **GameTimePicks — Public Launch Roadmap** is the shared source of truth: every item
+has a Status, Owner, Priority, Area, Sport, Launch Gate and Risk. Ownership is planning ownership, not
+permission.
 
-1. **Live Hub V2** — progress rails + TD primitives (V2B), game-centric cards (V2C), View All +
-   honest freshness (V2D). *Yash.*
-2. **Reliability** — time/slate-independent guard audit, then Free Live Measurement Delivery V2
-   (bounded server-side capture → canonical live-props owner → CDN, never browser → ESPN fan-out).
-   *DP.*
-3. **Public launch** — performance, accessibility, mobile QA, observability, deployment hardening,
-   legal, SEO, rollback readiness.
-4. **Builders** — ProductEligibleLeg V2 → Parlay / Bank Builder / Moonshot methodology rebuild.
-5. **Models** — NFL Engine V2 publication decision, role certainty, EPL coverage, UFC, MLB research.
-   Promotion only where evidence supports it.
+**Shipped (2026-09-28):** Live Hub V2 — family-diverse Featured Forecasts, progress rails and TD rows
+(V2B), canonical settlement in the owner's own words (V2B.1), game-centric cards (V2C), View all +
+honest freshness (V2D).
+
+| Lane | Owns |
+|---|---|
+| **Yash** | product direction, flagship UX, Simple/Analyst view, event quality and freshness, My GameTime and Ask product direction, model publication policy, settlement-policy decisions, builder methodology, public-launch decisions |
+| **DP** | reliability — **#782** (/live hydration, first), **#750** (time/slate-independent guard audit, next), **#751** (automatic free live measurement delivery, later), then performance, accessibility, mobile QA, observability, deployment hardening |
+| **Shared** | code review, My GameTime and Ask implementation, selected cross-product launch work |
+
+**DP's starting sequence:** #782 → #750 → #751. Only the immediate one or two items are Ready at a
+time; the rest stay Backlog until their turn.
 
 ---
 
@@ -198,6 +202,8 @@ These are listed in `.github/CODEOWNERS`. A change here needs Yash's review, how
 - **Provider authorization and spend** — `docs/receipts/`, `src/lib/sports/odds/`, ledgers.
 - **Production workflows** — `.github/workflows/`.
 - **Public-data exposure** — `app/scripts/prune-internal-routes.mjs` decides what the export publishes.
+- **Generated-data ownership** — which producer owns an artifact, and what it may write. Re-run the
+  canonical producer; never hand-edit generated sports data, and never add a second source for it.
 - **Ask safety** — the verifier and contract (`src/lib/ask/verifier.mjs`, `contract.mjs`).
 - **Legal / policy copy** — terms, privacy, responsible use.
 
@@ -205,3 +211,24 @@ Everything else — UI, tests, reliability, performance, accessibility, docs —
 
 **Never** commit secrets or personal contact details. Keys live in the repo-root `.env` locally and in
 GitHub/Vercel secrets remotely; nothing in a doc or an issue ever asks you to paste one.
+
+---
+
+## 9. How work moves
+
+```
+roadmap issue (the contract: .github/ISSUE_TEMPLATE/engineering-contract.yml)
+  → owner
+    → your own branch / worktree   (never shared: Yash and DP never work on the same feature branch)
+      → implementation
+        → tests + mutation probes  (each probe asserts its mutation applied)
+          → PR (focused scope; merge origin/main in — never rebase)
+            → exact-head CI green
+              → merge
+                → Production verify  (/data/build-info.json names the deployed SHA; check the route in a browser)
+                  → Done
+```
+
+**AI coding agents work from a scoped issue contract**, never from a vague instruction: the issue's
+Goal, Allowed scope, Forbidden scope, Acceptance criteria and Tests are the brief. An agent's PR is
+reviewed like anyone else's.
