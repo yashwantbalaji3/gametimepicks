@@ -28,7 +28,7 @@ import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, topToday, topUpcoming, UPCOMING_READS_SHOWN } from "@/lib/top-reads";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
-import { buildProductDays, type ProductDay } from "@/lib/product-day/product-day";
+import { buildProductDays, buildSportToday, crossSportToday, type ProductDay } from "@/lib/product-day/product-day";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -158,6 +158,10 @@ export default function HomePage() {
   const eplDay = dayOf("epl");
   const ufcDay = dayOf("ufc");
   const nflDay = dayOf("nfl");
+  // The day claim ("No games today") is CROSS-SPORT, from each sport's schedule owner — never one
+  // sport's empty slate, never whether picks exist (2026-09-28: MLB 0 + no picks read as "No games
+  // today" over PHI @ CHI at 8:15 PM ET).
+  const todayAcross = crossSportToday(serverToday, buildSportToday(dataRoot, { today: serverToday, days: productDays }));
 
   const mlbState = sportStateFromProductDay(mlbDay, { slateDate: serverToday });
   const eplState = sportStateFromProductDay(eplDay, { slateDate: serverToday });
@@ -305,8 +309,9 @@ export default function HomePage() {
       <SlateLivenessBanner
         buildTimeToday={serverToday}
         publishDeadlineUtc={readPublicationSlo(dataRoot, serverToday).publishDeadlineUtc}
-        latestSlate={today}
-        latestSlateHasGames={(mlbDay?.events ?? 0) > 0 || (topPicks ?? 0) > 0}
+        latestSlate={serverToday}
+        latestSlateHasGames={todayAcross.eventsToday > 0}
+        todayEvidence={todayAcross.state === "UNKNOWN" ? "unknown" : "known"}
         archiveHref="/today"
         archiveLabel="See the most recent slate"
         includeMlbNote

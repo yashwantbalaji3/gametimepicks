@@ -32,6 +32,7 @@ import { loadLifecycleHistory, settledCardsFor, settledCardIds } from "@/lib/pro
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import { buildSportToday, crossSportToday } from "@/lib/product-day/product-day";
 import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 import {
   deriveMoonshotState,
@@ -65,6 +66,9 @@ export default function MoonshotPage() {
   // Today's ET slate is resolved below; the lane's own date comes from the artifact so a stale
   // file can never borrow today's date.
   const etToday = currentEtDate();
+  // "No games today" is a claim about the day, not about whether a Moonshot card exists (that is the
+  // lane's own no-card state below): cross-sport, from the schedule owners.
+  const todayAcross = crossSportToday(etToday, buildSportToday(path.join(process.cwd(), "public", "data"), { today: etToday }));
   const laneDate = typeof lane?.generatedAt === "string" ? lane.generatedAt.slice(0, 10) : null;
 
   /*
@@ -127,8 +131,9 @@ export default function MoonshotPage() {
       <SlateLivenessBanner
         publishDeadlineUtc={publicationDeadlineUtc()}
         buildTimeToday={currentEtDate()}
-        latestSlate={today}
-        latestSlateHasGames={dailyPortfolio.cards.length > 0}
+        latestSlate={etToday}
+        latestSlateHasGames={todayAcross.eventsToday > 0}
+        todayEvidence={todayAcross.state === "UNKNOWN" ? "unknown" : "known"}
         archiveHref="/results"
         archiveLabel="See results & receipts"
       />

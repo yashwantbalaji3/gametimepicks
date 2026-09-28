@@ -37,7 +37,7 @@ import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 import TodayDailySlateHeader from "@/components/today/daily-slate-header";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
 import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
-import { buildProductDays } from "@/lib/product-day/product-day";
+import { buildProductDays, buildSportToday, crossSportToday } from "@/lib/product-day/product-day";
 import { Suspense } from "react";
 import TopReadsFilter from "@/components/today/top-reads-filter";
 import { loadTopReads, topBySport, sportsInSet } from "@/lib/top-reads";
@@ -83,6 +83,8 @@ export default function TodayPage() {
   // lines up with `/`. Falls back to the wall clock only when no slate exists.
   const today = currentSlateDate() ?? currentEtDate();
   const serverToday = currentEtDate();
+  // The day claim is CROSS-SPORT (lib/product-day crossSportToday) — never MLB's slate or the picks count.
+  const todayAcross = crossSportToday(serverToday, buildSportToday(dataRoot, { today: serverToday }));
   const dateLabel = new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric",
   });
@@ -305,8 +307,9 @@ export default function TodayPage() {
       <SlateLivenessBanner
         publishDeadlineUtc={publicationDeadlineUtc()}
         buildTimeToday={serverToday}
-        latestSlate={today}
-        latestSlateHasGames={mlbGames > 0 || topPicks.length > 0}
+        latestSlate={serverToday}
+        latestSlateHasGames={todayAcross.eventsToday > 0}
+        todayEvidence={todayAcross.state === "UNKNOWN" ? "unknown" : "known"}
         archiveHref="/results"
         archiveLabel="See results & receipts"
         includeMlbNote

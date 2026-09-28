@@ -59,6 +59,17 @@ export interface SlateLivenessInput {
    * this module never invents a league state.
    */
   leagueNotes?: string[];
+  /**
+   * Whether today's EMPTINESS is proven. "unknown" = nothing was found but some schedule for today is
+   * not loaded, so the banner may not say "No games today" (the cross-sport owner:
+   * lib/product-day `crossSportToday`). Absent = the legacy single-slate reading.
+   */
+  todayEvidence?: "known" | "unknown";
+  /**
+   * The scope a sport-scoped page speaks for, e.g. "MLB" → "No MLB games today". A sport's empty
+   * day is never the whole site's: only a cross-sport caller may say "No games today" unscoped.
+   */
+  scope?: string | null;
 }
 
 export type SlateLivenessStatus =
@@ -119,6 +130,7 @@ export function focusDateLabel(f: NextFocus): string {
  */
 export function computeSlateLiveness(input: SlateLivenessInput): SlateLiveness {
   const { today, latestSlate, hasGamesToday, publishDeadlineUtc, nowMs } = input;
+  const scoped = input.scope ? `${input.scope} ` : "";
   const nextFocus = input.nextFocus ?? null;
   const leagueNotes = input.leagueNotes ?? [];
 
@@ -208,13 +220,27 @@ export function computeSlateLiveness(input: SlateLivenessInput): SlateLiveness {
     };
   }
 
+  if (input.todayEvidence === "unknown") {
+    return {
+      today,
+      latestSlate,
+      status: "slate-pending",
+      isLiveToday: false,
+      daysBehind,
+      headline: `Today's schedule isn't fully loaded yet · ${prettyEtLabel(today)}`,
+      detail: "Not every sport's schedule for today has loaded, so we are not calling it a quiet day. Games appear here as their schedules load.",
+      nextFocus,
+      leagueNotes,
+    };
+  }
+
   return {
     today,
     latestSlate,
     status: "latest-available",
     isLiveToday: false,
     daysBehind,
-    headline: `No games today · ${prettyEtLabel(today)}`,
+    headline: `No ${scoped}games today · ${prettyEtLabel(today)}`,
     detail: `Most recent slate: ${prettyEtLabel(latestSlate)} (${daysAgoLabel(daysBehind)}).`,
     nextFocus,
     leagueNotes,

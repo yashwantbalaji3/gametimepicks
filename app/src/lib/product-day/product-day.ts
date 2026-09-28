@@ -274,3 +274,135 @@ export function productDayFor(sport: ProductDay["sport"], dataRoot: string, opts
   if (!found) throw new Error(`unregistered sport ${sport}`);
   return found;
 }
+
+/* ──────────────────────────────── TODAY, ACROSS SPORTS ────────────────────────────────
+ *
+ * "NO GAMES TODAY" IS A CLAIM ABOUT THE WHOLE DAY, SO IT NEEDS EVERY SPORT'S SCHEDULE.
+ *
+ * On 2026-09-28 the homepage said "No games today" while Philadelphia @ Chicago kicked off at
+ * 8:15 PM ET: the banner asked only whether MLB had games (0 — the day after the regular season)
+ * or whether top picks existed. The product days above already knew NFL was LIVE with one event;
+ * nothing summed them. And `ProductDay.events` is not a today-count for every sport — EPL counts
+ * forecast rows for a whole matchweek, UFC/NFL count an upcoming window under EVENT_UPCOMING, and
+ * the NFL/EPL adapters count FORECASTS, so a scheduled game with no forecast would vanish.
+ *
+ * So today is counted from each sport's existing SCHEDULE owner — never a new source — and a
+ * forecast only ever adds to it:
+ *   NFL  nfl/schedule/latest.json (the capture nfl/index.json is built from) ∪ indexed forecasts
+ *   EPL  the newest soccer/epl/fixtures capture ∪ forecast rows (shared eventId)
+ *   MLB  mlb/schedule/<today>.json, and the board's own count when the board is today's
+ *   UFC  the published card, when its ET slate date is today
+ * Dates are ET days, the site's established anchor.
+ */
+export interface TodayItem { id: string; startUtc: string | null | undefined; status?: string | null }
+export interface SportToday {
+  sport: ProductDay["sport"];
+  today: string;
+  /** Scheduled events whose ET start date is today — with or without a forecast. */
+  eventsToday: number;
+  /** Of those, how many carry a GameTimePicks forecast. Never more than eventsToday. */
+  forecastsToday: number;
+  /** Whether this sport's schedule evidence for today exists. Zero events is only a fact when known. */
+  known: boolean;
+}
+export interface CrossSportToday {
+  today: string;
+  eventsToday: number;
+  forecastsToday: number;
+  /** Sports with at least one event today, in activation order. */
+  sportsWithEvents: ProductDay["sport"][];
+  bySport: SportToday[];
+  /**
+   * EVENTS: at least one sport has an event today. NO_EVENTS: every sport's schedule is known and
+   * empty — the only state that may say "No games today". UNKNOWN: nothing found, but some sport's
+   * schedule for today is not loaded, so absence proves nothing (the 2026-08-17 morning lesson).
+   */
+  state: "EVENTS" | "NO_EVENTS" | "UNKNOWN";
+  headline: string;
+}
+
+const NOT_PLAYED = /POSTPONED|CANCEL/i;
+
+/** Pure. Union of scheduled and forecast items by id, counted on the ET day `today`. */
+export function sportTodayFrom(sport: ProductDay["sport"], today: string, scheduled: TodayItem[], forecasts: TodayItem[], known = true): SportToday {
+  const onToday = (x: TodayItem) => typeof x?.startUtc === "string" && !Number.isNaN(Date.parse(x.startUtc)) && etDay(x.startUtc) === today && !NOT_PLAYED.test(x.status ?? "");
+  const events = new Set<string>();
+  for (const x of scheduled) if (onToday(x)) events.add(x.id);
+  const forecast = new Set<string>();
+  for (const x of forecasts) if (onToday(x)) { forecast.add(x.id); events.add(x.id); }
+  return { sport, today, eventsToday: events.size, forecastsToday: forecast.size, known: known || events.size > 0 };
+}
+
+/** Pure. The global daily state from every sport's today-count. */
+export function crossSportToday(today: string, bySport: SportToday[]): CrossSportToday {
+  const own = bySport.filter((s) => s.today === today);
+  const eventsToday = own.reduce((n, s) => n + s.eventsToday, 0);
+  const forecastsToday = own.reduce((n, s) => n + Math.min(s.forecastsToday, s.eventsToday), 0);
+  const allKnown = own.length > 0 && own.every((s) => s.known);
+  const state = eventsToday > 0 ? "EVENTS" : allKnown ? "NO_EVENTS" : "UNKNOWN";
+  return {
+    today, eventsToday, forecastsToday,
+    sportsWithEvents: own.filter((s) => s.eventsToday > 0).map((s) => s.sport),
+    bySport: own,
+    state,
+    headline: state === "EVENTS" ? `${eventsToday} event${eventsToday === 1 ? "" : "s"} today`
+      : state === "NO_EVENTS" ? "No games today" : "Today's schedule is still loading",
+  };
+}
+
+function newestCapture(dir: string, prefix: string): unknown {
+  try {
+    const f = fs.readdirSync(dir).filter((x) => x.startsWith(prefix) && x.endsWith(".json")).sort().at(-1);
+    return f ? JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")) : null;
+  } catch { return null; }
+}
+
+/** Every sport's today-count from its committed schedule owner. `today` defaults to the real ET day. */
+export function buildSportToday(dataRoot: string, opts?: { today?: string; days?: ProductDay[] }): SportToday[] {
+  const today = opts?.today ?? etDay(Date.now());
+  const days = opts?.days ?? buildProductDays(dataRoot, { today });
+  const of = (s: ProductDay["sport"]) => days.find((d) => d.sport === s);
+
+  // NFL — schedule capture ∪ the index's forecasts-of-record.
+  const nflSchedule = readJson(dataRoot, "nfl", "schedule", "latest.json");
+  const nflIndex = readJson(dataRoot, "nfl", "index.json");
+  // Known when the capture's forward window covers today (it is taken daily, windowDays ahead).
+  const capDay = typeof nflSchedule?.generatedAt === "string" ? etDay(nflSchedule.generatedAt) : null;
+  const windowEnd = capDay ? etDay(Date.parse(`${capDay}T12:00:00Z`) + Number(nflSchedule?.windowDays ?? 7) * 86_400_000) : null;
+  const nfl = sportTodayFrom("nfl", today,
+    (nflSchedule?.rows ?? []).map((r: { providerEventId: string; dateUtc: string; statusRaw?: string }) => ({ id: String(r.providerEventId), startUtc: r.dateUtc, status: r.statusRaw })),
+    (nflIndex?.events ?? []).map((e: { providerEventId: string; kickoffUtc: string }) => ({ id: String(e.providerEventId), startUtc: e.kickoffUtc })),
+    Array.isArray(nflSchedule?.rows) && capDay != null && windowEnd != null && capDay <= today && today <= windowEnd);
+
+  // EPL — the newest fixtures capture ∪ forecast rows.
+  const fixtures = newestCapture(path.join(dataRoot, "soccer", "epl", "fixtures"), "capture-") as { rows?: Array<{ eventId: string; kickoffIso: string; lifecycle?: string }> } | null;
+  const eplSet = loadEplForecasts();
+  const epl = sportTodayFrom("epl", today,
+    (fixtures?.rows ?? []).map((r) => ({ id: r.eventId, startUtc: r.kickoffIso, status: r.lifecycle })),
+    (eplSet?.rows ?? []).map((r) => ({ id: r.eventId, startUtc: r.kickoffUtc })),
+    Array.isArray(fixtures?.rows) && fixtures!.rows!.length > 0); // the capture is the whole season's fixture list
+
+  // MLB — the committed schedule for today; the board's count when the board is today's.
+  const mlbSchedule = readJson(dataRoot, "mlb", "schedule", `${today}.json`);
+  const scheduled = sportTodayFrom("mlb", today,
+    (mlbSchedule?.games ?? []).map((g: { gameId: string; commenceTime: string }) => ({ id: String(g.gameId), startUtc: g.commenceTime })), [],
+    Array.isArray(mlbSchedule?.games));
+  const mlbBoard = of("mlb");
+  const boardToday = mlbBoard && mlbBoard.productDate === today ? mlbBoard.events : 0;
+  const mlbEvents = Math.max(scheduled.eventsToday, boardToday);
+  const mlb: SportToday = {
+    sport: "mlb", today, eventsToday: mlbEvents,
+    forecastsToday: mlbBoard && mlbBoard.productDate === today ? Math.min(mlbBoard.eligible, mlbEvents) : 0,
+    known: scheduled.known || (mlbBoard?.productDate === today && mlbBoard.state !== "INCIDENT"),
+  };
+
+  // UFC — the card, when it is today's.
+  const ufcDayNow = of("ufc");
+  // UFC runs on cards: a readable card that is not today's means no UFC today.
+  const ufcKnown = !!ufcDayNow && ufcDayNow.state !== "INCIDENT";
+  const ufc: SportToday = ufcDayNow && ufcDayNow.productDate === today && (ufcDayNow.state === "LIVE" || ufcDayNow.state === "EVENT_UPCOMING")
+    ? { sport: "ufc", today, eventsToday: ufcDayNow.events, forecastsToday: Math.min(ufcDayNow.eligible, ufcDayNow.events), known: true }
+    : { sport: "ufc", today, eventsToday: 0, forecastsToday: 0, known: ufcKnown };
+
+  return [mlb, epl, ufc, nfl];
+}
