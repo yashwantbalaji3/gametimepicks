@@ -2,165 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-09-27T18:57:22Z",
+  "generatedAt": "2026-09-28T00:17:41Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 6,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 5,
-    "eventsWithAMaterialExclusion": 2,
+    "upcomingEvents": 2,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
+    "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401872958",
-      "matchup": "ARI @ SF",
-      "kickoffUtc": "2026-09-27T20:05Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "a4ca1c1b40e6c437",
-        "simulations": 10000,
-        "generatedAt": "2026-09-27T18:57:22Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-09-27T18:57:22Z",
-        "participationInputHash": "8b90194320bec26d",
-        "excludedCount": 3,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Jake Tonges",
-            "team": "SF",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brandon Aiyuk",
-            "team": "SF",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Demarcus Robinson",
-            "team": "SF",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872959",
-      "matchup": "MIN @ TB",
-      "kickoffUtc": "2026-09-27T20:05Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "8119d24428e649d4",
-        "simulations": 10000,
-        "generatedAt": "2026-09-27T18:57:22Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-09-27T18:57:22Z",
-        "participationInputHash": "07d5eb9c3269146a",
-        "excludedCount": 1,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Jordan Mason",
-            "team": "MIN",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872960",
-      "matchup": "BAL @ DAL",
-      "kickoffUtc": "2026-09-27T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "405231f7db7a7d3a",
-        "simulations": 10000,
-        "generatedAt": "2026-09-27T18:57:22Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-09-27T18:57:22Z",
-        "participationInputHash": "659e3ba6dcc1f7ab",
-        "excludedCount": 0,
-        "materialExclusions": [],
-        "excluded": []
-      },
-      "coherent": true
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872961",
-      "matchup": "LV @ NO",
-      "kickoffUtc": "2026-09-27T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "9249b2f8b18763f0",
-        "simulations": 10000,
-        "generatedAt": "2026-09-27T18:57:22Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-09-27T18:57:22Z",
-        "participationInputHash": "d9ae45c7bc332c9c",
-        "excludedCount": 1,
-        "materialExclusions": [
-          {
-            "name": "Aidan O'Connell",
-            "team": "LV",
-            "state": "Out",
-            "statedAt": "2026-09-26T19:51Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Aidan O'Connell",
-            "team": "LV",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401872962",
@@ -169,24 +21,58 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "f3446618b4ac4447",
+        "inputHash": "239870f35c8dc7b9",
         "simulations": 10000,
-        "generatedAt": "2026-09-27T18:57:22Z"
+        "generatedAt": "2026-09-28T00:17:41Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-09-27T18:57:22Z",
-        "participationInputHash": "2e9607414f2199ed",
-        "excludedCount": 1,
+        "snapshotAsOf": "2026-09-28T00:17:41Z",
+        "participationInputHash": "44acf8ea9bc54853",
+        "excludedCount": 5,
         "materialExclusions": [],
         "excluded": [
+          {
+            "name": "Marvin Mims Jr.",
+            "team": "DEN",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Lil'Jordan Humphrey",
+            "team": "DEN",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Puka Nacua",
+            "team": "LAR",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
           {
             "name": "Ronnie Rivers",
             "team": "LAR",
             "state": "Injured Reserve",
             "families": [
               "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Tutu Atwell",
+            "team": "LAR",
+            "state": "Out",
+            "families": [
               "targets"
             ]
           }
@@ -202,15 +88,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "c9186a0f5d330d67",
+        "inputHash": "b8bb7e20f6ed98d2",
         "simulations": 10000,
-        "generatedAt": "2026-09-27T18:57:22Z"
+        "generatedAt": "2026-09-28T00:17:41Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-09-27T18:57:22Z",
-        "participationInputHash": "f4fde8db19ed06be",
+        "snapshotAsOf": "2026-09-28T00:17:41Z",
+        "participationInputHash": "92545ae55a3ecca6",
         "excludedCount": 2,
         "materialExclusions": [
           {
