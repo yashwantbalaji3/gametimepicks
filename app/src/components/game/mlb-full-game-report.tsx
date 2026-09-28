@@ -19,6 +19,8 @@ import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
+import AnalystMore from "@/components/view-mode/analyst-more";
+import AnalystOnly from "@/components/view-mode/analyst-only";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString();
 
@@ -341,8 +343,13 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
         <WinBar awayCode={awayCode} homeCode={homeCode} away={g.winProbability.away} home={g.winProbability.home} />
       </section>
 
-      {/* Simulation outcome center — raw counts + most-likely scorelines (SimTheGame-style) */}
+      {/* Simulation outcome center — raw counts + most-likely scorelines (SimTheGame-style).
+          SA3 · Analyst detail: the win probability above states the same result as a share; the raw
+          counts restate it. Client-side, so the data is already in props — no payload change. */}
+      <AnalystMore what="raw simulated win counts, the likeliest scorelines and the total-runs distribution" flush />
+      <AnalystOnly>
       <SimulationOutcomeCenter g={g} awayCode={awayCode} homeCode={homeCode} />
+      </AnalystOnly>
 
       {/* Expected score + total */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -366,11 +373,13 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
         </div>
       </div>
 
-      {/* Total runs distribution */}
+      {/* Total runs distribution — Analyst detail; the median and p10–p90 are in the tiles above in both modes. */}
+      <AnalystOnly>
       <section>
         <div className="font-mono uppercase tracking-[0.1em] mb-2" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Total-{V.scoreUnit} distribution</div>
         <MiniHistogram bins={g.totalRuns.distribution} label={`Total ${V.scoreUnit} distribution, median ${g.totalRuns.median}`} />
       </section>
+      </AnalystOnly>
 
       {/* Simulation story (Sprint 014 · Phase 4) — the canonical plain-English read. It replaces the raw
           artifact `gameStory`, whose median-score / percentile / extras facts the cards above already show;
