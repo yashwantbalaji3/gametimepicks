@@ -5676,3 +5676,11 @@ body {
     height: 36px !important;
   }
 }
+
+/* Simple | Analyst (view-mode-toggle.tsx): the radio is visually hidden, so its LABEL carries the
+   keyboard focus ring. An outline, not a box-shadow — the option's inline box-shadow would win over a
+   box-shadow focus style and hide it. */
+.gtp-view-mode-option:has(.gtp-view-mode-input:focus-visible) {
+  outline: 2px solid var(--vault-accent);
+  outline-offset: 2px;
+}
