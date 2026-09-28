@@ -42,3 +42,21 @@ test("no schedule — or a disagreeing or unreadable one — proves nothing", ()
   assert.equal(scheduleShowsNoGames({ appDir: odd, date: D, producer: "mlb-daily-production" }), false, "an unreadable shape proves nothing");
   assert.equal(scheduleShowsNoGames({ appDir: tmp(), date: D, producer: "unknown-producer" }), false);
 });
+
+test("🔴 a present-but-EMPTY artifact is excused only on a no-games date", () => {
+  const off = tmp();
+  write(off, `public/data/mlb/schedule/${D}.json`, { games: [] });
+  write(off, `public/data/mlb/full-game-simulations/${D}.json`, { games: [] });
+  const a = artifactAbsence({ appDir: off, relDir: "public/data/mlb/full-game-simulations", date: D, producer: "mlb-daily-production", nowUtcMs: LATE });
+  assert.equal(a.inFlight, true); assert.equal(a.noSlate, true); assert.equal(a.present, true);
+  const game = tmp();
+  write(game, `public/data/mlb/schedule/${D}.json`, { games: [{ gamePk: 1 }] });
+  write(game, `public/data/mlb/full-game-simulations/${D}.json`, { games: [] });
+  const b = artifactAbsence({ appDir: game, relDir: "public/data/mlb/full-game-simulations", date: D, producer: "mlb-daily-production", nowUtcMs: LATE });
+  assert.equal(b.inFlight, false, "an empty simulation on a SCHEDULED day is a defect — the caller must check it");
+  const full = tmp();
+  write(full, `public/data/mlb/schedule/${D}.json`, { games: [] });
+  write(full, `public/data/mlb/full-game-simulations/${D}.json`, { games: [{ slug: "x" }] });
+  const c = artifactAbsence({ appDir: full, relDir: "public/data/mlb/full-game-simulations", date: D, producer: "mlb-daily-production", nowUtcMs: LATE });
+  assert.equal(c.inFlight, false, "games in the artifact against an empty schedule is a contradiction the caller must see");
+});

@@ -18,10 +18,20 @@ import { loadMlbSimCards } from "./hub-cards.ts";
 
 const APP = process.cwd();
 const SIM_DIR = path.join(APP, "public/data/mlb/full-game-simulations");
-const latestDay = () => {
-  if (!fs.existsSync(SIM_DIR)) return null;
-  return fs.readdirSync(SIM_DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1)?.slice(0, 10) ?? null;
-};
+const simDays = () => (fs.existsSync(SIM_DIR) ? fs.readdirSync(SIM_DIR) : [])
+  .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().map((f) => f.slice(0, 10));
+const gamesOn = (day) => { try { return JSON.parse(fs.readFileSync(path.join(SIM_DIR, `${day}.json`), "utf8")).games?.length ?? 0; } catch { return 0; } };
+/* The newest day that SIMULATED something. An off-day artifact with zero games (2026-09-28, written by
+   the lineup refresh the day after the regular season) is a legitimate "we simulated nothing" — the
+   loader returns null for it by design, which the test below pins — so it is not evidence for the
+   figure-by-figure guards. */
+const latestDay = () => simDays().filter((d) => gamesOn(d) > 0).at(-1) ?? null;
+
+test("an artifact that simulated NOTHING loads nothing — never a board with a zero", (t) => {
+  const empty = simDays().filter((d) => gamesOn(d) === 0);
+  for (const d of empty) assert.equal(loadMlbSimCards(d), null, `${d}: an empty simulation day must load null`);
+  t.diagnostic(`${empty.length} empty simulation day(s) checked: ${empty.join(", ") || "none"}; figure guards read ${latestDay() ?? "no day"}`);
+});
 
 test("a day with no artifact loads NOTHING, not an empty board", () => {
   // "We have no simulations for this day" and "we simulated nothing" are different facts, and only
