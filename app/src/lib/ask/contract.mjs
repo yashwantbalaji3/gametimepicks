@@ -284,6 +284,29 @@ export const ASK_FORBIDDEN_LIVE_SETTLEMENT_COPY = Object.freeze([
 ]);
 
 /**
+ * AVAILABILITY AND ROLE LANGUAGE (§11.2) — two of the four claims no tool in the registry can source.
+ *
+ * ⚠ ADDED AFTER A MEASURED FAILURE. Forced through a forecast turn — where evidence exists and the
+ * writer therefore runs — "Lamar Jackson is out with an ankle injury and Zay Flowers is questionable"
+ * was published with `verified: true`. It carries no number, no link and no wagering word, so no gate
+ * could see it. mut-19 and mut-20 had never caught it: their questions route to help, the help search
+ * finds nothing, and the writer never ran — the vacuous-mutation shape.
+ *
+ * A phrase here is allowed ONLY when the evidence itself says it (the verifier checks that), so a tool
+ * that one day does source a status can be restated faithfully. Until then no correct answer contains
+ * one. Kept to locutions that ASSERT a status; "questionable" alone is a word a methodology page uses.
+ */
+export const ASK_UNSOURCEABLE_STATUS_COPY = Object.freeze([
+  // availability
+  "is out with", "is out for", "has been ruled out", "is ruled out", "is questionable", "is doubtful",
+  "is inactive", "is on injured reserve", "will not play", "won't play", "is expected to play",
+  "is confirmed active", "is playing today", "is playing tonight",
+  // current role
+  "starting quarterback is", "is the starting", "is the starter", "is starting at", "will start at",
+  "will start for", "is the new starter", "has taken over as the starter",
+]);
+
+/**
  * THE APPROVED LINK REGISTRY. Every href Ask can emit is built by code from one of these patterns.
  * The model refers to a link by ID; it never writes a URL. An href that does not match one of these
  * is refused by the answer validator (§99 — no sportsbook link, no affiliate link, no invented route).

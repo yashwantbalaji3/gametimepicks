@@ -399,7 +399,13 @@ test("listing a paused market beside another market's pick is not presenting the
    * a full stop ran from the first market's name into the second market's verb, rejecting a correct
    * answer. A separator ends a clause as surely as a full stop does.
    */
-  const ev = evidenceFor(["MIN @ LAA · Over/Under is PAUSED by GameTime and publishes no pick"]);
+  /* The moneyline pick is IN the evidence, as getPublishedForecasts would put it. This case once had
+     only the paused row, so "GameTime picks MIN" restated nothing — an unsourced pick the verifier
+     now refuses (PROBE 13). The case is about the separator, so it carries the pick it restates. */
+  const ev = evidenceFor([
+    "MIN @ LAA · Moneyline: GameTime's pick is MIN, model probability 56%, market-implied 53%, confidence lean",
+    "MIN @ LAA · Over/Under is PAUSED by GameTime and publishes no pick",
+  ]);
   assert.equal(verifyAnswer("Over/Under: paused, no pick published · Moneyline: GameTime picks MIN.", ev).ok, true);
   // And the real violation is still caught.
   assert.equal(verifyAnswer("GameTime picks the Over/Under over tonight.", ev).ok, false);
