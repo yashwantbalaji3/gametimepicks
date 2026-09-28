@@ -29,6 +29,8 @@ import { PRODUCT_CLEARED_FAMILY_STATES } from "@/lib/products/candidate-universe
 import { LIVE_TRACKABLE_MARKETS } from "./adapters/espn-nfl.mjs";
 import { type FollowRef, labelForRef, nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
 import { featuredForecasts, eligibleForecastCount } from "./featured-forecasts.mjs";
+import { modelStatusFor } from "@/lib/command-center/model-status";
+import { PUBLIC_STATE_LABEL } from "@/lib/command-center/contract";
 import { featuredSelectionRows } from "./featured-source.mjs";
 
 /**
@@ -50,7 +52,18 @@ export interface FeaturedForecast {
   line: number | null;
   sportsbook: string | null;
   frozenAt: string | null;
+  /** When the frozen sportsbook line was captured (Analyst detail). */
+  marketCapturedAt: string | null;
+  /** The family's publication state on the board, e.g. PUBLISHED (Analyst detail). */
+  familyState: string | null;
   portraitUrl: string | null;
+}
+
+/** The Model Lab's own public status for the families a Live card shows (Analyst detail). */
+export interface LiveModelStatus {
+  state: string;
+  label: string;
+  headline: string;
 }
 
 /** One frozen GameTimePicks prediction, with the frozen line it was published against. */
@@ -113,6 +126,11 @@ export interface NflHubRosterGame {
 
 export interface NflHubRoster {
   etDate: string;
+  /**
+   * Analyst detail: the Model Lab's status for NFL player ranges and touchdown chances, read from
+   * the SAME owner the Model Lab renders (command-center/model-status.ts) — never a second label set.
+   */
+  modelStatus?: { ranges: LiveModelStatus | null; touchdowns: LiveModelStatus | null };
   games: NflHubRosterGame[];
   /** Distinguishes "no NFL games today" from "no boards published". */
   boardsPresent: boolean;
@@ -277,6 +295,7 @@ export function buildNflHubRoster(
       predictionId: f.predictionId, playerId: f.playerId, playerName: f.playerName, team: f.team, family: f.family,
       kind: f.kind, label: f.label, modelValue: f.modelValue, modelLow: f.modelLow, modelHigh: f.modelHigh,
       modelProbability: f.modelProbability, line: f.line, sportsbook: f.sportsbook, frozenAt: f.frozenAt,
+      marketCapturedAt: f.marketCapturedAt, familyState: f.familyState,
       portraitUrl: f.portraitUrl,
     })) as FeaturedForecast[];
     games.push({
@@ -310,5 +329,19 @@ export function buildNflHubRoster(
     return ta - tb || a.providerEventId.localeCompare(b.providerEventId);
   });
 
-  return { etDate, games, boardsPresent: files.length > 0 };
+  return { etDate, games, boardsPresent: files.length > 0, modelStatus: liveModelStatus(nowIso) };
+}
+
+/** The Model Lab's own NFL statuses for player ranges and touchdowns, or null where unreadable. */
+function liveModelStatus(nowIso?: string): { ranges: LiveModelStatus | null; touchdowns: LiveModelStatus | null } {
+  try {
+    const items = modelStatusFor("nfl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: nowIso ?? new Date().toISOString() });
+    const pick = (id: string): LiveModelStatus | null => {
+      const it = items.find((x) => x.id === id);
+      return it ? { state: it.state, label: PUBLIC_STATE_LABEL[it.state] ?? it.state, headline: it.headline } : null;
+    };
+    return { ranges: pick("nfl_player_forward"), touchdowns: pick("nfl_anytime_td") };
+  } catch {
+    return { ranges: null, touchdowns: null };
+  }
 }
