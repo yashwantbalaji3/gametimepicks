@@ -1,6 +1,6 @@
 "use client";
 /**
- * ForecastDetail — the Analyst layer beneath one featured forecast.
+ * ForecastDetail — "Model detail", a closed disclosure beneath one featured forecast, for every reader.
  *
  * Shows ONLY canonical fields that exist for this row; a missing field is omitted, never padded:
  *   · the model's own 10th–90th percentile range (volume families, both ends frozen)
@@ -10,17 +10,24 @@
  *   · when the forecast was frozen, and when (and where) the line was captured
  *   · where the live measurement comes from, once a record has been read
  *
- * It never restates a prediction, a line, a live value or a result — those are in the row above, the
- * same numbers in both modes. Rendered only inside <AnalystOnly>, so a Simple page carries none of it.
+ * It never restates a prediction, a line, a live value or a result — those are in the row above.
+ *
+ * ⚠ HYDRATION: this renders on the server AND the client, so every string must be identical in both.
+ *   Intl's formatted output differs across ICU builds in its separators (a narrow no-break space before
+ *   "PM" in Node 20 and newer Chrome, a plain space elsewhere) — so the ET time is assembled from
+ *   formatToParts VALUES with plain ASCII separators, never from format().
  */
 import type { FeaturedForecast, LiveModelStatus } from "@/lib/live/nfl-hub-data";
 
 const SANS = "var(--font-display)";
-const ET = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-const etTime = (iso: string | null) => {
+const ET = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
+/** "Sep 28, 5:10 PM ET" — from part values only, so server and browser produce the same bytes. */
+export const etTime = (iso: string | null) => {
   if (!iso) return null;
   const t = Date.parse(iso);
-  return Number.isFinite(t) ? `${ET.format(new Date(t))} ET` : null;
+  if (!Number.isFinite(t)) return null;
+  const p = Object.fromEntries(ET.formatToParts(new Date(t)).map((x) => [x.type, x.value]));
+  return `${p.month} ${p.day}, ${p.hour}:${p.minute} ${String(p.dayPeriod ?? "").toUpperCase()} ET`;
 };
 const fmt = (n: number | null) => (n === null ? null : Number.isInteger(n) ? String(n) : n.toFixed(1));
 const BOOK: Record<string, string> = { draftkings: "DraftKings", fanduel: "FanDuel", betmgm: "BetMGM", caesars: "Caesars" };

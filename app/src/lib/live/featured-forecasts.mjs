@@ -140,7 +140,7 @@ function toForecast(row, phase, portraitFor) {
     modelProbability: kind === "PROBABILITY" ? num(proj.probability) : null,
     line: num(row?.frozen?.market?.line),
     sportsbook: typeof row?.frozen?.market?.sportsbook === "string" ? row.frozen.market.sportsbook : null,
-    /* Analyst detail — both already in the frozen record; shown only as what they are. */
+    /* Model detail — both already in the frozen record; shown only as what they are. */
     marketCapturedAt: typeof row?.frozen?.market?.capturedAt === "string" ? row.frozen.market.capturedAt : null,
     familyState: typeof row.familyState === "string" ? row.familyState : null,
     /* When the frozen forecast was generated — the proof it predates kickoff. */

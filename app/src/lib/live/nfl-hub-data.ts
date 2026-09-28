@@ -52,14 +52,14 @@ export interface FeaturedForecast {
   line: number | null;
   sportsbook: string | null;
   frozenAt: string | null;
-  /** When the frozen sportsbook line was captured (Analyst detail). */
+  /** When the frozen sportsbook line was captured (shown in Model detail). */
   marketCapturedAt: string | null;
-  /** The family's publication state on the board, e.g. PUBLISHED (Analyst detail). */
+  /** The family's publication state on the board, e.g. PUBLISHED (shown in Model detail). */
   familyState: string | null;
   portraitUrl: string | null;
 }
 
-/** The Model Lab's own public status for the families a Live card shows (Analyst detail). */
+/** The Model Lab's own public status for the families a Live card shows (shown in Model detail). */
 export interface LiveModelStatus {
   state: string;
   label: string;
@@ -127,7 +127,7 @@ export interface NflHubRosterGame {
 export interface NflHubRoster {
   etDate: string;
   /**
-   * Analyst detail: the Model Lab's status for NFL player ranges and touchdown chances, read from
+   * For Model detail: the Model Lab's status for NFL player ranges and touchdown chances, read from
    * the SAME owner the Model Lab renders (command-center/model-status.ts) — never a second label set.
    */
   modelStatus?: { ranges: LiveModelStatus | null; touchdowns: LiveModelStatus | null };

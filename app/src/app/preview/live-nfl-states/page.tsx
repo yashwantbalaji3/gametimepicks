@@ -62,7 +62,7 @@ const GAME: NflHubRosterGame = {
   boardGeneratedAt: FROZEN_AT,
 };
 
-/** Analyst detail: a fixed Model Lab status, in the owner's shape (never read from today's artifact). */
+/** Model detail: a fixed Model Lab status, in the owner's shape (never read from today's artifact). */
 const FIXTURE_MODEL_STATUS = {
   ranges: { state: "FORWARD_TEST", label: "Forward test running", headline: "Graded on new games against the prior model" },
   touchdowns: { state: "WATCH", label: "Watch", headline: "Watch · scorers off expectation" },
