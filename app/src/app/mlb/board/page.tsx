@@ -68,6 +68,7 @@ export default function MlbBoardPage() {
             buildTimeToday={currentEtDate()}
             latestSlate={date}
             latestSlateHasGames={games > 0}
+            scope="MLB"
             archiveHref="/mlb"
             archiveLabel="Back to the MLB hub"
             includeMlbNote
