@@ -2,84 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-09-28T00:17:41Z",
+  "generatedAt": "2026-09-28T17:38:33Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 2,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
+    "upcomingEvents": 1,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
     "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401872962",
-      "matchup": "LAR @ DEN",
-      "kickoffUtc": "2026-09-28T00:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "239870f35c8dc7b9",
-        "simulations": 10000,
-        "generatedAt": "2026-09-28T00:17:41Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-09-28T00:17:41Z",
-        "participationInputHash": "44acf8ea9bc54853",
-        "excludedCount": 5,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Marvin Mims Jr.",
-            "team": "DEN",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Lil'Jordan Humphrey",
-            "team": "DEN",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Puka Nacua",
-            "team": "LAR",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Ronnie Rivers",
-            "team": "LAR",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Tutu Atwell",
-            "team": "LAR",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401872963",
@@ -88,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "b8bb7e20f6ed98d2",
+        "inputHash": "0e57c5f62ee7e202",
         "simulations": 10000,
-        "generatedAt": "2026-09-28T00:17:41Z"
+        "generatedAt": "2026-09-28T17:38:33Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-09-28T00:17:41Z",
-        "participationInputHash": "92545ae55a3ecca6",
+        "snapshotAsOf": "2026-09-28T17:38:33Z",
+        "participationInputHash": "c7e5c28eb25517f4",
         "excludedCount": 2,
         "materialExclusions": [
           {

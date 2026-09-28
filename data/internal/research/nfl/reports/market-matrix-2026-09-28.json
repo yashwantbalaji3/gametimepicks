@@ -2,13 +2,13 @@
  "schemaVersion": 1,
  "artifact": "nfl-market-matrix",
  "dataClass": "PRIVATE_RESEARCH",
- "generatedAt": "2026-09-28T00:17:41Z",
+ "generatedAt": "2026-09-28T17:38:33Z",
  "period": {
   "seasonType": 2,
   "week": 3
  },
  "capture": {
-  "capturedAt": "2026-09-27T23:40:42Z",
+  "capturedAt": "2026-09-28T17:38:33Z",
   "propState": "PROBED",
   "eventsProbed": 6,
   "offeredMarkets": [
@@ -27,64 +27,54 @@
   "freshnessHours": 24
  },
  "coverage": {
-  "eligibleEvents": 2,
-  "eventsWithPlayerBoard": 2,
-  "eventsProbed": 2,
+  "eligibleEvents": 1,
+  "eventsWithPlayerBoard": 1,
+  "eventsProbed": 1,
   "eventsNotProbed": 0,
   "notProbedEvents": []
  },
  "rowsByDisplayStatus": {
-  "PRICED": 83,
-  "NOT_OFFERED": 22
+  "STALE": 40,
+  "NOT_OFFERED": 11
  },
  "byFamily": {
   "player_receptions": {
-   "rows": 25,
-   "priced": 19,
-   "books": {
-    "draftkings": 19
-   }
-  },
-  "player_reception_yds": {
-   "rows": 25,
-   "priced": 19,
-   "books": {
-    "draftkings": 19
-   }
-  },
-  "anytime_td": {
-   "rows": 35,
-   "priced": 32,
-   "books": {
-    "draftkings": 32
-   }
-  },
-  "player_rush_yds": {
-   "rows": 15,
+   "rows": 12,
    "priced": 10,
    "books": {
     "draftkings": 10
    }
   },
-  "player_pass_yds": {
-   "rows": 5,
-   "priced": 3,
+  "player_reception_yds": {
+   "rows": 12,
+   "priced": 10,
    "books": {
-    "draftkings": 3
+    "draftkings": 10
+   }
+  },
+  "player_rush_yds": {
+   "rows": 8,
+   "priced": 4,
+   "books": {
+    "draftkings": 4
+   }
+  },
+  "anytime_td": {
+   "rows": 17,
+   "priced": 15,
+   "books": {
+    "draftkings": 15
+   }
+  },
+  "player_pass_yds": {
+   "rows": 2,
+   "priced": 1,
+   "books": {
+    "draftkings": 1
    }
   }
  },
  "events": [
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "probed": true,
-   "boardPublished": true,
-   "rows": 54,
-   "priced": 43,
-   "state": "PROBED"
-  },
   {
    "event": "PHI @ CHI",
    "providerEventId": "401872963",
@@ -97,1219 +87,6 @@
   }
  ],
  "rows": [
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-16800",
-   "player": "Davante Adams",
-   "team": "LAR",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 5.5,
-   "over": -112,
-   "under": -114,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-16800",
-   "player": "Davante Adams",
-   "team": "LAR",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 70.5,
-   "over": -113,
-   "under": -111,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-16800",
-   "player": "Davante Adams",
-   "team": "LAR",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 115,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03",
-    "nfl/ (Endzone Vault)"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4430737",
-   "player": "Kyren Williams",
-   "team": "LAR",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 2.5,
-   "over": 138,
-   "under": -177,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4430737",
-   "player": "Kyren Williams",
-   "team": "LAR",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 12.5,
-   "over": -116,
-   "under": -108,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4430737",
-   "player": "Kyren Williams",
-   "team": "LAR",
-   "family": "player_rush_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 53.5,
-   "over": -110,
-   "under": -114,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4430737",
-   "player": "Kyren Williams",
-   "team": "LAR",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": -105,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03",
-    "nfl/ (Endzone Vault)"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4568490",
-   "player": "RJ Harvey",
-   "team": "DEN",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 2.5,
-   "over": -138,
-   "under": 108,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4568490",
-   "player": "RJ Harvey",
-   "team": "DEN",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 18.5,
-   "over": -110,
-   "under": -115,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4568490",
-   "player": "RJ Harvey",
-   "team": "DEN",
-   "family": "player_rush_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 20.5,
-   "over": -109,
-   "under": -115,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4568490",
-   "player": "RJ Harvey",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 360,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ (Endzone Vault)"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4241985",
-   "player": "J.K. Dobbins",
-   "team": "DEN",
-   "family": "player_rush_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 50.5,
-   "over": -113,
-   "under": -111,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4241985",
-   "player": "J.K. Dobbins",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 140,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4372016",
-   "player": "Jaylen Waddle",
-   "team": "DEN",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 4.5,
-   "over": -155,
-   "under": 121,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4372016",
-   "player": "Jaylen Waddle",
-   "team": "DEN",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 60.5,
-   "over": -111,
-   "under": -113,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4372016",
-   "player": "Jaylen Waddle",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 205,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4429096",
-   "player": "Blake Corum",
-   "team": "LAR",
-   "family": "player_rush_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 47.5,
-   "over": -113,
-   "under": -111,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4429096",
-   "player": "Blake Corum",
-   "team": "LAR",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 245,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4570037",
-   "player": "Terrance Ferguson",
-   "team": "LAR",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 3.5,
-   "over": -156,
-   "under": 122,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4570037",
-   "player": "Terrance Ferguson",
-   "team": "LAR",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 50.5,
-   "over": -111,
-   "under": -112,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4570037",
-   "player": "Terrance Ferguson",
-   "team": "LAR",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 230,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-3128429",
-   "player": "Courtland Sutton",
-   "team": "DEN",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 3.5,
-   "over": -102,
-   "under": -125,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-3128429",
-   "player": "Courtland Sutton",
-   "team": "DEN",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 35.5,
-   "over": -112,
-   "under": -112,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-3128429",
-   "player": "Courtland Sutton",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 265,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ (Endzone Vault)"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4242557",
-   "player": "Colby Parkinson",
-   "team": "LAR",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 2.5,
-   "over": -123,
-   "under": -104,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4242557",
-   "player": "Colby Parkinson",
-   "team": "LAR",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 18.5,
-   "over": -112,
-   "under": -112,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4242557",
-   "player": "Colby Parkinson",
-   "team": "LAR",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 340,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ (Endzone Vault)"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-3051876",
-   "player": "Evan Engram",
-   "team": "DEN",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 2.5,
-   "over": -131,
-   "under": 103,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-3051876",
-   "player": "Evan Engram",
-   "team": "DEN",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 21.5,
-   "over": -110,
-   "under": -114,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-3051876",
-   "player": "Evan Engram",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 360,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4600981",
-   "player": "Pat Bryant",
-   "team": "DEN",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 2.5,
-   "over": -138,
-   "under": 108,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4600981",
-   "player": "Pat Bryant",
-   "team": "DEN",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 26.5,
-   "over": -111,
-   "under": -113,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4600981",
-   "player": "Pat Bryant",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 370,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4426338",
-   "player": "Bo Nix",
-   "team": "DEN",
-   "family": "player_rush_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 15.5,
-   "over": -115,
-   "under": -109,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4426338",
-   "player": "Bo Nix",
-   "team": "DEN",
-   "family": "player_pass_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 211.5,
-   "over": -111,
-   "under": -113,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4426338",
-   "player": "Bo Nix",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 475,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ (Endzone Vault)"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4431280",
-   "player": "Troy Franklin",
-   "team": "DEN",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4431280",
-   "player": "Troy Franklin",
-   "team": "DEN",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4431280",
-   "player": "Troy Franklin",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 850,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4362748",
-   "player": "Tyler Badie",
-   "team": "DEN",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4362748",
-   "player": "Tyler Badie",
-   "team": "DEN",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4362748",
-   "player": "Tyler Badie",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 900,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-2573401",
-   "player": "Tyler Higbee",
-   "team": "LAR",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-2573401",
-   "player": "Tyler Higbee",
-   "team": "LAR",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-2573401",
-   "player": "Tyler Higbee",
-   "team": "LAR",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 750,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4710855",
-   "player": "Konata Mumpfield",
-   "team": "LAR",
-   "family": "player_receptions",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4710855",
-   "player": "Konata Mumpfield",
-   "team": "LAR",
-   "family": "player_reception_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-4710855",
-   "player": "Konata Mumpfield",
-   "team": "LAR",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 600,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-3892775",
-   "player": "Jarrett Stidham",
-   "team": "DEN",
-   "family": "player_rush_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-3892775",
-   "player": "Jarrett Stidham",
-   "team": "DEN",
-   "family": "player_pass_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-3892775",
-   "player": "Jarrett Stidham",
-   "team": "DEN",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": false,
-   "selectedBook": null,
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": null,
-   "capturedAt": null,
-   "joinStatus": "NO_ROW_RETURNED",
-   "displayStatus": "NOT_OFFERED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-12483",
-   "player": "Matthew Stafford",
-   "team": "LAR",
-   "family": "player_rush_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 0.5,
-   "over": 119,
-   "under": -149,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-12483",
-   "player": "Matthew Stafford",
-   "team": "LAR",
-   "family": "player_pass_yds",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": 239.5,
-   "over": -113,
-   "under": -111,
-   "atdPrice": null,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962",
-    "nfl/ + nfl/week/2-03"
-   ]
-  },
-  {
-   "event": "LAR @ DEN",
-   "providerEventId": "401872962",
-   "kickoffUtc": "2026-09-28T00:20Z",
-   "playerId": "nfl-athlete-12483",
-   "player": "Matthew Stafford",
-   "team": "LAR",
-   "family": "anytime_td",
-   "modelProjectionExists": true,
-   "providerMarketExists": true,
-   "selectedBook": "draftkings",
-   "line": null,
-   "over": null,
-   "under": null,
-   "atdPrice": 2000,
-   "capturedAt": "2026-09-27T17:30:36Z",
-   "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
-   "publicSurfaces": [
-    "nfl/game/401872962"
-   ]
-  },
   {
    "event": "PHI @ CHI",
    "providerEventId": "401872963",
@@ -1327,9 +104,10 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -1349,9 +127,10 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -1371,7 +150,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1394,7 +173,7 @@
    "atdPrice": 115,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03",
@@ -1418,7 +197,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1441,7 +220,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1464,10 +243,11 @@
    "atdPrice": 175,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
-    "nfl/ + nfl/week/2-03"
+    "nfl/ + nfl/week/2-03",
+    "nfl/ (Endzone Vault)"
    ]
   },
   {
@@ -1489,7 +269,8 @@
    "joinStatus": "NO_ROW_RETURNED",
    "displayStatus": "NOT_OFFERED",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -1531,7 +312,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1554,10 +335,11 @@
    "atdPrice": 225,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
-    "nfl/ + nfl/week/2-03"
+    "nfl/ + nfl/week/2-03",
+    "nfl/ (Endzone Vault)"
    ]
   },
   {
@@ -1577,9 +359,10 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -1599,9 +382,10 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -1621,7 +405,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1644,9 +428,10 @@
    "atdPrice": -110,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03",
     "nfl/ (Endzone Vault)"
    ]
   },
@@ -1667,7 +452,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1690,7 +475,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1713,9 +498,10 @@
    "atdPrice": 310,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -1735,7 +521,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1758,7 +544,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1781,7 +567,7 @@
    "atdPrice": 600,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963"
    ]
@@ -1803,7 +589,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1826,7 +612,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1849,7 +635,7 @@
    "atdPrice": 390,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963"
    ]
@@ -1894,9 +680,10 @@
    "atdPrice": 500,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ (Endzone Vault)"
    ]
   },
   {
@@ -1916,7 +703,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1939,7 +726,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -1962,9 +749,10 @@
    "atdPrice": 450,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ (Endzone Vault)"
    ]
   },
   {
@@ -1984,9 +772,10 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -2006,7 +795,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -2029,7 +818,7 @@
    "atdPrice": 320,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ (Endzone Vault)"
@@ -2052,9 +841,10 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -2074,9 +864,10 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -2096,7 +887,7 @@
    "atdPrice": 425,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963"
    ]
@@ -2118,7 +909,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -2141,7 +932,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ + nfl/week/2-03"
@@ -2164,7 +955,7 @@
    "atdPrice": 145,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963",
     "nfl/ (Endzone Vault)"
@@ -2189,7 +980,8 @@
    "joinStatus": "NO_ROW_RETURNED",
    "displayStatus": "NOT_OFFERED",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -2209,7 +1001,7 @@
    "atdPrice": 475,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963"
    ]
@@ -2231,7 +1023,7 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963"
    ]
@@ -2253,9 +1045,10 @@
    "atdPrice": null,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -2275,9 +1068,10 @@
    "atdPrice": 650,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ (Endzone Vault)"
    ]
   },
   {
@@ -2299,7 +1093,8 @@
    "joinStatus": "NO_ROW_RETURNED",
    "displayStatus": "NOT_OFFERED",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
@@ -2385,7 +1180,7 @@
    "atdPrice": 2200,
    "capturedAt": "2026-09-27T17:30:36Z",
    "joinStatus": "JOINED",
-   "displayStatus": "PRICED",
+   "displayStatus": "STALE",
    "publicSurfaces": [
     "nfl/game/401872963"
    ]
@@ -2409,7 +1204,8 @@
    "joinStatus": "NO_ROW_RETURNED",
    "displayStatus": "NOT_OFFERED",
    "publicSurfaces": [
-    "nfl/game/401872963"
+    "nfl/game/401872963",
+    "nfl/ + nfl/week/2-03"
    ]
   },
   {
