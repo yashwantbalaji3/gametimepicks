@@ -59,9 +59,49 @@ export function newestArtifactDate(dir) {
  * `inFlight: false` with `present: false` means it IS late, and the caller must fail with that
  * sentence: at that point the absence is the finding.
  */
+/**
+ * The committed schedules a producer's slate is read from. An artifact is only OWED on a date the
+ * schedule says has games.
+ */
+const PRODUCER_SCHEDULES = Object.freeze({
+  "mlb-daily-production": ["public/data/mlb/schedule", "public/data/mlb/statsapi-schedule"],
+  "daily-products": ["public/data/mlb/schedule", "public/data/mlb/statsapi-schedule"],
+});
+
+/**
+ * Does a COMMITTED schedule prove there are no games on `date`? True only when at least one schedule
+ * artifact for that date exists and every existing one lists zero games. No schedule at all proves
+ * nothing, and the caller's deadline rule still applies.
+ *
+ * ⚠ ADDED 2026-09-28, the day after MLB's regular season: no game was scheduled, so no market or
+ *   full-game artifact was produced — correctly — and every guard asking "is today's artifact late?"
+ *   failed once the producer's deadline passed. A late producer and an empty calendar are different
+ *   facts; only the first is an incident.
+ */
+export function scheduleShowsNoGames({ appDir, date, producer }) {
+  const dirs = PRODUCER_SCHEDULES[producer];
+  if (!dirs || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  let seen = 0;
+  for (const rel of dirs) {
+    const f = path.join(appDir, rel, `${date}.json`);
+    if (!fs.existsSync(f)) continue;
+    let games;
+    try { const j = JSON.parse(fs.readFileSync(f, "utf8")); games = Array.isArray(j.games) ? j.games : Array.isArray(j.dates?.[0]?.games) ? j.dates[0].games : null; } catch { return false; }
+    if (games === null) return false; // an unreadable shape proves nothing
+    if (games.length > 0) return false;
+    seen += 1;
+  }
+  return seen > 0;
+}
+
 export function artifactAbsence({ appDir, relDir, date, producer, nowUtcMs = Date.now() }) {
   const present = fs.existsSync(path.join(appDir, relDir, `${date}.json`));
   if (present) return { inFlight: false, present: true, reason: null };
+  /* Legitimately absent: nothing was scheduled, so nothing is owed. Callers treat `inFlight` as "state
+     the reason and return" — `noSlate` says which of the two legitimate reasons it was. */
+  if (scheduleShowsNoGames({ appDir, date, producer })) {
+    return { inFlight: true, noSlate: true, present: false, reason: `no games are scheduled on ${date} (committed schedule) — ${relDir}/${date}.json is not owed` };
+  }
   const grace = withinProducerGrace({ date, producer, nowUtcMs });
   return {
     inFlight: grace,
