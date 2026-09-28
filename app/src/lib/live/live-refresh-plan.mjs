@@ -11,7 +11,7 @@
  * the record is one static file per game, already joined by the canonical producer.
  */
 
-/** @param {Array<{ id: string, phase: "PRE" | "LIVE" | "FINAL", featured: number }>} games */
+/** @param {Array<{ id: string, phase: "PRE" | "LIVE" | "FINAL" | "UNKNOWN" | "NOT_PLAYED", featured: number }>} games — only LIVE and FINAL ever fetch */
 export function liveRefreshPlan(games) {
   const poll = [];
   const once = [];
