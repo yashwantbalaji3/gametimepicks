@@ -50,6 +50,20 @@ export type { PublicSuggestedCard };
  *
  * @param today the slate date to frame on (ET, `YYYY-MM-DD`)
  */
+/**
+ * TODAY'S optimizer slips, or none.
+ *
+ * ⚠ `getSuggestedParlaysForDate` falls back to the newest non-empty earlier date when today's file is
+ *   empty, and says so with `isFallback`. This lobby used to ignore the flag and stamp those slips with
+ *   TODAY's date: on 2026-09-28 — no MLB game scheduled, today's optimizer file holding 0 slips — /build
+ *   offered eighteen of 22 September's cards (six days old) as "cards the model built today · tonight's slate". Every
+ *   other surface labels a fallback; this one only ever claims today, so a fallback is not today's.
+ */
+function todaysOptimizerSlips(today: string) {
+  const found = getSuggestedParlaysForDate(today);
+  return found && !found.isFallback && found.date === today ? found.slips : null;
+}
+
 export function loadSuggestedCards(today: string): PublicSuggestedCard[] {
   // A settled UFC card is a result, not something to suggest.
   const ufcCardsForToday = ufcSettled() ? null : (loadUfc() as Parameters<typeof normalizeUfcCards>[0]);
@@ -60,7 +74,7 @@ export function loadSuggestedCards(today: string): PublicSuggestedCard[] {
      carry a producer that can never publish again. */
   return [
     ...normalizeUfcCards(ufcCardsForToday, today),
-    ...normalizeOptimizerSlips(getSuggestedParlaysForDate(today)?.slips ?? null, { date: today }),
+    ...normalizeOptimizerSlips(todaysOptimizerSlips(today), { date: today }),
     ...loadDailyMixedCards(today),
   ];
 }

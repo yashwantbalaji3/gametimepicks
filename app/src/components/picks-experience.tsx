@@ -36,7 +36,13 @@ function Pill({ on, onClick, children }: { on: boolean; onClick: () => void; chi
   );
 }
 
-export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[] }) {
+/**
+ * `slateDate` / `slateIsCurrent` come from the PAGE, which owns the slate framing. ⚠ The MLB lane used to
+ * say "tonight's slate" unconditionally — on 2026-09-28, the day after MLB's regular season, /build
+ * showed "MLB 18 tonight's slate" beside cards from the 27th (the page itself correctly framed them as
+ * a review). A lane label is a claim about today; it now says so only when it is true.
+ */
+export default function PicksExperience({ cards, slateDate = null, slateIsCurrent = true }: { cards: PublicSuggestedCard[]; slateDate?: string | null; slateIsCurrent?: boolean }) {
   const [sport, setSport] = useState<string>("all");
   const [risk, setRisk] = useState<string>("All");
   const [bankOnly, setBankOnly] = useState(false);
@@ -86,7 +92,7 @@ export default function PicksExperience({ cards }: { cards: PublicSuggestedCard[
           { label: "Recommended", sub: "lowest-risk model picks first", n: cards.filter((c) => c.riskTier === "Low").length, act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
           { label: "Low Risk", sub: "shorter odds, steadier", n: cards.filter((c) => c.riskTier === "Low").length, act: () => { setSport("all"); setRisk("Low"); setBankOnly(false); } },
           { label: "High Risk", sub: "bigger odds, bigger swings", n: cards.filter((c) => c.riskTier === "High" || c.riskTier === "Longshot").length, act: () => { setSport("all"); setRisk("High"); setBankOnly(false); } },
-          { label: "MLB", sub: "tonight's slate", n: counts["mlb"] ?? 0, act: () => { setSport("mlb"); setRisk("All"); setBankOnly(false); } },
+          { label: "MLB", sub: slateIsCurrent ? "tonight's slate" : slateDate ? `latest slate · ${slateDate}` : "latest slate", n: counts["mlb"] ?? 0, act: () => { setSport("mlb"); setRisk("All"); setBankOnly(false); } },
           { label: "Mixed sport", sub: "cross-sport cards", n: counts["mixed"] ?? 0, act: () => { setSport("mixed"); setRisk("All"); setBankOnly(false); } },
           { label: "Bank Builder eligible", sub: "clears the ladder gates", n: cards.filter((c) => c.bankBuilderEligible).length, act: () => { setSport("all"); setRisk("All"); setBankOnly(true); } },
         ].map((l) => (
