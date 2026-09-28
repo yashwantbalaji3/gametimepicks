@@ -329,6 +329,8 @@ test("a touchdown is a line result, never a forecast win; unknown vocabulary is 
   const odd = trackForecast(VOL, { gamePhase: "FINAL", feed: FEED.OK, liveRow: settledRow({ finality: "CANONICAL", state: "SETTLED", forecastResult: "HIT", lineResult: "CASHED" }) });
   assert.equal(odd.status, "Settled", "HIT is not the owner's word and CASHED is no line result — both dropped");
   assert.doesNotMatch(odd.status, /HIT|CASHED/);
+});
+
 /* ──────────────────────────────  lifecycle → phase  ────────────────────────────── */
 
 test("🔴 unknown is not live: every lifecycle state maps explicitly, and nothing unrecognised becomes LIVE", async () => {
