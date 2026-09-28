@@ -41,6 +41,9 @@ const S = {
   numLabel: { display: "block", fontFamily: MONO, fontSize: 8.5, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.1em" } as const,
   numValue: { display: "block", fontFamily: MONO, fontSize: 15, fontVariantNumeric: "tabular-nums", color: "var(--vault-text)" } as const,
   numLive: { display: "block", fontFamily: MONO, fontSize: 15, fontVariantNumeric: "tabular-nums", color: "var(--vault-info)" } as const,
+  /* A TD status is words, not a number: smaller, and allowed to wrap without shouting. */
+  tdText: { display: "block", fontFamily: MONO, fontSize: 12, lineHeight: 1.35, color: "var(--vault-text)", textTransform: "uppercase", letterSpacing: "0.04em" } as const,
+  tdTextLive: { display: "block", fontFamily: MONO, fontSize: 12, lineHeight: 1.35, color: "var(--vault-info)", textTransform: "uppercase", letterSpacing: "0.04em" } as const,
   numDash: { display: "block", fontFamily: MONO, fontSize: 15, color: "var(--vault-text-faint)" } as const,
   railWrap: { position: "relative", height: 16, margin: "10px 2px 2px" } as const,
   track: { position: "absolute", left: 0, right: 0, top: 6, height: 4, borderRadius: 2, background: "var(--vault-border)" } as const,
@@ -114,8 +117,8 @@ export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForeca
             <Num label="GTP pregame" value={f.modelProbability !== null ? `${(f.modelProbability * 100).toFixed(1)}%` : null} hint="No pregame probability was frozen for this row" />
             <span style={{ minWidth: 0, gridColumn: "span 2" }}>
               <span style={S.numLabel}>{final ? "Final status" : "Live status"}</span>
-              <span style={measured !== null && measured >= 1 ? S.numLive : S.numValue}>
-                {final ? (measured !== null && measured >= 1 ? "Touchdown scored" : "No TD recorded") : t.status.replace(/^Last known · /, "")}
+              <span style={measured !== null && measured >= 1 ? S.tdTextLive : S.tdText}>
+                {final ? (measured !== null && measured >= 1 ? "Touchdown scored" : "No TD recorded") : t.status}
               </span>
             </span>
           </div>
@@ -136,7 +139,7 @@ export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForeca
                   {t.landmarks.live !== null ? <div style={{ ...S.liveDot, left: `${t.landmarks.live}%` }} /> : null}
                 </div>
                 <p style={S.legend}>
-                  <span>● {final ? "Final" : "Live"}{t.landmarks.liveOverflow ? " ▸" : ""}</span>
+                  {t.landmarks.live !== null ? <span>● {final ? "Final" : "Live"}{t.landmarks.liveOverflow ? " ▸" : ""}</span> : null}
                   {t.landmarks.line !== null ? <span>│ Line</span> : null}
                   <span>◆ GTP</span>
                 </p>
@@ -145,7 +148,10 @@ export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForeca
           </>
         )}
 
-        <p style={statusStyle}>{t.status}{age ? ` · ${age}` : ""}</p>
+        {/* A TD's status already sits in its own box; only its age (when stale) or grading note is added. */}
+        {binary
+          ? (age || final ? <p style={statusStyle}>{final ? "Grading pending" : age}</p> : null)
+          : <p style={statusStyle}>{t.status}{age ? ` · ${age}` : ""}</p>}
       </div>
     </li>
   );
