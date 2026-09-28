@@ -68,6 +68,13 @@ test("🔴 the toggle is a real radio group: two labelled radios, Simple checked
   assert.equal(names.size, 1, "one shared name, so arrow keys move between them");
   assert.ok(radios.some((r) => /value="simple"/.test(r) && /checked=""/.test(r)), "Simple is checked by default");
   assert.ok(radios.some((r) => /value="analyst"/.test(r) && !/checked=""/.test(r)), "Analyst is not");
+  // Each radio is EXPLICITLY associated (id + for): the structural a11y audit (scripts/audit-accessibility.mjs,
+  // the CI gate) recognises only for= / aria-label, and a wrapping <label> alone failed it on every route.
+  for (const r of radios) {
+    const id = /id="([^"]+)"/.exec(r)?.[1];
+    assert.ok(id, `radio has an id: ${r}`);
+    assert.ok(html.includes(`for="${id}"`), `a <label for="${id}"> names this radio`);
+  }
   assert.match(html.replace(/<[^>]+>/g, " "), /✓\s+Simple/, "the selected option carries a check glyph, not just a colour");
   assert.match(html, /min-height:36px|min-height:44px/, "a real touch target");
 });
