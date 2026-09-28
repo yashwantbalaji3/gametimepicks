@@ -60,6 +60,28 @@ test("no app code reads the historical archive (it must never reach a live model
   assert.deepEqual(hits, [], `app code must not read the research archive: ${hits.join(", ")}`);
 });
 
+/**
+ * Does `text` carry `id` as a standalone NUMBER — not as digits inside a longer one?
+ *
+ * ⚠ 2026-09-28: a bare `includes("718780")` failed CI on two EPL player pages, which carry no MLB game
+ * at all but do carry unrounded floats (e.g. 0.711999999999996); a float tail on the CI runner held
+ * the digits "718780", and the same pages built locally did not. A leaked gamePk is always its own
+ * token — `"gamePk":718780`, `/game/718780/`, `gamePk=718780` — so the id must not touch another digit
+ * or a decimal point on either side.
+ */
+export function containsIdToken(text, id) {
+  return new RegExp(`(?<![0-9.])${String(id)}(?![0-9])`).test(text);
+}
+
+test("the id matcher finds a leaked gamePk in every shape it takes, and never inside a longer number", () => {
+  for (const leak of ['{"gamePk":718780,', "/mlb/game/718780/", "gamePk=718780&", "Game 718780 final", '"718780"']) {
+    assert.equal(containsIdToken(leak, 718780), true, `a real leak must be caught: ${leak}`);
+  }
+  for (const noise of ["0.3871878074", "width:12.718780%", "1790718780123", "7187801", "a17187809"]) {
+    assert.equal(containsIdToken(noise, 718780), false, `digits inside another number are not a gamePk: ${noise}`);
+  }
+});
+
 test("the archive lives outside app/ and never appears in the static export", () => {
   assert.ok(!ARCHIVE.includes(`${path.sep}app${path.sep}`), "archive path must be outside app/");
   const out = path.join(REPO, "app", "out");
@@ -76,7 +98,7 @@ test("the archive lives outside app/ and never appears in the static export", ()
   // every model and page away from the store itself). Everywhere else the rule is unchanged.
   const RESEARCH_TEAM_PAGES = path.join("teams", "mlb") + path.sep;
   const html = walk(out, (n) => n.endsWith(".html"));
-  const hits = html.filter((f) => !path.relative(out, f).startsWith(RESEARCH_TEAM_PAGES)).filter((f) => fs.readFileSync(f, "utf8").includes(String(pk)));
+  const hits = html.filter((f) => !path.relative(out, f).startsWith(RESEARCH_TEAM_PAGES)).filter((f) => containsIdToken(fs.readFileSync(f, "utf8"), pk));
   // positive control: the allowance is exercised (the research pages really carry history), so this is not vacuous.
   if (html.some((f) => path.relative(out, f).startsWith(RESEARCH_TEAM_PAGES))) {
     assert.ok(html.filter((f) => path.relative(out, f).startsWith(RESEARCH_TEAM_PAGES)).some((f) => /MLB-202[345]/.test(fs.readFileSync(f, "utf8"))), "MLB team research pages exist but carry no 2023–2025 season");
