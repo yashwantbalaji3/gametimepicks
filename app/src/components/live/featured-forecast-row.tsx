@@ -133,7 +133,7 @@ export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForeca
             <Num label="GTP pregame" tone="gtp" value={f.modelProbability !== null ? `${(f.modelProbability * 100).toFixed(1)}%` : null} hint="No pregame probability was frozen for this row" />
             <span style={{ minWidth: 0, gridColumn: "span 2" }}>
               <span style={S.numLabel}>{final ? "Final status" : "Live status"}</span>
-              <span style={measured !== null && measured >= 1 ? S.tdTextLive : S.tdText}>
+              <span style={!final && measured !== null && measured >= 1 ? S.tdTextLive : S.tdText}>
                 {final ? (measured !== null && measured >= 1 ? "Touchdown scored" : "No TD recorded") : t.status}
               </span>
             </span>

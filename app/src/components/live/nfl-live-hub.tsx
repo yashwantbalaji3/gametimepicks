@@ -126,7 +126,8 @@ function TeamRow({ abbr, name, score, sport = "nfl" as const }: { abbr: string; 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "4px 0", minWidth: 0 }}>
       <TeamLogo team={abbr} sport={sport} size="md" />
-      <span style={{ fontFamily: SANS, fontSize: 16, fontWeight: 600, color: "var(--vault-text)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      {/* The full club name wraps rather than truncating: "Washington Commanders" is the fact, "Washington Comm…" is not. */}
+      <span style={{ fontFamily: SANS, fontSize: 16, fontWeight: 600, lineHeight: 1.2, color: "var(--vault-text)", flex: 1, minWidth: 0, overflowWrap: "anywhere" }}>
         {name}
       </span>
       <span style={{ fontFamily: SANS, fontSize: 26, fontWeight: 700, lineHeight: 1, fontVariantNumeric: "tabular-nums", color: score === null ? "var(--vault-text-faint)" : "var(--vault-text)", flexShrink: 0, minWidth: 28, textAlign: "right" }}>
