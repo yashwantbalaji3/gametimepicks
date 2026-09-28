@@ -49,10 +49,11 @@ test("PREMISE: the committed capture really does carry a probed sweep with price
   assert.ok((c.propPrices?.rows?.length ?? 0) > 0, "a probed sweep with no priced rows cannot demonstrate a carry");
 });
 
-test("an ordinary window that never asked about props keeps every price the sweep paid for", () => {
-  const swept = sweptCapture();
-  if (!swept) return; // the PREMISE test above is the one that fails loudly
-
+/**
+ * The lifecycle assertion itself, over any swept capture. Returns how many priced rows it walked.
+ * Shared by the committed-capture check and the deterministic fixture below.
+ */
+function assertOrdinaryWindowKeepsEveryPrice(swept) {
   /* The ordinary window: it captured team markets and did NOT probe props (propProbe null is
      exactly what the capture passes when no --probe-props flag was given). */
   const carried = carryPropsForward(swept, null);
@@ -79,6 +80,42 @@ test("an ordinary window that never asked about props keeps every price the swee
       `${r.playerId} ${r.family} holds a price AND an absence state — the one thing that must never both be true`);
     checked += 1;
   }
+  return checked;
+}
+
+test("an ordinary window that never asked about props keeps every price the sweep paid for", (t) => {
+  const swept = sweptCapture();
+  if (!swept) return; // the PREMISE test above is the one that fails loudly
+  /*
+   * ⚠ SCOPE (2026-09-28). This used to demand `checked >= 100` of the COMMITTED capture. That capture
+   * is whatever the latest sweep priced: on a Monday night it is one game's props (62 rows, PHI @ CHI),
+   * every one of which carried correctly — and the bar failed anyway. The size of today's slate is not
+   * evidence about the lifecycle. The >=100-row proof now runs on a deterministic fixture (below); here
+   * every row the committed capture holds must survive, and the count is announced.
+   */
+  const checked = assertOrdinaryWindowKeepsEveryPrice(swept);
+  assert.equal(checked, swept.propPrices.rows.length, "every committed priced row was walked, none skipped");
+  assert.ok(checked > 0);
+  t.diagnostic(`committed capture: ${checked} priced rows across ${new Set(swept.propPrices.rows.map((r) => r.canonicalEventId)).size} event(s) carried intact`);
+});
+
+test("🔴 at scale: a 160-row, 4-event sweep survives an ordinary window row for row (deterministic fixture)", () => {
+  const FAMILIES = ["anytime_td", "player_reception_yds", "player_receptions", "player_rush_yds"];
+  const events = ["nfl-9000001", "nfl-9000002", "nfl-9000003", "nfl-9000004"];
+  const rows = [];
+  for (const ev of events) for (let p = 0; p < 10; p += 1) for (const family of FAMILIES) {
+    rows.push(family === "anytime_td"
+      ? { canonicalEventId: ev, playerId: `nfl-athlete-${ev.slice(4)}${p}`, family, shape: "YES_ONLY", yesOdds: 150 + p, sportsbook: p % 2 ? "fanduel" : "draftkings", capturedAt: "2031-01-12T17:00:00Z", booksAvailable: 6 }
+      : { canonicalEventId: ev, playerId: `nfl-athlete-${ev.slice(4)}${p}`, family, shape: "OVER_UNDER", line: 40.5 + p, overOdds: -110, underOdds: -110, sportsbook: "draftkings", capturedAt: "2031-01-12T17:00:00Z", booksAvailable: 7 });
+  }
+  const swept = {
+    capturedAt: "2031-01-12T17:00:00Z", rows: [], eventCount: events.length,
+    propMarkets: { state: "PROBED", probedEventIds: events, eventsProbed: events.length, offeredMarkets: FAMILIES, absentMarkets: [],
+      perEvent: events.map((canonicalEventId) => ({ canonicalEventId, offeredMarkets: FAMILIES, absentMarkets: [], unresolvedIdentities: [] })) },
+    propPrices: { referenceBook: "draftkings", fallbackOrder: ["draftkings", "fanduel"], policy: "fixture", probedEventIds: events, capturedAt: "2031-01-12T17:00:00Z", rows },
+  };
+  const checked = assertOrdinaryWindowKeepsEveryPrice(swept);
+  assert.equal(checked, 160);
   assert.ok(checked >= 100, `only ${checked} priced rows checked — too few to call this lifecycle proven`);
 });
 
