@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-27T23:40:42Z",
+ "generatedAt": "2026-09-28T00:17:41Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -33,7 +33,7 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-27T18:57:22Z",
+  "generatedAt": "2026-09-27T23:40:42Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -94,12 +94,12 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5377,
-    "away": 0.4313
+    "home": 0.5382,
+    "away": 0.4317
    },
    "total": {
     "median": 46,
-    "p10": 29,
+    "p10": 28,
     "p90": 63,
     "head": "matchup-totals-v3-play-efficiency"
    },
@@ -107,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "f377b77d7f409fce",
-    "generatedAt": "2026-09-27T23:40:42Z"
+    "inputHash": "239870f35c8dc7b9",
+    "generatedAt": "2026-09-28T00:17:41Z"
    }
   },
   {
@@ -129,7 +129,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": 11.5,
+    "gapPp": 11.4,
     "leansTo": "CHI",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -139,21 +139,21 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.4687,
-    "away": 0.5024
+    "home": 0.4672,
+    "away": 0.5009
    },
    "total": {
     "median": 47,
     "p10": 30,
-    "p90": 65,
+    "p90": 64,
     "head": "matchup-totals-v3-play-efficiency"
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "8746b8335655d301",
-    "generatedAt": "2026-09-27T23:40:42Z"
+    "inputHash": "b8bb7e20f6ed98d2",
+    "generatedAt": "2026-09-28T00:17:41Z"
    }
   },
   {
