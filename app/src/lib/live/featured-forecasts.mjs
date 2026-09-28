@@ -217,17 +217,60 @@ export const GAME_PHASE = Object.freeze({ PRE: "PRE", LIVE: "LIVE", FINAL: "FINA
 /** Whether we hold a live-props record for this game at all. */
 export const FEED = Object.freeze({ OK: "OK", UNAVAILABLE: "UNAVAILABLE", NOT_ASKED: "NOT_ASKED" });
 
+/**
+ * THE SETTLEMENT OWNER'S OWN VOCABULARY (`settle()` in live-prop-state.mjs). Rendered VERBATIM — never
+ * mapped onto another vocabulary. In particular WIN is not translated to HIT: `tracked-prediction.mjs`
+ * speaks HIT/MISS, this owner speaks WIN/LOSS, and a silent translation would be an invented mapping.
+ * A value outside these lists is dropped, not guessed at.
+ */
+export const OWNER_FORECAST_RESULTS = Object.freeze(["WIN", "LOSS", "PUSH", "NOT_PUBLISHED", "NOT_APPLICABLE"]);
+export const OWNER_LINE_RESULTS = Object.freeze(["OVER", "UNDER", "PUSH", "YES", "NO"]);
+
+/**
+ * The canonical settlement for one row, or null (founder decision, 2026-09-28).
+ *
+ *   settlement.finality !== "CANONICAL"   → null: the row stays FINAL · GRADING PENDING
+ *   CANONICAL + SETTLED                   → the owner's forecastResult / lineResult / finalStat, as written
+ *   CANONICAL + NO_MEASUREMENT            → the owner's no-measurement answer (never a loss)
+ *
+ * ⚠ NOTHING HERE DERIVES A RESULT. The browser never compares a final stat to a line; it reads what the
+ *   settlement owner wrote. A touchdown's forecast is NOT_APPLICABLE by the owner's rule, so a scored
+ *   touchdown is a line result (YES), never a forecast win.
+ */
+export function canonicalSettlementOf(liveRow) {
+  const s = liveRow?.settlement;
+  if (!s || s.finality !== "CANONICAL") return null;
+  if (s.state === "NO_MEASUREMENT") return { state: "NO_MEASUREMENT", forecastResult: null, lineResult: null, finalStat: null };
+  if (s.state !== "SETTLED") return null;
+  return {
+    state: "SETTLED",
+    forecastResult: OWNER_FORECAST_RESULTS.includes(s.forecastResult) ? s.forecastResult : null,
+    lineResult: OWNER_LINE_RESULTS.includes(s.lineResult) ? s.lineResult : null,
+    finalStat: num(s.finalStat),
+  };
+}
+
+/** The owner's words, lightly humanised (underscores → spaces). Never re-labelled. */
+const ownerWord = (v) => v.replace(/_/g, " ").toLowerCase();
+export function settledStatusFor(settled) {
+  if (!settled) return null;
+  if (settled.state === "NO_MEASUREMENT") return "Settled · no measurement";
+  const parts = ["Settled"];
+  if (settled.forecastResult) parts.push(`forecast ${settled.forecastResult === "WIN" || settled.forecastResult === "LOSS" || settled.forecastResult === "PUSH" ? settled.forecastResult : ownerWord(settled.forecastResult)}`);
+  if (settled.lineResult) parts.push(`line ${settled.lineResult}`);
+  return parts.join(" · ");
+}
+
 /** A live measurement older than this is shown as LAST KNOWN, never as current (the live window's own bound). */
 export const LIVE_STALE_AFTER_MS = DELAYED_MAX_MS;
 
 /**
  * Join ONE featured forecast to its live-props row and derive what the card may say.
  *
- * ⚠ OUTCOME LANGUAGE IS CAPPED AT "FINAL · GRADING PENDING". Finality is passed to the canonical
- *   rail machine as FINAL_PROVISIONAL at most, so `railStateOf` cannot return a HIT or a MISS from
- *   here. Whether the live-props producer's own reconciled settlement may be shown as the canonical
- *   result is a settlement-semantics decision that has not been made; until it is, a final row shows
- *   its final stat and says grading is pending.
+ * ⚠ OUTCOME LANGUAGE COMES ONLY FROM THE SETTLEMENT OWNER. Finality is passed to the rail machine as
+ *   FINAL_PROVISIONAL at most, so `railStateOf` cannot return a HIT or a MISS from here. An outcome is
+ *   shown only when the row's own settlement is CANONICAL (founder decision 2026-09-28), and then in
+ *   the owner's words (`canonicalSettlementOf`) — never derived here from a final stat and a line.
  *
  * `nowMs` may be null (server render): staleness is then unknown rather than guessed, and no age is
  * claimed — the reader's own clock supplies it after hydration.
@@ -249,7 +292,9 @@ export function trackForecast(forecast, { gamePhase = GAME_PHASE.PRE, liveRow = 
   else if (value !== null) measurementState = stale ? MEASUREMENT_STATES.SOURCE_STALE : MEASUREMENT_STATES.MEASURED;
   else measurementState = MEASUREMENT_STATES.NO_MEASUREMENT;
 
-  const finalStat = gamePhase === GAME_PHASE.FINAL ? num(liveRow?.settlement?.finalStat) ?? value : null;
+  /* Canonical settlement is read only once the game is over, and only as the owner wrote it. */
+  const settled = gamePhase === GAME_PHASE.FINAL ? canonicalSettlementOf(liveRow) : null;
+  const finalStat = gamePhase === GAME_PHASE.FINAL ? settled?.finalStat ?? num(liveRow?.settlement?.finalStat) ?? value : null;
 
   const tracked = makeTrackedPrediction({
     sport: "nfl",
@@ -278,7 +323,8 @@ export function trackForecast(forecast, { gamePhase = GAME_PHASE.PRE, liveRow = 
     ageMs,
     stale,
     feed,
-    status: statusFor({ rail, binary, gamePhase, feed, value: gamePhase === GAME_PHASE.FINAL ? finalStat : value, line: forecast.line, stale, hasRow: Boolean(liveRow) }),
+    settlement: settled,
+    status: settledStatusFor(settled) ?? statusFor({ rail, binary, gamePhase, feed, value: gamePhase === GAME_PHASE.FINAL ? finalStat : value, line: forecast.line, stale, hasRow: Boolean(liveRow) }),
     landmarks: binary ? null : railLandmarks({ line: forecast.line, gtp: forecast.modelValue, high: forecast.modelHigh, live: gamePhase === GAME_PHASE.FINAL ? finalStat : value }),
   };
 }

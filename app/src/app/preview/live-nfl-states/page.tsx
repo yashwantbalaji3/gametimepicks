@@ -8,10 +8,9 @@
  * during it. Each row below feeds a synthetic envelope to the REAL `NflGameCard` — the same component
  * the public hub mounts — so what is verified here is the shipping code.
  *
- * ⚠ WHAT IS DELIBERATELY ABSENT. There is no canonical HIT / MISS / PUSH / VOID row. The featured
- *   tracker caps finality at FINAL_PROVISIONAL (`trackForecast`), because whether the live-props
- *   producer's reconciled settlement may be shown as the canonical result has not been decided. Faking
- *   a settled row here would assert a capability the product does not have.
+ * ⚠ OUTCOMES APPEAR ONLY AS THE SETTLEMENT OWNER WROTE THEM. Case 10 shows CANONICAL rows in the
+ *   owner's own vocabulary (WIN / LOSS / PUSH, OVER / UNDER / YES / NO); every other final row stays
+ *   GRADING PENDING. Nothing here maps the owner's words onto another vocabulary.
  *
  * V2B · the featured rows are fed a synthetic LIVE-PROPS RECORD (the same shape the producer writes)
  * and a pinned reader clock, so every measurement state — including stale — renders deterministically.
@@ -75,14 +74,15 @@ const liveEnv = (q: number, clock: string, a: number, h: number) =>
 
 /** A live-props record in the producer's own shape: values keyed by predictionId, observedAt per row. */
 type V = [number | null, number | null, number | null, number | null, number | null];
-const record = (vals: V, observedAt: string, phase = "IN_PROGRESS", finals = false): LivePropsState => ({
+type Settle = { finality: string; state: string; forecastResult: string | null; lineResult: string | null };
+const record = (vals: V, observedAt: string, phase = "IN_PROGRESS", finals = false, settle?: Settle[]): LivePropsState => ({
   feed: "OK",
   artifact: {
     providerEventId: EID, phase, observedAt,
     rows: FEATURED.map((f, i) => ({
       predictionId: f.predictionId, playerId: f.playerId, family: f.family,
       live: { statValue: vals[i], observedAt },
-      settlement: finals ? { state: "PENDING", finalStat: vals[i] } : { state: "PENDING", finalStat: null },
+      settlement: settle ? { ...settle[i], finalStat: vals[i] } : finals ? { state: "PENDING", finalStat: vals[i] } : { state: "PENDING", finalStat: null },
     })),
   },
 });
@@ -146,7 +146,20 @@ const CASES: Array<{ title: string; note: string; state: string; label: string; 
     liveProps: record([96, 58, 5, 1, 33], "2026-09-27T20:31:00Z", "FINAL", true),
   },
   {
-    title: "10 · no forecasts for this game",
+    title: "10 · FINAL · canonical settlement (the owner's words)",
+    note: "The settlement owner promoted these rows to CANONICAL. The card reads its result VERBATIM — forecast WIN/LOSS/PUSH and line OVER/UNDER — and never compares the final stat to the line itself. A touchdown is a line result (YES); the owner does not grade a TD forecast. The last row is still PROVISIONAL, so it stays grading pending.",
+    state: "FINAL_PENDING_SETTLEMENT", label: "Final — grading pending",
+    envelope: env({ state: "FINAL", period: { number: 4, label: "Final", clock: null }, competitors: { away: { abbr: "SEA", score: 24 }, home: { abbr: "WSH", score: 20 } } }),
+    liveProps: record([96, 58, 5, 1, 33], "2026-09-27T22:40:00Z", "FINAL", true, [
+      { finality: "CANONICAL", state: "SETTLED", forecastResult: "WIN", lineResult: "OVER" },
+      { finality: "CANONICAL", state: "SETTLED", forecastResult: "WIN", lineResult: "OVER" },
+      { finality: "CANONICAL", state: "SETTLED", forecastResult: "PUSH", lineResult: "PUSH" },
+      { finality: "CANONICAL", state: "SETTLED", forecastResult: "NOT_APPLICABLE", lineResult: "YES" },
+      { finality: "PROVISIONAL", state: "SETTLED", forecastResult: "LOSS", lineResult: "UNDER" },
+    ]),
+  },
+  {
+    title: "11 · no forecasts for this game",
     note: "An empty slate reads as intentional rather than broken.",
     state: "PRE", label: "Scheduled",
     envelope: env({ state: "PRE", period: { number: 0, label: null, clock: null }, competitors: { away: { abbr: "SEA", score: null }, home: { abbr: "WSH", score: null } } }),
@@ -178,7 +191,7 @@ export default function NflLiveStatesFixture() {
             <p style={{ fontSize: 11.5, color: "var(--vault-text-faint)", margin: "0 0 8px", lineHeight: 1.5 }}>{c.note}</p>
             <ul style={{ margin: 0, padding: 0 }}>
               <NflGameCard
-                game={c.title.startsWith("10") ? { ...GAME, featured: [], eligibleForecastCount: 0, trackedPredictionCount: 0 } : GAME}
+                game={c.title.startsWith("11") ? { ...GAME, featured: [], eligibleForecastCount: 0, trackedPredictionCount: 0 } : GAME}
                 envelope={c.envelope}
                 state={c.state}
                 label={c.label}

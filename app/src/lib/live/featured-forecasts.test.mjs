@@ -294,3 +294,39 @@ test("🔴 LINE and GTP are landmarks: a live value moves the dot, never the sca
   assert.equal(railLandmarks({ line: null, gtp: null, high: null, live: 5 }), null, "no frozen number, no rail");
   assert.equal(railLandmarks({ line: 5, gtp: 6, high: null, live: null }).live, null, "no measurement, no dot — never a dot at 0");
 });
+
+/* ──────────────────────────────  V2B.1 · canonical settlement  ────────────────────────────── */
+
+/* The producer's own settlement shape: it writes the frozen line beside the result (live-prop-state.mjs `settle`). */
+const settledRow = (settlement, v = 96, line = 92.5) => ({ live: { statValue: v, observedAt: "2026-09-27T22:40:00Z" }, settlement: { finalStat: v, line, ...settlement } });
+
+test("🔴 an outcome appears only when the row's settlement is CANONICAL, in the owner's words", () => {
+  const T = (row, gamePhase = "FINAL") => trackForecast(VOL, { gamePhase, feed: FEED.OK, liveRow: row });
+  /* PROVISIONAL, even with a written result: still pending. */
+  assert.equal(T(settledRow({ finality: "PROVISIONAL", state: "SETTLED", forecastResult: "WIN", lineResult: "OVER" })).status, "Final · grading pending");
+  assert.equal(T(settledRow({ state: "SETTLED", forecastResult: "WIN", lineResult: "OVER" })).status, "Final · grading pending", "no finality stamp is not canonical");
+  /* CANONICAL: the owner's words, verbatim. */
+  const c = T(settledRow({ finality: "CANONICAL", state: "SETTLED", forecastResult: "WIN", lineResult: "OVER" }));
+  assert.equal(c.status, "Settled · forecast WIN · line OVER");
+  assert.deepEqual(c.settlement, { state: "SETTLED", forecastResult: "WIN", lineResult: "OVER", finalStat: 96 });
+  assert.equal(T(settledRow({ finality: "CANONICAL", state: "NO_MEASUREMENT" }, null)).status, "Settled · no measurement", "no measurement is never a loss");
+  /* A canonical row seen while the card still thinks the game is live is not rendered as settled. */
+  assert.equal(T(settledRow({ finality: "CANONICAL", state: "SETTLED", forecastResult: "WIN", lineResult: "OVER" }), "LIVE").settlement, null);
+});
+
+test("🔴 the browser never derives the outcome — the owner's result wins over finalStat vs line", () => {
+  /* The owner says LOSS/UNDER although 96 > 92.5 — e.g. a published result a later correction disagrees
+     with. The card must show what the owner wrote, not what it could compute. */
+  const t = trackForecast(VOL, { gamePhase: "FINAL", feed: FEED.OK, liveRow: settledRow({ finality: "CANONICAL", state: "SETTLED", forecastResult: "LOSS", lineResult: "UNDER" }) });
+  assert.equal(t.status, "Settled · forecast LOSS · line UNDER");
+});
+
+test("a touchdown is a line result, never a forecast win; unknown vocabulary is dropped, not mapped", () => {
+  const td = trackForecast(TD, { gamePhase: "FINAL", feed: FEED.OK, liveRow: settledRow({ finality: "CANONICAL", state: "SETTLED", forecastResult: "NOT_APPLICABLE", lineResult: "YES" }, 1) });
+  assert.equal(td.status, "Settled · forecast not applicable · line YES");
+  assert.doesNotMatch(td.status, /\b(?:WIN|HIT)\b/, "touchdown scored is not a forecast win");
+  /* A value outside the owner's vocabulary is not guessed at. */
+  const odd = trackForecast(VOL, { gamePhase: "FINAL", feed: FEED.OK, liveRow: settledRow({ finality: "CANONICAL", state: "SETTLED", forecastResult: "HIT", lineResult: "CASHED" }) });
+  assert.equal(odd.status, "Settled", "HIT is not the owner's word and CASHED is no line result — both dropped");
+  assert.doesNotMatch(odd.status, /HIT|CASHED/);
+});

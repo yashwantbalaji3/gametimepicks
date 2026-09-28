@@ -29,6 +29,8 @@ export interface ForecastTracking {
   ageMs: number | null;
   stale: boolean;
   status: string;
+  /** The settlement owner's canonical answer, verbatim — present only when the row is CANONICAL. */
+  settlement?: { state: string; forecastResult: string | null; lineResult: string | null; finalStat: number | null } | null;
   landmarks: { line: number | null; gtp: number | null; live: number | null; liveOverflow: boolean } | null;
 }
 
@@ -54,6 +56,8 @@ const S = {
   legend: { display: "flex", flexWrap: "wrap", gap: "2px 12px", fontFamily: MONO, fontSize: 8.5, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "4px 0 0" } as const,
   status: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-mute)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
   statusLive: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-info)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
+  statusWin: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-success)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
+  statusLoss: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-loss-red)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
   statusWarn: { fontFamily: MONO, fontSize: 9.5, color: "var(--vault-warn)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" } as const,
 };
 
@@ -84,7 +88,10 @@ function Num({ label, value, live = false, hint }: { label: string; value: strin
 export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForecast; t: ForecastTracking; final: boolean }) {
   const binary = f.kind === "PROBABILITY";
   const measured = final ? t.finalStat : t.liveValue;
-  const statusStyle = t.stale || t.status.startsWith("Live tracking") ? S.statusWarn : measured !== null && !final ? S.statusLive : S.status;
+  /* Colour follows the OWNER's canonical forecast result only; the words carry it too. */
+  const fr = t.settlement?.forecastResult ?? null;
+  const statusStyle = fr === "WIN" ? S.statusWin : fr === "LOSS" ? S.statusLoss
+    : t.stale || t.status.startsWith("Live tracking") ? S.statusWarn : measured !== null && !final ? S.statusLive : S.status;
   const age = t.stale ? ageText(t.ageMs) : null;
 
   /* One sentence carries the whole row for assistive technology; the rail itself is decorative. */
@@ -150,7 +157,7 @@ export default function FeaturedForecastRow({ f, t, final }: { f: FeaturedForeca
 
         {/* A TD's status already sits in its own box; only its age (when stale) or grading note is added. */}
         {binary
-          ? (age || final ? <p style={statusStyle}>{final ? "Grading pending" : age}</p> : null)
+          ? (age || final ? <p style={statusStyle}>{final ? (t.settlement ? t.status : "Grading pending") : age}</p> : null)
           : <p style={statusStyle}>{t.status}{age ? ` · ${age}` : ""}</p>}
       </div>
     </li>
