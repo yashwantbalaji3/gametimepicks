@@ -2,7 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { FEATURED_FAMILY_STATES, FEATURED_LIMIT, featuredForecasts, eligibleForecastCount, measurementStateOf } from "./featured-forecasts.mjs";
+import {
+  FEATURED_FAMILY_STATES, FEATURED_LIMIT, FEATURED_FAMILY_ORDER, FEED, GAME_PHASE, LIVE_STALE_AFTER_MS,
+  featuredForecasts, eligibleForecastCount, measurementStateOf, trackForecast, statusFor, railLandmarks,
+} from "./featured-forecasts.mjs";
+import { RESULT_RAIL_STATES } from "./tracked-prediction.mjs";
 
 const APP = path.resolve(new URL("../../..", import.meta.url).pathname);
 const LP = path.join(APP, "public/data/nfl/live-props");
@@ -145,27 +149,148 @@ test("the frozen halves come from the artifact's own capture", () => {
   }
 });
 
-test("⚠ a probability that was frozen BEFORE the producer carried it stays null, and renders honestly", () => {
+test("⚠ a touchdown frozen WITHOUT a model probability is never featured, and still reports its fact", () => {
   /*
-   * The producer freezes a row once and carries that record forward — `frozen = previous?.frozen`
-   * — which is the whole point of the word. So adding `probability` to the frozen projection only
-   * reaches rows frozen for the FIRST time after the change; every row already frozen on
-   * 2026-09-27 keeps its original record, without one.
-   *
-   * Backfilling would mean re-freezing from a newer board, which the producer deliberately refuses
-   * (it counts those refusals). So the UI must render a touchdown row whose pregame claim is
-   * genuinely absent, rather than assuming one is always there.
+   * The producer freezes a row once and carries that record forward — `frozen = previous?.frozen` —
+   * so every touchdown row frozen on 2026-09-27 has no probability. It must not be backfilled from a
+   * board or from anything a bookmaker priced, and it must not be FEATURED without the claim: a
+   * featured row promises the reader a pregame number. It stays in View All, where its factual
+   * touchdown state still renders.
    */
   const frozenBefore = {
     predictionId: "e:p:anytime_td", playerId: "p", name: "P", team: "SEA",
     family: "anytime_td", familyState: "PUBLISHED",
-    frozen: { projection: { median: null, p10: null, p90: null }, market: { yesOdds: 100 } },
+    frozen: { projection: { median: null, p10: null, p90: null }, market: { sportsbook: "draftkings" } },
     live: { statValue: 1, observedAt: "t" },
   };
-  const [f] = featuredForecasts({ rows: [frozenBefore], phase: "IN_PROGRESS" });
-  assert.equal(f.kind, "PROBABILITY");
-  assert.equal(f.modelProbability, null, "an absent pregame probability must stay absent");
-  assert.equal(f.modelValue, null, "and must never be filled from the yardage slot");
-  assert.equal(f.liveValue, 1, "while the factual touchdown still reports");
-  assert.equal(f.measurementState, "MEASURED");
+  assert.equal(featuredForecasts({ rows: [frozenBefore], phase: "IN_PROGRESS" }).length, 0, "no frozen probability, no featured TD");
+  assert.equal(eligibleForecastCount({ rows: [frozenBefore] }), 1, "but it is still a legitimate forecast for View All");
+  const f = { predictionId: "e:p:anytime_td", playerId: "p", kind: "PROBABILITY", family: "anytime_td", modelProbability: null, modelValue: null, modelLow: null, modelHigh: null, line: null, frozenAt: "2026-09-27T14:42:05Z" };
+  const t = trackForecast(f, { gamePhase: GAME_PHASE.LIVE, liveRow: frozenBefore, feed: FEED.OK });
+  assert.equal(t.status, "Touchdown scored", "the factual touchdown still reports");
+  assert.equal(t.landmarks, null, "and a touchdown never gets a yardage rail");
+});
+
+/* ──────────────────────────────  V2B · family diversity  ────────────────────────────── */
+
+/* Board order puts running backs first — the order that starved receptions and touchdowns in V2A. */
+const rb = (id, rush, rec, recs, td) => [
+  row({ playerId: id, family: "player_rush_yds", median: rush, line: rush - 3 }),
+  row({ playerId: id, family: "player_reception_yds", median: rec, line: rec - 2 }),
+  row({ playerId: id, family: "player_receptions", median: recs, line: recs - 0.5 }),
+  row({ playerId: id, family: "anytime_td", probability: td }),
+];
+
+test("🔴 pass 1 features one row per family, in the fixed order, from different players", () => {
+  const rows = [...rb("rb1", 70, 20, 3, 0.55), ...rb("rb2", 60, 15, 2, 0.48), ...rb("rb3", 50, 12, 2, 0.4), ...rb("rb4", 40, 10, 1, 0.3), ...rb("rb5", 30, 8, 1, 0.2)];
+  const f = featuredForecasts({ rows, phase: "PRE" });
+  assert.deepEqual(f.slice(0, 4).map((x) => x.family), [...FEATURED_FAMILY_ORDER], "receiving → rushing → receptions → TD");
+  assert.equal(new Set(f.map((x) => x.playerId)).size, 5, "five rows, five faces");
+  assert.deepEqual(f.map((x) => x.playerId), ["rb1", "rb2", "rb3", "rb4", "rb5"], "each family's EARLIEST eligible row with a new face, then board order");
+  /* V2A would have featured five rushing rows here. */
+  assert.ok(f.some((x) => x.family === "anytime_td") && f.some((x) => x.family === "player_receptions"));
+});
+
+test("pass 3: a second market for a shown player only when fewer than five unique players exist", () => {
+  const two = [...rb("a", 70, 20, 3, 0.5), ...rb("b", 60, 15, 2, 0.4)];
+  const f = featuredForecasts({ rows: two, phase: "PRE" });
+  assert.equal(f.length, 5, "a short slate still fills five");
+  assert.equal(new Set(f.map((x) => x.playerId)).size, 2);
+  /* Never a repeat while a new face is available: */
+  const three = [...two, row({ playerId: "c", family: "player_rush_yds", median: 5, line: 4.5 })];
+  const g = featuredForecasts({ rows: three, phase: "PRE" });
+  assert.ok(g.some((x) => x.playerId === "c"), "an unused player outranks a second market");
+  assert.equal(featuredForecasts({ rows: [...three].reverse(), phase: "PRE" }).length, 5);
+});
+
+test("the membership ignores market gap, price and interval width — only frozen order and family", () => {
+  const base = [...rb("x", 70, 20, 3, 0.5), ...rb("y", 60, 15, 2, 0.4)];
+  const pick = (rows) => featuredForecasts({ rows, phase: "PRE" }).map((f) => f.predictionId);
+  const before = pick(base);
+  /* Make y's lines wildly "juicier" and its intervals narrower: nothing may move. */
+  const juicier = base.map((r) => (r.playerId === "y" ? { ...r, frozen: { ...r.frozen, market: { line: 0.5, sportsbook: "x" }, projection: { ...r.frozen.projection, p10: 1, p90: 1.1 } } } : r));
+  assert.deepEqual(pick(juicier), before);
+});
+
+test("every featured touchdown on the real slate carries a frozen model probability", () => {
+  /* Holds for any slate: a featured TD row without a frozen claim is a defect whatever the data. */
+  let featured = 0;
+  for (const a of artifacts()) {
+    const byId = new Map(a.rows.map((r) => [r.predictionId, r]));
+    for (const f of featuredForecasts(a)) {
+      featured += 1;
+      if (f.family !== "anytime_td") continue;
+      assert.equal(typeof byId.get(f.predictionId)?.frozen?.projection?.probability, "number", `${f.predictionId}`);
+    }
+  }
+  assert.ok(featured > 0 || artifacts().length === 0, "anti-vacuity: the real artifacts produced featured rows");
+});
+
+/* ──────────────────────────────  V2B · tracking + words  ────────────────────────────── */
+
+const VOL = { predictionId: "e:v:player_reception_yds", playerId: "v", kind: "VOLUME", family: "player_reception_yds", modelValue: 107.5, modelLow: 58, modelHigh: 168, modelProbability: null, line: 92.5, frozenAt: "2026-09-27T14:42:05Z" };
+const TD = { predictionId: "e:t:anytime_td", playerId: "t", kind: "PROBABILITY", family: "anytime_td", modelValue: null, modelLow: null, modelHigh: null, modelProbability: 0.614, line: null, frozenAt: "2026-09-27T14:42:05Z" };
+const NOW = Date.parse("2026-09-27T18:40:00Z");
+const lr = (v, at = "2026-09-27T18:39:30Z", finalStat = null) => ({ live: { statValue: v, observedAt: at }, settlement: { state: "PENDING", finalStat } });
+
+test("the state table — PRE, awaiting, measured zero, below / at / above, stale, unavailable, TD, final", () => {
+  const T = (f, ctx) => trackForecast(f, { nowMs: NOW, ...ctx });
+  assert.equal(T(VOL, { gamePhase: "PRE" }).status, "Starts at kickoff");
+  assert.equal(T(VOL, { gamePhase: "PRE" }).liveValue, null, "PRE never shows a live number, not even 0");
+  assert.equal(T(VOL, { gamePhase: "LIVE", feed: FEED.OK, liveRow: lr(null) }).status, "Awaiting first measurement");
+  const zero = T(VOL, { gamePhase: "LIVE", feed: FEED.OK, liveRow: lr(0) });
+  assert.equal(zero.liveValue, 0, "a measured zero is a 0");
+  assert.equal(zero.status, "Currently below line");
+  assert.equal(T(VOL, { gamePhase: "LIVE", feed: FEED.OK, liveRow: lr(63) }).status, "Currently below line");
+  assert.equal(T({ ...VOL, line: 5 }, { gamePhase: "LIVE", feed: FEED.OK, liveRow: lr(5) }).status, "Currently at line");
+  assert.equal(T(VOL, { gamePhase: "LIVE", feed: FEED.OK, liveRow: lr(112) }).status, "Currently above line");
+  const stale = T(VOL, { gamePhase: "LIVE", feed: FEED.OK, liveRow: lr(88, new Date(NOW - LIVE_STALE_AFTER_MS - 60_000).toISOString()) });
+  assert.equal(stale.stale, true);
+  assert.equal(stale.status, "Last known · below line", "stale data is labelled, never shown as current");
+  assert.equal(stale.liveValue, 88, "and the last known value is kept, not blanked");
+  assert.equal(T(VOL, { gamePhase: "LIVE", feed: FEED.UNAVAILABLE }).status, "Live tracking temporarily unavailable");
+  assert.equal(T(TD, { gamePhase: "LIVE", feed: FEED.OK, liveRow: lr(0) }).status, "No TD yet");
+  assert.equal(T(TD, { gamePhase: "LIVE", feed: FEED.OK, liveRow: lr(1) }).status, "Touchdown scored");
+  const fin = T(VOL, { gamePhase: "FINAL", feed: FEED.OK, liveRow: lr(96, "2026-09-27T20:31:00Z", 96) });
+  assert.equal(fin.status, "Final · grading pending");
+  assert.equal(fin.finalStat, 96);
+  assert.equal(T(TD, { gamePhase: "FINAL", feed: FEED.OK, liveRow: lr(1, "t", 1) }).status, "Final · touchdown scored · grading pending");
+});
+
+test("🔴 'No TD yet' needs evidence: no record read, or no row for the player, is not a no", () => {
+  assert.equal(trackForecast(TD, { gamePhase: "LIVE", feed: FEED.NOT_ASKED }).status, "Awaiting first measurement");
+  assert.equal(trackForecast(TD, { gamePhase: "LIVE", feed: FEED.OK, liveRow: null }).status, "Awaiting first measurement");
+});
+
+test("🔴 no input reaches an outcome word or a result rail state", () => {
+  const banned = /\b(?:hit|miss|win|won|loss|lost|cashed|failed)\b/i;
+  const phases = ["PRE", "LIVE", "FINAL"];
+  const feeds = [FEED.OK, FEED.UNAVAILABLE, FEED.NOT_ASKED];
+  const values = [null, 0, 1, 5, 92.5, 400];
+  const ats = [null, "2026-09-27T18:39:30Z", "2026-09-27T17:00:00Z", "garbage"];
+  let n = 0;
+  for (const f of [VOL, TD, { ...VOL, line: null }]) for (const gamePhase of phases) for (const feed of feeds) for (const v of values) for (const at of ats) {
+    for (const hasRow of [true, false]) {
+      const t = trackForecast(f, { gamePhase, feed, liveRow: hasRow ? lr(v, at, v) : null, observedAt: at, nowMs: NOW });
+      assert.doesNotMatch(t.status, banned, `${gamePhase}/${feed}/${v}/${at}: "${t.status}"`);
+      assert.equal(RESULT_RAIL_STATES.includes(t.rail), false, `${gamePhase}/${feed}/${v}: rail ${t.rail}`);
+      n += 1;
+    }
+  }
+  assert.ok(n > 1000, `anti-vacuity: ${n} combinations`);
+  /* And statusFor directly, with the rail forced to a result state, still says nothing about money. */
+  for (const rail of RESULT_RAIL_STATES) assert.doesNotMatch(statusFor({ rail, binary: false, gamePhase: "LIVE", feed: FEED.OK, value: 5, line: 4.5, stale: false }), banned);
+});
+
+test("🔴 LINE and GTP are landmarks: a live value moves the dot, never the scale", () => {
+  const a = railLandmarks({ line: 92.5, gtp: 107.5, high: 168, live: 10 });
+  const b = railLandmarks({ line: 92.5, gtp: 107.5, high: 168, live: 150 });
+  const c = railLandmarks({ line: 92.5, gtp: 107.5, high: 168, live: 900 });
+  assert.equal(a.line, b.line); assert.equal(b.line, c.line);
+  assert.equal(a.gtp, b.gtp); assert.equal(b.gtp, c.gtp);
+  assert.ok(a.live < b.live, "the live dot moves");
+  assert.equal(c.live, 100); assert.equal(c.liveOverflow, true, "past the frozen scale it clamps and says so");
+  assert.ok(a.line < a.gtp, "line 92.5 sits left of GTP 107.5");
+  assert.equal(railLandmarks({ line: null, gtp: null, high: null, live: 5 }), null, "no frozen number, no rail");
+  assert.equal(railLandmarks({ line: 5, gtp: 6, high: null, live: null }).live, null, "no measurement, no dot — never a dot at 0");
 });

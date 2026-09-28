@@ -27,12 +27,14 @@
 import Link from "next/link";
 import { useMemo } from "react";
 
-import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import FollowedMark from "@/components/today/followed-mark";
 import { liveReadyFor } from "@/lib/live/client";
 import { derivePresentationState } from "@/lib/live/lifecycle.mjs";
-import type { NflHubRoster, NflHubRosterGame, TrackedPrediction } from "@/lib/live/nfl-hub-data";
+import type { NflHubRoster, NflHubRosterGame } from "@/lib/live/nfl-hub-data";
+import { FEED, GAME_PHASE, trackForecast } from "@/lib/live/featured-forecasts.mjs";
+import FeaturedForecastRow from "./featured-forecast-row";
+import { useLiveProps, useNowMs, type LivePropsState } from "./use-live-props";
 import { useLiveSlate } from "./use-live-slate";
 
 const MONO = "var(--font-mono)";
@@ -110,109 +112,11 @@ const periodLine = (envelope: any): string | null => {
   return label;
 };
 
-const num = (n: number | null | undefined, dp = 0) =>
-  typeof n === "number" && Number.isFinite(n) ? n.toFixed(dp) : null;
-
-/**
- * The factual measurement for one prediction, or null.
- *
- * Read out of the envelope's OWN player-stat rows, matched on `playerId` and the family key the live
- * adapter already normalises to. Null when the batch carried no box score — which is the normal case
- * on this hub — and null is rendered as an omitted row, never as a zero.
- */
-function liveValueFor(envelope: any, p: TrackedPrediction): number | null {
-  const rows = envelope?.playerStats;
-  if (!Array.isArray(rows)) return null;
-  for (const r of rows) {
-    if (r?.playerId !== p.playerId) continue;
-    const v = r?.markets?.[p.market];
-    if (typeof v === "number" && Number.isFinite(v)) return v;
-  }
-  return null;
-}
-
-/** Where the live value sits against the frozen line. Words only — never a win or a loss. */
-function railState(live: number | null, line: number | null): string | null {
-  if (live === null || line === null) return null;
-  if (live > line) return "Currently above line";
-  if (live < line) return "Currently below line";
-  return "At line";
-}
-
-function PredictionRow({ p, envelope, started }: { p: TrackedPrediction; envelope: any; started: boolean }) {
-  const live = liveValueFor(envelope, p);
-  const rail = railState(live, p.line);
-  const isProbability = p.gtp === null && p.pregameProbability !== null;
-
-  return (
-    <li style={{ listStyle: "none", padding: "8px 0", borderTop: "1px solid var(--vault-border)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        {/*
-          * The portrait is resolved from the CANONICAL board id upstream; this component never
-          * guesses one from a name. When the id resolves nothing, `photoUrl` is null and
-          * PlayerAvatar renders its initials-and-team-chip disc — so the row keeps its shape and
-          * a missing face never becomes a broken image or, worse, the wrong player's.
-          */}
-        <span className="gtp-live-portrait" style={{ flexShrink: 0 }}>
-          <PlayerAvatar
-            photoUrl={p.portraitUrl}
-            playerName={p.player}
-            team={p.teamAbbr || null}
-            sport="nfl"
-            size="sm"
-            flat
-          />
-        </span>
-        <span style={{ minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: 12.5, color: "var(--vault-text)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {p.player}
-          </span>
-          <span style={{ display: "block", fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            {p.marketLabel}
-          </span>
-        </span>
-      </div>
-
-      {isProbability ? (
-        /* A probability family. No rail, and no claim about whether it has happened yet. */
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <Stat label="GTP pregame" value={`${(p.pregameProbability! * 100).toFixed(1)}%`} />
-        </div>
-      ) : (
-        <>
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            <Stat label="GTP" value={num(p.gtp, 1)} />
-            <Stat label="Line" value={num(p.line, 1)} />
-            {/* The LIVE slot appears only when a measurement exists. */}
-            {live !== null ? <Stat label="Live" value={num(live, 0)} tone="live" /> : null}
-          </div>
-          {rail ? (
-            <p style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-mute)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              {rail}
-            </p>
-          ) : !started ? (
-            <p style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Starts at kickoff
-            </p>
-          ) : null}
-        </>
-      )}
-    </li>
-  );
-}
-
-function Stat({ label, value, tone }: { label: string; value: string | null; tone?: "live" }) {
-  if (value === null) return null;
-  return (
-    <span style={{ display: "inline-flex", flexDirection: "column", minWidth: 52 }}>
-      <span style={{ fontFamily: MONO, fontSize: 8.5, color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</span>
-      <span style={{
-        fontFamily: MONO, fontSize: 14, fontVariantNumeric: "tabular-nums",
-        color: tone === "live" ? "var(--vault-success)" : "var(--vault-text)",
-      }}>{value}</span>
-    </span>
-  );
-}
+/** The card's lifecycle state → the phase the tracker understands. Unknown states are treated as live. */
+const gamePhaseOf = (state: string) =>
+  state === "PRE" || state === "POSTPONED" ? GAME_PHASE.PRE
+    : state === "FINAL_PENDING_SETTLEMENT" || state === "SETTLED" ? GAME_PHASE.FINAL
+      : GAME_PHASE.LIVE;
 
 function TeamRow({ abbr, name, score, sport = "nfl" as const }: { abbr: string; name: string; score: number | null; sport?: "nfl" }) {
   return (
@@ -236,26 +140,48 @@ function TeamRow({ abbr, name, score, sport = "nfl" as const }: { abbr: string; 
  * A fixture that reimplements the component proves the fixture works. This is the same component the
  * public hub mounts; only its inputs are synthetic.
  */
-export function NflGameCard({ game, envelope, state, label }: { game: NflHubRosterGame; envelope: any; state: string; label: string }) {
+export function NflGameCard({ game, envelope, state, label, liveProps: injected, nowMs: injectedNow }: {
+  game: NflHubRosterGame; envelope: any; state: string; label: string;
+  /** Fixture-only: a synthetic live-props record, so the fixture renders THIS component with no fetch. */
+  liveProps?: LivePropsState;
+  /** Fixture-only: a pinned reader clock, so a stale state is reproducible. */
+  nowMs?: number;
+}) {
   const away = envelope?.competitors?.away?.score ?? null;
   const home = envelope?.competitors?.home?.score ?? null;
   const started = state !== "PRE";
   const when = started ? periodLine(envelope) : etTime(game.kickoffUtc);
-  const shown = game.trackedPredictions;
-  const more = game.trackedPredictionCount - shown.length;
+  const phase = gamePhaseOf(state);
+
+  /* ONE static request per game, and only once the game has started; refreshed only while it is live. */
+  const fetched = useLiveProps(game.providerEventId, { active: !injected && phase !== GAME_PHASE.PRE && game.featured.length > 0, poll: phase === GAME_PHASE.LIVE });
+  const liveProps = injected ?? fetched;
+  const clock = useNowMs();
+  const nowMs = injectedNow ?? clock;
+
+  const byId = useMemo(() => {
+    const m = new Map<string, any>();
+    for (const r of liveProps.artifact?.rows ?? []) if (r?.predictionId) m.set(r.predictionId, r);
+    return m;
+  }, [liveProps.artifact]);
+
+  const feed = liveProps.feed === "OK" ? FEED.OK : liveProps.feed === "UNAVAILABLE" ? FEED.UNAVAILABLE : FEED.NOT_ASKED;
+  const shown = game.featured;
+  const total = game.eligibleForecastCount;
 
   const spoken =
     `${game.awayTeam} at ${game.homeTeam}. ${label}. ` +
     (away === null || home === null ? "No score reported." : `${game.awayAbbr} ${away}, ${game.homeAbbr} ${home}.`) +
     (when ? ` ${when}.` : "") +
-    ` ${game.trackedPredictionCount} GameTimePicks forecasts, each frozen before kickoff.`;
+    ` ${total} GameTimePicks forecasts, each frozen before kickoff.`;
 
   return (
     <li style={{ listStyle: "none" }}>
-      <div aria-label={spoken} style={{
+      <div style={{
         border: "1px solid var(--vault-border)", borderRadius: 8,
         background: "var(--vault-panel)", padding: "12px 14px",
       }}>
+        <span className="sr-only">{spoken}</span>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
           <StateChip state={state} label={label} />
           <FollowedMark entities={[game.awayRef, game.homeRef].filter((r): r is NonNullable<typeof r> => r !== null)} />
@@ -267,28 +193,32 @@ export function NflGameCard({ game, envelope, state, label }: { game: NflHubRost
           <TeamRow abbr={game.homeAbbr} name={game.homeTeam} score={home} />
         </div>
 
-        {game.trackedPredictionCount === 0 ? (
+        {shown.length === 0 ? (
           <p style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", margin: "10px 0 0" }}>
             No GameTimePicks forecasts for this game
           </p>
         ) : (
           <>
-            <p aria-hidden="true" style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", margin: "10px 0 2px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-              {game.trackedPredictionCount} GameTimePicks forecast{game.trackedPredictionCount === 1 ? "" : "s"}
+            {/* FEATURED — never "top", "best" or "locks": nothing here is a calibrated cross-family rank. */}
+            <p style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", margin: "12px 0 2px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              Featured GameTimePicks forecasts
             </p>
-            <ul aria-hidden="true" style={{ margin: 0, padding: 0 }}>
-              {shown.map((p) => (
-                <li key={`${p.playerId}:${p.market}`} style={{ listStyle: "none" }}>
-                  <PredictionRow p={p} envelope={envelope} started={started} />
-                </li>
+            <ul style={{ margin: 0, padding: 0 }}>
+              {shown.map((f) => (
+                <FeaturedForecastRow
+                  key={f.predictionId}
+                  f={f}
+                  final={phase === GAME_PHASE.FINAL}
+                  t={trackForecast(f, { gamePhase: phase, liveRow: byId.get(f.predictionId) ?? null, feed, observedAt: liveProps.artifact?.observedAt ?? null, nowMs })}
+                />
               ))}
             </ul>
           </>
         )}
 
         <p style={{ margin: "10px 0 0" }}>
-          <Link href="/nfl/" style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-accent)", textDecoration: "none", display: "inline-block", minHeight: 24, lineHeight: "24px" }}>
-            {more > 0 ? `All ${game.trackedPredictionCount} forecasts and live tracking →` : "Forecasts and live tracking →"}
+          <Link href={`/nfl/game/${game.providerEventId}/`} style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-accent)", textDecoration: "none", display: "inline-block", minHeight: 24, lineHeight: "24px" }}>
+            {total > shown.length ? `View all ${total} forecasts →` : "Game forecasts →"}
           </Link>
         </p>
       </div>

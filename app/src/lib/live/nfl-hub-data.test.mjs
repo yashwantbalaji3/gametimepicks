@@ -121,30 +121,37 @@ test("only promoted families reach the hub, via the allowlist that already owns 
   }
 });
 
-test("the hub states no outcome before canonical settlement, and no touchdown claim at all", () => {
-  const src = code("src/components/live/nfl-live-hub.tsx");
-  const rendered = [...src.matchAll(/>([^<>{}]{3,})</g)].map((m) => m[1]).join(" ");
-  for (const banned of [/\bHIT\b/, /\bMISS\b/, /\bWIN\b/, /\bLOSS\b/, /CASHED/i]) {
-    assert.doesNotMatch(rendered, banned, "a win/loss word must not be rendered by the live hub");
+test("the hub states no outcome before canonical settlement, and a touchdown only from evidence", () => {
+  /*
+   * V2B. The card's words now come from ONE place — `statusFor`/`trackForecast` in
+   * featured-forecasts.mjs, exercised exhaustively in featured-forecasts.test.mjs — so this checks
+   * the two components render no outcome word of their own and delegate every status.
+   *
+   * ⚠ THE TOUCHDOWN RULE CHANGED ON PURPOSE. The envelope-based hub had no per-player TD evidence and
+   *   withheld any TD claim. The live-props record DOES carry it (rushing + receiving TD columns —
+   *   never the passing block), so "No TD yet" / "Touchdown scored" are factual states now, and they
+   *   are only said when a read record carries the player's row (tested in featured-forecasts).
+   */
+  for (const file of ["src/components/live/nfl-live-hub.tsx", "src/components/live/featured-forecast-row.tsx"]) {
+    const src = code(file);
+    const rendered = [...src.matchAll(/>([^<>{}]{3,})</g)].map((m) => m[1]).join(" ");
+    for (const banned of [/\bHIT\b/, /\bMISS\b/, /\bWIN\b/, /\bLOSS\b/, /CASHED/i]) {
+      assert.doesNotMatch(rendered, banned, `${file}: a win/loss word must not be rendered`);
+    }
   }
-  /* The three allowed live statements, and nothing stronger. */
-  assert.match(src, /Currently above line/);
-  assert.match(src, /Currently below line/);
-  assert.match(src, /At line/);
-  /* A provider FINAL must stop at grading pending. */
-  assert.match(src, /Final — grading pending/);
-  /* And the touchdown claim is withheld rather than assumed. */
-  assert.doesNotMatch(rendered, /NO TD YET/i, "the hub has no per-player TD evidence, so it must not claim one");
-  assert.match(src, /makes NO claim about\n \* {3}whether a touchdown has happened|NO claim about/,
-    "and the reason must be documented");
+  const hub = code("src/components/live/nfl-live-hub.tsx");
+  assert.match(hub, /trackForecast\(f, \{ gamePhase: phase/, "every featured row's status comes from the canonical tracker");
+  assert.match(hub, /Featured GameTimePicks forecasts/, "the label is FEATURED — never top, best or locks");
+  const hubRendered = [...hub.matchAll(/>([^<>{}]{3,})</g)].map((m) => m[1]).join(" ");
+  assert.doesNotMatch(hubRendered, /\b(?:Top 5|Best picks|Locks|High confidence)\b/i, "no ranking or confidence label is rendered");
 });
 
 test("an absent score renders as an em dash, never as a zero", () => {
   const src = code("src/components/live/nfl-live-hub.tsx");
   assert.match(src, /score === null \? "—" : score/, "a missing score is an em dash");
-  /* And the LIVE stat slot must disappear rather than render a zero. */
-  assert.match(src, /if \(value === null\) return null;/, "an absent stat renders nothing at all");
-  assert.match(src, /live !== null \? <Stat label="Live"/, "the LIVE slot is gated on a real measurement");
+  /* And a missing measurement renders a dash, never a zero — the zero is reserved for a measured 0. */
+  const row = code("src/components/live/featured-forecast-row.tsx");
+  assert.match(row, /value === null\s*\?\s*<span style=\{S\.numDash\}/, "an absent value renders the dash slot");
 });
 
 test("a provider failure keeps the last known state and never regresses a live game to PRE", () => {
@@ -204,16 +211,16 @@ test("every prediction on today's real slate resolves a portrait from its id", (
 });
 
 test("the row renders the portrait from photoUrl and keeps a clean fallback", () => {
-  const src = code("src/components/live/nfl-live-hub.tsx");
-  assert.match(src, /photoUrl=\{p\.portraitUrl\}/, "the row passes the resolved url, it does not build one");
-  assert.match(src, /playerName=\{p\.player\}/);
+  const src = code("src/components/live/featured-forecast-row.tsx");
+  assert.match(src, /photoUrl=\{f\.portraitUrl\}/, "the row passes the resolved url, it does not build one");
+  assert.match(src, /playerName=\{f\.playerName\}/);
   assert.match(src, /sport="nfl"/);
   /* The component must not be handed an id to derive a URL from: that path is the 266 KB one. */
   assert.equal(/playerId=\{/.test(src), false, "passing playerId would bypass the combiner url");
   /* And the fixture must exercise BOTH treatments, or the fallback is never actually looked at. */
   const fx = fs.readFileSync(path.join(APP, "src/app/preview/live-nfl-states/page.tsx"), "utf8");
   assert.match(fx, /portraitUrl: null/, "the fixture must include a portrait-less row");
-  assert.ok((fx.match(/portraitUrl: "https/g) ?? []).length >= 2, "and at least two with portraits");
+  assert.ok((fx.match(/portraitUrl: hs\("/g) ?? []).length >= 2, "and at least two with portraits");
 });
 
 test("the portrait is compact on a phone and larger on desktop", () => {
