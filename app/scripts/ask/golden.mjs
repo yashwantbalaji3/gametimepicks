@@ -165,7 +165,7 @@ export const GOLDEN = [
      * turn asked for parlays. Asserting it as a standalone question would have been asserting that the
      * planner guesses, which is the behaviour the clarification policy exists to prevent.
      */
-    id: "parlay-02", category: "parlay",
+    id: "parlay-02", category: "parlay", fixture: "parlay-slate",
     turns: ["Give me the best parlays to place today", "$100, medium risk"],
     expectIntent: "BANKROLL_PARLAY_REQUEST",
     expectTools: ["getParlayCandidates"], expectGrounded: true, expectCitations: true, expectLink: "/parlay-lab/",
@@ -179,13 +179,13 @@ export const GOLDEN = [
     mustNotMention: ["highest expected value", "the most profitable", "guaranteed", "stake this much"],
   },
   {
-    id: "parlay-03", category: "parlay", q: "Make it longshot", expectTools: ["getParlayCandidates"], expectGrounded: true, expectNoInventedLeg: true,
+    id: "parlay-03", category: "parlay", fixture: "parlay-slate", q: "Make it longshot", expectTools: ["getParlayCandidates"], expectGrounded: true, expectNoInventedLeg: true,
     mustNotMention: ["guaranteed", "can't lose"],
   },
-  { id: "parlay-04", category: "parlay", q: "Show me low risk parlay candidates", expectTools: ["getParlayCandidates"], expectGrounded: true, mustNotMention: ["safe", "guaranteed"] },
+  { id: "parlay-04", category: "parlay", fixture: "parlay-slate", q: "Show me low risk parlay candidates", expectTools: ["getParlayCandidates"], expectGrounded: true, mustNotMention: ["safe", "guaranteed"] },
   { id: "parlay-05", category: "parlay", q: "Show me high risk parlay candidates today", expectTools: ["getParlayCandidates"], expectGrounded: true },
   {
-    id: "parlay-06", category: "parlay", q: "Which medium parlay has the highest expected value?",
+    id: "parlay-06", category: "parlay", fixture: "parlay-slate", q: "Which medium parlay has the highest expected value?",
     expectTools: ["getParlayCandidates"], expectGrounded: true,
     /* GameTime publishes no price-aware EV. The answer must decline the ranking, not perform it. */
     mustNotMention: ["the highest expected value is", "most profitable candidate"],
@@ -486,12 +486,12 @@ export const GOLDEN = [
     expectGrounded: true,
   },
   {
-    id: "multi-02", category: "multi-turn",
+    id: "multi-02", category: "multi-turn", fixture: "parlay-slate",
     turns: ["Give me the best parlays today", "$100, medium"],
     expectTools: ["getParlayCandidates"], expectGrounded: true, expectNoInventedLeg: true,
   },
   {
-    id: "multi-03", category: "multi-turn",
+    id: "multi-03", category: "multi-turn", fixture: "parlay-slate",
     turns: ["medium risk parlays", "make it longshot"],
     expectTools: ["getParlayCandidates"], expectGrounded: true,
   },
