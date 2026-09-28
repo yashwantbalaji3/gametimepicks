@@ -346,3 +346,20 @@ test("🔴 unknown is not live: every lifecycle state maps explicitly, and nothi
   assert.equal(u.liveValue, null);
   assert.equal(trackForecast(VOL, { gamePhase: "NOT_PLAYED", feed: FEED.OK, liveRow: lr(40) }).liveValue, null, "no live number for a postponed game");
 });
+
+/* ──────────────────────────────  V2D · card freshness  ────────────────────────────── */
+
+test("🔴 card freshness is honest: fresh, last-known, unavailable — and nothing without a reader clock", async () => {
+  const { cardFreshness } = await import("./featured-forecasts.mjs");
+  const at = "2026-09-27T18:39:18Z";
+  assert.deepEqual(cardFreshness({ gamePhase: "LIVE", feed: FEED.OK, observedAt: at, nowMs: Date.parse("2026-09-27T18:40:00Z") }), { kind: "FRESH", text: "Live measurements · Updated 42s ago" });
+  assert.deepEqual(cardFreshness({ gamePhase: "LIVE", feed: FEED.OK, observedAt: at, nowMs: Date.parse("2026-09-27T18:42:18Z") }), { kind: "STALE", text: "Last known state · Updated 3m ago" });
+  assert.deepEqual(cardFreshness({ gamePhase: "LIVE", feed: FEED.UNAVAILABLE, observedAt: null, nowMs: 1 }), { kind: "UNAVAILABLE", text: "Live tracking temporarily unavailable" });
+  /* ⚠ Hydration: the server render (and the first client render) has no reader clock → nothing is said. */
+  assert.equal(cardFreshness({ gamePhase: "LIVE", feed: FEED.OK, observedAt: at, nowMs: null }), null);
+  for (const gamePhase of ["PRE", "UNKNOWN", "NOT_PLAYED", "FINAL"]) {
+    assert.equal(cardFreshness({ gamePhase, feed: FEED.OK, observedAt: at, nowMs: Date.parse(at) }), null, `${gamePhase} makes no live-freshness claim`);
+  }
+  assert.equal(cardFreshness({ gamePhase: "LIVE", feed: FEED.NOT_ASKED, observedAt: null, nowMs: 1 }), null, "not yet asked is not unavailable");
+  assert.equal(cardFreshness({ gamePhase: "LIVE", feed: FEED.OK, observedAt: "garbage", nowMs: 1 }), null, "an unparseable stamp is not 'just now'");
+});

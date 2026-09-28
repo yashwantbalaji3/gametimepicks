@@ -32,7 +32,7 @@ import FollowedMark from "@/components/today/followed-mark";
 import { liveReadyFor } from "@/lib/live/client";
 import { derivePresentationState } from "@/lib/live/lifecycle.mjs";
 import type { NflHubRoster, NflHubRosterGame } from "@/lib/live/nfl-hub-data";
-import { FEED, GAME_PHASE, gamePhaseForLifecycle, trackForecast } from "@/lib/live/featured-forecasts.mjs";
+import { FEED, GAME_PHASE, cardFreshness, gamePhaseForLifecycle, trackForecast } from "@/lib/live/featured-forecasts.mjs";
 import FeaturedForecastRow from "./featured-forecast-row";
 import { liveRefreshPlan } from "@/lib/live/live-refresh-plan.mjs";
 import { NOT_ASKED, useLivePropsStore, useNowMs, type LivePropsState } from "./use-live-props";
@@ -166,6 +166,8 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
   const feed = liveProps.feed === "OK" ? FEED.OK : liveProps.feed === "UNAVAILABLE" ? FEED.UNAVAILABLE : FEED.NOT_ASKED;
   const shown = game.featured;
   const total = game.eligibleForecastCount;
+  /* V2D: one honest line about how current the live measurements are — null on the server render. */
+  const fresh = cardFreshness({ gamePhase: phase, feed, observedAt: liveProps.artifact?.observedAt ?? null, nowMs });
 
   const spoken =
     `${game.awayTeam} at ${game.homeTeam}. ${label}. ` +
@@ -203,6 +205,12 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
               <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--vault-accent)", flexShrink: 0 }} />
               Featured GameTimePicks forecasts
             </p>
+            {fresh ? (
+              <p role="status" style={{
+                fontFamily: SANS, fontSize: 11.5, fontWeight: 600, margin: "0 0 4px", letterSpacing: "0.02em",
+                color: fresh.kind === "FRESH" ? "var(--vault-text-mute)" : "var(--vault-warn)",
+              }}>{fresh.text}</p>
+            ) : null}
             <ul style={{ margin: 0, padding: 0 }}>
               {shown.map((f) => (
                 <FeaturedForecastRow
@@ -217,7 +225,11 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
         )}
 
         <p style={{ margin: "10px 0 0" }}>
-          <Link href={`/nfl/game/${game.providerEventId}/`} style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: "var(--vault-accent)", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
+          {/* V2D · View all = the game report's own player board, grouped by family (Combined + one tab per
+              published family) — the existing detail mechanism, so a collapsed card carries no hidden rows. */}
+          {/* The anchor only when featured rows exist: those imply a PUBLISHED family, which is exactly when
+              the game page renders its #player-board section — an in-page anchor must resolve. */}
+          <Link href={`/nfl/game/${game.providerEventId}/${shown.length > 0 ? "#player-board" : ""}`} style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: "var(--vault-accent)", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
             {total > shown.length ? `View all ${total} forecasts →` : "Game forecasts →"}
           </Link>
         </p>

@@ -663,7 +663,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           every withheld family named with its failed bar). Renders only when the public artifact
           exists for this event — absence is the honest pre-generation state. */}
       {playerBoard && Object.values(playerBoard.families).some((f) => f.state === "PUBLISHED") ? (
-        <section aria-labelledby="player-board-h">
+        <section id="player-board" aria-labelledby="player-board-h" style={{ scrollMarginTop: 72 }}>
           <SectionHeader
             eyebrow={`Player projections · ${playerBoard.players.length} modelled`}
             title="The player board"
