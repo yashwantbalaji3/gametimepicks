@@ -227,7 +227,9 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
         <p style={{ margin: "10px 0 0" }}>
           {/* V2D · View all = the game report's own player board, grouped by family (Combined + one tab per
               published family) — the existing detail mechanism, so a collapsed card carries no hidden rows. */}
-          <Link href={`/nfl/game/${game.providerEventId}/#player-board`} style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: "var(--vault-accent)", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
+          {/* The anchor only when featured rows exist: those imply a PUBLISHED family, which is exactly when
+              the game page renders its #player-board section — an in-page anchor must resolve. */}
+          <Link href={`/nfl/game/${game.providerEventId}/${shown.length > 0 ? "#player-board" : ""}`} style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: "var(--vault-accent)", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
             {total > shown.length ? `View all ${total} forecasts →` : "Game forecasts →"}
           </Link>
         </p>
