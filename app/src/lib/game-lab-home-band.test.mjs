@@ -58,7 +58,16 @@ test("FUNCTIONAL: the derivation yields real, deduped MLB + WC fixtures with hon
   const all = buildAllGameDetails();
   const mlb = all.filter((d) => d.sport === "mlb");
   const wc = all.filter((d) => d.sport === "world_cup");
-  assert.ok(mlb.length >= 1 || wc.length >= 1, "at least one sport has fixtures today");
+  /*
+   * ⚠ "AT LEAST ONE FIXTURE TODAY" WAS A CLAIM ABOUT THE CALENDAR, NOT THE DERIVATION (2026-09-28:
+   *   the day after MLB's regular season ended, the committed slate held no MLB game and main went
+   *   red). The properties below are what this test protects — every report flag carries a real
+   *   report, and slugs dedupe — and they are checked on every fixture that exists. An empty day is
+   *   a correct state; the honest-unavailable rendering of it is asserted in the test above.
+   */
+  if (mlb.length === 0 && wc.length === 0) {
+    console.log("[game-lab-home-band] no MLB or World Cup fixture in today's committed slate — per-fixture checks have no subject today; the empty-state rendering is covered above");
+  }
   // Every fixture with a report flag actually carries the report (no fabricated 'hasReport').
   for (const d of all.filter((x) => x.sport === "mlb")) {
     if (d.gameLabMlb) assert.ok(d.gameLabMlb.rows !== undefined, "MLB report is a real view");

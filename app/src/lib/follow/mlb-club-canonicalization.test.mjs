@@ -51,30 +51,37 @@ const scheduleUnion = () => {
   return out;
 };
 
-test("PREMISE: the committed capture is still contaminated by TBD sides", () => {
+test("PREMISE: the canonicalization rule is exercised against TBD sides — live when present, fixed otherwise", async () => {
   /*
    * ⚠ THIS PINNED THE EXACT NUMBER SEVEN, AND SEVEN WAS ALWAYS GOING TO EXPIRE (2026-09-25).
+   * ⚠ AND THEN "AT LEAST ONE" EXPIRED TOO (2026-09-28): the regular season ended, StatsAPI resolved
+   *   every seed, and a nightly producer rewrote the capture with no undecided side left. Main went
+   *   red on a correct bracket — the fourth guard in two days to require the slate to hold a state.
    *
-   * The note here already said "if MLB resolves the seeds this premise changes… read this test
-   * again rather than silently passing". MLB then resolved two of them, the count became five, and
-   * the assertion failed on main — not because the rule below broke, but because a scheduled
-   * producer rewrites this artifact every night and the test was asserting today's bracket.
-   *
-   * What the premise is actually FOR is anti-vacuity: "exactly the 30 real clubs survive" proves
-   * nothing unless the raw union really does contain non-clubs. So that is what it asserts now —
-   * some contamination, named — and it still fails loudly if the contamination disappears
-   * ENTIRELY, which is the only change that would make the guards below meaningless.
-   *
-   * The seven names stay in KNOWN_PLACEHOLDERS: the rule test asserts none of them EVER resolves,
-   * and that assertion is correct whether or not a given seed is still undecided today.
+   * What the premise is FOR is anti-vacuity: "exactly the 30 real clubs survive" proves nothing
+   * unless a non-club is actually offered to the rule. So the rule is now exercised on BOTH:
+   *   · the live capture's own contamination, whenever the provider still publishes some; and
+   *   · a FIXED set of placeholder shapes — the exact names seen on 2026-09-23, both flagged by the
+   *     provider and unflagged — which no calendar can empty.
+   * An uncontaminated capture is announced, never silently passed.
    */
+  const { isCanonicalMlbClub } = await import("./entity-registry.ts");
+  const simulated = new Set(["New York Yankees", "Los Angeles Dodgers"]);
+  for (const name of KNOWN_PLACEHOLDERS) {
+    assert.equal(isCanonicalMlbClub({ name, flaggedPlaceholder: true, simulatedNames: simulated }), false, `${name} (flagged) must be refused`);
+    assert.equal(isCanonicalMlbClub({ name, flaggedPlaceholder: false, simulatedNames: simulated }), false, `${name} (unflagged, never simulated) must be refused`);
+  }
+  assert.equal(isCanonicalMlbClub({ name: "New York Yankees", flaggedPlaceholder: false, simulatedNames: simulated }), true, "a real simulated club is kept");
+  assert.equal(isCanonicalMlbClub({ name: "New York Yankees", flaggedPlaceholder: true, simulatedNames: simulated }), false, "the provider's placeholder flag wins");
+
   const union = scheduleUnion();
   const names = new Set([...union.values()].map((s) => s.name));
   const present = KNOWN_PLACEHOLDERS.filter((n) => names.has(n));
-  assert.ok(present.length > 0,
-    `no known TBD side remains in the committed schedule, so the canonicalization guards below are vacuous — re-point them at whatever the provider now publishes for an undecided game, rather than deleting them. Known: ${KNOWN_PLACEHOLDERS.join(", ")}`);
-  assert.ok(union.size > 30,
-    `the raw union must still be contaminated for these guards to mean anything (got ${union.size})`);
+  if (present.length > 0) {
+    assert.ok(union.size > 30, `a contaminated capture must hold more than the 30 clubs (got ${union.size})`);
+  } else {
+    console.log(`[mlb-canonicalization] the committed capture holds no known TBD side (${union.size} sides) — the rule is proved on the fixed shapes above instead`);
+  }
 });
 
 test("exactly the 30 real clubs survive, and every placeholder is excluded", async () => {
