@@ -1,6 +1,6 @@
 {
   "kind": "cron-slot-watchdog",
-  "generatedAt": "2026-09-27T18:36:19Z",
+  "generatedAt": "2026-09-28T18:20:12Z",
   "lookbackHours": 168,
   "sports": {
     "mlb": {
@@ -8,13 +8,13 @@
       "crons": [
         "17 11 * * *"
       ],
-      "createdAt": "2026-09-10T17:50:41.000Z",
+      "createdAt": "2026-09-11T03:59:01.000Z",
       "expected": 7,
       "ran": 100,
       "missed": [],
-      "lastConclusion": "success",
-      "consecutiveFailures": 0,
-      "state": "OK"
+      "lastConclusion": "failure",
+      "consecutiveFailures": 1,
+      "state": "FAILING"
     },
     "ufc": {
       "workflow": "ufc-fight-week.yml",
@@ -24,7 +24,7 @@
         "0 11 * * 6",
         "0 13 * * 0,1,3,5"
       ],
-      "createdAt": "2026-09-10T17:50:41.000Z",
+      "createdAt": "2026-09-11T03:59:01.000Z",
       "expected": 7,
       "ran": 55,
       "missed": [],
@@ -42,7 +42,7 @@
         "0 13 * * 6",
         "0 13 * * 0"
       ],
-      "createdAt": "2026-09-10T17:50:41.000Z",
+      "createdAt": "2026-09-11T03:59:01.000Z",
       "expected": 24,
       "ran": 100,
       "missed": [],
@@ -72,7 +72,7 @@
         "0 15 * * 0",
         "30 18 * * 1"
       ],
-      "createdAt": "2026-09-10T17:50:41.000Z",
+      "createdAt": "2026-09-11T03:59:01.000Z",
       "expected": 18,
       "ran": 100,
       "missed": [],
@@ -85,16 +85,18 @@
       "crons": [
         "7 9 * * *"
       ],
-      "createdAt": "2026-09-10T17:50:41.000Z",
+      "createdAt": "2026-09-11T03:59:01.000Z",
       "expected": 7,
-      "ran": 52,
-      "missed": [],
+      "ran": 53,
+      "missed": [
+        "2026-09-28T09:07:00.000Z"
+      ],
       "lastConclusion": "success",
       "consecutiveFailures": 0,
-      "state": "OK"
+      "state": "MISSED"
     }
   },
-  "missedTotal": 0,
-  "failingTotal": 0,
+  "missedTotal": 1,
+  "failingTotal": 1,
   "unknown": []
 }
