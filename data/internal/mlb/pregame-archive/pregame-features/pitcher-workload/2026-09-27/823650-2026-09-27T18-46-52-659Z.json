@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823650,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T18:46:52.659Z",
+  "availableAt": "2026-09-27T18:46:52.659Z",
+  "eventStartTime": "2026-09-27T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 665152,
+      "name": "Dean Kremer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 7,
+      "lastStartDate": "2026-09-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.8,
+        "bbAvg": 2,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 8.76,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 83.33,
+        "k": 82,
+        "bb": 29,
+        "er": 46,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 669022,
+      "name": "MacKenzie Gore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 33,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.33,
+        "ipAvg": 4.27,
+        "kAvg": 1.8,
+        "bbAvg": 2.8,
+        "erAvg": 2.8,
+        "hrAvg": 0.2,
+        "kPer9": 3.8,
+        "workloadIpLast5": 21.33
+      },
+      "seasonToDate": {
+        "starts": 33,
+        "ip": 170.67,
+        "k": 174,
+        "bb": 70,
+        "er": 87,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T18:46:52.659Z"
+  },
+  "recordHash": "6db0e78726adb19cefac7201309830cf1e613af87b54fa15efe36696649feb99"
+}

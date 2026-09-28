@@ -401,6 +401,73 @@ export function recordRequest(ledger, { at, purpose, endpoint, events = null, ma
   };
 }
 
+/**
+ * Append a charge the provider MADE but this ledger never recorded.
+ *
+ * ⚠ THIS IS NOT `recordRequest`, AND MUST NEVER BE MISTAKEN FOR IT. `recordRequest` writes what a
+ *   live response told us, at the moment it told us. This writes a charge learned AFTER the fact,
+ *   from evidence outside this process — so it takes `creditsUsed` explicitly instead of reading a
+ *   header that is long gone, and stamps `provenance: "RECONCILED"` so no reader, audit or future
+ *   guard can confuse observed spend with repaired spend.
+ *
+ * WHY IT EXISTS. On 2026-09-27 the Phase H probe was charged 3 credits by the provider and then
+ * threw before its ledger reached disk. The money was gone and the record said zero — and BOTH
+ * guards that bound Phase H spend read that record, so the probe re-armed and the 90-credit budget
+ * read zero forever. Hand-writing an entry would have fixed the arithmetic and destroyed the
+ * distinction, because nothing would have marked it as anything other than a call we observed.
+ *
+ * IDEMPOTENT BY `reconciliationId`. Reconciliation is the kind of thing that gets run twice — from
+ * a rerun, a retry, a second pair of hands. A repeat is a NO-OP that reports itself, never a second
+ * charge: double-counting spend is exactly as wrong as losing it.
+ *
+ * The entry DOES count toward budgets. `spentOnPurpose` sums `creditsUsed` by purpose prefix and
+ * this carries the real purpose, because the money genuinely left — the provenance stamp changes
+ * what a reader knows about the entry, not what the arithmetic owes.
+ */
+export function recordReconciledCharge(ledger, { at, purpose, creditsUsed, evidence, reason, reconciliationId }) {
+  const n = Number(creditsUsed);
+  if (!Number.isFinite(n) || n <= 0) {
+    return { ledger, applied: false, reason: "REFUSED: creditsUsed must be a positive finite number — a reconciliation that guesses is not a reconciliation" };
+  }
+  for (const [k, v] of Object.entries({ at, purpose, evidence, reason, reconciliationId })) {
+    if (typeof v !== "string" || !v.trim()) {
+      return { ledger, applied: false, reason: `REFUSED: ${k} is required — an out-of-band entry without it cannot be audited` };
+    }
+  }
+  const already = (ledger?.requests ?? []).find((r) => r?.reconciliationId === reconciliationId);
+  if (already) {
+    return { ledger, applied: false, reason: `ALREADY RECONCILED at ${already.at} (${already.creditsUsed} credit(s)) — a repeat must not double-count the charge` };
+  }
+  const entry = {
+    at,
+    purpose,
+    endpoint: null,
+    events: null,
+    markets: null,
+    regions: null,
+    status: null,
+    resultClass: null,
+    fingerprint: null,
+    creditsUsed: n,
+    providerRequestsUsed: null,
+    providerRequestsRemaining: null,
+    /* The three fields that make this auditable, and distinguishable from an observed call. */
+    provenance: "RECONCILED",
+    reconciliationId,
+    evidence,
+    reconciliationReason: reason,
+  };
+  return {
+    ledger: {
+      ...ledger,
+      requests: [...(ledger.requests ?? []), entry],
+      cumulativeCredits: (ledger.cumulativeCredits ?? 0) + n,
+    },
+    applied: true,
+    reason: `reconciled ${n} credit(s) under ${reconciliationId}`,
+  };
+}
+
 /** Self-scan any artifact string for secret leakage before it is written. */
 export function assertNoSecretLeak(payload, secrets) {
   for (const s of secrets ?? []) {

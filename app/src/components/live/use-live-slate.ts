@@ -29,12 +29,21 @@ export interface LiveSlateResult {
   freshness: { level: string; ageMs: number | null };
   /** How many requests this hook has issued — surfaced so a test can prove "one, not N". */
   requestCount: number;
+  /**
+   * The instant of the last SUCCESSFUL slate response, kept across a refusal.
+   *
+   * This is what §9's "Last observed" states. It is the payload's own instant, not the moment the
+   * refusal arrived — a failed poll must not advance the reader's sense of how fresh the data is.
+   */
+  lastObservedAt: string | null;
+  /** Re-poll now. Used by the outage notice's Retry, which must not reload the page. */
+  retry: () => void;
 }
 
 /** While anything is moving, match the live cadence; otherwise the loop ends. */
 const MOVING_INTERVAL_MS = TTL_SECONDS.LIVE * 1000 + 5_000;
 
-export function useLiveSlate(sport: "mlb" = "mlb"): LiveSlateResult {
+export function useLiveSlate(sport: "nfl" | "mlb" = "mlb"): LiveSlateResult {
   const [byGamePk, setByGamePk] = useState<Record<string, Envelope>>({});
   const [unavailable, setUnavailable] = useState<{ reason: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -115,5 +124,13 @@ export function useLiveSlate(sport: "mlb" = "mlb"): LiveSlateResult {
     ? freshnessOf({ state: "LIVE", fetchedAt }, nowMs)
     : { level: "NOT_APPLICABLE" as const, ageMs: null };
 
-  return { byGamePk, unavailable, loading, freshness, requestCount };
+  /* Restarts a loop that an all-terminal slate (or an outage) had ended. */
+  const retry = useCallback(() => {
+    clearTimer();
+    stopped.current = false;
+    setLoading(true);
+    void poll();
+  }, [clearTimer, poll]);
+
+  return { byGamePk, unavailable, loading, freshness, requestCount, lastObservedAt: fetchedAt, retry };
 }

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822761,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T15:31:44.992Z",
+  "availableAt": "2026-09-27T15:31:44.992Z",
+  "eventStartTime": "2026-09-27T19:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 453286,
+      "name": "Max Scherzer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 4,
+      "lastStartDate": "2026-09-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 5,
+        "bbAvg": 1.8,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 8.13,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 77.67,
+        "k": 61,
+        "bb": 34,
+        "er": 53,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 682227,
+      "name": "Brandon Williamson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 5,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 3.2,
+        "bbAvg": 2.6,
+        "erAvg": 2.6,
+        "hrAvg": 0.4,
+        "kPer9": 6,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 39.33,
+        "k": 26,
+        "bb": 22,
+        "er": 22,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T15:31:44.992Z"
+  },
+  "recordHash": "fe456dd629713649c02f8811d368a336dd74c50031353dd6ad2b557172b2d4e6"
+}

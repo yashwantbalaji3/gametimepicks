@@ -158,6 +158,19 @@ const MARKET_BY_GROUP_LABEL = Object.freeze({
 });
 
 /**
+ * The families this adapter can actually measure while a game is played.
+ *
+ * DERIVED from the map above, never listed again. The /live hub decides whether a frozen prediction
+ * is `liveTrackable` by asking this — so "the UI offers a live rail" and "the adapter can fill it"
+ * are the same statement by construction. A copied list would let the two drift, and a rail with
+ * nothing to put in it is the fake-measurement defect the hub exists to avoid.
+ *
+ * ⚠ `anytime_td` is deliberately ABSENT, for the reason documented above: no feed states the scorer
+ *   by id. It is still a publishable PREGAME probability — it just never gets a continuous rail.
+ */
+export const LIVE_TRACKABLE_MARKETS = Object.freeze([...new Set(Object.values(MARKET_BY_GROUP_LABEL))].sort());
+
+/**
  * Extract factual cumulative player stats from a `summary?event=` payload.
  *
  * Every value is read out of the box score by its own column label — never by column POSITION, which

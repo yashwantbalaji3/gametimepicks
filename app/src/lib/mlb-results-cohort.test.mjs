@@ -61,12 +61,65 @@ test("🔴 §6 · every bucket reconciles: total = wins + losses + pushes + void
   }
 });
 
+/**
+ * The producer stores the HEADLINE rate rounded to 4dp and the BUCKET rates at full precision.
+ * Verified across every committed report: 106 of 107 headline rates do NOT equal `wins / decisive`
+ * within 1e-9, going back to the first report in May.
+ */
+const round4 = (x) => Math.round(x * 1e4) / 1e4;
+
 test("🔴 §6 · the headline reconciles, and `decisive` is wins + losses", { skip: !found }, () => {
   const r = found.report;
   assert.equal(r.decisive, r.wins + r.losses, "decisive must be the two-sided outcomes only");
   assert.equal(r.settled, r.wins + r.losses + r.pushes + r.voids, "settled must account for every row");
-  if (r.decisive > 0) assert.ok(Math.abs(r.hitRate - r.wins / r.decisive) < 1e-9,
-    "the headline rate must be computed over decisive");
+  if (r.decisive === 0) return;
+
+  /*
+   * 🔴 THIS ASSERTION WAS PASSING ON LUCK, AND IT COST A RED MAIN ON ACCEPTANCE DAY.
+   *
+   * It demanded `|hitRate - wins/decisive| < 1e-9`, but the producer ROUNDS the headline to 4dp. So it
+   * could only pass when the true rate happened to be exactly representable in 4dp — and across 107
+   * committed reports exactly ONE is (2026-09-25, whose rate was precisely 0.5). That was yesterday's
+   * newest report. Today's settlement wrote 2026-09-26 at 271/474 = 0.5717299578…, stored as 0.5717,
+   * and the suite went red on a producer behaviour that has been identical since May.
+   *
+   * The DEFECT this test exists to catch is a rate divided by the wrong denominator — `settled` (523)
+   * instead of `decisive` (474). That error is ~0.05; the rounding is ~3e-5. Comparing against the
+   * correctly-ROUNDED exact value separates them without inventing a tolerance: it accepts precisely
+   * what the producer emits and still rejects the wrong denominator outright.
+   */
+  assert.equal(r.hitRate, round4(r.wins / r.decisive),
+    `headline ${r.hitRate} != round4(${r.wins}/${r.decisive}) = ${round4(r.wins / r.decisive)}`);
+
+  /* And the guard is not vacuous: the wrong denominator must produce a DIFFERENT rounded value. */
+  if (r.settled !== r.decisive) {
+    assert.notEqual(round4(r.wins / r.settled), round4(r.wins / r.decisive),
+      "with these counts the two denominators round to the same rate, so this guard cannot tell them apart");
+  }
+});
+
+test("🔴 §6 · the headline is rounded but the BUCKETS are not — one field, two precisions", () => {
+  /*
+   * Recorded as a finding, not fixed here: correcting the producer would change published MLB Results
+   * numbers, which is a founder decision and not something to do on acceptance day. Per the precision
+   * convention this repo already adopted for payouts — full precision internally, round only at the
+   * display — a stored artifact field should carry full precision, so the HEADLINE is the odd one out.
+   *
+   * This asserts the inconsistency so that fixing it is a deliberate act that updates this test,
+   * rather than a silent change nobody notices.
+   */
+  if (!found) return;
+  const r = found.report;
+  if (!r.decisive) return;
+  const headlineIsRounded = Math.abs(r.hitRate - r.wins / r.decisive) > 1e-9;
+  const buckets = Object.values(r.byMarket ?? {}).filter((b) => b.wins + b.losses > 0);
+  if (!buckets.length) return;
+  const bucketsAreExact = buckets.every((b) => Math.abs(b.hitRate - b.wins / (b.wins + b.losses)) < 1e-9);
+  assert.ok(bucketsAreExact, "bucket rates were exact when measured; if they are now rounded too, the producer changed");
+  /* Headline rounding is expected but not guaranteed — a rate that divides evenly is not rounded. */
+  if (!headlineIsRounded) {
+    assert.equal(r.hitRate, round4(r.wins / r.decisive), "an evenly-dividing rate is consistent either way");
+  }
 });
 
 test("🔴 §6 · every bucket's rate is over ITS decisive count, never over its total", { skip: !found }, () => {

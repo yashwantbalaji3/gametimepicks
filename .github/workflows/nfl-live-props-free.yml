@@ -1,0 +1,85 @@
+# NFL live player props — the FREE factual capture, manual only.
+#
+# WHY THIS EXISTS SEPARATELY. `nfl-live-props.yml` hosts the paid Phase H steps in the same job as
+# the free capture. On 2026-09-27 its probe was charged 3 credits and then crashed before recording
+# them, so the paid workflow was disabled. The free capture is what the public live experience
+# actually needs, and it should never have depended on a workflow that can spend.
+#
+# THE GUARANTEE IS STRUCTURAL, NOT A FLAG. This file has no schedule, names no secret, and invokes
+# exactly one script. There is no input that could turn a paid step on, because no paid step exists
+# here to turn on. A flag can be passed wrongly; an absent step cannot run.
+#
+# FREE. ESPN's public summary endpoint: no provider credit, no key, no paid lane touched. Proven on
+# 2026-09-27 — the same script ran keyless on a developer machine and on a runner, and correctly
+# refused before kickoff with "no NFL game is in its live window".
+name: nfl-live-props-free
+
+on:
+  # ⚠ workflow_dispatch ONLY. No `schedule:` — a scheduled trigger here would recreate the cadence
+  #   that was just stopped, without a human deciding to refresh.
+  workflow_dispatch:
+    inputs:
+      event:
+        description: "A single providerEventId to track, or empty for every live game"
+        required: false
+      dry_run:
+        description: "Read and report, write nothing"
+        required: false
+        default: "false"
+
+concurrency:
+  group: gtp-generated-artifacts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      # The already-proven capture. NOT a second implementation — the same script the paid workflow
+      # runs, so there is one live-stat producer in the repository and one place to fix.
+      #
+      # No `env:` block: the provider key is not merely unused here, it is ABSENT from the process.
+      - name: Capture live player-prop state (free · ESPN public)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          ARGS=(--now "$(date -u +%Y-%m-%dT%H:%M:%SZ)")
+          if [ -n "${{ github.event.inputs.event }}" ]; then ARGS+=(--event "${{ github.event.inputs.event }}"); fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then ARGS+=(--dry-run); fi
+          node scripts/nfl/capture-live-props.mjs "${ARGS[@]}"
+
+      # Path-scoped to the ONE directory the capture writes, and guarded because it does not exist
+      # until a game is actually live — the failure that discarded a whole run's output on 2026-09-27.
+      #
+      # `player-board/` and the forecast artifacts are deliberately absent: the frozen pregame record
+      # is not this job's to touch, and an allowlist is the only thing that makes that true.
+      - name: Commit the live-props output
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          P=app/public/data/nfl/live-props/
+          if [ ! -d "$P" ]; then echo "no live-props output this run — nothing to publish"; exit 0; fi
+          git add "$P"
+          if git diff --cached --quiet; then echo "no live change"; exit 0; fi
+          git commit -m "auto: nfl live props (free) $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          for attempt in 1 2 3; do
+            if git pull --rebase --autostash origin main && git push origin HEAD:main; then
+              echo "live state published (attempt ${attempt})"
+              exit 0
+            fi
+            echo "::warning::free live-props push attempt ${attempt} failed — retrying"
+            sleep $((attempt * 5))
+          done
+          echo "::error::free live player-prop state could not be published after 3 attempts"
+          exit 1

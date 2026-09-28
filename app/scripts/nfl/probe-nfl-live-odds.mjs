@@ -199,7 +199,25 @@ ledger = recordRequest(ledger, {
 });
 
 const spent = ledger.requests[ledger.requests.length - 1].creditsUsed;
+/*
+ * 🔴 PERSIST THE CHARGE BEFORE ANYTHING CAN THROW.
+ *
+ * The ledger used to be written only at the end, after the verdict was graded. On 2026-09-27 the
+ * grading threw a ReferenceError immediately below this line: the provider had already answered
+ * 200 and charged 3 credits, the record existed in memory, and the process died before it reached
+ * the disk. The money was spent and the ledger said 481 — unchanged.
+ *
+ * Worse, the two guards that bound this spend BOTH read that ledger: "ONE PROBE MEANS ONE" looks
+ * for a prior probe entry, and the 90-credit budget sums recorded spend. A crash that loses the
+ * record therefore re-arms the probe, so the next scheduled run charges again, every fifteen
+ * minutes, with the budget permanently reading zero.
+ *
+ * A charge is a fact the instant the provider answers. It is now written at that instant, and the
+ * verdict — which is an opinion about the response — is written afterwards.
+ */
+fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1) + "\n");
 console.log(`\nprovider ${res.status} (${resultClass.class}) · charged ${spent} credit(s) · remaining ${headers["x-requests-remaining"] ?? "?"}`);
+console.log(`ledger persisted immediately — ${ledger.cumulativeCredits} cumulative`);
 
 /* ── 3. THE VERDICT — graded against the contract, either way ───────────────────────────────── */
 
@@ -255,7 +273,13 @@ console.log(graded.ok
 /* The join lives in live-market-contract.mjs — one rule, shared with the pilot. A local copy split
    the label on "@" and returned false for a neutral-site "BAL VS DAL", which could have spent this
    probe's single authorized call on a game it then could not find. */
-const matchEvent = (e, t) => providerEventMatches(e, t);
+/*
+ * ⚠ A FUNCTION DECLARATION, DELIBERATELY — it is called ~50 lines ABOVE this point, and a `const`
+ *   arrow is in the temporal dead zone until its initialiser runs. That is exactly what crashed the
+ *   first live probe: `ReferenceError: Cannot access 'matchEvent' before initialization`, thrown
+ *   after the paid call had already been charged. A declaration hoists, so the order cannot bite.
+ */
+function matchEvent(e, t) { return providerEventMatches(e, t); }
 
 /** The most recent COMMITTED pregame team-market capture for this game, or null. */
 function pregameSnapshotFor(eventId, matchup) {

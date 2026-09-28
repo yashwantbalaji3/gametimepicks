@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824948,
+  "date": "2026-09-27",
+  "capturedAt": "2026-09-27T15:31:44.992Z",
+  "availableAt": "2026-09-27T15:31:44.992Z",
+  "eventStartTime": "2026-09-27T19:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 686751,
+      "name": "Seth Johnson",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 663567,
+      "name": "Peter Lambert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 3,
+      "lastStartDate": "2026-09-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 5.6,
+        "bbAvg": 1.6,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 9.82,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 153.67,
+        "k": 153,
+        "bb": 59,
+        "er": 66,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-27T15:31:44.992Z"
+  },
+  "recordHash": "a464242049d5693507b76b39301a0f09002bb056242017176db7a139c35f8353"
+}

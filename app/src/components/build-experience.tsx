@@ -141,6 +141,8 @@ export default function BuildExperience({
      and land focus somewhere deliberate rather than on whatever happens to be first. */
   const slipSheetRef = useRef<HTMLDivElement>(null);
   const slipCloseRef = useRef<HTMLButtonElement>(null);
+  /** The "View card" bar. It UNMOUNTS while the sheet is open, so focus-return needs it by ref. */
+  const slipOpenerRef = useRef<HTMLButtonElement>(null);
   /*
    * ⚠ useCallback IS LOAD-BEARING, NOT TIDINESS. `useDialogFocus` lists `onClose` in its deps, so an
    * inline arrow would give the effect a new identity every render — tearing down and re-running it,
@@ -148,6 +150,25 @@ export default function BuildExperience({
    */
   const closeSlip = useCallback(() => setSlipOpen(false), []);
   useDialogFocus(slipSheetRef, { onClose: closeSlip, active: slipOpen, initialFocus: slipCloseRef });
+  /*
+   * 🔴 THE PRIMITIVE CANNOT RESTORE FOCUS HERE, AND MY e2e TEST CAUGHT IT.
+   *
+   * `useDialogFocus` remembers the opener and focuses it on unmount. That works when the opener
+   * survives — but this bar renders under `{!slipOpen && …}`, so opening the sheet UNMOUNTS the very
+   * button that opened it. The cleanup then calls `.focus()` on a node that is no longer in the
+   * document, which is a no-op, and focus lands on <body>. A reader dismissing the sheet was returned
+   * to the top of the page.
+   *
+   * So the bar is re-mounted by React when `slipOpen` goes false, and THIS effect focuses it after
+   * that render. Deliberately local rather than a change to the shared primitive: five other dialogs
+   * have openers that persist, and widening the contract to fix one caller would put the other five
+   * through an untested path on acceptance day.
+   */
+  const wasSlipOpen = useRef(false);
+  useEffect(() => {
+    if (wasSlipOpen.current && !slipOpen) slipOpenerRef.current?.focus();
+    wasSlipOpen.current = slipOpen;
+  }, [slipOpen]);
   const [gameFilter, setGameFilter] = useState<string | null>(null);
   const [seedNote, setSeedNote] = useState<string | null>(null);
 
@@ -533,7 +554,7 @@ export default function BuildExperience({
           nothing behind it, covering content (P208 finding F4). */}
       <div className="lg:hidden">
         {!slipOpen && draft.length > 0 && (
-          <button type="button" onClick={() => setSlipOpen(true)}
+          <button ref={slipOpenerRef} type="button" onClick={() => setSlipOpen(true)}
             className="vault-press fixed left-3 right-3 z-40 flex items-center justify-between gap-2 rounded-full px-5 py-3 shadow-lg"
             style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 64px)", background: "var(--vault-gold-bright)", color: "var(--vault-on-accent)", fontWeight: 700, border: "none", minHeight: 44 }}>
             <span style={{ fontSize: 14 }}>View card · {draft.length} leg{draft.length === 1 ? "" : "s"}</span>
