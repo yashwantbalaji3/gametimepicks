@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-27T10:34:49Z",
+ "generatedAt": "2026-09-28T11:43:24Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 14,
@@ -21,20 +21,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 734,
+   "n": 747,
    "judgement": {
     "state": "BREACHED",
-    "n": 734,
+    "n": 747,
     "needed": 200,
-    "meanDiff": 0.0362,
-    "lo95": 0.0175,
-    "hi95": 0.0549
+    "meanDiff": 0.035,
+    "lo95": 0.0164,
+    "hi95": 0.054
    },
    "context": {
-    "hitRate": 0.4905,
-    "meanPickProbability": 0.5871,
-    "modelMinusMarket": 0.0354,
-    "pairedWithMarket": 734
+    "hitRate": 0.4913,
+    "meanPickProbability": 0.5875,
+    "modelMinusMarket": 0.0343,
+    "pairedWithMarket": 747
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -44,14 +44,14 @@
    "label": "NFL receptions 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "BREACHED",
-   "n": 343,
+   "n": 494,
    "judgement": {
     "state": "BREACHED",
-    "n": 343,
+    "n": 494,
     "needed": 150,
-    "rate": 0.9067,
+    "rate": 0.9069,
     "target": 0.8,
-    "z": 4.9405,
+    "z": 5.939,
     "direction": "ranges too wide"
    },
    "context": null,
@@ -63,20 +63,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 773,
+   "n": 786,
    "judgement": {
     "state": "WATCH",
-    "n": 773,
+    "n": 786,
     "needed": 200,
-    "meanDiff": 0.0078,
-    "lo95": -0.0058,
-    "hi95": 0.021
+    "meanDiff": 0.0067,
+    "lo95": -0.006,
+    "hi95": 0.0199
    },
    "context": {
-    "hitRate": 0.5097,
-    "meanPickProbability": 0.5721,
-    "modelMinusMarket": 0.0313,
-    "pairedWithMarket": 768
+    "hitRate": 0.5115,
+    "meanPickProbability": 0.5723,
+    "modelMinusMarket": 0.0317,
+    "pairedWithMarket": 781
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
   },
@@ -86,17 +86,17 @@
    "label": "MLB run line picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 773,
+   "n": 786,
    "judgement": {
     "state": "HOLDING",
-    "n": 773,
+    "n": 786,
     "needed": 200,
-    "meanDiff": -0.0342,
-    "lo95": -0.0493,
-    "hi95": -0.0187
+    "meanDiff": -0.0328,
+    "lo95": -0.0481,
+    "hi95": -0.017
    },
    "context": {
-    "hitRate": 0.6326,
+    "hitRate": 0.631,
     "meanPickProbability": 0.5988,
     "modelMinusMarket": null,
     "pairedWithMarket": 0
@@ -109,14 +109,14 @@
    "label": "NFL touchdown chances",
    "baseline": "expected scorers = actual scorers",
    "state": "HOLDING",
-   "n": 451,
+   "n": 650,
    "judgement": {
     "state": "HOLDING",
-    "n": 451,
+    "n": 650,
     "needed": 150,
-    "expected": 105.439,
-    "actual": 99,
-    "z": -0.75,
+    "expected": 153.3952,
+    "actual": 147,
+    "z": -0.6213,
     "direction": null
    },
    "context": null,
@@ -128,14 +128,14 @@
    "label": "NFL receiving yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 343,
+   "n": 494,
    "judgement": {
     "state": "HOLDING",
-    "n": 343,
+    "n": 494,
     "needed": 150,
-    "rate": 0.8105,
+    "rate": 0.8077,
     "target": 0.8,
-    "z": 0.486,
+    "z": 0.4274,
     "direction": null
    },
    "context": null,
@@ -147,14 +147,14 @@
    "label": "NFL rushing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 187,
+   "n": 271,
    "judgement": {
     "state": "HOLDING",
-    "n": 187,
+    "n": 271,
     "needed": 150,
-    "rate": 0.8075,
+    "rate": 0.845,
     "target": 0.8,
-    "z": 0.2559,
+    "z": 1.8527,
     "direction": null
    },
    "context": null,
@@ -342,12 +342,12 @@
    "label": "NFL winning margin 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 33,
+   "n": 46,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 33,
+    "n": 46,
     "needed": 48,
-    "rate": 0.7273,
+    "rate": 0.7826,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -361,12 +361,12 @@
    "label": "NFL passing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 64,
+   "n": 90,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 64,
+    "n": 90,
     "needed": 150,
-    "rate": 0.7969,
+    "rate": 0.8333,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -380,12 +380,12 @@
    "label": "NFL total points 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 33,
+   "n": 46,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 33,
+    "n": 46,
     "needed": 48,
-    "rate": 0.7576,
+    "rate": 0.7826,
     "target": 0.8,
     "z": null,
     "direction": null
@@ -399,18 +399,18 @@
    "label": "NFL winner",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 33,
+   "n": 46,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 33,
+    "n": 46,
     "needed": 48,
-    "meanDiff": -0.0182,
+    "meanDiff": -0.0341,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "hits": 18,
-    "expectedHits": 20.0843
+    "hits": 28,
+    "expectedHits": 28.3321
    },
    "source": "app/public/data/nfl/reconciliation/<week>.json"
   },
@@ -420,20 +420,20 @@
    "label": "UFC fight winner",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 41,
+   "n": 49,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 41,
+    "n": 49,
     "needed": 60,
-    "meanDiff": 0.0052,
+    "meanDiff": -0.0224,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "modelLogLoss": 0.6983,
-    "marketLogLoss": 0.659,
-    "modelMinusMarket": 0.0393,
-    "pairedWithMarket": 41
+    "modelLogLoss": 0.6708,
+    "marketLogLoss": 0.6513,
+    "modelMinusMarket": 0.0195,
+    "pairedWithMarket": 49
    },
    "source": "data/internal/research/ufc/model-vs-market/graded.jsonl"
   }
