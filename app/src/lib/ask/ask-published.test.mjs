@@ -90,9 +90,25 @@ test("a published paused market carries its reason and NO pick", () => {
     assert.equal(m.modelProbability, null, `${f.forecastId} ${m.market}: a paused market must carry no model probability`);
     assert.ok(m.pausedReason, `${f.forecastId} ${m.market}: a paused market must state why`);
   }
-  // MLB totals are paused today. If that stops being true this guard stops having subjects, and the
-  // count says so rather than the file silently guarding nothing.
-  assert.ok(paused.length > 0, "no paused market was found — if MLB totals were unpaused, say so deliberately");
+  /*
+   * The subjects are MLB totals, which are PAUSED as policy. Two very different things can empty
+   * this set, and only one of them is a defect:
+   *
+   *   the policy changed   MLB forecasts are published and NONE is paused → totals were unpaused,
+   *                        which must be said deliberately. Still fails.
+   *   the slate is empty   no MLB forecast is published at all — late on 2026-09-27 the projection
+   *                        held `forecasts MLB 0`. Nothing to pause, and nothing wrong. It says so
+   *                        instead of failing on a correct state.
+   *
+   * The original `paused.length > 0` could not tell those apart, so an ordinary empty slate read as
+   * a policy change and took main red.
+   */
+  const mlbPublished = doc.forecasts.filter((f) => f.sport === "MLB").length;
+  if (paused.length === 0) {
+    assert.equal(mlbPublished, 0,
+      `${mlbPublished} MLB forecast(s) are published and none carries a PAUSED market — if MLB totals were unpaused, say so deliberately`);
+    console.log("[ask-published] no MLB forecast is published right now, so there is no paused market to check — announced rather than passed silently");
+  }
 });
 
 test("the published artifact states that no EV owner and no staking policy exist", () => {
