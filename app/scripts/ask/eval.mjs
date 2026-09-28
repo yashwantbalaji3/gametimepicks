@@ -25,14 +25,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { makeAskLoader, fileFetchText } from "../../src/lib/ask/loader.mjs";
-import { createFakeProvider } from "../../src/lib/ask/provider-fake.mjs";
+import { makeAskLoader, fileFetchText, fixtureFetchText } from "../../src/lib/ask/loader.mjs";
+import { createFakeProvider, FAKE_WRITER_TEXT } from "../../src/lib/ask/provider-fake.mjs";
 import { makeProvider } from "../../src/lib/ask/provider-factory.mjs";
 import { runAskTurn } from "../../src/lib/ask/engine.mjs";
 import { ASK_PROMPT_VERSION } from "../../src/lib/ask/contract.mjs";
 import { registryFingerprint } from "../../src/lib/ask/registry.mjs";
 import { forbiddenCopyIn } from "../../src/lib/ask/verifier.mjs";
 import { GOLDEN } from "./golden.mjs";
+import { EVAL_FIXTURES } from "./eval-fixtures.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -55,7 +56,27 @@ if (PROVIDER !== "fake" && !process.env.ANTHROPIC_API_KEY) {
   process.exit(2);
 }
 
-const loader = makeAskLoader(fileFetchText(fs, path, path.join(APP, "public")));
+const publishedFetch = fileFetchText(fs, path, path.join(APP, "public"));
+const loader = makeAskLoader(publishedFetch);
+
+/*
+ * A CASE THAT NAMES A FIXTURE GETS ITS OWN LOADER. The fixture overlays only the assets it names; every
+ * other read still goes to the published export. A separate loader per fixture because the loader
+ * memoises by path across turns — a shared one would serve a fixture's forecasts to the next real case,
+ * or the real forecasts to a fixture case, and either way measure the wrong evidence.
+ */
+const fixtureLoaders = new Map();
+function loaderFor(c) {
+  if (!c.fixture) return loader;
+  const assets = EVAL_FIXTURES[c.fixture];
+  if (!assets) throw new Error(`golden case ${c.id} names an unknown fixture "${c.fixture}"`);
+  if (!fixtureLoaders.has(c.fixture)) {
+    const overlay = fixtureFetchText(assets);
+    fixtureLoaders.set(c.fixture, makeAskLoader((p, signal) =>
+      (Object.prototype.hasOwnProperty.call(assets, p) ? overlay(p, signal) : publishedFetch(p, signal))));
+  }
+  return fixtureLoaders.get(c.fixture);
+}
 const NOW = new Date("2026-09-17T21:00:00-04:00");
 
 /** The live gateway, faked deterministically: MLB supported, NFL refused — production's own shape. */
@@ -93,7 +114,7 @@ for (const c of cases) {
   try {
     out = await runAskTurn(
       { messages, preferences: c.preferences ?? null, priorEntities: c.priorEntities ?? [] },
-      { provider: providerFor(c.behaviour), turn: loader.beginTurn(), now: () => NOW, liveFetch },
+      { provider: providerFor(c.behaviour), turn: loaderFor(c).beginTurn(), now: () => NOW, liveFetch },
     );
   } catch (e) {
     error = String(e?.message ?? e);
@@ -131,7 +152,30 @@ function grade(c, out) {
    * expects grounding must actually be verified.
    */
   if (c.expectGrounded) add("grounded", out.verified === true, `verifier ${out.receipt?.verifierStatus}`);
-  if (c.expectFallback) add("fell-back", out.receipt?.verifierStatus?.includes("FALLBACK") === true, `verifier ${out.receipt?.verifierStatus}`);
+  /*
+   * ⚠ "FELL BACK" MEANS THE VERIFIER REFUSED THE WRITER — NOT MERELY THAT A FALLBACK SHIPPED.
+   *
+   * This used to accept any status containing FALLBACK, which includes DETERMINISTIC_FALLBACK: the
+   * path where the tools returned nothing usable and the WRITER NEVER RAN. mut-19 and mut-20 passed
+   * that way for weeks — the mutation they exist to test was never applied, and a guard that did not
+   * exist was scored as catching it. Now a mutation case passes only when (a) the writer ran and the
+   * verifier refused its answer, (b) the refused answer IS the mutation's own text, and (c) where the
+   * case names the rule it tests, that rule is among the reasons.
+   */
+  if (c.expectFallback) {
+    const status = out.receipt?.verifierStatus;
+    add("fell-back", status === "FAILED_DETERMINISTIC_FALLBACK", `verifier ${status}`);
+    const fixed = PROVIDER === "fake" ? FAKE_WRITER_TEXT[c.behaviour] : undefined;
+    const rejected = out.receipt?.rejectedAnswer ?? "";
+    if (PROVIDER === "fake") {
+      add("mutation-applied", fixed !== undefined ? rejected === fixed.slice(0, 600) : rejected.length > 0,
+        rejected ? `refused ${JSON.stringify(rejected.slice(0, 60))}` : "no refused answer — the mutated text was never produced, or was published");
+    }
+    if (c.expectViolation) {
+      const reasons = out.receipt?.verifierViolations ?? [];
+      add("refused-for-its-rule", reasons.some((v) => v.includes(c.expectViolation)), `reasons [${reasons.join(" | ").slice(0, 160)}]`);
+    }
+  }
 
   if (c.expectCitations) add("cited", (out.answer?.citations ?? []).length > 0 || out.answer?.deterministic === true, "no citations");
   if (c.expectLink) add("linked", (out.answer?.links ?? []).some((l) => l.href.startsWith(c.expectLink)), `got ${(out.answer?.links ?? []).map((l) => l.href)}`);
