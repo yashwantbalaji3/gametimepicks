@@ -58,6 +58,8 @@ import { reportCardContext } from "@/lib/command-center/report-card";
 import { archivedEventFrom, archivedEventIds, archivedForecastFor } from "@/lib/sports/nfl/archived-forecast";
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
+import AnalystMore from "@/components/view-mode/analyst-more";
+import AnalystOnly from "@/components/view-mode/analyst-only";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -509,6 +511,12 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         );
       })()}
 
+      {/* SA3 · Simple / Analyst. The percentile table, the exact-score shape and the model receipt are
+          ANALYST detail: every headline number (projected score, win chance, total and margin with their
+          8-in-10 ranges) is in the tiles above in both modes. A caveat about a hidden number hides with it;
+          the honest limit and the disclaimer stay visible (Provenance, below). */}
+      <AnalystMore what="score ranges by team, the likeliest exact scores, key-number margins and the full model receipt" />
+      <AnalystOnly>
       <section aria-labelledby="score-range" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Range" title="How wide the outcomes are" sub="the 10th to 90th percentile of each team's simulated score" />
         <div style={{ overflowX: "auto", marginTop: 12 }}>
@@ -538,6 +546,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </table>
         </div>
       </section>
+      </AnalystOnly>
 
       {/*
         ── THE LUMPY HALF (P251 · F6) ──────────────────────────────────────────────────────────
@@ -550,6 +559,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         and which was solved onto the SAME median margin and total printed above — so the shape and
         the centre are one answer, not two.
       */}
+      <AnalystOnly>
       {hasShape ? (
         <section aria-labelledby="score-shape" style={{ marginTop: 26 }}>
           <SectionHeader eyebrow="Exact score" title="The likeliest final scores"
@@ -640,6 +650,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </div>
         </section>
       ) : null}
+      </AnalystOnly>
 
       <section aria-labelledby="vs-market" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Comparison" title="Us versus the sportsbooks" sub="two independent reads, shown side by side" />
@@ -741,6 +752,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
 
       <section aria-labelledby="receipt" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Provenance" title="Where this came from" />
+        <AnalystOnly>
         <dl style={{ marginTop: 12, fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)", display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px" }}>
           <dt>model</dt><dd style={{ margin: 0 }}>{f.model.id} v{f.model.version}</dd>
           <dt>simulations</dt><dd style={{ margin: 0 }}>{f.model.simulations.toLocaleString()}</dd>
@@ -768,6 +780,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             </ul>
           </details>
         ) : null}
+        </AnalystOnly>
         {card?.honestLimit ? (
           <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 760, lineHeight: 1.6 }}>{card.honestLimit}</p>
         ) : null}

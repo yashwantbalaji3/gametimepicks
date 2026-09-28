@@ -34,6 +34,8 @@ import { buildUfcBoutPresentation } from "@/lib/simulate/presentation/ufc";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { researchHref } from "@/lib/research-pages/projection-store";
+import AnalystMore from "@/components/view-mode/analyst-more";
+import AnalystOnly from "@/components/view-mode/analyst-only";
 
 export const dynamicParams = false;
 
@@ -287,6 +289,11 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
       <section className="mt-8">
         <SectionHeader eyebrow="Method" title="Where these numbers come from" />
         <div style={{ ...PANEL, display: "grid", gap: 10 }}>
+          {/* SA3 · Simple / Analyst: the method claim and its receipt (held-out accuracy per head, the
+              corpus) move TOGETHER — a claim is never shown without the receipt beside it. The
+              paper-only line is trust copy and stays in both modes. */}
+          <AnalystMore what="how each head was tested, its held-out accuracy against the baseline, and the fight corpus" flush />
+          <AnalystOnly>
           <p className="m-0" style={{ fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>
             Three separate heads — winner, method and round — each fitted on a corpus of tracked UFC fights and each
             published only on its own PASS verdict against a bar frozen before it was fitted. This is the one model on
@@ -308,6 +315,7 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
             ) : null}
             {card.generatedAt ? <div>generated {card.generatedAt}</div> : null}
           </div>
+          </AnalystOnly>
           <p className="m-0" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>
             Educational and paper-only — not betting advice.
           </p>

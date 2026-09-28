@@ -9,6 +9,11 @@
  * ⚠ WHAT MUST NEVER GO INSIDE: a prediction value, a line, a live measurement, a result, or any warning
  *   that bears on trust (stale, tracking unavailable, grading pending, experimental / estimate, paused).
  *   Those are always visible. Only additional model detail belongs here.
+ *
+ * ⚠ WEIGHT: this removes the subtree from the Simple page's HTML, not from its data. Server-rendered
+ *   children handed to this client component still travel in the RSC payload. It is a decluttering
+ *   tool; a heavy Analyst section that must not ship to Simple readers has to be fetched on demand.
+ *   Pair every use with an <AnalystMore> line so the omission is discoverable.
  */
 import type { ReactNode } from "react";
 

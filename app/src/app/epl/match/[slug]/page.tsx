@@ -37,6 +37,8 @@ import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
 import { reportCardContext } from "@/lib/command-center/report-card";
 import path from "node:path";
 import { buildEplPresentation } from "@/lib/simulate/presentation/epl";
+import AnalystMore from "@/components/view-mode/analyst-more";
+import AnalystOnly from "@/components/view-mode/analyst-only";
 
 /**
  * One page per fixture that EVER carried a distribution — enumerated from the dated archive, not
@@ -283,12 +285,16 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
               <Stat label="p10 – p90" value={`${totals.quantiles.p10} – ${totals.quantiles.p90}`} />
             </div>
 
+            {/* SA3 · Simple / Analyst: the per-total histogram is Analyst detail — expected goals, the
+                median, the 8-in-10 range and the over/under ladder (the line) stay in both modes. */}
+            <AnalystOnly>
             <div>
               <p className="font-mono" style={{ margin: "0 0 6px", fontSize: 10.5, letterSpacing: "0.06em", color: "var(--vault-text-faint)", textTransform: "uppercase" }}>
                 Probability of each total (goals)
               </p>
               <Histogram values={totals.distribution.slice(0, 9)} labelFor={(i) => String(i)} accent={green} />
             </div>
+            </AnalystOnly>
 
             <div>
               <p className="font-mono" style={{ margin: "0 0 8px", fontSize: 10.5, letterSpacing: "0.06em", color: "var(--vault-text-faint)", textTransform: "uppercase" }}>
@@ -321,6 +327,8 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
       ) : null}
 
       {/* ── Each side's goals ────────────────────────────────────────────────────────────────── */}
+      <AnalystMore what="goal distributions for the match and each side, the winning-margin shape and the model's scoring rates" />
+      <AnalystOnly>
       {row.teamGoals ? (
         <section className="mt-7">
           <SectionHeader
@@ -343,6 +351,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           </div>
         </section>
       ) : null}
+      </AnalystOnly>
 
       {/* ── Derived outcomes ─────────────────────────────────────────────────────────────────── */}
       <section className="mt-7">
@@ -355,6 +364,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
             {row.margin ? <Stat label="Expected margin" value={`${row.margin.expected > 0 ? "+" : ""}${dec(row.margin.expected)}`} /> : null}
           </div>
 
+          <AnalystOnly>
           {row.margin ? (
             <div>
               <p className="font-mono" style={{ margin: "0 0 6px", fontSize: 10.5, letterSpacing: "0.06em", color: "var(--vault-text-faint)", textTransform: "uppercase" }}>
@@ -372,6 +382,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
               </p>
             </div>
           ) : null}
+          </AnalystOnly>
         </div>
       </section>
 
@@ -436,22 +447,28 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
       <section className="mt-7">
         <SectionHeader eyebrow="Method" title="Where these numbers come from" />
         <div style={{ ...PANEL, display: "grid", gap: 10 }}>
+          {/* SA3: the method detail is Analyst; the LIMITATION paragraph (no lineup, injury or team-news
+              input) is trust copy and stays visible in both modes. */}
+          <AnalystOnly>
           <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>
             Per-club attack and defence rates are fitted to Premier League results only, then combined into an
             exact Poisson score matrix for this fixture. Every probability on this page is a closed-form sum over
             that one grid — there is no sampling here, so there is no run count to quote and the figures are
             identical for every visitor, every time.
           </p>
+          </AnalystOnly>
           <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>
             The fit takes an explicit cutoff at the run clock, so it cannot see a result from a match it is
             forecasting. Team-level only: no lineup, injury or team-news input exists in this model, by design.
           </p>
+          <AnalystOnly>
           <dl style={{ display: "grid", gap: 6, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", margin: 0 }}>
             <Meta k="Model" v={row.modelId ?? "epl-model-v1-split-poisson"} />
             {row.lambdas ? <Meta k="Scoring rates (λ)" v={`${home} ${dec(row.lambdas.home)} · ${away} ${dec(row.lambdas.away)}`} /> : null}
             <Meta k="Generated" v={generatedLine} />
             <Meta k="Validation" v={validationLine} />
           </dl>
+          </AnalystOnly>
         </div>
       </section>
 
