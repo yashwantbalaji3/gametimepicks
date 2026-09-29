@@ -86,7 +86,8 @@ test("the builder uses this rule and reads terminal state from the existing owne
 
 test("/nfl names a carried earlier-week game above the week — facts only, live state sent to /live", () => {
   const hub = fs.readFileSync(path.join(process.cwd(), "src/app/nfl/page.tsx"), "utf8");
-  assert.match(hub, /const carriedStarted = indexEvents\.filter\(\(e\) => e\.lifecycle === "STARTED" && !weekIds\.has\(e\.providerEventId\)\);/);
+  // Started-ness through the shared lifecycle owner (P252), never the raw stamp.
+  assert.match(hub, /const carriedStarted = indexEvents\.filter\(\(e\) => hasStarted\(e, nowIso\) && !weekIds\.has\(e\.providerEventId\)\);/);
   assert.match(hub, /carriedStarted\.length \? \(/);
   assert.match(hub, /href="\/live\/"/);
   assert.match(hub, /href=\{`\/nfl\/game\/\$\{e\.providerEventId\}\/`\}/);

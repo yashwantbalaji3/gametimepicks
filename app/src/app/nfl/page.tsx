@@ -243,7 +243,7 @@ export default function NflHubPage() {
    * week. It states facts only — the week and the kickoff — and sends "is it still on?" to /live, since
    * a static page cannot know when a game ends.
    */
-  const carriedStarted = indexEvents.filter((e) => e.lifecycle === "STARTED" && !weekIds.has(e.providerEventId));
+  const carriedStarted = indexEvents.filter((e) => hasStarted(e, nowIso) && !weekIds.has(e.providerEventId));
   const periodLabelOf = (id: string) => nflEvents.find((e) => e.providerAliases[0]?.id === id)?.period.label ?? null;
   const etKickoff = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(iso));
   const weatherByEvent = new Map(
