@@ -14,7 +14,7 @@
  * Writes: app/public/data/nfl/model-status.json  (PUBLIC — derived, no research payload)
  */
 import fs from "node:fs";
-import { derivePlayerFamilyPublication } from "../../src/lib/sports/nfl/family-publication.mjs";
+import { derivePlayerFamilyPublication, constituentBoards, familyPublication } from "../../src/lib/sports/nfl/family-publication.mjs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -242,7 +242,7 @@ const playerFamilies = derivePlayerFamilyPublication({
 const roleReason = windowIsPreseason
   ? "preseason playing time is unknown"
   : "current role evidence for these games has not cleared its own bar";
-const anytimeTd = td
+const anytimeTdHeld = td
   ? {
     state: probeFoundNothing ? "NO_MARKET" : "ROLE_UNCERTAIN",
     headline: "Anytime touchdown: held",
@@ -252,6 +252,22 @@ const anytimeTd = td
     nextGate: "An offered anytime-touchdown market plus current role evidence.",
   }
   : { state: "UNKNOWN", headline: "Anytime touchdown: no calibration on file", detail: "No claim is made without a calibration receipt." };
+/*
+ * P2-B (2026-09-29): the boards own what publishes (P330). This row said "no scorer is published" while every
+ * Week-4 board published anytime-TD probabilities and /nfl rendered a "Top 5 · Anytime touchdown" board. When
+ * every constituent board publishes the family, the row says so — and keeps Endzone Vault's own truth (it makes
+ * no selection without current role evidence and an offered price). Otherwise the held row stands unchanged.
+ */
+const tdOnBoards = familyPublication("anytime_td", anytimeTdHeld, constituentBoards(perGameBoards, windowPeriod));
+const anytimeTd = td && tdOnBoards.state === "PUBLISHED"
+  ? {
+    state: "PUBLISHED",
+    headline: "Anytime touchdown: published on this week's game boards",
+    /* Plain words only: the boards' basis carries the internal engine id, which never reaches the public page. */
+    detail: `Every game on this week's boards publishes touchdown chances from the calibrated scoring model; they assume the player plays (a player who does not play settles void). Endzone Vault makes no selection: ${roleReason}${probeFoundNothing ? ", and no current touchdown price is captured" : ""}.`,
+    nextGate: anytimeTdHeld.nextGate ?? null,
+  }
+  : anytimeTdHeld;
 
 // ---------------------------------------------------------------- game totals
 /*
