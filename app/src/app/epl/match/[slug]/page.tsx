@@ -153,16 +153,21 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
         Not a footer. A reader who stops after the headline probability has still been told that
         nothing on this page has been checked against a result.
       */}
+      {/* P1-D (2026-09-29): the limitation stays ABOVE the first number, but as its headline and one
+          sentence; the long evidence (how it was tested, the live record) moves into Model detail right
+          here, one tap away. It was a ~200-word paragraph between the fixture and its forecast. */}
       <section className="mt-5" style={{ ...PANEL, borderColor: "color-mix(in srgb, var(--sport-soccer) 40%, var(--vault-rule))" }}>
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6 }}>
-          {set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY" && set.validationNote ? (
-            <><strong style={{ color: soccer }}>Tested blind on past seasons.</strong> {set.validationNote} {trackRecordLine} These are the</>
-          ) : (
-            <><strong style={{ color: soccer }}>Not validated out of sample.</strong> {trackRecordLine} These are the</>
-          )}
-          model&apos;s own probability distributions, published so you can see what it says — not picks, not advice,
-          and not compared against any price.
+          <strong style={{ color: soccer }}>{set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY" && set.validationNote ? "Tested blind on past seasons." : "Not validated out of sample."}</strong>{" "}
+          These are the model&apos;s own probability distributions, published so you can see what it says — not
+          picks, not advice, and not compared against any price.
         </p>
+        <details className="mt-2">
+          <summary className="cursor-pointer font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)", minHeight: 44, display: "flex", alignItems: "center" }}>Model detail · how it was tested and its live record</summary>
+          <p style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
+            {set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY" && set.validationNote ? <>{set.validationNote} </> : null}{trackRecordLine}
+          </p>
+        </details>
       </section>
 
       {/* P243 · C-EPL: a pre-odds forecast says so beside its numbers — what a missing market
