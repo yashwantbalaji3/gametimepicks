@@ -116,6 +116,13 @@ function gameRows(sport: "mlb" | "nfl", nowMs: number): HubGameRow[] {
         read: readForGame(d),
         reportState: started ? "ARCHIVE" : "READY",
         reportHref: `/games/${urlSport(detail.sport)}/${detail.slug}/`,
+        ...(d.awayTeam && d.homeTeam ? {
+          participants: [
+            { name: String(d.awayTeam), logoTeam: String(d.awayTeam), logoSport: sport },
+            { name: String(d.homeTeam), logoTeam: String(d.homeTeam), logoSport: sport },
+          ],
+          separator: "@" as const,
+        } : {}),
       };
     });
 }
@@ -245,6 +252,13 @@ export function nflHub(nowIso: string): SportHubModel {
           read: nflReadFor(nflIndex, e.providerAliases[0]?.id),
           reportState: e.dimensions.model === "PUBLISHED" ? (started ? "ARCHIVE" : "READY") : "NONE",
           reportHref: e.dimensions.model === "PUBLISHED" ? e.reportHref : null,
+          ...(e.participants.away && e.participants.home ? {
+            participants: [
+              { name: e.participants.away, logoTeam: e.participants.away, logoSport: "nfl" as const },
+              { name: e.participants.home, logoTeam: e.participants.home, logoSport: "nfl" as const },
+            ],
+            separator: "@" as const,
+          } : {}),
           reportNote:
             e.dimensions.model === "MISSED_PREEVENT"
               ? "Kicked off before a forecast was published — missed coverage, never backfilled."
@@ -310,6 +324,13 @@ export function eplHub(nowIso: string): SportHubModel {
          an ABSTAIN) would link to nothing. P243: model-only rows carry probs and light up here. */
       reportState: r.slug && p ? (started ? "ARCHIVE" : "READY") : "NONE",
       reportHref: r.slug && p ? `/epl/match/${r.slug}/` : null,
+      ...(r.homeClub && r.awayClub ? {
+        participants: [
+          { name: r.homeClub, logoTeam: r.homeClub, logoSport: "soccer" as const },
+          { name: r.awayClub, logoTeam: r.awayClub, logoSport: "soccer" as const },
+        ],
+        separator: "v" as const,
+      } : {}),
       reportNote: r.slug && p ? undefined : (r.unavailableReason ?? "no published forecast"),
     };
   });
@@ -368,6 +389,13 @@ export function eplHub(nowIso: string): SportHubModel {
       startUtc: kickoff,
       startLabel: startLabelOf({ iso: kickoff, exact: true }),
       matchup: `${ev.competitors?.home?.name ?? "TBD"} v ${ev.competitors?.away?.name ?? "TBD"}`,
+      ...(ev.competitors?.home?.name && ev.competitors?.away?.name ? {
+        participants: [
+          { name: ev.competitors.home.name, logoTeam: ev.competitors.home.name, logoSport: "soccer" as const },
+          { name: ev.competitors.away.name, logoTeam: ev.competitors.away.name, logoSport: "soccer" as const },
+        ],
+        separator: "v" as const,
+      } : {}),
       status: "scheduled",
       started: false,
       read: null,
@@ -410,6 +438,10 @@ export function ufcHub(nowIso: string, bouts: Array<{ id: string; matchup: strin
       /* P251-F3: UFC has per-bout routes now — "View report" leaves the hub like every other sport. */
       reportHref: hasRead ? `/ufc/bout/${b.id}/` : null,
       reportNote: hasRead ? "bout details below" : "not modelled — no tracked history",
+      ...(() => {
+        const sides = b.matchup.split(/\s+vs\.?\s+/i).map((x) => x.trim()).filter(Boolean);
+        return sides.length === 2 ? { participants: sides.map((name) => ({ name, logoTeam: null, logoSport: null })), separator: "vs" as const } : {};
+      })(),
     };
   });
   return {
