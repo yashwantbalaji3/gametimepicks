@@ -44,7 +44,10 @@ const stripSafeArea = (s) => s.replace(/safe-area-inset/gi, "").replace(/safe-ar
 // 1 — /today renders the new daily slate header.
 test("1 · /today renders the new daily slate header", () => {
   assert.match(todayPage, /<TodayDailySlateHeader/, "renders the Today-specific slate header");
-  assert.match(header, /Today&rsquo;s Picks|Today's Picks/, "header shows the Today's Picks title");
+  // P1 (2026-09-29): "Today's Picks" named two destinations — this page and Home's picks CTA into /markets.
+  // /today is "Today" everywhere (nav, page title, H1); "Picks" is /markets alone.
+  assert.match(header, /<h1[^>]*>\s*Today\s*<\/h1>/, "the H1 is the nav word, Today");
+  assert.doesNotMatch(header, /Today&rsquo;s Picks|Today's Picks/, "the page does not share the picks name");
   assert.match(header, /Simulate Today&rsquo;s Games|Simulate Today's Games/i, "primary CTA is simulate-first");
 });
 

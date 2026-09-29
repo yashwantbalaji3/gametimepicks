@@ -311,7 +311,7 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
                 : "Separate paper lane",
             },
             {
-              label: "Today's Picks",
+              label: "Today",
               href: "/today/",
               status: "Daily model hub",
               detail: "The day's model reads and no-play calls",
