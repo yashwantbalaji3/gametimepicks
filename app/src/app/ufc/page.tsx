@@ -197,7 +197,6 @@ export default function UfcArchivePage() {
       <SimulationStorySection manifest={buildUfcPresentation(card)} />
 
       {/* P309: backtest verdicts beside the live record, in the public status vocabulary. */}
-      <ModelStatusPanel sportLabel="UFC" items={modelStatusFor("ufc", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), ufcVerdicts: card?.model?.verdicts ?? null })} />
 
       <section id="ufc-card" className="flex flex-col gap-3 scroll-mt-24">
         <div className="flex flex-wrap items-center gap-2">
@@ -344,6 +343,8 @@ export default function UfcArchivePage() {
           scored against anything. Adding them together would average two different questions.
         </p>
       </section>
+      {/* Phase A-2: model health follows results on every hub — collapsed, every family's state in its summary line. */}
+      <ModelStatusPanel collapsed sportLabel="UFC" items={modelStatusFor("ufc", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), ufcVerdicts: card?.model?.verdicts ?? null })} />
 
       {unsettledLaterCard ? (
         <p className="max-w-2xl font-mono text-[10.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>

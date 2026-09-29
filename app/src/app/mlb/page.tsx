@@ -419,7 +419,6 @@ export default function MlbLandingPage() {
       </div>
       <section id="mlb-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
       {/* P309: the live record of every game call against a coin flip — a paused call says paused here first. */}
-      <ModelStatusPanel sportLabel="MLB" items={modelStatusFor("mlb", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString() })} />
 
       {/* Slate liveness (real ET clock) — on an MLB no-games day (e.g. the All-Star break) this says so
           plainly instead of presenting the most-recent board as live. Hidden on a live day. */}
@@ -515,6 +514,8 @@ export default function MlbLandingPage() {
         sample note travels with them, so a small record cannot be read as a track record.
       */}
       {mlbGraded ? <GradedPicksSection record={mlbGraded} href="/results/picks/mlb" /> : null}
+      {/* Phase A-2: model health follows results on every hub — collapsed, every family's state in its summary line. */}
+      <ModelStatusPanel collapsed sportLabel="MLB" items={modelStatusFor("mlb", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString() })} />
 
       {/* The risk ladder — "give me today's card at each risk level", which is the question the
           18-card Suggested Cards tab never answered directly. Every tier ships with its own

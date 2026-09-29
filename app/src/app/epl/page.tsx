@@ -213,7 +213,7 @@ export default function EplPage() {
   // A DIV, not <main>: the app layout already provides the single main landmark (P250 · A13; the
   // same fix /nfl and /mlb already carry — two <main> landmarks fail the accessibility contract).
   return (
-    <div data-sport="epl" className="mx-auto w-full max-w-[1100px] px-4 py-6">
+    <div data-sport="epl" className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       {/* Program 237: the events come first on every sport page. */}
 
       {/* P208 · Release C — shared section nav; every hub capability one action from here. */}
@@ -315,7 +315,6 @@ export default function EplPage() {
 
       {/* P309: the model's standing in the public vocabulary every forecast card uses — validation, the blind
           forward test against the model it replaced, and the live record — from receipts, never typed here. */}
-      <ModelStatusPanel sportLabel="Premier League" items={modelStatusFor("epl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), eplValidation: set?.validation ?? null })} />
       </section>
 
       {/* ── 1 · TEAM PREDICTIONS for the matchday ──────────────────────────────────────────────── */}
@@ -588,6 +587,8 @@ export default function EplPage() {
         sample note travels with them, so a small record cannot be read as a track record.
       */}
       {eplGraded ? <GradedPicksSection record={eplGraded} href="/results/picks/epl" /> : null}
+      {/* Phase A-2: model health follows results on every hub — collapsed, every family's state in its summary line. */}
+      <ModelStatusPanel collapsed sportLabel="Premier League" items={modelStatusFor("epl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), eplValidation: set?.validation ?? null })} />
 
 
       {/* The five reads this sport's model is most confident about today — team markets and player
