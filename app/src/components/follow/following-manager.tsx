@@ -72,9 +72,10 @@ export default function FollowingManager({
           game page.
         </p>
         <nav aria-label="Places to follow from" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          {[["/live", "Live"], ["/mlb", "MLB"], ["/nfl", "NFL"]].map(([href, label]) => (
-            <Link key={href} href={href} style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-gold-bright)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>
-              {label} →
+          {/* P1: same pills and labels as My GameTime's first run, so the two starting points read as one. */}
+          {[["/mlb", "MLB teams"], ["/nfl", "NFL teams & players"], ["/live", "Browse Live"]].map(([href, label]) => (
+            <Link key={href} href={href} style={{ minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 16px", borderRadius: 999, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)", fontFamily: MONO, fontSize: 11.5, textDecoration: "none" }}>
+              {label}
             </Link>
           ))}
         </nav>

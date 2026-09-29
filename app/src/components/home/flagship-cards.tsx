@@ -60,7 +60,7 @@ function Card({ c }: { c: FlagshipCard }) {
 export default function FlagshipCards({
   cards,
   heading = "Four ways in",
-  subtitle = "Simulate · Today’s Picks · Bank Builder · Results",
+  subtitle = "Simulate · Today · Bank Builder · Results",
   ariaLabel = "Flagship products",
 }: {
   cards: FlagshipCard[];
