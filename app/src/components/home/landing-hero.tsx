@@ -18,6 +18,8 @@ export interface LandingHeroProps {
   activeSports: number;
   /** Events across those active sports today (product-day owner sums). */
   eventsToday: number;
+  /** Every sport's schedule for today is known, so eventsToday is a claim about the day. */
+  eventsKnown?: boolean;
   /** Ranked model picks today (null ⇒ omitted, never zero-padded). */
   qualifiedPicks: number | null;
   /** Active signature-product cards right now (0 is an honest state, not a gap). */
@@ -42,7 +44,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-export default function LandingHero({ readyCount, activeSports, eventsToday, qualifiedPicks, activeProducts, lastSettledDate }: LandingHeroProps) {
+export default function LandingHero({ readyCount, activeSports, eventsToday, eventsKnown = false, qualifiedPicks, activeProducts, lastSettledDate }: LandingHeroProps) {
   return (
     <section aria-label="Today's launchpad" className="flex flex-col gap-4">
       <h1
@@ -115,13 +117,12 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, qua
           honest words; a missing figure is omitted, never zero-padded. */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono" style={{ fontSize: 11.5 }}>
         <Stat value={String(activeSports)} label={activeSports === 1 ? "sport active" : "sports active"} />
-        {/* P293: this label read "events today", which is a claim about the DAY. The figure is not
-            that — app/page.tsx sums only product-days that are LIVE and dated today, so a sport in
-            season whose board has not been published yet contributes nothing. On the morning of
-            2026-09-13 it read "16 events today" (14 NFL + 2 EPL) while 15 MLB games were also being
-            played; the count was right about our board and wrong about the day. The number is the
-            honest one to show — it is what we have published — so the label says which. */}
-        <Stat value={String(eventsToday)} label="events on today’s board" />
+        {/* P293 → 2026-09-28. The figure is now the CROSS-SPORT DAY count (lib/product-day crossSportToday:
+            each sport's schedule, a game counts with or without our forecast), so it may say "today" —
+            but only when every sport's schedule for today is known. While one is still loading the count
+            is a lower bound, and it keeps P293's board wording (on 2026-09-13 a board-based "16 events
+            today" hid 15 MLB games). */}
+        <Stat value={String(eventsToday)} label={eventsKnown ? (eventsToday === 1 ? "event today" : "events today") : "events on today’s board"} />
         {readyCount > 0 ? <Stat value={String(readyCount)} label="simulation-ready" /> : null}
         {qualifiedPicks != null && qualifiedPicks > 0 ? <Stat value={String(qualifiedPicks)} label="top model picks" /> : null}
         <span style={{ color: "var(--vault-text-mute)" }}>
