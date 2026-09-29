@@ -44,7 +44,7 @@ test("🔴 every day the overview tracker can link to is a statically generated 
   const dates = new Set(resultsDayDates());
   for (const p of resultsV2Populations("2099-01-01")) for (const d of p.days) assert.ok(dates.has(d.date), `${p.id}: ${d.date} has no page`);
   const page = src("src/app/results/date/[date]/page.tsx");
-  assert.match(page, /\.\.\.resultsDayDates\(\)\]\)\)\.sort\(\)/, "generateStaticParams enumerates the V2 days");
+  assert.match(page, /\.\.\.resultsDayDates\(\), \.\.\.topBoardDates\(\)\]\)\)\.sort\(\)/, "generateStaticParams enumerates the V2 days and every frozen-board day");
   assert.match(page, /dayDates\.has\(date\)/, "the 404 gate accepts a V2 day");
   assert.match(src("src/components/results/results-overview.tsx"), /href=\{surfaceHref\("results", \{ date \}\)/, "via the ONE dated-url owner");
   const { surfaceHref } = await import("../../nav/date-sport-route.ts");
