@@ -19,8 +19,9 @@ const HUBS = [
   { sport: "epl", label: "Premier League", href: "/epl/", unit: "match", identity: "world_cup" },
   { sport: "ufc", label: "UFC", href: "/ufc/", unit: "bout" },
 ] as const;
-const ET_DAY = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric" });
-export const etDayLabel = (isoOrDay: string) => ET_DAY.format(new Date(/^\d{4}-\d{2}-\d{2}$/.test(isoOrDay) ? `${isoOrDay}T12:00:00Z` : isoOrDay));
+import { etDayLabel as sharedDayLabel } from "@/lib/et-stamp.mjs";
+/* P1-C: the one shared day format (lib/et-stamp.mjs). Re-exported for /live, which imports it from here. */
+export const etDayLabel = (isoOrDay: string): string => sharedDayLabel(isoOrDay) ?? isoOrDay;
 
 export default function SportChooser({ label = "Choose a sport" }: { label?: string }) {
   const today = currentEtDate();

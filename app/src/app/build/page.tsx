@@ -15,6 +15,7 @@
  * /nba/parlays redirects and many in-page links) still lands here, on the section of that name.
  * The legacy #advanced-builder anchor renders an in-place signpost to /build/custom.
  */
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 import PicksExperience from "@/components/picks-experience";
 import Link from "next/link";
 import { loadSuggestedCards } from "@/lib/picks/suggested-cards";
@@ -76,7 +77,7 @@ export default function ParlayCenterSuggestedPage() {
         secondaryAction={{ label: "How it works", href: "/methodology" }}
         note={ladderDate >= currentEtDate()
           ? "Model-built cards at every risk level, each carrying its own settled record. Start from one and customize it, swap any leg you do not like, or switch to Build Your Own. Paper-only — no stake is ever filled in for you."
-          : `These are the latest published cards (${ladderDate}) — today's arrive when the board posts. Customizing an expired card is a hypothetical replay; it cannot enter today's ledger. Paper-only — no stake is ever filled in for you.`}
+          : `These are the latest published cards (${etDayLabel(ladderDate) ?? ladderDate}) — today's arrive when the board posts. Customizing an expired card is a hypothetical replay; it cannot enter today's ledger. Paper-only — no stake is ever filled in for you.`}
       />
 
       <ParlayCenterTabs active="suggested" />
