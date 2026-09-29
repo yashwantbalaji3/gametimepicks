@@ -25,6 +25,9 @@ const fmtDay = (date: string) =>
   new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
 
 /** Badge tone per state — colour never carries the meaning alone; the label is always printed. */
+/** Started, final-pending and settled events open their report directly — they have a frozen forecast to show. */
+const POST_START_STATES: ReadonlyArray<SimDayEvent["state"]> = ["STARTED", "AWAITING_SETTLEMENT", "SETTLED"];
+
 export const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; label: string }> = {
   SIMULATION_READY: { fg: "var(--vault-success)", bg: "var(--vault-success-dim)", label: "Simulation ready" },
   ARTIFACT_READY: { fg: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)", label: "Artifact ready" },
@@ -35,6 +38,9 @@ export const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; 
   SOURCE_STALE: { fg: "var(--vault-danger)", bg: "var(--vault-danger-dim)", label: "Source stale" },
   // Warn, not danger: the day is not broken, this one game is uncovered — and the label says which.
   MISSED_COVERAGE: { fg: "var(--vault-warn)", bg: "var(--vault-warn-dim)", label: "No pregame forecast" },
+  // #808: after the start the label follows the canonical record, never the clock (lib/simulate/lifecycle-state.mjs).
+  STARTED: { fg: "var(--gtp-bank-heat)", bg: "color-mix(in srgb, var(--gtp-bank-heat) 14%, transparent)", label: "Kicked off" },
+  AWAITING_SETTLEMENT: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "Final · grading pending" },
   SETTLED: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "Settled" },
 };
 
@@ -46,7 +52,7 @@ function EventCard({ e, onOpen }: { e: SimDayEvent; onOpen: (e: SimDayEvent) => 
    * because that is where they belong: it ends REFUSED in place with the event's own reason,
    * without a navigation to a report that has nothing to show.
    */
-  const viaStage = e.state !== "SETTLED" && !READY_STATES.includes(e.state);
+  const viaStage = !POST_START_STATES.includes(e.state) && !READY_STATES.includes(e.state);
   const body = (
     <>
       <span className="flex items-center justify-between gap-2 min-w-0">

@@ -20,6 +20,8 @@ import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { loadEplForecasts, reportableRows, eplMatchHref, type EplForecastRow } from "@/lib/sports/epl/forecast-view";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
+import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
+import { postStartState, startedAt, POST_START_REASON } from "@/lib/simulate/lifecycle-state.mjs";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import { getSportIdentity } from "@/lib/sport-identity";
 import fs from "node:fs";
@@ -45,6 +47,11 @@ export type SimEventState =
    * priced. Coverage is a property of an event, not of the day it belongs to.
    */
   | "MISSED_COVERAGE"
+  /* #808 · after the start. SETTLED only from the sport's canonical settlement record; a game that has
+     kicked off without a recorded final is STARTED; a final not yet graded is AWAITING_SETTLEMENT.
+     The rule lives in lib/simulate/lifecycle-state.mjs. */
+  | "STARTED"
+  | "AWAITING_SETTLEMENT"
   | "SETTLED";
 
 export type SimSport = "mlb" | "epl" | "ufc" | "nfl" | "nba";
@@ -98,6 +105,8 @@ export const STATE_ACTION: Record<SimEventState, string> = {
   SCHEDULE_ONLY: "View event details",
   SOURCE_STALE: "View status",
   MISSED_COVERAGE: "Why this game is missing",
+  STARTED: "View pregame report",
+  AWAITING_SETTLEMENT: "View pregame report",
   SETTLED: "View result",
 };
 
@@ -137,6 +146,27 @@ function readJson<T>(rel: string): T | null {
     return null;
   }
 }
+
+/* #808 · the canonical records each sport already publishes, read once per call. A missing file is an
+   empty set: nothing is claimed settled or final without its record. */
+function readJsonl<T>(rel: string): T[] {
+  try {
+    return fs.readFileSync(path.join(process.cwd(), "public", "data", rel), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l) as T);
+  } catch {
+    return [];
+  }
+}
+/** MLB: a game is settled when the graded game-prediction ledger (the Saved/Results owner) grades it. */
+const mlbSettledPks = () => new Set(readJsonl<{ gamePk?: number | string }>("mlb/results/game-predictions-graded.jsonl").map((r) => String(r.gamePk ?? "")).filter(Boolean));
+/** EPL: a fixture is settled when the graded-forecast ledger grades it (same eventId as the forecast row). */
+const eplSettledIds = () => new Set(readJsonl<{ eventId?: string }>("soccer/epl/results/graded-forecasts.jsonl").map((r) => String(r.eventId ?? "")).filter(Boolean));
+/** NFL: a final is a STATUS_FINAL row in the results capture; settlement is the lifecycle owner's SETTLED. */
+const nflFinalIds = () => new Set((readJson<{ rows?: Array<{ providerEventId?: string; statusRaw?: string }> }>("nfl/results/latest.json")?.rows ?? [])
+  .filter((r) => /^STATUS_FINAL/.test(r.statusRaw ?? "")).map((r) => String(r.providerEventId ?? "")));
+/** UFC: bouts with a recorded winner on a date mean the card's results are in. There is no populated
+    settled record for UFC, so a finished card reads "Final · grading pending", never "Settled". */
+const ufcResultDates = () => new Set((readJson<{ rows?: Array<{ eventDate?: string; winner?: string | null }> }>("ufc/results-latest.json")?.rows ?? [])
+  .filter((r) => r.winner).map((r) => String(r.eventDate ?? "")));
 
 interface UfcCard {
   event?: { name?: string; date?: string; startUtc?: string } | null;
@@ -178,14 +208,18 @@ function mlbSection(date: string, today: string): SportDaySection {
       .filter((g) => (g as { startedBeforeGeneration?: boolean }).startedBeforeGeneration === true)
       .map((g) => String(g.gamePk ?? "")),
   );
+  const gradedPks = mlbSettledPks();
+  const nowMs = Date.now();
   const events: SimDayEvent[] = games.map((g) => {
     const pk = String(g.gamePk ?? "");
     const detail = detailByPk.get(pk);
-    const settled = date < today;
-    const simReady = !settled && detail?.gameLabSimulation?.status === "ready";
-    const missed = !settled && pk !== "" && missedPks.has(pk);
-    const state: SimEventState = settled
-      ? "SETTLED"
+    // #808: settled from the graded ledger, never from the date; a past date only means it started.
+    const post = postStartState({ started: date < today || startedAt(g.gameDate, nowMs), final: false, settled: pk !== "" && gradedPks.has(pk) });
+    const settled = post === "SETTLED";
+    const simReady = !post && detail?.gameLabSimulation?.status === "ready";
+    const missed = !post && pk !== "" && missedPks.has(pk);
+    const state: SimEventState = post
+      ? post
       : missed
         ? "MISSED_COVERAGE"
         : simReady
@@ -201,7 +235,7 @@ function mlbSection(date: string, today: string): SportDaySection {
       ? "/results"
       : detail
         ? `/games/mlb/${detail.slug}/`
-        : "/mlb";
+        : post ? "/results" : "/mlb";
     return {
       sport: "mlb", id: `mlb:${pk || `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`,
       matchup: `${g.awayTeamAbbr ?? "?"} @ ${g.homeTeamAbbr ?? "?"}`,
@@ -216,8 +250,8 @@ function mlbSection(date: string, today: string): SportDaySection {
           ? "This game had already started when today's slate was generated, so there is no pregame forecast for it. It still counts as one of the day's scheduled games."
           : state === "SCHEDULE_ONLY"
             ? "The board for this slate has no model leans yet — check back closer to game time."
-            : state === "SETTLED"
-              ? "This game is final; the record lives on Results."
+            : post
+              ? POST_START_REASON[post]
               /*
                * ARTIFACT_READY WAS SILENT (P233 · A). The board carries model leans for this game
                * but the full-game simulation has not been generated yet — a real, ordinary state
@@ -278,10 +312,13 @@ function eplSection(date: string, today: string): SportDaySection {
   const set = loadEplForecasts();
   const rows: EplForecastRow[] = set ? reportableRows(set) : [];
   const onDate = rows.filter((r) => etDayOf(r.kickoffUtc) === date);
+  const graded = eplSettledIds();
+  const nowMs = Date.now();
   const events: SimDayEvent[] = onDate.map((r) => {
-    const settled = date < today || Date.parse(r.kickoffUtc) < Date.now() - 3 * 3600_000;
+    // #808: settled only when the graded-forecast ledger grades this fixture — not "3 hours after kickoff".
+    const post = postStartState({ started: date < today || startedAt(r.kickoffUtc, nowMs), final: false, settled: graded.has(r.eventId) });
     const hasProbs = r.probs != null;
-    const state: SimEventState = settled ? "SETTLED" : hasProbs ? "SIMULATION_READY" : "ARTIFACT_READY";
+    const state: SimEventState = post ?? (hasProbs ? "SIMULATION_READY" : "ARTIFACT_READY");
     /* P234 · C — a fixture with a published forecast opens its presentation on arrival. eplMatchHref
        already ends in a slash, so the query attaches without tripping the trailingSlash redirect. */
     const href = r.slug ? eplMatchHref(r.slug) : "/epl";
@@ -292,7 +329,7 @@ function eplSection(date: string, today: string): SportDaySection {
       home: r.homeClub ? { name: r.homeClub, logo: null } : null,
       startUtc: r.kickoffUtc, startLabel: etTime(r.kickoffUtc), venue: null,
       state,
-      stateReason: state === "ARTIFACT_READY" ? (r.unavailableReason ?? "This fixture has not qualified for a published forecast.") : state === "SETTLED" ? "Kicked off or final — the report shows the graded outcome." : null,
+      stateReason: state === "ARTIFACT_READY" ? (r.unavailableReason ?? "This fixture has not qualified for a published forecast.") : post ? POST_START_REASON[post] : null,
       markets: hasProbs ? ["Win/Draw/Win", "Total goals"] : [],
       href,
       actionLabel: STATE_ACTION[state],
@@ -331,8 +368,9 @@ function ufcSection(date: string, today: string): SportDaySection {
     const bouts = card.bouts ?? [];
     const predicted = bouts.filter((b) => b.prediction?.winner?.probability != null).length;
     const head = bouts[0];
-    const settled = date < today;
-    const state: SimEventState = settled ? "SETTLED" : predicted > 0 ? "SIMULATION_READY" : "SCHEDULE_ONLY";
+    // #808: a finished card with recorded results is final; UFC publishes no settled record, so never "Settled".
+    const post = postStartState({ started: date < today || startedAt(card.event?.startUtc ?? head?.startUtc ?? null, Date.now()), final: ufcResultDates().has(cardDay ?? ""), settled: false });
+    const state: SimEventState = post ?? (predicted > 0 ? "SIMULATION_READY" : "SCHEDULE_ONLY");
     events.push({
       sport: "ufc", id: `ufc:${card.event?.name ?? cardDay}`,
       matchup: card.event?.name ?? `UFC card · ${bouts.length} bouts`,
@@ -342,10 +380,10 @@ function ufcSection(date: string, today: string): SportDaySection {
       startLabel: head?.startUtc ? etTime(head.startUtc) : "Card",
       venue: null,
       state,
-      stateReason: settled ? "This card is complete — settled bouts live on Results." : predicted === 0 ? "No bout on this card has enough fighter history to model — the schedule is shown without a read." : null,
+      stateReason: post ? POST_START_REASON[post] : predicted === 0 ? "No bout on this card has enough fighter history to model — the schedule is shown without a read." : null,
       markets: predicted > 0 ? ["Fight winner"] : [],
-      href: settled ? "/results/picks/ufc" : "/ufc",
-      actionLabel: settled ? STATE_ACTION.SETTLED : predicted > 0 ? `View ${predicted} of ${bouts.length} bout reads` : STATE_ACTION.SCHEDULE_ONLY,
+      href: post ? "/results/picks/ufc" : "/ufc",
+      actionLabel: post ? STATE_ACTION[post] : predicted > 0 ? `View ${predicted} of ${bouts.length} bout reads` : STATE_ACTION.SCHEDULE_ONLY,
     });
   } else {
     const up = (allUpcoming({ nowIso: new Date().toISOString() }) as UpcomingSection[]).find((s) => s.sport === "ufc");
@@ -372,13 +410,20 @@ function ufcSection(date: string, today: string): SportDaySection {
 
 function nflSection(date: string, today: string): SportDaySection {
   /* P252: see simulate-lobby — the render site supplies the clock. */
-  const elig = nflSimulateEligibility(new Date().toISOString());
+  const nowIso = new Date().toISOString();
+  const elig = nflSimulateEligibility(nowIso);
+  const finals = nflFinalIds();
   const events: SimDayEvent[] = [];
   for (const e of elig.events ?? []) {
     if (etDayOf(e.kickoffUtc) !== date) continue;
-    const settled = date < today || e.lifecycle === "STARTED";
-    const state: SimEventState = settled
-      ? "SETTLED"
+    /* #808: this read "settled = date < today || lifecycle === STARTED" — a game that had merely kicked off
+       was labelled Settled (PHI @ CHI, 2026-09-28, second quarter). The lifecycle owner decides: SETTLED
+       only from its SETTLED stamp; a STATUS_FINAL result without it is "Final · grading pending". */
+    const lc = effectiveLifecycle({ lifecycle: e.lifecycle, kickoffUtc: e.kickoffUtc }, nowIso);
+    const post = postStartState({ started: date < today || lc !== "UPCOMING", final: finals.has(String(e.providerEventId)), settled: lc === "SETTLED" });
+    const settled = post != null;
+    const state: SimEventState = post
+      ? post
       : e.simulationReady ? (e.hasMarket ? "SIMULATION_READY" : "MODEL_ONLY_NO_MARKET")
       : "BASELINE_ONLY";
     events.push({
@@ -387,7 +432,7 @@ function nflSection(date: string, today: string): SportDaySection {
       away: { name: e.away.abbr, logo: null }, home: { name: e.home.abbr, logo: null },
       startUtc: e.kickoffUtc, startLabel: etTime(e.kickoffUtc), venue: e.venue,
       state,
-      stateReason: settled ? "Kicked off or final — the report shows the frozen forecast and result." : state === "BASELINE_ONLY" ? e.readinessReason : state === "MODEL_ONLY_NO_MARKET" ? "Model distribution published; no market price is attached to this event." : null,
+      stateReason: post ? POST_START_REASON[post] : state === "BASELINE_ONLY" ? e.readinessReason : state === "MODEL_ONLY_NO_MARKET" ? "Model distribution published; no market price is attached to this event." : null,
       markets: e.hasMarket ? ["Moneyline", "Total"] : [],
       href: `/nfl/game/${e.providerEventId}/`,
       actionLabel: STATE_ACTION[state],
