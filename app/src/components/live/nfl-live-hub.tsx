@@ -116,7 +116,7 @@ const periodLine = (envelope: any): string | null => {
   return label;
 };
 
-/** Where a live-props record's measurement comes from, in reader words (Analyst detail). */
+/** Where a live-props record's measurement comes from, in reader words (shown in Model detail). */
 const LIVE_SOURCE_LABEL: Record<string, string> = { "espn-nfl-summary": "ESPN public box score" };
 
 /** The card's lifecycle state → the tracker's phase, through the owner's explicit table. */
@@ -153,7 +153,7 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
   game: NflHubRosterGame; envelope: any; state: string; label: string;
   liveProps?: LivePropsState;
   nowMs?: number | null;
-  /** Analyst detail only: the Model Lab's status for ranges and touchdowns. */
+  /** For Model detail: the Model Lab's status for ranges and touchdowns. */
   modelStatus?: NflHubRoster["modelStatus"] | null;
 }) {
   const away = envelope?.competitors?.away?.score ?? null;

@@ -19,7 +19,6 @@
  */
 import PlayerAvatar from "@/components/player-avatar";
 import type { FeaturedForecast, LiveModelStatus } from "@/lib/live/nfl-hub-data";
-import AnalystOnly from "@/components/view-mode/analyst-only";
 import ForecastDetail from "./forecast-detail";
 
 export interface ForecastTracking {
@@ -98,7 +97,7 @@ function Num({ label: text, value, tone = "plain", hint }: { label: string; valu
 
 export default function FeaturedForecastRow({ f, t, final, modelStatus = null, liveSource = null, lastObservedAt = null }: {
   f: FeaturedForecast; t: ForecastTracking; final: boolean;
-  /** Analyst detail only — the row's values and status are identical in both modes. */
+  /** Model detail beneath the row (a closed disclosure) — never the row's values or status. */
   modelStatus?: LiveModelStatus | null; liveSource?: string | null; lastObservedAt?: string | null;
 }) {
   const binary = f.kind === "PROBABILITY";
@@ -176,10 +175,9 @@ export default function FeaturedForecastRow({ f, t, final, modelStatus = null, l
           ? (age || final ? <p style={statusStyle}>{final ? (t.settlement ? t.status : "Grading pending") : age}</p> : null)
           : <p style={statusStyle}>{t.status}{age ? ` · ${age}` : ""}</p>}
       </div>
-      {/* Analyst: the model detail beneath the row. Not aria-hidden — it is real, readable content. */}
-      <AnalystOnly>
-        <ForecastDetail f={f} modelStatus={modelStatus} liveSource={liveSource} lastObservedAt={lastObservedAt} />
-      </AnalystOnly>
+      {/* Model detail beneath the row: a closed disclosure, for every reader. Not aria-hidden — it is
+          real, readable content. */}
+      <ForecastDetail f={f} modelStatus={modelStatus} liveSource={liveSource} lastObservedAt={lastObservedAt} />
     </li>
   );
 }

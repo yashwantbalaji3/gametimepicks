@@ -19,7 +19,6 @@
 "use client";
 
 import Link from "next/link";
-import ViewModeToggle from "@/components/view-mode/view-mode-toggle";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -192,10 +191,6 @@ function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: strin
           <button ref={closeRef} type="button" onClick={onClose} className="font-mono uppercase tracking-[0.12em] rounded-[8px]" style={{ color: "var(--vault-text-mute)", fontSize: 11, minHeight: 44, minWidth: 44 }}>
             Close ✕
           </button>
-        </div>
-        {/* Simple | Analyst — the same site-wide control the desktop rail carries. */}
-        <div className="pt-1 pb-3">
-          <ViewModeToggle />
         </div>
         <ul className="list-none m-0 p-0 flex flex-col">
           {items.map((d, i) => {
