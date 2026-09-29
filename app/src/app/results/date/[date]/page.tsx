@@ -12,7 +12,6 @@ import {
 } from "@/lib/data-mlb-results";
 import { mlbMarketLabel } from "@/lib/format-mlb";
 import { formatPercent, formatDateLong } from "@/lib/format";
-import NeonCornerBracket from "@/components/neon-corner-bracket";
 import ResultsSportTabs from "@/components/results-sport-tabs";
 import SettledGameDetail, {
   type SettledLeanRow,
@@ -22,6 +21,8 @@ import { getPlayoffContext } from "@/components/playoff-context";
 import DateSportControls from "@/components/nav/date-sport-controls";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
+import ResultsDay from "@/components/results/results-day";
+import { resultsDay, resultsDayDates } from "@/lib/results/v2/day";
 
 interface PageProps {
   params: { date: string };
@@ -34,14 +35,14 @@ interface PageProps {
 export function generateStaticParams() {
   const nbaDates = getAvailableSettlementDates();
   const mlbDates = getMlbAvailableResultDates().dates ?? [];
-  const all = Array.from(new Set([...nbaDates, ...mlbDates])).sort();
+  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...resultsDayDates()])).sort();
   return all.map((date) => ({ date }));
 }
 
 export function generateMetadata({ params }: PageProps) {
   return withRouteMetadata(surfaceHref("results", { date: params.date }) ?? "/results/", {
-    title: `Audit · ${params.date} · GameTime Picks`,
-    description: `Centralized projection-vs-actual audit for every settled lean on ${params.date}.`,
+    title: `Results · ${formatDateLong(params.date)} · GameTime Picks`,
+    description: `Every forecast graded on ${formatDateLong(params.date)}, game by game, against the official result. Each sport keeps its own record.`,
   });
 }
 
@@ -62,7 +63,8 @@ export default function ResultsDatePage({ params }: PageProps) {
   const nbaAllDates = new Set(getAvailableSettlementDates());
   const mlbAllDates = new Set(getMlbAvailableResultDates().dates ?? []);
   const date = params.date;
-  const hasAny = nbaAllDates.has(date) || mlbAllDates.has(date);
+  const dayDates = new Set(resultsDayDates());
+  const hasAny = nbaAllDates.has(date) || mlbAllDates.has(date) || dayDates.has(date);
   if (!hasAny) {
     notFound();
   }
@@ -86,16 +88,9 @@ export default function ResultsDatePage({ params }: PageProps) {
   const mlbDecisive = mlbWins + mlbLosses;
   const mlbHit = mlbDecisive > 0 ? mlbWins / mlbDecisive : null;
 
-  // Combined totals across whichever sport(s) settled on this date.
-  const totalWins = nbaWins + mlbWins;
-  const totalLosses = nbaLosses + mlbLosses;
-  const totalPushes = nbaPushes + mlbPushes;
-  const totalDecisive = nbaDecisive + mlbDecisive;
-  const totalHit = totalDecisive > 0 ? totalWins / totalDecisive : null;
-
   // For the date-strip navigation row.
   const allDatesSorted = Array.from(
-    new Set([...nbaAllDates, ...mlbAllDates]),
+    new Set([...nbaAllDates, ...mlbAllDates, ...dayDates]),
   ).sort();
   const idx = allDatesSorted.indexOf(date);
   const prevDate = idx > 0 ? allDatesSorted[idx - 1] : null;
@@ -111,69 +106,27 @@ export default function ResultsDatePage({ params }: PageProps) {
         mlbHasData={mlbAllDates.size > 0}
       />
 
-      {/* Hero — combined hit-rate scoreboard for this date */}
-      <section className="reveal vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-5 mt-6">
-        <NeonCornerBracket />
-        <div className="flex items-center gap-2 mb-3">
-          <span
-            aria-hidden
-            className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
-            style={{
-              background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
-            }}
-          />
-          <span
-            className="font-mono uppercase tracking-[0.18em]"
-            style={{ color: "var(--vault-gold)", fontSize: 10 }}
-          >
-            Settled projections · {formatDateLong(date)}
-          </span>
-        </div>
-        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
-          <h1
-            className="font-display font-semibold tracking-tightest leading-[0.95]"
-            style={{
-              color: "var(--vault-gold-bright)",
-              fontSize: "clamp(48px, 10vw, 96px)",
-              textShadow:
-                "0 0 24px color-mix(in srgb, var(--vault-accent) 45%, transparent), 0 0 8px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
-            }}
-          >
-            {totalHit !== null ? formatPercent(totalHit) : "—"}
-          </h1>
-          <span
-            className="font-display tracking-tight"
-            style={{
-              color: "var(--vault-text)",
-              fontSize: "clamp(18px, 2.6vw, 22px)",
-            }}
-          >
-            {totalDecisive > 0
-              ? `${totalWins}–${totalLosses}${totalPushes > 0 ? `–${totalPushes}P` : ""} on ${totalDecisive} decisive`
-              : "no decisive rows"}
-          </span>
-        </div>
-        <p
-          className="mt-4 text-[14px] leading-relaxed max-w-2xl"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          {totalDecisive > 0
-            ? `Combined audit across the sports that had settled rows on ${date}. Pushes excluded. Pending games never count as losses.`
-            : `No settled rows for this date.`}
-        </p>
-      </section>
+      {/* Header. There is deliberately NO combined hit rate: this page used to lead with one percentage
+          across NBA and MLB player-prop leans — research rows, summed across sports — which is exactly
+          the universal number Results V2 forbids. Each sport's record now stands alone below. */}
+      <header className="mt-6">
+        <span className="font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>Results · one day</span>
+        <h1 className="m-0 mt-1 font-display font-semibold tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(28px, 5vw, 44px)" }}>
+          {formatDateLong(date)}
+        </h1>
+      </header>
 
-      {/* "At a glance" + Hit / Miss / Push / Pending glossary.
-          Plain-language read-out so a first-time visitor doesn't need to
-          parse decimals to understand what the page is showing. */}
-      <AtAGlanceCard
-        totalWins={totalWins}
-        totalLosses={totalLosses}
-        totalPushes={totalPushes}
-        totalDecisive={totalDecisive}
-        mlbPending={mlbReport?.partial ? (mlbReport.pendingGameList?.length ?? 0) : 0}
-      />
+      <ResultsDay day={resultsDay(date)} />
+
+      {(nbaDecisive > 0 || mlbDecisive > 0 || nbaRows.length > 0 || mlbRows.length > 0) && (
+        <div className="mt-12 rounded-xl px-4 py-3" style={{ border: "1px dashed var(--vault-border)" }}>
+          <h2 id="research" className="m-0 font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)" }}>Model research · player-prop leans, not public picks</h2>
+          <p className="m-0 mt-1 text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
+            Projection vs actual for every settled prop lean, graded for transparency and model development.
+            {mlbReport?.partial && (mlbReport.pendingGameList?.length ?? 0) > 0 ? ` ${mlbReport.pendingGameList!.length} game(s) still pending — pending never counts as a loss.` : ""}
+          </p>
+        </div>
+      )}
 
       {/* Per-sport scorecards */}
       <section className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -267,107 +220,8 @@ export default function ResultsDatePage({ params }: PageProps) {
           borderTop: "1px solid var(--vault-rule)",
         }}
       >
-        hit rate excludes pushes · settled decisive rows only · educational use only · not betting advice
+        each record stands alone · pushes and voids are never losses · educational use only · not betting advice
       </footer>
-    </div>
-  );
-}
-
-function AtAGlanceCard({
-  totalWins,
-  totalLosses,
-  totalPushes,
-  totalDecisive,
-  mlbPending,
-}: {
-  totalWins: number;
-  totalLosses: number;
-  totalPushes: number;
-  totalDecisive: number;
-  mlbPending: number;
-}) {
-  if (totalDecisive === 0 && mlbPending === 0) return null;
-  return (
-    <section className="mt-6">
-      <div
-        className="rounded-[6px] px-5 py-5 sm:px-6 sm:py-6"
-        style={{
-          background:
-            "linear-gradient(180deg, color-mix(in srgb, var(--vault-scrim-cocoa) 55%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 55%, transparent) 100%)",
-          border: "1px solid var(--vault-border)",
-        }}
-      >
-        <div
-          className="font-mono uppercase tracking-[0.18em] mb-3"
-          style={{ color: "var(--vault-gold)", fontSize: 10 }}
-        >
-          At a glance
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Glance label="Hit" value={String(totalWins)} tone="success"
-                  sub="model agreed and the line cleared" />
-          <Glance label="Miss" value={String(totalLosses)} tone="warn"
-                  sub="model agreed but the line did not clear" />
-          <Glance label="Push" value={String(totalPushes)} tone="mute"
-                  sub="final stat tied the line — excluded from hit rate" />
-          <Glance
-            label="Pending"
-            value={String(mlbPending)}
-            tone="mute"
-            sub={
-              mlbPending > 0
-                ? "game not final — never counts as a loss"
-                : "no games still pending on this date"
-            }
-          />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Glance({
-  label,
-  value,
-  tone,
-  sub,
-}: {
-  label: string;
-  value: string;
-  tone: "success" | "warn" | "mute";
-  sub: string;
-}) {
-  const color =
-    tone === "success"
-      ? "var(--vault-success)"
-      : tone === "warn"
-        ? "var(--vault-warn)"
-        : "var(--vault-text-faint)";
-  return (
-    <div>
-      <div
-        className="font-mono uppercase tracking-[0.14em]"
-        style={{ color, fontSize: 10 }}
-      >
-        {label}
-      </div>
-      <div
-        className="font-display font-semibold tabular tracking-tight"
-        style={{
-          color: "var(--vault-text)",
-          fontSize: 28,
-          lineHeight: 1,
-          marginTop: 4,
-        }}
-      >
-        {value}
-      </div>
-      <div
-        className="mt-1.5 text-[11px] leading-snug"
-        style={{ color: "var(--vault-text-mute)" }}
-      >
-        {sub}
-      </div>
     </div>
   );
 }
@@ -820,8 +674,8 @@ function MlbGameGroups({
             edgePct: r.edgePct,
           }));
           return (
+            <div key={gpk} id={`leans-mlb-${gpk}`} style={{ scrollMarginTop: 80 }}>
             <SettledGameDetail
-              key={gpk}
               matchup={matchup}
               wins={wins}
               losses={losses}
@@ -831,6 +685,7 @@ function MlbGameGroups({
               rows={detailRows}
               tone="success"
             />
+            </div>
           );
         })}
       </div>

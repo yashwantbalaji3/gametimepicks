@@ -5680,3 +5680,13 @@ body {
 /* #794 PR 2: the global status row stays on ONE line on a phone and scrolls if it must — no scrollbar chrome. */
 .gtp-slate-status{scrollbar-width:none}
 .gtp-slate-status::-webkit-scrollbar{display:none}
+
+/* Results V2 · day tables (B-3). Row and cell styling lives HERE, never per cell: an NFL day carries ~600
+   player-range rows, and a style object per cell is what once made a results page 1,160KB. */
+.gtp-day-table { width: 100%; border-collapse: collapse; font-size: 12.5px; color: var(--vault-text); }
+.gtp-day-table th { text-align: left; font-weight: 500; padding: 4px 12px 4px 0; color: var(--vault-text-mute); }
+.gtp-day-table td { padding: 6px 12px 6px 0; vertical-align: top; border-top: 1px solid var(--vault-border); }
+.gtp-day-table .r { text-align: right; }
+.gtp-day-table .m { color: var(--vault-text-mute); }
+.gtp-day-table .o { font-family: var(--font-mono, ui-monospace, monospace); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--vault-text-mute); }
+.gtp-day-table .o.w { color: var(--vault-text); font-weight: 600; }
