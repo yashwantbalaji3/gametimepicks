@@ -68,8 +68,13 @@ test('a sentence containing "today" is backed by a count of TODAY', () => {
   const home = stripComments(fs.readFileSync(path.join(APP, "src/app/page.tsx"), "utf8"));
   // P213 R-A: the hero call is multi-line now (it carries the live-status row's props); the
   // contract is unchanged — readyCount must be the TODAY-dated figure, never the pool size.
-  assert.match(home, /<LandingHero[\s\S]{0,300}?readyCount=\{simulationsToday\}/,
-    "the hero's availability line must be backed by simulations dated today, not by a pool size");
+  // P1-E: the today-dated figure now comes from /simulate's own day view (started games excluded), so
+  // the property holds by construction: never the pool size, never a second derivation.
+  assert.match(home, /<LandingHero[\s\S]{0,300}?readyCount=\{simulationReadyNow\}/,
+    "the hero's availability line must be backed by today's ready simulations, not by a pool size");
+  assert.match(home, /simulationReadyNow = simulationReadyCount\(buildSimulateDay\(currentEtDate\(\)/);
+  const hero = home.slice(home.indexOf("<LandingHero"), home.indexOf("/>", home.indexOf("<LandingHero")));
+  assert.doesNotMatch(hero, /readyCount=\{readyCount\}/, "the hero never shows the featurable pool size (that is the featured section's \"+N more\")");
 
   const selector = stripComments(
     fs.readFileSync(path.join(APP, "src/lib/simulate-lobby-featured.ts"), "utf8"));

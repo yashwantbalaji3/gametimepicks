@@ -516,6 +516,16 @@ export function availableSimulateDates(opts?: { today?: string }): string[] {
   return [...dates].sort();
 }
 
+/**
+ * How many of the day's events are SIMULATION_READY right now — the one number behind any "N
+ * simulation-ready" claim. P1-E (2026-09-29): Home's hero counted ready artifacts dated today from its
+ * own selector, which has no start instants, so after PHI @ ATL's first pitch it still said "4
+ * simulation-ready" while this view (and /simulate) said 3 ready and 1 kicked off.
+ */
+export function simulationReadyCount(day: SimulateDayView): number {
+  return day.sections.reduce((n, s) => n + s.events.filter((e) => e.state === "SIMULATION_READY").length, 0);
+}
+
 export function buildSimulateDay(date?: string, opts?: { today?: string }): SimulateDayView {
   const today = opts?.today ?? currentEtDate();
   const d = date ?? today;
