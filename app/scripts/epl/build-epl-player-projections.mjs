@@ -337,7 +337,7 @@ const artifact = {
   },
   limitations: [
     "Three markets were measured under identical bars and REJECTED — plain shots on calibration, assists and cards on margin. They are deliberately absent rather than shown with a warning; see rejectedMarkets.",
-    "No injury or suspension feed exists here, so an unavailable player can still appear in a conditional list.",
+    "Injury and suspension news is not joined into these lists yet, so an unavailable player can still appear in a conditional list.",
     "The source carries no minutes — participation is a discrete state (started or substitute), not an expected-minutes term.",
     "Conditional rows state P(scores | he starts). They are not a claim that he will start.",
   ],
