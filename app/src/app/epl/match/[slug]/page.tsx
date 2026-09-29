@@ -163,7 +163,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           picks, not advice, and not compared against any price.
         </p>
         <details className="mt-2">
-          <summary className="cursor-pointer font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)", minHeight: 44, display: "flex", alignItems: "center" }}>Model detail · how it was tested and its live record</summary>
+          <summary className="cursor-pointer font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)", minHeight: 44, display: "flex", alignItems: "center" }}><span aria-hidden="true">▸&nbsp;</span>Model detail · how it was tested and its live record</summary>
           <p style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
             {set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY" && set.validationNote ? <>{set.validationNote} </> : null}{trackRecordLine}
           </p>
