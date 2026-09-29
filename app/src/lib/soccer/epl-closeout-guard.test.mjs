@@ -34,6 +34,14 @@ const LANE_DIRS = ["src/lib/soccer", "src/app/epl", "src/app/preview/epl", "src/
 // touching every lane's artifacts.
 const CROSS_LANE_READERS = [
   "src/lib/audits",
+  /*
+   * Results V2 (B-1, 2026-09-29): the graded-pick OWNER readers (moved verbatim from
+   * scripts/sports/build-graded-picks.mjs, which always read the EPL graded ledger) and the Results read model
+   * that consumes them. Read-only, one row per graded outcome, no World Cup path — the same cross-sport role as
+   * the auditors above: every sport's settled record, reconciled in one place.
+   */
+  "src/lib/sports/graded-pick-owners.mjs",
+  "src/lib/results/v2",
   // data-platform (v1.2): the internal canonical store normalizes EPL fixture identity and names the lane's
   // committed artifacts as provenance. It is read-only, renders nothing, and no surface imports it
   // (data-platform/boundary.test.mjs B1) — a cross-sport registry, like learning-paths below.
