@@ -15,7 +15,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { buildProductDays, productDayFor, PRODUCT_DAY_SCHEMA_VERSION } from "./product-day.ts";
-import { loadEplForecasts } from "../sports/epl/forecast-view.ts";
+import { forecastRows, loadEplForecasts } from "../sports/epl/forecast-view.ts";
 
 const app = process.cwd();
 const dataRoot = path.join(app, "public", "data");
@@ -37,9 +37,9 @@ test("four sports registered, every answer typed — no state is ever inferred f
   }
 });
 
-test("EQUIVALENCE · epl day equals the lane loader's own current pre-event count", () => {
+test("EQUIVALENCE · epl day equals the lane loader's own published-forecast count (forecastRows)", () => {
   const epl = productDayFor("epl", dataRoot);
-  const rows = (loadEplForecasts()?.rows ?? []).filter((r) => r.state === "CURRENT_PRE_EVENT");
+  const rows = forecastRows(loadEplForecasts());
   assert.equal(epl.events, rows.length, "the owner counts exactly what the lane loader counts");
   if (rows.length > 0) {
     assert.equal(epl.nextEventUtc, rows.map((r) => r.kickoffUtc).filter(Boolean).sort()[0]);
