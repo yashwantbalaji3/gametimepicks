@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849849,
+  "date": "2026-09-29",
+  "capturedAt": "2026-09-29T19:43:26.175Z",
+  "availableAt": "2026-09-29T19:43:26.175Z",
+  "eventStartTime": "2026-09-29T21:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 805123,
+      "name": "AJ Blubaugh",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 696146,
+      "name": "Hagen Smith",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 19,
+      "lastStartDate": "2026-09-10",
+      "last5": {
+        "starts": 1,
+        "ipSum": 2,
+        "ipAvg": 2,
+        "kAvg": 3,
+        "bbAvg": 0,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 13.5,
+        "workloadIpLast5": 2
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 2,
+        "k": 3,
+        "bb": 0,
+        "er": 0,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-29T19:43:26.175Z"
+  },
+  "recordHash": "4a1e8e510b7af022e5f565cdc19c21b678180e0dbb1b15c8924bb956e13a2682"
+}
