@@ -10,7 +10,7 @@
  */
 import Link from "next/link";
 import MatchupIdentity from "@/components/ui/matchup-identity";
-import { formatEtTime } from "@/lib/mlb/public-provenance";
+import { formatUpdatedEt } from "@/lib/format";
 import type { DailyBrief, BriefSpotlightGame } from "@/lib/today/daily-brief";
 
 const fmtNum = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
@@ -44,7 +44,8 @@ function AttentionRow({ g }: { g: BriefSpotlightGame }) {
 export default function TodayMlbBrief({ brief, recapHref }: { brief: DailyBrief; recapHref?: string | null }) {
   const { overview, spotlight, attention, lastUpdatedIso, gamesInProgress, slateIsPast } = brief;
   if (overview.games === 0) return null; // no slate → the slate header / liveness banner already says so
-  const updated = formatEtTime(lastUpdatedIso);
+  // #761 PR 2: an "Updated" stamp always carries its DATE — a bare "7:45 AM ET" read as today's on any later day.
+  const updated = lastUpdatedIso ? formatUpdatedEt(lastUpdatedIso) : null;
   const spotlightRange = spotlight ? rangeLabel(spotlight) : null;
   return (
     <section aria-label="Today's MLB brief" className="flex flex-col gap-3 rounded-[16px] px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", borderTop: "2px solid var(--vault-gold-bright)" }}>
