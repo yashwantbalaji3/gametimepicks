@@ -72,12 +72,13 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
         style={CARD}
       >
         <Eyebrow>Trust center</Eyebrow>
-        <h1
+        {/* #794 PR 3: the page's H1 ("Results & Receipts") now opens /results; this card names its own part. */}
+        <h2
           className="font-display m-0"
-          style={{ color: "var(--vault-text)", fontSize: 30, lineHeight: 1.1 }}
+          style={{ color: "var(--vault-text)", fontSize: 26, lineHeight: 1.1 }}
         >
-          Results &amp; Receipts
-        </h1>
+          The official record
+        </h2>
         <p
           className="text-[13.5px] leading-relaxed m-0"
           style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}

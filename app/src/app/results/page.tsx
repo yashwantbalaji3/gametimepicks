@@ -224,6 +224,19 @@ export default function ResultsPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* #794 PR 3: the page names itself FIRST. The H1 used to sit inside the Trust Center, below the
+          explorer, so a phone opened on dropdowns and date inputs with no heading and no answer above
+          them. P241's order is kept — the explorer still leads the content — the page just says what
+          it is before asking the reader to filter anything. */}
+      <header className="flex flex-col gap-1.5 mb-5">
+        <h1 className="font-display m-0" style={{ color: "var(--vault-text)", fontSize: 30, lineHeight: 1.1 }}>
+          Results &amp; Receipts
+        </h1>
+        <p className="m-0 text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}>
+          Every settled record in one place, graded against official results. Filter it below; the official
+          paper record and how settlement works follow.
+        </p>
+      </header>
       {/* THE EXPLORER LEADS (P241 · A17). The reader's question is "how did X do?" — record type,
           sport, risk tier and date range, denominator beside every rate. The Trust Center's eight
           stacked sections used to render first, pushing the one interactive answer surface a full
