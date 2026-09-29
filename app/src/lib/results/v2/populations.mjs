@@ -74,6 +74,10 @@ const minusDays = (day, n) => new Date(Date.parse(`${day}T12:00:00Z`) - n * 86_4
  * Window counts from a daily series on `today` (an ET day): today, last 7 and 30 days (inclusive of today),
  * season (from `seasonStart`, when the population has one) and all. Pure — the reader's clock can drive it.
  */
+/**
+ * @param {Array<{ date: string, won: number, lost: number, push: number, void: number }>} days
+ * @param {{ today: string, seasonStart?: string | null }} opts
+ */
 export function windowsFrom(days, { today, seasonStart = null }) {
   const win = (from) => {
     const c = emptyCounts();
