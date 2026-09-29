@@ -11,6 +11,7 @@
  * than the frozen build date — so a July-1 slate viewed on July-5 reads "Latest slate · 4 days ago", never
  * a false "today".
  */
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 import { classifySlate, daysOldVs, type SlateFreshness } from "./freshness";
 
 export type FreshnessTone = "live" | "recent" | "stale" | "future" | "muted";
@@ -50,7 +51,7 @@ export function freshnessDisplay(
   }
 
   if (state === "future") {
-    const text = ageDays === -1 ? "Upcoming · tomorrow" : `Upcoming · ${slateDate}`;
+    const text = ageDays === -1 ? "Upcoming · tomorrow" : `Upcoming · ${etDayLabel(slateDate) ?? slateDate}`;
     return { state, tone: "future", text, warning: null, ageDays };
   }
 
@@ -62,7 +63,7 @@ export function freshnessDisplay(
     tone: stale ? "stale" : "recent",
     text: `Latest ${noun} · ${ago}`,
     warning: stale
-      ? `A newer ${noun} hasn't been generated yet — showing the most recent available (${slateDate}). Nothing here is live for today.`
+      ? `A newer ${noun} hasn't been generated yet — showing the most recent available (${etDayLabel(slateDate) ?? slateDate}). Nothing here is live for today.`
       : null,
     ageDays,
   };

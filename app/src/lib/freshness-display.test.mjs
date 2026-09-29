@@ -30,7 +30,7 @@ test("two-plus days behind → stale tone + 'awaiting refresh' warning, NEVER 'L
   assert.equal(f.tone, "stale");
   assert.equal(f.text, "Latest slate · 4 days ago");
   assert.match(f.warning, /newer slate hasn't been generated/i);
-  assert.match(f.warning, /2026-07-01/);
+  assert.match(f.warning, /Wed, Jul 1/, "the warning names the slate date (P1-C: in words)");
   assert.notEqual(f.text, "Live today");
   assert.equal(f.ageDays, 4);
 });
@@ -38,7 +38,7 @@ test("two-plus days behind → stale tone + 'awaiting refresh' warning, NEVER 'L
 test("future slate → 'Upcoming', future tone", () => {
   assert.equal(freshnessDisplay("2026-07-06", "2026-07-05").text, "Upcoming · tomorrow");
   assert.equal(freshnessDisplay("2026-07-06", "2026-07-05").tone, "future");
-  assert.equal(freshnessDisplay("2026-07-10", "2026-07-05").text, "Upcoming · 2026-07-10");
+  assert.equal(freshnessDisplay("2026-07-10", "2026-07-05").text, "Upcoming · Fri, Jul 10", "P1-C: a human day, not raw ISO");
 });
 
 test("no slate date → muted 'No current slate', NaN age", () => {
