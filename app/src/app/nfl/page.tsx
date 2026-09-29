@@ -235,6 +235,17 @@ export default function NflHubPage() {
   const weekCounts = periodCounts(weekEvents);
   const weekIds = new Set(weekEvents.map((e) => e.providerAliases[0]?.id));
   const weekLabel = weekEvents[0] ? `${weekEvents[0].period.label}${weekEvents[0].phase ? ` · ${weekEvents[0].phase} season` : ""}` : null;
+  /*
+   * THE WEEKLY ROLLOVER (2026-09-28). The lead section is the current week, and once every game of a
+   * week has kicked off the current week is the NEXT one — so Monday night's game, still being played,
+   * had no place on this page. The index carries such a game (lib/sports/nfl/frozen-carry.mjs: an
+   * earlier week's started game while in progress and not final), and this line names it above the
+   * week. It states facts only — the week and the kickoff — and sends "is it still on?" to /live, since
+   * a static page cannot know when a game ends.
+   */
+  const carriedStarted = indexEvents.filter((e) => hasStarted(e, nowIso) && !weekIds.has(e.providerEventId));
+  const periodLabelOf = (id: string) => nflEvents.find((e) => e.providerAliases[0]?.id === id)?.period.label ?? null;
+  const etKickoff = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(iso));
   const weatherByEvent = new Map(
     ((weather?.rows ?? []) as Array<{ espnEventId?: string | null; summary?: string; indoors?: boolean; notableWind?: boolean }>)
       .filter((r) => r.espnEventId)
@@ -385,6 +396,17 @@ export default function NflHubPage() {
           deferToCanonical={{ note: "The full weekly table below carries every game with its projected score and total — this quick list is the same games in short form." }}
         />
       </section>
+      {carriedStarted.length ? (
+        <section aria-label="An earlier week's game still being played" className="gtp-nfl-carried" style={{ border: "1px solid color-mix(in srgb, var(--gtp-bank-heat) 45%, transparent)", borderRadius: 10, padding: "10px 14px", display: "grid", gap: 6 }}>
+          {carriedStarted.map((e) => (
+            <p key={e.providerEventId} style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5, color: "var(--vault-text)", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 12px" }}>
+              <span><strong>{e.matchup}</strong>{" · "}{periodLabelOf(e.providerEventId) ? `from ${periodLabelOf(e.providerEventId)} · ` : ""}kicked off {etKickoff(e.kickoffUtc)} ET</span>
+              <Link href="/live/" style={{ color: "var(--vault-accent)", fontWeight: 600, minHeight: 44, display: "inline-flex", alignItems: "center" }}>Follow live →</Link>
+              <Link href={`/nfl/game/${e.providerEventId}/`} style={{ color: "var(--vault-accent)", fontWeight: 600, minHeight: 44, display: "inline-flex", alignItems: "center" }}>Pregame report →</Link>
+            </p>
+          ))}
+        </section>
+      ) : null}
       {/* P177-A: the shared sport hero. The freshness badge rides in the badge slot and
           re-derives the REAL browser ET date after mount, so a slate page left open overnight
           stops claiming to be today's. */}

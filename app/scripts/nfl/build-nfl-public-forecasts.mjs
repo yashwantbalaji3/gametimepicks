@@ -38,6 +38,7 @@ import { strengthStateAt, ELO_PARAMS } from "../../src/lib/sports/nfl/strength-s
 import { coherentDirection } from "../../src/lib/sports/nfl/coherence.mjs";
 import { rowCapturedAt } from "../../src/lib/sports/odds/capture-merge.mjs";
 import { publishedMarginInterval } from "../../src/lib/sports/nfl/margin-interval-shadow.mjs";
+import { selectFrozenReceipts, terminalEventIds } from "../../src/lib/sports/nfl/frozen-carry.mjs";
 
 /* A narrow root seam so tests can run THIS builder — not a copy of its rules — against a
  * disposable repo-shaped store. Production default is unchanged: the app directory above this
@@ -725,26 +726,30 @@ const publishPreseason = windowSeasonTypes.size > 0 ? windowIsPreseason : !sched
  * forecasts in latest.json, so only the readers union the two (lib/sports/nfl/public-forecast-union.mjs).
  */
 const frozenForecasts = (() => {
-  if (!currentPeriod) return [];
   const receiptsRoot = path.join(ROOT, "data/internal/nfl/forecast-receipts");
   if (!fs.existsSync(receiptsRoot)) return [];
   const liveIds = new Set(published.map((f) => String(f.providerEventId)));
   const horizon = new Date(nowMs - 14 * 864e5).toISOString().slice(0, 10);
-  const best = new Map();
+  const receipts = [];
   for (const day of fs.readdirSync(receiptsRoot).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && d >= horizon && d <= DATE).sort()) {
     for (const file of fs.readdirSync(path.join(receiptsRoot, day)).filter((x) => x.endsWith(".json"))) {
       const rec = read(path.join(receiptsRoot, day, file));
-      if (!rec?.providerEventId || !rec.kickoffUtc || !rec.generatedAt || !rec.forecastSummary) continue;
-      if (rec.seasonType !== currentPeriod.seasonType || rec.week !== currentPeriod.week) continue;
-      if (Date.parse(rec.kickoffUtc) > nowMs || liveIds.has(String(rec.providerEventId))) continue;
-      if (!(Date.parse(rec.generatedAt) < Date.parse(rec.kickoffUtc))) continue;
-      const id = String(rec.providerEventId);
-      if (!best.has(id) || rec.generatedAt > best.get(id).generatedAt) best.set(id, rec);
+      if (rec) receipts.push(rec);
     }
   }
-  return [...best.values()]
-    .map((rec) => { const f = { ...rec }; delete f.revisionOf; delete f.priorInputHash; return f; })
-    .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
+  /* The rollover rule (lib/sports/nfl/frozen-carry.mjs): an earlier week's started game stays carried
+     while in progress and not terminal. Terminal = a STATUS_FINAL result or a settlement — the owners
+     that already mean "over". */
+  const settledIds = [];
+  const settlementDir = path.join(ROOT, "data/internal/nfl/experimental-settlement");
+  if (fs.existsSync(settlementDir)) {
+    for (const f of fs.readdirSync(settlementDir).filter((x) => x.endsWith(".json"))) {
+      for (const e of read(path.join(settlementDir, f))?.events ?? []) if (e?.providerEventId != null) settledIds.push(String(e.providerEventId));
+    }
+  }
+  const terminalIds = terminalEventIds({ resultsRows: read(path.join(APP, "public/data/nfl/results/latest.json"))?.rows ?? [], settledIds });
+  return selectFrozenReceipts({ receipts, currentPeriod, nowIso: NOW, liveIds, terminalIds })
+    .map((rec) => { const f = { ...rec }; delete f.revisionOf; delete f.priorInputHash; return f; });
 })();
 const frozenPayload = JSON.stringify({
   schemaVersion: 1,
@@ -752,7 +757,7 @@ const frozenPayload = JSON.stringify({
   dataClass: "PUBLIC_DERIVED",
   generatedAt: NOW,
   period: currentPeriod ? { seasonType: currentPeriod.seasonType, week: currentPeriod.week } : null,
-  note: "This week's games that have kicked off, each shown exactly as its last pre-kickoff forecast was published. Frozen at kickoff and never regenerated.",
+  note: "This week's games that have kicked off — and an earlier week's game still in progress when the week rolls over — each shown exactly as its last pre-kickoff forecast was published. Frozen at kickoff and never regenerated.",
   eventCount: frozenForecasts.length,
   forecasts: frozenForecasts,
 }, null, 1);
@@ -761,7 +766,7 @@ for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledge
 }
 fs.mkdirSync(path.join(APP, "public/data/nfl/forecasts"), { recursive: true });
 fs.writeFileSync(path.join(APP, "public/data/nfl/forecasts", "frozen-latest.json"), frozenPayload);
-console.log(`frozen at kickoff: ${frozenForecasts.length} started game(s) of the current week carried from pre-kickoff receipts`);
+console.log(`frozen at kickoff: ${frozenForecasts.length} started game(s) carried from pre-kickoff receipts (current week + in-progress rollover)`);
 const publicArtifact = {
   schemaVersion: 1,
   artifact: "nfl-public-forecasts",
