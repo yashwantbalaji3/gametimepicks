@@ -71,7 +71,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
     // Honest empty state — never fabricate a tile.
     return (
       <section
-        aria-label="Top clean MLB leans"
+        aria-label="Highest-probability MLB reads · market context"
         className="mt-2 rounded-[6px] px-4 py-4 text-[12px]"
         style={{
           background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)",
@@ -93,7 +93,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
   }
 
   return (
-    <section aria-label="Top clean MLB leans" className="mt-2">
+    <section aria-label="Highest-probability MLB reads · market context" className="mt-2">
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
           <span
@@ -108,14 +108,14 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
             className="font-mono uppercase tracking-[0.16em]"
             style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
           >
-            Top clean leans · {clean.length} loaded
+            Highest model probabilities · {clean.length} loaded
           </span>
         </div>
         <span
           className="font-mono uppercase tracking-[0.14em]"
           style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
-          High &amp; Medium · no model anomalies
+          Market context · no model anomalies
         </span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -184,7 +184,8 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                     }`,
                   }}
                 >
-                  {lean.confidence}
+                  {/* P2-A: the tier is a relabelled edge bucket (anti-calibrated, see above) — shown as a gap size. */}
+                  {lean.confidence === "High" ? "Gap ≥ 5 pp" : lean.confidence === "Medium" ? "Gap 2.5–5 pp" : lean.confidence === "Low" ? "Small gap" : "Sample too small"}
                 </span>
               </div>
               <div className="mt-2 flex items-center justify-between gap-2 text-[11px] font-mono">
