@@ -25,7 +25,10 @@ test("ONE ranking owner — the hub renders the artifact verbatim and never rank
   assert.match(HUB, /read\("nfl\/weekly-boards\/latest\.json"\)/, "the hub reads the owner's artifact");
   // The hub must not sort player rows — ranking is the owner's job. (The owner sorts by value.)
   assert.doesNotMatch(HUB, /rows\.sort|players\.sort/, "the hub re-ranking players would be a second owner");
-  assert.match(SRC, /rows\.sort\(\(a, b\) => b\.value - a\.value\)/, "the owner ranks by the family's own metric");
+  // The owner ranks through the ONE shared rule (B-4a), which the frozen daily Top-5 also uses.
+  assert.match(SRC, /rankFamily\(scoped, family, metric\)/, "the owner ranks via lib/sports/nfl/board-ranking.mjs");
+  const RANK = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/board-ranking.mjs"), "utf8");
+  assert.match(RANK, /b\.value - a\.value \|\| mean\(b\.market\) - mean\(a\.market\)/, "by the family's own metric, ties by the model's mean");
   // Membership is the WEEK, never a clock window.
   assert.match(SRC, /w\.seasonType === period\.seasonType && w\.week === period\.week/, "membership is (seasonType, week)");
 });
