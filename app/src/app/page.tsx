@@ -23,6 +23,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
+import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
 import { sportStateFromProductDay, stateLabel, partitionSports } from "@/lib/home/simulation-hub.mjs";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import TopReadsPanel from "@/components/top-reads-panel";
@@ -99,7 +100,9 @@ export default function HomePage() {
 
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
-  const { featured, readyCount, simulationsToday, allCurrent } = featuredSimulations(details, currentEtDate());
+  const { featured, readyCount, allCurrent } = featuredSimulations(details, currentEtDate());
+  // P1-E: the hero's "N simulation-ready" is /simulate's own count (started games excluded), never a second derivation.
+  const simulationReadyNow = simulationReadyCount(buildSimulateDay(currentEtDate(), { today: currentEtDate() }));
   const topReads = loadTopReads();
   // What each featured simulation CONCLUDED — a lookup over the canonical objects.
   const gameAnswers = buildHomeGameAnswers(details);
@@ -327,7 +330,7 @@ export default function HomePage() {
           on the front door reads as a return, and the ONE claim above it is that we are behind the
           market. The record and every settled card live on /results. */}
       <LandingHero
-        readyCount={simulationsToday}
+        readyCount={simulationReadyNow}
         activeSports={primarySports.length}
         eventsToday={eventsTodayTotal}
         eventsKnown={todayAcross.state !== "UNKNOWN"}

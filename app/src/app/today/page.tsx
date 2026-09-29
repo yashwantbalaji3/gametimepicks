@@ -68,6 +68,7 @@ import YesterdayCard from "@/components/recap/yesterday-card";
 import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 import { legacyNameMap } from "@/lib/follow/entity-registry";
 import { currentProductRecord } from "@/lib/results/current-record";
+import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -99,8 +100,10 @@ export default function TodayPage() {
   /* simulationsToday is the only number that may back a sentence containing "today"; allCurrent
      tells the leans section when the pool fell back to the archive (P241 · A12 — "36 ready" was
      the whole historical pool, not this slate). */
-  const { featured, readyCount, simulationsToday, allCurrent } = featuredSimulations(details, serverToday);
-  const slateReadyCount = today === serverToday ? simulationsToday : (allCurrent ? readyCount : 0);
+  const { featured, readyCount, allCurrent } = featuredSimulations(details, serverToday);
+  /* P1-E: today's figure is /simulate's own ready count (a started game is not "ready"), the same number
+     Home's hero shows — one derivation. A past presented slate keeps the pool rule below. */
+  const slateReadyCount = today === serverToday ? simulationReadyCount(buildSimulateDay(serverToday, { today: serverToday })) : (allCurrent ? readyCount : 0);
 
   // ── EVERY game on the presented slate — honest per-game action so none is stranded, GROUPED by
   //    readiness (Simulations ready › Model reads › Market context › Reports) via the shared availability
