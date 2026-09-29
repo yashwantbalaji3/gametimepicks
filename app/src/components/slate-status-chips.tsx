@@ -1,25 +1,36 @@
 "use client";
 /**
- * SlateStatusChips — the two TIME-DEPENDENT chips of the global SlateStatusBar ("Today/Latest slate ·
- * date" + "Pregame / In progress / Completed"). The static export bakes the build clock, so the server
- * bar's labels freeze at deploy time; this client component seeds with the server-computed values (SSR
- * match, no hydration mismatch) then re-derives BOTH from the REAL browser clock after mount — a slate
- * viewed after its games finish reads "Completed — awaiting settlement", never a frozen "Pregame slate".
- * Pure display: kickoffs + settled state come from the server; nothing is fetched or fabricated here.
+ * SlateStatusChips — the time-dependent part of the global SlateStatusBar.
+ *
+ * 2026-09-28 (#794 PR 2): the phase chip used to read the RETIRED World Cup projections for its kickoffs
+ * and the MLB optimizer's slate date, so with no World Cup match it always fell back to its "pregame" label —
+ * on every page, during a live NFL game, on a day with no MLB. It now speaks for the whole day, from the
+ * cross-sport owner (lib/product-day crossSportToday, each sport's schedule):
+ *
+ *   Today · Sep 28 · 1 event        — the count only when the day's schedules are known
+ *   ● Games under way →  (/live)    — only while a kickoff has passed and its game window is open
+ *
+ * The static export bakes the build clock, so this seeds from the server's values (the server render
+ * and the first client render agree) and re-derives from the real browser clock after mount. A count
+ * is shown only for the day it was computed for; a page viewed on a later day shows the date alone.
  */
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { currentEtDate } from "@/lib/freshness";
 
-// 90' + halftime + stoppage + extra-time/penalty buffer — mirrors lib/world-cup/round-of-32 (server-only).
-const GAME_MS = 2.5 * 60 * 60 * 1000;
+/** A generous game window: NFL ~3h15, MLB ~3h, EPL ~2h, a UFC card longer — past it, a start is over. */
+const GAME_MS = 3.5 * 60 * 60 * 1000;
 
-function progress(kickoffsMs: number[], nowMs: number): "completed" | "in_progress" | "pregame" | null {
-  if (kickoffsMs.length === 0) return null;
-  if (kickoffsMs.every((t) => t + GAME_MS <= nowMs)) return "completed";
-  const started = kickoffsMs.filter((t) => t <= nowMs).length;
-  if (started === 0) return "pregame";
-  return started * 2 >= kickoffsMs.length ? "in_progress" : "pregame";
+export function underWay(startsMs: number[], nowMs: number): boolean {
+  return startsMs.some((t) => t <= nowMs && nowMs < t + GAME_MS);
+}
+
+export function dayChipText(o: { today: string; countsFor: string; state: "EVENTS" | "NO_EVENTS" | "UNKNOWN"; eventsToday: number }): string {
+  const date = fmtShort(o.today);
+  if (o.today !== o.countsFor) return `Today · ${date}`;
+  if (o.state === "EVENTS") return `Today · ${date} · ${o.eventsToday} event${o.eventsToday === 1 ? "" : "s"}`;
+  if (o.state === "NO_EVENTS") return `Today · ${date} · no games`;
+  return `Today · ${date}`;
 }
 
 function fmtShort(iso: string | null): string {
@@ -28,7 +39,7 @@ function fmtShort(iso: string | null): string {
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
-const chipCls = "inline-flex items-center gap-1.5 rounded-full px-3 py-1 whitespace-nowrap";
+const chipCls = "inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1 whitespace-nowrap shrink-0";
 const chipStyle = (accent?: string): React.CSSProperties => ({
   border: `1px solid ${accent ? `color-mix(in srgb, ${accent} 45%, transparent)` : "var(--vault-rule)"}`,
   background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)",
@@ -38,17 +49,19 @@ const chipStyle = (accent?: string): React.CSSProperties => ({
 });
 
 export default function SlateStatusChips({
-  slateDate,
+  countsFor,
   serverToday,
   serverNowMs,
-  kickoffsMs,
-  activeIsSettled,
+  state,
+  eventsToday,
+  startsMs,
 }: {
-  slateDate: string | null;
-  serverToday: string;       // build-time ET date (SSR seed)
-  serverNowMs: number;       // build-time clock (SSR seed)
-  kickoffsMs: number[];      // the slate's deduped kickoff times (server-loaded)
-  activeIsSettled: boolean;  // slate ≤ latest officially graded date (not clock-dependent)
+  countsFor: string;        // the ET day the counts below were computed for (build day)
+  serverToday: string;      // build-time ET date (SSR seed)
+  serverNowMs: number;      // build-time clock (SSR seed)
+  state: "EVENTS" | "NO_EVENTS" | "UNKNOWN";
+  eventsToday: number;
+  startsMs: number[];       // today's event starts across sports (server-loaded)
 }) {
   const [nowMs, setNowMs] = useState(serverNowMs);
   const [today, setToday] = useState(serverToday);
@@ -57,28 +70,19 @@ export default function SlateStatusChips({
     setToday(currentEtDate());
   }, []);
 
-  const shown = slateDate ?? today;
-  const slateIsCurrent = shown === today;
-  const p = activeIsSettled ? null : progress(kickoffsMs, nowMs);
-  const label = activeIsSettled ? "Slate settled"
-    : p === "completed" ? "Completed — awaiting settlement"
-    : p === "in_progress" ? "Slate in progress"
-    : "Pregame slate";
-  const dot = activeIsSettled ? "var(--vault-success)"
-    : p === "completed" ? "var(--vault-text-faint)"
-    : p === "in_progress" ? "var(--gtp-bank-heat)"
-    : "var(--vault-gold-bright)";
-
+  const live = underWay(startsMs, nowMs);
   return (
     <>
       <Link href="/today" className={`${chipCls} vault-press`} style={chipStyle()}>
-        <span style={{ color: "var(--vault-text)" }}>{slateIsCurrent ? "Today" : "Latest slate"}</span>
-        <span>· {fmtShort(shown)}</span>
+        <span style={{ color: "var(--vault-text)" }}>{dayChipText({ today, countsFor, state, eventsToday })}</span>
       </Link>
-      <span className={chipCls} style={chipStyle(p === "in_progress" ? "var(--gtp-bank-heat)" : "var(--vault-gold-bright)")}>
-        <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: dot }} />
-        <span style={{ color: dot }}>{label}</span>
-      </span>
+      {live ? (
+        <Link href="/live" className={`${chipCls} vault-press`} style={chipStyle("var(--gtp-bank-heat)")}>
+          <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: "var(--gtp-bank-heat)" }} />
+          <span style={{ color: "var(--vault-text)" }}>Games under way</span>
+          <span aria-hidden>→</span>
+        </Link>
+      ) : null}
     </>
   );
 }
