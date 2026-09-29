@@ -10,6 +10,7 @@ import {
   getMlbLifetimeSummary,
 } from "@/lib/data-mlb-results";
 import { mlbMarketLabel } from "@/lib/format-mlb";
+import { isPredictionDisabled, MLB_CALIBRATION_DISCLOSURE } from "@/lib/mlb/model-calibration-status";
 import { currentEtDate } from "@/lib/freshness";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
@@ -42,11 +43,17 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
   const summary = board.summary;
   const isPending = !board.propsAvailable;
   const hasGames = totalGames > 0;
-  const hasLeans = (board.leans?.length ?? 0) > 0;
+  /* P2-A (2026-09-29): the board honours the MLB calibration owner. Every market on it is
+     DEMOTE_TO_MARKET_CONTEXT (the model loses to the market on Brier and log loss), and total bases is
+     DISABLE_PREDICTION. Disabled markets leave the lean lists and counts (history stays on Results);
+     the rest are framed as model-vs-market gaps — market context — never as "signals" or confidence. */
+  const leans = (board.leans ?? []).filter((l) => !isPredictionDisabled(l.marketKey));
+  const tierCount = (t: string) => leans.filter((l) => l.confidence === t).length;
+  const hasLeans = leans.length > 0;
 
   // Team list for the filter console (only used in projection state).
   const teamSet = new Set<string>();
-  for (const l of board.leans) {
+  for (const l of leans) {
     if (l.playerTeamAbbr) teamSet.add(l.playerTeamAbbr);
   }
   const teamOptions = [...teamSet].sort();
@@ -103,7 +110,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
       <BoardDateStatusBanner
         date={date}
         gameCount={totalGames}
-        leanCount={board.leans?.length ?? 0}
+        leanCount={leans.length}
         isSettled={!!mlbReport}
         sport="MLB"
         settled={settledSummary}
@@ -133,7 +140,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
           style={{ color: "var(--vault-text)" }}
         >
           {hasGames
-            ? `${totalGames} MLB games · ${summary.leans} model leans`
+            ? `${totalGames} MLB games · ${leans.length} model-vs-market reads`
             : "Off-day — no MLB games scheduled"}
         </h1>
         <p
@@ -147,6 +154,10 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
           </Link>{" "}
           because the variance profile is different.
         </p>
+        <p className="mt-2 max-w-2xl text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+          <strong style={{ color: "var(--vault-text)" }}>Market context, not picks.</strong> {MLB_CALIBRATION_DISCLOSURE} Total
+          bases is disabled for prediction and is not listed here; its settled history stays on Results.
+        </p>
         {hasGames && (
           <div className="mt-4">
             <MlbSummaryStrip board={board} />
@@ -158,32 +169,33 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
         <OffDayPanel />
       ) : (
         <>
-          {/* KPI strip — confidence tier distribution */}
+          {/* KPI strip — the size of each read's model-vs-market gap (P2-A: not a confidence tier; a
+              larger gap has NOT settled better — see the disclosure above). */}
           <section className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
             <NeonStatPanel
-              label="Stronger signals"
-              value={String(summary.highConfidence)}
-              sub="clean edge ≥ 5 pp"
-              valueAccent="success"
+              label="Gap ≥ 5 pp"
+              value={String(tierCount("High"))}
+              sub="model vs market · context"
+              valueAccent="mute"
               delay={1}
             />
             <NeonStatPanel
-              label="Watch"
-              value={String(summary.mediumConfidence)}
-              sub="edge ≥ 2.5 pp"
-              valueAccent="gold"
+              label="Gap 2.5–5 pp"
+              value={String(tierCount("Medium"))}
+              sub="model vs market · context"
+              valueAccent="mute"
               delay={2}
             />
             <NeonStatPanel
-              label="High-variance"
-              value={String(summary.lowConfidence)}
+              label="Small gap"
+              value={String(tierCount("Low"))}
               sub={`${summary.anomalies} R5 anomalies`}
-              valueAccent="warn"
+              valueAccent="mute"
               delay={3}
             />
             <NeonStatPanel
               label="Sample too small"
-              value={String(summary.insufficientData)}
+              value={String(tierCount("insufficient_data"))}
               sub="no projection emitted"
               valueAccent="mute"
               delay={4}
@@ -197,7 +209,6 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                 [
                   "pitcher_strikeouts",
                   "batter_hits",
-                  "batter_total_bases",
                   "batter_hits_runs_rbis",
                 ] as const
               ).map((m) => {
@@ -210,8 +221,8 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                     style={{ color: "var(--vault-text-mute)" }}
                   >
                     <span>{mlbMarketLabel(m)}</span>
-                    <span style={{ color: "var(--vault-gold-bright)" }}>
-                      {c.high}H
+                    <span style={{ color: "var(--vault-text-mute)" }}>
+                      {c.high} gap ≥ 5 pp
                     </span>
                     <span style={{ color: "var(--vault-text-faint)" }}>·</span>
                     <span style={{ color: "var(--vault-text-faint)" }}>
@@ -254,13 +265,13 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
             <>
               {/* Top Clean Leans strip — always server-rendered. */}
               <div className="mt-8">
-                <MlbTopLeansStrip leans={board.leans} max={8} />
+                <MlbTopLeansStrip leans={leans} max={8} />
               </div>
 
               {/* Filter console + filtered game sections — client component
                   owns interactive state. */}
               <MlbBoardClient
-                leans={board.leans}
+                leans={leans}
                 games={board.games}
                 teamOptions={teamOptions}
                 gameStateByPk={gameStateByPk}
