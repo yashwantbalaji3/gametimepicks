@@ -69,6 +69,22 @@ export interface HubGameRow {
   reportHref: string | null;
   /** Why there is no report, when there is none. Shown in place of the action. */
   reportNote?: string;
+  /**
+   * Phase A (2026-09-29): who is playing, in the order the matchup reads ("PHI @ ATL", "Arsenal v Leeds",
+   * "Silva vs Wang"), so the event card can show crests and names instead of one text cell. Identity only —
+   * never a claim about the event. Absent when the adapter cannot state both sides; the card then shows the
+   * matchup text as before.
+   */
+  participants?: HubParticipant[];
+  /** How the matchup joins its sides: "@" (away at home), "v" (soccer, home first), "vs" (UFC). */
+  separator?: "@" | "v" | "vs";
+}
+
+export interface HubParticipant {
+  name: string;
+  /** Team identifier the shared TeamLogo resolves (abbreviation or club name); null ⇒ initials (fighters). */
+  logoTeam?: string | null;
+  logoSport?: "mlb" | "nfl" | "soccer" | null;
 }
 
 export interface SportHubModel {
