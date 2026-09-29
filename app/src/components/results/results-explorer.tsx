@@ -270,6 +270,71 @@ export default function ResultsExplorer({
     <section aria-labelledby="results-explorer-h" className="flex flex-col gap-3">
       <h2 id="results-explorer-h" style={{ fontSize: 16, fontWeight: 700 }}>Explore the record</h2>
 
+      {/* #794 PR 3: THE ANSWER FIRST. The selected record used to render after every control and note,
+          so a phone showed three dropdowns and two date inputs before a single figure. It is computed
+          from the same state, so moving it above the controls changes the order and nothing else. */}
+      {/* ── THE SELECTED PERIOD, from the cards themselves ────────────────────────────────────── */}
+      {dateFilterable && !rangeError ? (
+        <div style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "12px 14px", background: "var(--vault-wash-faint)" }}>
+          <div style={{ fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+            {rangeLabel}
+          </div>
+          <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "baseline" }}>
+            {cardPool.decisive > 0 ? (
+              <>
+                <span style={{ fontSize: 22, fontWeight: 800 }}>{(cardPool.rate! * 100).toFixed(1)}%</span>
+                <span style={{ fontFamily: "monospace", fontSize: 13 }}>{cardPool.wins}-{cardPool.losses}</span>
+              </>
+            ) : (
+              /* ZERO DECISIVE IS UNAVAILABLE, NEVER 0%. */
+              <span style={{ fontSize: 14, color: "var(--vault-text-mute)" }}>
+                {selectedCards.length === 0 ? "No card in this selection." : "No card in this selection has settled yet — there is no hit rate to report."}
+              </span>
+            )}
+            <span style={{ fontSize: 11.5, color: "var(--vault-text-mute)", fontFamily: "monospace" }}>
+              {cardPool.decisive} decisive
+              {cardPool.pushes ? ` · ${cardPool.pushes} push` : ""}
+              {cardPool.pending ? ` · ${cardPool.pending} pending` : ""}
+              {` · ${selectedCards.length} card${selectedCards.length === 1 ? "" : "s"}`}
+            </span>
+          </div>
+        </div>
+      ) : pooled ? (
+        <div style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "12px 14px", background: "var(--vault-wash-faint)" }}>
+          <div style={{ fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+            Selected population
+          </div>
+          <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "baseline" }}>
+            <Rate row={{ ...(visible[0] ?? {} as ResultRow), wins: pooled.wins, losses: pooled.losses, hitRate: pooled.hitRate, interval: pooled.interval }} />
+            <span style={{ fontSize: 11.5, color: "var(--vault-text-mute)", fontFamily: "monospace" }}>
+              {pooled.wins + pooled.losses} decisive
+              {pooled.pushes ? ` · ${pooled.pushes} push` : ""}
+              {pooled.voids ? ` · ${pooled.voids} void` : ""}
+              {pooled.pending ? ` · ${pooled.pending} pending` : ""}
+            </span>
+          </div>
+          {/* P250 · A11: a pooled figure across sports with wildly different volumes must SAY what
+              it is made of — MLB's tens of thousands of graded rows swamp NFL/EPL/UFC's dozens, and
+              an undisclosed blend invites reading the small populations into the big number. */}
+          {(() => {
+            const bySport = new Map<string, number>();
+            for (const r of visible) bySport.set(r.sport, (bySport.get(r.sport) ?? 0) + r.wins + r.losses);
+            const total = pooled.wins + pooled.losses;
+            if (bySport.size < 2 || total === 0) return null;
+            const [topSport, topN] = [...bySport.entries()].sort((a, b) => b[1] - a[1])[0];
+            const share = topN / total;
+            if (share < 0.9) return null;
+            return (
+              <p style={{ margin: "6px 0 0", fontSize: 11, color: "var(--vault-text-faint)", lineHeight: 1.5 }}>
+                {(share * 100).toFixed(1)}% of this pooled population is {SPORT_LABEL[topSport] ?? topSport} —
+                the other sports&rsquo; records are too small to move this number; read them on their own rows below.
+              </p>
+            );
+          })()}
+        </div>
+      ) : null}
+
+
       {/* EXPLICIT id/htmlFor, not a wrapping <label>. Wrapping made each select's accessible name the
           whole label text INCLUDING its option list, so "Risk tier … per-sport totals" also answered
           to "Sport" — two controls with one name, which is a real problem for a screen reader long
@@ -351,67 +416,6 @@ export default function ResultsExplorer({
       )}
 
       <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: 0, maxWidth: 720 }}>{TYPE_NOTE[recordType]}</p>
-
-      {/* ── THE SELECTED PERIOD, from the cards themselves ────────────────────────────────────── */}
-      {dateFilterable && !rangeError ? (
-        <div style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "12px 14px", background: "var(--vault-wash-faint)" }}>
-          <div style={{ fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
-            {rangeLabel}
-          </div>
-          <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "baseline" }}>
-            {cardPool.decisive > 0 ? (
-              <>
-                <span style={{ fontSize: 22, fontWeight: 800 }}>{(cardPool.rate! * 100).toFixed(1)}%</span>
-                <span style={{ fontFamily: "monospace", fontSize: 13 }}>{cardPool.wins}-{cardPool.losses}</span>
-              </>
-            ) : (
-              /* ZERO DECISIVE IS UNAVAILABLE, NEVER 0%. */
-              <span style={{ fontSize: 14, color: "var(--vault-text-mute)" }}>
-                {selectedCards.length === 0 ? "No card in this selection." : "No card in this selection has settled yet — there is no hit rate to report."}
-              </span>
-            )}
-            <span style={{ fontSize: 11.5, color: "var(--vault-text-mute)", fontFamily: "monospace" }}>
-              {cardPool.decisive} decisive
-              {cardPool.pushes ? ` · ${cardPool.pushes} push` : ""}
-              {cardPool.pending ? ` · ${cardPool.pending} pending` : ""}
-              {` · ${selectedCards.length} card${selectedCards.length === 1 ? "" : "s"}`}
-            </span>
-          </div>
-        </div>
-      ) : pooled ? (
-        <div style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "12px 14px", background: "var(--vault-wash-faint)" }}>
-          <div style={{ fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
-            Selected population
-          </div>
-          <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "baseline" }}>
-            <Rate row={{ ...(visible[0] ?? {} as ResultRow), wins: pooled.wins, losses: pooled.losses, hitRate: pooled.hitRate, interval: pooled.interval }} />
-            <span style={{ fontSize: 11.5, color: "var(--vault-text-mute)", fontFamily: "monospace" }}>
-              {pooled.wins + pooled.losses} decisive
-              {pooled.pushes ? ` · ${pooled.pushes} push` : ""}
-              {pooled.voids ? ` · ${pooled.voids} void` : ""}
-              {pooled.pending ? ` · ${pooled.pending} pending` : ""}
-            </span>
-          </div>
-          {/* P250 · A11: a pooled figure across sports with wildly different volumes must SAY what
-              it is made of — MLB's tens of thousands of graded rows swamp NFL/EPL/UFC's dozens, and
-              an undisclosed blend invites reading the small populations into the big number. */}
-          {(() => {
-            const bySport = new Map<string, number>();
-            for (const r of visible) bySport.set(r.sport, (bySport.get(r.sport) ?? 0) + r.wins + r.losses);
-            const total = pooled.wins + pooled.losses;
-            if (bySport.size < 2 || total === 0) return null;
-            const [topSport, topN] = [...bySport.entries()].sort((a, b) => b[1] - a[1])[0];
-            const share = topN / total;
-            if (share < 0.9) return null;
-            return (
-              <p style={{ margin: "6px 0 0", fontSize: 11, color: "var(--vault-text-faint)", lineHeight: 1.5 }}>
-                {(share * 100).toFixed(1)}% of this pooled population is {SPORT_LABEL[topSport] ?? topSport} —
-                the other sports&rsquo; records are too small to move this number; read them on their own rows below.
-              </p>
-            );
-          })()}
-        </div>
-      ) : null}
 
       {/* ── PER-SPORT RECORD. Derived from the CARDS whenever a date range can apply, because the
              aggregate table beside a filtered headline was two answers to one question: the header

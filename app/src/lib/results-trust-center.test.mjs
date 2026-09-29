@@ -49,8 +49,12 @@ const BANNED = /\bguaranteed\b|\block\b|\bsafe\b|\bsafest\b|free money|can'?t lo
 const portfolio = readJson("public/data/mr-dub/portfolio.json");
 
 // ── 1. Trust Center / Results & Receipts concept ─────────────────────────
-test("1 · /results leads with the Results & Receipts trust center", () => {
-  assert.match(trustCenter, /Results &amp; Receipts/);
+test("1 · /results is named Results & Receipts first; the trust center keeps its own section", () => {
+  // #794 PR 3: the page H1 moved out of the Trust Center to the top of the page (above the explorer);
+  // the Trust Center names its part. Exactly one H1 on the page.
+  assert.match(resultsPage, /<h1[^>]*>\s*Results &amp; Receipts\s*<\/h1>/);
+  assert.ok(resultsPage.indexOf("<h1") < resultsPage.indexOf("<ResultsExplorer"), "the page names itself before the explorer");
+  assert.ok(!/<h1\b/.test(trustCenter), "one H1 per page — the trust center's heading is a section heading");
   assert.match(trustCenter, /Trust center/i);
   // The page renders <TrustCenter> as its lead child.
   assert.match(resultsPage, /<TrustCenter\s+model=\{getTrustCenterModel\(\)\}/);
