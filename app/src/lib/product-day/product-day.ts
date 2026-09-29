@@ -148,7 +148,10 @@ function ufcDay(dataRoot: string, today: string): ProductDay {
   const bouts: Array<{ prediction?: unknown }> = card.bouts ?? [];
   const predicted = bouts.filter((b) => b.prediction).length;
   const slateDate: string | null = card.event?.slateDate ?? null;
-  const startUtc: string | null = card.event?.startTimeUtc ?? null;
+  /* The card publishes `event.startUtc`; this read `startTimeUtc`, a field the card never carried, so UFC's
+     next event was always null (#797 PR D, 2026-09-29: the sport chooser said UFC had nothing scheduled while
+     UFC 332 was four days out). The old name stays as a fallback. */
+  const startUtc: string | null = card.event?.startUtc ?? card.event?.startTimeUtc ?? null;
   if (!slateDate || slateDate < today) {
     return day("ufc", {
       productDate: slateDate ?? today, state: "NO_EVENTS", events: 0, eligible: 0,

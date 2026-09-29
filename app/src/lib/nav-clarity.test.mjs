@@ -49,3 +49,12 @@ test("🔴 /live on a quiet day is not a dead end and makes no schedule claim it
   assert.match(quiet, /\{etDayLabel\(nfl\.etDate\)\}/, "the quiet day names its date, so a stale page cannot pass for today");
   assert.doesNotMatch(page, /Live beta · \{nfl\.etDate\}/, "no raw ISO date in the header line");
 });
+
+test("🔴 #797 PR D · a chooser tile with no dated fact claims nothing — never 'No scheduled events'", () => {
+  const comp = fs.readFileSync(path.join(process.cwd(), "src/components/sports/sport-chooser.tsx"), "utf8");
+  const code = comp.replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(code, /No scheduled events|nothing scheduled|none scheduled/i, "an absent forecast or start is not proof of an empty schedule");
+  assert.match(code, /upcomingDay = day\?\.state === "EVENT_UPCOMING" && day\.productDate > today \? day\.productDate : null/);
+  assert.match(code, /upcomingDay \? `Next: \$\{etDayLabel\(upcomingDay\)\}`/,
+    "an upcoming product day names its date even without a start instant");
+});
