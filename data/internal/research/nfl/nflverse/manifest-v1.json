@@ -2,22 +2,22 @@
  "schemaVersion": 1,
  "artifact": "nflverse-capture",
  "dataClass": "PRIVATE_RESEARCH",
- "capturedAt": "2026-09-22T15:35:14Z",
+ "capturedAt": "2026-09-29T16:57:21Z",
  "attribution": "Data: nflverse (https://github.com/nflverse), licensed CC BY 4.0. Derived tables; raw files are not redistributed here.",
  "sources": [
   {
    "name": "players.csv",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/players/players.csv",
    "status": 200,
-   "bytes": 7234131,
-   "sha256": "4dd70f328f31b0bb7cbf043412298d5a325863e27b8f2eeea22c9e925c808dee"
+   "bytes": 7295097,
+   "sha256": "5b6f22c2d1c23fa5bc7da4cc51b3108629ec7f1c4b7f54f7d2d9a274501cd426"
   },
   {
    "name": "games.csv",
    "url": "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv",
    "status": 200,
-   "bytes": 2179543,
-   "sha256": "580b8c76dcce9c616d493086f9205e2b1279d0d0b73b5cb849dd4a3c2be64bee"
+   "bytes": 2181246,
+   "sha256": "4bd30a0cf675d958f9fba04bbfc5818cc3fa5744f63179b5e20fc52f26c5858c"
   },
   {
    "name": "snap_counts_2022.csv",
@@ -44,21 +44,21 @@
    "name": "snap_counts_2025.csv",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2025.csv",
    "status": 200,
-   "bytes": 2401193,
-   "sha256": "80b02a6e511aa20283551cae622b29ba4d0a6f006c489a2d91591fcad33792e7"
+   "bytes": 2401290,
+   "sha256": "3fc2deb0e9ad86d34d4578cb80bb21c95253e088ee22ca028adf46f7485eff1f"
   },
   {
    "name": "snap_counts_2026.csv",
    "url": "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_2026.csv",
    "status": 200,
-   "bytes": 268763,
-   "sha256": "de7dee6776781052e85fd697d13e6c1d18fb22e04df0b2794cfd0ec758c7efab"
+   "bytes": 402793,
+   "sha256": "c5868527b1052ae572b2d8f34a7bb777675a5e762ceaeb25f72f10d1c59846d5"
   }
  ],
  "tables": {
   "gameLines": {
    "games": 1411,
-   "withClose": 1187
+   "withClose": 1203
   },
   "participation": {
    "2022": {
@@ -91,9 +91,9 @@
    },
    "2026": {
     "file": "participation-2026.jsonl",
-    "rows": 1189,
-    "unjoined": 5,
-    "joinRate": 0.9958,
+    "rows": 1784,
+    "unjoined": 8,
+    "joinRate": 0.9955,
     "published": true
    }
   }

@@ -85,6 +85,8 @@ export function sportStateFromProductDay(day, { slateDate, lookAheadDays = 7 }) 
     if (days > 0 && days <= lookAheadDays) return SPORT_STATES.EVENT_THIS_WEEK;
   }
   if (day.state === "NO_EVENTS" || day.state === "SOURCE_STALE") return SPORT_STATES.IN_SEASON_NO_SLATE;
+  // A modelled event dated beyond the look-ahead is an in-season gap (an international break), not history.
+  if (day.state === "EVENT_UPCOMING" && day.eligible > 0) return SPORT_STATES.IN_SEASON_NO_SLATE;
   if (day.state === "OFF_SEASON") return SPORT_STATES.HISTORICAL_ONLY;
   // BLOCKED / INCIDENT / an upcoming slate with no eligible product: nothing to claim as live.
   return day.state === "EVENT_UPCOMING" ? SPORT_STATES.HISTORICAL_ONLY : SPORT_STATES.NOT_SUPPORTED;
