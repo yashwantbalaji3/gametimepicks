@@ -16,12 +16,12 @@ const { default: GameSummary } = await import("../../components/sport-hub/game-s
 test("🔴 the empty state prints the schedule owner's count and routes onward when games exist off the board", () => {
   const html = renderToStaticMarkup(React.createElement(GameSummary, {
     rows: [], unitLabel: "Games",
-    emptyCounts: "4 on the official schedule · 0 with a report · 0 with a supported read",
+    emptyCounts: "4 scheduled · 0 with a report · 0 with a supported read",
     emptyReason: "The official MLB schedule has 4 games on Tue, Jul 15.",
     emptyLink: { href: "/simulate/?sport=mlb", label: "See the 4 scheduled games on Simulate" },
   }));
-  assert.match(html, /4 on the official schedule/);
-  assert.doesNotMatch(html, /0 scheduled/, "a count the schedule contradicts is never printed");
+  assert.match(html, /4 scheduled · 0 with a report · 0 with a supported read/, "the schedule's count, in the hub's three-count form");
+  assert.doesNotMatch(html, /\b0 scheduled/, "a count the schedule contradicts is never printed");
   assert.match(html, /href="\/simulate\/?\?sport=mlb"/);
 });
 
@@ -36,6 +36,7 @@ test("🔴 the MLB adapter asks the product day, never infers 'none scheduled' f
   const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   assert.doesNotMatch(code, /none scheduled/, "an empty board is not evidence that nothing is scheduled");
   const fn = code.slice(code.indexOf("function mlbOfficialOnly"));
+  assert.match(fn, /emptyCounts: `\$\{n\} scheduled · 0 with a report · 0 with a supported read`/, "the official count is the scheduled count");
   assert.match(fn, /productDayFor\("mlb"/, "the official schedule comes from the existing product-day owner");
   assert.match(fn, /day\.productDate !== today \|\| day\.events <= 0 \|\| day\.eligible > 0/,
     "only today's official games that the board does not yet carry — a published board keeps its own rows");

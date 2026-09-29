@@ -166,7 +166,7 @@ function mlbOfficialOnly(nowIso: string): { label: string; empty: Pick<SportHubM
   return {
     label,
     empty: {
-      emptyCounts: `${n} on the official schedule · 0 with a report · 0 with a supported read`,
+      emptyCounts: `${n} scheduled · 0 with a report · 0 with a supported read`,
       emptyReason: `The official MLB schedule has ${n} game${n === 1 ? "" : "s"} on ${label}${first ? ` (first pitch ${first})` : ""}. The model board for that date is not published yet — it is generated late morning ET, after probable pitchers and prices exist.`,
       emptyLink: { href: "/simulate/?sport=mlb", label: `See the ${n} scheduled game${n === 1 ? "" : "s"} on Simulate` },
     },
