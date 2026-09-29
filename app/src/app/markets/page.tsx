@@ -21,6 +21,7 @@ import {
   toGapBucketViews,
 } from "@/lib/research/disagreement-explorer";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import NotTodaysMarket from "@/components/markets/not-todays-market";
 
 export const metadata: Metadata = withRouteMetadata("/markets/", {
   title: "Picks · GameTimePicks",
@@ -46,8 +47,8 @@ export default function MarketsPage() {
     );
   }
 
-  // A pinned instant so freshness and event phase are evaluated once, not twice with a drift
-  // between them. The client freshness components re-derive the real ET clock on mount.
+  // A pinned instant so event phase is evaluated once. "Current vs not today's market" is NOT decided
+  // here: NotTodaysMarket and MarketCenter re-derive it on the reader's ET day after mount (#761 PR 1).
   const nowIso = new Date().toISOString();
   const data = loadMarketCenter(date, today, nowIso);
 
@@ -67,33 +68,9 @@ export default function MarketsPage() {
         sub="Market probabilities are de-vigged from the posted price — not the book's own numbers."
       />
 
-      {data.isHistorical ? (
-        <section className="reveal" style={{ marginTop: 20 }}>
-          <div
-            style={{
-              border: "1px solid var(--vault-warn)",
-              borderRadius: 10,
-              padding: 14,
-              background: "color-mix(in srgb, var(--vault-warn) 6%, transparent)",
-            }}
-          >
-            <div
-              className="font-mono uppercase tracking-[0.16em]"
-              style={{ fontSize: 10, color: "var(--vault-warn)", marginBottom: 6 }}
-            >
-              Not today&rsquo;s market
-            </div>
-            <div style={{ fontSize: 13, color: "var(--vault-text)", marginBottom: 4 }}>
-              Today&rsquo;s sportsbook snapshot is not available yet. This page shows the latest one we captured:{" "}
-              <strong>{data.date}</strong> ({data.daysBehind === 1 ? "yesterday" : `${data.daysBehind} days ago`}).
-            </div>
-            <div style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
-              Prices below are as they stood on that slate. They are not current, and those games have already been
-              played.
-            </div>
-          </div>
-        </section>
-      ) : null}
+      {/* #761 PR 1: decided on the READER'S ET day (was the build's), so a page built yesterday still raises
+          this banner today. Same rule as the badge below (lib/markets/freshness.ts readerMarketFrame). */}
+      <NotTodaysMarket snapshotDate={data.date} seedToday={today} />
 
       {/* P250-W1: THE BOARD'S SCOPE, STATED. This page can only compare markets that carry a
           current authorized price capture — MLB today. A reader landing on the "Picks" primary
@@ -146,10 +123,10 @@ export default function MarketsPage() {
           // On a historical page the reading is "current" only RELATIVE to its own slate, which
           // would render a green "Current snapshot" badge directly beside the banner saying this is
           // not today's market. The badge follows the frame the reader is actually in.
-          freshnessLabel={
-            data.isHistorical ? `Snapshot from ${data.date}` : freshnessLabel(data.gameFreshness)
-          }
-          isCurrent={!data.isHistorical && data.gameFreshness.isCurrent}
+          snapshotDate={data.date}
+          seedToday={today}
+          currentLabel={freshnessLabel(data.gameFreshness)}
+          currentIsCurrent={data.gameFreshness.isCurrent}
         />
       </section>
 
