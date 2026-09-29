@@ -19,7 +19,8 @@ test("ðŸ”´ every board publishing from ONE basis with no model id is PUBLISHED â
   const row = familyPublication("player_receptions", { label: "Receptions" }, constituentBoards(boards, PERIOD));
   assert.equal(row.state, "PUBLISHED");
   assert.equal(row.modelId, null, "named by its basis, never given a model id it does not carry");
-  assert.equal(row.detail, V1);
+  assert.deepEqual(row.publication.bases, [V1], "the basis is kept as metadata");
+  assert.doesNotMatch(row.detail, /props-v1|anytime-td-v1|player-props-v1/, "reader copy never carries an internal engine id");
 });
 
 test("genuinely mixed publication still reads MIXED, never rounded up", () => {

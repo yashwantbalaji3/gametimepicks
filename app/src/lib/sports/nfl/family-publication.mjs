@@ -36,7 +36,8 @@ export function familyPublication(key, evaluated, constituents) {
      publication differs across this week's games" while all 16 boards published. Same basis everywhere is one
      publication; it is named by its basis, never rounded to a model id it does not carry. */
   if (states.length === 1 && states[0] === "PUBLISHED" && models.length === 0 && bases.length === 1) {
-    return { ...base, state: "PUBLISHED", modelId: null, headline: `${label}: published this week on every game`, detail: bases[0], nextGate: null };
+    /* The basis names internal engines ("props-v1 evaluation: …") — it stays in machine metadata, never reader copy. */
+    return { ...base, publication: { ...base.publication, bases }, state: "PUBLISHED", modelId: null, headline: `${label}: published this week on every game`, detail: `Every game on this week's slate publishes ${label.toLowerCase()} from the same evaluated model. Each game page states its own range.`, nextGate: null };
   }
   if (states.length === 1 && states[0] === "ESTIMATE") {
     const e = entries[0] ?? {};

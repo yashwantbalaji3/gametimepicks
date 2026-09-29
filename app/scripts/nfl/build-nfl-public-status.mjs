@@ -263,7 +263,8 @@ const anytimeTd = td && tdOnBoards.state === "PUBLISHED"
   ? {
     state: "PUBLISHED",
     headline: "Anytime touchdown: published on this week's game boards",
-    detail: `${String(tdOnBoards.detail).replace(/\.?\s*$/, ".")} Endzone Vault makes no selection: ${roleReason}${probeFoundNothing ? ", and no current touchdown price is captured" : ""}.`,
+    /* Plain words only: the boards' basis carries the internal engine id, which never reaches the public page. */
+    detail: `Every game on this week's boards publishes touchdown chances from the calibrated scoring model; they assume the player plays (a player who does not play settles void). Endzone Vault makes no selection: ${roleReason}${probeFoundNothing ? ", and no current touchdown price is captured" : ""}.`,
     nextGate: anytimeTdHeld.nextGate ?? null,
   }
   : anytimeTdHeld;
