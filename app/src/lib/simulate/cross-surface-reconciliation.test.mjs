@@ -12,10 +12,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
-import { buildSimulateDay, STATE_ACTION } from "./day-view.ts";
+import { buildSimulateDay, STATE_ACTION, simulationReadyCount } from "./day-view.ts";
+import fs from "node:fs";
 import { STATE_TONE } from "../../components/simulate/simulate-day.tsx";
-import { buildAllGameDetails } from "../game-detail.ts";
-import { featuredSimulations } from "../simulate-lobby-featured.ts";
 import { buildProductDays } from "../product-day/product-day.ts";
 import { currentEtDate } from "../freshness.ts";
 
@@ -23,16 +22,20 @@ const today = currentEtDate();
 const day = buildSimulateDay(today, { today });
 const dataRoot = path.join(process.cwd(), "public", "data");
 
-test("the hero's simulation-ready figure equals the day view's MLB ready count for today", () => {
-  const details = buildAllGameDetails();
-  const { simulationsToday } = featuredSimulations(details, today);
-  const mlb = day.sections.find((s) => s.sport === "mlb");
-  const dayReady = (mlb?.events ?? []).filter((e) => e.state === "SIMULATION_READY").length;
-  assert.equal(
-    simulationsToday,
-    dayReady,
-    `the homepage would claim ${simulationsToday} ready while /simulate shows ${dayReady} — two derivations, one truth`,
-  );
+test("the hero's simulation-ready figure IS the day view's ready count — one derivation, not two", () => {
+  // P1-E: the hero used featuredSimulations().simulationsToday (no start instants), so after a first pitch
+  // it overcounted what /simulate showed. It now reads simulationReadyCount(buildSimulateDay(...)).
+  const dayReady = day.sections.reduce((n, s) => n + s.events.filter((e) => e.state === "SIMULATION_READY").length, 0);
+  assert.equal(simulationReadyCount(day), dayReady);
+  const home = fs.readFileSync(path.join(process.cwd(), "src/app/page.tsx"), "utf8");
+  assert.match(home, /simulationReadyCount\(buildSimulateDay\(currentEtDate\(\), \{ today: currentEtDate\(\) \}\)\)/, "Home derives the figure from the day view");
+  assert.match(home, /readyCount=\{simulationReadyNow\}/);
+  assert.doesNotMatch(home, /readyCount=\{simulationsToday\}/, "not from the featured selector's pool");
+});
+
+test("a started game is never counted simulation-ready (fixture)", () => {
+  const fixture = { sections: [{ events: [{ state: "SIMULATION_READY" }, { state: "STARTED" }, { state: "SETTLED" }] }, { events: [{ state: "SIMULATION_READY" }] }] };
+  assert.equal(simulationReadyCount(fixture), 2);
 });
 
 test("no sport shows ready events while its product-day owner reports an empty or dormant window", () => {
