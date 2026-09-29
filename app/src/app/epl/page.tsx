@@ -56,6 +56,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import path from "node:path";
 import ModelStatusPanel from "@/components/command-center/model-status-panel";
 import { modelStatusFor } from "@/lib/command-center/model-status";
+import { currentEtDate } from "@/lib/freshness";
 
 export const metadata: Metadata = withRouteMetadata("/epl/", {
   title: "Premier League — Simulation Center · GameTime Picks",
@@ -242,6 +243,10 @@ export default function EplPage() {
         sport="Premier League"
         tagline="match result · scorelines · goals · margin"
         statusKind={priced.length > 0 ? "live" : "linesPending"}
+        /* #761 PR 2: "Live" only on the matchday itself, on the reader's day — it said Live whenever
+           any fixture was priced, including a matchday a week away. */
+        statusSlateDate={next?.rows?.[0]?.kickoffUtc ? currentEtDate(new Date(next.rows[0].kickoffUtc)) : null}
+        statusSeedToday={currentEtDate()}
         /* Forecast availability and price availability are DIFFERENT facts on different clocks
            (P241 · A05): the forecast file legitimately empties between matchweeks while the next
            matchday's ladder below carries real posted prices. A blanket "no priced fixtures" was

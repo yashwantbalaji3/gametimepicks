@@ -423,13 +423,10 @@ export default function NflHubPage() {
            simulation count alone, this pill read "Live · 2 games" beside its own freshness badge
            reading "Upcoming · 2026-08-20" — two contradictory claims on one line, three days early.
            The slate day decides tense; the simulation count only distinguishes ready from pending. */
-        statusKind={
-          slateDay && slateDay > currentEtDate() ? "upcoming"
-          : slateDay && slateDay < currentEtDate() ? "settled"
-          : simulatedOnSlate > 0 ? "live"
-          : slateGames.length > 0 ? "linesPending"
-          : "upcoming"
-        }
+        statusKind={simulatedOnSlate > 0 ? "live" : slateGames.length > 0 ? "linesPending" : "upcoming"}
+        /* #761 PR 2: the slate day decides tense on the READER'S day (it was the build's). */
+        statusSlateDate={slateDay ?? null}
+        statusSeedToday={currentEtDate()}
         statusCaption={slateGames.length > 0 ? `${slateGames.length} game${slateGames.length === 1 ? "" : "s"}` : undefined}
         matchupLine={weekLabel ? `${weekLabel} · ${slateGames.length} game${slateGames.length === 1 ? "" : "s"}` : slateDay ? `${slateLabel} · ${slateGames.length} game${slateGames.length === 1 ? "" : "s"} on the slate` : undefined}
         badge={<FreshnessBadge slateDate={slateDay} serverToday={currentEtDate()} noun="slate" />}
