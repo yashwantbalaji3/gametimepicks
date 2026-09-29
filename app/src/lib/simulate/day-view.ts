@@ -13,6 +13,7 @@
  *
  * Server-only (fs via the owners it calls).
  */
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 import { currentEtDate } from "@/lib/freshness";
 import { teamLogoUrlFor } from "@/lib/teams/load-team-marks";
 import { getMlbBoardForDate, getMlbPowerForDate, getMlbAvailableScheduleDates, getMlbStatsapiScheduleForDate } from "@/lib/data-mlb";
@@ -464,7 +465,7 @@ function nflSection(date: string, today: string): SportDaySection {
     sport: "nfl", label: "NFL", icon: getSportIdentity("nfl").icon,
     emptyState: events.length ? null : "NO_CURRENT_EVENT",
     note: events.length ? null : nextDay && nextDay > date
-      ? `No NFL games on this date — next kickoff ${nextDay}.`
+      ? `No NFL games on this date — next kickoff ${etDayLabel(nextDay) ?? nextDay}.`
       : "No NFL games on this date.",
     events: events.sort((a, b) => String(a.startUtc ?? "").localeCompare(String(b.startUtc ?? ""))),
   };

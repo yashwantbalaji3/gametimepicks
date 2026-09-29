@@ -23,6 +23,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 import { activeMlbDate, getMlbBoardForDate, getMlbStatsapiScheduleForDate } from "@/lib/data-mlb";
 import { loadEplForecasts } from "@/lib/sports/epl/forecast-view";
 
@@ -130,7 +131,7 @@ function eplDay(_dataRoot: string, today: string): ProductDay {
     state: kickDay === today ? "LIVE" : "EVENT_UPCOMING",
     events: current.length, eligible: current.length,
     sourceStamp: set.generatedAt ?? null, nextEventUtc: nextKick,
-    note: `${current.length} match forecast${current.length === 1 ? "" : "s"}${current[0]?.matchweek ? ` · matchweek ${current[0].matchweek}` : ""}`,
+    note: `${current.length} match forecast${current.length === 1 ? "" : "s"}${current[0]?.matchweek ? ` · matchweek ${current[0].matchweek}` : ""}${nextKick && etDayLabel(nextKick) ? ` · from ${etDayLabel(nextKick)}` : ""}`,
     reason: null,
   });
 }
@@ -156,7 +157,7 @@ function ufcDay(dataRoot: string, today: string): ProductDay {
     return day("ufc", {
       productDate: slateDate ?? today, state: "NO_EVENTS", events: 0, eligible: 0,
       sourceStamp: card.generatedAt ?? null, nextEventUtc: null,
-      note: slateDate ? `The newest card (${slateDate}) has passed; the archive holds its record.` : "No upcoming card is published.",
+      note: slateDate ? `The newest card (${etDayLabel(slateDate) ?? slateDate}) has passed; the archive holds its record.` : "No upcoming card is published.",
       reason: null,
     });
   }
@@ -165,7 +166,7 @@ function ufcDay(dataRoot: string, today: string): ProductDay {
     state: slateDate === today ? "LIVE" : "EVENT_UPCOMING",
     events: bouts.length, eligible: predicted,
     sourceStamp: card.generatedAt ?? null, nextEventUtc: startUtc,
-    note: predicted > 0 ? `${predicted} of ${bouts.length} bouts predicted · card ${slateDate}` : `card ${slateDate} published without a model read`,
+    note: predicted > 0 ? `${predicted} of ${bouts.length} bouts predicted · card ${etDayLabel(slateDate) ?? slateDate}` : `card ${etDayLabel(slateDate) ?? slateDate} published without a model read`,
     reason: null,
   });
 }
@@ -246,7 +247,7 @@ function nflDay(dataRoot: string, today: string): ProductDay {
       return day("nfl", {
         productDate: nextForecastDay, state: "EVENT_UPCOMING", events: forecastsUpcoming, eligible: forecastsUpcoming,
         sourceStamp: index.generatedAt ?? null, nextEventUtc: nextForecast,
-        note: `No NFL games today · ${weekLabel}: ${forecastsUpcoming} game forecasts published · next kickoff ${nextForecastDay}${typeof index.nextForecastMatchup === "string" ? ` (${index.nextForecastMatchup})` : ""}`,
+        note: `No NFL games today · ${weekLabel}: ${forecastsUpcoming} game forecasts published · next kickoff ${etDayLabel(nextForecastDay) ?? nextForecastDay}${typeof index.nextForecastMatchup === "string" ? ` (${index.nextForecastMatchup})` : ""}`,
         reason: null,
       });
     }
@@ -292,9 +293,9 @@ function nflDay(dataRoot: string, today: string): ProductDay {
         ? nextKick
           /* The passed slate AND the real next game — the old copy said "not scheduled yet" even
              when the schedule named one, because it only ever looked at a stale anchor. */
-          ? `The last simulated slate (${simSlateDay ?? kickDay}) has been played; next kickoff ${etDay(nextKick)}.`
-          : `The last simulated slate (${simSlateDay ?? kickDay}) has been played; the next window is not scheduled yet.`
-        : nextKick ? `No simulated slate yet; next kickoff ${kickDay}.` : "No NFL slate is published.",
+          ? `The last simulated slate (${etDayLabel(simSlateDay ?? kickDay) ?? simSlateDay ?? kickDay}) has been played; next kickoff ${etDayLabel(nextKick)}.`
+          : `The last simulated slate (${etDayLabel(simSlateDay ?? kickDay) ?? simSlateDay ?? kickDay}) has been played; the next window is not scheduled yet.`
+        : nextKick ? `No simulated slate yet; next kickoff ${etDayLabel(kickDay) ?? kickDay}.` : "No NFL slate is published.",
       reason: null,
     });
   }
@@ -303,7 +304,7 @@ function nflDay(dataRoot: string, today: string): ProductDay {
     state: kickDay === today ? "LIVE" : "EVENT_UPCOMING",
     events: games.length, eligible: games.length,
     sourceStamp: sims?.generatedAt ?? index.generatedAt ?? null, nextEventUtc: nextKick,
-    note: `${games.length} games simulated · next kickoff ${kickDay ?? "unscheduled"}`,
+    note: `${games.length} games simulated · next kickoff ${etDayLabel(kickDay) ?? "unscheduled"}`,
     reason: null,
   });
 }

@@ -5,6 +5,7 @@
  *   → Markets. Tabbed (SportShell), mobile-first, shared kit only. All real data — honest empty states
  *   where a market/prop/card isn't offered; never fabricated.
  */
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 import Link from "next/link";
 import type { PublicGameDetail } from "@/lib/game-detail";
 import { siblingGames } from "@/lib/game-detail";
@@ -866,7 +867,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           />
           <span className="relative flex flex-wrap items-center gap-2">
             <span className="gtp-sport-orb shrink-0" style={{ width: 26, height: 26, fontSize: 14, ["--orb-grad" as string]: identity.gradient }} role="img" aria-label={identity.ballLabel}>{identity.icon}</span>
-            <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
+            <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{etDayLabel(detail.date) ?? detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
             <CompetitionBadge sport={detail.sport} size="sm" />
             {/* The badge must reflect the artifact, not the route. It was previously hardcoded, so
                 EVERY game claimed "Simulation Ready" — including a game whose own panel two
@@ -1004,7 +1005,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <Link href="/simulate" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
         </div>
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
+          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{etDayLabel(detail.date) ?? detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
           <CompetitionBadge sport="world_cup" size="sm" />
           <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", color: "var(--gtp-success-on-dark)", fontSize: 9 }}>
             <span aria-hidden>▶</span> Simulation Report · Market-Implied
@@ -1035,7 +1036,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, color-mix(in srgb, var(--vault-accent) 10%, transparent) 0%, transparent 55%), linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-navy) 94%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 97%, transparent) 100%)" }}>
         <span className="flex items-center gap-2">
           <span className="gtp-sport-orb shrink-0" style={{ width: 26, height: 26, fontSize: 14, ["--orb-grad" as string]: identity.gradient }} role="img" aria-label={identity.ballLabel}>{identity.icon}</span>
-          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
+          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{etDayLabel(detail.date) ?? detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
           <CompetitionBadge sport={detail.sport} size="sm" />
         </span>
         <div className="mt-1.5 flex items-center gap-3 min-w-0">
