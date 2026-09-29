@@ -203,6 +203,27 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     </div>
   );
 
+  /*
+   * #794 PR 4 · LIVE CLARITY. Mid-game this page opened on "Started · Archived pregame read" with the score
+   * several screens down, inside the simulation section. Once the game has started (or is archived), the
+   * live panel — provider score beside the frozen forecast, its own two labelled regions — moves up to
+   * sit directly under the header. Before kickoff the page still leads with the forecast. ONE element in
+   * one of two slots: never two panels, never two fetches.
+   */
+  const liveTop = started || !!archived;
+  const livePanel = (
+    <LivePanel
+      sport="nfl"
+      eventId={params.eventId}
+      nflForecast={{
+        away: { abbr: f.away.abbr, projected: s.projectedScore.away, winPct: Math.round(s.winProbability.away * 100) },
+        home: { abbr: f.home.abbr, projected: s.projectedScore.home, winPct: Math.round(s.winProbability.home * 100) },
+      }}
+      forecastGeneratedAt={f.generatedAt ?? null}
+      startTime={f.kickoffUtc ?? null}
+      showBetaHeading
+    />
+  );
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <p style={{ margin: 0, fontSize: 11.5 }}>
@@ -245,6 +266,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </p>
         ) : null}
       </header>
+
+      {liveTop ? <div style={{ marginTop: 16 }}>{livePanel}</div> : null}
 
       {/* P319: save exactly this forecast — the card the homepage would feature for this game, same identity and
           settlement key; the control itself refuses once the game has kicked off. */}
@@ -304,17 +327,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           * Self-gates on `liveReadyFor("nfl")`: with the flag off it renders nothing and fetches
           * nothing.
           */}
-        <LivePanel
-          sport="nfl"
-          eventId={params.eventId}
-          nflForecast={{
-            away: { abbr: f.away.abbr, projected: s.projectedScore.away, winPct: Math.round(s.winProbability.away * 100) },
-            home: { abbr: f.home.abbr, projected: s.projectedScore.home, winPct: Math.round(s.winProbability.home * 100) },
-          }}
-          forecastGeneratedAt={f.generatedAt ?? null}
-          startTime={f.kickoffUtc ?? null}
-          showBetaHeading
-        />
+        {liveTop ? null : livePanel}
 
         {/* P246 (founder): the calibration paragraph left the browsing path — it lives in an
             optional disclosure here and in the artifact itself, not beside every number. */}
