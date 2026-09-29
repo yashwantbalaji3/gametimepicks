@@ -20,61 +20,61 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 15,
-  "gamesPending": 1,
+  "gamesFinal": 16,
+  "gamesPending": 0,
   "overall": {
-   "checks": 534,
-   "hits": 452,
-   "rate": 0.846441947565543
+   "checks": 569,
+   "hits": 482,
+   "rate": 0.8471001757469244
   },
   "props": [
    {
     "id": "winner",
     "label": "Picked the winner",
     "group": "team",
-    "checks": 15,
+    "checks": 16,
     "hits": 11,
     "voids": 0,
-    "rate": 0.7333333333333333,
-    "expectedHits": 9.5
+    "rate": 0.6875,
+    "expectedHits": 10
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 15,
-    "hits": 13,
+    "checks": 16,
+    "hits": 14,
     "voids": 0,
-    "rate": 0.8666666666666667,
-    "typicalMiss": 10.5,
+    "rate": 0.875,
+    "typicalMiss": 10.7,
     "rangeWidth": 34.1,
-    "lean": -2.7
+    "lean": -1.7
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 15,
+    "checks": 16,
     "hits": 13,
     "voids": 0,
-    "rate": 0.8666666666666667,
-    "typicalMiss": 6.9,
-    "rangeWidth": 33.3,
-    "lean": 1.1
+    "rate": 0.8125,
+    "typicalMiss": 7.8,
+    "rangeWidth": 33.4,
+    "lean": -0.2
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 174,
-    "hits": 156,
+    "checks": 186,
+    "hits": 168,
     "voids": 30,
-    "rate": 0.896551724137931,
+    "rate": 0.9032258064516129,
     "status": "PUBLISHED",
-    "typicalMiss": 1.8,
+    "typicalMiss": 1.7,
     "rangeWidth": 5.7,
     "lean": -0.4
    },
@@ -83,64 +83,64 @@
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 174,
-    "hits": 136,
+    "checks": 186,
+    "hits": 147,
     "voids": 30,
-    "rate": 0.7816091954022989,
+    "rate": 0.7903225806451613,
     "status": "PUBLISHED",
-    "typicalMiss": 22.4,
+    "typicalMiss": 21.7,
     "rangeWidth": 63.5,
-    "lean": -6.7
+    "lean": -6.4
    },
    {
     "id": "player_rush_yds",
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 96,
-    "hits": 87,
-    "voids": 36,
-    "rate": 0.90625,
+    "checks": 102,
+    "hits": 92,
+    "voids": 38,
+    "rate": 0.9019607843137255,
     "status": "PUBLISHED",
     "typicalMiss": 17.9,
-    "rangeWidth": 70.2,
-    "lean": -8.8
+    "rangeWidth": 70.7,
+    "lean": -8.9
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 30,
-    "hits": 28,
-    "voids": 15,
-    "rate": 0.9333333333333333,
+    "checks": 31,
+    "hits": 29,
+    "voids": 16,
+    "rate": 0.9354838709677419,
     "status": "ESTIMATE",
     "typicalMiss": 61.6,
-    "rangeWidth": 235.3,
-    "lean": -23.1
+    "rangeWidth": 235.4,
+    "lean": -20.4
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 15,
+    "checks": 16,
     "hits": 8,
     "voids": 0,
-    "rate": 0.5333333333333333
+    "rate": 0.5
    }
   ],
   "context": {
    "closerThanSportsbook": {
     "oursCloser": 11,
-    "booksCloser": 4,
+    "booksCloser": 5,
     "even": 0,
     "noLine": 0
    },
    "touchdowns": {
-    "playersGraded": 231,
-    "expectedScorers": 54.9,
-    "actualScorers": 57
+    "playersGraded": 246,
+    "expectedScorers": 58.8,
+    "actualScorers": 60
    }
   }
  },
@@ -9416,14 +9416,519 @@
     },
     "sportsbookTotal": 42.5
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 7,
+    "home": 27,
+    "total": 34,
+    "margin": 20
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "MISS"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 34
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "MISS",
+     "actual": 20
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "MISS",
+     "oursOff": 13,
+     "booksOff": 8.5
+    }
+   ],
+   "players": [
+    {
+     "name": "D'Andre Swift",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "D'Andre Swift",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 18,
+     "low": 0,
+     "high": 52,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "D'Andre Swift",
+     "team": "CHI",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 52,
+     "low": 14,
+     "high": 133,
+     "actual": 84,
+     "outcome": "HIT"
+    },
+    {
+     "name": "DeVonta Smith",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 2,
+     "high": 12,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "DeVonta Smith",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 68,
+     "low": 28,
+     "high": 133,
+     "actual": 65,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kyle Monangai",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 4,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kyle Monangai",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 13,
+     "low": 0,
+     "high": 42,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kyle Monangai",
+     "team": "CHI",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 33,
+     "low": 6,
+     "high": 103,
+     "actual": 31,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Saquon Barkley",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 4,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Saquon Barkley",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 13,
+     "low": 0,
+     "high": 42,
+     "actual": -2,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Saquon Barkley",
+     "team": "PHI",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 44,
+     "low": 11,
+     "high": 117,
+     "actual": 82,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dontayvion Wicks",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dontayvion Wicks",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 42,
+     "low": 12,
+     "high": 96,
+     "actual": 32,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kalif Raymond",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 2,
+     "high": 11,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kalif Raymond",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 60,
+     "low": 25,
+     "high": 118,
+     "actual": 90,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Luther Burden III",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Luther Burden III",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 43,
+     "low": 14,
+     "high": 94,
+     "actual": 61,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tank Bigsby",
+     "team": "PHI",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 2,
+     "high": 62,
+     "actual": 0,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Rome Odunze",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 6,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Rome Odunze",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 32,
+     "low": 6,
+     "high": 80,
+     "actual": 44,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Colston Loveland",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 6,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Colston Loveland",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 27,
+     "low": 4,
+     "high": 67,
+     "actual": 31,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Makai Lemon",
+     "team": "PHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Makai Lemon",
+     "team": "PHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 17,
+     "low": 0,
+     "high": 48,
+     "actual": 29,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jalen Hurts",
+     "team": "PHI",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 15,
+     "low": 1,
+     "high": 62,
+     "actual": 25,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jalen Hurts",
+     "team": "PHI",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 215,
+     "low": 118,
+     "high": 357,
+     "actual": 153,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Will Shipley",
+     "team": "PHI",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 0,
+     "high": 34,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Cole Kmet",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 4,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Cole Kmet",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 13,
+     "low": 0,
+     "high": 44,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Brittain Brown",
+     "team": "CHI",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 24,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Sam Roush",
+     "team": "CHI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Sam Roush",
+     "team": "CHI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 0,
+     "high": 33,
+     "actual": 16,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tanner McKee",
+     "team": "PHI",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 25,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Tanner McKee",
+     "team": "PHI",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 74,
+     "low": 29,
+     "high": 151,
+     "actual": null,
+     "outcome": "VOID"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "D'Andre Swift",
+     "team": "CHI",
+     "probability": 0.6092,
+     "outcome": "DID_NOT_SCORE",
+     "likeliest": true
+    },
+    {
+     "name": "DeVonta Smith",
+     "team": "PHI",
+     "probability": 0.3961,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Kyle Monangai",
+     "team": "CHI",
+     "probability": 0.3812,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Saquon Barkley",
+     "team": "PHI",
+     "probability": 0.3569,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Dontayvion Wicks",
+     "team": "PHI",
+     "probability": 0.286,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Kalif Raymond",
+     "team": "CHI",
+     "probability": 0.2841,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Luther Burden III",
+     "team": "CHI",
+     "probability": 0.2407,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Tank Bigsby",
+     "team": "PHI",
+     "probability": 0.2304,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Rome Odunze",
+     "team": "CHI",
+     "probability": 0.1941,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Colston Loveland",
+     "team": "CHI",
+     "probability": 0.1934,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Makai Lemon",
+     "team": "PHI",
+     "probability": 0.1617,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jalen Hurts",
+     "team": "PHI",
+     "probability": 0.156,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Will Shipley",
+     "team": "PHI",
+     "probability": 0.1424,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Cole Kmet",
+     "team": "CHI",
+     "probability": 0.1307,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Brittain Brown",
+     "team": "CHI",
+     "probability": 0.0948,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Sam Roush",
+     "team": "CHI",
+     "probability": 0.0788,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tanner McKee",
+     "team": "PHI",
+     "probability": 0.0578,
+     "outcome": "VOID"
+    }
+   ],
    "boardNote": null
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-09-28T22:24:41Z"
+ "generatedAt": "2026-09-29T15:42:04Z"
 }
