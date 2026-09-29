@@ -23,7 +23,8 @@ test("the final 'Simulation complete' panel is stronger: matchup + model version
   assert.match(runner, /view\.teams \? \(/, "renders the matchup from view.teams");
   assert.match(runner, /view\.teams\.away/, "shows the away team");
   assert.match(runner, /view\.teams\.home/, "shows the home team");
-  assert.match(runner, /freshnessLabel\(view\.generatedAt\)/, "shows artifact freshness");
+  // #761 PR 3: the generation time is an absolute, hydration-safe stamp (never a clock-relative guess).
+  assert.match(runner, /generatedLabel\(view\.generatedAt\)/, "shows when the artifact was generated");
   assert.match(runner, /Model<\/span> \{dash\(view\.modelVersion\)\}/, "shows the model version");
 });
 
