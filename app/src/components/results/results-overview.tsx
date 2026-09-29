@@ -15,6 +15,7 @@ import { useState } from "react";
 import { windowsFrom } from "@/lib/results/v2/populations.mjs";
 import { useReaderEtDate } from "@/lib/use-reader-et-date";
 import { etDayLabel } from "@/lib/et-stamp.mjs";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 
 export interface OverviewPopulation {
   id: string; label: string; sportLabel: string; class: "PUBLIC" | "RESEARCH"; note: string | null;
@@ -94,6 +95,7 @@ function DailyTracker({ pops, today }: { pops: OverviewPopulation[]; today: stri
                     ))}
                   </tbody>
                 </table>
+                <a href={surfaceHref("results", { date }) ?? "/results/"} className="text-[13px] font-medium no-underline" style={{ color: "var(--vault-text)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Game by game for {etDayLabel(date)} →</a>
               </div>
             </details>
           </li>

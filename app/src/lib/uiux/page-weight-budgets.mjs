@@ -68,3 +68,16 @@ export const BUDGET_KB = Object.freeze({
   "moonshot/index.html": 300,         // measured 112KB
   "nba/index.html": 200,              // measured 63KB
 });
+
+/**
+ * Route FAMILIES — one ceiling for every page a dynamic route emits, checked against the heaviest. A dated
+ * family cannot be budgeted by one path (the path rots), and an unbudgeted family cannot regress because
+ * nothing measures it. Same rule as above: measured emission + headroom, shrink-only.
+ */
+export const FAMILY_BUDGET_KB = Object.freeze({
+  /* Results V2 · B-3 (2026-09-29): 115 day pages. The day view added game-by-game calls + every NFL player
+     range (2026-09-27: 1,574KB → 1,953KB, 583 collapsed range rows, styled by class). The CEILING is set by
+     the legacy June NBA-era pages (heaviest 2026-06-10 at 5,033KB, unchanged by B-3) — that legacy weight is
+     backlog, not headroom for new days. Shrink-only. */
+  "results/date": 5300,
+});
