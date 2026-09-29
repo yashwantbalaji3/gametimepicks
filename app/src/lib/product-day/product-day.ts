@@ -304,6 +304,8 @@ export interface SportToday {
   forecastsToday: number;
   /** Whether this sport's schedule evidence for today exists. Zero events is only a fact when known. */
   known: boolean;
+  /** Start times (ISO) of today's events, one per event, where the schedule owner carries them. */
+  startsUtc?: string[];
 }
 export interface CrossSportToday {
   today: string;
@@ -312,6 +314,8 @@ export interface CrossSportToday {
   /** Sports with at least one event today, in activation order. */
   sportsWithEvents: ProductDay["sport"][];
   bySport: SportToday[];
+  /** Every known start time of today's events across sports, ascending. */
+  startsUtc: string[];
   /**
    * EVENTS: at least one sport has an event today. NO_EVENTS: every sport's schedule is known and
    * empty — the only state that may say "No games today". UNKNOWN: nothing found, but some sport's
@@ -326,11 +330,11 @@ const NOT_PLAYED = /POSTPONED|CANCEL/i;
 /** Pure. Union of scheduled and forecast items by id, counted on the ET day `today`. */
 export function sportTodayFrom(sport: ProductDay["sport"], today: string, scheduled: TodayItem[], forecasts: TodayItem[], known = true): SportToday {
   const onToday = (x: TodayItem) => typeof x?.startUtc === "string" && !Number.isNaN(Date.parse(x.startUtc)) && etDay(x.startUtc) === today && !NOT_PLAYED.test(x.status ?? "");
-  const events = new Set<string>();
-  for (const x of scheduled) if (onToday(x)) events.add(x.id);
+  const events = new Map<string, string>();
+  for (const x of scheduled) if (onToday(x)) events.set(x.id, x.startUtc as string);
   const forecast = new Set<string>();
-  for (const x of forecasts) if (onToday(x)) { forecast.add(x.id); events.add(x.id); }
-  return { sport, today, eventsToday: events.size, forecastsToday: forecast.size, known: known || events.size > 0 };
+  for (const x of forecasts) if (onToday(x)) { forecast.add(x.id); if (!events.has(x.id)) events.set(x.id, x.startUtc as string); }
+  return { sport, today, eventsToday: events.size, forecastsToday: forecast.size, known: known || events.size > 0, startsUtc: [...events.values()] };
 }
 
 /** Pure. The global daily state from every sport's today-count. */
@@ -344,6 +348,7 @@ export function crossSportToday(today: string, bySport: SportToday[]): CrossSpor
     today, eventsToday, forecastsToday,
     sportsWithEvents: own.filter((s) => s.eventsToday > 0).map((s) => s.sport),
     bySport: own,
+    startsUtc: own.flatMap((s) => s.startsUtc ?? []).filter((x) => Number.isFinite(Date.parse(x))).sort(),
     state,
     headline: state === "EVENTS" ? `${eventsToday} event${eventsToday === 1 ? "" : "s"} today`
       : state === "NO_EVENTS" ? "No games today" : "Today's schedule is still loading",
@@ -391,7 +396,7 @@ export function buildSportToday(dataRoot: string, opts?: { today?: string; days?
   const boardToday = mlbBoard && mlbBoard.productDate === today ? mlbBoard.events : 0;
   const mlbEvents = Math.max(scheduled.eventsToday, boardToday);
   const mlb: SportToday = {
-    sport: "mlb", today, eventsToday: mlbEvents,
+    sport: "mlb", today, eventsToday: mlbEvents, startsUtc: scheduled.startsUtc,
     forecastsToday: mlbBoard && mlbBoard.productDate === today ? Math.min(mlbBoard.eligible, mlbEvents) : 0,
     known: scheduled.known || (mlbBoard?.productDate === today && mlbBoard.state !== "INCIDENT"),
   };
@@ -401,7 +406,8 @@ export function buildSportToday(dataRoot: string, opts?: { today?: string; days?
   // UFC runs on cards: a readable card that is not today's means no UFC today.
   const ufcKnown = !!ufcDayNow && ufcDayNow.state !== "INCIDENT";
   const ufc: SportToday = ufcDayNow && ufcDayNow.productDate === today && (ufcDayNow.state === "LIVE" || ufcDayNow.state === "EVENT_UPCOMING")
-    ? { sport: "ufc", today, eventsToday: ufcDayNow.events, forecastsToday: Math.min(ufcDayNow.eligible, ufcDayNow.events), known: true }
+    ? { sport: "ufc", today, eventsToday: ufcDayNow.events, forecastsToday: Math.min(ufcDayNow.eligible, ufcDayNow.events), known: true,
+        startsUtc: ufcDayNow.nextEventUtc ? [ufcDayNow.nextEventUtc] : [] /* one card, one start */ }
     : { sport: "ufc", today, eventsToday: 0, forecastsToday: 0, known: ufcKnown };
 
   return [mlb, epl, ufc, nfl];
