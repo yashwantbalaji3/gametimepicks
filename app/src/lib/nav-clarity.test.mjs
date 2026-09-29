@@ -28,11 +28,24 @@ test("🔴 the Sports primary leads with the four hubs, each with an ABSOLUTE fa
   const src = fs.readFileSync(path.join(process.cwd(), "src/app/sports/page.tsx"), "utf8");
   const chooser = src.indexOf("<SportChooser />"); const coverage = src.indexOf("Schedules and coverage status</h2>");
   assert.ok(chooser > 0 && chooser < coverage, "the chooser renders before the schedule/coverage section");
-  for (const href of ["/nfl/", "/mlb/", "/epl/", "/ufc/"]) assert.ok(src.includes(`href: "${href}"`), `chooser links ${href}`);
-  const fn = src.slice(src.indexOf("function SportChooser"), src.indexOf("export default"));
+  const comp = fs.readFileSync(path.join(process.cwd(), "src/components/sports/sport-chooser.tsx"), "utf8");
+  for (const href of ["/nfl/", "/mlb/", "/epl/", "/ufc/"]) assert.ok(comp.includes(`href: "${href}"`), `chooser links ${href}`);
+  const fn = comp.slice(comp.indexOf("export default function SportChooser"));
   assert.match(fn, /crossSportToday\(/, "the dated count comes from the cross-sport owner");
   assert.match(fn, /nextEventUtc/, "the next event comes from the product day");
   const literalText = fn.replace(/\$\{[^}]*\}/g, "");  // template ${expressions} are code, not reader text
   assert.doesNotMatch(literalText, /["'`][^"'`\n]*\b(today|live)\b[^"'`\n]*["'`]/i, "no chooser string says today or live");
   assert.match(src, /<h1[^>]*>Sports<\/h1>/, "the page is named for the nav item that leads here");
+});
+
+test("🔴 /live on a quiet day is not a dead end and makes no schedule claim it cannot keep", () => {
+  const tabs = fs.readFileSync(path.join(process.cwd(), "src/components/live/live-sport-tabs.tsx"), "utf8");
+  assert.doesNotMatch(tabs, /No games are scheduled/, "the roster holds forecast games only — it cannot say nothing is scheduled");
+  assert.match(tabs, /!showNfl && !showMlb \? \(quietDay \?\?/, "the page's quiet-day state renders when neither sport has a card");
+  const page = fs.readFileSync(path.join(process.cwd(), "src/app/live/page.tsx"), "utf8");
+  const quiet = page.slice(page.indexOf("quietDay={"), page.indexOf("/>", page.indexOf("</div>", page.indexOf("quietDay={"))));
+  assert.match(quiet, /<SportChooser /, "the four hubs, each with its dated count or next event");
+  for (const href of ["/today/", "/simulate/", "/results/"]) assert.ok(quiet.includes(`href="${href}"`), `quiet day links ${href}`);
+  assert.match(quiet, /\{etDayLabel\(nfl\.etDate\)\}/, "the quiet day names its date, so a stale page cannot pass for today");
+  assert.doesNotMatch(page, /Live beta · \{nfl\.etDate\}/, "no raw ISO date in the header line");
 });
