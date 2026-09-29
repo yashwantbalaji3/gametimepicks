@@ -19,17 +19,20 @@ test("the built export has EPL match reports — otherwise this suite proves not
 test("🔴 the limitation headline precedes the first percentage, and the evidence sits inside Model detail", () => {
   for (const f of pages) {
     const main = mainOf(fs.readFileSync(f, "utf8"));
-    const lim = main.search(/Tested blind on past seasons\.|Not validated out of sample\./);
-    const firstPct = main.search(/\d{1,3}(\.\d)?%/);
+    // Visible text only: inline styles carry percentages too (color-mix(... 60%, ...)), which are not numbers a reader sees.
+    const text = main.replace(/<(script|style)[\s\S]*?<\/\1>/g, " ").replace(/<[^>]+>/g, " ");
+    const lim = text.search(/Tested blind on past seasons\.|Not validated out of sample\./);
+    const firstPct = text.search(/\d{1,3}(\.\d)?%/);
     assert.ok(lim > -1, `${path.basename(path.dirname(f))}: limitation missing`);
     assert.ok(firstPct === -1 || lim < firstPct, `${path.basename(path.dirname(f))}: a number appears before the limitation`);
+    const limHtml = main.search(/Tested blind on past seasons\.|Not validated out of sample\./);
     const det = main.indexOf("Model detail · how it was tested and its live record");
-    assert.ok(det > lim, "the evidence disclosure follows the one-line limitation");
+    assert.ok(det > limHtml, "the evidence disclosure follows the one-line limitation");
     const detailsOpen = main.lastIndexOf("<details", det);
     const detailsClose = main.indexOf("</details>", det);
     const inside = main.slice(detailsOpen, detailsClose);
     assert.ok(inside.length > 80, "the disclosure carries the evidence text, not an empty box");
-    const para = main.slice(lim, detailsOpen);
+    const para = main.slice(limHtml, detailsOpen);
     assert.ok(para.replace(/<[^>]+>/g, "").split(/\s+/).length < 60, "the visible limitation is one short statement, not the full evidence");
   }
 });
