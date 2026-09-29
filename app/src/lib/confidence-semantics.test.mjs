@@ -96,6 +96,10 @@ const SURFACES = [
   "src/app/about/page.tsx",
   "src/app/mlb/page.tsx",
   "src/app/nba/page.tsx",
+  // P2-A: the MLB board rendered "Stronger signals" / "Watch" as tier KPIs — outside this list, so it escaped.
+  "src/components/mlb/mlb-board-body.tsx",
+  "src/components/mlb/mlb-top-leans-strip.tsx",
+  "src/components/mlb/mlb-lean-row.tsx",
 ];
 
 test("no surface ASSIGNS or RENDERS the old ranking labels as a tier label", () => {

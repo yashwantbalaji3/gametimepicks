@@ -38,23 +38,25 @@ function confidenceMeta(tier: MlbBoardLean["confidence"]): {
   rim: string;
 } {
   switch (tier) {
+    /* P2-A: these tiers are model-vs-market gap sizes, not confidence (a larger gap has not settled better;
+       every MLB prop market here is DEMOTE_TO_MARKET_CONTEXT). Labelled as what they measure. */
     case "High":
       return {
-        label: "High",
-        fg: "var(--vault-success)",
+        label: "Gap ≥ 5 pp",
+        fg: "var(--vault-text)",
         bg: "color-mix(in srgb, var(--vault-success) 10%, transparent)",
         rim: "color-mix(in srgb, var(--vault-success) 35%, transparent)",
       };
     case "Medium":
       return {
-        label: "Medium",
+        label: "Gap 2.5–5 pp",
         fg: "var(--vault-gold-bright)",
         bg: "color-mix(in srgb, var(--vault-accent) 10%, transparent)",
         rim: "color-mix(in srgb, var(--vault-accent) 30%, transparent)",
       };
     case "Low":
       return {
-        label: "Low",
+        label: "Small gap",
         fg: "var(--vault-warn)",
         bg: "color-mix(in srgb, var(--vault-accent) 6%, transparent)",
         rim: "color-mix(in srgb, var(--vault-accent) 18%, transparent)",

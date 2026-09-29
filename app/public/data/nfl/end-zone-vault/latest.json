@@ -3,17 +3,37 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-09-29",
- "generatedAt": "2026-09-29T15:42:04Z",
+ "generatedAt": "2026-09-29T19:35:23Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "160 model candidates · no current comparable touchdown price is available",
+ "reason": "168 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
+  {
+   "playerId": "nfl-athlete-3121023",
+   "name": "Dallas Goedert",
+   "position": "TE",
+   "team": "PHI",
+   "opponent": "LAR",
+   "event": "LAR @ PHI",
+   "providerEventId": "401872970",
+   "kickoffUtc": "2026-10-04T17:00Z",
+   "tdProbability": 0.533664,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "QUESTIONABLE",
+   "roleNote": "published designation: Doubtful",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 44, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
+  },
   {
    "playerId": "nfl-athlete-3043078",
    "name": "Derrick Henry",
@@ -233,47 +253,15 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.39, g 41, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
-  },
-  {
-   "playerId": "nfl-athlete-4575131",
-   "name": "Jacory Croskey-Merritt",
-   "position": "RB",
-   "team": "WSH",
-   "opponent": "IND",
-   "event": "IND @ WSH",
-   "providerEventId": "401872965",
-   "kickoffUtc": "2026-10-04T13:30Z",
-   "tdProbability": 0.38591,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.47, g 16, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   }
  ],
- "candidateCount": 160,
+ "candidateCount": 168,
  "withheld": [
-  {
-   "event": "IND @ WSH",
-   "team": "WSH",
-   "player": "Jayden Daniels",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
-  },
   {
    "event": "IND @ WSH",
    "team": "IND",
    "player": "Alec Pierce",
    "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
-  },
-  {
-   "event": "NYJ @ CHI",
-   "team": "NYJ",
-   "player": "Adonai Mitchell",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
   },
   {
    "event": "JAX @ CIN",
@@ -286,30 +274,6 @@
    "team": "NYG",
    "player": "Jaxson Dart",
    "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
-  },
-  {
-   "event": "LAR @ PHI",
-   "team": "PHI",
-   "player": "Dallas Goedert",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
-  },
-  {
-   "event": "LAR @ PHI",
-   "team": "LAR",
-   "player": "Puka Nacua",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
-  },
-  {
-   "event": "GB @ TB",
-   "team": "GB",
-   "player": "Jayden Reed",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
-  },
-  {
-   "event": "DAL @ HOU",
-   "team": "HOU",
-   "player": "Nico Collins",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
   },
   {
    "event": "MIA @ MIN",
@@ -328,12 +292,6 @@
    "team": "MIA",
    "player": "De'Von Achane",
    "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
-  },
-  {
-   "event": "KC @ LV",
-   "team": "LV",
-   "player": "Aidan O'Connell",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
   },
   {
    "event": "DEN @ SF",
@@ -370,7 +328,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 155,
+  "roleReadyCandidates": 156,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
