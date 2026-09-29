@@ -39,22 +39,24 @@ test("Moonshot: active leg row shows matchup + selection + kickoff ET (enriched)
 });
 
 // ── E. Slate-freshness badge ─────────────────────────────────────────────────────────────────────
-test("Slate-status bar: honest 3-way label (settled / in progress / pregame) — CLIENT-hydrated clock", () => {
-  // The time judgement moved to the client chips so it tracks the REAL browser clock (the static
-  // export's build clock froze the old server labels). Server bar loads the kickoffs; chips label them.
+test("Slate-status bar: the day's status is CROSS-SPORT and client-hydrated — never a retired product's phase", () => {
+  /*
+   * REPOINTED 2026-09-28 (#794 PR 2). This test used to pin `loadWorldCupProjections` and the label
+   * "Pregame slate" — i.e. it pinned the defect: with the World Cup retired there were no kickoffs, so
+   * the chip read "Pregame slate" on every page, including during a live NFL game. What it protects is
+   * the property: the day chip comes from the cross-sport owner (each sport's schedule), re-derives from
+   * the real browser clock after hydration, and fabricates nothing.
+   */
   const CHIPS = fs.readFileSync("src/components/slate-status-chips.tsx", "utf8");
   assert.match(CHIPS, /^"use client";/, "chips are a client component (real-clock re-derivation)");
-  assert.match(CHIPS, /Slate settled/, "settled label kept");
-  assert.match(CHIPS, /Slate in progress/, "in-progress label kept");
-  assert.match(CHIPS, /Pregame slate/, "pregame label kept");
-  assert.match(CHIPS, /Completed — awaiting settlement/, "completed label kept");
   assert.match(CHIPS, /Date\.now\(\)/, "re-derives from the real clock after hydration");
-  // Server bar still loads the real kickoff data (never fabricated) and passes it down.
-  assert.match(SLATEBAR, /slateKickoffsMs/, "server bar extracts the slate kickoffs");
-  assert.match(SLATEBAR, /loadWorldCupProjections/, "reads the WC projections kickoffs");
-  assert.match(SLATEBAR, /kickoffUtc/, "uses kickoffUtc times");
+  assert.match(CHIPS, /Games under way/, "a started day links to /live");
+  assert.doesNotMatch(CHIPS, /Pregame slate/, "no global phase label that cannot see today's sports");
+  assert.match(SLATEBAR, /crossSportToday\(/, "server bar reads the cross-sport day owner");
+  assert.match(SLATEBAR, /buildSportToday\(/, "…from each sport's schedule");
+  assert.doesNotMatch(SLATEBAR, /loadWorldCupProjections|currentSlateDate/, "no retired World Cup source, no single-product slate date");
   assert.match(SLATEBAR, /SlateStatusChips/, "renders the client chips");
-  // P208 F3: the bankroll chips moved to their canonical owners; the strip carries date/phase/
+  // P208 F3: the bankroll chips moved to their canonical owners; the strip carries date/status/
   // freshness only, so the bank-summary loader has no business here any more.
   assert.doesNotMatch(SLATEBAR, /loadPublicBankBuilderSummary/, "no bankroll figure in the global strip");
   assertNoBanned("slate status bar", SLATEBAR);

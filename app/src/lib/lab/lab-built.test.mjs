@@ -44,7 +44,9 @@ function labText(html) {
   assert.ok(i >= 0, `the Lab region marker "${MARKER}" is not in <main> — this guard would otherwise scan nothing`);
   const scoped = text.slice(i);
   assert.ok(scoped.length > 400, `the Lab region is only ${scoped.length} characters`);
-  assert.ok(!scoped.includes("Pregame slate"), "the scope still contains the shared status bar");
+  // The shared status bar's own marker (#794 PR 2 retired "Pregame slate"; a marker the bar no longer
+  // renders would make this check pass without looking).
+  assert.ok(!scoped.includes("Settled ·"), "the scope still contains the shared status bar");
   return scoped;
 }
 

@@ -5676,3 +5676,7 @@ body {
     height: 36px !important;
   }
 }
+
+/* #794 PR 2: the global status row stays on ONE line on a phone and scrolls if it must — no scrollbar chrome. */
+.gtp-slate-status{scrollbar-width:none}
+.gtp-slate-status::-webkit-scrollbar{display:none}
