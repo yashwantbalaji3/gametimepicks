@@ -422,7 +422,9 @@ export default function HomePage() {
         games={homeBrief.overview.games}
         simulationsReady={homeBrief.overview.simulationsReady}
         lastUpdatedIso={homeBrief.lastUpdatedIso}
-        isLiveToday={today >= serverToday && mlbGames > 0}
+        slateDate={today}
+        seedToday={serverToday}
+        hasGames={mlbGames > 0}
       />
 
       {/* Historical / not-yet-live coverage, kept reachable but clearly secondary. Nothing is hidden —

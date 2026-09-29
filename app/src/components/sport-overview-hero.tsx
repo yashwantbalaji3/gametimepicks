@@ -18,6 +18,7 @@ import Link from "next/link";
 
 import StatusPill, { type StatusPillKind } from "./status-pill";
 import { SPORT_MOTIF } from "./motifs/sport-motifs";
+import DayAwareStatusPill from "@/components/day-aware-status-pill";
 
 export interface ScoreboardStat {
   label: string;
@@ -52,6 +53,14 @@ interface Props {
   statusLabel?: string;
   /** Optional caption appended inside the pill (e.g. "· 14 games"). */
   statusCaption?: string;
+  /**
+   * #761 PR 2: the ET date of the slate the status speaks for. When given, the pill's tense (live /
+   * upcoming / settled) follows the READER'S day, and `statusKind` is the kind to show if that slate is
+   * today. Omit it for statuses that are not about a dated slate.
+   */
+  statusSlateDate?: string | null;
+  /** The build's ET date — the seed for the server render (hydration-safe). Required with statusSlateDate. */
+  statusSeedToday?: string;
   /** Matchup or slate description, e.g. "Wed May 20 · 1 game on the slate". */
   matchupLine?: string;
   /** Up to 3 scoreboard stats. Skipped slots collapse cleanly. */
@@ -104,6 +113,8 @@ export default function SportOverviewHero({
   statusKind,
   statusLabel,
   statusCaption,
+  statusSlateDate,
+  statusSeedToday,
   matchupLine,
   stats,
   ctas,
@@ -116,6 +127,9 @@ export default function SportOverviewHero({
   compact = false,
 }: Props) {
   const Heading = headingLevel;
+  const pill = statusSlateDate !== undefined && statusSeedToday
+    ? <DayAwareStatusPill slateDate={statusSlateDate} seedToday={statusSeedToday} readyKind={statusKind} label={statusLabel} caption={statusCaption} />
+    : <StatusPill kind={statusKind} label={statusLabel} caption={statusCaption} />;
   const accentColor = ACCENT[accent];
   // "wc" is the World Cup accent and shares the EPL pitch. An accent with no motif (gold, ipl)
   // resolves to undefined and renders nothing — absent, never a stand-in.
@@ -158,7 +172,7 @@ export default function SportOverviewHero({
           <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--sport-theme-ink)", fontSize: 9.5 }}>
             {eyebrow}
           </span>
-          <StatusPill kind={statusKind} label={statusLabel} caption={statusCaption} />
+          {pill}
           {badge}
           {matchupLine ? (
             <span className="ml-auto font-mono tabular-nums" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
@@ -244,11 +258,7 @@ export default function SportOverviewHero({
           >
             {eyebrow}
           </span>
-          <StatusPill
-            kind={statusKind}
-            label={statusLabel}
-            caption={statusCaption}
-          />
+          {pill}
           {badge}
         </div>
 

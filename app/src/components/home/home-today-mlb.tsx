@@ -8,23 +8,30 @@
  * availability contract that powers /today). It reads no data and fabricates nothing.
  */
 import Link from "next/link";
-import { formatEtTime } from "@/lib/mlb/public-provenance";
+import { formatUpdatedEt } from "@/lib/format";
+import { DayAwareSlateChip } from "@/components/day-aware-status-pill";
 
 export default function HomeTodayMlb({
   dateLabel,
   games,
   simulationsReady,
   lastUpdatedIso,
-  isLiveToday,
+  slateDate,
+  seedToday,
+  hasGames,
 }: {
   dateLabel: string;
   games: number;
   simulationsReady: number;
   lastUpdatedIso: string | null;
-  isLiveToday: boolean;
+  /** The MLB slate's ET date, the build's ET date (SSR seed), and whether the slate has games. */
+  slateDate: string | null;
+  seedToday: string;
+  hasGames: boolean;
 }) {
   if (games === 0) return null; // no slate → the liveness banner already frames the page honestly
-  const updated = formatEtTime(lastUpdatedIso);
+  // #761 PR 2: an "Updated" stamp always carries its DATE — a bare "7:45 AM ET" read as today's on any later day.
+  const updated = lastUpdatedIso ? formatUpdatedEt(lastUpdatedIso) : null;
   const availability = `${games} ${games === 1 ? "game" : "games"} · ${simulationsReady} ${simulationsReady === 1 ? "simulation" : "simulations"} ready${updated ? ` · updated ${updated}` : ""}`;
   return (
     <section aria-label="Today's MLB" className="flex flex-col gap-2.5 rounded-[16px] px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", borderLeft: "2px solid var(--vault-gold-bright)" }}>
@@ -32,9 +39,8 @@ export default function HomeTodayMlb({
         <div className="flex items-center gap-2">
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Today&rsquo;s MLB</span>
           <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{dateLabel}</span>
-          <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.06em] whitespace-nowrap" style={{ fontSize: 8, color: isLiveToday ? "var(--vault-success)" : "var(--vault-text-mute)", background: isLiveToday ? "var(--vault-success-dim)" : "var(--vault-wash)" }}>
-            {isLiveToday ? "Live today" : "Latest slate"}
-          </span>
+          {/* #761 PR 2: decided on the READER'S day — the build-time comparison said "Live today" all night. */}
+          <DayAwareSlateChip slateDate={slateDate} seedToday={seedToday} hasGames={hasGames} />
         </div>
         <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 12, fontWeight: 600 }}>{availability}</span>
         <span style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.3 }}>
