@@ -211,7 +211,9 @@ export default function HomePage() {
         blurb: "A simulated score range and win chance for every regular-season game, frozen before kickoff — experimental, and clearly labelled.",
         /* Only a LIVE day renders a today-count; an upcoming week speaks through the owner's note
            (which names the week's coverage and the next kickoff) — never as today's board. */
-        status: nflDay?.state === "LIVE" && (nflDay?.events ?? 0) > 0 ? `${nflDay?.events} game forecast${nflDay?.events === 1 ? "" : "s"} today` : (nflDay?.note ?? stateLabel(nflState)),
+        /* The owner's note IS the today sentence (it says "N game forecasts today", or names tonight's
+           games when the index has rolled to next week's forecasts) — never a count re-worded here. */
+        status: nflDay?.note ?? stateLabel(nflState),
         statusSub: "experimental simulations",
         cta: "Open NFL hub",
         accent: "var(--vault-gold)",
@@ -289,8 +291,10 @@ export default function HomePage() {
   // "events today" counts ONLY days that are LIVE on today's slate date — an EVENT_UPCOMING
   // Saturday card must never inflate a Tuesday ("28 events today" with 13 of them on Aug-29 was
   // this hero's first draft; the browser caught it).
-  const eventsTodayTotal = [mlbDay, eplDay, ufcDay, nflDay].reduce(
-    (n, d) => n + (d?.state === "LIVE" && d?.productDate === serverToday ? d.events : 0), 0);
+  // 2026-09-28: "events today" now reads the CROSS-SPORT day count (#791's owner, schedule-based), not a
+  // sum of product days — the product-day sum read 0 during PHI @ CHI once the NFL index rolled to
+  // Week 4. A scheduled game counts with or without our forecast.
+  const eventsTodayTotal = todayAcross.eventsToday;
   const activeProductCards = dailyPortfolio.cards.filter((c) => c.status === "active").length;
   const lastSettledDate = getOptimizerSettledDates().sort().slice(-1)[0] ?? null;
 
@@ -324,6 +328,7 @@ export default function HomePage() {
         readyCount={simulationsToday}
         activeSports={primarySports.length}
         eventsToday={eventsTodayTotal}
+        eventsKnown={todayAcross.state !== "UNKNOWN"}
         qualifiedPicks={topPicks}
         activeProducts={activeProductCards}
         lastSettledDate={lastSettledDate}

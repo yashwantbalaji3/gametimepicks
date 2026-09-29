@@ -184,13 +184,36 @@ function nflDay(dataRoot: string, today: string): ProductDay {
     const weekly = readJson(dataRoot, "nfl", "weekly-boards", "latest.json");
     const week: number | null = typeof weekly?.period?.week === "number" ? weekly.period.week : null;
     const weekLabel = week != null ? `Week ${week}` : "this week";
-    const events: Array<{ kickoffUtc?: string }> = Array.isArray(index.events) ? index.events : [];
-    const todaysEvents = events.filter((e) => typeof e?.kickoffUtc === "string" && etDay(e.kickoffUtc) === today).length;
+    const events: Array<{ kickoffUtc?: string; providerEventId?: string; matchup?: string }> = Array.isArray(index.events) ? index.events : [];
+    /*
+     * TODAY IS THE SCHEDULE'S, NOT THE INDEX'S (2026-09-28). The index lists the forecasts-of-record of
+     * the CURRENT forecast week. Once every game of a week has kicked off, the next run publishes next
+     * week's forecasts and the index rolls forward — at 00:50Z, 35 minutes into PHI @ CHI (Week 3), it
+     * held only Week 4, and Home said "No NFL games today" over a game being played. Today is counted
+     * the way the cross-sport owner counts it (sportTodayFrom: schedule capture ∪ the index), so a game
+     * that is on today stays today's; how many of today's games carry an indexed forecast is separate.
+     */
+    const schedule = readJson(dataRoot, "nfl", "schedule", "latest.json");
+    const scheduleRows: Array<{ providerEventId?: string; dateUtc?: string; statusRaw?: string; shortName?: string }> = Array.isArray(schedule?.rows) ? schedule.rows : [];
+    const onToday = sportTodayFrom("nfl", today,
+      scheduleRows.map((r) => ({ id: String(r.providerEventId), startUtc: r.dateUtc, status: r.statusRaw })),
+      events.map((e) => ({ id: String(e.providerEventId), startUtc: e.kickoffUtc })));
+    const todaysEvents = onToday.eventsToday;
     if (todaysEvents > 0) {
+      const forecastedToday = onToday.forecastsToday;
+      /* Name the games only when the index no longer carries all of them — the reader must be able
+         to find tonight's game from the sentence that tells them it exists. */
+      const names = [...new Set([
+        ...scheduleRows.filter((r) => typeof r.dateUtc === "string" && etDay(r.dateUtc) === today && !/POSTPONED|CANCEL/i.test(r.statusRaw ?? "")).map((r) => r.shortName),
+        ...events.filter((e) => typeof e.kickoffUtc === "string" && etDay(e.kickoffUtc) === today).map((e) => e.matchup),
+      ].filter((x): x is string => typeof x === "string" && x.length > 0))];
+      const note = forecastedToday === todaysEvents
+        ? `${todaysEvents} game forecast${todaysEvents === 1 ? "" : "s"} today · ${weekLabel}: ${forecastsUpcoming || forecastsTotal} published`
+        : `${todaysEvents} game${todaysEvents === 1 ? "" : "s"} today${names.length ? ` (${names.slice(0, 3).join(", ")}${names.length > 3 ? ", …" : ""})` : ""} · ${weekLabel}: ${forecastsUpcoming || forecastsTotal} forecasts published`;
       return day("nfl", {
-        productDate: today, state: "LIVE", events: todaysEvents, eligible: todaysEvents,
+        productDate: today, state: "LIVE", events: todaysEvents, eligible: forecastedToday,
         sourceStamp: index.generatedAt ?? null, nextEventUtc: nextForecast,
-        note: `${todaysEvents} game forecast${todaysEvents === 1 ? "" : "s"} today · ${weekLabel}: ${forecastsUpcoming || forecastsTotal} published`,
+        note,
         reason: null,
       });
     }
