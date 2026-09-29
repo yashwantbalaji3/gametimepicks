@@ -28,7 +28,7 @@ export function startedAt(startUtc, nowMs) {
   return Number.isFinite(t) && Number.isFinite(nowMs) && t <= nowMs;
 }
 
-export const POST_START_REASON = Object.freeze({
+export const POST_START_PHRASE = Object.freeze({
   SETTLED: "Settled — the graded outcome is on Results; the report shows the frozen forecast beside it.",
   AWAITING_SETTLEMENT: "Final — grading against the official result is pending. The report shows the frozen pregame forecast.",
   STARTED: "Kicked off — no final is recorded yet. The report shows the frozen pregame forecast; the result arrives when it is graded.",

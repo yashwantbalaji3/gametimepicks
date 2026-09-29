@@ -21,7 +21,7 @@ import { buildAllGameDetails } from "@/lib/game-detail";
 import { loadEplForecasts, reportableRows, eplMatchHref, type EplForecastRow } from "@/lib/sports/epl/forecast-view";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
-import { postStartState, startedAt, POST_START_REASON } from "@/lib/simulate/lifecycle-state.mjs";
+import { postStartState, startedAt, POST_START_PHRASE } from "@/lib/simulate/lifecycle-state.mjs";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import { getSportIdentity } from "@/lib/sport-identity";
 import fs from "node:fs";
@@ -251,7 +251,7 @@ function mlbSection(date: string, today: string): SportDaySection {
           : state === "SCHEDULE_ONLY"
             ? "The board for this slate has no model leans yet — check back closer to game time."
             : post
-              ? POST_START_REASON[post]
+              ? POST_START_PHRASE[post]
               /*
                * ARTIFACT_READY WAS SILENT (P233 · A). The board carries model leans for this game
                * but the full-game simulation has not been generated yet — a real, ordinary state
@@ -329,7 +329,7 @@ function eplSection(date: string, today: string): SportDaySection {
       home: r.homeClub ? { name: r.homeClub, logo: null } : null,
       startUtc: r.kickoffUtc, startLabel: etTime(r.kickoffUtc), venue: null,
       state,
-      stateReason: state === "ARTIFACT_READY" ? (r.unavailableReason ?? "This fixture has not qualified for a published forecast.") : post ? POST_START_REASON[post] : null,
+      stateReason: state === "ARTIFACT_READY" ? (r.unavailableReason ?? "This fixture has not qualified for a published forecast.") : post ? POST_START_PHRASE[post] : null,
       markets: hasProbs ? ["Win/Draw/Win", "Total goals"] : [],
       href,
       actionLabel: STATE_ACTION[state],
@@ -380,7 +380,7 @@ function ufcSection(date: string, today: string): SportDaySection {
       startLabel: head?.startUtc ? etTime(head.startUtc) : "Card",
       venue: null,
       state,
-      stateReason: post ? POST_START_REASON[post] : predicted === 0 ? "No bout on this card has enough fighter history to model — the schedule is shown without a read." : null,
+      stateReason: post ? POST_START_PHRASE[post] : predicted === 0 ? "No bout on this card has enough fighter history to model — the schedule is shown without a read." : null,
       markets: predicted > 0 ? ["Fight winner"] : [],
       href: post ? "/results/picks/ufc" : "/ufc",
       actionLabel: post ? STATE_ACTION[post] : predicted > 0 ? `View ${predicted} of ${bouts.length} bout reads` : STATE_ACTION.SCHEDULE_ONLY,
@@ -432,7 +432,7 @@ function nflSection(date: string, today: string): SportDaySection {
       away: { name: e.away.abbr, logo: null }, home: { name: e.home.abbr, logo: null },
       startUtc: e.kickoffUtc, startLabel: etTime(e.kickoffUtc), venue: e.venue,
       state,
-      stateReason: post ? POST_START_REASON[post] : state === "BASELINE_ONLY" ? e.readinessReason : state === "MODEL_ONLY_NO_MARKET" ? "Model distribution published; no market price is attached to this event." : null,
+      stateReason: post ? POST_START_PHRASE[post] : state === "BASELINE_ONLY" ? e.readinessReason : state === "MODEL_ONLY_NO_MARKET" ? "Model distribution published; no market price is attached to this event." : null,
       markets: e.hasMarket ? ["Moneyline", "Total"] : [],
       href: `/nfl/game/${e.providerEventId}/`,
       actionLabel: STATE_ACTION[state],

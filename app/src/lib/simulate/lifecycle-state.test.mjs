@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { postStartState, startedAt, POST_START_REASON } from "./lifecycle-state.mjs";
+import { postStartState, startedAt, POST_START_PHRASE } from "./lifecycle-state.mjs";
 import { effectiveLifecycle } from "../sports/nfl/effective-lifecycle.mjs";
 
 const KICK = "2031-09-30T00:15:00Z";
@@ -65,5 +65,5 @@ test("labels: 'Kicked off' and 'Final · grading pending' beside the unchanged '
   assert.match(c, /STARTED: \{[^}]*label: "Kicked off" \}/);
   assert.match(c, /AWAITING_SETTLEMENT: \{[^}]*label: "Final · grading pending" \}/);
   assert.match(c, /SETTLED: \{[^}]*label: "Settled" \}/);
-  assert.doesNotMatch(POST_START_REASON.STARTED, /settled|graded outcome/i, "the started sentence claims no settlement");
+  assert.doesNotMatch(POST_START_PHRASE.STARTED, /settled|graded outcome/i, "the started sentence claims no settlement");
 });
