@@ -24,7 +24,7 @@ const UNIFIED = {
   "/": "Home",
   "/markets": "Picks",
   /* P243 · E: the charter's five primaries renamed two destinations everywhere at once. */
-  "/build": "Picks & Parlays",
+  "/build": "Parlays",
   "/simulate": "Simulations",
   "/sports": "Sports",
   "/today": "Today",

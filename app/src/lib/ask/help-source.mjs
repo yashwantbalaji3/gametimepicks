@@ -269,7 +269,7 @@ const CHUNKS = [
     route: "/",
     keywords: ["where", "navigation", "find", "menu", "how do i get to", "page"],
     text:
-      "The main destinations are Home, Sports, Simulations, Picks & Parlays and Results. Research Lab is at " +
+      "The main destinations are Home, Sports, Simulations, Parlays and Results. Research Lab is at " +
       "Research → Lab, Compare is under Research, Live has its own page, and your followed and saved items " +
       "are under My GameTime. Ask links directly to the page behind any answer it gives.",
   },

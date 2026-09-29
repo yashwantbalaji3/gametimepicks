@@ -8,7 +8,7 @@
  *
  * Defaults to NFL on a day the NFL slate exists, because that is the slate a reader came for.
  */
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import type { HubRoster } from "@/lib/live/hub-data";
 import type { NflHubRoster } from "@/lib/live/nfl-hub-data";
@@ -17,7 +17,7 @@ import NflLiveHub from "./nfl-live-hub";
 
 const MONO = "var(--font-mono)";
 
-export default function LiveSportTabs({ nfl, mlb }: { nfl: NflHubRoster; mlb: HubRoster }) {
+export default function LiveSportTabs({ nfl, mlb, quietDay }: { nfl: NflHubRoster; mlb: HubRoster; quietDay?: ReactNode }) {
   const tabs = [
     { key: "ALL", label: "All" },
     ...(nfl.games.length > 0 ? [{ key: "NFL", label: "NFL" }] : []),
@@ -75,9 +75,12 @@ export default function LiveSportTabs({ nfl, mlb }: { nfl: NflHubRoster; mlb: Hu
         </section>
       ) : null}
 
-      {!showNfl && !showMlb ? (
-        <p style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)" }}>No games are scheduled today.</p>
-      ) : null}
+      {/* The page supplies the quiet-day state (what Live covers, the dated day, where to go next). A
+          sentence claiming no games are SCHEDULED would be a schedule claim this roster cannot make: it
+          holds only games with a published forecast. */}
+      {!showNfl && !showMlb ? (quietDay ?? (
+        <p style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)" }}>Nothing to follow on Live right now.</p>
+      )) : null}
     </div>
   );
 }

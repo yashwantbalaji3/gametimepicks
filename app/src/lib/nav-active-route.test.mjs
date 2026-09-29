@@ -91,7 +91,7 @@ test("MOBILE_NAV_ITEMS labels are the UNIFIED five-primary set, matching every o
   assert.equal(byHref["/"], "Home");
   assert.equal(byHref["/sports"], "Sports");
   assert.equal(byHref["/simulate"], "Simulations");
-  assert.equal(byHref["/build"], "Picks & Parlays");
+  assert.equal(byHref["/build"], "Parlays");
   assert.equal(byHref["/results"], "Results");
   // P243 · E: Today and the ranked-picks board left the bar for the rail/Menu sheet — still one
   // tap away, never phone-unreachable.

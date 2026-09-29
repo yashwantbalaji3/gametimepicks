@@ -21,7 +21,10 @@
  * A /live failure degrades Live, never the product — this route is a leaf. Nothing on /, /today,
  * /mlb, results or any forecast page depends on it.
  */
+import Link from "next/link";
+
 import LiveSportTabs from "@/components/live/live-sport-tabs";
+import SportChooser, { etDayLabel } from "@/components/sports/sport-chooser";
 import { buildHubRoster } from "@/lib/live/hub-data";
 import { buildNflHubRoster } from "@/lib/live/nfl-hub-data";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
@@ -52,10 +55,34 @@ export default function LivePage() {
         recalculated during the game.
       </p>
       <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)", margin: "0 0 18px" }}>
-        Live beta · {nfl.etDate}
+        Live beta · {etDayLabel(nfl.etDate)}
       </p>
 
-      <LiveSportTabs nfl={nfl} mlb={mlb} />
+      {/*
+        #797 PR C · A QUIET DAY IS NOT A DEAD END. With no NFL or MLB game carrying a published forecast
+        for the build day, this page said "No games are scheduled today." — false on 2026-09-29, when four
+        MLB postseason games were on the official schedule (they had no simulation yet, so no Live card),
+        and it offered nowhere to go. It now says what Live covers, for which dated day, and hands the
+        reader the four hubs (each with its dated count or next event) and the day's other surfaces.
+      */}
+      <LiveSportTabs
+        nfl={nfl}
+        mlb={mlb}
+        quietDay={
+          <div>
+            <p style={{ fontSize: 14, color: "var(--vault-text)", lineHeight: 1.6, margin: 0, maxWidth: 680 }}>
+              Nothing to follow on Live for {etDayLabel(nfl.etDate)}. Live follows NFL and MLB games that
+              carry a published GameTime forecast; a game gets a card here once its forecast is published.
+            </p>
+            <SportChooser label="Sports and what is next" />
+            <p style={{ fontSize: 13.5, margin: "16px 0 0", display: "flex", gap: 18, flexWrap: "wrap" }}>
+              <Link href="/today/" style={{ color: "var(--vault-gold)" }}>Today&apos;s games →</Link>
+              <Link href="/simulate/" style={{ color: "var(--vault-gold)" }}>Simulations →</Link>
+              <Link href="/results/" style={{ color: "var(--vault-gold)" }}>Results →</Link>
+            </p>
+          </div>
+        }
+      />
 
       <p style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", marginTop: 28, textTransform: "uppercase", letterSpacing: "0.12em" }}>
         Paper-only · educational · not betting advice

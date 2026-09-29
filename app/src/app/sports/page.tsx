@@ -22,6 +22,13 @@ import Link from "next/link";
 import { allUpcoming, resultsTrackingNote } from "@/lib/sports/upcoming/adapters.mjs";
 import { UpcomingSportsSections, type SportSchedule } from "@/components/sports/upcoming-sports";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+/*
+ * #797 PR B · THE SPORTS PRIMARY IS A SWITCHER FIRST. "Sports" is one of the five primaries on every nav
+ * surface, and it opened on a paragraph with the four hubs as inline links and a raw schedule list — a
+ * reader who tapped "Sports" to change sport had to read to find the choice. The four hubs now lead
+ * (components/sports/sport-chooser.tsx, shared with /live's quiet-day state).
+ */
+import SportChooser from "@/components/sports/sport-chooser";
 
 export const metadata: Metadata = withRouteMetadata("/sports/", {
   title: "Upcoming Sports — Schedules · GameTime Picks",
@@ -34,10 +41,10 @@ export default function UpcomingSportsPage() {
     .map((s) => ({ ...s, resultsNote: resultsTrackingNote(s.sport) }));
   return (
     <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 20px 64px" }}>
-      <p style={{ margin: 0, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--text-mute)" }}>
-        Upcoming sports
-      </p>
-      <h1 style={{ margin: "6px 0 0", fontSize: 26 }}>Schedules and coverage status</h1>
+      <h1 style={{ margin: 0, fontSize: 26 }}>Sports</h1>
+      <p style={{ margin: "6px 0 0", fontSize: 14, color: "var(--vault-text-mute)" }}>Choose a sport — each hub has its games, predictions and simulations.</p>
+      <SportChooser />
+      <h2 style={{ margin: "34px 0 0", fontSize: 18 }}>Schedules and coverage status</h2>
       <p style={{ margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))", maxWidth: 640 }}>
         Four sports we track toward coverage. Each section says exactly what exists today — the
         schedule source, when it was captured, or the specific reason nothing is published yet.
