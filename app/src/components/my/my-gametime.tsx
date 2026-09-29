@@ -536,8 +536,10 @@ export default function MyGameTime({ model }: { model: MyReadModel }) {
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <Link href="/following" style={{ minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 16px", borderRadius: 999, border: "1px solid var(--vault-gold)", color: "var(--vault-gold-bright)", fontFamily: MONO, fontSize: 11.5, textDecoration: "none" }}>Choose what to follow</Link>
           <Link href="/live" style={{ minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 16px", borderRadius: 999, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)", fontFamily: MONO, fontSize: 11.5, textDecoration: "none" }}>Browse Live</Link>
-          <Link href="/mlb" style={{ minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 12px", color: "var(--vault-text-mute)", fontFamily: MONO, fontSize: 11.5 }}>MLB</Link>
-          <Link href="/nfl" style={{ minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 12px", color: "var(--vault-text-mute)", fontFamily: MONO, fontSize: 11.5 }}>NFL</Link>
+          {/* P1: these were bare "MLB" / "NFL" words beside two pills. Following exists for MLB teams and NFL
+              teams and players, so each link says what the reader can follow there, in the same pill style. */}
+          <Link href="/mlb" style={{ minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 16px", borderRadius: 999, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)", fontFamily: MONO, fontSize: 11.5, textDecoration: "none" }}>MLB teams</Link>
+          <Link href="/nfl" style={{ minHeight: 44, display: "inline-flex", alignItems: "center", padding: "0 16px", borderRadius: 999, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)", fontFamily: MONO, fontSize: 11.5, textDecoration: "none" }}>NFL teams &amp; players</Link>
         </div>
       </section>
     );

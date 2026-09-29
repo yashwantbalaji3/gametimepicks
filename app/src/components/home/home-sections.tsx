@@ -3,7 +3,7 @@
  *   • SlateSummary   (4) — a COMPACT preview of today's slate (NOT the full board).
  *   • TrustStrip     (5) — record · paper bankroll · peak · open exposure · pending-vs-settled.
  *   • HowItWorks     (6) — 3–4 honest steps (deterministic artifacts, official-only settlement).
- *   • FooterCta      (7) — Simulate / Today's Picks / Results.
+ *   • FooterCta      (7) — Simulate / Today / Results.
  *
  * None of these read data or hardcode a dollar value / record / step — every figure is a pre-formatted
  * string/number prop supplied by the server page. Vault tokens only; mobile-first (~390px, ≥44px taps).
@@ -49,7 +49,7 @@ export function SlateSummary({ dateLabel, mlbGames, mlbLeans, topPicks, bankBuil
         <SlateRow label="Longshot / Moonshot" value={moonshotStatus} />
         <div className="pt-2.5">
           <Link href="/today" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
-            Open Today&rsquo;s Picks →
+            Open Today →
           </Link>
         </div>
       </div>
@@ -128,7 +128,7 @@ export function HowItWorks() {
 export function FooterCta() {
   const links: { href: string; label: string; primary?: boolean }[] = [
     { href: "/simulate", label: "Start with Simulate", primary: true },
-    { href: "/today", label: "Review Today's Picks" },
+    { href: "/today", label: "Open Today" },
     { href: "/results", label: "Check Results" },
   ];
   return (
