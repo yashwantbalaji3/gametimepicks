@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-29T19:54:33Z",
+ "generatedAt": "2026-09-29T20:29:49Z",
  "windowSeasonType": "MIXED_OR_REGULAR",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
@@ -93,13 +93,17 @@
     "states": [
      "PUBLISHED"
     ],
-    "models": []
+    "models": [],
+    "bases": [
+     "props-v1 evaluation: n=3575, all promotion bars pass"
+    ]
    },
    "source": "boards",
-   "nextGate": "Current role evidence, a current offered line, and settlement support.",
-   "state": "MIXED",
-   "headline": "Receiving yards: publication differs across this week's games",
-   "detail": "Across 16 boards: 16 published. Each game page states its own."
+   "nextGate": null,
+   "state": "PUBLISHED",
+   "modelId": null,
+   "headline": "Receiving yards: published this week on every game",
+   "detail": "Every game on this week's slate publishes receiving yards from the same evaluated model. Each game page states its own range."
   },
   {
    "key": "player_receptions",
@@ -109,19 +113,23 @@
     "states": [
      "PUBLISHED"
     ],
-    "models": []
+    "models": [],
+    "bases": [
+     "props-v1 evaluation: n=3575, all promotion bars pass"
+    ]
    },
    "source": "boards",
-   "nextGate": "Current role evidence, a current offered line, and settlement support.",
-   "state": "MIXED",
-   "headline": "Receptions: publication differs across this week's games",
-   "detail": "Across 16 boards: 16 published. Each game page states its own."
+   "nextGate": null,
+   "state": "PUBLISHED",
+   "modelId": null,
+   "headline": "Receptions: published this week on every game",
+   "detail": "Every game on this week's slate publishes receptions from the same evaluated model. Each game page states its own range."
   }
  ],
  "anytimeTd": {
-  "state": "ROLE_UNCERTAIN",
-  "headline": "Anytime touchdown: held",
-  "detail": "The scoring model is calibrated, but current role evidence for these games has not cleared its own bar, so no scorer is published.",
+  "state": "PUBLISHED",
+  "headline": "Anytime touchdown: published on this week's game boards",
+  "detail": "Every game on this week's boards publishes touchdown chances from the calibrated scoring model; they assume the player plays (a player who does not play settles void). Endzone Vault makes no selection: current role evidence for these games has not cleared its own bar.",
   "nextGate": "An offered anytime-touchdown market plus current role evidence."
  }
 }
