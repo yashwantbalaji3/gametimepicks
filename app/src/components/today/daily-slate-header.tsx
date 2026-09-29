@@ -1,6 +1,6 @@
 /**
  * TodayDailySlateHeader — Section 1 of the Daily Model Hub. A compact, operational header (NOT a giant
- * Home-style hero): "Today's Picks" + the presented slate date + active-sport chips + MLB games/leans
+ * Home-style hero): "Today" + the presented slate date + active-sport chips + MLB games/leans
  * counts (when any) + a paper-only note, with a primary "Simulate Today's Games" CTA and a secondary
  * "View Results" link. Presentational only — every figure arrives pre-formatted as a prop; this component
  * never reads fs/data and never hardcodes a count, date, dollar value, or record.
@@ -53,7 +53,7 @@ export default function TodayDailySlateHeader({
 
       <div className="flex flex-col gap-1">
         <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(24px,5vw,34px)", fontWeight: 800, lineHeight: 1.05 }}>
-          Today&rsquo;s Picks
+          Today
         </h1>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
           {slateRelative ? `${slateRelative} · ` : ""}{dateLabel} · paper-only, educational
