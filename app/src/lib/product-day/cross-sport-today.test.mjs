@@ -118,3 +118,29 @@ test("the reader counts each sport from its schedule owner (temp data root, fixt
   const stale = buildSportToday(root, { today: D, days }).find((s) => s.sport === "nfl");
   assert.equal(stale.known, false);
 });
+
+test("🔴 MLB counts TODAY'S OFFICIAL SCHEDULE — postseason games before the board publishes are today's (2026-09-29)", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-mlb-official-"));
+  const put = (rel, obj) => { fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true }); fs.writeFileSync(path.join(root, rel), JSON.stringify(obj)); };
+  // The exact morning shape: the StatsAPI capture holds today's games; the odds-era schedule and today's board do not exist yet.
+  put(`mlb/statsapi-schedule/${D}.json`, { date: D, gameCount: 3, games: [
+    { gamePk: 1, gameDate: `${D}T18:00:00Z`, status: "Scheduled" },
+    { gamePk: 2, gameDate: `${D}T21:00:00Z`, status: "Scheduled" },
+    { gamePk: 3, gameDate: `${D}T23:00:00Z`, status: "Postponed" },
+  ] });
+  const days = [{ sport: "mlb", productDate: "2031-01-14", state: "NO_EVENTS", events: 0, eligible: 0 }];
+  const mlb = buildSportToday(root, { today: D, days }).find((s) => s.sport === "mlb");
+  assert.equal(mlb.eventsToday, 2, "scheduled games count; a postponed one does not");
+  assert.equal(mlb.known, true, "the official capture makes today's MLB schedule known");
+  assert.equal(mlb.forecastsToday, 0, "no board yet: no forecasts claimed");
+});
+
+test("the MLB product day consults the official schedule before it can say 'No MLB games'", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "src/lib/product-day/product-day.ts"), "utf8");
+  const fn = src.slice(src.indexOf("function mlbDay("), src.indexOf("function eplDay("));
+  assert.ok(fn.indexOf("getMlbStatsapiScheduleForDate(today)") > 0, "reads today's official StatsAPI schedule");
+  assert.ok(fn.indexOf("getMlbStatsapiScheduleForDate(today)") < fn.indexOf("No MLB games on the presented slate"), "…before the no-games branch");
+  assert.match(fn, /eligible: 0/, "the model's coverage is 0 until the board publishes — never invented");
+  const home = fs.readFileSync(path.join(process.cwd(), "src/app/page.tsx"), "utf8");
+  assert.match(home, /\(mlbDay\?\.eligible \?\? 0\) > 0 \? `\$\{mlbLeans\} model leans`/, "Home prints a leans count only when today's board exists");
+});
