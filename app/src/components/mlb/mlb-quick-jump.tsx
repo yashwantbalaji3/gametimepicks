@@ -37,7 +37,7 @@ export default function MlbQuickJump() {
   };
 
   return (
-    <nav aria-label="MLB sections" className="sticky z-20 -mx-1 overflow-x-auto" style={{ top: 0 }}>
+    <nav aria-label="MLB board sections" className="sticky z-20 -mx-1 overflow-x-auto" style={{ top: 0 }}>
       <div className="flex items-center gap-1.5 px-1 py-2 min-w-max" style={{ background: "rgba(14,9,6,0.97)", backdropFilter: "blur(8px)" }}>
         {SECTIONS.map((s) => {
           const on = active === s.id;

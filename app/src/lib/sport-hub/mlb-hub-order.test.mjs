@@ -29,3 +29,9 @@ test("🔴 events → forecasts (board) → Simulation Center strip → simulati
   const order = [at('id="mlb-games"'), at('id="mlb-board"'), at('id="mlb-overview"'), at('id="mlb-sims"'), at("<GradedPicksSection"), at("<ModelStatusPanel collapsed")];
   for (let i = 1; i < order.length; i++) assert.ok(order[i - 1] < order[i], `section ${i} is in order`);
 });
+
+test("the board's own quick-jump strip is named for what it is, not a second 'MLB sections'", () => {
+  const qj = fs.readFileSync(path.join(process.cwd(), "src/components/mlb/mlb-quick-jump.tsx"), "utf8");
+  assert.match(qj, /aria-label="MLB board sections"/);
+  assert.doesNotMatch(qj, /aria-label="MLB sections"/, "two navs with one name are indistinguishable to a screen reader");
+});
