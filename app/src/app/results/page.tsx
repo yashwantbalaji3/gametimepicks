@@ -89,6 +89,8 @@ import TrustCenter from "@/components/results/trust-center";
 import ResultsExplorer, { type ResultRow, type SettledCard } from "@/components/results/results-explorer";
 import ResultsOverview, { type OverviewPopulation, type OverviewProduct } from "@/components/results/results-overview";
 import { topBoardDates } from "@/lib/results/v2/top-boards";
+import TrendingOnOurBoards from "@/components/results/trending";
+import { latestTrending } from "@/lib/results/v2/trending";
 import { formatDateLong } from "@/lib/format";
 import { resultsV2Populations } from "@/lib/results/v2/overview";
 import { currentProductRecord } from "@/lib/results/current-record";
@@ -281,6 +283,7 @@ export default function ResultsPage() {
           receipt below stay as the detailed record. */}
       <ResultsOverview populations={overviewPopulations()} products={overviewProducts()} seedToday={currentEtDate()} />
       <LatestTopBoard />
+      <TrendingOnOurBoards trending={latestTrending()} />
       <h2 className="font-display m-0 mb-3 text-[20px]" style={{ color: "var(--vault-text)" }}>Detailed record</h2>
       <ResultsExplorer
         rows={buildResultRows(resultSources()) as ResultRow[]}
