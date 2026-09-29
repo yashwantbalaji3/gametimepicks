@@ -24,6 +24,7 @@
 import Link from "next/link";
 import type { GameSimulationView } from "@/lib/game-simulations/game-lab-view";
 import type { SimGeneratedPick } from "@/lib/game-simulations/types";
+import { etStamp } from "@/lib/et-stamp.mjs";
 
 // ── formatters (always fall back to an em dash; never render undefined/NaN) ──
 const dash = (v: string | number | null | undefined) =>
@@ -33,15 +34,17 @@ const num2 = (n?: number | null) => (n == null || !Number.isFinite(n) ? "—" : 
 const edgeTxt = (n?: number | null) =>
   n == null || !Number.isFinite(n) ? "—" : `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
 
-/** Human "x days ago"/"today" from an ISO timestamp using the browser clock (client-only, honest). */
-function freshnessLabel(iso: string | null): string {
-  if (!iso) return "generated recently";
-  const t = Date.parse(iso);
-  if (!Number.isFinite(t)) return "generated recently";
-  const days = Math.floor((Date.now() - t) / 86_400_000);
-  if (days <= 0) return "generated today";
-  if (days === 1) return "generated 1 day ago";
-  return `generated ${days} days ago`;
+/*
+ * #761 PR 3: this was "generated today / N days ago" computed with Date.now() DURING RENDER of a
+ * server-rendered client component — the server wrote it on the build clock and the browser recomputed
+ * it on its own, a hydration mismatch — and with no stamp it printed "generated recently", a freshness
+ * claim with nothing behind it. It is now the absolute generation time (true for every reader, the same
+ * bytes on server and client), and nothing at all when the artifact carries no time. Staleness is the
+ * job of the "Stale simulation" banner above, which reads the canonical freshness owner.
+ */
+function generatedLabel(iso: string | null): string | null {
+  const stamp = etStamp(iso);
+  return stamp ? `Generated ${stamp}` : null;
 }
 
 const RISK_TONE: Record<string, string> = {
@@ -388,7 +391,7 @@ export default function GameSimulationRunner({
               {view.allowsRunCountClaim && view.runCount != null ? (
                 <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Runs</span> {view.runCount.toLocaleString()}</span>
               ) : null}
-              <span style={{ color: "var(--vault-text-faint)" }}>{freshnessLabel(view.generatedAt)}</span>
+              {generatedLabel(view.generatedAt) ? <span style={{ color: "var(--vault-text-faint)" }}>{generatedLabel(view.generatedAt)}</span> : null}
             </div>
             {view.simulationSummary?.headline ? (
               <p style={{ color: "var(--vault-text)", fontSize: 13.5, lineHeight: 1.5 }}>{dash(view.simulationSummary.headline)}</p>
