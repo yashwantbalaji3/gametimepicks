@@ -96,7 +96,15 @@ test("the hero's live-status row derives from owners — its figures are digits,
      claim about the DAY, while the figure counts only product-days that are LIVE and dated today —
      so it read "16 events today" beside 15 unpublished MLB games. The invariant being protected is
      that the row carries a DERIVED events figure, not that it is phrased any particular way. */
-  assert.match(t, /\d+ events\b|no events\b/, "events figure present and derived");
-  assert.doesNotMatch(t, /\d+ events today\b/, "the events figure counts our board, not the day — it may not claim the day");
+  /* REPOINTED AGAIN 2026-09-28 (#794 PR 1). The figure is now the cross-sport DAY count (crossSportToday,
+     from each sport's schedule — a game counts with or without our forecast), so it MAY say "today",
+     in the singular on a one-game day ("1 event today"). The P293 protection is kept as the property
+     it was guarding: the day wording is gated on every sport's schedule being known; while one is not,
+     the row keeps the board wording. The gate itself is pinned in product-day/nfl-week-rollover.test. */
+  assert.match(t, /\d+ events?\b|no events\b/, "events figure present and derived");
+  const home = fs.readFileSync(path.join(process.cwd(), "src/app/page.tsx"), "utf8");
+  if (/\d+ events? today\b/.test(t)) {
+    assert.match(home, /eventsKnown=\{todayAcross\.state !== "UNKNOWN"\}/, "a day claim is only made through the known-schedule gate");
+  }
   assert.match(t, /Settled through|See every settled result/, "the settled proof link anchors the row");
 });
