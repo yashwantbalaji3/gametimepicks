@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { orderRows, hubCounts, type HubGameRow, type HubRead } from "@/lib/sport-hub/contract";
+import TeamLogo from "@/components/team-logo";
+import { orderRows, hubCounts, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
 
 /**
  * The first thing on every sport page: what is on, what we think, and where to read it.
@@ -20,30 +21,63 @@ const READ_TONE: Record<HubRead["kind"], { label: string; color: string }> = {
   BASELINE_ONLY: { label: "baseline only", color: "var(--vault-text-mute)" },
 };
 
-function ReadCell({ read }: { read: HubRead | null }) {
-  if (!read) return <span style={{ color: "var(--vault-text-mute)" }}>No supported read</span>;
-  const tone = READ_TONE[read.kind];
-  return (
-    <span>
-      <span style={{ color: tone.color }}>{read.label}</span>
-      {/* The KIND is never dropped. A market price and a model forecast reading alike on one row is
-          how a de-vigged book number comes to be taken for a prediction. */}
-      <span className="ml-2 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>
-        {tone.label}{read.detail ? ` · ${read.detail}` : ""}
-      </span>
-    </span>
-  );
-}
-
 function Action({ row }: { row: HubGameRow }) {
   if (row.reportState === "NONE" || !row.reportHref) {
     return <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{row.reportNote ?? "No report"}</span>;
   }
   return (
-    <Link href={row.reportHref} className="text-[13px] font-medium no-underline" style={{ color: "var(--gtp-bank-heat)" }}>
-      {row.reportState === "ARCHIVE" ? "View record" : "View report"}
+    <Link href={row.reportHref} className="vault-press inline-flex items-center gap-1 rounded-full px-4 text-[13px] font-semibold no-underline" style={{ minHeight: 44, color: "var(--vault-text)", border: "1px solid var(--vault-border-strong)" }}>
+      {row.reportState === "ARCHIVE" ? "View record" : "Open report"} <span aria-hidden>→</span>
       <span className="sr-only"> for {row.matchup}</span>
     </Link>
+  );
+}
+
+function Side({ p }: { p: HubParticipant }) {
+  return (
+    <span className="flex items-center gap-2 min-w-0">
+      {p.logoTeam && p.logoSport
+        ? <TeamLogo team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel={`${p.name} logo`} />
+        : <span aria-hidden className="inline-flex items-center justify-center rounded-full shrink-0 font-mono text-[11px]" style={{ width: 28, height: 28, background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>{initials(p.name)}</span>}
+      <span className="truncate text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{p.name}</span>
+    </span>
+  );
+}
+
+const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
+
+function EventCard({ row: r, unitLabel }: { row: HubGameRow; unitLabel: string }) {
+  const hasSides = Array.isArray(r.participants) && r.participants.length === 2;
+  const tone = r.read ? READ_TONE[r.read.kind] : null;
+  const isModel = r.read?.kind === "MODEL_FORECAST" || r.read?.kind === "MODEL_PICK";
+  return (
+    <li className="rounded-xl p-4 flex flex-col gap-3" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{r.startLabel}</span>
+        <span className="font-mono text-[10.5px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)" }}>{r.status}</span>
+      </div>
+      {hasSides ? (
+        <div className="flex flex-col gap-1.5" aria-label={r.matchup}>
+          <Side p={r.participants![0]} />
+          <span className="font-mono text-[11px] pl-9" style={{ color: "var(--vault-text-mute)" }}>{r.separator ?? "vs"}</span>
+          <Side p={r.participants![1]} />
+        </div>
+      ) : (
+        <div className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{r.matchup}</div>
+      )}
+      <div className="rounded-lg px-3 py-2" style={{ background: "var(--vault-wash-faint)" }}>
+        {r.read ? (
+          <>
+            {/* A model read is the card's headline; a market price is shown, muted, and labelled as the market's. */}
+            <div className={isModel ? "text-[17px] font-bold" : "text-[14px]"} style={{ color: tone!.color }}>{r.read.label}</div>
+            <div className="mt-0.5 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{tone!.label}{r.read.detail ? ` · ${r.read.detail}` : ""}</div>
+          </>
+        ) : (
+          <div className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No supported read for this {unitLabel.toLowerCase().replace(/s$/, "")}</div>
+        )}
+      </div>
+      <div className="mt-auto"><Action row={r} /></div>
+    </li>
   );
 }
 
@@ -80,56 +114,21 @@ export default function GameSummary({
     );
   }
 
+  /*
+   * PHASE A (2026-09-29): ONE EVENT CARD, EVERY SPORT, EVERY WIDTH. The desktop table read as a spreadsheet —
+   * no crests, the forecast a mono cell among four. Each event is now a card in the Live Hub's language:
+   * who is playing (crest or initials), when, its lifecycle, the GameTimePicks read as the headline, and one
+   * action. The information and its honesty rules are unchanged: the read's KIND is always printed, a market
+   * price never takes the forecast's weight, and an event with no report says why instead of linking.
+   */
   const Rows = ({ list, heading }: { list: HubGameRow[]; heading?: string }) => (
     <>
       {heading ? (
         <h3 className="mt-6 mb-2 text-[13px] font-semibold" style={{ color: "var(--vault-text-mute)" }}>{heading}</h3>
       ) : null}
-
-      {/* Mobile: one card per row, same priority as the table. */}
-      <ul className="md:hidden m-0 p-0 list-none flex flex-col gap-2">
-        {list.map((r) => (
-          <li key={r.id} className="rounded-xl p-3" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{r.startLabel}</span>
-              <span className="text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{r.status}</span>
-            </div>
-            <div className="mt-1 text-[14px] font-semibold" style={{ color: "var(--vault-text)" }}>{r.matchup}</div>
-            <div className="mt-1 text-[13px]"><ReadCell read={r.read} /></div>
-            <div className="mt-2"><Action row={r} /></div>
-          </li>
-        ))}
+      <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        {list.map((r) => <EventCard key={r.id} row={r} unitLabel={unitLabel} />)}
       </ul>
-
-      {/* Desktop: the table. It scrolls inside its own container, never the page. */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-[13px] border-collapse" style={{ minWidth: 640 }}>
-          <thead>
-            <tr style={{ color: "var(--vault-text-mute)" }}>
-              <th scope="col" className="text-left font-medium py-2 pr-4">Start</th>
-              <th scope="col" className="text-left font-medium py-2 pr-4">{unitLabel.replace(/s$/, "")}</th>
-              <th scope="col" className="text-left font-medium py-2 pr-4">Status</th>
-              <th scope="col" className="text-left font-medium py-2 pr-4">Our read</th>
-              <th scope="col" className="text-left font-medium py-2">Report</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((r) => (
-              <tr key={r.id} style={{ borderTop: "1px solid var(--vault-border)" }}>
-                <td className="py-2.5 pr-4 whitespace-nowrap" style={{ color: "var(--vault-text-mute)" }}>{r.startLabel}</td>
-                <td className="py-2.5 pr-4" style={{ color: "var(--vault-text)" }}>
-                  {r.reportHref && r.reportState !== "NONE"
-                    ? <Link href={r.reportHref} className="no-underline font-medium" style={{ color: "var(--vault-text)" }}>{r.matchup}</Link>
-                    : r.matchup}
-                </td>
-                <td className="py-2.5 pr-4" style={{ color: "var(--vault-text-mute)" }}>{r.status}</td>
-                <td className="py-2.5 pr-4"><ReadCell read={r.read} /></td>
-                <td className="py-2.5"><Action row={r} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </>
   );
 
