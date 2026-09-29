@@ -11,6 +11,10 @@ import type { PublicGameDetail } from "@/lib/game-detail";
 import { loadEplForecasts, loadEplForecastArchive } from "@/lib/sports/epl/forecast-view";
 import { eplUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import type { EplForecastRow } from "@/lib/sports/epl/forecast-view";
+import path from "node:path";
+import { productDayFor } from "@/lib/product-day/product-day";
+import { currentEtDate } from "@/lib/freshness";
+import { etStamp } from "@/lib/et-stamp.mjs";
 import { DEFAULT_LABELS, type HubGameRow, type HubRead, type SportHubModel } from "./contract";
 import { loadNflEvents, currentPeriodKey, eventsInPeriod } from "@/lib/events/read-model";
 
@@ -127,16 +131,45 @@ function rangeOf(rows: HubGameRow[]): string | null {
 
 export function mlbHub(nowIso: string): SportHubModel {
   const rows = gameRows("mlb", Date.parse(nowIso));
+  const official = rows.length === 0 ? mlbOfficialOnly(nowIso) : null;
   return {
     sport: "mlb", sportLabel: "MLB", labels: DEFAULT_LABELS,
     // The day the board is FOR, taken from the rows rather than the clock: at 2am ET the current
     // board is still yesterday's slate, and calling it "Today" would be the oldest lie on this site.
-    periodLabel: rows[0]?.startLabel?.split(" · ")[0] ?? "No slate",
+    periodLabel: rows[0]?.startLabel?.split(" · ")[0] ?? official?.label ?? "No slate",
     periodRange: null,
     freshness: null,
     rows,
     present: ["games", "products", "simulations", "picks", "results"],
-    emptyReason: "No MLB games are on the board for this date. The board is generated each morning; a date with no games has none scheduled.",
+    ...(rows.length === 0 && official ? official.empty : {
+      /* No schedule evidence either way ⇒ no claim that nothing is scheduled; the board's absence is all we know. */
+      emptyReason: "No MLB games are on the board for this date. The board is generated each morning.",
+    }),
+  };
+}
+
+/*
+ * #797 PR C · THE BOARD IS NOT THE SCHEDULE (2026-09-29). Before the late-morning board, /mlb said "No slate ·
+ * 0 scheduled … a date with no games has none scheduled" while the official StatsAPI schedule held four
+ * postseason games (and /simulate listed them). The product day (lib/product-day, mlbDay) already answers
+ * from the official schedule; when it names games the board does not carry yet, the empty state says so, with
+ * absolute dates, and routes to the page that lists them. It never invents a board row, a read or a report.
+ */
+function mlbOfficialOnly(nowIso: string): { label: string; empty: Pick<SportHubModel, "emptyReason" | "emptyCounts" | "emptyLink"> } | null {
+  const today = currentEtDate(new Date(nowIso));
+  let day;
+  try { day = productDayFor("mlb", path.join(process.cwd(), "public", "data"), { today }); } catch { return null; }
+  if (day.productDate !== today || day.events <= 0 || day.eligible > 0) return null;
+  const n = day.events;
+  const label = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric" }).format(new Date(`${today}T12:00:00Z`));
+  const first = etStamp(day.nextEventUtc);
+  return {
+    label,
+    empty: {
+      emptyCounts: `${n} on the official schedule · 0 with a report · 0 with a supported read`,
+      emptyReason: `The official MLB schedule has ${n} game${n === 1 ? "" : "s"} on ${label}${first ? ` (first pitch ${first})` : ""}. The model board for that date is not published yet — it is generated late morning ET, after probable pitchers and prices exist.`,
+      emptyLink: { href: "/simulate/?sport=mlb", label: `See the ${n} scheduled game${n === 1 ? "" : "s"} on Simulate` },
+    },
   };
 }
 
