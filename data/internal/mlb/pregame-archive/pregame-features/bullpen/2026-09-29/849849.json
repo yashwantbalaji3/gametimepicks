@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849849,
+  "date": "2026-09-29",
+  "capturedAt": "2026-09-29T00:46:08.334Z",
+  "availableAt": "2026-09-29T00:46:08.334Z",
+  "eventStartTime": "2026-09-29T21:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-26",
+    "2026-09-27",
+    "2026-09-28"
+  ],
+  "home": {
+    "teamId": 117,
+    "teamName": "Houston Astros",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 131,
+      "relievers": [
+        {
+          "id": 814490,
+          "name": "Ethan Pecko",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 9,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 669854,
+          "name": "Ronel Blanco",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 687911,
+          "name": "Bryan King",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 699044,
+          "name": "Miguel Ullola",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 701121,
+          "name": "Logan VanWey",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 837227,
+          "name": "Tatsuya Imai",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-27"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 179,
+      "relievers": [
+        {
+          "id": 670950,
+          "name": "Trevor Richards",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 10,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 702273,
+          "name": "Noah Schultz",
+          "appearances": 1,
+          "pitches": 42,
+          "outs": 10,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 656794,
+          "name": "Sean Newcomb",
+          "appearances": 2,
+          "pitches": 39,
+          "outs": 7,
+          "dates": [
+            "2026-09-26",
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 663855,
+          "name": "Jordan Hicks",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 623211,
+          "name": "Huascar Brazobán",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 663542,
+          "name": "Bryan Hudson",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 699823,
+          "name": "Tyler Davis",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-26"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-26,2026-09-27,2026-09-28) + feed/live box scores",
+    "capturedAt": "2026-09-29T00:46:08.334Z"
+  },
+  "recordHash": "6f4ac98c9224512acfbca1cd5a69daee7f8a775c52960871edecd5ce23686036"
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849843,
+  "date": "2026-09-29",
+  "capturedAt": "2026-09-29T00:46:08.334Z",
+  "availableAt": "2026-09-29T00:46:08.334Z",
+  "eventStartTime": "2026-09-30T02:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-26",
+    "2026-09-27",
+    "2026-09-28"
+  ],
+  "home": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 161,
+      "relievers": [
+        {
+          "id": 656288,
+          "name": "Griffin Canning",
+          "appearances": 1,
+          "pitches": 64,
+          "outs": 9,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 688158,
+          "name": "David Morgan",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-09-26"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 112,
+    "teamName": "Chicago Cubs",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 100,
+      "relievers": [
+        {
+          "id": 666129,
+          "name": "Braxton Garrett",
+          "appearances": 1,
+          "pitches": 70,
+          "outs": 15,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 607067,
+          "name": "Colin Rea",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 6,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 657097,
+          "name": "Jacob Webb",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-27"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-26,2026-09-27,2026-09-28) + feed/live box scores",
+    "capturedAt": "2026-09-29T00:46:08.334Z"
+  },
+  "recordHash": "a446b2ac68cfc4c4c1a5333a3087f3f87119e4fb2d00a3cd505943be224391fb"
+}

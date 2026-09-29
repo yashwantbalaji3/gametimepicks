@@ -1,0 +1,217 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849845,
+  "date": "2026-09-29",
+  "capturedAt": "2026-09-29T00:46:08.334Z",
+  "availableAt": "2026-09-29T00:46:08.334Z",
+  "eventStartTime": "2026-09-29T18:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-26",
+    "2026-09-27",
+    "2026-09-28"
+  ],
+  "home": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 119,
+      "relievers": [
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 6,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 700363,
+          "name": "AJ Smith-Shawver",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 622694,
+          "name": "Elieser Hernández",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 628452,
+          "name": "Raisel Iglesias",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 663158,
+          "name": "Robert Suarez",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 143,
+    "teamName": "Philadelphia Phillies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 185,
+      "relievers": [
+        {
+          "id": 664353,
+          "name": "José Urquidy",
+          "appearances": 1,
+          "pitches": 50,
+          "outs": 8,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 663767,
+          "name": "Chase Shugart",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 5,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 686934,
+          "name": "Alex McFarlane",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 621383,
+          "name": "Tanner Banks",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 676661,
+          "name": "Max Lazar",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 621237,
+          "name": "José Alvarado",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 1,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 548384,
+          "name": "Brooks Raley",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-26"
+          ]
+        },
+        {
+          "id": 666200,
+          "name": "Jesús Luzardo",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 3,
+          "dates": [
+            "2026-09-27"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-26,2026-09-27,2026-09-28) + feed/live box scores",
+    "capturedAt": "2026-09-29T00:46:08.334Z"
+  },
+  "recordHash": "2ad0bcf087314dac0e178087ea450f108f6ebde3b24d66cc6dccb729f4c6534a"
+}
