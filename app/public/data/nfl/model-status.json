@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-29T15:42:04Z",
+ "generatedAt": "2026-09-29T19:20:48Z",
  "windowSeasonType": "MIXED_OR_REGULAR",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
@@ -92,10 +92,11 @@
     "models": []
    },
    "source": "boards",
-   "nextGate": "Current role evidence, a current offered line, and settlement support.",
-   "state": "MIXED",
-   "headline": "Receiving yards: publication differs across this week's games",
-   "detail": "Across 16 boards: 16 published. Each game page states its own."
+   "nextGate": null,
+   "state": "PUBLISHED",
+   "modelId": null,
+   "headline": "Receiving yards: published this week on every game",
+   "detail": "props-v1 evaluation: n=3575, all promotion bars pass"
   },
   {
    "key": "player_receptions",
@@ -108,16 +109,17 @@
     "models": []
    },
    "source": "boards",
-   "nextGate": "Current role evidence, a current offered line, and settlement support.",
-   "state": "MIXED",
-   "headline": "Receptions: publication differs across this week's games",
-   "detail": "Across 16 boards: 16 published. Each game page states its own."
+   "nextGate": null,
+   "state": "PUBLISHED",
+   "modelId": null,
+   "headline": "Receptions: published this week on every game",
+   "detail": "props-v1 evaluation: n=3575, all promotion bars pass"
   }
  ],
  "anytimeTd": {
-  "state": "ROLE_UNCERTAIN",
-  "headline": "Anytime touchdown: held",
-  "detail": "The scoring model is calibrated, but current role evidence for these games has not cleared its own bar, so no scorer is published.",
+  "state": "PUBLISHED",
+  "headline": "Anytime touchdown: published on this week's game boards",
+  "detail": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing. Endzone Vault makes no selection: current role evidence for these games has not cleared its own bar.",
   "nextGate": "An offered anytime-touchdown market plus current role evidence."
  }
 }

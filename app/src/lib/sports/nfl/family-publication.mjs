@@ -25,10 +25,18 @@ export function familyPublication(key, evaluated, constituents) {
   const entries = constituents.map((b) => b.families?.[key] ?? null);
   const states = uniq(entries.map((e) => e?.state ?? "ABSENT"));
   const models = uniq(entries.map((e) => e?.model ?? null).filter(Boolean));
+  const bases = uniq(entries.map((e) => e?.basis ?? null).filter(Boolean));
   const boardsN = constituents.length;
   const base = { key, label, publication: { boards: boardsN, states, models }, source: "boards", nextGate: evaluated?.nextGate ?? null };
   if (states.length === 1 && states[0] === "PUBLISHED" && models.length === 1) {
     return { ...base, state: "PUBLISHED", modelId: models[0], headline: `${label}: published this week by ${models[0]}`, detail: entries[0]?.basis ?? `Every game on this week's slate publishes this family from ${models[0]}.`, nextGate: null };
+  }
+  /* P2-B (2026-09-29): every board publishes, from ONE stated basis, but the rows carry no model id — the
+     builder's props-v1 path writes a basis ("props-v1 evaluation: …") and no model field. Week 4 read "MIXED:
+     publication differs across this week's games" while all 16 boards published. Same basis everywhere is one
+     publication; it is named by its basis, never rounded to a model id it does not carry. */
+  if (states.length === 1 && states[0] === "PUBLISHED" && models.length === 0 && bases.length === 1) {
+    return { ...base, state: "PUBLISHED", modelId: null, headline: `${label}: published this week on every game`, detail: bases[0], nextGate: null };
   }
   if (states.length === 1 && states[0] === "ESTIMATE") {
     const e = entries[0] ?? {};
