@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849845,
+  "date": "2026-09-29",
+  "capturedAt": "2026-09-29T02:13:41.184Z",
+  "availableAt": "2026-09-29T02:13:41.184Z",
+  "eventStartTime": "2026-09-29T18:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 519242,
+      "name": "Chris Sale",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-09-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33.67,
+        "ipAvg": 6.73,
+        "kAvg": 8,
+        "bbAvg": 0.6,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 10.69,
+        "workloadIpLast5": 33.67
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 162.67,
+        "k": 200,
+        "bb": 31,
+        "er": 39,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 666200,
+      "name": "Jesús Luzardo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 22,
+      "lastStartDate": "2026-09-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 35,
+        "ipAvg": 7,
+        "kAvg": 9,
+        "bbAvg": 1.6,
+        "erAvg": 0.8,
+        "hrAvg": 0.6,
+        "kPer9": 11.57,
+        "workloadIpLast5": 35
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 178.67,
+        "k": 221,
+        "bb": 52,
+        "er": 57,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-29T02:13:41.184Z"
+  },
+  "recordHash": "5363cdd365956dd4bd7275df06a2c7be90c4a7388d36e2254647aaf0a94f984b"
+}
