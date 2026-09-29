@@ -134,10 +134,14 @@ test("ROLLOUT 10 · the Live nav entry exists, is truthful about scope, and reso
   const nav = read("src/lib/navigation.ts");
   assert.ok(nav.length > 400, "navigation.ts was read — otherwise this scan proves nothing");
   assert.match(nav, /href: "\/live"/, "the Live destination exists");
-  // Truthful scope: the note says MLB, because NFL Live is internal-only.
+  // Truthful scope. The note said "MLB" while NFL Live was internal-only; #797 PR B: /live now carries
+  // NFL and MLB, and "MLB · beta" understated it. A static nav note that names NO sport cannot promise
+  // one the allowlist refuses, and cannot go stale when the allowlist changes (the page states its scope).
   const entry = /\{ href: "\/live"[^}]*\}/.exec(nav);
   assert.ok(entry, "the Live entry parses");
-  assert.match(entry[0], /note: "MLB/, "the nav must not imply sports the allowlist refuses");
+  const note = /note: "([^"]*)"/.exec(entry[0])?.[1];
+  assert.ok(note !== undefined, "the Live entry carries a note");
+  assert.equal(/\b(MLB|NFL|EPL|UFC|NBA|Premier League)\b/i.test(note), false, "the nav must not imply sports the allowlist refuses");
   assert.equal(/nfl|epl|ufc/i.test(entry[0]), false, "the Live entry must not name an unavailable sport");
 
   /*

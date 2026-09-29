@@ -145,7 +145,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
      destination (H1 "Suggested Parlays", Home's "Open Parlay Center", already "Parlays" on the phone bar), so
      it is named that on every surface; "Picks" stays the one picks destination. */
   { href: "/build", label: "Parlays", group: "now", glyph: "✎", desc: "Cards, picks, or build your own",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab", shortLabel: "Parlays" },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab" },
   /* Sixth primary. Off the `mobile` bar by the charter's own bar spec (Home/Today/Simulate/Picks/
      Parlay + Menu); the mobile Menu sheet renders every rail destination the bar lacks. */
   { href: "/results", label: "Results", group: "now", glyph: "≡", desc: "Settled record",
@@ -165,8 +165,9 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["rail", "footer"] },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
-  /* #797 PR B: "live" was a claim about the season (it read "live" the day after the regular season ended). */
-  { href: "/mlb", label: "MLB", group: "sports", glyph: "⚾", desc: "Baseball hub",
+  /* #797 PR B: "live" was a claim about the season (it read "live" the day after the regular season ended).
+     The note states what the hub is, which does not change with the calendar. */
+  { href: "/mlb", label: "MLB", note: "simulation center", group: "sports", glyph: "⚾", desc: "Baseball hub",
     surfaces: ["rail", "footer"] },
   { href: "/nfl", label: "NFL", note: "experimental sims", group: "sports", glyph: "🏈", desc: "Football hub",
     surfaces: ["rail", "footer"] },

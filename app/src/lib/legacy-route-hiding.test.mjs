@@ -46,7 +46,7 @@ test("footer leads with the ACTIVE sport (MLB); the completed World Cup is NOT a
   assert.equal(hay.indexOf('"/world-cup"'), -1, "World Cup is not an active footer sport");
 });
 
-test("the footer states coverage honestly: MLB live, NBA archive, and NO schedule-only league", () => {
+test("the footer states coverage honestly: MLB's hub, NBA archive, and NO schedule-only league", () => {
   /*
    * This guard EARNED its keep. P185 derived the footer from the canonical list and the coverage
    * annotations went with the old markup — every sport would have rendered as a bare name, which
@@ -54,10 +54,12 @@ test("the footer states coverage honestly: MLB live, NBA archive, and NO schedul
    * now lives on the destination as `note`, and this asserts the rendered result.
    */
   if (builtFooter) {
-    assert.match(builtFooter, /MLB<span[^>]*> · live/, "MLB is labelled live");
+    // #797 PR B: MLB's note was "live" — a season claim that read true the day after the season ended. It
+    // now names what the hub is; the property (MLB is labelled, and not as an archive) is unchanged.
+    assert.match(builtFooter, /MLB<span[^>]*> · simulation center/, "MLB is labelled by what its hub is");
     assert.match(builtFooter, /NBA<span[^>]*> · settled archive/, "NBA is labelled a settled archive, not off-season coverage");
   }
-  assert.match(registry, /href: "\/mlb", label: "MLB", note: "live"/, "MLB declares itself live");
+  assert.match(registry, /href: "\/mlb", label: "MLB", note: "simulation center"/, "MLB declares its coverage");
   assert.match(registry, /href: "\/results\/nba", label: "NBA", note: "settled archive"/,
     "the NBA archive declares itself an archive");
   // The schedule-only leagues have no public destination at all, so nothing links to them.
