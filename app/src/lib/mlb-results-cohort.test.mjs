@@ -36,7 +36,10 @@ function newestReport() {
     if (!f.startsWith("comparison_report_") || !f.endsWith(".json")) continue;
     try {
       const j = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"));
-      if (j?.byMarket && j?.byConfidence) best = { file: f, report: j };
+      /* 2026-09-29: an off day (09-28, the day after the regular season) writes a report whose buckets are
+         EMPTY objects. Selecting it on field presence made the anti-vacuity check below fail on the calendar,
+         not on the code. "With bucket splits" means splits exist: the newest report with at least one bucket. */
+      if (j?.byMarket && j?.byConfidence && Object.keys(j.byMarket).length > 0) best = { file: f, report: j };
     } catch { /* a malformed archive row is not this test's subject */ }
   }
   return best;
