@@ -25,7 +25,7 @@ import path from "node:path";
 
 import { etDayLabel } from "@/lib/et-stamp.mjs";
 import { activeMlbDate, getMlbBoardForDate, getMlbStatsapiScheduleForDate } from "@/lib/data-mlb";
-import { loadEplForecasts } from "@/lib/sports/epl/forecast-view";
+import { forecastRows, loadEplForecasts } from "@/lib/sports/epl/forecast-view";
 
 export const PRODUCT_DAY_SCHEMA_VERSION = 1;
 
@@ -116,14 +116,18 @@ function eplDay(_dataRoot: string, today: string): ProductDay {
       reason: "forecasts/latest.json unreadable — a fault on our side, not an empty slate",
     });
   }
-  const current = set.rows.filter((r) => r.state === "CURRENT_PRE_EVENT");
+  /* P1 (2026-09-29): the lane's own definition of a published forecast (forecastRows: a current pre-event
+     row, or a model-only row still waiting for a price). Counting only CURRENT_PRE_EVENT made Home say "No
+     Premier League fixture carries a current pre-event forecast" while /epl listed ten Matchweek 6 forecasts —
+     all READY_EXCEPT_ODDS. A price is not a precondition for a forecast. */
+  const current = forecastRows(set);
   const nextKick = current.map((r) => r.kickoffUtc).filter(Boolean).sort()[0] ?? null;
   const kickDay = nextKick ? etDay(nextKick) : null;
   if (current.length === 0) {
     return day("epl", {
       productDate: today, state: "NO_EVENTS", events: 0, eligible: 0,
       sourceStamp: set.generatedAt ?? null, nextEventUtc: null,
-      note: "No Premier League fixture carries a current pre-event forecast.", reason: null,
+      note: "No Premier League fixture carries a published forecast.", reason: null,
     });
   }
   return day("epl", {
