@@ -201,9 +201,10 @@ export default function MlbLandingPage() {
    */
   const isTodaysSlate = date >= currentEtDate();
 
-  const statusKind: "live" | "settled" | "linesPending" | "upcoming" = !isTodaysSlate
-    ? "settled"
-    : propsAvailable && summary.leans > 0 ? "live" : gameCount > 0 ? "linesPending" : "upcoming";
+  /* #761 PR 2: the kind this slate shows IF it is today; the hero's pill applies the tense on the
+     reader's day (lib/slate-tense.mjs), so a day-old build no longer says "Live" over yesterday. */
+  const statusKind: "live" | "settled" | "linesPending" | "upcoming" =
+    propsAvailable && summary.leans > 0 ? "live" : gameCount > 0 ? "linesPending" : "upcoming";
   const statusCaption = gameCount > 0 ? `${gameCount} game${gameCount === 1 ? "" : "s"}` : undefined;
 
   const heroStats = [
@@ -450,6 +451,8 @@ export default function MlbLandingPage() {
         sport="MLB"
         tagline="projections · track record · power board"
         statusKind={statusKind}
+        statusSlateDate={date}
+        statusSeedToday={currentEtDate()}
         statusCaption={statusCaption}
         matchupLine={`Slate · ${date}`}
         stats={heroStats}

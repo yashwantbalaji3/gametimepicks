@@ -201,7 +201,9 @@ test("safe-fix · the /today header + /mlb eyebrow read 'latest slate' when the 
    * all stayed in the present tense. On 2026-08-17 that put "Live · 15 games", "Games today 15" and
    * "View today's projections" over a settled Aug-16 slate. Each one is pinned here now.
    */
-  assert.match(mlbPage, /!isTodaysSlate\s*\n?\s*\? "settled"/, "/mlb status pill reads Settled, never Live, on a past slate");
+  // #761 PR 2: the pill's tense moved to the READER'S day — the hero's DayAwareStatusPill applies
+  // lib/slate-tense.mjs (a past slate reads Settled, never Live) from the slate date /mlb passes.
+  assert.match(mlbPage, /statusSlateDate=\{date\}/, "/mlb status pill reads Settled, never Live, on a past slate — on the reader's day");
   assert.match(mlbPage, /isTodaysSlate \? "Games today" : "Games on this slate"/, "/mlb stat label stops calling a past slate 'today'");
   // The compact hero leads with Homer Nukes, so the board CTA is secondary now — but it must still
   // stop calling a past slate's board "today's".
