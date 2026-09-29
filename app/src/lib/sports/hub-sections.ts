@@ -48,6 +48,9 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "link", target: "/results/picks/mlb", label: "Results" },
     { kind: "anchor", target: "mlb-method", label: "How it works" },
     { kind: "link", target: "/build", label: "Parlay Center" },
+    // Phase A-3: the MLB route tabs folded into this one strip.
+    { kind: "link", target: "/mlb/board", label: "Full board" },
+    { kind: "link", target: "/mlb/power", label: "Power board" },
   ],
   epl: [
     { kind: "anchor", target: "epl-games", label: "Fixtures" },

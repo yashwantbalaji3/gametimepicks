@@ -40,7 +40,6 @@ import { getTeamMarketsForDate, buildMlbGameCenter } from "@/lib/mlb-team-market
 import type { TeamMarketRow } from "@/components/mlb/team-markets-box";
 
 import path from "node:path";
-import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import SportHubNav from "@/components/sports/sport-hub-nav";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
 import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
@@ -398,9 +397,8 @@ export default function MlbLandingPage() {
     <div data-sport="mlb" className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       {/* Program 237: the events come first on every sport page. */}
 
-      <div className="mb-6">
-        <MlbSectionTabs />
-      </div>
+      {/* Phase A-3: the route tabs (Overview / Model Board / Power Board / Parlays) were a second nav strip above
+          the shared one; their destinations now live in that one strip (lib/sports/hub-sections.ts). */}
 
       {/* P208 · Release C — the shared section nav: every hub capability one action from here.
           Conditional sections pass through only when they rendered, so no strip item is dead. */}
@@ -440,31 +438,6 @@ export default function MlbLandingPage() {
           three stat CARDS — spent most of the first screen introducing a page the reader already
           chose, pushing the board itself below the fold. Same facts, one strip. The framing moved
           down to the methodology panel, where someone who wants it goes looking. */}
-      <section id="mlb-overview" className="scroll-mt-24">
-      <SportOverviewHero
-        headingLevel="h2"
-        compact
-        badge={<CompetitionBadge sport="mlb" size="sm" />}
-        icon={getSportIdentity("mlb").icon}
-        eyebrow={isTodaysSlate ? "Simulation Center" : "Simulation Center · latest slate"}
-        sport="MLB"
-        tagline="projections · track record · power board"
-        statusKind={statusKind}
-        statusSlateDate={date}
-        statusSeedToday={currentEtDate()}
-        statusCaption={statusCaption}
-        matchupLine={`Slate · ${date}`}
-        stats={heroStats}
-        accent="mlb"
-        ctas={[
-          { href: "/homer-nukes", label: "Homer Nukes", primary: true },
-          { href: "/mlb/board", label: !isTodaysSlate ? "Latest board" : "Full model board" },
-          { href: "/results/mlb", label: "Results" },
-        ]}
-      />
-
-
-      </section>
 
       {/* Honest slate freshness — always visible (the tabbed board below is deferred/client-rendered). */}
       <div className="mt-4 flex items-center justify-end gap-2">
@@ -501,6 +474,32 @@ export default function MlbLandingPage() {
         the same burial it was being lifted out of. The tabs are the legacy board; this is the
         flagship, and it belongs beside the other flagship sections.
       */}
+      {/* Phase A-3: the Simulation Center strip now introduces the simulations, after the forecasts. */}
+      <section id="mlb-overview" className="scroll-mt-24">
+      <SportOverviewHero
+        headingLevel="h2"
+        compact
+        badge={<CompetitionBadge sport="mlb" size="sm" />}
+        icon={getSportIdentity("mlb").icon}
+        eyebrow={isTodaysSlate ? "Simulation Center" : "Simulation Center · latest slate"}
+        sport="MLB"
+        tagline="projections · track record · power board"
+        statusKind={statusKind}
+        statusSlateDate={date}
+        statusSeedToday={currentEtDate()}
+        statusCaption={statusCaption}
+        matchupLine={`Slate · ${date}`}
+        stats={heroStats}
+        accent="mlb"
+        ctas={[
+          { href: "/homer-nukes", label: "Homer Nukes", primary: true },
+          { href: "/mlb/board", label: !isTodaysSlate ? "Latest board" : "Full model board" },
+          { href: "/results/mlb", label: "Results" },
+        ]}
+      />
+
+
+      </section>
       {simSet ? (
         <div id="mlb-sims" className="scroll-mt-24">
           <MlbSimulationsSection set={simSet} hrefFor={(c) => gameHrefByMatchId("mlb", c.gamePk)}  isTodaysSlate={isTodaysSlate} />

@@ -72,9 +72,27 @@ function startedOf(start: { iso: string | null; exact: boolean }, nowMs: number)
  * de-vigged book number relabelled as model confidence is the exact misreading the kind field exists
  * to prevent.
  */
+/**
+ * Phase A-3: the MLB prediction line ("NYY · UNDER 8 · BOS +1.5" — winner · total · run line) in words. Each
+ * segment is translated only when it matches an exact known shape; if any segment does not, the model's own
+ * line is returned unchanged — the card never guesses what a segment means.
+ */
+export function humanizeMlbPredictionLine(line: string): string {
+  const segs = line.split(" · ").map((x) => x.trim()).filter(Boolean);
+  const out: string[] = [];
+  for (const seg of segs) {
+    let m: RegExpMatchArray | null;
+    if (/^[A-Z]{2,3}$/.test(seg)) out.push(`${seg} to win`);
+    else if ((m = seg.match(/^(OVER|UNDER) (\d+(?:\.\d)?)$/i))) out.push(`${m[1][0].toUpperCase()}${m[1].slice(1).toLowerCase()} ${m[2]} runs`);
+    else if ((m = seg.match(/^([A-Z]{2,3}) ([+-]\d+(?:\.\d)?)$/))) out.push(`${m[1]} ${m[2]} run line`);
+    else return line;
+  }
+  return out.length ? out.join(" · ") : line;
+}
+
 function readForGame(d: Record<string, any>): HubRead | null {
   if (typeof d.predictionLine === "string" && d.predictionLine.trim()) {
-    return { label: d.predictionLine, kind: "MODEL_FORECAST", detail: d.prediction?.modelVersion ?? "simulation" };
+    return { label: humanizeMlbPredictionLine(d.predictionLine), kind: "MODEL_FORECAST", detail: d.prediction?.modelVersion ?? "simulation" };
   }
   const gc = d.gameCenter;
   if (gc?.moneyline?.favorite) {
