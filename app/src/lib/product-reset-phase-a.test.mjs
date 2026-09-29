@@ -175,5 +175,5 @@ test("the raw builder never fronts the beginner: /build leads with Suggested Par
   assert.match(read("src/app/build/custom/page.tsx"), /Build Your Own/, "the builder is its own mode, not the beginner's first screen");
   const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
   /* P243 · E: the destination is named "Picks & Parlays" — still the Now cluster, still suggested-first. */
-  assert.match(nav, /href: "\/build", label: "(Build|Parlay Center|Picks & Parlays)", group: "now"/, "/build sits in the Now cluster beside the tools it belongs with, never as its own pillar");
+  assert.match(nav, /href: "\/build", label: "(Build|Parlay Center|Picks & Parlays|Parlays)", group: "now"/, "/build sits in the Now cluster beside the tools it belongs with, never as its own pillar");
 });

@@ -125,7 +125,9 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * internal-only, and a nav label promising more than the server allowlist delivers would be the
    * kind of claim this codebase keeps closing.
    */
-  { href: "/live", label: "Live", note: "MLB · beta", group: "now", glyph: "◉", desc: "Scores now, beside frozen forecasts",
+  /* #797 PR B (2026-09-29): the note said "MLB · beta" while Live carried NFL (Monday night) and MLB's regular
+     season had ended. A static note cannot track which sports are live, so it states only what is always true. */
+  { href: "/live", label: "Live", note: "beta", group: "now", glyph: "◉", desc: "Scores now, beside frozen forecasts",
     surfaces: ["rail", "footer"], bucket: "live" },
   { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate",
     surfaces: ["rail", "footer"], bucket: "today" },
@@ -139,7 +141,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["rail", "footer"], bucket: "markets" },
   /* One shared picks-and-parlays destination (charter E): /build keeps its two modes (suggested →
      custom) and links the ranked picks board; /markets stays a first-class deep route. */
-  { href: "/build", label: "Picks & Parlays", group: "now", glyph: "✎", desc: "Cards, picks, or build your own",
+  /* #797 PR B: "Picks & Parlays" sat beside "Picks" — two destinations sharing one word. /build is the parlay
+     destination (H1 "Suggested Parlays", Home's "Open Parlay Center", already "Parlays" on the phone bar), so
+     it is named that on every surface; "Picks" stays the one picks destination. */
+  { href: "/build", label: "Parlays", group: "now", glyph: "✎", desc: "Cards, picks, or build your own",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab", shortLabel: "Parlays" },
   /* Sixth primary. Off the `mobile` bar by the charter's own bar spec (Home/Today/Simulate/Picks/
      Parlay + Menu); the mobile Menu sheet renders every rail destination the bar lacks. */
@@ -160,7 +165,8 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["rail", "footer"] },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
-  { href: "/mlb", label: "MLB", note: "live", group: "sports", glyph: "⚾", desc: "Baseball hub",
+  /* #797 PR B: "live" was a claim about the season (it read "live" the day after the regular season ended). */
+  { href: "/mlb", label: "MLB", group: "sports", glyph: "⚾", desc: "Baseball hub",
     surfaces: ["rail", "footer"] },
   { href: "/nfl", label: "NFL", note: "experimental sims", group: "sports", glyph: "🏈", desc: "Football hub",
     surfaces: ["rail", "footer"] },
