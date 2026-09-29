@@ -87,6 +87,11 @@ export interface SportHubModel {
   present: HubSectionId[];
   /** Shown when `rows` is empty — a no-event period must still route somewhere useful. */
   emptyReason?: string;
+  /** #797 PR C · replaces the empty state's "0 scheduled" counts line when the sport's schedule owner
+   *  knows of games the board does not carry yet (MLB before its morning board). */
+  emptyCounts?: string;
+  /** Where the empty state sends the reader when the games exist elsewhere on the site. */
+  emptyLink?: { href: string; label: string };
   /** P250 · A05 — internal identity reconciliation for adapters that union two sources: schedule
    *  rows that could not state a canonical identity, and rows deferred to the next period's own
    *  surface. Counted, never silently dropped; not rendered to readers. */

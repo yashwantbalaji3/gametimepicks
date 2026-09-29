@@ -57,7 +57,7 @@ export default function HubHeader({ model, deferToCanonical }: {
         </summary>
         <div className="px-4 pb-4">
           <p className="m-0 mb-2 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>{deferToCanonical.note}</p>
-          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} />
+          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} />
         </div>
       </details>
     );
@@ -77,7 +77,7 @@ export default function HubHeader({ model, deferToCanonical }: {
           ({model.rows.length} {model.labels.games.toLowerCase()})
         </summary>
         <div className="px-4 pb-4">
-          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} />
+          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} />
         </div>
       </details>
     );
@@ -85,7 +85,7 @@ export default function HubHeader({ model, deferToCanonical }: {
   return (
     <div>
       <h2 className="m-0 mb-3 text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{model.labels.games}</h2>
-      <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} />
+      <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} />
     </div>
   );
 }
