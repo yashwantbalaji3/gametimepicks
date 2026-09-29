@@ -87,6 +87,11 @@ import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
 import YesterdaySummary from "@/components/yesterday-summary";
 import TrustCenter from "@/components/results/trust-center";
 import ResultsExplorer, { type ResultRow, type SettledCard } from "@/components/results/results-explorer";
+import ResultsOverview, { type OverviewPopulation, type OverviewProduct } from "@/components/results/results-overview";
+import { resultsV2Populations } from "@/lib/results/v2/overview";
+import { currentProductRecord } from "@/lib/results/current-record";
+import { loadResultsProjection } from "@/lib/results/projection";
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 import { loadSettledCards, DATE_BASIS_NOTE } from "@/lib/results/dated-cards.mjs";
 import { buildResultRows } from "@/lib/results/read-model.mjs";
 import fs from "node:fs";
@@ -117,6 +122,33 @@ function resultSources() {
     portfolio: read("mr-dub/portfolio.json"),
     moonshot: read("product-ledger/moonshot.json"),
   };
+}
+
+const SPORT_LABEL: Record<string, string> = { mlb: "MLB", nfl: "NFL", epl: "Premier League", ufc: "UFC" };
+
+/** Results V2 populations for the overview: the daily series only (windows are computed on the reader's day). */
+function overviewPopulations(): OverviewPopulation[] {
+  return resultsV2Populations(currentEtDate()).map((p) => ({
+    id: p.id, label: p.label, sportLabel: SPORT_LABEL[p.sport] ?? p.sport, class: p.class, note: p.note,
+    seasonStart: p.seasonStart, seasonLabel: p.seasonLabel, href: `/results/picks/${p.sport}/`,
+    days: p.days,
+  }));
+}
+
+/** Each product's ONE canonical headline from the results projection — never recomputed here. */
+function overviewProducts(): OverviewProduct[] {
+  const projection = loadResultsProjection();
+  const windowOf = (cell: { window?: { from?: string | null; to?: string | null } } | null) =>
+    cell?.window?.from && cell?.window?.to ? `${etDayLabel(cell.window.from) ?? cell.window.from} – ${etDayLabel(cell.window.to) ?? cell.window.to}` : null;
+  const rows: Array<[string, string, string, string]> = [
+    ["bank-builder", "Bank Builder", "/bank-builder/", "The protected paper record — shown with its era composition on the product page."],
+    ["moonshot", "Moonshot", "/moonshot/", "Settled receipts since the product entered the protected bankroll."],
+    ["parlay-lab", "Suggested cards", "/results/parlay-lab/", "Whole-card results — a card wins only if every leg does. Not comparable to single forecasts."],
+  ];
+  return rows.map(([id, label, href, note]) => {
+    const r = currentProductRecord(id, projection);
+    return { id, label, href, note, recordLabel: r.recordLabel, pendingLabel: r.pendingLabel, window: windowOf(r.cell as never) };
+  });
 }
 
 export default function ResultsPage() {
@@ -242,6 +274,11 @@ export default function ResultsPage() {
           stacked sections used to render first, pushing the one interactive answer surface a full
           522-line lead away; the protected portfolio keeps its own clearly-named section directly
           below, losing nothing but the front seat. */}
+      {/* RESULTS V2 · B-2: the page answers "how did GameTimePicks do?" first — one card per graded record, the
+          products' canonical headlines, research kept apart, and a day-by-day tracker. The explorer and every
+          receipt below stay as the detailed record. */}
+      <ResultsOverview populations={overviewPopulations()} products={overviewProducts()} seedToday={currentEtDate()} />
+      <h2 className="font-display m-0 mb-3 text-[20px]" style={{ color: "var(--vault-text)" }}>Detailed record</h2>
       <ResultsExplorer
         rows={buildResultRows(resultSources()) as ResultRow[]}
         /* The per-card dated rows. They reconcile with the ledger exactly — stream and tier — which
