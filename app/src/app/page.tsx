@@ -181,7 +181,9 @@ export default function HomePage() {
         href: "/mlb",
         label: "MLB Simulations",
         blurb: "Moneyline / run line / total, plus a 10,000-run player-prop sim where the artifact exists.",
-        status: (mlbDay?.events ?? 0) > 0 ? `${mlbLeans} model leans` : stateLabel(mlbState),
+        /* A leans count only when today's board exists (eligible > 0); otherwise the owner's note — "4 games
+           today on the official schedule · the model board for today is not published yet" — not "0 model leans". */
+        status: (mlbDay?.eligible ?? 0) > 0 ? `${mlbLeans} model leans` : (mlbDay?.note ?? stateLabel(mlbState)),
         statusSub: "market-anchored",
         cta: "Open MLB hub",
         accent: "var(--gtp-bank-heat)",

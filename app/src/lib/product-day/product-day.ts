@@ -23,7 +23,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
+import { activeMlbDate, getMlbBoardForDate, getMlbStatsapiScheduleForDate } from "@/lib/data-mlb";
 import { loadEplForecasts } from "@/lib/sports/epl/forecast-view";
 
 export const PRODUCT_DAY_SCHEMA_VERSION = 1;
@@ -69,6 +69,25 @@ function mlbDay(dataRoot: string, today: string): ProductDay {
   const games = board.summary?.scheduledGames ?? 0;
   const leans = board.summary?.leans ?? 0;
   const stamp = (board as { generatedAt?: string }).generatedAt ?? null;
+  /*
+   * TODAY IS THE OFFICIAL SCHEDULE'S (2026-09-29). The board is generated late morning ET; before it,
+   * the newest board is yesterday's (or an off day's with 0 games) and this adapter said "No MLB games
+   * on the presented slate" — while the official StatsAPI capture for today held four postseason games
+   * and /simulate listed them. A game on today's official schedule is today's, with or without a board;
+   * the model's own coverage (eligible) is 0 until the board publishes, and the note says so.
+   */
+  const official = getMlbStatsapiScheduleForDate(today);
+  const officialToday = (official?.games ?? []).filter((g) => typeof g.gameDate === "string" && etDay(g.gameDate) === today && !/POSTPONED|CANCEL/i.test(String(g.status ?? "")));
+  if (officialToday.length > 0 && (date !== today || games === 0)) {
+    const n = officialToday.length;
+    return day("mlb", {
+      productDate: today, state: "LIVE", events: n, eligible: 0,
+      sourceStamp: official?.capturedAt ?? null,
+      nextEventUtc: officialToday.map((g) => g.gameDate).sort()[0] ?? null,
+      note: `${n} game${n === 1 ? "" : "s"} today on the official schedule · the model board for today is not published yet`,
+      reason: null,
+    });
+  }
   if (!board || games === 0) {
     return day("mlb", {
       productDate: date, state: "NO_EVENTS", events: 0, eligible: 0,
@@ -410,18 +429,26 @@ export function buildSportToday(dataRoot: string, opts?: { today?: string; days?
     (eplSet?.rows ?? []).map((r) => ({ id: r.eventId, startUtc: r.kickoffUtc })),
     Array.isArray(fixtures?.rows) && fixtures!.rows!.length > 0); // the capture is the whole season's fixture list
 
-  // MLB — the committed schedule for today; the board's count when the board is today's.
+  // MLB — today's official StatsAPI schedule capture (what /simulate lists), the committed odds-era
+  // schedule for today, and the board's count when the board is today's. The two schedule files key games
+  // differently (gamePk vs an odds id), so they are counted separately and the larger count stands.
   const mlbSchedule = readJson(dataRoot, "mlb", "schedule", `${today}.json`);
-  const scheduled = sportTodayFrom("mlb", today,
+  const mlbOfficial = readJson(dataRoot, "mlb", "statsapi-schedule", `${today}.json`);
+  const scheduledOdds = sportTodayFrom("mlb", today,
     (mlbSchedule?.games ?? []).map((g: { gameId: string; commenceTime: string }) => ({ id: String(g.gameId), startUtc: g.commenceTime })), [],
     Array.isArray(mlbSchedule?.games));
+  const scheduledOfficial = sportTodayFrom("mlb", today,
+    (mlbOfficial?.games ?? []).map((g: { gamePk: number | string; gameDate: string; status?: string }) => ({ id: String(g.gamePk), startUtc: g.gameDate, status: g.status })), [],
+    Array.isArray(mlbOfficial?.games));
+  const scheduled = scheduledOfficial.eventsToday >= scheduledOdds.eventsToday ? scheduledOfficial : scheduledOdds;
+  const scheduleKnown = scheduledOfficial.known || scheduledOdds.known;
   const mlbBoard = of("mlb");
   const boardToday = mlbBoard && mlbBoard.productDate === today ? mlbBoard.events : 0;
   const mlbEvents = Math.max(scheduled.eventsToday, boardToday);
   const mlb: SportToday = {
     sport: "mlb", today, eventsToday: mlbEvents, startsUtc: scheduled.startsUtc,
     forecastsToday: mlbBoard && mlbBoard.productDate === today ? Math.min(mlbBoard.eligible, mlbEvents) : 0,
-    known: scheduled.known || (mlbBoard?.productDate === today && mlbBoard.state !== "INCIDENT"),
+    known: scheduleKnown || (mlbBoard?.productDate === today && mlbBoard.state !== "INCIDENT"),
   };
 
   // UFC — the card, when it is today's.
