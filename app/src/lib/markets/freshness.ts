@@ -182,3 +182,32 @@ export function freshnessLabel(reading: FreshnessReading): string {
       return "Snapshot time unavailable";
   }
 }
+
+/*
+ * THE READER'S FRAME (#761 PR 1, 2026-09-29). /markets decided "current vs not today's market" on the
+ * BUILD clock, and the page is a static export: a build made on the snapshot's own day kept the green
+ * "Current snapshot" badge and never raised the "Not today's market" banner on any later day, until the
+ * next deploy. The frame is now re-derived on the reader's ET day (useReaderEtDate seeds with the build's
+ * day, so the server render and the first client render agree, then advances after mount).
+ */
+export interface MarketReaderFrame {
+  isHistorical: boolean;
+  /** Whole ET days between the snapshot and the reader's today (0 when current). */
+  daysBehind: number;
+  /** The badge text for this frame. */
+  freshnessLabel: string;
+  isCurrent: boolean;
+}
+
+/** Pure. `currentLabel` / `currentIsCurrent` are the snapshot's own evaluation for its day. */
+export function readerMarketFrame({ snapshotDate, today, currentLabel, currentIsCurrent }: {
+  snapshotDate: string; today: string; currentLabel: string; currentIsCurrent: boolean;
+}): MarketReaderFrame {
+  const [py, pm, pd] = snapshotDate.split("-").map(Number);
+  const [ty, tm, td] = today.split("-").map(Number);
+  const behind = Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(py, pm - 1, pd)) / 86_400_000);
+  if (!Number.isFinite(behind) || behind > 0) {
+    return { isHistorical: true, daysBehind: Number.isFinite(behind) ? behind : 0, freshnessLabel: `Snapshot from ${snapshotDate}`, isCurrent: false };
+  }
+  return { isHistorical: false, daysBehind: 0, freshnessLabel: currentLabel, isCurrent: currentIsCurrent };
+}
