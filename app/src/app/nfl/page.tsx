@@ -391,10 +391,10 @@ export default function NflHubPage() {
           games directly above it, so it collapses to a counts line with the quick list one click
           away. Same games, one table. */}
       <section id="nfl-games" className="scroll-mt-24">
-        <HubHeader
-          model={__hubModel}
-          deferToCanonical={{ note: "The full weekly table below carries every game with its projected score and total — this quick list is the same games in short form." }}
-        />
+        {/* Phase A-4 (2026-09-29): the events lead here as on every hub — as cards, not a second table. The ONE
+            canonical week table below still carries every game's projected score and total (P250-W1's rule was
+            "never two tables of one population", and that holds). */}
+        <HubHeader model={__hubModel} />
       </section>
       {carriedStarted.length ? (
         <section aria-label="An earlier week's game still being played" className="gtp-nfl-carried" style={{ border: "1px solid color-mix(in srgb, var(--gtp-bank-heat) 45%, transparent)", borderRadius: 10, padding: "10px 14px", display: "grid", gap: 6 }}>

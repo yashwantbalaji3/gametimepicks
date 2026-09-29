@@ -77,10 +77,14 @@ test("the projected scorecard composes ONLY page-loaded artifact data — number
   assert.match(section, /x\.state === "WITHHELD"/, "truly-absent families stay a typed absence");
 });
 
-test("the NFL hub carries ONE canonical week table — the generic list collapses behind it", () => {
+test("the NFL hub carries ONE canonical week table — the events lead as cards, never as a second table", () => {
+  /* REPOINTED (Phase A-4, 2026-09-29): P250-W1 collapsed the generic list because it was a second 16-row TABLE of
+     the week above the richer one. The generic list is now event cards (components/sport-hub/game-summary.tsx has
+     no table), so it leads here as on every hub; the property — one week table, never two — is what stays pinned. */
   const hub = read("src/app/nfl/page.tsx");
-  assert.match(hub, /deferToCanonical=\{\{/, "the hub header defers to the weekly table");
+  assert.match(hub, /<HubHeader model=\{__hubModel\} \/>/, "the events lead, uncollapsed");
+  const summary = read("src/components/sport-hub/game-summary.tsx");
+  assert.doesNotMatch(summary, /<table/, "the leading list is cards — it cannot become a second week table");
   const header = read("src/components/sport-hub/hub-header.tsx");
-  assert.match(header, /deferToCanonical/, "the collapse mode exists on the shared header");
-  assert.match(header, /open the quick list/, "the quick list stays one click away, never deleted");
+  assert.match(header, /deferToCanonical/, "the collapse mode still exists on the shared header for any sport that needs it");
 });
