@@ -104,8 +104,10 @@ export function scriptForReadiness(readiness, reason = null) {
     case "MODEL_ONLY_NO_MARKET":
     case "BASELINE_ONLY":
       return { steps: ["CHECKING_EVENT", "LOADING_INPUTS", "VALIDATING", "PREPARING", "SUMMARIZING"], terminal: "COMPLETE", reason: null };
+    case "STARTED":
+    case "AWAITING_SETTLEMENT":
     case "SETTLED":
-      // A settled report still loads, validates and lays out — the same real steps, same order.
+      // A started, final-pending or settled report still loads, validates and lays out — same steps, same order.
       return { steps: ["CHECKING_EVENT", "LOADING_INPUTS", "VALIDATING", "PREPARING", "SUMMARIZING"], terminal: "COMPLETE", reason: null };
     case "ARTIFACT_READY":
       return { steps: ["CHECKING_EVENT", "LOADING_INPUTS", "VALIDATING"], terminal: "REFUSED", reason: reason ?? "The artifact exists, but an event-specific gate is not satisfied." };
