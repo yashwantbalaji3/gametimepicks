@@ -262,11 +262,14 @@ test("the current-day path is unaffected by the historical frame", () => {
   assert.equal(data.gameFreshness.state, "CURRENT");
 });
 
-test("the page states the frame whenever it is showing a past slate", () => {
+test("the page states the frame whenever it is showing a past slate — decided on the READER'S day (#761)", () => {
   const page = fs.readFileSync(PAGE, "utf8");
-  assert.ok(page.includes("isHistorical"), "the page must branch on the historical frame");
-  assert.ok(/Not today&rsquo;s market|Not today's market/.test(page), "and say so plainly");
-  assert.ok(page.includes("daysBehind"), "and say how far behind it is");
+  // The banner moved into a client component so it is raised on the reader's ET day, not the build's.
+  assert.match(page, /<NotTodaysMarket snapshotDate=\{data\.date\} seedToday=\{today\} \/>/, "the page mounts the reader-clock banner");
+  assert.doesNotMatch(page, /data\.isHistorical \?/, "the page no longer decides the frame on the build clock");
+  const banner = fs.readFileSync(path.join(path.dirname(PAGE), "../../components/markets/not-todays-market.tsx"), "utf8");
+  assert.ok(/Not today&rsquo;s market|Not today's market/.test(banner), "and says so plainly");
+  assert.ok(banner.includes("daysBehind"), "and says how far behind it is");
 });
 
 // ── Pagination (Sprint 030 Phase 4) ─────────────────────────────────────────────────────────────

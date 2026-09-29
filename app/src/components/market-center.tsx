@@ -22,6 +22,8 @@ import { currentEtDate } from "@/lib/freshness";
 import type { GameIntelligence } from "@/lib/markets/game-intelligence";
 import type { PropRowView } from "@/lib/markets/view-model";
 import type { IntelligenceMode } from "@/lib/markets/pairing";
+import { readerMarketFrame } from "@/lib/markets/freshness";
+import { useReaderEtDate } from "@/lib/use-reader-et-date";
 
 type Props = {
   games: GameIntelligence[];
@@ -29,8 +31,12 @@ type Props = {
   capturedAt: string | null;
   bookmaker: string | null;
   snapshotLabel: string | null;
-  freshnessLabel: string;
-  isCurrent: boolean;
+  /* #761 PR 1: the frame is re-derived on the reader's ET day (readerMarketFrame), not handed down
+     from the build clock. */
+  snapshotDate: string;
+  seedToday: string;
+  currentLabel: string;
+  currentIsCurrent: boolean;
 };
 
 const MODE_LABEL: Record<IntelligenceMode, string> = {
@@ -116,9 +122,13 @@ export default function MarketCenter({
   props,
   bookmaker,
   snapshotLabel,
-  freshnessLabel,
-  isCurrent,
+  snapshotDate,
+  seedToday,
+  currentLabel,
+  currentIsCurrent,
 }: Props) {
+  const readerToday = useReaderEtDate(seedToday);
+  const { freshnessLabel, isCurrent } = readerMarketFrame({ snapshotDate, today: readerToday, currentLabel, currentIsCurrent });
   const [tab, setTab] = useState<"games" | "players">("games");
   const [mode, setMode] = useState<IntelligenceMode | "ALL">("ALL");
   const [gameFilter, setGameFilter] = useState<string>("ALL");
