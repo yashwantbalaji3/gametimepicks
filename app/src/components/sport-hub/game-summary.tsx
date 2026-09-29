@@ -48,8 +48,8 @@ function Action({ row }: { row: HubGameRow }) {
 }
 
 export default function GameSummary({
-  rows, unitLabel, emptyReason,
-}: { rows: HubGameRow[]; unitLabel: string; emptyReason?: string }) {
+  rows, unitLabel, emptyReason, emptyCounts, emptyLink,
+}: { rows: HubGameRow[]; unitLabel: string; emptyReason?: string; emptyCounts?: string; emptyLink?: { href: string; label: string } }) {
   const ordered = orderRows(rows);
   const counts = hubCounts(rows);
   const upcoming = ordered.filter((r) => !r.started);
@@ -66,11 +66,16 @@ export default function GameSummary({
     return (
       <div>
         <p className="m-0 mb-2 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-          0 scheduled · 0 with a report · 0 with a supported read
+          {emptyCounts ?? "0 scheduled · 0 with a report · 0 with a supported read"}
         </p>
         <p className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
           {emptyReason ?? `No ${unitLabel.toLowerCase()} are scheduled for this period.`}
         </p>
+        {emptyLink ? (
+          <p className="m-0 mt-2 text-[13px]">
+            <Link href={emptyLink.href} style={{ color: "var(--vault-gold)" }}>{emptyLink.label} →</Link>
+          </p>
+        ) : null}
       </div>
     );
   }
