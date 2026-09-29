@@ -211,3 +211,17 @@ test("mlb day frames on the board loader's presented slate — the same source /
     assert.ok(mlb.events > 0, "a LIVE/STALE answer carries the slate it is answering about");
   }
 });
+
+test("🔴 #797 PR D · UFC's next event is the card's published start (event.startUtc), never silently null", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-productday-ufc-"));
+  fs.mkdirSync(path.join(root, "ufc"), { recursive: true });
+  fs.writeFileSync(path.join(root, "ufc", "card-latest.json"), JSON.stringify({
+    generatedAt: "2031-07-10T12:00:00Z",
+    event: { name: "Fixture Card", startUtc: "2031-07-14T20:00Z", slateDate: "2031-07-14" },
+    bouts: [{ prediction: { p: 0.6 } }, {}],
+  }));
+  const ufc = productDayFor("ufc", root, { today: "2031-07-10" });
+  assert.equal(ufc.state, "EVENT_UPCOMING");
+  assert.equal(ufc.productDate, "2031-07-14");
+  assert.equal(ufc.nextEventUtc, "2031-07-14T20:00Z", "the card's own start field; a misnamed read left it null");
+});

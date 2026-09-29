@@ -31,10 +31,15 @@ export default function SportChooser({ label = "Choose a sport" }: { label?: str
     <nav aria-label={label} style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
       {HUBS.map((h) => {
         const n = across.bySport.find((x) => x.sport === h.sport)?.eventsToday ?? 0;
-        const next = days.find((d) => d.sport === h.sport)?.nextEventUtc ?? null;
+        const day = days.find((d) => d.sport === h.sport);
+        const next = day?.nextEventUtc ?? null;
+        /* #797 PR D: the fallback said "No scheduled events" — an absence the product day cannot prove (EPL had
+           fixtures ahead with no current forecast yet). With no dated fact, the tile claims nothing. */
+        const upcomingDay = day?.state === "EVENT_UPCOMING" && day.productDate > today ? day.productDate : null;
         const fact = n > 0 ? `${n} ${h.unit}${n === 1 ? "" : "s"} · ${etDayLabel(today)}`
           : next && Date.parse(next) > Date.now() ? `Next: ${etDayLabel(next)}`
-          : "No scheduled events";
+          : upcomingDay ? `Next: ${etDayLabel(upcomingDay)}`
+          : "Schedule and results";
         const id = getSportIdentity("identity" in h ? h.identity : h.sport);
         return (
           <Link key={h.sport} href={h.href} className="vault-press" style={{ display: "flex", flexDirection: "column", gap: 4, minHeight: 72, padding: "12px 14px", borderRadius: 12, border: "1px solid var(--vault-border-strong)", background: "var(--gtp-card)", textDecoration: "none" }}>
