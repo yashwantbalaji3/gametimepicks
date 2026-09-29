@@ -92,7 +92,8 @@ export function evaluateNflProductEligibility({ events, nowIso, vault = null }) 
       whatWouldQualify: [] };
   };
 
-  const note = "the NFL model is an explicitly experimental preseason beta, and only a validated model version may contribute a leg to a paper card";
+  // P2-C (2026-09-29): "preseason beta" was true in August and false in the regular season it is shown in.
+  const note = "the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card";
 
   const products = [
     teamVerdict("bank-builder", "Bank Builder", note),

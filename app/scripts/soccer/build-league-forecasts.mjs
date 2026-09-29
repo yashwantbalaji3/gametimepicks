@@ -88,7 +88,7 @@ const h = report.scores.poisson.bySeason["2025-26"];
 const artifact = {
   schemaVersion: 1, artifact: "soccer-league-forecasts", dataClass: "PUBLIC", public: true,
   league: L.key, competition: L.name, country: L.country, generatedAt: NOW,
-  model: { id: EPL_MODEL_ID, fitThrough: NOW, matchesFitted: state.matchesFitted, description: "the model the Premier League page publishes, fit on this league's own results" },
+  model: { id: EPL_MODEL_ID, fitThrough: NOW, matchesFitted: state.matchesFitted, description: "the Premier League split-Poisson model (v1), fit on this league's own results" },
   validation: {
     verdict: report.verdict,
     holdout: { season: "2025-26", matches: h.n, logLoss: h.logLoss, empiricalLogLoss: report.scores.empirical.bySeason["2025-26"].logLoss, drawEceAllScored: report.scores.poisson.overall.drawEce },
