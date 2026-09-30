@@ -1,0 +1,963 @@
+{
+ "schemaVersion": 1,
+ "artifact": "selector-shadow-day",
+ "dataClass": "internal-research",
+ "date": "2026-09-30",
+ "asOf": "2026-09-30T11:24:06Z",
+ "generatedAt": "2026-09-30T11:24:07.785Z",
+ "eligibleLegs": 24,
+ "refusedAtRead": 22,
+ "universe": {
+  "legIds": [
+   "mlb:849841:mlb_moneyline:away",
+   "mlb:849841:mlb_moneyline:home",
+   "mlb:849841:mlb_run_line:away:-1.5",
+   "mlb:849841:mlb_run_line:home:1.5",
+   "mlb:849841:mlb_total_runs:over:7",
+   "mlb:849841:mlb_total_runs:under:7",
+   "mlb:849842:mlb_moneyline:away",
+   "mlb:849842:mlb_moneyline:home",
+   "mlb:849842:mlb_run_line:away:1.5",
+   "mlb:849842:mlb_run_line:home:-1.5",
+   "mlb:849842:mlb_total_runs:over:7",
+   "mlb:849842:mlb_total_runs:under:7",
+   "mlb:849846:mlb_moneyline:away",
+   "mlb:849846:mlb_moneyline:home",
+   "mlb:849846:mlb_run_line:away:1.5",
+   "mlb:849846:mlb_run_line:home:-1.5",
+   "mlb:849846:mlb_total_runs:over:7.5",
+   "mlb:849846:mlb_total_runs:under:7.5",
+   "mlb:849848:mlb_moneyline:away",
+   "mlb:849848:mlb_moneyline:home",
+   "mlb:849848:mlb_run_line:away:1.5",
+   "mlb:849848:mlb_run_line:home:-1.5",
+   "mlb:849848:mlb_total_runs:over:6.5",
+   "mlb:849848:mlb_total_runs:under:6.5"
+  ],
+  "sha256": "6ef14f1e8681cbd38de537c714c9654b7dc21ffa4f54ce17827016dfaf301b17"
+ },
+ "availability": {
+  "mlb": {
+   "eligible": 24,
+   "rejected": 0
+  },
+  "nfl": {
+   "eligible": 0,
+   "rejected": 0
+  },
+  "ufc": {
+   "eligible": 0,
+   "rejected": 22
+  },
+  "epl": {
+   "eligible": 0,
+   "rejected": 0
+  },
+  "nba": {
+   "eligible": 0,
+   "rejected": 0
+  }
+ },
+ "policies": {
+  "BB-LEGACY": {
+   "policyId": "BB-LEGACY@7be1d5171769",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 4,
+     "stake": 1441.81,
+     "american": 153,
+     "decimal": 2.5289,
+     "potentialReturn": 3646.19,
+     "jointP": 0.3613,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:849848:mlb_run_line:away:1.5",
+       "sport": "mlb",
+       "eventId": "849848",
+       "eventStartUtc": "2026-10-01T00:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "away",
+       "line": 1.5,
+       "american": -198,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.636,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Boston Red Sox @ New York Yankees",
+       "displaySelection": "Boston Red Sox +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849846:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "849846",
+       "eventStartUtc": "2026-09-30T21:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -147,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5681,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago White Sox @ Houston Astros",
+       "displaySelection": "Houston Astros to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-LEGACY@7be1d5171769",
+      "product": "bank-builder",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 4,
+      "stake": 1441.81,
+      "requiredAmerican": 143,
+      "requiredDecimal": 2.4275,
+      "poolSize": 24,
+      "considered": 1079,
+      "reaching": 1073,
+      "concentrated": 773,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "placed",
+     "step": 1,
+     "stake": 100,
+     "american": 217,
+     "decimal": 3.1718,
+     "potentialReturn": 317.18,
+     "jointP": 0.2877,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:849842:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "849842",
+       "eventStartUtc": "2026-10-01T02:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -145,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5656,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago Cubs @ San Diego Padres",
+       "displaySelection": "San Diego Padres to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849841:mlb_moneyline:away",
+       "sport": "mlb",
+       "eventId": "849841",
+       "eventStartUtc": "2026-09-30T18:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "away",
+       "line": null,
+       "american": -114,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5087,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+       "displaySelection": "Philadelphia Phillies to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-LEGACY@7be1d5171769",
+      "product": "bank-builder",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 24,
+      "considered": 50,
+      "reaching": 50,
+      "concentrated": 25,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    }
+   }
+  },
+  "BB-C1": {
+   "policyId": "BB-C1@b66731b335c2",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 4,
+     "stake": 1441.81,
+     "american": 153,
+     "decimal": 2.5289,
+     "potentialReturn": 3646.19,
+     "jointP": 0.3613,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:849848:mlb_run_line:away:1.5",
+       "sport": "mlb",
+       "eventId": "849848",
+       "eventStartUtc": "2026-10-01T00:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "away",
+       "line": 1.5,
+       "american": -198,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.636,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Boston Red Sox @ New York Yankees",
+       "displaySelection": "Boston Red Sox +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849846:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "849846",
+       "eventStartUtc": "2026-09-30T21:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -147,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5681,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago White Sox @ Houston Astros",
+       "displaySelection": "Houston Astros to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-C1@b66731b335c2",
+      "product": "bank-builder",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 4,
+      "stake": 1441.81,
+      "requiredAmerican": 143,
+      "requiredDecimal": 2.4275,
+      "poolSize": 24,
+      "considered": 1079,
+      "reaching": 1073,
+      "concentrated": 773,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "LANE_HELD",
+     "detail": null,
+     "step": 1,
+     "stake": 100,
+     "receipt": {
+      "policyId": "BB-C1@b66731b335c2",
+      "product": "bank-builder",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 24,
+      "considered": 0
+     }
+    }
+   }
+  },
+  "BB-C2b": {
+   "policyId": "BB-C2b@61c455e7d375",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 4,
+     "stake": 1441.81,
+     "american": 153,
+     "decimal": 2.5289,
+     "potentialReturn": 3646.19,
+     "jointP": 0.3613,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:849848:mlb_run_line:away:1.5",
+       "sport": "mlb",
+       "eventId": "849848",
+       "eventStartUtc": "2026-10-01T00:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "away",
+       "line": 1.5,
+       "american": -198,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.636,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Boston Red Sox @ New York Yankees",
+       "displaySelection": "Boston Red Sox +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849846:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "849846",
+       "eventStartUtc": "2026-09-30T21:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -147,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5681,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago White Sox @ Houston Astros",
+       "displaySelection": "Houston Astros to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-C2b@61c455e7d375",
+      "product": "bank-builder",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 4,
+      "stake": 1441.81,
+      "requiredAmerican": 143,
+      "requiredDecimal": 2.4275,
+      "poolSize": 24,
+      "considered": 1079,
+      "reaching": 1073,
+      "concentrated": 773,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "LANE_HELD",
+     "detail": null,
+     "step": 1,
+     "stake": 100,
+     "receipt": {
+      "policyId": "BB-C2b@61c455e7d375",
+      "product": "bank-builder",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 24,
+      "considered": 0
+     }
+    }
+   }
+  },
+  "MS-LEGACY": {
+   "policyId": "MS-LEGACY@311563f3927d",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 301,
+     "decimal": 4.007,
+     "potentialReturn": 100.17,
+     "jointP": 0.2285,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:849846:mlb_run_line:away:1.5",
+       "sport": "mlb",
+       "eventId": "849846",
+       "eventStartUtc": "2026-09-30T21:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "away",
+       "line": 1.5,
+       "american": -191,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.6278,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago White Sox @ Houston Astros",
+       "displaySelection": "Chicago White Sox +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849848:mlb_run_line:home:-1.5",
+       "sport": "mlb",
+       "eventId": "849848",
+       "eventStartUtc": "2026-10-01T00:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": -1.5,
+       "american": 163,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.364,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Boston Red Sox @ New York Yankees",
+       "displaySelection": "New York Yankees -1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-LEGACY@311563f3927d",
+      "product": "moonshot",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 24,
+      "considered": 276,
+      "reaching": 103,
+      "concentrated": 20,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 313,
+     "decimal": 4.1298,
+     "potentialReturn": 103.25,
+     "jointP": 0.221,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:849841:mlb_moneyline:away",
+       "sport": "mlb",
+       "eventId": "849841",
+       "eventStartUtc": "2026-09-30T18:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "away",
+       "line": null,
+       "american": -114,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5087,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+       "displaySelection": "Philadelphia Phillies to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849842:mlb_moneyline:away",
+       "sport": "mlb",
+       "eventId": "849842",
+       "eventStartUtc": "2026-10-01T02:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "away",
+       "line": null,
+       "american": 120,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.4344,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago Cubs @ San Diego Padres",
+       "displaySelection": "Chicago Cubs to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-LEGACY@311563f3927d",
+      "product": "moonshot",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 24,
+      "considered": 66,
+      "reaching": 22,
+      "concentrated": 9,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    }
+   }
+  },
+  "MS-C1": {
+   "policyId": "MS-C1@cbd27cd0b408",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 301,
+     "decimal": 4.007,
+     "potentialReturn": 100.17,
+     "jointP": 0.2285,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:849846:mlb_run_line:away:1.5",
+       "sport": "mlb",
+       "eventId": "849846",
+       "eventStartUtc": "2026-09-30T21:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "away",
+       "line": 1.5,
+       "american": -191,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.6278,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago White Sox @ Houston Astros",
+       "displaySelection": "Chicago White Sox +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849848:mlb_run_line:home:-1.5",
+       "sport": "mlb",
+       "eventId": "849848",
+       "eventStartUtc": "2026-10-01T00:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": -1.5,
+       "american": 163,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.364,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Boston Red Sox @ New York Yankees",
+       "displaySelection": "New York Yankees -1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-C1@cbd27cd0b408",
+      "product": "moonshot",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 24,
+      "considered": 276,
+      "reaching": 103,
+      "concentrated": 20,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 313,
+     "decimal": 4.1298,
+     "potentialReturn": 103.25,
+     "jointP": 0.221,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:849841:mlb_moneyline:away",
+       "sport": "mlb",
+       "eventId": "849841",
+       "eventStartUtc": "2026-09-30T18:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "away",
+       "line": null,
+       "american": -114,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5087,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+       "displaySelection": "Philadelphia Phillies to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849842:mlb_moneyline:away",
+       "sport": "mlb",
+       "eventId": "849842",
+       "eventStartUtc": "2026-10-01T02:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "away",
+       "line": null,
+       "american": 120,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.4344,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago Cubs @ San Diego Padres",
+       "displaySelection": "Chicago Cubs to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-C1@cbd27cd0b408",
+      "product": "moonshot",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 24,
+      "considered": 66,
+      "reaching": 22,
+      "concentrated": 9,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    }
+   }
+  },
+  "MS-C4": {
+   "policyId": "MS-C4@5da8e43d1124",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 301,
+     "decimal": 4.007,
+     "potentialReturn": 100.17,
+     "jointP": 0.2285,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:849846:mlb_run_line:away:1.5",
+       "sport": "mlb",
+       "eventId": "849846",
+       "eventStartUtc": "2026-09-30T21:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "away",
+       "line": 1.5,
+       "american": -191,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.6278,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago White Sox @ Houston Astros",
+       "displaySelection": "Chicago White Sox +1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849848:mlb_run_line:home:-1.5",
+       "sport": "mlb",
+       "eventId": "849848",
+       "eventStartUtc": "2026-10-01T00:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": -1.5,
+       "american": 163,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.364,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Boston Red Sox @ New York Yankees",
+       "displaySelection": "New York Yankees -1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-C4@5da8e43d1124",
+      "product": "moonshot",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 24,
+      "considered": 276,
+      "reaching": 103,
+      "concentrated": 20,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 313,
+     "decimal": 4.1298,
+     "potentialReturn": 103.25,
+     "jointP": 0.221,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [
+      "sameMarketFamily"
+     ],
+     "legs": [
+      {
+       "legId": "mlb:849841:mlb_moneyline:away",
+       "sport": "mlb",
+       "eventId": "849841",
+       "eventStartUtc": "2026-09-30T18:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "away",
+       "line": null,
+       "american": -114,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5087,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+       "displaySelection": "Philadelphia Phillies to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      },
+      {
+       "legId": "mlb:849842:mlb_moneyline:away",
+       "sport": "mlb",
+       "eventId": "849842",
+       "eventStartUtc": "2026-10-01T02:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "away",
+       "line": null,
+       "american": 120,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-09-30T11:16:33.113Z",
+       "probability": null,
+       "marketImpliedProbability": 0.4344,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Chicago Cubs @ San Diego Padres",
+       "displaySelection": "Chicago Cubs to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-09-30.json",
+        "mlb/statsapi-schedule/2026-09-30.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-C4@5da8e43d1124",
+      "product": "moonshot",
+      "asOf": "2026-09-30T11:24:06Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 24,
+      "considered": 66,
+      "reaching": 22,
+      "concentrated": 9,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    }
+   }
+  }
+ }
+}
