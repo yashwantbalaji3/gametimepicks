@@ -24,6 +24,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { comparePairedLoss, judgeCoverage, judgeLevel, worstHealth, logLossOf, HEALTH_SEVERITY } from "../../src/lib/ops/model-health.mjs";
 import { healthTransitions } from "../../src/lib/ops/health-changes.mjs";
+import { MODEL_QUALITY_BARS, JUDGED_BY_OWN_RECEIPT, barFor, barVerdict, coverageOf, ece10 } from "../../src/lib/ops/model-quality-bars.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -40,6 +41,10 @@ const LN3 = Math.log(3);
 
 const families = [];
 const add = (f) => families.push(f);
+/* Phase D · D-2: live measures against each family's OWN preregistered bar (model-quality-bars.mjs), filled in
+   beside the generic-floor judgement as each ledger is read. Advisory — nothing here changes what publishes. */
+const measures = {};
+const liveModel = {};
 const missing = (id, sport, label, source) => add({ id, sport, label, state: "INSUFFICIENT_SAMPLE", n: 0, judgement: null, context: null, source, note: "ledger not found" });
 
 // ── UFC ───────────────────────────────────────────────────────────────────────────────────────────
@@ -51,6 +56,7 @@ const missing = (id, sport, label, source) => add({ id, sport, label, state: "IN
     const model = rows.map((r) => r.model?.logLoss).filter(Number.isFinite);
     const market = rows.filter((r) => Number.isFinite(r.model?.logLoss) && Number.isFinite(r.market?.logLoss));
     const judgement = comparePairedLoss(model.map((l) => l - LN2), { minN: 60 });
+    measures.ufc_winner = { logLossVsBaseline: model.length ? r4(mean(model) - LN2) : null };
     add({ id: "ufc_winner", sport: "ufc", label: "UFC fight winner", baseline: "coin flip (log loss 0.6931)", state: judgement.state, n: judgement.n, judgement,
       context: { modelLogLoss: r4(mean(model)), marketLogLoss: r4(mean(market.map((r) => r.market.logLoss))), modelMinusMarket: r4(mean(market.map((r) => r.model.logLoss - r.market.logLoss))), pairedWithMarket: market.length }, source });
   }
@@ -118,14 +124,36 @@ const missing = (id, sport, label, source) => add({ id, sport, label, state: "IN
       ["player_rush_yds", "NFL rushing yards 80% range", (g) => g.players.filter((p) => p.prop === "player_rush_yds")],
       ["player_pass_yds", "NFL passing yards 80% range", (g) => g.players.filter((p) => p.prop === "player_pass_yds")],
     ];
+    // Which model published each graded family: the per-game boards of the graded events name it (null = props-v1).
+    const gradedEvents = new Set(final.map((g) => String(g.providerEventId)));
+    const boardDir = path.join(APP, "public/data/nfl/player-board");
+    const seen = {};
+    for (const f of fs.existsSync(boardDir) ? fs.readdirSync(boardDir).filter((x) => /^\d+\.json$/.test(x)) : []) {
+      const b = readJson(path.join(boardDir, f));
+      if (!b?.families || !gradedEvents.has(String(b.providerEventId))) continue;
+      for (const [k, v] of Object.entries(b.families)) { const m = v?.model ?? "player-props-v1"; ((seen[k] ??= {})[m] = (seen[k][m] ?? 0) + 1); }
+    }
+    for (const [k, counts] of Object.entries(seen)) liveModel[`nfl_${k}`] = { model: Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0], boards: counts };
     for (const [prop, label, rowsOf] of rangeProps) {
-      const outcomes = final.flatMap(rowsOf).map((r) => r.outcome).filter((o) => o === "HIT" || o === "MISS");
+      const all = final.flatMap(rowsOf);
+      const published = all.filter((r) => (r.status ?? "PUBLISHED") === "PUBLISHED" && (r.outcome === "HIT" || r.outcome === "MISS"));
+      if (prop.endsWith("_range")) measures[`nfl_${prop}`] = { coverage80: published.length ? r4(published.filter((r) => r.outcome === "HIT").length / published.length) : null, n: published.length };
+      else {
+        const cov = coverageOf(published);
+        measures[`nfl_${prop}`] = { coverage80: MODEL_QUALITY_BARS[`nfl_${prop}`]?.countFamily ? cov.midP : cov.inclusive, coverageInclusive: cov.inclusive, coverageMidP: cov.midP, onEndpoint: cov.onEndpoint, n: cov.n };
+      }
+      const outcomes = all.map((r) => r.outcome).filter((o) => o === "HIT" || o === "MISS");
       const judgement = judgeCoverage({ hits: outcomes.filter((o) => o === "HIT").length, n: outcomes.length, target: 0.8, minN: prop.endsWith("_range") ? 48 : 150 });
       add({ id: `nfl_${prop}`, sport: "nfl", label, baseline: "8 in 10 inside the published range", state: judgement.state, n: judgement.n, judgement, context: null, source });
     }
 
     const tds = final.flatMap((g) => g.touchdowns).filter((t) => t.outcome === "SCORED" || t.outcome === "DID_NOT_SCORE");
     const level = judgeLevel({ probabilities: tds.map((t) => t.probability), outcomes: tds.map((t) => (t.outcome === "SCORED" ? 1 : 0)), minN: 150 });
+    {
+      const ps = tds.map((t) => t.probability), ys = tds.map((t) => (t.outcome === "SCORED" ? 1 : 0));
+      const actual = ys.reduce((a, y) => a + y, 0);
+      measures.nfl_anytime_td = { ece: ece10(ps, ys), level: actual ? r4(ps.reduce((a, p) => a + p, 0) / actual) : null, n: tds.length };
+    }
     add({ id: "nfl_anytime_td", sport: "nfl", label: "NFL touchdown chances", baseline: "expected scorers = actual scorers", state: level.state, n: level.n, judgement: level, context: null, source });
   }
 }
@@ -167,6 +195,18 @@ const missing = (id, sport, label, source) => add({ id, sport, label, state: "IN
   }
 }
 
+// ── the family's own bar (advisory) ─────────────────────────────────────────────────────────────────
+for (const f of families) {
+  if (JUDGED_BY_OWN_RECEIPT.test(f.id)) { f.bar = { verdict: "OWN_RECEIPT", reason: "judged by its own preregistered forward receipt (state above)" }; continue; }
+  const lm = liveModel[f.id] ?? null;
+  const entry = barFor(f.id, lm?.model === "player-props-v1" ? null : lm?.model ?? null);
+  if (!entry) { f.bar = { verdict: MODEL_QUALITY_BARS[f.id] ? "NOT_COMPUTABLE" : "NO_BAR", reason: MODEL_QUALITY_BARS[f.id] ? `no bar registered for the live model (${lm?.model})` : "not in the bar registry" }; continue; }
+  const m = measures[f.id] ?? {};
+  const v = barVerdict(entry, m, m.n ?? f.n);
+  f.bar = { ...v, model: entry.model ?? null, modelsOnGradedBoards: lm?.boards ?? null,
+    source: entry.source ? `${entry.source.file}#${entry.source.pointer}` : null, measures: Object.keys(m).length ? m : null };
+}
+
 // ── write ─────────────────────────────────────────────────────────────────────────────────────────
 families.sort((a, b) => HEALTH_SEVERITY[b.state] - HEALTH_SEVERITY[a.state] || a.sport.localeCompare(b.sport) || a.id.localeCompare(b.id));
 const outPath = path.join(APP, "public/data/admin/model-health.json");
@@ -184,6 +224,7 @@ const body = {
   rules: {
     states: "INSUFFICIENT_SAMPLE: too few graded events for any verdict. HOLDING: at least as good as the baseline. WATCH: worse on the point estimate, but the 95% interval still includes no difference. BREACHED: worse with the whole 95% interval on the wrong side (log loss, event bootstrap), or |z| >= 2.58 (coverage, level).",
     action: "An alarm, not a demotion. Only preregistered forward receipts change what publishes automatically.",
+    bar: "Each family's `bar` judges its live record against its OWN preregistered bar (lib/ops/model-quality-bars.mjs): ON_TRACK, BELOW_BAR, TOO_SMALL (below the bar's minimum n — checks shown, no verdict), NOT_COMPUTABLE (the live ledger lacks what the bar needs), NO_BAR (none was preregistered), OWN_RECEIPT (a forward receipt judges it). Advisory: it changes nothing that publishes.",
   },
   families,
   changes,
@@ -198,7 +239,7 @@ for (const f of families) {
   const j = f.judgement ?? {};
   const z = j.z != null ? ` (z ${j.z})` : "";
   const figure = j.meanDiff != null ? `mean vs baseline ${j.meanDiff > 0 ? "+" : ""}${j.meanDiff}${j.lo95 != null ? ` [${j.lo95}, ${j.hi95}]` : ""}` : j.rate != null ? `rate ${j.rate}${z}` : j.expected != null ? `expected ${j.expected} vs actual ${j.actual}${z}` : j.receiptState ?? "";
-  console.log(`${f.state.padEnd(19)} ${f.label.padEnd(42)} n ${String(f.n).padEnd(5)} ${figure}`);
+  console.log(`${f.state.padEnd(19)} ${f.label.padEnd(42)} n ${String(f.n).padEnd(5)} ${figure}${f.bar ? ` · bar ${f.bar.verdict}` : ""}`);
   if (process.env.GITHUB_ACTIONS && (f.state === "BREACHED" || f.state === "WATCH")) console.log(`::warning title=Model health ${f.state}::${f.label}: ${figure}${j.direction ? ` (${j.direction})` : ""}`);
 }
 console.log(`worst: ${body.worst} · ${Object.entries(body.counts).map(([k, v]) => `${k} ${v}`).join(" · ")}`);

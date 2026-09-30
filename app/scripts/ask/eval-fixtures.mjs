@@ -58,6 +58,9 @@ export const EVAL_FIXTURES = Object.freeze({
         awayName: "New York Mets",
         homeName: "Philadelphia Phillies",
         matchup: "NYM @ PHI",
+        /* E-1: dated on the eval's pinned evening (2026-09-17 ET) — "tonight" means today's product date now, and an
+           undated row can never be tonight's forecast. */
+        startUtc: "2026-09-17T23:05:00Z",
         experimental: false,
         capability: "PUBLIC",
         markets: [
