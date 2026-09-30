@@ -550,7 +550,11 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   const mlbTeamMenu = preEvent(loadMlbTeamLegs(root, nowIso, date, { bothSides: true }));
   //    TEAM LEGS ONLY. `pool` can carry player props, which this product does not deal: Moonshot is
   //    team markets, graded from the official linescore.
-  const poolForMoon = [...pool, ...mlbTeamMenu].filter((p) => p.player == null && !usedBB.has(p.id));
+  // H · M-1: and every leg passes the ONE card-leg rule on its market key — a market-context family never reaches a
+  // Moonshot card by any route (props were only ever dropped incidentally, by `player == null`).
+  const poolForMoon = [...pool, ...mlbTeamMenu]
+    .filter((p) => p.player == null && !usedBB.has(p.id))
+    .filter((p) => !legIsMarketContext({ sport: String(p.sport ?? "MLB").toUpperCase(), market: p.marketKey ?? null }, marketContext));
   const moonRungs = receiptPositions({ root, date, product: "moonshot", ladder: MOONSHOT_LADDER, seed: MOONSHOT_SEED });
   const moonIds = new Set<string>(usedBB);
   const moonGames = new Set<string>();

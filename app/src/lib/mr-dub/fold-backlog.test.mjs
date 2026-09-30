@@ -63,7 +63,7 @@ test("🔴 the page shows the composition; the June ladder no longer sits under 
 test("🔴 G-1 · the Bank Builder pool loads no demoted model picks and passes every leg through the ONE card-leg rule", () => {
   const acc = src("src/lib/daily-portfolio/accounting.ts");
   assert.doesNotMatch(acc, /loadMlbModelPicks\(/, "the demoted player-prop picks are not loaded at all");
-  assert.match(acc, /\.filter\(\(p\) => !legIsMarketContext\(\{ sport: String\(p\.sport \?\? "MLB"\)\.toUpperCase\(\), market: p\.marketKey \?\? null \}, marketContext\)\)/);
+  assert.match(acc, /const bbPool = \[\.\.\.wcTeam, \.\.\.wcFill, \.\.\.mlbTeam\]\n\s*\.filter\(\(p\) => p\.player == null\)\n\s*\.filter\(\(p\) => !legIsMarketContext\(/, "the gate is the Bank Builder pool's own filter expression");
   assert.doesNotMatch(src("src/lib/daily-portfolio/sport-eligibility.ts"), /model-qualified MLB legs/, "the stated source is market-priced team markets");
 });
 
