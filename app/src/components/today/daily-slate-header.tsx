@@ -103,15 +103,15 @@ export default function TodayDailySlateHeader({
       <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
         <Link
           href="/simulate"
-          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
-          style={{ minHeight: 44, fontSize: 12, fontWeight: 700, textDecoration: "none", background: "var(--vault-gold-bright)", color: "var(--vault-on-accent-deep)" }}
+          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-semibold tracking-[-0.005em]"
+          style={{ minHeight: 44, fontSize: 14.5, fontWeight: 700, textDecoration: "none", background: "var(--vault-gold-bright)", color: "var(--vault-on-accent-deep)" }}
         >
           Simulate Today&rsquo;s Games →
         </Link>
         <Link
           href="/results"
-          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
-          style={{ minHeight: 44, fontSize: 12, fontWeight: 700, textDecoration: "none", border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)" }}
+          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-semibold tracking-[-0.005em]"
+          style={{ minHeight: 44, fontSize: 14.5, fontWeight: 700, textDecoration: "none", border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)" }}
         >
           View Results →
         </Link>
