@@ -30,7 +30,7 @@ import { buildEvidence } from "./evidence.mjs";
 import { harvestEntities, reduceConversation } from "./conversation.mjs";
 import { parsePlan, plannerSystemPrompt } from "./planner.mjs";
 import { parseAnswer, resolveInlineLinkIds, sanitiseMarkdown, writerSystemPrompt, writerUserMessage } from "./writer.mjs";
-import { deterministicAnswer, forbiddenCopyIn, verifyAnswer } from "./verifier.mjs";
+import { clarificationCopyIn, deterministicAnswer, verifyAnswer } from "./verifier.mjs";
 
 /**
  * @param {object} input   { messages, context, preferences, priorEntities }
@@ -112,7 +112,8 @@ export async function runAskTurn(input, deps) {
    * the reader actually asked: whether GameTime will help them stake.
    */
   if (plan.needsClarification) {
-    const forbidden = forbiddenCopyIn(plan.clarification);
+    // E-2: a clarification has no evidence, so a settlement or status claim in it can only be invented.
+    const forbidden = clarificationCopyIn(plan.clarification);
     const text = forbidden.length ? SAFE_STAKING_REFUSAL : plan.clarification;
     receipt.verifierStatus = forbidden.length ? "CLARIFICATION_REFUSED" : "N/A_CLARIFICATION";
     if (forbidden.length) receipt.verifierViolations = forbidden;

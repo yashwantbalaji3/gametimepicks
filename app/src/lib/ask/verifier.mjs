@@ -119,7 +119,7 @@ export function verifyAnswer(answer, evidence, opts = {}) {
     for (const re of windows) {
       for (const m of text.matchAll(re)) {
         // A negation anywhere in the window — "publishes no pick", "does not pick" — clears it.
-        if (NEGATION.test(m[1]) || NEGATION.test(m[0])) continue;
+        if (isNegated(m[1]) || isNegated(m[0])) continue;
         flagged = true;
         break;
       }
@@ -221,6 +221,15 @@ export function verifyAnswer(answer, evidence, opts = {}) {
     violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `the number ${raw} is not in the evidence` });
   }
 
+  /* ── 7. A RECORD BELONGS TO ITS OWNER (E-2, probed) ─────────────────────────────────────── */
+  /*
+   * Numbers are pooled across the evidence, so "Bank Builder is 4–35" passed on Moonshot's 4–35. A W–L the
+   * answer attaches to a named owner must appear in an evidence sentence that names that owner. Only clauses
+   * that name one are checked, and each clause is judged on its own, so "Bank Builder is 37–36 and Moonshot is
+   * 4–35" binds each record to its own subject.
+   */
+  for (const v of recordOwnerViolations(text, evidence.facts)) violations.push(v);
+
   return {
     ok: violations.length === 0,
     violations,
@@ -258,6 +267,31 @@ function isAllowedNumber(value, raw, allowed) {
 
 const escapeRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+const RECORD_RE = /\b(\d{1,3})\s?[–-]\s?(\d{1,3})(?:\s?[–-]\s?(\d{1,3}))?\b/g;
+const dash = (s) => String(s).replace(/\s?[–-]\s?/g, "–");
+/* Capitalised words that name nothing: function words, record vocabulary, calendar words. */
+const NOT_AN_OWNER = new Set(("GameTime Ask The A An It Its This That These Those In On At Of Over Under And But So With For Since Across All Each " +
+  "Their They He She His Her Record Records Season Seasons Win Wins Loss Losses Push Pushes Void Picks Pick Current Overall Total Today Yesterday Tonight " +
+  "Monday Tuesday Wednesday Thursday Friday Saturday Sunday January February March April May June July August September October November December " +
+  "Jan Feb Mar Apr Jun Jul Aug Sep Sept Oct Nov Dec Week Game Games Paper Settled Graded").split(" "));
+function recordOwnerViolations(text, facts) {
+  const out = [];
+  const clauses = String(text).split(/(?<!\d)\.(?!\d)|[;\n•|·!?:,]|\band\b|\bwhile\b|\bbut\b|\bwhereas\b/);
+  for (const clause of clauses) {
+    for (const m of clause.matchAll(RECORD_RE)) {
+      const rec = dash(m[0]);
+      const withIt = facts.filter((f) => dash(f.text).includes(rec));
+      if (!withIt.length) continue; // the numeric check owns an absent number
+      const owners = [...new Set((clause.match(/\b[A-Z][A-Za-z'’.]+\b/g) ?? []).map((w) => w.replace(/['’]s?$/, "")).filter((w) => w.length > 1 && !NOT_AN_OWNER.has(w)))];
+      if (!owners.length) continue;
+      if (!withIt.some((f) => owners.every((w) => f.text.includes(w)))) {
+        out.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `the record ${m[0]} is attached to ${owners.join(" ")}, but the evidence gives it to someone else` });
+      }
+    }
+  }
+  return out;
+}
+
 /*
  * A PICK CLAIM: GameTime (or "we") as the subject of a directional verb, or "GameTime's pick is …".
  *
@@ -266,9 +300,17 @@ const escapeRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  * So the capitalised brand is collapsed to "GameTime" first, and only a lower-case "picks" is a verb.
  * "forecasts" is deliberately not a verb here: "12 GameTime forecasts match" is a count, not a pick.
  */
-const PICK_CLAIM = /\bGameTime(?:['’]s?)?(?:\s+(?:model|engine))?\s+(?:picks|picked|is picking|leans|is leaning|likes)\b|\bGameTime['’]s?\s+(?:model['’]s\s+)?pick\s+(?:is\b|:)|\b[Ww]e\s+(?:like|pick|lean|are picking|are leaning)\b/g;
+const PICK_CLAIM = new RegExp([
+  /\bGameTime(?:['’]s?)?(?:\s+(?:model|engine))?\s+(?:picks|picked|is picking|leans|is leaning|likes)\b/.source,
+  /\bGameTime['’]s?\s+(?:model['’]s\s+)?pick\s+(?:is\b|:)/.source,
+  /\b[Ww]e\s+(?:like|pick|lean|are picking|are leaning)\b/.source,
+  /* E-2 (probed): other directional verbs made the same claim unchecked — "The model favors Arsenal". */
+  /\b(?:GameTime|[Tt]he model|[Oo]ur model|[Tt]he forecast)(?:['’]s?)?(?:\s+(?:model|engine|forecast))?\s+(?:favors|favours|favored|favoured|backs|is backing|predicts|predicted)\b/.source,
+  /\b(?:GameTime|[Tt]he model|[Oo]ur model)(?:['’]s?)?(?:\s+(?:model|engine))?\s+(?:expects|projects|has)\s+[^.;\n:]{1,40}?\s+to\s+(?:win|beat|cover)\b/.source,
+  /\bis\s+(?:GameTime['’]s|the model['’]s|our)\s+pick\b|\bis the pick\b/.source,
+].join("|"), "g");
 /* A clause ends at a sentence stop (not a decimal point), or a market separator the evidence uses. */
-const CLAUSE_END = /(?<!\d)\.(?!\d)|[;\n•|·!?]/;
+const CLAUSE_END = /(?<!\d)\.(?!\d)|[;\n•|·!?]|:(?!\d)/;
 
 /** Every affirmative pick-claim clause in the answer. A negated clause ("GameTime's pick is none") is not a claim. */
 function pickClaimClauses(text) {
@@ -278,7 +320,7 @@ function pickClaimClauses(text) {
     const before = normalised.slice(0, m.index).split(CLAUSE_END).at(-1);
     const after = normalised.slice(m.index).split(CLAUSE_END)[0];
     const clause = `${before}${after}`.trim();
-    if (NEGATION.test(clause) || /\bnone\b/i.test(clause)) continue;
+    if (isNegated(clause) || /\bnone\b/i.test(clause)) continue;
     clauses.push(clause);
   }
   return clauses;
@@ -314,6 +356,14 @@ function pickIsSupported(clause, picks) {
 
 /** Words that flip a phrase from a claim into its denial, within a short window before it. */
 const NEGATION = /\b(?:no|not|never|without|cannot|can't|does not|doesn't|don't|isn't|is not|are not|aren't)\b/i;
+/*
+ * ⚠ IDIOMS THAT CONTAIN A NEGATION WORD AND DENY NOTHING (Phase E · E-2, probed). "No doubt about it: GameTime
+ * picks Arsenal", "There is no question this is a sure thing", "Not surprisingly, Lamar Jackson is out" — each
+ * passed, because any negation word earlier in the sentence cleared the claim. These phrases INTENSIFY the claim;
+ * they are removed before a negation is looked for.
+ */
+const NEGATION_IDIOMS = /\b(?:no doubt|no question|not surprisingly|unsurprisingly|no wonder|not only|without (?:a |any )?doubt|without question|no matter|make no mistake|no two ways)\b/gi;
+const isNegated = (segment) => NEGATION.test(String(segment).replace(NEGATION_IDIOMS, " "));
 
 /**
  * Does the text make this phrase as a CLAIM, rather than deny it?
@@ -340,7 +390,7 @@ export function containsAsClaim(lower, phrase) {
       lower.lastIndexOf(";", i - 1),
       lower.lastIndexOf("\n", i - 1),
     ) + 1;
-    if (!NEGATION.test(lower.slice(start, i))) return true;
+    if (!isNegated(lower.slice(start, i))) return true;
     from = i + phrase.length;
   }
 }
@@ -354,6 +404,19 @@ export function forbiddenCopyIn(text) {
   const hits = [];
   for (const phrase of ASK_FORBIDDEN_WAGERING_COPY) if (containsAsClaim(lower, phrase)) hits.push(phrase);
   for (const phrase of ASK_FORBIDDEN_EV_COPY) if (containsAsClaim(lower, phrase)) hits.push(phrase);
+  return hits;
+}
+
+/**
+ * What a CLARIFICATION may not say (E-2). A clarifying question runs no tool, so it has no evidence to restate:
+ * besides the wagering and EV copy, an in-flight settlement claim or an availability/role status in it can only
+ * be invented. The old check stopped at forbiddenCopyIn and let both through.
+ */
+export function clarificationCopyIn(text) {
+  const lower = String(text ?? "").toLowerCase();
+  const hits = forbiddenCopyIn(text);
+  for (const phrase of ASK_FORBIDDEN_LIVE_SETTLEMENT_COPY) if (containsAsClaim(lower, phrase)) hits.push(phrase);
+  for (const phrase of ASK_UNSOURCEABLE_STATUS_COPY) if (containsAsClaim(lower, phrase)) hits.push(phrase);
   return hits;
 }
 
