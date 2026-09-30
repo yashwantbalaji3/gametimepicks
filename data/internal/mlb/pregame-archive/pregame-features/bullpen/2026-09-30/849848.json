@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849848,
+  "date": "2026-09-30",
+  "capturedAt": "2026-09-30T00:00:39.677Z",
+  "availableAt": "2026-09-30T00:00:39.677Z",
+  "eventStartTime": "2026-10-01T00:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-27",
+    "2026-09-28",
+    "2026-09-29"
+  ],
+  "home": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 137,
+      "relievers": [
+        {
+          "id": 663776,
+          "name": "Patrick Sandoval",
+          "appearances": 1,
+          "pitches": 98,
+          "outs": 14,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 681544,
+          "name": "Wyatt Olds",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 2,
+          "dates": [
+            "2026-09-27"
+          ]
+        },
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-09-27"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-27,2026-09-28,2026-09-29) + feed/live box scores",
+    "capturedAt": "2026-09-30T00:00:39.677Z"
+  },
+  "recordHash": "a039507723addf510dcd0fa572f2b500d15d071e86bad2d865c8bc11a91f7db5"
+}
