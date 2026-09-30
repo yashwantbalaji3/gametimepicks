@@ -171,3 +171,37 @@ test("the production audit line carries rule ids per attempt and never the refus
   const raw = JSON.stringify(line);
   assert.doesNotMatch(raw, /Pittsburgh|favors|expects/, "the log must carry check names, not the model's (or user's) words");
 });
+
+/* ─────────────────  class L · a comparison compares two DIFFERENT entities  ───────────────── */
+
+test("🔴 two RESOLVED placeholders in one call take two distinct resolutions — never the same team twice", async () => {
+  /* Production, 2026-09-30: "Compare the Yankees and the Red Sox" → "those are the same team". One id per KIND was
+     kept, so both placeholders got the last team resolved. */
+  const seen = [];
+  const plan = JSON.stringify({ intent: "TEAM_COMPARE", calls: [
+    { id: "a", name: "resolveEntity", arguments: { kind: "team", text: "Yankees", sport: "MLB" } },
+    { id: "b", name: "resolveEntity", arguments: { kind: "team", text: "Red Sox", sport: "MLB" } },
+    { id: "c", name: "getTeamComparison", arguments: { sport: "MLB", teamAId: "RESOLVED", teamBId: "RESOLVED" }, after: ["a", "b"] },
+  ] });
+  const entities = { schemaVersion: 1, entries: [
+    { id: "mlb-team-147", kind: "team", sport: "MLB", label: "New York Yankees", hint: "NYY", slug: "new-york-yankees", path: "/teams/mlb/new-york-yankees/" },
+    { id: "mlb-team-111", kind: "team", sport: "MLB", label: "Boston Red Sox", hint: "BOS", slug: "boston-red-sox", path: "/teams/mlb/boston-red-sox/" },
+  ] };
+  const loader = makeAskLoader(async (p) => {
+    seen.push(p);
+    if (p === "/data/ask/v1/entities.json") return { ok: true, text: JSON.stringify(entities) };
+    return { ok: false };
+  });
+  /* ⚠ The refusal reaches only the WRITER's input (the public evidence carries codes, not details) — so the writer's
+     input is captured. A first version asserted on the public evidence and passed with the fix reverted (probed). */
+  const provider = createFakeProvider({ script: [plan, w("ok")] });
+  const writes = [];
+  const write = provider.write.bind(provider);
+  provider.write = async (x) => { writes.push(x.user); return write(x); };
+  const r = await runAskTurn({ messages: [{ role: "user", text: "Compare the Yankees and the Red Sox" }] },
+    { provider, turn: loader.beginTurn(), now: () => new Date("2031-10-03T16:00:00Z") });
+  assert.ok(r.receipt.toolCalls.includes("getTeamComparison"), `the comparison must run (tools ${r.receipt.toolCalls})`);
+  assert.ok(writes.length, "the writer ran");
+  assert.doesNotMatch(writes.join("\n"), /same team/i, "two different teams were resolved; the call compared one with itself");
+  assert.ok(seen.includes("/data/compare/v1/teams/mlb/index.json"), "a real comparison reads the compare index; a same-team refusal never does");
+});
