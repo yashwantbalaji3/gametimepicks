@@ -23,6 +23,8 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
 import ResultsDay from "@/components/results/results-day";
 import { resultsDay, resultsDayDates } from "@/lib/results/v2/day";
+import TopBoards from "@/components/results/top-boards";
+import { sportsWithoutBoards, topBoardDates, topBoardsFor } from "@/lib/results/v2/top-boards";
 
 interface PageProps {
   params: { date: string };
@@ -35,7 +37,8 @@ interface PageProps {
 export function generateStaticParams() {
   const nbaDates = getAvailableSettlementDates();
   const mlbDates = getMlbAvailableResultDates().dates ?? [];
-  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...resultsDayDates()])).sort();
+  // A frozen Top-5 day gets its page before any result exists — the board is published pre-kickoff.
+  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...resultsDayDates(), ...topBoardDates()])).sort();
   return all.map((date) => ({ date }));
 }
 
@@ -63,7 +66,7 @@ export default function ResultsDatePage({ params }: PageProps) {
   const nbaAllDates = new Set(getAvailableSettlementDates());
   const mlbAllDates = new Set(getMlbAvailableResultDates().dates ?? []);
   const date = params.date;
-  const dayDates = new Set(resultsDayDates());
+  const dayDates = new Set([...resultsDayDates(), ...topBoardDates()]);
   const hasAny = nbaAllDates.has(date) || mlbAllDates.has(date) || dayDates.has(date);
   if (!hasAny) {
     notFound();
@@ -117,6 +120,8 @@ export default function ResultsDatePage({ params }: PageProps) {
       </header>
 
       <ResultsDay day={resultsDay(date)} />
+
+      <TopBoards day={topBoardsFor(date)} without={sportsWithoutBoards()} dayLabel={formatDateLong(date)} />
 
       {(nbaDecisive > 0 || mlbDecisive > 0 || nbaRows.length > 0 || mlbRows.length > 0) && (
         <div className="mt-12 rounded-xl px-4 py-3" style={{ border: "1px dashed var(--vault-border)" }}>

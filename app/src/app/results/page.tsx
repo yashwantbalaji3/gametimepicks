@@ -88,6 +88,8 @@ import YesterdaySummary from "@/components/yesterday-summary";
 import TrustCenter from "@/components/results/trust-center";
 import ResultsExplorer, { type ResultRow, type SettledCard } from "@/components/results/results-explorer";
 import ResultsOverview, { type OverviewPopulation, type OverviewProduct } from "@/components/results/results-overview";
+import { topBoardDates } from "@/lib/results/v2/top-boards";
+import { formatDateLong } from "@/lib/format";
 import { resultsV2Populations } from "@/lib/results/v2/overview";
 import { currentProductRecord } from "@/lib/results/current-record";
 import { loadResultsProjection } from "@/lib/results/projection";
@@ -278,6 +280,7 @@ export default function ResultsPage() {
           products' canonical headlines, research kept apart, and a day-by-day tracker. The explorer and every
           receipt below stay as the detailed record. */}
       <ResultsOverview populations={overviewPopulations()} products={overviewProducts()} seedToday={currentEtDate()} />
+      <LatestTopBoard />
       <h2 className="font-display m-0 mb-3 text-[20px]" style={{ color: "var(--vault-text)" }}>Detailed record</h2>
       <ResultsExplorer
         rows={buildResultRows(resultSources()) as ResultRow[]}
@@ -990,5 +993,18 @@ function EmptyState() {
         results will appear here.
       </p>
     </section>
+  );
+}
+
+/** Results V2 · B-4b — the newest frozen Top-5 board, one link away; an honest line when none exists yet. */
+function LatestTopBoard() {
+  const latest = topBoardDates()[0];
+  return (
+    <p className="m-0 mb-8 text-[13.5px]" style={{ color: "var(--vault-text-mute)" }}>
+      <strong style={{ color: "var(--vault-text)" }}>Daily Top 5 boards</strong> — frozen before each day&apos;s first kickoff, never revised.{" "}
+      {latest
+        ? <a href={surfaceHref("results", { date: latest }) ?? "/results/"} style={{ color: "var(--vault-text)", minHeight: 44, display: "inline-flex", alignItems: "center" }}>Latest board · {formatDateLong(latest)} →</a>
+        : <span>No board has been frozen yet.</span>}
+    </p>
   );
 }
