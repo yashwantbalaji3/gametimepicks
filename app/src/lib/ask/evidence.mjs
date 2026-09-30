@@ -276,6 +276,7 @@ export function buildEvidence(envelopes) {
 
       case "getParlayCandidates": {
         say(`GameTime published ${d.totalMatched} parlay candidates for ${d.date}${d.riskProfile ? ` in the ${d.riskProfile} risk style` : ""}; ${d.returned} are described here`, [d.totalMatched, d.returned, d.date]);
+        if (d.withheldMarketContext) say(`${d.withheldMarketContext} further candidates for ${d.date} were withheld because they use market-context families, which are not published GameTime projections`, [d.withheldMarketContext, d.date]);
         say(`GameTime does not publish a price-aware expected value, so these candidates are NOT ranked by expected value or profitability`);
         say(`GameTime has no staking policy, so there is no recommended stake for any of these`);
         for (const c of d.candidates ?? []) {
@@ -343,8 +344,9 @@ export function buildEvidence(envelopes) {
       }
 
       case "getRecentResults": {
-        say(`GameTime has ${d.totalRecorded} graded ${String(d.sport).toUpperCase()} forecasts on record; ${d.matched} match this request, of which ${d.won} were correct and ${d.lost} were not${d.ungraded ? `, with ${d.ungraded} not yet graded` : ""}`,
-          [d.totalRecorded, d.matched, d.won, d.lost, d.ungraded]);
+        // E-3: counts of rows only — never a W–L the owner did not publish (that is getForecastRecord's job).
+        say(`GameTime has ${d.totalRecorded} graded ${String(d.sport).toUpperCase()} forecasts on record; ${d.matched} match this request and ${d.returned ?? (d.rows ?? []).length} are listed individually below — this list is not a record`,
+          [d.totalRecorded, d.matched, d.returned ?? (d.rows ?? []).length]);
         for (const r of (d.rows ?? []).slice(0, 8)) {
           say(r.hit === null
             ? `${r.when} — ${r.subject} (${r.market}): GameTime predicted ${r.predicted}; this one is not yet graded`

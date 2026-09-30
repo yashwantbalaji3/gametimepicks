@@ -77,5 +77,8 @@ test("the model-status claims match the NFL board's actual family states", () =>
   );
   /* And it must keep the distinction the old copy collapsed, because "published" and "usable as a parlay
      leg" being the same thing is precisely the wrong inference for a reader to draw. */
-  assert.match(text, /MLB only/, "the corpus must still say the signature products draw their legs from MLB only");
+  /* E-3: the distinction is kept; the frozen "MLB only" claim is not — which markets can supply a leg changes (Bank
+     Builder and Moonshot went multi-sport in v1.7), so the corpus now defers that to the live coverage registry. */
+  assert.match(text, /Published as a forecast and eligible to appear as a parlay leg are different things/, "the corpus keeps the forecast-vs-leg distinction");
+  assert.match(text, /Ask reads the live coverage registry/, "and says where the CURRENT status comes from");
 });

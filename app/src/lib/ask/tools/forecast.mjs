@@ -30,6 +30,9 @@ import {
   askAssetPath,
 } from "../contract.mjs";
 
+/* Parlay Lab is retired in rendered copy (its route is a redirect stub to /build#suggested-cards). */
+const SUGGESTED_LINKS = Object.freeze([{ id: "suggested", label: "Open Suggested cards", href: "/build/" }]);
+
 /* ────────────────────────────  getPublishedForecasts  ──────────────────────────── */
 
 export async function getPublishedForecasts(args, ctx) {
@@ -148,20 +151,52 @@ export async function getParlayCandidates(args, ctx) {
   if (!loaded.ok) return { status: ASK_STATUS.ERROR, error: ASK_ERROR.ASSET_UNAVAILABLE };
   const doc = loaded.json;
 
-  const date = args.date ?? (doc.dates ?? []).slice(-1)[0] ?? null;
+  /*
+   * E-3: TODAY IS THE PRODUCT DATE, not the newest snapshot. "What parlays are up tonight" answered with the
+   * last optimizer run's date read yesterday's slate as today's. An omitted date is today's ET product date.
+   */
+  const date = args.date ?? etDateOf((ctx.now ? ctx.now() : new Date()).toISOString());
   const day = date ? doc.byDate?.[date] : null;
-  if (!day) {
+  const allSlips = day ? Object.values(day.profiles ?? {}).flat() : [];
+  if (!day || !allSlips.length) {
+    // An EMPTY day is the same answer as a missing one: nothing was published — never "no match for your preferences".
     return {
       status: ASK_STATUS.UNSUPPORTED,
       error: ASK_ERROR.NOT_PUBLISHED,
-      detail: date ? `no parlay candidates were published for ${date}` : "no parlay candidates are published",
-      availableDates: doc.dates ?? [],
-      links: [{ id: "parlay-lab", label: "Open Parlay Lab", href: "/parlay-lab/" }],
+      detail: `no parlay candidates were published for ${date}`,
+      date,
+      availableDates: (doc.dates ?? []).filter((d) => Object.values(doc.byDate?.[d]?.profiles ?? {}).some((v) => v?.length)),
+      links: SUGGESTED_LINKS,
     };
   }
 
   const profiles = args.riskProfile ? [args.riskProfile] : Object.keys(day.profiles ?? {});
   let slips = profiles.flatMap((p) => day.profiles?.[p] ?? []);
+
+  /*
+   * E-3: A LEG FROM A DEMOTED FAMILY IS MARKET CONTEXT, NOT A GAMETIME PROJECTION. The coverage registry (the same
+   * one getCoverage and /today read) marks MLB batter hits, total bases, H+R+RBI and pitcher strikeouts
+   * DEMOTED_TO_MARKET_CONTEXT, publicEligible false — yet every leg of the optimizer's slips came from them and was
+   * presented as "GameTime projection, confidence High". A slip with any such leg is withheld, and counted.
+   */
+  const coverage = await ctx.turn.load(askAssetPath.coverage());
+  const demoted = new Set((coverage.ok ? coverage.json.markets ?? [] : [])
+    .flatMap((m) => (m.demotedFamilies ?? []).map((f) => `${String(m.sport).toUpperCase()}:${f}`)));
+  const isDemotedLeg = (l) => demoted.has(`${String(l.sport).toUpperCase()}:${l.market}`);
+  const beforeGate = slips.length;
+  const demotedFamiliesSeen = [...new Set(slips.flatMap((s) => s.legs.filter(isDemotedLeg).map((l) => l.marketLabel ?? l.market)))];
+  slips = slips.filter((s) => !s.legs.some(isDemotedLeg));
+  const withheldMarketContext = beforeGate - slips.length;
+  if (!slips.length) {
+    return {
+      status: ASK_STATUS.UNSUPPORTED,
+      error: ASK_ERROR.NOT_PUBLISHED,
+      detail: `${withheldMarketContext} parlay candidates were built for ${date}, but every one uses a market-context family (${demotedFamiliesSeen.join(", ")}) that is not a published GameTime projection, so none is offered`,
+      date,
+      withheldMarketContext,
+      links: SUGGESTED_LINKS,
+    };
+  }
 
   /*
    * ⚠ SPORT ELIGIBILITY IS CHECKED AGAIN HERE, AND NOT BECAUSE THE BUILDER IS UNTRUSTED.
@@ -194,7 +229,8 @@ export async function getParlayCandidates(args, ctx) {
       date,
       availableProfiles: Object.keys(day.profiles ?? {}),
       eligibleSports: [...eligible],
-      links: [{ id: "parlay-lab", label: "Open Parlay Lab", href: "/parlay-lab/" }],
+      withheldMarketContext,
+      links: SUGGESTED_LINKS,
     };
   }
 
@@ -223,7 +259,7 @@ export async function getParlayCandidates(args, ctx) {
     correlationModelled: s.correlationPenalty != null,
     legs: s.legs,
     payoutPer100: s.payoutPer100,
-    links: [{ id: "parlay-lab", label: "Open in Parlay Lab", href: "/parlay-lab/" }],
+    links: SUGGESTED_LINKS,
   }));
 
   return {
@@ -232,6 +268,7 @@ export async function getParlayCandidates(args, ctx) {
     generatedAt: day.generatedAt ?? null,
     riskProfile: args.riskProfile ?? null,
     riskSectionKey: args.riskProfile ? RISK_SECTION_KEY[args.riskProfile] : null,
+    withheldMarketContext,
     totalMatched: slips.length,
     returned: candidates.length,
     candidates,
@@ -244,6 +281,6 @@ export async function getParlayCandidates(args, ctx) {
      */
     expectedValueAvailable: false,
     stakePolicyAvailable: false,
-    links: [{ id: "parlay-lab", label: "Open Parlay Lab", href: "/parlay-lab/" }],
+    links: SUGGESTED_LINKS,
   };
 }

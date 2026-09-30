@@ -167,6 +167,9 @@ export async function runAskTurn(input, deps) {
 
   /* ── EVIDENCE ─────────────────────────────────────────────────────────────────────────────── */
   const evidence = buildEvidence(envelopes);
+  /* E-3: the identifiers the tools actually returned (slip ids, …) — so the eval can check that every id an answer
+     names is one a tool produced. Internal to the receipt; the API sends only token and timing fields. */
+  receipt.evidenceIdentifiers = [...(evidence.identifiers ?? [])].slice(0, 200);
 
   /*
    * NOTHING USABLE CAME BACK. The honest answer is the deterministic one built from the refusals, not

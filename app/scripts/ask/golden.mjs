@@ -165,10 +165,10 @@ export const GOLDEN = [
      * turn asked for parlays. Asserting it as a standalone question would have been asserting that the
      * planner guesses, which is the behaviour the clarification policy exists to prevent.
      */
-    id: "parlay-02", category: "parlay", fixture: "parlay-slate",
+    id: "parlay-02", category: "parlay", fixture: "parlay-slate-eligible",
     turns: ["Give me the best parlays to place today", "$100, medium risk"],
     expectIntent: "BANKROLL_PARLAY_REQUEST",
-    expectTools: ["getParlayCandidates"], expectGrounded: true, expectCitations: true, expectLink: "/parlay-lab/",
+    expectTools: ["getParlayCandidates"], expectGrounded: true, expectCitations: true, expectLink: "/build/",
     expectNoInventedLeg: true,
     /*
      * ⚠ `mustNotMention` is a SUBSTRING test with no notion of negation, so listing "expected value"
@@ -179,16 +179,27 @@ export const GOLDEN = [
     mustNotMention: ["highest expected value", "the most profitable", "guaranteed", "stake this much"],
   },
   {
-    id: "parlay-03", category: "parlay", fixture: "parlay-slate", q: "Make it longshot", expectTools: ["getParlayCandidates"], expectGrounded: true, expectNoInventedLeg: true,
+    id: "parlay-03", category: "parlay", fixture: "parlay-slate-eligible", q: "Make it longshot", expectTools: ["getParlayCandidates"], expectGrounded: true, expectNoInventedLeg: true,
     mustNotMention: ["guaranteed", "can't lose"],
   },
-  { id: "parlay-04", category: "parlay", fixture: "parlay-slate", q: "Show me low risk parlay candidates", expectTools: ["getParlayCandidates"], expectGrounded: true, mustNotMention: ["safe", "guaranteed"] },
+  { id: "parlay-04", category: "parlay", fixture: "parlay-slate-eligible", q: "Show me low risk parlay candidates", expectTools: ["getParlayCandidates"], expectGrounded: true, mustNotMention: ["safe", "guaranteed"] },
   { id: "parlay-05", category: "parlay", q: "Show me high risk parlay candidates today", expectTools: ["getParlayCandidates"], expectGrounded: true },
   {
-    id: "parlay-06", category: "parlay", fixture: "parlay-slate", q: "Which medium parlay has the highest expected value?",
+    id: "parlay-06", category: "parlay", fixture: "parlay-slate-eligible", q: "Which medium parlay has the highest expected value?",
     expectTools: ["getParlayCandidates"], expectGrounded: true,
     /* GameTime publishes no price-aware EV. The answer must decline the ranking, not perform it. */
     mustNotMention: ["the highest expected value is", "most profitable candidate"],
+  },
+  /*
+   * E-3 · the REAL slate: every leg is a demoted MLB prop family, so nothing is offered, and the answer says why.
+   * It must never present a market-context leg as a GameTime projection.
+   */
+  {
+    id: "parlay-07", category: "parlay", fixture: "parlay-slate", q: "Show me medium risk parlay candidates",
+    expectTools: ["getParlayCandidates"], mustMention: ["market-context"],
+    /* ⚠ mustNotMention is a substring test with no negation: the honest answer says "NOT a published GameTime
+       projection", so the list names the CLAIM ("is a GameTime projection"), never the vocabulary. */
+    mustNotMention: ["confidence high", "is a gametime projection", "gametime projection, confidence"],
   },
 
   /* ───────────────────────────  RESPONSIBLE WAGERING  ─────────────────────────── */
@@ -486,12 +497,12 @@ export const GOLDEN = [
     expectGrounded: true,
   },
   {
-    id: "multi-02", category: "multi-turn", fixture: "parlay-slate",
+    id: "multi-02", category: "multi-turn", fixture: "parlay-slate-eligible",
     turns: ["Give me the best parlays today", "$100, medium"],
     expectTools: ["getParlayCandidates"], expectGrounded: true, expectNoInventedLeg: true,
   },
   {
-    id: "multi-03", category: "multi-turn", fixture: "parlay-slate",
+    id: "multi-03", category: "multi-turn", fixture: "parlay-slate-eligible",
     turns: ["medium risk parlays", "make it longshot"],
     expectTools: ["getParlayCandidates"], expectGrounded: true,
   },

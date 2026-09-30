@@ -267,7 +267,8 @@ test("the parlay adapter drops an ineligible sport cut EVEN WHEN IT IS NOT EMPTY
       evOwner: null,
     },
   }));
-  const ex = makeExecutor({ turn: loader.beginTurn() });
+  // E-3: an omitted date is today's product date, so the clock is pinned to the fixture's day.
+  const ex = makeExecutor({ turn: loader.beginTurn(), now: () => new Date("2026-09-17T16:00:00Z") });
   const r = await ex.run({ name: "getParlayCandidates", arguments: { riskProfile: "MEDIUM", limit: 5 } });
 
   assert.equal(r.status, "OK");
@@ -1137,7 +1138,8 @@ test("the ENGINE fills a date placeholder from getGameTimeNow — the plan Gemin
   assert.equal(r.ok, true);
   assert.deepEqual(r.receipt.toolStatuses, ["OK", "OK"], "getParlayCandidates must RUN, not be refused over the placeholder");
   assert.deepEqual([...seen], ["s-today"], "the date must be the one getGameTimeNow reported, not the artifact's latest");
-  assert.ok(r.answer.links.some((l) => l.href.startsWith("/parlay-lab/")), `the reader must get the route into Parlay Lab: ${JSON.stringify(r.answer.links)}`);
+  // E-3: Parlay Lab is retired in rendered copy (a redirect stub); the route is Suggested cards on /build.
+  assert.ok(r.answer.links.some((l) => l.href.startsWith("/build/")), `the reader must get the route into Suggested cards: ${JSON.stringify(r.answer.links)}`);
 });
 
 test("a date placeholder with no getGameTimeNow in the plan is dropped, and the tool applies its own default", async () => {
@@ -1145,7 +1147,9 @@ test("a date placeholder with no getGameTimeNow in the plan is dropped, and the 
   const provider = slipSpy(createFakeProvider({ script: [parlayPlan({ date: "today", riskProfile: "MEDIUM", limit: 3 }, false)] }), seen);
   const r = await runAskTurn({ messages: [{ role: "user", text: "$100 medium risk parlays today" }] }, { ...twoDayParlayDeps(), provider });
   assert.deepEqual(r.receipt.toolStatuses, ["OK"]);
-  assert.deepEqual([...seen], ["s-latest"], "the tool's documented default is the artifact's latest date");
+  // E-3: the registry has always said "Omit for today"; the old default (the artifact's newest snapshot) read
+  // yesterday's slate as tonight's. An omitted date is today's product date.
+  assert.deepEqual([...seen], ["s-today"], "an omitted date is today's product date, as the registry documents");
 });
 
 test("a date that is not a placeholder is still refused — the net substitutes, it never guesses", async () => {
