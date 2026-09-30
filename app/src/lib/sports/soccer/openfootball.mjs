@@ -12,17 +12,16 @@
  * in the league's local time, sometimes blank; a blank time is read as 15:00 local, as football-data's was.
  */
 
+import { SOCCER_LEAGUES } from "./leagues.mjs";
+
 export const OPENFOOTBALL_BASE = "https://raw.githubusercontent.com/openfootball/football.json/master";
 export const OPENFOOTBALL_ATTRIBUTION = "Results: openfootball football.json (https://github.com/openfootball/football.json), public domain (CC0 1.0).";
 
-/** Our league keys → openfootball competition code and the league's local time zone. */
-export const OPENFOOTBALL_LEAGUES = Object.freeze({
-  epl: { code: "en.1", timeZone: "Europe/London" },
-  "ligue-1": { code: "fr.1", timeZone: "Europe/Paris" },
-  laliga: { code: "es.1", timeZone: "Europe/Madrid" },
-  "serie-a": { code: "it.1", timeZone: "Europe/Rome" },
-  bundesliga: { code: "de.1", timeZone: "Europe/Berlin" },
-});
+/** Our league keys → openfootball competition code and the league's local time zone. DERIVED from the league
+ *  registry (Soccer V2 · C-1) — this used to be a second, hand-kept table that could disagree with it. */
+export const OPENFOOTBALL_LEAGUES = Object.freeze(Object.fromEntries(
+  SOCCER_LEAGUES.filter((l) => l.openfootball).map((l) => [l.key, Object.freeze({ ...l.openfootball })]),
+));
 
 /** The season label for a date: the season that starts in July/August of that year. */
 export function seasonOfDate(isoDate) {
