@@ -19,7 +19,8 @@ MSG="${1:?commit message required}"
 # v1.7 shadow-integrity audit: a shadow day file is a FIRST-PUBLICATION-WINS artifact. Two runs that both
 # created it would otherwise be resolved to the later copy — the S7 rewrite in a new place — so it is
 # refused like the money files, whatever GENERATED_PATHS says (docs/V17_WORKFLOW_AUDIT.md W2).
-PROTECTED_RE='(^|/)mr-dub/(portfolio|ledger|daily-summary|banked-ladders)\.json$|(^|/)data/internal/products/selector-shadow/'
+# Results V2 B-4a: a frozen daily Top-5 board is FIRST-PUBLICATION-WINS for the same reason.
+PROTECTED_RE='(^|/)mr-dub/(portfolio|ledger|daily-summary|banked-ladders)\.json$|(^|/)data/internal/products/selector-shadow/|(^|/)public/data/results/top-boards/'
 
 if git diff --cached --quiet; then echo "commit-generated: nothing staged"; exit 0; fi
 git commit -q -m "$MSG"

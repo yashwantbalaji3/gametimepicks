@@ -1,0 +1,67 @@
+# Results V2 · frozen daily Top-5 player-prop boards (B-4a). $0 — reads the committed public NFL boards,
+# spends no odds credits, calls no paid API.
+#
+# Freezes a day's board ONCE, inside [first kickoff − 24h, first kickoff): write-once in the producer (an
+# existing day file is never rewritten; the write uses flag "wx"), never late (a day whose first kickoff has
+# passed is never frozen). The commit that adds the file is the proof it predates every result, so this job
+# MERGES origin/main on a rejected push and never rebases (a rebase would rewrite that commit's date).
+name: results-top-boards
+
+on:
+  schedule:
+    # Every 30 minutes, 10:15–23:45 UTC, in season. A late cron is common (P253: median 204m late), so
+    # redundancy is the only defence: any one run inside a day's 24h window freezes it. Sunday's London
+    # game (13:30 UTC) is covered from 10:15; TNF / MNF (00:15 UTC next day) from Thursday / Monday daytime.
+    - cron: "15,45 10-23 * 9-12,1 *"
+  workflow_dispatch: {}
+
+# OWN group, never cancelled: a cancelled pending run could be the one inside the window (P257).
+concurrency:
+  group: results-top-boards
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+      - name: Freeze any day whose first kickoff is inside the next 24h
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/results/freeze-daily-top-boards.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      - name: Commit a newly frozen day
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          mkdir -p app/public/data/results/top-boards
+          git add app/public/data/results/top-boards/
+          if git diff --cached --quiet; then
+            echo "nothing newly frozen"
+            exit 0
+          fi
+          # Only NEW day files may ever be committed here — a modified one means write-once broke.
+          if git diff --cached --name-status | grep -v '^A'; then
+            echo "::error::a frozen board would be MODIFIED — write-once violated, refusing to commit"
+            exit 1
+          fi
+          git commit -m "auto: freeze daily top boards $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          for a in 1 2 3 4; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push rejected (attempt $a) — merging origin/main (never rebase: the commit date is the pre-kickoff proof)"
+            git fetch origin main
+            git merge --no-edit origin/main
+            sleep $((a * 5))
+          done
+          echo "::error::push never landed after 4 attempts"
+          exit 1

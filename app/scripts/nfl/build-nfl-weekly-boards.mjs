@@ -29,6 +29,7 @@ import { opponentIn } from "../../src/lib/sports/nfl/matchup.mjs";
 import path from "node:path";
 
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
+import { rankFamily, familyStateAcross } from "../../src/lib/sports/nfl/board-ranking.mjs";
 
 const APP = process.cwd();
 const BOARD_DIR = path.join(APP, "public/data/nfl/player-board");
@@ -98,15 +99,11 @@ const scope = played.length && upcoming.length
 // Family publication across the week: publish only if EVERY constituent board publishes it;
 // otherwise carry the (identical) bar from the receipts.
 const familyKeys = boards.length ? Object.keys(boards[0].families) : [];
+// Family publication across the week — the shared rule (lib/sports/nfl/board-ranking.mjs).
 const familyState = {};
 for (const key of familyKeys) {
-  const states = new Set(boards.map((b) => b.families[key]?.state));
-  const first = boards[0].families[key];
-  familyState[key] = states.size === 1 && states.has("PUBLISHED")
-    ? { label: first.label, state: "PUBLISHED", basis: first.basis }
-    : states.size === 1 && states.has("ESTIMATE")
-      ? { label: first.label, state: "ESTIMATE", reason: first.reason, caveat: first.caveat }
-      : { label: first.label, state: "WITHHELD", reason: first.reason ?? [...states].join("/") };
+  const st = familyStateAcross(boards, key);
+  if (st) { const { model: _model, ...rest } = st; familyState[key] = rest; }
 }
 
 /*
@@ -117,47 +114,38 @@ for (const key of familyKeys) {
 const opponentOf = (b, team) => opponentIn(b.matchup, team);
 
 function rankRows(family, metric, topN) {
-  const rows = [];
-  for (const b of scoped) {
-    for (const p of b.players) {
-      if (p.participation === "INACTIVE") continue; // confirmed out never ranks by default
-      const m = p.markets[family];
-      if (!m || m[metric] == null) continue;
-      rows.push({
-        playerId: p.playerId,
-        name: p.name,
-        team: p.team,
-        opponent: opponentOf(b, p.team),
-        providerEventId: b.providerEventId,
-        kickoffUtc: b.kickoffUtc,
-        participation: p.participation,
-        value: m[metric],
-        // Distribution context rides along where the family has one. Yardage quantiles are
-        // ROUNDED for display here (ranking still uses the precise value) — the per-game
-        // boards print integers and a top board printing "64.06 yards" beside them reads as
-        // false precision, not accuracy.
-        ...(m.p10 != null ? { p10: Math.round(m.p10), median: Math.round(m.median), p90: Math.round(m.p90) } : {}),
-        ...(m.probability != null ? { probability: m.probability } : {}),
-        /*
-         * The board family and the provider's market key are the same vocabulary EXCEPT for
-         * anytime TD, which the boards call `anytime_td` and the provider calls
-         * `player_anytime_td`. The capture publishes under the BOARD's name so the lookup needs no
-         * translation table — one name, decided at the producer.
-         */
-        /*
-         * ⚠ EITHER A PRICE OR A TYPED ABSENCE — never both, and never neither. `slotFor` returns
-         * exactly one of them, which is why the choice is made in the lookup rather than by each
-         * consumer assembling `market` and `pricingState` side by side and getting it right.
-         *
-         * NOT_OFFERED means we asked this event's books and the market was not posted; NOT_PROBED
-         * means we never asked about this event at all. Collapsing them would assert a negative
-         * nobody measured, which is the claim the whole typed-missingness grammar exists to stop.
-         */
-        ...propPrices.slotFor(b.providerEventId, p.playerId, family, p.name),
-      });
-    }
-  }
-  rows.sort((a, b) => b.value - a.value);
+  const rows = rankFamily(scoped, family, metric).map(({ board: b, player: p, market: m }) => ({
+    playerId: p.playerId,
+    name: p.name,
+    team: p.team,
+    opponent: opponentOf(b, p.team),
+    providerEventId: b.providerEventId,
+    kickoffUtc: b.kickoffUtc,
+    participation: p.participation,
+    value: m[metric],
+    // Distribution context rides along where the family has one. Yardage quantiles are
+    // ROUNDED for display here (ranking still uses the precise value) — the per-game
+    // boards print integers and a top board printing "64.06 yards" beside them reads as
+    // false precision, not accuracy.
+    ...(m.p10 != null ? { p10: Math.round(m.p10), median: Math.round(m.median), p90: Math.round(m.p90) } : {}),
+    ...(m.probability != null ? { probability: m.probability } : {}),
+    /*
+     * The board family and the provider's market key are the same vocabulary EXCEPT for
+     * anytime TD, which the boards call `anytime_td` and the provider calls
+     * `player_anytime_td`. The capture publishes under the BOARD's name so the lookup needs no
+     * translation table — one name, decided at the producer.
+     */
+    /*
+     * ⚠ EITHER A PRICE OR A TYPED ABSENCE — never both, and never neither. `slotFor` returns
+     * exactly one of them, which is why the choice is made in the lookup rather than by each
+     * consumer assembling `market` and `pricingState` side by side and getting it right.
+     *
+     * NOT_OFFERED means we asked this event's books and the market was not posted; NOT_PROBED
+     * means we never asked about this event at all. Collapsing them would assert a negative
+     * nobody measured, which is the claim the whole typed-missingness grammar exists to stop.
+     */
+    ...propPrices.slotFor(b.providerEventId, p.playerId, family, p.name),
+  }));
   return rows.slice(0, topN); // a MAXIMUM — fewer qualified rows publish fewer
 }
 
