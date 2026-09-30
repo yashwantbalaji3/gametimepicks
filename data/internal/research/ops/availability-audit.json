@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "availability-audit",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-09-30T16:35:05Z",
+  "generatedAt": "2026-09-30T19:35:50Z",
   "question": "Can a participant who cannot or is not expected to play still enter the active simulation population?",
   "sports": {
     "nfl": {
@@ -473,7 +473,7 @@
       "hardExclusionReachable": true,
       "state": "ACTIVE",
       "slate": "2026-09-30.json",
-      "confirmedLineups": 0,
+      "confirmedLineups": 1,
       "totalSimulated": 4,
       "events": [
         {
@@ -481,21 +481,21 @@
           "matchup": "PHI @ ATL",
           "startUtc": "2026-09-30T18:00:00Z",
           "lineupSource": {
-            "away": "prop-derived",
-            "home": "prop-derived"
+            "away": "confirmed",
+            "home": "confirmed"
           },
-          "confirmed": false,
-          "includedBatters": 16,
+          "confirmed": true,
+          "includedBatters": 18,
           "startersKnown": true,
           "level": "degraded",
           "missingFamilies": [
-            "confirmed_batting_order",
             "park_run_factors",
             "weather",
             "batter_handedness_splits"
           ],
           "notes": [
-            "ATL lineup padded: 7/9 batters have a posted line and the rest are at replacement level; ATL have not posted a batting order yet, and this refreshes hourly until they do.",
+            "PHI confirmed batting order used, all 9 with posted prop lines.",
+            "ATL confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
             "PHI starter Cristopher Sánchez has no strikeout projection — league starter rate used."
           ]
         },
@@ -567,7 +567,7 @@
         }
       ],
       "gaps": [
-        "4 of 4 simulated games ran on a PROP-DERIVED lineup because no batting order had been posted yet. A batter enters that lineup because a sportsbook posted a line for him, so a player scratched AFTER the lines were posted can still be simulated. The artifact records this as level \"degraded\" with lineupSource \"prop-derived\" and the hourly lineup refresh replaces it once the order lands — it is a labelled weaker state, not a silent one."
+        "3 of 4 simulated games ran on a PROP-DERIVED lineup because no batting order had been posted yet. A batter enters that lineup because a sportsbook posted a line for him, so a player scratched AFTER the lines were posted can still be simulated. The artifact records this as level \"degraded\" with lineupSource \"prop-derived\" and the hourly lineup refresh replaces it once the order lands — it is a labelled weaker state, not a silent one."
       ]
     },
     "epl": {
@@ -679,10 +679,10 @@
       "owner": "track-ufc-card-lineage.mjs · classifyUfcLineage over consecutive schedule captures",
       "hardExclusionReachable": true,
       "state": "NO_CHANGE",
-      "receipt": "2026-09-29.json",
-      "generatedAt": "2026-09-29T16:50:19Z",
+      "receipt": "2026-09-30.json",
+      "generatedAt": "2026-09-30T18:21:05Z",
       "boutClasses": {
-        "UNCHANGED": 61
+        "UNCHANGED": 56
       },
       "excluded": [],
       "events": [],
