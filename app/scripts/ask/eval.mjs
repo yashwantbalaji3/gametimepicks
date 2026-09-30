@@ -181,8 +181,14 @@ function grade(c, out) {
    * E-4 · DATE WINDOW. forecast-01 ("tonight") once passed while answering with October games: nothing checked
    * that a "today / tonight" answer stays on today. Any ISO date such an answer names must be the eval's day.
    */
-  if (/\b(?:tonight|today)\b/i.test(c.q ?? (c.turns ?? []).join(" ")) && tools.includes("getPublishedForecasts")) {
-    const off = [...md.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g)].map((m) => m[1]).filter((d) => d !== EVAL_DAY);
+  // Only when forecasts WERE returned (status OK): an honest "none today; the next are for DATE" names another day by
+  // design (E-1) — that is the correct answer, not a date-window breach (CI-found).
+  const fcIdx = tools.indexOf("getPublishedForecasts");
+  const forecastsReturned = fcIdx > -1 && (out.receipt?.toolStatuses ?? [])[fcIdx] === "OK";
+  if (/\b(?:tonight|today)\b/i.test(c.q ?? (c.turns ?? []).join(" ")) && forecastsReturned) {
+    // A GAME date, not a timestamp: "updated 2026-09-29T11:43:00Z" is when the artifact was built (CI-found — the
+    // first version flagged it). The date part of an ISO datetime is excluded.
+    const off = [...md.matchAll(/\b(\d{4}-\d{2}-\d{2})\b(?!T\d)/g)].map((m) => m[1]).filter((d) => d !== EVAL_DAY);
     add("date-window", off.length === 0, `a today/tonight answer named ${off.join(", ")}`);
   }
 
