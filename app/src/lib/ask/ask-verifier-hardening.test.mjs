@@ -35,12 +35,22 @@ test("🔴 other directional verbs are pick claims too — sourced only by a pic
   assert.equal(verifyAnswer("The model projects 20 points for Pittsburgh.", evidenceFor(["projected score: PIT 20"], [20])).ok, true, "a projected SCORE is not a pick claim");
 });
 
+test("faithful restatements the first build of these checks refused (eval-found) still pass", () => {
+  const graded = evidenceFor(["on 2026-09-21 for CLE @ PIT, GameTime predicted HOME, the actual result was HOME, a correct forecast"], ["2026-09-21"]);
+  assert.equal(verifyAnswer("On 2026-09-21 for CLE @ PIT, GameTime predicted HOME, the actual result was HOME, a correct forecast.", graded).ok, true, "a graded past forecast is not a live pick");
+  const rec = evidenceFor(["Within that record, the PROTECTED_BASE era is 19–14 from 33 cards", "Bank Builder's current record is 37–36, as of 2026-09-23 ET"], [19, 14, 33, 37, 36, "2026-09-23"]);
+  assert.equal(verifyAnswer("Within that record, the PROTECTED_BASE era is 19–14 from 33 cards. As of 2026-09-23 ET, Bank Builder's current record is 37–36.", rec).ok, true, "sentence openers and time zones are not owners");
+});
+
 test("🔴 a record belongs to its owner: numbers pooled across evidence can no longer be swapped", () => {
   const ev = evidenceFor(["Bank Builder's current record is 37–36", "Moonshot's current record is 4–35"], [37, 36, 4, 35]);
   assert.equal(verifyAnswer("Bank Builder is 4–35.", ev).ok, false, "Moonshot's record on Bank Builder");
   assert.equal(verifyAnswer("Bank Builder is 37–36.", ev).ok, true);
   assert.equal(verifyAnswer("Bank Builder is 37–36 and Moonshot is 4–35.", ev).ok, true, "each record binds to its own clause");
   assert.equal(verifyAnswer("The record is 37–36.", ev).ok, true, "a clause that names no owner is not bound");
+  // A date is not a record: "2026-09-16" contains "09-16" (the first build of this check refused the evidence itself).
+  const dated = evidenceFor(["GameTime has 12 graded NFL forecasts between 2026-09-14 and 2026-09-16", "Bank Builder's current record is 37–36"], [12, "2026-09-14", "2026-09-16", 37, 36]);
+  assert.equal(verifyAnswer("GameTime has 12 graded NFL forecasts between 2026-09-14 and 2026-09-16. Bank Builder's current record is 37–36.", dated).ok, true);
 });
 
 test("🔴 a clarification cannot carry an in-flight settlement claim or an unsourced status", () => {

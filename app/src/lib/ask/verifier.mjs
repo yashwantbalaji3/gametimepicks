@@ -273,16 +273,25 @@ const dash = (s) => String(s).replace(/\s?[–-]\s?/g, "–");
 const NOT_AN_OWNER = new Set(("GameTime Ask The A An It Its This That These Those In On At Of Over Under And But So With For Since Across All Each " +
   "Their They He She His Her Record Records Season Seasons Win Wins Loss Losses Push Pushes Void Picks Pick Current Overall Total Today Yesterday Tonight " +
   "Monday Tuesday Wednesday Thursday Friday Saturday Sunday January February March April May June July August September October November December " +
-  "Jan Feb Mar Apr Jun Jul Aug Sep Sept Oct Nov Dec Week Game Games Paper Settled Graded").split(" "));
+  "Jan Feb Mar Apr Jun Jul Aug Sep Sept Oct Nov Dec Week Game Games Paper Settled Graded " +
+  /* sentence-opening adverbs and time-zone labels are not owners (eval, E-2: "Within that record, …", "… ET") */
+  "Within Separately However Also Meanwhile Overall Currently Here There As By From To Across Before After During Including " +
+  "ET UTC EST EDT PT PST PDT GMT").split(" "));
+/* A date or a clock time is not a record: "2026-09-16" holds "09-16", and 19:05 is not a score. Blanked first. */
+const noDates = (t) => String(t).replace(/\b\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z?)?\b/g, " ").replace(/\b\d{1,2}:\d{2}\b/g, " ");
 function recordOwnerViolations(text, facts) {
   const out = [];
-  const clauses = String(text).split(/(?<!\d)\.(?!\d)|[;\n•|·!?:,]|\band\b|\bwhile\b|\bbut\b|\bwhereas\b/);
+  facts = facts.map((f) => ({ ...f, text: noDates(f.text) }));
+  const clauses = noDates(text).split(/(?<!\d)\.(?!\d)|[;\n•|·!?:,]|\band\b|\bwhile\b|\bbut\b|\bwhereas\b/);
   for (const clause of clauses) {
     for (const m of clause.matchAll(RECORD_RE)) {
       const rec = dash(m[0]);
       const withIt = facts.filter((f) => dash(f.text).includes(rec));
       if (!withIt.length) continue; // the numeric check owns an absent number
-      const owners = [...new Set((clause.match(/\b[A-Z][A-Za-z'’.]+\b/g) ?? []).map((w) => w.replace(/['’]s?$/, "")).filter((w) => w.length > 1 && !NOT_AN_OWNER.has(w)))];
+      const caps = [...clause.matchAll(/\b[A-Z][A-Za-z'’.]+\b/g)];
+      // A lone capitalised word opening the clause is sentence case, not a name ("Separately, …").
+      const opener = caps[0] && clause.slice(0, caps[0].index).trim() === "" && !(caps[1] && caps[1].index === caps[0].index + caps[0][0].length + 1) ? caps[0][0] : null;
+      const owners = [...new Set(caps.map((m) => m[0]).filter((w) => w !== opener).map((w) => w.replace(/['’]s?$/, "")).filter((w) => w.length > 1 && !NOT_AN_OWNER.has(w)))];
       if (!owners.length) continue;
       if (!withIt.some((f) => owners.every((w) => f.text.includes(w)))) {
         out.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `the record ${m[0]} is attached to ${owners.join(" ")}, but the evidence gives it to someone else` });
@@ -305,7 +314,9 @@ const PICK_CLAIM = new RegExp([
   /\bGameTime['’]s?\s+(?:model['’]s\s+)?pick\s+(?:is\b|:)/.source,
   /\b[Ww]e\s+(?:like|pick|lean|are picking|are leaning)\b/.source,
   /* E-2 (probed): other directional verbs made the same claim unchecked — "The model favors Arsenal". */
-  /\b(?:GameTime|[Tt]he model|[Oo]ur model|[Tt]he forecast)(?:['’]s?)?(?:\s+(?:model|engine|forecast))?\s+(?:favors|favours|favored|favoured|backs|is backing|predicts|predicted)\b/.source,
+  /\b(?:GameTime|[Tt]he model|[Oo]ur model|[Tt]he forecast)(?:['’]s?)?(?:\s+(?:model|engine|forecast))?\s+(?:favors|favours|favored|favoured|backs|is backing)\b/.source,
+  /* ⚠ NOT "predicted": results evidence restates graded HISTORY as "GameTime predicted HOME, the actual result was
+     HOME" — a past, graded forecast, not a live pick. Flagging it rejected faithful results answers (eval, E-2). */
   /\b(?:GameTime|[Tt]he model|[Oo]ur model)(?:['’]s?)?(?:\s+(?:model|engine))?\s+(?:expects|projects|has)\s+[^.;\n:]{1,40}?\s+to\s+(?:win|beat|cover)\b/.source,
   /\bis\s+(?:GameTime['’]s|the model['’]s|our)\s+pick\b|\bis the pick\b/.source,
 ].join("|"), "g");
