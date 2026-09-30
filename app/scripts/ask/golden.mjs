@@ -251,8 +251,10 @@ export const GOLDEN = [
   /* Areas Ask has no tool for: the answer must not invent the content, whatever it routes to. */
   { id: "gap-01", category: "honest-gap", q: "What changed on GameTime since yesterday?", mustNotMention: ["was promoted", "has been upgraded", "new model went live"] },
   { id: "gap-02", category: "honest-gap", q: "Show me the full simulation run for tonight's games", mustNotMention: ["simulated 10,000 times shows", "the simulation says", "simulated final score"] },
-  { id: "gap-03", category: "honest-gap", q: "How are the players I follow doing?", mustNotMention: ["your followed players", "you follow"] },
-  { id: "gap-04", category: "honest-gap", q: "Is the MLB batter hits model paused or published right now?", expectTools: ["getCoverage"], mustNotMention: ["is validated", "is a published gametime projection"] },
+  /* ⚠ substring checks name the CLAIM: the honest answer explains where follows live ("players you follow are kept on
+     your device"), so "you follow" alone would fire on it. */
+  { id: "gap-03", category: "honest-gap", q: "How are the players I follow doing?", mustNotMention: ["your followed players are doing", "your followed players scored", "the players you follow are playing well"] },
+  { id: "gap-04", category: "honest-gap", q: "Is GameTimePicks' batter hits model paused or published?", expectTools: ["getCoverage"], mustNotMention: ["is validated", "is a published gametime projection"] },
 
   { id: "cov-01", category: "coverage", q: "Does GameTimePicks predict MLB player props?",
     tools: ["getCoverage"], expectGrounded: true,

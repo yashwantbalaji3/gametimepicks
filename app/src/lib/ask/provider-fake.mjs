@@ -174,7 +174,9 @@ function routePlan(user) {
    * specific matchup is still a forecast question and falls through.
    */
   const coverageAsk = has("do you cover", "does gametimepicks cover", "do you predict", "does gametimepicks predict",
-                          "which markets", "what markets", "is it validated", "model validated", "markets does gametimepicks");
+                          "which markets", "what markets", "is it validated", "model validated", "markets does gametimepicks",
+                          /* E-4: a model-STATUS question is a coverage question too (gap-04) */
+                          "model paused", "paused or published", "is it paused", "model status");
   if (coverageAsk) {
     /* A planner that heard a specific market would narrow to it; without the hint the answer opens
        on whichever row sorts first, which reads as evasion of the question actually asked. */
