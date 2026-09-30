@@ -24,3 +24,14 @@ export function readableAnswer(text) {
     .replace(/\(\s*\)/g, "")
     .replace(/[ \t]+([.,;:])/g, "$1");
 }
+
+/**
+ * THE LIST-ITEM TEXT OF A LINE, OR null (Session 2, Production). Writers use "- ", "• ", "* " and "1. " — Gemini writes
+ * "* ". The renderer recognised only "-" and "•", so a "* " list collapsed into one run-on paragraph
+ * ("* PHI 4, ATL 3 (Bottom 10th) * CWS 1, HOU 0 …"). A "**bold**" opener is emphasis, never a bullet.
+ * @param {string} line
+ */
+export function listItemOf(line) {
+  const m = String(line ?? "").match(/^\s*(?:[-•]|\*(?!\*)|\d{1,2}[.)])\s+(.*)$/);
+  return m ? m[1] : null;
+}
