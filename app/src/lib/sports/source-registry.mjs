@@ -102,9 +102,21 @@ export const SOURCES = Object.freeze({
     credentials: "none",
     terms: "openfootball public-domain datasets (github.com/openfootball); free to use, attribution courteous. First exercised Program 148 Release C: england repo carried ALL 380 2025-26 results where the football.json mirror was missing 27",
     authorization: "PUBLIC_DISPLAY",
-    sports: ["epl"],
+    /* Soccer V2 · C-1: was ["epl"] only — stale since P257 captured four more leagues' history through it
+       (lib/sports/soccer/openfootball.mjs; the league list is derived from lib/sports/soccer/leagues.mjs). */
+    sports: ["epl", "ligue-1", "laliga", "serie-a", "bundesliga"],
     roles: ["results-history", "schedule-candidate"],
     failureBehavior: "community-maintained: club names outside the committed membership table QUARANTINE. The 2026-27 Coventry/Hull quarantine RESOLVED 2026-08-09 by dual-source verification (ESPN eng.1 agreement) — the pattern stands for future promotions; season completeness enforced by exactly-380 refusals in both the corpus builder and the capture script",
+  },
+  fantasy_premier_league: {
+    owner: "ENGINEERING (evaluation)",
+    cost: "free",
+    credentials: "none",
+    terms: "The Premier League's own Fantasy Premier League API (fantasy.premierleague.com/api), public and keyless; unofficial for third parties, no published licence. First real use P700 (66f280f262, 2026-09-26). RECORDED in Soccer V2 · C-1 — it was already read (scripts/epl/build-fpl-crosswalk.mjs) but had no registry row",
+    authorization: "PRIVATE_RESEARCH",
+    sports: ["epl"],
+    roles: ["availability-candidate", "player-identity-crosswalk"],
+    failureBehavior: "the crosswalk is a CANDIDATE and is applied nowhere (lib/sports/epl/fpl-crosswalk.mjs) — no public surface reads FPL availability; any future use needs its own publication decision",
   },
   nflverse: {
     owner: "AUTOMATION",
