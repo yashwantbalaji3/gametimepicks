@@ -23,6 +23,7 @@ import { fileURLToPath } from "node:url";
 import { league as leagueOf } from "../../src/lib/sports/soccer/leagues.mjs";
 import { fitEplStrength, scoreMatrix, sparseSplitFlags, normalizeClubName, EPL_MODEL_ID } from "../../src/lib/sports/epl/strength-state.mjs";
 import { fetchScoreboardWindowEvents, isProviderRefusal, utcDayStart, utcDayEnd } from "../../src/lib/sports/espn-scoreboard-window.mjs";
+import { espnSoccerEventId } from "../../src/lib/sports/soccer/event-id.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -62,7 +63,7 @@ for (const e of events) {
   const side = (ha) => comp?.competitors?.find((c) => c.homeAway === ha)?.team;
   const home = side("home"), away = side("away");
   const kickoffUtc = e.date ? new Date(e.date).toISOString() : null;
-  const base = { eventId: `soccer:${L.key}:${e.id}`, providerEventId: e.id, kickoffUtc, homeEspnId: home?.id ?? null, awayEspnId: away?.id ?? null };
+  const base = { eventId: espnSoccerEventId(L.key, e.id), providerEventId: e.id, kickoffUtc, homeEspnId: home?.id ?? null, awayEspnId: away?.id ?? null };
   if (!home || !away || !kickoffUtc) { refused.push({ ...base, reason: "fixture is missing a side or a kickoff time" }); continue; }
   if (e.status?.type?.state !== "pre" || Date.parse(kickoffUtc) <= from) continue; // pre-kickoff only — a started match is never forecast
   const h = corpusName(home.displayName), a = corpusName(away.displayName);

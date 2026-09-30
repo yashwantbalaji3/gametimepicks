@@ -13,6 +13,7 @@
  */
 
 import { SOCCER_LEAGUES } from "./leagues.mjs";
+import { augMaySeason } from "./season.mjs";
 
 export const OPENFOOTBALL_BASE = "https://raw.githubusercontent.com/openfootball/football.json/master";
 export const OPENFOOTBALL_ATTRIBUTION = "Results: openfootball football.json (https://github.com/openfootball/football.json), public domain (CC0 1.0).";
@@ -23,12 +24,9 @@ export const OPENFOOTBALL_LEAGUES = Object.freeze(Object.fromEntries(
   SOCCER_LEAGUES.filter((l) => l.openfootball).map((l) => [l.key, Object.freeze({ ...l.openfootball })]),
 ));
 
-/** The season label for a date: the season that starts in July/August of that year. */
-export function seasonOfDate(isoDate) {
-  const [y, m] = String(isoDate).slice(0, 7).split("-").map(Number);
-  const start = m >= 7 ? y : y - 1;
-  return `${start}-${String(start + 1).slice(2)}`;
-}
+/** The season label for a date: the season that starts in July/August of that year. The ONE rule lives in
+ *  season.mjs (Soccer V2 · C-2); this name stays for its callers. */
+export const seasonOfDate = augMaySeason;
 
 /** Local wall-clock "YYYY-MM-DD" + "HH:MM" in an IANA zone → ISO UTC (DST-correct). */
 export function localToUtcIso(date, time, timeZone) {
