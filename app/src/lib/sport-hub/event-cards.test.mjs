@@ -23,9 +23,9 @@ const html = (rows) => renderToStaticMarkup(React.createElement(GameSummary, { r
 test("🔴 an event renders as a card with both sides, the read as its headline, its kind, and one action", () => {
   const h = html([row()]);
   assert.doesNotMatch(h, /<table/, "no spreadsheet table");
-  assert.match(h, /<li[^>]*rounded-xl/);
+  assert.match(h, /<li[^>]*rounded-2xl/);
   assert.match(h, /PHI<\/span>[\s\S]*@[\s\S]*ATL<\/span>/, "both sides, in matchup order, with the separator");
-  assert.match(h, /text-\[17px\] font-bold[^>]*>ATL · PHI \+1\.5</, "a model read is the headline");
+  assert.match(h, /text-\[18px\] font-bold[^>]*>ATL · PHI \+1\.5</, "a model read is the headline");
   assert.match(h, /model forecast · simulation/, "the read's kind is always printed");
   assert.match(h, /Open report/);
   assert.match(h, /href="\/games\/mlb\/phi-vs-atl-2031-07-14\/?"/);
@@ -33,7 +33,7 @@ test("🔴 an event renders as a card with both sides, the read as its headline,
 
 test("a market price is never given the forecast's weight, and is labelled as the market's", () => {
   const h = html([row({ read: { label: "Atlanta Braves · 64%", kind: "MARKET_PRICE", detail: "odds_api" } })]);
-  assert.doesNotMatch(h, /text-\[17px\] font-bold[^>]*>Atlanta Braves/);
+  assert.doesNotMatch(h, /text-\[18px\] font-bold[^>]*>Atlanta Braves/);
   assert.match(h, /market price · odds_api/);
 });
 
@@ -43,6 +43,23 @@ test("fighters without crests get initials; an event with no report says why ins
   assert.match(h, /No supported read for this game/);
   assert.match(h, /not modelled — no tracked history/);
   assert.doesNotMatch(h, /Open report/);
+});
+
+test("S1 · a model favourite is emphasised and its owner's published split is drawn; a market price gets neither", () => {
+  const nfl = { label: "PIT 54.4%", kind: "MODEL_FORECAST", detail: "experimental", favored: "PIT", split: [{ label: "PIT", p: 0.544 }, { label: "CLE", p: 0.426 }] };
+  const base = { matchup: "PIT @ CLE", participants: [{ name: "PIT", logoTeam: "PIT", logoSport: "nfl" }, { name: "CLE", logoTeam: "CLE", logoSport: "nfl" }], separator: "@" };
+  const h = html([row({ ...base, read: nfl })]);
+  assert.match(h, /\(model favourite\)/, "the favoured side is announced");
+  assert.equal((h.match(/\(model favourite\)/g) ?? []).length, 1, "exactly one side is the favourite");
+  assert.match(h, />54%</); assert.match(h, />43%</);
+  assert.match(h, /width:54\.4%/, "the bar is the owner's number, not a rounded or derived one");
+  const m = html([row({ ...base, read: { ...nfl, kind: "MARKET_PRICE" } })]);
+  assert.doesNotMatch(m, /model favourite/, "a market price never marks a favourite");
+  assert.doesNotMatch(m, /width:54\.4%/, "…and never draws the model's bar");
+  const bad = html([row({ ...base, read: { ...nfl, split: [{ label: "PIT", p: 0.7 }, { label: "CLE", p: 0.6 }] } })]);
+  assert.doesNotMatch(bad, /width:70%/, "an undrawable split is not drawn");
+  const stranger = html([row({ ...base, read: { ...nfl, favored: "BAL" } })]);
+  assert.doesNotMatch(stranger, /model favourite/, "a favourite that is not a side marks nobody");
 });
 
 test("rows without participants still render their matchup text (no invented sides)", () => {

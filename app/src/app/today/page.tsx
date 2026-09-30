@@ -329,11 +329,6 @@ export default function TodayPage() {
         mlbLeans={mlbLeans}
       />
 
-      {/* P311 — the GameTime Brief: what changed since the last run (model states from the scorecard's own
-          transition record, MLB forecast moves between today's frozen snapshots) and the reader's own layer
-          (saved forecasts, followed teams). Nothing here is a "best bet". */}
-      <GameTimeBrief changes={buildChangeLog({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date(nowMs).toISOString() })} />
-
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed
               one, and only ever offers a destination the search index derived from a published
               artifact — so it cannot promise a page that does not exist. */}
@@ -347,10 +342,6 @@ export default function TodayPage() {
 
       {/* 1c — Daily MLB intelligence brief: the executive digest (overview + spotlight + attention + links) */}
       <TodayMlbBrief brief={brief} recapHref={hasSettledResults ? "/results" : null} />
-
-      {/* 1d — What we can show today: sportsbook + model availability, capture provenance, and a named
-          reason for every withheld market. Derived from canonical GameIntelligence; availability only. */}
-      <TodayMarketCoverage coverage={marketCoverage} />
 
       {/* 2 — Today at a glance (compact canonical status cards) */}
       <TodayAtAGlance cards={glanceCards} />
@@ -391,6 +382,19 @@ export default function TodayPage() {
 
       {/* 4b — Every game on the slate: grouped by readiness, one honest per-game action, factual summary */}
       <TodayFullSlate groups={slate.groups} summary={slate.summary} readinessNote={slateReadiness} />
+
+      {/* S1 (2026-09-30): the change log and the market-coverage provenance follow the slate. Both are the
+          trust layer — model-state transitions and capture availability — and led the page above every game,
+          so the first thing on /today was a scorecard diff ("NFL blind forward test … → Watch"). Same owners,
+          same content, now after what is actually on today. */}
+      {/* P311 — the GameTime Brief: what changed since the last run (model states from the scorecard's own
+          transition record, MLB forecast moves between today's frozen snapshots) and the reader's own layer
+          (saved forecasts, followed teams). Nothing here is a "best bet". */}
+      <GameTimeBrief changes={buildChangeLog({ dataRoot, repoRoot: path.join(process.cwd(), ".."), today, nowIso: new Date(nowMs).toISOString() })} />
+
+      {/* 1d — What we can show today: sportsbook + model availability, capture provenance, and a named
+          reason for every withheld market. Derived from canonical GameIntelligence; availability only. */}
+      <TodayMarketCoverage coverage={marketCoverage} />
 
       {/* 5 — Build-a-Pick module */}
       <BuildAPickModule

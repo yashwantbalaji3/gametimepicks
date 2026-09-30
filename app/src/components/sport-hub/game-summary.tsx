@@ -1,6 +1,6 @@
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
-import { orderRows, hubCounts, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
+import { orderRows, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
 
 /**
  * The first thing on every sport page: what is on, what we think, and where to read it.
@@ -33,44 +33,93 @@ function Action({ row }: { row: HubGameRow }) {
   );
 }
 
-function Side({ p }: { p: HubParticipant }) {
+/*
+ * S1 (2026-09-30): THE MATCHUP IS THE CARD. The first version stacked both sides as 24px crests beside
+ * abbreviations with the separator on a line of its own, so sixteen NFL games read as a list of
+ * three-letter codes. Each side is now a column — a real crest (or initials), the name allowed to wrap
+ * rather than truncate — facing the other across the separator, and the side the MODEL favours is the
+ * brighter one. A market price never marks a favourite (HubRead.favored is model-only by contract).
+ */
+function Side({ p, favored, dim }: { p: HubParticipant; favored: boolean; dim: boolean }) {
   return (
-    <span className="flex items-center gap-2 min-w-0">
+    <div className="flex min-w-0 flex-col items-center gap-2 text-center">
       {p.logoTeam && p.logoSport
-        ? <TeamLogo team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel={`${p.name} logo`} />
-        : <span aria-hidden className="inline-flex items-center justify-center rounded-full shrink-0 font-mono text-[11px]" style={{ width: 28, height: 28, background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>{initials(p.name)}</span>}
-      <span className="truncate text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{p.name}</span>
-    </span>
+        ? <TeamLogo team={p.logoTeam} sport={p.logoSport} size="lg" highlight={favored} ariaLabel={`${p.name} logo`} />
+        : (
+          <span aria-hidden className="inline-flex items-center justify-center rounded-full shrink-0 text-[15px] font-semibold"
+            style={{ width: 52, height: 52, background: "var(--vault-wash-soft)", border: `1px solid ${favored ? "var(--vault-accent)" : "var(--vault-border)"}`, color: "var(--vault-text)" }}>
+            {initials(p.name)}
+          </span>
+        )}
+      <span className="line-clamp-2 break-words text-[15px] font-semibold leading-tight"
+        style={{ color: dim ? "var(--vault-text-mute)" : "var(--vault-text)" }}>
+        {p.name}
+      </span>
+      {favored ? <span className="sr-only">(model favourite)</span> : null}
+    </div>
   );
 }
 
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
 
+const pct = (p: number) => `${Math.round(p * 100)}%`;
+
+/** The owner's own outcome probabilities as one bar. Rendered only from drawableSplit — never a derived complement. */
+function SplitBar({ split, favored, sides }: { split: Array<{ label: string; p: number }>; favored?: string; sides: string[] }) {
+  return (
+    <div>
+      <div className="flex h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--vault-wash-soft)" }} aria-hidden>
+        {split.map((s, i) => (
+          <span key={`${s.label}-${i}`} style={{
+            width: `${Math.round(s.p * 10000) / 100}%`,
+            background: s.label === favored ? "var(--vault-accent)" : "var(--vault-text-faint)",
+            opacity: s.label === favored ? 1 : 0.45,
+            marginLeft: i ? 2 : 0,
+          }} />
+        ))}
+      </div>
+      <div className="mt-1.5 flex justify-between gap-2 text-[12px] tabular-nums" style={{ color: "var(--vault-text-mute)" }}>
+        {split.map((s, i) => (
+          <span key={`${s.label}-${i}`} style={s.label === favored ? { color: "var(--vault-text)", fontWeight: 600 } : undefined}>
+            {/* Sides sit directly above, in the same order, so a side's share prints as a number; an
+                outcome that is not a side (a draw) keeps its word. */}
+            {sides.includes(s.label) ? <span className="sr-only">{s.label} </span> : `${s.label} `}{pct(s.p)}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function EventCard({ row: r, unitLabel }: { row: HubGameRow; unitLabel: string }) {
   const hasSides = Array.isArray(r.participants) && r.participants.length === 2;
   const tone = r.read ? READ_TONE[r.read.kind] : null;
   const isModel = r.read?.kind === "MODEL_FORECAST" || r.read?.kind === "MODEL_PICK";
+  const favored = isModel ? r.read?.favored : undefined;
+  const favoredIsSide = Boolean(favored && r.participants?.some((p) => p.name === favored));
+  const split = isModel ? drawableSplit(r.read) : null;
   return (
-    <li className="rounded-xl p-4 flex flex-col gap-3" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{r.startLabel}</span>
-        <span className="font-mono text-[10.5px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)" }}>{r.status}</span>
+    <li className="rounded-2xl p-4 sm:p-5 flex flex-col gap-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[12.5px] font-medium" style={{ color: "var(--vault-text-mute)" }}>{r.startLabel}</span>
+        <span className="rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-border)" }}>{r.status}</span>
       </div>
       {hasSides ? (
-        <div className="flex flex-col gap-1.5" aria-label={r.matchup}>
-          <Side p={r.participants![0]} />
-          <span className="font-mono text-[11px] pl-9" style={{ color: "var(--vault-text-mute)" }}>{r.separator ?? "vs"}</span>
-          <Side p={r.participants![1]} />
+        <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2" aria-label={r.matchup}>
+          <Side p={r.participants![0]} favored={favoredIsSide && r.participants![0].name === favored} dim={favoredIsSide && r.participants![0].name !== favored} />
+          <span className="pt-5 text-[12px] font-medium" style={{ color: "var(--vault-text-mute)" }}>{r.separator ?? "vs"}</span>
+          <Side p={r.participants![1]} favored={favoredIsSide && r.participants![1].name === favored} dim={favoredIsSide && r.participants![1].name !== favored} />
         </div>
       ) : (
-        <div className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{r.matchup}</div>
+        <div className="text-[16px] font-semibold" style={{ color: "var(--vault-text)" }}>{r.matchup}</div>
       )}
-      <div className="rounded-lg px-3 py-2" style={{ background: "var(--vault-wash-faint)" }}>
+      <div className="rounded-xl px-3.5 py-3" style={{ background: "var(--vault-wash-faint)" }}>
         {r.read ? (
           <>
             {/* A model read is the card's headline; a market price is shown, muted, and labelled as the market's. */}
-            <div className={isModel ? "text-[17px] font-bold" : "text-[14px]"} style={{ color: tone!.color }}>{r.read.label}</div>
-            <div className="mt-0.5 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{tone!.label}{r.read.detail ? ` · ${r.read.detail}` : ""}</div>
+            <div className={isModel ? "text-[18px] font-bold leading-snug" : "text-[14px]"} style={{ color: tone!.color }}>{r.read.label}</div>
+            <div className="mt-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{tone!.label}{r.read.detail ? ` · ${r.read.detail}` : ""}</div>
+            {split ? <div className="mt-3"><SplitBar split={split} favored={favored} sides={(r.participants ?? []).map((p) => p.name)} /></div> : null}
           </>
         ) : (
           <div className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No supported read for this {unitLabel.toLowerCase().replace(/s$/, "")}</div>

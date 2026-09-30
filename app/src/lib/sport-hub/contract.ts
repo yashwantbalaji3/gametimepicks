@@ -49,6 +49,27 @@ export interface HubRead {
   kind: "MODEL_FORECAST" | "MODEL_PICK" | "MARKET_PRICE" | "BASELINE_ONLY";
   /** Optional qualifier shown beside it — sample size, "baseline only", "market-derived". */
   detail?: string;
+  /**
+   * S1 (2026-09-30): the participant this read favours, by its EXACT participant name, so the event card
+   * can emphasise that side. Set only on a MODEL read — a market price never marks a favourite — and only
+   * when the adapter can name the side without guessing.
+   */
+  favored?: string;
+  /**
+   * The owner's OWN published probabilities for every outcome, in the card's display order (NFL away/home,
+   * soccer home/draw/away), drawn as a split bar. Never derived: no `1 − p` complement is invented, and a
+   * sport whose owner publishes one side only leaves this absent.
+   */
+  split?: Array<{ label: string; p: number }>;
+}
+
+/** A read's split bar is drawable only when every share is a real probability. */
+export function drawableSplit(read: HubRead | null | undefined): Array<{ label: string; p: number }> | null {
+  const s = read?.split;
+  if (!Array.isArray(s) || s.length < 2) return null;
+  if (!s.every((x) => typeof x?.label === "string" && x.label && Number.isFinite(x.p) && x.p >= 0 && x.p <= 1)) return null;
+  const total = s.reduce((a, x) => a + x.p, 0);
+  return total > 0 && total <= 1.0001 ? s : null;
 }
 
 export interface HubGameRow {
