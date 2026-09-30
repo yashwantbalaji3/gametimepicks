@@ -197,7 +197,9 @@ export const GOLDEN = [
   {
     id: "parlay-07", category: "parlay", fixture: "parlay-slate", q: "Show me medium risk parlay candidates",
     expectTools: ["getParlayCandidates"], mustMention: ["market-context"],
-    mustNotMention: ["confidence high", "gametime projection"],
+    /* ⚠ mustNotMention is a substring test with no negation: the honest answer says "NOT a published GameTime
+       projection", so the list names the CLAIM ("is a GameTime projection"), never the vocabulary. */
+    mustNotMention: ["confidence high", "is a gametime projection", "gametime projection, confidence"],
   },
 
   /* ───────────────────────────  RESPONSIBLE WAGERING  ─────────────────────────── */
@@ -495,12 +497,12 @@ export const GOLDEN = [
     expectGrounded: true,
   },
   {
-    id: "multi-02", category: "multi-turn", fixture: "parlay-slate",
+    id: "multi-02", category: "multi-turn", fixture: "parlay-slate-eligible",
     turns: ["Give me the best parlays today", "$100, medium"],
     expectTools: ["getParlayCandidates"], expectGrounded: true, expectNoInventedLeg: true,
   },
   {
-    id: "multi-03", category: "multi-turn", fixture: "parlay-slate",
+    id: "multi-03", category: "multi-turn", fixture: "parlay-slate-eligible",
     turns: ["medium risk parlays", "make it longshot"],
     expectTools: ["getParlayCandidates"], expectGrounded: true,
   },
