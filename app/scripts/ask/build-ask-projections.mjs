@@ -68,6 +68,8 @@ import { MLB_MARKET_CALIBRATION, isCalibrationFailed } from "../../src/lib/mlb/m
 import { buildHelpCorpus } from "../../src/lib/ask/help-source.mjs";
 import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-model.mjs";
 import { legIsMarketContext, marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibility.mjs";
+import { resultsDay, resultsDayDates } from "../../src/lib/results/v2/day.ts";
+import { productReceiptDates, productReceiptsFor } from "../../src/lib/results/v2/product-receipts.ts";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.join(APP, "..");
@@ -740,6 +742,7 @@ function buildResults() {
     artifact: "ask-results",
     available: true,
     builtAt: proj.builtAt ?? null,
+    days: buildResultDays(),
     /* The projection's own headline map: which cell IS the current record for a product or a sport.
        Ask never picks a cell by scanning — it asks the owner which one it designated. */
     /* An empty list here is a CLAIM that nothing was cut, so it is written even when empty. */
@@ -753,6 +756,43 @@ function buildResults() {
     cells,
     recent,
   };
+}
+
+/**
+ * THE RESULTS DAY, PROJECTED FOR ASK (Session 2). "How did GameTimePicks do yesterday?" had no owner Ask could read:
+ * getRecentResults lists NFL/EPL/UFC forecast feeds only, so the MLB recap — Bank Builder and Moonshot lanes and the
+ * day's graded game calls, i.e. exactly what /results/date/<date>/ shows — answered "the sport is not one of NFL,
+ * EPL, or UFC". This republishes the SAME two Results V2 owners that page renders (`productReceiptsFor`,
+ * `resultsDay`), copied field for field: every lane result and leg grade is the owner's word, a pending lane stays
+ * pending, and nothing is summed — there is no per-day W–L and no cross-product percentage anywhere in it.
+ *
+ * Player-prop leans do not cross: they are market-context families (the coverage registry demotes them), and a list
+ * of them in Ask would read as GameTime selections. The day page is linked for them.
+ */
+const RESULT_DAYS = 4;
+function buildResultDays() {
+  const dates = [...new Set([...resultsDayDates(RESULT_DAYS * 2), ...productReceiptDates().slice(0, RESULT_DAYS * 2)])].sort().reverse().slice(0, RESULT_DAYS);
+  const days = [];
+  for (const date of dates) {
+    const receipts = productReceiptsFor(date);
+    const day = resultsDay(date);
+    days.push({
+      date,
+      settledAt: receipts?.settledAt ?? null,
+      source: receipts?.source ?? null,
+      lanes: (receipts?.lanes ?? []).map((l) => ({
+        product: l.product, lane: l.lane, result: l.result,
+        legs: l.legs.map((g) => ({ matchup: g.matchup, selection: g.selection, market: g.market, official: g.official, result: g.result })),
+      })),
+      events: Object.fromEntries(Object.entries(day).map(([sport, evs]) => [sport, evs.map((e) => ({
+        title: e.title, final: e.final,
+        calls: e.calls.map((c) => ({ market: c.market, pick: c.pick, line: c.line, outcome: c.outcome })),
+        propsNotShown: e.props.length,
+      }))])),
+    });
+  }
+  notes.push(`results days ${days.map((d) => d.date).join(",") || "none"}`);
+  return days;
 }
 
 /* ────────────────────────────────── 6. WRITE ────────────────────────────────── */

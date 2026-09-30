@@ -246,6 +246,12 @@ names only, never the question or the refused sentence (those stay non-productio
 loosened; negation gained `nothing` / `none` / `neither` with their intensifying idioms stripped, and a
 pick claim is now cleared only by a negation *before* it ("likes PIT, not CLE" is a pick).
 
+**Results by day (Session 2).** `getResultsDay` answers "how did GameTimePicks do yesterday?" from the
+same two Results V2 owners `/results/date/<date>/` renders (`productReceiptsFor`, `resultsDay`),
+republished in the DAILY `results.json` as `days` (latest four). Omitted date = yesterday in ET. Lanes and
+calls keep the owner's own words; nothing is totalled (no day W–L, no cross-product percentage), a pending
+lane stays pending, and MLB player-prop leans (market-context families) are counted and linked, not listed.
+
 ## 14. Citations
 
 Every factual answer carries the tools it used, rendered as friendly names ("Game Finder", "GameTime

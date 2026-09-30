@@ -245,6 +245,19 @@ export const ASK_TOOLS = Object.freeze({
     },
   },
 
+  getResultsDay: {
+    version: 1,
+    kind: "results",
+    describe:
+      "One day's settled results, as the Results day page shows them: each Bank Builder and Moonshot lane with its " +
+      "legs, official scores and grades, and each sport's graded game calls. Use for 'how did GameTimePicks do " +
+      "yesterday', 'how did the cards do on 2026-09-27'. Omit date for YESTERDAY (ET). Every item keeps its own " +
+      "grade; nothing here is a combined record or percentage, and a pending lane or call is not a loss.",
+    args: {
+      date: { kind: "isoDate", describe: "The ET day as YYYY-MM-DD. Omit for yesterday — never write a placeholder here." },
+    },
+  },
+
   getPendingResults: {
     version: 1,
     kind: "results",

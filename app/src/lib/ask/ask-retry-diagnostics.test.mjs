@@ -179,3 +179,66 @@ test("the production audit line carries rule ids per attempt and never the refus
   const raw = JSON.stringify(line);
   assert.doesNotMatch(raw, /Pittsburgh|favors|expects/, "the log must carry check names, not the model's (or user's) words");
 });
+
+/* ─────────────────  class L · a comparison compares two DIFFERENT entities  ───────────────── */
+
+test("🔴 two RESOLVED placeholders in one call take two distinct resolutions — never the same team twice", async () => {
+  /* Production, 2026-09-30: "Compare the Yankees and the Red Sox" → "those are the same team". One id per KIND was
+     kept, so both placeholders got the last team resolved. */
+  const seen = [];
+  const plan = JSON.stringify({ intent: "TEAM_COMPARE", calls: [
+    { id: "a", name: "resolveEntity", arguments: { kind: "team", text: "Yankees", sport: "MLB" } },
+    { id: "b", name: "resolveEntity", arguments: { kind: "team", text: "Red Sox", sport: "MLB" } },
+    { id: "c", name: "getTeamComparison", arguments: { sport: "MLB", teamAId: "RESOLVED", teamBId: "RESOLVED" }, after: ["a", "b"] },
+  ] });
+  const entities = { schemaVersion: 1, entries: [
+    { id: "mlb-team-147", kind: "team", sport: "MLB", label: "New York Yankees", hint: "NYY", slug: "new-york-yankees", path: "/teams/mlb/new-york-yankees/" },
+    { id: "mlb-team-111", kind: "team", sport: "MLB", label: "Boston Red Sox", hint: "BOS", slug: "boston-red-sox", path: "/teams/mlb/boston-red-sox/" },
+  ] };
+  const loader = makeAskLoader(async (p) => {
+    seen.push(p);
+    if (p === "/data/ask/v1/entities.json") return { ok: true, text: JSON.stringify(entities) };
+    return { ok: false };
+  });
+  /* ⚠ The refusal reaches only the WRITER's input (the public evidence carries codes, not details) — so the writer's
+     input is captured. A first version asserted on the public evidence and passed with the fix reverted (probed). */
+  const provider = createFakeProvider({ script: [plan, w("ok")] });
+  const writes = [];
+  const write = provider.write.bind(provider);
+  provider.write = async (x) => { writes.push(x.user); return write(x); };
+  const r = await runAskTurn({ messages: [{ role: "user", text: "Compare the Yankees and the Red Sox" }] },
+    { provider, turn: loader.beginTurn(), now: () => new Date("2031-10-03T16:00:00Z") });
+  assert.ok(r.receipt.toolCalls.includes("getTeamComparison"), `the comparison must run (tools ${r.receipt.toolCalls})`);
+  assert.ok(writes.length, "the writer ran");
+  assert.doesNotMatch(writes.join("\n"), /same team/i, "two different teams were resolved; the call compared one with itself");
+  assert.ok(seen.includes("/data/compare/v1/teams/mlb/index.json"), "a real comparison reads the compare index; a same-team refusal never does");
+});
+
+test("🔴 class L · a team comparison states the owner's season W–L, never '? wins'", async () => {
+  /* Production 2026-09-30: "the Yankees recorded ? wins and ? losses from 67 recorded finals" — the evidence read
+     `wins`/`losses`, the owner (teamSeasonSummary) publishes `w`/`l`/`t`. */
+  const { buildEvidence } = await import("./evidence.mjs");
+  const data = { a: { label: "New York Yankees" }, b: { label: "Boston Red Sox" },
+    season: { id: "MLB-2026", a: { seasonId: "MLB-2026", finals: 67, w: 40, l: 27, t: 0 }, b: { seasonId: "MLB-2026", finals: 68, w: 33, l: 35, t: 0 } },
+    headToHead: { allTime: null } };
+  const text = buildEvidence([{ tool: "getTeamComparison", status: "OK", links: [], data }]).facts.map((f) => f.text).join(" | ");
+  assert.match(text, /New York Yankees recorded 40 wins and 27 losses from 67 recorded finals/);
+  assert.match(text, /Boston Red Sox recorded 33 wins and 35 losses from 68 recorded finals/);
+  assert.doesNotMatch(text, /\?/, "a missing value is never printed as a symbol");
+});
+
+test("🔴 live · the gateway's REAL payload reaches the evidence with teams, score and inning — never 'null'", async () => {
+  /* Captured from /api/live/?sport=MLB on 2026-09-30: PHI 1 – ATL 3 in the Bottom 7th reached Ask as "Null not
+     reported, null not reported", because Ask read `away.abbreviation` and the gateway publishes `competitors.*.abbr`. */
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const payload = JSON.parse(fs.readFileSync(path.join(process.cwd(), "scripts/ask/fixtures/live-mlb-2026-09-30.json"), "utf8"));
+  const { getLiveSlate } = await import("./tools/live.mjs");
+  const { buildEvidence } = await import("./evidence.mjs");
+  const env = await getLiveSlate({ sport: "MLB" }, { liveFetch: async () => payload, now: () => new Date("2026-09-30T20:22:40Z") });
+  const text = buildEvidence([{ tool: "getLiveSlate", status: env.status, links: env.links, data: env }]).facts.map((f) => f.text).join(" | ");
+  assert.match(text, /PHI 1, ATL 3, Bottom 7th — state LIVE/);
+  assert.match(text, /CWS at HOU has not started; no score exists yet/);
+  assert.match(text, /4 MLB games, 1 are in progress, 3 have not started and 0 are final/);
+  assert.doesNotMatch(text, /\bnull\b|undefined/i);
+});

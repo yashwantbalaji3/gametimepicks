@@ -28,7 +28,7 @@ export const ASK_TOOL_REGISTRY_VERSION = 1;
  * The system/planner/writer prompt version. Bumped on ANY prompt text change so a receipt can never
  * describe a run by a prompt that has since been edited underneath it (§67 — no hidden prompt drift).
  */
-export const ASK_PROMPT_VERSION = 5;
+export const ASK_PROMPT_VERSION = 6;
 
 /** The committed projection the emit step publishes, and the public prefix it publishes to. */
 export const ASK_PROJECTION_SCHEMA_VERSION = 1;
@@ -385,6 +385,8 @@ export const ASK_LINK_PATTERNS = Object.freeze([
   /^\/nfl\/week\/[A-Za-z0-9-]{1,40}\/$/,
   /^\/mlb\/board\/(?:[0-9]{4}-[0-9]{2}-[0-9]{2}\/)?$/,
   /^\/epl\/match\/[A-Za-z0-9-]{1,120}\/$/,
+  /* Session 2 · the Results day page, issued by getResultsDay. */
+  /^\/results\/date\/[0-9]{4}-[0-9]{2}-[0-9]{2}\/$/,
   // E-3: /bank-builder/ and /moonshot/ are tool-issued (results.mjs) and were refused as UNSUPPORTED_LINK.
   /^\/(?:live|today|sports|mlb|nfl|epl|ufc|results|parlay-lab|parlays|build|markets|models|my|saved|following|methodology|learn|responsible-use|system-status|bank-builder|moonshot)\/$/,
   /^\/$/,

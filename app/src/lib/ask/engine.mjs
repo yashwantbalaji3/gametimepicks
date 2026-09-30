@@ -254,6 +254,7 @@ const SUBSTANTIVE_FOR_INTENT = Object.freeze({
   PLAYER_COMPARE: ["getPlayerComparison"],
   MATCHUP_CONTEXT: ["getMatchupContext"],
   PUBLISHED_FORECAST: ["getPublishedForecasts"],
+  RESULTS_RECENT: ["getResultsDay", "getRecentResults"],
   LIVE_STATUS: ["getLiveSlate"],
   PARLAY_REQUEST: ["getParlayCandidates"],
   BANKROLL_PARLAY_REQUEST: ["getParlayCandidates"],
@@ -323,6 +324,16 @@ const DATE_PLACEHOLDER = /^(RESOLVED|\$\{resolved\}|today|now)$/i;
 
 async function runPlanWithResolution(plan, executor, state, emit) {
   const resolved = new Map(state.resolvedEntities.filter((e) => e.id).map((e) => [e.kind, e.id]));
+  /*
+   * ⚠ EVERY RESOLUTION, IN ORDER, AND WHICH CALL MADE IT (Session 2, found on Production). `resolved` keeps one id
+   * per KIND, so a comparison planned as resolve(Yankees) + resolve(Red Sox) + compare(teamAId: RESOLVED, teamBId:
+   * RESOLVED) filled BOTH slots with the last team resolved, and Ask told the reader "those are the same team".
+   * Placeholders in one call now take DISTINCT resolutions — from the call's own `after` dependencies first, in
+   * the order it listed them, then from this turn's resolutions in order. Nothing is guessed: with fewer distinct
+   * resolutions than placeholders, the call is left unrun rather than compared with itself.
+   */
+  const byCall = new Map();
+  const turnResolutions = [];
   /* The product date getGameTimeNow reported THIS turn, once it has run. */
   let productDate = null;
   /* label → id, so a planner that wrote the NAME instead of the id can still be served. */
@@ -342,6 +353,13 @@ async function runPlanWithResolution(plan, executor, state, emit) {
     for (const call of ready) {
       const args = { ...call.arguments };
       let blocked = false;
+      const usedIds = new Set();
+      const nextDistinct = (kind) => {
+        const fromDeps = (call.after ?? []).map((d) => byCall.get(d)).filter((e) => e?.kind === kind).map((e) => e.id);
+        const pool = [...fromDeps, ...turnResolutions.filter((e) => e.kind === kind).map((e) => e.id)];
+        const id = pool.find((x) => !usedIds.has(x));
+        return id ?? (pool.length ? null : resolved.get(kind) ?? null);
+      };
       for (const [k, v] of Object.entries(args)) {
         if (typeof v !== "string") continue;
         /*
@@ -379,8 +397,9 @@ async function runPlanWithResolution(plan, executor, state, emit) {
         if (!isPlaceholder && !looksLikeName) continue;
 
         const byLabel = !isPlaceholder ? labels.get(`${kind}:${v.toLowerCase()}`) : null;
-        const id = byLabel ?? resolved.get(kind);
+        const id = byLabel ?? nextDistinct(kind);
         if (!id) { blocked = true; break; }
+        usedIds.add(id);
         args[k] = id;
       }
       done.add(call.id);
@@ -394,11 +413,13 @@ async function runPlanWithResolution(plan, executor, state, emit) {
 
     for (const c of prepared) emit({ type: "tool_start", tool: c.name, text: toolStatusCopy(c.name) });
     const wave = await Promise.all(prepared.map((c) => executor.run(c)));
-    for (const e of wave) {
+    for (const [i, e] of wave.entries()) {
       emit({ type: "tool_complete", tool: e.tool, status: e.status });
       if (e.tool === "getGameTimeNow" && e.status === ASK_STATUS.OK && typeof e.data?.productDateEt === "string") productDate = e.data.productDateEt;
       if (e.tool === "resolveEntity" && e.data?.entity) {
         resolved.set(e.data.entity.kind, e.data.entity.id);
+        turnResolutions.push({ kind: e.data.entity.kind, id: e.data.entity.id });
+        byCall.set(prepared[i].id, { kind: e.data.entity.kind, id: e.data.entity.id });
         labels.set(`${e.data.entity.kind}:${String(e.data.entity.label).toLowerCase()}`, e.data.entity.id);
       }
     }

@@ -53,6 +53,7 @@ export const FAKE_WRITER_TEXT = Object.freeze({
   "writer-explains-absence": "GameTime has not published a separate pick for PIT @ CLE. Nothing in the evidence says any player is out with an injury. None of it says the quarterback is questionable.",
   "writer-restates-published-pick": "GameTime's Moneyline pick is NYM, so GameTime favors NYM in NYM @ PHI.",
   "writer-form-as-record": "GameTime is 4-1 on this line over the last five games.",
+  "writer-sums-day": "GameTime went 9-4 yesterday, a 69% day across every product.",
 });
 
 const writerSays = (answerMarkdown) => wrap(JSON.stringify({ answerMarkdown, citations: [], followUps: [], linkIds: [] }));
@@ -135,7 +136,8 @@ export function createFakeProvider(config = {}) {
         case "writer-intensifies-injury":
         case "writer-explains-absence":
         case "writer-restates-published-pick":
-        case "writer-form-as-record": return writerSays(FAKE_WRITER_TEXT[behaviour]);
+        case "writer-form-as-record":
+        case "writer-sums-day": return writerSays(FAKE_WRITER_TEXT[behaviour]);
         /*
          * ⚠ THE PARAPHRASING WRITER (Session 2). Every other writer here either echoes the evidence word for word or
          * emits one fixed bad sentence, so the eval never exercised the failure production actually had: a writer
@@ -256,6 +258,11 @@ function routePlan(user) {
   if (has("how accurate", "forecast record", "model record", "gametime's record")) {
     push("getForecastRecord", { sport: sportOf(question) ?? "NFL" });
     return { intent: "RESULTS_FORECAST_RECORD", needsClarification: false, clarification: null, calls };
+  }
+  /* Session 2 · a DAY's results — "how did GameTimePicks do yesterday", "how did the cards do on <date>". */
+  if (has("yesterday") && has("how did", "results", "do ")) {
+    push("getResultsDay", {});
+    return { intent: "RESULTS_RECENT", needsClarification: false, clarification: null, calls };
   }
   if (has("settled", "graded") || (has("how did") && has("forecast"))) {
     push("getRecentResults", { sport: sportOf(question) ?? "NFL", limit: 10 }, needsNow ? ["c0"] : []);
