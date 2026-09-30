@@ -2,28 +2,28 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-09-30T00:05:14Z",
+ "generatedAt": "2026-09-30T15:52:56Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "PIT @ CLE",
   "kickoffUtc": "2026-10-02T00:15Z",
   "seasonType": 2,
   "week": 4,
-  "hoursToKickoff": 48.16,
-  "eventsInWindow": 16
+  "hoursToKickoff": 32.37,
+  "eventsInWindow": 17
  },
  "freshness": {
   "schedule": {
    "state": "FRESH",
-   "detail": "as of 2026-09-29T15:40:25Z (FRESH)"
+   "detail": "as of 2026-09-30T15:51:14Z (FRESH)"
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-09-30T00:05:14Z (FRESH)"
+   "detail": "as of 2026-09-30T15:52:56Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-09-30T00:05:40Z (FRESH)"
+   "detail": "as of 2026-09-30T15:53:07Z (FRESH)"
   },
   "odds": {
    "state": "STALE",
@@ -32,8 +32,10 @@
  },
  "regularSeason": {
   "verdict": {
-   "state": "READY_WITH_DESIGN_CAPS",
-   "operationalGaps": [],
+   "state": "OPERATIONAL_GAPS",
+   "operationalGaps": [
+    "prices:STALE"
+   ],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -44,7 +46,7 @@
    {
     "id": "schedule",
     "state": "AVAILABLE",
-    "detail": "schedule as of 2026-09-29T15:40:25Z"
+    "detail": "schedule as of 2026-09-30T15:51:14Z"
    },
    {
     "id": "teamStrength",
@@ -54,12 +56,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-09-30T00:05:40Z"
+    "detail": "injuries as of 2026-09-30T15:53:07Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-09-30T00:05:14Z"
+    "detail": "rosters as of 2026-09-30T15:52:56Z"
    },
    {
     "id": "participationRoles",
@@ -88,7 +90,7 @@
    },
    {
     "id": "prices",
-    "state": "AVAILABLE",
+    "state": "STALE",
     "detail": "prices as of 2026-09-28T22:24:41Z"
    }
   ]
@@ -205,11 +207,11 @@
   }
  },
  "currentArtifacts": {
-  "total": 1534,
-  "contractValid": 1534,
-  "preStart": 80,
+  "total": 1550,
+  "contractValid": 1550,
+  "preStart": 96,
   "settlementReady": 575,
-  "detail": "1534/1534 pass the current-event contract; 575 carry pinned settlement targets"
+  "detail": "1550/1550 pass the current-event contract; 575 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
