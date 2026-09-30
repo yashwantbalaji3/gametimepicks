@@ -4,6 +4,7 @@
  *
  *   node scripts/results/build-results-projection.mjs --now <ISO>            # dry run: prints the cells
  *   node scripts/results/build-results-projection.mjs --now <ISO> --write    # writes latest.json + <date>.json
+ *   … --write --restate    # a same-day history change appends <date>.r<N>.json instead of refusing (F1)
  *
  * Options: --root <public/data> (default app/public/data) · --internal-root <data/internal> (default
  * <repo>/data/internal) · --out <dir> (default <root>/results/projection) · --date <YYYY-MM-DD> (default:
@@ -31,6 +32,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildProjection, PROJECTION_REL } from "../../src/lib/results/projection-core.mjs";
+import {
+  historyOf, readEffective, diffProjections, unsafeRestatementReasons, restatementBlock, baseName, revisionName,
+} from "../../src/lib/results/projection-revisions.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.resolve(HERE, "..", "..");
@@ -99,42 +103,61 @@ export const etSlateDate = (iso) =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
     .format(new Date(iso));
 
-/**
- * The history a dated file pins: cells + headline. Stamps are not history.
- *
- * ⚠ EVERY CELL CARRIES ITS OWNER'S STAMP (`owner.generatedAt`), and most owners restamp on every run
- * (model-health, graded-picks and the lab ledger are all rebuilt with a fresh `--now`). Until
- * 2026-09-30 this compared the cells whole, so a same-day re-run whose owners had only been RESTAMPED
- * was refused as a restatement, and nightly-settle's 2nd-4th slots failed every day from 09-25 on.
- * Contract §5 already said "the owners' stamps are not history"; the check now agrees with it. The
- * stamp stays in the written file. Counts, windows, n, owner states and semantics are still history.
- */
-const unstamped = (cell) =>
-  cell && typeof cell.owner === "object" && cell.owner !== null ? { ...cell, owner: { ...cell.owner, generatedAt: null } } : cell;
-export const historyOf = (p) => JSON.stringify({ cells: Array.isArray(p.cells) ? p.cells.map(unstamped) : p.cells, headline: p.headline });
+/** The history a dated file pins — owned by the revisions module (owner stamps excluded, V18 §5). */
+export { historyOf };
 
 /**
- * Write latest.json and <date>.json under `outDir`, write-once on the dated file.
- * Returns { wrote: string[], refused: string|null, untouched: string|null }.
+ * Write the dated projection and latest.json under `outDir`.
+ *
+ *   no original for `date`              → write <date>.json (opened `wx`: it can never overwrite)
+ *   effective state has the same history → no-op: nothing dated is written (no revision)
+ *   history differs, no `restate`        → REFUSED (V18 §5, unchanged)
+ *   history differs, `restate`           → append <date>.r<N>.json restating the effective link, unless the
+ *                                          difference is unsafe (see unsafeRestatementReasons) → REFUSED
+ *   broken restatement chain              → REFUSED (never guessed around)
+ *
+ * latest.json always ends equal to the effective projection for `date`. The original and every earlier
+ * revision are never opened for writing once they exist.
+ *
+ * Returns { wrote: string[], refused: string|null, untouched: string|null, revision: number|null }.
  */
-export function writeProjection(projection, { outDir, date }) {
+export function writeProjection(projection, { outDir, date, restate = false }) {
   fs.mkdirSync(outDir, { recursive: true });
-  const dated = path.join(outDir, `${date}.json`);
   const latest = path.join(outDir, "latest.json");
-  const body = JSON.stringify(projection, null, 2) + "\n";
-  const out = { wrote: [], refused: null, untouched: null };
-  if (fs.existsSync(dated)) {
-    const prior = readJson(dated);
-    if (!prior || historyOf(prior) !== historyOf(projection)) {
-      out.refused = `REFUSED: ${path.basename(dated)} exists and DIFFERS from this run. A dated projection is not rewritten silently.`;
+  const out = { wrote: [], refused: null, untouched: null, revision: null };
+  const chain = readEffective(outDir, date);
+  if (chain.error) {
+    out.refused = `REFUSED: ${chain.error}. A dated projection is not rewritten silently.`;
+    return out;
+  }
+  let latestDoc = projection;
+  if (!chain.base) {
+    const dated = path.join(outDir, baseName(date));
+    fs.writeFileSync(dated, JSON.stringify(projection, null, 2) + "\n", { flag: "wx" });
+    out.wrote.push(dated);
+  } else if (historyOf(chain.effective) === historyOf(projection)) {
+    out.untouched = path.join(outDir, chain.effectiveName);
+  } else if (!restate) {
+    out.refused = `REFUSED: ${chain.effectiveName} exists and DIFFERS from this run. A dated projection is not rewritten silently (re-run with --restate to append a restatement).`;
+    return out;
+  } else {
+    const diff = diffProjections(chain.effective, projection);
+    const unsafe = unsafeRestatementReasons(chain.effective, projection, diff);
+    if (unsafe.length) {
+      out.refused = `REFUSED (unsafe restatement of ${chain.effectiveName}): ${unsafe.join("; ")}`;
       return out;
     }
-    out.untouched = dated;
-  } else {
-    fs.writeFileSync(dated, body);
-    out.wrote.push(dated);
+    const revision = chain.nextRevision;
+    latestDoc = {
+      ...projection,
+      restatement: restatementBlock({ date, revision, restates: chain.effectiveName, restatedAt: projection.builtAt ?? null, diff, next: projection }),
+    };
+    const rev = path.join(outDir, revisionName(date, revision));
+    fs.writeFileSync(rev, JSON.stringify(latestDoc, null, 2) + "\n", { flag: "wx" });
+    out.wrote.push(rev);
+    out.revision = revision;
   }
-  fs.writeFileSync(latest, body);
+  fs.writeFileSync(latest, JSON.stringify(latestDoc, null, 2) + "\n");
   out.wrote.push(latest);
   return out;
 }
@@ -171,9 +194,11 @@ function main() {
   }
   console.log(summarize(projection));
   if (!WRITE) { console.log("  dry run — nothing written. Re-run with --write."); return; }
-  const r = writeProjection(projection, { outDir: OUT, date: DATE });
+  const RESTATE = argv.includes("--restate");
+  const r = writeProjection(projection, { outDir: OUT, date: DATE, restate: RESTATE });
   if (r.refused) { console.error(`\n${r.refused}`); process.exit(1); }
   if (r.untouched) console.log(`  ${path.relative(APP, r.untouched)} already recorded and identical — left untouched`);
+  if (r.revision) console.log(`  restated: appended revision r${r.revision} (the original and earlier revisions are unchanged)`);
   for (const w of r.wrote) console.log(`  wrote ${path.relative(APP, w)}`);
 }
 

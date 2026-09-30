@@ -629,12 +629,13 @@ jobs:
       # CYCLE_COMPLETION cells would have aged into a stale claim while every check stayed green.
       #
       # EXIT CODES ARE NAMED (contract in scripts/results/build-results-projection.mjs):
-      #   1 = write-once refusal — a dated projection for this ET slate day exists and its HISTORY differs
-      #       (counts, windows, owner states — not stamps; see historyOf). nightly-settle runs in up to four
-      #       slots a day (P256), so a later slot whose owners genuinely advanced (late finals, a
-      #       daily-products rebuild of the risk ladder / lab ledger in between) still reaches it. That is an
-      #       OPERATOR decision (delete the dated file deliberately, and say why), never a silent restatement
-      #       of history, so it surfaces by name instead of as a generic red settler.
+      #   1 = refusal. With --restate (founder decision F1(a), Session 1B) a later slot whose owners genuinely
+      #       advanced — late finals, daily-products rebuilding the risk ladder / lab ledger in between — no
+      #       longer refuses: the ORIGINAL <date>.json stays byte-identical and the difference is APPENDED as
+      #       <date>.r<N>.json (restates the previous link, lists the changed cells and owners). A re-run with
+      #       the same history, or with only restamped owners, writes nothing dated. What still exits 1 (red,
+      #       an OPERATOR decision): a cell that disappeared, a closed-history (legacy-era) record that moved,
+      #       or a broken restatement chain. See src/lib/results/projection-revisions.mjs.
       #   2 = bad arguments · 3 = the assembly refused an owner (a truth rule caught something).
       - name: Rebuild the canonical Results projection (read model over the settled owners)
         if: ${{ github.event.inputs.dry_run != 'true' }}
@@ -650,11 +651,11 @@ jobs:
           mkdir -p ../data/internal/products/cycle-table
           npx --yes tsx scripts/products/derive-cycle-table.mjs --write
           set +e
-          npx --yes tsx scripts/results/build-results-projection.mjs --now "$NOW" --write
+          npx --yes tsx scripts/results/build-results-projection.mjs --now "$NOW" --write --restate
           rc=$?
           set -e
           if [ "$rc" -eq 1 ]; then
-            echo "::error title=Results projection refused a restatement::A dated projection for $PDATE already exists and differs from this run. The write-once rule refused it and wrote nothing. This is an operator decision: inspect the difference, and if the restatement is intended delete app/public/data/results/projection/$PDATE.json deliberately and re-run. Do NOT make this step continue-on-error."
+            echo "::error title=Results projection refused an unsafe restatement::The dated projection for $PDATE differs from this run in a way an append-only restatement may not record (a vanished cell, a moved closed-history record, or a broken r<N> chain). Nothing was written. This is an operator decision: read the REFUSED line above. Never delete or rewrite the original; do NOT make this step continue-on-error."
           elif [ "$rc" -ne 0 ]; then
             echo "::error title=Results projection build failed (exit $rc)::exit 2 = bad arguments; exit 3 = the assembly refused an owner (a truth rule caught something). The prior artifact was left in place and nothing was published."
           fi
