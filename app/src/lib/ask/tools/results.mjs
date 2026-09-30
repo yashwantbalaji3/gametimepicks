@@ -270,3 +270,52 @@ export async function getPendingResults(_args, ctx) {
     links: [{ id: "results", label: "Results", href: "/results/" }],
   };
 }
+
+/* ─────────────────────────────────  getResultsDay  ──────────────────────────────── */
+
+const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
+
+/**
+ * ONE RESULTS DAY, AS /results/date/<date>/ SHOWS IT (Session 2). The Bank Builder and Moonshot lanes with every leg's
+ * official score and grade, and each sport's graded game calls — republished from the Results V2 owners, never
+ * regraded. An omitted date is YESTERDAY's ET product date, which is what "how did GameTime do yesterday" means.
+ *
+ * NOTHING IS SUMMED. There is no day W–L and no cross-product percentage: a lane is one result, a call is one grade,
+ * and the product records are getProductRecord's. A pending lane or call stays pending — never a loss, never a zero.
+ */
+export async function getResultsDay(args, ctx) {
+  const loaded = await loadResults(ctx);
+  if (!loaded.ok) return loaded.envelope;
+  const days = loaded.doc.days ?? [];
+  const now = ctx.now ? ctx.now() : new Date();
+  const yesterday = ET_DAY.format(new Date(Date.parse(`${ET_DAY.format(now)}T12:00:00Z`) - 86400000));
+  const date = args.date ?? yesterday;
+  const day = days.find((d) => d.date === date);
+  const available = days.map((d) => d.date);
+  const dayLink = (d) => ({ id: "day", label: `Results for ${d}`, href: `/results/date/${d}/` });
+
+  if (!day) {
+    const latest = available.filter((d) => d < date).sort().reverse()[0] ?? available[0] ?? null;
+    return {
+      status: ASK_STATUS.UNSUPPORTED,
+      error: ASK_ERROR.NOT_PUBLISHED,
+      detail: `GameTimePicks has no settled results recorded for ${date}${latest ? `; the most recent day with results is ${latest}` : ""}`,
+      date, availableDates: available,
+      links: latest ? [dayLink(latest), { id: "results", label: "Results", href: "/results/" }] : [{ id: "results", label: "Results", href: "/results/" }],
+    };
+  }
+
+  const sports = Object.entries(day.events ?? {}).filter(([, evs]) => evs.length).map(([s]) => s);
+  return {
+    status: ASK_STATUS.OK,
+    date,
+    isYesterday: date === yesterday,
+    settledAt: day.settledAt ?? null,
+    source: day.source ?? null,
+    lanes: day.lanes ?? [],
+    events: day.events ?? {},
+    sportsWithResults: sports,
+    sportsWithout: ["mlb", "nfl", "epl", "ufc"].filter((s) => !sports.includes(s)),
+    links: [dayLink(date), { id: "results", label: "Results", href: "/results/" }],
+  };
+}

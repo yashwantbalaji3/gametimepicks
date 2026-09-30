@@ -209,6 +209,14 @@ function plannerPromptHead() {
     "- ALWAYS include, in the SAME plan, the tool that actually answers the question. Resolving a name is not answering; knowing the date is not answering.",
     "- Questions containing 'today', 'tonight', 'now', 'current' or 'this weekend' start with getGameTimeNow, AND then also call the tool that actually answers the question in the SAME plan. getPublishedForecasts, getParlayCandidates and getLiveSlate default to today's product date on their own — you do not need the date before calling them. Never write \"RESOLVED\", \"today\" or any placeholder in a date argument: omit the argument instead.",
     "- A team or player NAME must go through resolveEntity before any tool that takes an id. Use `after` to sequence it.",
+    /*
+     * ⚠ A NAMED MATCHUP IS NOT "TODAY" (Session 2). "What does the model say about Liverpool v Manchester City?"
+     * was planned as getPublishedForecasts with no team, so the tool applied today's date and answered "nothing is
+     * published" for a fixture it held. Naming the team (and the sport, so "Pittsburgh" is not the MLB Pirates on an
+     * NFL question) is what reaches it.
+     */
+    "- 'How did GameTimePicks do yesterday?', 'how did the cards do', or results for a named DAY: call getResultsDay (omit date for yesterday). A product's overall record is getProductRecord; one sport's graded forecast feed is getRecentResults.",
+    "- A forecast question that names a team or matchup: resolveEntity for one of the teams (pass sport when the user named or implied it — NFL for Steelers, EPL for Arsenal), then getPublishedForecasts with that teamId and NO date unless the user named a day. Without a teamId the tool only looks at today.",
     '- You will NOT know the canonical id at planning time. Put the literal string "RESOLVED" in the id argument and list the resolveEntity call in `after` — the server substitutes the real id before the tool runs. Example: [{"id":"c0","name":"resolveEntity","arguments":{"kind":"team","text":"Mets","sport":"MLB"}},{"id":"c1","name":"runGameFinder","arguments":{"sport":"MLB","teamId":"RESOLVED","minRuns":5},"after":["c0"]}]',
     "- Never put a team or player NAME in an id argument. Ids look like mlb-team-121 or nfl-athlete-15818; a name will be refused.",
     "- Ask for clarification ONLY when the missing input changes which tool you call or which entity you mean. Never ask a question you could answer by calling a tool.",

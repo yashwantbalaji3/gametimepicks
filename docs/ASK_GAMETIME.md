@@ -225,9 +225,32 @@ wrongly.
 4. **Copy** — no guarantee, no loss-chasing, no EV claim. Negation-aware, scoped to the sentence.
 5. **Pauses** — a paused market must not be given a pick, in either word order.
 
-On failure: one rewrite under a stricter instruction, then the **deterministic fallback** — an answer
-composed from the evidence itself, which passes its own verifier by construction. Nothing unverified is
-ever streamed; publishing an invented number and retracting it is worse than a slightly later answer.
+6. **Picks** — "GameTime picks / favors / expects X to win / likes …" must restate a pick the evidence
+   holds. A **probability is not a pick**: every NFL and EPL forecast is probability-only.
+7. **Status** — an injury or role status only as a restatement of evidence.
+8. **Records** — a W–L stays with the owner the evidence gives it to, and a W–L given to GameTime or its
+   model must appear as a record in the evidence (recent form is the player's history, not GameTime's).
+
+On failure: one rewrite, then the **deterministic fallback** — an answer composed from the evidence
+itself, which passes its own verifier by construction. Nothing unverified is ever streamed; publishing an
+invented number and retracting it is worse than a slightly later answer.
+
+**Rule ids and the rule-specific retry (Session 2, 2026-09-30).** Every violation carries a stable `rule`
+from `ASK_VERIFY_RULE` (`UNSUPPORTED_PICK`, `UNSUPPORTED_NUMBER`, `UNSUPPORTED_RECORD`, …) beside the coarse
+`code`. The retry is built from `ASK_RETRY_GUIDANCE[rule]` — it names the rule, quotes the refused claim and
+gives that rule's correction; the old single "do not include any number" line was the fix for one rule
+only, so a pick claim was reworded and refused twice. The receipt keeps **every** attempt
+(`attempts[]`: outcome, rules, claims, retryable) plus `retryReason` and `fallbackReason`. The production
+audit line logs `verifierRules` per attempt, `attemptOutcomes`, `retryReason`, `fallbackReason` — check
+names only, never the question or the refused sentence (those stay non-production). The verifier was not
+loosened; negation gained `nothing` / `none` / `neither` with their intensifying idioms stripped, and a
+pick claim is now cleared only by a negation *before* it ("likes PIT, not CLE" is a pick).
+
+**Results by day (Session 2).** `getResultsDay` answers "how did GameTimePicks do yesterday?" from the
+same two Results V2 owners `/results/date/<date>/` renders (`productReceiptsFor`, `resultsDay`),
+republished in the DAILY `results.json` as `days` (latest four). Omitted date = yesterday in ET. Lanes and
+calls keep the owner's own words; nothing is totalled (no day W–L, no cross-product percentage), a pending
+lane stays pending, and MLB player-prop leans (market-context families) are counted and linked, not listed.
 
 ## 14. Citations
 

@@ -294,3 +294,49 @@ console.log(gap && gap.label !== null ? "MISSED" : "CAUGHT");`,
   );
   assert.equal(out, "MISSED", "the mutation must produce a label where the owner carries no counts");
 });
+
+/* ── Session 2 · ONE RESULTS DAY (getResultsDay) ─────────────────────────────────────────────────── */
+
+const { getResultsDay } = await import("./tools/results.mjs");
+const { verifyAnswer } = await import("./verifier.mjs");
+const DAYS = JSON.parse(fs.readFileSync(path.join(APP, "scripts/ask/fixtures/results-days-2026-09-30.json"), "utf8")).days;
+const dayDoc = { ...FIXTURE, days: DAYS };
+const at = (iso) => ({ ...ctxWith(dayDoc), now: () => new Date(iso) });
+
+test("🔴 getResultsDay · an omitted date is YESTERDAY in ET — at 00:30 ET on 09-28 that is 09-27, not the UTC date", async () => {
+  // 2026-09-28T04:30Z is 00:30 ET on 09-28 → yesterday is 09-27. A UTC-date implementation would say 09-27 too late in the ET evening.
+  const r = await getResultsDay({}, at("2026-09-28T04:30:00Z"));
+  assert.equal(r.status, ASK_STATUS.OK);
+  assert.equal(r.date, "2026-09-27");
+  assert.equal(r.isYesterday, true);
+  // 23:30 ET on 09-28 is 03:30Z on 09-29 — still "yesterday = 09-27" in ET.
+  assert.equal((await getResultsDay({}, at("2026-09-29T03:30:00Z"))).date, "2026-09-27");
+});
+
+test("🔴 getResultsDay · lanes and calls keep the owner's own words; nothing is totalled", async () => {
+  const r = await getResultsDay({ date: "2026-09-27" }, at("2026-09-30T16:00:00Z"));
+  const text = textOf(r, "getResultsDay");
+  assert.match(text, /Bank Builder lane A was won, with 2 leg\(s\)/);
+  assert.match(text, /Moonshot lane A was pending — not settled yet, which is never a loss/);
+  assert.match(text, /GameTimePicks publishes no combined day record or percentage/);
+  assert.doesNotMatch(text, /\d+\s?[–-]\s?\d+ (?:day|record)|\d+(?:\.\d+)?%/, "no day W–L and no percentage anywhere in the evidence");
+  assert.ok(r.links.some((l) => l.href === "/results/date/2026-09-27/"));
+});
+
+test("🔴 getResultsDay · an all-pending day stays pending, and a missing day names the latest one — never 0–0", async () => {
+  const pending = textOf(await getResultsDay({ date: "2026-09-29" }, at("2026-09-30T16:00:00Z")), "getResultsDay");
+  assert.doesNotMatch(pending, /\bwas lost\b/);
+  assert.equal((pending.match(/was pending/g) ?? []).length, 4);
+  const missing = await getResultsDay({ date: "2026-09-28" }, at("2026-09-30T16:00:00Z"));
+  assert.equal(missing.status, ASK_STATUS.UNSUPPORTED);
+  assert.match(missing.detail, /no settled results recorded for 2026-09-28; the most recent day with results is 2026-09-27/);
+});
+
+test("getResultsDay · a restated graded call passes the pick rule; a day total given to GameTime does not", async () => {
+  const env = await getResultsDay({ date: "2026-09-27" }, at("2026-09-30T16:00:00Z"));
+  const evidence = buildEvidence([{ tool: "getResultsDay", status: env.status, links: env.links, data: env }]);
+  const call = evidence.facts.map((f) => f.text).join(" ").match(/GameTime's pick is ([A-Z]{2,3}),/)?.[1];
+  assert.ok(call, "the fixture day carries a graded game call");
+  assert.equal(verifyAnswer(`GameTime picked ${call} on 2026-09-27.`, evidence).ok, true);
+  assert.equal(verifyAnswer("GameTime went 9-4 on 2026-09-27.", evidence).ok, false);
+});

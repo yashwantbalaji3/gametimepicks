@@ -85,8 +85,10 @@ const liveFetch = async (sport) =>
     ? {
       schemaVersion: 1, sport: "mlb", fetchedAt: "2026-09-18T01:00:00Z",
       events: [
-        { eventId: "1", state: "LIVE", stateDetail: "Top 7th", away: { abbreviation: "NYM", score: 3 }, home: { abbreviation: "PHI", score: 2 } },
-        { eventId: "2", state: "PRE", away: { abbreviation: "BOS", score: 0 }, home: { abbreviation: "TEX", score: 0 } },
+        /* Session 2 · THE GATEWAY'S REAL SHAPE (competitors.*.abbr/score, period.label). The stub used an invented
+           `away.abbreviation` shape, so Ask's reads of it passed here while production printed "null". */
+        { eventId: "1", state: "LIVE", stateDetail: "In Progress", period: { number: 7, label: "Top 7th" }, competitors: { away: { abbr: "NYM", name: "New York Mets", score: 3 }, home: { abbr: "PHI", name: "Philadelphia Phillies", score: 2 } } },
+        { eventId: "2", state: "PRE", stateDetail: "Pre-Game", period: null, competitors: { away: { abbr: "BOS", name: "Boston Red Sox", score: null }, home: { abbr: "TEX", name: "Texas Rangers", score: null } } },
       ],
     }
     : { schemaVersion: 1, unavailable: true, reason: "UNSUPPORTED_SPORT" };
@@ -175,6 +177,19 @@ function grade(c, out) {
       const reasons = out.receipt?.verifierViolations ?? [];
       add("refused-for-its-rule", reasons.some((v) => v.includes(c.expectViolation)), `reasons [${reasons.join(" | ").slice(0, 160)}]`);
     }
+  }
+
+  /*
+   * Session 2 · WHICH PATH THE WRITER TOOK, AND WHY. `expectVerifier` pins PASS vs PASS_ON_RETRY (a paraphrase that
+   * passed on attempt 1 would mean the verifier never saw it); `expectAttempts` pins every attempt's rule ids in
+   * order, and optionally a word of its refused claim — so attempt 1's diagnosis must survive attempt 2.
+   */
+  if (c.expectVerifier) add("verifier-path", out.receipt?.verifierStatus === c.expectVerifier, `verifier ${out.receipt?.verifierStatus}`);
+  if (c.expectAttempts) {
+    const got = out.receipt?.attempts ?? [];
+    const ok = got.length === c.expectAttempts.length && c.expectAttempts.every((e, i) =>
+      JSON.stringify(got[i]?.rules ?? []) === JSON.stringify(e.rules) && (!e.claim || (got[i]?.claims ?? []).some((cl) => cl.includes(e.claim))));
+    add("attempt-audit", ok, `attempts ${JSON.stringify(got.map((a) => ({ rules: a.rules, claims: a.claims })) ).slice(0, 200)}`);
   }
 
   /*

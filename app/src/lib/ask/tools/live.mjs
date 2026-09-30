@@ -59,6 +59,13 @@ export async function getLiveSlate(args, ctx) {
     };
   }
 
+  /*
+   * ⚠ THE GATEWAY'S SHAPE IS `competitors.{away,home}.{abbr,name,score}` and `period.label` (Session 2, Production).
+   * This read `e.away.abbreviation` / `e.away.score` — a shape the gateway does not publish — so every live game
+   * reached Ask as "null not reported, null not reported" (PHI 1 – ATL 3 in the Bottom 7th, as Ask described it).
+   * The eval's stub used the same invented shape, so it passed. The legacy keys stay readable as a fallback.
+   */
+  const side = (e, k) => e.competitors?.[k] ?? e[k] ?? {};
   const events = (payload.events ?? []).map((e) => ({
     eventId: e.eventId,
     startTime: e.startTime ?? null,
@@ -70,14 +77,16 @@ export async function getLiveSlate(args, ctx) {
      */
     state: e.state,
     stateDetail: e.stateDetail ?? null,
-    away: e.away?.abbreviation ?? e.away?.name ?? null,
-    home: e.home?.abbreviation ?? e.home?.name ?? null,
-    awayScore: e.state === "PRE" ? null : e.away?.score ?? null,
-    homeScore: e.state === "PRE" ? null : e.home?.score ?? null,
-    period: e.period ?? null,
+    away: side(e, "away").abbr ?? side(e, "away").abbreviation ?? side(e, "away").name ?? null,
+    home: side(e, "home").abbr ?? side(e, "home").abbreviation ?? side(e, "home").name ?? null,
+    awayScore: e.state === "PRE" ? null : side(e, "away").score ?? null,
+    homeScore: e.state === "PRE" ? null : side(e, "home").score ?? null,
+    period: typeof e.period === "object" && e.period ? e.period.label ?? null : e.period ?? null,
   }));
 
   const live = events.filter((e) => e.state === "LIVE" || e.state === "IN");
+  /* Counted HERE, per state, so a writer never has to count (Session 2: "3 have not started" was refused twice). */
+  const byState = { pre: events.filter((e) => e.state === "PRE").length, final: events.filter((e) => e.state === "FINAL" || e.state === "POST").length };
   return {
     status: ASK_STATUS.OK,
     sport: args.sport,
@@ -85,6 +94,8 @@ export async function getLiveSlate(args, ctx) {
     fetchedAt: payload.fetchedAt ?? null,
     total: events.length,
     liveCount: live.length,
+    preCount: byState.pre,
+    finalCount: byState.final,
     events: events.slice(0, 20),
     /*
      * A PROVIDER FINAL IS NOT A SETTLED RESULT. Settlement grades forecasts against the official box

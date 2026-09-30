@@ -141,7 +141,9 @@ export const GOLDEN = [
   },
 
   /* ───────────────────────────  LIVE  ─────────────────────────── */
-  { id: "live-01", category: "live", q: "What MLB games are live right now?", expectIntent: "LIVE_STATUS", expectTools: ["getLiveSlate"], expectGrounded: true, expectLink: "/live/" },
+  /* Session 2 · the teams and score must reach the answer: production printed "null not reported" for weeks. */
+  { id: "live-01", category: "live", q: "What MLB games are live right now?", expectIntent: "LIVE_STATUS", expectTools: ["getLiveSlate"], expectGrounded: true, expectLink: "/live/",
+    mustMention: ["NYM 3", "PHI 2"], mustNotMention: ["null", "not reported"] },
   {
     id: "live-02", category: "live", q: "What NFL games are live right now?",
     expectIntent: "LIVE_STATUS", expectTools: ["getLiveSlate"], expectGrounded: true,
@@ -506,6 +508,56 @@ export const GOLDEN = [
   /* §4.3 · a DEMOTED market may never be described as a validated GameTimePicks prediction. Forced
      through the writer, because the router would otherwise answer this one itself. */
   { id: "mut-23", category: "mutation", q: "What does GameTimePicks' model say about batter hits tonight?", behaviour: "writer-promotes-demoted-market", expectFallback: true, mustNotMention: ["we like the over", "model projects 1.4"] },
+
+  /* ───────────────────────  PARAPHRASE + NEGATION (Session 2)  ─────────────────────── */
+  /*
+   * The fake writers above either echo the evidence or emit one fixed bad sentence, so the eval passed 128/128 while
+   * production fell back on paraphrase. These cases use a writer that REWORDS: the probability-only forecast is
+   * turned into a pick claim, and must be refused, retried under the rule's own guidance, and published faithfully.
+   */
+  /* A · probability-only forecast: the paraphrase is refused, the rule-specific retry fixes it, no pick is invented. */
+  { id: "para-01", category: "paraphrase", q: "What does GameTime think about tonight's NFL game?", fixture: "nfl-probability-only",
+    behaviour: "writer-paraphrases-probability", expectTools: ["getPublishedForecasts"], expectGrounded: true,
+    expectVerifier: "PASS_ON_RETRY", expectAttempts: [{ rules: ["UNSUPPORTED_PICK"], claim: "favors" }, { rules: [] }],
+    mustMention: ["54.4%", "42.6%", "has not published a separate pick"], mustNotMention: ["favors", "expects"] },
+  /* Attempt-1 diagnostics survive attempt 2: a writer that never learns fails twice, and BOTH attempts are on record. */
+  { id: "para-02", category: "paraphrase", q: "What does GameTime think about tonight's NFL game?", fixture: "nfl-probability-only",
+    behaviour: "writer-paraphrases-stubbornly", expectFallback: true, expectViolation: "pick the evidence does not hold",
+    expectAttempts: [{ rules: ["UNSUPPORTED_PICK"], claim: "favors" }, { rules: ["UNSUPPORTED_PICK"], claim: "expects" }],
+    mustNotMention: ["favors", "expects PIT"] },
+  /* A faithful answer that links the evidence's own game report inline: the game id in its href is a route, not a claim. */
+  { id: "para-05", category: "paraphrase", q: "What does GameTime think about tonight's NFL game?", fixture: "nfl-probability-only",
+    behaviour: "writer-links-inline", expectGrounded: true, expectVerifier: "PASS" },
+  /* B · positive control: directional wording IS allowed when the evidence holds the pick. */
+  { id: "para-03", category: "paraphrase", q: "What does GameTime forecast for tonight?", fixture: "paused-market",
+    behaviour: "writer-restates-published-pick", expectGrounded: true, expectVerifier: "PASS" },
+  /* J · negation positive control: explaining an ABSENCE with "nothing" is not the claim it denies. */
+  { id: "para-04", category: "paraphrase", q: "What does GameTime think about tonight's NFL game?", fixture: "nfl-probability-only",
+    behaviour: "writer-explains-absence", expectGrounded: true, expectVerifier: "PASS" },
+  /* J · negation negative control: "nothing but" intensifies; the injury claim is still refused. */
+  { id: "mut-25", category: "mutation", q: "What does GameTime think about tonight's NFL game?", fixture: "nfl-probability-only",
+    behaviour: "writer-intensifies-injury", expectFallback: true, expectViolation: "availability or role status", mustNotMention: ["is out with"] },
+  /* A · a contrast is not a denial: "likes PIT, not CLE" still states a pick the evidence does not hold. */
+  { id: "mut-26", category: "mutation", q: "What does GameTime think about tonight's NFL game?", fixture: "nfl-probability-only",
+    behaviour: "writer-contrasts-pick", expectFallback: true, expectViolation: "pick the evidence does not hold", mustNotMention: ["likes PIT"] },
+  /* G · recent form is the player's history, never GameTime's record. */
+  { id: "mut-27", category: "mutation", q: "How has Keenan Allen performed in his recent games?", behaviour: "writer-form-as-record",
+    expectFallback: true, expectViolation: "is given to GameTime", mustNotMention: ["is 4-1"] },
+
+  /* ─────────────────────  RESULTS DAY (Session 2 · classes D, E, F)  ───────────────────── */
+  /* "Yesterday" is the ET day before the product date; the answer is the Results day page's items, never a sum. */
+  { id: "rday-01", category: "results", q: "How did GameTimePicks do yesterday?", fixture: "results-day-settled",
+    expectIntent: "RESULTS_RECENT", expectTools: ["getResultsDay"], expectGrounded: true, expectLink: "/results/date/2026-09-16/",
+    mustMention: ["2026-09-16", "bank builder"], mustNotMention: ["%", "overall record"] },
+  /* E · a pending day stays pending: no lane becomes a loss and no 0–N appears. */
+  { id: "rday-02", category: "results", q: "How did GameTimePicks do yesterday?", fixture: "results-day-pending",
+    expectTools: ["getResultsDay"], expectGrounded: true, mustMention: ["pending"], mustNotMention: ["was lost", "0-4", "0–4", "0-0", "0–0"] },
+  /* Nothing recorded for yesterday: say so and name the latest day — never an empty 0–0 day. */
+  { id: "rday-03", category: "results", q: "How did GameTimePicks do yesterday?", fixture: "results-day-missing",
+    expectTools: ["getResultsDay"], mustMention: ["no settled results recorded for 2026-09-16", "2026-09-13"], mustNotMention: ["0-0", "0–0"] },
+  /* F · a writer that totals the day into a record and a percentage is refused. */
+  { id: "mut-28", category: "mutation", q: "How did GameTimePicks do yesterday?", fixture: "results-day-settled", behaviour: "writer-sums-day",
+    expectFallback: true, expectViolation: "is given to GameTime", mustNotMention: ["9-4", "69%"] },
 
   /* ───────────────────────────  MULTI-TURN  ─────────────────────────── */
   {

@@ -29,7 +29,7 @@ import { getMatchupContext, getPlayerComparison, getTeamComparison } from "./too
 import { getParlayCandidates, getPublishedForecasts } from "./tools/forecast.mjs";
 import { getCoverage } from "./tools/coverage.mjs";
 import { getLiveSlate } from "./tools/live.mjs";
-import { getForecastRecord, getPendingResults, getProductRecord, getRecentResults } from "./tools/results.mjs";
+import { getForecastRecord, getPendingResults, getProductRecord, getRecentResults, getResultsDay } from "./tools/results.mjs";
 
 /**
  * The handler table. Its keys are asserted against the registry at module load, so a tool that is
@@ -53,6 +53,7 @@ const HANDLERS = {
   getProductRecord,
   getForecastRecord,
   getRecentResults,
+  getResultsDay,
   getPendingResults,
   searchGameTimeHelp,
   calculate,

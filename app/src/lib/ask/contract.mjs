@@ -28,7 +28,7 @@ export const ASK_TOOL_REGISTRY_VERSION = 1;
  * The system/planner/writer prompt version. Bumped on ANY prompt text change so a receipt can never
  * describe a run by a prompt that has since been edited underneath it (§67 — no hidden prompt drift).
  */
-export const ASK_PROMPT_VERSION = 4;
+export const ASK_PROMPT_VERSION = 6;
 
 /** The committed projection the emit step publishes, and the public prefix it publishes to. */
 export const ASK_PROJECTION_SCHEMA_VERSION = 1;
@@ -145,6 +145,66 @@ export const ASK_ERROR = Object.freeze({
   UNSUPPORTED_CLAIM: "UNSUPPORTED_CLAIM",
   UNSUPPORTED_LINK: "UNSUPPORTED_LINK",
   FORBIDDEN_COPY: "FORBIDDEN_COPY",
+});
+
+/**
+ * WHICH VERIFIER RULE FIRED — a stable id per check, beside the coarse `code` (Session 2, 2026-09-30).
+ *
+ * ⚠ `UNSUPPORTED_CLAIM` NAMED FIVE DIFFERENT CHECKS. An invented number, a shifted date, an unsourced pick, an
+ * injury status and a record given to the wrong owner all reached the production log as the same code, and the
+ * retry told the writer only "do not include any number that is not in the evidence" — whatever had actually
+ * failed. A probability-only NFL forecast paraphrased as "GameTime favors Pittsburgh" was refused as a pick claim
+ * (correctly), retried under a number instruction that could not fix it, refused again, and fell back; the log
+ * could not say why. The `code` stays (callers and reader copy key on it); the rule is the diagnostic, and the
+ * retry guidance below is keyed on it, never on the detail string.
+ */
+export const ASK_VERIFY_RULE = Object.freeze({
+  UNSUPPORTED_NUMBER: "UNSUPPORTED_NUMBER",
+  UNSUPPORTED_DATE: "UNSUPPORTED_DATE",
+  UNSUPPORTED_PICK: "UNSUPPORTED_PICK",
+  PAUSED_MARKET_PICK: "PAUSED_MARKET_PICK",
+  UNSUPPORTED_STATUS: "UNSUPPORTED_STATUS",
+  UNSUPPORTED_RECORD: "UNSUPPORTED_RECORD",
+  UNSUPPORTED_LINK: "UNSUPPORTED_LINK",
+  FORBIDDEN_WAGERING_COPY: "FORBIDDEN_WAGERING_COPY",
+  FORBIDDEN_EV_COPY: "FORBIDDEN_EV_COPY",
+  FORBIDDEN_SETTLEMENT_COPY: "FORBIDDEN_SETTLEMENT_COPY",
+  /* Not a verifier check: the writer's output could not be parsed. Recorded on the attempt like one. */
+  MALFORMED_ANSWER: "MALFORMED_ANSWER",
+});
+
+/**
+ * WHAT THE SECOND ATTEMPT IS TOLD, PER RULE. Corrective, specific, and never a loosening: every instruction
+ * removes or restates a claim; none asks the verifier to accept one. No example here carries a real number — a
+ * writer that copies an example figure would fail the numeric check on it.
+ */
+export const ASK_RETRY_GUIDANCE = Object.freeze({
+  UNSUPPORTED_PICK:
+    "The evidence holds model PROBABILITIES but no published GameTime pick for that game. A probability is not a pick. " +
+    "Remove every directional or pick wording about GameTime or the model (picks, favors, expects … to win, likes, leans, " +
+    "backs, recommends). Restate the published probabilities exactly as the evidence gives them — 'the model gives <team> " +
+    "a <N>% win probability and <team> <N>%' — and if the reader asked for a pick, say GameTime has not published a " +
+    "separate pick for it.",
+  PAUSED_MARKET_PICK:
+    "That market is PAUSED by GameTime and publishes no pick. Explain the pause with the evidence's stated reason; give no pick, lean or direction for it.",
+  UNSUPPORTED_NUMBER:
+    "Remove every number that is not written in the evidence. Copy figures exactly as the evidence states them; do not round, add, average or compute.",
+  UNSUPPORTED_DATE:
+    "Remove every date that is not written in the evidence. Use only the evidence's own dates.",
+  UNSUPPORTED_STATUS:
+    "Remove the injury, availability or role statement. No evidence sources one; do not replace it with another. Keep the rest of the answer.",
+  UNSUPPORTED_RECORD:
+    "A win–loss record must stay with the product or model the evidence gives it to. Restate each record beside its own owner exactly as the evidence does; never combine records.",
+  UNSUPPORTED_LINK:
+    "Never write a URL. Reference links only by their evidence link id in `linkIds`.",
+  FORBIDDEN_WAGERING_COPY:
+    "Remove the guarantee, lock or staking language. GameTime makes no guarantees and has no staking policy.",
+  FORBIDDEN_EV_COPY:
+    "Remove the expected-value, profitability or edge language. GameTime publishes no price-aware expected value.",
+  FORBIDDEN_SETTLEMENT_COPY:
+    "Remove the claim that a leg or bet has already won or lost. Nothing is decided until it settles, and Ask has no live per-leg grade.",
+  MALFORMED_ANSWER:
+    "Reply with ONE JSON object and nothing else, in the shape given above.",
 });
 
 /** A tool result's status. PARTIAL means some of what was asked is genuinely absent, and says which. */
@@ -325,6 +385,8 @@ export const ASK_LINK_PATTERNS = Object.freeze([
   /^\/nfl\/week\/[A-Za-z0-9-]{1,40}\/$/,
   /^\/mlb\/board\/(?:[0-9]{4}-[0-9]{2}-[0-9]{2}\/)?$/,
   /^\/epl\/match\/[A-Za-z0-9-]{1,120}\/$/,
+  /* Session 2 · the Results day page, issued by getResultsDay. */
+  /^\/results\/date\/[0-9]{4}-[0-9]{2}-[0-9]{2}\/$/,
   // E-3: /bank-builder/ and /moonshot/ are tool-issued (results.mjs) and were refused as UNSUPPORTED_LINK.
   /^\/(?:live|today|sports|mlb|nfl|epl|ufc|results|parlay-lab|parlays|build|markets|models|my|saved|following|methodology|learn|responsible-use|system-status|bank-builder|moonshot)\/$/,
   /^\/$/,

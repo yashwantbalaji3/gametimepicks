@@ -37,6 +37,13 @@ const syntheticEligible = (doc) => ({ ...doc, byDate: Object.fromEntries(Object.
   profiles: Object.fromEntries(Object.entries(day.profiles ?? {}).map(([p, slips]) => [p, slips.map((s) => ({ ...s,
     legs: s.legs.map((l) => ({ ...l, market: "synthetic_eligible_family", marketLabel: "Synthetic eligible family" })) }))])) }])) });
 
+const RESULTS = "/data/ask/v1/results.json";
+/** A results asset carrying only frozen Results V2 days, each moved to a new date. Nothing inside a day changes. */
+const resultsDoc = (moves) => ({
+  schemaVersion: 1, artifact: "ask-results", available: true, cells: [], headline: {}, recent: {}, excluded: [],
+  days: frozen("results-days-2026-09-30.json").days.filter((d) => moves[d.date]).map((d) => ({ ...d, date: moves[d.date] })),
+});
+
 const forecastsDoc = (forecasts) => ({
   schemaVersion: 1,
   artifact: "ask-forecasts",
@@ -101,6 +108,32 @@ export const EVAL_FIXTURES = Object.freeze({
     [PARLAYS]: syntheticEligible(redate(frozen("parlays-2026-09-27.json"), "2026-09-27", EVAL_DAY)),
     [COVERAGE]: frozen("coverage-2026-09-30.json"),
   },
+
+  /*
+   * Session 2 · A PROBABILITY-ONLY NFL FORECAST — the real PIT @ CLE row (2026-09-30 projection), re-dated onto the
+   * eval's pinned evening. It carries win probabilities and a projected score and NO pick, the shape every NFL and
+   * EPL forecast has, and the shape the paraphrase fallback was found on.
+   */
+  "nfl-probability-only": {
+    [FORECASTS]: forecastsDoc([
+      {
+        forecastId: "fixture-nfl-prob", sport: "NFL", gameId: "401872964", away: "PIT", home: "CLE",
+        awayName: "Pittsburgh Steelers", homeName: "Cleveland Browns", matchup: "PIT @ CLE",
+        startUtc: "2026-09-18T00:15Z", experimental: true, capability: "EXPERIMENTAL_PUBLIC", state: "PUBLIC_EXPERIMENTAL",
+        probabilities: { away: 0.5443, home: 0.4258, tie: 0.0299 }, projectedScore: { away: 20, home: 19 },
+        markets: [], why: [], players: [], updatedAt: "2026-09-17T15:52:56Z",
+        links: [{ id: "report", label: "Open the NFL game report", href: "/nfl/game/401872964/" }],
+      },
+    ]),
+  },
+
+  /*
+   * Session 2 · RESULTS DAYS — real Results V2 days (2026-09-30 projection), re-dated so the eval's pinned "yesterday"
+   * (2026-09-16) is the settled 09-27 day, or the all-pending 09-29 day, or absent.
+   */
+  "results-day-settled": { [RESULTS]: resultsDoc({ "2026-09-27": "2026-09-16", "2026-09-29": "2026-09-14" }) },
+  "results-day-pending": { [RESULTS]: resultsDoc({ "2026-09-29": "2026-09-16", "2026-09-27": "2026-09-13" }) },
+  "results-day-missing": { [RESULTS]: resultsDoc({ "2026-09-27": "2026-09-13", "2026-09-29": "2026-09-12" }) },
 
   /* Nothing published at all — the night mut-18 found. Any pick claim is then unsourced by definition. */
   "empty-slate": {

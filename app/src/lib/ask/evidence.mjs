@@ -195,7 +195,17 @@ export function buildEvidence(envelopes) {
         if (h) say(`the ${d.a.label} and the ${d.b.label} have ${h.meetings} recorded meetings: ${d.a.label} ${h.aWins}, ${d.b.label} ${h.bWins}${h.ties ? `, ${h.ties} tied` : ""}`, [h.meetings, h.aWins, h.bWins, h.ties]);
         for (const [side, label] of [["a", d.a.label], ["b", d.b.label]]) {
           const s = d.season?.[side];
-          if (s) say(`in ${d.season.id}, ${label} recorded ${s.wins ?? "?"} wins and ${s.losses ?? "?"} losses from ${s.finals ?? s.games ?? "?"} recorded finals`, [s.wins, s.losses, s.finals, s.games]);
+          /*
+           * ⚠ THE OWNER'S FIELDS ARE `w` / `l` / `t` (teamSeasonSummary), not `wins` / `losses` (Session 2, Production).
+           * This read the wrong names, so every Ask team comparison said "recorded ? wins and ? losses" — a missing
+           * value printed as a symbol. An absent figure is now left out of the sentence, never spelled "?".
+           */
+          const w = s?.w ?? s?.wins ?? null;
+          const l = s?.l ?? s?.losses ?? null;
+          const t = s?.t ?? s?.ties ?? 0;
+          const finals = s?.finals ?? s?.games ?? null;
+          if (s && w != null && l != null) say(`in ${d.season.id}, ${label} recorded ${w} wins and ${l} losses${t ? ` and ${t} ties` : ""}${finals != null ? ` from ${finals} recorded finals` : ""}`, [w, l, t, finals]);
+          else if (s && finals != null) say(`in ${d.season.id}, ${label} has ${finals} recorded finals; GameTimePicks holds no win–loss split for them`, [finals]);
         }
         say(`this comparison is recorded fact only — GameTime Compare names no winner and carries no forecast`);
         break;
@@ -303,10 +313,15 @@ export function buildEvidence(envelopes) {
 
       case "getLiveSlate": {
         say(`GameTime Live reports ${d.liveCount} of ${d.total} ${d.sport} games in progress, as of ${d.fetchedAt}`, [d.liveCount, d.total]);
+        if (d.preCount != null) say(`of those ${d.total} ${d.sport} games, ${d.liveCount} are in progress, ${d.preCount} have not started and ${d.finalCount ?? 0} are final`, [d.total, d.liveCount, d.preCount, d.finalCount ?? 0]);
         for (const e of (d.events ?? []).slice(0, 8)) {
+          /* Session 2: a missing team is never printed as "null" — the game is described without the name it lacks. */
+          if (!e.away || !e.home) { say(`one ${d.sport} game's teams are not reported by the live feed — state ${e.state}`); continue; }
           say(e.state === "PRE"
             ? `${e.away} at ${e.home} has not started; no score exists yet`
-            : `${e.away} ${e.awayScore ?? "not reported"}, ${e.home} ${e.homeScore ?? "not reported"} — state ${e.state}${e.stateDetail ? ` (${e.stateDetail})` : ""}`,
+            : e.awayScore == null || e.homeScore == null
+              ? `${e.away} at ${e.home} — state ${e.state}${e.stateDetail ? ` (${e.stateDetail})` : ""}; the live feed reports no score`
+              : `${e.away} ${e.awayScore}, ${e.home} ${e.homeScore}${e.period ? `, ${e.period}` : ""} — state ${e.state}${e.stateDetail ? ` (${e.stateDetail})` : ""}`,
             [e.awayScore, e.homeScore]);
         }
         say(`a final score here is the provider's; GameTime's own grading of a game can land later`);
@@ -360,6 +375,39 @@ export function buildEvidence(envelopes) {
             ? `${r.when} — ${r.subject} (${r.market}): GameTime predicted ${r.predicted}; this one is not yet graded`
             : `${r.when} — ${r.subject} (${r.market}): GameTime predicted ${r.predicted}, the actual result was ${r.actual}, ${r.hit ? "a correct forecast" : "an incorrect forecast"}`);
         }
+        break;
+      }
+
+      case "getResultsDay": {
+        /*
+         * Session 2 · ONE DAY, ITEM BY ITEM, IN THE OWNER'S WORDS. No sentence here totals anything: a lane is one
+         * result, a call is one grade. The pick is phrased "GameTime's pick is X" so the verifier's pick rule can match
+         * a restatement of THIS day's graded call — and nothing else — and a pending item says it is not a loss.
+         */
+        const PRODUCT = { "bank-builder": "Bank Builder", moonshot: "Moonshot" };
+        const LANE_WORD = { won: "won", lost: "lost", void: "void", push: "a push", pending: "pending — not settled yet, which is never a loss", active: "open — a leg is still pending" };
+        const OUTCOME = { WIN: "graded WIN", LOSS: "graded LOSS", PUSH: "graded PUSH", VOID: "graded VOID" };
+        say(`results for ${d.date} (ET)${d.isYesterday ? ", which is yesterday" : ""}, as the Results day page records them — each item keeps its own grade, and GameTimePicks publishes no combined day record or percentage`, [d.date]);
+        if (d.lanes?.length) {
+          for (const l of d.lanes.slice(0, 6)) {
+            const name = `${PRODUCT[l.product] ?? l.product}${l.lane ? ` lane ${l.lane}` : ""}`;
+            say(`on ${d.date}, ${name} was ${LANE_WORD[l.result] ?? l.result}${l.legs?.length ? `, with ${l.legs.length} leg(s) on its receipt` : ", with no legs on its receipt"}`, [d.date, l.legs?.length ?? 0]);
+            for (const g of (l.legs ?? []).slice(0, 4)) {
+              say(`${name} leg · ${g.selection ?? "a selection"}${g.matchup ? ` (${g.matchup})` : ""}${g.official ? `, official ${g.official}` : ""}: ${LANE_WORD[g.result] ?? g.result}`);
+            }
+          }
+        } else {
+          say(`no Bank Builder or Moonshot card was recorded for ${d.date}`, [d.date]);
+        }
+        for (const [sport, evs] of Object.entries(d.events ?? {})) {
+          for (const e of (evs ?? []).slice(0, 8)) {
+            const calls = (e.calls ?? []).map((c) => `· ${c.market}: GameTime's pick is ${String(c.pick).replace(/\s+\((?:home|away)\)$/, "")}, ${OUTCOME[c.outcome] ?? "not yet graded — pending, not a loss"}`).join(" ");
+            say(`on ${d.date}, ${sport.toUpperCase()} ${e.title}${e.final ? ` finished ${e.final}` : " has no final recorded"} ${calls}`.trim(), [d.date]);
+          }
+          const props = (evs ?? []).reduce((n, e) => n + (e.propsNotShown ?? 0), 0);
+          if (props) say(`${props} ${sport.toUpperCase()} player-prop lean(s) were also graded that day; they are market-context families and are listed on the Results day page, not here`, [props]);
+        }
+        if (d.sportsWithout?.length) say(`nothing was graded for ${d.sportsWithout.map((x) => x.toUpperCase()).join(", ")} on ${d.date}`, [d.date]);
         break;
       }
 
