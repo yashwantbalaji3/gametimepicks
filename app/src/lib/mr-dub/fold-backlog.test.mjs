@@ -44,7 +44,7 @@ test("render: the record's window and era composition, and the backlog with its 
   assert.match(html, /Record 37–36/);
   assert.match(html, /July protected base 19–14/);
   assert.match(html, /settled receipts 18–22/);
-  assert.match(html, /Not yet in this record: 10 decided Bank Builder results since/);
+  assert.match(html, /Not yet in this record: 10 decided Bank Builder results after/);
   assert.match(html, /Toronto Blue Jays @ Baltimore Orioles · Over 7 \(Moonshot lane A\)/);
   const clean = renderToStaticMarkup(React.createElement(RecordComposition, { recordLabel: "37–36", window: null, composition: null, backlog: { after: "x", haltedAt: null, blocking: [], decided: { "bank-builder": { won: 0, lost: 0 } } } }));
   assert.doesNotMatch(clean, /Not yet in this record/, "no backlog line when the fold is current");
