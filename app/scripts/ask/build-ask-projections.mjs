@@ -67,6 +67,7 @@ import { MARKET_COVERAGE } from "../../src/lib/market-coverage.ts";
 import { MLB_MARKET_CALIBRATION, isCalibrationFailed } from "../../src/lib/mlb/model-calibration-status.ts";
 import { buildHelpCorpus } from "../../src/lib/ask/help-source.mjs";
 import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-model.mjs";
+import { legIsMarketContext, marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.join(APP, "..");
@@ -393,6 +394,9 @@ function buildForecasts() {
 /** Read the newest N optimizer snapshots. A date with no snapshot is absent, never back-filled. */
 function buildParlays(days = 3) {
   const dir = path.join(APP, "public/data/parlays/optimizer");
+  /* F-1: the card-leg rule at WRITE time too (the tool applies it again at read). The coverage document is the
+     same one this script publishes as coverage.json, from lib/market-coverage.ts. */
+  const marketContext = marketContextFamilies(buildCoverage());
   const files = (fs.existsSync(dir) ? fs.readdirSync(dir) : []).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().slice(-days);
 
   const byDate = {};
@@ -400,6 +404,8 @@ function buildParlays(days = 3) {
     const doc = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
     const date = String(doc.date ?? file.replace(".json", ""));
     const profiles = {};
+    let withheldMarketContext = 0;
+    const withheldFamilies = new Set();
 
     for (const [profile, cuts] of Object.entries(doc.publicRiskSections ?? {})) {
       const slips = [];
@@ -436,6 +442,8 @@ function buildParlays(days = 3) {
             oddsForSide: l.oddsForSide ?? null,
             commenceTime: l.commenceTime ?? null,
           }));
+          const mc = legs.filter((l) => legIsMarketContext(l, marketContext, cut));
+          if (mc.length) { withheldMarketContext += 1; for (const l of mc) withheldFamilies.add(l.marketLabel ?? l.market); continue; }
           // Arithmetic once, in the owner, over the candidate's own pinned prices.
           const payout = combinedParlayPayoutPer100(legs);
           slips.push({
@@ -470,6 +478,9 @@ function buildParlays(days = 3) {
         .map((k) => k.replace(/Count$/, ""))
         .filter((s) => canEnterPredictionProducts(s)),
       profiles,
+      // F-1: withheld by the card-leg rule — counted and named, so an empty day can say why.
+      withheldMarketContext,
+      withheldFamilies: [...withheldFamilies].sort(),
     };
     notes.push(`parlays ${date} ${Object.entries(profiles).map(([k, v]) => `${k}:${v.length}`).join(" ")}`);
   }

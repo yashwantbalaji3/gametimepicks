@@ -33,6 +33,8 @@ import {
 /* Parlay Lab is retired in rendered copy (its route is a redirect stub to /build#suggested-cards). */
 const SUGGESTED_LINKS = Object.freeze([{ id: "suggested", label: "Open Suggested cards", href: "/build/" }]);
 
+import { legIsMarketContext, marketContextFamilies } from "../../parlays/card-leg-eligibility.mjs";
+
 /* ────────────────────────────  getPublishedForecasts  ──────────────────────────── */
 
 export async function getPublishedForecasts(args, ctx) {
@@ -158,6 +160,17 @@ export async function getParlayCandidates(args, ctx) {
   const date = args.date ?? etDateOf((ctx.now ? ctx.now() : new Date()).toISOString());
   const day = date ? doc.byDate?.[date] : null;
   const allSlips = day ? Object.values(day.profiles ?? {}).flat() : [];
+  if (day && !allSlips.length && day.withheldMarketContext) {
+    // F-1: the projection withheld every candidate at write time under the card-leg rule — say why.
+    return {
+      status: ASK_STATUS.UNSUPPORTED,
+      error: ASK_ERROR.NOT_PUBLISHED,
+      detail: `${day.withheldMarketContext} parlay candidates were built for ${date}, but every one uses a market-context family (${(day.withheldFamilies ?? []).join(", ")}) that is not a published GameTime projection, so none is offered`,
+      date,
+      withheldMarketContext: day.withheldMarketContext,
+      links: SUGGESTED_LINKS,
+    };
+  }
   if (!day || !allSlips.length) {
     // An EMPTY day is the same answer as a missing one: nothing was published — never "no match for your preferences".
     return {
@@ -179,10 +192,10 @@ export async function getParlayCandidates(args, ctx) {
    * DEMOTED_TO_MARKET_CONTEXT, publicEligible false — yet every leg of the optimizer's slips came from them and was
    * presented as "GameTime projection, confidence High". A slip with any such leg is withheld, and counted.
    */
+  // F-1: the ONE card-leg rule (lib/parlays/card-leg-eligibility.mjs), applied again at read.
   const coverage = await ctx.turn.load(askAssetPath.coverage());
-  const demoted = new Set((coverage.ok ? coverage.json.markets ?? [] : [])
-    .flatMap((m) => (m.demotedFamilies ?? []).map((f) => `${String(m.sport).toUpperCase()}:${f}`)));
-  const isDemotedLeg = (l) => demoted.has(`${String(l.sport).toUpperCase()}:${l.market}`);
+  const demoted = marketContextFamilies(coverage.ok ? coverage.json : null);
+  const isDemotedLeg = (l) => legIsMarketContext(l, demoted);
   const beforeGate = slips.length;
   const demotedFamiliesSeen = [...new Set(slips.flatMap((s) => s.legs.filter(isDemotedLeg).map((l) => l.marketLabel ?? l.market)))];
   slips = slips.filter((s) => !s.legs.some(isDemotedLeg));

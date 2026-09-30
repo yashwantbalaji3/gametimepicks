@@ -27,12 +27,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { SETTLEABLE_SPORTS } from "../../src/lib/parlays/multi-sport.mjs";
+import { PRICE_MAX_AGE_DAYS } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 const daysBetween = (a, b) => Math.abs(Date.parse(a) - Date.parse(b)) / 86_400_000;
 
-/** How stale a price capture may be before the sport stops being publishable. */
-const PRICE_MAX_AGE_DAYS = 3;
+/* How stale a price capture may be before the sport stops being publishable: PRICE_MAX_AGE_DAYS — ONE rule, owned by
+   lib/parlays/card-leg-eligibility.mjs (F-1), which every card producer reads. */
 /**
  * Fewest DISTINCT PRICED GAMES a sport needs. Games, not selections — and the distinction is the
  * whole point.
