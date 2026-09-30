@@ -149,8 +149,15 @@ for (const s of STREAMS) {
  */
 const prior = { wins: 0, losses: 0, staked: 0, returned: 0, days: new Set() };
 for (const f of (() => { try { return fs.readdirSync(GRADED).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)); } catch { return []; } })()) {
+  /*
+   * F-2 · THE LABEL IS A WINDOW. "Before the 2026-08-17 selection change" summed EVERY graded day — through 09-27 —
+   * so the record rendered on /build described days after the change it says it predates (and the results
+   * projection flagged WINDOW_CONTRADICTS_LABEL). The prior policy's window now ends the day before POLICY.since.
+   */
+  if (f.slice(0, 10) >= POLICY.since) continue;
   const doc = readJson(path.join(GRADED, f));
   if (!doc) continue;
+  if (String(doc.date ?? f.slice(0, 10)) >= POLICY.since) continue;
   prior.days.add(doc.date ?? f.slice(0, 10));
   for (const tier of TIERS) {
     for (const slip of doc.publicRiskSections?.[tier]?.all ?? []) {

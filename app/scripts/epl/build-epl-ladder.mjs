@@ -40,6 +40,7 @@ import { fileURLToPath } from "node:url";
 
 import { INDIVIDUAL_LEG_ODDS_GUARDS } from "../../src/lib/parlays/risk-odds-bands.mjs";
 import { assembleBands } from "../../src/lib/parlays/band-assembly.mjs";
+import { PRICE_MAX_AGE_DAYS, priceIsFresh } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = path.join(APP, "public", "data", "parlays", "risk-ladder-epl");
@@ -113,6 +114,15 @@ const base = { schemaVersion: 1, artifact: "epl-risk-ladder", dataClass: "PUBLIC
 if (!odds?.rows?.length) {
   write({ ...base, state: "NO_PRICES", reason: "no EPL price capture is available to build from", cards: [], skipped: [] });
   console.log("epl ladder: no prices"); process.exit(0);
+}
+/*
+ * F-2 · A STALE PRICE IS NOT A PRICE. The ladder had no age check: /cards/epl published cards for a 10-10 slate priced
+ * from a 09-19 capture, while the lab ledger (same rule, lab-eligibility) already called EPL NOT_ELIGIBLE for it. The
+ * freshness rule is the one card-leg-eligibility owns.
+ */
+if (!priceIsFresh(odds.capturedAt ?? odds.generatedAt, NOW)) {
+  write({ ...base, state: "STALE_PRICES", reason: `the newest EPL price capture (${odds.capturedAt ?? odds.generatedAt ?? "undated"}) is older than ${PRICE_MAX_AGE_DAYS} days — a stale price is not one anyone can act on`, cards: [], skipped: [] });
+  console.log("epl ladder: stale prices"); process.exit(0);
 }
 
 /*

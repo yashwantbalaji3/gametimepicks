@@ -40,6 +40,8 @@ export const metadata = withRouteMetadata("/build/", {
 
 export default function ParlayCenterSuggestedPage() {
   // Same slate framing the rest of the site uses, so every surface agrees on which day is current.
+  /* The legacy snapshot list (its producer stopped 2026-09-22). Its legs carry only a display label, not the family
+     key the card-leg rule judges, so it cannot be gated here — it stays retired rather than re-fed. */
   const suggestedCards = loadSuggestedCards(currentSlateDate() ?? currentEtDate());
   const dataRoot = path.join(process.cwd(), "public", "data");
   const ladderDate = currentSlateDate() ?? currentEtDate();
@@ -174,8 +176,11 @@ export default function ParlayCenterSuggestedPage() {
           <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
             <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No suggested cards for today</p>
             <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
-              The slate was assessed and nothing cleared the card gates. That is the model&rsquo;s answer for
-              today, not a missing update — <Link href="/build/custom" style={{ color: "var(--vault-gold-bright)" }}>build your own card</Link>,
+              {/* F-2: the ladder's own recorded reason when the card-leg rule emptied the day — never a generic claim. */}
+              {riskLadder?.eligibility?.withheldMarketContext
+                ? <>{riskLadder.eligibility.withheldMarketContext} model-built candidates were withheld: every one uses a market-context family ({(riskLadder.eligibility.withheldFamilies ?? []).join(", ")}) — the model behind it was demoted and is not a published GameTime projection. </>
+                : <>The slate was assessed and nothing cleared the card gates. That is the model&rsquo;s answer for today, not a missing update. </>}
+              <Link href="/build/custom" style={{ color: "var(--vault-gold-bright)" }}>Build your own card</Link>,
               or see the ranked markets on{" "}
               <Link href="/markets" style={{ color: "var(--vault-gold-bright)" }}>Picks</Link>.
             </p>
