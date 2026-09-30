@@ -21,13 +21,14 @@
  * split-Poisson sparse-split flag (which does not apply to ratings) is never raised.
  */
 import { normalizeClubName } from "./strength-state.mjs";
+import { augMaySeason } from "../soccer/season.mjs";
 
 export const EPL_ELO_POISSON_MODEL_ID = "epl-model-v2-elo-poisson";
 
 const seasonStart = (s) => Number(String(s).slice(0, 4));
 const seasonLabel = (y) => `${y}-${String(y + 1).slice(2)}`;
-/** The season a date belongs to: July rolls over (matches openfootball.mjs seasonOfDate). */
-const seasonOfIso = (iso) => { const y = Number(iso.slice(0, 4)); const m = Number(iso.slice(5, 7)); return seasonLabel(m >= 7 ? y : y - 1); };
+/** The season a date belongs to: July rolls over — the shared rule (lib/sports/soccer/season.mjs). */
+const seasonOfIso = augMaySeason;
 const gdMultiplier = (gd) => (gd <= 1 ? 1 : gd === 2 ? 1.5 : (11 + gd) / 8);
 
 /**
