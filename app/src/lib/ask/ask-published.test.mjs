@@ -49,7 +49,11 @@ test("no published parlay candidate belongs to a sport barred from prediction pr
       }
     }
   }
-  assert.ok(checked > 0, "no published candidates were checked — this guard would pass vacuously");
+  /* F-1: zero candidates is now a legitimate day — the card-leg rule withholds every market-context slip. It is only
+     non-vacuous if the projection RECORDS what it withheld (proof the pipeline ran and judged real slips). */
+  const withheld = Object.values(parlays.byDate ?? {}).reduce((n, d) => n + (d.withheldMarketContext ?? 0), 0);
+  if (checked === 0) console.log(`# no published candidate to check; ${withheld} withheld under the card-leg rule`);
+  assert.ok(checked > 0 || withheld > 0, "no candidates were checked AND none were withheld — this guard would pass vacuously");
 });
 
 test("the published eligible-sport list is exactly what the capability registry permits", () => {
