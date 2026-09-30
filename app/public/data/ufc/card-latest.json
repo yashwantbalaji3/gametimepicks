@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-29T16:50:08Z",
+ "generatedAt": "2026-09-30T18:20:56Z",
  "sport": "ufc",
  "state": "SCHEDULED_CARD",
  "event": {
@@ -10,15 +10,7 @@
   "venue": "Delta Center",
   "boutCount": 14
  },
- "skippedForCoverage": [
-  {
-   "name": "Dana White's Contender Series: Season 10, Week 8",
-   "dateUtc": "2026-09-29T23:00Z",
-   "bouts": 5,
-   "modellableBouts": 0,
-   "reason": "only 0 of 5 bouts have both fighters in the corpus"
-  }
- ],
+ "skippedForCoverage": [],
  "model": {
   "id": "ufc-fight-model@e657fc40b64d",
   "publishes": [
@@ -1454,6 +1446,109 @@
    "unmodelledReason": null
   },
   {
+   "boutId": "401926808",
+   "weightClass": "Welterweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-10-03T20:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "5149961",
+    "name": "Jacobe Smith",
+    "record": "12-0-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5149961.png",
+    "priorBoutsInCorpus": 3,
+    "profile": {
+     "bouts": 3,
+     "record": {
+      "wins": 3,
+      "losses": 0
+     },
+     "last5": [
+      {
+       "date": "2026-02-21",
+       "opponent": "Josiah Harrell",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Welterweight"
+      },
+      {
+       "date": "2025-06-28",
+       "opponent": "Niko Price",
+       "result": "W",
+       "method": "SUB",
+       "round": 2,
+       "weightClass": "Welterweight"
+      },
+      {
+       "date": "2025-01-11",
+       "opponent": "Preston Parsons",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Welterweight"
+      }
+     ],
+     "strengths": [
+      "Finishes fights — mostly by knockout"
+     ],
+     "weaknesses": [
+      "Too few tracked losses to name a pattern — absence of data, not absence of weakness"
+     ],
+     "summary": "3-0 in the last 3. 100% of wins come by finish; 0% of fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5311402",
+    "name": "Bruce Whitehead",
+    "record": "8-2-0",
+    "photoUrl": null,
+    "priorBoutsInCorpus": 0,
+    "profile": {
+     "bouts": 0,
+     "last5": [],
+     "strengths": [],
+     "weaknesses": [],
+     "summary": null
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Jacobe Smith",
+     "probability": 0.728,
+     "byFighter": {
+      "Bruce Whitehead": 0.272,
+      "Jacobe Smith": 0.728
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.3862,
+      "submission": 0.2194,
+      "decision": 0.3944
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.354,
+      "round2": 0.1814,
+      "round3plus": 0.4645
+     },
+     "goesTheDistance": 0.3944
+    },
+    "priorFights": {
+     "a": 0,
+     "b": 3
+    },
+    "basis": "ONE_FIGHTER_DEBUT",
+    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+    "reason": null
+   },
+   "unmodelledReason": null
+  },
+  {
    "boutId": "401917346",
    "weightClass": "Lightweight",
    "scheduledRounds": 3,
@@ -1620,109 +1715,6 @@
     "basis": "BOTH_FIGHTERS",
     "basisNote": null,
     "reason": "Alexander Hernandez the shorter record is Hernandez's (18 vs 36), so the read leans on the opponent's history — and the matchup profiles as one that reaches the judges."
-   },
-   "unmodelledReason": null
-  },
-  {
-   "boutId": "401926808",
-   "weightClass": "Welterweight",
-   "scheduledRounds": 3,
-   "startUtc": "2026-10-03T20:00Z",
-   "titleFight": false,
-   "red": {
-    "athleteId": "5149961",
-    "name": "Jacobe Smith",
-    "record": "12-0-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5149961.png",
-    "priorBoutsInCorpus": 3,
-    "profile": {
-     "bouts": 3,
-     "record": {
-      "wins": 3,
-      "losses": 0
-     },
-     "last5": [
-      {
-       "date": "2026-02-21",
-       "opponent": "Josiah Harrell",
-       "result": "W",
-       "method": "KO",
-       "round": 1,
-       "weightClass": "Welterweight"
-      },
-      {
-       "date": "2025-06-28",
-       "opponent": "Niko Price",
-       "result": "W",
-       "method": "SUB",
-       "round": 2,
-       "weightClass": "Welterweight"
-      },
-      {
-       "date": "2025-01-11",
-       "opponent": "Preston Parsons",
-       "result": "W",
-       "method": "KO",
-       "round": 1,
-       "weightClass": "Welterweight"
-      }
-     ],
-     "strengths": [
-      "Finishes fights — mostly by knockout"
-     ],
-     "weaknesses": [
-      "Too few tracked losses to name a pattern — absence of data, not absence of weakness"
-     ],
-     "summary": "3-0 in the last 3. 100% of wins come by finish; 0% of fights reach the judges."
-    }
-   },
-   "blue": {
-    "athleteId": "5311402",
-    "name": "Bruce Whitehead",
-    "record": "8-2-0",
-    "photoUrl": null,
-    "priorBoutsInCorpus": 0,
-    "profile": {
-     "bouts": 0,
-     "last5": [],
-     "strengths": [],
-     "weaknesses": [],
-     "summary": null
-    }
-   },
-   "prediction": {
-    "winner": {
-     "name": "Jacobe Smith",
-     "probability": 0.728,
-     "byFighter": {
-      "Bruce Whitehead": 0.272,
-      "Jacobe Smith": 0.728
-     }
-    },
-    "method": {
-     "most": "DEC",
-     "probabilities": {
-      "ko": 0.3862,
-      "submission": 0.2194,
-      "decision": 0.3944
-     }
-    },
-    "rounds": {
-     "endsIn": "3+",
-     "probabilities": {
-      "round1": 0.354,
-      "round2": 0.1814,
-      "round3plus": 0.4645
-     },
-     "goesTheDistance": 0.3944
-    },
-    "priorFights": {
-     "a": 0,
-     "b": 3
-    },
-    "basis": "ONE_FIGHTER_DEBUT",
-    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
-    "reason": null
    },
    "unmodelledReason": null
   },
