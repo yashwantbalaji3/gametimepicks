@@ -70,6 +70,14 @@ Only canonical owners wrote this data:
 - **F1 proof.** #861's canonical projection run appended r2 instead of refusing.
 - **Next check:** 2026-10-01, from 05:17Z onward. The first slot writes `2026-10-01.json`; any later slot after daily-products should append `2026-10-01.r2.json` and stay green.
 
+## Production verification (after #861 deployed at `6304ef57af`)
+
+- **Routes checked:** /, /today, /results, /bank-builder, /moonshot, and /results/date/2026-09-23 through 09-29.
+- **At 390 and 1280:** every route returns 200, with no console errors, no overflow, no broken images and no `undefined`/`NaN`.
+- **Money state:** 42–41 and $15,340.40 everywhere, "Settled through Sep 29" on home, and 37–36 nowhere.
+- **09-23 day page:** Moonshot lane A reads "Over 7 · 6 · LOST".
+- **Residual (backlog, no money effect):** on that page, Bank Builder lane B's "Baltimore Orioles to win" leg still reads "PENDING — NOT SETTLED YET". The lane was already LOST on another leg, and the catch-up never re-grades a decided lane. Two ways to close it: copy such as "not graded — lane already decided", or a founder rule for grading legs of decided lanes.
+
 ## Founder decisions still open
 
 - **UX-1:** which bottom-bar item owns /today and /live (nav charter E), or a sixth item.
