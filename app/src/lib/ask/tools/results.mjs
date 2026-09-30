@@ -216,7 +216,6 @@ export async function getRecentResults(args, ctx) {
   if (args.toDate) rows = rows.filter((r) => r.when && r.when <= args.toDate);
 
   const shown = rows.slice(0, args.limit ?? 10);
-  const graded = rows.filter((r) => r.hit !== null);
 
   return {
     status: ASK_STATUS.OK,
@@ -227,12 +226,14 @@ export async function getRecentResults(args, ctx) {
      * and `won`/`lost` count only rows the owner actually graded. A row with `hit: null` is ungraded
      * or pending; it is excluded from both, never counted as a loss.
      */
+    /*
+     * E-3: NO W–L IS COMPUTED HERE. A won/lost count over whatever window this call returned is a record the owner
+     * never published ("40 matches, 17 correct and 23 not") — the owner's records are getProductRecord and
+     * getForecastRecord. The rows below are listed individually, each with the owner's own grade.
+     */
     matched: rows.length,
     totalRecorded: feed.total ?? null,
     publishedRows: (feed.rows ?? []).length,
-    won: graded.filter((r) => r.hit === true).length,
-    lost: graded.filter((r) => r.hit === false).length,
-    ungraded: rows.length - graded.length,
     rows: shown,
     asOf: feed.asOf ?? null,
     links: [{ id: "results", label: "Results", href: "/results/" }],

@@ -27,6 +27,15 @@ const FORECASTS = "/data/ask/v1/forecasts.json";
 const PARLAYS = "/data/ask/v1/parlays.json";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const frozen = (name) => JSON.parse(fs.readFileSync(path.join(HERE, "fixtures", name), "utf8"));
+const COVERAGE = "/data/ask/v1/coverage.json";
+/** The eval's pinned product date (eval.mjs NOW is 2026-09-17 21:00 ET). */
+export const EVAL_DAY = "2026-09-17";
+/** Move a frozen parlay projection's day to another date (the slips are unchanged). */
+const redate = (doc, from, to) => ({ ...doc, dates: (doc.dates ?? []).map((d) => (d === from ? to : d)), byDate: Object.fromEntries(Object.entries(doc.byDate ?? {}).map(([d, v]) => [d === from ? to : d, v])) });
+/** Relabel every leg into a family the coverage registry does not demote — SYNTHETIC, for writer-grounding cases. */
+const syntheticEligible = (doc) => ({ ...doc, byDate: Object.fromEntries(Object.entries(doc.byDate).map(([d, day]) => [d, { ...day,
+  profiles: Object.fromEntries(Object.entries(day.profiles ?? {}).map(([p, slips]) => [p, slips.map((s) => ({ ...s,
+    legs: s.legs.map((l) => ({ ...l, market: "synthetic_eligible_family", marketLabel: "Synthetic eligible family" })) }))])) }])) });
 
 const forecastsDoc = (forecasts) => ({
   schemaVersion: 1,
@@ -72,8 +81,22 @@ export const EVAL_FIXTURES = Object.freeze({
    * writer's grounding over candidates, which needs candidates to exist. parlay-01 and parlay-05 still
    * run against the published assets, so whatever today holds — candidates or none — is also exercised.
    */
+  /*
+   * ⚠ E-3: every leg of the real 2026-09-27 slate is an MLB batter-hits / H+R+RBI leg — a family the coverage
+   * registry marks DEMOTED_TO_MARKET_CONTEXT — so Ask now WITHHOLDS all of it. The real slate therefore tests the
+   * withholding (re-dated to the eval's pinned day, since an omitted date is today's product date)...
+   */
   "parlay-slate": {
-    [PARLAYS]: frozen("parlays-2026-09-27.json"),
+    [PARLAYS]: redate(frozen("parlays-2026-09-27.json"), "2026-09-27", EVAL_DAY),
+    [COVERAGE]: frozen("coverage-2026-09-30.json"),
+  },
+  /*
+   * ...and the writer's grounding over candidates is tested on a SYNTHETIC copy whose legs carry a family the
+   * registry does not demote. It is a test fixture only: labelled synthetic in every leg, never product data.
+   */
+  "parlay-slate-eligible": {
+    [PARLAYS]: syntheticEligible(redate(frozen("parlays-2026-09-27.json"), "2026-09-27", EVAL_DAY)),
+    [COVERAGE]: frozen("coverage-2026-09-30.json"),
   },
 
   /* Nothing published at all — the night mut-18 found. Any pick claim is then unsourced by definition. */

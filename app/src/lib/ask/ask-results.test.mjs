@@ -106,13 +106,12 @@ test("pending is carried on its own and never folded into lost", async () => {
   assert.match(text, /never treated as a loss/);
 });
 
-test("an ungraded row is excluded from won AND from lost", async () => {
+test("🔴 E-3 · no W–L is computed over a returned window — the rows are listed, each with the owner's own grade", async () => {
   const r = await getRecentResults({ sport: "NFL", limit: 10 }, ctxWith(FIXTURE));
   assert.equal(r.matched, 3);
-  assert.equal(r.won, 1);
-  assert.equal(r.lost, 1);
-  assert.equal(r.ungraded, 1, "the null-outcome row is neither a win nor a loss");
-  assert.equal(r.won + r.lost + r.ungraded, r.matched);
+  assert.equal(r.won, undefined, "a won count over this window is a record the owner never published");
+  assert.equal(r.lost, undefined);
+  assert.ok(r.rows.some((row) => row.hit === null), "an ungraded row stays in the list as ungraded, never a loss");
 });
 
 /* ── 3 · MISSING IS NOT ZERO ────────────────────────────────────────────────────────────────────── */
@@ -279,21 +278,7 @@ console.log(leaked ? "MISSED" : "CAUGHT");`,
   assert.equal(out, "MISSED", "the mutation must actually put a legacy row among the current components");
 });
 
-test("MUTATION · folding ungraded rows into the graded set makes them vanish from the accounting", () => {
-  const out = mutating(
-    "tools/results.mjs",
-    "  const graded = rows.filter((r) => r.hit !== null);",
-    "  const graded = rows;",
-    (t) => `import { getRecentResults } from ${JSON.stringify(t)};
-const doc = ${PROBE_FIXTURE};
-const ctx = { turn: { load: async () => ({ ok: true, json: doc }) } };
-const r = await getRecentResults({ sport: "NFL", limit: 10 }, ctx);
-/* The fixture holds one row with hit:null. Unmutated, ungraded is 1 and the reader is told so.
-   Mutated, that row is folded into the graded set and simply vanishes from the accounting. */
-console.log(r.ungraded === 0 ? "MISSED" : "CAUGHT");`,
-  );
-  assert.equal(out, "MISSED", "the mutation must make the ungraded row disappear from the accounting");
-});
+/* E-3: the "folding ungraded rows" mutation targeted the won/lost accounting, which no longer exists. */
 
 test("MUTATION · a label built from missing counts invents a 0–0 for a disclosed gap", () => {
   const out = mutating(

@@ -263,13 +263,17 @@ function noBlockedModelOutput(r) {
   });
 }
 
-/** Every slip id mentioned in the answer must be one a tool actually returned. */
+/**
+ * Every slip id mentioned in the answer must be one a tool actually returned.
+ * ⚠ E-3: this gate could never fail — it compared the ids against the tool NAMES and then tested
+ * `length >= 0 && startsWith("opt_")`, true for any id at all. It now checks the receipt's evidence identifiers.
+ */
 function noInventedLeg(r) {
   const md = r.out.answer?.answerMarkdown ?? "";
   const mentioned = [...md.matchAll(/\bopt_[\w-]+/g)].map((m) => m[0]);
   if (!mentioned.length) return true;
-  const evidenceText = (r.out.receipt?.toolCalls ?? []).join(" ");
-  return mentioned.every((id) => evidenceText.length >= 0 && id.startsWith("opt_"));
+  const returned = new Set(r.out.receipt?.evidenceIdentifiers ?? []);
+  return mentioned.every((id) => returned.has(id));
 }
 
 console.log("");
