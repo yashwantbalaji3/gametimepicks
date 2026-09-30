@@ -25,6 +25,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadCommittedCoverage, marketContextFamilies, partitionByLegEligibility, marketContextReason } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const GRADED = path.join(APP, "public", "data", "parlays", "optimizer-graded");
@@ -233,6 +234,22 @@ if (poolDoc) {
  * same for a $20 bankroll and a $2,000 one, because nothing about a bankroll makes a longer card
  * behave better.
  */
+/*
+ * F-1 · CARD-LEG ELIGIBILITY (lib/parlays/card-leg-eligibility.mjs). A card with any leg from a family the coverage
+ * registry demotes to market context is withheld — counted per tier, families named — before any card is scored.
+ * Every MLB card used to be built from demoted batter-hits legs and ranked by that model's own edge.
+ */
+const coverageDoc = loadCommittedCoverage(path.resolve(APP, ".."));
+const families = marketContextFamilies(coverageDoc);
+const withheldByTier = {};
+const withheldFamilies = new Set();
+for (const tier of TIERS) {
+  const { eligible, withheld, withheldFamilies: named } = partitionByLegEligibility(poolByTier[tier], families, "MLB");
+  poolByTier[tier] = eligible;
+  withheldByTier[tier] = withheld.length;
+  for (const f of named) withheldFamilies.add(f);
+}
+
 const BAND_MAX_LEGS = { low: 2, medium: 3, high: 4, longshot: 5 };
 const MAX_LEGS = 5;
 const SCORE_TIE = 0.02;             // within 2% of the best score counts as a tie on score
@@ -255,7 +272,10 @@ for (const tier of TIERS) {
       tier,
       reason: poolByTier[tier].length
         ? "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
-        : "no priced card in this tier on today's slate",
+        : withheldByTier[tier]
+          ? marketContextReason([...withheldFamilies])
+          : "no priced card in this tier on today's slate",
+      ...(withheldByTier[tier] ? { withheldMarketContext: withheldByTier[tier] } : {}),
     });
     continue;
   }
@@ -411,6 +431,13 @@ const payload = {
   note: "Tracked paper cards with their own ledger. These never touch the Bank Builder / Moonshot bankroll or the settled product record.",
   cards,
   skipped,
+  /* F-1: what the card-leg eligibility rule withheld today, and from which source — a lane emptied by the rule says so. */
+  eligibility: {
+    rule: "a card with any leg from a family the coverage registry demotes to market context is withheld",
+    source: coverageDoc ? "data/ask-projection/v1/coverage.json (lib/market-coverage.ts)" : "coverage projection unavailable — nothing withheld",
+    withheldMarketContext: TIERS.reduce((n, t) => n + (withheldByTier[t] ?? 0), 0),
+    withheldFamilies: [...withheldFamilies].sort(),
+  },
   bettorTiers,
   record: {
     gradedDays: gradedDays.size,

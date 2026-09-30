@@ -15,6 +15,7 @@
  * /nba/parlays redirects and many in-page links) still lands here, on the section of that name.
  * The legacy #advanced-builder anchor renders an in-place signpost to /build/custom.
  */
+import { legIsMarketContext, loadCommittedCoverage, marketContextFamilies } from "@/lib/parlays/card-leg-eligibility.mjs";
 import { etDayLabel } from "@/lib/et-stamp.mjs";
 import PicksExperience from "@/components/picks-experience";
 import Link from "next/link";
@@ -56,7 +57,11 @@ export default function ParlayCenterSuggestedPage() {
   const legRecord = loadGradedLegRecord(dataRoot);
   /* Substitution bench: the same eligible legs the boards render, so a swap can only reach a leg
      the site already publishes. */
-  const swapPool = loadMlbPropsBoard(dataRoot, ladderDate).map(toSwapCandidate);
+  // F-1: the bench obeys the card-leg rule too — a market-context (demoted) family is never offered as a swap.
+  const marketContext = marketContextFamilies(loadCommittedCoverage(path.resolve(process.cwd(), "..")));
+  const swapPool = loadMlbPropsBoard(dataRoot, ladderDate)
+    .filter((p) => !legIsMarketContext({ sport: "MLB", market: p.market }, marketContext))
+    .map(toSwapCandidate);
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
