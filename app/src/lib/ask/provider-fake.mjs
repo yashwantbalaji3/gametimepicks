@@ -263,6 +263,24 @@ function routePlan(user) {
   }
 
   if (has("compare", " vs ", "versus")) {
+    /*
+     * E-4: "compare" used to route to the help search, so neither compare tool was ever exercised. With two proper
+     * names in the question the fake resolves both and calls the comparison, passing the NAMES as ids — the
+     * engine's safety net substitutes each resolved id by its label, exactly as it does for a live planner.
+     */
+    const names = twoNamesIn(rawQuestion(raw));
+    const sport = sportOf(question) ?? "NFL";
+    const isTeam = has("team") && !has("player"); // has() is ANY-of — " the " alone would make every question a team one
+    if (names) {
+      const kind = isTeam ? "team" : "player";
+      const base = calls.length;
+      push("resolveEntity", { kind, text: names[0], sport });
+      push("resolveEntity", { kind, text: names[1], sport });
+      const after = [`c${base}`, `c${base + 1}`];
+      if (isTeam) push("getTeamComparison", { sport, teamAId: names[0], teamBId: names[1] }, after);
+      else push("getPlayerComparison", { sport, playerAId: names[0], playerBId: names[1] }, after);
+      return { intent: isTeam ? "TEAM_COMPARE" : "PLAYER_COMPARE", needsClarification: false, clarification: null, calls };
+    }
     push("searchGameTimeHelp", { query: question.slice(0, 200) });
     return { intent: has("player", "him", "her", "them") ? "PLAYER_COMPARE" : "TEAM_COMPARE", needsClarification: false, clarification: null, calls };
   }
@@ -306,6 +324,15 @@ const rawQuestion = (raw) => String(raw).match(/QUESTION:\s*(.+)/)?.[1]?.trim() 
  * Prefers a two-word name ("Keenan Allen"); falls back to a single capitalised word ("Allen"), which
  * is the ambiguous case the resolver is supposed to turn into a question.
  */
+/** Two proper names joined by "and" / "vs" / "versus" / "with" ("Compare CeeDee Lamb and Justin Jefferson"). */
+const twoNamesIn = (q) => {
+  const NAME = "([A-Z][\\w'.]*(?:\\s+[A-Z][\\w'.]*)*)";
+  const m = String(q).match(new RegExp(`${NAME}\\s+(?:and|vs\\.?|versus|with)\\s+(?:the\\s+)?${NAME}`));
+  if (!m) return null;
+  const clean = (n) => n.replace(/^(?:Compare|The)\s+/, "").trim();
+  return [clean(m[1]), clean(m[2])];
+};
+
 const nameIn = (q) => {
   const two = q.match(/\b([A-Z][a-z]+\s+[A-Z][a-z']+)\b/)?.[1];
   if (two) return two.slice(0, 60);

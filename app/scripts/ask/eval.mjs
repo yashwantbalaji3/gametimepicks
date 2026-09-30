@@ -33,7 +33,7 @@ import { ASK_PROMPT_VERSION } from "../../src/lib/ask/contract.mjs";
 import { registryFingerprint } from "../../src/lib/ask/registry.mjs";
 import { forbiddenCopyIn } from "../../src/lib/ask/verifier.mjs";
 import { GOLDEN } from "./golden.mjs";
-import { EVAL_FIXTURES } from "./eval-fixtures.mjs";
+import { EVAL_DAY, EVAL_FIXTURES } from "./eval-fixtures.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -175,6 +175,15 @@ function grade(c, out) {
       const reasons = out.receipt?.verifierViolations ?? [];
       add("refused-for-its-rule", reasons.some((v) => v.includes(c.expectViolation)), `reasons [${reasons.join(" | ").slice(0, 160)}]`);
     }
+  }
+
+  /*
+   * E-4 · DATE WINDOW. forecast-01 ("tonight") once passed while answering with October games: nothing checked
+   * that a "today / tonight" answer stays on today. Any ISO date such an answer names must be the eval's day.
+   */
+  if (/\b(?:tonight|today)\b/i.test(c.q ?? (c.turns ?? []).join(" ")) && tools.includes("getPublishedForecasts")) {
+    const off = [...md.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g)].map((m) => m[1]).filter((d) => d !== EVAL_DAY);
+    add("date-window", off.length === 0, `a today/tonight answer named ${off.join(", ")}`);
   }
 
   if (c.expectCitations) add("cited", (out.answer?.citations ?? []).length > 0 || out.answer?.deterministic === true, "no citations");

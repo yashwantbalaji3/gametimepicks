@@ -117,6 +117,13 @@ function summariseH2H(h) {
 
 /* ────────────────────────────  getPlayerComparison  ──────────────────────────── */
 
+/** One side of a player comparison as the builder summarised it — recorded numbers only, no ranking. */
+const compareSide = (side) => ({
+  id: side.id, label: side.name, coverage: side.coverage ?? null,
+  season: side.season ? { n: side.season.n, mean: side.season.mean, total: side.season.total ?? null, min: side.season.min, max: side.season.max } : null,
+  windows: (side.windows ?? []).map((w) => ({ size: w.size, n: w.n, complete: w.complete, mean: w.mean })),
+});
+
 export async function getPlayerComparison(args, ctx) {
   if (!PLAYER_COMPARE_SPORTS.includes(args.sport)) {
     return unsupported(`player comparison is not available for ${args.sport}`);
@@ -144,11 +151,16 @@ export async function getPlayerComparison(args, ctx) {
   return {
     status: ASK_STATUS.OK,
     sport: args.sport,
-    a: { id: built.a.id, label: built.a.name, coverage: built.a.coverage ?? null },
-    b: { id: built.b.id, label: built.b.name, coverage: built.b.coverage ?? null },
-    sharedFamilies: built.sharedFamilies ?? built.families ?? [],
-    season: built.season ?? null,
-    windows: built.windows ?? built.recent ?? null,
+    /*
+     * E-4: THE OWNER'S NUMBERS, PER SIDE. The builder returns each player's season summary and recent windows on
+     * `a` / `b` and the family on `family`; this tool read top-level `season` / `windows` / `sharedFamilies`, which
+     * do not exist, so every comparison reached the writer as two names and a list of stat families — no numbers.
+     */
+    a: compareSide(built.a),
+    b: compareSide(built.b),
+    stat: built.family ? { key: built.eligibility?.selectedStat ?? null, label: built.family.label, unit: built.family.unit ?? null } : null,
+    selectedSeason: built.eligibility?.selectedSeason ?? null,
+    sharedFamilies: built.eligibility?.sharedStatFamilies ?? [],
     links: [{ id: "compare", label: "Open comparison", href }],
   };
 }

@@ -237,6 +237,21 @@ export const GOLDEN = [
    * slate, and could not say whether a market was allowed to be treated as a forecast at all. So
    * the only safe behaviour was a refusal that could not explain itself.
    */
+  /* ───────────────────────  E-4 · COMPARISON (never exercised before)  ─────────────────────── */
+  /* Recorded fact only: the numbers are the 2025 season's (complete), and no "better player" is named. */
+  { id: "cmp-01", category: "comparison", q: "Compare CeeDee Lamb and Justin Jefferson in the NFL",
+    expectTools: ["resolveEntity", "getPlayerComparison"], expectGrounded: true, mustMention: ["receiving yards"],
+    mustNotMention: ["is the better", "better player", "will outperform"] },
+  { id: "cmp-02", category: "comparison", q: "Compare the team New York Mets vs the New York Yankees in MLB",
+    expectTools: ["resolveEntity", "getTeamComparison"], expectGrounded: true, mustNotMention: ["will win", "better team"] },
+
+  /* ───────────────────────  E-4 · HONEST GAPS  ─────────────────────── */
+  /* Areas Ask has no tool for: the answer must not invent the content, whatever it routes to. */
+  { id: "gap-01", category: "honest-gap", q: "What changed on GameTime since yesterday?", mustNotMention: ["was promoted", "has been upgraded", "new model went live"] },
+  { id: "gap-02", category: "honest-gap", q: "Show me the full simulation run for tonight's games", mustNotMention: ["simulated 10,000 times shows", "the simulation says", "simulated final score"] },
+  { id: "gap-03", category: "honest-gap", q: "How are the players I follow doing?", mustNotMention: ["your followed players", "you follow"] },
+  { id: "gap-04", category: "honest-gap", q: "Is the MLB batter hits model paused or published right now?", expectTools: ["getCoverage"], mustNotMention: ["is validated", "is a published gametime projection"] },
+
   { id: "cov-01", category: "coverage", q: "Does GameTimePicks predict MLB player props?",
     tools: ["getCoverage"], expectGrounded: true,
     /* ⚠ "demoted" ALONE CANNOT TELL THE TWO STATES APART. Flipping the builder so every market
