@@ -7,7 +7,7 @@
  "modelVersion": "mlb-fullgame-2026.08-pa-v2",
  "simulationVersion": 1,
  "sourceBoardHash": "c3e4d93d41df06559ae6c88a93ffef2122019c3013f7fde0dc011640dbfd7c51",
- "updatedAt": "2026-09-30T00:39:40.000Z",
+ "updatedAt": "2026-09-30T01:22:02.000Z",
  "games": [
   {
    "gamePk": 849843,
@@ -210,23 +210,23 @@
    "awayTeam": "BOS",
    "homeTeam": "NYY",
    "firstPitch": "2026-09-30T00:00:00Z",
-   "artifactHash": "d91d54b1367e5aa6a2f1f94bf8b8b10e3c4d84b96c9d61ae282f0942dbe74758",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "f874156e9725411467a7be86b295ec6590b49996b405e04753fa4319df03d70a",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
-    "source": "confirmed",
-    "capturedAt": "2026-09-29T20:06:09.248Z",
-    "minutesToFirstPitch": 234,
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
     "batterIds": [
      701350,
+     678882,
      668939,
+     702332,
      575929,
      677800,
-     678882,
-     686765,
-     680776,
      596115,
-     702332
+     686765,
+     680776
     ],
     "realCount": 9,
     "ratedCount": 9,
@@ -234,8 +234,8 @@
    },
    "home": {
     "source": "confirmed",
-    "capturedAt": "2026-09-29T20:06:09.248Z",
-    "minutesToFirstPitch": 234,
+    "capturedAt": "2026-09-29T19:43:26.778Z",
+    "minutesToFirstPitch": 257,
     "batterIds": [
      502671,
      700250,
@@ -262,9 +262,11 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
+    "confirmed_batting_order",
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   }
  ]
