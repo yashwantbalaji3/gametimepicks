@@ -194,3 +194,63 @@ test("rule 7 · the write-once refusal itself is UNCHANGED — a genuine same-da
   assert.deepEqual(r.wrote, [], "…and writes nothing");
   assert.equal(historyOf(readJson(path.join(out, `${date}.json`))), historyOf(p), "the dated file is untouched");
 });
+
+/* ---- 2026-09-30 · nightly-settle's 2nd–4th slots refused every day from 09-25 on ----
+   Reproduction of the incident, deterministically. Three facts, each its own test:
+   (1) the builder is a pure function of its owners: same owners + same --now → the same BYTES;
+   (2) an owner that was only RESTAMPED (every cell carries owner.generatedAt, and model-health,
+       graded-picks and the lab ledger restamp every run) is NOT a restatement — contract §5;
+   (3) an owner whose CONTENT advanced (late finals, the risk ladder folding more days) is still
+       refused. (2) was the defect; (3) is the guard and must survive the fix. */
+
+test("DETERMINISM · same owners and the same --now produce byte-identical files", () => {
+  const a = path.join(tmp(), "a"), b = path.join(tmp(), "b");
+  for (const out of [a, b]) {
+    const r = run(["--now", NOW, "--write", "--root", REAL_ROOT, "--internal-root", REAL_INTERNAL, "--out", out]);
+    assert.equal(r.status, 0, r.stderr);
+  }
+  assert.equal(fs.readFileSync(path.join(a, "2026-09-22.json"), "utf8"), fs.readFileSync(path.join(b, "2026-09-22.json"), "utf8"));
+});
+
+test("rule 7 · a re-run whose owners were only RESTAMPED (cell owner.generatedAt) is identical, not a restatement", () => {
+  const out = tmp();
+  const p = buildProjection(readSources(REAL_ROOT, REAL_INTERNAL), { now: NOW });
+  const stamped = p.cells.filter((c) => c.owner && typeof c.owner.generatedAt === "string");
+  assert.ok(stamped.length >= 10, `the probe must restamp real cells (found ${stamped.length})`);
+  assert.equal(writeProjection(p, { outDir: out, date: "2026-09-30" }).refused, null);
+  const restamped = {
+    ...p,
+    builtAt: "2026-09-30T14:55:49Z",
+    cells: p.cells.map((c) => (c.owner ? { ...c, owner: { ...c.owner, generatedAt: "2026-09-30T14:55:49Z" } } : c)),
+  };
+  assert.notEqual(JSON.stringify(restamped.cells), JSON.stringify(p.cells), "the restamp actually changed the cells");
+  const r = writeProjection(restamped, { outDir: out, date: "2026-09-30" });
+  assert.equal(r.refused, null, "a restamp alone must not be refused");
+  assert.ok(r.untouched, "the dated file is left exactly as first written");
+  assert.equal(readJson(path.join(out, "2026-09-30.json")).builtAt, p.builtAt, "the first run's file (and its stamps) stand");
+});
+
+test("rule 7 · an owner whose CONTENT advanced is still refused — late finals are history, not a stamp", () => {
+  const out = tmp();
+  const p = buildProjection(readSources(REAL_ROOT, REAL_INTERNAL), { now: NOW });
+  assert.equal(writeProjection(p, { outDir: out, date: "2026-09-30" }).refused, null);
+  const i = p.cells.findIndex((c) => Number.isInteger(c.counts?.won));
+  assert.ok(i >= 0, "a counted cell exists to advance");
+  const advance = (c) => ({ ...c, owner: { ...c.owner, generatedAt: "2026-09-30T14:55:49Z" }, counts: { ...c.counts, won: c.counts.won + 1 } });
+  const advanced = { ...p, cells: p.cells.map((c, j) => (j === i ? advance(c) : c)) };
+  const r = writeProjection(advanced, { outDir: out, date: "2026-09-30" });
+  assert.match(r.refused ?? "", /REFUSED/);
+  assert.deepEqual(r.wrote, []);
+  const stateChanged = { ...p, cells: p.cells.map((c, j) => (j === i ? { ...c, ownerState: `${c.ownerState ?? ""} (restated)` } : c)) };
+  assert.match(writeProjection(stateChanged, { outDir: out, date: "2026-09-30" }).refused ?? "", /REFUSED/, "an owner STATE change is history too");
+});
+
+test("ORDER · nightly-settle rebuilds the model-health owner BEFORE the projection that cites it", () => {
+  const wf = fs.readFileSync(path.join(REPO, ".github", "workflows", "nightly-settle.yml"), "utf8");
+  const steps = wf.split(/\n(?=      - name: )/);
+  const at = (re) => steps.findIndex((s) => re.test(s));
+  const health = at(/node app\/scripts\/ops\/build-model-health\.mjs/);
+  const projection = at(/scripts\/results\/build-results-projection\.mjs --now/);
+  assert.ok(health > 0 && projection > 0, `both steps found (health ${health}, projection ${projection})`);
+  assert.ok(health < projection, "a read model is built after the owners it reads");
+});

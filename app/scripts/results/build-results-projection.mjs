@@ -19,12 +19,13 @@
  * scripts/settle-mlb-player-props.mjs — so a projection is replayable and a bot cannot silently
  * restate history. A re-run that is identical leaves the dated file untouched and refreshes
  * latest.json (a pointer, not history). What "differs" means: the `cells` and `headline` blocks;
- * `builtAt` and the sources' stamps are not history.
+ * `builtAt` and the owners' stamps (`sources[].generatedAt`, each cell's `owner.generatedAt`) are not
+ * history — see historyOf.
  *
- * NOT SCHEDULED. No workflow runs this yet (see docs/V18_RESULTS_PROJECTION_CONTRACT.md §9 for the
- * wiring plan and why it was left out of nightly-settle in C1). nightly-settle already stages
- * app/public/data/results/ as a whole, so once a step runs it, the artifact lands without a new
- * allowlist line.
+ * SCHEDULED in nightly-settle (C2), after every owner it cites is rebuilt — including the model-health
+ * scorecard, which until 2026-09-30 ran AFTER this step, so the first run of each day pinned
+ * yesterday's scorecard and every later run necessarily differed. nightly-settle runs up to four
+ * times a day (P256 slots); a later slot whose owners only restamped is now identical by historyOf.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -98,8 +99,19 @@ export const etSlateDate = (iso) =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
     .format(new Date(iso));
 
-/** The history a dated file pins: cells + headline. Stamps are not history. */
-export const historyOf = (p) => JSON.stringify({ cells: p.cells, headline: p.headline });
+/**
+ * The history a dated file pins: cells + headline. Stamps are not history.
+ *
+ * ⚠ EVERY CELL CARRIES ITS OWNER'S STAMP (`owner.generatedAt`), and most owners restamp on every run
+ * (model-health, graded-picks and the lab ledger are all rebuilt with a fresh `--now`). Until
+ * 2026-09-30 this compared the cells whole, so a same-day re-run whose owners had only been RESTAMPED
+ * was refused as a restatement, and nightly-settle's 2nd-4th slots failed every day from 09-25 on.
+ * Contract §5 already said "the owners' stamps are not history"; the check now agrees with it. The
+ * stamp stays in the written file. Counts, windows, n, owner states and semantics are still history.
+ */
+const unstamped = (cell) =>
+  cell && typeof cell.owner === "object" && cell.owner !== null ? { ...cell, owner: { ...cell.owner, generatedAt: null } } : cell;
+export const historyOf = (p) => JSON.stringify({ cells: Array.isArray(p.cells) ? p.cells.map(unstamped) : p.cells, headline: p.headline });
 
 /**
  * Write latest.json and <date>.json under `outDir`, write-once on the dated file.
