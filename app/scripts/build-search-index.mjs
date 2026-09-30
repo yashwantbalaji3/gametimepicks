@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
    have pages rather than re-derive the answer beside it. */
 import { activeMlbDate } from "../src/lib/data-mlb.ts";
 import { buildAllGameDetails } from "../src/lib/game-detail.ts";
+import { soccerLeaguePages } from "../src/lib/sports/soccer/leagues.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
@@ -125,8 +126,9 @@ for (const b of read("ufc/card-latest.json")?.bouts ?? []) {
  * that is the rule this whole index is held to.
  */
 const EPL_PLAYERS_RENDERED = 12;
-// P257 · soccer leagues beyond the Premier League (accepted by their preregistered backtest).
-for (const lg of ["ligue-1"]) {
+// P257 · soccer leagues beyond the Premier League (accepted by their preregistered backtest). Soccer V2 · C-3:
+// the list is the registry's, the same one the /soccer/[league] route is generated from — never a second list.
+for (const lg of soccerLeaguePages().map((l) => l.key)) {
   const set = read(`soccer/${lg}/forecasts/latest.json`);
   for (const r of set?.rows ?? []) {
     add("event", r.matchup, `${set.competition} · model forecast`, `/soccer/${lg}/`,
