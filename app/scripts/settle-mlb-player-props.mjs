@@ -131,6 +131,36 @@ const SLATE_IDENTITY = (() => {
 })();
 const identityFor = (leg) => resolveLegGameIdentity(leg, SLATE_IDENTITY);
 
+/**
+ * LATER FINALS, FOR A POSTPONED GAME'S MAKEUP (founder decision F3, Session 1B). A leg whose PROVEN
+ * gamePk has no final on its own date is graded on that same gamePk's final on a later date — the
+ * committed linescore caches of the 30 days after DATE. Only ever joined by gamePk (findLinescore).
+ */
+const MAKEUP_LINESCORES = (() => {
+  const dir = path.join(APP, "..", "data", "internal", "mlb", "linescores");
+  const until = new Date(Date.parse(`${DATE}T12:00:00Z`) + 30 * 86400000).toISOString().slice(0, 10);
+  let files = [];
+  try { files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f.slice(0, 10) > DATE && f.slice(0, 10) <= until).sort(); } catch { files = []; }
+  return files.flatMap((f) => {
+    try { const doc = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")); return Array.isArray(doc) ? doc : (doc.games ?? []); } catch { return []; }
+  });
+})();
+/** Identity a receipt leg carries (F3). Existing field names: the portfolio's `eventId`/`startUtc`. */
+const IDENTITY_KEYS = ["gamePk", "eventId", "startUtc"];
+function identityOf(g) {
+  const out = {};
+  const pk = Number(g.settlement?.gamePk ?? g.gamePk);
+  if (Number.isInteger(pk) && pk > 0) out.gamePk = pk;
+  if (g.eventId) out.eventId = String(g.eventId);
+  if (g.startUtc) out.startUtc = String(g.startUtc);
+  return out;
+}
+const outcomeOf = (lanes) => (lanes ?? []).map((l) => ({ ...l, legs: (l.legs ?? []).map((g) => Object.fromEntries(Object.entries(g).filter(([k]) => !IDENTITY_KEYS.includes(k)))) }));
+const linescoreFor = (leg) => {
+  const identity = identityFor(leg);
+  return { identity, found: findLinescore(leg, LINESCORES_FOR_DATE, DATE, identity, { makeup: MAKEUP_LINESCORES }) };
+};
+
 const dp = JSON.parse(fs.readFileSync(DP, "utf8"));
 if (dp.date !== DATE) {
   /*
@@ -188,7 +218,7 @@ if (dp.date !== DATE) {
           console.log(`  ${lane.product} ${lane.lane}: leg holds — ${!leg.matchup ? "receipt row carries no matchup identity (pre-P240 format)" : "catch-up grades team markets only"}`);
           continue;
         }
-        const found = findLinescore(leg, LINESCORES_FOR_DATE, DATE, identityFor(leg));
+        const { found } = linescoreFor(leg);
         const g = gradeTeamLeg({ marketKey, selection: leg.selection, matchup: leg.matchup, line: found.ok ? found.line : null });
         if (!found.ok) g.note = found.reason;
         leg.result = g.result;
@@ -239,11 +269,20 @@ for (const lane of dp.lanes ?? []) {
      */
     const teamKey = teamMarketKeyOf(leg);
     if (teamKey && isTeamMarket(teamKey)) {
-      const found = findLinescore(leg, LINESCORES_FOR_DATE, DATE, identityFor(leg));
+      const { identity, found } = linescoreFor(leg);
       const g = found.ok
         ? gradeTeamLeg({ marketKey: teamKey, selection: leg.selection, matchup: leg.matchup, line: found.line })
         : { result: "pending", actual: null, note: found.reason };
-      leg.settlement = { ...(leg.settlement ?? {}), result: g.result, official: g.actual, source: "statsapi_linescore", ...(g.note ? { note: g.note } : {}) };
+      /* F3: the gamePk this leg was PROVEN to be — the row the join used, else the resolver's proof. A
+         teams+date join that found exactly one game also proves it; an unproven doubleheader records none. */
+      const provenPk = found.ok && Number.isInteger(Number(found.line?.gamePk)) ? Number(found.line.gamePk)
+        : identity?.resolved && identity.gamePk != null ? Number(identity.gamePk) : null;
+      leg.settlement = {
+        ...(leg.settlement ?? {}), result: g.result, official: g.actual, source: "statsapi_linescore",
+        ...(g.note ? { note: g.note } : {}),
+        ...(provenPk != null ? { gamePk: provenPk } : {}),
+        ...(found.ok && found.makeupOf ? { makeupOf: found.makeupOf, makeupDate: found.line.officialDate } : {}),
+      };
       results.push(g.result);
       if (g.result === "pending" || g.result === "unavailable") pending++; else graded++;
       console.log(`  ${lane.productLabel} ${lane.lane}: ${leg.selection} (${teamKey}) → ${g.actual ?? "—"} ${String(g.result).toUpperCase()}${g.note ? ` (${g.note})` : ""}`);
@@ -340,6 +379,10 @@ const receipt = {
       player: g.participantName ?? g.participant ?? null,
       market: g.marketType ?? g.market, side: g.side, line: g.line,
       official: g.settlement?.official ?? null, result: g.settlement?.result ?? "pending",
+      /* F3 (Session 1B): the strongest identity the leg has, stored at publication of the receipt so a
+         later catch-up — a postponed game's makeup included — never has to re-prove it. Present only
+         when known; a legacy receipt without these fields stays valid (resolveLegGameIdentity). */
+      ...identityOf(g),
     })),
   })),
   record: {
@@ -348,11 +391,12 @@ const receipt = {
     pending: (dp.lanes ?? []).filter((l) => (l.result ?? "pending") === "pending").length,
   },
 };
-// A settled day is written ONCE. Re-running must never silently rewrite history.
+// A settled day is written ONCE. Re-running must never silently rewrite history. Identity fields are
+// provenance, not outcome: a receipt recorded before they existed is not "different" for lacking them.
 const receiptPath = path.join(RECEIPTS, `${DATE}.json`);
 if (fs.existsSync(receiptPath)) {
   const prior = JSON.parse(fs.readFileSync(receiptPath, "utf8"));
-  const same = JSON.stringify(prior.lanes) === JSON.stringify(receipt.lanes);
+  const same = JSON.stringify(outcomeOf(prior.lanes)) === JSON.stringify(outcomeOf(receipt.lanes));
   console.log(same
     ? `\nreceipt ${DATE} already recorded and identical — left untouched`
     : `\nREFUSED: receipt ${DATE} exists and DIFFERS from this run. A settled day is not rewritten silently.`);
