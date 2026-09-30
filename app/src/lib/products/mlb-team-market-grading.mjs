@@ -18,6 +18,7 @@
  * against the wrong game of a doubleheader is worse than one left pending.
  */
 import { LEG } from "./lifecycle.mjs";
+import { resolveGamePks } from "../game-simulations/mlb-generator.ts";
 
 export const TEAM_MARKETS = Object.freeze(["mlb_moneyline", "mlb_total_runs", "mlb_run_line"]);
 export const isTeamMarket = (m) => TEAM_MARKETS.includes(String(m));
@@ -31,17 +32,104 @@ export function teamMarketKeyOf(leg) {
 const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
 
 /**
+ * The odds provider's event id a team leg was built on. The daily portfolio writes it as `eventId`;
+ * a settled receipt keeps only `id` = `MLB:<eventId>:<market>:<selection>`.
+ */
+export function legEventIdOf(leg) {
+  if (leg?.eventId) return String(leg.eventId);
+  const parts = String(leg?.id ?? leg?.legId ?? "").split(":");
+  return parts.length >= 3 && parts[0] === "MLB" && parts[1] ? parts[1] : null;
+}
+
+/**
+ * PROVE WHICH GAME A TEAM LEG WAS ON, from the slate's own committed artifacts (2026-09-23).
+ *
+ * A doubleheader shares teams and date, so the team+date join below cannot tell its games apart. The
+ * slate already can: the odds schedule (`mlb/schedule/<D>.json`) lists one provider event per game with
+ * its commence time, and the board's StatsAPI schedule (`mlb/boards/<D>.json` games[]) lists one gamePk
+ * per game with its scheduled start. `resolveGamePks` — the MLB generator's doubleheader-safe identity
+ * owner — pairs the two by a strict, tie-free time-order bijection or fails closed. This reuses it;
+ * there is no second resolver.
+ *
+ * @param {object} leg
+ * @param {{schedule?: object[]|null, board?: {games?: object[], leans?: object[]}|null}} slate
+ * @returns {undefined | {gamePk: number|null, resolved: boolean, method: string, doubleheader: boolean}}
+ *   `undefined` when the slate artifacts are absent — the caller then keeps the legacy join exactly.
+ */
+export function resolveLegGameIdentity(leg, slate) {
+  const events = Array.isArray(slate?.schedule) ? slate.schedule : [];
+  const boardGames = Array.isArray(slate?.board?.games) ? slate.board.games : [];
+  const leans = Array.isArray(slate?.board?.leans) ? slate.board.leans : [];
+  if (!events.length && !boardGames.length) return undefined;
+
+  const eventId = legEventIdOf(leg);
+  const [away, home] = String(leg?.matchup ?? "").split(/\s+@\s+/);
+  const pair = `${norm(away)}@${norm(home)}`;
+  const pairOf = (a, h) => `${norm(a)}@${norm(h)}`;
+
+  // One identity group per provider event of the slate (first-seen order), named by full team names —
+  // the same names the linescore join already requires to be equal.
+  const groups = [];
+  const seen = new Set();
+  const leanPk = new Map();
+  for (const l of leans) if (l?.gameId && l.gamePk != null && !leanPk.has(l.gameId)) leanPk.set(l.gameId, Number(l.gamePk));
+  for (const e of events) {
+    if (!e?.gameId || seen.has(e.gameId)) continue;
+    seen.add(e.gameId);
+    groups.push({ gameId: e.gameId, awayTeamAbbr: e.away, homeTeamAbbr: e.home, commenceTime: e.commenceTime, leanGamePk: leanPk.get(e.gameId) });
+  }
+  const scheduleGames = boardGames.map((g) => ({ gamePk: Number(g.gamePk), awayTeamAbbr: g.awayTeamName, homeTeamAbbr: g.homeTeamName, gameDate: g.gameDate }));
+
+  const doubleheader = scheduleGames.filter((g) => pairOf(g.awayTeamAbbr, g.homeTeamAbbr) === pair).length > 1
+    || groups.filter((g) => pairOf(g.awayTeamAbbr, g.homeTeamAbbr) === pair).length > 1;
+
+  const mine = eventId ? groups.find((g) => g.gameId === eventId) : null;
+  if (!mine || pairOf(mine.awayTeamAbbr, mine.homeTeamAbbr) !== pair) {
+    // The leg's event is not on the slate (or names another matchup): nothing proves its game.
+    return { gamePk: null, resolved: false, method: eventId ? "event-not-on-slate" : "leg-has-no-event-id", doubleheader };
+  }
+  const r = resolveGamePks(groups, scheduleGames).get(eventId);
+  if (!r || !r.resolved || r.gamePk == null) return { gamePk: null, resolved: false, method: r?.method ?? "unresolved", doubleheader };
+  return { gamePk: Number(r.gamePk), resolved: true, method: r.method, doubleheader };
+}
+
+/**
  * Find the one linescore for this leg's game.
+ *
+ * `identity` (optional, from `resolveLegGameIdentity`):
+ *   · absent                      → the team+date join, unchanged.
+ *   · a proven gamePk             → the row(s) carrying THAT gamePk on the date, and only those. The row
+ *                                   must name the leg's teams; a Postponed stub of the same gamePk is
+ *                                   not a result, so exactly one FINAL row wins, two finals refuse.
+ *   · unproven on a doubleheader  → refused, even when the final-only cache shows a single row (the
+ *                                   twin may simply not be final).
+ *   · unproven otherwise          → the team+date join, unchanged.
  *
  * @returns {{ok: true, line: object} | {ok: false, reason: string}}
  */
-export function findLinescore(leg, linescores, dateEt) {
+export function findLinescore(leg, linescores, dateEt, identity) {
   const matchup = String(leg?.matchup ?? "");
   const m = matchup.split(/\s+@\s+/);
   if (m.length !== 2) return { ok: false, reason: `leg matchup "${matchup}" is not "away @ home"` };
   const [away, home] = m.map(norm);
 
   const sameDay = (linescores ?? []).filter((l) => !dateEt || l.officialDate === dateEt);
+
+  if (identity && identity.gamePk != null) {
+    const pk = Number(identity.gamePk);
+    const rows = sameDay.filter((l) => Number(l.gamePk) === pk);
+    if (rows.length === 0) return { ok: false, reason: `no linescore for gamePk ${pk} (${matchup}) on ${dateEt ?? "any date"}` };
+    const foreign = rows.find((l) => norm(l.homeTeam) !== home || norm(l.awayTeam) !== away);
+    if (foreign) return { ok: false, reason: `gamePk ${pk} is ${foreign.awayTeam} @ ${foreign.homeTeam} in the linescore cache — contradicts the leg's ${matchup}; held` };
+    if (rows.length === 1) return { ok: true, line: rows[0] };
+    const finals = rows.filter((l) => l.isFinal);
+    if (finals.length === 1) return { ok: true, line: finals[0] };
+    return { ok: false, reason: `${rows.length} linescore rows carry gamePk ${pk} on ${dateEt} (${finals.length} final) — cannot tell which is the result; held` };
+  }
+  if (identity && identity.doubleheader) {
+    return { ok: false, reason: `${matchup} is a doubleheader on ${dateEt} and the leg's game could not be proven (${identity.method}) — held, not guessed` };
+  }
+
   const hits = sameDay.filter((l) => norm(l.homeTeam) === home && norm(l.awayTeam) === away);
   if (hits.length === 0) return { ok: false, reason: `no linescore for ${matchup} on ${dateEt ?? "any date"}` };
   if (hits.length > 1) {

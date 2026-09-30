@@ -22,7 +22,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { sumActiveExposure } from "../src/lib/daily-portfolio/exposure.ts";
-import { teamMarketKeyOf, isTeamMarket, gradeTeamLeg, findLinescore } from "../src/lib/products/mlb-team-market-grading.mjs";
+import { teamMarketKeyOf, isTeamMarket, gradeTeamLeg, findLinescore, resolveLegGameIdentity } from "../src/lib/products/mlb-team-market-grading.mjs";
 import { fileURLToPath } from "node:url";
 
 /* A narrow root seam so the replay harness can run THIS settler — not a copy of its rules — against
@@ -115,6 +115,22 @@ const LINESCORES_FOR_DATE = (() => {
   } catch { return []; }
 })();
 
+/**
+ * WHICH GAME, WHEN THE TEAMS PLAY TWICE (2026-09-23). A doubleheader shares teams and date, so the
+ * team+date join refuses it — correctly — and a 09-23 Moonshot leg on TOR @ BAL held for ever. The
+ * slate's own committed artifacts prove the game: the odds schedule (provider event → commence time)
+ * and the board's StatsAPI schedule (gamePk → scheduled start), paired by the generator's
+ * doubleheader-safe `resolveGamePks`. Absent artifacts → no identity → the legacy join, unchanged.
+ */
+const SLATE_IDENTITY = (() => {
+  const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
+  return {
+    schedule: read(path.join(APP, "public", "data", "mlb", "schedule", `${DATE}.json`))?.games ?? null,
+    board: read(path.join(APP, "public", "data", "mlb", "boards", `${DATE}.json`)),
+  };
+})();
+const identityFor = (leg) => resolveLegGameIdentity(leg, SLATE_IDENTITY);
+
 const dp = JSON.parse(fs.readFileSync(DP, "utf8"));
 if (dp.date !== DATE) {
   /*
@@ -172,7 +188,7 @@ if (dp.date !== DATE) {
           console.log(`  ${lane.product} ${lane.lane}: leg holds — ${!leg.matchup ? "receipt row carries no matchup identity (pre-P240 format)" : "catch-up grades team markets only"}`);
           continue;
         }
-        const found = findLinescore(leg, LINESCORES_FOR_DATE, DATE);
+        const found = findLinescore(leg, LINESCORES_FOR_DATE, DATE, identityFor(leg));
         const g = gradeTeamLeg({ marketKey, selection: leg.selection, matchup: leg.matchup, line: found.ok ? found.line : null });
         if (!found.ok) g.note = found.reason;
         leg.result = g.result;
@@ -223,7 +239,7 @@ for (const lane of dp.lanes ?? []) {
      */
     const teamKey = teamMarketKeyOf(leg);
     if (teamKey && isTeamMarket(teamKey)) {
-      const found = findLinescore(leg, LINESCORES_FOR_DATE, DATE);
+      const found = findLinescore(leg, LINESCORES_FOR_DATE, DATE, identityFor(leg));
       const g = found.ok
         ? gradeTeamLeg({ marketKey: teamKey, selection: leg.selection, matchup: leg.matchup, line: found.line })
         : { result: "pending", actual: null, note: found.reason };
