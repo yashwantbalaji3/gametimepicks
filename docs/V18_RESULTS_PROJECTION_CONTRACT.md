@@ -123,6 +123,25 @@ history. A re-run that is identical leaves the dated file alone and refreshes `l
 pointer, not history. `builtAt` and the owners' stamps are not history and do not count as a difference.
 `--now` is required for `--write` so the artifact is replayable; a dry run defaults it to the clock.
 
+### 5a. Same-day restatements — `--restate` (founder decision F1(a), 2026-09-30)
+
+§9.3 left the choice open; the founder chose the append-only path. nightly-settle runs in up to four slots a
+day, and daily-products legitimately advances owners between them (the risk-ladder record, the lab-ledger
+streams), so a later slot's history can differ for real. With `--restate`:
+
+| Situation | Result |
+|---|---|
+| no `<date>.json` | the ORIGINAL is written (`wx` — it can never overwrite) |
+| same history as the effective projection, or only owner stamps differ | no-op — nothing dated is written |
+| history differs | `<date>.r<N>.json` is APPENDED: the full projection plus `restatement` = `{date, revision, restates, previousEffective, restatedAt, reason, changedOwners, changedCells[{cellId, owner, status, era, fields, before, after, ownerStamp}], addedCells, headlineChanged}` |
+| a cell vanished · a closed-history record moved (a `LEGACY_ERAS` cell or a `SUPERSEDED` one: counts, n, decisive, hitRate, window, cycles) · a broken `r<N>` chain | REFUSED, exit 1 — an operator decision |
+
+The **effective projection** for a date is the last link of the unbroken chain `base → r2 → r3 …`
+(`readEffective` in `src/lib/results/projection-revisions.mjs` — the one resolver). `latest.json` always
+equals the effective projection of the day it was written for, so every reader (all of them read
+`latest.json`) sees the restated state. History is compared in cellId order; order is not history.
+Without `--restate`, a differing re-run still refuses exactly as in §5. Past dated files are not migrated.
+
 ## 6. Readers: deliberately none yet
 
 No page, component, script or route imports `lib/results/projection`. The four inline `fs` copies of the
