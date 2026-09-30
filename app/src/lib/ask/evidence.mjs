@@ -195,7 +195,17 @@ export function buildEvidence(envelopes) {
         if (h) say(`the ${d.a.label} and the ${d.b.label} have ${h.meetings} recorded meetings: ${d.a.label} ${h.aWins}, ${d.b.label} ${h.bWins}${h.ties ? `, ${h.ties} tied` : ""}`, [h.meetings, h.aWins, h.bWins, h.ties]);
         for (const [side, label] of [["a", d.a.label], ["b", d.b.label]]) {
           const s = d.season?.[side];
-          if (s) say(`in ${d.season.id}, ${label} recorded ${s.wins ?? "?"} wins and ${s.losses ?? "?"} losses from ${s.finals ?? s.games ?? "?"} recorded finals`, [s.wins, s.losses, s.finals, s.games]);
+          /*
+           * ⚠ THE OWNER'S FIELDS ARE `w` / `l` / `t` (teamSeasonSummary), not `wins` / `losses` (Session 2, Production).
+           * This read the wrong names, so every Ask team comparison said "recorded ? wins and ? losses" — a missing
+           * value printed as a symbol. An absent figure is now left out of the sentence, never spelled "?".
+           */
+          const w = s?.w ?? s?.wins ?? null;
+          const l = s?.l ?? s?.losses ?? null;
+          const t = s?.t ?? s?.ties ?? 0;
+          const finals = s?.finals ?? s?.games ?? null;
+          if (s && w != null && l != null) say(`in ${d.season.id}, ${label} recorded ${w} wins and ${l} losses${t ? ` and ${t} ties` : ""}${finals != null ? ` from ${finals} recorded finals` : ""}`, [w, l, t, finals]);
+          else if (s && finals != null) say(`in ${d.season.id}, ${label} has ${finals} recorded finals; GameTimePicks holds no win–loss split for them`, [finals]);
         }
         say(`this comparison is recorded fact only — GameTime Compare names no winner and carries no forecast`);
         break;

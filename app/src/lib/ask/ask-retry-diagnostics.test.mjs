@@ -213,3 +213,16 @@ test("🔴 two RESOLVED placeholders in one call take two distinct resolutions �
   assert.doesNotMatch(writes.join("\n"), /same team/i, "two different teams were resolved; the call compared one with itself");
   assert.ok(seen.includes("/data/compare/v1/teams/mlb/index.json"), "a real comparison reads the compare index; a same-team refusal never does");
 });
+
+test("🔴 class L · a team comparison states the owner's season W–L, never '? wins'", async () => {
+  /* Production 2026-09-30: "the Yankees recorded ? wins and ? losses from 67 recorded finals" — the evidence read
+     `wins`/`losses`, the owner (teamSeasonSummary) publishes `w`/`l`/`t`. */
+  const { buildEvidence } = await import("./evidence.mjs");
+  const data = { a: { label: "New York Yankees" }, b: { label: "Boston Red Sox" },
+    season: { id: "MLB-2026", a: { seasonId: "MLB-2026", finals: 67, w: 40, l: 27, t: 0 }, b: { seasonId: "MLB-2026", finals: 68, w: 33, l: 35, t: 0 } },
+    headToHead: { allTime: null } };
+  const text = buildEvidence([{ tool: "getTeamComparison", status: "OK", links: [], data }]).facts.map((f) => f.text).join(" | ");
+  assert.match(text, /New York Yankees recorded 40 wins and 27 losses from 67 recorded finals/);
+  assert.match(text, /Boston Red Sox recorded 33 wins and 35 losses from 68 recorded finals/);
+  assert.doesNotMatch(text, /\?/, "a missing value is never printed as a symbol");
+});
