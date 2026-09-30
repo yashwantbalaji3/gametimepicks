@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-30T16:37:33.673Z",
+  "generatedAt": "2026-09-30T16:39:58.181Z",
   "canonical": {
     "record": "37-36",
     "bankroll": 15990.4,
@@ -218,16 +218,16 @@
     "pendingApprovals": 1
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-30T16:37:32.994Z",
+    "lastRunAt": "2026-09-30T16:37:34.448Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-30",
-    "etTime": "12:37",
+    "etTime": "12:39",
     "stages": [
       {
         "stage": "schedule",
