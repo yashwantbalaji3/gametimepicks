@@ -318,6 +318,12 @@ function nflForecasts() {
       startUtc: f.kickoffUtc ?? null,
       away: f.away?.abbr ?? null, home: f.home?.abbr ?? null,
       awayName: f.away?.name ?? null, homeName: f.home?.name ?? null,
+      /* E-1: the game forecast the report page shows — win probability and projected score, exactly as the
+         forecast artifact publishes them (no rounding, no derived pick). Absent fields stay absent. */
+      probabilities: f.forecastSummary?.winProbability?.home != null && f.forecastSummary?.winProbability?.away != null
+        ? { home: f.forecastSummary.winProbability.home, away: f.forecastSummary.winProbability.away, tie: f.forecastSummary.winProbability.tieMass ?? null }
+        : null,
+      projectedScore: f.forecastSummary?.projectedScore?.home != null ? { home: f.forecastSummary.projectedScore.home, away: f.forecastSummary.projectedScore.away } : null,
       modelId: f.model?.id ?? null,
       players: (byGame.get(id) ?? []).slice(0, 6),
       updatedAt: doc.generatedAt ?? null,

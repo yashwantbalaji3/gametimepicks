@@ -40,18 +40,33 @@ export async function getPublishedForecasts(args, ctx) {
   let rows = doc.forecasts ?? [];
   if (args.sport) rows = rows.filter((f) => f.sport === args.sport);
   if (args.gameId) rows = rows.filter((f) => f.gameId === args.gameId);
-  if (args.date) rows = rows.filter((f) => (f.date ?? etDateOf(f.startUtc)) === args.date);
   if (args.teamId) {
-    // Team matching is by the ids the entity resolver hands out, or by the abbreviations the artifacts
-    // carry — never by a name the model typed, which is how the wrong team's forecast gets returned.
-    const want = String(args.teamId).toLowerCase();
-    rows = rows.filter((f) =>
-      [f.home, f.away, f.homeName, f.awayName, f.gameId].some((v) => v && String(v).toLowerCase() === want)
-      || want.endsWith(String(f.home ?? "").toLowerCase())
-      || want.endsWith(String(f.away ?? "").toLowerCase()));
+    /*
+     * A TEAM ID IS RESOLVED, NEVER GUESSED FROM ITS SPELLING (Phase E · E-1). The resolver hands out canonical
+     * ids ("epl-team-359") that no forecast row carries; the old suffix match therefore matched nothing and Ask
+     * denied a forecast the page showed. The id is looked up in the same entity index the resolver reads, and a
+     * row matches only on that team's own abbreviation or full name, in the same sport.
+     */
+    const ents = await ctx.turn.load(askAssetPath.entities());
+    const ent = ents.ok ? (ents.json.entries ?? []).find((e) => e.id === args.teamId && e.kind === "team") : null;
+    const keys = new Set([args.teamId, ent?.hint, ent?.label].filter(Boolean).map(foldName));
+    rows = rows.filter((f) => (!ent || String(f.sport).toUpperCase() === String(ent.sport).toUpperCase())
+      && [f.home, f.away, f.homeName, f.awayName].some((v) => v && keys.has(foldName(v))));
   }
+  /*
+   * "TONIGHT" MEANS TODAY. The registry promises that an omitted date is today's product date; without it, a
+   * question about tonight returned next month's fixtures and the writer could not tell them apart. A named game
+   * or team is not narrowed to today — "Arsenal's next forecast" is whenever it is published.
+   */
+  const today = etDateOf((ctx.now ? ctx.now() : new Date()).toISOString());
+  const date = args.date ?? (!args.gameId && !args.teamId ? today : null);
+  const beforeDate = rows;
+  if (date) rows = rows.filter((f) => (f.date ?? etDateOf(f.startUtc)) === date);
 
   if (!rows.length) {
+    const next = date
+      ? beforeDate.map((f) => f.date ?? etDateOf(f.startUtc)).filter((d) => d && d > date).sort()[0] ?? null
+      : null;
     return {
       status: ASK_STATUS.UNSUPPORTED,
       error: ASK_ERROR.NOT_PUBLISHED,
@@ -60,7 +75,11 @@ export async function getPublishedForecasts(args, ctx) {
        * asked "who wins tonight" with nothing published should say nothing is published — not reach
        * for recorded history and present it as a prediction (§44).
        */
-      detail: "no currently published GameTime forecast matches",
+      detail: date
+        ? `no GameTime forecast is published for ${date}${next ? `; the next published forecasts are for ${next}` : ""}`
+        : "no currently published GameTime forecast matches",
+      dateApplied: date,
+      nextPublishedDate: next,
       eligibleSports: doc.eligibleSports ?? [],
       links: [{ id: "today", label: "See today's slate", href: "/today/" }],
     };
@@ -69,6 +88,7 @@ export async function getPublishedForecasts(args, ctx) {
   const forecasts = rows.slice(0, args.limit).map(shapeForecast);
   return {
     status: ASK_STATUS.OK,
+    dateApplied: date,
     totalMatched: rows.length,
     returned: forecasts.length,
     forecasts,
@@ -85,6 +105,7 @@ function shapeForecast(f) {
     gameId: f.gameId,
     matchup: f.matchup ?? (f.away && f.home ? `${f.away} @ ${f.home}` : null),
     startUtc: f.startUtc ?? null,
+    date: f.date ?? etDateOf(f.startUtc),
     /*
      * EXPERIMENTAL TRAVELS WITH THE FORECAST. NFL and EPL forecasts publish and are graded, but every
      * NFL event is EXPERIMENTAL_LEAN and none qualifies as a product leg. A reader told "GameTime
@@ -95,6 +116,10 @@ function shapeForecast(f) {
     capability: f.capability ?? null,
     predictedWinner: f.predictedWinner ?? null,
     probabilities: f.probabilities ?? null,
+    home: f.home ?? null, away: f.away ?? null,
+    projectedScore: f.projectedScore ?? null,
+    expectedGoals: f.expectedGoals ?? null,
+    over25: f.over25 ?? null,
     markets: published,
     /* Quotable as an explanation, never presentable as a forecast. */
     pausedMarkets: paused.map((m) => ({ market: m.market, label: m.label, reason: m.pausedReason })),
@@ -105,6 +130,9 @@ function shapeForecast(f) {
     links: f.links ?? [],
   };
 }
+
+/** Case, accent and punctuation folded — matches SPELLING only; identity is the resolved entity. */
+const foldName = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 const etDateOf = (iso) => {
   if (!iso) return null;
