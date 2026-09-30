@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "products/cycle-table",
   "dataClass": "internal-research",
-  "generatedAt": "2026-09-30T11:12:33.044Z",
+  "generatedAt": "2026-09-30T18:10:28.988Z",
   "rule": "won → carry real payout, skip rungs the payout already clears; lost → cycle ends; void/push → same rung; pending → open. Identical to ladder-position.mjs positionFromReceipts.",
   "sources": {
     "receipts": "app/public/data/mr-dub/settled/<date>.json",
@@ -1366,23 +1366,23 @@
       "seed": 25,
       "counts": {
         "cyclesStarted": 41,
-        "cyclesLost": 40,
+        "cyclesLost": 41,
         "cyclesCompleted": 0,
-        "cyclesOpen": 1,
+        "cyclesOpen": 0,
         "cyclesWithPublishedStepDivergence": 0,
         "furthestStepMax": 3,
         "meanFurthestStep": 1.1,
         "furthestPublishedStepMax": 3,
         "meanFurthestPublishedStep": 1.1,
         "placedLaneDays": 45,
-        "decidedLaneDays": 44,
+        "decidedLaneDays": 45,
         "noPlayLaneDays": 47
       },
       "lanes": {
         "A": {
           "placedLaneDays": 21,
-          "decidedLaneDays": 20,
-          "pendingLaneDays": 1,
+          "decidedLaneDays": 21,
+          "pendingLaneDays": 0,
           "noPlayLaneDays": 25,
           "cycles": [
             {
@@ -1897,8 +1897,8 @@
               "lane": "A",
               "cycle": 19,
               "startDate": "2026-09-23",
-              "endDate": null,
-              "result": "open",
+              "endDate": "2026-09-23",
+              "result": "lost",
               "furthestStep": 1,
               "furthestPublishedStep": 1,
               "steps": [
@@ -1907,7 +1907,7 @@
                   "publishedStep": 1,
                   "ruleStep": 1,
                   "stake": 25,
-                  "result": "pending",
+                  "result": "lost",
                   "payout": 100.08,
                   "publishedStepDiverged": false
                 }
