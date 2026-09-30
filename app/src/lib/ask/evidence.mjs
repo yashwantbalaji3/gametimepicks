@@ -204,6 +204,14 @@ export function buildEvidence(envelopes) {
       case "getPlayerComparison":
         if (!d.a || !d.b) break;
         say(`${d.a.label} and ${d.b.label} share these recorded stat families: ${(d.sharedFamilies ?? []).map(short).join(", ") || "none listed"}`);
+        // E-4: the recorded numbers, per side, for the family the comparison selected — never a "better player".
+        const seasonYear = String(d.selectedSeason ?? "").match(/\d{4}/)?.[0] ?? null; // "NFL-2025" → 2025, stated plainly
+        for (const side of [d.a, d.b]) {
+          const se = side.season;
+          if (d.stat && se && se.n) say(`${side.label} · ${d.stat.label}${seasonYear ? ` in the ${seasonYear} season` : ""}: ${se.n} recorded games, average ${se.mean}${se.total != null ? `, total ${se.total}` : ""}, range ${se.min} to ${se.max}`, [se.n, se.mean, se.total, se.min, se.max, seasonYear ? Number(seasonYear) : null]);
+          const w5 = (side.windows ?? []).find((w) => w.size === 5 && w.n);
+          if (d.stat && w5) say(`${side.label} · ${d.stat.label} over the last ${w5.n} recorded games: average ${w5.mean}${w5.complete ? "" : " (fewer than 5 games recorded)"}`, [w5.n, w5.mean]);
+        }
         say(`this comparison is recorded fact only — it carries no forecast and names no better player`);
         break;
 
