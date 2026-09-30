@@ -23,6 +23,27 @@ export function lastPreKickoffForecasts(archives) {
   return out;
 }
 
+/**
+ * The official final a 90-minute forecast may be graded on, from an ESPN scoreboard event (Soccer V2 · C-4).
+ *   null                 not completed yet — nothing to grade
+ *   { refused, reason }  completed, but the score is not a 90-minute score (after extra time / on penalties)
+ *                        or unreadable — a forecast of the 90 minutes is NEVER graded on it
+ *   { final }            { home, away } goals
+ * ESPN's feed carries the post-extra-time score on a cup tie; grading a win/draw/win forecast on it would
+ * turn a 90-minute draw into a "win". Leagues never go to extra time, so a refusal there is a data anomaly.
+ */
+export function regulationFinal(event) {
+  const type = event?.status?.type ?? {};
+  if (!type.completed) return null;
+  const words = `${type.name ?? ""} ${type.detail ?? ""} ${type.shortDetail ?? ""} ${type.description ?? ""}`;
+  if (/AET|PEN|extra time|penalt/i.test(words)) return { refused: true, reason: `not a 90-minute score (${type.name ?? type.detail ?? "extra time"})` };
+  const c = event.competitions?.[0]?.competitors ?? [];
+  const h = c.find((x) => x.homeAway === "home"), a = c.find((x) => x.homeAway === "away");
+  const hs = Number.parseInt(h?.score, 10), as = Number.parseInt(a?.score, 10);
+  if (!Number.isInteger(hs) || !Number.isInteger(as)) return { refused: true, reason: "completed without a readable score" };
+  return { final: { home: hs, away: as } };
+}
+
 const r4 = (x) => Number(x.toFixed(4));
 
 /** One graded match. final = { home, away } goals. */

@@ -34,7 +34,18 @@ const L = leagueOf(KEY);
 if (!["ACCEPTED_V1", "LIVE"].includes(L.stage)) { console.error(`REFUSED: ${L.name} is ${L.stage} — only an accepted league publishes forecasts`); process.exit(3); }
 
 const corpus = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/soccer", L.key, "corpus-openfootball-v1.json"), "utf8"));
-const report = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/soccer", L.key, "reports/walk-forward-v1.json"), "utf8"));
+/*
+ * Soccer V2 · C-4: WHICH model publishes and WHICH season is its holdout come from the league's own validation
+ * evidence (registry `validation`), never from this file. The model below may publish only if it is the one the
+ * league's preregistration tested — so a future model can never go out under an old acceptance.
+ */
+if (!L.validation?.preregistration || !L.validation?.report) { console.error(`REFUSED: ${L.name} has no registered validation evidence`); process.exit(3); }
+const prereg = JSON.parse(fs.readFileSync(path.join(ROOT, L.validation.preregistration), "utf8"));
+const report = JSON.parse(fs.readFileSync(path.join(ROOT, L.validation.report), "utf8"));
+const testedModel = String(prereg.whatIsBeingTested?.model ?? "").split(/\s/)[0];
+if (testedModel !== EPL_MODEL_ID) { console.error(`REFUSED: ${L.name}'s preregistration tested "${testedModel}", not ${EPL_MODEL_ID} — nothing publishes under another model's acceptance`); process.exit(3); }
+const HOLDOUT = prereg.seasons?.holdout;
+if (!report.scores?.poisson?.bySeason?.[HOLDOUT] || !report.scores?.empirical?.bySeason?.[HOLDOUT]) { console.error(`REFUSED: the validation report has no scored holdout season "${HOLDOUT}"`); process.exit(3); }
 const state = fitEplStrength({ rows: corpus.rows, cutoffIso: NOW });
 const known = new Set([...state.knownClubs]);
 const aliases = Object.fromEntries(Object.entries(L.aliases ?? {}).map(([k, v]) => [normalizeClubName(k), v]));
@@ -85,14 +96,14 @@ for (const e of events) {
 }
 rows.sort((x, y) => x.kickoffUtc.localeCompare(y.kickoffUtc) || x.matchup.localeCompare(y.matchup));
 
-const h = report.scores.poisson.bySeason["2025-26"];
+const h = report.scores.poisson.bySeason[HOLDOUT];
 const artifact = {
   schemaVersion: 1, artifact: "soccer-league-forecasts", dataClass: "PUBLIC", public: true,
   league: L.key, competition: L.name, country: L.country, generatedAt: NOW,
   model: { id: EPL_MODEL_ID, fitThrough: NOW, matchesFitted: state.matchesFitted, description: "the Premier League split-Poisson model (v1), fit on this league's own results" },
   validation: {
     verdict: report.verdict,
-    holdout: { season: "2025-26", matches: h.n, logLoss: h.logLoss, empiricalLogLoss: report.scores.empirical.bySeason["2025-26"].logLoss, drawEceAllScored: report.scores.poisson.overall.drawEce },
+    holdout: { season: HOLDOUT, matches: h.n, logLoss: h.logLoss, empiricalLogLoss: report.scores.empirical.bySeason[HOLDOUT].logLoss, drawEceAllScored: report.scores.poisson.overall.drawEce },
     limitations: {
       closingMarketBetterBy: report.reportedNotGating.poissonMinusMarket,
       eloBetterBy: report.reportedNotGating.poissonMinusElo,
