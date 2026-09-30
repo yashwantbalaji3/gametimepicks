@@ -101,9 +101,10 @@ export default function MoonshotLaneTracker({
   const pubCandidates = publicMoonshotCandidates(lane);
   const currentStep = lane.ladder.find((s) => s.step === lane.currentStep) ?? lane.ladder[0];
   const currentCard = currentStep?.card ?? null;
-  const rec = record ?? { wins: 0, losses: 0, voids: 0, pending: 0 };
+  // H · M-2: no record is invented — a missing record is NOT 0–0; the row is simply omitted below.
+  const rec = record ?? null;
   const exp = exposure ?? 0;
-  const recordStr = `${rec.wins}–${rec.losses}${rec.voids ? `–${rec.voids}` : ""}`;
+  const recordStr = rec ? `${rec.wins}–${rec.losses}${rec.voids ? `–${rec.voids}` : ""}` : null;
 
   // Daily history: KNOWN runs only (current lane card + the recorded prior run). Never fabricated.
   const allRuns: Array<{ key: string; label: string; card: MoonshotCard; note?: string }> = [];
@@ -111,14 +112,16 @@ export default function MoonshotLaneTracker({
   // Only surface a prior run whose card is settlement-supported (team markets). A historical card that contains a
   // settlement-pending player prop (goalscorer/shots) is NOT shown publicly, so the product surface never visually
   // implies player props are eligible — the record summary still reflects it; the leg detail is just not displayed.
-  const priorHasPendingProp = (lane.priorRun?.card?.legs ?? []).some((l) => /^player_/i.test(l.market));
+  // H · M-1: MLB prop keys are batter_ / pitcher_ (not player_) — the old test missed them and showed a legacy card of
+  // demoted prop legs.
+  const priorHasPendingProp = (lane.priorRun?.card?.legs ?? []).some((l) => /^(?:player|batter|pitcher)_/i.test(l.market));
   if (lane.priorRun?.card && showHistory && !priorHasPendingProp) allRuns.push({ key: "prior", label: "Prior run · June 19", card: lane.priorRun.card, note: lane.priorRun.note });
   const runs = allRuns.slice(0, maxCards ?? (compact ? 1 : allRuns.length));
 
   // This tracker reads the LEGACY lane store (moonshot-lane/active.json), whose cards predate the ladder.
   // The live product is the three-day ladder on the daily portfolio; this block keeps the old record.
   const summary: Array<[string, string]> = [
-    [recordLabel ? recordLabel.replace(/^Moonshot \S+ · /, "Record · ") : "Record", recordStr],
+    ...(recordStr ? [[recordLabel ? recordLabel.replace(/^Moonshot \S+ · /, "Record · ") : "Record", recordStr] as [string, string]] : []),
     ["Exposure", usd(exp)],
     ["Style", "Fast ladder · $25 → $1,000"],
   ];

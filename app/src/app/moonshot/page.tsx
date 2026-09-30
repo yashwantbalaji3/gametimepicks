@@ -11,6 +11,8 @@
  *
  * Server component; reads committed artifacts.
  */
+import RecordComposition from "@/components/bank-builder/record-composition";
+import { loadFoldBacklog } from "@/lib/mr-dub/fold-backlog-view";
 import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
@@ -63,6 +65,9 @@ export default function MoonshotPage() {
   const lane = loadMoonshotLane();
   const portfolioMoonshot = readData("mr-dub", "portfolio.json")?.moonshot ?? null;
   const record = portfolioMoonshot?.record;
+  /* H · M-2: the fold's own backlog (read-only) — the record stops at foldedThrough while a placed leg is unsettled. */
+  const moonshotBacklog = loadFoldBacklog(path.join(process.cwd(), "public", "data"));
+  const moonshotFoldedThrough = moonshotBacklog?.after ?? null;
   // Today's ET slate is resolved below; the lane's own date comes from the artifact so a stale
   // file can never borrow today's date.
   const etToday = currentEtDate();
@@ -176,7 +181,7 @@ export default function MoonshotPage() {
                  collapsed below — never combined into this tile. */
               ["Settled record", moonshot.displayRecord ? `${moonshot.displayRecord.wins}–${moonshot.displayRecord.losses}` : "—",
                 moonshot.displayRecord?.era === "receipts"
-                  ? `since ${moonshot.displayRecord.fromDate ?? "—"} · settled receipts`
+                  ? `${moonshot.displayRecord.fromDate ?? "—"} to ${moonshotFoldedThrough ?? "—"} · settled receipts`
                   : moonshot.displayRecord ? "legacy era · no current-era record" : ""],
               ["Legacy open cards", String(moonshot.openCardCount), moonshot.openCardCount === 0 ? "legacy lane fully graded" : moonshot.unsettleableCardCount ? "cannot be graded" : "awaiting results"],
               ["Legacy stranded stake", `$${moonshot.openExposure.toFixed(2)}`, "legacy lane · paper"],
@@ -188,6 +193,11 @@ export default function MoonshotPage() {
               </div>
             ))}
           </dl>
+
+          {moonshot.displayRecord?.era === "receipts" ? (
+            <RecordComposition product="moonshot" recordLabel={`${moonshot.displayRecord.wins}–${moonshot.displayRecord.losses}`}
+              window={{ from: moonshot.displayRecord.fromDate ?? null, to: moonshotFoldedThrough }} composition={null} backlog={moonshotBacklog} />
+          ) : null}
 
           {/* The legacy era, as a labelled detail (founder decision 2026-09-22 · UX M-2): a different
               population — June multi-leg cards — never combined with the current era's headline. */}
@@ -286,8 +296,8 @@ export default function MoonshotPage() {
         {lane ? (
           <MoonshotLaneTracker
             lane={lane}
-            record={moonshot.displayRecord ?? undefined}
-            recordLabel={moonshot.displayRecord?.label ?? undefined}
+            /* H · M-2: this tracker reads the LEGACY lane store; the CURRENT record is not printed beside legacy cards
+               (it is stated once, labelled, in the tiles above). */
             exposure={exposure}
             running={moonshot.running}
             /* Outcomes the lifecycle ledger graded, keyed by the lane's own card ids — without this

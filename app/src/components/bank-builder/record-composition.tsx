@@ -19,10 +19,13 @@ const ERA_LABEL: Record<string, string> = { PROTECTED_BASE: "July protected base
 const rec = (c: Counts) => (c.won != null && c.lost != null ? `${c.won}–${c.lost}` : "—");
 const day = (d: string | null) => (d ? etDayLabel(d) ?? d : "—");
 
-export default function RecordComposition({ recordLabel, window, composition, backlog }: {
+export default function RecordComposition({ recordLabel, window, composition, backlog, product = "bank-builder" }: {
   recordLabel: string; window: Win | null; composition: Era[] | null; backlog: FoldBacklogView | null;
+  /** Whose record this is — the backlog line counts that product's decided results (H: Moonshot reuses it). */
+  product?: "bank-builder" | "moonshot";
 }) {
-  const bb = backlog?.decided?.["bank-builder"];
+  const bb = backlog?.decided?.[product];
+  const productLabel = product === "moonshot" ? "Moonshot" : "Bank Builder";
   const waiting = bb ? bb.won + bb.lost : 0;
   return (
     <section aria-label="How this record is built" className="mt-4 rounded-xl px-4 py-3 text-[12.5px] leading-relaxed" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
@@ -33,7 +36,7 @@ export default function RecordComposition({ recordLabel, window, composition, ba
       </p>
       {backlog?.haltedAt && waiting > 0 ? (
         <p className="m-0 mt-1">
-          Not yet in this record: {waiting} decided Bank Builder result{waiting === 1 ? "" : "s"} after {day(backlog.after)} ({bb!.won}–{bb!.lost}).
+          Not yet in this record: {waiting} decided {productLabel} result{waiting === 1 ? "" : "s"} after {day(backlog.after)} ({bb!.won}–{bb!.lost}).
           The record folds day by day and waits while any placed leg is unsettled — held since {day(backlog.haltedAt)} by{" "}
           {backlog.blocking.flatMap((b) => b.legs.map((l) => `${l.matchup ?? "a game"} · ${l.selection ?? "a leg"}${b.product ? ` (${b.product === "moonshot" ? "Moonshot" : "Bank Builder"} lane ${b.lane ?? "?"})` : ""}`)).join("; ") || "an unsettled leg"}.
         </p>
