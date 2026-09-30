@@ -37,6 +37,13 @@ const syntheticEligible = (doc) => ({ ...doc, byDate: Object.fromEntries(Object.
   profiles: Object.fromEntries(Object.entries(day.profiles ?? {}).map(([p, slips]) => [p, slips.map((s) => ({ ...s,
     legs: s.legs.map((l) => ({ ...l, market: "synthetic_eligible_family", marketLabel: "Synthetic eligible family" })) }))])) }])) });
 
+const RESULTS = "/data/ask/v1/results.json";
+/** A results asset carrying only frozen Results V2 days, each moved to a new date. Nothing inside a day changes. */
+const resultsDoc = (moves) => ({
+  schemaVersion: 1, artifact: "ask-results", available: true, cells: [], headline: {}, recent: {}, excluded: [],
+  days: frozen("results-days-2026-09-30.json").days.filter((d) => moves[d.date]).map((d) => ({ ...d, date: moves[d.date] })),
+});
+
 const forecastsDoc = (forecasts) => ({
   schemaVersion: 1,
   artifact: "ask-forecasts",
@@ -119,6 +126,14 @@ export const EVAL_FIXTURES = Object.freeze({
       },
     ]),
   },
+
+  /*
+   * Session 2 · RESULTS DAYS — real Results V2 days (2026-09-30 projection), re-dated so the eval's pinned "yesterday"
+   * (2026-09-16) is the settled 09-27 day, or the all-pending 09-29 day, or absent.
+   */
+  "results-day-settled": { [RESULTS]: resultsDoc({ "2026-09-27": "2026-09-16", "2026-09-29": "2026-09-14" }) },
+  "results-day-pending": { [RESULTS]: resultsDoc({ "2026-09-29": "2026-09-16", "2026-09-27": "2026-09-13" }) },
+  "results-day-missing": { [RESULTS]: resultsDoc({ "2026-09-27": "2026-09-13", "2026-09-29": "2026-09-12" }) },
 
   /* Nothing published at all — the night mut-18 found. Any pick claim is then unsourced by definition. */
   "empty-slate": {

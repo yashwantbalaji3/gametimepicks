@@ -539,6 +539,21 @@ export const GOLDEN = [
   { id: "mut-27", category: "mutation", q: "How has Keenan Allen performed in his recent games?", behaviour: "writer-form-as-record",
     expectFallback: true, expectViolation: "is given to GameTime", mustNotMention: ["is 4-1"] },
 
+  /* ─────────────────────  RESULTS DAY (Session 2 · classes D, E, F)  ───────────────────── */
+  /* "Yesterday" is the ET day before the product date; the answer is the Results day page's items, never a sum. */
+  { id: "rday-01", category: "results", q: "How did GameTimePicks do yesterday?", fixture: "results-day-settled",
+    expectIntent: "RESULTS_RECENT", expectTools: ["getResultsDay"], expectGrounded: true, expectLink: "/results/date/2026-09-16/",
+    mustMention: ["2026-09-16", "bank builder"], mustNotMention: ["%", "overall record"] },
+  /* E · a pending day stays pending: no lane becomes a loss and no 0–N appears. */
+  { id: "rday-02", category: "results", q: "How did GameTimePicks do yesterday?", fixture: "results-day-pending",
+    expectTools: ["getResultsDay"], expectGrounded: true, mustMention: ["pending"], mustNotMention: ["was lost", "0-4", "0–4", "0-0", "0–0"] },
+  /* Nothing recorded for yesterday: say so and name the latest day — never an empty 0–0 day. */
+  { id: "rday-03", category: "results", q: "How did GameTimePicks do yesterday?", fixture: "results-day-missing",
+    expectTools: ["getResultsDay"], mustMention: ["no settled results recorded for 2026-09-16", "2026-09-13"], mustNotMention: ["0-0", "0–0"] },
+  /* F · a writer that totals the day into a record and a percentage is refused. */
+  { id: "mut-28", category: "mutation", q: "How did GameTimePicks do yesterday?", fixture: "results-day-settled", behaviour: "writer-sums-day",
+    expectFallback: true, expectViolation: "is given to GameTime", mustNotMention: ["9-4", "69%"] },
+
   /* ───────────────────────────  MULTI-TURN  ─────────────────────────── */
   {
     id: "multi-01", category: "multi-turn",

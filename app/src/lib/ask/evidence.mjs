@@ -363,6 +363,39 @@ export function buildEvidence(envelopes) {
         break;
       }
 
+      case "getResultsDay": {
+        /*
+         * Session 2 · ONE DAY, ITEM BY ITEM, IN THE OWNER'S WORDS. No sentence here totals anything: a lane is one
+         * result, a call is one grade. The pick is phrased "GameTime's pick is X" so the verifier's pick rule can match
+         * a restatement of THIS day's graded call — and nothing else — and a pending item says it is not a loss.
+         */
+        const PRODUCT = { "bank-builder": "Bank Builder", moonshot: "Moonshot" };
+        const LANE_WORD = { won: "won", lost: "lost", void: "void", push: "a push", pending: "pending — not settled yet, which is never a loss", active: "open — a leg is still pending" };
+        const OUTCOME = { WIN: "graded WIN", LOSS: "graded LOSS", PUSH: "graded PUSH", VOID: "graded VOID" };
+        say(`results for ${d.date} (ET)${d.isYesterday ? ", which is yesterday" : ""}, as the Results day page records them — each item keeps its own grade, and GameTimePicks publishes no combined day record or percentage`, [d.date]);
+        if (d.lanes?.length) {
+          for (const l of d.lanes.slice(0, 6)) {
+            const name = `${PRODUCT[l.product] ?? l.product}${l.lane ? ` lane ${l.lane}` : ""}`;
+            say(`on ${d.date}, ${name} was ${LANE_WORD[l.result] ?? l.result}${l.legs?.length ? `, with ${l.legs.length} leg(s) on its receipt` : ", with no legs on its receipt"}`, [d.date, l.legs?.length ?? 0]);
+            for (const g of (l.legs ?? []).slice(0, 4)) {
+              say(`${name} leg · ${g.selection ?? "a selection"}${g.matchup ? ` (${g.matchup})` : ""}${g.official ? `, official ${g.official}` : ""}: ${LANE_WORD[g.result] ?? g.result}`);
+            }
+          }
+        } else {
+          say(`no Bank Builder or Moonshot card was recorded for ${d.date}`, [d.date]);
+        }
+        for (const [sport, evs] of Object.entries(d.events ?? {})) {
+          for (const e of (evs ?? []).slice(0, 8)) {
+            const calls = (e.calls ?? []).map((c) => `· ${c.market}: GameTime's pick is ${String(c.pick).replace(/\s+\((?:home|away)\)$/, "")}, ${OUTCOME[c.outcome] ?? "not yet graded — pending, not a loss"}`).join(" ");
+            say(`on ${d.date}, ${sport.toUpperCase()} ${e.title}${e.final ? ` finished ${e.final}` : " has no final recorded"} ${calls}`.trim(), [d.date]);
+          }
+          const props = (evs ?? []).reduce((n, e) => n + (e.propsNotShown ?? 0), 0);
+          if (props) say(`${props} ${sport.toUpperCase()} player-prop lean(s) were also graded that day; they are market-context families and are listed on the Results day page, not here`, [props]);
+        }
+        if (d.sportsWithout?.length) say(`nothing was graded for ${d.sportsWithout.map((x) => x.toUpperCase()).join(", ")} on ${d.date}`, [d.date]);
+        break;
+      }
+
       case "getPendingResults": {
         say(d.totalPending
           ? `GameTime has ${d.totalPending} recorded item(s) awaiting settlement; pending is counted on its own and is never treated as a loss`

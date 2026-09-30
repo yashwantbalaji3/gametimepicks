@@ -254,6 +254,7 @@ const SUBSTANTIVE_FOR_INTENT = Object.freeze({
   PLAYER_COMPARE: ["getPlayerComparison"],
   MATCHUP_CONTEXT: ["getMatchupContext"],
   PUBLISHED_FORECAST: ["getPublishedForecasts"],
+  RESULTS_RECENT: ["getResultsDay", "getRecentResults"],
   LIVE_STATUS: ["getLiveSlate"],
   PARLAY_REQUEST: ["getParlayCandidates"],
   BANKROLL_PARLAY_REQUEST: ["getParlayCandidates"],

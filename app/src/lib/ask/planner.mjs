@@ -215,6 +215,7 @@ function plannerPromptHead() {
      * published" for a fixture it held. Naming the team (and the sport, so "Pittsburgh" is not the MLB Pirates on an
      * NFL question) is what reaches it.
      */
+    "- 'How did GameTimePicks do yesterday?', 'how did the cards do', or results for a named DAY: call getResultsDay (omit date for yesterday). A product's overall record is getProductRecord; one sport's graded forecast feed is getRecentResults.",
     "- A forecast question that names a team or matchup: resolveEntity for one of the teams (pass sport when the user named or implied it — NFL for Steelers, EPL for Arsenal), then getPublishedForecasts with that teamId and NO date unless the user named a day. Without a teamId the tool only looks at today.",
     '- You will NOT know the canonical id at planning time. Put the literal string "RESOLVED" in the id argument and list the resolveEntity call in `after` — the server substitutes the real id before the tool runs. Example: [{"id":"c0","name":"resolveEntity","arguments":{"kind":"team","text":"Mets","sport":"MLB"}},{"id":"c1","name":"runGameFinder","arguments":{"sport":"MLB","teamId":"RESOLVED","minRuns":5},"after":["c0"]}]',
     "- Never put a team or player NAME in an id argument. Ids look like mlb-team-121 or nfl-athlete-15818; a name will be refused.",
