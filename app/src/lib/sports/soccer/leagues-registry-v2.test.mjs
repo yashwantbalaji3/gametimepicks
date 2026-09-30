@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { SOCCER_LEAGUES, league } from "./leagues.mjs";
+import { SOCCER_LEAGUES, league, soccerLeaguePages } from "./leagues.mjs";
 import { OPENFOOTBALL_LEAGUES } from "./openfootball.mjs";
 import { SOURCES } from "../source-registry.mjs";
 
@@ -50,7 +50,9 @@ test("🔴 every file the registry cites exists: odds receipts, validation evide
   for (const l of SOCCER_LEAGUES) {
     if (l.oddsReceipt) assert.ok(exists(l.oddsReceipt), `${l.key}: receipt ${l.oddsReceipt}`);
     for (const p of Object.values(l.validation ?? {})) assert.ok(exists(p), `${l.key}: evidence ${p}`);
-    if (l.route) assert.ok(fs.existsSync(path.join(APP, "src/app", l.route, "page.tsx")), `${l.key}: route ${l.route} has a page`);
+    // A /soccer/<key> route is served by the shared [league] page when the registry generates it (C-3).
+    const shared = l.route === `/soccer/${l.key}` && soccerLeaguePages().some((x) => x.key === l.key) && fs.existsSync(path.join(APP, "src/app/soccer/[league]/page.tsx"));
+    if (l.route) assert.ok(shared || fs.existsSync(path.join(APP, "src/app", l.route, "page.tsx")), `${l.key}: route ${l.route} has a page`);
   }
 });
 

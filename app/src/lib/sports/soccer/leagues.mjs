@@ -98,3 +98,12 @@ export function league(key) {
 }
 
 export const leagueDir = (key) => `data/internal/research/soccer/${league(key).key}`;
+
+/**
+ * The competitions served by the shared /soccer/[league] page (Soccer V2 · C-3): a registered route under
+ * /soccer/ AND a stage that may publish (LIVE or ACCEPTED_V1). The Premier League keeps its own /epl hub.
+ * A REJECTED, PLANNED, HOLD or ARCHIVE competition can never get a page by acquiring a route.
+ */
+export function soccerLeaguePages() {
+  return SOCCER_LEAGUES.filter((l) => l.route === `/soccer/${l.key}` && (l.stage === "LIVE" || l.stage === "ACCEPTED_V1"));
+}

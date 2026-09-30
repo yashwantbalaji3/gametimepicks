@@ -95,7 +95,7 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     label: "Soccer",
     state: "SCAFFOLD_ONLY",
     reason:
-      "The market-implied team-market read is genuine and reusable, but there is no live competition and no stats provider — readiness fails closed on 'no soccer stats/xG/minutes provider connected', so every player market is unsettleable.",
+      "The generic soccer key is the World Cup market-implied path: genuine and reusable, but its tournament is over and readiness fails closed on 'no soccer stats/xG/minutes provider connected', so every player market is unsettleable. Club leagues that publish carry their OWN keys (epl, ligue-1).",
     evidence: [
       "app/public/data/world-cup/projection-readiness-latest.json",
       "app/src/lib/market-coverage.ts",
@@ -144,6 +144,21 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
       ".github/workflows/epl-matchweek.yml",
       "app/public/data/parlays/lab-ledger.json",
       "data/internal/research/epl/learning/latest.json",
+    ],
+  },
+  {
+    /* Soccer V2 · C-3: Ligue 1 had published since P257 but had no row here, so every capability lookup
+       answered "unknown → DISABLED" for a live page. */
+    key: "ligue-1",
+    label: "Ligue 1",
+    state: "EXPERIMENTAL_PUBLIC",
+    reason:
+      "Model-only match forecasts publish at /soccer/ligue-1 after the preregistered league backtest accepted the Premier League model unchanged (draw calibration 0.0271 against a 0.030 bar); forward grading has too few matches to assess, there are no odds and no player markets, so nothing enters official prediction products.",
+    evidence: [
+      "app/public/data/soccer/ligue-1/forecasts/latest.json",
+      "app/public/data/soccer/ligue-1/results/graded.json",
+      "data/internal/research/soccer/ligue-1/reports/walk-forward-v1.json",
+      ".github/workflows/soccer-leagues.yml",
     ],
   },
   {

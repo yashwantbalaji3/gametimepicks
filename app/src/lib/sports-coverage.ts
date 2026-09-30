@@ -163,6 +163,16 @@ export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
     blurb: "Fixtures plus team-level model forecasts — match result, scorelines, goals and margin, per fixture. Not validated out of sample, and no player markets: the model is fitted on match results only.",
     links: [{ label: "Fixtures + forecasts", href: "/epl/" }],
   },
+  {
+    /* Soccer V2 · C-3 — same vocabulary as EPL: team-level forecasts, NO player markets, so the flag stays at
+       "schedule" (see the EPL note above) and the blurb carries what publishes. */
+    key: "ligue-1",
+    label: "Ligue 1",
+    longLabel: "Ligue 1 (France)",
+    level: "schedule",
+    blurb: "Team-level model forecasts — match result, expected goals, over 2.5, both teams to score and the likeliest scorelines. Accepted by a preregistered backtest; no odds and no player markets.",
+    links: [{ label: "Forecasts", href: "/soccer/ligue-1/" }],
+  },
 ];
 
 /** Sports with a real projection + parlay pipeline (level "full"). */
