@@ -36,6 +36,22 @@ function newestDate(dir) {
  *   sameDay: boolean,
  * }}
  */
+/**
+ * Is the recap's day the reader's YESTERDAY (ET)? (Session 1B, 2026-09-30.)
+ *
+ * The recap's day is the newest day with SETTLED CARDS — not the newest settled day. On 2026-09-30 the
+ * header chip said "Settled · Sep 29" beside "How Sunday, September 27 went": settlement had run through
+ * the 29th, but Sep 28 and 29 published no card. Both were true and together they read as a contradiction.
+ * When the recap's day is not yesterday, the heading names what it is instead ("Latest settled cards").
+ */
+export function recapIsYesterday(date, nowMs = Date.now()) {
+  if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const et = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
+  const today = et.format(new Date(nowMs));
+  const yesterday = new Date(Date.parse(`${today}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
+  return date === yesterday;
+}
+
 export function buildYesterdayRecap(dataRoot) {
   const cardsDir = path.join(dataRoot, "parlays", "lab-settled");
   const date = newestDate(cardsDir);

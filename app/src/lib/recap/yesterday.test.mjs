@@ -72,3 +72,31 @@ test("LIVE · the recap agrees with the artifacts it reads", () => {
     assert.equal(recap.model.wins + recap.model.losses, recap.model.decisive, "decisive is wins plus losses — pushes are outside it");
   }
 });
+
+/* Session 1B (2026-09-30): the recap's day is the newest day with SETTLED CARDS. "How Sunday, September 27
+   went" sat beside "Settled · Sep 29" — Sep 28 and 29 published no card. Both true; together a contradiction. */
+test("S1B · recapIsYesterday is the reader's ET yesterday, across the UTC midnight", async () => {
+  const { recapIsYesterday } = await import("./yesterday.mjs");
+  const at = (iso) => Date.parse(iso);
+  assert.equal(recapIsYesterday("2026-09-29", at("2026-09-30T15:00:00Z")), true);
+  assert.equal(recapIsYesterday("2026-09-27", at("2026-09-30T15:00:00Z")), false);
+  assert.equal(recapIsYesterday("2026-09-28", at("2026-09-30T03:00:00Z")), true, "23:00 ET on the 29th: yesterday is the 28th");
+  assert.equal(recapIsYesterday("2026-09-29", at("2026-09-30T03:00:00Z")), false);
+  for (const bad of [null, undefined, "", "Sep 29", "2026-9-29"]) assert.equal(recapIsYesterday(bad, at("2026-09-30T15:00:00Z")), false);
+});
+
+test("S1B · the heading says 'How … went' only for yesterday; an older card day is named as the latest settled cards", async () => {
+  const React = (await import("react")).default; globalThis.React = React;
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { default: YesterdayCard } = await import("../../components/recap/yesterday-card.tsx");
+  const et = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  const yesterday = new Date(Date.parse(`${et}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
+  const recap = (date) => ({ date, cards: { published: 3, hit: 0, missed: 3, other: 0 }, model: null, sameDay: true });
+  const y = renderToStaticMarkup(React.createElement(YesterdayCard, { recap: recap(yesterday) }));
+  assert.match(y, /How \w+day, \w+ \d+ went/);
+  assert.doesNotMatch(y, /Latest settled cards/);
+  const old = renderToStaticMarkup(React.createElement(YesterdayCard, { recap: recap("2026-09-27") }));
+  assert.match(old, /Latest settled cards · Sunday, September 27/);
+  assert.doesNotMatch(old, /How Sunday, September 27 went/, "an older day is never presented as yesterday's");
+  assert.match(old, /0 hit, 3 missed/, "the record itself is unchanged");
+});
