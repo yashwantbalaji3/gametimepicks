@@ -198,7 +198,7 @@ export default function AskApp({ context }: { context?: { pageType: string; id?:
         className="ask-input"
         value={draft}
         rows={1}
-        placeholder="Ask about a game, player or result…"
+        placeholder="Ask GameTime anything…"
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => {
           // Enter sends; Shift+Enter is a newline. Standard, and the hint says so below.
