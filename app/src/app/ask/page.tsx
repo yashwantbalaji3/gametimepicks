@@ -33,9 +33,8 @@ export default function AskPage() {
       <Eyebrow>Ask</Eyebrow>
       <h1 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 800, margin: "6px 0 0" }}>Ask GameTime</h1>
       <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--vault-text-mute)", maxWidth: 720, lineHeight: 1.6 }}>
-        Ask about games, players, matchups, forecasts, research and GameTimePicks. Every answer is built from
-        GameTime&apos;s own tools — recorded research, published model forecasts, live MLB state and the site guide — and
-        each one says what it used.
+        Ask about games, players, forecasts and results in plain English. Every answer comes from GameTimePicks&apos; own
+        data — never the web, never memory — and shows what it used.
       </p>
 
       <Suspense fallback={null}>
@@ -49,6 +48,7 @@ export default function AskPage() {
           <li>Team and player comparisons and matchup context, through <Link href="/compare/" style={{ color: "var(--vault-gold-bright)", textDecoration: "underline", textUnderlineOffset: 3 }}>Compare</Link>.</li>
           <li>Currently published model forecasts, with each one&apos;s status and confidence.</li>
           <li>Live MLB game state. NFL live state is not available in GameTimePicks.</li>
+          <li>Settled results by day and each product&apos;s record, through <Link href="/results/" style={{ color: "var(--vault-gold-bright)", textDecoration: "underline", textUnderlineOffset: 3 }}>Results</Link>.</li>
           <li>Published parlay candidates and how the site works.</li>
         </ul>
         <p style={{ margin: "10px 0 0", fontSize: 13, color: "var(--vault-text-mute)", lineHeight: 1.7 }}>
