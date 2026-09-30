@@ -2,17 +2,18 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-29T11:23:48Z",
+ "generatedAt": "2026-09-30T11:12:35Z",
  "worst": "BREACHED",
  "counts": {
-  "INSUFFICIENT_SAMPLE": 14,
-  "HOLDING": 3,
+  "INSUFFICIENT_SAMPLE": 9,
+  "HOLDING": 6,
   "WATCH": 2,
-  "BREACHED": 2
+  "BREACHED": 4
  },
  "rules": {
   "states": "INSUFFICIENT_SAMPLE: too few graded events for any verdict. HOLDING: at least as good as the baseline. WATCH: worse on the point estimate, but the 95% interval still includes no difference. BREACHED: worse with the whole 95% interval on the wrong side (log loss, event bootstrap), or |z| >= 2.58 (coverage, level).",
-  "action": "An alarm, not a demotion. Only preregistered forward receipts change what publishes automatically."
+  "action": "An alarm, not a demotion. Only preregistered forward receipts change what publishes automatically.",
+  "bar": "Each family's `bar` judges its live record against its OWN preregistered bar (lib/ops/model-quality-bars.mjs): ON_TRACK, BELOW_BAR, TOO_SMALL (below the bar's minimum n — checks shown, no verdict), NOT_COMPUTABLE (the live ledger lacks what the bar needs), NO_BAR (none was preregistered), OWN_RECEIPT (a forward receipt judges it). Advisory: it changes nothing that publishes."
  },
  "families": [
   {
@@ -21,22 +22,82 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 747,
+   "n": 751,
    "judgement": {
     "state": "BREACHED",
-    "n": 747,
+    "n": 751,
     "needed": 200,
-    "meanDiff": 0.035,
-    "lo95": 0.0164,
-    "hi95": 0.054
+    "meanDiff": 0.0342,
+    "lo95": 0.0162,
+    "hi95": 0.0532
    },
    "context": {
-    "hitRate": 0.4913,
-    "meanPickProbability": 0.5875,
-    "modelMinusMarket": 0.0343,
-    "pairedWithMarket": 747
+    "hitRate": 0.494,
+    "meanPickProbability": 0.5873,
+    "modelMinusMarket": 0.0336,
+    "pairedWithMarket": 751
    },
-   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
+   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
+   "bar": {
+    "verdict": "NO_BAR",
+    "reason": "no preregistered live bar exists for MLB game calls — judged against the coin floor and the founder-approved live-record gate",
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": null,
+    "measures": null
+   }
+  },
+  {
+   "id": "nfl_forward_player_reception_yds",
+   "sport": "nfl",
+   "label": "NFL blind forward test · reception yds",
+   "baseline": "its preregistered forward bars",
+   "state": "BREACHED",
+   "n": 394,
+   "judgement": {
+    "receiptState": "FORWARD_BREACHED",
+    "bars": {
+     "beatsRolling4": true,
+     "beatsShareVolume": false,
+     "coverage80": true,
+     "thresholdCalibration": false,
+     "level": true
+    },
+    "needed": null
+   },
+   "context": null,
+   "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
+   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board.",
+   "bar": {
+    "verdict": "OWN_RECEIPT",
+    "reason": "judged by its own preregistered forward receipt (state above)"
+   }
+  },
+  {
+   "id": "nfl_forward_player_receptions",
+   "sport": "nfl",
+   "label": "NFL blind forward test · receptions",
+   "baseline": "its preregistered forward bars",
+   "state": "BREACHED",
+   "n": 394,
+   "judgement": {
+    "receiptState": "FORWARD_BREACHED",
+    "bars": {
+     "beatsRolling4": true,
+     "beatsShareVolume": false,
+     "coverage80": true,
+     "thresholdCalibration": false,
+     "level": false
+    },
+    "needed": null
+   },
+   "context": null,
+   "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
+   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board.",
+   "bar": {
+    "verdict": "OWN_RECEIPT",
+    "reason": "judged by its own preregistered forward receipt (state above)"
+   }
   },
   {
    "id": "nfl_player_receptions",
@@ -44,18 +105,51 @@
    "label": "NFL receptions 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "BREACHED",
-   "n": 507,
+   "n": 519,
    "judgement": {
     "state": "BREACHED",
-    "n": 507,
+    "n": 519,
     "needed": 150,
-    "rate": 0.9034,
+    "rate": 0.9056,
     "target": 0.8,
-    "z": 5.8179,
+    "z": 6.0136,
     "direction": "ranges too wide"
    },
    "context": null,
-   "source": "app/public/data/nfl/reconciliation/<week>.json"
+   "source": "app/public/data/nfl/reconciliation/<week>.json",
+   "bar": {
+    "verdict": "ON_TRACK",
+    "checks": [
+     {
+      "measure": "coverage80",
+      "value": 0.7842,
+      "bar": [
+       0.72,
+       0.88
+      ],
+      "pass": true
+     }
+    ],
+    "notComputable": [
+     "ece",
+     "level"
+    ],
+    "n": 519,
+    "needed": 300,
+    "model": "nfl-player-share-level-v1",
+    "modelsOnGradedBoards": {
+     "player-props-v1": 16,
+     "nfl-player-share-level-v1": 32
+    },
+    "source": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json#/frozenBars/perFamily/coverage80",
+    "measures": {
+     "coverage80": 0.7842,
+     "coverageInclusive": 0.9056,
+     "coverageMidP": 0.7842,
+     "onEndpoint": 126,
+     "n": 519
+    }
+   }
   },
   {
    "id": "mlb_moneyline",
@@ -63,22 +157,30 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 786,
+   "n": 790,
    "judgement": {
     "state": "WATCH",
-    "n": 786,
+    "n": 790,
     "needed": 200,
-    "meanDiff": 0.0067,
+    "meanDiff": 0.0065,
     "lo95": -0.006,
-    "hi95": 0.0199
+    "hi95": 0.0189
    },
    "context": {
-    "hitRate": 0.5115,
+    "hitRate": 0.5127,
     "meanPickProbability": 0.5723,
-    "modelMinusMarket": 0.0317,
-    "pairedWithMarket": 781
+    "modelMinusMarket": 0.0318,
+    "pairedWithMarket": 785
    },
-   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
+   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
+   "bar": {
+    "verdict": "NO_BAR",
+    "reason": "no preregistered live bar exists for MLB game calls — judged against the coin floor and the founder-approved live-record gate",
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": null,
+    "measures": null
+   }
   },
   {
    "id": "nfl_player_rush_yds",
@@ -86,18 +188,51 @@
    "label": "NFL rushing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "WATCH",
-   "n": 277,
+   "n": 283,
    "judgement": {
     "state": "WATCH",
-    "n": 277,
+    "n": 283,
     "needed": 150,
-    "rate": 0.8484,
+    "rate": 0.8481,
     "target": 0.8,
-    "z": 2.0128,
+    "z": 2.0211,
     "direction": "ranges too wide"
    },
    "context": null,
-   "source": "app/public/data/nfl/reconciliation/<week>.json"
+   "source": "app/public/data/nfl/reconciliation/<week>.json",
+   "bar": {
+    "verdict": "TOO_SMALL",
+    "checks": [
+     {
+      "measure": "coverage80",
+      "value": 0.8873,
+      "bar": [
+       0.72,
+       0.88
+      ],
+      "pass": false
+     }
+    ],
+    "notComputable": [
+     "ece",
+     "level"
+    ],
+    "n": 213,
+    "needed": 300,
+    "model": "nfl-player-share-level-v1",
+    "modelsOnGradedBoards": {
+     "player-props-v1": 16,
+     "nfl-player-share-level-v1": 32
+    },
+    "source": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json#/frozenBars/perFamily/coverage80",
+    "measures": {
+     "coverage80": 0.8873,
+     "coverageInclusive": 0.8873,
+     "coverageMidP": 0.8427,
+     "onEndpoint": 19,
+     "n": 213
+    }
+   }
   },
   {
    "id": "mlb_run_line",
@@ -105,22 +240,30 @@
    "label": "MLB run line picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 786,
+   "n": 790,
    "judgement": {
     "state": "HOLDING",
-    "n": 786,
+    "n": 790,
     "needed": 200,
-    "meanDiff": -0.0328,
-    "lo95": -0.0481,
-    "hi95": -0.017
+    "meanDiff": -0.0317,
+    "lo95": -0.0465,
+    "hi95": -0.0156
    },
    "context": {
-    "hitRate": 0.631,
-    "meanPickProbability": 0.5988,
+    "hitRate": 0.6291,
+    "meanPickProbability": 0.599,
     "modelMinusMarket": null,
     "pairedWithMarket": 0
    },
-   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl"
+   "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
+   "bar": {
+    "verdict": "NO_BAR",
+    "reason": "no preregistered live bar exists for MLB game calls — judged against the coin floor and the founder-approved live-record gate",
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": null,
+    "measures": null
+   }
   },
   {
    "id": "nfl_anytime_td",
@@ -128,18 +271,95 @@
    "label": "NFL touchdown chances",
    "baseline": "expected scorers = actual scorers",
    "state": "HOLDING",
-   "n": 667,
+   "n": 682,
    "judgement": {
     "state": "HOLDING",
-    "n": 667,
+    "n": 682,
     "needed": 150,
-    "expected": 157.1219,
-    "actual": 151,
-    "z": -0.5874,
+    "expected": 160.9636,
+    "actual": 154,
+    "z": -0.6603,
     "direction": null
    },
    "context": null,
-   "source": "app/public/data/nfl/reconciliation/<week>.json"
+   "source": "app/public/data/nfl/reconciliation/<week>.json",
+   "bar": {
+    "verdict": "TOO_SMALL",
+    "checks": [
+     {
+      "measure": "ece",
+      "value": 0.0348,
+      "bar": "≤ 0.04",
+      "pass": true
+     },
+     {
+      "measure": "level",
+      "value": 1.0452,
+      "bar": [
+       0.9,
+       1.1
+      ],
+      "pass": true
+     }
+    ],
+    "notComputable": [],
+    "n": 682,
+    "needed": 1000,
+    "model": null,
+    "modelsOnGradedBoards": {
+     "player-props-v1": 16,
+     "nfl-anytime-td-opportunity-v1": 32
+    },
+    "source": "data/internal/research/nfl/reports/anytime-td-forward-protocol.json#/frozen/eceMax",
+    "measures": {
+     "ece": 0.0348,
+     "level": 1.0452,
+     "n": 682
+    }
+   }
+  },
+  {
+   "id": "nfl_margin_range",
+   "sport": "nfl",
+   "label": "NFL winning margin 80% range",
+   "baseline": "8 in 10 inside the published range",
+   "state": "HOLDING",
+   "n": 48,
+   "judgement": {
+    "state": "HOLDING",
+    "n": 48,
+    "needed": 48,
+    "rate": 0.7708,
+    "target": 0.8,
+    "z": -0.5052,
+    "direction": null
+   },
+   "context": null,
+   "source": "app/public/data/nfl/reconciliation/<week>.json",
+   "bar": {
+    "verdict": "TOO_SMALL",
+    "checks": [
+     {
+      "measure": "coverage80",
+      "value": 0.7708,
+      "bar": [
+       0.75,
+       0.85
+      ],
+      "pass": true
+     }
+    ],
+    "notComputable": [],
+    "n": 48,
+    "needed": 64,
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": "data/internal/research/nfl/regular-season-evaluation-contract.json#/bars/marginHead/requirement",
+    "measures": {
+     "coverage80": 0.7708,
+     "n": 48
+    }
+   }
   },
   {
    "id": "nfl_player_reception_yds",
@@ -147,18 +367,126 @@
    "label": "NFL receiving yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 507,
+   "n": 519,
    "judgement": {
     "state": "HOLDING",
-    "n": 507,
+    "n": 519,
     "needed": 150,
-    "rate": 0.8008,
+    "rate": 0.8035,
     "target": 0.8,
-    "z": 0.0444,
+    "z": 0.1975,
     "direction": null
    },
    "context": null,
-   "source": "app/public/data/nfl/reconciliation/<week>.json"
+   "source": "app/public/data/nfl/reconciliation/<week>.json",
+   "bar": {
+    "verdict": "ON_TRACK",
+    "checks": [
+     {
+      "measure": "coverage80",
+      "value": 0.8035,
+      "bar": [
+       0.72,
+       0.88
+      ],
+      "pass": true
+     }
+    ],
+    "notComputable": [
+     "ece",
+     "level"
+    ],
+    "n": 519,
+    "needed": 300,
+    "model": "nfl-player-share-level-v1",
+    "modelsOnGradedBoards": {
+     "player-props-v1": 16,
+     "nfl-player-share-level-v1": 32
+    },
+    "source": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json#/frozenBars/perFamily/coverage80",
+    "measures": {
+     "coverage80": 0.8035,
+     "coverageInclusive": 0.8035,
+     "coverageMidP": 0.7505,
+     "onEndpoint": 55,
+     "n": 519
+    }
+   }
+  },
+  {
+   "id": "nfl_total_range",
+   "sport": "nfl",
+   "label": "NFL total points 80% range",
+   "baseline": "8 in 10 inside the published range",
+   "state": "HOLDING",
+   "n": 48,
+   "judgement": {
+    "state": "HOLDING",
+    "n": 48,
+    "needed": 48,
+    "rate": 0.7917,
+    "target": 0.8,
+    "z": -0.1443,
+    "direction": null
+   },
+   "context": null,
+   "source": "app/public/data/nfl/reconciliation/<week>.json",
+   "bar": {
+    "verdict": "TOO_SMALL",
+    "checks": [
+     {
+      "measure": "coverage80",
+      "value": 0.7917,
+      "bar": [
+       0.75,
+       0.85
+      ],
+      "pass": true
+     }
+    ],
+    "notComputable": [],
+    "n": 48,
+    "needed": 64,
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": "data/internal/research/nfl/regular-season-evaluation-contract.json#/bars/totalHead/requirement",
+    "measures": {
+     "coverage80": 0.7917,
+     "n": 48
+    }
+   }
+  },
+  {
+   "id": "nfl_winner",
+   "sport": "nfl",
+   "label": "NFL winner",
+   "baseline": "coin flip (log loss 0.6931)",
+   "state": "HOLDING",
+   "n": 48,
+   "judgement": {
+    "state": "HOLDING",
+    "n": 48,
+    "needed": 48,
+    "meanDiff": -0.0341,
+    "lo95": -0.1099,
+    "hi95": 0.0485
+   },
+   "context": {
+    "hits": 29,
+    "expectedHits": 29.372
+   },
+   "source": "app/public/data/nfl/reconciliation/<week>.json",
+   "bar": {
+    "verdict": "NOT_COMPUTABLE",
+    "checks": [],
+    "notComputable": [
+     "logLossVsBaseline"
+    ],
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": "data/internal/research/nfl/regular-season-evaluation-contract.json#/bars/winHead/requirement",
+    "measures": null
+   }
   },
   {
    "id": "epl_forward_match_model",
@@ -180,7 +508,11 @@
    },
    "context": null,
    "source": "data/internal/research/epl/forward/receipt.json",
-   "note": "Preregistered: a FORWARD_BREACHED receipt already makes the previous model publish on the next matchweek build."
+   "note": "Preregistered: a FORWARD_BREACHED receipt already makes the previous model publish on the next matchweek build.",
+   "bar": {
+    "verdict": "OWN_RECEIPT",
+    "reason": "judged by its own preregistered forward receipt (state above)"
+   }
   },
   {
    "id": "epl_result",
@@ -214,7 +546,15 @@
     "marketComparisonState": "MODEL_AHEAD",
     "stoppingRule": "CONTINUE"
    },
-   "source": "app/public/data/soccer/epl/results/graded-forecasts.jsonl"
+   "source": "app/public/data/soccer/epl/results/graded-forecasts.jsonl",
+   "bar": {
+    "verdict": "NO_BAR",
+    "reason": "the live bar is the forward receipt's own comparison (Elo-Poisson vs the split Poisson it replaced), judged in epl_forward_match_model — this family keeps the even-odds floor",
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": "data/internal/research/epl/reports/epl-elo-poisson-forward-protocol.json#/frozen/minimumN",
+    "measures": null
+   }
   },
   {
    "id": "epl_shadow_totals",
@@ -234,7 +574,11 @@
    },
    "context": null,
    "source": "data/internal/research/epl/forward-totals/receipt.json",
-   "note": "SHADOW: publishes nothing. SHADOW_BETTER is evidence for a founder adoption decision, never an adoption (the P305 blind receipt is REJECTED)."
+   "note": "SHADOW: publishes nothing. SHADOW_BETTER is evidence for a founder adoption decision, never an adoption (the P305 blind receipt is REJECTED).",
+   "bar": {
+    "verdict": "OWN_RECEIPT",
+    "reason": "judged by its own preregistered forward receipt (state above)"
+   }
   },
   {
    "id": "ligue1_result",
@@ -254,7 +598,18 @@
    "context": {
     "modelLogLoss": 0.9613
    },
-   "source": "app/public/data/soccer/ligue-1/results/graded.json"
+   "source": "app/public/data/soccer/ligue-1/results/graded.json",
+   "bar": {
+    "verdict": "NOT_COMPUTABLE",
+    "checks": [],
+    "notComputable": [
+     "logLossVsBaseline"
+    ],
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": "data/internal/research/soccer/preregistration-league-expansion-v1.json#/acceptanceBars/bars/1/statement",
+    "measures": null
+   }
   },
   {
    "id": "nfl_forward_anytime_td",
@@ -262,7 +617,7 @@
    "label": "NFL blind forward test · anytime td",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 267,
+   "n": 524,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
@@ -270,7 +625,11 @@
    },
    "context": null,
    "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
-   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board."
+   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board.",
+   "bar": {
+    "verdict": "OWN_RECEIPT",
+    "reason": "judged by its own preregistered forward receipt (state above)"
+   }
   },
   {
    "id": "nfl_forward_player_pass_yds",
@@ -278,7 +637,7 @@
    "label": "NFL blind forward test · pass yds",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 35,
+   "n": 66,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
@@ -286,39 +645,11 @@
    },
    "context": null,
    "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
-   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board."
-  },
-  {
-   "id": "nfl_forward_player_reception_yds",
-   "sport": "nfl",
-   "label": "NFL blind forward test · reception yds",
-   "baseline": "its preregistered forward bars",
-   "state": "INSUFFICIENT_SAMPLE",
-   "n": 200,
-   "judgement": {
-    "receiptState": "ACCUMULATING",
-    "bars": null,
-    "needed": 300
-   },
-   "context": null,
-   "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
-   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board."
-  },
-  {
-   "id": "nfl_forward_player_receptions",
-   "sport": "nfl",
-   "label": "NFL blind forward test · receptions",
-   "baseline": "its preregistered forward bars",
-   "state": "INSUFFICIENT_SAMPLE",
-   "n": 200,
-   "judgement": {
-    "receiptState": "ACCUMULATING",
-    "bars": null,
-    "needed": 300
-   },
-   "context": null,
-   "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
-   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board."
+   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board.",
+   "bar": {
+    "verdict": "OWN_RECEIPT",
+    "reason": "judged by its own preregistered forward receipt (state above)"
+   }
   },
   {
    "id": "nfl_forward_player_rush_yds",
@@ -326,7 +657,7 @@
    "label": "NFL blind forward test · rush yds",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 111,
+   "n": 216,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
@@ -334,26 +665,11 @@
    },
    "context": null,
    "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
-   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board."
-  },
-  {
-   "id": "nfl_margin_range",
-   "sport": "nfl",
-   "label": "NFL winning margin 80% range",
-   "baseline": "8 in 10 inside the published range",
-   "state": "INSUFFICIENT_SAMPLE",
-   "n": 47,
-   "judgement": {
-    "state": "INSUFFICIENT_SAMPLE",
-    "n": 47,
-    "needed": 48,
-    "rate": 0.7872,
-    "target": 0.8,
-    "z": null,
-    "direction": null
-   },
-   "context": null,
-   "source": "app/public/data/nfl/reconciliation/<week>.json"
+   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board.",
+   "bar": {
+    "verdict": "OWN_RECEIPT",
+    "reason": "judged by its own preregistered forward receipt (state above)"
+   }
   },
   {
    "id": "nfl_player_pass_yds",
@@ -361,58 +677,35 @@
    "label": "NFL passing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 92,
+   "n": 93,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 92,
+    "n": 93,
     "needed": 150,
-    "rate": 0.837,
+    "rate": 0.8387,
     "target": 0.8,
     "z": null,
     "direction": null
    },
    "context": null,
-   "source": "app/public/data/nfl/reconciliation/<week>.json"
-  },
-  {
-   "id": "nfl_total_range",
-   "sport": "nfl",
-   "label": "NFL total points 80% range",
-   "baseline": "8 in 10 inside the published range",
-   "state": "INSUFFICIENT_SAMPLE",
-   "n": 47,
-   "judgement": {
-    "state": "INSUFFICIENT_SAMPLE",
-    "n": 47,
-    "needed": 48,
-    "rate": 0.7872,
-    "target": 0.8,
-    "z": null,
-    "direction": null
-   },
-   "context": null,
-   "source": "app/public/data/nfl/reconciliation/<week>.json"
-  },
-  {
-   "id": "nfl_winner",
-   "sport": "nfl",
-   "label": "NFL winner",
-   "baseline": "coin flip (log loss 0.6931)",
-   "state": "INSUFFICIENT_SAMPLE",
-   "n": 47,
-   "judgement": {
-    "state": "INSUFFICIENT_SAMPLE",
-    "n": 47,
-    "needed": 48,
-    "meanDiff": -0.0349,
-    "lo95": null,
-    "hi95": null
-   },
-   "context": {
-    "hits": 29,
-    "expectedHits": 28.8703
-   },
-   "source": "app/public/data/nfl/reconciliation/<week>.json"
+   "source": "app/public/data/nfl/reconciliation/<week>.json",
+   "bar": {
+    "verdict": "NO_BAR",
+    "reason": "published as an ESTIMATE below its bar — there is no accepted bar to live up to; the generic 80% floor stays as a floor",
+    "model": null,
+    "modelsOnGradedBoards": {
+     "player-props-v1": 16,
+     "nfl-player-share-level-v1": 32
+    },
+    "source": null,
+    "measures": {
+     "coverage80": null,
+     "coverageInclusive": null,
+     "coverageMidP": null,
+     "onEndpoint": 0,
+     "n": 0
+    }
+   }
   },
   {
    "id": "ufc_winner",
@@ -435,10 +728,72 @@
     "modelMinusMarket": 0.0195,
     "pairedWithMarket": 49
    },
-   "source": "data/internal/research/ufc/model-vs-market/graded.jsonl"
+   "source": "data/internal/research/ufc/model-vs-market/graded.jsonl",
+   "bar": {
+    "verdict": "TOO_SMALL",
+    "checks": [
+     {
+      "measure": "logLossVsBaseline",
+      "value": -0.0224,
+      "bar": "≤ −0.005 vs a coin flip (0.6931)",
+      "pass": true
+     }
+    ],
+    "notComputable": [
+     "calibrationZ"
+    ],
+    "n": 49,
+    "needed": 60,
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": "app/public/data/ufc/fight-model-evaluation.json#/bars/winnerGain",
+    "measures": {
+     "logLossVsBaseline": -0.0224
+    }
+   }
   }
  ],
  "changes": [
+  {
+   "id": "nfl_forward_player_reception_yds",
+   "sport": "nfl",
+   "label": "NFL blind forward test · reception yds",
+   "from": "INSUFFICIENT_SAMPLE",
+   "to": "BREACHED",
+   "at": "2026-09-30T11:12:35Z"
+  },
+  {
+   "id": "nfl_forward_player_receptions",
+   "sport": "nfl",
+   "label": "NFL blind forward test · receptions",
+   "from": "INSUFFICIENT_SAMPLE",
+   "to": "BREACHED",
+   "at": "2026-09-30T11:12:35Z"
+  },
+  {
+   "id": "nfl_margin_range",
+   "sport": "nfl",
+   "label": "NFL winning margin 80% range",
+   "from": "INSUFFICIENT_SAMPLE",
+   "to": "HOLDING",
+   "at": "2026-09-30T11:12:35Z"
+  },
+  {
+   "id": "nfl_total_range",
+   "sport": "nfl",
+   "label": "NFL total points 80% range",
+   "from": "INSUFFICIENT_SAMPLE",
+   "to": "HOLDING",
+   "at": "2026-09-30T11:12:35Z"
+  },
+  {
+   "id": "nfl_winner",
+   "sport": "nfl",
+   "label": "NFL winner",
+   "from": "INSUFFICIENT_SAMPLE",
+   "to": "HOLDING",
+   "at": "2026-09-30T11:12:35Z"
+  },
   {
    "id": "nfl_player_rush_yds",
    "sport": "nfl",
