@@ -48,7 +48,8 @@ export const SPORT_LEG_RULES: Readonly<Record<LegSportKey, SportLegRule>> = Obje
     sport: "MLB",
     label: "MLB",
     eligible: true,
-    reason: "model-qualified MLB legs from the daily board",
+    // G-1: what actually feeds a card — market-priced team markets (the model-pick props are market context).
+    reason: "market-priced MLB team markets (moneyline, run line, total) from the daily slate",
     whatWouldQualify: [],
   },
   NFL: {

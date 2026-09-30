@@ -22,7 +22,7 @@ import { BANK_BUILDER_LADDER } from "../bank-builder-ladder";
 import { MOONSHOT_LADDER, MOONSHOT_SEED } from "../moonshot/moonshot-ladder.mjs";
 import { selectMoonshotRungCard } from "../moonshot/rung-card.mjs";
 import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
-import { loadMlbModelPicks } from "./mlb-model-picks";
+import { legIsMarketContext, loadCommittedCoverage, marketContextFamilies } from "../parlays/card-leg-eligibility.mjs"; // relative: activate-daily-portfolio.mjs runs from the repo root (no "@/" alias)
 import { loadWorldCupTeamLegs } from "./wc-team-legs";
 import { loadMlbTeamLegs } from "./mlb-team-legs";
 import { poolAvailability, emptyPoolReason } from "./input-availability.mjs";
@@ -453,7 +453,16 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   // so that if the World Cup pool is ever repopulated it takes precedence exactly as before; today
   // they contribute nothing and the MLB legs are the pool.
   const mlbTeam = preEvent(loadMlbTeamLegs(root, nowIso, date));
-  const bbPool = [...wcTeam, ...wcFill, ...mlbTeam, ...loadMlbModelPicks(root, nowIso, date)].filter((p) => p.player == null);
+  /*
+   * G-1 · LEG HONESTY. The MLB model picks are ALL demoted player-prop families (market context, not GameTime
+   * projections); they used to be loaded into this pool and dropped only because they carry a player — status never
+   * decided it. They are no longer loaded, and every leg passes the ONE card-leg rule (lib/parlays/card-leg-
+   * eligibility.mjs) on its market key, so a market-context family cannot reach a Bank Builder card by any route.
+   */
+  const marketContext = marketContextFamilies(loadCommittedCoverage(path.resolve(root, "..", "..", ".."))  /* root = app/public/data → the repo root */);
+  const bbPool = [...wcTeam, ...wcFill, ...mlbTeam]
+    .filter((p) => p.player == null)
+    .filter((p) => !legIsMarketContext({ sport: String(p.sport ?? "MLB").toUpperCase(), market: p.marketKey ?? null }, marketContext));
 
   /*
    * WHICH KIND OF EMPTY IS THIS?

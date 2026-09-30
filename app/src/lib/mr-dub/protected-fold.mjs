@@ -70,6 +70,32 @@ export function foldReceipts(receipts, { after = PROTECTED_BASE.asOf } = {}) {
   };
 }
 
+/**
+ * WHAT THE FOLD HAS NOT TAKEN IN YET (Bank Builder V2 · G-2). Read-only disclosure beside the record — it credits
+ * nothing and changes no money. `foldReceipts` halts at the first day with a placed lane still pending, so every
+ * decided result after that day waits too; a surface printing the record must be able to say so, instead of
+ * "0 pending" beside a record that stopped. Same PLACED / DECIDED rules as the fold, over receipts after `after`
+ * (the fold's own `foldedThrough`).
+ */
+export function foldBacklog(receipts, { after }) {
+  const ordered = [...(receipts ?? [])].filter((r) => r?.date && r.date > after).sort((a, b) => a.date.localeCompare(b.date));
+  const decided = { "bank-builder": { won: 0, lost: 0 }, moonshot: { won: 0, lost: 0 } };
+  let haltedAt = null;
+  const blocking = [];
+  for (const r of ordered) {
+    const rows = (r.lanes ?? []).map((l) => ({ ...l, result: String(l.result ?? "pending") }));
+    const placed = rows.filter((l) => (l.status != null ? PLACED.has(String(l.status)) : DECIDED.has(l.result)));
+    const open = placed.filter((l) => !DECIDED.has(l.result));
+    if (!haltedAt && open.length) {
+      haltedAt = r.date;
+      for (const l of open) blocking.push({ product: l.product ?? null, lane: l.lane ?? null,
+        legs: (l.legs ?? []).filter((g) => String(g.result ?? "pending") === "pending").map((g) => ({ matchup: g.matchup ?? null, selection: g.selection ?? null })) });
+    }
+    for (const l of placed) if ((l.result === "won" || l.result === "lost") && decided[l.product]) decided[l.product][l.result] += 1;
+  }
+  return { after, haltedAt, blocking, decided, days: ordered.map((r) => r.date) };
+}
+
 /** Wins the frozen-rung defect never carried: disclosed beside the record, never credited. */
 export function uncarriedWins(receipts, { after = PROTECTED_BASE.asOf, through = null } = {}) {
   const lanes = {};

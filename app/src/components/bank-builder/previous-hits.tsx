@@ -101,9 +101,17 @@ function HitLeg({ leg }: { leg: Leg }) {
   );
 }
 
-export default function PreviousHits({ hits, recordLabel }: { hits: PublicBuilderEntry[]; recordLabel: string }) {
+export default function PreviousHits({ hits }: { hits: PublicBuilderEntry[] }) {
   if (hits.length === 0) return null;
   const ordered = [...hits].sort((a, b) => a.step - b.step);
+  /*
+   * G-2 · THIS SECTION IS ITS OWN LADDER, NOT THE CURRENT RECORD. These are the legacy June ladder's winning steps
+   * (public-ledger-latest.json); the header used to print the CURRENT composite record ("Record 37–36") beside them,
+   * joining two different windows under one heading. It now names its own window and its own count.
+   */
+  const dates = ordered.map((e) => e.date).filter(Boolean).sort();
+  const fmt = (d: string) => new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${d}T12:00:00Z`));
+  const windowLabel = dates.length ? (dates[0] === dates[dates.length - 1] ? fmt(dates[0]) : `${fmt(dates[0])}–${fmt(dates[dates.length - 1])}`) : null;
   return (
     <section
       className="gtp-fade-up mt-5 rounded-2xl p-5"
@@ -112,10 +120,10 @@ export default function PreviousHits({ hits, recordLabel }: { hits: PublicBuilde
     >
       <div className="mb-3.5 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-[13px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--vault-text)" }}>
-          The road so far · every leg that hit
+          The earlier ladder{windowLabel ? ` · ${windowLabel}` : ""} · every step that hit
         </h2>
         <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-          Record <strong style={{ color: "var(--vault-success)" }}>{recordLabel}</strong> · settled from official results
+          <strong style={{ color: "var(--vault-success)" }}>{ordered.length} step{ordered.length === 1 ? "" : "s"} won</strong> · a completed earlier ladder, not the current record
         </span>
       </div>
       <ol className="grid gap-3 sm:grid-cols-2">
