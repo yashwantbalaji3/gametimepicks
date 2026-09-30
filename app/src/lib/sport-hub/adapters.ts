@@ -90,9 +90,25 @@ export function humanizeMlbPredictionLine(line: string): string {
   return out.length ? out.join(" · ") : line;
 }
 
+/**
+ * The MLB prediction line's winner, as a side of this game. The first segment is the winner only in its
+ * exact bare-abbreviation shape ("NYY"), and only when it names one of the two sides; anything else —
+ * a total first, a run line, a team not in this game — marks no favourite.
+ */
+export function mlbLineFavorite(line: unknown, away: unknown, home: unknown): string | null {
+  if (typeof line !== "string") return null;
+  const winner = line.split(" · ")[0]?.trim() ?? "";
+  if (!/^[A-Z]{2,3}$/.test(winner)) return null;
+  return winner === away || winner === home ? winner : null;
+}
+
 function readForGame(d: Record<string, any>): HubRead | null {
   if (typeof d.predictionLine === "string" && d.predictionLine.trim()) {
-    return { label: humanizeMlbPredictionLine(d.predictionLine), kind: "MODEL_FORECAST", detail: d.prediction?.modelVersion ?? "simulation" };
+    const favored = mlbLineFavorite(d.predictionLine, d.awayTeam, d.homeTeam);
+    return {
+      label: humanizeMlbPredictionLine(d.predictionLine), kind: "MODEL_FORECAST", detail: d.prediction?.modelVersion ?? "simulation",
+      ...(favored ? { favored } : {}),
+    };
   }
   const gc = d.gameCenter;
   if (gc?.moneyline?.favorite) {
@@ -232,7 +248,11 @@ function nflReadFor(index: Map<string, { home: string; away: string; pHome: numb
   const e = providerId ? index.get(String(providerId)) : null;
   if (!e) return null;
   const fav = e.pHome >= e.pAway ? { abbr: e.home, p: e.pHome } : { abbr: e.away, p: e.pAway };
-  return { label: `${fav.abbr} ${(fav.p * 100).toFixed(1)}%`, kind: "MODEL_FORECAST", detail: "experimental" };
+  return {
+    label: `${fav.abbr} ${(fav.p * 100).toFixed(1)}%`, kind: "MODEL_FORECAST", detail: "experimental",
+    // Both sides are the index's own numbers (pAway, pHome) — the card's order is away @ home.
+    favored: fav.abbr, split: [{ label: e.away, p: e.pAway }, { label: e.home, p: e.pHome }],
+  };
 }
 
 export function nflHub(nowIso: string): SportHubModel {
@@ -327,7 +347,12 @@ export function eplHub(nowIso: string): SportHubModel {
     if (p) {
       const best = [["home", p.home, r.homeClub], ["draw", p.draw, "Draw"], ["away", p.away, r.awayClub]] as const;
       const top = [...best].sort((a, b) => (b[1] as number) - (a[1] as number))[0];
-      read = { label: `${top[2] ?? top[0]} · ${Math.round((top[1] as number) * 100)}%`, kind: "MODEL_FORECAST", detail: "match result" };
+      read = {
+        label: `${top[2] ?? top[0]} · ${Math.round((top[1] as number) * 100)}%`, kind: "MODEL_FORECAST", detail: "match result",
+        // A draw favours no club; otherwise the favourite is the club the model's top outcome names.
+        ...(top[0] !== "draw" && top[2] ? { favored: String(top[2]) } : {}),
+        ...(r.homeClub && r.awayClub ? { split: [{ label: r.homeClub, p: p.home }, { label: "Draw", p: p.draw }, { label: r.awayClub, p: p.away }] } : {}),
+      };
     }
     return {
       id: r.eventId,
@@ -448,18 +473,21 @@ export function ufcHub(nowIso: string, bouts: Array<{ id: string; matchup: strin
   const rows: HubGameRow[] = bouts.map((b): HubGameRow => {
     const started = startedOf({ iso: b.startUtc, exact: Boolean(b.startUtc) }, nowMs);
     const hasRead = b.read != null;
+    const sides = b.matchup.split(/\s+vs\.?\s+/i).map((x) => x.trim()).filter(Boolean);
+    /* The favourite is the fighter the MODEL read's label opens with, exactly ("Mick Parkin · 64%").
+       A market read, or a label that names neither side verbatim, marks nobody. */
+    const isModelRead = b.read?.kind === "MODEL_FORECAST" || b.read?.kind === "MODEL_PICK";
+    const favored = isModelRead && sides.length === 2 ? sides.find((name) => b.read!.label.startsWith(`${name} ·`)) : undefined;
+    const read: HubRead | null = b.read ? { ...b.read, ...(favored ? { favored } : {}) } : null;
     return {
       id: b.id, startUtc: b.startUtc, startLabel: startLabelOf({ iso: b.startUtc, exact: Boolean(b.startUtc) }),
       matchup: b.matchup, status: b.status ?? (started ? "started or final" : "scheduled"),
-      started, read: b.read ?? null,
+      started, read,
       reportState: hasRead ? "READY" : "NONE",
       /* P251-F3: UFC has per-bout routes now — "View report" leaves the hub like every other sport. */
       reportHref: hasRead ? `/ufc/bout/${b.id}/` : null,
       reportNote: hasRead ? "bout details below" : "not modelled — no tracked history",
-      ...(() => {
-        const sides = b.matchup.split(/\s+vs\.?\s+/i).map((x) => x.trim()).filter(Boolean);
-        return sides.length === 2 ? { participants: sides.map((name) => ({ name, logoTeam: null, logoSport: null })), separator: "vs" as const } : {};
-      })(),
+      ...(sides.length === 2 ? { participants: sides.map((name) => ({ name, logoTeam: null, logoSport: null })), separator: "vs" as const } : {}),
     };
   });
   return {

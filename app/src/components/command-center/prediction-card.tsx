@@ -16,12 +16,21 @@ import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
 
 const LOGO_SPORT: Record<string, "mlb" | "nfl" | "soccer" | null> = { mlb: "mlb", nfl: "nfl", epl: "soccer", ufc: null };
 
-function Side({ side, sport }: { side: CardSide; sport: PredictionCardModel["sport"] }) {
+/*
+ * S1 (2026-09-30): the compact card sits four-across on the homepage, and a full club name in a quarter
+ * column truncated to "Pittsbu…" / "Houst…" — the one thing a sports card must show, cut off. Compact now
+ * prints the side's CODE beside its crest (the full name stays in the accessible label and the tooltip),
+ * and a side with no code (a fighter) wraps instead of truncating.
+ */
+function Side({ side, sport, compact }: { side: CardSide; sport: PredictionCardModel["sport"]; compact: boolean }) {
   const logoSport = LOGO_SPORT[sport];
+  const short = compact && side.code ? side.code : null;
   return (
-    <span className="inline-flex items-center gap-1.5 min-w-0">
+    <span className="inline-flex items-center gap-1.5 min-w-0" title={short ? side.name : undefined}>
       {logoSport && side.code ? <TeamLogo team={side.code} sport={logoSport} size="sm" ariaLabel={`${side.name} logo`} /> : <TeamMark name={side.name} size="sm" />}
-      <span className="truncate" style={{ color: side.favoured ? "var(--vault-text)" : "var(--vault-text-mute)", fontWeight: side.favoured ? 700 : 500, fontSize: 12.5 }}>{side.name}</span>
+      <span className="break-words leading-tight" style={{ color: side.favoured ? "var(--vault-text)" : "var(--vault-text-mute)", fontWeight: side.favoured ? 700 : 500, fontSize: short ? 14 : 12.5 }}>
+        {short ? <><span aria-hidden>{short}</span><span className="sr-only">{side.name}</span></> : side.name}
+      </span>
     </span>
   );
 }
@@ -46,10 +55,10 @@ export default function PredictionCard({ card, variant = "compact" }: { card: Pr
   return (
     <article className="gtp-pcard flex flex-col gap-1.5 rounded-[12px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)" }} aria-label={`${first.name} ${order.sep} ${second.name} forecast`}>
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className="inline-flex items-center gap-2 min-w-0">
-          <Side side={first} sport={card.sport} />
-          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{order.sep}</span>
-          <Side side={second} sport={card.sport} />
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+          <Side side={first} sport={card.sport} compact={variant === "compact"} />
+          <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{order.sep}</span>
+          <Side side={second} sport={card.sport} compact={variant === "compact"} />
         </span>
         {card.startLabel ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{card.startLabel}</span> : null}
       </div>

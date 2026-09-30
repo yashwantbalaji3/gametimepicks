@@ -67,15 +67,16 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
         its model&rsquo;s current status.
       </p>
 
-      {/* The three primary jobs. Labels and destinations are guard-pinned (P208 J1). */}
+      {/* The three primary jobs. Labels and destinations are guard-pinned (P208 J1). S1 (2026-09-30): set in the
+          display face, not mono caps — the hero's three actions read as buttons, not as terminal labels. */}
       <div className="flex flex-wrap gap-2.5">
         <Link
           href="/simulate"
-          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
+          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-semibold tracking-[-0.005em]"
           style={{
             background: "var(--vault-gold-bright)",
             color: "var(--vault-on-accent-deep)",
-            fontSize: 12,
+            fontSize: 14.5,
             fontWeight: 700,
             minHeight: 44,
             textDecoration: "none",
@@ -85,11 +86,11 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
         </Link>
         <Link
           href="/markets"
-          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
+          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-semibold tracking-[-0.005em]"
           style={{
             border: "1px solid var(--vault-border-strong)",
             color: "var(--vault-text)",
-            fontSize: 12,
+            fontSize: 14.5,
             fontWeight: 700,
             minHeight: 44,
             textDecoration: "none",
@@ -99,11 +100,11 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
         </Link>
         <Link
           href="/build"
-          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
+          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-semibold tracking-[-0.005em]"
           style={{
             border: "1px solid var(--vault-border-strong)",
             color: "var(--vault-text)",
-            fontSize: 12,
+            fontSize: 14.5,
             fontWeight: 700,
             minHeight: 44,
             textDecoration: "none",
@@ -115,7 +116,7 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
 
       {/* ONE derived live-status row — current owners only, no hand-kept counts. 0 renders as its
           honest words; a missing figure is omitted, never zero-padded. */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono" style={{ fontSize: 11.5 }}>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 tabular-nums" style={{ fontSize: 13 }}>
         <Stat value={String(activeSports)} label={activeSports === 1 ? "sport active" : "sports active"} />
         {/* P293 → 2026-09-28. The figure is now the CROSS-SPORT DAY count (lib/product-day crossSportToday:
             each sport's schedule, a game counts with or without our forecast), so it may say "today" —
