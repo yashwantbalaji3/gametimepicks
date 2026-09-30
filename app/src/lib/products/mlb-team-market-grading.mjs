@@ -57,6 +57,11 @@ export function legEventIdOf(leg) {
  *   `undefined` when the slate artifacts are absent — the caller then keeps the legacy join exactly.
  */
 export function resolveLegGameIdentity(leg, slate) {
+  /* F3 (Session 1B): a receipt written after 2026-09-30 carries the gamePk its settlement proved. That is
+     the strongest identity there is — it needs no re-pairing, and it still works after the slate's
+     schedule artifacts have aged out. A legacy receipt (no gamePk) falls through to the slate proof. */
+  const stored = Number(leg?.gamePk);
+  if (Number.isInteger(stored) && stored > 0) return { gamePk: stored, resolved: true, method: "receipt-gamePk", doubleheader: false };
   const events = Array.isArray(slate?.schedule) ? slate.schedule : [];
   const boardGames = Array.isArray(slate?.board?.games) ? slate.board.games : [];
   const leans = Array.isArray(slate?.board?.leans) ? slate.board.leans : [];
@@ -101,13 +106,15 @@ export function resolveLegGameIdentity(leg, slate) {
  *   · a proven gamePk             → the row(s) carrying THAT gamePk on the date, and only those. The row
  *                                   must name the leg's teams; a Postponed stub of the same gamePk is
  *                                   not a result, so exactly one FINAL row wins, two finals refuse.
+ *                                   With no final on the date, exactly one LATER final of the same
+ *                                   gamePk (`makeup`) is the postponed game's makeup and grades it (F3).
  *   · unproven on a doubleheader  → refused, even when the final-only cache shows a single row (the
  *                                   twin may simply not be final).
  *   · unproven otherwise          → the team+date join, unchanged.
  *
  * @returns {{ok: true, line: object} | {ok: false, reason: string}}
  */
-export function findLinescore(leg, linescores, dateEt, identity) {
+export function findLinescore(leg, linescores, dateEt, identity, { makeup = [] } = {}) {
   const matchup = String(leg?.matchup ?? "");
   const m = matchup.split(/\s+@\s+/);
   if (m.length !== 2) return { ok: false, reason: `leg matchup "${matchup}" is not "away @ home"` };
@@ -118,13 +125,26 @@ export function findLinescore(leg, linescores, dateEt, identity) {
   if (identity && identity.gamePk != null) {
     const pk = Number(identity.gamePk);
     const rows = sameDay.filter((l) => Number(l.gamePk) === pk);
-    if (rows.length === 0) return { ok: false, reason: `no linescore for gamePk ${pk} (${matchup}) on ${dateEt ?? "any date"}` };
     const foreign = rows.find((l) => norm(l.homeTeam) !== home || norm(l.awayTeam) !== away);
     if (foreign) return { ok: false, reason: `gamePk ${pk} is ${foreign.awayTeam} @ ${foreign.homeTeam} in the linescore cache — contradicts the leg's ${matchup}; held` };
-    if (rows.length === 1) return { ok: true, line: rows[0] };
     const finals = rows.filter((l) => l.isFinal);
+    if (finals.length > 1) return { ok: false, reason: `${rows.length} linescore rows carry gamePk ${pk} on ${dateEt} (${finals.length} final) — cannot tell which is the result; held` };
     if (finals.length === 1) return { ok: true, line: finals[0] };
-    return { ok: false, reason: `${rows.length} linescore rows carry gamePk ${pk} on ${dateEt} (${finals.length} final) — cannot tell which is the result; held` };
+    /*
+     * POSTPONED → MAKEUP (founder decision F3, Session 1B). Rescheduling does not void a leg: when the
+     * PROVEN gamePk has no final on the leg's date, the same gamePk's final on a LATER date is the same
+     * canonical event, and it grades the leg. Only by gamePk — never by teams + date — and only when
+     * exactly one later final carries it and names the leg's teams. Anything else holds the leg.
+     */
+    const later = (makeup ?? []).filter((l) => Number(l.gamePk) === pk && l.isFinal && (!dateEt || String(l.officialDate) > dateEt));
+    const laterForeign = later.find((l) => norm(l.homeTeam) !== home || norm(l.awayTeam) !== away);
+    if (laterForeign) return { ok: false, reason: `gamePk ${pk}'s makeup on ${laterForeign.officialDate} is ${laterForeign.awayTeam} @ ${laterForeign.homeTeam} — contradicts the leg's ${matchup}; held` };
+    const laterDates = [...new Set(later.map((l) => l.officialDate))];
+    if (later.length === 1) return { ok: true, line: later[0], makeupOf: dateEt };
+    if (later.length > 1) return { ok: false, reason: `gamePk ${pk} has ${later.length} later finals (${laterDates.join(", ")}) — cannot tell which is the makeup; held` };
+    if (rows.length === 1) return { ok: true, line: rows[0] };   // one non-final row: the grader holds it with its status
+    if (rows.length === 0) return { ok: false, reason: `no linescore for gamePk ${pk} (${matchup}) on ${dateEt ?? "any date"} or a later makeup` };
+    return { ok: false, reason: `${rows.length} linescore rows carry gamePk ${pk} on ${dateEt} (0 final) — cannot tell which is the result; held` };
   }
   if (identity && identity.doubleheader) {
     return { ok: false, reason: `${matchup} is a doubleheader on ${dateEt} and the leg's game could not be proven (${identity.method}) — held, not guessed` };
