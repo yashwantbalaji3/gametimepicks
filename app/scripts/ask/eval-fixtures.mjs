@@ -102,6 +102,24 @@ export const EVAL_FIXTURES = Object.freeze({
     [COVERAGE]: frozen("coverage-2026-09-30.json"),
   },
 
+  /*
+   * Session 2 · A PROBABILITY-ONLY NFL FORECAST — the real PIT @ CLE row (2026-09-30 projection), re-dated onto the
+   * eval's pinned evening. It carries win probabilities and a projected score and NO pick, the shape every NFL and
+   * EPL forecast has, and the shape the paraphrase fallback was found on.
+   */
+  "nfl-probability-only": {
+    [FORECASTS]: forecastsDoc([
+      {
+        forecastId: "fixture-nfl-prob", sport: "NFL", gameId: "401872964", away: "PIT", home: "CLE",
+        awayName: "Pittsburgh Steelers", homeName: "Cleveland Browns", matchup: "PIT @ CLE",
+        startUtc: "2026-09-18T00:15Z", experimental: true, capability: "EXPERIMENTAL_PUBLIC", state: "PUBLIC_EXPERIMENTAL",
+        probabilities: { away: 0.5443, home: 0.4258, tie: 0.0299 }, projectedScore: { away: 20, home: 19 },
+        markets: [], why: [], players: [], updatedAt: "2026-09-17T15:52:56Z",
+        links: [{ id: "report", label: "Open the NFL game report", href: "/nfl/game/401872964/" }],
+      },
+    ]),
+  },
+
   /* Nothing published at all — the night mut-18 found. Any pick claim is then unsourced by definition. */
   "empty-slate": {
     [FORECASTS]: forecastsDoc([]),

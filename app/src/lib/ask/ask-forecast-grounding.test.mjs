@@ -42,7 +42,19 @@ test("🔴 an omitted date is TODAY's product date — tonight never returns nex
 test("🔴 nothing today for a sport → an honest NOT_PUBLISHED naming the next published date, never a future game dressed as tonight", async () => {
   const r = await run({ sport: "NFL" });
   assert.equal(r.error, ASK_ERROR.NOT_PUBLISHED);
-  assert.match(r.detail, /no GameTime forecast is published for 2031-10-03; the next published forecasts are for 2031-10-05/);
+  assert.match(r.detail, /no GameTime forecast for NFL is published for 2031-10-03; the next published forecasts for NFL are for 2031-10-05/);
+});
+
+test("🔴 Session 2 · a TEAM filter that empties the rows names the team, never 'nothing is published for <date>'", async () => {
+  /* The planner resolved "PIT" to the MLB Pirates on an NFL question: the TEAM filter emptied the rows on a date
+     that DID carry published forecasts. The refusal must scope itself to the filter, not deny the whole slate. */
+  const mets = await run({ teamId: "mlb-team-121", date: "2031-10-05" });
+  assert.equal(mets.error, ASK_ERROR.NOT_PUBLISHED);
+  assert.match(mets.detail, /^no GameTime forecast involving New York Mets \(MLB\) is published for 2031-10-05/);
+  assert.doesNotMatch(mets.detail, /no GameTime forecast is published for 2031-10-05/, "CLE @ PIT IS published for that date");
+  // The unfiltered refusal is unchanged: nothing at all on the date says exactly that.
+  const none = await run({ date: "2031-10-09" });
+  assert.match(none.detail, /^no GameTime forecast is published for 2031-10-09/);
 });
 
 test("🔴 a resolved team id finds that team's forecast (by its own abbreviation or name, same sport), whatever its date", async () => {

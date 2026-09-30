@@ -187,6 +187,9 @@ export default async function handler(req, res) {
         writerProviderStatus: result.receipt?.writerProviderStatus ?? null,
         writerProviderType: result.receipt?.writerProviderType ?? null,
         writerTruncated: result.receipt?.writerTruncated ?? false,
+        /* Which checks each writer attempt failed — rule ids only, safe in every environment. */
+        verifierRules: (result.receipt?.attempts ?? []).map((a) => a.rules ?? []),
+        fallbackReason: result.receipt?.fallbackReason ?? null,
         /* Why a rejected answer was rejected — non-production only, like the other diagnostics. */
         ...(isProd ? {} : { verifierViolations: result.receipt?.verifierViolations ?? null, rejectedAnswer: result.receipt?.rejectedAnswer ?? null }),
       },
