@@ -21,6 +21,8 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { readableAnswer } from "@/lib/ask/readable-answer.mjs";
+
 type Role = "user" | "assistant";
 type LinkRef = { id: string; label: string; href: string };
 type Entity = { id: string; kind: string; sport: string | null; label: string | null };
@@ -43,13 +45,16 @@ interface Preferences {
 
 const ENDPOINT = "/api/ask/";
 
-const STARTERS = [
-  "What are today's GameTime forecasts?",
-  "Find Mets games where they scored at least five runs",
-  "How does Research Lab work?",
-  "What does Confidence mean?",
-  "Build parlay candidates",
-  "Which sports does GameTime cover?",
+/*
+ * STARTERS ARE PROMISES (Session 2). Each one is a question the grounded pipeline was asked on Production and
+ * answered from an owner — nothing here advertises a capability Ask does not have. Grouped by what the reader wants
+ * (now / how it went / dig in) rather than by tool, and kept to two per group so the composer stays in a phone's
+ * first screen. The old set led with site help ("What does Confidence mean?") and a niche Game Finder query.
+ */
+const STARTER_GROUPS: Array<{ label: string; prompts: string[] }> = [
+  { label: "Today", prompts: ["What are today's GameTime forecasts?", "Which MLB games are live right now?"] },
+  { label: "How it went", prompts: ["How did GameTimePicks do yesterday?", "What is Bank Builder's record?"] },
+  { label: "Dig in", prompts: ["Compare the Yankees and the Red Sox", "Build me a medium-risk card"] },
 ];
 
 /** Friendly names for the tools an answer used. The reader sees what was consulted, not how. */
@@ -175,11 +180,47 @@ export default function AskApp({ context }: { context?: { pageType: string; id?:
 
   const empty = messages.length === 0;
 
+  /*
+   * EMPTY: THE COMPOSER COMES FIRST (Session 2). At 390px the old empty state put a repeated intro line and six
+   * tall starter chips above the input, so a first-time reader on a phone had to scroll to find where to type.
+   * Before the first question the composer leads and the starters sit under it; once a conversation exists the
+   * usual chat order (log, then composer) returns.
+   */
+  const composer = (
+    <form
+      className="ask-composer"
+      onSubmit={(e) => { e.preventDefault(); void send(draft); }}
+    >
+      <label htmlFor="ask-input" className="ask-sr">Ask GameTime a question</label>
+      <textarea
+        id="ask-input"
+        ref={inputRef}
+        className="ask-input"
+        value={draft}
+        rows={1}
+        placeholder="Ask GameTime anything…"
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          // Enter sends; Shift+Enter is a newline. Standard, and the hint says so below.
+          if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void send(draft); }
+        }}
+        disabled={busy}
+        maxLength={2000}
+      />
+      {busy ? (
+        <button type="button" className="ask-btn ask-btn-stop" onClick={stop}>Stop</button>
+      ) : (
+        <button type="submit" className="ask-btn ask-btn-send" disabled={!draft.trim()}>Ask</button>
+      )}
+    </form>
+  );
+
   return (
     <div className="ask-app">
+      {empty ? composer : null}
       <div
         ref={logRef}
-        className="ask-log"
+        className={`ask-log${empty ? " ask-log-empty" : ""}`}
         role="log"
         aria-label="Conversation with Ask GameTime"
         aria-live="polite"
@@ -200,34 +241,9 @@ export default function AskApp({ context }: { context?: { pageType: string; id?:
         ) : null}
       </div>
 
-      <WageringBar prefs={prefs} onChange={setPrefs} />
+      {empty ? null : composer}
 
-      <form
-        className="ask-composer"
-        onSubmit={(e) => { e.preventDefault(); void send(draft); }}
-      >
-        <label htmlFor="ask-input" className="ask-sr">Ask GameTime a question</label>
-        <textarea
-          id="ask-input"
-          ref={inputRef}
-          className="ask-input"
-          value={draft}
-          rows={1}
-          placeholder="Ask about games, players, matchups, forecasts or the site…"
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            // Enter sends; Shift+Enter is a newline. Standard, and the hint says so below.
-            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void send(draft); }
-          }}
-          disabled={busy}
-          maxLength={2000}
-        />
-        {busy ? (
-          <button type="button" className="ask-btn ask-btn-stop" onClick={stop}>Stop</button>
-        ) : (
-          <button type="submit" className="ask-btn ask-btn-send" disabled={!draft.trim()}>Ask</button>
-        )}
-      </form>
+      <WageringBar prefs={prefs} onChange={setPrefs} />
 
       <div className="ask-toolbar">
         <span className="ask-hint">Enter to send · Shift+Enter for a new line</span>
@@ -250,16 +266,21 @@ export default function AskApp({ context }: { context?: { pageType: string; id?:
 function EmptyState({ onPick }: { onPick: (s: string) => void }) {
   return (
     <div className="ask-empty">
-      <p className="ask-empty-lead">
-        Ask about games, players, matchups, forecasts, research and GameTimePicks.
-      </p>
-      <ul className="ask-starters">
-        {STARTERS.map((s) => (
-          <li key={s}>
-            <button type="button" className="ask-starter" onClick={() => onPick(s)}>{s}</button>
-          </li>
+      <p className="ask-empty-lead">Try asking</p>
+      <div className="ask-starter-groups">
+        {STARTER_GROUPS.map((g) => (
+          <section key={g.label} className="ask-starter-group" aria-label={g.label}>
+            <h2 className="ask-starter-label">{g.label}</h2>
+            <ul className="ask-starters">
+              {g.prompts.map((s) => (
+                <li key={s}>
+                  <button type="button" className="ask-starter" onClick={() => onPick(s)}>{s}</button>
+                </li>
+              ))}
+            </ul>
+          </section>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
@@ -269,7 +290,9 @@ function Bubble({ message, onFollowUp }: { message: Message; onFollowUp: (s: str
   return (
     <article className={`ask-bubble ask-bubble-${message.role}${message.error ? " ask-bubble-error" : ""}`}>
       <p className="ask-sr">{isUser ? "You said" : "Ask GameTime replied"}</p>
-      <div className="ask-text">{renderMarkdown(message.text)}</div>
+      {/* A deterministic fallback is still correct — it IS the evidence — but it reads plainer, so say what it is. */}
+      {!isUser && message.verified === false ? <p className="ask-plain-note">Shown exactly as GameTime&apos;s data returned it</p> : null}
+      <div className="ask-text">{renderMarkdown(isUser ? message.text : readableAnswer(message.text))}</div>
 
       {message.sources?.length ? (
         <p className="ask-sources">
@@ -431,19 +454,32 @@ async function readStream(
  * chips, so there is no code path by which text the model wrote becomes an anchor (§98, §99).
  */
 function renderMarkdown(text: string) {
-  const blocks = String(text ?? "").split(/\n{2,}/);
-  return blocks.map((block, bi) => {
-    const lines = block.split("\n");
-    const isList = lines.every((l) => /^\s*[-•]\s+/.test(l)) && lines.length > 0;
-    if (isList) {
-      return (
-        <ul key={bi} className="ask-md-list">
-          {lines.map((l, li) => <li key={li}>{inline(l.replace(/^\s*[-•]\s+/, ""))}</li>)}
-        </ul>
-      );
-    }
-    return <p key={bi} className="ask-md-p">{inline(block)}</p>;
+  /*
+   * A block may mix a lead line with list items ("The model has:\n- PIT 54.4%\n- CLE 42.6%"). The old renderer made a
+   * block a list only when EVERY line was an item, so that shape collapsed into one run-on paragraph. Runs of item
+   * lines now become a list and the other lines stay paragraphs, in order.
+   */
+  const out: JSX.Element[] = [];
+  String(text ?? "").split(/\n{2,}/).forEach((block, bi) => {
+    let para: string[] = [];
+    let items: string[] = [];
+    const flush = (k: string) => {
+      if (para.length) out.push(<p key={`${k}p`} className="ask-md-p">{inline(para.join(" "))}</p>);
+      if (items.length) out.push(<ul key={`${k}u`} className="ask-md-list">{items.map((l, li) => <li key={li}>{inline(l)}</li>)}</ul>);
+      para = []; items = [];
+    };
+    block.split("\n").forEach((line, li) => {
+      if (/^\s*[-•]\s+/.test(line)) {
+        if (para.length) flush(`${bi}-${li}`);
+        items.push(line.replace(/^\s*[-•]\s+/, ""));
+      } else if (line.trim()) {
+        if (items.length) flush(`${bi}-${li}`);
+        para.push(line.trim());
+      }
+    });
+    flush(`${bi}-end`);
   });
+  return out;
 }
 
 function inline(s: string) {
