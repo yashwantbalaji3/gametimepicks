@@ -23,7 +23,7 @@
  * actually fix: a tool answered AMBIGUOUS or UNSUPPORTED, so a different tool or a clarification is
  * now the right move. It is not a retry loop, and there is no third pass.
  */
-import { ASK_BUDGET, ASK_ERROR, ASK_PROMPT_VERSION, ASK_STATUS } from "./contract.mjs";
+import { ASK_BUDGET, ASK_ERROR, ASK_PROMPT_VERSION, ASK_RETRY_GUIDANCE, ASK_STATUS, ASK_VERIFY_RULE } from "./contract.mjs";
 import { ASK_TOOLS, registryFingerprint } from "./registry.mjs";
 import { makeExecutor } from "./executor.mjs";
 import { buildEvidence } from "./evidence.mjs";
@@ -442,10 +442,16 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
   let lastViolations = [];
   let lastRejected = null;
   let writerProviderFailure = null;
+  /*
+   * ONE RECORD PER ATTEMPT, NEVER OVERWRITTEN (Session 2). `verifierViolations` used to hold only the LAST attempt,
+   * so a turn that failed one rule on attempt 1 and another on attempt 2 left no trace of the first — and the
+   * question "why did attempt 1 fail?" had no answer anywhere. Each attempt now keeps its own rule ids.
+   */
+  const attempts = [];
+  receipt.attempts = attempts;
   for (let attempt = 0; attempt <= ASK_BUDGET.maxLlmRetries; attempt += 1) {
-    const user = attempt === 0
-      ? base
-      : `${base}\n\nYour previous answer was rejected for: ${lastViolations.map((v) => v.detail).join("; ")}. Rewrite it using ONLY the evidence above. Do not include any number that is not in the evidence.`;
+    const user = attempt === 0 ? base : `${base}\n\n${retryInstruction(lastViolations)}`;
+    if (attempt > 0) receipt.retryReason = ruleIdsOf(lastViolations);
 
     const res = await deps.provider.write({ system, user, signal: deps.signal });
     if (!res.ok) {
@@ -464,6 +470,7 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
        * inherits the mistake.
        */
       writerProviderFailure = { code: res.code, status: res.status ?? null, type: res.type ?? null };
+      attempts.push({ attempt: attempt + 1, outcome: "PROVIDER_FAILED", rules: [], claims: [], retryable: false });
       break;
     }
     receipt.inputTokens += res.usage?.inputTokens ?? 0;
@@ -488,8 +495,9 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
        * same way. The stop reason is recorded so the retry knows which problem it is solving.
        */
       const truncated = res.stopReason === "max_tokens";
-      lastViolations = [{ code: parsed.code, detail: truncated ? `${parsed.detail} (stopped at max_tokens — the answer was cut off)` : parsed.detail }];
+      lastViolations = [{ code: parsed.code, rule: ASK_VERIFY_RULE.MALFORMED_ANSWER, claim: "", detail: truncated ? `${parsed.detail} (stopped at max_tokens — the answer was cut off)` : parsed.detail }];
       receipt.writerTruncated = truncated || receipt.writerTruncated || false;
+      attempts.push(attemptRecord(attempt, "MALFORMED", lastViolations, null));
       continue;
     }
 
@@ -497,6 +505,7 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
     const check = verifyAnswer(clean, evidence, { userNumbers: state.userNumbers });
 
     if (check.ok) {
+      attempts.push(attemptRecord(attempt, "PASS", [], null));
       receipt.verifierStatus = attempt === 0 ? "PASS" : "PASS_ON_RETRY";
       const answer = { ...parsed.answer, answerMarkdown: clean };
       emit({ type: "answer_delta", text: clean });
@@ -505,6 +514,7 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
     }
     lastViolations = check.violations;
     lastRejected = clean;
+    attempts.push(attemptRecord(attempt, "REJECTED", check.violations, clean));
   }
 
   /*
@@ -522,13 +532,53 @@ async function writeWithVerification({ state, evidence, plan }, deps, receipt, e
     receipt.writerProviderStatus = writerProviderFailure.status;
     receipt.writerProviderType = writerProviderFailure.type;
   }
-  /* Why the writer's answer was rejected. Without this a grounding failure is a dead end. */
-  receipt.verifierViolations = lastViolations.slice(0, 6).map((v) => `${v.code}: ${v.detail}`);
+  /* Why the writer's answer was rejected — EVERY attempt, in order. Without this a grounding failure is a dead end. */
+  receipt.verifierViolations = attempts.flatMap((a) => a.violations ?? []).slice(0, 12);
+  receipt.fallbackReason = writerProviderFailure ? "WRITER_PROVIDER_FAILED" : lastViolations.length ? `VERIFIER_REJECTED_${attempts.length}_ATTEMPTS` : "NO_WRITER_OUTPUT";
   /* The text that was refused. Without it "unsupported claim" names a problem nobody can see. */
   receipt.rejectedAnswer = lastRejected ? String(lastRejected).slice(0, 600) : null;
   const answer = deterministicAnswer(evidence, { intent: plan.intent });
   emit({ type: "answer_delta", text: answer.answerMarkdown });
   return { answer, verified: false, violations: lastViolations };
+}
+
+/** The distinct rule ids of a set of violations, in first-seen order. Rule ids name checks, never content. */
+const ruleIdsOf = (violations) => [...new Set((violations ?? []).map((v) => v.rule ?? v.code).filter(Boolean))];
+
+/**
+ * THE AUDIT RECORD FOR ONE WRITER ATTEMPT. `rules` is production-safe (check names only). `claims` and
+ * `violations` quote the model's own sentence, so the API strips them in production like `rejectedAnswer`.
+ */
+function attemptRecord(attempt, outcome, violations, rejected) {
+  return {
+    attempt: attempt + 1,
+    outcome,
+    rules: ruleIdsOf(violations),
+    claims: violations.map((v) => v.claim ?? "").filter(Boolean).slice(0, 6),
+    violations: violations.slice(0, 6).map((v) => `${v.rule ?? v.code}: ${v.detail}`),
+    /* A rejected attempt is retryable while budget remains; every rule has corrective guidance. */
+    retryable: outcome !== "PASS" && attempt < ASK_BUDGET.maxLlmRetries,
+    ...(rejected ? { rejected: String(rejected).slice(0, 600) } : {}),
+  };
+}
+
+/**
+ * THE RULE-SPECIFIC RETRY (Session 2). The second attempt is told WHICH rule its answer broke, which sentence broke
+ * it, and the correction for that rule — from ASK_RETRY_GUIDANCE, keyed on the typed rule, never on detail text.
+ *
+ * ⚠ The generic instruction this replaces ("do not include any number that is not in the evidence") was the
+ * correction for ONE rule and was sent for all of them. A pick claim carries no bad number, so a writer that obeyed
+ * it perfectly reproduced the same pick claim in new words, and the turn fell back.
+ */
+export function retryInstruction(violations) {
+  const lines = ["Your previous answer was rejected by the grounding check. Fix exactly these problems and keep everything else that was correct:"];
+  for (const rule of ruleIdsOf(violations)) {
+    const claims = [...new Set(violations.filter((v) => (v.rule ?? v.code) === rule).map((v) => v.claim).filter(Boolean))].slice(0, 3);
+    const guidance = ASK_RETRY_GUIDANCE[rule] ?? "Remove the unsupported statement.";
+    lines.push(`- ${rule}${claims.length ? ` (${claims.map((c) => JSON.stringify(c)).join(", ")})` : ""}: ${guidance}`);
+  }
+  lines.push("Rewrite the answer using ONLY the evidence above.");
+  return lines.join("\n");
 }
 
 /** What the client may see of the evidence: labels and links, never tool arguments or raw payloads. */

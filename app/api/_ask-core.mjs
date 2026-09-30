@@ -167,6 +167,15 @@ export function askAuditLine(decision, receipt = {}, extra = {}) {
     outputTokens: receipt.outputTokens ?? null,
     reasoningTokens: receipt.reasoningTokens ?? null,
     errorCode: receipt.errorCode ?? null,
+    /*
+     * WHY A TURN FELL BACK, IN PRODUCTION (Session 2). Rule ids per writer attempt — check names, never the
+     * question, the answer or the offending sentence — so "why did attempt 1 fail, why did attempt 2 fail, why
+     * did the fallback ship" is answerable from the log alone. The claim text stays non-production only.
+     */
+    verifierRules: (receipt.attempts ?? []).map((a) => a.rules ?? []),
+    attemptOutcomes: (receipt.attempts ?? []).map((a) => a.outcome),
+    retryReason: receipt.retryReason ?? null,
+    fallbackReason: receipt.fallbackReason ?? null,
     ...extra,
   });
 }

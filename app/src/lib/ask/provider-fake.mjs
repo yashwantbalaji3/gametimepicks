@@ -45,6 +45,14 @@ export const FAKE_WRITER_TEXT = Object.freeze({
   "writer-invents-line": "The frozen DraftKings line was 58.5, priced at -110.",
   "writer-grades-live-leg": "He has already hit it — that leg is a winner.",
   "writer-promotes-demoted-market": "GameTimePicks' model projects 1.4 hits and we like the over on that line.",
+  /* Session 2 · negation and paraphrase controls. */
+  "writer-contrasts-pick": "GameTime likes PIT, not CLE, in PIT @ CLE.",
+  "writer-intensifies-injury": "Nothing but bad news tonight: the quarterback is out with an ankle injury.",
+  /* ⚠ Each negation word stands ALONE in its sentence: a first version put "has not published" in the same sentence,
+     so dropping "nothing" from the negation list changed nothing and the control was vacuous (probed). */
+  "writer-explains-absence": "GameTime has not published a separate pick for PIT @ CLE. Nothing in the evidence says any player is out with an injury. None of it says the quarterback is questionable.",
+  "writer-restates-published-pick": "GameTime's Moneyline pick is NYM, so GameTime favors NYM in NYM @ PHI.",
+  "writer-form-as-record": "GameTime is 4-1 on this line over the last five games.",
 });
 
 const writerSays = (answerMarkdown) => wrap(JSON.stringify({ answerMarkdown, citations: [], followUps: [], linkIds: [] }));
@@ -123,6 +131,28 @@ export function createFakeProvider(config = {}) {
          * see it and it needs a behaviour of its own.
          */
         case "writer-promotes-demoted-market": return writerSays(FAKE_WRITER_TEXT["writer-promotes-demoted-market"]);
+        case "writer-contrasts-pick":
+        case "writer-intensifies-injury":
+        case "writer-explains-absence":
+        case "writer-restates-published-pick":
+        case "writer-form-as-record": return writerSays(FAKE_WRITER_TEXT[behaviour]);
+        /*
+         * ⚠ THE PARAPHRASING WRITER (Session 2). Every other writer here either echoes the evidence word for word or
+         * emits one fixed bad sentence, so the eval never exercised the failure production actually had: a writer
+         * that turns "PIT 54.4%, CLE 42.6%" into "GameTime favors PIT". This one does that on attempt 1, and on a
+         * retry it corrects itself ONLY when the retry names the rule and carries that rule's guidance — a generic
+         * retry gets the same claim reworded, exactly as a real model did. So the case passes only if the verifier
+         * refuses the paraphrase AND the rule-specific retry exists.
+         */
+        case "writer-paraphrases-probability": return wrap(JSON.stringify(paraphraseProbability(user, { learns: true })));
+        /* Real models link INLINE by evidence id — "[Open the NFL game report](E2:report)" — which resolves to an href
+           carrying a game id. Faithful answer; must pass (class eight). */
+        case "writer-links-inline": {
+          const faithful = echoAnswer(user);
+          const link = String(user ?? "").match(/^(E\d+:[\w-]+) · (.+)$/m);
+          return wrap(JSON.stringify({ ...faithful, answerMarkdown: `${faithful.answerMarkdown}${link ? ` [${link[2]}](${link[1]})` : ""}` }));
+        }
+        case "writer-paraphrases-stubbornly": return wrap(JSON.stringify(paraphraseProbability(user, { learns: false })));
         case "not-json": return wrap("Sure! Here's what I found.");
         default: return wrap(JSON.stringify(echoAnswer(user)));
       }
@@ -352,6 +382,28 @@ function echoAnswer(user) {
     followUps: [],
     linkIds,
   };
+}
+
+/**
+ * A realistic paraphrase of a probability-only forecast. Reads the evidence's own win-probability sentence, so the
+ * numbers are real; only the ONTOLOGY is wrong on the first attempt.
+ */
+function paraphraseProbability(user, { learns }) {
+  const u = String(user ?? "");
+  const m = u.match(/^(E\d+\.\d+) · (.+?) · EXPERIMENTAL model win probability: (\S+) ([\d.]+%), (\S+) ([\d.]+%)/m);
+  if (!m) return echoAnswer(user);
+  const [, id, matchup, a, pa, b, pb] = m;
+  const top = parseFloat(pa) >= parseFloat(pb) ? a : b;
+  const isRetry = /previous answer was rejected/i.test(u);
+  /* It learns only from the rule-specific instruction: the rule's id AND its guidance must both be present. */
+  const toldWhy = /^- UNSUPPORTED_PICK\b/m.test(u) && /A probability is not a pick/.test(u);
+  const answerMarkdown = !isRetry
+    ? `GameTime favors ${top} in ${matchup}, at ${top === a ? pa : pb}.`
+    : learns && toldWhy
+      ? `The model gives ${a} a ${pa} win probability and ${b} ${pb} in ${matchup}. GameTime has not published a separate pick for this game.`
+      : `The model expects ${top} to win ${matchup}.`;
+  const linkIds = [...u.matchAll(/^(E\d+:[\w-]+) · /gm)].slice(0, 2).map((x) => x[1]);
+  return { answerMarkdown, citations: [id], followUps: [], linkIds };
 }
 
 /** The mutation the grounding probe is built on: take a real evidence number and make it wrong. */

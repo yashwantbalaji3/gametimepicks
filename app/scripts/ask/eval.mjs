@@ -178,6 +178,19 @@ function grade(c, out) {
   }
 
   /*
+   * Session 2 · WHICH PATH THE WRITER TOOK, AND WHY. `expectVerifier` pins PASS vs PASS_ON_RETRY (a paraphrase that
+   * passed on attempt 1 would mean the verifier never saw it); `expectAttempts` pins every attempt's rule ids in
+   * order, and optionally a word of its refused claim — so attempt 1's diagnosis must survive attempt 2.
+   */
+  if (c.expectVerifier) add("verifier-path", out.receipt?.verifierStatus === c.expectVerifier, `verifier ${out.receipt?.verifierStatus}`);
+  if (c.expectAttempts) {
+    const got = out.receipt?.attempts ?? [];
+    const ok = got.length === c.expectAttempts.length && c.expectAttempts.every((e, i) =>
+      JSON.stringify(got[i]?.rules ?? []) === JSON.stringify(e.rules) && (!e.claim || (got[i]?.claims ?? []).some((cl) => cl.includes(e.claim))));
+    add("attempt-audit", ok, `attempts ${JSON.stringify(got.map((a) => ({ rules: a.rules, claims: a.claims })) ).slice(0, 200)}`);
+  }
+
+  /*
    * E-4 · DATE WINDOW. forecast-01 ("tonight") once passed while answering with October games: nothing checked
    * that a "today / tonight" answer stays on today. Any ISO date such an answer names must be the eval's day.
    */

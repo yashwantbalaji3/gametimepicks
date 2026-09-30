@@ -27,7 +27,7 @@
  * clock times, ordinals, percentages already in evidence, list numbering and the numbers the user
  * themselves supplied are all explicitly allowed. Every exemption here is narrow and named.
  */
-import { ASK_ERROR, ASK_FORBIDDEN_EV_COPY,
+import { ASK_ERROR, ASK_FORBIDDEN_EV_COPY, ASK_VERIFY_RULE as RULE,
   ASK_FORBIDDEN_LIVE_SETTLEMENT_COPY, ASK_FORBIDDEN_WAGERING_COPY, ASK_UNSOURCEABLE_STATUS_COPY,
   isApprovedLink } from "./contract.mjs";
 
@@ -53,7 +53,10 @@ const SAFE_CONTEXT = [
  * @param {string} answer            the writer's markdown
  * @param {{numbers: Set<string>, facts: Array, links: Array, items: Array}} evidence
  * @param {{ userNumbers?: number[], wagering?: boolean }} [opts]
- * @returns {{ ok: boolean, violations: Array<{code:string,detail:string}>, repaired?: string }}
+ * Every violation carries `rule` (ASK_VERIFY_RULE — which check fired) and `claim` (the offending span, short),
+ * beside the coarse `code`. The rule is what the retry and the operator log key on.
+ *
+ * @returns {{ ok: boolean, violations: Array<{code:string,rule:string,claim:string,detail:string}>, repaired?: string }}
  */
 export function verifyAnswer(answer, evidence, opts = {}) {
   const text = String(answer ?? "");
@@ -62,17 +65,17 @@ export function verifyAnswer(answer, evidence, opts = {}) {
   /* ── 1. COPY ─────────────────────────────────────────────────────────────────────────────── */
   const lower = text.toLowerCase();
   for (const phrase of ASK_FORBIDDEN_WAGERING_COPY) {
-    if (containsAsClaim(lower, phrase)) violations.push({ code: ASK_ERROR.FORBIDDEN_COPY, detail: `wagering copy: "${phrase}"` });
+    if (containsAsClaim(lower, phrase)) violations.push({ code: ASK_ERROR.FORBIDDEN_COPY, rule: RULE.FORBIDDEN_WAGERING_COPY, claim: phrase, detail: `wagering copy: "${phrase}"` });
   }
   for (const phrase of ASK_FORBIDDEN_LIVE_SETTLEMENT_COPY) {
     /* A leg is not decided until something settles it, and Ask has no per-leg live tool to read.
        Refused even when the rest of the answer is correct — the same standing as an EV claim. */
-    if (containsAsClaim(lower, phrase)) violations.push({ code: ASK_ERROR.FORBIDDEN_COPY, detail: `in-flight settlement claim: "${phrase}"` });
+    if (containsAsClaim(lower, phrase)) violations.push({ code: ASK_ERROR.FORBIDDEN_COPY, rule: RULE.FORBIDDEN_SETTLEMENT_COPY, claim: phrase, detail: `in-flight settlement claim: "${phrase}"` });
   }
   for (const phrase of ASK_FORBIDDEN_EV_COPY) {
     // An EV claim is refused even when the answer is otherwise correct: GameTime publishes no
     // price-aware expected value, so the vocabulary asserts an owner that does not exist.
-    if (containsAsClaim(lower, phrase)) violations.push({ code: ASK_ERROR.FORBIDDEN_COPY, detail: `expected-value claim: "${phrase}"` });
+    if (containsAsClaim(lower, phrase)) violations.push({ code: ASK_ERROR.FORBIDDEN_COPY, rule: RULE.FORBIDDEN_EV_COPY, claim: phrase, detail: `expected-value claim: "${phrase}"` });
   }
 
   /* ── 2. LINKS ────────────────────────────────────────────────────────────────────────────── */
@@ -81,7 +84,7 @@ export function verifyAnswer(answer, evidence, opts = {}) {
   const bare = [...text.matchAll(/\bhttps?:\/\/[^\s)]+/g)].map((m) => m[0]);
   for (const href of [...hrefs, ...bare]) {
     if (!isApprovedLink(href)) {
-      violations.push({ code: ASK_ERROR.UNSUPPORTED_LINK, detail: href.slice(0, 120) });
+      violations.push({ code: ASK_ERROR.UNSUPPORTED_LINK, rule: RULE.UNSUPPORTED_LINK, claim: href.slice(0, 120), detail: href.slice(0, 120) });
       // Repaired by removing the LINK but keeping its text: a reader loses a hop, not a sentence.
       repaired = repaired.replace(new RegExp(`\\]\\(${escapeRe(href)}\\)`, "g"), "]").replace(href, "");
     }
@@ -115,17 +118,17 @@ export function verifyAnswer(answer, evidence, opts = {}) {
       new RegExp(`${escapeRe(market)}(${SEP}{0,70}?)\\b${PICK}\\b`, "gi"),
       new RegExp(`\\b${PICK}\\b(${SEP}{0,70}?)${escapeRe(market)}`, "gi"),
     ];
-    let flagged = false;
+    let flagged = null;
     for (const re of windows) {
       for (const m of text.matchAll(re)) {
         // A negation anywhere in the window — "publishes no pick", "does not pick" — clears it.
         if (isNegated(m[1]) || isNegated(m[0])) continue;
-        flagged = true;
+        flagged = m[0];
         break;
       }
       if (flagged) break;
     }
-    if (flagged) violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `presents the paused market "${market}" as a forecast` });
+    if (flagged) violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, rule: RULE.PAUSED_MARKET_PICK, claim: flagged.slice(0, 80), detail: `presents the paused market "${market}" as a forecast` });
   }
 
   /* ── 5. UNSOURCED PICKS ──────────────────────────────────────────────────────────────────── */
@@ -144,7 +147,7 @@ export function verifyAnswer(answer, evidence, opts = {}) {
    */
   for (const clause of pickClaimClauses(text)) {
     if (!pickIsSupported(clause, evidencePicks(evidence.facts))) {
-      violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `states a GameTime pick the evidence does not hold: "${clause.slice(0, 80)}"` });
+      violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, rule: RULE.UNSUPPORTED_PICK, claim: clause.slice(0, 80), detail: `states a GameTime pick the evidence does not hold: "${clause.slice(0, 80)}"` });
     }
   }
 
@@ -156,7 +159,7 @@ export function verifyAnswer(answer, evidence, opts = {}) {
   const evidenceLower = evidence.facts.map((f) => String(f.text).toLowerCase()).join("\n");
   for (const phrase of ASK_UNSOURCEABLE_STATUS_COPY) {
     if (containsAsClaim(lower, phrase) && !evidenceLower.includes(phrase)) {
-      violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `asserts an availability or role status no tool sourced: "${phrase}"` });
+      violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, rule: RULE.UNSUPPORTED_STATUS, claim: phrase, detail: `asserts an availability or role status no tool sourced: "${phrase}"` });
     }
   }
 
@@ -175,7 +178,7 @@ export function verifyAnswer(answer, evidence, opts = {}) {
    * scan — scrubbing alone would have exempted them entirely.
    */
   for (const m of text.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g)) {
-    if (!allowed.has(m[1])) violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `the date ${m[1]} is not in the evidence` });
+    if (!allowed.has(m[1])) violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, rule: RULE.UNSUPPORTED_DATE, claim: m[1], detail: `the date ${m[1]} is not in the evidence` });
   }
 
   let scrubbed = text;
@@ -186,6 +189,17 @@ export function verifyAnswer(answer, evidence, opts = {}) {
    * removed before anything is counted.
    */
   for (const ident of evidence.identifiers ?? []) scrubbed = scrubbed.split(ident).join(" ");
+  /*
+   * ⚠ AN EVIDENCE LINK'S HREF IS A ROUTE, NOT A CLAIM — false-positive class EIGHT (Session 2, real provider).
+   *
+   * "[Open the NFL game report](/nfl/game/401872964/)" is the link the forecast tool itself issued, and the link
+   * check above approves it. The numeric scan then read 401872964 out of the href and refused the answer — and the
+   * retry could not help, because the writer was right to keep the link. Two of three real "Steelers game" turns
+   * fell back this way on the preview. Only an href the EVIDENCE issued is exempt: a writer-invented
+   * "/nfl/game/999999999/" still matches the route pattern, and its id is still refused as an unsupported number.
+   */
+  const evidenceHrefs = new Set((evidence.links ?? []).map((l) => l.href).filter(Boolean));
+  scrubbed = scrubbed.replace(/\]\(([^)\s]+)\)/g, (whole, href) => (evidenceHrefs.has(href) ? "] " : whole));
   /*
    * ⚠ AN EVIDENCE CITATION IS A REFERENCE, NOT A CLAIM — false-positive class SEVEN.
    *
@@ -218,7 +232,7 @@ export function verifyAnswer(answer, evidence, opts = {}) {
   }
 
   for (const raw of [...new Set(unsupportedNumbers)]) {
-    violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `the number ${raw} is not in the evidence` });
+    violations.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, rule: RULE.UNSUPPORTED_NUMBER, claim: raw, detail: `the number ${raw} is not in the evidence` });
   }
 
   /* ── 7. A RECORD BELONGS TO ITS OWNER (E-2, probed) ─────────────────────────────────────── */
@@ -279,6 +293,9 @@ const NOT_AN_OWNER = new Set(("GameTime Ask The A An It Its This That These Thos
   "ET UTC EST EDT PT PST PDT GMT").split(" "));
 /* A date or a clock time is not a record: "2026-09-16" holds "09-16", and 19:05 is not a score. Blanked first. */
 const noDates = (t) => String(t).replace(/\b\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z?)?\b/g, " ").replace(/\b\d{1,2}:\d{2}\b/g, " ");
+const ASK_VERIFY_RULE_RECORD = RULE.UNSUPPORTED_RECORD;
+/* GameTime (or its model) as the subject of a record verb: "GameTime is 4–1", "the model went 3-2", "GTP's record is". */
+const GTP_RECORD_CLAIM = /\b(?:GameTime|GTP|[Tt]he model|[Oo]ur model|[Ww]e)(?:['’]s?)?(?:\s+(?:model|engine|picks?|forecasts?))?\s+(?:record\b|hit rate\b|is\b|are\b|was\b|were\b|went\b|has gone\b|have gone\b|stands?\b|sits?\b|has a\b)/;
 function recordOwnerViolations(text, facts) {
   const out = [];
   facts = facts.map((f) => ({ ...f, text: noDates(f.text) }));
@@ -287,14 +304,26 @@ function recordOwnerViolations(text, facts) {
     for (const m of clause.matchAll(RECORD_RE)) {
       const rec = dash(m[0]);
       const withIt = facts.filter((f) => dash(f.text).includes(rec));
-      if (!withIt.length) continue; // the numeric check owns an absent number
+      if (!withIt.length) {
+        /*
+         * ⚠ A GAMETIME RECORD THE EVIDENCE NEVER STATES (Session 2, probed). "GameTime is 4–1 on Warren's line", built
+         * from recent form ("40+ yards in 4 of his last 5"), was refused only by luck: the numeric check reads 4 and
+         * 1 separately, and any evidence carrying a "1" anywhere let the invented record through. Recent form is the
+         * PLAYER's history; GameTime's record comes only from the results owner. A W–L given to GameTime or its model
+         * must appear AS a record in the evidence. Scoped to record verbs so a projected score is not caught here.
+         */
+        if (GTP_RECORD_CLAIM.test(clause)) {
+          out.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, rule: ASK_VERIFY_RULE_RECORD, claim: clause.trim().slice(0, 80), detail: `the record ${m[0]} is given to GameTime, but no evidence states that record` });
+        }
+        continue; // otherwise the numeric check owns an absent number
+      }
       const caps = [...clause.matchAll(/\b[A-Z][A-Za-z'’.]+\b/g)];
       // A lone capitalised word opening the clause is sentence case, not a name ("Separately, …").
       const opener = caps[0] && clause.slice(0, caps[0].index).trim() === "" && !(caps[1] && caps[1].index === caps[0].index + caps[0][0].length + 1) ? caps[0][0] : null;
       const owners = [...new Set(caps.map((m) => m[0]).filter((w) => w !== opener).map((w) => w.replace(/['’]s?$/, "")).filter((w) => w.length > 1 && !NOT_AN_OWNER.has(w)))];
       if (!owners.length) continue;
       if (!withIt.some((f) => owners.every((w) => f.text.includes(w)))) {
-        out.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, detail: `the record ${m[0]} is attached to ${owners.join(" ")}, but the evidence gives it to someone else` });
+        out.push({ code: ASK_ERROR.UNSUPPORTED_CLAIM, rule: RULE.UNSUPPORTED_RECORD, claim: `${owners.join(" ")} ${m[0]}`.slice(0, 80), detail: `the record ${m[0]} is attached to ${owners.join(" ")}, but the evidence gives it to someone else` });
       }
     }
   }
@@ -331,7 +360,14 @@ function pickClaimClauses(text) {
     const before = normalised.slice(0, m.index).split(CLAUSE_END).at(-1);
     const after = normalised.slice(m.index).split(CLAUSE_END)[0];
     const clause = `${before}${after}`.trim();
-    if (isNegated(clause) || /\bnone\b/i.test(clause)) continue;
+    /*
+     * ⚠ A NEGATION GOVERNS WHAT FOLLOWS IT, NOT WHAT PRECEDES IT (Session 2, probed). The whole clause used to be
+     * searched, so "GameTime likes Pittsburgh, not Cleveland" was cleared by the "not" that CONTRASTS the pick and
+     * published the pick. A pick claim is denied only by a negation BEFORE the verb ("Neither GameTime nor …",
+     * "Nothing says GameTime picks …"), or by an empty answer straight after it ("GameTime's pick is none").
+     */
+    const tail = after.slice(m[0].length);
+    if (isNegated(`${before}${m[0]}`) || /^\s*(?:none|nothing|not stated|unavailable|no one|no pick|no side)\b/i.test(tail)) continue;
     clauses.push(clause);
   }
   return clauses;
@@ -365,15 +401,23 @@ function pickIsSupported(clause, picks) {
   });
 }
 
-/** Words that flip a phrase from a claim into its denial, within a short window before it. */
-const NEGATION = /\b(?:no|not|never|without|cannot|can't|does not|doesn't|don't|isn't|is not|are not|aren't)\b/i;
+/**
+ * Words that flip a phrase from a claim into its denial, within a short window before it.
+ *
+ * ⚠ "NOTHING", "NONE" AND "NEITHER" WERE MISSING (Session 1 finding, probed in Session 2). "Nothing in the evidence
+ * says he is out with an injury" and "None of the forecasts is GameTime's pick" were read as the claims they deny,
+ * and a writer that honestly explained an ABSENCE was refused for it — the class that makes a guard get switched
+ * off. They are denials only as pronoun-subjects; the idioms in which they intensify ("nothing but", "second to
+ * none", "none other than") are stripped first, like "no doubt".
+ */
+const NEGATION = /\b(?:no|not|never|without|cannot|can't|does not|doesn't|don't|isn't|is not|are not|aren't|nothing|none|neither)\b/i;
 /*
  * ⚠ IDIOMS THAT CONTAIN A NEGATION WORD AND DENY NOTHING (Phase E · E-2, probed). "No doubt about it: GameTime
  * picks Arsenal", "There is no question this is a sure thing", "Not surprisingly, Lamar Jackson is out" — each
  * passed, because any negation word earlier in the sentence cleared the claim. These phrases INTENSIFY the claim;
  * they are removed before a negation is looked for.
  */
-const NEGATION_IDIOMS = /\b(?:no doubt|no question|not surprisingly|unsurprisingly|no wonder|not only|without (?:a |any )?doubt|without question|no matter|make no mistake|no two ways)\b/gi;
+const NEGATION_IDIOMS = /\b(?:no doubt|no question|not surprisingly|unsurprisingly|no wonder|not only|without (?:a |any )?doubt|without question|no matter|make no mistake|no two ways|nothing but|nothing short of|nothing less than|none other than|second to none|none too|neither here nor there)\b/gi;
 const isNegated = (segment) => NEGATION.test(String(segment).replace(NEGATION_IDIOMS, " "));
 
 /**

@@ -45,6 +45,7 @@ export async function getPublishedForecasts(args, ctx) {
   let rows = doc.forecasts ?? [];
   if (args.sport) rows = rows.filter((f) => f.sport === args.sport);
   if (args.gameId) rows = rows.filter((f) => f.gameId === args.gameId);
+  let teamLabel = null;
   if (args.teamId) {
     /*
      * A TEAM ID IS RESOLVED, NEVER GUESSED FROM ITS SPELLING (Phase E · E-1). The resolver hands out canonical
@@ -54,6 +55,7 @@ export async function getPublishedForecasts(args, ctx) {
      */
     const ents = await ctx.turn.load(askAssetPath.entities());
     const ent = ents.ok ? (ents.json.entries ?? []).find((e) => e.id === args.teamId && e.kind === "team") : null;
+    teamLabel = ent ? `${ent.label} (${String(ent.sport).toUpperCase()})` : null;
     const keys = new Set([args.teamId, ent?.hint, ent?.label].filter(Boolean).map(foldName));
     rows = rows.filter((f) => (!ent || String(f.sport).toUpperCase() === String(ent.sport).toUpperCase())
       && [f.home, f.away, f.homeName, f.awayName].some((v) => v && keys.has(foldName(v))));
@@ -72,6 +74,13 @@ export async function getPublishedForecasts(args, ctx) {
     const next = date
       ? beforeDate.map((f) => f.date ?? etDateOf(f.startUtc)).filter((d) => d && d > date).sort()[0] ?? null
       : null;
+    /*
+     * ⚠ SAY WHICH FILTER CAME UP EMPTY (Session 2). With a team filter applied this said "no GameTime forecast is
+     * published for 2026-10-01" — on a day PIT @ CLE WAS published, because the planner resolved "PIT" to the MLB
+     * Pirates and the team filter, not the date, emptied the rows. A refusal that names the wrong cause is a false
+     * statement about the slate. The detail now scopes itself to the filter the caller applied.
+     */
+    const scope = teamLabel ? ` involving ${teamLabel}` : args.gameId ? " for that game" : args.sport ? ` for ${args.sport}` : "";
     return {
       status: ASK_STATUS.UNSUPPORTED,
       error: ASK_ERROR.NOT_PUBLISHED,
@@ -81,8 +90,8 @@ export async function getPublishedForecasts(args, ctx) {
        * for recorded history and present it as a prediction (§44).
        */
       detail: date
-        ? `no GameTime forecast is published for ${date}${next ? `; the next published forecasts are for ${next}` : ""}`
-        : "no currently published GameTime forecast matches",
+        ? `no GameTime forecast${scope} is published for ${date}${next ? `; the next published forecasts${scope} are for ${next}` : ""}`
+        : `no currently published GameTime forecast${scope} matches`,
       dateApplied: date,
       nextPublishedDate: next,
       eligibleSports: doc.eligibleSports ?? [],
