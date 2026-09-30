@@ -226,3 +226,19 @@ test("🔴 class L · a team comparison states the owner's season W–L, never '
   assert.match(text, /Boston Red Sox recorded 33 wins and 35 losses from 68 recorded finals/);
   assert.doesNotMatch(text, /\?/, "a missing value is never printed as a symbol");
 });
+
+test("🔴 live · the gateway's REAL payload reaches the evidence with teams, score and inning — never 'null'", async () => {
+  /* Captured from /api/live/?sport=MLB on 2026-09-30: PHI 1 – ATL 3 in the Bottom 7th reached Ask as "Null not
+     reported, null not reported", because Ask read `away.abbreviation` and the gateway publishes `competitors.*.abbr`. */
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const payload = JSON.parse(fs.readFileSync(path.join(process.cwd(), "scripts/ask/fixtures/live-mlb-2026-09-30.json"), "utf8"));
+  const { getLiveSlate } = await import("./tools/live.mjs");
+  const { buildEvidence } = await import("./evidence.mjs");
+  const env = await getLiveSlate({ sport: "MLB" }, { liveFetch: async () => payload, now: () => new Date("2026-09-30T20:22:40Z") });
+  const text = buildEvidence([{ tool: "getLiveSlate", status: env.status, links: env.links, data: env }]).facts.map((f) => f.text).join(" | ");
+  assert.match(text, /PHI 1, ATL 3, Bottom 7th — state LIVE/);
+  assert.match(text, /CWS at HOU has not started; no score exists yet/);
+  assert.match(text, /4 MLB games, 1 are in progress, 3 have not started and 0 are final/);
+  assert.doesNotMatch(text, /\bnull\b|undefined/i);
+});

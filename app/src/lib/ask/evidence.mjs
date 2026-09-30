@@ -313,10 +313,15 @@ export function buildEvidence(envelopes) {
 
       case "getLiveSlate": {
         say(`GameTime Live reports ${d.liveCount} of ${d.total} ${d.sport} games in progress, as of ${d.fetchedAt}`, [d.liveCount, d.total]);
+        if (d.preCount != null) say(`of those ${d.total} ${d.sport} games, ${d.liveCount} are in progress, ${d.preCount} have not started and ${d.finalCount ?? 0} are final`, [d.total, d.liveCount, d.preCount, d.finalCount ?? 0]);
         for (const e of (d.events ?? []).slice(0, 8)) {
+          /* Session 2: a missing team is never printed as "null" — the game is described without the name it lacks. */
+          if (!e.away || !e.home) { say(`one ${d.sport} game's teams are not reported by the live feed — state ${e.state}`); continue; }
           say(e.state === "PRE"
             ? `${e.away} at ${e.home} has not started; no score exists yet`
-            : `${e.away} ${e.awayScore ?? "not reported"}, ${e.home} ${e.homeScore ?? "not reported"} — state ${e.state}${e.stateDetail ? ` (${e.stateDetail})` : ""}`,
+            : e.awayScore == null || e.homeScore == null
+              ? `${e.away} at ${e.home} — state ${e.state}${e.stateDetail ? ` (${e.stateDetail})` : ""}; the live feed reports no score`
+              : `${e.away} ${e.awayScore}, ${e.home} ${e.homeScore}${e.period ? `, ${e.period}` : ""} — state ${e.state}${e.stateDetail ? ` (${e.stateDetail})` : ""}`,
             [e.awayScore, e.homeScore]);
         }
         say(`a final score here is the provider's; GameTime's own grading of a game can land later`);

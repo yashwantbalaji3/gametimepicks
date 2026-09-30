@@ -141,7 +141,9 @@ export const GOLDEN = [
   },
 
   /* ───────────────────────────  LIVE  ─────────────────────────── */
-  { id: "live-01", category: "live", q: "What MLB games are live right now?", expectIntent: "LIVE_STATUS", expectTools: ["getLiveSlate"], expectGrounded: true, expectLink: "/live/" },
+  /* Session 2 · the teams and score must reach the answer: production printed "null not reported" for weeks. */
+  { id: "live-01", category: "live", q: "What MLB games are live right now?", expectIntent: "LIVE_STATUS", expectTools: ["getLiveSlate"], expectGrounded: true, expectLink: "/live/",
+    mustMention: ["NYM 3", "PHI 2"], mustNotMention: ["null", "not reported"] },
   {
     id: "live-02", category: "live", q: "What NFL games are live right now?",
     expectIntent: "LIVE_STATUS", expectTools: ["getLiveSlate"], expectGrounded: true,

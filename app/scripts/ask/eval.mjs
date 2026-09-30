@@ -85,8 +85,10 @@ const liveFetch = async (sport) =>
     ? {
       schemaVersion: 1, sport: "mlb", fetchedAt: "2026-09-18T01:00:00Z",
       events: [
-        { eventId: "1", state: "LIVE", stateDetail: "Top 7th", away: { abbreviation: "NYM", score: 3 }, home: { abbreviation: "PHI", score: 2 } },
-        { eventId: "2", state: "PRE", away: { abbreviation: "BOS", score: 0 }, home: { abbreviation: "TEX", score: 0 } },
+        /* Session 2 · THE GATEWAY'S REAL SHAPE (competitors.*.abbr/score, period.label). The stub used an invented
+           `away.abbreviation` shape, so Ask's reads of it passed here while production printed "null". */
+        { eventId: "1", state: "LIVE", stateDetail: "In Progress", period: { number: 7, label: "Top 7th" }, competitors: { away: { abbr: "NYM", name: "New York Mets", score: 3 }, home: { abbr: "PHI", name: "Philadelphia Phillies", score: 2 } } },
+        { eventId: "2", state: "PRE", stateDetail: "Pre-Game", period: null, competitors: { away: { abbr: "BOS", name: "Boston Red Sox", score: null }, home: { abbr: "TEX", name: "Texas Rangers", score: null } } },
       ],
     }
     : { schemaVersion: 1, unavailable: true, reason: "UNSUPPORTED_SPORT" };
