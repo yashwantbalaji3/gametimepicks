@@ -129,6 +129,8 @@ export interface RiskLadder {
   readonly generatedAt: string;
   readonly cards: readonly LadderCard[];
   readonly skipped: readonly LadderSkip[];
+  /** F-1: what the card-leg eligibility rule withheld (absent on ladders built before the rule). */
+  readonly eligibility?: { readonly rule: string; readonly source: string; readonly withheldMarketContext: number; readonly withheldFamilies: readonly string[] };
   readonly bettorTiers: readonly BettorTier[];
   readonly record: {
     readonly gradedDays: number;
