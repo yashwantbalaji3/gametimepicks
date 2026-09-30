@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-30T16:39:58.181Z",
+  "generatedAt": "2026-09-30T16:56:58.874Z",
   "canonical": {
     "record": "37-36",
     "bankroll": 15990.4,
@@ -114,15 +114,15 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-09-30",
-      "generatedAt": "2026-09-30T11:24:08Z",
+      "generatedAt": "2026-09-30T16:40:03Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 0,
-            "priced": 0,
-            "generated": 0,
+            "scheduled": 6,
+            "priced": 6,
+            "generated": 6,
             "frozen": 0,
             "started": 0
           },
@@ -146,14 +146,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 16,
-            "priced": 16,
+            "scheduled": 17,
+            "priced": 17,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:16 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:17 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -175,7 +175,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-09-30",
       "present": true,
-      "generatedAt": "2026-09-30T11:24:07Z",
+      "generatedAt": "2026-09-30T16:40:02Z",
       "watchdog": [],
       "states": {
         "bank-builder": {
@@ -218,16 +218,16 @@
     "pendingApprovals": 1
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-30T16:37:34.448Z",
+    "lastRunAt": "2026-09-30T16:56:58.004Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-30",
-    "etTime": "12:39",
+    "etTime": "12:56",
     "stages": [
       {
         "stage": "schedule",
