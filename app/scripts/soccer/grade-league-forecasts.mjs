@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { league as leagueOf } from "../../src/lib/sports/soccer/leagues.mjs";
-import { lastPreKickoffForecasts, gradeMatch, mergeGraded, summarize } from "../../src/lib/sports/soccer/grading.mjs";
+import { lastPreKickoffForecasts, gradeMatch, mergeGraded, summarize, regulationFinal } from "../../src/lib/sports/soccer/grading.mjs";
 import { fetchScoreboardWindowEvents, isProviderRefusal, utcDayStart, utcDayEnd } from "../../src/lib/sports/espn-scoreboard-window.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -39,13 +39,12 @@ if (due.length) {
   let events;
   try { ({ events } = await fetchScoreboardWindowEvents(`soccer/${L.espn}`, utcDayStart(Math.min(...ks) - 86_400_000), utcDayEnd(Math.max(...ks) + 86_400_000))); }
   catch (err) { console.error(`REFUSED: ESPN scoreboard ${err.message} — nothing graded`); process.exit(3); }
+  // Soccer V2 · C-4: one rule for "which score may a 90-minute forecast be graded on" (grading.mjs).
   const finals = new Map();
   for (const e of events) {
-    if (!e.status?.type?.completed) continue;
-    const c = e.competitions?.[0]?.competitors ?? [];
-    const h = c.find((x) => x.homeAway === "home"), a = c.find((x) => x.homeAway === "away");
-    const hs = Number.parseInt(h?.score, 10), as = Number.parseInt(a?.score, 10);
-    if (Number.isInteger(hs) && Number.isInteger(as)) finals.set(String(e.id), { home: hs, away: as });
+    const f = regulationFinal(e);
+    if (f?.final) finals.set(String(e.id), f.final);
+    else if (f?.refused) console.warn(`[grade] ${L.name}: ${e.id} not graded — ${f.reason}`);
   }
   for (const f of due) { const fin = finals.get(String(f.row.providerEventId)); if (fin) fresh.push(gradeMatch(f, fin)); }
 }
