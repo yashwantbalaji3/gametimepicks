@@ -6,6 +6,8 @@
  * No Plus100 builder, no audit logs, no unrelated projections. Presentation only — the bankroll /
  * ledger are read from the public artifact and never mutated here. Paper-only, educational.
  */
+import RecordComposition from "@/components/bank-builder/record-composition";
+import { foldBacklog } from "@/lib/mr-dub/protected-fold.mjs";
 import Link from "next/link";
 
 import PreviousHits from "@/components/bank-builder/previous-hits";
@@ -169,7 +171,20 @@ export default function BankBuilderPage() {
   // unchanged (36–35, the COMPOSITE protected record); what changes is that this page can no longer
   // format a record its own way — voids are spelled by the canonical formatter, the same spelling / and
   // /today print. "—" stays the no-figure rendering this page already used.
-  const officialRecordLabel = currentProductRecord("bank-builder").recordLabel;
+  const officialRecord = currentProductRecord("bank-builder");
+  const officialRecordLabel = officialRecord.recordLabel;
+  /* G-2: the fold's own backlog — decided results after it stopped, and the leg that stopped it (read-only). */
+  const foldBacklogView = (() => {
+    try {
+      const root = path.join(process.cwd(), "public", "data");
+      const after = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8"))?.protectedFold?.foldedThrough;
+      if (!after) return null;
+      const dir = path.join(root, "mr-dub", "settled");
+      const receipts = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f.slice(0, 10) > after)
+        .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")));
+      return foldBacklog(receipts, { after });
+    } catch { return null; }
+  })();
   const recordLabel = officialRecordLabel ?? "—";
   // Crown reached: bankroll has cleared the $10,000 goal (resolveLadderStep → null) with a
   // clean card — the ladder is COMPLETE. We pin the display rung to the final step (not the
@@ -507,6 +522,11 @@ export default function BankBuilderPage() {
         completedLadders={completedLadders}
       />
 
+      {officialRecordLabel ? (
+        <RecordComposition recordLabel={officialRecordLabel} window={officialRecord.cell?.window ?? null}
+          composition={(officialRecord.cell?.composition as never) ?? null} backlog={foldBacklogView} />
+      ) : null}
+
       {/* When a lane is ACTIVE, the ClimbHero above already shows its card + the expandable cleared-step
           history — so we do NOT repeat it here (removes the duplicate "active daily Bank Builder"). Only
           when NO lane is active AND no review card is showing do we render the fresh proposal, else the
@@ -569,7 +589,7 @@ export default function BankBuilderPage() {
 
 
       {/* SECTION 4 — previous hits */}
-      <PreviousHits hits={hits} recordLabel={recordLabel} />
+      <PreviousHits hits={hits} />
 
       {/* The "next run" is no longer a teaser — the Dual Bank Builder above is LIVE
           (Run #2, Step 1). The old next-ladder teaser was removed to avoid contradicting it. */}
