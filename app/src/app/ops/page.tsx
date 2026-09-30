@@ -96,9 +96,18 @@ type ModelHealth = {
   generatedAt: string;
   worst: string;
   counts: Record<string, number>;
-  rules: { states: string; action: string };
-  families: Array<{ id: string; sport: string; label: string; baseline?: string; state: string; n: number; judgement: Record<string, unknown> | null; note?: string }>;
+  rules: { states: string; action: string; bar?: string };
+  families: Array<{ id: string; sport: string; label: string; baseline?: string; state: string; n: number; judgement: Record<string, unknown> | null; note?: string;
+    /* Phase D · D-2: the family's OWN preregistered bar (advisory). Absent on artifacts built before D-2. */
+    bar?: { verdict: string; checks?: Array<{ measure: string; value: number; pass: boolean }>; notComputable?: string[]; needed?: number | null; reason?: string } }>;
 };
+const BAR_WORD: Record<string, string> = { ON_TRACK: "on track vs its bar", BELOW_BAR: "BELOW its bar", TOO_SMALL: "too few for its bar", NOT_COMPUTABLE: "bar not computable", NO_BAR: "no preregistered bar", OWN_RECEIPT: "own receipt" };
+/** The bar verdict in words, with the checks it rests on. */
+function barLine(b: NonNullable<ModelHealth["families"][number]["bar"]>): string {
+  const checks = (b.checks ?? []).map((c) => `${c.measure} ${c.value}${c.pass ? "" : " ✗"}`).join(", ");
+  const missing = b.notComputable?.length ? ` · cannot compute: ${b.notComputable.join(", ")}` : "";
+  return `${BAR_WORD[b.verdict] ?? b.verdict}${checks ? ` (${checks})` : ""}${b.verdict === "TOO_SMALL" && b.needed ? ` · needs ${b.needed}` : ""}${missing}`;
+}
 function loadModelHealth(): ModelHealth | null {
   try {
     return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "admin", "model-health.json"), "utf8"));
@@ -266,11 +275,25 @@ export default function OpsPage() {
                   <span className="font-mono text-[10.5px]" style={{ color: HEALTH_TONE[f.state] ?? "var(--vault-text-faint)" }}>
                     {f.state.replace("_", " ")}{healthFigure(f.judgement) ? ` · ${healthFigure(f.judgement)}` : ""}
                   </span>
+                  {f.bar ? (
+                    <span className="w-full font-mono text-[10px]" style={{ color: f.bar.verdict === "BELOW_BAR" ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)" }}>
+                      bar · {barLine(f.bar)}
+                    </span>
+                  ) : null}
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-[10.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>{mh.rules.states} {mh.rules.action}</p>
-            <p className="mt-1 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Generated {mh.generatedAt.slice(0, 16).replace("T", " ")}Z</p>
+            <p className="mt-2 text-[10.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>{mh.rules.states} {mh.rules.action}{mh.rules.bar ? ` ${mh.rules.bar}` : ""}</p>
+            {(() => {
+              /* D-3: the scorecard runs nightly; a stale one is said, because the live-record gate fails OPEN past 72h. */
+              const ageH = (Date.now() - Date.parse(mh.generatedAt)) / 3.6e6;
+              const stale = Number.isFinite(ageH) && ageH > 30;
+              return (
+                <p className="mt-1 font-mono text-[9px]" style={{ color: stale ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)" }}>
+                  Generated {mh.generatedAt.slice(0, 16).replace("T", " ")}Z{Number.isFinite(ageH) ? ` · ${Math.round(ageH)}h old at build` : ""}{stale ? " · STALE — the nightly scorecard has not run; the live-record gate fails open past 72h" : ""}
+                </p>
+              );
+            })()}
           </Card>
         );
       })()}
