@@ -7,7 +7,7 @@
  * ledger are read from the public artifact and never mutated here. Paper-only, educational.
  */
 import RecordComposition from "@/components/bank-builder/record-composition";
-import { foldBacklog } from "@/lib/mr-dub/protected-fold.mjs";
+import { loadFoldBacklog } from "@/lib/mr-dub/fold-backlog-view";
 import Link from "next/link";
 
 import PreviousHits from "@/components/bank-builder/previous-hits";
@@ -174,17 +174,7 @@ export default function BankBuilderPage() {
   const officialRecord = currentProductRecord("bank-builder");
   const officialRecordLabel = officialRecord.recordLabel;
   /* G-2: the fold's own backlog — decided results after it stopped, and the leg that stopped it (read-only). */
-  const foldBacklogView = (() => {
-    try {
-      const root = path.join(process.cwd(), "public", "data");
-      const after = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8"))?.protectedFold?.foldedThrough;
-      if (!after) return null;
-      const dir = path.join(root, "mr-dub", "settled");
-      const receipts = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f.slice(0, 10) > after)
-        .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")));
-      return foldBacklog(receipts, { after });
-    } catch { return null; }
-  })();
+  const foldBacklogView = loadFoldBacklog(path.join(process.cwd(), "public", "data"));
   const recordLabel = officialRecordLabel ?? "—";
   // Crown reached: bankroll has cleared the $10,000 goal (resolveLadderStep → null) with a
   // clean card — the ladder is COMPLETE. We pin the display rung to the final step (not the

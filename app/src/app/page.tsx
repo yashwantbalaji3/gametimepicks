@@ -13,6 +13,8 @@
  * components as PRE-FORMATTED string/number props. Nothing is recomputed or hardcoded — no record and no
  * dollar literal lives in a component; the components never touch fs/data.
  */
+import { positionFromReceipts, readReceipts } from "@/lib/products/ladder-position.mjs";
+import { BANK_BUILDER_LADDER } from "@/lib/bank-builder-ladder";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -134,7 +136,11 @@ export default function HomePage() {
   const crownRung = bbSummary ? resolveLadderStep(bbSummary.currentBankrollUnits) : null; // null when the crown ladder is complete
   const bbPreview = loadTodaySlate().bankBuilderPreview;
   const laneAView = buildPublicDualLadder(bbPreview.laneA, "lane-a");
+  /* G-3: the rung comes from the placed-card RECEIPTS — the same owner /bank-builder reads — so the two surfaces
+     cannot disagree. The dual-ladder store (frozen since 2026-08-17) is only the fallback when no receipt exists. */
+  const laneAPosition = positionFromReceipts({ receipts: readReceipts(dataRoot, today), product: "bank-builder", lane: "A", ladder: BANK_BUILDER_LADDER as never, seed: BANK_BUILDER_LADDER[0].start });
   const awaitingRung =
+    (laneAPosition.basis ? laneAPosition.nextStep : null) ??
     laneAView?.steps.find((s) => s.status === "awaiting")?.step ??
     laneAView?.currentStep ??
     crownRung?.step ??

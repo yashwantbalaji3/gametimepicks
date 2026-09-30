@@ -53,7 +53,7 @@ test("render: the record's window and era composition, and the backlog with its 
 test("🔴 the page shows the composition; the June ladder no longer sits under the current record", () => {
   const page = src("src/app/bank-builder/page.tsx");
   assert.match(page, /<RecordComposition recordLabel=\{officialRecordLabel\}/);
-  assert.match(page, /return foldBacklog\(receipts, \{ after \}\);/);
+  assert.match(page, /const foldBacklogView = loadFoldBacklog\(/, "through the one loader — no page opens the record owner inline");
   assert.match(page, /<PreviousHits hits=\{hits\} \/>/, "the legacy ladder is not handed the current record");
   const hits = src("src/components/bank-builder/previous-hits.tsx");
   assert.match(hits, /a completed earlier ladder, not the current record/);
@@ -65,4 +65,11 @@ test("🔴 G-1 · the Bank Builder pool loads no demoted model picks and passes 
   assert.doesNotMatch(acc, /loadMlbModelPicks\(/, "the demoted player-prop picks are not loaded at all");
   assert.match(acc, /\.filter\(\(p\) => !legIsMarketContext\(\{ sport: String\(p\.sport \?\? "MLB"\)\.toUpperCase\(\), market: p\.marketKey \?\? null \}, marketContext\)\)/);
   assert.doesNotMatch(src("src/lib/daily-portfolio/sport-eligibility.ts"), /model-qualified MLB legs/, "the stated source is market-priced team markets");
+});
+
+test("🔴 G-3 · home reads Lane A's rung from the placed-card receipts — the same owner /bank-builder reads", () => {
+  const home = src("src/app/page.tsx");
+  assert.match(home, /positionFromReceipts\(\{ receipts: readReceipts\(dataRoot, today\), product: "bank-builder", lane: "A"/);
+  assert.ok(home.indexOf("laneAPosition.basis ? laneAPosition.nextStep") < home.indexOf("laneAView?.steps.find"), "receipts first; the frozen store only as a fallback");
+  assert.match(src("src/app/bank-builder/page.tsx"), /positionFromReceipts\(\{ receipts: bbReceipts, product: "bank-builder", lane: "A"/);
 });

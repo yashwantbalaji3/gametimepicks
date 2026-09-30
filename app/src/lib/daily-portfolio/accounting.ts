@@ -22,7 +22,7 @@ import { BANK_BUILDER_LADDER } from "../bank-builder-ladder";
 import { MOONSHOT_LADDER, MOONSHOT_SEED } from "../moonshot/moonshot-ladder.mjs";
 import { selectMoonshotRungCard } from "../moonshot/rung-card.mjs";
 import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
-import { legIsMarketContext, loadCommittedCoverage, marketContextFamilies } from "@/lib/parlays/card-leg-eligibility.mjs";
+import { legIsMarketContext, loadCommittedCoverage, marketContextFamilies } from "../parlays/card-leg-eligibility.mjs"; // relative: activate-daily-portfolio.mjs runs from the repo root (no "@/" alias)
 import { loadWorldCupTeamLegs } from "./wc-team-legs";
 import { loadMlbTeamLegs } from "./mlb-team-legs";
 import { poolAvailability, emptyPoolReason } from "./input-availability.mjs";
