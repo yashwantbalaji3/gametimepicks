@@ -25,3 +25,12 @@ test("🔴 /build's empty card list states the ladder's recorded reason when the
   assert.match(p, /model-built candidates were withheld: every one uses a market-context family/);
   assert.match(src("src/lib/parlays/risk-ladder.ts"), /readonly eligibility\?: \{/, "the ladder type carries the rule's record");
 });
+
+test("🔴 the prior-policy record covers exactly the window its label names — it ends before the change", (t) => {
+  const s = src("scripts/parlays/build-lab-ledger.mjs");
+  assert.match(s, /if \(f\.slice\(0, 10\) >= POLICY\.since\) continue;/, "graded days on or after the change are not the prior policy");
+  const ledger = JSON.parse(src("public/data/parlays/lab-ledger.json"));
+  const since = s.match(/since: "(\d{4}-\d{2}-\d{2})"/)[1];
+  if (Date.parse(ledger.generatedAt) < Date.parse("2026-09-30T00:00:00Z")) { t.skip(`ledger built ${ledger.generatedAt}, before this fix — announced, not checked`); return; }
+  assert.ok(!ledger.priorPolicy?.lastDay || ledger.priorPolicy.lastDay < since, `priorPolicy.lastDay ${ledger.priorPolicy?.lastDay} is not before ${since}`);
+});
