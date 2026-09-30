@@ -92,6 +92,14 @@ test("🔴 probability is not a pick: paraphrases are refused, faithful restatem
   assert.equal(verifyAnswer("GameTime favors NYM on the Moneyline.", WITH_PICK).ok, true);
 });
 
+test("🔴 class eight · an evidence-issued href is a route, not a number; an invented one is still refused", () => {
+  const withLink = { ...PROB_ONLY, links: [{ id: "E2:report", label: "Open the NFL game report", href: "/nfl/game/401872964/" }] };
+  assert.equal(verifyAnswer("The model gives PIT a 54.4% win probability. [Open the NFL game report](/nfl/game/401872964/)", withLink).ok, true);
+  const invented = verifyAnswer("The model gives PIT a 54.4% win probability. [Report](/nfl/game/999999999/)", withLink);
+  assert.deepEqual(invented.violations.map((v) => v.rule), ["UNSUPPORTED_NUMBER"]);
+  assert.equal(verifyAnswer("Game 401872964 has PIT at 54.4%.", withLink).ok, false, "the id as PROSE is still a number claim");
+});
+
 test("🔴 negation: 'nothing' / 'none' deny, 'nothing but' intensifies", () => {
   assert.equal(verifyAnswer("Nothing in the evidence says any player is out with an injury.", PROB_ONLY).ok, true);
   assert.equal(verifyAnswer("None of it says the quarterback is questionable.", PROB_ONLY).ok, true);

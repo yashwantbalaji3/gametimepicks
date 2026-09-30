@@ -190,6 +190,17 @@ export function verifyAnswer(answer, evidence, opts = {}) {
    */
   for (const ident of evidence.identifiers ?? []) scrubbed = scrubbed.split(ident).join(" ");
   /*
+   * ⚠ AN EVIDENCE LINK'S HREF IS A ROUTE, NOT A CLAIM — false-positive class EIGHT (Session 2, real provider).
+   *
+   * "[Open the NFL game report](/nfl/game/401872964/)" is the link the forecast tool itself issued, and the link
+   * check above approves it. The numeric scan then read 401872964 out of the href and refused the answer — and the
+   * retry could not help, because the writer was right to keep the link. Two of three real "Steelers game" turns
+   * fell back this way on the preview. Only an href the EVIDENCE issued is exempt: a writer-invented
+   * "/nfl/game/999999999/" still matches the route pattern, and its id is still refused as an unsupported number.
+   */
+  const evidenceHrefs = new Set((evidence.links ?? []).map((l) => l.href).filter(Boolean));
+  scrubbed = scrubbed.replace(/\]\(([^)\s]+)\)/g, (whole, href) => (evidenceHrefs.has(href) ? "] " : whole));
+  /*
    * ⚠ AN EVIDENCE CITATION IS A REFERENCE, NOT A CLAIM — false-positive class SEVEN.
    *
    * Fact ids look like `E1.1`, and a model that cites inline writes "…the Lab's own tool [E1.1]".

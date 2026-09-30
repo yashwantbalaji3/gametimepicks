@@ -145,6 +145,13 @@ export function createFakeProvider(config = {}) {
          * refuses the paraphrase AND the rule-specific retry exists.
          */
         case "writer-paraphrases-probability": return wrap(JSON.stringify(paraphraseProbability(user, { learns: true })));
+        /* Real models link INLINE by evidence id — "[Open the NFL game report](E2:report)" — which resolves to an href
+           carrying a game id. Faithful answer; must pass (class eight). */
+        case "writer-links-inline": {
+          const faithful = echoAnswer(user);
+          const link = String(user ?? "").match(/^(E\d+:[\w-]+) · (.+)$/m);
+          return wrap(JSON.stringify({ ...faithful, answerMarkdown: `${faithful.answerMarkdown}${link ? ` [${link[2]}](${link[1]})` : ""}` }));
+        }
         case "writer-paraphrases-stubbornly": return wrap(JSON.stringify(paraphraseProbability(user, { learns: false })));
         case "not-json": return wrap("Sure! Here's what I found.");
         default: return wrap(JSON.stringify(echoAnswer(user)));
