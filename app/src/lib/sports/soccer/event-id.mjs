@@ -5,7 +5,7 @@
  * migration, the registry records each competition's scheme (leagues.mjs `idScheme`) and this module is the
  * only code that builds or reads an id of either kind:
  *   derived  soccer:<league>:<home-slug>-v-<away-slug>:<yyyymmddthhmm>  — the platform identity (EPL; built by
- *            lib/soccer/epl-identity.ts through deriveEventId, which stays the owner of that construction)
+ *            the EPL identity adapter through deriveEventId, which stays the owner of that construction)
  *   espn     soccer:<league>:<ESPN event id>                            — Ligue 1 and every registry-driven league
  */
 import { league, SOCCER_LEAGUES } from "./leagues.mjs";
