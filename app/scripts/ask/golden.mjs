@@ -523,6 +523,9 @@ export const GOLDEN = [
     behaviour: "writer-paraphrases-stubbornly", expectFallback: true, expectViolation: "pick the evidence does not hold",
     expectAttempts: [{ rules: ["UNSUPPORTED_PICK"], claim: "favors" }, { rules: ["UNSUPPORTED_PICK"], claim: "expects" }],
     mustNotMention: ["favors", "expects PIT"] },
+  /* A faithful answer that links the evidence's own game report inline: the game id in its href is a route, not a claim. */
+  { id: "para-05", category: "paraphrase", q: "What does GameTime think about tonight's NFL game?", fixture: "nfl-probability-only",
+    behaviour: "writer-links-inline", expectGrounded: true, expectVerifier: "PASS" },
   /* B · positive control: directional wording IS allowed when the evidence holds the pick. */
   { id: "para-03", category: "paraphrase", q: "What does GameTime forecast for tonight?", fixture: "paused-market",
     behaviour: "writer-restates-published-pick", expectGrounded: true, expectVerifier: "PASS" },
