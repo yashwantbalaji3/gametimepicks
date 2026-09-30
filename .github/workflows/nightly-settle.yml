@@ -621,6 +621,7 @@ jobs:
       #       silent restatement of history, so it surfaces by name instead of as a generic red settler.
       #   2 = bad arguments · 3 = the assembly refused an owner (a truth rule caught something).
       - name: Rebuild the canonical Results projection (read model over the settled owners)
+        id: projection
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           set -euo pipefail
@@ -639,14 +640,30 @@ jobs:
           set -e
           if [ "$rc" -eq 1 ]; then
             echo "::error title=Results projection refused a restatement::A dated projection for $PDATE already exists and differs from this run. The write-once rule refused it and wrote nothing. This is an operator decision: inspect the difference, and if the restatement is intended delete app/public/data/results/projection/$PDATE.json deliberately and re-run. Do NOT make this step continue-on-error."
+            # ── THE PUBLICATION BOUNDARY (§18) ────────────────────────────────────────────────────
+            # rc=1 is a refusal to RESTATE ONE ARTIFACT. It says nothing about the validity of the
+            # settlement receipts, ledgers and graded picks computed in the steps above — those are
+            # already on the runner's working tree, and before this flag existed they were DISCARDED,
+            # because this step's failure skipped both the health gate and the commit.
+            #
+            # The flag lets the two later steps distinguish "we may not republish the projection" from
+            # "the settlement is invalid". It does NOT make this step green: the `exit "$rc"` below is
+            # unchanged, so the job still ends red and an operator still decides. An output written
+            # before a step fails is still readable by later steps, which is what makes a deferred
+            # failure possible without `continue-on-error` — the thing this repo has paid for twice.
+            echo "publish_refusal=true" >> "$GITHUB_OUTPUT"
           elif [ "$rc" -ne 0 ]; then
             echo "::error title=Results projection build failed (exit $rc)::exit 2 = bad arguments; exit 3 = the assembly refused an owner (a truth rule caught something). The prior artifact was left in place and nothing was published."
           fi
           exit "$rc"
 
+      # §18: ALSO RUNS AFTER A PUBLICATION REFUSAL, AND STILL DECIDES. The gate is what makes the
+      # boundary safe rather than a blind `always()` commit: valid settlement may only reach the
+      # canonical owner if the money invariants, the $100→bankroll reconciliation and the freshness
+      # checks all still pass. A refusal to republish one read model is not permission to skip them.
       - name: Health gate (abort publish on missing/stale/non-reconciling data)
         id: health
-        if: ${{ github.event.inputs.dry_run != 'true' }}
+        if: ${{ github.event.inputs.dry_run != 'true' && (success() || steps.projection.outputs.publish_refusal == 'true') }}
         run: |
           cd app
           # Hard gate: money invariants + $100→bankroll reconciliation + data hygiene + freshness.
@@ -712,8 +729,23 @@ jobs:
           gh-token: ${{ secrets.GITHUB_TOKEN }}
           ops-webhook-url: ${{ secrets.OPS_WEBHOOK_URL }}
 
+      # §18: reachable after a publication refusal, and ONLY when the health gate passed. The
+      # projection's own dated directory is excluded in that case — see PUBLISH_REFUSAL below — so
+      # write-once integrity is preserved while the settlement work that was already computed still
+      # reaches the canonical owner instead of being thrown away with the runner.
       - name: Commit and push if results changed
+        if: ${{ success() || (steps.projection.outputs.publish_refusal == 'true' && steps.health.outcome == 'success') }}
         run: |
+          # ⚠ A PUBLICATION REFUSAL MUST NOT COMMIT THE ARTIFACT IT REFUSED. The builder wrote
+          # nothing for the dated file, but a stale or partial projection left on the runner from an
+          # earlier step must not ride along either — so the dated directory is reverted before the
+          # allowlist runs, and the untouched published file stays exactly as it is.
+          PUBLISH_REFUSAL="${{ steps.projection.outputs.publish_refusal }}"
+          if [ "$PUBLISH_REFUSAL" = "true" ]; then
+            echo "::warning title=Partial publication::The Results projection refused a restatement. Committing the settlement artifacts that were validly computed, and NOT the dated projection. The job will still end red."
+            git checkout -- app/public/data/results/projection/ 2>/dev/null || true
+            git clean -fd app/public/data/results/projection/ 2>/dev/null || true
+          fi
           # Allowlist what automation can commit. NEVER commit code,
           # secrets, build artifacts, or session docs.
           git add app/public/data/results/ 2>/dev/null || true
