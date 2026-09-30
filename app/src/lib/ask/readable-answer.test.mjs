@@ -6,7 +6,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { readableAnswer } from "./readable-answer.mjs";
+import { listItemOf, readableAnswer } from "./readable-answer.mjs";
 
 test("citation tokens are removed in every observed shape, and nothing else is", () => {
   assert.equal(readableAnswer("Moneyline pick is NYY, confidence LEAN. [E2:report]"), "Moneyline pick is NYY, confidence LEAN.");
@@ -34,4 +34,14 @@ test("every number in a real answer survives the clean-up", () => {
   const real = "PHI @ ATL (MLB) (updated 2026-09-30T11:16:33.113Z): Moneyline pick is PHI (model probability 51.2%, market-implied 50.9%, confidence LEAN). Run line pick is ATL +1.5 at 1.5 [E2:report]";
   const numbers = (t) => (t.replace(/\d{4}-\d{2}-\d{2}T[\d:.]+Z/g, "").match(/\d+(?:\.\d+)?/g) ?? []);
   assert.deepEqual(numbers(readableAnswer(real)).filter((n) => !["30", "7", "16"].includes(n)), numbers(real).filter((n) => !["2"].includes(n)));
+});
+
+test("🔴 every bullet style a writer uses is a list item; bold is not (Production: Gemini's '* ' lists ran together)", () => {
+  assert.equal(listItemOf("* **PHI 4, ATL 3** (Bottom 10th)"), "**PHI 4, ATL 3** (Bottom 10th)");
+  assert.equal(listItemOf("- one"), "one");
+  assert.equal(listItemOf("• one"), "one");
+  assert.equal(listItemOf("1. one"), "one");
+  assert.equal(listItemOf("2) one"), "one");
+  assert.equal(listItemOf("**Bank Builder** was won"), null, "a bold opener is emphasis, not a bullet");
+  assert.equal(listItemOf("Plain sentence."), null);
 });

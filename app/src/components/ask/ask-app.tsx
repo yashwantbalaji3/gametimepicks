@@ -21,7 +21,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { readableAnswer } from "@/lib/ask/readable-answer.mjs";
+import { listItemOf, readableAnswer } from "@/lib/ask/readable-answer.mjs";
 
 type Role = "user" | "assistant";
 type LinkRef = { id: string; label: string; href: string };
@@ -469,9 +469,10 @@ function renderMarkdown(text: string) {
       para = []; items = [];
     };
     block.split("\n").forEach((line, li) => {
-      if (/^\s*[-•]\s+/.test(line)) {
+      const item = listItemOf(line);
+      if (item !== null) {
         if (para.length) flush(`${bi}-${li}`);
-        items.push(line.replace(/^\s*[-•]\s+/, ""));
+        items.push(item);
       } else if (line.trim()) {
         if (items.length) flush(`${bi}-${li}`);
         para.push(line.trim());
