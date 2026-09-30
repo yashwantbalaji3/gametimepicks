@@ -22,6 +22,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { listItemOf, readableAnswer } from "@/lib/ask/readable-answer.mjs";
+import { ASK_SOURCE_LABEL } from "@/lib/ask/source-labels.mjs";
+
+const SOURCE_LABEL: Record<string, string> = ASK_SOURCE_LABEL;
 
 type Role = "user" | "assistant";
 type LinkRef = { id: string; label: string; href: string };
@@ -56,24 +59,6 @@ const STARTER_GROUPS: Array<{ label: string; prompts: string[] }> = [
   { label: "How it went", prompts: ["How did GameTimePicks do yesterday?", "What is Bank Builder's record?"] },
   { label: "Dig in", prompts: ["Compare the Yankees and the Red Sox", "Build me a medium-risk card"] },
 ];
-
-/** Friendly names for the tools an answer used. The reader sees what was consulted, not how. */
-const SOURCE_LABEL: Record<string, string> = {
-  runGameFinder: "Game Finder",
-  runPlayerResearchQuery: "Player Research",
-  getSeasonExplorer: "Season Explorer",
-  getPlayerRecentGames: "Player Research",
-  getTeamComparison: "Team Compare",
-  getPlayerComparison: "Player Compare",
-  getMatchupContext: "Matchup",
-  getPublishedForecasts: "GameTime Forecast",
-  getParlayCandidates: "Parlay candidates",
-  getLiveSlate: "Live",
-  searchGameTimeHelp: "GameTime guide",
-  resolveEntity: "GameTime Research",
-  getGameTimeNow: "GameTime clock",
-  calculate: "Calculator",
-};
 
 export default function AskApp({ context }: { context?: { pageType: string; id?: string; sport?: string } | null }) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -297,7 +282,7 @@ function Bubble({ message, onFollowUp }: { message: Message; onFollowUp: (s: str
       {message.sources?.length ? (
         <p className="ask-sources">
           <span className="ask-sources-label">Used:</span>{" "}
-          {message.sources.map((s) => SOURCE_LABEL[s] ?? s).filter((v, i, a) => a.indexOf(v) === i).join(" · ")}
+          {message.sources.map((s) => SOURCE_LABEL[s] ?? "GameTime").filter((v, i, a) => a.indexOf(v) === i).join(" · ")}
         </p>
       ) : null}
 
