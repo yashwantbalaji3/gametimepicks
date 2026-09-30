@@ -237,7 +237,23 @@ export function buildEvidence(envelopes) {
             continue;
           }
           const tag = f.experimental ? "an EXPERIMENTAL forecast, which is graded but is not a product pick" : "a published forecast";
-          say(`for ${f.matchup} (${f.sport}), GameTime has ${tag}${f.updatedAt ? `, updated ${f.updatedAt}` : ""}`);
+          // E-1: the game's own date travels with it, so "tonight" can never be answered with next month's game.
+          say(`for ${f.matchup} (${f.sport}) on ${f.date ?? "an unstated date"}, GameTime has ${tag}${f.updatedAt ? `, updated ${f.updatedAt}` : ""}`);
+          /*
+           * E-1: THE GAME FORECAST ITSELF. NFL and EPL forecasts were projected without their probabilities (or
+           * with them, never turned into evidence), so a writer could say "the model favors X" with nothing to
+           * check it against. The owner's numbers go in, labelled experimental, and nothing else.
+           */
+          const pr = f.probabilities;
+          if (pr && pr.draw != null) {
+            say(`${f.matchup} · EXPERIMENTAL model probabilities: ${f.home ?? "home"} win ${pct(pr.home)}, draw ${pct(pr.draw)}, ${f.away ?? "away"} win ${pct(pr.away)}`, [pr.home, pr.draw, pr.away]);
+            if (f.expectedGoals != null) say(`${f.matchup} · EXPERIMENTAL expected goals: ${f.expectedGoals}${f.over25 != null ? `; chance of over 2.5 goals ${pct(f.over25)}` : ""}`, [f.expectedGoals, f.over25]);
+          } else if (pr && pr.home != null && pr.away != null) {
+            say(`${f.matchup} · EXPERIMENTAL model win probability: ${f.away ?? "away"} ${pct(pr.away)}, ${f.home ?? "home"} ${pct(pr.home)}${pr.tie != null ? `, tie ${pct(pr.tie)}` : ""}`, [pr.away, pr.home, pr.tie]);
+          }
+          if (f.projectedScore?.home != null && f.projectedScore?.away != null) {
+            say(`${f.matchup} · EXPERIMENTAL projected score: ${f.away ?? "away"} ${f.projectedScore.away}, ${f.home ?? "home"} ${f.projectedScore.home}`, [f.projectedScore.away, f.projectedScore.home]);
+          }
           for (const m of f.markets ?? []) {
             say(`${f.matchup} · ${m.label}: GameTime's pick is ${m.pick ?? "none stated"}${m.line != null ? ` at ${m.line}` : ""}, model probability ${pct(m.modelProbability)}, market-implied ${pct(m.marketImpliedProbability)}, confidence ${m.confidence ?? "not stated"}`,
               [m.modelProbability, m.marketImpliedProbability, m.line]);
