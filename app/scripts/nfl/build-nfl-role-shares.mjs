@@ -88,6 +88,43 @@ function collectEvalPoints() {
 }
 const { points, playerState } = collectEvalPoints();
 
+/*
+ * SESSION 4 — FOLD THE CURRENT SEASON INTO THE CURRENT STATE (never into the evaluation).
+ *
+ * The pool below is what the v1 engine — and so the published RECEIVING family — allocates from. It
+ * was built from 2023–2025 only, so four weeks into 2026 it still had no rookie (KC Concepcion, CLE's
+ * top 2026 target share) and no mover at his new club (Michael Pittman at PIT): the stint rule resets
+ * on a team change and waits for a game at the new club, and no 2026 game ever arrived.
+ *
+ * This is the estimator's own update, not a new method: the same fold (stint reset on team change,
+ * preseason = membership only, per-game share observations tagged with their season), the same
+ * frozen hyperparameters, the same boundary decay that already down-weights 2025 against 2026 — the
+ * evaluated walk-forward folds every in-season game exactly this way. The 2026 partition is
+ * deliberately NOT pinned to the bridge receipt (it did not exist when the bridge was fit) and never
+ * enters the grid search or the held-out score above; it is accounted on the current artifact.
+ */
+const currentPartition = (() => {
+  try { return read(path.join(ROOT, "data/internal/research/nfl/player-events-v1/2026.json")); } catch { return null; }
+})();
+const currentGames = (currentPartition?.games ?? []).filter((g) => g.season === 2026)
+  .sort((a, b) => (a.dateUtc < b.dateUtc ? -1 : a.dateUtc > b.dateUtc ? 1 : a.providerEventId < b.providerEventId ? -1 : 1));
+for (const game of currentGames) {
+  const isPre = (game.seasonType ?? 0) === 1;
+  for (const teamAbbr of new Set((game.players ?? []).map((p) => p.teamAbbr))) {
+    const { totals, rows } = teamGameTotals(game, teamAbbr);
+    for (const r of rows) {
+      let st = playerState.get(r.playerId);
+      if (!st || st.team !== r.teamAbbr) { st = { team: r.teamAbbr, obs: {} }; playerState.set(r.playerId, st); } // stint reset
+      if (isPre) continue;
+      for (const family of SHARE_FAMILIES) {
+        if (!(totals[family] > 0)) continue;
+        (st.obs[family] ??= []).push([familyNumerator(r, family) / totals[family], game.season]);
+      }
+    }
+  }
+}
+const stateGames = [...allGames, ...currentGames];
+
 // ---------------------------------------------------------------------------------------------
 // 3. Score a predictor over eval points → mean TV distance per family (+ overall).
 function scorePoints(evalPoints, predictFor) {
@@ -196,7 +233,7 @@ const RATE_DEFS = propsFit ? {
 // per-player rate observations over the same stint discipline (reset on team change)
 const rateState = new Map(); // playerId → {team, obs: {key: [{success, trials, season}]}}
 if (RATE_DEFS) {
-  for (const game of allGames) {
+  for (const game of stateGames) {
     if ((game.seasonType ?? 0) === 1) {
       for (const r of game.players ?? []) {
         let st = rateState.get(r.playerId);
@@ -227,7 +264,7 @@ const shrunk = (obs, def) => {
   }
   return (s + m * def.league) / (t + m);
 };
-const basis = (nEff, games) => `corpus-role 2023-25 stint (nEff ${nEff.toFixed(2)}, g ${games}, hl=${chosen.halfLifeGames}, k=${chosen.shrinkK}, boundary=${chosen.boundaryDecay}) — ${NFL_ROLE_SHARES_ID}`;
+const basis = (nEff, games) => `corpus-role 2023-${currentGames.length ? "26" : "25"} stint (nEff ${nEff.toFixed(2)}, g ${games}, hl=${chosen.halfLifeGames}, k=${chosen.shrinkK}, boundary=${chosen.boundaryDecay}) — ${NFL_ROLE_SHARES_ID}`;
 const teams = {};
 for (const t of roster.teams) {
   const families = {};
@@ -317,6 +354,10 @@ const current = {
   engine: { id: NFL_ROLE_SHARES_ID, version: NFL_ROLE_SHARES_VERSION },
   params: { ...chosen, halfLifeGames: chosen.halfLifeGames === Infinity ? "inf" : chosen.halfLifeGames, receipt: "data/internal/research/nfl/reports/role-shares-v1.json" },
   minShare: MIN_SHARE,
+  /* Session 4: the current-season partition folded into THIS state (never into the evaluation above). */
+  currentSeason: currentPartition
+    ? { season: 2026, games: currentGames.length, contentHash: currentPartition.contentHash, lastGameUtc: currentGames.at(-1)?.dateUtc ?? null }
+    : { season: 2026, games: 0, contentHash: null, lastGameUtc: null, note: "no 2026 partition — the pool is 2023-2025 only" },
   teams,
 };
 const outDir = path.join(ROOT, "data/internal/research/nfl/role-shares-v1");
@@ -326,4 +367,5 @@ fs.writeFileSync(path.join(outDir, "current.json"), JSON.stringify(current, null
 console.log(`role-shares: selection ${selectionPoints.length} pts, test ${testPoints.length} pts`);
 console.log(`chosen hl=${chosen.halfLifeGames} k=${chosen.shrinkK} boundary=${chosen.boundaryDecay}`);
 console.log(`2025 TV — model ${test.overall?.toFixed(4)} vs last-game ${baselines["last-game"].overall?.toFixed(4)} rolling-4 ${baselines["rolling-4"].overall?.toFixed(4)} stint-mean ${baselines["stint-mean"].overall?.toFixed(4)} uniform ${baselines.uniform.overall?.toFixed(4)}`);
+console.log(`current season folded: ${currentGames.length} game(s) of 2026`);
 console.log(`teams ${Object.keys(teams).length}; wrote reports/role-shares-v1.json + role-shares-v1/current.json`);

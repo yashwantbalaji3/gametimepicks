@@ -190,6 +190,25 @@ jobs:
       # hyperparameters come from the frozen receipt and are not re-selected here, so a refresh
       # changes WHO is in the pool, never the estimator. It must run AFTER the roster capture and
       # BEFORE event assembly, which composes each team's role rates from it.
+      # ---- Current-season player events (Session 4) ----
+      #
+      # corpus-v1 stops at 2025, so the role-share pool never saw a 2026 game: four weeks in, KC
+      # Concepcion (CLE's top 2026 target share) and Michael Pittman at PIT had no receiving
+      # projection, and the scorecard carried a "recent signings — last season's usage" strip instead.
+      # This captures each 2026 final listed in the committed nflverse current-season file through the
+      # same ESPN summary path and reconciliation rules as 2023–2025, reusing games already captured.
+      # It reads the file the PREVIOUS run committed (the nflverse capture below runs later), so a
+      # newly final game enters one run later. Free, keyless; a failure keeps the committed partition
+      # and never fails the window — the pool then folds the games it already has.
+      - name: Capture current-season player events
+        if: steps.window.outputs.events != '0'
+        working-directory: app
+        run: |
+          set -uo pipefail
+          if ! node scripts/nfl/capture-nfl-player-events.mjs --now "${{ steps.window.outputs.now }}" --from-current-season; then
+            echo "::warning::current-season player-event capture failed — role shares fold the committed 2026 partition"
+          fi
+
       - name: Rebuild NFL role shares against the fresh roster
         if: steps.window.outputs.events != '0'
         working-directory: app
@@ -536,7 +555,9 @@ jobs:
           # (Travis Bell and Ben Sims: IR in the file, Questionable in the feed the evidence used), and
           # leaving the carry-forward's "previous file" frozen in CI, so it could not accumulate memory.
           # P295: the nflverse season capture the v3 totals head folded is committed with the forecasts built from it.
-          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/ data/internal/research/nfl/replay/
+          # Session 4: the 2026 player-event partition and the role-share pool folded from it are committed
+          # with the boards built from them (role-shares-v1/ was missing, so the committed pool stayed stale).
+          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/ data/internal/research/nfl/replay/ data/internal/research/nfl/player-events-v1/2026.json data/internal/research/nfl/role-shares-v1/
           if git diff --cached --quiet; then
             echo "nothing changed — no commit"
             exit 0
