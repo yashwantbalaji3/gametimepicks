@@ -381,15 +381,23 @@ export default function ResultsPage() {
           never lends them credibility. */}
       <RiskLadderStream record={loadRiskLadderRecord(path.join(process.cwd(), "public", "data"))} />
 
-      <div className="mt-12 mb-5 flex items-center gap-3">
+      {/* Session 3 · THE AUDIT IS ONE TAP AWAY, NOT 15,000px OF SCROLL. Everything from here down — the legacy parlay-card
+          performance, the day's breakdowns, the model audit and the methodology — measured ~15,300px of a 33,000px page
+          at 390px. It is collapsed (never removed: it is all still in the page), so the first screens answer "how did
+          GameTimePicks do" and the summary, products, explorer and official record above stay open. */}
+      <details className="gtp-disclose mt-12" id="deeper-audit" data-results-deeper>
+      <summary className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 cursor-pointer" style={{ minHeight: 44 }}>
         <h2
-          className="font-mono uppercase tracking-[0.16em] m-0 font-normal"
+          className="font-mono uppercase tracking-[0.16em] m-0 font-normal whitespace-nowrap"
           style={{ color: "var(--vault-text-mute)", fontSize: 12 }}
         >
           Deeper transparency &amp; model audit
         </h2>
-        <span className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
-      </div>
+        <span className="hidden sm:block flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
+        <span className="basis-full sm:basis-auto text-[13px] underline underline-offset-[3px]" style={{ color: "var(--vault-gold-bright)" }}>
+          Open: parlay cards, daily breakdowns, model audit
+        </span>
+      </summary>
 
       {/* Latest settled day at a glance — official outcomes only.
          Framed on the newest date that actually SETTLED, not on the wall clock's "yesterday".
@@ -874,6 +882,7 @@ export default function ResultsPage() {
           </div>
         </div>
       </section>
+      </details>
     </div>
   );
 }

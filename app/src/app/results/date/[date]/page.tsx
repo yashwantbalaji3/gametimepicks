@@ -26,6 +26,7 @@ import { resultsDay, resultsDayDates } from "@/lib/results/v2/day";
 import TopBoards from "@/components/results/top-boards";
 import { sportsWithoutBoards, topBoardDates, topBoardsFor } from "@/lib/results/v2/top-boards";
 import ProductReceipts from "@/components/results/product-receipts";
+import DayNav from "@/components/results/day-nav";
 import { productReceiptDates, productReceiptsFor } from "@/lib/results/v2/product-receipts";
 
 interface PageProps {
@@ -120,6 +121,8 @@ export default function ResultsDatePage({ params }: PageProps) {
         <h1 className="m-0 mt-1 font-display font-semibold tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(28px, 5vw, 44px)" }}>
           {formatDateLong(date)}
         </h1>
+        {/* Session 3 · the neighbouring days and "latest settled" at the top, not only under the legacy tables. */}
+        <DayNav date={date} prev={prevDate} next={nextDate} latestSettled={resultsDayDates(1)[0] ?? null} />
       </header>
 
       <ResultsDay day={resultsDay(date)} />
