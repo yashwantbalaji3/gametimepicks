@@ -492,7 +492,8 @@ export function deterministicAnswer(evidence, { intent } = {}) {
   if (!supported.length) {
     lines.push("I could not find anything in GameTimePicks that answers that.");
   } else {
-    lines.push("Here is what GameTime's own tools returned:");
+    /* Session 3 · reader copy, not pipeline copy (the old lead was "Here is what GameTime's own tools returned:"). */
+    lines.push("From GameTimePicks' own data:");
     lines.push("");
     for (const f of supported.slice(0, 12)) lines.push(`- ${capitalise(f.text)}`);
   }

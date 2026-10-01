@@ -25,6 +25,13 @@ const slates = () => (fs.existsSync(simDir) ? fs.readdirSync(simDir) : [])
   .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().reverse()
   .map((f) => JSON.parse(fs.readFileSync(path.join(simDir, f), "utf8"))).filter((a) => Array.isArray(a?.games));
 
+/** The newest slates, in order, until their counted games reach `min` (or the slates run out). */
+const newestCovering = (list, count, min) => {
+  const out = []; let n = 0;
+  for (const a of list) { if (n >= min && out.length >= 3) break; out.push(a); n += count(a); }
+  return out;
+};
+
 /** The report's own test for whether it will render a game (mlb-full-game-report Overview). */
 const reportWouldRender = (g) => Boolean(g?.winProbability && g?.runs && g?.totalRuns);
 
@@ -32,7 +39,9 @@ test("every game the REPORT renders also has a frozen forecast for the live pane
   const withGames = slates().filter((a) => a.games.some(reportWouldRender));
   assert.ok(withGames.length, "no committed slate renders a report — this guard would be vacuous");
   let checked = 0;
-  for (const a of withGames.slice(0, 3)) {
+  /* Session 3 · the NEWEST slates until ≥5 report games — never a fixed three. A postseason slate simulates 1–4
+     games, so three slates (09-28..09-30: 2 games) made this guard call itself vacuous; the bar is unchanged. */
+  for (const a of newestCovering(withGames, (x) => x.games.filter(reportWouldRender).length, 5)) {
     for (const g of a.games) {
       if (!reportWouldRender(g)) continue;
       checked += 1;

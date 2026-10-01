@@ -33,7 +33,14 @@ function reportGamesByGameId() {
 }
 
 test("the Game Report and Market Center agree on every shared game", () => {
-  const date = latestMarketDate();
+  /*
+   * Session 3 · THE SAME SLATE ON BOTH SIDES. The report is TODAY's games; `latestMarketDate()` is the newest day with
+   * BOTH game and prop markets. On 2026-10-01 the books posted no props (starters unannounced), so the Market Center
+   * honestly stayed on 09-30 and this compared two different days — "no shared game", not a disagreement. When today's
+   * game markets exist, the center is loaded for today; otherwise the newest date, as before.
+   */
+  const todayEt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  const date = fs.existsSync(path.join(APP, "public/data/mlb/team-markets", `${todayEt}.json`)) ? todayEt : latestMarketDate();
   assert.ok(date, "a slate must exist");
   const center = loadMarketCenter(date, date, `${date}T17:00:00Z`);
   const report = reportGamesByGameId();

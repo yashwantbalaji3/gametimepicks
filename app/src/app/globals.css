@@ -5302,18 +5302,133 @@ body {
   align-self: flex-end; max-width: min(88%, 560px);
   background: var(--gtp-card-elevated); border: 1px solid var(--gtp-card-border);
 }
-.ask-bubble-assistant { background: var(--gtp-card); border: 1px solid var(--gtp-card-border); }
-.ask-bubble-error { border-color: var(--gtp-danger-soft); }
+/* Session 3 · the answer is not a box. One bordered container around every answer made the text, the data, the
+   provenance and the actions equal weight; the structure now comes from the cards inside it. */
+.ask-bubble-assistant { background: transparent; border: 0; padding: 4px 2px; }
+.ask-bubble-error { border: 1px solid var(--gtp-danger-soft); background: var(--gtp-card); padding: 12px 14px; }
 
 .ask-text { font-size: 14.5px; line-height: 1.65; color: var(--gtp-on-shell); overflow-wrap: anywhere; }
+/* The direct answer: larger, a readable measure, never stretched across a desktop line. */
+.ask-answer-lead { font-size: 16px; line-height: 1.6; max-width: 66ch; }
 .ask-md-p { margin: 0 0 8px; }
 .ask-md-p:last-child { margin-bottom: 0; }
 .ask-md-list { margin: 0 0 8px; padding-left: 18px; }
 .ask-md-list li { margin: 0 0 4px; }
 .ask-md-code { font-size: 0.92em; padding: 1px 4px; border-radius: 4px; background: var(--gtp-card-sunken); }
 
-.ask-sources { margin: 10px 0 0; font-size: 12px; color: var(--gtp-on-shell-muted); }
-.ask-sources-label { font-weight: 600; }
+/* Provenance one tap away (Session 3) — kept, never leading. */
+.ask-sources { margin: 12px 0 0; font-size: 12px; color: var(--gtp-on-shell-muted); }
+.ask-sources > summary { cursor: pointer; display: inline-flex; align-items: center; min-height: 32px; font-weight: 600; }
+.ask-sources > p { margin: 4px 0 0; }
+
+/* ── Session 3 · typed answer cards (components/ask/ask-answer.tsx) ── */
+.ask-cards { margin: 16px 0 0; display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
+.ask-cards-head {
+  margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gtp-on-shell);
+}
+.ask-cards-count { font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--gtp-on-shell-muted); }
+.ask-card {
+  border: 1px solid var(--gtp-card-border); border-radius: var(--gtp-radius-lg);
+  background: var(--gtp-card); padding: 14px 16px; min-width: 0;
+}
+.ask-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ask-card-kicker { margin: 0; font-size: 12px; font-weight: 600; color: var(--gtp-on-shell-muted); }
+.ask-card-title {
+  margin: 6px 0 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 19px; font-weight: 800; line-height: 1.25; color: var(--gtp-on-shell);
+}
+.ask-card-sub { margin: 2px 0 0; font-size: 13px; color: var(--gtp-on-shell-muted); }
+.ask-card-note { margin: 10px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--gtp-on-shell-muted); }
+.ask-card-note-top { margin: 0; }
+.ask-muted { color: var(--gtp-on-shell-muted); font-weight: 400; }
+
+.ask-tag {
+  display: inline-flex; align-items: center; padding: 2px 8px; border-radius: var(--gtp-radius-pill);
+  font-size: 11.5px; font-weight: 700; color: var(--gtp-warn-on-dark); border: 1px solid currentColor; white-space: nowrap;
+}
+.ask-tag-soft { color: var(--gtp-on-shell); border-color: var(--gtp-card-border-strong); font-weight: 600; }
+.ask-tag-paused { color: var(--gtp-on-shell-muted); border-color: var(--gtp-card-border-strong); }
+
+.ask-block { margin: 12px 0 0; }
+.ask-block-label { margin: 0; font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gtp-on-shell-muted); }
+.ask-block-value { margin: 3px 0 0; font-size: 15px; color: var(--gtp-on-shell); }
+.ask-block-value strong { font-weight: 800; }
+.ask-block-note { margin: 6px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--gtp-on-shell-muted); }
+.ask-prob { white-space: nowrap; }
+.ask-dot { color: var(--gtp-on-shell-faint); }
+/* The probability split repeats the printed numbers (aria-hidden); no segment is coloured as a "favourite". */
+.ask-split { display: flex; height: 6px; margin: 8px 0 0; border-radius: var(--gtp-radius-pill); overflow: hidden; background: var(--gtp-card-sunken); }
+.ask-split-seg { display: block; height: 100%; }
+.ask-split-seg-0 { background: var(--gtp-on-shell-muted); }
+.ask-split-seg-1 { background: var(--gtp-card-border-strong); }
+.ask-split-seg-2 { background: var(--gtp-on-shell-faint); }
+
+.ask-markets { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; }
+.ask-market { padding: 10px 0 0; margin: 10px 0 0; border-top: 1px solid var(--gtp-card-border); }
+.ask-market:first-child { margin-top: 0; }
+.ask-market-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ask-market-label { font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gtp-on-shell-muted); }
+.ask-market-pick { margin: 4px 0 0; font-size: 15px; color: var(--gtp-on-shell); }
+.ask-market-pick strong { font-weight: 800; }
+.ask-market-nums { margin: 2px 0 0; font-size: 13px; color: var(--gtp-on-shell-muted); }
+.ask-market-reason { margin: 4px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--gtp-on-shell-muted); }
+
+.ask-more { margin: 12px 0 0; font-size: 13px; color: var(--gtp-on-shell); }
+.ask-more > summary { cursor: pointer; display: inline-flex; align-items: center; min-height: 36px; font-weight: 600; color: var(--gtp-on-shell-muted); }
+.ask-more-list { margin: 4px 0 0; padding-left: 18px; line-height: 1.55; }
+.ask-more-list li { margin: 0 0 4px; }
+.ask-folded { font-size: 14px; }
+.ask-folded .ask-md-list { margin-top: 6px; }
+
+.ask-card-action {
+  display: inline-flex; align-items: center; gap: 4px; min-height: 44px; margin: 10px 0 0;
+  font-size: 13.5px; font-weight: 700; color: var(--vault-gold-bright);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+.ask-scoreboard { list-style: none; margin: 0; padding: 0; }
+.ask-score { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--gtp-card-border); }
+.ask-score:first-child { border-top: 0; padding-top: 0; }
+.ask-score-teams { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 auto; max-width: 220px; }
+.ask-score-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 15px; }
+.ask-score-team { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--gtp-on-shell); }
+.ask-score-num { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--gtp-on-shell); }
+.ask-state { font-size: 12.5px; color: var(--gtp-on-shell-muted); text-align: right; }
+.ask-state-live { color: var(--gtp-success-on-dark); font-weight: 700; }
+
+.ask-result-game { padding: 10px 0 0; margin: 10px 0 0; border-top: 1px solid var(--gtp-card-border); }
+.ask-result-game:first-of-type { border-top: 0; margin-top: 6px; padding-top: 0; }
+.ask-result-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; font-size: 13px; }
+.ask-result-title { font-size: 15px; font-weight: 800; color: var(--gtp-on-shell); }
+.ask-calls { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.ask-call { display: grid; grid-template-columns: minmax(0, 7.5em) minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 13.5px; }
+.ask-call-market { color: var(--gtp-on-shell-muted); }
+.ask-call-pick { color: var(--gtp-on-shell); min-width: 0; }
+.ask-lanes { list-style: none; margin: 6px 0 0; padding: 0; }
+.ask-lane { padding: 8px 0; border-top: 1px solid var(--gtp-card-border); }
+.ask-lane:first-child { border-top: 0; }
+.ask-lane-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ask-lane .ask-call { grid-template-columns: minmax(0, 1fr) auto; }
+.ask-lane-empty { font-size: 12.5px; font-weight: 400; color: var(--gtp-on-shell-muted); }
+
+/* A grade is a word first; the colour only repeats it. */
+.ask-badge {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 4.2em; padding: 2px 8px;
+  border-radius: var(--gtp-radius-pill); font-size: 11.5px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase;
+  border: 1px solid currentColor;
+}
+.ask-badge-win { color: var(--gtp-success-on-dark); }
+.ask-badge-loss { color: var(--gtp-danger-on-dark); }
+.ask-badge-pending { color: var(--gtp-warn-on-dark); border-style: dashed; }
+.ask-badge-neutral { color: var(--gtp-on-shell-muted); }
+
+.ask-compare { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ask-compare th, .ask-compare td { padding: 8px 6px; text-align: right; border-top: 1px solid var(--gtp-card-border); vertical-align: top; }
+.ask-compare thead th { border-top: 0; font-size: 12.5px; font-weight: 700; color: var(--gtp-on-shell); }
+.ask-compare th[scope="row"] { text-align: left; font-weight: 600; color: var(--gtp-on-shell-muted); }
+.ask-compare td { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--gtp-on-shell); }
+.ask-compare-note { display: block; font-size: 11.5px; font-weight: 400; color: var(--gtp-on-shell-faint); }
 
 .ask-links { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .ask-chip {
@@ -5324,7 +5439,9 @@ body {
   color: var(--vault-gold-bright); text-decoration: underline; text-underline-offset: 3px;
 }
 
-.ask-followups { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ask-followups-wrap { margin: 14px 0 0; }
+.ask-followups-label { margin: 0 0 6px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gtp-on-shell-faint); }
+.ask-followups { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .ask-followup {
   font: inherit; font-size: 12.5px; min-height: 44px; padding: 8px 12px; cursor: pointer;
   border-radius: var(--gtp-radius-pill);

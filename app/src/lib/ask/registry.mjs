@@ -132,7 +132,7 @@ export const ASK_TOOLS = Object.freeze({
       "Side-by-side recorded profiles for TWO teams, plus their head-to-head meeting history (MLB, NFL). " +
       "Use for 'compare X and Y'. This is recorded fact — it contains no forecast and names no winner.",
     args: {
-      sport: { kind: "enum", options: ["MLB", "NFL"], required: true, describe: "MLB or NFL." },
+      sport: { kind: "enum", options: ["MLB", "NFL"], required: false, describe: "MLB or NFL. If omitted, the sport both team ids name." },
       teamAId: { kind: "slug", required: true, describe: "First team's canonical id." },
       teamBId: { kind: "slug", required: true, describe: "Second team's canonical id." },
     },

@@ -131,6 +131,8 @@ function shapeForecast(f) {
     predictedWinner: f.predictedWinner ?? null,
     probabilities: f.probabilities ?? null,
     home: f.home ?? null, away: f.away ?? null,
+    /* Session 3 · display only (the answer card's full team names); no evidence sentence reads them. */
+    homeName: f.homeName ?? null, awayName: f.awayName ?? null,
     projectedScore: f.projectedScore ?? null,
     expectedGoals: f.expectedGoals ?? null,
     over25: f.over25 ?? null,
