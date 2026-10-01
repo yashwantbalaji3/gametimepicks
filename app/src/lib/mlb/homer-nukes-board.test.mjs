@@ -18,7 +18,14 @@ const boards = () => (fs.existsSync(DIR) ? fs.readdirSync(DIR).filter((f) => /^\
 test("every published board carries probabilities that are real probabilities", () => {
   for (const f of boards()) {
     const b = read(path.join(DIR, f));
-    assert.ok(b.picks.length > 0, `${f} publishes at least one pick`);
+    /* Session 3 · an EMPTY board is honest when it explains itself (2026-10-01: one postseason game, both opposing
+       starters unannounced). It must then say why for every game — a silent empty board still fails. */
+    if (!b.picks.length) {
+      const skipped = b.slate?.skipped ?? [];
+      assert.ok(b.slate?.games > 0 && skipped.length >= b.slate.games && skipped.every((s) => s.game && s.reason),
+        `${f} publishes no pick and does not say why for every game`);
+      continue;
+    }
     for (const p of b.picks) {
       assert.ok(p.probability > 0 && p.probability < 1, `${p.player}: ${p.probability} is a probability`);
       // A home run is a rare event. Anything at or above half would mean the model has decided a
