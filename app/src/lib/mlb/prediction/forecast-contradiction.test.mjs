@@ -35,13 +35,21 @@ const slates = () =>
     .map((f) => JSON.parse(fs.readFileSync(path.join(simDir, f), "utf8")))
     .filter((a) => Array.isArray(a?.games));
 
+/* Session 3 · the NEWEST slates until ≥5 simulated games — never a fixed three. Postseason slates simulate 1–4 games
+   (09-26..09-30: 4 in the newest three), which made all three guards call themselves vacuous; the bar is unchanged. */
+const newestCovering = (list, min) => {
+  const out = []; let n = 0;
+  for (const a of list) { if (n >= min && out.length >= 3) break; out.push(a); n += simulated(a).length; }
+  return out;
+};
+
 const simulated = (a) => a.games.filter((g) => g && g.runs && g.winProbability && g.status !== "unavailable");
 
 test("the canonical projected score IS the median, and it carries its own label", () => {
   const withGames = slates().filter((a) => simulated(a).length);
   assert.ok(withGames.length, "no committed MLB slate carries a simulation — this guard would be vacuous");
   let checked = 0;
-  for (const a of withGames.slice(0, 3)) {
+  for (const a of newestCovering(withGames, 5)) {
     for (const g of simulated(a)) {
       const d = buildGamePredictionDecision(g, []);
       if (!d.projectedScore) continue;
@@ -66,7 +74,7 @@ test("a rounded mean really does contradict the median on real slate data", () =
   /* Sample the SAME slates the guards check — the newest three that carry a simulation. The newest FILES
      can be an empty off-day artifact (2026-09-28: 0 games) or a slate whose rows are all unsimulated
      (09-27: 15 rows, 0 simulated); sampling those made this guard report itself vacuous at season end. */
-  for (const a of slates().filter((x) => simulated(x).length).slice(0, 3)) {
+  for (const a of newestCovering(slates().filter((x) => simulated(x).length), 5)) {
     for (const g of simulated(a)) {
       games += 1;
       const rA = Math.round(g.runs.away.mean), rH = Math.round(g.runs.home.mean);
