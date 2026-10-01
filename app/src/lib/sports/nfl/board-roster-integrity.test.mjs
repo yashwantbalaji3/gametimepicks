@@ -153,7 +153,7 @@ test("§21 · a current-season receiver the receiving family cannot see is NAMED
   const has = { playerId: "nfl-athlete-5", name: "Covered", team: "LAR", markets: { player_receptions: { median: 4 } } };
   const cov = buildCoverage({ teams: ["CLE", "LAR"], players: [row, has], excluded: [], arrivals: {}, qbRules: [], familyGaps: gaps });
   assert.equal(cov.CLE.players[0].notModeled[0].family, "player_receptions");
-  assert.match(cov.CLE.players[0].notModeled[0].reason, /2023–2025/);
+  assert.match(cov.CLE.players[0].notModeled[0].reason, /usage pool does not include his 2026 role/);
   assert.equal(cov.LAR.players[0].notModeled, undefined, "a player the family DOES project owes no disclosure");
 });
 
