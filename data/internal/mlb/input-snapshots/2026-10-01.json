@@ -1,0 +1,72 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-01",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "11d65bd950562df88904d3a203b87932cfded9c94d11588ab403937260334c2d",
+ "updatedAt": "2026-10-01T11:42:06.000Z",
+ "games": [
+  {
+   "gamePk": 849844,
+   "date": "2026-10-01",
+   "slug": "phi-vs-atl-2026-10-01",
+   "awayTeam": "PHI",
+   "homeTeam": "ATL",
+   "firstPitch": "2026-10-02T00:00:00Z",
+   "artifactHash": "e01f55f1724b2feecb12381768128adc7a1b3943af07b624f043b5dd26d8cda4",
+   "completenessLevel": "degraded",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     607208,
+     664761,
+     547180,
+     681082,
+     656941,
+     669016,
+     592663,
+     702222,
+     650559
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     686948,
+     671739,
+     645277,
+     621566,
+     663586,
+     669221,
+     573262,
+     -8,
+     -9
+    ],
+    "realCount": 7,
+    "ratedCount": 7,
+    "paddedSlots": 0
+   },
+   "awayStarter": null,
+   "homeStarter": null,
+   "missingFamilies": [
+    "away_probable_starter",
+    "home_probable_starter",
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}

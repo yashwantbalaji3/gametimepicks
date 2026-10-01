@@ -1,0 +1,42 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-homer-nukes",
+ "dataClass": "PUBLIC_DERIVED",
+ "date": "2026-10-01",
+ "generatedAt": "2026-10-01T11:42:08.000Z",
+ "model": {
+  "id": "mlb-homer-nukes-v1",
+  "state": "PUBLIC_EXPERIMENTAL",
+  "method": "Season HR per plate appearance, regressed to the league rate, scaled by the opposing probable starter's regressed HR-allowed rate, over a league-average number of trips to the plate.",
+  "leagueHrPerPa": 0.03032,
+  "expectedPlateAppearances": 4.2,
+  "batterPriorPa": 200,
+  "pitcherPriorBf": 300,
+  "minimumPa": 120,
+  "notModelled": [
+   "park factor",
+   "weather and wind",
+   "batter/pitcher handedness split",
+   "batting-order slot (trips to the plate are a league average, not this batter's lineup spot)",
+   "bullpen faced after the starter leaves"
+  ],
+  "honestLimit": "Settled from official box scores: 33 of 186 graded picks homered against 45.0 expected. No accuracy claim is made at this sample size, and no home-run market price is fetched, so it makes no claim to beat a sportsbook. It is the model's own read, published so it can be measured."
+ },
+ "slate": {
+  "games": 1,
+  "candidatesRanked": 0,
+  "skipped": [
+   {
+    "game": "PHI @ ATL",
+    "side": "away",
+    "reason": "opposing starter not announced"
+   },
+   {
+    "game": "PHI @ ATL",
+    "side": "home",
+    "reason": "opposing starter not announced"
+   }
+  ]
+ },
+ "picks": []
+}
