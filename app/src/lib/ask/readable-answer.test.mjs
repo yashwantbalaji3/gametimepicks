@@ -20,7 +20,7 @@ test("citation tokens are removed in every observed shape, and nothing else is",
 test("a markdown link keeps its label; the href is never shown as text", () => {
   assert.equal(readableAnswer("See [today's slate](/today/) for more."), "See today's slate for more.");
   // A line that is ONLY a link repeats the chip under the answer — dropped rather than shown twice.
-  assert.equal(readableAnswer("Here's what GameTimePicks holds on that:\n\n- one fact\n\n- [Open Suggested cards](/build/)"), "Here's what GameTimePicks holds on that:\n\n- one fact");
+  assert.equal(readableAnswer("From GameTimePicks' own data:\n\n- one fact\n\n- [Open Suggested cards](/build/)"), "Here's what GameTimePicks holds on that:\n\n- one fact");
 });
 
 test("an ISO timestamp is shown as the same instant in ET; a bare date is untouched", () => {
