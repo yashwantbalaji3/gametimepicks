@@ -178,12 +178,15 @@ export function buildEvidence(envelopes) {
           break;
         }
         if (!d.player) break;
+        /* Session 3 · the owner's own stat LABEL ("hits + runs + RBIs"), never the raw key ("hitsRunsRbis"), which a writer
+           copied into a reader's answer verbatim. The envelope already carried the labels; this sentence ignored them. */
+        const statName = (k) => readableStat(d.families?.find((f) => f?.key === k)?.label) ?? short(k);
         say(`${d.player.label}'s last ${d.returned} recorded games (the player research page's own Last-${d.requested})`, [d.returned, d.requested]);
         for (const [key, w] of Object.entries(d.windows ?? {})) {
-          say(`over those ${w.size} games ${d.player.label} recorded ${w.recordedGames} ${short(key)} entries totalling ${w.sum}, an average of ${w.average}`, [w.size, w.recordedGames, w.sum, w.average]);
+          say(`over those ${w.size} games ${d.player.label} recorded ${w.recordedGames} ${statName(key)} entries totalling ${w.sum}, an average of ${w.average}`, [w.size, w.recordedGames, w.sum, w.average]);
         }
         for (const r of (d.rows ?? []).slice(0, 6)) {
-          const vals = Object.entries(r.values).map(([k, v]) => `${v == null ? "not recorded" : v} ${short(k)}`).join(", ");
+          const vals = Object.entries(r.values).map(([k, v]) => `${v == null ? "not recorded" : v} ${statName(k)}`).join(", ");
           say(`on ${day(r.date)} against the ${r.opponent}, ${d.player.label} recorded ${vals}`, [...Object.values(r.values), day(r.date)]);
         }
         break;
@@ -530,5 +533,9 @@ const day = (iso) => (typeof iso === "string" ? iso.slice(0, 10) : iso);
 /* Exported so the answer display (display.mjs) prints a probability with the SAME rounding as the evidence sentence. */
 export const askPercent = (p) => `${Math.round(p * 1000) / 10}%`;
 const pct = (p) => (p == null ? "not published" : askPercent(p));
+/* "Hits + runs + RBIs" → "hits + runs + RBIs" mid-sentence; an all-caps word ("RBIs", "TD") keeps its case. */
+const readableStat = (label) => (typeof label === "string" && label.trim()
+  ? (/^[A-Z][a-z]/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label).trim()
+  : null);
 const short = (k) => String(k).slice(String(k).indexOf(".") + 1);
 const outcome = (r) => (r === "W" ? "win" : r === "L" ? "loss" : r === "T" ? "tie" : "result not recorded");

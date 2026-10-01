@@ -283,3 +283,16 @@ test("the writer is told about the cards ONLY when there are cards (a length ins
   assert.doesNotMatch(without, /THE READER ALSO SEES/);
   assert.equal(withCards.replace(/\n\nTHE READER ALSO SEES[^\n]*$/, ""), without, "the evidence and every other line are unchanged");
 });
+
+test("🔴 player form evidence names a stat by the owner's LABEL, never the raw key ('hitsRunsRbis')", () => {
+  const env = { tool: "getPlayerRecentGames", status: "OK", data: {
+    player: { label: "Juan Soto" }, requested: 5, returned: 1,
+    families: [{ key: "MLB.hitsRunsRbis", label: "Hits + runs + RBIs" }, { key: "MLB.totalBases", label: "Total bases" }],
+    rows: [{ date: "2031-09-26", opponent: "Washington Nationals", values: { "MLB.hitsRunsRbis": 2, "MLB.totalBases": null } }],
+    windows: { "MLB.hitsRunsRbis": { size: 5, recordedGames: 5, sum: 14, average: 2.8 } },
+  } };
+  const text = buildEvidence([env]).facts.map((f) => f.text).join("\n");
+  assert.doesNotMatch(text, /hitsRunsRbis|totalBases/);
+  assert.match(text, /recorded 2 hits \+ runs \+ RBIs, not recorded total bases/, "missing stays 'not recorded', never 0");
+  assert.match(text, /recorded 5 hits \+ runs \+ RBIs entries totalling 14, an average of 2\.8/);
+});
