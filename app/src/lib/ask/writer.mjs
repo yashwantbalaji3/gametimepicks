@@ -126,7 +126,7 @@ export function writerSystemPrompt() {
 }
 
 /** Render the evidence bundle as the writer's user message. Bounded, and sentences only. */
-export function writerUserMessage({ question, evidence, state }) {
+export function writerUserMessage({ question, evidence, state, display = null }) {
   const lines = [`QUESTION: ${question}`];
 
   if (state?.resolvedEntities?.length) {
@@ -152,8 +152,25 @@ export function writerUserMessage({ question, evidence, state }) {
     for (const l of dedupe(evidence.links).slice(0, 8)) lines.push(`${l.id} · ${l.label}`);
   }
 
+  /*
+   * Session 3 · THE READER ALSO SEES CARDS. When the answer has a typed display (display.mjs), every number above is
+   * already on screen, one card per game — a writer that lists each game again doubles the answer's length for no
+   * information. This is a LENGTH instruction only: the hard rules and the kinds of evidence are unchanged, and the
+   * verifier checks whatever is written exactly as before.
+   */
+  if (display && CARD_WORDS[display.kind]) {
+    lines.push("", `THE READER ALSO SEES ${CARD_WORDS[display.kind]} as cards, with every number above. Write only the direct answer to the question in one to three sentences. Do not list each game, market or call again.`);
+  }
+
   return lines.join("\n");
 }
+
+const CARD_WORDS = Object.freeze({
+  forecasts: "each published forecast",
+  live: "each game's live score and state",
+  resultsDay: "each graded call and each Bank Builder / Moonshot lane",
+  teamCompare: "the comparison table",
+});
 
 function dedupe(links) {
   const seen = new Set();

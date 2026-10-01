@@ -21,10 +21,9 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { listItemOf, readableAnswer } from "@/lib/ask/readable-answer.mjs";
-import { ASK_SOURCE_LABEL } from "@/lib/ask/source-labels.mjs";
+import { ASK_STARTER_GROUPS } from "@/lib/ask/prompts.mjs";
 
-const SOURCE_LABEL: Record<string, string> = ASK_SOURCE_LABEL;
+import { AssistantAnswer, renderMarkdown, type AnswerDisplay } from "./ask-answer";
 
 type Role = "user" | "assistant";
 type LinkRef = { id: string; label: string; href: string };
@@ -39,6 +38,7 @@ interface Message {
   followUps?: string[];
   verified?: boolean;
   error?: boolean;
+  display?: AnswerDisplay | null;
 }
 
 interface Preferences {
@@ -48,17 +48,8 @@ interface Preferences {
 
 const ENDPOINT = "/api/ask/";
 
-/*
- * STARTERS ARE PROMISES (Session 2). Each one is a question the grounded pipeline was asked on Production and
- * answered from an owner — nothing here advertises a capability Ask does not have. Grouped by what the reader wants
- * (now / how it went / dig in) rather than by tool, and kept to two per group so the composer stays in a phone's
- * first screen. The old set led with site help ("What does Confidence mean?") and a niche Game Finder query.
- */
-const STARTER_GROUPS: Array<{ label: string; prompts: string[] }> = [
-  { label: "Today", prompts: ["What are today's GameTime forecasts?", "Which MLB games are live right now?"] },
-  { label: "How it went", prompts: ["How did GameTimePicks do yesterday?", "What is Bank Builder's record?"] },
-  { label: "Dig in", prompts: ["Compare the Yankees and the Red Sox", "Build me a medium-risk card"] },
-];
+/* STARTERS ARE PROMISES (Session 2) — and follow-ups now come from the same verified list (lib/ask/prompts.mjs). */
+const STARTER_GROUPS = ASK_STARTER_GROUPS;
 
 export default function AskApp({ context }: { context?: { pageType: string; id?: string; sport?: string } | null }) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -275,32 +266,9 @@ function Bubble({ message, onFollowUp }: { message: Message; onFollowUp: (s: str
   return (
     <article className={`ask-bubble ask-bubble-${message.role}${message.error ? " ask-bubble-error" : ""}`}>
       <p className="ask-sr">{isUser ? "You said" : "Ask GameTime replied"}</p>
-      {/* A deterministic fallback is still correct — it IS the evidence — but it reads plainer, so say what it is. */}
-      {!isUser && message.verified === false ? <p className="ask-plain-note">Shown exactly as GameTime&apos;s data returned it</p> : null}
-      <div className="ask-text">{renderMarkdown(isUser ? message.text : readableAnswer(message.text))}</div>
-
-      {message.sources?.length ? (
-        <p className="ask-sources">
-          <span className="ask-sources-label">Used:</span>{" "}
-          {message.sources.map((s) => SOURCE_LABEL[s] ?? "GameTime").filter((v, i, a) => a.indexOf(v) === i).join(" · ")}
-        </p>
-      ) : null}
-
-      {message.links?.length ? (
-        <ul className="ask-links">
-          {message.links.map((l) => (
-            <li key={l.id}><a className="ask-chip" href={l.href}>{l.label}</a></li>
-          ))}
-        </ul>
-      ) : null}
-
-      {message.followUps?.length ? (
-        <ul className="ask-followups">
-          {message.followUps.map((f) => (
-            <li key={f}><button type="button" className="ask-followup" onClick={() => onFollowUp(f)}>{f}</button></li>
-          ))}
-        </ul>
-      ) : null}
+      {isUser || message.error
+        ? <div className="ask-text">{renderMarkdown(message.text)}</div>
+        : <AssistantAnswer message={message} onFollowUp={onFollowUp} />}
     </article>
   );
 }
@@ -381,6 +349,7 @@ function answerMessage(payload: {
   answer: { answerMarkdown: string; links?: LinkRef[]; followUps?: string[] };
   evidence?: { sources?: string[] } | null;
   verified?: boolean;
+  display?: AnswerDisplay | null;
 }): Message {
   return {
     id: `a${Date.now()}`,
@@ -390,6 +359,7 @@ function answerMessage(payload: {
     followUps: payload.answer.followUps ?? [],
     sources: payload.evidence?.sources ?? [],
     verified: payload.verified !== false,
+    display: payload.display ?? null,
   };
 }
 
@@ -429,59 +399,6 @@ async function readStream(
       else if (event.type === "done") return;
     }
   }
-}
-
-/**
- * A DELIBERATELY SMALL MARKDOWN RENDERER.
- *
- * Paragraphs, list items, `**bold**` and `` `code` ``. That is the whole grammar. There is no link
- * syntax here on purpose: an answer's links arrive as a separate approved list and are rendered as
- * chips, so there is no code path by which text the model wrote becomes an anchor (§98, §99).
- */
-function renderMarkdown(text: string) {
-  /*
-   * A block may mix a lead line with list items ("The model has:\n- PIT 54.4%\n- CLE 42.6%"). The old renderer made a
-   * block a list only when EVERY line was an item, so that shape collapsed into one run-on paragraph. Runs of item
-   * lines now become a list and the other lines stay paragraphs, in order.
-   */
-  const out: JSX.Element[] = [];
-  String(text ?? "").split(/\n{2,}/).forEach((block, bi) => {
-    let para: string[] = [];
-    let items: string[] = [];
-    const flush = (k: string) => {
-      if (para.length) out.push(<p key={`${k}p`} className="ask-md-p">{inline(para.join(" "))}</p>);
-      if (items.length) out.push(<ul key={`${k}u`} className="ask-md-list">{items.map((l, li) => <li key={li}>{inline(l)}</li>)}</ul>);
-      para = []; items = [];
-    };
-    block.split("\n").forEach((line, li) => {
-      const item = listItemOf(line);
-      if (item !== null) {
-        if (para.length) flush(`${bi}-${li}`);
-        items.push(item);
-      } else if (line.trim()) {
-        if (items.length) flush(`${bi}-${li}`);
-        para.push(line.trim());
-      }
-    });
-    flush(`${bi}-end`);
-  });
-  return out;
-}
-
-function inline(s: string) {
-  const parts: Array<string | JSX.Element> = [];
-  const re = /(\*\*[^*]+\*\*|`[^`]+`)/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(s))) {
-    if (m.index > last) parts.push(s.slice(last, m.index));
-    const token = m[0];
-    if (token.startsWith("**")) parts.push(<strong key={`${m.index}b`}>{token.slice(2, -2)}</strong>);
-    else parts.push(<code key={`${m.index}c`} className="ask-md-code">{token.slice(1, -1)}</code>);
-    last = m.index + token.length;
-  }
-  if (last < s.length) parts.push(s.slice(last));
-  return parts;
 }
 
 const title = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();

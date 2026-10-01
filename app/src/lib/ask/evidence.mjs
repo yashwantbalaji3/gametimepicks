@@ -527,6 +527,8 @@ function unsupportedSentence(env) {
 
 const trim = (x) => String(Number(x.toFixed(4)).valueOf());
 const day = (iso) => (typeof iso === "string" ? iso.slice(0, 10) : iso);
-const pct = (p) => (p == null ? "not published" : `${Math.round(p * 1000) / 10}%`);
+/* Exported so the answer display (display.mjs) prints a probability with the SAME rounding as the evidence sentence. */
+export const askPercent = (p) => `${Math.round(p * 1000) / 10}%`;
+const pct = (p) => (p == null ? "not published" : askPercent(p));
 const short = (k) => String(k).slice(String(k).indexOf(".") + 1);
 const outcome = (r) => (r === "W" ? "win" : r === "L" ? "loss" : r === "T" ? "tie" : "result not recorded");

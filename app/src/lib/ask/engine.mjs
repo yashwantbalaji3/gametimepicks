@@ -27,6 +27,8 @@ import { ASK_BUDGET, ASK_ERROR, ASK_PROMPT_VERSION, ASK_RETRY_GUIDANCE, ASK_STAT
 import { ASK_TOOLS, registryFingerprint } from "./registry.mjs";
 import { makeExecutor } from "./executor.mjs";
 import { buildEvidence } from "./evidence.mjs";
+import { buildAnswerDisplay } from "./display.mjs";
+import { supportedFollowUps } from "./prompts.mjs";
 import { harvestEntities, reduceConversation } from "./conversation.mjs";
 import { parsePlan, plannerSystemPrompt } from "./planner.mjs";
 import { parseAnswer, resolveInlineLinkIds, sanitiseMarkdown, writerSystemPrompt, writerUserMessage } from "./writer.mjs";
@@ -171,6 +173,10 @@ export async function runAskTurn(input, deps) {
   /* E-3: the identifiers the tools actually returned (slip ids, …) — so the eval can check that every id an answer
      names is one a tool produced. Internal to the receipt; the API sends only token and timing fields. */
   receipt.evidenceIdentifiers = [...(evidence.identifiers ?? [])].slice(0, 200);
+  /* Session 3 · the typed card view of the SAME envelopes (display.mjs), or null → the generic renderer. */
+  const display = buildAnswerDisplay(envelopes, evidence.links);
+  /* Session 3 · follow-ups come from the verified starter list, never from the writer (prompts.mjs). */
+  const followUps = supportedFollowUps(plan.intent, state.question);
 
   /*
    * NOTHING USABLE CAME BACK. The honest answer is the deterministic one built from the refusals, not
@@ -179,26 +185,27 @@ export async function runAskTurn(input, deps) {
   if (!evidence.facts.length || envelopes.every((e) => e.status === ASK_STATUS.ERROR || e.status === ASK_STATUS.UNSUPPORTED)) {
     receipt.verifierStatus = "DETERMINISTIC_FALLBACK";
     receipt.totalMs = Date.now() - t0;
-    const answer = deterministicAnswer(evidence, { intent: plan.intent });
+    const answer = { ...deterministicAnswer(evidence, { intent: plan.intent }), followUps };
     emit({ type: "answer_delta", text: answer.answerMarkdown });
-    return { ok: true, answer, intent: plan.intent, entities: harvestEntities(envelopes), receipt, evidence: publicEvidence(evidence) };
+    return { ok: true, answer, intent: plan.intent, entities: harvestEntities(envelopes), receipt, evidence: publicEvidence(evidence), display };
   }
 
   /* ── WRITE + VERIFY ───────────────────────────────────────────────────────────────────────── */
   emit({ type: "status", text: "Putting the answer together…" });
   const writeStart = Date.now();
-  const written = await writeWithVerification({ state, evidence, plan }, deps, receipt, emit);
+  const written = await writeWithVerification({ state, evidence, plan, display }, deps, receipt, emit);
   receipt.writerMs = Date.now() - writeStart;
   receipt.totalMs = Date.now() - t0;
 
   return {
     ok: true,
-    answer: written.answer,
+    answer: { ...written.answer, followUps },
     intent: plan.intent,
     verified: written.verified,
     entities: harvestEntities(envelopes),
     receipt,
     evidence: publicEvidence(evidence),
+    display,
   };
 }
 
@@ -456,9 +463,9 @@ function toolStatusCopy(name) {
  * token by token (§52). Streaming an invented number and retracting it afterwards is worse than a
  * slightly later answer: the reader has already read the number.
  */
-async function writeWithVerification({ state, evidence, plan }, deps, receipt, emit) {
+async function writeWithVerification({ state, evidence, plan, display }, deps, receipt, emit) {
   const system = writerSystemPrompt();
-  const base = writerUserMessage({ question: state.question, evidence, state: { resolvedEntities: state.resolvedEntities, wagering: state.wagering } });
+  const base = writerUserMessage({ question: state.question, evidence, state: { resolvedEntities: state.resolvedEntities, wagering: state.wagering }, display });
 
   let lastViolations = [];
   let lastRejected = null;
