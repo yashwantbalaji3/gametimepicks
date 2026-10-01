@@ -35,7 +35,10 @@ test("LIVE · every MLB row carries a real first pitch, never a fabricated one",
   if (!withTime.length) return; // honest mid-chain state: no source carries a time yet
   const times = new Set(withTime.map((r) => r.startLabel.split(" · ")[1]));
   assert.ok(times.size > 1 || withTime.length <= 2, `every row shows the same time (${[...times]}) — that is a cast, not a schedule`);
-  assert.ok(!times.has("8:00 PM ET") || times.size > 2, "8:00 PM on every row is the midnight-UTC artifact");
+  /* Session 3 · a ONE-game postseason slate can genuinely start at 8:00 PM ET (StatsAPI gameDate 2026-10-02T00:00:00Z for
+     gamePk 849844) — "every row is 8:00 PM" proves a cast only when there are enough rows to be a pattern, exactly like
+     the same-time check above. The per-row count equality above still catches a fabricated time on any slate size. */
+  assert.ok(!times.has("8:00 PM ET") || times.size > 2 || withTime.length <= 2, "8:00 PM on every row is the midnight-UTC artifact");
 });
 
 test("LIVE · an MLB read is the model's own line, labelled as a model forecast", () => {

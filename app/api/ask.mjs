@@ -165,6 +165,8 @@ export default async function handler(req, res) {
       verified: result.verified !== false,
       answer: result.answer,
       evidence: result.evidence ?? null,
+      /* Session 3 · the typed card view of the owner fields behind this answer, or null (generic rendering). */
+      display: result.display ?? null,
       entities: result.entities ?? [],
       /*
        * TOKEN COUNTS AND TIMINGS, so cost is MEASURED rather than asserted. They describe this turn's
