@@ -24,6 +24,7 @@ import PredictionBoard, { participationLabel } from "@/components/prediction/pre
 import { indexLiveProps, liveRowsFromEnvelope, presentPlayerBoardFamily, type PlayerBoardContext, type PlayerBoardPlayer } from "@/lib/prediction-presentation/nfl";
 import { useLiveEvent } from "@/components/live/use-live-event";
 import { etDateOf } from "@/lib/live/client";
+import NotInTheseNumbers, { type BoardCoverage } from "@/components/nfl/not-in-these-numbers";
 
 /**
  * v1.1.2: the player's name cell, with a follow star keyed on the board's own `nfl-athlete-<id>` —
@@ -75,6 +76,8 @@ export interface PlayerBoardArtifact {
   matchup: string;
   participationBasis: string;
   newArrivals?: Record<string, NewArrival[]>;
+  /* Session 4 — the pregame roster/usage receipt (board-roster-integrity.mjs). */
+  coverage?: BoardCoverage;
   families: Record<string, { label: string; state: string; basis?: string; reason?: string; caveat?: string }>;
   players: PlayerBoardRow[];
   disclaimer: string;
@@ -358,64 +361,9 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
         <p className="mt-3" style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>{EMPTY_NOTE}</p>
       )}
 
-      {/* P250-GD3 — NEW ARRIVALS. A player who changed clubs after his last corpus game is absent
-          from BOTH share pools: gone from the old club's list, and started at zero evidence on the
-          new one by the evaluated stint rule. The rule is right about what is unknown (his role
-          here) — but silently omitting a star the reader came for is a product defect. His own
-          prior-club per-game usage is stated as fact, with the frame that it is NOT in the
-          simulated numbers above. */}
-      {(() => {
-        const arrivals = Object.entries(board.newArrivals ?? {})
-          .filter(([t]) => (team ? t === team : true))
-          .flatMap(([, list]) => list)
-          .filter((a) => (q ? a.name.toLowerCase().includes(q.toLowerCase()) : true));
-        if (!arrivals.length) return null;
-        return (
-          /*
-           * ⚠ OPTIONAL, LIKE THE WITHHELD-FAMILIES BLOCK BELOW IT — and for the same reason. These
-           * are per-game averages from ANOTHER CLUB IN ANOTHER SEASON. Kept, because a reader who
-           * came for a player the stint rule cannot place yet should not find silence; demoted,
-           * because a gold heading and a table at the same altitude as this game's forecast invite
-           * a comparison between two numbers that are not comparable.
-           */
-          <details className="mt-4 rounded-[10px]" style={{ border: "1px solid var(--vault-rule)", padding: "10px 12px" }}>
-            <summary className="font-mono uppercase tracking-[0.08em]" style={{ cursor: "pointer", minHeight: 32, fontSize: 9.5, color: "var(--vault-text-mute)" }}>
-              Recent signings ({arrivals.length}) — last season&rsquo;s usage
-            </summary>
-            <p style={{ margin: "4px 0 8px", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
-              What they did per game at their last team. It is history, and none of it is in the projections above.
-            </p>
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 520 }}>
-                <thead>
-                  <tr>
-                    {["Player", "Team", "Availability", "Last club", "Per game (prior club)"].map((h) => (
-                      <th key={h} scope="col" style={{ textAlign: "left", padding: "5px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {arrivals.map((a) => (
-                    <tr key={a.playerId} style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                      <td style={{ padding: "7px 9px", fontSize: 13, color: "var(--vault-text)", fontWeight: 600 }}>{a.name} <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{a.position}</span></td>
-                      <td className="font-mono" style={{ padding: "7px 9px", fontSize: 11, color: "var(--vault-text-mute)" }}>{a.team}</td>
-                      <td className="font-mono" style={{ padding: "7px 9px", fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-                        {participationText(a.participation)}
-                      </td>
-                      <td className="font-mono" style={{ padding: "7px 9px", fontSize: 11, color: "var(--vault-text-mute)" }}>{a.lastSeason.club} · {a.lastSeason.games}g</td>
-                      <td className="font-mono" style={{ padding: "7px 9px", fontSize: 12 }}>
-                        {a.lastSeason.targetsPg > 0 ? `${a.lastSeason.receptionsPg} rec · ${a.lastSeason.recYdsPg} yds` : null}
-                        {a.lastSeason.rushAttPg >= 1 ? `${a.lastSeason.targetsPg > 0 ? " · " : ""}${a.lastSeason.rushYdsPg} rush yds` : null}
-                        {a.lastSeason.passAttPg >= 1 ? `${a.lastSeason.targetsPg > 0 || a.lastSeason.rushAttPg >= 1 ? " · " : ""}${a.lastSeason.passYdsPg} pass yds` : null}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </details>
-        );
-      })()}
+      {/* Session 4 — the coverage receipt (who is out, who has no game for this club yet, which QBs are
+          not the passer) replaces the prior-club "recent signings" table. */}
+      <NotInTheseNumbers coverage={board.coverage} arrivals={board.newArrivals} teams={team ? [team] : teams ?? Object.keys(board.coverage ?? {})} style={{ marginTop: 16 }} />
 
       {withheld.length ? (
         <details className="mt-3" style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>

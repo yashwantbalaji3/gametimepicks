@@ -27,6 +27,7 @@ import { hrefsFor } from "@/lib/research-pages/projection-store";
 import { nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
 import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
+import NotInTheseNumbers from "@/components/nfl/not-in-these-numbers";
 import LivePanel from "@/components/live/live-panel";
 import { participationLabel } from "@/components/prediction/prediction-board";
 
@@ -375,7 +376,6 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
            "· estimate" suffix is gone. Evaluation detail lives on /methodology, not on every row. */
         /* P250-GD3: roster movers the stint rule cannot place yet — factual prior-club usage,
            named on the scorecard so a star the reader came for is never silently absent. */
-        const arrivalsOf = (abbr: string) => (playerBoard?.newArrivals?.[abbr] ?? []).slice(0, 3);
         const withheld = Object.entries(fams).filter(([, x]) => x.state === "WITHHELD");
         const estimates = Object.entries(fams).filter(([, x]) => x.state === "ESTIMATE");
         /* A raw family key is not a reader-facing label — the artifact's label wins, with a plain
@@ -426,37 +426,6 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   </p>
                 ))}
               </div>
-            ) : null}
-            {/*
-              * ⚠ PRIOR-CLUB HISTORY WAS INTERRUPTING THE FORECAST IT IS NOT PART OF.
-              *
-              * A warn-coloured "NEW ARRIVALS · NOT IN THESE NUMBERS" heading sat in the primary
-              * scorecard, between this game's projections, followed by per-game averages from a
-              * DIFFERENT CLUB IN A DIFFERENT SEASON. The facts are real and worth keeping — a
-              * reader who came for a star the stint rule cannot place yet should not find silence —
-              * but presenting last year's usage at the same altitude as this week's forecast makes
-              * a reader compare two numbers that are not comparable, and the disclaimer under it
-              * was doing all the work.
-              *
-              * So it becomes an optional disclosure: closed by default, opened deliberately, and
-              * still stating exactly what it is. Nothing is removed and nothing is hidden — the
-              * primary forecast simply stops being interrupted by something that is not one.
-              */}
-            {arrivalsOf(t.abbr).length ? (
-              <details style={{ marginTop: 10 }}>
-                <summary className="font-mono" style={{ cursor: "pointer", minHeight: 32, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
-                  Recent signings ({arrivalsOf(t.abbr).length}) — last season&rsquo;s usage
-                </summary>
-                <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>What they did per game at their last team. It is history, and none of it is in this game&rsquo;s projections.</p>
-                {arrivalsOf(t.abbr).map((a) => (
-                  <p key={a.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
-                    <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{a.name}</span>{" "}
-                    <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}>
-                      {a.lastSeason.targetsPg > 0 ? `${a.lastSeason.receptionsPg} rec · ${a.lastSeason.recYdsPg} yds` : a.lastSeason.passAttPg >= 1 ? `${a.lastSeason.passYdsPg} pass yds` : `${a.lastSeason.rushYdsPg} rush yds`}/g at {a.lastSeason.club}
-                    </span>
-                  </p>
-                ))}
-              </details>
             ) : null}
             {hasRec && recTop(t.abbr).length ? (
               <div style={{ marginTop: 10 }}>
@@ -517,6 +486,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   </ul>
                 </details>
               ) : null}
+              {/* Session 4 — the board's coverage receipt replaces the prior-club "recent signings" strip:
+                  who is out, who has no game for this club yet, which QBs are not the passer. */}
+              <NotInTheseNumbers coverage={playerBoard?.coverage} arrivals={playerBoard?.newArrivals} teams={[f.away.abbr, f.home.abbr]} style={{ marginTop: 14 }} />
             </div>
           </section>
         );

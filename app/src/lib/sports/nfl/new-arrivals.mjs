@@ -25,7 +25,22 @@
  * depth bodies with no meaningful history stay out, exactly as they are out of the pool.
  */
 
-export const NEW_ARRIVALS_VERSION = 1;
+import { isUnavailableState } from "./board-roster-integrity.mjs";
+
+export const NEW_ARRIVALS_VERSION = 2;
+/*
+ * SESSION 4 — TWO WAYS THE STRIP LISTED A PLAYER IT HAD NO BUSINESS LISTING (PIT @ CLE, 2026-10-01).
+ *
+ *   · UNAVAILABLE. The skip was `state === "INACTIVE"`, a word role evidence never emits — it says OUT.
+ *     Rico Dowdle (Out) was listed as a recent signing under the forecast he cannot play in.
+ *   · ALREADY OBSERVED. The corpus seasons stop at 2025, so a mover's "most recent stint" was his OLD
+ *     club for the whole of 2026, however many games he had played for the new one. The weekly
+ *     forecast already models such a player at his current club from this season's games
+ *     (`currentUsage`); he is not an unobserved arrival, and if he is missing from the board a gate
+ *     removed him — that gate, not "last season", is his reason.
+ *
+ * What survives is the honest residue: on the roster, available, and no game for this club yet.
+ */
 const SKILL = new Set(["QB", "RB", "WR", "TE", "FB"]);
 const MIN_GAMES = 6;
 
@@ -58,9 +73,10 @@ const notable = (a) => a.games >= MIN_GAMES && (a.targetsPg >= 3 || a.rushAttPg 
  * @param {Array}  p.corpusSeasons  newest-first list of player-events season docs ({rows:[{players,dateUtc}...]} or plain game arrays)
  * @param {object} p.roleEvidence   the role-evidence artifact (events[].teams[abbr].players[])
  * @param {object} p.shares         role-shares current.json (teams[abbr][family].players[].playerId)
+ * @param {Set}    [p.currentUsage] `${team}:${playerId}` the weekly forecast models from THIS season's games
  * @returns Map providerEventId -> { [teamAbbr]: arrival[] }
  */
-export function deriveNewArrivals({ corpusSeasons, roleEvidence, shares }) {
+export function deriveNewArrivals({ corpusSeasons, roleEvidence, shares, currentUsage = null }) {
   // per-player game rows by playerId, newest season first — first season with rows wins.
   const byPlayer = new Map();
   for (const season of corpusSeasons) {
@@ -88,8 +104,9 @@ export function deriveNewArrivals({ corpusSeasons, roleEvidence, shares }) {
     for (const [abbr, tv] of Object.entries(ev.teams ?? {})) {
       const arrivals = [];
       for (const p of tv.players ?? []) {
-        if (!SKILL.has(p.position) || p.state === "INACTIVE") continue;
+        if (!SKILL.has(p.position) || isUnavailableState(p.state)) continue;
         if (pool.get(abbr)?.has(p.playerId)) continue;
+        if (currentUsage?.has(`${abbr}:${p.playerId}`)) continue;  // observed at this club this season ⇒ modelled here
         const hist = byPlayer.get(p.playerId);
         if (!hist?.rows?.length) continue;                    // no corpus history — genuinely unknown, stays absent
         const a = stintAverages(hist.rows);
@@ -98,7 +115,7 @@ export function deriveNewArrivals({ corpusSeasons, roleEvidence, shares }) {
         arrivals.push({
           playerId: p.playerId, name: p.name, position: p.position, team: abbr,
           participation: p.state, lastSeason: a,
-          note: `usage carried from ${a.club} (${a.games} games last season) — his role at ${abbr} is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen`,
+          note: `no game for ${abbr} yet this season, so his role there is not yet observed and he is not in this game's numbers; his ${a.club} history is kept only as a historical prior`,
         });
       }
       if (arrivals.length) perTeam[abbr] = arrivals.sort((x, y) => (y.lastSeason.targetsPg + y.lastSeason.rushAttPg) - (x.lastSeason.targetsPg + x.lastSeason.rushAttPg));

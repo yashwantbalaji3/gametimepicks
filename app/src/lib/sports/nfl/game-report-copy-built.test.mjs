@@ -76,39 +76,44 @@ test("no banned internal copy reaches the primary NFL game-report UI", () => {
 });
 
 /**
- * THE EXEMPTION, POSITIVE-CONTROLLED.
- *
- * `primaryOf` strips `<details>`, so a guard that never checks WHAT it stripped would pass just as
- * happily if the whole page were wrapped in one. This asserts the stripping is real and narrow: the
- * prior-club block must still EXIST on at least one page, inside a disclosure, carrying its own
- * frame — kept, demoted, and not quietly deleted to make a copy scan go green.
+ * THE EXEMPTION, POSITIVE-CONTROLLED (Session 4 rewrite). `primaryOf` strips `<details>`, so the
+ * second test below asserts the stripped model-detail block really exists wherever a board's
+ * coverage receipt owes one — the exemption is narrow, and nothing was deleted to go green.
  */
-test("the prior-club context survives — demoted into a disclosure, not deleted", () => {
+test("SESSION 4 · no exported game page shows a former club's line as a current-game attribute", () => {
+  /*
+   * The old strip rendered "2.1 rec · 16.9 yds/g at CAR" under the current matchup. A prior club may
+   * now appear only inside the model-detail disclosure, labelled as an unused historical prior.
+   * Everything OUTSIDE that disclosure is current-game output and must carry no "…/g at XXX" line,
+   * no "recent signings" heading and no "last season's usage".
+   */
   const pages = gamePages();
-  const artifacts = (() => {
-    const dir = path.join(APP, "public/data/nfl/player-board");
-    if (!fs.existsSync(dir)) return 0;
-    return fs.readdirSync(dir).filter((f) => /^\d+\.json$/.test(f))
-      .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")))
-      .filter((b) => Object.values(b.newArrivals ?? {}).some((l) => l.length > 0)).length;
-  })();
-  if (artifacts === 0) return; // no mover on this slate: the page owes nothing and claims nothing
-
-  const withDisclosure = pages.filter(({ main }) =>
-    (main.match(/<details[\s\S]*?<\/details>/g) ?? []).some((d) => /recent signings/i.test(textOf(d))));
-  assert.ok(withDisclosure.length > 0,
-    `${artifacts} committed board(s) carry prior-club movers, but no exported game page offers them in a disclosure — the copy rule must demote this context, never delete it`);
-
-  for (const { rel, main } of withDisclosure) {
-    const disclosure = (main.match(/<details[\s\S]*?<\/details>/g) ?? [])
-      .filter((d) => /recent signings/i.test(textOf(d))).join(" ");
-    const text = textOf(disclosure).toLowerCase();
-    assert.ok(text.includes("history"), `${rel}: the disclosure must still say these numbers are history`);
-    /* "none of it is in ... projections" and "not part of the projections" are the same statement;
-       the guard must accept the sentence the product actually writes, not one spelling of it. */
-    assert.ok(/(not|none of it is|never) [^.]*projection/.test(text),
-      `${rel}: the disclosure must still say the numbers are not in this game's projections`);
+  assert.ok(pages.length > 0, "no exported NFL game page to scan — a vacuous pass");
+  for (const { rel, main } of pages) {
+    const outside = main.replace(/<details[^>]*data-model-detail="not-in-these-numbers"[\s\S]*?<\/details>/g, " ");
+    const text = textOf(outside);
+    assert.ok(!/recent signings/i.test(text), `${rel}: the prior-club strip is back in the current-game page`);
+    assert.ok(!/last season[’']s usage/i.test(text), `${rel}: last season's usage presented as a current-game attribute`);
+    assert.ok(!/\/g at [A-Z]{2,3}\b/.test(text), `${rel}: a per-game line "at <club>" in current-game output`);
   }
+});
+
+test("SESSION 4 · a board with excluded or role-uncertain players offers the model-detail disclosure", () => {
+  const dir = path.join(APP, "public/data/nfl/player-board");
+  if (!fs.existsSync(dir)) return;
+  const pages = new Map(gamePages().map((p) => [p.rel.match(/(\d{6,})/)?.[1], p]));
+  let armed = 0;
+  for (const file of fs.readdirSync(dir).filter((f) => /^\d+\.json$/.test(f))) {
+    const board = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+    const owed = Object.values(board.coverage ?? {}).some((c) => c.players.some((r) => r.state !== "PROJECTED" || r.notModeled?.length));
+    const page = pages.get(String(board.providerEventId));
+    if (!owed || !page) continue;
+    armed += 1;
+    const d = (page.main.match(/<details[^>]*data-model-detail="not-in-these-numbers"[\s\S]*?<\/details>/) ?? [""])[0];
+    assert.ok(/who this forecast leaves out/i.test(textOf(d)), `${page.rel}: coverage owes a model-detail disclosure and the page has none`);
+    if (/for [A-Z]{2,3},/.test(textOf(d))) assert.match(textOf(d), /Historical prior, not used in these numbers/, `${page.rel}: a former club's line must be labelled as an unused prior`);
+  }
+  console.log(`session-4 coverage disclosure: ${armed} exported page(s) armed`);
 });
 
 /**
