@@ -296,3 +296,25 @@ test("🔴 player form evidence names a stat by the owner's LABEL, never the raw
   assert.match(text, /recorded 2 hits \+ runs \+ RBIs, not recorded total bases/, "missing stays 'not recorded', never 0");
   assert.match(text, /recorded 5 hits \+ runs \+ RBIs entries totalling 14, an average of 2\.8/);
 });
+
+test("🔴 the writer's input names a refused tool by its READER name, never its function name", () => {
+  const evidence = buildEvidence([{ tool: "getTeamComparison", status: "UNSUPPORTED", error: "INVALID_ARGUMENT", detail: "x" }]);
+  const msg = writerUserMessage({ question: "q", evidence, state: {} });
+  assert.match(msg, /- Team Compare: INVALID_ARGUMENT/);
+  assert.doesNotMatch(msg, /getTeamComparison/);
+});
+
+test("🔴 team compare takes the sport from the ids only when BOTH name the same one; an explicit sport wins", async () => {
+  const { getTeamComparison } = await import("./tools/compare.mjs");
+  const ctx = { turn: { load: async () => ({ ok: false }) } };
+  // derived MLB → proceeds to loading (the fixture has no assets, so it stops there — not at the sport check)
+  const derived = await getTeamComparison({ teamAId: "mlb-team-147", teamBId: "mlb-team-111" }, ctx);
+  assert.doesNotMatch(String(derived.detail ?? ""), /name the sport/);
+  // mixed sports / non-canonical ids → refused, never guessed
+  for (const [a, b] of [["mlb-team-147", "nfl-team-23"], ["yankees", "red-sox"]]) {
+    const r = await getTeamComparison({ teamAId: a, teamBId: b }, ctx);
+    assert.match(r.detail, /name the sport/);
+  }
+  const explicit = await getTeamComparison({ sport: "EPL", teamAId: "mlb-team-147", teamBId: "mlb-team-111" }, ctx);
+  assert.doesNotMatch(String(explicit.detail), /name the sport/, "an explicit (unsupported) sport is judged as given");
+});

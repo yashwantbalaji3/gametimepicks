@@ -55,7 +55,20 @@ async function loadEntity(turn, kind, sport, id) {
 
 /* ────────────────────────────  getTeamComparison  ──────────────────────────── */
 
-export async function getTeamComparison(args, ctx) {
+/*
+ * Session 3 · A CANONICAL TEAM ID ALREADY NAMES ITS SPORT ("mlb-team-147"). On the PR preview the planner called this
+ * tool for "Compare the Yankees and the Red Sox" with both ids resolved and no `sport`, the argument check refused it,
+ * and the reader got "does not hold that data". The sport is taken from the ids only when BOTH carry the same one;
+ * anything else is still refused. An explicit `sport` always wins.
+ */
+const sportOfTeamIds = (a, b) => {
+  const s = (id) => String(id ?? "").match(/^([a-z]+)-team-/i)?.[1]?.toUpperCase() ?? null;
+  return s(a) && s(a) === s(b) ? s(a) : null;
+};
+
+export async function getTeamComparison(rawArgs, ctx) {
+  const args = { ...rawArgs, sport: rawArgs.sport ?? sportOfTeamIds(rawArgs.teamAId, rawArgs.teamBId) };
+  if (!args.sport) return unsupported("name the sport (MLB or NFL) for that team comparison");
   if (!TEAM_COMPARE_SPORTS.includes(args.sport)) {
     return unsupported(BLOCKER?.TEAM_RESULTS_UNSUPPORTED ?? `team comparison is not available for ${args.sport}`);
   }

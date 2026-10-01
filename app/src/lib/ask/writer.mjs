@@ -14,6 +14,7 @@
  */
 import { ASK_BUDGET, ASK_ERROR } from "./contract.mjs";
 import { extractJson } from "./planner.mjs";
+import { ASK_SOURCE_LABEL } from "./source-labels.mjs";
 
 /**
  * @typedef {object} WriteOutput
@@ -144,7 +145,8 @@ export function writerUserMessage({ question, evidence, state, display = null })
 
   if (evidence.unsupported?.length) {
     lines.push("", "WHAT GAMETIME COULD NOT ANSWER:");
-    for (const u of evidence.unsupported) lines.push(`- ${u.tool}: ${u.error}${u.detail ? ` — ${u.detail}` : ""}`);
+    /* Session 3 · the tool's READER name, never its function name: a writer copied "getTeamComparison" into an answer. */
+    for (const u of evidence.unsupported) lines.push(`- ${ASK_SOURCE_LABEL[u.tool] ?? "GameTime"}: ${u.error}${u.detail ? ` — ${u.detail}` : ""}`);
   }
 
   if (evidence.links?.length) {

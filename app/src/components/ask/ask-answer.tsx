@@ -88,7 +88,8 @@ export function AssistantAnswer({ message, onFollowUp }: { message: AnswerMessag
     <>
       {/* A deterministic fallback is still correct — it IS the evidence — but it reads plainer, so say what it is. */}
       {message.verified === false ? <p className="ask-plain-note">Shown exactly as GameTime&apos;s data returned it</p> : null}
-      <div className="ask-text ask-answer-lead">{renderMarkdown(readableAnswer(message.text))}</div>
+      {/* With a card, the writer's bullet lists repeat it — they fold into a closed disclosure, never deleted. */}
+      <div className="ask-text ask-answer-lead">{renderMarkdown(readableAnswer(message.text), { collapseLists: renderer !== "generic" })}</div>
 
       {renderer === "forecasts" ? <ForecastCards d={display as ForecastsDisplay} /> : null}
       {renderer === "live" ? <LiveCard d={display as LiveDisplay} /> : null}
@@ -412,19 +413,25 @@ function CardAction({ href, label, children }: { href: string; label: string; ch
  * syntax here on purpose: an answer's links arrive as a separate approved list and are rendered as
  * chips, so there is no code path by which text the model wrote becomes an anchor (§98, §99).
  */
-export function renderMarkdown(text: string) {
+export function renderMarkdown(text: string, { collapseLists = false }: { collapseLists?: boolean } = {}) {
   /*
    * A block may mix a lead line with list items ("The model has:\n- PIT 54.4%\n- CLE 42.6%"). The old renderer made a
    * block a list only when EVERY line was an item, so that shape collapsed into one run-on paragraph. Runs of item
    * lines now become a list and the other lines stay paragraphs, in order.
    */
   const out: JSX.Element[] = [];
+  /* Session 3 · with a typed card, list blocks are collected here and shown in one closed <details> after the prose. */
+  const folded: JSX.Element[] = [];
+  let foldedItems = 0;
   String(text ?? "").split(/\n{2,}/).forEach((block, bi) => {
     let para: string[] = [];
     let items: string[] = [];
     const flush = (k: string) => {
       if (para.length) out.push(<p key={`${k}p`} className="ask-md-p">{inline(para.join(" "))}</p>);
-      if (items.length) out.push(<ul key={`${k}u`} className="ask-md-list">{items.map((l, li) => <li key={li}>{inline(l)}</li>)}</ul>);
+      if (items.length) {
+        const list = <ul key={`${k}u`} className="ask-md-list">{items.map((l, li) => <li key={li}>{inline(l)}</li>)}</ul>;
+        if (collapseLists) { folded.push(list); foldedItems += items.length; } else out.push(list);
+      }
       para = []; items = [];
     };
     block.split("\n").forEach((line, li) => {
@@ -439,6 +446,14 @@ export function renderMarkdown(text: string) {
     });
     flush(`${bi}-end`);
   });
+  if (folded.length) {
+    out.push(
+      <details key="folded" className="ask-more ask-folded">
+        <summary>Written breakdown ({foldedItems})</summary>
+        {folded}
+      </details>,
+    );
+  }
   return out;
 }
 
