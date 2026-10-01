@@ -22,6 +22,8 @@ export interface CompareTeamEntity {
 export interface MatchupEntry {
   schemaVersion: 1; gameId: string; sport: Sport; seasonId: string; startUtc: string; homeTeamId: string; awayTeamId: string;
   neutralSite: boolean; final: { home: number; away: number } | null; priorMeetings: number; indexable: boolean; path: string;
+  /** Session 3 · present only when the game left the source schedule after its page was published (never played). */
+  scheduleState?: "REMOVED_FROM_SCHEDULE";
 }
 
 const ROOT = () => path.join(process.cwd(), "..", COMPARE_PROJECTION_DIR);
