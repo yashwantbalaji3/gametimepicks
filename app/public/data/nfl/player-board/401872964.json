@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-01T20:16:30Z",
- "sourceGeneratedAt": "2026-10-01T20:16:30Z",
+ "generatedAt": "2026-10-01T22:00:15Z",
+ "sourceGeneratedAt": "2026-10-01T22:00:15Z",
  "providerEventId": "401872964",
  "matchup": "PIT @ CLE",
  "kickoffUtc": "2026-10-02T00:15Z",
@@ -54,25 +54,6 @@
  "newArrivals": {
   "PIT": [
    {
-    "playerId": "nfl-athlete-4038815",
-    "name": "Rico Dowdle",
-    "position": "RB",
-    "team": "PIT",
-    "participation": "OUT",
-    "lastSeason": {
-     "club": "CAR",
-     "games": 20,
-     "targetsPg": 2.7,
-     "receptionsPg": 2.1,
-     "recYdsPg": 16.9,
-     "rushAttPg": 12.3,
-     "rushYdsPg": 54.7,
-     "passAttPg": 0,
-     "passYdsPg": 0
-    },
-    "note": "usage carried from CAR (20 games last season) — his role at PIT is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
-   },
-   {
     "playerId": "nfl-athlete-4242540",
     "name": "Isaiah Hodgins",
     "position": "WR",
@@ -89,11 +70,11 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from NYG (6 games last season) — his role at PIT is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for PIT yet this season, so his role there is not yet observed and he is not in this game's numbers; his NYG history is kept only as a historical prior"
    }
   ]
  },
- "arrivalsShadowed": 1,
+ "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "shareLevel": {
   "markets": [
@@ -108,8 +89,335 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 51,
+  "absent": 49,
   "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "PIT": {
+   "counts": {
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4569987",
+     "name": "Jaylen Warren",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4047650",
+     "name": "DK Metcalf",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4361411",
+     "name": "Pat Freiermuth",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4430802",
+     "name": "Darnell Washington",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4431492",
+     "name": "Roman Wilson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-8439",
+     "name": "Aaron Rodgers",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4037457",
+     "name": "Travis Homer",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4035687",
+     "name": "Michael Pittman",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4685261",
+     "name": "Germie Bernard",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4038815",
+     "name": "Rico Dowdle",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4242540",
+     "name": "Isaiah Hodgins",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for PIT yet this season — role at PIT not yet observed"
+    }
+   ]
+  },
+  "CLE": {
+   "counts": {
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
+    "NOT_MODELED_BY_FAMILY": 1
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4685702",
+     "name": "Quinshon Judkins",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-5083076",
+     "name": "Harold Fannin Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4241463",
+     "name": "Jerry Jeudy",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-5081397",
+     "name": "Dylan Sampson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4808839",
+     "name": "Isaiah Bond",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3122840",
+     "name": "Deshaun Watson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4601080",
+     "name": "Raheim Sanders",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4432762",
+     "name": "Shedeur Sanders",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4870653",
+     "name": "KC Concepcion",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4832800",
+     "name": "Denzel Boston",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4427238",
+     "name": "Dillon Gabriel",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "PIT",
+    "state": "SINGLE_PASSER",
+    "passers": [
+     "nfl-athlete-8439"
+    ],
+    "removed": []
+   },
+   {
+    "team": "CLE",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3122840",
+     "name": "Deshaun Watson"
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4432762",
+      "name": "Shedeur Sanders"
+     },
+     {
+      "playerId": "nfl-athlete-4427238",
+      "name": "Dillon Gabriel"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-3122840"
+    ]
+   }
+  ],
+  "violations": 0
  },
  "players": [
   {
@@ -583,15 +891,6 @@
      "p90": 23.3549,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 105.0728,
-     "p10": 41.1137,
-     "p25": 62.6999,
-     "median": 94.733,
-     "p75": 136.2687,
-     "p90": 182.502,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0372,
      "pricingState": "NOT_PROBED"
@@ -620,23 +919,6 @@
      "median": 1,
      "p75": 2,
      "p90": 3,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4427238",
-   "name": "Dillon Gabriel",
-   "team": "CLE",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 93.7503,
-     "p10": 36.3316,
-     "p25": 55.6463,
-     "median": 84.3872,
-     "p75": 121.735,
-     "p90": 163.3708,
      "pricingState": "NOT_PROBED"
     }
    }

@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-01T20:16:30Z",
- "sourceGeneratedAt": "2026-10-01T20:16:30Z",
+ "generatedAt": "2026-10-01T22:00:15Z",
+ "sourceGeneratedAt": "2026-10-01T22:00:15Z",
  "providerEventId": "401872965",
  "matchup": "IND @ WSH",
  "kickoffUtc": "2026-10-04T13:30Z",
@@ -70,7 +70,7 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from TEN (17 games last season) — his role at WSH is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for WSH yet this season, so his role there is not yet observed and he is not in this game's numbers; his TEN history is kept only as a historical prior"
    }
   ],
   "IND": [
@@ -91,11 +91,11 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from NYG (14 games last season) — his role at IND is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for IND yet this season, so his role there is not yet observed and he is not in this game's numbers; his NYG history is kept only as a historical prior"
    }
   ]
  },
- "arrivalsShadowed": 5,
+ "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "shareLevel": {
   "markets": [
@@ -110,8 +110,430 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 61,
+  "absent": 58,
   "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "IND": {
+   "counts": {
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 1
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4242335",
+     "name": "Jonathan Taylor",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4431459",
+     "name": "Tyler Warren",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4688813",
+     "name": "Josh Downs",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-2998565",
+     "name": "Mo Alie-Cox",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-3917792",
+     "name": "Daniel Jones",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4429084",
+     "name": "Anthony Richardson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4874509",
+     "name": "DJ Giddens",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4686468",
+     "name": "Seth McGowan",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-15818",
+     "name": "Keenan Allen",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4249030",
+     "name": "D.J. Montgomery",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4360078",
+     "name": "Alec Pierce",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-3916945",
+     "name": "Darius Slayton",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for IND yet this season — role at IND not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-4683423",
+     "name": "Riley Leonard",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    }
+   ]
+  },
+  "WSH": {
+   "counts": {
+    "PROJECTED": 16,
+    "EXCLUDED_UNAVAILABLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-3121422",
+     "name": "Terry McLaurin",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3068267",
+     "name": "Austin Ekeler",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4567156",
+     "name": "Treylon Burks",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4690923",
+     "name": "Ben Sinnott",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-3127586",
+     "name": "Jeremy McNichols",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4048228",
+     "name": "John Bates",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4602667",
+     "name": "Jaylin Lane",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-2576980",
+     "name": "Marcus Mariota",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4697815",
+     "name": "Rachaad White",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4426348",
+     "name": "Jayden Daniels",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4575131",
+     "name": "Jacory Croskey-Merritt",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4685246",
+     "name": "Kaytron Allen",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-2976212",
+     "name": "Stefon Diggs",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4361577",
+     "name": "Dyami Brown",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4360635",
+     "name": "Chig Okonkwo",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-5081432",
+     "name": "Antonio Williams",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3930066",
+     "name": "Van Jefferson",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for WSH yet this season — role at WSH not yet observed"
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "IND",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3917792",
+     "name": "Daniel Jones"
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4429084",
+      "name": "Anthony Richardson"
+     },
+     {
+      "playerId": "nfl-athlete-4683423",
+      "name": "Riley Leonard"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-3917792"
+    ]
+   },
+   {
+    "team": "WSH",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4426348",
+     "name": "Jayden Daniels"
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2576980",
+      "name": "Marcus Mariota"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-4426348"
+    ]
+   }
+  ],
+  "violations": 0
  },
  "players": [
   {
@@ -438,15 +860,6 @@
      "p90": 42.4905,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 78.394,
-     "p10": 25.7051,
-     "p25": 42.4945,
-     "median": 68.6084,
-     "p75": 103.7587,
-     "p90": 143.9235,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1473,
      "pricingState": "NOT_PROBED"
@@ -612,15 +1025,6 @@
      "p90": 39.7659,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 162.5109,
-     "p10": 76.0942,
-     "p25": 107.1708,
-     "median": 150.9095,
-     "p75": 205.2732,
-     "p90": 263.9644,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0816,
      "pricingState": "NOT_PROBED"
@@ -748,23 +1152,6 @@
      "median": 1,
      "p75": 2,
      "p90": 3,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4683423",
-   "name": "Riley Leonard",
-   "team": "IND",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 94.6826,
-     "p10": 35.4939,
-     "p25": 55.1814,
-     "median": 84.75,
-     "p75": 123.4569,
-     "p90": 166.8328,
      "pricingState": "NOT_PROBED"
     }
    }

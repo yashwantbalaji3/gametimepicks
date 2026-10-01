@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-01T20:16:30Z",
- "sourceGeneratedAt": "2026-10-01T20:16:30Z",
+ "generatedAt": "2026-10-01T22:00:15Z",
+ "sourceGeneratedAt": "2026-10-01T22:00:15Z",
  "providerEventId": "401872969",
  "matchup": "JAX @ CIN",
  "kickoffUtc": "2026-10-04T17:00Z",
@@ -70,7 +70,7 @@
      "passAttPg": 16.3,
      "passYdsPg": 108.5
     },
-    "note": "usage carried from WSH (6 games last season) — his role at CIN is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for CIN yet this season, so his role there is not yet observed and he is not in this game's numbers; his WSH history is kept only as a historical prior"
    }
   ],
   "JAX": [
@@ -91,11 +91,11 @@
      "passAttPg": 18,
      "passYdsPg": 127.9
     },
-    "note": "usage carried from MIA (7 games last season) — his role at JAX is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for JAX yet this season, so his role there is not yet observed and he is not in this game's numbers; his MIA history is kept only as a historical prior"
    }
   ]
  },
- "arrivalsShadowed": 1,
+ "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "shareLevel": {
   "markets": [
@@ -110,8 +110,344 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 53,
+  "absent": 52,
   "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "JAX": {
+   "counts": {
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4432620",
+     "name": "Parker Washington",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3916433",
+     "name": "Jakobi Meyers",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4685415",
+     "name": "Travis Hunter",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4432773",
+     "name": "Brian Thomas Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4430539",
+     "name": "Brenton Strange",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-2576336",
+     "name": "Ameer Abdullah",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3059989",
+     "name": "Nick Mullens",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4360310",
+     "name": "Trevor Lawrence",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4362619",
+     "name": "Chris Rodriguez Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4882093",
+     "name": "Bhayshul Tuten",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4244856",
+     "name": "Austin Trammell",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4879194",
+     "name": "Josh Cameron",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4889929",
+     "name": "Quinn Ewers",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for JAX yet this season — role at JAX not yet observed"
+    }
+   ]
+  },
+  "CIN": {
+   "counts": {
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4362238",
+     "name": "Chase Brown",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4362628",
+     "name": "Ja'Marr Chase",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4239993",
+     "name": "Tee Higgins",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3116164",
+     "name": "Mike Gesicki",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4690070",
+     "name": "Mitchell Tinsley",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-11252",
+     "name": "Joe Flacco",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3116389",
+     "name": "Samaje Perine",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3915511",
+     "name": "Joe Burrow",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4429012",
+     "name": "Kendall Milton",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4384852",
+     "name": "Dohnte Meyers",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4368003",
+     "name": "Andrei Iosivas",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-11394",
+     "name": "Josh Johnson",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for CIN yet this season — role at CIN not yet observed"
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "JAX",
+    "state": "SINGLE_PASSER",
+    "passers": [
+     "nfl-athlete-4360310"
+    ],
+    "removed": []
+   },
+   {
+    "team": "CIN",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3915511",
+     "name": "Joe Burrow"
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-11252",
+      "name": "Joe Flacco"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-3915511"
+    ]
+   }
+  ],
+  "violations": 0
  },
  "players": [
   {
@@ -598,15 +934,6 @@
      "median": 0.624,
      "p75": 6.1238,
      "p90": 19.4846,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 113.3138,
-     "p10": 47.7114,
-     "p25": 70.4278,
-     "median": 103.4269,
-     "p75": 145.498,
-     "p90": 191.766,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

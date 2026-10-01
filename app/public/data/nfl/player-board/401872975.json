@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-01T20:16:30Z",
- "sourceGeneratedAt": "2026-10-01T20:16:30Z",
+ "generatedAt": "2026-10-01T22:00:15Z",
+ "sourceGeneratedAt": "2026-10-01T22:00:15Z",
  "providerEventId": "401872975",
  "matchup": "DEN @ SF",
  "kickoffUtc": "2026-10-04T20:25Z",
@@ -70,7 +70,7 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from HOU (14 games last season) — his role at SF is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for SF yet this season, so his role there is not yet observed and he is not in this game's numbers; his HOU history is kept only as a historical prior"
    },
    {
     "playerId": "nfl-athlete-16731",
@@ -89,11 +89,11 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from BUF (6 games last season) — his role at SF is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for SF yet this season, so his role there is not yet observed and he is not in this game's numbers; his BUF history is kept only as a historical prior"
    }
   ]
  },
- "arrivalsShadowed": 3,
+ "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "shareLevel": {
   "markets": [
@@ -108,8 +108,413 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 63,
+  "absent": 62,
   "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "DEN": {
+   "counts": {
+    "PROJECTED": 13,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4568490",
+     "name": "RJ Harvey",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3128429",
+     "name": "Courtland Sutton",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4431280",
+     "name": "Troy Franklin",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4686472",
+     "name": "Marvin Mims Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3051876",
+     "name": "Evan Engram",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4600981",
+     "name": "Pat Bryant",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4039057",
+     "name": "Lil'Jordan Humphrey",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3892775",
+     "name": "Jarrett Stidham",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4241985",
+     "name": "J.K. Dobbins",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4426338",
+     "name": "Bo Nix",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4372016",
+     "name": "Jaylen Waddle",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4362748",
+     "name": "Tyler Badie",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4383440",
+     "name": "Nate Adkins",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4702555",
+     "name": "Jonah Coleman",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    }
+   ]
+  },
+  "SF": {
+   "counts": {
+    "PROJECTED": 13,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 2,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-3117251",
+     "name": "Christian McCaffrey",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3040151",
+     "name": "George Kittle",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4428209",
+     "name": "Ricky Pearsall",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4259147",
+     "name": "Jake Tonges",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4360438",
+     "name": "Brandon Aiyuk",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3126486",
+     "name": "Deebo Samuel Sr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4241464",
+     "name": "Mac Jones",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4361741",
+     "name": "Brock Purdy",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4685397",
+     "name": "Jordan James",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4696044",
+     "name": "Kaelon Black",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-16002",
+     "name": "Kyle Juszczyk",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-16737",
+     "name": "Mike Evans",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4431466",
+     "name": "Jordan Watkins",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3043116",
+     "name": "Demarcus Robinson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-3895856",
+     "name": "Christian Kirk",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for SF yet this season — role at SF not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-16731",
+     "name": "Brandin Cooks",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for SF yet this season — role at SF not yet observed"
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "DEN",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4426338",
+     "name": "Bo Nix"
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3892775",
+      "name": "Jarrett Stidham"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-4426338"
+    ]
+   },
+   {
+    "team": "SF",
+    "state": "SINGLE_PASSER",
+    "passers": [
+     "nfl-athlete-4361741"
+    ],
+    "removed": []
+   }
+  ],
+  "violations": 0
  },
  "players": [
   {
@@ -740,15 +1145,6 @@
      "median": 2.8269,
      "p75": 12.5641,
      "p90": 30.6615,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 97.0522,
-     "p10": 37.6742,
-     "p25": 57.6606,
-     "median": 87.3854,
-     "p75": 125.9963,
-     "p90": 169.0282,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

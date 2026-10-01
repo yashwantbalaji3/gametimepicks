@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-01T20:16:30Z",
- "sourceGeneratedAt": "2026-10-01T20:16:30Z",
+ "generatedAt": "2026-10-01T22:00:15Z",
+ "sourceGeneratedAt": "2026-10-01T22:00:15Z",
  "providerEventId": "401872968",
  "matchup": "GB @ TB",
  "kickoffUtc": "2026-10-04T17:00Z",
@@ -70,7 +70,7 @@
      "passAttPg": 22.3,
      "passYdsPg": 129.8
     },
-    "note": "usage carried from NYJ (6 games last season) — his role at GB is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for GB yet this season, so his role there is not yet observed and he is not in this game's numbers; his NYJ history is kept only as a historical prior"
    },
    {
     "playerId": "nfl-athlete-3054212",
@@ -89,11 +89,11 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from PIT (18 games last season) — his role at GB is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for GB yet this season, so his role there is not yet observed and he is not in this game's numbers; his PIT history is kept only as a historical prior"
    }
   ]
  },
- "arrivalsShadowed": 1,
+ "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "shareLevel": {
   "markets": [
@@ -110,6 +110,309 @@
   "priced": 0,
   "absent": 50,
   "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "GB": {
+   "counts": {
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 2,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4047365",
+     "name": "Josh Jacobs",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4248528",
+     "name": "Christian Watson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4572680",
+     "name": "Tucker Kraft",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4701936",
+     "name": "Matthew Golden",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4428085",
+     "name": "Luke Musgrave",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4429466",
+     "name": "Drake Dabney",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4036378",
+     "name": "Jordan Love",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3149687",
+     "name": "Chris Brooks",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4429023",
+     "name": "MarShawn Lloyd",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4819231",
+     "name": "Kaleb Johnson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4430191",
+     "name": "Skyy Moore",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4362249",
+     "name": "Jayden Reed",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-14163",
+     "name": "Tyrod Taylor",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for GB yet this season — role at GB not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-3054212",
+     "name": "Jonnu Smith",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for GB yet this season — role at GB not yet observed"
+    }
+   ]
+  },
+  "TB": {
+   "counts": {
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 2,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4596448",
+     "name": "Bucky Irving",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4567750",
+     "name": "Emeka Egbuka",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4243331",
+     "name": "Cade Otton",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3116165",
+     "name": "Chris Godwin Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4608810",
+     "name": "Tez Johnson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4371733",
+     "name": "Kenny Gainwell",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4430871",
+     "name": "Sean Tucker",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-5220680",
+     "name": "Ted Hurst III",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3052587",
+     "name": "Baker Mayfield",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4430834",
+     "name": "Jalen McMillan",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "GB",
+    "state": "SINGLE_PASSER",
+    "passers": [
+     "nfl-athlete-4036378"
+    ],
+    "removed": []
+   },
+   {
+    "team": "TB",
+    "state": "SINGLE_PASSER",
+    "passers": [],
+    "removed": []
+   }
+  ],
+  "violations": 0
  },
  "players": [
   {
@@ -449,7 +752,7 @@
    "playerId": "nfl-athlete-3116165",
    "name": "Chris Godwin Jr.",
    "team": "TB",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 30.578,

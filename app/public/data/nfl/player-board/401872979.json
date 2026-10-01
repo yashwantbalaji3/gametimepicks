@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-01T20:16:30Z",
- "sourceGeneratedAt": "2026-10-01T20:16:30Z",
+ "generatedAt": "2026-10-01T22:00:15Z",
+ "sourceGeneratedAt": "2026-10-01T22:00:15Z",
  "providerEventId": "401872979",
  "matchup": "ATL @ NO",
  "kickoffUtc": "2026-10-06T00:15Z",
@@ -54,25 +54,6 @@
  "newArrivals": {
   "NO": [
    {
-    "playerId": "nfl-athlete-4239996",
-    "name": "Travis Etienne Jr.",
-    "position": "RB",
-    "team": "NO",
-    "participation": "OUT",
-    "lastSeason": {
-     "club": "JAX",
-     "games": 20,
-     "targetsPg": 3,
-     "receptionsPg": 2.1,
-     "recYdsPg": 17.9,
-     "rushAttPg": 13.8,
-     "rushYdsPg": 60.2,
-     "passAttPg": 0,
-     "passYdsPg": 0
-    },
-    "note": "usage carried from JAX (20 games last season) — his role at NO is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
-   },
-   {
     "playerId": "nfl-athlete-4369863",
     "name": "Cedric Tillman",
     "position": "WR",
@@ -89,7 +70,7 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from CLE (13 games last season) — his role at NO is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for NO yet this season, so his role there is not yet observed and he is not in this game's numbers; his CLE history is kept only as a historical prior"
    }
   ],
   "ATL": [
@@ -110,11 +91,11 @@
      "passAttPg": 24.9,
      "passYdsPg": 171
     },
-    "note": "usage carried from MIA (16 games last season) — his role at ATL is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for ATL yet this season, so his role there is not yet observed and he is not in this game's numbers; his MIA history is kept only as a historical prior"
    }
   ]
  },
- "arrivalsShadowed": 2,
+ "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "shareLevel": {
   "markets": [
@@ -129,8 +110,378 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 49,
+  "absent": 46,
   "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "ATL": {
+   "counts": {
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 1
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4430807",
+     "name": "Bijan Robinson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4426502",
+     "name": "Drake London",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4360248",
+     "name": "Kyle Pitts Sr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4241474",
+     "name": "Brian Robinson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4360423",
+     "name": "Michael Penix Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-5344782",
+     "name": "Jack Strand",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3043275",
+     "name": "Austin Hooper",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3917914",
+     "name": "Olamide Zaccheaus",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4361409",
+     "name": "Jahan Dotson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4870612",
+     "name": "Zachariah Branch",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4241479",
+     "name": "Tua Tagovailoa",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for ATL yet this season — role at ATL not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-2972515",
+     "name": "Cooper Rush",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    }
+   ]
+  },
+  "NO": {
+   "counts": {
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-3054850",
+     "name": "Alvin Kamara",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4361370",
+     "name": "Chris Olave",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3929645",
+     "name": "Juwan Johnson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4569559",
+     "name": "Devaughn Vele",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4372758",
+     "name": "Kevin Austin Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4599739",
+     "name": "Kendre Miller",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4426339",
+     "name": "Spencer Rattler",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4360689",
+     "name": "Tyler Shough",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4036131",
+     "name": "Noah Fant",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4573697",
+     "name": "Mason Tipton",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4879276",
+     "name": "Bryce Lance",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4239996",
+     "name": "Travis Etienne",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4369863",
+     "name": "Cedric Tillman",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for NO yet this season — role at NO not yet observed"
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "ATL",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4360423",
+     "name": "Michael Penix Jr."
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2972515",
+      "name": "Cooper Rush"
+     },
+     {
+      "playerId": "nfl-athlete-5344782",
+      "name": "Jack Strand"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-4360423"
+    ]
+   },
+   {
+    "team": "NO",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4360689",
+     "name": "Tyler Shough"
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4426339",
+      "name": "Spencer Rattler"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-4360689"
+    ]
+   }
+  ],
+  "violations": 0
  },
  "players": [
   {
@@ -377,7 +728,7 @@
    "playerId": "nfl-athlete-4036131",
    "name": "Noah Fant",
    "team": "NO",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "anytime_td": {
      "probability": 0.1932,
@@ -508,15 +859,6 @@
      "p90": 43.2675,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 167.8088,
-     "p10": 83.6717,
-     "p25": 114.6177,
-     "median": 157.3556,
-     "p75": 209.6581,
-     "p90": 265.4777,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0995,
      "pricingState": "NOT_PROBED"
@@ -592,15 +934,6 @@
      "p90": 25.498,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 89.7705,
-     "p10": 33.7146,
-     "p25": 52.3703,
-     "median": 80.3767,
-     "p75": 117.025,
-     "p90": 158.0828,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0563,
      "pricingState": "NOT_PROBED"
@@ -629,23 +962,6 @@
      "median": 2,
      "p75": 3,
      "p90": 4,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-2972515",
-   "name": "Cooper Rush",
-   "team": "ATL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 147.8201,
-     "p10": 67.5052,
-     "p25": 96.1301,
-     "median": 136.7217,
-     "p75": 187.4816,
-     "p90": 242.5275,
      "pricingState": "NOT_PROBED"
     }
    }

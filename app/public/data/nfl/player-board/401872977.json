@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-01T20:16:30Z",
- "sourceGeneratedAt": "2026-10-01T20:16:30Z",
+ "generatedAt": "2026-10-01T22:00:15Z",
+ "sourceGeneratedAt": "2026-10-01T22:00:15Z",
  "providerEventId": "401872977",
  "matchup": "LAC @ SEA",
  "kickoffUtc": "2026-10-04T20:25Z",
@@ -70,26 +70,7 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from PIT (6 games last season) — his role at LAC is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
-   },
-   {
-    "playerId": "nfl-athlete-3123076",
-    "name": "David Njoku",
-    "position": "TE",
-    "team": "LAC",
-    "participation": "OUT",
-    "lastSeason": {
-     "club": "CLE",
-     "games": 12,
-     "targetsPg": 4.2,
-     "receptionsPg": 2.9,
-     "recYdsPg": 26.1,
-     "rushAttPg": 0,
-     "rushYdsPg": 0,
-     "passAttPg": 0,
-     "passYdsPg": 0
-    },
-    "note": "usage carried from CLE (12 games last season) — his role at LAC is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for LAC yet this season, so his role there is not yet observed and he is not in this game's numbers; his PIT history is kept only as a historical prior"
    },
    {
     "playerId": "nfl-athlete-4426535",
@@ -108,11 +89,11 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from MIA (6 games last season) — his role at LAC is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for LAC yet this season, so his role there is not yet observed and he is not in this game's numbers; his MIA history is kept only as a historical prior"
    }
   ]
  },
- "arrivalsShadowed": 1,
+ "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "shareLevel": {
   "markets": [
@@ -127,8 +108,394 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 59,
+  "absent": 57,
   "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "LAC": {
+   "counts": {
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 2,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4685382",
+     "name": "Omarion Hampton",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4429025",
+     "name": "Quentin Johnston",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4612826",
+     "name": "Ladd McConkey",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4595342",
+     "name": "Oronde Gadsden",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4686612",
+     "name": "Tre' Harris",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4038941",
+     "name": "Justin Herbert",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4383351",
+     "name": "Trey Lance",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4596334",
+     "name": "Keaton Mitchell",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4430968",
+     "name": "Kimani Vidal",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4878878",
+     "name": "Amar Johnson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4241263",
+     "name": "Charlie Kolar",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4685553",
+     "name": "Brenen Thompson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3123076",
+     "name": "David Njoku",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-3051738",
+     "name": "Marquez Valdes-Scantling",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for LAC yet this season — role at LAC not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-4426535",
+     "name": "Theo Wease Jr.",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for LAC yet this season — role at LAC not yet observed"
+    }
+   ]
+  },
+  "SEA": {
+   "counts": {
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
+    "NOT_MODELED_BY_FAMILY": 1
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4430878",
+     "name": "Jaxon Smith-Njigba",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-2977187",
+     "name": "Cooper Kupp",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4576297",
+     "name": "AJ Barner",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4597703",
+     "name": "Tory Horton",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4032473",
+     "name": "Rashid Shaheed",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4678006",
+     "name": "Elijah Arroyo",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold",
+     "state": "PROJECTED",
+     "families": [
+      "player_pass_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4035693",
+     "name": "Velus Jones Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4887558",
+     "name": "Emanuel Wilson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4429835",
+     "name": "George Holani",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4428943",
+     "name": "Jacardia Wright",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4685512",
+     "name": "Jadarian Price",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4426385",
+     "name": "Zach Charbonnet",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "LAC",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4038941",
+     "name": "Justin Herbert"
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4383351",
+      "name": "Trey Lance"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-4038941"
+    ]
+   },
+   {
+    "team": "SEA",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold"
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3924327",
+      "name": "Drew Lock"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-3912547"
+    ]
+   }
+  ],
+  "violations": 0
  },
  "players": [
   {
@@ -500,15 +867,6 @@
      "p90": 62.6111,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 83.0784,
-     "p10": 29.6673,
-     "p25": 47.1484,
-     "median": 73.7538,
-     "p75": 108.9491,
-     "p90": 148.6814,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1405,
      "pricingState": "NOT_PROBED"
@@ -731,23 +1089,6 @@
      "median": 172.0219,
      "p75": 232.7115,
      "p90": 298.0333,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3924327",
-   "name": "Drew Lock",
-   "team": "SEA",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 180.4662,
-     "p10": 86.0354,
-     "p25": 120.2135,
-     "median": 168.0577,
-     "p75": 227.263,
-     "p90": 290.9737,
      "pricingState": "NOT_PROBED"
     }
    }

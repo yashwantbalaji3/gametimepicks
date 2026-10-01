@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-01T20:16:30Z",
- "sourceGeneratedAt": "2026-10-01T20:16:30Z",
+ "generatedAt": "2026-10-01T22:00:15Z",
+ "sourceGeneratedAt": "2026-10-01T22:00:15Z",
  "providerEventId": "401872974",
  "matchup": "MIA @ MIN",
  "kickoffUtc": "2026-10-04T20:05Z",
@@ -70,7 +70,7 @@
      "passAttPg": 0,
      "passYdsPg": 0
     },
-    "note": "usage carried from NO (10 games last season) — his role at MIN is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for MIN yet this season, so his role there is not yet observed and he is not in this game's numbers; his NO history is kept only as a historical prior"
    }
   ],
   "MIA": [
@@ -91,11 +91,11 @@
      "passAttPg": 23.9,
      "passYdsPg": 121.8
     },
-    "note": "usage carried from NYJ (8 games last season) — his role at MIA is unobserved, so he is NOT in this game's simulated team numbers; his volume sits in the unallocated share until real usage is seen"
+    "note": "no game for MIA yet this season, so his role there is not yet observed and he is not in this game's numbers; his NYJ history is kept only as a historical prior"
    }
   ]
  },
- "arrivalsShadowed": 2,
+ "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "shareLevel": {
   "markets": [
@@ -110,8 +110,330 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 42,
+  "absent": 40,
   "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "MIA": {
+   "counts": {
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4367209",
+     "name": "Greg Dulcich",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4569603",
+     "name": "Malik Washington",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4242512",
+     "name": "Malik Willis",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4682745",
+     "name": "Jaylen Wright",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4711533",
+     "name": "Ollie Gordon II",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4369466",
+     "name": "Ryan Miller",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4869645",
+     "name": "Caleb Douglas",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4869961",
+     "name": "Chris Bell",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4685307",
+     "name": "Kevin Coleman Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4429160",
+     "name": "De'Von Achane",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4429435",
+     "name": "Brady Cook",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for MIA yet this season — role at MIA not yet observed"
+    }
+   ]
+  },
+  "MIN": {
+   "counts": {
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 1
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-3042519",
+     "name": "Aaron Jones Sr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4262921",
+     "name": "Justin Jefferson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4429205",
+     "name": "Jordan Addison",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4036133",
+     "name": "T.J. Hockenson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-2573079",
+     "name": "Carson Wentz",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3917315",
+     "name": "Kyler Murray",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4360569",
+     "name": "Jordan Mason",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4832846",
+     "name": "Demond Claiborne",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3886598",
+     "name": "Jauan Jennings",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_receptions",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-3921690",
+     "name": "Josh Oliver",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4682652",
+     "name": "Devin Neal",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for MIN yet this season — role at MIN not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-4573398",
+     "name": "Max Brosmer",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "MIA",
+    "state": "SINGLE_PASSER",
+    "passers": [
+     "nfl-athlete-4242512"
+    ],
+    "removed": []
+   },
+   {
+    "team": "MIN",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3917315",
+     "name": "Kyler Murray"
+    },
+    "snapshotAt": "2026-09-30T13:37:56Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2573079",
+      "name": "Carson Wentz"
+     },
+     {
+      "playerId": "nfl-athlete-4573398",
+      "name": "Max Brosmer"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-3917315"
+    ]
+   }
+  ],
+  "violations": 0
  },
  "players": [
   {
@@ -403,7 +725,7 @@
    "playerId": "nfl-athlete-4682745",
    "name": "Jaylen Wright",
    "team": "MIA",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 14.6002,
@@ -480,15 +802,6 @@
      "p90": 31.4492,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 195.373,
-     "p10": 93.9083,
-     "p25": 130.74,
-     "median": 182.1721,
-     "p75": 245.6892,
-     "p90": 313.938,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0828,
      "pricingState": "NOT_PROBED"
@@ -533,23 +846,6 @@
     },
     "anytime_td": {
      "probability": 0.0593,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4573398",
-   "name": "Max Brosmer",
-   "team": "MIN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 92.5698,
-     "p10": 35.4079,
-     "p25": 54.5492,
-     "median": 83.1392,
-     "p75": 120.4007,
-     "p90": 162.0268,
      "pricingState": "NOT_PROBED"
     }
    }
