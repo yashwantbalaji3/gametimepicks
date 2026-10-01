@@ -241,6 +241,22 @@ test("CP9 matchup registry: exact ids, agreeing sides, bounded window, durable, 
   const input = (prev) => ({ researchContentSha256: "probe", index: [], teams: { MLB: [], NFL: [], EPL: [] }, players: { NFL: [], EPL: [], MLB: [], UFC: [] }, labels: {}, previousMatchupIds: prev });
   assert.throws(() => assembleCompareProjection(input({ MLB: ["900003"] })), /would DROP 1 published page/);
   assert.doesNotThrow(() => assembleCompareProjection(input({})));
+
+  /* Session 3 · a published game that LEFT the schedule without a final keeps its URL, marked removed and noindex;
+     one that had a final and vanished is data loss and is still refused. */
+  const prevRow = { schemaVersion: 1, gameId: "849850", sport: "MLB", seasonId: "MLB-2026", startUtc: "2026-10-01T21:00:00Z", homeTeamId: "mlb-team-117", awayTeamId: "mlb-team-145", neutralSite: false, final: null, priorMeetings: 27, indexable: true, path: "/matchups/mlb/849850/" };
+  const withRows = (rows) => ({ ...input({ MLB: rows.map((r) => r.gameId) }), previousMatchups: { MLB: rows } });
+  const { files } = assembleCompareProjection(withRows([prevRow]));
+  const carried = files.get("matchups/MLB.jsonl").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  assert.equal(carried.length, 1);
+  assert.equal(carried[0].gameId, "849850");
+  assert.equal(carried[0].scheduleState, "REMOVED_FROM_SCHEDULE");
+  assert.equal(carried[0].indexable, false, "a removed game is never indexed");
+  assert.equal(carried[0].final, null, "it never gains a result");
+  assert.equal(carried[0].path, "/matchups/mlb/849850/", "the URL is unchanged");
+  assert.equal(carried[0].startUtc, prevRow.startUtc);
+  assert.throws(() => assembleCompareProjection(withRows([{ ...prevRow, final: { home: 3, away: 1 } }])), /would DROP 1 published page/, "a played game vanishing is data loss");
+  assert.throws(() => assembleCompareProjection(input({ MLB: ["849850"] })), /would DROP 1 published page/, "no committed row → still refused");
 });
 
 // ── CP10 ───────────────────────────────────────────────────────────────────────────────────────────

@@ -78,6 +78,7 @@ export default function MatchupPage({ params }: { params: { sport: string; gameI
   const m: any = x.m;
   const labels = teamLabels(sport);
   const unit = sport === "MLB" ? "Runs" : "Points";
+  const removed = entry.scheduleState === "REMOVED_FROM_SCHEDULE";
   const forecast = matchupForecast(sport, entry.gameId);
   const recentIds = [...m.away.recent.games, ...m.home.recent.games].map((g: any) => [g.gameId, g.date] as [string, string | null]);
   const links = gameHrefs(sport, [[entry.gameId, entry.startUtc], ...m.headToHead.meetings.map((g: any) => [g.gameId, g.date] as [string, string | null]), ...recentIds]);
@@ -124,7 +125,7 @@ export default function MatchupPage({ params }: { params: { sport: string; gameI
         {m.away.name} {joiner(m.neutralSite)} {m.home.name}
       </h1>
       <p style={{ margin: "4px 0 10px", fontFamily: MONO, fontSize: 11.5, color: "var(--vault-text-mute)" }}>
-        {formatKickoff(m.startUtc)} · {seasonLabel(entry.seasonId)} season{m.neutralSite ? " · neutral site" : ""}
+        {removed ? "Was scheduled for " : ""}{formatKickoff(m.startUtc)} · {seasonLabel(entry.seasonId)} season{m.neutralSite ? " · neutral site" : ""}
       </p>
 
       <section aria-labelledby="matchup-game" style={{ ...PANEL }}>
@@ -132,6 +133,12 @@ export default function MatchupPage({ params }: { params: { sport: string; gameI
         {m.final ? (
           <p data-matchup-status="final" style={{ margin: 0, fontSize: 14 }}>
             Final (official score): {m.away.name} <strong style={{ fontVariantNumeric: "tabular-nums" }}>{m.final.away}</strong> · {m.home.name} <strong style={{ fontVariantNumeric: "tabular-nums" }}>{m.final.home}</strong>
+          </p>
+        ) : removed ? (
+          /* Session 3 · a game that left the schedule after this page was published (e.g. an "if necessary" postseason
+             game that was never needed). The URL stays; it never claims a start time or a result it does not have. */
+          <p data-matchup-status="removed" style={{ margin: 0, fontSize: 14 }}>
+            Not played as scheduled. This game is no longer on the {SPORT_NAME[sport]} schedule GameTimePicks reads, so it has no start time and no result.
           </p>
         ) : (
           <MatchupStatus startUtc={m.startUtc} liveHref={liveHref} liveLabel={sport === "MLB" ? "Check live scores" : "Open the game page"} />

@@ -20,7 +20,7 @@ import { fileURLToPath } from "node:url";
 import { canonicalJson } from "../../src/lib/research-pages/projection-build.mjs";
 import { RESEARCH_PROJECTION_DIR } from "../../src/lib/research-pages/contract.mjs";
 import { COMPARE_PROJECTION_DIR, COMPARE_PROJECTION_SCHEMA_VERSION } from "../../src/lib/compare/contract.mjs";
-import { readPublishedMatchupIds, readResearchInput } from "../../src/lib/compare/research-input.mjs";
+import { readPublishedMatchups, readResearchInput } from "../../src/lib/compare/research-input.mjs";
 import { COMPARE_BUILDER_ID, assembleCompareProjection } from "../../src/lib/compare/projection-build.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -51,12 +51,13 @@ const read = (rel) => {
   const buf = fs.readFileSync(abs);
   return (abs.endsWith(".gz") ? zlib.gunzipSync(buf) : buf).toString("utf8");
 };
-const previousMatchupIds = readPublishedMatchupIds(REPO);
+const previousMatchups = readPublishedMatchups(REPO);
+const previousMatchupIds = Object.fromEntries(Object.entries(previousMatchups).map(([s, rows]) => [s, rows.map((r) => r.gameId)]));
 const tLoad = performance.now();
 
 let files, summary;
 try {
-  ({ files, summary } = assembleCompareProjection({ ...input, previousMatchupIds }));
+  ({ files, summary } = assembleCompareProjection({ ...input, previousMatchupIds, previousMatchups }));
 } catch (e) {
   console.error(e.message);
   process.exit(2);
