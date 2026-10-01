@@ -286,13 +286,15 @@ function nflForecasts() {
   // ESTIMATE and WITHHELD families, so nothing research-only can arrive through this door.
   const byGame = new Map();
   for (const r of buildMyPlayerRows()) {
-    if (!r.markets?.length) continue;
+    if (!r.markets?.length && r.anytimeTd == null) continue;
     const id = String(r.href ?? "").match(/\/nfl\/game\/(\d+)\//)?.[1];
     if (!id) continue;
     if (!byGame.has(id)) byGame.set(id, []);
     byGame.get(id).push({
       playerId: r.playerId, name: r.name, team: r.team ?? null,
       markets: r.markets.slice(0, 4).map((m) => ({ key: m.key, label: m.label, median: m.median, p10: m.p10, p90: m.p90 })),
+      /* Session 4: the published anytime-TD probability, as the report page shows it (null = not published). */
+      anytimeTd: r.anytimeTd ?? null,
       researchHref: r.researchHref ?? null,
     });
   }

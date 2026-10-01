@@ -290,6 +290,8 @@ export function buildEvidence(envelopes) {
           }
           for (const w of f.why ?? []) say(`${f.matchup} · the model's own note: ${w}`);
           for (const pl of f.players ?? []) {
+            /* Session 4: the same touchdown probability the game page lists under "Likely TD scorers". */
+            if (typeof pl.anytimeTd === "number") say(`${f.matchup} · ${pl.name} (${pl.team}) anytime touchdown: GameTime's model probability ${pct(pl.anytimeTd)}, conditioned on playing — a player who does not play settles void`, [pl.anytimeTd]);
             for (const m of pl.markets ?? []) say(`${f.matchup} · ${pl.name} ${m.label}: GameTime's simulated median is ${m.median}, with a 10th–90th percentile range of ${m.p10} to ${m.p90}`, [m.median, m.p10, m.p90]);
           }
         }
