@@ -1,9 +1,9 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-01",
-  "checkedAt": "2026-10-01T13:58:45.014Z",
-  "treeHead": "b9f363c72",
-  "state": "STALE",
+  "checkedAt": "2026-10-01T14:05:40.058Z",
+  "treeHead": "100b026cd",
+  "state": "INCIDENT",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 1,
   "owners": [
@@ -36,7 +36,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-01T23:00:00.000Z",
-      "receiptAt": "2026-10-01T11:42:05.000Z",
+      "receiptAt": "2026-10-01T14:01:37.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
@@ -59,8 +59,8 @@
     },
     {
       "id": "settlement",
-      "state": "DUE",
-      "reason": "past 2026-10-01T12:00:00.000Z, inside grace",
+      "state": "INCIDENT",
+      "reason": "no receipt for 2026-10-01; due 2026-10-01T12:00:00.000Z plus 120m grace has passed",
       "dueAtIso": "2026-10-01T12:00:00.000Z",
       "label": "Nightly settlement (previous day)",
       "workflow": "nightly-settle",
@@ -129,7 +129,7 @@
     {
       "id": "epl-lane",
       "state": "STALE",
-      "reason": "receipt is 62.5h old against a 30h bound",
+      "reason": "receipt is 62.6h old against a 30h bound",
       "dueAtIso": "2026-10-01T21:00:00.000Z",
       "receiptAt": "2026-09-28T23:27:10Z",
       "label": "EPL lane status",
