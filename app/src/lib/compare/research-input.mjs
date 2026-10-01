@@ -32,10 +32,15 @@ export function readResearchInput(repoRoot) {
 
 /** Matchup ids the COMMITTED compare projection already publishes (the durability floor for the next build). */
 export function readPublishedMatchupIds(repoRoot) {
+  return Object.fromEntries(Object.entries(readPublishedMatchups(repoRoot)).map(([s, rows]) => [s, rows.map((r) => r.gameId)]));
+}
+
+/** The committed registry's ROWS by sport — what a page published, so a game that left the source can keep its URL. */
+export function readPublishedMatchups(repoRoot) {
   const C = path.join(repoRoot, COMPARE_PROJECTION_DIR);
   return Object.fromEntries(MATCHUP_SPORTS.map((s) => {
     const abs = path.join(C, `matchups/${s}.jsonl.gz`);
-    return [s, fs.existsSync(abs) ? text(abs).split("\n").filter(Boolean).map((l) => JSON.parse(l).gameId) : []];
+    return [s, fs.existsSync(abs) ? text(abs).split("\n").filter(Boolean).map((l) => JSON.parse(l)) : []];
   }));
 }
 

@@ -30,8 +30,12 @@ export const COMPARE_BUILDER_ID = "gametime-compare-projection@1";
  *   players: Record<string, any[]>,    research player projections by sport
  *   labels: Record<string, Record<string, { name: string, abbreviation: string|null }>>,
  *   previousMatchupIds: Record<string, string[]>,   ids published by the committed registry (durability)
+ *   previousMatchups?: Record<string, object[]>,     the committed registry ROWS (a removed game keeps its URL)
  * }} input
  */
+/** A published matchup whose game no longer appears in the source schedule (never played under this id). */
+export const MATCHUP_SCHEDULE_REMOVED = "REMOVED_FROM_SCHEDULE";
+
 export function assembleCompareProjection(input) {
   assertFamiliesMatchResearch();
   const pathOf = new Map(input.index.map((e) => [e.id, e.path]));
@@ -98,16 +102,34 @@ export function assembleCompareProjection(input) {
   let matchupPages = 0;
   const registries = {};
   for (const sport of MATCHUP_SPORTS) {
-    const { entries, excluded } = matchupRegistry(sport, teamEntities[sport]);
-    registries[sport] = entries;
-    const ids = new Set(entries.map((e) => e.gameId));
-    const dropped = (input.previousMatchupIds[sport] ?? []).filter((id) => !ids.has(id));
+    const { entries: fromSource, excluded } = matchupRegistry(sport, teamEntities[sport]);
+    const ids = new Set(fromSource.map((e) => e.gameId));
+    /*
+     * Session 3 · A GAME THAT LEFT THE SCHEDULE KEEPS ITS URL. On 2026-10-01 three Wild Card Game 3s ("if necessary";
+     * every series ended 2–0) vanished from the MLB schedule after their pages were published. Refusing was right — a
+     * Matchup URL is durable — but it failed daily-products every day and no cards were committed. A published row that
+     * NEVER had a final is carried forward verbatim, marked REMOVED_FROM_SCHEDULE and noindex, so the page says the game
+     * is no longer scheduled instead of "Scheduled start". A row that HAD a final and vanished is data loss: still refused.
+     */
+    const prevRows = new Map((input.previousMatchups?.[sport] ?? []).map((r) => [String(r.gameId), r]));
+    const carried = [];
+    const dropped = [];
+    for (const id of input.previousMatchupIds[sport] ?? []) {
+      if (ids.has(id)) continue;
+      const prev = prevRows.get(String(id));
+      if (prev && prev.final == null && typeof prev.startUtc === "string") {
+        const { path: _p, schemaVersion: _v, ...row } = prev;
+        carried.push({ ...row, final: null, indexable: false, scheduleState: MATCHUP_SCHEDULE_REMOVED });
+      } else dropped.push(id);
+    }
     if (dropped.length) throw new Error(`compare projection: ${sport} matchup registry would DROP ${dropped.length} published page(s) (${dropped.slice(0, 5).join(", ")}) — a Matchup URL must stay durable after game day`);
+    const entries = [...fromSource, ...carried].sort((p, q) => (p.startUtc < q.startUtc ? -1 : p.startUtc > q.startUtc ? 1 : p.gameId < q.gameId ? -1 : 1));
+    registries[sport] = entries;
     files.set(`matchups/${sport}.jsonl`, entries.map((e) => canonicalJson({ schemaVersion: COMPARE_PROJECTION_SCHEMA_VERSION, ...e, path: matchupPath(sport, e.gameId) })).join(""));
     matchupPages += entries.length;
     readiness.matchups[sport] = {
       window: MATCHUP_WINDOWS[sport], generated: entries.length, indexable: entries.filter((e) => e.indexable).length, noindex: entries.filter((e) => !e.indexable).length,
-      withFinal: entries.filter((e) => e.final).length, withPriorMeetings: entries.filter((e) => e.priorMeetings > 0).length,
+      withFinal: entries.filter((e) => e.final).length, ...(carried.length ? { removedFromSchedule: carried.length } : {}), withPriorMeetings: entries.filter((e) => e.priorMeetings > 0).length,
       startRange: entries.length ? [entries[0].startUtc, entries[entries.length - 1].startUtc] : null, excluded,
     };
   }
@@ -126,7 +148,8 @@ export function assembleCompareProjection(input) {
         return [t.slug, t.id, t.name, t.abbreviation, s[0], s[s.length - 1]];
       }),
       // [gameId, awayTeamId, homeTeamId, startUtc, path] — Matchup Explorer pages that exist, for a "Matchup research" link
-      matchups: (registries[sport] ?? []).map((e) => [e.gameId, e.awayTeamId, e.homeTeamId, e.startUtc, matchupPath(sport, e.gameId)]),
+      // a game removed from the schedule keeps its page but is never offered as a matchup to research
+      matchups: (registries[sport] ?? []).filter((e) => !e.scheduleState).map((e) => [e.gameId, e.awayTeamId, e.homeTeamId, e.startUtc, matchupPath(sport, e.gameId)]),
       teams: teamLabelTable(input.labels[sport]),
     }));
   }
