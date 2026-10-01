@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849850,
+  "date": "2026-10-01",
+  "capturedAt": "2026-10-01T00:16:41.733Z",
+  "availableAt": "2026-10-01T00:16:41.733Z",
+  "eventStartTime": "2026-10-01T21:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-28",
+    "2026-09-29",
+    "2026-09-30"
+  ],
+  "home": {
+    "teamId": 117,
+    "teamName": "Houston Astros",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 128,
+      "relievers": [
+        {
+          "id": 681973,
+          "name": "Josh Hendrickson",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 5,
+          "dates": [
+            "2026-09-29"
+          ]
+        },
+        {
+          "id": 699044,
+          "name": "Miguel Ullola",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 9,
+          "dates": [
+            "2026-09-29"
+          ]
+        },
+        {
+          "id": 687911,
+          "name": "Bryan King",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 1,
+          "dates": [
+            "2026-09-29"
+          ]
+        },
+        {
+          "id": 656986,
+          "name": "Bennett Sousa",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-29"
+          ]
+        },
+        {
+          "id": 650556,
+          "name": "Bryan Abreu",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-29"
+          ]
+        },
+        {
+          "id": 623352,
+          "name": "Josh Hader",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-29"
+          ]
+        },
+        {
+          "id": 701121,
+          "name": "Logan VanWey",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 112,
+      "relievers": [
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 1,
+          "pitches": 54,
+          "outs": 7,
+          "dates": [
+            "2026-09-29"
+          ]
+        },
+        {
+          "id": 689818,
+          "name": "David Sandlin",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-09-29"
+          ]
+        },
+        {
+          "id": 656794,
+          "name": "Sean Newcomb",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-29"
+          ]
+        },
+        {
+          "id": 663855,
+          "name": "Jordan Hicks",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 4,
+          "dates": [
+            "2026-09-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-28,2026-09-29,2026-09-30) + feed/live box scores",
+    "capturedAt": "2026-10-01T00:16:41.733Z"
+  },
+  "recordHash": "587798ecafdae08528410018014c6299030d06d95a4d9995ef145876d9d22371"
+}
