@@ -104,7 +104,7 @@ test("CB3 public compare assets are exactly the committed projection and leak no
 
 test("CB4 matchup pages: factual, neutral, forecast only by exact join, no baked-in upcoming claim", () => {
   const nflPages = new Set(fs.readdirSync(path.join(OUT, "nfl/game")));
-  let finals = 0, pending = 0, withForecast = 0;
+  let finals = 0, pending = 0, withForecast = 0, removed = 0;
   for (const m of matchups) {
     const main = mainOf(htmlOf(m.path));
     // Page content only: the shared slate status bar above the page carries its own (build-stamped) chrome.
@@ -121,6 +121,14 @@ test("CB4 matchup pages: factual, neutral, forecast only by exact join, no baked
       finals += 1;
       assert.match(main, /data-matchup-status="final"/);
       assert.match(text, new RegExp(`Final \\(official score\\)`));
+    } else if (m.scheduleState === "REMOVED_FROM_SCHEDULE") {
+      /* Session 3 · a published game that left the schedule (e.g. an unneeded "if necessary" Game 3). Its status is a
+         registry FACT, not a clock claim, so it is static — and it never claims a start time or a result. */
+      removed += 1;
+      assert.match(main, /data-matchup-status="removed"/, `${m.path}: removed game says so`);
+      assert.match(text, /Not played as scheduled/);
+      assert.doesNotMatch(text, /Scheduled start/, `${m.path}: a removed game claims no start`);
+      assert.doesNotMatch(main, /data-matchup-status="pending"/, `${m.path}: no client countdown on a removed game`);
     } else {
       pending += 1;
       assert.match(main, /data-matchup-status="pending"/, `${m.path}: status decided after mount`);
