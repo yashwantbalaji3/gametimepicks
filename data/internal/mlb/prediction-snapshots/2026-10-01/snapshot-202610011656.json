@@ -1,0 +1,201 @@
+{
+  "sport": "mlb",
+  "date": "2026-10-01",
+  "generatedAt": "2026-10-01T16:56:13.000Z",
+  "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+  "sourceArtifact": "full-game-simulations/2026-10-01.json",
+  "notBettingAdvice": true,
+  "settledIntoMoney": false,
+  "predictions": [
+    {
+      "gamePk": 849844,
+      "slateDate": "2026-10-01",
+      "slug": "phi-vs-atl-2026-10-01",
+      "awayTeam": "PHI",
+      "homeTeam": "ATL",
+      "awayTeamName": "Philadelphia Phillies",
+      "homeTeamName": "Atlanta Braves",
+      "artifactHash": "e01f55f1724b2feecb12381768128adc7a1b3943af07b624f043b5dd26d8cda4",
+      "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+      "completeness": {
+        "level": "degraded",
+        "notes": [
+          "ATL lineup padded: 7/9 batters have a posted line and the rest are at replacement level; ATL have not posted a batting order yet, and this refreshes hourly until they do.",
+          "PHI has no posted probable starter — simulated vs a league bullpen aggregate.",
+          "ATL has no posted probable starter — simulated vs a league bullpen aggregate."
+        ],
+        "awayLineupSource": "prop-derived",
+        "homeLineupSource": "prop-derived",
+        "awayRatedCount": 9,
+        "homeRatedCount": 7,
+        "awayLineupCount": 9,
+        "homeLineupCount": 7,
+        "hasAwayStarter": false,
+        "hasHomeStarter": false,
+        "startedBeforeGeneration": false,
+        "missingFamilies": [
+          "away_probable_starter",
+          "home_probable_starter",
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": {
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-10-01T11:42:04.804Z",
+        "moneyline": {
+          "home": 0.4826,
+          "away": 0.5174
+        },
+        "total": {
+          "line": 7.5,
+          "over": 0.4783
+        },
+        "runLine": {
+          "line": 1.5,
+          "homeCover": 0.6078
+        }
+      },
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "home",
+        "team": "ATL"
+      },
+      "projectedScore": {
+        "away": 3,
+        "home": 3,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "home",
+        "team": "ATL",
+        "simulationProbability": 0.532,
+        "marketImpliedProbability": 0.483,
+        "marketAgreement": "MODEL HIGHER",
+        "strengthLabel": "LEAN"
+      },
+      "total": {
+        "line": 7.5,
+        "pick": "UNDER",
+        "overProbability": 0.425,
+        "underProbability": 0.575,
+        "pushProbability": 0,
+        "simulationMedian": 7,
+        "marketImpliedOver": 0.478,
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "runLine": {
+        "favorite": "home",
+        "line": 1.5,
+        "pick": "PHI +1.5",
+        "pickSide": "away",
+        "pickLine": 1.5,
+        "coverProbability": 0.665,
+        "opposingCoverProbability": 0.335,
+        "pushProbability": 0,
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "PHI",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 3,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "ATL",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 3,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Drake Baldwin",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.81,
+          "marketImpliedProbability": 0.693,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Mike Yastrzemski",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.703,
+          "marketImpliedProbability": 0.595,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Drake Baldwin",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.682,
+          "marketImpliedProbability": 0.519,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Michael Harris II",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.642,
+          "marketImpliedProbability": 0.507,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Matt Olson",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.629,
+          "marketImpliedProbability": 0.483,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
+      "unavailableReasons": [
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
+      ]
+    }
+  ]
+}

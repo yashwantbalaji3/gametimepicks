@@ -1,0 +1,109 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-league-forecasts",
+ "dataClass": "PUBLIC",
+ "public": true,
+ "league": "ligue-1",
+ "competition": "Ligue 1",
+ "country": "France",
+ "generatedAt": "2026-10-01T16:28:28Z",
+ "model": {
+  "id": "epl-model-v1-split-poisson",
+  "fitThrough": "2026-10-01T16:28:28Z",
+  "matchesFitted": 1342,
+  "description": "the Premier League split-Poisson model (v1), fit on this league's own results"
+ },
+ "validation": {
+  "verdict": "ACCEPTED_FOR_MODEL_ONLY_FORECASTS",
+  "holdout": {
+   "season": "2025-26",
+   "matches": 306,
+   "logLoss": 1.0127,
+   "empiricalLogLoss": 1.0652,
+   "drawEceAllScored": 0.0271
+  },
+  "limitations": {
+   "closingMarketBetterBy": 0.0372,
+   "eloBetterBy": 0.0108,
+   "note": "Over the 2025-26 holdout the sportsbook closing line was more accurate than this model, and so was a plain Elo rating. These are model-only forecasts for research and entertainment — not betting advice."
+  }
+ },
+ "sources": {
+  "fixtures": "ESPN public scoreboard",
+  "history": "openfootball football.json (results, public domain)"
+ },
+ "counts": {
+  "forecast": 1,
+  "refused": 0
+ },
+ "rows": [
+  {
+   "eventId": "soccer:ligue-1:401876447",
+   "providerEventId": "401876447",
+   "kickoffUtc": "2026-10-09T18:45:00.000Z",
+   "homeEspnId": "175",
+   "awayEspnId": "167",
+   "matchup": "Lens v Lyon",
+   "homeClub": "Lens",
+   "awayClub": "Lyon",
+   "historyNames": {
+    "home": "Lens",
+    "away": "Lyon"
+   },
+   "slug": "lens-v-lyon-2026-10-09",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-10-01T16:28:28Z",
+   "probs": {
+    "home": 0.493876,
+    "draw": 0.24754,
+    "away": 0.258584
+   },
+   "expectedGoals": 2.7143,
+   "lambdas": {
+    "home": 1.6158,
+    "away": 1.0984
+   },
+   "over25": 0.509866,
+   "btts": {
+    "yes": 0.534136,
+    "no": 0.465864
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.741416,
+    "drawOrAway": 0.506124,
+    "homeOrAway": 0.75246
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.117592
+    },
+    {
+     "score": "1-0",
+     "p": 0.107055
+    },
+    {
+     "score": "2-1",
+     "p": 0.095005
+    },
+    {
+     "score": "2-0",
+     "p": 0.086492
+    },
+    {
+     "score": "0-1",
+     "p": 0.072774
+    }
+   ],
+   "topScorelinesMass": 0.75969,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  }
+ ],
+ "refused": [],
+ "carriedFromEarlierRun": 0
+}

@@ -1,0 +1,1662 @@
+{
+ "schemaVersion": 1,
+ "artifact": "product-eligible-legs",
+ "dataClass": "internal",
+ "date": "2026-10-01",
+ "asOf": "2026-10-01T17:51:36Z",
+ "generatedAt": "2026-10-01T17:51:37.084Z",
+ "marketPricedLegPolicy": {
+  "state": "ADMITTED_PENDING_FOUNDER_DECISION",
+  "gate": "F1",
+  "since": "2026-09-21"
+ },
+ "counts": {
+  "total": 34,
+  "eligible": 6
+ },
+ "legs": [
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849844:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "849844",
+   "eventStartUtc": "2026-10-02T00:00:00Z",
+   "entityIds": [
+    "mlb-team-144",
+    "mlb-team-143"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4826,
+   "oddsForSide": {
+    "american": -102,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T11:42:04.804Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-01T11:42:04.804Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849844",
+    "family:team_result",
+    "entity:mlb:mlb-team-144",
+    "entity:mlb:mlb-team-143",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-01.json",
+    "mlb/statsapi-schedule/2026-10-01.json"
+   ],
+   "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+   "displaySelection": "Atlanta Braves to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849844:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "849844",
+   "eventStartUtc": "2026-10-02T00:00:00Z",
+   "entityIds": [
+    "mlb-team-143",
+    "mlb-team-144"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5174,
+   "oddsForSide": {
+    "american": -118,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T11:42:04.804Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-01T11:42:04.804Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849844",
+    "family:team_result",
+    "entity:mlb:mlb-team-143",
+    "entity:mlb:mlb-team-144",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-01.json",
+    "mlb/statsapi-schedule/2026-10-01.json"
+   ],
+   "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+   "displaySelection": "Philadelphia Phillies to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849844:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "849844",
+   "eventStartUtc": "2026-10-02T00:00:00Z",
+   "entityIds": [
+    "mlb-team-144",
+    "mlb-team-143"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.6078,
+   "oddsForSide": {
+    "american": -174,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T11:42:04.804Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-01T11:42:04.804Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849844",
+    "family:team_spread",
+    "entity:mlb:mlb-team-144",
+    "entity:mlb:mlb-team-143",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-01.json",
+    "mlb/statsapi-schedule/2026-10-01.json"
+   ],
+   "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+   "displaySelection": "Atlanta Braves +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849844:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "849844",
+   "eventStartUtc": "2026-10-02T00:00:00Z",
+   "entityIds": [
+    "mlb-team-143",
+    "mlb-team-144"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.3922,
+   "oddsForSide": {
+    "american": 144,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T11:42:04.804Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-01T11:42:04.804Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849844",
+    "family:team_spread",
+    "entity:mlb:mlb-team-143",
+    "entity:mlb:mlb-team-144",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-01.json",
+    "mlb/statsapi-schedule/2026-10-01.json"
+   ],
+   "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+   "displaySelection": "Philadelphia Phillies -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849844:mlb_total_runs:over:7.5",
+   "sport": "mlb",
+   "eventId": "849844",
+   "eventStartUtc": "2026-10-02T00:00:00Z",
+   "entityIds": [
+    "mlb-team-144",
+    "mlb-team-143"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4783,
+   "oddsForSide": {
+    "american": 100,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T11:42:04.804Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-01T11:42:04.804Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849844",
+    "family:team_total",
+    "entity:mlb:mlb-team-144",
+    "entity:mlb:mlb-team-143",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-01.json",
+    "mlb/statsapi-schedule/2026-10-01.json"
+   ],
+   "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+   "displaySelection": "Over 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849844:mlb_total_runs:under:7.5",
+   "sport": "mlb",
+   "eventId": "849844",
+   "eventStartUtc": "2026-10-02T00:00:00Z",
+   "entityIds": [
+    "mlb-team-144",
+    "mlb-team-143"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 7.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5217,
+   "oddsForSide": {
+    "american": -120,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T11:42:04.804Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-01T11:42:04.804Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849844",
+    "family:team_total",
+    "entity:mlb:mlb-team-144",
+    "entity:mlb:mlb-team-143",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-01.json",
+    "mlb/statsapi-schedule/2026-10-01.json"
+   ],
+   "displayMatchup": "Philadelphia Phillies @ Atlanta Braves",
+   "displaySelection": "Under 7.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "nfl:nfl-401872964:nfl_moneyline:home",
+   "sport": "nfl",
+   "eventId": "nfl-401872964",
+   "eventStartUtc": "2026-10-02T00:15Z",
+   "entityIds": [
+    "nfl-team-CLE",
+    "nfl-team-PIT"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "nfl_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "nfl/forecasts",
+   "forecastId": "nfl-regular-season-public-v1@v2",
+   "forecastClass": "EXPERIMENTAL_MODEL",
+   "modelStatus": "PUBLIC_EXPERIMENTAL",
+   "probability": null,
+   "marketImpliedProbability": 0.42794,
+   "oddsForSide": {
+    "american": 124,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T16:20:34Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md"
+   },
+   "publishedAt": "2026-10-01T16:20:34Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "FORECAST_EXPERIMENTAL"
+   ],
+   "correlationKeys": [
+    "sport:nfl",
+    "event:nfl:nfl-401872964",
+    "family:team_result",
+    "entity:nfl:nfl-team-CLE",
+    "entity:nfl:nfl-team-PIT",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "nfl/forecasts/latest.json",
+    "nfl/markets/latest.json"
+   ],
+   "displayMatchup": "PIT @ CLE",
+   "displaySelection": "Cleveland Browns to win",
+   "registryState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "nfl:nfl-401872964:nfl_moneyline:away",
+   "sport": "nfl",
+   "eventId": "nfl-401872964",
+   "eventStartUtc": "2026-10-02T00:15Z",
+   "entityIds": [
+    "nfl-team-PIT",
+    "nfl-team-CLE"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "nfl_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "nfl/forecasts",
+   "forecastId": "nfl-regular-season-public-v1@v2",
+   "forecastClass": "EXPERIMENTAL_MODEL",
+   "modelStatus": "PUBLIC_EXPERIMENTAL",
+   "probability": null,
+   "marketImpliedProbability": 0.57206,
+   "oddsForSide": {
+    "american": -148,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T16:20:34Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md"
+   },
+   "publishedAt": "2026-10-01T16:20:34Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "FORECAST_EXPERIMENTAL"
+   ],
+   "correlationKeys": [
+    "sport:nfl",
+    "event:nfl:nfl-401872964",
+    "family:team_result",
+    "entity:nfl:nfl-team-PIT",
+    "entity:nfl:nfl-team-CLE",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "nfl/forecasts/latest.json",
+    "nfl/markets/latest.json"
+   ],
+   "displayMatchup": "PIT @ CLE",
+   "displaySelection": "Pittsburgh Steelers to win",
+   "registryState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "nfl:nfl-401872964:nfl_spread:home:2.5",
+   "sport": "nfl",
+   "eventId": "nfl-401872964",
+   "eventStartUtc": "2026-10-02T00:15Z",
+   "entityIds": [
+    "nfl-team-CLE",
+    "nfl-team-PIT"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "nfl_spread",
+   "side": "home",
+   "line": 2.5,
+   "forecastOwner": "nfl/forecasts",
+   "forecastId": "nfl-regular-season-public-v1@v2",
+   "forecastClass": "EXPERIMENTAL_MODEL",
+   "modelStatus": "PUBLIC_EXPERIMENTAL",
+   "probability": null,
+   "marketImpliedProbability": null,
+   "oddsForSide": {
+    "american": 100,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T16:20:34Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md"
+   },
+   "publishedAt": "2026-10-01T16:20:34Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "FORECAST_EXPERIMENTAL"
+   ],
+   "correlationKeys": [
+    "sport:nfl",
+    "event:nfl:nfl-401872964",
+    "family:team_spread",
+    "entity:nfl:nfl-team-CLE",
+    "entity:nfl:nfl-team-PIT",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "nfl/forecasts/latest.json",
+    "nfl/markets/latest.json"
+   ],
+   "displayMatchup": "PIT @ CLE",
+   "displaySelection": "CLE +2.5",
+   "registryState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "nfl:nfl-401872964:nfl_spread:away:-2.5",
+   "sport": "nfl",
+   "eventId": "nfl-401872964",
+   "eventStartUtc": "2026-10-02T00:15Z",
+   "entityIds": [
+    "nfl-team-PIT",
+    "nfl-team-CLE"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "nfl_spread",
+   "side": "away",
+   "line": -2.5,
+   "forecastOwner": "nfl/forecasts",
+   "forecastId": "nfl-regular-season-public-v1@v2",
+   "forecastClass": "EXPERIMENTAL_MODEL",
+   "modelStatus": "PUBLIC_EXPERIMENTAL",
+   "probability": null,
+   "marketImpliedProbability": null,
+   "oddsForSide": {
+    "american": -120,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T16:20:34Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md"
+   },
+   "publishedAt": "2026-10-01T16:20:34Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "FORECAST_EXPERIMENTAL"
+   ],
+   "correlationKeys": [
+    "sport:nfl",
+    "event:nfl:nfl-401872964",
+    "family:team_spread",
+    "entity:nfl:nfl-team-PIT",
+    "entity:nfl:nfl-team-CLE",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "nfl/forecasts/latest.json",
+    "nfl/markets/latest.json"
+   ],
+   "displayMatchup": "PIT @ CLE",
+   "displaySelection": "PIT -2.5",
+   "registryState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "nfl:nfl-401872964:nfl_total:over:38.5",
+   "sport": "nfl",
+   "eventId": "nfl-401872964",
+   "eventStartUtc": "2026-10-02T00:15Z",
+   "entityIds": [
+    "nfl-team-CLE",
+    "nfl-team-PIT"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "nfl_total",
+   "side": "over",
+   "line": 38.5,
+   "forecastOwner": "nfl/forecasts",
+   "forecastId": "nfl-regular-season-public-v1@v2",
+   "forecastClass": "EXPERIMENTAL_MODEL",
+   "modelStatus": "PUBLIC_EXPERIMENTAL",
+   "probability": null,
+   "marketImpliedProbability": null,
+   "oddsForSide": {
+    "american": -105,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T16:20:34Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md"
+   },
+   "publishedAt": "2026-10-01T16:20:34Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "FORECAST_EXPERIMENTAL"
+   ],
+   "correlationKeys": [
+    "sport:nfl",
+    "event:nfl:nfl-401872964",
+    "family:team_total",
+    "entity:nfl:nfl-team-CLE",
+    "entity:nfl:nfl-team-PIT",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "nfl/forecasts/latest.json",
+    "nfl/markets/latest.json"
+   ],
+   "displayMatchup": "PIT @ CLE",
+   "displaySelection": "Over 38.5",
+   "registryState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "nfl:nfl-401872964:nfl_total:under:38.5",
+   "sport": "nfl",
+   "eventId": "nfl-401872964",
+   "eventStartUtc": "2026-10-02T00:15Z",
+   "entityIds": [
+    "nfl-team-CLE",
+    "nfl-team-PIT"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "nfl_total",
+   "side": "under",
+   "line": 38.5,
+   "forecastOwner": "nfl/forecasts",
+   "forecastId": "nfl-regular-season-public-v1@v2",
+   "forecastClass": "EXPERIMENTAL_MODEL",
+   "modelStatus": "PUBLIC_EXPERIMENTAL",
+   "probability": null,
+   "marketImpliedProbability": null,
+   "oddsForSide": {
+    "american": -115,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-01T16:20:34Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md"
+   },
+   "publishedAt": "2026-10-01T16:20:34Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "FORECAST_EXPERIMENTAL"
+   ],
+   "correlationKeys": [
+    "sport:nfl",
+    "event:nfl:nfl-401872964",
+    "family:team_total",
+    "entity:nfl:nfl-team-CLE",
+    "entity:nfl:nfl-team-PIT",
+    "start:994944"
+   ],
+   "sourceReceiptRefs": [
+    "nfl/forecasts/latest.json",
+    "nfl/markets/latest.json"
+   ],
+   "displayMatchup": "PIT @ CLE",
+   "displaySelection": "Under 38.5",
+   "registryState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401912278:ufc_h2h:Natalia Silva",
+   "sport": "ufc",
+   "eventId": "401912278",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Natalia Silva",
+    "ufc-fighter-name:Wang Cong"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Natalia Silva",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6721311475409836,
+   "oddsForSide": {
+    "american": -205,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401912278",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Natalia Silva",
+    "entity:ufc:ufc-fighter-name:Wang Cong"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Natalia Silva vs Wang Cong",
+   "displaySelection": "Natalia Silva to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401912278:ufc_h2h:Wang Cong",
+   "sport": "ufc",
+   "eventId": "401912278",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Natalia Silva",
+    "ufc-fighter-name:Wang Cong"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Wang Cong",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.37037037037037035,
+   "oddsForSide": {
+    "american": 170,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401912278",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Natalia Silva",
+    "entity:ufc:ufc-fighter-name:Wang Cong"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Natalia Silva vs Wang Cong",
+   "displaySelection": "Wang Cong to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401907087:ufc_h2h:Deiveson Figueiredo",
+   "sport": "ufc",
+   "eventId": "401907087",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Deiveson Figueiredo",
+    "ufc-fighter-name:Payton Talbott"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Deiveson Figueiredo",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.16666666666666666,
+   "oddsForSide": {
+    "american": 500,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_OUT_OF_RANGE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401907087",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Deiveson Figueiredo",
+    "entity:ufc:ufc-fighter-name:Payton Talbott"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Deiveson Figueiredo vs Payton Talbott",
+   "displaySelection": "Deiveson Figueiredo to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401907087:ufc_h2h:Payton Talbott",
+   "sport": "ufc",
+   "eventId": "401907087",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Deiveson Figueiredo",
+    "ufc-fighter-name:Payton Talbott"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Payton Talbott",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.8823529411764706,
+   "oddsForSide": {
+    "american": -750,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_OUT_OF_RANGE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401907087",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Deiveson Figueiredo",
+    "entity:ufc:ufc-fighter-name:Payton Talbott"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Deiveson Figueiredo vs Payton Talbott",
+   "displaySelection": "Payton Talbott to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401917347:ufc_h2h:King Green",
+   "sport": "ufc",
+   "eventId": "401917347",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:King Green",
+    "ufc-fighter-name:Esteban Ribovics"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "King Green",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.3448275862068966,
+   "oddsForSide": {
+    "american": 190,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401917347",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:King Green",
+    "entity:ufc:ufc-fighter-name:Esteban Ribovics"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "King Green vs Esteban Ribovics",
+   "displaySelection": "King Green to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401917347:ufc_h2h:Esteban Ribovics",
+   "sport": "ufc",
+   "eventId": "401917347",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:King Green",
+    "ufc-fighter-name:Esteban Ribovics"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Esteban Ribovics",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7014925373134329,
+   "oddsForSide": {
+    "american": -235,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401917347",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:King Green",
+    "entity:ufc:ufc-fighter-name:Esteban Ribovics"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "King Green vs Esteban Ribovics",
+   "displaySelection": "Esteban Ribovics to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401917345:ufc_h2h:Roberto Soldić",
+   "sport": "ufc",
+   "eventId": "401917345",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Roberto Soldić",
+    "ufc-fighter-name:Khaos Williams"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Roberto Soldić",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7311827956989247,
+   "oddsForSide": {
+    "american": -272,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401917345",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Roberto Soldić",
+    "entity:ufc:ufc-fighter-name:Khaos Williams"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Roberto Soldić vs Khaos Williams",
+   "displaySelection": "Roberto Soldić to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401917345:ufc_h2h:Khaos Williams",
+   "sport": "ufc",
+   "eventId": "401917345",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Roberto Soldić",
+    "ufc-fighter-name:Khaos Williams"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Khaos Williams",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.31545741324921134,
+   "oddsForSide": {
+    "american": 217,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401917345",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Roberto Soldić",
+    "entity:ufc:ufc-fighter-name:Khaos Williams"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Roberto Soldić vs Khaos Williams",
+   "displaySelection": "Khaos Williams to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401907088:ufc_h2h:Roman Kopylov",
+   "sport": "ufc",
+   "eventId": "401907088",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Roman Kopylov",
+    "ufc-fighter-name:Ateba Gautier"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Roman Kopylov",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.3508771929824561,
+   "oddsForSide": {
+    "american": 185,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401907088",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Roman Kopylov",
+    "entity:ufc:ufc-fighter-name:Ateba Gautier"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Roman Kopylov vs Ateba Gautier",
+   "displaySelection": "Roman Kopylov to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401907088:ufc_h2h:Ateba Gautier",
+   "sport": "ufc",
+   "eventId": "401907088",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Roman Kopylov",
+    "ufc-fighter-name:Ateba Gautier"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Ateba Gautier",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6923076923076923,
+   "oddsForSide": {
+    "american": -225,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401907088",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Roman Kopylov",
+    "entity:ufc:ufc-fighter-name:Ateba Gautier"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Roman Kopylov vs Ateba Gautier",
+   "displaySelection": "Ateba Gautier to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401912276:ufc_h2h:Alden Coria",
+   "sport": "ufc",
+   "eventId": "401912276",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Alden Coria",
+    "ufc-fighter-name:Imanol Rodriguez"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Alden Coria",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.43478260869565216,
+   "oddsForSide": {
+    "american": 130,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401912276",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Alden Coria",
+    "entity:ufc:ufc-fighter-name:Imanol Rodriguez"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Alden Coria vs Imanol Rodriguez",
+   "displaySelection": "Alden Coria to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401912276:ufc_h2h:Imanol Rodriguez",
+   "sport": "ufc",
+   "eventId": "401912276",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Alden Coria",
+    "ufc-fighter-name:Imanol Rodriguez"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Imanol Rodriguez",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6078431372549019,
+   "oddsForSide": {
+    "american": -155,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401912276",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Alden Coria",
+    "entity:ufc:ufc-fighter-name:Imanol Rodriguez"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Alden Coria vs Imanol Rodriguez",
+   "displaySelection": "Imanol Rodriguez to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401912277:ufc_h2h:Andrey Pulyaev",
+   "sport": "ufc",
+   "eventId": "401912277",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Andrey Pulyaev",
+    "ufc-fighter-name:Damian Pinas"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Andrey Pulyaev",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.19047619047619047,
+   "oddsForSide": {
+    "american": 425,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_OUT_OF_RANGE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401912277",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Andrey Pulyaev",
+    "entity:ufc:ufc-fighter-name:Damian Pinas"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Andrey Pulyaev vs Damian Pinas",
+   "displaySelection": "Andrey Pulyaev to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401912277:ufc_h2h:Damian Pinas",
+   "sport": "ufc",
+   "eventId": "401912277",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Andrey Pulyaev",
+    "ufc-fighter-name:Damian Pinas"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Damian Pinas",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.8518518518518519,
+   "oddsForSide": {
+    "american": -575,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401912277",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Andrey Pulyaev",
+    "entity:ufc:ufc-fighter-name:Damian Pinas"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Andrey Pulyaev vs Damian Pinas",
+   "displaySelection": "Damian Pinas to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401922306:ufc_h2h:Anthony Wint",
+   "sport": "ufc",
+   "eventId": "401922306",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Anthony Wint",
+    "ufc-fighter-name:Lucas Armand"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Anthony Wint",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.8484848484848485,
+   "oddsForSide": {
+    "american": -560,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401922306",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Anthony Wint",
+    "entity:ufc:ufc-fighter-name:Lucas Armand"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Anthony Wint vs Lucas Armand",
+   "displaySelection": "Anthony Wint to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401922306:ufc_h2h:Lucas Armand",
+   "sport": "ufc",
+   "eventId": "401922306",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Anthony Wint",
+    "ufc-fighter-name:Lucas Armand"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Lucas Armand",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.2,
+   "oddsForSide": {
+    "american": 400,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401922306",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Anthony Wint",
+    "entity:ufc:ufc-fighter-name:Lucas Armand"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Anthony Wint vs Lucas Armand",
+   "displaySelection": "Lucas Armand to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401926808:ufc_h2h:Jacobe Smith",
+   "sport": "ufc",
+   "eventId": "401926808",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Jacobe Smith",
+    "ufc-fighter-name:Bruce Whitehead"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Jacobe Smith",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.9090909090909091,
+   "oddsForSide": {
+    "american": -1000,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_OUT_OF_RANGE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401926808",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Jacobe Smith",
+    "entity:ufc:ufc-fighter-name:Bruce Whitehead"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Jacobe Smith vs Bruce Whitehead",
+   "displaySelection": "Jacobe Smith to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401926808:ufc_h2h:Bruce Whitehead",
+   "sport": "ufc",
+   "eventId": "401926808",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Jacobe Smith",
+    "ufc-fighter-name:Bruce Whitehead"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Bruce Whitehead",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.1314060446780552,
+   "oddsForSide": {
+    "american": 661,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_OUT_OF_RANGE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401926808",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Jacobe Smith",
+    "entity:ufc:ufc-fighter-name:Bruce Whitehead"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Jacobe Smith vs Bruce Whitehead",
+   "displaySelection": "Bruce Whitehead to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401912275:ufc_h2h:Marvin Vettori",
+   "sport": "ufc",
+   "eventId": "401912275",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Marvin Vettori",
+    "ufc-fighter-name:Ismail Naurdiev"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Marvin Vettori",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.46511627906976744,
+   "oddsForSide": {
+    "american": 115,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401912275",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Marvin Vettori",
+    "entity:ufc:ufc-fighter-name:Ismail Naurdiev"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Marvin Vettori vs Ismail Naurdiev",
+   "displaySelection": "Marvin Vettori to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401912275:ufc_h2h:Ismail Naurdiev",
+   "sport": "ufc",
+   "eventId": "401912275",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Marvin Vettori",
+    "ufc-fighter-name:Ismail Naurdiev"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Ismail Naurdiev",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.5867768595041323,
+   "oddsForSide": {
+    "american": -142,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401912275",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Marvin Vettori",
+    "entity:ufc:ufc-fighter-name:Ismail Naurdiev"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Marvin Vettori vs Ismail Naurdiev",
+   "displaySelection": "Ismail Naurdiev to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401907089:ufc_h2h:Court McGee",
+   "sport": "ufc",
+   "eventId": "401907089",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Court McGee",
+    "ufc-fighter-name:Eric Nolan"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Court McGee",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.3508771929824561,
+   "oddsForSide": {
+    "american": 185,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401907089",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Court McGee",
+    "entity:ufc:ufc-fighter-name:Eric Nolan"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Court McGee vs Eric Nolan",
+   "displaySelection": "Court McGee to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401907089:ufc_h2h:Eric Nolan",
+   "sport": "ufc",
+   "eventId": "401907089",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Court McGee",
+    "ufc-fighter-name:Eric Nolan"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Eric Nolan",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6923076923076923,
+   "oddsForSide": {
+    "american": -225,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-01T17:13:14Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-01T17:13:14Z",
+   "asOf": "2026-10-01T17:51:36Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401907089",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Court McGee",
+    "entity:ufc:ufc-fighter-name:Eric Nolan"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Court McGee vs Eric Nolan",
+   "displaySelection": "Eric Nolan to win",
+   "registryState": "SCAFFOLD_ONLY"
+  }
+ ]
+}
