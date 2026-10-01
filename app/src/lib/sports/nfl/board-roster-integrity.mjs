@@ -77,9 +77,10 @@ export function currentSeasonUsageIndex({ forecast, season }) {
 }
 
 /**
- * Current-season receivers the board's RECEIVING family cannot see (§21, §30). While the receiving
- * family publishes from the v1 engine, whose usage pool is built from the 2023–2025 corpus, a rookie
- * or a mover with this season's targets at this club is absent from it. Materiality is the v1 pool's
+ * Current-season receivers the board's RECEIVING family cannot see (§21, §30). The receiving family
+ * publishes from the v1 engine's role-share pool; until Session 4 PR B that pool was 2023–2025 only, so
+ * every rookie and mover was absent. With the 2026 season folded in, what remains is the honest residue
+ * (a player below the pool's own share floor, or a game the capture has not reached yet). Materiality is the v1 pool's
  * OWN inclusion rule (target share ≥ 0.05, run-nfl-event-window `THRESH`) applied to the weekly
  * forecast's current-season share — no threshold is invented here. Named, never silent.
  */
@@ -94,7 +95,7 @@ export function receivingFamilyGaps({ forecast, gameId, season, toBoardTeam, pub
     if (r[col.espnId] == null || r[col.espnId] === "") continue;
     out.push({
       team: toBoardTeam(r[col.team]), playerId: `nfl-athlete-${r[col.espnId]}`, family: "player_receptions",
-      reason: `the receiving model's usage pool is built from 2023–2025 games, so his ${season} role here is not in it yet`,
+      reason: `the receiving model's usage pool does not include his ${season} role here yet`,
     });
   }
   return out;
