@@ -338,7 +338,10 @@ function ResultsDayCards({ d }: { d: ResultsDayDisplay }) {
             {d.lanes.map((l, i) => (
               <li key={i} className="ask-lane">
                 <div className="ask-lane-head">
-                  <span className="ask-result-title">{l.product}{l.lane ? ` · lane ${l.lane}` : ""}</span>
+                  <span className="ask-result-title">
+                    {l.product}{l.lane ? ` · lane ${l.lane}` : ""}
+                    {l.legs.length ? null : <span className="ask-lane-empty"> · no legs on its receipt</span>}
+                  </span>
                   <Badge {...laneBadge(l.result)} />
                 </div>
                 {l.legs.length ? (
@@ -350,7 +353,7 @@ function ResultsDayCards({ d }: { d: ResultsDayDisplay }) {
                       </li>
                     ))}
                   </ul>
-                ) : <p className="ask-block-note">No legs on its receipt.</p>}
+                ) : null}
               </li>
             ))}
           </ul>
