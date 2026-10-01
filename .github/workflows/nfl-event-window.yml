@@ -411,6 +411,13 @@ jobs:
           # P245: the public player board — promotion-gated extraction of the eligible families
           # (rush yards + calibrated anytime TD) from the current-event research artifacts.
           node scripts/nfl/build-nfl-player-board.mjs --now "${{ steps.window.outputs.now }}"
+          # Session 4 §50: the roster health check re-audits every upcoming board against the canonical
+          # owners (rosters, injuries contract, role evidence, current-season usage). The builder fixes
+          # by construction; this proves it. LOUD, NOT FATAL: a generator that refuses takes every board
+          # down with the one bad row (the 62-hour Aug 1–3 outage); the LIVE test fails main instead.
+          if ! node scripts/ops/nfl-roster-audit.mjs --after "${{ steps.window.outputs.now }}"; then
+            echo "::error::NFL roster audit found violations on a published board — see the table above"
+          fi
           # P246 §5: the weekly top boards — ONE canonical ranking owner over the per-game
           # boards; top-N are maximums, confirmed-out players never rank.
           node scripts/nfl/build-nfl-weekly-boards.mjs --now "${{ steps.window.outputs.now }}"
