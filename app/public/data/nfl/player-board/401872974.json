@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-01T22:00:15Z",
- "sourceGeneratedAt": "2026-10-01T22:00:15Z",
+ "generatedAt": "2026-10-01T22:30:25Z",
+ "sourceGeneratedAt": "2026-10-01T22:30:25Z",
  "providerEventId": "401872974",
  "matchup": "MIA @ MIN",
  "kickoffUtc": "2026-10-04T20:05Z",
@@ -110,19 +110,41 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 40,
+  "absent": 50,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "MIA": {
    "counts": {
-    "PROJECTED": 9,
+    "PROJECTED": 10,
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0
    },
    "players": [
+    {
+     "playerId": "nfl-athlete-4569603",
+     "name": "Malik Washington",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4869645",
+     "name": "Caleb Douglas",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
     {
      "playerId": "nfl-athlete-4367209",
      "name": "Greg Dulcich",
@@ -135,8 +157,40 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4569603",
-     "name": "Malik Washington",
+     "playerId": "nfl-athlete-4869961",
+     "name": "Chris Bell",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4685116",
+     "name": "DJ Herman",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4685307",
+     "name": "Kevin Coleman Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4369466",
+     "name": "Ryan Miller",
      "state": "PROJECTED",
      "families": [
       "anytime_td",
@@ -175,70 +229,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4369466",
-     "name": "Ryan Miller",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_receptions",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
-      }
-     ]
-    },
-    {
-     "playerId": "nfl-athlete-4869645",
-     "name": "Caleb Douglas",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "QUESTIONABLE",
-     "notModeled": [
-      {
-       "family": "player_receptions",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
-      }
-     ]
-    },
-    {
-     "playerId": "nfl-athlete-4869961",
-     "name": "Chris Bell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "QUESTIONABLE",
-     "notModeled": [
-      {
-       "family": "player_receptions",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
-      }
-     ]
-    },
-    {
-     "playerId": "nfl-athlete-4685307",
-     "name": "Kevin Coleman Jr.",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_receptions",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
-      }
-     ]
     },
     {
      "playerId": "nfl-athlete-4429160",
@@ -368,7 +358,7 @@
       {
        "family": "player_receptions",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "the receiving model's usage pool is built from 2023–2025 games, so his 2026 role here is not in it yet"
+       "reason": "the receiving model's usage pool does not include his 2026 role here yet"
       }
      ]
     },
@@ -443,20 +433,20 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 26.049,
+     "mean": 22.263,
      "p10": 0,
-     "p25": 7.41,
-     "median": 20.55,
-     "p75": 37.76,
-     "p90": 59.15,
+     "p25": 5.25,
+     "median": 17.19,
+     "p75": 33.12,
+     "p90": 51.85,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.569,
+     "mean": 2.269,
      "p10": 0,
      "p25": 1,
      "median": 2,
-     "p75": 4,
+     "p75": 3,
      "p90": 5,
      "pricingState": "NOT_PROBED"
     },
@@ -482,21 +472,21 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 56.257,
-     "p10": 13.84,
-     "p25": 28.85,
-     "median": 50.5,
-     "p75": 76.92,
-     "p90": 106.03,
+     "mean": 59.855,
+     "p10": 13.94,
+     "p25": 30.33,
+     "median": 53.47,
+     "p75": 82.87,
+     "p90": 113.66,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.929,
+     "mean": 5.057,
      "p10": 2,
      "p25": 3,
      "median": 5,
      "p75": 7,
-     "p90": 8,
+     "p90": 9,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -533,21 +523,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 27.932,
-     "p10": 0,
-     "p25": 7.53,
-     "median": 21.44,
-     "p75": 41.46,
-     "p90": 64.31,
+     "mean": 46.247,
+     "p10": 7.42,
+     "p25": 20.26,
+     "median": 39.32,
+     "p75": 64.96,
+     "p90": 93.84,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.392,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5,
+     "mean": 3.786,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -563,21 +553,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 25.155,
-     "p10": 0,
-     "p25": 7.18,
-     "median": 19.7,
-     "p75": 37.48,
-     "p90": 56.66,
+     "mean": 46.092,
+     "p10": 9.09,
+     "p25": 21.76,
+     "median": 40.7,
+     "p75": 64.09,
+     "p90": 89.16,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.465,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5,
+     "mean": 4.274,
+     "p10": 1,
+     "p25": 3,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -593,21 +583,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 26.362,
-     "p10": 0,
-     "p25": 7.66,
-     "median": 21.03,
-     "p75": 39.11,
-     "p90": 59.05,
+     "mean": 36.755,
+     "p10": 5.13,
+     "p25": 15.25,
+     "median": 31.09,
+     "p75": 52.62,
+     "p90": 75.06,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.538,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5,
+     "mean": 3.586,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -673,6 +663,24 @@
    "team": "MIA",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_reception_yds": {
+     "mean": 42.247,
+     "p10": 5.43,
+     "p25": 17.23,
+     "median": 36.33,
+     "p75": 60.6,
+     "p90": 85.17,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 3.516,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
     "anytime_td": {
      "probability": 0.1945,
      "pricingState": "NOT_PROBED"
@@ -686,21 +694,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 30.797,
-     "p10": 0,
-     "p25": 9.51,
-     "median": 24.63,
-     "p75": 44.81,
-     "p90": 68,
+     "mean": 33.152,
+     "p10": 2.46,
+     "p25": 12.14,
+     "median": 27.21,
+     "p75": 48.34,
+     "p90": 71.09,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.722,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
+     "mean": 3.044,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
      "p75": 4,
-     "p90": 5,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -715,6 +723,24 @@
    "team": "MIA",
    "participation": "QUESTIONABLE",
    "markets": {
+    "player_reception_yds": {
+     "mean": 26.27,
+     "p10": 0,
+     "p25": 5.53,
+     "median": 19.56,
+     "p75": 39.3,
+     "p90": 62.51,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.143,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
+     "pricingState": "NOT_PROBED"
+    },
     "anytime_td": {
      "probability": 0.1224,
      "pricingState": "NOT_PROBED"
@@ -760,6 +786,24 @@
    "team": "MIA",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_reception_yds": {
+     "mean": 15.545,
+     "p10": 0,
+     "p25": 0,
+     "median": 7.49,
+     "p75": 23.81,
+     "p90": 43.9,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.216,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
     "anytime_td": {
      "probability": 0.0944,
      "pricingState": "NOT_PROBED"
@@ -814,6 +858,24 @@
    "team": "MIA",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_reception_yds": {
+     "mean": 15.591,
+     "p10": 0,
+     "p25": 0,
+     "median": 9.79,
+     "p75": 23.43,
+     "p90": 40.96,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.471,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_PROBED"
+    },
     "anytime_td": {
      "probability": 0.0762,
      "pricingState": "NOT_PROBED"
@@ -846,6 +908,32 @@
     },
     "anytime_td": {
      "probability": 0.0593,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4685116",
+   "name": "DJ Herman",
+   "team": "MIA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 21.36,
+     "p10": 0,
+     "p25": 3.61,
+     "median": 15.41,
+     "p75": 31.87,
+     "p90": 51.58,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.925,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     }
    }
