@@ -75,6 +75,8 @@ export interface MyPlayerRow {
   researchHref: string | null;
   /** PUBLISHED families only, each as its frozen p10–median–p90. */
   markets: Array<{ key: string; label: string; median: number; p10: number; p90: number }>;
+  /** Session 4: the PUBLISHED anytime-TD probability (conditioned on playing), exactly as the game page shows it; null when absent. */
+  anytimeTd?: number | null;
 }
 
 export interface MyReadModel {
@@ -279,7 +281,11 @@ export function buildMyPlayerRows(): MyPlayerRow[] {
           return { key, label, median: round1(m.median), p10: round1(m.p10), p90: round1(m.p90) };
         })
         .filter((m): m is NonNullable<typeof m> => m !== null);
+      /* Session 4 (Ask parity): the game page's "Likely TD scorers" read this same board field. Ask had no
+         touchdown number at all and told a reader GameTimePicks "does not hold touchdown scorer data". */
+      const td = published.some(({ key }) => key === "anytime_td") ? p.markets?.anytime_td?.probability : null;
       players.push({
+        anytimeTd: typeof td === "number" && Number.isFinite(td) && td >= 0 && td <= 1 ? td : null,
         playerId: p.playerId, name: String(p.name ?? ""), team: String(p.team ?? ""),
         kickoffUtc: board.kickoffUtc ?? null, matchup: String(board.matchup ?? b.matchup ?? ""),
         href: pageIds.has(String(b.providerEventId)) ? `/nfl/game/${b.providerEventId}/` : null,
