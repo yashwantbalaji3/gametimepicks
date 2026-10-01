@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-09-30T11:12:35Z",
+ "generatedAt": "2026-10-01T11:38:45Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 9,
@@ -22,20 +22,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 751,
+   "n": 754,
    "judgement": {
     "state": "BREACHED",
-    "n": 751,
+    "n": 754,
     "needed": 200,
-    "meanDiff": 0.0342,
-    "lo95": 0.0162,
-    "hi95": 0.0532
+    "meanDiff": 0.0343,
+    "lo95": 0.0159,
+    "hi95": 0.053
    },
    "context": {
-    "hitRate": 0.494,
-    "meanPickProbability": 0.5873,
-    "modelMinusMarket": 0.0336,
-    "pairedWithMarket": 751
+    "hitRate": 0.4947,
+    "meanPickProbability": 0.5872,
+    "modelMinusMarket": 0.0337,
+    "pairedWithMarket": 754
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -157,20 +157,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 790,
+   "n": 794,
    "judgement": {
     "state": "WATCH",
-    "n": 790,
+    "n": 794,
     "needed": 200,
-    "meanDiff": 0.0065,
-    "lo95": -0.006,
-    "hi95": 0.0189
+    "meanDiff": 0.0066,
+    "lo95": -0.0062,
+    "hi95": 0.0192
    },
    "context": {
-    "hitRate": 0.5127,
-    "meanPickProbability": 0.5723,
-    "modelMinusMarket": 0.0318,
-    "pairedWithMarket": 785
+    "hitRate": 0.5139,
+    "meanPickProbability": 0.5722,
+    "modelMinusMarket": 0.0319,
+    "pairedWithMarket": 789
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -240,18 +240,18 @@
    "label": "MLB run line picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 790,
+   "n": 794,
    "judgement": {
     "state": "HOLDING",
-    "n": 790,
+    "n": 794,
     "needed": 200,
-    "meanDiff": -0.0317,
-    "lo95": -0.0465,
-    "hi95": -0.0156
+    "meanDiff": -0.0312,
+    "lo95": -0.0463,
+    "hi95": -0.0146
    },
    "context": {
-    "hitRate": 0.6291,
-    "meanPickProbability": 0.599,
+    "hitRate": 0.6285,
+    "meanPickProbability": 0.5991,
     "modelMinusMarket": null,
     "pairedWithMarket": 0
    },
