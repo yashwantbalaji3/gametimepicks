@@ -11,6 +11,8 @@
  * a grade keeps its own word, a live state gets its plain name. Nothing here invents a tier, a status or a reason.
  */
 
+import { legState } from "../results/v2/lane-words.mjs";
+
 /** @returns {"forecasts"|"live"|"resultsDay"|"teamCompare"|"generic"} */
 export function answerRenderer(display) {
   if (!display || typeof display !== "object") return "generic";
@@ -53,8 +55,13 @@ const LANE = Object.freeze({
   void: { label: "Void", tone: "neutral" },
   pending: { label: "Pending", tone: "pending" },
   active: { label: "Open", tone: "pending" },
+  /* Session 3 · lane-words.mjs: a no-card lane, and a pending leg of a decided lane — neither is an open bet. */
+  awaiting: { label: "No card", tone: "neutral" },
+  "not-graded": { label: "Not graded", tone: "neutral" },
 });
 export const laneBadge = (result) => LANE[result] ?? LANE.pending;
+/** A leg's badge in its lane's context — "pending" in a decided lane is "Not graded", never a loss. */
+export const legBadge = (legResult, laneResult) => laneBadge(legState(legResult, laneResult));
 
 /* Live states in plain words. The provider's own detail is shown beside it only when it says something new. */
 const LIVE = Object.freeze({ LIVE: "Live", FINAL: "Final", PRE: "Not started" });

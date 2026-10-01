@@ -28,7 +28,7 @@ import { getHeadToHead } from "./head-to-head.mjs";
 import { MATCHUP_INDEXABLE_SPORTS, MATCHUP_PAGE_BUDGET, MATCHUP_WINDOWS } from "./matchup.mjs";
 import { assembleCompareProjection, assertNoForbiddenCompareFields } from "./projection-build.mjs";
 import { parseCompareQuery } from "./query.mjs";
-import { readCompareFile, readPublishedMatchupIds, readResearchInput } from "./research-input.mjs";
+import { readCompareFile, readPublishedMatchupIds, readPublishedMatchups, readResearchInput } from "./research-input.mjs";
 import { isTransientSource } from "../ci/source-tree.mjs";
 
 const APP = process.cwd().endsWith("app") ? process.cwd() : path.join(process.cwd(), "app");
@@ -47,9 +47,13 @@ const jsonl = (rel) => (readCompareFile(REPO, rel) ?? "").split("\n").filter(Boo
 
 const input = readResearchInput(REPO);
 const committedIds = readPublishedMatchupIds(REPO);
+/* Session 3 · assemble EXACTLY as the producer script does — with the committed rows, so a published game that left the
+   schedule is carried forward (REMOVED_FROM_SCHEDULE) instead of read as a drop. Passing ids alone turned main red the
+   moment the bot regenerated the registry after #870 (CX1/CX4: "would DROP 3 published page(s)"). */
+const committedRows = readPublishedMatchups(REPO);
 
 test("CX1 committed compare projection = rebuild of the committed research projection (deterministic, order-free)", () => {
-  const built = assembleCompareProjection({ ...input, previousMatchupIds: committedIds });
+  const built = assembleCompareProjection({ ...input, previousMatchupIds: committedIds, previousMatchups: committedRows });
   const stale = [...built.files.keys()].filter((k) => readCompareFile(REPO, k) !== built.files.get(k));
   assert.deepEqual(stale, [], "run: node scripts/compare/build-compare-projections.mjs (after the research projection)");
   const receipt = JSON.parse(readCompareFile(REPO, "receipt.json"));
@@ -57,7 +61,7 @@ test("CX1 committed compare projection = rebuild of the committed research proje
   assert.doesNotMatch(readCompareFile(REPO, "receipt.json"), /"(builtAt|generatedAt|timestamp)"/, "no wall clock");
   // Order independence: every input array reversed → identical bytes.
   const rev = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, [...v].reverse()]));
-  const reversed = assembleCompareProjection({ ...input, index: [...input.index].reverse(), teams: rev(input.teams), players: rev(input.players), previousMatchupIds: committedIds });
+  const reversed = assembleCompareProjection({ ...input, index: [...input.index].reverse(), teams: rev(input.teams), players: rev(input.players), previousMatchupIds: committedIds, previousMatchups: committedRows });
   for (const k of built.files.keys()) assert.equal(reversed.files.get(k), built.files.get(k), `${k}: input order must not change bytes`);
 });
 
@@ -148,7 +152,7 @@ test("CX4 registry integrity, windows, budget, indexing policy and the durabilit
   }
   assert.ok(total <= MATCHUP_PAGE_BUDGET && total > 0);
   // Durability: the committed ids are a floor — a rebuild that loses one throws (see CP9 for the refusal itself).
-  const rebuilt = assembleCompareProjection({ ...input, previousMatchupIds: committedIds });
+  const rebuilt = assembleCompareProjection({ ...input, previousMatchupIds: committedIds, previousMatchups: committedRows });
   for (const s of ["MLB", "NFL"]) {
     const ids = new Set(rebuilt.files.get(`matchups/${s}.jsonl`).split("\n").filter(Boolean).map((l) => JSON.parse(l).gameId));
     assert.ok(committedIds[s].every((id) => ids.has(id)), `${s} durability`);

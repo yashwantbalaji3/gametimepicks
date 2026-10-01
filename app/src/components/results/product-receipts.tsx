@@ -3,9 +3,11 @@
  * score and the owner's grade — the receipt a product record is folded from. Server component; nothing recomputed.
  */
 import type { DayReceipts } from "@/lib/results/v2/product-receipts";
+import { AWAITING_NOTE, LANE_WORD, legState } from "@/lib/results/v2/lane-words.mjs";
 
 const PRODUCT: Record<string, string> = { "bank-builder": "Bank Builder", moonshot: "Moonshot" };
-const WORD: Record<string, string> = { won: "Won", lost: "Lost", void: "Void", push: "Push", pending: "Pending — not settled yet", active: "Open — a leg is still pending" };
+/* Session 3 · the words live in lane-words.mjs, shared with Ask: "No card placed" and "Not graded — lane already decided". */
+const WORD: Record<string, string> = LANE_WORD;
 
 export default function ProductReceipts({ day }: { day: DayReceipts | null }) {
   if (!day || !day.lanes.length) return null;
@@ -25,14 +27,21 @@ export default function ProductReceipts({ day }: { day: DayReceipts | null }) {
               <h3 className="m-0 text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{PRODUCT[l.product] ?? l.product}{l.lane ? ` · lane ${l.lane}` : ""}</h3>
               <span className="font-mono text-[12px] uppercase tracking-[0.06em]" style={{ color: l.result === "won" ? "var(--vault-text)" : "var(--vault-text-mute)" }}>{WORD[l.result] ?? l.result}</span>
             </div>
-            <table className="gtp-day-table">
-              <thead><tr><th scope="col">Leg</th><th scope="col">Official</th><th scope="col" className="r">Grade</th></tr></thead>
-              <tbody>
-                {l.legs.map((g, j) => (
-                  <tr key={j}><td>{g.selection ?? "—"}<span className="m"> · {g.matchup ?? "—"}</span></td><td>{g.official ?? "—"}</td><td className="r"><span className={g.result === "won" ? "o w" : "o"}>{WORD[g.result] ?? g.result}</span></td></tr>
-                ))}
-              </tbody>
-            </table>
+            {l.legs.length ? (
+              <table className="gtp-day-table">
+                <thead><tr><th scope="col">Leg</th><th scope="col">Official</th><th scope="col" className="r">Grade</th></tr></thead>
+                <tbody>
+                  {l.legs.map((g, j) => {
+                    const state = legState(g.result, l.result);
+                    return <tr key={j}><td>{g.selection ?? "—"}<span className="m"> · {g.matchup ?? "—"}</span></td><td>{g.official ?? "—"}</td><td className="r"><span className={state === "won" ? "o w" : "o"}>{WORD[state] ?? state}</span></td></tr>;
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <p data-lane-state={l.result} className="m-0 text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>
+                {l.result === "awaiting" ? AWAITING_NOTE : "No legs on this lane's receipt."}
+              </p>
+            )}
           </li>
         ))}
       </ul>
