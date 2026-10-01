@@ -204,7 +204,8 @@ jobs:
         if: steps.window.outputs.events != '0'
         working-directory: app
         run: |
-          set -uo pipefail
+          set -euo pipefail
+          # A command tested by `if !` never trips -e, so the failure stays non-fatal and still loud.
           if ! node scripts/nfl/capture-nfl-player-events.mjs --now "${{ steps.window.outputs.now }}" --from-current-season; then
             echo "::warning::current-season player-event capture failed — role shares fold the committed 2026 partition"
           fi
