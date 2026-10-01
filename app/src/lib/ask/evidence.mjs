@@ -19,6 +19,7 @@
  * number in the answer that is not in this index has no source, whatever it looks like.
  */
 import { ASK_BUDGET, ASK_STATUS } from "./contract.mjs";
+import { legState } from "../results/v2/lane-words.mjs";
 
 /**
  * Build the bundle from the executor's envelopes.
@@ -388,15 +389,21 @@ export function buildEvidence(envelopes) {
          * a restatement of THIS day's graded call — and nothing else — and a pending item says it is not a loss.
          */
         const PRODUCT = { "bank-builder": "Bank Builder", moonshot: "Moonshot" };
-        const LANE_WORD = { won: "won", lost: "lost", void: "void", push: "a push", pending: "pending — not settled yet, which is never a loss", active: "open — a leg is still pending" };
+        const LANE_WORD = {
+          won: "won", lost: "lost", void: "void", push: "a push", pending: "pending — not settled yet, which is never a loss", active: "open — a leg is still pending",
+          /* Session 3 · lane-words.mjs: a no-card lane and a pending leg of a decided lane, in the ledger's own terms. */
+          awaiting: "not played — no card was placed; it was awaiting its next qualified card, so nothing settled",
+          "not-graded": "not graded — the lane was already decided",
+        };
         const OUTCOME = { WIN: "graded WIN", LOSS: "graded LOSS", PUSH: "graded PUSH", VOID: "graded VOID" };
         say(`results for ${d.date} (ET)${d.isYesterday ? ", which is yesterday" : ""}, as the Results day page records them — each item keeps its own grade, and GameTimePicks publishes no combined day record or percentage`, [d.date]);
         if (d.lanes?.length) {
           for (const l of d.lanes.slice(0, 6)) {
             const name = `${PRODUCT[l.product] ?? l.product}${l.lane ? ` lane ${l.lane}` : ""}`;
-            say(`on ${d.date}, ${name} was ${LANE_WORD[l.result] ?? l.result}${l.legs?.length ? `, with ${l.legs.length} leg(s) on its receipt` : ", with no legs on its receipt"}`, [d.date, l.legs?.length ?? 0]);
+            say(`on ${d.date}, ${name} was ${LANE_WORD[l.result] ?? l.result}${l.legs?.length ? `, with ${l.legs.length} leg(s) on its receipt` : l.result === "awaiting" ? "" : ", with no legs on its receipt"}`, [d.date, l.legs?.length ?? 0]);
             for (const g of (l.legs ?? []).slice(0, 4)) {
-              say(`${name} leg · ${g.selection ?? "a selection"}${g.matchup ? ` (${g.matchup})` : ""}${g.official ? `, official ${g.official}` : ""}: ${LANE_WORD[g.result] ?? g.result}`);
+              const gs = legState(g.result, l.result);
+              say(`${name} leg · ${g.selection ?? "a selection"}${g.matchup ? ` (${g.matchup})` : ""}${g.official ? `, official ${g.official}` : ""}: ${LANE_WORD[gs] ?? gs}`);
             }
           }
         } else {

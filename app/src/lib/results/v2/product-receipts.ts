@@ -9,6 +9,7 @@
 import path from "node:path";
 
 import { readReceipts } from "@/lib/products/ladder-position.mjs";
+import { laneState } from "./lane-words.mjs";
 
 export interface ReceiptLeg { matchup: string | null; selection: string | null; market: string | null; official: string | null; result: string }
 export interface ReceiptLane { product: "bank-builder" | "moonshot" | string; lane: string | null; result: string; legs: ReceiptLeg[] }
@@ -24,7 +25,8 @@ export function productReceiptsFor(date: string): DayReceipts | null {
   return {
     date, settledAt: r.settledAt ?? null, source: r.source ?? null,
     lanes: (r.lanes ?? []).map((l: any) => ({
-      product: String(l.product ?? ""), lane: l.lane ?? null, result: String(l.result ?? l.status ?? "pending"),
+      /* Session 3 · a no-card lane is "awaiting" (the receipt's own status), never "pending" — see lane-words.mjs. */
+      product: String(l.product ?? ""), lane: l.lane ?? null, result: laneState(l),
       legs: (l.legs ?? []).map((g: any) => ({
         matchup: g.matchup ?? null, selection: g.selection ?? null, market: g.market ?? null,
         official: g.official != null ? String(g.official) : null, result: String(g.result ?? "pending"),

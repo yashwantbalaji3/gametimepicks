@@ -152,7 +152,7 @@ function liveDisplay(d, linkOf, envLinks) {
 const PRODUCT_NAME = { "bank-builder": "Bank Builder", moonshot: "Moonshot" };
 /* The owner's grade vocabulary, verbatim. Anything else — including no grade — is PENDING, never a loss. */
 const GRADES = new Set(["WIN", "LOSS", "PUSH", "VOID"]);
-const LANE_RESULTS = new Set(["won", "lost", "void", "push", "pending", "active"]);
+const LANE_RESULTS = new Set(["won", "lost", "void", "push", "pending", "active", "awaiting"]);
 
 function resultsDayDisplay(d, linkOf, envLinks) {
   if (!text(d.date)) return null;

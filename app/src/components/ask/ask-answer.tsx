@@ -30,6 +30,7 @@ import {
   gradeBadge,
   kickoffEt,
   laneBadge,
+  legBadge,
   liveStateLabel,
   plural,
   remainingLinks,
@@ -340,7 +341,7 @@ function ResultsDayCards({ d }: { d: ResultsDayDisplay }) {
                 <div className="ask-lane-head">
                   <span className="ask-result-title">
                     {l.product}{l.lane ? ` · lane ${l.lane}` : ""}
-                    {l.legs.length ? null : <span className="ask-lane-empty"> · no legs on its receipt</span>}
+                    {l.legs.length || l.result === "awaiting" ? null : <span className="ask-lane-empty"> · no legs on its receipt</span>}
                   </span>
                   <Badge {...laneBadge(l.result)} />
                 </div>
@@ -349,7 +350,7 @@ function ResultsDayCards({ d }: { d: ResultsDayDisplay }) {
                     {l.legs.map((g, j) => (
                       <li key={j} className="ask-call">
                         <span className="ask-call-pick">{g.selection ?? "A selection"}{g.matchup ? <span className="ask-muted"> · {g.matchup}</span> : null}{g.official ? <span className="ask-muted"> · official {g.official}</span> : null}</span>
-                        <Badge {...laneBadge(g.result)} />
+                        <Badge {...legBadge(g.result, l.result)} />
                       </li>
                     ))}
                   </ul>
@@ -358,6 +359,7 @@ function ResultsDayCards({ d }: { d: ResultsDayDisplay }) {
             ))}
           </ul>
           {d.lanes.some((l) => l.result === "pending" || l.result === "active") ? <p className="ask-card-note">Pending means not settled yet. It is never a loss.</p> : null}
+          {d.lanes.some((l) => l.result === "awaiting") ? <p className="ask-card-note">No card means no card was placed for that lane that day, so nothing settled.</p> : null}
         </div>
       ) : <p className="ask-block-note">No Bank Builder or Moonshot card was recorded for this day.</p>}
       {d.sportsWithout.length ? <p className="ask-card-note">Nothing was graded for {d.sportsWithout.join(", ")}.</p> : null}
