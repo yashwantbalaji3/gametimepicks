@@ -21,6 +21,7 @@
  * stripped rows array, so two captures of unchanged source bytes produce identical hashes.
  *
  * Usage: node scripts/nfl/capture-nfl-player-events.mjs --now <iso> [--season 2025] [--limit N]
+ *        node scripts/nfl/capture-nfl-player-events.mjs --now <iso> --from-current-season
  * Writes: data/internal/research/nfl/player-events-v1/<season>.json
  */
 import fs from "node:fs";
@@ -36,8 +37,32 @@ if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <
 const SEASON = arg("--season") ? Number(arg("--season")) : null;
 const LIMIT = arg("--limit") ? Number(arg("--limit")) : null;
 
-const corpus = JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/research/nfl/corpus-v1.json"), "utf8"));
-let games = corpus.rows.filter((g) => (SEASON ? g.season === SEASON : true));
+/*
+ * SESSION 4 — THE CURRENT SEASON. corpus-v1 stops at 2025, so the role-share pool (and through it the
+ * receiving family) never saw a 2026 game: KC Concepcion, Cleveland's top 2026 target share, had no
+ * receiving projection in Week 4. `--from-current-season` takes the game list from the bot-refreshed
+ * nflverse current-season capture (ESPN ids + official finals, the same file the team forecast reads)
+ * and captures each final through the SAME ESPN summary path and reconciliation rules as 2023–2025.
+ * Games already in the committed partition are reused verbatim, so a weekly run fetches only new finals.
+ */
+const FROM_CURRENT = process.argv.includes("--from-current-season");
+let games;
+let reused = new Map();
+if (FROM_CURRENT) {
+  const cs = JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/research/nfl/replay/current-season.json"), "utf8"));
+  const col = Object.fromEntries((cs.columns ?? []).map((c, i) => [c, i]));
+  games = (cs.games ?? []).map((r) => ({
+    providerEventId: String(r[col.espnId]), season: Number(r[col.season]), seasonType: 2,
+    week: Number(String(r[col.gameId]).split("_")[1]), dateUtc: `${r[col.date]}T00:00Z`,
+    home: r[col.home], away: r[col.away], ftHome: Number(r[col.homeScore]), ftAway: Number(r[col.awayScore]),
+  })).filter((g) => /^\d+$/.test(g.providerEventId) && Number.isFinite(g.ftHome) && Number.isFinite(g.ftAway));
+  if (SEASON) games = games.filter((g) => g.season === SEASON);
+  const prior = (() => { try { return JSON.parse(fs.readFileSync(path.join(APP, "..", `data/internal/research/nfl/player-events-v1/${cs.season}.json`), "utf8")); } catch { return null; } })();
+  reused = new Map((prior?.games ?? []).map((g) => [g.providerEventId, g]));
+} else {
+  const corpus = JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/research/nfl/corpus-v1.json"), "utf8"));
+  games = corpus.rows.filter((g) => (SEASON ? g.season === SEASON : true));
+}
 if (LIMIT) games = games.slice(0, LIMIT);
 
 const int = (s) => { const n = Number(String(s ?? "").replace(/[^0-9-]/g, "")); return Number.isFinite(n) && String(s ?? "").trim() !== "" ? n : null; };
@@ -86,6 +111,13 @@ const bySeason = new Map();
 const quarantinedGames = [];
 let fetched = 0;
 for (const g of games) {
+  const kept = reused.get(g.providerEventId);
+  if (kept && kept.ftHome === g.ftHome && kept.ftAway === g.ftAway) {
+    if (!bySeason.has(g.season)) bySeason.set(g.season, []);
+    bySeason.get(g.season).push(kept);
+    fetched += 1;
+    continue;
+  }
   try {
     const sum = await get(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${g.providerEventId}`);
     const blocks = sum?.boxscore?.players ?? [];
@@ -100,7 +132,8 @@ for (const g of games) {
     if (recYds !== passYds) throw new Error(`R2: recYds ${recYds} ≠ passYds ${passYds}`);
     if (6 * (passTd + rushTd) > points) throw new Error(`R3: 6×offTD ${6 * (passTd + rushTd)} > final points ${points}`);
     const gameRow = {
-      providerEventId: g.providerEventId, season: g.season, seasonType: g.phase ?? g.seasonType, week: g.week, dateUtc: g.dateUtc,
+      providerEventId: g.providerEventId, season: g.season, seasonType: g.phase ?? g.seasonType, week: g.week,
+      dateUtc: FROM_CURRENT && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(String(sum?.header?.competitions?.[0]?.date ?? "")) ? `${String(sum.header.competitions[0].date).slice(0, 16)}Z` : g.dateUtc,
       home: typeof g.home === "string" ? g.home : g.home?.abbr, away: typeof g.away === "string" ? g.away : g.away?.abbr,
       ftHome: g.ftHome, ftAway: g.ftAway,
       teamOffensiveTd: { pass: passTd, rush: rushTd },
