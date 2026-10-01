@@ -25,6 +25,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { deriveNewArrivals } from "./new-arrivals.mjs";
+import { currentSeasonUsageIndex } from "./board-roster-integrity.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "..");
@@ -148,6 +149,12 @@ test("new arrivals: a notable mover is published as prior-club FACT, never as a 
     corpusSeasons: seasons,
     roleEvidence: read("data/internal/nfl/role-evidence/latest.json"),
     shares: read("data/internal/research/nfl/role-shares-v1/current.json"),
+    /* Session 4: the producer passes the weekly forecast's current-season usage; so does this test. */
+    currentUsage: (() => {
+      const dir = "data/internal/research/nfl/replay/player-props-share-level-forward";
+      const weeks = fs.readdirSync(path.join(ROOT, dir)).filter((f) => /^\d{4}-\d{2}\.json$/.test(f)).sort();
+      return weeks.length ? currentSeasonUsageIndex({ forecast: read(`${dir}/${weeks.at(-1)}`), season: Number(weeks.at(-1).slice(0, 4)) }) : new Set();
+    })(),
   });
   let total = 0;
   for (const [, teams] of arrivals) {
@@ -157,7 +164,9 @@ test("new arrivals: a notable mover is published as prior-club FACT, never as a 
         assert.equal(a.team, abbr, "an arrival is filed under the club he is rostered on");
         assert.notEqual(a.lastSeason.club, abbr, "a same-club player is not an arrival — the stint rule already sees him");
         assert.ok(a.lastSeason.games >= 6, `${a.name}: a mover publishes only with a real prior sample`);
-        assert.match(a.note, /NOT in this game's simulated team numbers/, `${a.name}: the frame must travel with the row`);
+        assert.match(a.note, /not in this game's numbers/, `${a.name}: the frame must travel with the row`);
+        assert.match(a.note, /historical prior/, `${a.name}: prior-club history is labelled as a prior, never current`);
+        assert.ok(!["OUT", "INACTIVE", "NOT_ON_ROSTER"].includes(a.participation), `${a.name}: an unavailable player is not an arrival (Session 4)`);
         // Prior-club history is FACT: no field may look like a forward projection.
         for (const k of Object.keys(a.lastSeason)) {
           assert.ok(!/proj|median|p10|p90|share/i.test(k), `${a.name}: ${k} reads as a projection, not history`);
@@ -168,28 +177,21 @@ test("new arrivals: a notable mover is published as prior-club FACT, never as a 
   assert.ok(total > 0, "the current week has movers — an empty derivation would mean the join broke");
 });
 
-test("both UIs keep arrivals framed as history — now as an OPTIONAL disclosure", () => {
+test("both UIs show who is NOT in the numbers from the coverage receipt — never a prior club's line as current", () => {
   /*
-   * ⚠ THIS PINNED THE EXACT SENTENCES, AND THE FOUNDER BANNED THEM (P0 · 2026-09-24).
-   *
-   * "NEW ARRIVALS · NOT IN THESE NUMBERS" and "Per game at their previous club — history, not a
-   * projection" were required copy here and are forbidden from the primary prediction UI there.
-   * Two rules, both real, and the resolution is not to drop either: what the founder objected to
-   * is prior-club averages from ANOTHER CLUB IN ANOTHER SEASON interrupting this week's forecast,
-   * not the honesty of the frame around them.
-   *
-   * So the context is DEMOTED into a `<details>` rather than deleted, and what this guard pins is
-   * the part that must survive the move: both surfaces still offer it, and both still say it is
-   * history and not part of the projections. The wording itself is now free to change — the
-   * rendered-export guard in `game-report-copy-built.test.mjs` is what holds the line on where it
-   * may appear, which a source scan could never have done anyway (the banned phrase it caught was
-   * assembled at runtime and appeared in no source file).
+   * SESSION 4 (2026-10-01). The "Recent signings — last season's usage" disclosure sat inside the
+   * current-game scorecard and printed another club's per-game line beside this game's forecast; on
+   * PIT @ CLE it listed an OUT player the weekly forecast already modelled at PIT. Both surfaces now
+   * render the board's coverage receipt through ONE component, and a former club's numbers may appear
+   * only there, labelled as a historical prior that is not used.
    */
+  const component = readApp("src/components/nfl/not-in-these-numbers.tsx");
+  assert.match(component, /<details/, "model detail must be an optional disclosure");
+  assert.match(component, /Historical prior, not used in these numbers/, "a former club's numbers must be labelled as an unused historical prior");
   for (const [label, src] of [["player board", readApp("src/components/nfl/player-board.tsx")], ["game page", readApp("src/app/nfl/game/[eventId]/page.tsx")]]) {
-    assert.match(src, /<details/, `${label}: the arrivals context must be an optional disclosure`);
-    assert.match(src, /Recent signings/, `${label}: the disclosure must be findable by a reader who wants it`);
-    assert.match(src, /history/i, `${label}: it must still say these numbers are history`);
-    assert.match(src, /projections/i, `${label}: it must still say they are not in this game's projections`);
+    assert.match(src, /<NotInTheseNumbers\b/, `${label}: must render the coverage receipt`);
+    assert.ok(!/Recent signings/.test(src), `${label}: the prior-club strip must not return`);
+    assert.ok(!/last season&rsquo;s usage|last season's usage/.test(src), `${label}: last season's usage is not a current-game attribute`);
     assert.ok(!/New arrivals · not in/.test(src), `${label}: the banned primary-UI heading must not return`);
   }
 });

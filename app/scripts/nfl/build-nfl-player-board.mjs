@@ -36,6 +36,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveNewArrivals, shadowProjectedArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
+import { applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
+import { indexDepthCharts } from "../../src/lib/sports/nfl/depth-chart.mjs";
+import { splitMatchup } from "../../src/lib/sports/nfl/matchup.mjs";
+import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
 import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelEstimateMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -82,9 +86,35 @@ const PROP_LABEL = {
  * evaluated stint rule keeps out of the share pool (their new-club role is unobserved). Derived
  * once for the week from the committed corpus + role evidence + share snapshot; attached per
  * event so no star is ever silently absent. Factual per-game history, never a projection. */
+/* Session 4 — current-season usage at the CURRENT club, from the same weekly forecast the board
+   publishes. A player in it is modelled here; he is never an "unobserved arrival". */
+const SHARE_LEVEL_DIR = path.join(ROOT, "data/internal/research/nfl/replay/player-props-share-level-forward");
+const forecastByWeek = new Map();
+const forecastFor = (kickoffUtc, week) => {
+  const key = `${seasonOfKickoff(kickoffUtc)}-${String(week).padStart(2, "0")}`;
+  if (!forecastByWeek.has(key)) forecastByWeek.set(key, read(path.join(SHARE_LEVEL_DIR, `${key}.json`)));
+  return forecastByWeek.get(key);
+};
+const currentUsage = new Set();
+for (const d of events) {
+  for (const k of currentSeasonUsageIndex({ forecast: forecastFor(d.kickoffUtc, d.week), season: seasonOfKickoff(d.kickoffUtc) })) currentUsage.add(k);
+}
+
+/* Session 4 — the depth chart, for the one-passer rule. Newest capture by its OWN acquiredAt (the
+   filenames are content hashes and carry no order). Missing ⇒ the rule reports UNRESOLVED and
+   leaves every pool as it was. */
+const depthIndex = (() => {
+  const dir = path.join(ROOT, "data/internal/research/nfl/depth-charts");
+  const caps = (fs.existsSync(dir) ? fs.readdirSync(dir) : []).filter((f) => f.endsWith(".json"))
+    .map((file) => ({ file, doc: read(path.join(dir, file)) })).filter((c) => c.doc?.snapshots?.length);
+  const picked = pickNewestCapture(caps);
+  return picked ? indexDepthCharts(picked.doc) : null;
+})();
+
 const newArrivalsByEvent = (() => {
   try {
     return deriveNewArrivals({
+      currentUsage,
       corpusSeasons: [
         read(path.join(ROOT, "data/internal/research/nfl/player-events-v1/2025.json")),
         read(path.join(ROOT, "data/internal/research/nfl/player-events-v1/2024.json")),
@@ -154,7 +184,6 @@ const designationByPlayer = (() => {
  * the board publishes the week's committed pre-kickoff forecast (the numbers the blind 2026 test grades) in
  * place of the v1 engine's, whose share rule pulled every player toward zero. See share-level-board.mjs.
  */
-const SHARE_LEVEL_DIR = path.join(ROOT, "data/internal/research/nfl/replay/player-props-share-level-forward");
 const shareLevelSecondLook = read(path.join(ROOT, "data/internal/research/nfl/reports/player-props-share-level-second-look.json"));
 const shareLevelForward = read(path.join(SHARE_LEVEL_DIR, "receipt.json"));
 /* P301: the blind touchdown replay receipt admits anytime TD to the same weekly forecast. */
@@ -167,7 +196,7 @@ const shareLevelEstimates = shareLevelEstimateMarkets({
 });
 const shareLevelMarkets = new Set([...shareLevelPublished, ...shareLevelEstimates.keys()]);
 
-const outDir = path.join(APP, "public/data/nfl/player-board");
+const outDir = arg("--out-dir") ? path.resolve(arg("--out-dir")) : path.join(APP, "public/data/nfl/player-board");
 fs.mkdirSync(outDir, { recursive: true });
 const index = [];
 let publishedBoards = 0;
@@ -212,7 +241,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     }
   }
   const shareLevel = shareLevelRowsForEvent({
-    forecast: read(path.join(SHARE_LEVEL_DIR, `${seasonOfKickoff(doc.kickoffUtc)}-${String(doc.week).padStart(2, "0")}.json`)),
+    forecast: forecastFor(doc.kickoffUtc, doc.week),
     matchup: doc.matchup, week: doc.week, seasonType: doc.seasonType, markets: shareLevelMarkets,
   });
   families.anytime_td = tdBeatsBaselines
@@ -311,9 +340,15 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
      (which fails open on a missing roster): with no pull toward zero a departed player's share never fades,
      so the forecast still lists players who left — no roster for the team, or not on it, means no row. */
   let shareLevelRosterDropped = 0;
+  const noRole = [];
   for (const row of shareLevel?.players ?? []) {
     const roster = rosterByTeam.get(row.team);
-    if (!roster || !roster.has(row.playerId)) { shareLevelRosterDropped += 1; continue; }
+    if (!roster || !roster.has(row.playerId)) {
+      shareLevelRosterDropped += 1;
+      /* Session 4: a player with THIS season's usage here who has since left the roster is named, not silently dropped. */
+      if (currentUsage.has(`${row.team}:${row.playerId}`)) noRole.push({ playerId: row.playerId, name: row.name, team: row.team, reason: `not on ${row.team}'s current roster` });
+      continue;
+    }
     if (gate(row.playerId, row.name, row.team)) continue;
     const existing = players.find((p) => p.playerId === row.playerId && p.team === row.team);
     if (existing) Object.assign(existing.markets, row.markets);
@@ -349,14 +384,26 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
    * players (the family note explains); the anytime-TD probability stays, because that market
    * settles VOID on DNP and the number is explicitly conditioned on playing.
    */
-  for (const pl of players) {
-    if (pl.participation === "INACTIVE") {
-      for (const m of Object.keys(pl.markets)) {
-        if (m !== "anytime_td") delete pl.markets[m];
-      }
-      pl.volumeNote = "listed inactive/out — volume projections withheld; the touchdown probability conditions on playing and settles void otherwise";
+  /*
+   * SESSION 4 — AN OUT PLAYER IS NOT A LIKELY TOUCHDOWN SCORER. The TD probability used to stay on an
+   * INACTIVE row because the market settles void on a DNP. True of settlement; misleading under the
+   * heading "Likely TD scorers", and it left an unavailable player holding scoring opportunity. The
+   * whole row goes, and the coverage receipt says why — removed, never silent.
+   */
+  const excluded = gatedOut.map((g) => ({ playerId: g.playerId, name: g.name, team: g.team, reason: `designation: ${g.status}` }));
+  {
+    const kept = [];
+    for (const pl of players) {
+      if (pl.participation === "INACTIVE") { excluded.push({ playerId: pl.playerId, name: pl.name, team: pl.team, reason: "designation: Out" }); continue; }
+      kept.push(pl);
     }
+    players.length = 0; players.push(...kept);
   }
+
+  /* SESSION 4 — one passer per pass-attempt pool, from the depth chart (board-roster-integrity.mjs). */
+  const { away: mAway, home: mHome } = splitMatchup(doc.matchup);
+  const matchupTeams = [mAway, mHome].filter(Boolean);
+  const qbStarter = matchupTeams.map((team) => applyQbStarterRule({ players, team, index: depthIndex, asOf: NOW, maxAgeMs: QB_CHART_MAX_AGE_MS }));
   /*
    * THE SPORTSBOOK SLOT, ON THE SAME ROW AS THE FORECAST IT SITS BESIDE (P0 · 2026-09-24).
    *
@@ -395,6 +442,13 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     players,
   });
 
+  /* Session 4 — while receiving publishes from v1 (share-level receiving is FORWARD_BREACHED), name the
+     current-season receivers its 2023–2025 pool cannot see, rather than leave them silently absent. */
+  const familyGaps = shareLevel && !shareLevel.markets.has("player_receptions")
+    ? receivingFamilyGaps({ forecast: forecastFor(doc.kickoffUtc, doc.week), gameId: shareLevel.gameId, season: seasonOfKickoff(doc.kickoffUtc), toBoardTeam: (t) => (t === "WAS" ? "WSH" : t === "LA" ? "LAR" : t), published: publishedMarkets })
+    : [];
+  const coverage = buildCoverage({ teams: matchupTeams, players, excluded, arrivals: newArrivals, qbRules: qbStarter, noRole, familyGaps });
+
   const artifact = {
     schemaVersion: 1,
     artifact: "nfl-player-board",
@@ -421,9 +475,21 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     /* Market coverage for THIS board, so a surface's price count can be checked against the
        producer's rather than counted off the screen. `probed` is the capture's own answer. */
     marketCoverage: { probed: propPrices.wasProbed(doc.providerEventId), priced: marketSlots.priced, absent: marketSlots.absent, referenceBook: propPrices.meta?.referenceBook ?? null },
+    /* SESSION 4 — the pregame roster/usage receipt: every material player's state, and the integrity
+       facts the audit below checks (one passer per pool, nobody unavailable, nobody off-roster). */
+    coverage,
+    integrity: { qbStarter, violations: null },
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
     disclaimer: "Model projections. Educational.",
   };
+  const unavailableIds = new Map(excluded.map((e) => [e.playerId, e.reason]));
+  for (const [id, b] of ineligible) unavailableIds.set(id, b.status);
+  const expected = new Set((shareLevel?.players ?? []).map((r) => `${r.team}:${r.playerId}`).filter((k) => currentUsage.has(k)));
+  const violations = auditBoard({ board: artifact, rosterByTeam, unavailable: unavailableIds, usage: currentUsage, expected });
+  artifact.integrity.violations = violations.length;
+  /* Loud, recorded, and NOT a refusal here: a generator that refuses takes every board down with the
+     one bad row (the 62-hour Aug 1–3 outage). The audit test fails main instead. */
+  for (const x of violations) console.error(`::error::player board ${doc.matchup}: ${x.code} ${x.team ?? ""} ${x.name ?? (x.players ?? []).join(", ") ?? ""} ${x.playerId ?? ""}`);
   const payload = JSON.stringify(artifact, null, 1);
   for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledger"]) {
     if (payload.includes(banned)) { console.error(`REFUSED: player board would carry "${banned}"`); process.exit(3); }
