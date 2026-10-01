@@ -51,7 +51,9 @@ export function buildAnswerDisplay(envelopes, evidenceLinks = []) {
   const issued = new Set((evidenceLinks ?? []).map((l) => l?.href).filter(Boolean));
   const linkOf = (l) => (l && typeof l.href === "string" && l.href.startsWith("/") && issued.has(l.href) ? l.href : null);
   try {
-    const display = build(env.data ?? {}, linkOf);
+    /* ⚠ The executor lifts `links` OUT of `data` onto the envelope — a builder reads env.links, never data.links
+       (Session 3 preview: every live / results-day / compare card lost its action to exactly that). */
+    const display = build(env.data ?? {}, linkOf, env.links ?? []);
     return display && ASK_DISPLAY_KINDS.includes(display.kind) ? display : null;
   } catch {
     // A shape this projection does not understand is the generic renderer's job, never a failed turn.
@@ -119,7 +121,7 @@ function winProbability(f) {
 
 /* ─────────────────────────────  live  ───────────────────────────── */
 
-function liveDisplay(d, linkOf) {
+function liveDisplay(d, linkOf, envLinks) {
   if (!Array.isArray(d.events)) return null;
   return {
     kind: "live",
@@ -141,7 +143,7 @@ function liveDisplay(d, linkOf) {
     })),
     more: Math.max(0, d.events.length - MAX_CARDS),
     note: "A final score here is the provider's; GameTime's own grading of a game can land later.",
-    href: (d.links ?? []).map(linkOf).find(Boolean) ?? null,
+    href: envLinks.map(linkOf).find(Boolean) ?? null,
   };
 }
 
@@ -152,7 +154,7 @@ const PRODUCT_NAME = { "bank-builder": "Bank Builder", moonshot: "Moonshot" };
 const GRADES = new Set(["WIN", "LOSS", "PUSH", "VOID"]);
 const LANE_RESULTS = new Set(["won", "lost", "void", "push", "pending", "active"]);
 
-function resultsDayDisplay(d, linkOf) {
+function resultsDayDisplay(d, linkOf, envLinks) {
   if (!text(d.date)) return null;
   const sports = Object.entries(d.events ?? {})
     .filter(([, evs]) => Array.isArray(evs) && evs.length)
@@ -190,13 +192,13 @@ function resultsDayDisplay(d, linkOf) {
     lanes,
     sportsWithout: (d.sportsWithout ?? []).map((s) => String(s).toUpperCase()),
     note: "Each item keeps its own grade. GameTimePicks publishes no combined day record or percentage.",
-    href: (d.links ?? []).map(linkOf).find(Boolean) ?? null,
+    href: envLinks.map(linkOf).find(Boolean) ?? null,
   };
 }
 
 /* ─────────────────────────────  team comparison  ───────────────────────────── */
 
-function teamCompareDisplay(d, linkOf) {
+function teamCompareDisplay(d, linkOf, envLinks) {
   if (!text(d.a?.label) || !text(d.b?.label)) return null;
   const rows = [];
   const h = d.headToHead?.allTime?.record;
@@ -219,7 +221,7 @@ function teamCompareDisplay(d, linkOf) {
     b: text(d.b.label),
     rows,
     note: "Recorded fact only — GameTime Compare names no winner and carries no forecast.",
-    href: (d.links ?? []).map(linkOf).find(Boolean) ?? null,
+    href: envLinks.map(linkOf).find(Boolean) ?? null,
   };
 }
 

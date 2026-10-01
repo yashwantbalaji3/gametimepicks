@@ -153,7 +153,7 @@ test("🔴 live: a game that has not started carries NO score even if the feed z
     events: [
       { away: "BOS", home: "NYY", awayScore: 2, homeScore: 9, period: "Top 9th", state: "LIVE", stateDetail: "In Progress" },
       { away: "CHC", home: "SD", awayScore: 0, homeScore: 0, period: null, state: "PRE", stateDetail: "Pre-Game" },
-    ], links: [{ id: "live", href: "/live/" }] } }], [{ href: "/live/" }]);
+    ] }, links: [{ id: "live", href: "/live/" }] }], [{ href: "/live/" }]);
   assert.equal(answerRenderer(d), "live");
   assert.deepEqual([d.games[1].awayScore, d.games[1].homeScore], [null, null]);
   assert.deepEqual([d.liveCount, d.preCount, d.finalCount, d.total], [1, 1, 0, 2]);
@@ -176,11 +176,11 @@ const DAY = {
     { market: "Total runs", pick: "OVER 6.5", outcome: null }, { market: "Odd", pick: "X", outcome: "SOMETHING_NEW" },
   ] }], nfl: [] },
   sportsWithout: ["nfl", "epl", "ufc"],
-  links: [{ id: "day", href: "/results/date/2031-10-02/" }],
 };
 
 test("🔴 results day: each call keeps its own grade; no grade (or an unknown one) is PENDING, never a loss; nothing is totalled", () => {
-  const d = buildAnswerDisplay([{ tool: "getResultsDay", status: "OK", data: DAY }], [{ href: "/results/date/2031-10-02/" }]);
+  const d = buildAnswerDisplay([{ tool: "getResultsDay", status: "OK", data: DAY, links: [{ id: "day", href: "/results/date/2031-10-02/" }] }], [{ href: "/results/date/2031-10-02/" }]);
+  assert.equal(d.href, "/results/date/2031-10-02/");
   assert.equal(answerRenderer(d), "resultsDay");
   const calls = d.sports[0].games[0].calls;
   assert.deepEqual(calls.map((c) => [c.pick, c.grade]), [["ATL", "WIN"], ["PHI +1.5", "LOSS"], ["OVER 6.5", "PENDING"], ["X", "PENDING"]]);
@@ -205,9 +205,9 @@ test("🔴 team compare: recorded rows only, no winner, and a missing W–L is '
     sport: "MLB", a: { label: "New York Yankees" }, b: { label: "Boston Red Sox" },
     season: { id: "MLB-2026", a: { w: 41, l: 26, finals: 67 }, b: { finals: 68 } },
     headToHead: { allTime: { record: { meetings: 44, aWins: 19, bWins: 25, ties: 0 } } },
-    links: [{ id: "compare", href: "/compare/teams/mlb/?a=nyy&b=bos" }],
   };
-  const d = buildAnswerDisplay([{ tool: "resolveEntity", status: "OK", data: {} }, { tool: "getTeamComparison", status: "OK", data }], [{ href: "/compare/teams/mlb/?a=nyy&b=bos" }]);
+  const d = buildAnswerDisplay([{ tool: "resolveEntity", status: "OK", data: {} }, { tool: "getTeamComparison", status: "OK", data, links: [{ id: "compare", href: "/compare/teams/mlb/?a=nyy&b=bos" }] }], [{ href: "/compare/teams/mlb/?a=nyy&b=bos" }]);
+  assert.equal(d.href, "/compare/teams/mlb/?a=nyy&b=bos");
   assert.equal(answerRenderer(d), "teamCompare");
   assert.deepEqual(d.rows.map((r) => [r.label, r.a, r.b]), [
     ["Head-to-head wins", 19, 25],
@@ -317,4 +317,14 @@ test("🔴 team compare takes the sport from the ids only when BOTH name the sam
   }
   const explicit = await getTeamComparison({ sport: "EPL", teamAId: "mlb-team-147", teamBId: "mlb-team-111" }, ctx);
   assert.doesNotMatch(String(explicit.detail), /name the sport/, "an explicit (unsupported) sport is judged as given");
+});
+
+test("🔴 through the REAL executor, a results-day card keeps the day link (links live on the envelope, not in data)", async () => {
+  const doc = { schemaVersion: 1, available: true, days: [{ date: "2031-10-02", lanes: DAY.lanes, events: DAY.events }] };
+  const env = await executor({ "/data/ask/v1/results.json": doc }).run({ name: "getResultsDay", arguments: { date: "2031-10-02" } });
+  assert.equal(env.status, "OK");
+  assert.equal(env.data.links, undefined, "the executor lifts links out of data");
+  const d = buildAnswerDisplay([env], buildEvidence([env]).links);
+  assert.equal(d.kind, "resultsDay");
+  assert.equal(d.href, "/results/date/2031-10-02/");
 });
