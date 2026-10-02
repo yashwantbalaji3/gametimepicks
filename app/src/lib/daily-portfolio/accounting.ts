@@ -64,7 +64,7 @@ export interface PortfolioLaneLeg {
   /** @deprecated (F1 Option A) — the NAME overstates what this carries: for every market-priced leg it is the
    *  de-vigged market price, not a model's confidence. Kept because settled receipts, the settlement reader
    *  and fixtures still read it; read `impliedProbability` + `probabilityBasis` instead. */
-  modelConfidence: number;
+  modelConfidence: number | null;
   /** The same number under its honest name when the basis is market-implied; null otherwise. */
   impliedProbability?: number | null;
   probabilityBasis?: ProbabilityBasis | null;
@@ -357,7 +357,8 @@ const BB_MARKET_LABEL: Record<string, string> = {
  * settlement-supported label/selection the nightly settle already grades; the exposure is the $100 paper
  * seed. This NEVER touches canonical money — it only shapes the daily paper view.
  */
-function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
+/** Exported for its test (Session 5 · B10). */
+export function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
   let doc: { date?: string; stake?: number; lanes?: Array<Record<string, any>> };
   try { doc = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "bank-builder-approved.json"), "utf8")); } catch { return []; }
   if (!doc || doc.date !== date || !Array.isArray(doc.lanes)) return [];
@@ -388,8 +389,10 @@ function approvedBankBuilderLanes(root: string, date: string): PortfolioLane[] {
       selection: leg.selection,
       player: null,
       odds: leg.americanOdds,
-      provider: leg.provider ?? "consensus",
-      modelConfidence: leg.modelProbability ?? 0,
+      /* Session 5 · B10: missing is never a value. "consensus" named a source nobody recorded, and the 0 reached
+         settlement as a 0% probability (daily-portfolio-settle reads impliedProbability ?? modelConfidence). */
+      provider: typeof leg.provider === "string" && leg.provider ? leg.provider : null,
+      modelConfidence: typeof leg.modelProbability === "number" ? leg.modelProbability : null,
       // F1 Option A: the approved store records no probability source → basis stays null (never assumed).
       probabilityBasis: probabilityBasisOf(leg.probabilitySource),
       impliedProbability: probabilityBasisOf(leg.probabilitySource) === "market-implied" ? (leg.modelProbability ?? null) : null,
