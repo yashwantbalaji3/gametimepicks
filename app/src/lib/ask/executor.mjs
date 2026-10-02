@@ -27,6 +27,7 @@ import { getSeasonExplorer, runGameFinder, runPlayerResearchQuery } from "./tool
 import { calculate, getGameTimeNow, getPlayerRecentGames, resolveEntity, searchGameTimeHelp } from "./tools/product.mjs";
 import { getMatchupContext, getPlayerComparison, getTeamComparison } from "./tools/compare.mjs";
 import { getParlayCandidates, getPublishedForecasts } from "./tools/forecast.mjs";
+import { getOfficialProductCards } from "./tools/official-cards.mjs";
 import { getCoverage } from "./tools/coverage.mjs";
 import { getLiveSlate } from "./tools/live.mjs";
 import { getForecastRecord, getPendingResults, getProductRecord, getRecentResults, getResultsDay } from "./tools/results.mjs";
@@ -48,6 +49,7 @@ const HANDLERS = {
   getMatchupContext,
   getPublishedForecasts,
   getParlayCandidates,
+  getOfficialProductCards,
   getLiveSlate,
   getCoverage,
   getProductRecord,

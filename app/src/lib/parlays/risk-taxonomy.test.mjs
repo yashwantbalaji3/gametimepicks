@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { RISK_BUCKETS, RISK_LABELS, normalizeRiskBucket, riskLabel, RISK_GATES, CARD_GENERATION_TARGETS } from "./risk-taxonomy.ts";
+import * as taxonomy from "./risk-taxonomy.ts";
+import { RISK_BUCKETS, RISK_LABELS, normalizeRiskBucket, riskLabel, CARD_GENERATION_TARGETS } from "./risk-taxonomy.ts";
+import { PARLAY_ODDS_BANDS } from "./risk-odds-bands.mjs";
 
 test("public labels are Low Risk / Medium Risk / High Risk / Longshot", () => {
   assert.deepEqual(RISK_BUCKETS, ["low", "medium", "high", "longshot"]);
@@ -29,12 +31,11 @@ test("riskLabel renders the canonical public label and never the old labels", ()
   assert.equal(riskLabel("medium"), "Medium Risk");
 });
 
-test("risk gates: Low is shortest/fewest legs, Longshot is the most legs + highest payout band", () => {
-  assert.equal(RISK_GATES.low.legs.max, 2, "Low Risk never produces a 5-leg longshot");
-  assert.equal(RISK_GATES.longshot.legs.max, 5);
-  assert.ok(RISK_GATES.longshot.legs.min >= 3, "Longshot is multi-leg");
-  assert.ok(RISK_GATES.high.combinedOdds.min > RISK_GATES.medium.combinedOdds.min, "High Risk targets higher payout than Medium");
-  assert.equal(RISK_GATES.longshot.volatility, "highest", "Longshot flags highest volatility");
+test("Session 5 · B4: one public price band — the taxonomy defines no second, contradictory gate", () => {
+  assert.equal(taxonomy.RISK_GATES, undefined, "a second price gate is how 'Low' came to mean four different things");
+  assert.deepEqual(Object.keys(PARLAY_ODDS_BANDS), [...RISK_BUCKETS]);
+  assert.equal(PARLAY_ODDS_BANDS.low.maxAmerican, 100);
+  assert.ok(PARLAY_ODDS_BANDS.high.minAmerican > PARLAY_ODDS_BANDS.medium.minAmerican, "High Risk sits above Medium");
 });
 
 test("generation targets include all four buckets for every scope", () => {
