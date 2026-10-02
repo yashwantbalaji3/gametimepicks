@@ -98,7 +98,7 @@ Registry stages at writing: EPL LIVE · Ligue 1 ACCEPTED_V1 · LaLiga / Serie A 
 | #915 | Live TD "not measured" truth fix | independent |
 | (this) | handoff + preregistration look 2 | last |
 
-**Merge state at writing: none merged.** All four code PRs were exact-head green (`quality`, `python`, Vercel) with `git merge-tree origin/main <head>` == the tested head tree (main had not moved from `9728359203`). The session's permission classifier refused `gh pr merge`, so merging — and therefore Production verification of `/nba` — is the founder's. Merge #912 **before** #913, and #912 before 2026-10-04 ~14Z so the first preseason final (MIA @ TOR, 10-03 23:00Z) is folded by that day's sport-schedules run. Tested heads: #912 `8667a1059f` · #913 `2cc4092b3a` · #914 `d8e2868807` · #915 `523a9db830`.
+**Merge state at the first writing (superseded by §10): none merged.** All four code PRs were exact-head green (`quality`, `python`, Vercel) with `git merge-tree origin/main <head>` == the tested head tree (main had not moved from `9728359203`). The session's permission classifier refused `gh pr merge`, so merging — and therefore Production verification of `/nba` — is the founder's. Merge #912 **before** #913, and #912 before 2026-10-04 ~14Z so the first preseason final (MIA @ TOR, 10-03 23:00Z) is folded by that day's sport-schedules run. Tested heads: #912 `8667a1059f` · #913 `2cc4092b3a` · #914 `d8e2868807` · #915 `523a9db830`.
 
 ## 7. Founder gates / decisions
 
@@ -130,3 +130,45 @@ Registry stages at writing: EPL LIVE · Ligue 1 ACCEPTED_V1 · LaLiga / Serie A 
 1. Read PIT @ CLE settlement (§0) and the first NBA preseason final in `finals-2026-27.json` (10-04 sport-schedules run) and `/nba` on Production.
 2. Founder gates 1, 2, 4, 5.
 3. Ask NBA factual grounding → forward box-score capture → NBA v1 candidate.
+
+## 10. Closeout (same session, after founder decisions — 2026-10-02 ~08:10–08:40Z)
+
+### Founder decisions recorded
+1. **PIT @ CLE props** — grade from the official final box score through the normal canonical settler; the expired live-props window is **not** widened retroactively; frozen pregame forecasts preserved. ✔ done (below).
+2. **F-NBA-1** — no methodology change to publish NBA predictions by Oct 20. NBA launches factual (schedule / finals / hub); Game Win + Projected Score **SHADOW**, player props **WITHHELD**, simulation **RESEARCH**. Validation continues in a dedicated NBA session.
+3. **NBA navigation** — add `/nba` to the product navigation after Production verification, as a factual hub that does not imply predictions. ✔ PR #917.
+4. **Live TD** — APPROVED: factual TD state derived from the canonical box-score / player-id path; UNMEASURED stays distinct from NO TD; no updated live TD probabilities. **Not implemented this session** (no new implementation phase) — carried as the next Live unit.
+5. **Free live-props schedule** — APPROVED: schedule the zero-credit factual workflow with event-aware pregame / live / post-final coverage so a legitimate final capture is never lost to the 8h kickoff window. No paid odds. **Carried** to the next Live unit.
+6. **Phase H** — no spend or re-authorization this session; a dedicated live-market capability/cost pilot is carried into the next roadmap phase.
+
+### Merges (exact head + tree reconfirmed immediately before each)
+| PR | Merged | Merge commit | Tree check |
+|---|---|---|---|
+| #912 finals record | 08:12:39Z | `c6b5b1e70b` | merge-tree == tested head tree (`f60a49ba`) |
+| #913 /nba hub | 08:12:56Z | `20af4ab19a` | merge-tree == tested head tree (`3513339b`) |
+| #914 soccer core | 08:34:59Z | `f8e18dbee7` | refreshed with `merge origin/main` (never rebase) → re-tested head `0c0f20688a`; the remaining merge gap = exactly 9 `gtp-bot` data commits (identical patch-id, only `app/public/data/` + `data/`, zero overlap with PR files) |
+| #915 live TD truth | 08:35:03Z | `703203b4b8` | re-tested head `57edbcc407`; same bot-only gap proof as #914 |
+| #917 NBA nav | 08:58:09Z | `d648590714` | opened after `/nba` Production verification; refreshed after #914/#915 → re-tested head `4c5e7998a6`, merge-tree == head tree |
+
+### Production verification — `/nba`
+Production `4798cf0a` (contains #913): `/nba` 200, title "NBA — Schedule & Finals", one `<h1>`, "Schedule only — no public forecast", 23 games, freshness "updated Oct 2, 4:15 AM ET", no percentage, no undefined/NaN/null; 390 px and 1280 px no horizontal overflow; 46 crests, 0 broken; 0 console errors.
+
+### PIT @ CLE (401872964) — canonical settlement evidence
+Chain run through the normal workflows, zero credits: `sport-schedules` (dispatch 08:14Z) committed `auto: nfl results capture` (`c651b9e129`, PIT @ CLE `STATUS_FINAL` CLE 27 – PIT 24); `nfl-event-window` (08:16Z, `skip_odds`) committed `auto: nfl settlement receipts` (`d16ca2c15a`). (A second `skip_odds` dispatch at 08:16:57Z lost a rebase race to that run and wrote nothing — duplicate, harmless; settlement is idempotent.)
+
+| Owner | Result |
+|---|---|
+| Official final | `data/internal/nfl/official-stats/401872964.json` — `FINAL`, ESPN official box score, captured 08:17:08Z |
+| Market paper record (`settlement/2026-10-01.json`) | PIT @ CLE moneyline LOSS · spread WIN · total WIN → 2–1; 1 settled, 15 pending, `reconciles: true`; pending never a loss |
+| Forecast record (`experimental-settlement/2026-10-01.json`) | receipt `401872964-rev-2230Z.json` (frozen 22:30:25Z, revision chain intact); winner 0/1 · margin MAE 5 · total MAE 12 · both 80% intervals covered · Brier 0.3302 vs market 0.33 (one game — no claim) |
+| Week 4 reconciliation (`reconciliation/2-04.json`, public) | 1 final / 15 pending; 33/39 checks: receptions 12/13 · receiving yds 11/13 · rushing yds 6/7 (2 void) · passing yds 2/2 · total range 1/1 · margin range 1/1 · winner 0/1 · likeliest TD scorer 0/1 |
+| Frozen Top-5 board (`results/top-boards/2026-10-01.json`) | unchanged since its single write (2026-10-01T00:33:59Z); Results overlays the reconciliation owner at build — no browser settlement |
+| Live-props ledger (`settle-nfl-live-props`) | stays PENDING for this game by decision 1 — the producer never observed FINAL and its window is not widened; the authoritative grade is the reconciliation above |
+| No duplicate grade | settlers are exactly-once by canonicalEventId; the losing duplicate run committed nothing |
+| Results parity (Production `d16ca2c1`) | ✔ `/results/nfl` reads "Week 4: 84.6% of our predictions came true — 33 of 39 checks across 1 final game", the 15 unfinished games listed as not final — identical to the owner |
+| **Ask parity (Production)** | ✗ **not achieved** — "How did GameTimePicks do on PIT at CLE?" resolved PIT to the Pittsburgh **Pirates** (MLB) and answered "no data"; "How did the NFL Week 4 predictions do for Steelers at Browns?" answered a season aggregate ("43–33 with 2 void from 76 decided, EMERGING") that does not tie to one owner population I could confirm (owner: regular season 33 settled; preseason 43). Ask has no per-game NFL result tool. Also the static `/ask` capability panel still says "NFL live state is not available", contradicting #894. **Backlog P1** (Ask NFL per-game results tool + NFL team-abbreviation disambiguation + panel copy) — not fixed this session by instruction |
+
+### Final state
+- **Main:** `d648590714` (#917) + this docs PR (#916, merged last). **Production:** see the PR #916 description for the verified SHA and the nav check.
+- **Carried to the next sessions (approved, not started here):** Live TD factual gateway family (decision 4) · event-aware schedule for the free live-props workflow with post-final coverage beyond the 8h kickoff window (decision 5) · Ask NFL per-game results + team-abbreviation disambiguation + `/ask` panel copy (P1) · dedicated NBA validation session (decision 2) · live-market capability/cost pilot (decision 6, no spend now).
+
