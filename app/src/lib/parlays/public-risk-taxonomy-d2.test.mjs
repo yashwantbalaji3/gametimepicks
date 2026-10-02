@@ -39,13 +39,16 @@ test("no source keeps a second tier-label table or a second spelling", () => {
   const TABLE = /\b(low|medium|high)\s*:\s*["'`](Low|Medium|High)( risk| Risk)?["'`]/;
   const SPELLING = /["'`](Low risk|Medium risk|High risk)\b/;
   const LIST = /\[\s*["'`]Low Risk["'`]\s*,\s*["'`]Medium Risk["'`]/;
+  /* A tier key with " risk" glued on renders "Longshot risk" / "Low Risk risk" — never the canonical label. */
+  const GLUED = /\{[^{}]*(tier|lvl|risk|level)[^{}]*\}\s*risk\b|\$\{[^}]*(tier|lvl|level)[^}]*\} risk\b/;
   /* Not public tier labels: normalize.ts's RiskTier is an internal enum ("Low"…) that RiskPill maps to the public label;
      the UFC engine's CONF_LABEL is a confidence scale. */
-  const NOT_TIER_LABELS = new Set(["src/lib/normalize.ts", "src/lib/ufc/ufc-prediction-engine.ts"]);
+  const NOT_TIER_LABELS = new Set(["src/lib/normalize.ts", "src/lib/ufc/ufc-prediction-engine.ts",
+    /* a World Cup archive LEG's own volatility tier (conf · risk), not a parlay tier */ "src/components/game/wc-game-lab-report.tsx"]);
   for (const f of SOURCES) {
     if (f === OWNER || NOT_TIER_LABELS.has(f)) continue;
     const code = strip(fs.readFileSync(f, "utf8"));
-    for (const [name, re] of [["label table", TABLE], ["lower-case spelling", SPELLING], ["literal list", LIST]]) {
+    for (const [name, re] of [["label table", TABLE], ["lower-case spelling", SPELLING], ["literal list", LIST], ["tier + ' risk'", GLUED]]) {
       if (re.test(code)) offenders.push(`${f}: ${name} — ${code.match(re)[0]}`);
     }
   }

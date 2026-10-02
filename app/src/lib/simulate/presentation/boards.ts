@@ -17,6 +17,7 @@
  *     wins is not a recap, and zero decisive outcomes reads "unavailable", never 0%.
  */
 import type { ChapterKind, PresentationChapter, PresentationManifest, PresentationResult } from "./types";
+import { publicRiskLabel } from "@/lib/parlays/risk-odds-bands.mjs";
 
 const HOLD = { light: 4200, normal: 5200, dense: 6400 } as const;
 const pctOf = (n: number) => Math.round(n * 100);
@@ -180,7 +181,7 @@ export function buildParlayPresentation(card: ParlayCardLike | null | undefined,
 
   chapters.push({
     id: "event", kind: "event",
-    title: card.tierLabel ?? `${card.tier} risk`,
+    title: publicRiskLabel(card.tier) ?? card.tierLabel ?? card.tier,
     line: `${legs.length} leg${legs.length === 1 ? "" : "s"}${card.combinedAmerican != null ? ` at a combined ${american(card.combinedAmerican)}` : ""}. Frozen when it was published — this frame shows it, it does not build it.`,
     stats: [], bars: [], rows: [], holdMs: HOLD.normal,
   });
@@ -231,14 +232,14 @@ export function buildParlayPresentation(card: ParlayCardLike | null | undefined,
 
   chapters.push({
     id: "closing", kind: "closing",
-    title: card.tierLabel ?? `${card.tier} risk`,
+    title: publicRiskLabel(card.tier) ?? card.tierLabel ?? card.tier,
     line: "The slip, its legs and its settlement all live on the parlay page — this frame only reads them.",
     stats: [], bars: [], rows: [{ label: "Slip", detail: card.slipId }],
     holdMs: HOLD.light,
   });
 
   return manifestOf({
-    eventId, title: card.tierLabel ?? `${card.tier} risk card`,
+    eventId, title: `${publicRiskLabel(card.tier) ?? card.tierLabel ?? card.tier} card`,
     displayDate: opts?.date ?? "", reportHref, chapters,
     readiness: card.status === "pending" ? "ready" : "ready",
   });

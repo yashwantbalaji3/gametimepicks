@@ -436,7 +436,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
                 const cards = byRisk[lvl] ?? [];
                 return (
                   <div key={lvl} className="space-y-2.5">
-                    <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} risk · {cards.length}</div>
+                    <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} · {cards.length}</div>
                     {cards.length > 0
                       ? cards.map((c) => <ParlayCard key={c.parlayId} card={c} legs={legsOf(c)} />)
                       : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>{emptyReason(lvl)}</div>}

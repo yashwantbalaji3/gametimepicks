@@ -767,7 +767,7 @@ test("a parlay request with no stated preference asks ONE question and calls no 
   const r = await ask("Give me the best parlays to place today");
   assert.equal(r.clarification, true);
   assert.equal(r.receipt.toolCalls.length, 0, "a clarification must not spend a tool call");
-  assert.match(r.answer.answerMarkdown, /Low, Medium, High or Longshot/);
+  assert.match(r.answer.answerMarkdown, /Low Risk, Medium Risk, High Risk or Longshot/);
   assert.ok(!/how much|net worth|salary|income/i.test(r.answer.answerMarkdown), "never ask about financial capacity");
 });
 
