@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 
 import { auditBoard, currentSeasonUsageIndex, isUnavailableState } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
+import { checkUsageCapture, USAGE_FRESHNESS } from "../../src/lib/sports/nfl/usage-freshness.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
@@ -67,14 +68,27 @@ for (const b of boards) {
   const listed = new Set(Object.keys(b.coverage ?? {}));
   for (const x of v.filter((y) => !y.team || !listed.has(y.team))) rows.push({ game: b.matchup, team: x.team ?? "—", violations: [`${x.code}${x.name ? ` ${x.name}` : ""}${x.players ? ` ${x.players.join("+")}` : ""}`] });
 }
-const teamsCovered = new Set(rows.map((r) => r.team));
-const summary = { boards: boards.length, teams: teamsCovered.size, rosterTeams: rosterByTeam.size, violations: total };
+/* Session 5 · A6 — current-season usage keeps up with the finals (usage-freshness.mjs). */
+const season = Number(boards[0].kickoffUtc.slice(0, 4)) - (new Date(boards[0].kickoffUtc).getUTCMonth() < 6 ? 1 : 0);
+const usageFreshness = checkUsageCapture({
+  results: read(path.join(ROOT, "app/public/data/nfl/results/latest.json")),
+  events: read(path.join(ROOT, `data/internal/research/nfl/player-events-v1/${season}.json`)),
+  season, nowIso: arg("--now", new Date().toISOString()),
+});
+if (usageFreshness.state === USAGE_FRESHNESS.LAGGING || usageFreshness.state === USAGE_FRESHNESS.NO_CAPTURE) {
+  total += 1;
+  rows.push({ game: "slate", team: "—", violations: [`USAGE_CAPTURE_${usageFreshness.state} ${usageFreshness.missing.map((m) => m.game ?? m.providerEventId).join(", ")}`.trim()] });
+}
+const teamsCovered = new Set(rows.filter((r) => r.game !== "slate").map((r) => r.team));
+const summary = { boards: boards.length, teams: teamsCovered.size, rosterTeams: rosterByTeam.size, violations: total, usageFreshness };
 if (process.argv.includes("--json")) console.log(JSON.stringify({ summary, rows }, null, 1));
 else {
   console.log(`NFL ROSTER AUDIT · ${boards.length} board(s) · ${teamsCovered.size} team(s) on the slate of ${rosterByTeam.size} rostered`);
   for (const r of rows) {
     console.log(`${(r.game ?? "").padEnd(11)} ${String(r.team).padEnd(4)} proj ${String(r.projected ?? "-").padStart(2)} · out ${r.unavailable ?? "-"} · left ${r.leftRoster ?? "-"} · role? ${r.roleUncertain ?? "-"} · notByFamily ${r.notModeledByFamily ?? "-"} · QB ${r.qbRule ?? "-"} · ${r.violations.length ? `FAIL ${r.violations.join("; ")}` : "PASS"}`);
   }
+  console.log(`usage capture: ${usageFreshness.state} — ${usageFreshness.reason}`);
+  if (usageFreshness.state === USAGE_FRESHNESS.RESULTS_STALE) console.log("::warning::usage freshness could not be judged — the NFL results owner is stale");
   console.log(`violations: ${total}`);
 }
 process.exit(total ? 1 : 0);
