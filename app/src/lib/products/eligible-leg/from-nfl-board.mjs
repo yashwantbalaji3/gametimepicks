@@ -60,7 +60,9 @@ export function candidatesFromNflBoard(board, { familyState, settlementSupportFo
         modelProjection: projection,
         modelProbability: probability,
         probabilityBasis: probabilityBasisFor({ projection, probability }),
-        modelVersion: modelVersionFor?.(fam) ?? null,
+        modelVersion: modelVersionFor?.(fam, board) ?? null,
+        /* The instant the board's numbers were produced — the forecast's own timestamp, never a wall clock. */
+        forecastGeneratedAt: board.generatedAt ?? null,
         participation: p.participation ?? null,
         settlementSupport: settlementSupportFor(fam),
         provenance: { sourceReceiptRefs: [`nfl/player-board/${board.providerEventId}.json`], forecastOwner: "nfl/player-board" },

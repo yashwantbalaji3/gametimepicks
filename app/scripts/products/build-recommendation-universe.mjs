@@ -30,6 +30,7 @@ import { marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibilit
 import { receiptFromV1Candidate, receiptFromNflBoardCandidate, receiptFromMlbOptimizerLeg } from "../../src/lib/products/engine-v2/sources.mjs";
 import { evaluateReceiptV2, coverageTable, exclusionCounts, LEG_FLOOR_V2, sportState } from "../../src/lib/products/engine-v2/eligibility.mjs";
 import { loadNflBoardCandidates, etDateOf } from "../../src/lib/products/engine-v2/nfl-boards.mjs";
+import { deriveNflFamilyGates, grantedFamilyKeys } from "../../src/lib/products/engine-v2/family-gate.mjs";
 import { nflForecastsAsOf, nflMarketsAsOf, boardAsSchedule } from "./build-product-eligible-legs.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -70,7 +71,14 @@ export function buildRecommendationUniverse({ date, now, root = path.join(APP, "
   const seen = new Set(); const unique = [];
   for (const r of receipts) { if (seen.has(r.receiptId)) continue; seen.add(r.receiptId); unique.push(r); }
 
-  const rows = unique.map((receipt) => ({ receipt, evaluation: evaluateReceiptV2(receipt, { asOf: now }) }));
+  /* NFL family-level product gate (Session 8): evidence derived from today's own receipts + the committed
+     forward receipt; a family enters only with a founder grant AND zero blockers. */
+  const forwardReceipt = (() => { try { return JSON.parse(fs.readFileSync(path.join(repo, "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json"), "utf8")); } catch { return null; } })();
+  const nflFamilyGate = deriveNflFamilyGates({ receipts: unique, forwardReceipt, familyState: nflBoards.familyState });
+  const grantedFamilies = grantedFamilyKeys(nflFamilyGate);
+  const floor = { ...LEG_FLOOR_V2, grantedFamilies };
+
+  const rows = unique.map((receipt) => ({ receipt, evaluation: evaluateReceiptV2(receipt, { asOf: now, floor }) }));
   const eligible = rows.filter((x) => x.evaluation.eligible);
   const universeHash = createHash("sha256").update(JSON.stringify(eligible.map((x) => x.receipt.receiptId).sort())).digest("hex").slice(0, 12);
 
@@ -91,6 +99,8 @@ export function buildRecommendationUniverse({ date, now, root = path.join(APP, "
     coverage: coverageTable(rows),
     exclusions: exclusionCounts(rows),
     nflUnknownFamilies: nflBoards.unknownFamilies,
+    grantedFamilies: [...grantedFamilies].sort(),
+    nflFamilyGate,
     eligibleReceipts: eligible.map((x) => ({ ...x.receipt, evaluation: x.evaluation })),
     _rows: rows,
   };

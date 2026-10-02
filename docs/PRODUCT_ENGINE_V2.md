@@ -47,7 +47,7 @@ not worse data. Every failing gate is reported:
 
 | # | Gate | Exclusion code(s) |
 |---|---|---|
-| 1 | sport may enter official products (`canEnterPredictionProducts`, FULL_MODEL only) | `SPORT_GATED` |
+| 1 | sport may enter official products (`canEnterPredictionProducts`, FULL_MODEL only) — or, for a sport below FULL_MODEL, ONE sport-family with an active family grant (founder grant + zero evidence blockers; `family-gate.mjs`, Session 8, `docs/NFL_FAMILY_PRODUCT_GATE.md`) | `SPORT_GATED` |
 | 2 | identity (event, family, side; participant for players) | `IDENTITY_MISSING` |
 | 3 | model/publication: demoted model | `MODEL_DEMOTED` |
 |   | experimental model | `MODEL_NOT_PUBLIC` |
@@ -206,7 +206,7 @@ from becoming "any price".
 | Sport | Registry | V2 legs today | Why |
 |---|---|---|---|
 | MLB postseason | FULL_MODEL | team markets on game days (market-implied, F1) | props MODEL_DEMOTED; off days → no MLB legs (NO_EVENTS); season over → OFF_SEASON |
-| NFL | EXPERIMENTAL_PUBLIC | 0 | sport gated; additionally role-uncertain, props settlement unproven, Week-N props captured near kickoff |
+| NFL | EXPERIMENTAL_PUBLIC | 0 | sport gated; no family granted. Per-family typed blockers are in the universe's `nflFamilyGate` (Session 8): ATD = forward ACCUMULATING (level 1.18 / ECE 0.043 outside forward bars at n 524/1000), 0 confirmed roles, Week 4 props NOT_PROBED, settlement not proven (free producer dispatch-only) |
 | EPL | EXPERIMENTAL_PUBLIC | 0 | sport gated; international break → odds stale until the 10-10 window |
 | UFC | SCAFFOLD_ONLY | 0 | gated everywhere, including the sport-ladder READ boundary (Session 7 #919) |
 | NBA | HISTORICAL_ONLY | 0 | predictions SHADOW / WITHHELD (Session 6, F-NBA-1) |
