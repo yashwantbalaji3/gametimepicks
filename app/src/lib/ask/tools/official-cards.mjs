@@ -44,14 +44,21 @@ export async function getOfficialProductCards(args, ctx) {
   if (wanted.includes("SUGGESTED_PARLAYS")) {
     const day = official.suggested?.[date] ?? null;
     const tier = args.riskTier ? TIER_OF_ARG[args.riskTier] : null;
+    /* Session 7: the PUBLISHED-card record (D1's population, published-band-record.mjs) for the asked level, or
+       every level. Never the candidate pool — the projection carries no other population. */
+    const r = official.suggestedRecord;
+    const record = r && r.population === "PUBLISHED_CARDS"
+      ? { population: r.population, sport: r.sport, since: r.since, settledDays: r.settledDays, overall: tier ? null : r.overall, byTier: Object.fromEntries(Object.entries(r.byTier ?? {}).filter(([t]) => !tier || t === tier)) }
+      : null;
     out.suggestedParlays = day
       ? {
         published: true, date, generatedAt: day.generatedAt,
         cards: day.cards.filter((c) => !tier || c.tier === tier),
         noCardTiers: day.skipped.filter((x) => !tier || x.tier === tier),
         state: day.cards.some((c) => !tier || c.tier === tier) ? "PUBLISHED" : "NO QUALIFYING CARD",
+        record,
       }
-      : { published: false, date, state: "NOT PUBLISHED", detail: `no official Suggested Parlays ladder was published for ${date}`, latestPublishedDate: (official.suggestedDates ?? []).at(-1) ?? null };
+      : { published: false, date, state: "NOT PUBLISHED", detail: `no official Suggested Parlays ladder was published for ${date}`, latestPublishedDate: (official.suggestedDates ?? []).at(-1) ?? null, record };
   }
   for (const key of ["BANK_BUILDER", "MOONSHOT"]) {
     if (!wanted.includes(key)) continue;
@@ -62,7 +69,9 @@ export async function getOfficialProductCards(args, ctx) {
       : { published: false, date, state: "NOT PUBLISHED", detail: `no official ${key === "BANK_BUILDER" ? "Bank Builder" : "Moonshot"} portfolio was published for ${date}`, latestPublishedDate: (official.portfolioDates ?? []).at(-1) ?? null };
   }
 
-  const any = Object.values(out).some((p) => p.published);
+  /* Session 7: a risk level's published-card record answers "how has it performed" even on a day with no ladder. */
+  const tierRecordAnswers = Boolean(args.riskTier && out.suggestedParlays?.record && Object.keys(out.suggestedParlays.record.byTier ?? {}).length);
+  const any = Object.values(out).some((p) => p.published) || tierRecordAnswers;
   const links = wanted.map((k) => LINKS[k]);
   if (!any) {
     return {
