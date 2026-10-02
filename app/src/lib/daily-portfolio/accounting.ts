@@ -489,8 +489,8 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
    * only because cron drift pushed generation to 17:29. Drift the other way and the generator reads
    * nothing, and would publish a no-card that is really a job that has not run.
    */
-  const availability = poolAvailability(root, date);
-  const missingInputReason = emptyPoolReason(availability.status, date);
+  const availability = poolAvailability(root, date, nowIso);
+  const missingInputReason = emptyPoolReason(availability.status, date, availability.reason ?? null);
   const nowMs = Date.parse(nowIso);
   const lanes: PortfolioLane[] = [];
 

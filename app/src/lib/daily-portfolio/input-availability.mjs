@@ -15,6 +15,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { seasonStateFor } from "../mlb/season-state.mjs";
 
 export const POOL_STATUS = Object.freeze({
   PRICED: "PRICED",                 // a priced slate exists for the date
@@ -27,9 +28,10 @@ const exists = (p) => { try { return fs.statSync(p).isFile(); } catch { return f
 /**
  * @param {string} root  public/data
  * @param {string} date  YYYY-MM-DD
- * @returns {{status: string, sources: Array<{path: string, present: boolean, games: number|null}>}}
+ * @param {string} [nowIso]  the run's clock (season-state evidence must be captured on the date's ET day, not after now)
+ * @returns {{status: string, sources: Array<{path: string, present: boolean, games: number|null}>, reason?: string}}
  */
-export function poolAvailability(root, date) {
+export function poolAvailability(root, date, nowIso = new Date().toISOString()) {
   const candidates = [
     path.join(root, "mlb", "team-markets", `${date}.json`),
     // v1.7 audit S8: this read `mlb/board/` (singular) — a directory that never existed — so the
@@ -49,7 +51,17 @@ export function poolAvailability(root, date) {
     return { path: p.slice(p.indexOf("mlb")), present, games };
   });
   const anyPresent = sources.some((s) => s.present);
-  if (!anyPresent) return { status: POOL_STATUS.INPUTS_MISSING, sources };
+  if (!anyPresent) {
+    /*
+     * D3 (Session 5): on an MLB off day no slate file is ever written, so "absent" used to mean INPUTS_MISSING even
+     * when StatsAPI says there are no games. The day's season state (capture-mlb-season-state.mjs, accepted only
+     * when derived for this date and captured on this ET day) establishes it: a postseason day with 0 games, or the
+     * off-season. Anything less stays INPUTS_MISSING.
+     */
+    const noGames = seasonNoGamesReason(root, date, nowIso);
+    if (noGames) return { status: POOL_STATUS.NO_EVENTS, sources, reason: noGames };
+    return { status: POOL_STATUS.INPUTS_MISSING, sources };
+  }
   const anyGames = sources.some((s) => (s.games ?? 0) > 0);
   return { status: anyGames ? POOL_STATUS.PRICED : POOL_STATUS.NO_EVENTS, sources };
 }
@@ -58,12 +70,30 @@ export function poolAvailability(root, date) {
  * The sentence a lane shows when it has no legs. A missing input names itself, so an operator reading
  * the page can tell a job that has not run yet from a slate that genuinely offered nothing.
  */
-export function emptyPoolReason(status, date) {
+function seasonNoGamesReason(root, date, nowIso) {
+  let doc = null;
+  try { doc = JSON.parse(fs.readFileSync(path.join(root, "mlb", "season-state.json"), "utf8")); } catch { return null; }
+  const s = seasonStateFor(doc, date, nowIso);
+  if (s.state === "OFF_SEASON") return `MLB is out of season — ${s.reason}`;
+  if (s.state === "POSTSEASON" && doc.gamesToday === 0) {
+    const next = typeof doc.nextGameDate === "string" ? `, next on ${doc.nextGameDate}` : "";
+    return `no MLB games are scheduled for ${date} — a postseason off day (${doc.remaining ?? "more"} postseason game(s) still to be played${next})`;
+  }
+  return null;
+}
+
+/**
+ * @param {string} status
+ * @param {string} date
+ * @param {string|null} [detail]  the availability owner's own sentence for a NO_EVENTS day
+ * @returns {string|null}
+ */
+export function emptyPoolReason(status, date, detail = null) {
   if (status === POOL_STATUS.INPUTS_MISSING) {
     return `no priced slate has been published for ${date} yet — this is a missing input, not a slate that came up short`;
   }
   if (status === POOL_STATUS.NO_EVENTS) {
-    return `the ${date} slate holds no games`;
+    return detail ?? `the ${date} slate holds no games`;
   }
   return null;   // PRICED — the lane's own qualification reason stands
 }
