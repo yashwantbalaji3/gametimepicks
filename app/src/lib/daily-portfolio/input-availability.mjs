@@ -82,6 +82,12 @@ function seasonNoGamesReason(root, date, nowIso) {
   return null;
 }
 
+/**
+ * @param {string} status
+ * @param {string} date
+ * @param {string|null} [detail]  the availability owner's own sentence for a NO_EVENTS day
+ * @returns {string|null}
+ */
 export function emptyPoolReason(status, date, detail = null) {
   if (status === POOL_STATUS.INPUTS_MISSING) {
     return `no priced slate has been published for ${date} yet — this is a missing input, not a slate that came up short`;
