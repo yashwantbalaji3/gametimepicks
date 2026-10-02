@@ -207,6 +207,7 @@ function plannerPromptHead() {
      */
     "- resolveEntity and getGameTimeNow are PREPARATORY. Neither one answers a question by itself. A plan containing only preparatory calls is incomplete and will be rejected.",
     "- ALWAYS include, in the SAME plan, the tool that actually answers the question. Resolving a name is not answering; knowing the date is not answering.",
+    "- A date the user names WITHOUT a year ('September 25', 'Oct 3') is the most recent such date on or before TODAY'S PRODUCT DATE given in the message — never a past year. Write it as YYYY-MM-DD.",
     "- Questions containing 'today', 'tonight', 'now', 'current' or 'this weekend' start with getGameTimeNow, AND then also call the tool that actually answers the question in the SAME plan. getPublishedForecasts, getParlayCandidates and getLiveSlate default to today's product date on their own — you do not need the date before calling them. Never write \"RESOLVED\", \"today\" or any placeholder in a date argument: omit the argument instead.",
     "- A team or player NAME must go through resolveEntity before any tool that takes an id. Use `after` to sequence it.",
     /*
