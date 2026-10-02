@@ -98,6 +98,35 @@ plumbing. The forward test resolves itself at n = 1,000 (roughly 2 more weeks of
 2. Fold the FINAL rows into `data/internal/nfl/prop-settlement/`.
 3. Have `nfl-boards.mjs` read that ledger instead of `graded-picks.json`.
 
+## 3b. Role confirmation — the contract, and why it confirms nothing yet (Session 9)
+
+`lib/sports/nfl/role-confirmation.mjs` is the pregame role receipt per (event, player, family): event, player,
+team, family role, state, reasons, source, capturedAt, sourceAsOf, expiresAt (= kickoff). Fail-closed:
+"not inactive" never becomes "confirmed"; availability evidence can only remove.
+
+| Source in the repo | Proves | Freshness |
+|---|---|---|
+| ESPN rosters (every event window) | team membership (practice squad is not a role) | capture clock |
+| ESPN injuries (every window; T-55 Thu/Mon) | availability only | `generatedAt`, per-entry `statedAt` |
+| nflverse depth chart (Wed/Sat 08:12Z) | a depth ORDER (QBs parsed) — "not official actives" | snapshot `timestamp`: 35–84 h old at kickoff at this cadence |
+| usage / snaps | last week's workload (postgame) | lags a week |
+
+| Family | Role it needs | Positive source | Today |
+|---|---|---|---|
+| passing yards | QB1 / primary passer | depth-chart QB rank 1, ≤ 36 h old at kickoff, uncontradicted by a later QB designation | `PROJECTED_DEPTH_STARTER` at best — **not** a gate-accepted state (measured 82/90 team-games, W1–4; accepting it is a founder/methodology decision) |
+| rushing yards | lead rusher | none (RB1 led rushing 80/92; committees) | ROLE_UNCERTAIN |
+| receiving yards / receptions | a receiving role | none (depth rank is not volume) | ROLE_UNCERTAIN |
+| anytime TD | an active offensive role | none (no Sunday post-inactives pass) | ROLE_UNCERTAIN |
+
+Real slate (`scripts/nfl/report-role-confirmation.mjs`, 2026-10-02 17:41Z, Week 4 Sunday/SNF/MNF boards):
+**763 rows, 0 gate-satisfying** — QB rows fail on depth-chart staleness (28), Q/D designations block 96, and
+**11 rows belong to practice-squad players** (9 ATD, 2 receiving): a board-producer defect (rosters include the
+practice squad and nothing filters it) recorded as an open item.
+
+To ever confirm a role, all of these are needed and none is a code-only change: a depth-chart capture inside the
+36 h bound (a Sunday-morning acquisition), a Sunday post-inactives pass, and a founder decision on whether a
+projected depth starter may count as confirmed for passing. Other families have no positive source at all.
+
 ## 4. Other NFL families
 
 | Family | Probability? | Published model | Forward | Settlement | Price | Blocker |
