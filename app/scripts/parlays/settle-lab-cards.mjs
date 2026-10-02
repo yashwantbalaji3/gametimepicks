@@ -21,6 +21,7 @@ import { gradeEplLeg } from "../../src/lib/sports/epl/settlement-contract.mjs";
 import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.mjs";
 import { loadOfficialUfcResults, fighterIndexForDate } from "../../src/lib/sports/ufc/official-results.mjs";
 import { classifyReceiptChange, RECEIPT_CHANGE } from "../../src/lib/parlays/receipt-completion.mjs";
+import { canShowLiveProjections, capabilityState } from "../../src/lib/sport-capability-registry.ts";
 
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 
@@ -306,6 +307,16 @@ for (const [sport, dir] of Object.entries(LADDER_DIRS)) {
      */
     if (doc?.state && doc.state !== "PUBLISHED") continue;
     if (!Array.isArray(doc?.cards) || doc.cards.length === 0) continue;
+    /*
+     * SESSION 7 — the registry, not the artifact. A ladder written PUBLISHED before the producer-side
+     * gate (#889) existed still names a sport that may not show model output (UFC, SCAFFOLD_ONLY, on the
+     * 10-03 card). Grading it would put a gated sport's cards into the public published-card record.
+     * Cards that already settled stay exactly as written (write-once); this only refuses new ones.
+     */
+    if (!canShowLiveProjections(sport)) {
+      console.log(`CAPABILITY_GATED: ${sport} ladder for ${DATE} not settled — the capability registry lists ${sport} as ${capabilityState(sport)}`);
+      continue;
+    }
     // Default each leg's sport from the ladder it came from: a single-sport ladder need not repeat
     // itself on every leg, and a leg with no sport would silently route to the box-score reader.
     const cards = doc.cards.map((c) => ({ ...c, legs: (c.legs ?? []).map((l) => ({ ...l, sport: l.sport ?? sport })) }));
