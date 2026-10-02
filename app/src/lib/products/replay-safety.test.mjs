@@ -254,20 +254,36 @@ test("NO CROSS-PRODUCT CONTAMINATION — another sport's ladder does not enter t
   const store = makeStore("gtp-replay-", APP);
   try {
     seedDay(store, { includeUnfinal: false });
-    /* A UFC ladder for the SAME date. Its bouts have no results source here, so its cards must
-       appear as pending under their own sport — never merged into an NFL card, and never dropped. */
+    /* An EPL ladder for the SAME date (EPL may show its ladder — EXPERIMENTAL_PUBLIC). Its fixture has no
+       result here, so its card must appear as pending under its own sport — never merged, never dropped.
+       (Session 7: this used a UFC ladder; UFC is SCAFFOLD_ONLY and is now refused — next test.) */
+    seed(store, `public/data/parlays/risk-ladder-epl/${DATE}.json`, ladder([
+      card("epl-medium", "medium", [{ sport: "epl", eventId: "soccer:epl:nobody-v-noone:20990101t1500", team: "Nobody FC", side: "home", odds: -140 }]),
+    ]));
+    const { state } = settleAndRead(store);
+
+    assert.equal(state.cards.length, 4, "the EPL card was dropped or merged");
+    const epl = state.cards.find((c) => c.slipId === "epl-medium");
+    assert.ok(epl, "the EPL card is missing from the receipt");
+    assert.deepEqual(epl.sports, ["epl"], "the EPL card lost its sport");
+    assert.equal(epl.result, "pending", "a fixture with no official result was graded");
+    /* And the NFL cards are untouched by its presence. */
+    assert.equal(state.cards.find((c) => c.slipId === "slip-win").result, "win");
+  } finally { cleanup(store); }
+});
+
+test("SESSION 7 · a capability-gated sport's PUBLISHED ladder is not settled into the record", () => {
+  const store = makeStore("gtp-replay-", APP);
+  try {
+    seedDay(store, { includeUnfinal: false });
+    /* UFC is SCAFFOLD_ONLY: a ladder file that still says PUBLISHED (written before #889) must not reach
+       the published-card record, whatever the file says. */
     seed(store, `public/data/parlays/risk-ladder-ufc/${DATE}.json`, ladder([
       card("ufc-medium", "medium", [{ sport: "ufc", player: "Some Fighter", odds: -140 }]),
     ]));
     const { state } = settleAndRead(store);
-
-    assert.equal(state.cards.length, 4, "the UFC card was dropped or merged");
-    const ufc = state.cards.find((c) => c.slipId === "ufc-medium");
-    assert.ok(ufc, "the UFC card is missing from the receipt");
-    assert.deepEqual(ufc.sports, ["ufc"], "the UFC card lost its sport");
-    assert.equal(ufc.result, "pending", "a bout with no official result was graded");
-    /* And the NFL cards are untouched by its presence. */
-    assert.equal(state.cards.find((c) => c.slipId === "slip-win").result, "win");
+    assert.equal(state.cards.length, 3, "a gated sport's card entered the receipt");
+    assert.equal(state.cards.find((c) => c.slipId === "ufc-medium"), undefined);
   } finally { cleanup(store); }
 });
 
