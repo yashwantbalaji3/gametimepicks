@@ -38,6 +38,7 @@ import { deriveNewArrivals, shadowProjectedArrivals } from "../../src/lib/sports
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
 import { applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 import { indexDepthCharts } from "../../src/lib/sports/nfl/depth-chart.mjs";
+import { overAllocationReason, SHARE_MARKETS, withholdOverAllocatedPools } from "../../src/lib/sports/nfl/opportunity-conservation.mjs";
 import { splitMatchup } from "../../src/lib/sports/nfl/matchup.mjs";
 import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
 import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelEstimateMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
@@ -94,6 +95,14 @@ const forecastFor = (kickoffUtc, week) => {
   const key = `${seasonOfKickoff(kickoffUtc)}-${String(week).padStart(2, "0")}`;
   if (!forecastByWeek.has(key)) forecastByWeek.set(key, read(path.join(SHARE_LEVEL_DIR, `${key}.json`)));
   return forecastByWeek.get(key);
+};
+/* `${espnId}|${nflverseTeam}|${market}` → share for one game, the same key the conservation audit joins on. */
+const shareIndexFor = (forecast, gameId) => {
+  const m = new Map();
+  if (!forecast?.columns || !gameId) return m;
+  const C = Object.fromEntries(forecast.columns.map((c, i) => [c, i]));
+  for (const r of forecast.rows ?? []) if (r[C.gameId] === gameId && r[C.espnId] != null) m.set(`${r[C.espnId]}|${r[C.team]}|${r[C.market]}`, r[C.share]);
+  return m;
 };
 const currentUsage = new Set();
 for (const d of events) {
@@ -404,6 +413,19 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const { away: mAway, home: mHome } = splitMatchup(doc.matchup);
   const matchupTeams = [mAway, mHome].filter(Boolean);
   const qbStarter = matchupTeams.map((team) => applyQbStarterRule({ players, team, index: depthIndex, asOf: NOW, maxAgeMs: QB_CHART_MAX_AGE_MS }));
+  /* SESSION 5 — a share-sourced family whose team pool claims more opportunity than exists is WITHHELD
+     for that team (opportunity-conservation.mjs). Runs after every removal above, so Σ is over the rows
+     a reader would see; never renormalises. v1-allocated families are not passed: they conserve. */
+  const poolMarkets = [...(shareLevel?.markets ?? [])].filter((m) => SHARE_MARKETS.includes(m) && publishedMarkets.has(m));
+  const shareIndex = shareIndexFor(forecastFor(doc.kickoffUtc, doc.week), shareLevel?.gameId);
+  const pools = withholdOverAllocatedPools({ players, shareOf: (id, team, market) => shareIndex.get(`${id}|${team}|${market}`), markets: poolMarkets });
+  players.length = 0; players.push(...pools.players);
+  for (const w of pools.withheld) {
+    for (const m of w.markets) {
+      if (!families[m]) continue;
+      (families[m].withheldTeams ??= []).push({ team: w.team, sum: w.sum, reason: overAllocationReason(w) });
+    }
+  }
   /*
    * THE SPORTSBOOK SLOT, ON THE SAME ROW AS THE FORECAST IT SITS BESIDE (P0 · 2026-09-24).
    *
@@ -447,7 +469,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const familyGaps = shareLevel && !shareLevel.markets.has("player_receptions")
     ? receivingFamilyGaps({ forecast: forecastFor(doc.kickoffUtc, doc.week), gameId: shareLevel.gameId, season: seasonOfKickoff(doc.kickoffUtc), toBoardTeam: (t) => (t === "WAS" ? "WSH" : t === "LA" ? "LAR" : t), published: publishedMarkets })
     : [];
-  const coverage = buildCoverage({ teams: matchupTeams, players, excluded, arrivals: newArrivals, qbRules: qbStarter, noRole, familyGaps });
+  const coverage = buildCoverage({ teams: matchupTeams, players, excluded, arrivals: newArrivals, qbRules: qbStarter, noRole, familyGaps, poolWithheld: pools.withheld });
 
   const artifact = {
     schemaVersion: 1,
@@ -478,14 +500,14 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     /* SESSION 4 — the pregame roster/usage receipt: every material player's state, and the integrity
        facts the audit below checks (one passer per pool, nobody unavailable, nobody off-roster). */
     coverage,
-    integrity: { qbStarter, violations: null },
+    integrity: { qbStarter, pools: pools.pools, violations: null },
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
     disclaimer: "Model projections. Educational.",
   };
   const unavailableIds = new Map(excluded.map((e) => [e.playerId, e.reason]));
   for (const [id, b] of ineligible) unavailableIds.set(id, b.status);
   const expected = new Set((shareLevel?.players ?? []).map((r) => `${r.team}:${r.playerId}`).filter((k) => currentUsage.has(k)));
-  const violations = auditBoard({ board: artifact, rosterByTeam, unavailable: unavailableIds, usage: currentUsage, expected });
+  const violations = auditBoard({ board: artifact, rosterByTeam, unavailable: unavailableIds, usage: currentUsage, expected, shareOf: (id, team, market) => shareIndex.get(`${id}|${team}|${market}`) });
   artifact.integrity.violations = violations.length;
   /* Loud, recorded, and NOT a refusal here: a generator that refuses takes every board down with the
      one bad row (the 62-hour Aug 1–3 outage). The audit test fails main instead. */

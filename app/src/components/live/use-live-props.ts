@@ -12,9 +12,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { LIVE_PROPS_REFRESH_MS } from "@/lib/live/live-refresh-plan.mjs";
+import { mergeGatewayLiveRows } from "@/lib/live/gateway-live-rows.mjs";
+import { liveReadyFor, liveUrl } from "@/lib/live/client";
 
 export type LivePropsFeed = "NOT_ASKED" | "OK" | "UNAVAILABLE";
-export interface LivePropsState { feed: LivePropsFeed; artifact: any | null }
+/* Session 5 — `producerFeed` is the producer artifact alone; `feed` is OK when EITHER source was read.
+   `gatewayIds` are the rows whose live value came from the gateway (gateway-live-rows.mjs). */
+export interface LivePropsState { feed: LivePropsFeed; artifact: any | null; producerFeed?: LivePropsFeed; gatewayRead?: boolean; gatewayIds?: Set<string> }
 
 export const NOT_ASKED: LivePropsState = { feed: "NOT_ASKED", artifact: null };
 
@@ -33,15 +37,21 @@ export function useLivePropsStore(plan: { poll: string[]; once: string[] }, poll
   const onceKey = plan.once.join(",");
 
   const load = useCallback(async (id: string) => {
-    try {
+    /* Session 5 — the producer record (frozen + settlement) and the gateway (live facts) on the SAME tick.
+       The gateway call is the one useLiveEvent makes, CDN-cached by s-maxage; never a per-row request. */
+    const [producer, gateway] = await Promise.all([
       /* `no-cache` revalidates against the CDN's ETag: an unchanged record costs a 304, not a body. */
-      const res = await fetch(`/data/nfl/live-props/${id}.json`, { cache: "no-cache" });
-      if (!res.ok) throw new Error(String(res.status));
-      const artifact = await res.json();
-      setStore((s) => ({ ...s, [id]: { feed: "OK", artifact } }));
-    } catch {
-      setStore((s) => (s[id]?.artifact ? s : { ...s, [id]: { feed: "UNAVAILABLE", artifact: null } }));
+      fetch(`/data/nfl/live-props/${id}.json`, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      liveReadyFor("nfl")
+        ? fetch(liveUrl({ sport: "nfl", event: id, players: true }), { headers: { accept: "application/json" } }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+        : Promise.resolve(null),
+    ]);
+    const merged = mergeGatewayLiveRows({ providerEventId: id, artifact: producer, envelope: gateway });
+    if (!merged.artifact) {
+      setStore((s) => (s[id]?.artifact ? s : { ...s, [id]: { feed: "UNAVAILABLE", artifact: null, producerFeed: "UNAVAILABLE", gatewayRead: false } }));
+      return;
     }
+    setStore((s) => ({ ...s, [id]: { feed: "OK", artifact: merged.artifact, producerFeed: producer ? "OK" : "UNAVAILABLE", gatewayRead: merged.gatewayRead, gatewayIds: merged.gatewayIds } }));
   }, []);
 
   /* FINAL games: one fetch each, for the final stat. */

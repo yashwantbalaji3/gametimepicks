@@ -66,7 +66,7 @@ export async function getPublishedForecasts(args, ctx) {
    * or team is not narrowed to today — "Arsenal's next forecast" is whenever it is published.
    */
   const today = etDateOf((ctx.now ? ctx.now() : new Date()).toISOString());
-  const date = args.date ?? (!args.gameId && !args.teamId ? today : null);
+  const date = args.date ?? (!args.gameId && !args.teamId && !args.playerId ? today : null);
   const beforeDate = rows;
   if (date) rows = rows.filter((f) => (f.date ?? etDateOf(f.startUtc)) === date);
 
@@ -99,7 +99,24 @@ export async function getPublishedForecasts(args, ctx) {
     };
   }
 
-  const forecasts = rows.slice(0, args.limit).map(shapeForecast);
+  /*
+   * SESSION 5 — A NAMED PLAYER'S ROW IS NEVER CUT BY THE EVIDENCE BUDGET. Production answered "no projection
+   * is listed" for Michael Pittman Jr. (PIT @ CLE) while the game page printed 2 rec · 18 yds: the projection
+   * carried the top 6 players per game and he ranked 7th. Only games where he holds a published row qualify;
+   * none ⇒ NOT_PUBLISHED, stated, never a row invented from a team forecast.
+   */
+  if (args.playerId) {
+    rows = rows.filter((f) => (f.players ?? []).some((p) => p.playerId === args.playerId));
+    if (!rows.length) {
+      return {
+        status: ASK_STATUS.UNSUPPORTED,
+        error: ASK_ERROR.NOT_PUBLISHED,
+        detail: `GameTimePicks publishes no current player projection for that player${date ? ` on ${date}` : ""} — the player holds no row on a published game board`,
+        links: [{ id: "today", label: "See today's slate", href: "/today/" }],
+      };
+    }
+  }
+  const forecasts = rows.slice(0, args.limit).map((f) => shapeForecast(f, args.playerId ?? null));
   return {
     status: ASK_STATUS.OK,
     dateApplied: date,
@@ -110,7 +127,13 @@ export async function getPublishedForecasts(args, ctx) {
   };
 }
 
-function shapeForecast(f) {
+/** The compact per-game player evidence for a generic question (the projection holds every published row). */
+export const GENERIC_PLAYER_ROWS = 6;
+
+function shapeForecast(f, namedPlayerId = null) {
+  const allPlayers = f.players ?? [];
+  const named = namedPlayerId ? allPlayers.filter((p) => p.playerId === namedPlayerId) : [];
+  const players = named.length ? named : allPlayers.slice(0, GENERIC_PLAYER_ROWS);
   const published = (f.markets ?? []).filter((m) => m.status === "PUBLISHED");
   const paused = (f.markets ?? []).filter((m) => m.status === "PAUSED");
   return {
@@ -141,7 +164,7 @@ function shapeForecast(f) {
     pausedMarkets: paused.map((m) => ({ market: m.market, label: m.label, reason: m.pausedReason })),
     why: f.why ?? [],
     completeness: f.completeness ?? null,
-    players: f.players ?? [],
+    players,
     updatedAt: f.updatedAt ?? null,
     links: f.links ?? [],
   };

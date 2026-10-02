@@ -330,7 +330,9 @@ function nflForecasts() {
         : null,
       projectedScore: f.forecastSummary?.projectedScore?.home != null ? { home: f.forecastSummary.projectedScore.home, away: f.forecastSummary.projectedScore.away } : null,
       modelId: f.model?.id ?? null,
-      players: (byGame.get(id) ?? []).slice(0, 6),
+      /* Session 5 — EVERY published row. The evidence budget (top rows for a generic question) is applied at
+         read time by getPublishedForecasts, so a player-named question can reach a row beyond it. */
+      players: byGame.get(id) ?? [],
       updatedAt: doc.generatedAt ?? null,
       links,
     });
