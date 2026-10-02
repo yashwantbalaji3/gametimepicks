@@ -2,18 +2,18 @@
   "schemaVersion": 1,
   "artifact": "mlb-model-results-index",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-01T16:43:35Z",
+  "generatedAt": "2026-10-02T11:08:39Z",
   "sport": "mlb",
   "coverage": {
-    "dates": 110,
+    "dates": 111,
     "firstDate": "2026-05-16",
-    "lastDate": "2026-09-30",
-    "rows": 51917,
-    "wins": 24538,
-    "losses": 24213,
-    "pushes": 3166,
-    "decisive": 48751,
-    "games": 1368,
+    "lastDate": "2026-10-01",
+    "rows": 51956,
+    "wins": 24556,
+    "losses": 24232,
+    "pushes": 3168,
+    "decisive": 48788,
+    "games": 1369,
     "note": "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree. `games` counts the distinct games those picks came from — the rows are clustered within games and are not independent observations."
   },
   "days": [
@@ -4894,6 +4894,43 @@
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-09-30.json"
+    },
+    {
+      "date": "2026-10-01",
+      "sport": "mlb",
+      "rows": 39,
+      "wins": 18,
+      "losses": 19,
+      "pushes": 2,
+      "decisive": 37,
+      "games": 1,
+      "byMarket": {
+        "batter_hits": {
+          "rows": 16,
+          "wins": 7,
+          "losses": 8,
+          "pushes": 1,
+          "decisive": 15,
+          "games": 1
+        },
+        "batter_hits_runs_rbis": {
+          "rows": 16,
+          "wins": 8,
+          "losses": 7,
+          "pushes": 1,
+          "decisive": 15,
+          "games": 1
+        },
+        "batter_total_bases": {
+          "rows": 7,
+          "wins": 3,
+          "losses": 4,
+          "pushes": 0,
+          "decisive": 7,
+          "games": 1
+        }
+      },
+      "rowsUrl": "/data/mlb/results/model-rows/2026-10-01.json"
     }
   ]
 }
