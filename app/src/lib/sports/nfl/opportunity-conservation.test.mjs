@@ -109,3 +109,59 @@ test("P694 · the fold carries the worst sum and the count, not just a verdict",
   assert.equal(fold.overAllocated, 1);
   assert.equal(fold.worst, 1.4);
 });
+
+/* ── Session 5 · from measurement to publication safety ─────────────────────────────────────────── */
+import { withholdOverAllocatedPools, overAllocationReason } from "./opportunity-conservation.mjs";
+
+const rushRow = (id, team, name, mean, extra = {}) => ({ playerId: `nfl-athlete-${id}`, team, name, participation: "AVAILABLE_ROLE_UNCERTAIN", markets: { player_rush_yds: { mean, median: mean }, ...extra } });
+
+test("Session 5 · an over-allocated carries pool is WITHHELD for that team, never renormalised", () => {
+  // ARI on the Week-4 board: Love 0.57 + Conner 0.44 + Benson 0.30 (Σ 1.31). NYG 0.53 + 0.20 (Σ 0.73).
+  const players = [
+    rushRow(1, "ARI", "Love", 59.7, { anytime_td: { probability: 0.4 } }),
+    rushRow(2, "ARI", "Conner", 46.5, { player_receptions: { median: 2 } }),
+    rushRow(3, "ARI", "Benson", 35.3),
+    rushRow(4, "NYG", "Skattebo", 57.0),
+    rushRow(5, "NYG", "Singletary", 21.8),
+  ];
+  const shares = table({ "1|ARI|player_rush_yds": 0.57, "2|ARI|player_rush_yds": 0.44, "3|ARI|player_rush_yds": 0.30, "4|NYG|player_rush_yds": 0.53, "5|NYG|player_rush_yds": 0.20 });
+  const out = withholdOverAllocatedPools({ players, shareOf: shares, markets: ["player_rush_yds"] });
+  assert.equal(out.withheld.length, 1);
+  assert.equal(out.withheld[0].team, "ARI");
+  assert.equal(out.withheld[0].sum, 1.31);
+  for (const p of out.players.filter((x) => x.team === "ARI")) assert.equal(p.markets.player_rush_yds, undefined, `${p.name}: rushing must be withheld`);
+  assert.equal(out.players.find((p) => p.name === "Love").markets.anytime_td.probability, 0.4, "another family on the same row is untouched");
+  assert.equal(out.players.find((p) => p.name === "Conner").markets.player_receptions.median, 2);
+  const nyg = out.players.filter((x) => x.team === "NYG");
+  assert.deepEqual(nyg.map((p) => p.markets.player_rush_yds.mean), [57.0, 21.8], "the coherent pool publishes, and its numbers are NOT rescaled");
+  assert.ok(players[0].markets.player_rush_yds, "pure: the input rows are not mutated");
+});
+
+test("Session 5 · only the markets passed are enforced — an allocating engine's family is never withheld", () => {
+  // v1 receiving conserves targets by construction; its rows must survive even when share-level target shares sum past 1.
+  const players = [
+    { playerId: "nfl-athlete-1", team: "SF", name: "A", markets: { player_receptions: { median: 5 } } },
+    { playerId: "nfl-athlete-2", team: "SF", name: "B", markets: { player_receptions: { median: 4 } } },
+  ];
+  const out = withholdOverAllocatedPools({ players, shareOf: table({ "1|SF|player_receptions": 0.7, "2|SF|player_receptions": 0.6 }), markets: ["player_rush_yds"] });
+  assert.equal(out.withheld.length, 0);
+  assert.equal(out.players.length, 2);
+  assert.equal(out.players[0].markets.player_receptions.median, 5);
+});
+
+test("Session 5 · the boundary is the audit's own EPS — no new threshold", () => {
+  const two = (a, b) => withholdOverAllocatedPools({ players: [rushRow(1, "KC", "X", 1), rushRow(2, "KC", "Y", 1)], shareOf: table({ "1|KC|player_rush_yds": a, "2|KC|player_rush_yds": b }), markets: ["player_rush_yds"] });
+  assert.equal(two(0.70, 0.30 + EPS).withheld.length, 0, "exactly 1 + EPS is rounding, not over-allocation");
+  assert.equal(two(0.70, 0.31 + EPS).withheld.length, 1);
+});
+
+test("Session 5 · ESPN WSH/LAR join the nflverse WAS/LA forecast through the one normaliser", () => {
+  const out = withholdOverAllocatedPools({ players: [rushRow(1, "WSH", "A", 1), rushRow(2, "WSH", "B", 1)], shareOf: table({ "1|WAS|player_rush_yds": 0.8, "2|WAS|player_rush_yds": 0.75 }), markets: ["player_rush_yds"] });
+  assert.equal(out.withheld[0]?.team, "WSH", "a raw-abbreviation join would read NO_JOIN and publish the incoherent pool");
+});
+
+test("Session 5 · the reader-facing reason states the sum and names no internal file", () => {
+  const r = overAllocationReason({ team: "ARI", pool: "carries", sum: 1.8636 });
+  assert.match(r, /186% of the team's carries/);
+  assert.doesNotMatch(r, /data\/internal|share-level|\.json/);
+});

@@ -173,6 +173,12 @@ const out = {
        state — numbers with the failed bar and caveat carried on the board, never a bare top list. */
     if (fam.state === "ESTIMATE") return { ...spec, state: "ESTIMATE", reason: fam.reason, caveat: fam.caveat, rows: rankRows(spec.family, spec.metric, spec.topN) };
     if (fam.state !== "PUBLISHED") return { ...spec, state: "WITHHELD", reason: fam.reason };
+    /* Session 5 — a TOP list over a partial population is a false claim: with a team's pool withheld
+       (opportunity-conservation.mjs) its players cannot rank, so "Top 10" would silently omit them. */
+    const poolWithheld = scoped.flatMap((b) => (b.families?.[spec.family]?.withheldTeams ?? []).map((w) => w.team));
+    if (poolWithheld.length) {
+      return { ...spec, state: "WITHHELD", reason: `withheld this week: on ${poolWithheld.length} of ${scoped.length * 2} teams the players' modelled shares add up to more of the team's opportunity than exists, so a ranking would leave those teams out` };
+    }
     return { ...spec, state: "PUBLISHED", basis: fam.basis, rows: rankRows(spec.family, spec.metric, spec.topN) };
   }),
   disclaimer: boards[0]?.disclaimer ?? null,
