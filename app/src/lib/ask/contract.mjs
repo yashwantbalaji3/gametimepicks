@@ -231,6 +231,7 @@ export const ASK_INTENTS = Object.freeze([
   "LIVE_STATUS",
   "PARLAY_REQUEST",
   "BANKROLL_PARLAY_REQUEST",
+  "PRODUCT_CARDS",
   "NAVIGATION_HELP",
   /* v1.9 · Results. Four intents rather than one, because "what is the record", "how accurate is the
      model", "what settled recently" and "what is still pending" are answered by four different owners

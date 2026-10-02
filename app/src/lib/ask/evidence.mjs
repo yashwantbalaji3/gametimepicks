@@ -317,6 +317,32 @@ export function buildEvidence(envelopes) {
         break;
       }
 
+      /* Session 5 — the OFFICIAL published cards, verbatim. No-card states are published answers, never pending. */
+      case "getOfficialProductCards": {
+        const p = d.products ?? {};
+        const sp = p.suggestedParlays;
+        if (sp?.published) {
+          say(`GameTimePicks' official Suggested Parlays for ${sp.date} (published ${sp.generatedAt}): ${sp.cards.length} card(s) published${sp.noCardTiers.length ? `, and no card in ${sp.noCardTiers.map((t) => t.tierLabel).join(", ")}` : ""}`, [sp.cards.length, sp.date]);
+          for (const c of sp.cards) {
+            say(`${sp.date} official ${c.tierLabel} card, ${c.legs.length} legs, combined ${c.combinedAmerican > 0 ? "+" : ""}${c.combinedAmerican} American at the prices it was published with`, [c.legs.length, c.combinedAmerican]);
+            for (const l of c.legs) say(`${sp.date} ${c.tierLabel} card leg: ${l.player}${l.team ? ` (${l.team}${l.opponent ? ` vs ${l.opponent}` : ""})` : ""} ${l.marketLabel} ${l.side ?? ""} ${l.line ?? ""}, priced ${l.odds}${l.result ? `, result ${l.result}` : ""}`, [l.line, l.odds]);
+          }
+          for (const t of sp.noCardTiers) say(`${sp.date} ${t.tierLabel}: no card was published — the ladder's own reason: ${t.reason ?? "not stated"}`);
+          say(`these are the cards as published; GameTime does not model correlation between their legs and publishes no joint win probability for them`);
+        } else if (sp) say(`${sp.detail}${sp.latestPublishedDate ? `; the most recent official Suggested Parlays ladder is for ${sp.latestPublishedDate}` : ""}`);
+        for (const [key, label] of [["bankBuilder", "Bank Builder"], ["moonshot", "Moonshot"]]) {
+          const b = p[key];
+          if (!b) continue;
+          if (!b.published) { say(`${b.detail}${b.latestPublishedDate ? `; the most recent official portfolio is for ${b.latestPublishedDate}` : ""}`); continue; }
+          for (const l of b.lanes) {
+            if (l.state === "NO CARD PLACED") { say(`${b.date} ${label} lane ${l.lane} (step ${l.step}): NO CARD PLACED — the product's own reason: ${l.reason ?? "not stated"}`, [l.step]); continue; }
+            say(`${b.date} ${label} lane ${l.lane} (step ${l.step}): ${l.state}${l.combinedOdds != null ? `, combined ${l.combinedOdds > 0 ? "+" : ""}${l.combinedOdds} American` : ""}${l.legs.length ? `, ${l.legs.length} legs` : ""}`, [l.step, l.combinedOdds, l.legs.length]);
+            for (const g of l.legs) say(`${b.date} ${label} lane ${l.lane} leg: ${g.selection} (${g.market}, ${g.matchup})${g.odds != null ? `, priced ${g.odds}${g.book ? ` at ${g.book}` : ""}` : ""}${g.probabilityBasis === "market-implied" ? ", its probability is the market's implied price, not a GameTime model" : ""}${g.result ? `, result ${g.result}${g.official ? ` (final ${g.official})` : ""}` : ""}`, [g.odds]);
+          }
+        }
+        break;
+      }
+
       case "getLiveSlate": {
         say(`GameTime Live reports ${d.liveCount} of ${d.total} ${d.sport} games in progress, as of ${d.fetchedAt}`, [d.liveCount, d.total]);
         if (d.preCount != null) say(`of those ${d.total} ${d.sport} games, ${d.liveCount} are in progress, ${d.preCount} have not started and ${d.finalCount ?? 0} are final`, [d.total, d.liveCount, d.preCount, d.finalCount ?? 0]);
@@ -531,6 +557,7 @@ function unsupportedSentence(env) {
     getMatchupContext: "GameTimePicks does not have a matchup research page for that game",
     getPublishedForecasts: "GameTimePicks has no currently published forecast matching that",
     getParlayCandidates: "GameTimePicks has no published parlay candidate matching that",
+    getOfficialProductCards: "GameTimePicks published no official card matching that",
     searchGameTimeHelp: "the GameTime guide has nothing on that",
     resolveEntity: "GameTimePicks does not have a page for that name",
   }[env.tool] ?? "GameTimePicks does not currently hold data that answers that";

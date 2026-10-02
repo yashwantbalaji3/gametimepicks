@@ -147,10 +147,9 @@ const CHUNKS = [
     route: "/live/",
     keywords: ["live", "in progress", "score now", "watching", "current game", "real time"],
     text:
-      "GameTime Live shows current state for MLB games — whether a game is scheduled, in progress or final, " +
-      "and the live score. NFL live state is not available in GameTimePicks: the endpoint refuses it, so " +
-      "Ask cannot report a live NFL score. For NFL you can still open the scheduled matchup, the recorded " +
-      "research, or the published pregame forecast.",
+      "GameTime Live shows current state for MLB and NFL games — whether a game is scheduled, in progress or " +
+      "final, and the live score — beside the forecasts frozen before kickoff. A provider's final is not GameTime's " +
+      "grading: a game reads \"final — grading pending\" until it is settled against the official record.",
   },
   {
     id: "live-vs-settled",

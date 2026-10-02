@@ -255,6 +255,15 @@ function routePlan(user) {
     push("getProductRecord", { product: resultsProduct });
     return { intent: "RESULTS_PRODUCT_RECORD", needsClarification: false, clarification: null, calls };
   }
+  /* Session 5 · the OFFICIAL published cards — today's (or a named day's) Suggested Parlays, Bank Builder, Moonshot.
+     After the record branch (a product's record is getProductRecord) and before site help ("what is today's …"). */
+  const officialProduct = has("bank builder", "bank-builder") ? "BANK_BUILDER" : has("moonshot") ? "MOONSHOT"
+    : has("suggested parlay", "suggested card", "lowest-risk", "lowest risk") ? "SUGGESTED_PARLAYS" : null;
+  if (officialProduct && has("today", "tonight", "card", "no card", "show me", "what is", "what are", "why is", "leg")) {
+    const tier = officialProduct === "SUGGESTED_PARLAYS" && has("lowest-risk", "lowest risk", "low risk") ? { riskTier: "LOW" } : {};
+    push("getOfficialProductCards", { product: officialProduct, ...tier }, needsNow ? ["c0"] : []);
+    return { intent: "PRODUCT_CARDS", needsClarification: false, clarification: null, calls };
+  }
   if (has("how accurate", "forecast record", "model record", "gametime's record")) {
     push("getForecastRecord", { sport: sportOf(question) ?? "NFL" });
     return { intent: "RESULTS_FORECAST_RECORD", needsClarification: false, clarification: null, calls };

@@ -263,8 +263,9 @@ const SUBSTANTIVE_FOR_INTENT = Object.freeze({
   PUBLISHED_FORECAST: ["getPublishedForecasts"],
   RESULTS_RECENT: ["getResultsDay", "getRecentResults"],
   LIVE_STATUS: ["getLiveSlate"],
-  PARLAY_REQUEST: ["getParlayCandidates"],
+  PARLAY_REQUEST: ["getOfficialProductCards", "getParlayCandidates"],
   BANKROLL_PARLAY_REQUEST: ["getParlayCandidates"],
+  PRODUCT_CARDS: ["getOfficialProductCards"],
 });
 
 function plannerUserMessage(state, priorEvidence = null) {
@@ -449,6 +450,7 @@ function toolStatusCopy(name) {
     getMatchupContext: "Gathering matchup context…",
     getPublishedForecasts: "Loading published forecasts…",
     getParlayCandidates: "Checking GameTime parlay candidates…",
+    getOfficialProductCards: "Reading today's official cards…",
     getLiveSlate: "Checking live games…",
     searchGameTimeHelp: "Checking the GameTime guide…",
     calculate: "Working out the numbers…",

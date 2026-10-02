@@ -68,6 +68,7 @@ import { MLB_MARKET_CALIBRATION, isCalibrationFailed } from "../../src/lib/mlb/m
 import { buildHelpCorpus } from "../../src/lib/ask/help-source.mjs";
 import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-model.mjs";
 import { legIsMarketContext, marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibility.mjs";
+import { getRiskBucketForCombinedOdds } from "../../src/lib/parlays/risk-odds-bands.mjs";
 import { resultsDay, resultsDayDates } from "../../src/lib/results/v2/day.ts";
 import { productReceiptDates, productReceiptsFor } from "../../src/lib/results/v2/product-receipts.ts";
 
@@ -395,6 +396,61 @@ function buildForecasts() {
   };
 }
 
+/* ──────────────────────── 3b. OFFICIAL PUBLISHED PRODUCT CARDS (Session 5) ──────────────────────── */
+/*
+ * WHAT GAMETIMEPICKS ACTUALLY PUBLISHED, READ FROM THE PUBLISHED ARTIFACTS — NEVER RECONSTRUCTED.
+ *
+ * Ask had no source for "what is today's Bank Builder?", and "today's suggested parlays" was answered from the
+ * optimizer's candidate pool (buildParlays below) — a different population from the ladder /build publishes.
+ * This block carries the official cards verbatim from their owners:
+ *   Suggested Parlays  parlays/risk-ladder/<date>.json (the dated ladder file is the freeze)
+ *   Bank Builder/Moonshot  mr-dub/daily-portfolio.json (today's published lanes) and mr-dub/settled/<date>.json
+ *                      (the frozen lanes of a past day, with their canonical results)
+ * Deliberately NOT carried: the ladder's `tierRecord` (it is the optimizer population, not the published cards —
+ * an open founder decision) and every money field (stake, bankroll); records belong to getProductRecord.
+ */
+const OFFICIAL_TIER_LABEL = { low: "Low risk", medium: "Medium risk", high: "High risk", longshot: "Longshot" }; // build-risk-ladder.mjs TIER_LABEL
+
+function buildOfficialCards(days = 3) {
+  const ladderDir = path.join(APP, "public/data/parlays/risk-ladder");
+  const suggested = {};
+  for (const f of (fs.existsSync(ladderDir) ? fs.readdirSync(ladderDir) : []).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort().slice(-days)) {
+    const l = JSON.parse(fs.readFileSync(path.join(ladderDir, f), "utf8"));
+    const date = String(l.date ?? f.slice(0, 10));
+    suggested[date] = {
+      date, generatedAt: l.generatedAt ?? null,
+      cards: (l.cards ?? []).map((c) => ({
+        tier: c.tier, tierLabel: c.tierLabel ?? OFFICIAL_TIER_LABEL[c.tier] ?? c.tier, slipId: c.slipId ?? null,
+        combinedAmerican: c.combinedAmerican ?? null, status: c.status ?? null,
+        legs: (c.legs ?? []).map((g) => ({ player: g.player ?? null, team: g.team ?? null, opponent: g.opponent ?? null, marketLabel: g.marketLabel ?? g.market ?? null, side: g.side ?? null, line: g.line ?? null, odds: g.odds ?? null, result: g.result ?? null })),
+      })),
+      skipped: (l.skipped ?? []).map((x) => ({ tier: x.tier, tierLabel: OFFICIAL_TIER_LABEL[x.tier] ?? x.tier, reason: x.reason ?? null })),
+      withheldMarketContext: l.eligibility?.withheldMarketContext ?? null,
+    };
+  }
+  const lane = (l, withResult) => ({
+    product: l.product, productLabel: l.productLabel ?? (l.product === "bank-builder" ? "Bank Builder" : l.product === "moonshot" ? "Moonshot" : l.product),
+    lane: l.lane ?? null, step: l.step ?? null, status: l.status ?? null,
+    ...(withResult ? { result: l.result ?? null } : {}),
+    combinedOdds: Number.isFinite(l.combinedOdds) && (l.legs ?? []).length ? l.combinedOdds : null,
+    reason: l.status === "active" ? null : (l.activationEligibility?.reason ?? l.shortfallNote ?? null),
+    legs: (l.legs ?? []).map((g) => ({ matchup: g.matchup ?? null, selection: g.selection ?? null, market: g.market ?? g.marketLabel ?? null, odds: g.odds ?? null, book: g.provider ?? null, probabilityBasis: g.probabilityBasis ?? null, kickoffEt: g.kickoffEt ?? null, ...(withResult ? { result: g.result ?? null, official: g.official ?? null } : {}) })),
+  });
+  const portfolioDoc = (() => { try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data/mr-dub/daily-portfolio.json"), "utf8")); } catch { return null; } })();
+  const portfolios = {};
+  if (portfolioDoc?.date && Array.isArray(portfolioDoc.lanes)) {
+    portfolios[portfolioDoc.date] = { date: portfolioDoc.date, generatedAt: portfolioDoc.generatedAt ?? null, source: "published", lanes: portfolioDoc.lanes.map((l) => lane(l, false)) };
+  }
+  const settledDir = path.join(APP, "public/data/mr-dub/settled");
+  for (const f of (fs.existsSync(settledDir) ? fs.readdirSync(settledDir) : []).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort().slice(-days)) {
+    const d = JSON.parse(fs.readFileSync(path.join(settledDir, f), "utf8"));
+    const date = String(d.date ?? f.slice(0, 10));
+    portfolios[date] = { date, generatedAt: d.settledAt ?? null, source: "settled", lanes: (d.lanes ?? []).map((l) => lane(l, true)) };
+  }
+  notes.push(`official cards: suggested ${Object.keys(suggested).join(",") || "none"} · portfolios ${Object.keys(portfolios).sort().join(",") || "none"}`);
+  return { suggestedDates: Object.keys(suggested).sort(), suggested, portfolioDates: Object.keys(portfolios).sort(), portfolios };
+}
+
 /* ────────────────────────────────── 4. PARLAYS ────────────────────────────────── */
 
 /** Read the newest N optimizer snapshots. A date with no snapshot is absent, never back-filled. */
@@ -410,11 +466,12 @@ function buildParlays(days = 3) {
     const doc = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
     const date = String(doc.date ?? file.replace(".json", ""));
     const profiles = {};
+    const bandSlips = {};
+    let unbanded = 0;
     let withheldMarketContext = 0;
     const withheldFamilies = new Set();
 
     for (const [profile, cuts] of Object.entries(doc.publicRiskSections ?? {})) {
-      const slips = [];
       for (const [cut, list] of Object.entries(cuts)) {
         if (cut === "all") continue; // "all" is a view over the sport cuts, not a separate pool
         if (!Array.isArray(list) || list.length === 0) continue;
@@ -452,9 +509,18 @@ function buildParlays(days = 3) {
           if (mc.length) { withheldMarketContext += 1; for (const l of mc) withheldFamilies.add(l.marketLabel ?? l.market); continue; }
           // Arithmetic once, in the owner, over the candidate's own pinned prices.
           const payout = combinedParlayPayoutPer100(legs);
-          slips.push({
+          /*
+           * SESSION 5 · B4 — THE RISK LEVEL IS THE PRICE BAND, NOT THE OPTIMIZER SECTION. The optimizer's sections
+           * are its own price scale (low < +300, medium +300–600 …), so a +450 "medium" slip was offered by Ask as
+           * MEDIUM while the public ladder calls +450 High risk. Each candidate is filed under the canonical band
+           * of its own combined price; one with no price has no band and is counted, never guessed.
+           */
+          const band = payout ? getRiskBucketForCombinedOdds(payout.american) : null;
+          if (!band) { unbanded += 1; continue; }
+          (bandSlips[band] ??= []).push({
             slipId: s.slipId,
-            profile: String(s.profile ?? profile).toUpperCase(),
+            profile: band.toUpperCase(),
+            optimizerSection: String(s.profile ?? profile).toUpperCase(),
             sport: String(s.sport ?? cut).toUpperCase(),
             legCount: legs.length,
             legs,
@@ -472,8 +538,10 @@ function buildParlays(days = 3) {
           });
         }
       }
-      slips.sort((a, b) => (a.slipId < b.slipId ? -1 : 1));
-      if (slips.length) profiles[String(profile).toUpperCase()] = slips;
+    }
+    for (const [band, list] of Object.entries(bandSlips)) {
+      list.sort((a, b) => (a.slipId < b.slipId ? -1 : 1));
+      if (list.length) profiles[band.toUpperCase()] = list;
     }
 
     byDate[date] = {
@@ -487,6 +555,9 @@ function buildParlays(days = 3) {
       // F-1: withheld by the card-leg rule — counted and named, so an empty day can say why.
       withheldMarketContext,
       withheldFamilies: [...withheldFamilies].sort(),
+      /* Session 5 · B4: candidates with an unpriced leg — no combined price, so no risk band. */
+      unbanded,
+      bandedBy: "combined price, canonical bands (risk-odds-bands.ts)",
     };
     notes.push(`parlays ${date} ${Object.entries(profiles).map(([k, v]) => `${k}:${v.length}`).join(" ")}`);
   }
@@ -502,6 +573,8 @@ function buildParlays(days = 3) {
      */
     evOwner: null,
     stakePolicyOwner: null,
+    /* Session 5 — the OFFICIAL published cards (getOfficialProductCards). Candidates above, publications here. */
+    official: buildOfficialCards(),
   };
 }
 
