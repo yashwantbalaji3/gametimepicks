@@ -200,6 +200,24 @@ export const ASK_TOOLS = Object.freeze({
     },
   },
 
+  getOfficialProductCards: {
+    version: 1,
+    kind: "parlay",
+    describe:
+      "The cards GameTimePicks OFFICIALLY PUBLISHED for a date — the Suggested Parlays ladder (Low risk, Medium " +
+      "risk, High risk, Longshot), the Bank Builder lanes and the Moonshot lanes — read verbatim from the published " +
+      "artifacts. Use for 'what are today's suggested parlays', 'what is today's Bank Builder / Moonshot', 'why is " +
+      "there no card today', 'show me the lowest-risk option', and a named past day's published cards. A tier or " +
+      "lane with no card carries the product's own reason; NO CARD PLACED is a published answer, never pending and " +
+      "never a loss. Never build, re-price or reorder a card. Records are getProductRecord's; candidate slips are " +
+      "getParlayCandidates' and are NOT official cards.",
+    args: {
+      product: { kind: "enum", options: ["SUGGESTED_PARLAYS", "BANK_BUILDER", "MOONSHOT"], describe: "One product, or omit for all three." },
+      date: { kind: "isoDate", describe: "Product date (ET) as YYYY-MM-DD. Omit for today — the tool uses today's product date on its own. Only pass a date when the user named a specific day, and never write a placeholder here." },
+      riskTier: { kind: "enum", options: [...ASK_RISK_PROFILES], describe: "Suggested Parlays only: LOW, MEDIUM, HIGH or LONGSHOT, when the user asked for one risk level." },
+    },
+  },
+
   getProductRecord: {
     version: 1,
     kind: "results",
@@ -275,9 +293,9 @@ export const ASK_TOOLS = Object.freeze({
     version: 1,
     kind: "live",
     describe:
-      "Current live game state for a sport GameTime tracks live. MLB is supported. NFL live state is NOT " +
-      "available in GameTimePicks — if asked, say so and offer scheduled matchup context, recorded research " +
-      "or a published pregame forecast instead. Never describe a live score without calling this.",
+      "Current live game state (scheduled, in progress, final; the live score) from GameTime Live for MLB or NFL. " +
+      "Call it for any live-score question — the live gateway answers for the sports it publishes and refuses any " +
+      "other; repeat its answer, including a refusal, and never describe a live score without calling this.",
     args: {
       sport: { kind: "enum", options: SPORTS, required: true, describe: "The sport to read live state for." },
     },

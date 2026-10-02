@@ -45,18 +45,12 @@ export const RISK_REASONS: Record<RiskBucket, string> = {
   longshot: "Highest-volatility — many legs for a big payout; explicitly the riskiest bucket.",
 };
 
-/** Per-bucket gates the card factory targets (combined American odds band, leg counts). */
-export interface RiskGate {
-  legs: { min: number; max: number };
-  combinedOdds: { min: number; max: number }; // American
-  volatility: "lower" | "balanced" | "higher" | "highest";
-}
-export const RISK_GATES: Record<RiskBucket, RiskGate> = {
-  low: { legs: { min: 2, max: 2 }, combinedOdds: { min: -200, max: 180 }, volatility: "lower" },
-  medium: { legs: { min: 2, max: 3 }, combinedOdds: { min: 100, max: 400 }, volatility: "balanced" },
-  high: { legs: { min: 2, max: 4 }, combinedOdds: { min: 300, max: 900 }, volatility: "higher" },
-  longshot: { legs: { min: 3, max: 5 }, combinedOdds: { min: 800, max: 100000 }, volatility: "highest" },
-};
+/*
+ * SESSION 5 · B4 — NO SECOND PRICE GATE LIVES HERE. `RISK_GATES` (Low up to +180, Medium +100–400, High +300–900,
+ * Longshot ≥ +800) had no production consumer and contradicted the bands every surface actually uses. The ONE
+ * public band definition is PARLAY_ODDS_BANDS (risk-odds-bands.ts): Low −200…+100 · Medium …+300 · High …+600 ·
+ * Longshot > +600.
+ */
 
 /** How many cards the factory aims to produce per scope × bucket (never forced — see diagnostics). */
 export type CardScope = "world_cup_single_game" | "world_cup_multi_game" | "mlb" | "mixed";

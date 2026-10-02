@@ -37,12 +37,13 @@ export default function RiskLadderStream({ record }: { record: RiskLadder["recor
           Risk ladder · paper stream
         </span>
         <h2 id="risk-ladder-record" className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>
-          Parlays by risk level
+          Parlay candidates by risk level
         </h2>
         <p className="m-0 max-w-[72ch]" style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.65 }}>
-          One flat unit per card, {record.gradedDays} graded days
-          {record.firstDay ? ` (${record.firstDay} → ${record.lastDay})` : ""}. Return on investment is
-          the column that matters: a hit rate cannot be read without the price it was paid at.
+          One flat unit per graded candidate slip — {(record.overall.wins + record.overall.losses).toLocaleString("en-US")} decided
+          over {record.gradedDays} graded days{record.firstDay ? ` (${record.firstDay} → ${record.lastDay})` : ""}, across a
+          selection-policy change on 2026-08-17. This is the whole candidate pool, not only the cards the ladder
+          published. Return on investment is the column that matters: a hit rate cannot be read without the price it was paid at.
         </p>
       </div>
 

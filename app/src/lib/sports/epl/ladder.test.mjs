@@ -87,7 +87,7 @@ test("BANDS ARE PRICE RANGES, assigned by the canonical bucket function", () => 
 /* The producer's WHOLE-LADDER refusals (build-epl-ladder.mjs): no bands are attempted, so none can be
    carded or skipped — the refusal must carry its reason and nothing else. 2026-10-02: STALE_PRICES (the newest
    capture was 09-19) and this guard demanded four bands of a ladder that correctly built none. */
-const WHOLE_LADDER_REFUSALS = new Set(["NO_PRICES", "STALE_PRICES"]);
+const WHOLE_LADDER_REFUSALS = new Set(["NO_PRICES", "STALE_PRICES", "CAPABILITY_GATED"]);
 
 test("a whole-ladder refusal states its reason and publishes nothing", () => {
   if (!ladder || !WHOLE_LADDER_REFUSALS.has(ladder.state)) return;

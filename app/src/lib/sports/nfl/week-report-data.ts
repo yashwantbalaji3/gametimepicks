@@ -84,6 +84,15 @@ type WeekRow = WeekIndex["weeks"][number];
  */
 export const isGradedWeek = (w: WeekRow | null | undefined) => Boolean(w && (w.overall?.checks ?? 0) > 0 && (w.gamesFinal ?? 0) > 0);
 
+/** Session 5 · B7 — every reconciled week's full report, in season order (the season-to-date fold reads these). */
+export function readAllNflWeekReports(): { key: string; label: string; report: WeekReport }[] {
+  const index = readJson<WeekIndex>("index.json");
+  return (index?.weeks ?? []).flatMap((w) => {
+    const report = readJson<WeekReport>(`${w.key}.json`);
+    return report ? [{ key: w.key, label: w.label, report }] : [];
+  });
+}
+
 /** The index, the newest GRADED week's full report, and the graded weeks before it — or nulls. */
 export function readNflWeekReports(): { index: WeekIndex | null; latest: WeekReport | null; earlier: WeekRow[] } {
   const index = readJson<WeekIndex>("index.json");
