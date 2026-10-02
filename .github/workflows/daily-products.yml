@@ -290,31 +290,6 @@ jobs:
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           npx tsx app/scripts/parlays/build-risk-coverage.mjs --now "$NOW" || echo "::warning::coverage matrix reported MISSING cells"
 
-      # The Parlay Lab silently showed nothing for a full day because this job rebuilt the ladder
-
-      # against a candidate pool that did not exist yet, and no step checked the result. A green
-
-      # run is not evidence the pipeline ran.
-
-      - name: Assert this run produced its artifacts
-
-        run: |
-
-          set -euo pipefail
-
-          # P247: this job fires twice on a normal day — workflow_run (the real producer chain)
-          # and the 15:30 UTC cron, which exists as bounded RECOVERY for a producer run that
-          # never happened. When the chain already produced, the cron backstop finds today's
-          # ladder on disk and correctly rewrites nothing — and this assert then went red on a
-          # non-event (observed 2026-09-08 18:54Z: ladder 81 min "old", written by the earlier
-          # successful run). That is the exact alarm-fatigue case --max-age-min documents:
-          # "not rewritten by this run" is the backstop's correct behaviour; "not written for
-          # six hours" is still a real failure. 360 min covers cron drift (2-3h observed here)
-          # plus the producer chain's own spread, and stays inside one product day.
-          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing --max-age-min 360 \
-            app/public/data/parlays/risk-ladder/latest.json
-
-
       # docs/V17_WORKFLOW_AUDIT.md W6: quality-gate is path-filtered off app/public/data/** on purpose, so a
       # bot commit is the one path by which an internal artifact could land under app/public/data/products/
       # unchecked. The boundary guard runs here, on the working tree this run is about to commit.
@@ -451,6 +426,34 @@ jobs:
           # conflict — and the protected money files, always — fails loud.
           GENERATED_PATHS="app/public/data/mr-dub/daily-portfolio.json app/public/data/admin/ data/internal/products/ app/public/data/parlays/ data/internal/platform/ data/research-projection/ data/compare-projection/ data/lab-projection/ data/ask-projection/" \
             bash scripts/ci/commit-generated.sh "auto: daily products ${{ steps.d.outputs.date }} [skip ci]"
+
+      # The Parlay Lab silently showed nothing for a full day because this job rebuilt the ladder
+
+      # against a candidate pool that did not exist yet, and no step checked the result. A green
+
+      # run is not evidence the pipeline ran.
+
+      - name: Assert this run produced its artifacts
+        # Session 5 · B1b: AFTER the commit, so a ladder that could not be rebuilt (no candidate pool — every MLB
+        # off day from the offseason on) still fails the run loudly without blocking every other product's commit.
+        # A dry run produces nothing by design.
+        if: github.event.inputs.dry_run != 'true'
+
+        run: |
+
+          set -euo pipefail
+
+          # P247: this job fires twice on a normal day — workflow_run (the real producer chain)
+          # and the 15:30 UTC cron, which exists as bounded RECOVERY for a producer run that
+          # never happened. When the chain already produced, the cron backstop finds today's
+          # ladder on disk and correctly rewrites nothing — and this assert then went red on a
+          # non-event (observed 2026-09-08 18:54Z: ladder 81 min "old", written by the earlier
+          # successful run). That is the exact alarm-fatigue case --max-age-min documents:
+          # "not rewritten by this run" is the backstop's correct behaviour; "not written for
+          # six hours" is still a real failure. 360 min covers cron drift (2-3h observed here)
+          # plus the producer chain's own spread, and stays inside one product day.
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing --max-age-min 360 \
+            app/public/data/parlays/risk-ladder/latest.json
 
       # SESSION 5 · PHASE B — the MLB refusal stays LOUD, but only after every product that does not depend on
       # MLB has been generated and committed above. NO_EVENTS (established) is not a failure.

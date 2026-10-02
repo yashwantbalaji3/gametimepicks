@@ -23,6 +23,7 @@
  * Writes public/data/parlays/risk-ladder-nfl/<date>.json (+ latest.json), in the shape the
  * settler, tier grid and coverage matrix already consume.
  */
+import { canShowLiveProjections, capabilityOf } from "../../src/lib/sport-capability-registry.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -56,6 +57,20 @@ const write = (payload) => {
   fs.writeFileSync(path.join(OUT, "latest.json"), JSON.stringify(payload, null, 1) + "\n");
 };
 const base = { schemaVersion: 1, artifact: "nfl-risk-ladder", dataClass: "PUBLIC_DERIVED", moneyClass: "NON_MONEY", sport: "nfl", date: DATE, generatedAt: NOW };
+const SPORT_KEY = "nfl";
+/*
+ * SESSION 5 · B5 — A SPORT LADDER PUBLISHES ONLY WHAT THE CAPABILITY REGISTRY ALLOWS IT TO SHOW.
+ * No ladder consulted sport-capability-registry.ts, so UFC — registered SCAFFOLD_ONLY — published paper cards
+ * carrying fitted-model probabilities (2026-10-03: 0.976 on a +185 underdog) as "the model's own read". The
+ * registry is the owner of what a sport may show; until it says otherwise the ladder refuses, with the
+ * registry's own state and reason. (FULL_MODEL and EXPERIMENTAL_PUBLIC may show forward output.)
+ */
+if (!canShowLiveProjections(SPORT_KEY)) {
+  const cap = capabilityOf(SPORT_KEY);
+  write({ ...base, state: "CAPABILITY_GATED", reason: `the capability registry lists ${cap.label} as ${cap.state}, which may not show forward-looking model output: ${cap.reason}`, cards: [], skipped: [] });
+  console.log(`${SPORT_KEY} ladder: CAPABILITY_GATED (${cap.state})`);
+  process.exit(0);
+}
 
 if (!odds?.rows?.length) {
   write({ ...base, state: "NO_PRICES", reason: "no NFL price capture is available to build from", cards: [], skipped: [] });

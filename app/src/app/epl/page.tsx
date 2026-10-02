@@ -222,6 +222,8 @@ export default function EplPage() {
       <SportHubNav
           sport="epl"
           anchors={[
+            /* Session 5 · B8: the Fixtures section always renders (HubHeader below), so its strip item must too. */
+            "epl-games",
             "epl-overview",
             ...(days.length > 0 ? ["epl-fixtures"] : []),
             ...(gradedRecord && gradedRecord.team.matches > 0 ? ["record"] : []),
@@ -397,7 +399,8 @@ export default function EplPage() {
                 >
                   <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 650 }}>{r.matchup}</span>
                   <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
-                    {String(r.kickoffUtc ?? "").slice(0, 10)}
+                    {/* Session 5 · B8: the ET day, never the UTC instant's date (a 3 PM ET kickoff is fine; an evening one is not). */}
+                    {r.kickoffUtc ? ET_KEY.format(new Date(r.kickoffUtc)) : ""}
                     {r.matchweek ? ` · matchweek ${r.matchweek}` : ""}
                   </span>
                   <span className="ml-auto font-mono uppercase tracking-[0.12em]" style={{ color: "var(--sport-soccer)", fontSize: 10 }}>

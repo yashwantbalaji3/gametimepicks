@@ -8,7 +8,9 @@
  * the bounded upstream read, the memo, and the CDN cache that keeps one upstream refresh serving every
  * concurrent reader.
  *
- * The consequence that matters most: NFL live state stays refused. Not because this file checks for
+ * Session 5: Production publishes MLB and NFL (LIVE_PUBLIC_SPORTS=mlb,nfl since 2026-09-25). A deployment that does not
+ * publish a sport still gets the gateway's refusal verbatim — this file never decides it. (Historical note follows.)
+ * The consequence that mattered most: NFL live state stayed refused. Not because this file checks for
  * NFL, but because the gateway's `publicSports()` defaults to `["mlb"]` and answers UNSUPPORTED_SPORT
  * for anything else, before a socket is opened. Ask cannot widen that from here — enabling NFL live is
  * a change to the gateway's own allowlist, which is a founder gate.
