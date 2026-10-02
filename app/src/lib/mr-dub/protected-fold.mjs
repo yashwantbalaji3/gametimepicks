@@ -9,7 +9,9 @@
  *   · a lost step costs the lane its seed — Bank Builder $100, Moonshot $25;
  *   · a won step rolls and never moves the bankroll;
  *   · Moonshot's money is now inside the core bankroll, its record kept on its own line;
- *   · wins the frozen-rung defect never carried are DISCLOSED, not credited.
+ *   · wins the frozen-rung defect never carried are DISCLOSED, not credited;
+ *   · (Session 9, founder C1) a COMPLETED run banks its final settled value − the seed, once, from
+ *     2026-10-02 — see COMPLETION_POLICY below and docs/MR_DUB_MONEY_LEDGER.md §5.
  *
  * Pure. The base is the July-7 record, frozen here. A day folds only when every lane PLACED that day is
  * decided, and days fold contiguously — an open day halts the fold, so a later day can never be folded
@@ -35,43 +37,128 @@ export const PROTECTED_BASE = Object.freeze({
 export const HISTORY_KEYS = Object.freeze(["portfolioId", "displayName", "paperOnly", "disclaimer", "startingDate", "startingBankroll", "crownBankroll", "completedLadders", "completedCards"]);
 export const HISTORY_HASH = "d12cc425db2ccd9214e06ea1e6887d4520bb21819d4c8c17a6b100be21de0a59";
 
-/**
- * THE FINAL RUNG per product (Bank Builder's live ladder is five rungs, Moonshot's three — pinned against
- * BANK_BUILDER_STEP_COUNT / MOONSHOT_STEP_COUNT by money-movements.test.mjs). A won final rung COMPLETES a
- * run, and Rule S says nothing about what a completion banks: a lost step costs its seed, a won step rolls.
- * Folding a completion as an ordinary roll would silently forfeit the run's value — that is an accounting
- * decision, and it is the founder's (settle-daily-portfolio.mjs flags the same event "operator-gated"). So
- * the fold HALTS on it instead, exactly like an open day: nothing after it folds until a written rule exists.
- */
-export const FINAL_STEP = Object.freeze({ "bank-builder": 5, moonshot: 3 });
-export const HALT = Object.freeze({
-  OPEN_DAY: "OPEN_PLACED_LANE",
-  COMPLETION: "LADDER_COMPLETION_OPERATOR_GATED",
-  UNKNOWN_PRODUCT: "UNKNOWN_PRODUCT",
-});
-
-/** Why a day cannot fold (null = it can). Shared by the fold and its backlog disclosure. */
-export function foldBlocker(placed) {
-  if (placed.some((l) => !(l.product in SEED))) return HALT.UNKNOWN_PRODUCT;
-  if (placed.some((l) => !DECIDED.has(l.result))) return HALT.OPEN_DAY;
-  if (placed.some((l) => l.result === "won" && Number(l.step) >= FINAL_STEP[l.product])) return HALT.COMPLETION;
-  return null;
-}
-
 const PLACED = new Set(["active", "won", "lost", "void", "push"]);
 const DECIDED = new Set(["won", "lost", "void", "push"]);
 const round2 = (n) => Math.round(n * 100) / 100;
 const round4 = (n) => Math.round(n * 10000) / 10000;
 
-/** Fold the receipts dated after the base, contiguously, under Rule S. */
+/**
+ * THE FINAL RUNG per product (Bank Builder's live ladder is five rungs, Moonshot's three — pinned against
+ * BANK_BUILDER_STEP_COUNT / MOONSHOT_STEP_COUNT by money-movements.test.mjs), and each ladder's rung goals
+ * (pinned against BANK_BUILDER_LADDER / MOONSHOT_LADDER the same way). A won final rung COMPLETES a run —
+ * and so does a won earlier rung whose real payout already clears the final goal, exactly as the lane
+ * machine (products/ladder-position.mjs) restarts the lane. One predicate, `completesLadder`, for both.
+ */
+export const FINAL_STEP = Object.freeze({ "bank-builder": 5, moonshot: 3 });
+export const LADDER_GOALS = Object.freeze({
+  "bank-builder": Object.freeze([200, 700, 1400, 3500, 10000]),
+  moonshot: Object.freeze([100, 400, 1000]),
+});
+
+/**
+ * COMPLETION BANKING — founder decision C1 (Session 9, 2026-10-02). Rule S said nothing about a completed
+ * run: a lost step costs its seed, a won step rolls. C1 closes it symmetrically:
+ *
+ *     banked = final settled value of the completed card − the lane's original seed
+ *
+ * The seed was never deducted when the run started, so it is not profit; the payout above it is. Rejected:
+ * C2 (bank the full final value — overstates by the seed, the June precedent) and C3 (forfeit the run).
+ *
+ * PROSPECTIVE ONLY. The policy covers completions settled on or after `effectiveFrom`, the first day the
+ * fold had not yet taken in when it was adopted (the record was folded through 2026-10-01). No folded day is
+ * restated: there was no completion between 07-08 and 10-01, and a completion dated before `effectiveFrom`
+ * would still HALT the fold (operator-gated) rather than be banked retroactively.
+ */
+export const COMPLETION_POLICY = Object.freeze({
+  id: "COMPLETION_BANKING_C1",
+  rule: "a completed ladder banks its final settled value minus the lane's original seed, once",
+  effectiveFrom: "2026-10-02",
+  decidedBy: "founder, Session 9 (2026-10-02) — C1; C2 (bank the full value) and C3 (forfeit the run) rejected",
+});
+
+export const HALT = Object.freeze({
+  OPEN_DAY: "OPEN_PLACED_LANE",
+  COMPLETION: "LADDER_COMPLETION_OPERATOR_GATED", // a completion the policy does not cover (dated before C1)
+  COMPLETION_VALUE_MISSING: "LADDER_COMPLETION_VALUE_MISSING", // a won final card with no real settled value: never guessed
+  UNKNOWN_PRODUCT: "UNKNOWN_PRODUCT",
+});
+
+/** Does this won row complete its lane's ladder? (Same rule as ladder-position.mjs `positionFromReceipts`.) */
+export function completesLadder(l) {
+  if (String(l?.result) !== "won" || !(l?.product in FINAL_STEP)) return false;
+  if (Number(l.step) >= FINAL_STEP[l.product]) return true;
+  const payout = Number(l.potentialReturn);
+  return Number.isFinite(payout) && payout >= LADDER_GOALS[l.product].at(-1);
+}
+
+/** The rung a won, non-completing row carries into: the first later rung its payout has not cleared. */
+export function nextStepAfterWin(l) {
+  const goals = LADDER_GOALS[l.product] ?? [];
+  const payout = Number(l.potentialReturn);
+  let n = Number(l.step) + 1;
+  while (n <= goals.length && Number.isFinite(payout) && payout >= goals[n - 1]) n += 1;
+  return n;
+}
+
+/** Why a day cannot fold (null = it can). Shared by the fold and its backlog disclosure. */
+export function foldBlocker(placed, { date } = {}) {
+  if (placed.some((l) => !(l.product in SEED))) return HALT.UNKNOWN_PRODUCT;
+  if (placed.some((l) => !DECIDED.has(l.result))) return HALT.OPEN_DAY;
+  const done = placed.filter(completesLadder);
+  if (done.length && !(date && date >= COMPLETION_POLICY.effectiveFrom)) return HALT.COMPLETION;
+  if (done.some((l) => !(Number(l.potentialReturn) > Number(l.stake)))) return HALT.COMPLETION_VALUE_MISSING;
+  return null;
+}
+
+/**
+ * Each lane's cycle number at every placed row (1-based; a new cycle after a loss or a completion — the
+ * lane machine's own rule), keyed `date|product|lane`. Walks every receipt it is given, oldest first.
+ */
+function laneCycles(receipts) {
+  const cycle = {}, at = new Map();
+  for (const r of [...(receipts ?? [])].filter((x) => x?.date).sort((a, b) => a.date.localeCompare(b.date))) {
+    for (const l of r.lanes ?? []) {
+      const res = String(l.result ?? "pending");
+      if (!(l.status != null ? PLACED.has(String(l.status)) : DECIDED.has(res))) continue;
+      const k = `${l.product}:${l.lane}`;
+      cycle[k] ??= 1;
+      at.set(`${r.date}|${k}`, cycle[k]);
+      if (res === "lost" || completesLadder({ ...l, result: res })) cycle[k] += 1;
+    }
+  }
+  return at;
+}
+
+/** The completion receipt for one won-final row: everything needed to re-prove the banked amount. */
+export function completionReceipt(r, l, idx, cycle) {
+  const finalValue = round2(Number(l.potentialReturn));
+  const seed = SEED[l.product];
+  return {
+    policy: COMPLETION_POLICY.id,
+    effectiveFrom: COMPLETION_POLICY.effectiveFrom,
+    product: l.product,
+    lane: l.lane,
+    cycle: cycle ?? null,
+    step: Number(l.step),
+    seed,
+    finalValue,
+    banked: round2(finalValue - seed),
+    source: `mr-dub/settled/${r.date}.json#lanes[${idx}]`,
+    settledAt: r.settledAt ?? null,
+  };
+}
+
+
+/** Fold the receipts dated after the base, contiguously, under Rule S + completion banking C1. */
 export function foldReceipts(receipts, { after = PROTECTED_BASE.asOf } = {}) {
   const ordered = [...(receipts ?? [])].filter((r) => r?.date && r.date > after).sort((a, b) => a.date.localeCompare(b.date));
+  const cycles = laneCycles(receipts);
   const days = [];
   let haltedAt = null, haltReason = null;
   for (const r of ordered) {
-    const rows = (r.lanes ?? []).map((l) => ({ ...l, result: String(l.result ?? "pending") }));
+    const rows = (r.lanes ?? []).map((l, idx) => ({ ...l, idx, result: String(l.result ?? "pending") }));
     const placed = rows.filter((l) => (l.status != null ? PLACED.has(String(l.status)) : DECIDED.has(l.result)));
-    const blocker = foldBlocker(placed);
+    const blocker = foldBlocker(placed, { date: r.date });
     if (blocker) { haltedAt = r.date; haltReason = blocker; break; }
     const tally = (p, res) => placed.filter((l) => l.product === p && l.result === res).length;
     const day = {
@@ -79,7 +166,11 @@ export function foldReceipts(receipts, { after = PROTECTED_BASE.asOf } = {}) {
       bankBuilder: { won: tally("bank-builder", "won"), lost: tally("bank-builder", "lost") },
       moonshot: { won: tally("moonshot", "won"), lost: tally("moonshot", "lost") },
     };
-    day.delta = round2(-(SEED["bank-builder"] * day.bankBuilder.lost + SEED.moonshot * day.moonshot.lost)) || 0; // no -0 in a money record
+    const completions = placed.filter(completesLadder).map((l) => completionReceipt(r, l, l.idx, cycles.get(`${r.date}|${l.product}:${l.lane}`)));
+    const banked = completions.reduce((s, c) => s + c.banked, 0);
+    day.delta = round2(banked - (SEED["bank-builder"] * day.bankBuilder.lost + SEED.moonshot * day.moonshot.lost)) || 0; // no -0 in a money record
+    // Only a day that completed a run carries the key, so every day folded before C1 stays byte-identical.
+    if (completions.length) day.completions = completions;
     days.push(day);
   }
   const sum = (f) => days.reduce((s, d) => s + f(d), 0);
@@ -111,7 +202,7 @@ export function foldBacklog(receipts, { after }) {
     const rows = (r.lanes ?? []).map((l) => ({ ...l, result: String(l.result ?? "pending") }));
     const placed = rows.filter((l) => (l.status != null ? PLACED.has(String(l.status)) : DECIDED.has(l.result)));
     const open = placed.filter((l) => !DECIDED.has(l.result));
-    const blocker = foldBlocker(placed);
+    const blocker = foldBlocker(placed, { date: r.date });
     if (!haltedAt && blocker && blocker !== HALT.OPEN_DAY) { haltedAt = r.date; haltReason = blocker; }
     if (!haltedAt && open.length) {
       haltedAt = r.date; haltReason = HALT.OPEN_DAY;
@@ -131,9 +222,9 @@ export function uncarriedWins(receipts, { after = PROTECTED_BASE.asOf, through =
   }
   const out = [];
   for (const rows of Object.values(lanes)) rows.forEach((r, i) => {
-    if (r.result !== "won") return;
+    if (r.result !== "won" || completesLadder(r)) return; // a completed run is banked (C1), and its lane restarts
     const next = rows[i + 1];
-    if (next && !(next.step === r.step + 1 && Math.abs(next.stake - r.potentialReturn) < 0.02)) {
+    if (next && !(next.step === nextStepAfterWin(r) && Math.abs(next.stake - r.potentialReturn) < 0.02)) {
       out.push({ product: r.product, lane: r.lane, date: r.date, step: r.step, paid: r.potentialReturn, replacedBy: `${next.date} step ${next.step} $${next.stake}` });
     }
   });
@@ -149,7 +240,11 @@ export function applyFold(portfolio, fold, { foldedAt, receipts = [] } = {}) {
   const b = PROTECTED_BASE;
   const current = round2(b.currentBankroll + fold.bankrollDelta);
   const record = { wins: b.record.wins + fold.bankBuilder.won, losses: b.record.losses + fold.bankBuilder.lost, voids: b.record.voids, pending: 0 };
-  const hwm = Math.max(b.highWaterMark, current);
+  // The high-water mark and the worst drawdown come from the folded PATH (each day's close), not from today
+  // alone: under C1 a completion can lift the bankroll above the June crown and a later loss can fall back.
+  // The crown itself is the June era's history key and never moves; the HWM is the derived all-time peak.
+  let close = b.currentBankroll, hwm = b.highWaterMark, worst = b.maxDrawdown;
+  for (const d of fold.days) { close = round2(close + d.delta); hwm = Math.max(hwm, close); worst = Math.max(worst, round2(hwm - close)); }
   const drawdown = round2(hwm - current);
   const settledProfit = round2(current - b.startingBankroll);
   const legacyMoonshot = portfolio.moonshot?.legacy ?? portfolio.moonshot ?? null;
@@ -168,7 +263,7 @@ export function applyFold(portfolio, fold, { foldedAt, receipts = [] } = {}) {
       highWaterMark: round2(hwm),
       drawdown,
       drawdownPct: hwm > 0 ? round4(drawdown / hwm) : 0,
-      maxDrawdown: round2(Math.max(b.maxDrawdown, drawdown)),
+      maxDrawdown: round2(Math.max(worst, drawdown)),
       winRate: round2(record.wins / Math.max(1, record.wins + record.losses)),
     },
     moonshot: {
@@ -184,6 +279,7 @@ export function applyFold(portfolio, fold, { foldedAt, receipts = [] } = {}) {
     protectedFold: {
       rule: FOLD_RULE,
       decidedBy: "founder, 2026-09-10 — Rule S (docs/PROTECTED_LEDGER_RECONCILIATION_PROPOSAL.md)",
+      completionPolicy: COMPLETION_POLICY,
       base: { asOf: b.asOf, currentBankroll: b.currentBankroll, record: b.record },
       foldedAt: foldedAt ?? null,
       foldedThrough: fold.foldedThrough,
@@ -233,10 +329,13 @@ export function foldLedgerRows(fold, { foldedAt, ledgerEvents = [], summaryDays 
       rolled: d.bankBuilder.won + d.moonshot.won > 0, status: "settled", result: d.delta < 0 ? "lost" : "won",
       officialResultConfirmed: true, publicBankBuilderVisible: false,
       bankBuilder: d.bankBuilder, moonshot: d.moonshot, legs: [],
-      notes: `Rule S: ${d.bankBuilder.lost} Bank Builder step(s) lost ($100 seed each), ${d.moonshot.lost} Moonshot lane(s) lost ($25 each); ${d.bankBuilder.won + d.moonshot.won} win(s) rolled without touching the bankroll`,
+      notes: `Rule S: ${d.bankBuilder.lost} Bank Builder step(s) lost ($100 seed each), ${d.moonshot.lost} Moonshot lane(s) lost ($25 each); ${d.bankBuilder.won + d.moonshot.won - (d.completions?.length ?? 0)} win(s) rolled without touching the bankroll`
+        + (d.completions?.length ? `; ${d.completions.map((c) => `${c.product} ${c.lane} completed its ladder at $${c.finalValue} → banked $${c.banked} (${c.policy}: final value − $${c.seed} seed)`).join("; ")}` : ""),
+      ...(d.completions?.length ? { completions: d.completions } : {}),
     };
     const was = priorEvent.get(d.date);
-    if (was && (was.paperProfit !== fresh.paperProfit || JSON.stringify(was.bankBuilder) !== JSON.stringify(fresh.bankBuilder) || JSON.stringify(was.moonshot) !== JSON.stringify(fresh.moonshot)))
+    if (was && (was.paperProfit !== fresh.paperProfit || JSON.stringify(was.bankBuilder) !== JSON.stringify(fresh.bankBuilder) || JSON.stringify(was.moonshot) !== JSON.stringify(fresh.moonshot)
+      || JSON.stringify(was.completions ?? null) !== JSON.stringify(fresh.completions ?? null)))
       throw new Error(`foldLedgerRows: refusing to restate folded day ${d.date} (${was.paperProfit} → ${fresh.paperProfit})`);
     const ev = was ?? fresh;
     const row = priorDay.get(d.date) ?? {
