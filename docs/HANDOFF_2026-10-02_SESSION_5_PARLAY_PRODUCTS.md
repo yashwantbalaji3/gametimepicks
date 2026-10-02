@@ -3,7 +3,7 @@
 **Scope:** Phase A (bounded NFL reliability closeout) shipped; a founder-inserted live acceptance check on PIT @ CLE; Phase B delivered as a **verified audit + dependency map + founder decisions**, not implementation (session-size valve, §7 of the prompt — see §6). This is a point-in-time snapshot: for current truth read the repo, `/data/build-info.json` and `gh pr list`. It continues [`HANDOFF_2026-10-01_SESSION_4_NFL_ROSTER_USAGE.md`](./HANDOFF_2026-10-01_SESSION_4_NFL_ROSTER_USAGE.md).
 
 - **Phase A PRs (merged in order):** #882 (Week-4 results incident + EPL guard) → #878 (live hub) → #877 (A2 rushing) → #879 (A5 Ask) → #880 (A3/A4 Thursday + inactives) → #881 (A6 usage freshness) → #883 (`/today` Moonshot reason).
-- **Phase B PRs (merged as one chain, each on an exact-head-tested tree):** #884, #885, #888, #894, #886, #887, #891, #889, #890, #892, #895, #893, #896, #897, #898; then #899, #900. #716 untouched (HOLD).
+- **Phase B PRs (merged as one chain, each on an exact-head-tested tree):** #884, #885, #888, #894, #886, #887, #891, #889, #890, #892, #895, #893, #896, #897, #898; then #899, #900, #901 (this doc), #902. #716 untouched (HOLD).
 - **Final SHAs:** §9.
 
 ## 1. Phase A — what shipped
@@ -146,7 +146,7 @@ Phase A grew past its bound: the live-hub incident, the Week-4 results incident 
 One event-state vocabulary (only UFC uses `lib/sports/event-lifecycle.mjs`); one freshness stamp in the shared H1 (NFL/MLB/UFC adapters pass `freshness: null`; which artifact it names is a design choice); one probability-label format (NFL `KC 61.3%` vs EPL/UFC `Name · 54%`); uniform Live/Ask/research links (only NFL links /live; none link /ask, /players, /teams); `SaveForecastButton` exists only on detail pages.
 
 ### Noted, not changed
-- `approvedBankBuilderLanes` (dormant — approval files dated July): defaults `provider: "consensus"` and `modelConfidence: 0` when absent — missing ≠ zero; fix with the UI types when the approval flow is next used. A started-event check does NOT belong there (an approved card is placed pre-game and stays active).
+- `approvedBankBuilderLanes`: defaulted `provider: "consensus"` and `modelConfidence: 0` when absent (the 0 would settle as a 0% probability) — **fixed in #902** (both stay null). A started-event check deliberately does NOT belong there (an approved card is placed pre-game and stays active).
 - `/results/date/2026-09-28|29`: lanes read "awaiting" (no card placed — true) but not "not evaluated (input missing)" — reason precision.
 - Pre-existing: a local built-export test fails on a stale `out/` (not in CI).
 
