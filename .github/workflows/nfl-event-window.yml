@@ -549,6 +549,17 @@ jobs:
           node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" \
             app/public/data/nfl/end-zone-vault/latest.json
 
+      # Session 9 · the family-level product gate on the NEXT NFL slate, in public terms — what Ask cites for
+      # "why isn't NFL in Bank Builder?". Free, reads committed files only; written only when its content changes.
+      # Non-blocking: an explanation must never be why the window's artifacts fail to commit.
+      - name: Publish the NFL family eligibility record (free)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -euo pipefail
+          npx tsx scripts/nfl/build-nfl-family-eligibility.mjs --now "${{ steps.window.outputs.now }}" --write
+
       - name: Commit the window's artifacts
         if: >-
           always() &&

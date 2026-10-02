@@ -262,6 +262,15 @@ function routePlan(user) {
     push("getProductRecord", { product: resultsProduct });
     return { intent: "RESULTS_PRODUCT_RECORD", needsClarification: false, clarification: null, calls };
   }
+  /* Session 9 · NFL product eligibility — the family gate's public record. Before the official-cards branch:
+     "why isn't NFL in today's Bank Builder?" names a product but asks about NFL's eligibility, not today's card. */
+  const nflAsked = has("nfl") || has("anytime td", "anytime touchdown", "touchdown");
+  if (nflAsked && has("eligib", "blocking", "blocker", "why isn't", "why is not", "why isnt", "why no", "prices current", "price current", "settlement", "model probabilit", "need to happen", "before nfl", "in bank builder", "in suggested", "in moonshot", "in today's bank builder")) {
+    const fam = has("anytime td", "anytime touchdown", "touchdown") ? "anytime_td" : has("passing") ? "player_pass_yds" : has("rushing") ? "player_rush_yds"
+      : has("receiving yards") ? "player_reception_yds" : has("receptions") ? "player_receptions" : null;
+    push("getNflProductEligibility", fam ? { family: fam } : {});
+    return { intent: "PRODUCT_CARDS", needsClarification: false, clarification: null, calls };
+  }
   /* Session 5 · the OFFICIAL published cards — today's (or a named day's) Suggested Parlays, Bank Builder, Moonshot.
      After the record branch (a product's record is getProductRecord) and before site help ("what is today's …"). */
   const officialProduct = has("bank builder", "bank-builder") ? "BANK_BUILDER" : has("moonshot") ? "MOONSHOT"
