@@ -354,6 +354,7 @@ test("D1 · the Parlay Lab record is the published cards; candidate-pool cells a
   };
   const r = await getProductRecord({ product: "parlay-lab" }, ctxWith(doc));
   assert.equal(r.current.cellId, "lab:mlb:parlay-lab:POLICY_V2:stream");
+  assert.equal(r.productLabel, "Suggested Parlays", "the rendered name — Parlay Lab is retired in rendered copy");
   const ids = [...r.components, ...r.legacy].map((c) => c.cellId);
   assert.ok(!ids.some((id) => id.includes("risk-ladder")), `no candidate-pool cell is offered: ${ids.join(", ")}`);
   assert.doesNotMatch(JSON.stringify(r), /383|1608|1,608/, "the candidate-pool figures never reach the writer");
