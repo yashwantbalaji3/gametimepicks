@@ -75,12 +75,22 @@ const readJson = <T,>(file: string): T | null => {
   try { return JSON.parse(fs.readFileSync(path.join(DIR(), file), "utf8")) as T; } catch { return null; }
 };
 
-/** The index plus the newest week's full report, or nulls when nothing has been reconciled yet. */
-export function readNflWeekReports(): { index: WeekIndex | null; latest: WeekReport | null } {
+type WeekRow = WeekIndex["weeks"][number];
+
+/**
+ * A week is a REPORT once it has graded something. The event window writes the new week's reconciliation
+ * as soon as the week opens (2026-10-02 00:32Z: Week 4, 0 final of 16), and "the newest entry" then
+ * headlined /results/nfl as "Week 4: — of our predictions came true · 0 of 0 checks". One rule, here.
+ */
+export const isGradedWeek = (w: WeekRow | null | undefined) => Boolean(w && (w.overall?.checks ?? 0) > 0 && (w.gamesFinal ?? 0) > 0);
+
+/** The index, the newest GRADED week's full report, and the graded weeks before it — or nulls. */
+export function readNflWeekReports(): { index: WeekIndex | null; latest: WeekReport | null; earlier: WeekRow[] } {
   const index = readJson<WeekIndex>("index.json");
-  const newest = index?.weeks?.length ? index.weeks[index.weeks.length - 1] : null;
+  const graded = (index?.weeks ?? []).filter(isGradedWeek);
+  const newest = graded.at(-1) ?? null;
   const latest = newest ? readJson<WeekReport>(`${newest.key}.json`) : null;
-  return { index, latest };
+  return { index, latest, earlier: graded.slice(0, -1) };
 }
 
 export const pct = (rate: number | null | undefined) => (rate == null ? "—" : `${(rate * 100).toFixed(1)}%`);

@@ -124,3 +124,51 @@ export function foldConservation(perBoard) {
   const worst = perBoard.reduce((a, b) => (b.worst != null && (a == null || b.worst > a) ? b.worst : a), null);
   return { state: overAllocated ? "OVER_ALLOCATED" : "CONSERVED", boards: perBoard.length, teamPools, overAllocated, worst };
 }
+
+/**
+ * SESSION 5 — FROM MEASUREMENT TO PUBLICATION SAFETY (founder policy, October roadmap §7.2).
+ *
+ * The rule above was a finding, not a refusal: 23 of 32 Week-4 carries pools published Σshare > 1
+ * (ARI 1.864 — Love 0.57 + Conner 0.44 + Benson 0.30 + Allgeier 0.26 …). The share-level model
+ * publishes each player's share WHEN HE PLAYS (shrinkK 0, no reconciliation step), so a committee
+ * backfield sums past the carries the team will have. Each row's marginal was validated; the set a
+ * reader sees together was not, and it claims opportunity that does not exist.
+ *
+ * The policy is WITHHOLD, never renormalise. Dividing by the sum would change every published
+ * number and is a model change behind its own replay + forward bars (§20). So a family whose numbers
+ * come straight from shares (the caller passes exactly those markets — today rushing, plus passing
+ * if the QB1 rule could not resolve a pool) is removed for the TEAM whose pool is OVER_ALLOCATED by
+ * the same `classify` / `EPS` as the audit. No new threshold. The other team's pool, and every family
+ * produced by an allocating engine (v1 receiving conserves targets by construction), are untouched.
+ *
+ * Pure. Mutates nothing; returns the rows to keep and a typed record of what went and why.
+ *
+ * @param players  board rows ({ playerId, name, team, markets })
+ * @param shareOf  (espnId, nflverseTeam, market) => number|null — the forecast's own share column
+ * @param markets  the share-sourced markets to enforce (never a market an allocating engine owns)
+ * @returns { players, withheld: [{ team, pool, markets, sum, players:[{playerId,name,share}] }], pools }
+ */
+export function withholdOverAllocatedPools({ players, shareOf, markets }) {
+  const enforce = new Set((markets ?? []).filter((m) => OPPORTUNITY_POOL[m]));
+  if (!enforce.size) return { players: players.map((p) => ({ ...p, markets: { ...p.markets } })), withheld: [], pools: [] };
+  const scoped = { players: players.map((p) => ({ ...p, markets: Object.fromEntries(Object.entries(p.markets ?? {}).filter(([m]) => enforce.has(m))) })) };
+  const { rows } = conservationForBoard({ board: scoped, shareOf });
+  const withheld = rows.filter((r) => r.state === "OVER_ALLOCATED");
+  const drop = new Set();
+  for (const r of withheld) for (const m of r.markets) drop.add(`${r.team}|${m}`);
+  const kept = players.map((p) => ({
+    ...p,
+    markets: Object.fromEntries(Object.entries(p.markets ?? {}).filter(([m]) => !drop.has(`${p.team}|${m}`))),
+  }));
+  return {
+    players: kept,
+    withheld: withheld.map((r) => ({ team: r.team, pool: r.pool, markets: r.markets, sum: r.sum, players: r.players })),
+    pools: rows.map((r) => ({ team: r.team, pool: r.pool, markets: r.markets, sum: r.sum, joined: r.joined, missed: r.missed, state: r.state })),
+  };
+}
+
+/** Reader-facing reason for a withheld pool — one sentence, no internal names. */
+export function overAllocationReason({ team, pool, sum }) {
+  const what = pool === "carries" ? "carries" : pool === "passAttempts" ? "pass attempts" : "targets";
+  return `withheld for ${team}: the players' modelled shares add up to ${Math.round(sum * 100)}% of the team's ${what}, more than exists — shown again once the shares are reconciled`;
+}
