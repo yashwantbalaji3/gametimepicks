@@ -308,12 +308,11 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
   const wcHasCards = liveCountFor("WORLD_CUP") > 0;
   const firstSport = wcHasCards ? "WORLD_CUP" : (sportsWithLegs[0] ?? slate.sports[0])?.sport ?? "MLB";
   const [sport, setSport] = useState<string>(firstSport);
-  const [view, setView] = useState<"suggested" | "game" | "legs">("suggested");
+  const [view, setView] = useState<"suggested" | "legs">("suggested");
 
   const isMixed = sport === "MIXED";
   const active = slate.sports.find((s) => s.sport === sport);
   const byRisk = isMixed ? slate.mixedByRisk : (slate.suggestedBySportRisk[sport] ?? {});
-  const gameGroups = slate.gameSpecific.filter((g) => g.sport === sport);
   /* COUNTS include every eligible leg — identity-only rows included — so "Legs (N)" and "+N more"
      are unchanged by the payload projection. Only the RENDERED slice needs detail. */
   const sportLegs = liveLegs.filter((l) => l.sport === sport);
@@ -410,7 +409,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
             if (cards.length === 0) return null;
             return (
               <div key={lvl} className="space-y-2.5">
-                <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} risk · {cards.length}</div>
+                <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} · {cards.length}</div>
                 {cards.map((c) => <ParlayCard key={c.parlayId} card={c} legs={legsOf(c)} />)}
               </div>
             );
@@ -422,7 +421,8 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
         <>
           {/* view tabs */}
           <div className="flex gap-2">
-            {([["suggested", "Suggested"], ["game", `Same-game (${gameGroups.length})`], ["legs", `Legs (${sportLegs.length})`]] as const).map(([v, label]) => (
+            {/* D5 (Session 5): no Same-game tab — same-game cards are not built (no honest joint price exists). */}
+            {([["suggested", "Suggested"], ["legs", `Legs (${sportLegs.length})`]] as const).map(([v, label]) => (
               <button key={v} onClick={() => setView(v)} className="rounded-lg px-3 py-1.5 text-[12.5px]"
                 style={{ background: view === v ? "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" : "transparent", color: view === v ? "var(--vault-text)" : "var(--vault-text-faint)", border: "1px solid var(--vault-border)" }}>
                 {label}
@@ -443,17 +443,6 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
                   </div>
                 );
               })}
-            </div>
-          )}
-
-          {view === "game" && (
-            <div className="space-y-3">
-              {gameGroups.length === 0 && <div className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No non-conflicting same-game parlays today.</div>}
-              {gameGroups.map((g) => (
-                <Accordion key={g.gameId} title={`Game ${g.label}`} subtitle={`${g.parlays.length} parlay${g.parlays.length === 1 ? "" : "s"}`}>
-                  {g.parlays.map((c) => <ParlayCard key={c.parlayId} card={c} legs={legsOf(c)} />)}
-                </Accordion>
-              ))}
             </div>
           )}
 

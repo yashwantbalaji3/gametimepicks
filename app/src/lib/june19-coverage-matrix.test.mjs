@@ -10,12 +10,13 @@ import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 const slate = loadTodaySlate("2026-06-19", "2026-06-19T19:25:00Z", pinnedLaneRoot());
 const m = buildCoverageMatrix(slate, loadMoonshotLane(), "2026-06-19T19:25:00Z");
 const RB = ["low", "medium", "high", "longshot"];
-const SCOPES = ["world_cup_single_game", "world_cup_multi_game", "mlb", "mixed", "moonshot", "bank_builder"];
+/* D5 (Session 5): same-game (World Cup single-game) cards are not built, so that archived scope's empty row is omitted. */
+const SCOPES = ["world_cup_multi_game", "mlb", "mixed", "moonshot", "bank_builder"];
 
 // P192 · PINNED LANE STATE — this regression is about a specific historical lane state, so it reads a
 // pinned snapshot rather than the live ladder. Assertions unchanged; only the source is.
-test("coverage matrix has all six scopes, each with all four canonical risk buckets", () => {
-  assert.deepEqual(m.rows.map((r) => r.scope), SCOPES, "all six scope rows in order");
+test("coverage matrix has its five scopes, each with all four canonical risk buckets", () => {
+  assert.deepEqual(m.rows.map((r) => r.scope), SCOPES, "all scope rows in order");
   for (const r of m.rows) {
     assert.deepEqual(r.cells.map((c) => c.risk), RB, `${r.scope} has all four risks`);
     assert.deepEqual(r.cells.map((c) => c.label), ["Low Risk", "Medium Risk", "High Risk", "Longshot"], "canonical labels");

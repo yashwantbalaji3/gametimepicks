@@ -18,6 +18,14 @@
 
 export const COMPAT_RULES_VERSION = 1;
 
+/*
+ * FOUNDER DECISION D5 (Session 5): a price made by multiplying legs that share a game is never presented as a
+ * same-game parlay price. Without a sportsbook SGP receipt or a validated joint-pricing model there is no honest
+ * joint price — so the product of the legs is shown only with this sentence beside it.
+ */
+export const SAME_GAME_PRICE_NOTE =
+  "Legs here share a game. This price multiplies them as if they were independent — it is not a same-game parlay price, and a sportsbook would price the combination differently.";
+
 /** Pair relations, ordered most→least severe. */
 export const RELATIONS = Object.freeze({
   DUPLICATE: "DUPLICATE",                    // the same leg twice

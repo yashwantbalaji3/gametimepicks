@@ -42,3 +42,16 @@ test("CONTRACT · every official card producer holds one leg per event", () => {
   assert.match(strip(fs.readFileSync("src/lib/moonshot/rung-card.mjs", "utf8")), /if \(a\.gameId === b\.gameId\) continue;/);
   assert.match(strip(fs.readFileSync("src/lib/daily-portfolio/bank-builder-generation.ts", "utf8")), /max 1 leg per game|distinctGames/);
 });
+
+test("D5 · a multiplied same-game price is never shown as a same-game parlay price", async () => {
+  const { SAME_GAME_PRICE_NOTE } = await import("../build/compatibility.mjs");
+  assert.match(SAME_GAME_PRICE_NOTE, /not a same-game parlay price/);
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const builder = strip(fs.readFileSync("src/components/build-experience.tsx", "utf8"));
+  assert.match(builder, /\{correlated \? \(\s*<p data-same-game-price-note[^>]*>\{SAME_GAME_PRICE_NOTE\}<\/p>/, "the builder's price carries the note whenever legs share a game");
+  const loader = strip(fs.readFileSync("src/lib/parlays/ui-loader.ts", "utf8"));
+  assert.match(loader, /const gameSpecific: GameSpecificParlayGroup\[\] = \[\];/, "game-specific (same-game) cards are withheld at the loader");
+  assert.doesNotMatch(loader, /generateAllSameGameParlays\(/);
+  const explorer = strip(fs.readFileSync("src/components/parlays/parlays-explorer.tsx", "utf8"));
+  assert.doesNotMatch(explorer, /Same-game \(/, "no Same-game tab");
+});
