@@ -135,6 +135,7 @@ export default function UfcArchivePage() {
         : null,
     })),
     card?.event?.name ?? "Current card",
+    typeof card?.generatedAt === "string" ? card.generatedAt : null,
   );
 
   return (

@@ -11,6 +11,7 @@ import type { PublicGameDetail } from "@/lib/game-detail";
 import { loadEplForecasts, loadEplForecastArchive } from "@/lib/sports/epl/forecast-view";
 import { eplUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import type { EplForecastRow } from "@/lib/sports/epl/forecast-view";
+import fs from "node:fs";
 import path from "node:path";
 import { productDayFor } from "@/lib/product-day/product-day";
 import { currentEtDate } from "@/lib/freshness";
@@ -225,14 +226,17 @@ function mlbOfficialOnly(nowIso: string): { label: string; empty: Pick<SportHubM
  * slate out of an archive. The honest header names the phase and the span, and the empty-read state
  * on every row says the rest. Nothing here is padded to match the other three sports.
  */
+/* Session 5 · B8: the index's own generatedAt — the stamp of the forecast set the read column comes from. */
+let nflIndexStamp: string | null = null;
+
 /** The canonical NFL index, read once per hub build for the read column. Absent → no reads. */
 function readNflIndexForReads(): Map<string, { home: string; away: string; pHome: number; pAway: number }> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const fs = require("node:fs") as typeof import("node:fs");
-    const path = require("node:path") as typeof import("node:path");
+    /* Session 5 · B8: static fs/path (path was already a static import). `require` is undefined under tsx's ESM, so
+       every test of this loader silently read "no reads" — the catch below swallowed the ReferenceError. */
     const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/index.json"), "utf8"));
     const map = new Map<string, { home: string; away: string; pHome: number; pAway: number }>();
+    nflIndexStamp = typeof doc?.generatedAt === "string" ? doc.generatedAt : null;
     for (const e of doc?.events ?? []) {
       if (e?.winProbability && e?.home?.abbr && e?.away?.abbr) {
         map.set(String(e.providerEventId), { home: e.home.abbr, away: e.away.abbr, pHome: e.winProbability.home, pAway: e.winProbability.away });
@@ -310,7 +314,8 @@ export function nflHub(nowIso: string): SportHubModel {
       sport: "nfl", sportLabel: "NFL", labels: { ...DEFAULT_LABELS, games: "Games" },
       periodLabel: `${first.period.label}${first.phase ? ` · ${first.phase} season` : ""}`,
       periodRange: rangeOf(rows),
-      freshness: null,
+      /* Session 5 · B8: "updated" names the forecast set the reads come from — the same meaning EPL's stamp has. */
+      freshness: nflIndexStamp,
       rows,
       present: ["games", "products", "simulations", "picks", "results"],
       emptyReason: "No NFL games are in the committed schedule capture.",
@@ -468,7 +473,7 @@ export function eplHub(nowIso: string): SportHubModel {
  * "card-level report" made every bout a dead end (P241 · A08). A modelled bout's row now anchors
  * straight to its own section on the card; an unmodelled bout keeps the honest note.
  */
-export function ufcHub(nowIso: string, bouts: Array<{ id: string; matchup: string; startUtc: string | null; status?: string; read?: HubRead | null }>, eventLabel: string): SportHubModel {
+export function ufcHub(nowIso: string, bouts: Array<{ id: string; matchup: string; startUtc: string | null; status?: string; read?: HubRead | null }>, eventLabel: string, readsGeneratedAt: string | null = null): SportHubModel {
   const nowMs = Date.parse(nowIso);
   const rows: HubGameRow[] = bouts.map((b): HubGameRow => {
     const started = startedOf({ iso: b.startUtc, exact: Boolean(b.startUtc) }, nowMs);
@@ -492,7 +497,8 @@ export function ufcHub(nowIso: string, bouts: Array<{ id: string; matchup: strin
   });
   return {
     sport: "ufc", sportLabel: "UFC", labels: { ...DEFAULT_LABELS, games: "Bouts", simulations: "Card report" },
-    periodLabel: eventLabel, periodRange: null, freshness: null, rows,
+    /* Session 5 · B8: the card artifact the reads come from (the page passes its generatedAt). */
+    periodLabel: eventLabel, periodRange: null, freshness: readsGeneratedAt, rows,
     present: ["games", "simulations", "picks", "results"],
     emptyReason: "No bouts are on the current card.",
   };
