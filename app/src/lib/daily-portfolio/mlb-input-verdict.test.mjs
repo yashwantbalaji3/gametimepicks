@@ -78,4 +78,9 @@ test("CONTRACT: only MLB money steps depend on the verdict; the rest runs; the r
   assert.match(last.body, /verdict == 'INPUT_UNAVAILABLE'/);
   assert.match(last.body, /exit 1/);
   assert.doesNotMatch(wf.replace(/^\s*#.*$/gm, ""), /check-pool-ready\.mjs/, "the job no longer exits on the raw gate");
+  /* Session 5 · B1b (found by the first dry run): the ladder-freshness assert also blocked the commit. */
+  const assertStep = step("Assert this run produced its artifacts");
+  assert.ok(assertStep.i > step("Commit if anything changed").i, "the ladder assert runs AFTER the commit — it must not block other products");
+  assert.match(assertStep.body, /if: github\.event\.inputs\.dry_run != 'true'/);
+  assert.ok(step("Refresh the canonical projection chain").i < step("Commit if anything changed").i);
 });
