@@ -39,7 +39,8 @@ const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 const REMOVED = {
   "/nhl": "stub",
   "/ipl": "stub",
-  "/nba": "stub",
+  // "/nba" left this list in Session 6 (2026-10-02): it is a SCHEDULE + FINALS hub again (ESPN capture and the
+  // write-once finals record), with no forecast — asserted against its rendered text in the schedule-hub test below.
   "/board": "stub",
   "/projections": "stub",
   "/events": "stub",
@@ -177,8 +178,8 @@ const NEVER_IN_NAV = [
   // four-sport schedules directory (one item, "Sports · Schedules", secondary group).
   // "/ufc" left it in Program 186 on the same terms: it carries an upcoming schedule marked
   // "Schedule only — simulation pending" above its settled archive, and the rendered-text guard
-  // above holds it to publishing nothing predictive. "/nba" stays — it is still a redirect to its
-  // settled results archive, with no schedule hub of its own.
+  // above holds it to publishing nothing predictive. "/nba" stays here although it is a schedule +
+  // finals hub since Session 6: adding a league to navigation is the nav charter's decision, not a route change's.
   "/nba", "/nhl", "/ipl", "/board", "/projections", "/events",
   "/trends", "/world-cup", "/world-cup-specials", "/mlb/parlays",
   "/parlays", "/parlay-lab", "/games", "/ops", "/preview",
@@ -287,6 +288,16 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   // The sport's capability state is unchanged: still not FULL_MODEL, still no public model.
   assert.notEqual(capabilityState("nfl"), "FULL_MODEL", "nfl is not FULL_MODEL — the hub is schedule/honesty context only");
   // ── Schedule hubs: they exist, and they must say what they are. ──
+  // Session 6: NBA graduates from redirect-only to a SCHEDULE + FINALS hub on the same terms. Its capability
+  // state is unchanged (HISTORICAL_ONLY, nothing predictive), and the page must say so in its own words.
+  {
+    assert.equal(capabilityState("nba"), "HISTORICAL_ONLY", "the NBA hub publishes schedule and finals only");
+    const src = renderedSource("src/app/nba/page.tsx");
+    assert.match(src, /Schedule only — no public forecast/, "/nba must state its coverage state");
+    for (const banned of ["projected score", "win probability", "our pick", "best bet", "\\bedge\\b", "\\block\\b", "\\bodds\\b"]) {
+      assert.doesNotMatch(src, new RegExp(banned, "i"), `/nba must not use live-model language ("${banned}")`);
+    }
+  }
   for (const [sport, hub] of [["ufc", "src/app/ufc/page.tsx"]]) {
     assert.notEqual(capabilityState(sport), "FULL_MODEL", `${sport} is not FULL_MODEL`);
     const src = renderedSource(hub);
