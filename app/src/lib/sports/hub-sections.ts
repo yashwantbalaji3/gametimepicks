@@ -51,14 +51,19 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     // Phase A-3: the MLB route tabs folded into this one strip.
     { kind: "link", target: "/mlb/board", label: "Full board" },
     { kind: "link", target: "/mlb/power", label: "Power board" },
+    /* Session 5 · B8: the hub links the live hub for the sports /live covers, and Ask everywhere. */
+    { kind: "link", target: "/live", label: "Live" },
+    { kind: "link", target: "/ask", label: "Ask" },
   ],
   epl: [
     { kind: "anchor", target: "epl-games", label: "Fixtures" },
     { kind: "link", target: "/cards/epl", label: "Products" },
     { kind: "anchor", target: "epl-fixtures", label: "Simulations" },
-    { kind: "anchor", target: "schedule", label: "Model picks" },
+    /* Session 5 · B8: this section is the full 2026-27 fixture list, not model picks. */
+    { kind: "anchor", target: "schedule", label: "Fixture list" },
     { kind: "anchor", target: "record", label: "Results" },
     { kind: "link", target: "/results/picks/epl", label: "Full record" },
+    { kind: "link", target: "/ask", label: "Ask" },
   ],
   ufc: [
     // No signature product and no per-bout report route: the card IS the unit. Those two sections
@@ -68,6 +73,7 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "link", target: "/cards/ufc", label: "Products" },
     { kind: "link", target: "/results/picks/ufc", label: "Results" },
     { kind: "link", target: "/build/custom?sport=ufc", label: "Build your own" },
+    { kind: "link", target: "/ask", label: "Ask" },
   ],
   nfl: [
     { kind: "anchor", target: "nfl-games", label: "Games" },
@@ -81,5 +87,7 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "anchor", target: "nfl-results", label: "Results" },
     { kind: "anchor", target: "nfl-coverage", label: "Coverage" },
     { kind: "link", target: "/cards/nfl", label: "Paper cards" },
+    { kind: "link", target: "/live", label: "Live" },
+    { kind: "link", target: "/ask", label: "Ask" },
   ],
 };
