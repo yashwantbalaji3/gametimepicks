@@ -18,7 +18,9 @@ import path from "node:path";
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import SectionHeader from "@/components/section-header";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import { readNflWeekReports, pct, unitFigure, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
+import { readAllNflWeekReports, readNflWeekReports, pct, unitFigure, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
+import { nflFamilyRecord } from "@/lib/results/v2/nfl-family-record.mjs";
+import NflFamilyDrilldown from "@/components/results/nfl-family-drilldown";
 
 export const metadata = withRouteMetadata("/results/nfl/", {
   title: "NFL Week Report — Every Prediction Graded · GameTime Picks",
@@ -114,6 +116,7 @@ function GamePlayers({ game }: { game: WeekGame }) {
 
 export default function NflWeekReportPage() {
   const { latest, earlier } = readNflWeekReports();
+  const season = nflFamilyRecord(readAllNflWeekReports());
   /* P320: a row links to its archived pregame read only when that page is generated (the frozen revision exists). */
   const archived = new Set(archivedEventIds(path.join(process.cwd(), "public", "data")));
 
@@ -206,6 +209,33 @@ export default function NflWeekReportPage() {
           {" "}Across the {s.context.touchdowns.playersGraded} players we gave a touchdown chance who played, our chances added up to about {s.context.touchdowns.expectedScorers} scorers; {s.context.touchdowns.actualScorers} actually scored.
         </p>
       </section>
+
+      {/* Session 5 · B7 — season to date, by prediction: the owner's weekly summaries folded, numerator beside
+          denominator, voids apart, pending weeks named; rows on demand from the owner's own week files. */}
+      {season.families.length ? (
+        <section aria-labelledby="season-by-prop" data-results-slice="nfl-family-season">
+          <SectionHeader eyebrow="Season to date" title="Every week, by prediction" sub={`${season.weeks.filter((w) => w.gamesFinal > 0).map((w) => w.label).join(", ")} graded${season.weeks.some((w) => w.gamesPending > 0) ? ` · ${season.weeks.filter((w) => w.gamesPending > 0).map((w) => `${w.label}: ${w.gamesPending} game${w.gamesPending === 1 ? "" : "s"} not final yet`).join(" · ")}` : ""} · void predictions are not counted`} />
+          <div className="scroll">
+            <table style={{ minWidth: 640 }}>
+              <thead><tr><th scope="col">Prediction</th><th scope="col">Success rate</th><th scope="col">Hits / decided</th><th scope="col">Void</th><th scope="col">By week</th></tr></thead>
+              <tbody>
+                {season.families.map((f) => (
+                  <tr key={f.id}>
+                    <td style={{ fontWeight: 600, color: "var(--vault-text)" }}>
+                      {f.label}
+                      <NflFamilyDrilldown familyId={f.id} weeks={f.byWeek.map((w: { key: string; checks: number }) => ({ key: w.key, label: season.weeks.find((x) => x.key === w.key)?.label ?? w.key, checks: w.checks }))} />
+                    </td>
+                    <td className="k" style={{ fontSize: 14, color: "var(--vault-text)" }}>{pct(f.total.hitRate)}</td>
+                    <td className="k m">{f.total.won}/{f.total.decisive}</td>
+                    <td className="k v">{f.total.void || "—"}</td>
+                    <td className="k m nw">{f.byWeek.map((w: { hits: number; checks: number }) => `${w.hits}/${w.checks}`).join(" · ")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="by-game">
         <SectionHeader eyebrow={latest.period.label} title="Game by game" sub="Our pre-kickoff read beside the final score" />

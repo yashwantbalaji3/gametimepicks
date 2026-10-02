@@ -140,7 +140,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
       <div className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5"
         style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-          {edited ? "Tier as published" : "This tier"}
+          {edited ? "Band as published · all candidates" : "All candidates in this band"}
         </span>
         <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
           {card.tierRecord.wins}&ndash;{card.tierRecord.losses} ·{" "}
@@ -354,7 +354,7 @@ export default function RiskLadderBoard({
             <div className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5"
               style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
               <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-                This tier
+                All candidates in this band
               </span>
               <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
                 {c.tierRecord.wins}&ndash;{c.tierRecord.losses} ·{" "}

@@ -383,6 +383,8 @@ export default function NflHubPage() {
           ...(weeklyBoards?.boards?.length ? ["nfl-boards"] : []),
           ...(vault && (vault.watchlist?.length || vault.selections?.length) ? ["nfl-vault"] : []),
           ...(slateMarketRows.length ? ["nfl-markets"] : []),
+          /* Session 5 · B8: "Simulations" renders whenever forecasts are published — its strip item must too. */
+          ...((forecastArtifact?.forecasts ?? []).length ? ["nfl-reports"] : []),
           "nfl-results", "nfl-coverage",
         ]}
       />
@@ -899,7 +901,7 @@ export default function NflHubPage() {
                 <TeamLogo team={r.away?.abbr} sport="nfl" size="sm" />
                 <span style={{ fontSize: 13 }}>{r.away?.abbr} {r.ftAway} — {r.ftHome} {r.home?.abbr}</span>
                 <TeamLogo team={r.home?.abbr} sport="nfl" size="sm" />
-                <span style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>final · {r.dateUtc.slice(0, 10)}</span>
+                <span style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>final · {etDaySlug(r.dateUtc)}</span>
               </li>
             ))}
           </ul>
