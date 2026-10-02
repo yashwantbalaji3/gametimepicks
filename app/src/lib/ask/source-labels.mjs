@@ -16,6 +16,7 @@ export const ASK_SOURCE_LABEL = Object.freeze({
   getMatchupContext: "Matchup",
   getPublishedForecasts: "GameTime Forecast",
   getParlayCandidates: "Parlay candidates",
+  getOfficialProductCards: "Official cards",
   getLiveSlate: "Live",
   searchGameTimeHelp: "GameTime guide",
   resolveEntity: "GameTime Research",
