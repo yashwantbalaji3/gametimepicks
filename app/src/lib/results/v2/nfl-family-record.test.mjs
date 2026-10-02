@@ -63,3 +63,12 @@ test("WIRED: /results/nfl renders the season fold, and the drill-down reads the 
   assert.match(drill, /fetch\(`\/data\/nfl\/reconciliation\/\$\{weekKey\}\.json`\)/);
   assert.match(drill, /nflFamilyRows\(await res\.json\(\), familyId\)/);
 });
+
+test("nfl/reconciliation/ is INTENTIONALLY public: declared to the export prune, and every file is PUBLIC_DERIVED", () => {
+  const prune = fs.readFileSync("scripts/prune-internal-routes.mjs", "utf8");
+  assert.match(prune, /const ALWAYS_PUBLIC_DATA_DIRS = \[[^\]]*"nfl\/reconciliation\/"/, "the drill-down fetches week files at runtime; the prune refuses an undeclared runtime /data/ path");
+  const dir = path.join(process.cwd(), "public/data/nfl/reconciliation");
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json"))) {
+    assert.equal(JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).dataClass, "PUBLIC_DERIVED", `${f} must be public-derived to be served`);
+  }
+});
