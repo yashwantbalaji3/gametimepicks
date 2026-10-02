@@ -136,3 +136,4 @@ into the capability registry by automation.
 | # | Date | What was looked at | Outcome |
 |---|---|---|---|
 | 1 | 2026-09-22 | this file, written before any 2026-27 result; 2024-25 dispersion diagnostic (60 games, v0 unchanged) | bars frozen; assessment season (2025-26) not yet read by any candidate |
+| 2 | 2026-10-02 | 2024-25 **development** season, full (1,005 games after day 30), v0 + shadow Elo unchanged, 1,000 sims, dry run (`diagnose-sim-dispersion.mjs --season 2025 --games 1005 --simulations 1000`) | v0 sim winner Brier **0.267** vs shadow Elo **0.215** (bar ≤ 0.240); margin p10–p90 coverage **0.88** (bar 0.76–0.84); margin bias −1.42 (bar \|bias\| ≤ 1.0); sim total SD 22.02 ≈ margin SD 22.00 (bar: total SD > margin SD). v0 cannot meet the winner, margin or total bars; it stays the frozen shadow. No bar changed; assessment season (2025-26) still unread by any candidate |
