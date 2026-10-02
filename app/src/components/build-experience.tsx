@@ -29,7 +29,7 @@ import StakePayoutInput from "@/components/ui/stake-payout-input";
 import StatusChip from "@/components/ui/status-chip";
 import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 import PlayerAvatar from "@/components/player-avatar";
-import { classifyAgainstSelection, cardHealth } from "@/lib/build/compatibility.mjs";
+import { classifyAgainstSelection, cardHealth, SAME_GAME_PRICE_NOTE } from "@/lib/build/compatibility.mjs";
 import { gradeLeg } from "@/lib/build/grade.mjs";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { useSlip, type SlipLeg } from "@/lib/slip/slip-store";
@@ -353,6 +353,9 @@ export default function BuildExperience({
             ))}
           </div>
           <StakePayoutInput combinedAmerican={combinedAmerican} combinedDecimal={combinedDecimal} />
+          {correlated ? (
+            <p data-same-game-price-note style={{ color: "var(--vault-warn)", fontSize: 11, lineHeight: 1.5, margin: 0 }}>{SAME_GAME_PRICE_NOTE}</p>
+          ) : null}
 
           {/* P261: what this card IS — the chance its price implies beside the published record at
               the same price, the linked pairs by name, and one shorter-priced stand-in to trade for. */}

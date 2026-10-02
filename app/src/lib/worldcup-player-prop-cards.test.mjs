@@ -40,17 +40,16 @@ test("player-prop adapter is date-aware: a non-matching slate date yields no leg
 
 const slate = loadTodaySlate("2026-06-19", NOW);
 
-test("World Cup single-game cards now fill High and Longshot with a team + player mix", () => {
-  const sg = { low: [], medium: [], high: [], longshot: [] };
-  for (const g of slate.gameSpecific.filter((x) => x.sport === "WORLD_CUP")) for (const p of g.parlays) sg[p.riskLevel].push(p);
-  assert.ok(sg.high.length > 0, "WC single-game has High cards");
-  assert.ok(sg.longshot.length > 0, "WC single-game has Longshot cards");
-  for (const c of sg.high) assert.equal(getRiskBucketForCombinedOdds(c.combinedOdds), "high", `${c.parlayId} fits High`);
-  for (const c of sg.longshot) assert.equal(getRiskBucketForCombinedOdds(c.combinedOdds), "longshot", `${c.parlayId} fits Longshot`);
-  // At least some High/Longshot cards mix a player prop with a team market (Moonshot-style, not team-only).
-  const mixes = [...sg.high, ...sg.longshot].filter((c) =>
-    c.legs.some((l) => /Goalscorer|Shots|Assists/.test(l.market)) && c.legs.some((l) => /moneyline|draw_no_bet|double_chance|total|btts/i.test(l.market)));
-  assert.ok(mixes.length > 0, "some WC High/Longshot cards mix player + team props");
+test("D5 · no same-game card is built — the 2026-06-19 slate that once carried WC single-game High/Longshot cards has none", () => {
+  /* Founder decision D5 (Session 5): those cards were priced by multiplying legs from ONE game and shown as a parlay
+     price. With no sportsbook SGP receipt and no validated joint-pricing model, no honest price exists for them. */
+  assert.deepEqual(slate.gameSpecific, []);
+  for (const cards of Object.values(slate.suggestedBySportRisk["WORLD_CUP"] ?? {})) {
+    for (const c of cards) {
+      const games = c.legs.map((l) => l.legId.split(":")[1]);
+      assert.equal(new Set(games).size, games.length, `${c.parlayId}: a suggested card never holds two legs from one game`);
+    }
+  }
 });
 
 test("World Cup multi-game Longshot cards now exist, span ≥2 games, with a player + team mix", () => {

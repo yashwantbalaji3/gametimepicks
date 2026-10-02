@@ -15,7 +15,6 @@ import { loadSourceForSport, ALL_SPORTS } from "../methodology/sources";
 import { extractPredictionsBySport, type SportExtractionResult } from "../methodology/adapter";
 import { buildLegsForSport, eligibleLegs } from "./eligible-leg";
 import { generateDailyParlays, generateMixedParlays } from "./daily-parlays";
-import { generateAllSameGameParlays } from "./same-game";
 import { selectDualBankBuilder, survivalScore } from "./dual-bank-builder";
 import { currentEtDate } from "../freshness";
 import { RISK_LEVEL_ORDER } from "./risk-levels";
@@ -618,14 +617,12 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string, r
       }
     }
 
-    // Game-specific parlays (across eligible legs).
-    const sameGame = generateAllSameGameParlays(eligible, date);
-    const gameSpecific: GameSpecificParlayGroup[] = sameGame.map((g) => ({
-      gameId: g.gameId,
-      sport: g.sport,
-      label: g.parlays[0]?.legs.map((l) => l.eventId).length ? g.gameId : g.gameId,
-      parlays: g.parlays.map((p) => cardDisplay(p, legByIdLookup)),
-    }));
+    /*
+     * Game-specific (same-game) parlays are WITHHELD — founder decision D5 (Session 5). Their price was the product
+     * of legs from one game, i.e. independent leg prices multiplied and shown as a same-game parlay price. Without a
+     * sportsbook SGP receipt or a validated joint-pricing model there is no honest price for them, so none is built.
+     */
+    const gameSpecific: GameSpecificParlayGroup[] = [];
     for (const s of sports) s.gameSpecificCount = gameSpecific.filter((g) => g.sport === s.sport).length;
 
     // Dual Bank Builder: prefer the LAUNCHED run if an operator launched one (engine namespace,

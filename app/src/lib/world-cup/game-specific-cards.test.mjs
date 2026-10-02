@@ -26,36 +26,12 @@ const fixturesWithCards = currentFixtures
   .map((d) => ({ fixture: d, cards: getGameSpecificCardsForGame({ matchId: d.matchId, homeTeam: d.homeTeam, awayTeam: d.awayTeam }, NOW) }))
   .filter((x) => x.cards.total > 0);
 
-test("engine game-specific cards map to the correct WC fixture (current slate), bucketed by risk", () => {
-  assert.ok(currentFixtures.length > 0, "the current slate resolves WC fixtures");
-  assert.ok(fixturesWithCards.length > 0, "at least one current-slate fixture has engine cards");
-  // every mapped card is bucketed and carries legs, for every fixture that produced cards.
-  for (const { cards } of fixturesWithCards) {
-    for (const c of cards.cards) {
-      assert.ok(["low", "medium", "high", "longshot"].includes(c.riskLevel), "card has a risk level");
-      assert.ok(c.legs.length >= 2, "same-game card has >= 2 legs");
-    }
-  }
-});
-
-test("cards never leak across fixtures (a fixture's cards are bound to it, never shared with another)", () => {
-  assert.ok(fixturesWithCards.length >= 1, "at least one current-slate fixture produces cards");
-  if (fixturesWithCards.length >= 2) {
-    // Multi-fixture slate: pick two DISTINCT fixtures that both produced cards — dynamic, not named.
-    const [a, b] = fixturesWithCards;
-    const aCards = new Set(a.cards.cards.map((c) => c.parlayId));
-    const bCards = b.cards.cards.map((c) => c.parlayId);
-    assert.ok(aCards.size > 0 && bCards.length > 0, "both fixtures produce cards");
-    assert.ok(bCards.every((id) => !aCards.has(id)), "no shared card id across the two fixtures");
-    return;
-  }
-  // Thin single-fixture slate (e.g. the 2026-07-15 semifinal, England vs Argentina): the anti-leak
-  // property still holds — the real fixture's cards must NOT appear for a DIFFERENT (nonexistent) fixture.
-  const only = fixturesWithCards[0];
-  const realCards = new Set(only.cards.cards.map((c) => c.parlayId));
-  assert.ok(realCards.size > 0, "the single current-slate fixture produces cards");
-  const other = getGameSpecificCardsForGame({ matchId: "different-match-id", homeTeam: "Nowhere", awayTeam: "Nobody" }, NOW);
-  assert.equal(other.total, 0, "a different fixture shares none of this fixture's cards (no leak)");
+test("D5 · the archive slate's fixtures carry no same-game cards — none is built without an honest joint price", () => {
+  /* Founder decision D5 (Session 5): these were legs of ONE fixture priced by multiplying them as if independent.
+     With no sportsbook SGP receipt and no validated joint-pricing model, they are not built at all. The fixtures are
+     real (non-vacuous): the archive slate resolves them, and each now maps to an honest empty result. */
+  assert.ok(currentFixtures.length > 0, "the archive slate resolves WC fixtures");
+  assert.deepEqual(fixturesWithCards, [], "no fixture maps to a same-game card");
 });
 
 test("a fixture with no engine cards (started game) yields an honest empty result", () => {
