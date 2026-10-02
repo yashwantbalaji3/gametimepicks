@@ -68,6 +68,7 @@ import { MLB_MARKET_CALIBRATION, isCalibrationFailed } from "../../src/lib/mlb/m
 import { buildHelpCorpus } from "../../src/lib/ask/help-source.mjs";
 import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-model.mjs";
 import { legIsMarketContext, marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibility.mjs";
+import { getRiskBucketForCombinedOdds } from "../../src/lib/parlays/risk-odds-bands.mjs";
 import { resultsDay, resultsDayDates } from "../../src/lib/results/v2/day.ts";
 import { productReceiptDates, productReceiptsFor } from "../../src/lib/results/v2/product-receipts.ts";
 
@@ -465,11 +466,12 @@ function buildParlays(days = 3) {
     const doc = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
     const date = String(doc.date ?? file.replace(".json", ""));
     const profiles = {};
+    const bandSlips = {};
+    let unbanded = 0;
     let withheldMarketContext = 0;
     const withheldFamilies = new Set();
 
     for (const [profile, cuts] of Object.entries(doc.publicRiskSections ?? {})) {
-      const slips = [];
       for (const [cut, list] of Object.entries(cuts)) {
         if (cut === "all") continue; // "all" is a view over the sport cuts, not a separate pool
         if (!Array.isArray(list) || list.length === 0) continue;
@@ -507,9 +509,18 @@ function buildParlays(days = 3) {
           if (mc.length) { withheldMarketContext += 1; for (const l of mc) withheldFamilies.add(l.marketLabel ?? l.market); continue; }
           // Arithmetic once, in the owner, over the candidate's own pinned prices.
           const payout = combinedParlayPayoutPer100(legs);
-          slips.push({
+          /*
+           * SESSION 5 · B4 — THE RISK LEVEL IS THE PRICE BAND, NOT THE OPTIMIZER SECTION. The optimizer's sections
+           * are its own price scale (low < +300, medium +300–600 …), so a +450 "medium" slip was offered by Ask as
+           * MEDIUM while the public ladder calls +450 High risk. Each candidate is filed under the canonical band
+           * of its own combined price; one with no price has no band and is counted, never guessed.
+           */
+          const band = payout ? getRiskBucketForCombinedOdds(payout.american) : null;
+          if (!band) { unbanded += 1; continue; }
+          (bandSlips[band] ??= []).push({
             slipId: s.slipId,
-            profile: String(s.profile ?? profile).toUpperCase(),
+            profile: band.toUpperCase(),
+            optimizerSection: String(s.profile ?? profile).toUpperCase(),
             sport: String(s.sport ?? cut).toUpperCase(),
             legCount: legs.length,
             legs,
@@ -527,8 +538,10 @@ function buildParlays(days = 3) {
           });
         }
       }
-      slips.sort((a, b) => (a.slipId < b.slipId ? -1 : 1));
-      if (slips.length) profiles[String(profile).toUpperCase()] = slips;
+    }
+    for (const [band, list] of Object.entries(bandSlips)) {
+      list.sort((a, b) => (a.slipId < b.slipId ? -1 : 1));
+      if (list.length) profiles[band.toUpperCase()] = list;
     }
 
     byDate[date] = {
@@ -542,6 +555,9 @@ function buildParlays(days = 3) {
       // F-1: withheld by the card-leg rule — counted and named, so an empty day can say why.
       withheldMarketContext,
       withheldFamilies: [...withheldFamilies].sort(),
+      /* Session 5 · B4: candidates with an unpriced leg — no combined price, so no risk band. */
+      unbanded,
+      bandedBy: "combined price, canonical bands (risk-odds-bands.ts)",
     };
     notes.push(`parlays ${date} ${Object.entries(profiles).map(([k, v]) => `${k}:${v.length}`).join(" ")}`);
   }
