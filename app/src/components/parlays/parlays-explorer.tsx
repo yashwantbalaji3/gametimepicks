@@ -5,6 +5,7 @@
  * states. Reads engine display data (props) — never fabricates a card.
  */
 import { isDetailOmitted, EXPLORER_LEG_RENDER_CAP, pregameOnly } from "@/lib/parlays/explorer-legs";
+import { PUBLIC_RISK_LABELS, PUBLIC_RISK_TIERS } from "@/lib/parlays/risk-odds-bands.mjs";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
@@ -228,7 +229,7 @@ function CoverageMatrix({ data }: { data?: CoverageMatrixData }) {
           <thead>
             <tr style={{ borderBottom: "1px solid var(--vault-border)" }}>
               <th className="sticky left-0 px-2 py-1.5 text-left font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10, background: "var(--lava-panel)" }}>Scope</th>
-              {(["Low Risk", "Medium Risk", "High Risk", "Longshot"]).map((l) => (
+              {PUBLIC_RISK_TIERS.map((t) => PUBLIC_RISK_LABELS[t]).map((l) => (
                 <th key={l} className="px-2 py-1.5 text-center font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{l}</th>
               ))}
               <th className="px-2 py-1.5 text-center font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>Total</th>

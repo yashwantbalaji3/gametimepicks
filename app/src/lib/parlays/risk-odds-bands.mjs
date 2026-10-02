@@ -20,6 +20,38 @@ export const PARLAY_ODDS_BANDS = {
   longshot: { label: "Longshot", minAmerican: 600, maxAmerican: null },
 };
 
+/*
+ * FOUNDER DECISION D2 (Session 5) — ONE public risk taxonomy. The four labels below, on these price bands, are the
+ * only public tier names: /build, Results, Ask, the Lab, history and every product surface read them from here.
+ * Internal sections (the optimizer's own price spec) and reader styles are never shown with these names.
+ */
+export const PUBLIC_RISK_TIERS = Object.freeze(["low", "medium", "high", "longshot"]);
+export const PUBLIC_RISK_LABELS = Object.freeze(Object.fromEntries(PUBLIC_RISK_TIERS.map((t) => [t, PARLAY_ODDS_BANDS[t].label])));
+const signedAmerican = (n) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n)}`;
+/** The band as a reader sees it: "−200 to +100" · "+100 to +300" · "+300 to +600" · "> +600". */
+export const PUBLIC_RISK_BAND_TEXT = Object.freeze(Object.fromEntries(PUBLIC_RISK_TIERS.map((t) => {
+  const b = PARLAY_ODDS_BANDS[t];
+  return [t, b.maxAmerican == null ? `> ${signedAmerican(b.minAmerican)}` : `${signedAmerican(b.minAmerican)} to ${signedAmerican(b.maxAmerican)}`];
+})));
+/** The canonical public label for a tier id, or null for anything that is not one of the four. */
+export function publicRiskLabel(tier) {
+  return PUBLIC_RISK_LABELS[String(tier ?? "").toLowerCase()] ?? null;
+}
+
+/*
+ * READER STYLES — a bankroll-and-tolerance POLICY over the risk levels (build-risk-ladder BETTOR_TIERS). A style is
+ * not a risk level: "balanced" holds Low Risk AND Medium Risk cards, so calling it "Medium" was a second, competing
+ * definition of Medium (D2). Styles carry their own names and describe themselves in the canonical labels.
+ */
+export const READER_STYLE_LABELS = Object.freeze({ steady: "Steady", balanced: "Balanced", adventurous: "Adventurous", longshot: "Longshot" });
+/** "Low Risk and Medium Risk cards, two a day." — derived from the style's bands, so it can never drift from them. */
+export function readerStyleBlurb(bands, cardsPerDay) {
+  const names = (bands ?? []).map((b) => publicRiskLabel(b)).filter(Boolean);
+  const n = Number(cardsPerDay);
+  const per = n === 1 ? "one a day" : n === 2 ? "two a day" : `${n} a day`;
+  return `${names.join(" and ")} cards, ${per}.`;
+}
+
 /** Individual-leg sanity guards (defaults; the longshot underdog ceiling lifts only for Longshot). */
 export const INDIVIDUAL_LEG_ODDS_GUARDS = { minFavoriteAmerican: -500, maxUnderdogAmerican: 1200 };
 

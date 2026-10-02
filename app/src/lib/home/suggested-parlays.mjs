@@ -15,6 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { RISK_ORDER } from "../prefs/bettor-tiers.mjs";
+import { PUBLIC_RISK_LABELS } from "../parlays/risk-odds-bands.mjs";
 
 export const LANE_LABEL = {
   mlb: "MLB",
@@ -26,11 +27,11 @@ export const LANE_LABEL = {
 
 /** Public tier language (Program 200 A3) — surfaced as chip titles, kept in one place. */
 export const TIER_INTENT = {
-  low: "Low risk — strongest qualified combination",
-  medium: "Medium risk — balanced card",
-  high: "High risk — higher variance",
-  longshot: "Longshot — high variance, low hit rate",
-};
+  low: `${PUBLIC_RISK_LABELS.low} — strongest qualified combination`,
+  medium: `${PUBLIC_RISK_LABELS.medium} — balanced card`,
+  high: `${PUBLIC_RISK_LABELS.high} — higher variance`,
+  longshot: `${PUBLIC_RISK_LABELS.longshot} — high variance, low hit rate`,
+}; // D2: the label is the one public taxonomy's
 
 export function loadSuggestedParlaysPreview(dataRoot) {
   let matrix;

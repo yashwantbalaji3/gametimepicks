@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { PUBLIC_RISK_LABELS } from "@/lib/parlays/risk-odds-bands.mjs";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import { mlbHeadshotUrl } from "@/lib/player-headshots";
@@ -22,7 +23,7 @@ import {
  */
 
 const american = (n: number) => `${n > 0 ? "+" : ""}${n}`;
-const BAND_LABEL: Record<string, string> = { low: "Low risk", medium: "Medium risk", high: "High risk", longshot: "Longshot" };
+const BAND_LABEL: Readonly<Record<string, string>> = PUBLIC_RISK_LABELS; // D2: the one public taxonomy
 
 export interface SwapLegView extends SwapTarget {
   readonly marketLabel: string;

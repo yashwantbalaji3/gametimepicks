@@ -28,6 +28,7 @@ import { fileURLToPath } from "node:url";
 import { loadCommittedCoverage, marketContextFamilies, partitionByLegEligibility, marketContextReason } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 import { slipHasNotStarted } from "../../src/lib/parlays/started-guard.mjs";
 import { publishedBandRecord } from "../../src/lib/parlays/published-band-record.mjs";
+import { PUBLIC_RISK_LABELS, READER_STYLE_LABELS, readerStyleBlurb } from "../../src/lib/parlays/risk-odds-bands.mjs";
 import { legsFromDistinctEvents } from "../../src/lib/parlays/card-events.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -54,7 +55,7 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", {
 const DATE = arg("--date", etDay(NOW));
 
 const TIERS = ["low", "medium", "high", "longshot"];
-const TIER_LABEL = { low: "Low risk", medium: "Medium risk", high: "High risk", longshot: "Longshot" };
+const TIER_LABEL = PUBLIC_RISK_LABELS; // D2: the one public taxonomy (risk-odds-bands.mjs)
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
@@ -396,16 +397,14 @@ for (const tier of TIERS) {
  * thing on this site (4.7% hit, 28 straight losers, a median of a fortnight between wins) and the
  * gate exists to slow someone down, not to make it feel like a reward for a bigger balance.
  */
+/* D2: a style is a policy over the risk levels, not a risk level — its name is its own and its blurb is derived
+   from its bands in the canonical labels ("balanced" holds Low Risk AND Medium Risk cards). */
 const BETTOR_TIERS = [
-  { id: "steady", label: "Low", bands: ["low"], cardsPerDay: 1, minBankroll: 0,
-    blurb: "The shortest prices we publish, one card a day." },
-  { id: "balanced", label: "Medium", bands: ["low", "medium"], cardsPerDay: 2, minBankroll: 50,
-    blurb: "Short and mid prices, two cards a day." },
-  { id: "adventurous", label: "High", bands: ["medium", "high"], cardsPerDay: 2, minBankroll: 150,
-    blurb: "Mid and long prices, two cards a day." },
-  { id: "longshot", label: "Longshot", bands: ["longshot"], cardsPerDay: 1, minBankroll: 500,
-    blurb: "The longest price on the board, one card a day." },
-];
+  { id: "steady", bands: ["low"], cardsPerDay: 1, minBankroll: 0 },
+  { id: "balanced", bands: ["low", "medium"], cardsPerDay: 2, minBankroll: 50 },
+  { id: "adventurous", bands: ["medium", "high"], cardsPerDay: 2, minBankroll: 150 },
+  { id: "longshot", bands: ["longshot"], cardsPerDay: 1, minBankroll: 500 },
+].map((t) => ({ ...t, label: READER_STYLE_LABELS[t.id], blurb: readerStyleBlurb(t.bands, t.cardsPerDay) }));
 
 /** Every graded day, each band ranked the way the ladder ranks it. */
 const gradedByDay = new Map();

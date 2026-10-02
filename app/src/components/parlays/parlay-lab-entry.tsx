@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { READER_STYLE_LABELS, readerStyleBlurb } from "@/lib/parlays/risk-odds-bands.mjs";
 import { useReaderPrefs, unitStake, type RiskTolerance } from "@/lib/prefs/reader-prefs";
 
 /**
@@ -56,12 +57,13 @@ const money = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigi
  * flatters the choice — "Adventurous" sounds like a personality, "High" sounds like what it is. The
  * bands themselves are unchanged; only the labels stop editorialising.
  */
-const RISKS: { key: RiskTolerance; label: string }[] = [
-  { key: "low", label: "Low" },
-  { key: "medium", label: "Medium" },
-  { key: "high", label: "High" },
-  { key: "longshot", label: "Longshot" },
-];
+/* D2 (Session 5): a style is a policy over the public risk levels, not a risk level — "Balanced" holds Low Risk AND
+   Medium Risk cards, so it may not be called "Medium". Names and blurbs come from the one taxonomy owner. */
+const RISKS: { key: RiskTolerance; label: string }[] = (["low", "medium", "high", "longshot"] as const)
+  .map((key) => ({ key, label: READER_STYLE_LABELS[RISK_TO_TIER[key] as keyof typeof READER_STYLE_LABELS] }));
+const styleLabel = (t: { id: string; label: string }) => READER_STYLE_LABELS[t.id as keyof typeof READER_STYLE_LABELS] ?? t.label;
+const styleBlurb = (t: { bands?: readonly string[]; cardsPerDay?: number; blurb?: string }) =>
+  t.bands?.length && t.cardsPerDay ? readerStyleBlurb(t.bands, t.cardsPerDay) : (t.blurb ?? "");
 
 export interface LabLedgerView {
   readonly policy: { readonly version: number; readonly since: string; readonly summary: string };
@@ -160,7 +162,7 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
 
         <div className="flex flex-col gap-1">
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-            2 · Risk tolerance
+            2 · Your style
           </span>
           <div className="flex flex-wrap gap-1.5">
             {RISKS.map((r) => {
@@ -172,7 +174,7 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
               return (
                 <button key={r.key} type="button" aria-pressed={on}
                   onClick={() => update({ risk: on ? null : r.key })}
-                  title={gated ? `Suggested from ${money(tier!.minBankroll)} a day — ${tier!.worstLosingRun} straight losers when replayed over every graded candidate slip (model detail, not our record)` : tier?.blurb}
+                  title={gated ? `Suggested from ${money(tier!.minBankroll)} a day — ${tier!.worstLosingRun} straight losers when replayed over every graded candidate slip (model detail, not our record)` : tier ? styleBlurb(tier) : undefined}
                   className="gtp-slip-btn rounded-[7px] font-mono uppercase tracking-[0.1em]"
                   style={{
                     padding: "5px 10px", fontSize: 10, cursor: "pointer",
@@ -195,10 +197,10 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
           style={{ background: "color-mix(in srgb, var(--vault-ink-black) 24%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--sport-theme-ink)", fontSize: 9.5 }}>
-              Your tier
+              Your style
             </span>
-            <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800 }}>{matched.label}</span>
-            <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{matched.blurb}</span>
+            <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800 }}>{styleLabel(matched)}</span>
+            <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{styleBlurb(matched)}</span>
           </div>
 
           {/*

@@ -204,8 +204,8 @@ export const ASK_TOOLS = Object.freeze({
     version: 1,
     kind: "parlay",
     describe:
-      "The cards GameTimePicks OFFICIALLY PUBLISHED for a date — the Suggested Parlays ladder (Low risk, Medium " +
-      "risk, High risk, Longshot), the Bank Builder lanes and the Moonshot lanes — read verbatim from the published " +
+      "The cards GameTimePicks OFFICIALLY PUBLISHED for a date — the Suggested Parlays ladder (Low Risk, Medium " +
+      "Risk, High Risk, Longshot), the Bank Builder lanes and the Moonshot lanes — read verbatim from the published " +
       "artifacts. Use for 'what are today's suggested parlays', 'what is today's Bank Builder / Moonshot', 'why is " +
       "there no card today', 'show me the lowest-risk option', and a named past day's published cards. A tier or " +
       "lane with no card carries the product's own reason; NO CARD PLACED is a published answer, never pending and " +

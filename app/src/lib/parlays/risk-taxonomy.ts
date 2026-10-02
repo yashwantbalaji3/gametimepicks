@@ -6,16 +6,13 @@
  * per-bucket risk gates so the card factory and its diagnostics share one source of truth.
  */
 import type { RiskLevel } from "@/lib/parlays/types";
+import { PUBLIC_RISK_LABELS } from "@/lib/parlays/risk-odds-bands.mjs";
 
 export const RISK_BUCKETS = ["low", "medium", "high", "longshot"] as const;
 export type RiskBucket = (typeof RISK_BUCKETS)[number];
 
-export const RISK_LABELS: Record<RiskBucket, string> = {
-  low: "Low Risk",
-  medium: "Medium Risk",
-  high: "High Risk",
-  longshot: "Longshot",
-};
+/** D2: re-exported from the one public taxonomy (risk-odds-bands.mjs) — never a second table. */
+export const RISK_LABELS: Record<RiskBucket, string> = { ...PUBLIC_RISK_LABELS } as Record<RiskBucket, string>;
 
 /** Old/alias strings → canonical bucket. Returns null for unknown input. */
 export function normalizeRiskBucket(value: string | null | undefined): RiskBucket | null {
