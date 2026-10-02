@@ -209,8 +209,9 @@ export const ASK_TOOLS = Object.freeze({
       "artifacts. Use for 'what are today's suggested parlays', 'what is today's Bank Builder / Moonshot', 'why is " +
       "there no card today', 'show me the lowest-risk option', and a named past day's published cards. A tier or " +
       "lane with no card carries the product's own reason; NO CARD PLACED is a published answer, never pending and " +
-      "never a loss. Never build, re-price or reorder a card. Records are getProductRecord's; candidate slips are " +
-      "getParlayCandidates' and are NOT official cards.",
+      "never a loss. Never build, re-price or reorder a card. It also carries each Suggested Parlays risk level's " +
+      "record over the PUBLISHED cards only (use riskTier for 'how have Low Risk cards performed'); a product's " +
+      "overall record is getProductRecord's; candidate slips are getParlayCandidates' and are NOT official cards.",
     args: {
       product: { kind: "enum", options: ["SUGGESTED_PARLAYS", "BANK_BUILDER", "MOONSHOT"], describe: "One product, or omit for all three." },
       date: { kind: "isoDate", describe: "Product date (ET) as YYYY-MM-DD. Omit for today — the tool uses today's product date on its own. Only pass a date when the user named a specific day, and never write a placeholder here." },

@@ -331,6 +331,14 @@ export function buildEvidence(envelopes) {
           for (const t of sp.noCardTiers) say(`${sp.date} ${t.tierLabel}: no card was published — the ladder's own reason: ${t.reason ?? "not stated"}`);
           say(`these are the cards as published; GameTime does not model correlation between their legs and publishes no joint win probability for them`);
         } else if (sp) say(`${sp.detail}${sp.latestPublishedDate ? `; the most recent official Suggested Parlays ladder is for ${sp.latestPublishedDate}` : ""}`);
+        /* Session 7 — the published-card record (D1), per risk level. Counts cards, never legs; pending is not a loss. */
+        if (sp?.record) {
+          const rec = sp.record;
+          const wlp = (x) => `${x.wins}–${x.losses}${x.pushes ? `–${x.pushes}` : ""}`;
+          if (rec.overall) say(`Suggested Parlays record — the cards GameTimePicks PUBLISHED (${rec.sport.toUpperCase()} ladder, one card per risk level a day, since ${rec.since ?? "the current policy"}): ${wlp(rec.overall)} (wins–losses${rec.overall.pushes ? "–pushes" : ""}) over ${rec.settledDays} settled days`, [rec.overall.wins, rec.overall.losses, rec.overall.pushes, rec.settledDays]);
+          for (const [, t] of Object.entries(rec.byTier ?? {})) say(`${t.tierLabel} published cards since ${rec.since ?? "the current policy"}: ${wlp(t)} (wins–losses${t.pushes ? "–pushes" : ""}); this counts only published cards, never the optimizer's candidate slips`, [t.wins, t.losses, t.pushes]);
+          if (Object.keys(rec.byTier ?? {}).length === 0 && !rec.overall) say(`no settled published card exists yet at that risk level since ${rec.since ?? "the current policy"} — there is no record to state`);
+        }
         for (const [key, label] of [["bankBuilder", "Bank Builder"], ["moonshot", "Moonshot"]]) {
           const b = p[key];
           if (!b) continue;

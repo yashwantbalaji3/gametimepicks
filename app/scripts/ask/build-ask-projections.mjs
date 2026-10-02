@@ -69,6 +69,7 @@ import { buildHelpCorpus } from "../../src/lib/ask/help-source.mjs";
 import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-model.mjs";
 import { legIsMarketContext, marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 import { getRiskBucketForCombinedOdds, PUBLIC_RISK_LABELS } from "../../src/lib/parlays/risk-odds-bands.mjs";
+import { publishedBandRecord } from "../../src/lib/parlays/published-band-record.mjs";
 import { resultsDay, resultsDayDates } from "../../src/lib/results/v2/day.ts";
 import { productReceiptDates, productReceiptsFor } from "../../src/lib/results/v2/product-receipts.ts";
 
@@ -406,12 +407,21 @@ function buildForecasts() {
  *   Suggested Parlays  parlays/risk-ladder/<date>.json (the dated ladder file is the freeze)
  *   Bank Builder/Moonshot  mr-dub/daily-portfolio.json (today's published lanes) and mr-dub/settled/<date>.json
  *                      (the frozen lanes of a past day, with their canonical results)
- * Deliberately NOT carried: the ladder's `tierRecord` (it is the optimizer population, not the published cards —
- * an open founder decision) and every money field (stake, bankroll); records belong to getProductRecord.
+ * Deliberately NOT carried: the ladder's `tierRecord` (it is the optimizer CANDIDATE population — model detail
+ * since D1) and every money field (stake, bankroll).
+ *
+ * SESSION 7 — two gaps closed:
+ *   · history: the window was the newest 3 dated files, so "show me the exact card from Oct X" answered NOT
+ *     PUBLISHED for any older day that WAS published. It is now OFFICIAL_HISTORY_DAYS (bounded: the asset stays
+ *     far inside the loader ceiling).
+ *   · "how have Low Risk cards performed?": D1 made the PUBLISHED cards the public record, and
+ *     published-band-record.mjs is its one owner (the lab ledger's MLB stream, by band, since the policy date).
+ *     That record — and only that population — is carried as `suggestedRecord`, labelled PUBLISHED_CARDS.
  */
+const OFFICIAL_HISTORY_DAYS = 30;
 const OFFICIAL_TIER_LABEL = PUBLIC_RISK_LABELS; // D2: the one public taxonomy
 
-function buildOfficialCards(days = 3) {
+function buildOfficialCards(days = OFFICIAL_HISTORY_DAYS) {
   const ladderDir = path.join(APP, "public/data/parlays/risk-ladder");
   const suggested = {};
   for (const f of (fs.existsSync(ladderDir) ? fs.readdirSync(ladderDir) : []).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort().slice(-days)) {
@@ -450,8 +460,15 @@ function buildOfficialCards(days = 3) {
     const date = String(d.date ?? f.slice(0, 10));
     portfolios[date] = { date, generatedAt: d.settledAt ?? null, source: "settled", lanes: (d.lanes ?? []).map((l) => lane(l, true)) };
   }
-  notes.push(`official cards: suggested ${Object.keys(suggested).join(",") || "none"} · portfolios ${Object.keys(portfolios).sort().join(",") || "none"}`);
-  return { suggestedDates: Object.keys(suggested).sort(), suggested, portfolioDates: Object.keys(portfolios).sort(), portfolios };
+  const ledger = (() => { try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data/parlays/lab-ledger.json"), "utf8")); } catch { return null; } })();
+  const rec = publishedBandRecord(ledger, "mlb");
+  const suggestedRecord = rec ? {
+    population: rec.population, sport: rec.sport, since: rec.since, settledDays: rec.settledDays,
+    overall: { wins: rec.record.wins, losses: rec.record.losses, pushes: rec.record.pushes },
+    byTier: Object.fromEntries(Object.entries(rec.byTier).map(([t, r]) => [t, { tierLabel: OFFICIAL_TIER_LABEL[t] ?? t, wins: r.wins, losses: r.losses, pushes: r.pushes }])),
+  } : null;
+  notes.push(`official cards: suggested ${Object.keys(suggested).length} day(s) · portfolios ${Object.keys(portfolios).length} day(s) · published-card record ${suggestedRecord ? `${suggestedRecord.overall.wins}-${suggestedRecord.overall.losses}` : "none"}`);
+  return { suggestedDates: Object.keys(suggested).sort(), suggested, portfolioDates: Object.keys(portfolios).sort(), portfolios, suggestedRecord };
 }
 
 /* ────────────────────────────────── 4. PARLAYS ────────────────────────────────── */
