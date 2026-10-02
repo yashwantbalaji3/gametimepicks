@@ -31,7 +31,7 @@ const WRITE = process.argv.includes("--write");
 const NOW = arg("--now", new Date().toISOString());
 const DATE = arg("--date", NOW.slice(0, 10));
 /** Before 2026-09-01 there is no statsapi-schedule capture; the daily board carries the same identity. */
-function boardAsSchedule(board) {
+export function boardAsSchedule(board) {
   if (!board?.games?.length) return null;
   return { games: board.games.map((g) => ({ gamePk: g.gamePk, gameDate: g.gameDate, home: { id: g.homeTeamId, name: g.homeTeamName }, away: { id: g.awayTeamId, name: g.awayTeamName } })), source: "mlb/boards" };
 }
@@ -46,7 +46,7 @@ export function etDate(iso) {
  * The newest NFL forecast file generated at or before `now`. Dated files are written ~23:00Z and cover the
  * games NOT yet kicked off, so a Sunday-morning publication reads Saturday night's file (time-lock).
  */
-function nflForecastsAsOf(root, now) {
+export function nflForecastsAsOf(root, now) {
   const dir = path.join(root, "nfl", "forecasts");
   let best = null;
   try {
@@ -60,7 +60,7 @@ function nflForecastsAsOf(root, now) {
 }
 
 /** The newest NFL market capture taken at or before `now` (time-lock); falls back to latest.json. */
-function nflMarketsAsOf(root, now) {
+export function nflMarketsAsOf(root, now) {
   const dir = path.join(root, "nfl", "markets");
   let best = null;
   try {

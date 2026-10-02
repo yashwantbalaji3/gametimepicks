@@ -89,3 +89,17 @@ export function policyHash(name) {
 }
 export function policyId(name) { return `${name}@${policyHash(name)}`; }
 export const LIVE_POLICY = Object.freeze({ "bank-builder": "BB-LEGACY", moonshot: "MS-LEGACY" });
+
+/**
+ * SESSION 7 · PRODUCT ENGINE V2 — the Bank Builder and Moonshot V2 candidates are the C1 policies already
+ * preregistered on 2026-09-21 (docs/V17_SELECTOR_PREREGISTRATION.md) and forward-shadowed since. They are
+ * named here, not re-invented, so V2 carries no rule chosen after seeing an outcome:
+ *   BB-C1 — Lane B ranks for the RUNG's price (the legacy +200…+700 value band ignored the step target);
+ *           same team / opponent forbidden across lanes' legs; one leg per event.
+ *   MS-C1 — a joint-probability floor (0.20; 0.32 on the final rung) so "higher variance" never means
+ *           "any price"; its pool is the full eligible universe, NOT Bank Builder's leftovers.
+ * Both read legs through leg-floor@2 (engine-v2/eligibility.mjs), which admits exactly the V1 set on every
+ * committed day (engine-v2/floor-parity.test.mjs). Adoption is the preregistered gate (shadow.mjs) and then
+ * a founder decision — LIVE_POLICY above is unchanged.
+ */
+export const V2_CANDIDATES = Object.freeze({ "bank-builder": "BB-C1", moonshot: "MS-C1" });
