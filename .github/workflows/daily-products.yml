@@ -172,6 +172,20 @@ jobs:
       # READY / NO_EVENTS (established only by a StatsAPI schedule captured on the day) / INPUT_UNAVAILABLE.
       # Only the MLB money steps are gated on it; the job reports INPUT_UNAVAILABLE as a failure at the END,
       # after everything that does not depend on MLB has been generated and committed.
+      # SESSION 5 · D3 — evidence captured ON the day, free and keyless (MLB StatsAPI; no odds, no credits). The
+      # committed schedule file for a date is often days old (stamp-only refreshes are not committed), so a no-game
+      # day could never be established and read INPUT_UNAVAILABLE. A capture failure writes nothing and the
+      # classifier fails closed on the older evidence, exactly as before.
+      - name: Capture today's MLB schedule and season state (free StatsAPI)
+        if: steps.recovery.outputs.already-generated != 'true'
+        working-directory: app
+        run: |
+          set -uo pipefail
+          DATE="${{ steps.d.outputs.date }}"
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if ! node scripts/mlb/capture-mlb-schedule.mjs --date "$DATE" --write; then echo "::warning::StatsAPI schedule capture failed for $DATE — classification uses the committed evidence"; fi
+          if ! node scripts/mlb/capture-mlb-season-state.mjs --date "$DATE" --now "$NOW" --write; then echo "::warning::StatsAPI season-state capture failed for $DATE — season treated as UNKNOWN"; fi
+
       - name: Classify today's MLB input
         id: mlb
         if: steps.recovery.outputs.already-generated != 'true'
@@ -182,7 +196,7 @@ jobs:
             --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
       - name: Generate MLB money products (NETWORK-FREE — no provider, no credits)
-        if: steps.recovery.outputs.already-generated != 'true' && steps.mlb.outputs.verdict != 'INPUT_UNAVAILABLE'
+        if: steps.recovery.outputs.already-generated != 'true' && steps.mlb.outputs.verdict != 'INPUT_UNAVAILABLE' && steps.mlb.outputs.verdict != 'OFF_SEASON'
         run: |
           set -euo pipefail
           DATE="${{ steps.d.outputs.date }}"
@@ -234,7 +248,7 @@ jobs:
           echo "protected money unchanged"
 
       - name: Validate the artifact before publishing
-        if: steps.mlb.outputs.verdict != 'INPUT_UNAVAILABLE'
+        if: steps.mlb.outputs.verdict != 'INPUT_UNAVAILABLE' && steps.mlb.outputs.verdict != 'OFF_SEASON'
         run: |
           set -euo pipefail
           node -e "
@@ -257,6 +271,7 @@ jobs:
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           ARGS=(--now "$NOW" --date "${{ steps.d.outputs.date }}")
           if [ "${MLB_VERDICT:-}" = "INPUT_UNAVAILABLE" ]; then ARGS+=(--mlb-unavailable "$MLB_REASON"); fi
+          if [ "${MLB_VERDICT:-}" = "OFF_SEASON" ]; then ARGS+=(--mlb-off-season "$MLB_REASON"); fi
           npx tsx app/scripts/products/build-daily-product-receipts.mjs "${ARGS[@]}"
 
       # P211 R-D: the forward-coverage view regenerates on the same cadence as the receipts —
@@ -371,6 +386,7 @@ jobs:
           git add data/internal/products/selector-shadow/ 2>/dev/null || true
           git add app/public/data/products/availability/ 2>/dev/null || true
           git add app/public/data/parlays/risk-ladder/ 2>/dev/null || true
+          git add app/public/data/mlb/season-state.json 2>/dev/null || true
           git add app/public/data/parlays/lab-ledger.json app/public/data/parlays/coverage-matrix.json 2>/dev/null || true
           # R0: the canonical projection chain. Each builder hashes content and writes only on a real
           # change, so an unchanged day stages nothing here rather than committing churn.

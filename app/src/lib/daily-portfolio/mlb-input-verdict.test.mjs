@@ -61,7 +61,7 @@ test("CONTRACT: only MLB money steps depend on the verdict; the rest runs; the r
   const wf = fs.readFileSync("../.github/workflows/daily-products.yml", "utf8");
   const step = (name) => { const i = wf.indexOf(`- name: ${name}`); assert.ok(i !== -1, `missing step: ${name}`); const j = wf.indexOf("\n      - name:", i + 10); return { i, body: wf.slice(i, j === -1 ? undefined : j) }; };
   const mlb = step("Generate MLB money products");
-  assert.match(mlb.body, /verdict != 'INPUT_UNAVAILABLE'/);
+  assert.match(mlb.body, /verdict != 'INPUT_UNAVAILABLE' && steps\.mlb\.outputs\.verdict != 'OFF_SEASON'/, "D3: out of season, no MLB money product is generated");
   assert.match(mlb.body, /activate-daily-portfolio\.mjs --date "\$DATE" --apply/);
   const neutral = step("Generate sport-neutral products");
   assert.doesNotMatch(neutral.body, /steps\.mlb/, "sport-neutral products must not wait on MLB");
@@ -83,4 +83,100 @@ test("CONTRACT: only MLB money steps depend on the verdict; the rest runs; the r
   assert.ok(assertStep.i > step("Commit if anything changed").i, "the ladder assert runs AFTER the commit — it must not block other products");
   assert.match(assertStep.body, /if: github\.event\.inputs\.dry_run != 'true'/);
   assert.ok(step("Refresh the canonical projection chain").i < step("Commit if anything changed").i);
+});
+
+/* ── SESSION 5 · FOUNDER DECISION D3 — MLB season state ─────────────────────────────────────────────────────────── */
+import { deriveMlbSeasonState, seasonStateFor, remainingGames, MLB_SEASON as S } from "../mlb/season-state.mjs";
+
+const SEASONS = { seasons: [{ seasonId: "2026", regularSeasonStartDate: "2026-03-25", regularSeasonEndDate: "2026-09-27", postSeasonStartDate: "2026-09-28", postSeasonEndDate: "2026-10-31" }] };
+const g = (gameType, state, detailed = state === "Final" ? "Final" : "Scheduled", gamePk = Math.floor(Math.random() * 1e6)) => ({ gamePk, gameType, status: { abstractGameState: state, detailedState: detailed } });
+const POST = { dates: [
+  { date: "2026-10-01", games: [g("F", "Final")] },
+  { date: "2026-10-03", games: [g("D", "Preview"), g("D", "Preview")] },
+  { date: "2026-10-31", games: [g("W", "Preview")] },
+] };
+const OVER = { dates: [{ date: "2026-10-30", games: [g("W", "Final")] }, { date: "2026-10-31", games: [g("W", "Preview", "Cancelled")] }] };
+
+test("D3 · season state comes from games remaining, not from a calendar date passing", () => {
+  assert.equal(deriveMlbSeasonState({ seasons: SEASONS, schedule: null, date: "2026-09-20" }).state, S.REGULAR_SEASON);
+  const off = deriveMlbSeasonState({ seasons: SEASONS, schedule: POST, date: "2026-10-02" });
+  assert.equal(off.state, S.POSTSEASON, "the postseason keeps MLB active");
+  assert.equal(off.gamesToday, 0, "an off day between rounds");
+  assert.equal(off.nextGameDate, "2026-10-03");
+  assert.equal(deriveMlbSeasonState({ seasons: SEASONS, schedule: POST, date: "2026-10-03" }).gamesToday, 2);
+  assert.equal(deriveMlbSeasonState({ seasons: SEASONS, schedule: OVER, date: "2026-10-31" }).state, S.OFF_SEASON, "a cancelled 'if necessary' game is not a game left to play");
+  assert.equal(deriveMlbSeasonState({ seasons: SEASONS, schedule: POST, date: "2026-11-02" }).state, S.OFF_SEASON, "no game on or after the date");
+  assert.equal(deriveMlbSeasonState({ seasons: SEASONS, schedule: { dates: [{ date: "2026-11-02", games: [g("W", "Preview")] }] }, date: "2026-11-02" }).state, S.POSTSEASON, "a World Series pushed past the planned end date is still the season");
+  assert.equal(deriveMlbSeasonState({ seasons: SEASONS, schedule: null, date: "2026-03-01" }).state, S.OFF_SEASON, "before the regular season");
+  assert.equal(deriveMlbSeasonState({ seasons: SEASONS, schedule: null, date: "2026-10-02" }).state, S.UNKNOWN, "after the regular season with no schedule capture: unknown, never off-season");
+  assert.equal(deriveMlbSeasonState({ seasons: null, schedule: POST, date: "2026-10-02" }).state, S.UNKNOWN);
+  assert.equal(remainingGames({ dates: [{ date: "2026-10-05", games: [g("S", "Preview"), g("E", "Preview")] }] }, "2026-10-01").length, 0, "spring/exhibition games are not the season");
+});
+
+test("D3 · season-state evidence counts only when derived for the date AND captured on that ET day", () => {
+  const doc = { date: "2026-11-02", generatedAt: "2026-11-02T15:00:00Z", state: "OFF_SEASON", reason: "over" };
+  assert.equal(seasonStateFor(doc, "2026-11-02", "2026-11-02T16:00:00Z").state, S.OFF_SEASON);
+  assert.equal(seasonStateFor(doc, "2026-11-03", "2026-11-03T16:00:00Z").state, S.UNKNOWN, "yesterday's capture is not today's evidence");
+  assert.equal(seasonStateFor({ ...doc, generatedAt: "2026-11-02T03:00:00Z" }, "2026-11-02", "2026-11-02T16:00:00Z").state, S.UNKNOWN, "03:00Z is the previous ET day");
+  assert.equal(seasonStateFor({ ...doc, generatedAt: "2026-11-02T17:00:00Z" }, "2026-11-02", "2026-11-02T16:00:00Z").state, S.UNKNOWN, "a capture from the future");
+  assert.equal(seasonStateFor(null, "2026-11-02", "2026-11-02T16:00:00Z").state, S.UNKNOWN);
+});
+
+test("D3 · the classifier: off-season leaves the universe; a postseason off day is NO_EVENTS; a real slate always wins", () => {
+  const offSeason = { state: "OFF_SEASON", reason: "the 2026 season is over" };
+  const r = classifyMlbInput({ gate: missing, schedule: null, date: "2026-11-02", nowIso: "2026-11-02T16:00:00Z", season: offSeason });
+  assert.equal(r.verdict, M.OFF_SEASON);
+  assert.match(r.reason, /out of season: the 2026 season is over/);
+  assert.equal(classifyMlbInput({ gate: { verdict: GATE.INPUT_EMPTY, detail: "empty" }, schedule: null, date: "2026-11-02", nowIso: "2026-11-02T16:00:00Z", season: offSeason }).verdict, M.OFF_SEASON);
+  assert.equal(classifyMlbInput({ gate: { verdict: GATE.OK, detail: "3 games" }, schedule: null, date: "2026-11-02", nowIso: "2026-11-02T16:00:00Z", season: offSeason }).verdict, M.READY, "games on the board outrank any calendar reading");
+  const postOff = classifyMlbInput({ gate: missing, schedule: sched("2026-09-26T10:00:00Z", 0, "2026-10-02"), date: "2026-10-02", nowIso: "2026-10-02T16:00:00Z", season: { state: "POSTSEASON", gamesToday: 0, reason: "postseason — 41 game(s) still to be played from 2026-10-02, none today" } });
+  assert.equal(postOff.verdict, M.NO_EVENTS, "the season state captured today establishes the off day the stale schedule could not");
+  for (const season of [null, { state: "UNKNOWN", reason: "x" }, { state: "POSTSEASON", gamesToday: 2, reason: "x" }, { state: "POSTSEASON", gamesToday: null, reason: "x" }]) {
+    assert.equal(classifyMlbInput({ gate: missing, schedule: null, date: "2026-10-03", nowIso: "2026-10-03T16:00:00Z", season }).verdict, M.INPUT_UNAVAILABLE, `fail closed: ${JSON.stringify(season)}`);
+  }
+});
+
+test("D3 · the receipt records OFF_SEASON — not an operational gap, not a no-play", () => {
+  const r = spawnSync("npx", ["tsx", "scripts/products/build-daily-product-receipts.mjs", "--now", "2026-09-28T18:45:00Z", "--date", "2026-09-28", "--dry-run", "--mlb-off-season", "the 2026 season is over"], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  const line = r.stdout.split("\n").find((l) => l.startsWith("product receipt 2026-09-28:")) ?? "";
+  for (const id of ["bank-builder", "moonshot", "mlb-cards"]) assert.match(line, new RegExp(`\\b${id}=OFF_SEASON\\b`), `${id}:\n${r.stdout.slice(0, 600)}`);
+});
+
+test("D3 · CONTRACT: the day's evidence is captured free before classification; off-season is not a job failure", () => {
+  const wf = fs.readFileSync("../.github/workflows/daily-products.yml", "utf8");
+  const cap = wf.indexOf("- name: Capture today's MLB schedule and season state (free StatsAPI)");
+  const cls = wf.indexOf("- name: Classify today's MLB input");
+  assert.ok(cap !== -1 && cap < cls, "captured before the classifier reads it");
+  const body = wf.slice(cap, cls);
+  assert.match(body, /working-directory: app/);
+  assert.match(body, /capture-mlb-schedule\.mjs --date "\$DATE" --write/);
+  assert.match(body, /capture-mlb-season-state\.mjs --date "\$DATE" --now "\$NOW" --write/);
+  assert.doesNotMatch(body, /odds|ODDS_API|credits?\s*=/i, "no paid provider in the capture step");
+  assert.match(wf, /if \[ "\$\{MLB_VERDICT:-\}" = "OFF_SEASON" \]; then ARGS\+=\(--mlb-off-season "\$MLB_REASON"\); fi/);
+  assert.match(wf, /git add app\/public\/data\/mlb\/season-state\.json 2>\/dev\/null \|\| true/, "the season state a page reads is committed");
+  const fail = wf.slice(wf.indexOf("- name: MLB money products were not generated"));
+  assert.match(fail, /if: steps\.mlb\.outputs\.verdict == 'INPUT_UNAVAILABLE'/, "only an unavailable input fails the job — OFF_SEASON does not");
+  const writer = fs.readFileSync("scripts/mlb/capture-mlb-season-state.mjs", "utf8");
+  assert.match(writer, /generatedAt: NOW/, "the capture stamp is generatedAt, so a same-day re-capture is stamp-only and not re-committed");
+});
+
+test("D3 · no stale offseason cards: /build and /mlb read the ladder through the season gate", async () => {
+  for (const f of ["src/app/build/page.tsx", "src/app/mlb/page.tsx"]) {
+    const src = fs.readFileSync(f, "utf8");
+    assert.match(src, /inSeasonLadder\(loadRiskLadder\(/, `${f}: the ladder is read through inSeasonLadder`);
+  }
+  const src = fs.readFileSync("src/lib/parlays/risk-ladder.ts", "utf8");
+  assert.match(src, /season\?\.state === "OFF_SEASON" && typeof season\.date === "string" && \(cardDate == null \|\| cardDate <= season\.date\)/);
+});
+
+test("D3 · inSeasonLadder hides last season's ladder only on established OFF_SEASON", async () => {
+  const { inSeasonLadder } = await import("../parlays/risk-ladder.ts");
+  const ladder = { date: "2026-10-31", cards: [{ tier: "low" }], skipped: [] };
+  const over = { date: "2026-11-02", state: "OFF_SEASON", reason: "the 2026 season is over" };
+  const hidden = inSeasonLadder(ladder, over);
+  assert.equal(hidden.ladder, null);
+  assert.match(hidden.offSeasonReason, /The MLB season is over — the 2026 season is over\. Cards return when games do\./);
+  assert.equal(inSeasonLadder({ ...ladder, date: "2027-03-26" }, over).ladder?.date, "2027-03-26", "a ladder after the capture (games returned) is shown");
+  for (const season of [null, { ...over, state: "POSTSEASON" }, { ...over, state: "UNKNOWN" }]) assert.equal(inSeasonLadder(ladder, season).ladder, ladder, `unchanged for ${season?.state ?? "no evidence"}`);
 });

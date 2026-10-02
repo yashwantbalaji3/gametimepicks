@@ -26,7 +26,7 @@ import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import LegRecordList from "@/components/parlays/lab/leg-record-list";
-import { loadRiskLadder, loadLabLedger, loadTierGrid, loadLabSettled, loadGradedLegRecord } from "@/lib/parlays/risk-ladder";
+import { loadRiskLadder, loadLabLedger, loadTierGrid, loadLabSettled, loadGradedLegRecord, inSeasonLadder, loadMlbSeasonState } from "@/lib/parlays/risk-ladder";
 import { buildTierReplay } from "@/lib/parlays/lab/style-replay.mjs";
 import { loadMlbPropsBoard, toSwapCandidate } from "@/lib/mlb/mlb-props";
 import path from "node:path";
@@ -45,7 +45,8 @@ export default function ParlayCenterSuggestedPage() {
   const suggestedCards = loadSuggestedCards(currentSlateDate() ?? currentEtDate());
   const dataRoot = path.join(process.cwd(), "public", "data");
   const ladderDate = currentSlateDate() ?? currentEtDate();
-  const riskLadder = loadRiskLadder(dataRoot, ladderDate);
+  /* D3: an off-season never shows last season's ladder as the current card set. */
+  const { ladder: riskLadder, offSeasonReason } = inSeasonLadder(loadRiskLadder(dataRoot, ladderDate), loadMlbSeasonState(dataRoot));
   /* What the page can actually show today, independent of the builder's own pool. */
   const ladderCardCount = riskLadder?.cards?.length ?? 0;
   /* The precomputed 4x4 tier grid — server-resolved, so every reader with the same bankroll sees
@@ -96,7 +97,7 @@ export default function ParlayCenterSuggestedPage() {
       <RiskLadderBoard
         entryShowsTitle={false}
         cards={riskLadder?.cards ?? []}
-        skipped={riskLadder?.skipped ?? []}
+        skipped={offSeasonReason ? (["low", "medium", "high", "longshot"] as const).map((tier) => ({ tier, reason: offSeasonReason })) : riskLadder?.skipped ?? []}
         overallRoi={riskLadder?.record.overall.roi ?? null}
         gradedDays={riskLadder?.record.gradedDays ?? 0}
         bettorTiers={riskLadder?.bettorTiers ?? []}

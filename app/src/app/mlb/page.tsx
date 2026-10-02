@@ -44,7 +44,7 @@ import SportHubNav from "@/components/sports/sport-hub-nav";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
 import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
 import { loadHomerNukesBoard } from "@/lib/mlb/homer-nukes-board";
-import { loadRiskLadder, loadLabLedger } from "@/lib/parlays/risk-ladder";
+import { loadRiskLadder, loadLabLedger, inSeasonLadder, loadMlbSeasonState } from "@/lib/parlays/risk-ladder";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import DeferUntilVisible from "@/components/defer-until-visible";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
@@ -122,7 +122,8 @@ export default function MlbLandingPage() {
   const homerNukesBoard = loadHomerNukesBoard(path.join(process.cwd(), "public", "data"), date);
   /* The live record behind the honest-limits sentence (lib/mlb/homer-nukes-honesty.mjs). */
   const homerNukesRecord = (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mlb", "homer-nukes", "record.json"), "utf8")); } catch { return null; } })();
-  const riskLadder = loadRiskLadder(path.join(process.cwd(), "public", "data"), flagshipDate);
+  /* D3: once StatsAPI says the season is over, last season's ladder is not shown as the current card set. */
+  const riskLadder = inSeasonLadder(loadRiskLadder(path.join(process.cwd(), "public", "data"), flagshipDate), loadMlbSeasonState(path.join(process.cwd(), "public", "data"))).ladder;
   const labLedger = loadLabLedger(path.join(process.cwd(), "public", "data"));
 
   /*

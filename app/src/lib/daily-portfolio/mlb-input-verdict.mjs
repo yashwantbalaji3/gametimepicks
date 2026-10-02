@@ -19,11 +19,21 @@
  * postseason game added since (2026-10-02's file, captured 09-26, says 0), and timestamp-only refreshes are
  * not committed, so an unchanged file keeps its first capture time. Uncertain ⇒ INPUT_UNAVAILABLE.
  *
- * Pure: the gate result, the schedule document and the clock are arguments.
+ * FOUNDER DECISION D3 (Session 5) adds a fourth verdict, from StatsAPI's own season state (lib/mlb/season-state.mjs),
+ * captured on the day:
+ *
+ *   OFF_SEASON         no game remains to be played (or the regular season has not begun). MLB leaves the active daily
+ *                      universe: no money products, no failure, the receipt says OFF_SEASON. During the postseason MLB
+ *                      stays active — a postseason off day is NO_EVENTS, a game day is READY.
+ *
+ * A usable priced slate always wins (READY): games on the board outrank any calendar reading. UNKNOWN season state
+ * changes nothing — the original three-verdict rule decides.
+ *
+ * Pure: the gate result, the schedule document, the season state and the clock are arguments.
  */
 import { GATE } from "./pool-gate.mjs";
 
-export const MLB_INPUT = Object.freeze({ READY: "READY", NO_EVENTS: "NO_EVENTS", INPUT_UNAVAILABLE: "INPUT_UNAVAILABLE" });
+export const MLB_INPUT = Object.freeze({ READY: "READY", NO_EVENTS: "NO_EVENTS", OFF_SEASON: "OFF_SEASON", INPUT_UNAVAILABLE: "INPUT_UNAVAILABLE" });
 
 const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
 
@@ -34,11 +44,17 @@ const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New
  * @param nowIso    the run's clock
  * @returns {{ verdict, reason, gate: string }}
  */
-export function classifyMlbInput({ gate, schedule, date, nowIso }) {
+export function classifyMlbInput({ gate, schedule, date, nowIso, season = null }) {
   const now = Date.parse(nowIso ?? "");
   if (!Number.isFinite(now)) throw new Error("classifyMlbInput: nowIso required");
   const g = gate?.verdict ?? "UNKNOWN";
-  if (g === GATE.OK || g === GATE.INPUT_EMPTY) return { verdict: MLB_INPUT.READY, gate: g, reason: gate.detail ?? g };
+  if (g === GATE.OK) return { verdict: MLB_INPUT.READY, gate: g, reason: gate.detail ?? g };
+  // `season` is seasonStateFor(...) — already refused unless derived for `date` and captured on that ET day.
+  if (season?.state === "OFF_SEASON") return { verdict: MLB_INPUT.OFF_SEASON, gate: g, reason: `MLB is out of season: ${season.reason}` };
+  if (g === GATE.INPUT_EMPTY) return { verdict: MLB_INPUT.READY, gate: g, reason: gate.detail ?? g };
+  if (g === GATE.INPUT_MISSING && season?.state === "POSTSEASON" && season.gamesToday === 0) {
+    return { verdict: MLB_INPUT.NO_EVENTS, gate: g, reason: `MLB postseason off day: ${season.reason}` };
+  }
 
   if (g === GATE.INPUT_MISSING) {
     const at = Date.parse(schedule?.capturedAt ?? "");
