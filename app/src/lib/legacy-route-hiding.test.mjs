@@ -57,11 +57,15 @@ test("the footer states coverage honestly: MLB's hub, NBA archive, and NO schedu
     // #797 PR B: MLB's note was "live" — a season claim that read true the day after the season ended. It
     // now names what the hub is; the property (MLB is labelled, and not as an archive) is unchanged.
     assert.match(builtFooter, /MLB<span[^>]*> · simulation center/, "MLB is labelled by what its hub is");
-    assert.match(builtFooter, /NBA<span[^>]*> · settled archive/, "NBA is labelled a settled archive, not off-season coverage");
+    assert.match(builtFooter, /NBA archive<span[^>]*> · retired model/, "the NBA archive is labelled a retired model's record, not current coverage");
+    assert.match(builtFooter, /NBA<span[^>]*> · schedule \+ finals · no forecast/, "the NBA hub is labelled factual-only");
   }
   assert.match(registry, /href: "\/mlb", label: "MLB", note: "simulation center"/, "MLB declares its coverage");
-  assert.match(registry, /href: "\/results\/nba", label: "NBA", note: "settled archive"/,
-    "the NBA archive declares itself an archive");
+  assert.match(registry, /href: "\/results\/nba", label: "NBA archive", note: "retired model/,
+    "the NBA archive declares itself a retired model's archive");
+  // Session 6 (founder decision 3): /nba is a factual hub in the sports group, and its entry says it publishes no forecast.
+  assert.match(registry, /href: "\/nba", label: "NBA", note: "schedule \+ finals · no forecast"/,
+    "the NBA hub's nav entry must not imply a model");
   // The schedule-only leagues have no public destination at all, so nothing links to them.
   for (const league of ["nhl", "ipl"]) {
     assert.equal(registry.indexOf(`href: "/${league}"`), -1, `nothing links /${league}`);
@@ -69,8 +73,8 @@ test("the footer states coverage honestly: MLB's hub, NBA archive, and NO schedu
       assert.equal(builtFooter.search(new RegExp(`href="/${league}/?"`)), -1, `footer does not link /${league}`);
     }
   }
-  // /nba redirects to the archive; the footer must point at the archive itself, not the stub.
-  assert.equal(registry.indexOf('href: "/nba"'), -1, "footer links the archive, not the /nba redirect stub");
+  // Session 6: /nba is no longer a redirect stub (it is the factual hub), so linking it is correct; the archive keeps its own link.
+  assert.notEqual(registry.indexOf('href: "/results/nba"'), -1, "the archive stays reachable");
 });
 
 test("the primary nav stays a clean simulate-first spine (no non-live sport promoted to primary)", () => {
