@@ -35,9 +35,13 @@ const lobbySrc = read("src/components/games/simulate-lobby.tsx");
 /** Newest MLB game-simulation artifact (YYYY-MM-DD.json) — date + parsed payload. */
 function latestMlbSim() {
   const dir = path.join(app, "public/data/mlb/game-simulations");
-  const files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
-  const file = files[files.length - 1];
-  return { date: file.replace(".json", ""), payload: JSON.parse(fs.readFileSync(path.join(dir, file), "utf8")) };
+  /* The newest artifact that HAS games — an off day commits a 0-game file by design (2026-10-02). */
+  const files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().reverse();
+  for (const file of files) {
+    const payload = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+    if (Object.values(payload.games ?? {}).some((g) => (g.generatedPicks ?? []).length > 0)) return { date: file.replace(".json", ""), payload };
+  }
+  throw new Error("no committed MLB simulation artifact carries a game with picks");
 }
 
 /** A real MLB detail SUBSET built from the live artifacts (sim view fields + de-vigged Game Center). */

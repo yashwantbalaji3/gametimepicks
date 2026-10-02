@@ -41,7 +41,8 @@
     "job": "scripts/ops/run-job.sh",
     "watch:gate": "scripts/ops/watch-gate.sh",
     "lint:scripts": "eslint --no-eslintrc -c eslint-scripts.json \"scripts/**/*.mjs\" \"api/**/*.mjs\" \"../scripts/**/*.mjs\"",
-    "build:raw": "node scripts/build-info.mjs --emit && node scripts/compare/emit-compare-assets.mjs && node scripts/lab/emit-lab-assets.mjs && npx tsx scripts/ask/build-ask-projections.mjs && node scripts/ask/emit-ask-assets.mjs && npx tsx scripts/build-search-index.mjs && next build && node scripts/prune-internal-routes.mjs && node scripts/build-info.mjs --publish"
+    "build:raw": "node scripts/build-info.mjs --emit && node scripts/compare/emit-compare-assets.mjs && node scripts/lab/emit-lab-assets.mjs && npx tsx scripts/ask/build-ask-projections.mjs && node scripts/ask/emit-ask-assets.mjs && npx tsx scripts/build-search-index.mjs && next build && node scripts/prune-internal-routes.mjs && node scripts/build-info.mjs --publish",
+    "money:audit": "node scripts/mr-dub/money-audit.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

@@ -98,6 +98,22 @@ export const COVERAGE_COPY = Object.freeze({
   EPL_NO_CURRENT_SEASON_LOGS: "Current-season (2026-27) match lines are not available yet.",
 });
 
+/**
+ * A "not available yet" note names the season it is about. It is true only while that season is absent from
+ * the index: on 2026-10-02 the projection began shipping NFL-2026 player rows and the hard-wired note kept
+ * saying they were unavailable. The producer and the reader both ask this map (Session 8).
+ */
+export const NOTE_ABSENT_SEASON = Object.freeze({
+  NFL_NO_CURRENT_SEASON_LOGS: "NFL-2026",
+  EPL_NO_CURRENT_SEASON_LOGS: "EPL-2026-27",
+});
+
+/** The coverage notes an index may truthfully show: a "season not available" note whose season IS offered is dropped. */
+export function coverageNotesFor(index) {
+  const offered = new Set(index?.seasons ?? []);
+  return (index?.coverage?.notes ?? []).filter((n) => !(n in NOTE_ABSENT_SEASON && offered.has(NOTE_ABSENT_SEASON[n])));
+}
+
 export function coverageText(code) {
   const t = COVERAGE_COPY[code];
   if (!t) throw new Error(`lab copy: unknown coverage note ${code}`);

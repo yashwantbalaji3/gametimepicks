@@ -14,7 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { applyFold, foldLedgerRows, foldReceipts } from "../../src/lib/mr-dub/protected-fold.mjs";
+import { HALT, applyFold, foldLedgerRows, foldReceipts } from "../../src/lib/mr-dub/protected-fold.mjs";
 import { checkProtectedLedger, readReceiptsFrom } from "../../src/lib/mr-dub/protected-invariant.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -31,6 +31,10 @@ if (!pre.ok) { console.error(`REFUSED: the record is not intact BEFORE folding �
 
 const fold = foldReceipts(receipts);
 const APPLY = process.argv.includes("--apply");
+/* An open day halts the fold every night and is routine. Any OTHER halt is a decision the record cannot
+   make for itself (a completed ladder: Rule S does not say what it banks) — say so loudly in the run. */
+if (fold.haltReason && fold.haltReason !== HALT.OPEN_DAY)
+  console.log(`::warning::protected fold halted at ${fold.haltedAt}: ${fold.haltReason} — nothing after it folds until the founder writes the rule (docs/MR_DUB_MONEY_LEDGER.md)`);
 
 /* The derived money files carry one row per folded day (health gate: Σ ledger == settledProfit, the
    day chain closes on the bankroll). Synced on every run — including a night with nothing new — and
@@ -49,7 +53,7 @@ function syncLedgerFiles() {
 }
 
 if (before.protectedFold && before.protectedFold.foldedThrough === fold.foldedThrough) {
-  console.log(`[fold] nothing new — folded through ${fold.foldedThrough}${fold.haltedAt ? ` (halted at open day ${fold.haltedAt})` : ""}; bankroll $${before.currentBankroll}`);
+  console.log(`[fold] nothing new — folded through ${fold.foldedThrough}${fold.haltedAt ? ` (halted at ${fold.haltedAt}: ${fold.haltReason})` : ""}; bankroll $${before.currentBankroll}`);
   syncLedgerFiles();
   process.exit(0);
 }
@@ -57,7 +61,7 @@ const after = applyFold(before, fold, { foldedAt: NOW, receipts });
 const post = checkProtectedLedger(after, receipts);
 if (!post.ok) { console.error(`REFUSED: the folded record fails the invariant — ${post.reasons.join("; ")}`); process.exit(4); }
 
-console.log(`[fold] Rule S through ${fold.foldedThrough}${fold.haltedAt ? ` (halted at open day ${fold.haltedAt})` : ""}: Bank Builder ${fold.bankBuilder.won}-${fold.bankBuilder.lost}, Moonshot ${fold.moonshot.won}-${fold.moonshot.lost}`);
+console.log(`[fold] Rule S through ${fold.foldedThrough}${fold.haltedAt ? ` (halted at ${fold.haltedAt}: ${fold.haltReason})` : ""}: Bank Builder ${fold.bankBuilder.won}-${fold.bankBuilder.lost}, Moonshot ${fold.moonshot.won}-${fold.moonshot.lost}`);
 console.log(`  bankroll $${before.currentBankroll} → $${after.currentBankroll} (Δ ${fold.bankrollDelta}) · record ${before.record.wins}-${before.record.losses} → ${after.record.wins}-${after.record.losses} · crown $${after.crownBankroll} unchanged`);
 if (!APPLY) { syncLedgerFiles(); console.log("  dry run — nothing written. Re-run with --apply."); process.exit(0); }
 fs.writeFileSync(file, JSON.stringify(after, null, 2) + "\n");
