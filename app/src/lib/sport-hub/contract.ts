@@ -105,7 +105,7 @@ export interface HubParticipant {
   name: string;
   /** Team identifier the shared TeamLogo resolves (abbreviation or club name); null ⇒ initials (fighters). */
   logoTeam?: string | null;
-  logoSport?: "mlb" | "nfl" | "soccer" | null;
+  logoSport?: "mlb" | "nfl" | "soccer" | "nba" | null;
 }
 
 export interface SportHubModel {

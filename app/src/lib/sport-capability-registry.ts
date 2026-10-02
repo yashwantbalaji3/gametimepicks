@@ -71,9 +71,11 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     label: "NBA",
     state: "HISTORICAL_ONLY",
     reason:
-      "Off-season, and the primary source is failing: every board since 2026-06-13 carries dataMode ScheduleUnavailable from stats.nba.com timeouts. The settled record is real and stays published; there is no live projection capability.",
+      "Schedule and official finals publish on /nba (free ESPN capture + the write-once finals record); no NBA model has cleared its preregistered bars, so nothing predictive publishes. The May–June 2026 settled player-prop record is a retired model's archive and stays published as one.",
     evidence: [
       "status/nba-first-market-recommendation.json",
+      "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md",
+      "app/src/lib/sports/nba/finals-record.mjs",
       "app/public/data/results/lifetime_summary.json",
       "app/scripts/build-market-coverage-matrix.mjs",
     ],
