@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { isPublishedRecord } from "@/lib/parlays/published-band-record.mjs";
+import { publicRiskLabel } from "@/lib/parlays/risk-odds-bands.mjs";
 import Link from "next/link";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
@@ -391,7 +392,7 @@ export default function RiskLadderBoard({
           <article key={s.tier} className="flex flex-col gap-1.5 rounded-[14px] p-3.5"
             style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-rule)" }}>
             <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-              {s.tier} risk
+              {publicRiskLabel(s.tier) ?? s.tier}
             </span>
             <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>No card today</span>
             <span style={{ color: "var(--vault-text-faint)", fontSize: 11, lineHeight: 1.5 }}>{s.reason}</span>

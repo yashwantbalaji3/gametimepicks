@@ -19,6 +19,7 @@
  * number in the answer that is not in this index has no source, whatever it looks like.
  */
 import { ASK_BUDGET, ASK_STATUS } from "./contract.mjs";
+import { publicRiskLabel } from "../parlays/risk-odds-bands.mjs";
 import { legState } from "../results/v2/lane-words.mjs";
 
 /**
@@ -299,7 +300,7 @@ export function buildEvidence(envelopes) {
       }
 
       case "getParlayCandidates": {
-        say(`GameTime published ${d.totalMatched} parlay candidates for ${d.date}${d.riskProfile ? ` in the ${d.riskProfile} risk style` : ""}; ${d.returned} are described here`, [d.totalMatched, d.returned, d.date]);
+        say(`GameTime published ${d.totalMatched} parlay candidates for ${d.date}${d.riskProfile ? ` in the ${publicRiskLabel(d.riskProfile) ?? d.riskProfile} band` : ""}; ${d.returned} are described here`, [d.totalMatched, d.returned, d.date]);
         if (d.withheldMarketContext) say(`${d.withheldMarketContext} further candidates for ${d.date} were withheld because they use market-context families, which are not published GameTime projections`, [d.withheldMarketContext, d.date]);
         say(`GameTime does not publish a price-aware expected value, so these candidates are NOT ranked by expected value or profitability`);
         say(`GameTime has no staking policy, so there is no recommended stake for any of these`);

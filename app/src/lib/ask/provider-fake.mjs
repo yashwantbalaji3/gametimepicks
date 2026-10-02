@@ -292,7 +292,7 @@ function routePlan(user) {
       return {
         intent: "PARLAY_REQUEST",
         needsClarification: true,
-        clarification: "I can tailor today's GameTime parlay candidates. Which risk style do you want — Low, Medium, High or Longshot? If you'd like them scaled to a budget, tell me your entertainment bankroll too.",
+        clarification: "I can tailor today's GameTime parlay candidates. Which risk level do you want — Low Risk, Medium Risk, High Risk or Longshot? If you'd like them scaled to a budget, tell me your entertainment bankroll too.",
         calls,
       };
     }

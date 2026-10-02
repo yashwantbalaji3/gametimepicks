@@ -198,13 +198,14 @@ const CHUNKS = [
   },
   {
     id: "parlay-candidates",
-    title: "Parlay candidates and risk styles",
+    title: "Parlay candidates and risk levels",
     section: "Parlays",
     route: "/build/",
     keywords: ["parlay", "candidates", "risk", "low", "medium", "high", "longshot", "best parlay", "slip"],
     text:
-      "GameTime's optimizer publishes parlay candidates each day in four risk styles: Low, Medium, High and " +
-      "Longshot. A risk style changes which existing candidates are surfaced — it never changes a model's " +
+      "GameTime's optimizer publishes parlay candidates each day in four risk levels, set by the card's combined " +
+      "price: Low Risk (−200 to +100), Medium Risk (+100 to +300), High Risk (+300 to +600) and Longshot (above " +
+      "+600). A risk level changes which existing candidates are surfaced — it never changes a model's " +
       "projection, probability, confidence or price. Candidates are research, not advice, and no parlay is " +
       "safe. Ask can only show candidates the optimizer already produced; it cannot build you a new one.",
   },
