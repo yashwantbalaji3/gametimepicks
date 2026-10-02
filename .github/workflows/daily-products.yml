@@ -248,7 +248,8 @@ jobs:
           echo "protected money unchanged"
 
       - name: Validate the artifact before publishing
-        if: steps.mlb.outputs.verdict != 'INPUT_UNAVAILABLE' && steps.mlb.outputs.verdict != 'OFF_SEASON'
+        # A dry run writes no portfolio, so there is nothing of today's to validate (found by the 10-02 dry run).
+        if: steps.mlb.outputs.verdict != 'INPUT_UNAVAILABLE' && steps.mlb.outputs.verdict != 'OFF_SEASON' && github.event.inputs.dry_run != 'true'
         run: |
           set -euo pipefail
           node -e "
