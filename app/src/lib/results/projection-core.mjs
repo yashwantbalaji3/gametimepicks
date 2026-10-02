@@ -45,6 +45,21 @@ export const RECORD_TYPES = Object.freeze({
 /** Record types that are model detail, not a public track record (D1). */
 export const MODEL_DETAIL_RECORD_TYPES = Object.freeze([RECORD_TYPES.CANDIDATE_POOL_RECORD]);
 
+/**
+ * D1 · is this cell the candidate pool? By type — or, for an artifact written BEFORE D1 (typed LAB_CARD_RECORD), by
+ * its owner segment (risk-ladder-overall / risk-ladder-tier-*). A committed projection outlives the code that wrote
+ * it, so a reader cannot trust the type alone: on 2026-10-02 Production Ask, reading the 10-01 artifact, called the
+ * 383–1,608 pool "Suggested Parlays's current settled record".
+ */
+export const isCandidatePoolCell = (c) => MODEL_DETAIL_RECORD_TYPES.includes(c?.recordType) || /^risk-ladder-/.test(String(c?.segment ?? ""));
+/** D1 · the public Lab record: the lab ledger's MLB stream — the published cards. One selector for builder and readers. */
+export const isPublishedLabHeadline = (c) => c?.family === FAMILIES.LAB && c?.recordType === RECORD_TYPES.LAB_CARD_RECORD && c?.segment === "stream" && c?.sport === "mlb";
+/** A Lab headline that points at the candidate pool (a pre-D1 artifact) resolves to the published cards, never the pool. */
+function publishedLabUnlessCandidate(p, cell) {
+  if (!cell || !isCandidatePoolCell(cell)) return cell;
+  return cellsOf(p).find(isPublishedLabHeadline) ?? null;
+}
+
 /** The headline families. Never summed across; each has at most ONE designated headline cell. */
 export const FAMILIES = Object.freeze({
   PRODUCT: "product",
@@ -355,13 +370,13 @@ export const cellsByProduct = (p, product) => cellsOf(p).filter((c) => c.product
  */
 export function headlineFor(p, family) {
   const id = p?.headline?.byFamily?.[family] ?? null;
-  const cell = id ? cellById(p, id) : null;
+  const cell = publishedLabUnlessCandidate(p, id ? cellById(p, id) : null);
   if (cell && LEGACY_ERAS.includes(cell.era)) throw new Error(`projection: headline for ${family} points at a legacy era (${cell.era}) — a legacy era is read only by explicit request`);
   return cell;
 }
 export function headlineForProduct(p, product) {
   const id = p?.headline?.byProduct?.[product] ?? null;
-  const cell = id ? cellById(p, id) : null;
+  const cell = publishedLabUnlessCandidate(p, id ? cellById(p, id) : null);
   if (cell && LEGACY_ERAS.includes(cell.era)) throw new Error(`projection: product headline for ${product} points at a legacy era (${cell.era})`);
   return cell;
 }
@@ -894,7 +909,7 @@ export function buildProjection(sources, { now }) {
     [FAMILIES.FORECAST]: find((c) => c.family === FAMILIES.FORECAST && c.sport === "mlb" && c.segment === "lifetime-summary") ?? find((c) => c.family === FAMILIES.FORECAST && c.sport === "mlb"),
     /* Founder decision D1 (Session 5): the public Lab record is the PUBLISHED cards — the lab ledger's MLB stream
        (one card per risk level a day). The candidate pool (risk-ladder-overall) is model detail, never a headline. */
-    [FAMILIES.LAB]: find((c) => c.family === FAMILIES.LAB && c.recordType === RECORD_TYPES.LAB_CARD_RECORD && c.segment === "stream" && c.sport === "mlb"),
+    [FAMILIES.LAB]: find(isPublishedLabHeadline),
     [FAMILIES.CYCLE]: null,        // a table, never a headline figure
     [FAMILIES.MODEL_FAMILY]: null, // state words, never a headline figure
   };

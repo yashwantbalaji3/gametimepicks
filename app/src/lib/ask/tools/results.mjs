@@ -35,6 +35,10 @@ import { ASK_ERROR, ASK_STATUS, askAssetPath } from "../contract.mjs";
 /* Mirrors projection-core MODEL_DETAIL_RECORD_TYPES (pinned equal by record-population-labels.test.mjs); the Ask
    runtime does not import the projection builder. */
 export const MODEL_DETAIL_RECORD_TYPES = Object.freeze(["CANDIDATE_POOL_RECORD"]);
+/* Mirrors projection-core isCandidatePoolCell / isPublishedLabHeadline: a pre-D1 artifact types the pool LAB_CARD_RECORD,
+   so its owner segment identifies it too (2026-10-02 Production Ask called 383–1,608 "Suggested Parlays's record"). */
+export const isCandidatePoolCell = (c) => MODEL_DETAIL_RECORD_TYPES.includes(c?.recordType) || /^risk-ladder-/.test(String(c?.segment ?? ""));
+const isPublishedLabHeadline = (c) => c?.family === "lab" && c?.recordType === "LAB_CARD_RECORD" && c?.segment === "stream" && c?.sport === "mlb";
 
 /* "parlay-lab" is the internal id; the rendered name is Suggested Parlays (Parlay Lab is retired in rendered copy), and
    its record is the published cards (founder decision D1). */
@@ -112,7 +116,8 @@ export async function getProductRecord(args, ctx) {
 
   const product = String(args.product);
   const headlineId = doc.headline?.byProduct?.[product] ?? null;
-  const current = headlineId ? cellById(doc, headlineId) : null;
+  let current = headlineId ? cellById(doc, headlineId) : null;
+  if (current && isCandidatePoolCell(current)) current = (doc.cells ?? []).find(isPublishedLabHeadline) ?? null;
 
   if (!current) {
     return {
@@ -127,7 +132,7 @@ export async function getProductRecord(args, ctx) {
   /* D1 (Session 5): the candidate pool is model detail — never a component or a legacy row of a product record. */
   const own = (doc.cells ?? [])
     .filter((c) => c.product === product || (c.family === "lab" && product === "parlay-lab"))
-    .filter((c) => !MODEL_DETAIL_RECORD_TYPES.includes(c.recordType));
+    .filter((c) => !isCandidatePoolCell(c));
 
   /*
    * THE OTHER CURRENT-ERA CELLS, listed and NOT added. A composite record is shown with its era
