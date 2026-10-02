@@ -24,6 +24,7 @@ import zlib from "node:zlib";
 import { COMPARE_PROJECTION_DIR, EVALUATIVE_TERMS, FORBIDDEN_COMPARE_FIELDS, pairKey } from "./contract.mjs";
 import { BLOCKER_COPY, FAMILY_COVERAGE_COPY } from "./copy.mjs";
 import { getPlayerCompareEligibility } from "./eligibility.mjs";
+import { playerSeasonsForStat } from "./entities.mjs";
 import { getHeadToHead } from "./head-to-head.mjs";
 import { MATCHUP_INDEXABLE_SPORTS, MATCHUP_PAGE_BUDGET, MATCHUP_WINDOWS } from "./matchup.mjs";
 import { assembleCompareProjection, assertNoForbiddenCompareFields } from "./projection-build.mjs";
@@ -188,11 +189,14 @@ test("CX6 real data: symmetry, same-name identity, honest default season, double
   const e = getPlayerCompareEligibility(manhertz[0], manhertz[1]);
   assert.ok(!e.blockers.includes("SAME_ENTITY"), "same name is not the same player");
 
-  // NFL 2026 player logs are blocked upstream: no pair can default to (or even share) 2026.
+  // A shared season is one BOTH players recorded the stat in — never a season one of them lacks. (Until
+  // 2026-10-02 this pinned "no pair shares NFL-2026" because 2026 logs were not yet ingested; they now are.)
   const sample = players.filter((p) => p.stats.includes("NFL.receivingYards")).slice(0, 40);
   for (let i = 0; i + 1 < sample.length; i += 2) {
     const el = getPlayerCompareEligibility(sample[i], sample[i + 1]);
-    assert.ok(!el.sharedSeasons.includes("NFL-2026"), `${sample[i].slug} vs ${sample[i + 1].slug}`);
+    const own = (p) => new Set(playerSeasonsForStat(p, el.selectedStat ?? "NFL.receivingYards"));
+    for (const s of el.sharedSeasons) assert.ok(own(sample[i]).has(s) && own(sample[i + 1]).has(s), `${sample[i].slug} vs ${sample[i + 1].slug}: ${s} not recorded by both`);
+    assert.equal(el.defaultSeason, el.sharedSeasons[0] ?? null, "the default season is the newest shared one");
   }
 
   // A real MLB same-day doubleheader: both games are meetings, never collapsed.

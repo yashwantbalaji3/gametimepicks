@@ -39,6 +39,8 @@ import AnalyticsCharts from "@/components/mr-dub/flagship/analytics-charts";
 import ProductAttribution from "@/components/mr-dub/flagship/product-attribution";
 // Wider-platform appendix: today's full four-product plan + the separate Moonshot side lane.
 import DailyPortfolioSection from "@/components/mr-dub/daily-portfolio-section";
+import MoneyMovementsPanel from "@/components/mr-dub/money-movements-panel";
+import { buildMoneyMovementsView } from "@/lib/mr-dub/money-movements-view";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { strongestSlatePicks } from "@/lib/world-cup/structured-moonshot";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
@@ -136,6 +138,10 @@ export default function MrDubPage() {
 
       {/* 3 — Today's status (pending cards, current Bank Builder, exposure, settlement window). Phase 7. */}
       <TodayStatusStrip todayStatus={f.todayStatus} />
+
+      {/* 3b — Money movements: bankroll, historical peak, difference, open exposure, and every recent official
+          movement with its card (Session 8 · A). Reconciled card by card before it renders. */}
+      <MoneyMovementsPanel view={buildMoneyMovementsView(root, today)} />
 
       {/* 4 — The Bank Builder journey — the visual $100 → $10K ladders. Phase 4. */}
       <section>

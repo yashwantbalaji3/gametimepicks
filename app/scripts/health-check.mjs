@@ -15,6 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkMoneyIntegrity } from "../src/lib/money-integrity.ts";
+import { reconcileMoney } from "../src/lib/mr-dub/money-movements.mjs";
 import { evaluateTeamMapFreshness } from "../src/lib/world-cup/wc-team-map-freshness.ts";
 
 // Resolve the data dir relative to THIS script (app/scripts/ → app/public/data), so the deploy gate works
@@ -86,6 +87,17 @@ if (portfolio && ledger && daily && banked) {
 
   const crownSum = round2((banked.ladders ?? []).reduce((s, l) => s + (Number(l.final) || 0), 0));
   if (!near(crownSum, portfolio.crownBankroll)) C("reconcile:crown", `Σ ladder finals ${crownSum} ≠ crown ${portfolio.crownBankroll}`); else P("reconcile: crown == Σ banked finals");
+}
+
+// ── 3b. PER-CARD MONEY MOVEMENTS (Session 8) — every bankroll move attributed to the card that caused it:
+//     $100 + Σ movements == bankroll, each folded day == Σ its cards, Rule S per card, stake carry, recomputed
+//     peak == crown. The day-level checks above cannot see a stake edited after freeze or a shadow row.
+if (portfolio && ledger && daily) {
+  const dir = path.join(ROOT, "mr-dub", "settled");
+  const receipts = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().map((f) => ({ ...JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")), date: f.slice(0, 10) })) : [];
+  const m = reconcileMoney({ portfolio, ledgerEvents: ledger.events ?? [], summaryDays: daily.days ?? [], receipts });
+  if (m.ok) P(`reconcile: ${m.summary.rows} card movements → $${m.summary.recomputedBankroll}, peak $${m.summary.peak} == crown`);
+  else for (const r of m.reasons.slice(0, 8)) C("reconcile:card-movements", r);
 }
 
 // ── 4. DATA HYGIENE — no duplicate event IDs, ISO dates, no orphan/NaN profit ────────────────────

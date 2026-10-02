@@ -18,7 +18,7 @@
 import { canonicalJson } from "../research-pages/projection-build.mjs";
 import { TEAM, isNum } from "../compare/entities.mjs";
 import { STAT_FAMILIES } from "../compare/stat-families.mjs";
-import { familyCoverageCode, seasonLabel } from "./copy.mjs";
+import { NOTE_ABSENT_SEASON, familyCoverageCode, seasonLabel } from "./copy.mjs";
 import {
   FORBIDDEN_LAB_FIELDS, LAB_BLOCKED_SPORTS, LAB_MODE_SPORTS, LAB_PROJECTION_SCHEMA_VERSION,
 } from "./contract.mjs";
@@ -196,7 +196,8 @@ export function assembleLabProjection(input) {
       kind: `${sport}_PLAYER_ROWS`,
       from: dates[0] ?? null,
       to: dates[dates.length - 1] ?? null,
-      notes: sport === "MLB" ? ["MLB_PLAYER_CAPTURED_ONLY"] : sport === "NFL" ? ["NFL_NO_CURRENT_SEASON_LOGS", "NFL_GAME_LINES_FROM_2023"] : ["EPL_NO_CURRENT_SEASON_LOGS"],
+      notes: (sport === "MLB" ? ["MLB_PLAYER_CAPTURED_ONLY"] : sport === "NFL" ? ["NFL_NO_CURRENT_SEASON_LOGS", "NFL_GAME_LINES_FROM_2023"] : ["EPL_NO_CURRENT_SEASON_LOGS"])
+        .filter((n) => !(n in NOTE_ABSENT_SEASON && seasons.includes(NOTE_ABSENT_SEASON[n]))),
     };
     files.set(`indexes/players-${sport.toLowerCase()}.json`, canonicalJson({
       schemaVersion: LAB_PROJECTION_SCHEMA_VERSION, artifact: "lab-index", mode: "players", sport, seasons,

@@ -35,6 +35,29 @@ export const PROTECTED_BASE = Object.freeze({
 export const HISTORY_KEYS = Object.freeze(["portfolioId", "displayName", "paperOnly", "disclaimer", "startingDate", "startingBankroll", "crownBankroll", "completedLadders", "completedCards"]);
 export const HISTORY_HASH = "d12cc425db2ccd9214e06ea1e6887d4520bb21819d4c8c17a6b100be21de0a59";
 
+/**
+ * THE FINAL RUNG per product (Bank Builder's live ladder is five rungs, Moonshot's three — pinned against
+ * BANK_BUILDER_STEP_COUNT / MOONSHOT_STEP_COUNT by money-movements.test.mjs). A won final rung COMPLETES a
+ * run, and Rule S says nothing about what a completion banks: a lost step costs its seed, a won step rolls.
+ * Folding a completion as an ordinary roll would silently forfeit the run's value — that is an accounting
+ * decision, and it is the founder's (settle-daily-portfolio.mjs flags the same event "operator-gated"). So
+ * the fold HALTS on it instead, exactly like an open day: nothing after it folds until a written rule exists.
+ */
+export const FINAL_STEP = Object.freeze({ "bank-builder": 5, moonshot: 3 });
+export const HALT = Object.freeze({
+  OPEN_DAY: "OPEN_PLACED_LANE",
+  COMPLETION: "LADDER_COMPLETION_OPERATOR_GATED",
+  UNKNOWN_PRODUCT: "UNKNOWN_PRODUCT",
+});
+
+/** Why a day cannot fold (null = it can). Shared by the fold and its backlog disclosure. */
+export function foldBlocker(placed) {
+  if (placed.some((l) => !(l.product in SEED))) return HALT.UNKNOWN_PRODUCT;
+  if (placed.some((l) => !DECIDED.has(l.result))) return HALT.OPEN_DAY;
+  if (placed.some((l) => l.result === "won" && Number(l.step) >= FINAL_STEP[l.product])) return HALT.COMPLETION;
+  return null;
+}
+
 const PLACED = new Set(["active", "won", "lost", "void", "push"]);
 const DECIDED = new Set(["won", "lost", "void", "push"]);
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -44,11 +67,12 @@ const round4 = (n) => Math.round(n * 10000) / 10000;
 export function foldReceipts(receipts, { after = PROTECTED_BASE.asOf } = {}) {
   const ordered = [...(receipts ?? [])].filter((r) => r?.date && r.date > after).sort((a, b) => a.date.localeCompare(b.date));
   const days = [];
-  let haltedAt = null;
+  let haltedAt = null, haltReason = null;
   for (const r of ordered) {
     const rows = (r.lanes ?? []).map((l) => ({ ...l, result: String(l.result ?? "pending") }));
     const placed = rows.filter((l) => (l.status != null ? PLACED.has(String(l.status)) : DECIDED.has(l.result)));
-    if (placed.some((l) => !DECIDED.has(l.result))) { haltedAt = r.date; break; }
+    const blocker = foldBlocker(placed);
+    if (blocker) { haltedAt = r.date; haltReason = blocker; break; }
     const tally = (p, res) => placed.filter((l) => l.product === p && l.result === res).length;
     const day = {
       date: r.date,
@@ -63,6 +87,7 @@ export function foldReceipts(receipts, { after = PROTECTED_BASE.asOf } = {}) {
     rule: FOLD_RULE,
     foldedThrough: days.length ? days[days.length - 1].date : null,
     haltedAt,
+    haltReason,
     days,
     bankrollDelta: round2(sum((d) => d.delta)) || 0,
     bankBuilder: { won: sum((d) => d.bankBuilder.won), lost: sum((d) => d.bankBuilder.lost) },
@@ -80,20 +105,22 @@ export function foldReceipts(receipts, { after = PROTECTED_BASE.asOf } = {}) {
 export function foldBacklog(receipts, { after }) {
   const ordered = [...(receipts ?? [])].filter((r) => r?.date && r.date > after).sort((a, b) => a.date.localeCompare(b.date));
   const decided = { "bank-builder": { won: 0, lost: 0 }, moonshot: { won: 0, lost: 0 } };
-  let haltedAt = null;
+  let haltedAt = null, haltReason = null;
   const blocking = [];
   for (const r of ordered) {
     const rows = (r.lanes ?? []).map((l) => ({ ...l, result: String(l.result ?? "pending") }));
     const placed = rows.filter((l) => (l.status != null ? PLACED.has(String(l.status)) : DECIDED.has(l.result)));
     const open = placed.filter((l) => !DECIDED.has(l.result));
+    const blocker = foldBlocker(placed);
+    if (!haltedAt && blocker && blocker !== HALT.OPEN_DAY) { haltedAt = r.date; haltReason = blocker; }
     if (!haltedAt && open.length) {
-      haltedAt = r.date;
+      haltedAt = r.date; haltReason = HALT.OPEN_DAY;
       for (const l of open) blocking.push({ product: l.product ?? null, lane: l.lane ?? null,
         legs: (l.legs ?? []).filter((g) => String(g.result ?? "pending") === "pending").map((g) => ({ matchup: g.matchup ?? null, selection: g.selection ?? null })) });
     }
     for (const l of placed) if ((l.result === "won" || l.result === "lost") && decided[l.product]) decided[l.product][l.result] += 1;
   }
-  return { after, haltedAt, blocking, decided, days: ordered.map((r) => r.date) };
+  return { after, haltedAt, haltReason, blocking, decided, days: ordered.map((r) => r.date) };
 }
 
 /** Wins the frozen-rung defect never carried: disclosed beside the record, never credited. */

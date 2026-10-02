@@ -65,13 +65,14 @@ function readyMlbDetails() {
  *  when buildAllGameDetails() lists 0 MLB details). Returns null if none is committed. */
 function newestMlbSimArtifact() {
   const simDir = path.join(APP_ROOT, "public", "data", "mlb", "game-simulations");
-  const newest = fs
-    .readdirSync(simDir)
-    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
-    .sort()
-    .pop();
-  if (!newest) return null;
-  return { date: newest.replace(/\.json$/, ""), artifact: JSON.parse(fs.readFileSync(path.join(simDir, newest), "utf8")) };
+  /* The newest artifact that HAS a ready game. An off day (postseason gaps, the All-Star break, the season's
+     end) commits a 0-game file by design, and taking the newest file blindly turned this red on 2026-10-02. */
+  const files = fs.readdirSync(simDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().reverse();
+  for (const f of files) {
+    const artifact = JSON.parse(fs.readFileSync(path.join(simDir, f), "utf8"));
+    if ((artifact.games ?? []).some((x) => x.status === "ready" && (x.generatedPicks ?? []).length > 0)) return { date: f.replace(/\.json$/, ""), artifact };
+  }
+  return null;
 }
 
 // ── 1 · A ready artifact game exposes a ready sim view with its generatedPicks ──────────────────

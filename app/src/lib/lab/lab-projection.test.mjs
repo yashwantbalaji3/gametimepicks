@@ -25,7 +25,7 @@ import zlib from "node:zlib";
 
 import { LAB_ASSET_PREFIX, LAB_BUDGET, LAB_EVALUATIVE_TERMS, LAB_MODE_SPORTS, LAB_PROJECTION_DIR, LAB_ROUTE, labAssetPath, labBlocker } from "./contract.mjs";
 import { GAME, HOST_KNOWN, PLAYER, SEASON } from "./fields.mjs";
-import { COVERAGE_COPY, ERROR_COPY } from "./copy.mjs";
+import { COVERAGE_COPY, ERROR_COPY, NOTE_ABSENT_SEASON, coverageNotesFor } from "./copy.mjs";
 import { assembleLabProjection, assertNoForbiddenLabFields } from "./projection-build.mjs";
 import { readLabFile, readLabInput } from "./compare-input.mjs";
 import { labDataset } from "./dataset.mjs";
@@ -215,11 +215,16 @@ test("LX6 real data: the 2025 KC–LAC neutral opener, the KC 2025 record, a rea
   const doubles = [...byDate.values()].filter((n) => n > 1).length;
   assert.ok(doubles > 0, "no MLB doubleheader found — the dedupe key may have collapsed one");
   assert.equal(runQ("?mode=games&sport=mlb&season=all", mlbGames, mlbDs).totalMatched, part("games", "MLB").rows.length);
-  // NFL 2026 player logs are blocked upstream: the season is absent from the projection, so it cannot be offered.
-  assert.equal(index("players", "NFL").seasons.includes("NFL-2026"), false);
-  assert.equal(index("players", "EPL").seasons.includes("EPL-2026-27"), false);
+  // A current season is offered exactly when its rows ship, and the "not available yet" note is shown exactly
+  // when it is not (NFL-2026 player rows began shipping 2026-10-02 — the season moved, the note must follow).
   assert.ok(fs.existsSync(path.join(LAB, "players/NFL/NFL-2025.json.gz")));
-  assert.equal(fs.existsSync(path.join(LAB, "players/NFL/NFL-2026.json.gz")), false);
+  for (const [sport, note] of [["NFL", "NFL_NO_CURRENT_SEASON_LOGS"], ["EPL", "EPL_NO_CURRENT_SEASON_LOGS"]]) {
+    const idx = index("players", sport), season = NOTE_ABSENT_SEASON[note];
+    const offered = idx.seasons.includes(season);
+    assert.equal(fs.existsSync(path.join(LAB, `players/${sport}/${season}.json.gz`)), offered, `${season}: offered ⇔ its partition ships`);
+    if (offered) assert.ok(idx.rowsBySeason[season] > 0, `${season} offered with no rows`);
+    assert.equal(coverageNotesFor(idx).includes(note), !offered, `${note} shown while ${season} is ${offered ? "offered" : "absent"}`);
+  }
 });
 
 test("LX7 coverage drives the UI: every offered season and stat has rows; every blocked sport is explained", () => {

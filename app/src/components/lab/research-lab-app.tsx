@@ -23,7 +23,7 @@ import {
 import { LAB_SORT_FIELDS, labField } from "@/lib/lab/fields.mjs";
 import {
   HA_LABEL, MODE_LABEL, MODE_SUB, MODE_TITLE, RESULT_LABEL, SPORT_NAME, blockedText, coveragePeriod,
-  coverageText, errorText, resultCountText, seasonLabel, sortOptionText,
+  coverageNotesFor, coverageText, errorText, resultCountText, seasonLabel, sortOptionText,
 } from "@/lib/lab/copy.mjs";
 import { defaultLabQuery, parseLabQuery, queryPartitions, serializeLabQuery, switchTarget, validateLabQuery } from "@/lib/lab/query.mjs";
 import { labDataset } from "@/lib/lab/dataset.mjs";
@@ -378,7 +378,7 @@ export default function ResearchLabApp() {
         {coveragePeriod({ mode: target.mode, sportName, from: index.coverage.from, to: index.coverage.to })}
       </p>
       <ul style={{ margin: "6px 0 0", paddingLeft: 18, fontSize: 12.5, color: "var(--vault-text-mute)", lineHeight: 1.55 }}>
-        {index.coverage.notes.map((n: string) => <li key={n}>{coverageText(n)}</li>)}
+        {coverageNotesFor(index).map((n: string) => <li key={n}>{coverageText(n)}</li>)}
         {target.mode === "players" && index.familyCoverage?.[query.stat] ? <li>{coverageText(index.familyCoverage[query.stat])}</li> : null}
       </ul>
     </div>
