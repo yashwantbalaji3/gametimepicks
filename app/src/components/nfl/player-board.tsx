@@ -78,7 +78,7 @@ export interface PlayerBoardArtifact {
   newArrivals?: Record<string, NewArrival[]>;
   /* Session 4 — the pregame roster/usage receipt (board-roster-integrity.mjs). */
   coverage?: BoardCoverage;
-  families: Record<string, { label: string; state: string; basis?: string; reason?: string; caveat?: string }>;
+  families: Record<string, { label: string; state: string; basis?: string; reason?: string; caveat?: string; withheldTeams?: { team: string; sum: number; reason: string }[] }>;
   players: PlayerBoardRow[];
   disclaimer: string;
   /* The three fields the SHARED presentation contract needs and this artifact already carries. The
@@ -286,6 +286,14 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
       {isCombined ? (
         <p className="mt-2" style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
           Every receiving family for one player on one row, ranked by expected receptions.
+        </p>
+      ) : null}
+
+      {/* Session 5 — a family withheld for one team (its pool claims more opportunity than exists) is
+          named here, so that team's absence from this tab is a stated decision, never a silent gap. */}
+      {!isCombined && family && board.families[family]?.withheldTeams?.length ? (
+        <p className="mt-2" data-pool-withheld={family} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+          {board.families[family]!.withheldTeams!.map((w) => w.reason.replace(/^withheld/, `${board.families[family]!.label} withheld`)).join(" · ")}
         </p>
       ) : null}
 

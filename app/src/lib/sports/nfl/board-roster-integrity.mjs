@@ -37,6 +37,7 @@
  * labelled state on a projected row; a mover with no current-club game stays ROLE_UNCERTAIN.
  */
 import { depthChartAsOf, DEPTH_STATE } from "./depth-chart.mjs";
+import { conservationForBoard, SHARE_MARKETS } from "./opportunity-conservation.mjs";
 
 /** Role-evidence states (role-vocabularies.mjs) and board states that prove a player will not play. */
 export const UNAVAILABLE_STATES = Object.freeze(["OUT", "INACTIVE", "NOT_ON_ROSTER"]);
@@ -53,6 +54,8 @@ export const COVERAGE = Object.freeze({
   EXCLUDED_NO_CURRENT_ROLE: "EXCLUDED_NO_CURRENT_ROLE",
   WITHHELD_ROLE_UNCERTAIN: "WITHHELD_ROLE_UNCERTAIN",
   NOT_MODELED_BY_FAMILY: "NOT_MODELED_BY_FAMILY",
+  /* Session 5 — the family's team pool claims more opportunity than exists (opportunity-conservation.mjs). */
+  WITHHELD_POOL_OVER_ALLOCATED: "WITHHELD_POOL_OVER_ALLOCATED",
 });
 
 /**
@@ -130,7 +133,7 @@ export function applyQbStarterRule({ players, team, index, asOf, maxAgeMs = QB_C
  * The pregame roster/usage receipt for one board (§24), per team. Built from what the builder
  * already decided — it states the decisions, it does not make new ones.
  */
-export function buildCoverage({ teams, players, excluded, arrivals, qbRules, noRole = [], familyGaps = [] }) {
+export function buildCoverage({ teams, players, excluded, arrivals, qbRules, noRole = [], familyGaps = [], poolWithheld = [] }) {
   const out = {};
   for (const team of teams) {
     const rows = [];
@@ -157,6 +160,17 @@ export function buildCoverage({ teams, players, excluded, arrivals, qbRules, noR
       if (row) row.notModeled = notModeled;
       else rows.push({ playerId: r.playerId, name: r.name, state: COVERAGE.NOT_MODELED_BY_FAMILY, reason: notModeled[0].reason, notModeled });
     }
+    /* Session 5 — every holder of a withheld pool is accounted for, including a player whose ONLY row was
+       that family (a backup QB's rushing): removed, never dropped in silence. */
+    for (const w of poolWithheld.filter((x) => x.team === team)) {
+      const reason = `team ${w.pool} pool over-allocated (Σshare ${w.sum.toFixed(3)}) — family withheld for ${team}, never renormalised`;
+      for (const h of w.players) {
+        const entries = w.markets.map((family) => ({ family, state: COVERAGE.WITHHELD_POOL_OVER_ALLOCATED, reason }));
+        const row = rows.find((x) => x.playerId === h.playerId);
+        if (row) (row.notModeled ??= []).push(...entries);
+        else rows.push({ playerId: h.playerId, name: h.name, state: COVERAGE.NOT_MODELED_BY_FAMILY, reason, notModeled: entries });
+      }
+    }
     for (const g of familyGaps.filter((x) => x.team === team)) {
       const row = rows.find((x) => x.playerId === g.playerId);
       if (!row || row.state !== COVERAGE.PROJECTED || row.families.includes(g.family)) continue;
@@ -182,8 +196,22 @@ export function buildCoverage({ teams, players, excluded, arrivals, qbRules, noR
  *                       season's games — the model's own materiality, no threshold invented here.
  *                       Each must end in a coverage state; silence is MATERIAL_OMISSION (§30).
  */
-export function auditBoard({ board, rosterByTeam, unavailable, usage = null, expected = null }) {
+export function auditBoard({ board, rosterByTeam, unavailable, usage = null, expected = null, shareOf = null }) {
   const v = [];
+  /* Session 5 — a share-sourced family still published on an over-allocated team pool. Recomputed from the
+     forecast's own shares (shareOf), never read back from the producer's record of what it withheld. */
+  if (shareOf) {
+    const shareFamilies = SHARE_MARKETS.filter((m) => {
+      const f = board?.families?.[m];
+      return f && (f.state === "PUBLISHED" || f.state === "ESTIMATE") && /share-level/.test(String(f.model ?? ""));
+    });
+    if (shareFamilies.length) {
+      const scoped = { players: (board?.players ?? []).map((p) => ({ ...p, markets: Object.fromEntries(Object.entries(p.markets ?? {}).filter(([m]) => shareFamilies.includes(m))) })) };
+      for (const r of conservationForBoard({ board: scoped, shareOf }).rows) {
+        if (r.state === "OVER_ALLOCATED") v.push({ code: "POOL_OVER_ALLOCATED_PUBLISHED", team: r.team, pool: r.pool, sum: r.sum, players: r.players.map((x) => x.name) });
+      }
+    }
+  }
   const [away, home] = String(board?.matchup ?? "").split(/\s+(?:@|VS|vs)\s+/);
   const teams = new Set([away, home].filter(Boolean));
   const seen = new Map();

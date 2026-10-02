@@ -238,3 +238,39 @@ test("LIVE · the board producer, run on today's committed inputs, publishes zer
     fs.rmSync(out, { recursive: true, force: true });
   }
 });
+
+/* ── Session 5 · rushing-family publication despite a failing allocation gate ────────────────────── */
+test("Session 5 · the audit flags a share-level family published on an over-allocated pool, recomputed from the forecast", () => {
+  const board = {
+    matchup: "ARI @ NYG",
+    families: { player_rush_yds: { state: "PUBLISHED", model: "nfl-player-share-level-v1" }, player_receptions: { state: "PUBLISHED" } },
+    players: [
+      { playerId: "nfl-athlete-1", team: "ARI", name: "Love", markets: { player_rush_yds: { median: 50 } } },
+      { playerId: "nfl-athlete-2", team: "ARI", name: "Conner", markets: { player_rush_yds: { median: 40 }, player_receptions: { median: 2 } } },
+      { playerId: "nfl-athlete-3", team: "ARI", name: "WR", markets: { player_receptions: { median: 5 } } },
+    ],
+    coverage: {},
+  };
+  const shares = { "1|ARI|player_rush_yds": 0.57, "2|ARI|player_rush_yds": 0.44, "2|ARI|player_receptions": 0.6, "3|ARI|player_receptions": 0.6 };
+  const shareOf = (id, team, m) => shares[`${id}|${team}|${m}`];
+  const v = auditBoard({ board, rosterByTeam: new Map(), unavailable: new Map(), shareOf });
+  const hits = v.filter((x) => x.code === "POOL_OVER_ALLOCATED_PUBLISHED");
+  assert.equal(hits.length, 1, "receptions come from the allocating v1 engine (no share-level model) and are not this check's business");
+  assert.equal(hits[0].pool, "carries");
+  assert.deepEqual(auditBoard({ board, rosterByTeam: new Map(), unavailable: new Map() }).filter((x) => x.code === "POOL_OVER_ALLOCATED_PUBLISHED"), [], "no share table ⇒ the check cannot run, and says nothing");
+});
+
+test("Session 5 · a withheld pool is accounted for in the receipt, including a rush-only row that emptied", () => {
+  const cov = buildCoverage({
+    teams: ["ARI"],
+    players: [{ playerId: "nfl-athlete-1", name: "Love", team: "ARI", markets: { anytime_td: { probability: 0.4 } } }],
+    excluded: [], arrivals: {}, qbRules: [],
+    poolWithheld: [{ team: "ARI", pool: "carries", markets: ["player_rush_yds"], sum: 1.31, players: [{ playerId: "nfl-athlete-1", name: "Love", share: 0.57 }, { playerId: "nfl-athlete-9", name: "Brissett", share: 0.13 }] }],
+  });
+  const love = cov.ARI.players.find((r) => r.name === "Love");
+  assert.equal(love.state, "PROJECTED");
+  assert.equal(love.notModeled[0].state, "WITHHELD_POOL_OVER_ALLOCATED");
+  const qb = cov.ARI.players.find((r) => r.name === "Brissett");
+  assert.ok(qb, "a player whose only family was the withheld one is never dropped in silence");
+  assert.equal(qb.notModeled[0].family, "player_rush_yds");
+});
