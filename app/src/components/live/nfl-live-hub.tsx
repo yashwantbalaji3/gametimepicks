@@ -35,6 +35,7 @@ import type { NflHubRoster, NflHubRosterGame } from "@/lib/live/nfl-hub-data";
 import { FEED, GAME_PHASE, cardFreshness, gamePhaseForLifecycle, trackForecast } from "@/lib/live/featured-forecasts.mjs";
 import FeaturedForecastRow from "./featured-forecast-row";
 import { liveRefreshPlan } from "@/lib/live/live-refresh-plan.mjs";
+import { rowFeedFor } from "@/lib/live/gateway-live-rows.mjs";
 import { NOT_ASKED, useLivePropsStore, useNowMs, type LivePropsState } from "./use-live-props";
 import { useLiveSlate } from "./use-live-slate";
 
@@ -169,6 +170,9 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
   }, [liveProps.artifact]);
 
   const feed = liveProps.feed === "OK" ? FEED.OK : liveProps.feed === "UNAVAILABLE" ? FEED.UNAVAILABLE : FEED.NOT_ASKED;
+  /* Session 5 — per row: a gateway-measured row is OK; a row only the producer can carry (anytime TD)
+     is OK only if the producer record was read. Otherwise that row, and only it, is unavailable. */
+  const rowFeed = (family: string) => rowFeedFor({ family, feed, producerFeed: liveProps.producerFeed, gatewayRead: liveProps.gatewayRead });
   const shown = game.featured;
   const total = game.eligibleForecastCount;
   /* V2D: one honest line about how current the live measurements are — null on the server render. */
@@ -225,7 +229,7 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
                   liveSource={liveProps.feed === "OK" ? LIVE_SOURCE_LABEL[liveProps.artifact?.source] ?? "ESPN public game feed" : null}
                   lastObservedAt={liveProps.feed === "OK" ? byId.get(f.predictionId)?.live?.observedAt ?? liveProps.artifact?.observedAt ?? null : null}
                   final={phase === GAME_PHASE.FINAL}
-                  t={trackForecast(f, { gamePhase: phase, liveRow: byId.get(f.predictionId) ?? null, feed, observedAt: liveProps.artifact?.observedAt ?? null, nowMs })}
+                  t={trackForecast(f, { gamePhase: phase, liveRow: byId.get(f.predictionId) ?? null, feed: rowFeed(f.family), observedAt: liveProps.artifact?.observedAt ?? null, nowMs })}
                 />
               ))}
             </ul>
