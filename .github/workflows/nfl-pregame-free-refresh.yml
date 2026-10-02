@@ -1,4 +1,4 @@
-# NFL pregame roster/usage + inactives refresh — FREE, for Thursday night (Session 5 · A3/A4).
+# NFL pregame roster/usage + inactives refresh — FREE, for Thursday and Monday night (Session 5 · A3/A4, MNF in B).
 #
 # WHY. Thursday's boards were refreshed before kickoff by a manual zero-credit dispatch: the paid
 # nfl-kickoff-refresh fires 1–5 PM ET on Thursdays (its ≤120-minute rule cannot be true on time for a
@@ -25,6 +25,12 @@ on:
     - cron: "0 18 * * 4"
     - cron: "0 19 * * 4"
     - cron: "0 20 * * 4"
+    # Monday UTC, for Monday Night Football (00:15Z Tuesday) — the paid kickoff refresh has the same cron shape
+    # (*/30 17-21 * * 1) and therefore the same defect. The decision is generic over the next kickoff.
+    - cron: "0 17 * * 1"
+    - cron: "0 18 * * 1"
+    - cron: "0 19 * * 1"
+    - cron: "0 20 * * 1"
   workflow_dispatch:
     inputs:
       dry_run:

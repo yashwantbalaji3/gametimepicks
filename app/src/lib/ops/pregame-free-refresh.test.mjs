@@ -56,6 +56,7 @@ test("A4 · CONTRACT: free by construction, waits inside its timeout, re-decides
   assert.equal(dispatches.length, 1);
   assert.match(dispatches[0], /^nfl-event-window\.yml --ref main -f skip_odds=true\b/, "the only dispatch is the zero-credit event window");
   assert.match(code, /cron: "0 1[789] \* \* 4"/, "Thursday UTC schedules");
+  assert.match(code, /cron: "0 1[789] \* \* 1"/, "Monday UTC schedules (Monday Night Football)");
   assert.match(code, /cancel-in-progress: false/);
   const timeout = Number(code.match(/timeout-minutes:\s*(\d+)/)[1]);
   assert.ok(timeout <= 360, "GitHub-hosted jobs stop at 360 minutes");
@@ -69,4 +70,13 @@ test("A4 · CONTRACT: free by construction, waits inside its timeout, re-decides
 
 test("A4 · CONTRACT: the paid kickoff refresh is unchanged by this (no new paid path)", () => {
   assert.match(fs.readFileSync("../.github/workflows/nfl-kickoff-refresh.yml", "utf8"), /cron: "\*\/30 17-21 \* \* 4"/);
+});
+
+test("MNF · the same two passes for a Monday 00:15Z-Tuesday kickoff", () => {
+  const mnf = "2026-10-06T00:15Z";
+  const d1 = decidePregameFreeRefresh({ boards: [{ artifact: "nfl-player-board", matchup: "ATL @ NO", kickoffUtc: mnf, generatedAt: "2026-10-05T13:00:00Z" }], nowIso: "2026-10-05T19:00:00Z" });
+  assert.equal(d1.decision, D.WAIT_THEN_DISPATCH);
+  assert.equal(d1.pass, "ROSTER");
+  const d2 = decidePregameFreeRefresh({ boards: [{ artifact: "nfl-player-board", matchup: "ATL @ NO", kickoffUtc: mnf, generatedAt: "2026-10-05T22:30:00Z" }], nowIso: "2026-10-05T22:40:00Z" });
+  assert.equal(d2.pass, "INACTIVES");
 });
