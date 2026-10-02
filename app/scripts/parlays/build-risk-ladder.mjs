@@ -80,7 +80,27 @@ function combinedDecimal(slip) {
   return d;
 }
 
+/* The canonical price bands (risk-odds-bands.ts: low ≤ +100 < medium ≤ +300 < high ≤ +600 < longshot). */
+const BANDS = [
+  ["low", (a) => a >= -200 && a <= 100],
+  ["medium", (a) => a > 100 && a <= 300],
+  ["high", (a) => a > 300 && a <= 600],
+  ["longshot", (a) => a > 600],
+];
+const bucketFor = (american) => BANDS.find(([, fits]) => fits(american))?.[0] ?? null;
+
 // ── 1 · THE LIFETIME RECORD, per tier ────────────────────────────────────────────────────────────
+/*
+ * SESSION 5 · B4 — THE RECORD IS BUCKETED BY PRICE, THE SAME BANDS AS THE CARDS IT SITS BESIDE.
+ *
+ * It used to bucket by the optimizer's SECTION KEY. The optimizer's sections are its own price spec
+ * (low < +300, medium +300–600, high +600–1000, longshot ≥ +1000 — parlay_optimizer.py), so across 94 days
+ * the "Low risk (−200 to +100)" row held 497 of 514 slips priced +100–+300, "Medium" 512 of 514 priced
+ * +300–+600, "High" 510 of 514 priced over +600. A Medium card on /build carried the record of High-band
+ * slips. Each graded slip now lands in the band of its own combined price; a slip with an unpriced leg has
+ * no price and therefore no band — it still counts in the overall W–L (as before) and is counted per day
+ * as `unbanded`, never guessed into a tier.
+ */
 /*
  * Derived from every graded day on disk each run, never incremented from the previous record.
  * A cumulative file rebuilt from one day's view is how the NFL experimental record got wiped
@@ -88,12 +108,21 @@ function combinedDecimal(slip) {
  */
 const record = Object.fromEntries(TIERS.map((t) => [t, { wins: 0, losses: 0, pushes: 0, pending: 0, staked: 0, returned: 0 }]));
 const gradedDays = new Set();
+let unbanded = 0;
+const overallUnbanded = { wins: 0, losses: 0 };
 for (const f of fs.readdirSync(GRADED).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()) {
   const doc = readJson(path.join(GRADED, f));
   if (!doc) continue;
   gradedDays.add(doc.date ?? f.slice(0, 10));
-  for (const { tier, slip } of slipsFor(doc)) {
+  for (const { slip } of slipsFor(doc)) {
     const st = String(slip.status ?? "pending").toLowerCase();
+    const d0 = combinedDecimal(slip);
+    const tier = d0 == null ? null : bucketFor(toAmerican(d0));
+    if (!tier) {
+      unbanded += 1;
+      if (st === "win") overallUnbanded.wins++; else if (st === "loss") overallUnbanded.losses++;
+      continue;
+    }
     const r = record[tier];
     if (st === "win") r.wins++; else if (st === "loss") r.losses++;
     else if (st === "push") { r.pushes++; continue; } else { r.pending++; continue; }
@@ -102,6 +131,11 @@ for (const f of fs.readdirSync(GRADED).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/
     r.staked += 1;
     if (st === "win") r.returned += d;
   }
+}
+/* Session 5 · B4: print the derived record and write nothing — the test's handle on the real producer. */
+if (process.argv.includes("--record-only")) {
+  fs.writeSync(1, `${JSON.stringify({ byTier: record, unbanded, overallUnbanded, gradedDays: gradedDays.size })}\n`);
+  process.exit(0);
 }
 for (const t of TIERS) {
   const r = record[t];
@@ -124,13 +158,7 @@ for (const t of TIERS) {
  * (risk-odds-bands.ts: low ≤ +100 < medium ≤ +300 < high ≤ +600 < longshot). Re-implementing the
  * thresholds would let today's ladder and tomorrow's record disagree about what "High risk" means.
  */
-const BANDS = [
-  ["low", (a) => a >= -200 && a <= 100],
-  ["medium", (a) => a > 100 && a <= 300],
-  ["high", (a) => a > 300 && a <= 600],
-  ["longshot", (a) => a > 600],
-];
-const bucketFor = (american) => BANDS.find(([, fits]) => fits(american))?.[0] ?? null;
+/* BANDS / bucketFor are declared above the record (Session 5): the record buckets by them too. */
 
 /*
  * SETTLEMENT IDENTITY TRAVELS WITH THE CARD.
@@ -459,9 +487,12 @@ const payload = {
     firstDay: [...gradedDays].sort()[0] ?? null,
     lastDay: [...gradedDays].sort().at(-1) ?? null,
     byTier: record,
+    /* Session 5 · B4: graded slips with an unpriced leg — no price, so no band; still in the overall W–L. */
+    unbanded,
+    bucketedBy: "combined price, canonical bands (risk-odds-bands.ts)",
     overall: {
-      wins: TIERS.reduce((n, t) => n + record[t].wins, 0),
-      losses: TIERS.reduce((n, t) => n + record[t].losses, 0),
+      wins: TIERS.reduce((n, t) => n + record[t].wins, 0) + overallUnbanded.wins,
+      losses: TIERS.reduce((n, t) => n + record[t].losses, 0) + overallUnbanded.losses,
       staked: totalStaked,
       returned: round(totalReturned, 2),
       roi: totalStaked ? round((totalReturned - totalStaked) / totalStaked) : null,
