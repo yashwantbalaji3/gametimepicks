@@ -438,6 +438,8 @@ export default function BankBuilderPage() {
         hasCard,
         reviewMode: hasReview,
         reviewNote: reviewCard?.reviewNote ?? null,
+        /* Session 7: the lane's OWN published reason for having no card (activationEligibility.reason, verbatim). */
+        noCardReason: hasCard ? null : (dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === letter)?.laneReason ?? null),
         rungs,
         legs: hasReview
           ? reviewCard!.legs.map((l) => withMark(l))
@@ -529,7 +531,16 @@ export default function BankBuilderPage() {
               panel said "no qualified card today" — "we never ran" and "we ran and nothing
               qualified" are different facts, and the skipped card may only claim the second. When
               the state machine says the inputs have not arrived, the panel says exactly that. */}
-          {bbProductState === "INPUTS_STALE" || bbProductState === "INPUTS_MISSING" ? (
+          {bbProductState === "NO_EVENTS" ? (
+            /* Session 7: a no-games day is the calendar, not a slate that "offered no combination" — the panel
+               says the same thing as the state header above it. */
+            <div className="rounded-[12px] px-4 py-4" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}>
+              <p className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>No games on today&rsquo;s slate</p>
+              <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
+                Nothing was assessed today, so this is not a no-play call. The ladder resumes on the next slate.
+              </p>
+            </div>
+          ) : bbProductState === "INPUTS_STALE" || bbProductState === "INPUTS_MISSING" ? (
             <div className="rounded-[12px] px-4 py-4" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}>
               <p className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>Waiting on today&rsquo;s data</p>
               <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>

@@ -110,6 +110,7 @@ export default function MoonshotPage() {
        feeds the protected bankroll — so without this a settled card reads as pending for ever. */
     settledCardIds: settledCardIds(loadLifecycleHistory(), "moonshot"),
     ...moonshotTodayCounts(dailyPortfolio.cards),
+    todayLaneReason: dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.status !== "active" && c.laneReason)?.laneReason ?? null,
     lane,
     portfolioMoonshot,
     productLedger: readData("product-ledger", "moonshot.json"),
