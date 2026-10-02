@@ -95,6 +95,7 @@ A true replay (input universe at the time → eligibility → selection) needs t
 Phase A grew past its bound: the live-hub incident, the Week-4 results incident and the A3 integration made it seven PRs. The Phase B items above each change a product, a public record or Ask's tool contract; per prompt §7 they go to a fresh session with founder decisions first.
 
 ## 7. Founder / model decisions required
+> **Answered 2026-10-02 (D1–D5) and applied — see §12.** Items 4 (UFC) and the correlation question became D4/D5; items 5–6 remain open.
 1. **F3 — products in the MLB postseason/offseason**, and whether NFL/UFC/EPL legs may enter Bank Builder/Moonshot (needs the eligible-leg contract to gate the live products).
 2. **Suggested Parlays record population** — published cards (lab-ledger) vs the optimizer population.
 3. **One tier definition** for Low/Medium/High/Longshot across ladder, optimizer, taxonomy and Ask.
@@ -103,7 +104,7 @@ Phase A grew past its bound: the live-hub incident, the Week-4 results incident 
 6. Carried: paused-market MLB calls in the public game-call record; UX-1 nav charter; Ligue 1 odds receipt.
 
 ## 8. Runtime-pending at writing
-- **PIT @ CLE settlement (A1):** final ≈ 03:30Z; props grade via the event-window / settlement receipts; frozen Oct 1 Top-5 board (00:33:59Z, write-once) settles from canonical grading. Check: `node app/scripts/ops/nfl-lifecycle-trace.mjs` for 401872964, `/results/nfl` after grading (Week 4 becomes the report once its first game grades — #882), Ask "How did PIT vs CLE go?".
+- **PIT @ CLE settlement (A1) — CLOSED 2026-10-02 (see §13).** Original note: final ≈ 03:30Z; props grade via the event-window / settlement receipts; frozen Oct 1 Top-5 board (00:33:59Z, write-once) settles from canonical grading. Check: `node app/scripts/ops/nfl-lifecycle-trace.mjs` for 401872964, `/results/nfl` after grading (Week 4 becomes the report once its first game grades — #882), Ask "How did PIT vs CLE go?".
 - **Named-player Ask on Production** with the real provider: "What is Michael Pittman Jr.'s projection?" for a game that has not started.
 - **Thursday 10-08:** first scheduled `nfl-pregame-free-refresh` — expect ROSTER at T-105 and INACTIVES at T-55 dispatches in its log.
 
@@ -177,6 +178,51 @@ One event-state vocabulary (only UFC uses `lib/sports/event-lifecycle.mjs`); one
 4. **UFC model status.** A — keep SCAFFOLD_ONLY (ladder stays gated, #889). B — promote the fitted fight model to EXPERIMENTAL_PUBLIC (passes historical bars; live log-loss 0.710 vs coin 0.693 at n=31, market favoured) — ladder resumes with experimental labelling. C — FULL_MODEL (not supported by current live evidence). Recommendation: A until the live sample beats the market's de-vigged line on its preregistered bar.
 5. **Correlation / same-game legs.** 31 of 109 published ladder cards had 2+ legs from one game; the combined price is the product of single-leg prices, which no book offers for correlated legs. A — reject same-game legs on public cards; B — allow with a label that the price is not an available same-game-parlay price. No impact today (F-1 withholds MLB cards).
 
+## 12. Founder decisions D1–D5 — applied (same session, third pass)
+
+The §7 / §11 decision queue was answered by the founder (2026-10-02). Each decision now lives in ONE canonical owner with deterministic tests and mutation probes (every probe listed was run and caught).
+
+| Decision | PR | Owner | What changed | Probes |
+|---|---|---|---|---|
+| **D4** UFC capability-gated from official products | #903 | `daily-portfolio/accounting.ts` `bbEligibility` → `canEnterPredictionProducts` | A UFC / non-FULL_MODEL leg cannot enter Bank Builder or Moonshot (reason names the registry state); research/live factual surfaces unchanged | ✔ |
+| **D5** one leg per event on official cards | #903 | `parlays/card-events.mjs` `legsFromDistinctEvents` | Risk ladder pool, Bank Builder/Moonshot eligibility, all six card producers reject two legs from one event; an unknown event id fails closed | ✔ |
+| **D1** public record = published cards | #904 | `parlays/published-band-record.mjs` (lab-ledger stream, `population: PUBLISHED_CARDS`) | Card band record, chance meter, builder + slip reader band record, /results table ("Our published cards by risk level", 21–88 since 08-17) all read published cards; the 383–1,608 candidate pool sits only in a closed "Model detail · research, not our record" disclosure; projection Lab headline = lab-ledger MLB stream; candidate cells typed `CANDIDATE_POOL_RECORD` (cell ids unchanged → no restatement churn); Ask never offers them | 5/5 |
+| **D2** one public tier taxonomy | #905 | `parlays/risk-odds-bands.mjs` `PUBLIC_RISK_LABELS` / `PUBLIC_RISK_BAND_TEXT` | 11 local label tables now import the owner. **Competing definition removed:** the reader-style picker called a Low+Medium policy "Medium" and Medium+High "High" — styles are now Steady / Balanced / Adventurous / Longshot, described in the canonical labels. Guard: no second table / spelling / literal list in src or scripts | 4/4 |
+| **D4 leak** | #905 | `picks/suggested-cards.ts` | /build's suggested-card lobby merged UFC `suggested-parlays-latest.json` cards (unpriced, profile-labelled) with no capability check — gated | ✔ |
+| **D3** MLB season state | #906 | `mlb/season-state.mjs` + `capture-mlb-season-state.mjs` (free StatsAPI) | REGULAR_SEASON / POSTSEASON / OFF_SEASON / UNKNOWN from the games still to be played (not a calendar date). daily-products captures the day's schedule + season state BEFORE classifying (10-02, a postseason off day, read INPUT_UNAVAILABLE only because the committed schedule was captured 09-26). New verdict OFF_SEASON: money steps skipped, receipts OFF_SEASON, job not failed. /build and /mlb read the ladder through `inSeasonLadder` — no stale offseason cards | 5/5 |
+| D1 follow-up | #907 | Ask `getProductRecord` | The published-card record is named "Suggested Parlays" (Parlay Lab is retired in rendered copy); registry says it counts published cards | — |
+| **D5** (rest) | #908 | `parlays/ui-loader.ts`, `build/compatibility.mjs` | Per-game "same-game parlays" (one game's legs multiplied, shown in the explorer's Same-game tab) are no longer built; tab removed. A reader's own builder card with legs from one game shows `SAME_GAME_PRICE_NOTE` ("not a same-game parlay price"). Explorer "Low Risk risk" (D2 regression) fixed | ✔ |
+| **D3** (rest) | #909 | `daily-portfolio/input-availability.mjs` | Found by the first real-runner dry run: 10-02 classified NO_EVENTS ✔, but every BB/Moonshot lane would still have said "a missing input". An off day writes no slate file; the day's season state now establishes NO_EVENTS with its own sentence ("no MLB games are scheduled for 2026-10-02 — a postseason off day (41 postseason game(s) still to be played, next on 2026-10-03)"). Validate no longer runs on dry runs | ✔ |
+| **D2** (rest) | #910 | owner + guard | Production /build showed "LONGSHOT RISK" (`{tier} risk`); explorer "Low Risk risk"; simulation boards; Ask evidence/help/clarification said "risk styles: Low, Medium, High or Longshot". Guard now rejects a tier glued to " risk"; help.json + manifest regenerated | ✔ |
+| **D1** (stale data) | #911 | `projection-core` `isCandidatePoolCell` / `isPublishedLabHeadline` | After #907 deployed, Production Ask read the 10-01 projection (written before D1) and said "Suggested Parlays's current settled record is 383–1608". Readers now recognise the pool by owner segment too and resolve a candidate headline to the published stream (or to no figure) | 2/2 |
+
+Also fixed on the way: `cross-surface-agreement` compared two different days on an MLB off day (report 10-01, Market Center 09-30) and was red on every branch — the center now loads the report's own slate date (#903).
+
+### Production verification (9b60b601, deployed 05:42Z)
+- `/results`: "Our published cards by risk level — 109 decided over 40 settled days since 2026-08-17"; the candidate pool appears only inside "Model detail · every candidate slip graded (research, not our record)".
+- `/build`: style picker Steady / Balanced / Adventurous / Longshot; no-card tiers read Low Risk / Medium Risk / High Risk / Longshot.
+- Ask (real provider): "Suggested Parlays track record" → **21–88 from 109 cards** (it said 383–1608 before #911); official cards for 10-02 → honestly not yet published (01:09 ET).
+- daily-products dry run on a real runner: `mlb-season-state 2026-10-02: POSTSEASON … none today` → `mlb-input 2026-10-02: NO_EVENTS` (was INPUT_UNAVAILABLE).
+
+### Still open (not decided, or out of scope by instruction)
+- Ask's product-record components list the UFC/EPL lab streams as "POLICY_V2 era (stream)" without naming the sport, which is ambiguous. They are not summed into the headline.
+- The bettor-style **replay** (worst losing run, days between wins) is computed over the candidate pool; its copy now names it model detail. Recomputing it over published cards needs more published history than exists.
+- `priorPolicy` (172–765, pre-08-17) stays a legacy LAB_CARD_RECORD: under the old policy the Lab published up to six cards per tier, so that window is the published population of its day.
+- No live-odds methodology, Soccer or NBA work this session (instruction).
+
+## 13. PIT @ CLE (401872964) — settlement proof
+
+The canonical chain ran through the normal zero-credit workflows on the morning of 2026-10-02 (dispatched by Session 6 on a founder decision; full table in `HANDOFF_2026-10-02_SESSION_6_NBA_READINESS.md` §10). Re-checked from the owners on main `1f8d0996a0`:
+
+| Owner | Evidence |
+|---|---|
+| Official final | `data/internal/nfl/official-stats/401872964.json` — `FINAL`, **CLE 27 – PIT 24**, captured 08:17:08Z (the 21–10 in §8's live note was a mid-Q4 score) |
+| Week 4 reconciliation (public) | `nfl/reconciliation/2-04.json` — 33 of 39 checks hit across 1 final game; 15 games pending, never counted as misses |
+| Frozen Top-5 board | `results/top-boards/2026-10-01.json` unchanged since its single write (`86e2b926`, 2026-10-01T00:33:59Z) |
+| Live-props ledger | stays PENDING by founder decision (the producer never observed FINAL inside its 8h window; the window is not widened) — the reconciliation is the authoritative grade |
+| Results parity | Session 6 verified `/results/nfl` on Production = the owner (33 of 39) |
+| Ask parity | ✗ open: no per-game NFL results tool; "PIT" resolved to the Pirates (Session 6 backlog P1) |
+
 ## 9. Final state (at writing)
 - **Main:** `05decfe0f0` after #898 (+ #899/#900 in their merge chain). **Production:** `17d6127e` verified (through #895); the remainder deploys from the same chain.
 - **Merge discipline:** every Phase B PR merged only when its exact-head `quality` run was green **and** `git merge-tree` of main + head equalled the tested head tree (no drift). The chain was rebuilt once (12 branches) so parallel CI did not invalidate each other.
@@ -190,6 +236,10 @@ One event-state vocabulary (only UFC uses `lib/sports/event-lifecycle.mjs`); one
 4. Monday night: the paid kickoff refresh has the same cron shape (`*/30 17-21 * * 1` for a 00:15Z kickoff); a free MNF pass mirrors #880.
 5. Rushing allocation research (§7.5).
 6. Session 4 carry-overs: v1 engine OUT-player mass to OTHER (§20); `nfl-opportunity-conservation.mjs` still measures receiving against share-level shares although receiving publishes from v1.
+
+## 14. Final state (third pass)
+- Merged on exact-head green + merge-tree == tested tree: #903–#911 (D1–D5 + follow-ups). Production **`9b60b601`** verified (§12). daily-products D3 path verified on a real runner (dry run, 10-02 → NO_EVENTS).
+- Not done by instruction: no live-odds methodology, Soccer or NBA work; no paid workflow triggered; PR #716 untouched.
 
 ## Next recommended fresh session
 1. Read PIT @ CLE settlement (§8) and close A1.
