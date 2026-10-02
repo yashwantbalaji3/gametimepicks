@@ -396,6 +396,61 @@ function buildForecasts() {
   };
 }
 
+/* ──────────────────────── 3b. OFFICIAL PUBLISHED PRODUCT CARDS (Session 5) ──────────────────────── */
+/*
+ * WHAT GAMETIMEPICKS ACTUALLY PUBLISHED, READ FROM THE PUBLISHED ARTIFACTS — NEVER RECONSTRUCTED.
+ *
+ * Ask had no source for "what is today's Bank Builder?", and "today's suggested parlays" was answered from the
+ * optimizer's candidate pool (buildParlays below) — a different population from the ladder /build publishes.
+ * This block carries the official cards verbatim from their owners:
+ *   Suggested Parlays  parlays/risk-ladder/<date>.json (the dated ladder file is the freeze)
+ *   Bank Builder/Moonshot  mr-dub/daily-portfolio.json (today's published lanes) and mr-dub/settled/<date>.json
+ *                      (the frozen lanes of a past day, with their canonical results)
+ * Deliberately NOT carried: the ladder's `tierRecord` (it is the optimizer population, not the published cards —
+ * an open founder decision) and every money field (stake, bankroll); records belong to getProductRecord.
+ */
+const OFFICIAL_TIER_LABEL = { low: "Low risk", medium: "Medium risk", high: "High risk", longshot: "Longshot" }; // build-risk-ladder.mjs TIER_LABEL
+
+function buildOfficialCards(days = 3) {
+  const ladderDir = path.join(APP, "public/data/parlays/risk-ladder");
+  const suggested = {};
+  for (const f of (fs.existsSync(ladderDir) ? fs.readdirSync(ladderDir) : []).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort().slice(-days)) {
+    const l = JSON.parse(fs.readFileSync(path.join(ladderDir, f), "utf8"));
+    const date = String(l.date ?? f.slice(0, 10));
+    suggested[date] = {
+      date, generatedAt: l.generatedAt ?? null,
+      cards: (l.cards ?? []).map((c) => ({
+        tier: c.tier, tierLabel: c.tierLabel ?? OFFICIAL_TIER_LABEL[c.tier] ?? c.tier, slipId: c.slipId ?? null,
+        combinedAmerican: c.combinedAmerican ?? null, status: c.status ?? null,
+        legs: (c.legs ?? []).map((g) => ({ player: g.player ?? null, team: g.team ?? null, opponent: g.opponent ?? null, marketLabel: g.marketLabel ?? g.market ?? null, side: g.side ?? null, line: g.line ?? null, odds: g.odds ?? null, result: g.result ?? null })),
+      })),
+      skipped: (l.skipped ?? []).map((x) => ({ tier: x.tier, tierLabel: OFFICIAL_TIER_LABEL[x.tier] ?? x.tier, reason: x.reason ?? null })),
+      withheldMarketContext: l.eligibility?.withheldMarketContext ?? null,
+    };
+  }
+  const lane = (l, withResult) => ({
+    product: l.product, productLabel: l.productLabel ?? (l.product === "bank-builder" ? "Bank Builder" : l.product === "moonshot" ? "Moonshot" : l.product),
+    lane: l.lane ?? null, step: l.step ?? null, status: l.status ?? null,
+    ...(withResult ? { result: l.result ?? null } : {}),
+    combinedOdds: Number.isFinite(l.combinedOdds) && (l.legs ?? []).length ? l.combinedOdds : null,
+    reason: l.status === "active" ? null : (l.activationEligibility?.reason ?? l.shortfallNote ?? null),
+    legs: (l.legs ?? []).map((g) => ({ matchup: g.matchup ?? null, selection: g.selection ?? null, market: g.market ?? g.marketLabel ?? null, odds: g.odds ?? null, book: g.provider ?? null, probabilityBasis: g.probabilityBasis ?? null, kickoffEt: g.kickoffEt ?? null, ...(withResult ? { result: g.result ?? null, official: g.official ?? null } : {}) })),
+  });
+  const portfolioDoc = (() => { try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data/mr-dub/daily-portfolio.json"), "utf8")); } catch { return null; } })();
+  const portfolios = {};
+  if (portfolioDoc?.date && Array.isArray(portfolioDoc.lanes)) {
+    portfolios[portfolioDoc.date] = { date: portfolioDoc.date, generatedAt: portfolioDoc.generatedAt ?? null, source: "published", lanes: portfolioDoc.lanes.map((l) => lane(l, false)) };
+  }
+  const settledDir = path.join(APP, "public/data/mr-dub/settled");
+  for (const f of (fs.existsSync(settledDir) ? fs.readdirSync(settledDir) : []).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort().slice(-days)) {
+    const d = JSON.parse(fs.readFileSync(path.join(settledDir, f), "utf8"));
+    const date = String(d.date ?? f.slice(0, 10));
+    portfolios[date] = { date, generatedAt: d.settledAt ?? null, source: "settled", lanes: (d.lanes ?? []).map((l) => lane(l, true)) };
+  }
+  notes.push(`official cards: suggested ${Object.keys(suggested).join(",") || "none"} · portfolios ${Object.keys(portfolios).sort().join(",") || "none"}`);
+  return { suggestedDates: Object.keys(suggested).sort(), suggested, portfolioDates: Object.keys(portfolios).sort(), portfolios };
+}
+
 /* ────────────────────────────────── 4. PARLAYS ────────────────────────────────── */
 
 /** Read the newest N optimizer snapshots. A date with no snapshot is absent, never back-filled. */
@@ -518,6 +573,8 @@ function buildParlays(days = 3) {
      */
     evOwner: null,
     stakePolicyOwner: null,
+    /* Session 5 — the OFFICIAL published cards (getOfficialProductCards). Candidates above, publications here. */
+    official: buildOfficialCards(),
   };
 }
 
