@@ -8,6 +8,7 @@
  * Nothing here can invent, force or hide a card.
  */
 import Link from "next/link";
+import { PUBLIC_RISK_LABELS } from "@/lib/parlays/risk-odds-bands.mjs";
 
 export interface PreviewTier {
   tier: string;
@@ -37,12 +38,8 @@ export interface SuggestedParlaysPreviewProps {
   todayEt?: string | null;
 }
 
-const TIER_SHORT: Record<string, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  longshot: "Longshot",
-};
+/* D2: the chip names the tier by its one public label — never a shortened second spelling. */
+const TIER_SHORT: Readonly<Record<string, string>> = PUBLIC_RISK_LABELS;
 
 function TierChip({ tier, state, intent }: { tier: string; state: string; intent: string }) {
   const published = state === "PUBLISHED";

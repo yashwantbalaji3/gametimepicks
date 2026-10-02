@@ -7,6 +7,7 @@ import { pickForYou, RISK_ORDER } from "@/lib/parlays/lab/style-replay.mjs";
 import type { LadderCard } from "@/components/parlays/risk-ladder-board";
 import ChanceMeter from "./chance-meter";
 import { isPublishedRecord } from "@/lib/parlays/published-band-record.mjs";
+import { PUBLIC_RISK_LABELS } from "@/lib/parlays/risk-odds-bands.mjs";
 import StyleReplayChart, { type ReplayItem } from "./style-replay-chart";
 
 /**
@@ -24,7 +25,7 @@ export interface TierReplayView {
   readonly tiers: Readonly<Record<string, readonly ReplayItem[]>>;
 }
 
-const LABEL: Record<string, string> = { low: "Low risk", medium: "Medium risk", high: "High risk", longshot: "Longshot" };
+const LABEL: Readonly<Record<string, string>> = PUBLIC_RISK_LABELS; // D2: the one public taxonomy
 const american = (n: number | null) => (n == null ? "—" : `${n > 0 ? "+" : ""}${n}`);
 const toDecimal = (am: number) => (am > 0 ? 1 + am / 100 : 1 + 100 / Math.abs(am));
 const money = (v: number) => `$${v.toFixed(2)}`;

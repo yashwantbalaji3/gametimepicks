@@ -24,6 +24,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
+import { canEnterPredictionProducts } from "@/lib/sport-capability-registry";
 
 const readJson = (...seg: string[]): unknown => {
   try {
@@ -65,8 +66,13 @@ function todaysOptimizerSlips(today: string) {
 }
 
 export function loadSuggestedCards(today: string): PublicSuggestedCard[] {
-  // A settled UFC card is a result, not something to suggest.
-  const ufcCardsForToday = ufcSettled() ? null : (loadUfc() as Parameters<typeof normalizeUfcCards>[0]);
+  /*
+   * A settled UFC card is a result, not something to suggest — and an unsettled one may enter this lobby only when the
+   * capability registry lets UFC into official products (founder decision D4, Session 5: UFC stays gated while its
+   * evidence is below the bar). The UFC file's cards also carry no combined price, so they could not be placed on the
+   * canonical risk bands (D2) — their "Conservative / Balanced / High-risk" labels are a profile, not a risk level.
+   */
+  const ufcCardsForToday = ufcSettled() ? null : !canEnterPredictionProducts("ufc") ? null : (loadUfc() as Parameters<typeof normalizeUfcCards>[0]);
 
   /* P210 · Release B (World Cup disposition): normalizeWcCards left ACTIVE composition — the
      tournament is complete and the date gate had made it permanently empty here. WC cards remain

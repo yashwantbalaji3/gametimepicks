@@ -68,7 +68,7 @@ import { MLB_MARKET_CALIBRATION, isCalibrationFailed } from "../../src/lib/mlb/m
 import { buildHelpCorpus } from "../../src/lib/ask/help-source.mjs";
 import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-model.mjs";
 import { legIsMarketContext, marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibility.mjs";
-import { getRiskBucketForCombinedOdds } from "../../src/lib/parlays/risk-odds-bands.mjs";
+import { getRiskBucketForCombinedOdds, PUBLIC_RISK_LABELS } from "../../src/lib/parlays/risk-odds-bands.mjs";
 import { resultsDay, resultsDayDates } from "../../src/lib/results/v2/day.ts";
 import { productReceiptDates, productReceiptsFor } from "../../src/lib/results/v2/product-receipts.ts";
 
@@ -409,7 +409,7 @@ function buildForecasts() {
  * Deliberately NOT carried: the ladder's `tierRecord` (it is the optimizer population, not the published cards —
  * an open founder decision) and every money field (stake, bankroll); records belong to getProductRecord.
  */
-const OFFICIAL_TIER_LABEL = { low: "Low risk", medium: "Medium risk", high: "High risk", longshot: "Longshot" }; // build-risk-ladder.mjs TIER_LABEL
+const OFFICIAL_TIER_LABEL = PUBLIC_RISK_LABELS; // D2: the one public taxonomy
 
 function buildOfficialCards(days = 3) {
   const ladderDir = path.join(APP, "public/data/parlays/risk-ladder");
@@ -420,7 +420,7 @@ function buildOfficialCards(days = 3) {
     suggested[date] = {
       date, generatedAt: l.generatedAt ?? null,
       cards: (l.cards ?? []).map((c) => ({
-        tier: c.tier, tierLabel: c.tierLabel ?? OFFICIAL_TIER_LABEL[c.tier] ?? c.tier, slipId: c.slipId ?? null,
+        tier: c.tier, tierLabel: OFFICIAL_TIER_LABEL[c.tier] ?? c.tier, slipId: c.slipId ?? null,
         combinedAmerican: c.combinedAmerican ?? null, status: c.status ?? null,
         legs: (c.legs ?? []).map((g) => ({ player: g.player ?? null, team: g.team ?? null, opponent: g.opponent ?? null, marketLabel: g.marketLabel ?? g.market ?? null, side: g.side ?? null, line: g.line ?? null, odds: g.odds ?? null, result: g.result ?? null })),
       })),

@@ -37,6 +37,7 @@
  *     `oddsForSide` is null), it is excluded — the UI never shows a
  *     fabricated payout.
  */
+import { PUBLIC_RISK_LABELS } from "@/lib/parlays/risk-odds-bands.mjs";
 
 export type RiskSectionKey = "low" | "medium" | "high" | "longshot";
 
@@ -74,7 +75,7 @@ export interface RiskSectionDisplay {
 const SECTION_DISPLAY: Record<RiskSectionKey, RiskSectionDisplay> = {
   low: {
     key: "low",
-    label: "Low Risk",
+    label: PUBLIC_RISK_LABELS.low,
     oddsRange: "-200 to +100",
     legRange: "typically 2 legs",
     subtitle: "Shortest combined odds.",
@@ -86,7 +87,7 @@ const SECTION_DISPLAY: Record<RiskSectionKey, RiskSectionDisplay> = {
   },
   medium: {
     key: "medium",
-    label: "Medium Risk",
+    label: PUBLIC_RISK_LABELS.medium,
     oddsRange: "+100 to +300",
     legRange: "typically 2–3 legs",
     subtitle: "Balanced combined odds.",
@@ -98,7 +99,7 @@ const SECTION_DISPLAY: Record<RiskSectionKey, RiskSectionDisplay> = {
   },
   high: {
     key: "high",
-    label: "High Risk",
+    label: PUBLIC_RISK_LABELS.high,
     oddsRange: "+300 to +600",
     legRange: "typically 3–4 legs",
     subtitle: "Longer combined odds.",
@@ -110,7 +111,7 @@ const SECTION_DISPLAY: Record<RiskSectionKey, RiskSectionDisplay> = {
   },
   longshot: {
     key: "longshot",
-    label: "Longshot",
+    label: PUBLIC_RISK_LABELS.longshot,
     oddsRange: "+600 and up",
     legRange: "typically 4–6 legs",
     subtitle: "Longest combined odds.",

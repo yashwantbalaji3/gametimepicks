@@ -1,4 +1,5 @@
 import type { RiskLadder, PublishedBandRecord } from "@/lib/parlays/risk-ladder";
+import { PUBLIC_RISK_LABELS, PUBLIC_RISK_BAND_TEXT } from "@/lib/parlays/risk-odds-bands.mjs";
 
 /**
  * THE RISK-LADDER STREAM on /results — this product's record, kept in its own lane.
@@ -16,12 +17,9 @@ import type { RiskLadder, PublishedBandRecord } from "@/lib/parlays/risk-ladder"
  * catastrophic at even money and would be excellent at +2000.
  */
 
-const TIER_LABEL: Record<string, string> = {
-  low: "Low risk", medium: "Medium risk", high: "High risk", longshot: "Longshot",
-};
-const TIER_BAND: Record<string, string> = {
-  low: "−200 to +100", medium: "+100 to +300", high: "+300 to +600", longshot: "> +600",
-};
+/* D2: labels and bands come from the one public taxonomy — never a local table. */
+const TIER_LABEL: Readonly<Record<string, string>> = PUBLIC_RISK_LABELS;
+const TIER_BAND: Readonly<Record<string, string>> = PUBLIC_RISK_BAND_TEXT;
 const ORDER = ["low", "medium", "high", "longshot"];
 
 const pct = (v: number | null | undefined) => (v == null ? "—" : `${(v * 100).toFixed(1)}%`);

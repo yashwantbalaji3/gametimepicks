@@ -1,13 +1,15 @@
 /**
  * RiskPill — canonical risk-tier chip using the --risk-* design tokens, shared across surfaces.
  */
+import { PUBLIC_RISK_LABELS } from "@/lib/parlays/risk-odds-bands.mjs";
+
 export type RiskTier = "low" | "medium" | "high" | "longshot";
 
 const META: Record<RiskTier, { label: string; color: string }> = {
-  low: { label: "Low Risk", color: "var(--risk-low)" },
-  medium: { label: "Medium Risk", color: "var(--risk-medium)" },
-  high: { label: "High Risk", color: "var(--risk-high)" },
-  longshot: { label: "Longshot", color: "var(--risk-longshot)" },
+  low: { label: PUBLIC_RISK_LABELS.low, color: "var(--risk-low)" },
+  medium: { label: PUBLIC_RISK_LABELS.medium, color: "var(--risk-medium)" },
+  high: { label: PUBLIC_RISK_LABELS.high, color: "var(--risk-high)" },
+  longshot: { label: PUBLIC_RISK_LABELS.longshot, color: "var(--risk-longshot)" },
 };
 
 /** Accepts a tier key ("low") or a human label ("Low Risk"/"Longshot") and normalizes it. */
