@@ -7,7 +7,7 @@
  "modelVersion": "mlb-fullgame-2026.08-pa-v2",
  "simulationVersion": 1,
  "sourceBoardHash": "11d65bd950562df88904d3a203b87932cfded9c94d11588ab403937260334c2d",
- "updatedAt": "2026-10-02T00:59:47.000Z",
+ "updatedAt": "2026-10-02T01:44:19.000Z",
  "games": [
   {
    "gamePk": 849844,
@@ -16,45 +16,45 @@
    "awayTeam": "PHI",
    "homeTeam": "ATL",
    "firstPitch": "2026-10-02T00:00:00Z",
-   "artifactHash": "6588595a3f42af9a0e676f3b055e12a756329e121a28e1ba5ba00a8ef007c552",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "6a7f9a85c1b50eadd14e51a3dcc54999cd1481957e06beb64e2180b74f74d92c",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
-    "source": "confirmed",
-    "capturedAt": "2026-10-01T21:09:43.099Z",
-    "minutesToFirstPitch": 170,
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
     "batterIds": [
      607208,
-     656941,
-     547180,
      664761,
+     547180,
      681082,
-     650559,
-     624641,
+     656941,
+     669016,
      592663,
-     702222
+     702222,
+     650559
     ],
     "realCount": 9,
-    "ratedCount": 8,
+    "ratedCount": 9,
     "paddedSlots": 0
    },
    "home": {
-    "source": "confirmed",
-    "capturedAt": "2026-10-01T21:09:43.099Z",
-    "minutesToFirstPitch": 170,
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
     "batterIds": [
      686948,
-     660670,
-     621566,
      671739,
-     643289,
-     573262,
-     663586,
      645277,
-     642086
+     621566,
+     663586,
+     669221,
+     573262,
+     -8,
+     -9
     ],
-    "realCount": 9,
-    "ratedCount": 6,
+    "realCount": 7,
+    "ratedCount": 7,
     "paddedSlots": 0
    },
    "awayStarter": null,
@@ -62,9 +62,11 @@
    "missingFamilies": [
     "away_probable_starter",
     "home_probable_starter",
+    "confirmed_batting_order",
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   }
  ]
