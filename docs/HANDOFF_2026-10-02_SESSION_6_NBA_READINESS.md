@@ -98,6 +98,8 @@ Registry stages at writing: EPL LIVE · Ligue 1 ACCEPTED_V1 · LaLiga / Serie A 
 | #915 | Live TD "not measured" truth fix | independent |
 | (this) | handoff + preregistration look 2 | last |
 
+**Merge state at writing: none merged.** All four code PRs were exact-head green (`quality`, `python`, Vercel) with `git merge-tree origin/main <head>` == the tested head tree (main had not moved from `9728359203`). The session's permission classifier refused `gh pr merge`, so merging — and therefore Production verification of `/nba` — is the founder's. Merge #912 **before** #913, and #912 before 2026-10-04 ~14Z so the first preseason final (MIA @ TOR, 10-03 23:00Z) is folded by that day's sport-schedules run. Tested heads: #912 `8667a1059f` · #913 `2cc4092b3a` · #914 `d8e2868807` · #915 `523a9db830`.
+
 ## 7. Founder gates / decisions
 
 1. **PIT @ CLE props**: if the free producer was not dispatched before 08:15Z, choose re-run with a widened window or a box-score grade through the canonical settler.
