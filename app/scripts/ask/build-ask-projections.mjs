@@ -434,6 +434,9 @@ function buildOfficialCards(days = 3) {
     ...(withResult ? { result: l.result ?? null } : {}),
     combinedOdds: Number.isFinite(l.combinedOdds) && (l.legs ?? []).length ? l.combinedOdds : null,
     reason: l.status === "active" ? null : (l.activationEligibility?.reason ?? l.shortfallNote ?? null),
+    /* Session 5 · B6: the product's OWN selection words for a placed card ("why is this leg in the Bank Builder?"). */
+    why: Array.isArray(l.whyThisCard) ? l.whyThisCard.filter((x) => typeof x === "string").slice(0, 4) : [],
+    correlationNote: typeof l.correlationNote === "string" ? l.correlationNote : null,
     legs: (l.legs ?? []).map((g) => ({ matchup: g.matchup ?? null, selection: g.selection ?? null, market: g.market ?? g.marketLabel ?? null, odds: g.odds ?? null, book: g.provider ?? null, probabilityBasis: g.probabilityBasis ?? null, kickoffEt: g.kickoffEt ?? null, ...(withResult ? { result: g.result ?? null, official: g.official ?? null } : {}) })),
   });
   const portfolioDoc = (() => { try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data/mr-dub/daily-portfolio.json"), "utf8")); } catch { return null; } })();
