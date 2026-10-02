@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-02T00:32:41Z",
- "sourceGeneratedAt": "2026-10-02T00:32:41Z",
+ "generatedAt": "2026-10-02T01:32:24Z",
+ "sourceGeneratedAt": "2026-10-02T01:32:24Z",
  "providerEventId": "401872977",
  "matchup": "LAC @ SEA",
  "kickoffUtc": "2026-10-04T20:25Z",
@@ -22,7 +22,19 @@
    "label": "Rushing yards",
    "state": "PUBLISHED",
    "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (14,502 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (216 graded player-games so far).",
-   "model": "nfl-player-share-level-v1"
+   "model": "nfl-player-share-level-v1",
+   "withheldTeams": [
+    {
+     "team": "LAC",
+     "sum": 1.4034,
+     "reason": "withheld for LAC: the players' modelled shares add up to 140% of the team's carries, more than exists — shown again once the shares are reconciled"
+    },
+    {
+     "team": "SEA",
+     "sum": 1.1716,
+     "reason": "withheld for SEA: the players' modelled shares add up to 117% of the team's carries, more than exists — shown again once the shares are reconciled"
+    }
+   ]
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -89,7 +101,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 59,
+  "absent": 48,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -99,7 +111,8 @@
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 0
+    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
     {
@@ -174,18 +187,23 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
+      "player_pass_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.403) — family withheld for LAC, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4383351",
      "name": "Trey Lance",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
      "participation": "QUESTIONABLE",
      "notModeled": [
@@ -193,6 +211,11 @@
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
        "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      },
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.403) — family withheld for LAC, never renormalised"
       }
      ]
     },
@@ -201,41 +224,63 @@
      "name": "Keaton Mitchell",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.403) — family withheld for LAC, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4430968",
      "name": "Kimani Vidal",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.403) — family withheld for LAC, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4878878",
      "name": "Amar Johnson",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.403) — family withheld for LAC, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4685382",
      "name": "Omarion Hampton",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN",
      "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.403) — family withheld for LAC, never renormalised"
+      },
       {
        "family": "player_receptions",
        "state": "NOT_MODELED_BY_FAMILY",
@@ -263,7 +308,8 @@
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1
+    "NOT_MODELED_BY_FAMILY": 1,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
     {
@@ -284,10 +330,16 @@
      "families": [
       "anytime_td",
       "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
+      "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.172) — family withheld for SEA, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-2977187",
@@ -347,31 +399,47 @@
      "name": "Velus Jones Jr.",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.172) — family withheld for SEA, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4887558",
      "name": "Emanuel Wilson",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.172) — family withheld for SEA, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4429835",
      "name": "George Holani",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
      "participation": "QUESTIONABLE",
      "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.172) — family withheld for SEA, never renormalised"
+      },
       {
        "family": "player_receptions",
        "state": "NOT_MODELED_BY_FAMILY",
@@ -384,10 +452,16 @@
      "name": "Jacardia Wright",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.172) — family withheld for SEA, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4426385",
@@ -450,6 +524,52 @@
     ]
    }
   ],
+  "pools": [
+   {
+    "team": "LAC",
+    "pool": "carries",
+    "markets": [
+     "player_rush_yds"
+    ],
+    "sum": 1.4034,
+    "joined": 6,
+    "missed": 0,
+    "state": "OVER_ALLOCATED"
+   },
+   {
+    "team": "SEA",
+    "pool": "carries",
+    "markets": [
+     "player_rush_yds"
+    ],
+    "sum": 1.1716,
+    "joined": 5,
+    "missed": 0,
+    "state": "OVER_ALLOCATED"
+   },
+   {
+    "team": "LAC",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9937,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "SEA",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.7277,
+    "joined": 1,
+    "missed": 0,
+    "state": "UNDER_ALLOCATED"
+   }
+  ],
   "violations": 0
  },
  "players": [
@@ -489,15 +609,6 @@
    "team": "LAC",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 62.752,
-     "p10": 14.0894,
-     "p25": 27.4485,
-     "median": 50.9324,
-     "p75": 85.3693,
-     "p90": 126.9551,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.4126,
      "pricingState": "NOT_PROBED"
@@ -526,15 +637,6 @@
      "median": 1,
      "p75": 2,
      "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_rush_yds": {
-     "mean": 39.9421,
-     "p10": 5.2588,
-     "p25": 13.0077,
-     "median": 29.0524,
-     "p75": 55.2742,
-     "p90": 89.0658,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -639,38 +741,8 @@
    "team": "SEA",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 41.2789,
-     "p10": 6.5226,
-     "p25": 14.861,
-     "median": 31.1859,
-     "p75": 56.9175,
-     "p90": 89.3853,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.2254,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4596334",
-   "name": "Keaton Mitchell",
-   "team": "LAC",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 27.9276,
-     "p10": 1.5355,
-     "p25": 5.7245,
-     "median": 16.9918,
-     "p75": 38.5761,
-     "p90": 68.9078,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1931,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -681,15 +753,18 @@
    "team": "SEA",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_rush_yds": {
-     "mean": 18.2292,
-     "p10": 0.4914,
-     "p25": 2.645,
-     "median": 9.7199,
-     "p75": 24.8509,
-     "p90": 47.3153,
+    "anytime_td": {
+     "probability": 0.1931,
      "pricingState": "NOT_PROBED"
-    },
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4596334",
+   "name": "Keaton Mitchell",
+   "team": "LAC",
+   "participation": "QUESTIONABLE",
+   "markets": {
     "anytime_td": {
      "probability": 0.1931,
      "pricingState": "NOT_PROBED"
@@ -792,15 +867,6 @@
    "team": "LAC",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 14.6187,
-     "p10": 0.0702,
-     "p25": 1.0674,
-     "median": 6.0767,
-     "p75": 19.1813,
-     "p90": 40.4888,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.141,
      "pricingState": "NOT_PROBED"
@@ -813,15 +879,6 @@
    "team": "LAC",
    "participation": "QUESTIONABLE",
    "markets": {
-    "player_rush_yds": {
-     "mean": 25.2192,
-     "p10": 1.2897,
-     "p25": 4.9833,
-     "median": 15.1287,
-     "p75": 34.7984,
-     "p90": 62.6111,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1405,
      "pricingState": "NOT_PROBED"
@@ -864,15 +921,6 @@
    "team": "LAC",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 11.9991,
-     "p10": 0.0088,
-     "p25": 0.5214,
-     "median": 4.1928,
-     "p75": 15.2418,
-     "p90": 34.2608,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1217,
      "pricingState": "NOT_PROBED"
@@ -915,15 +963,6 @@
    "team": "LAC",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 21.7498,
-     "p10": 0.6394,
-     "p25": 3.2857,
-     "median": 11.7752,
-     "p75": 29.7056,
-     "p90": 56.165,
-     "pricingState": "NOT_PROBED"
-    },
     "player_pass_yds": {
      "mean": 227.0991,
      "p10": 115.7698,
@@ -945,15 +984,6 @@
    "team": "SEA",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 17.878,
-     "p10": 0.306,
-     "p25": 2.1205,
-     "median": 8.8421,
-     "p75": 24.1269,
-     "p90": 47.4856,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1096,
      "pricingState": "NOT_PROBED"
@@ -996,15 +1026,6 @@
    "team": "SEA",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 13.4073,
-     "p10": 0.03,
-     "p25": 0.7719,
-     "median": 5.1385,
-     "p75": 17.3339,
-     "p90": 37.7097,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0834,
      "pricingState": "NOT_PROBED"

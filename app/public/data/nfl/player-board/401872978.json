@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-02T00:32:41Z",
- "sourceGeneratedAt": "2026-10-02T00:32:41Z",
+ "generatedAt": "2026-10-02T01:32:24Z",
+ "sourceGeneratedAt": "2026-10-02T01:32:24Z",
  "providerEventId": "401872978",
  "matchup": "DET @ CAR",
  "kickoffUtc": "2026-10-05T00:20Z",
@@ -22,7 +22,14 @@
    "label": "Rushing yards",
    "state": "PUBLISHED",
    "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (14,502 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (216 graded player-games so far).",
-   "model": "nfl-player-share-level-v1"
+   "model": "nfl-player-share-level-v1",
+   "withheldTeams": [
+    {
+     "team": "DET",
+     "sum": 1.0152,
+     "reason": "withheld for DET: the players' modelled shares add up to 102% of the team's carries, more than exists — shown again once the shares are reconciled"
+    }
+   ]
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -89,7 +96,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 56,
+  "absent": 52,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -99,7 +106,8 @@
     "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 0
+    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
     {
@@ -109,10 +117,16 @@
      "families": [
       "anytime_td",
       "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
+      "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.015) — family withheld for DET, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4374302",
@@ -164,30 +178,48 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
+      "player_pass_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.015) — family withheld for DET, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-3116136",
      "name": "Justin Jackson",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.015) — family withheld for DET, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4912274",
      "name": "Sione Vaki",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.015) — family withheld for DET, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4361529",
@@ -203,7 +235,8 @@
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 0
+    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
     {
@@ -355,6 +388,52 @@
     "removed": []
    }
   ],
+  "pools": [
+   {
+    "team": "DET",
+    "pool": "carries",
+    "markets": [
+     "player_rush_yds"
+    ],
+    "sum": 1.0152,
+    "joined": 4,
+    "missed": 0,
+    "state": "OVER_ALLOCATED"
+   },
+   {
+    "team": "DET",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9984,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "CAR",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.992,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "CAR",
+    "pool": "carries",
+    "markets": [
+     "player_rush_yds"
+    ],
+    "sum": 0.8069,
+    "joined": 3,
+    "missed": 0,
+    "state": "CONSERVED"
+   }
+  ],
   "violations": 0
  },
  "players": [
@@ -380,15 +459,6 @@
      "median": 4,
      "p75": 6,
      "p90": 8,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_rush_yds": {
-     "mean": 90.6006,
-     "p10": 24.1894,
-     "p25": 43.6452,
-     "median": 76.0898,
-     "p75": 121.9421,
-     "p90": 176.0271,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -622,15 +692,6 @@
    "team": "DET",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 11.9997,
-     "p10": 0.004,
-     "p25": 0.4457,
-     "median": 3.989,
-     "p75": 15.0935,
-     "p90": 34.5098,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1706,
      "pricingState": "NOT_PROBED"
@@ -784,15 +845,6 @@
    "team": "DET",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 10.18,
-     "p10": 0,
-     "p25": 0.161,
-     "median": 2.6325,
-     "p75": 12.1588,
-     "p90": 30.1202,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1149,
      "pricingState": "NOT_PROBED"
@@ -865,15 +917,6 @@
    "team": "DET",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 9.5059,
-     "p10": 0.001,
-     "p25": 0.2949,
-     "median": 2.9882,
-     "p75": 11.8231,
-     "p90": 27.5399,
-     "pricingState": "NOT_PROBED"
-    },
     "player_pass_yds": {
      "mean": 258.1064,
      "p10": 139.4585,

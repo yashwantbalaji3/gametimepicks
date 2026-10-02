@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-02T00:32:41Z",
- "sourceGeneratedAt": "2026-10-02T00:32:41Z",
+ "generatedAt": "2026-10-02T01:32:24Z",
+ "sourceGeneratedAt": "2026-10-02T01:32:24Z",
  "providerEventId": "401872971",
  "matchup": "NE @ BUF",
  "kickoffUtc": "2026-10-04T17:00Z",
@@ -22,7 +22,14 @@
    "label": "Rushing yards",
    "state": "PUBLISHED",
    "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (14,502 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (216 graded player-games so far).",
-   "model": "nfl-player-share-level-v1"
+   "model": "nfl-player-share-level-v1",
+   "withheldTeams": [
+    {
+     "team": "NE",
+     "sum": 1.1009,
+     "reason": "withheld for NE: the players' modelled shares add up to 110% of the team's carries, more than exists — shown again once the shares are reconciled"
+    }
+   ]
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -67,7 +74,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 60,
+  "absent": 56,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -77,7 +84,8 @@
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 0
+    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
     {
@@ -87,10 +95,16 @@
      "families": [
       "anytime_td",
       "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
+      "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.101) — family withheld for NE, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-2991662",
@@ -163,30 +177,48 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
+      "player_pass_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.101) — family withheld for NE, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4431431",
      "name": "Corey Kiner",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.101) — family withheld for NE, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4432710",
      "name": "TreVeyon Henderson",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_rush_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_rush_yds",
+       "state": "WITHHELD_POOL_OVER_ALLOCATED",
+       "reason": "team carries pool over-allocated (Σshare 1.101) — family withheld for NE, never renormalised"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4698253",
@@ -218,7 +250,8 @@
     "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 0
+    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
     {
@@ -354,6 +387,52 @@
     "removed": []
    }
   ],
+  "pools": [
+   {
+    "team": "NE",
+    "pool": "carries",
+    "markets": [
+     "player_rush_yds"
+    ],
+    "sum": 1.1009,
+    "joined": 4,
+    "missed": 0,
+    "state": "OVER_ALLOCATED"
+   },
+   {
+    "team": "BUF",
+    "pool": "carries",
+    "markets": [
+     "player_rush_yds"
+    ],
+    "sum": 0.9818,
+    "joined": 3,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "BUF",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9682,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "NE",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9358,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   }
+  ],
   "violations": 0
  },
  "players": [
@@ -480,15 +559,6 @@
      "p90": 5,
      "pricingState": "NOT_PROBED"
     },
-    "player_rush_yds": {
-     "mean": 40.6024,
-     "p10": 5.6445,
-     "p25": 13.6228,
-     "median": 29.8692,
-     "p75": 56.1385,
-     "p90": 89.783,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.3119,
      "pricingState": "NOT_PROBED"
@@ -501,15 +571,6 @@
    "team": "NE",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 47.088,
-     "p10": 7.5998,
-     "p25": 17.1518,
-     "median": 35.731,
-     "p75": 64.8916,
-     "p90": 101.5933,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.3112,
      "pricingState": "NOT_PROBED"
@@ -831,15 +892,6 @@
    "team": "NE",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 24.7134,
-     "p10": 0.9451,
-     "p25": 4.2298,
-     "median": 14.0295,
-     "p75": 33.9304,
-     "p90": 62.7372,
-     "pricingState": "NOT_PROBED"
-    },
     "player_pass_yds": {
      "mean": 224.9066,
      "p10": 112.7594,
@@ -861,15 +913,6 @@
    "team": "NE",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_rush_yds": {
-     "mean": 16.8681,
-     "p10": 0.4638,
-     "p25": 2.4696,
-     "median": 9.0245,
-     "p75": 23.0048,
-     "p90": 43.7334,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1203,
      "pricingState": "NOT_PROBED"
