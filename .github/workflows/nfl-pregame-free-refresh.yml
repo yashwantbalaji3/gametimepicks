@@ -1,0 +1,84 @@
+# NFL pregame roster/usage refresh — FREE, for single-game nights (Session 5 · A4).
+#
+# WHY. Thursday's boards were refreshed before kickoff by a manual zero-credit dispatch: the paid
+# nfl-kickoff-refresh fires 1–5 PM ET on Thursdays (its ≤120-minute rule cannot be true on time for a
+# 00:15Z kickoff) and GitHub delivered 1 of its 10 slots on 2026-10-01. Delivery here runs 1h40m–4h55m
+# late, so a cron cannot meet a deadline. Whichever run arrives first decides from the committed boards
+# and WAITS inside the job until 105 minutes before kickoff (src/lib/ops/pregame-free-refresh.mjs).
+#
+# FREE BY CONSTRUCTION. No secret is named; the only dispatch is nfl-event-window with skip_odds=true
+# (the documented zero-credit chain) — never probe_props, never a paid step.
+#
+# DEDUPED. One group, never cancelled: a later arrival queues behind the waiting run and then decides
+# ALREADY_REFRESHED from the boards that run produced.
+name: nfl-pregame-free-refresh
+
+on:
+  schedule:
+    # Thursday UTC, early enough that even a 5-hour-late delivery is still before T-105 for 00:15Z.
+    - cron: "0 15 * * 4"
+    - cron: "0 17 * * 4"
+    - cron: "0 19 * * 4"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Decide and report, never wait or dispatch"
+        required: false
+        default: "false"
+
+concurrency:
+  group: nfl-pregame-free-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    # MAX_WAIT_MIN (330) + the dispatch, with margin.
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Decide
+        id: decide
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/decide-pregame-free-refresh.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Wait for the target lead
+        if: steps.decide.outputs.decision == 'WAIT_THEN_DISPATCH' && github.event.inputs.dry_run != 'true'
+        run: |
+          set -euo pipefail
+          echo "waiting ${{ steps.decide.outputs.wait_seconds }}s — ${{ steps.decide.outputs.reason }}"
+          sleep "${{ steps.decide.outputs.wait_seconds }}"
+
+      # Re-decided after the wait, on fresh boards: another run may have refreshed them meanwhile.
+      - name: Re-decide on current boards
+        id: again
+        if: (steps.decide.outputs.decision == 'WAIT_THEN_DISPATCH' || steps.decide.outputs.decision == 'DISPATCH_NOW') && github.event.inputs.dry_run != 'true'
+        working-directory: app
+        run: |
+          set -euo pipefail
+          git pull --quiet --ff-only origin main
+          node scripts/nfl/decide-pregame-free-refresh.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Dispatch the zero-credit event window
+        if: steps.again.outputs.decision == 'DISPATCH_NOW'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run nfl-event-window.yml --ref main -f skip_odds=true -f lookahead_hours=18
+          echo "::notice::pregame free refresh dispatched nfl-event-window (skip_odds=true) — ${{ steps.again.outputs.reason }}"
+
+      - name: Report a hold
+        if: steps.again.outputs.decision != 'DISPATCH_NOW'
+        run: |
+          echo "::notice::pregame free refresh held — ${{ steps.again.outputs.decision || steps.decide.outputs.decision }}: ${{ steps.again.outputs.reason || steps.decide.outputs.reason }}"
