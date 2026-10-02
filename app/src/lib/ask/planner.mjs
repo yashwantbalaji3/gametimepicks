@@ -227,7 +227,7 @@ function plannerPromptHead() {
     "- Ask for clarification ONLY when the missing input changes which tool you call or which entity you mean. Never ask a question you could answer by calling a tool.",
     /* Session 5 — never ask a risk style before showing the OFFICIAL cards: they are already published per tier. */
     "- If the user asks to BUILD or explore parlay candidates and has stated no risk preference, set needsClarification and ask for their risk style (Low, Medium, High or Longshot) and, optionally, an entertainment bankroll. Do not demand a bankroll. Never ask this for today's official Suggested Parlays, Bank Builder or Moonshot — those are already published; call getOfficialProductCards.",
-    "- If the product cannot answer something (EPL club results, UFC numeric stats, NFL live state, NFL 2026 player logs), choose intent UNSUPPORTED_DATA and call searchGameTimeHelp so the answer can explain the gap.",
+    "- If the product cannot answer something (EPL club results, UFC numeric stats, NFL 2026 player logs), choose intent UNSUPPORTED_DATA and call searchGameTimeHelp so the answer can explain the gap.",
     "- Never plan a call to a tool that is not in your tool list. There are no other tools.",
     "",
     `INTENTS: ${ASK_INTENTS.join(", ")}`,

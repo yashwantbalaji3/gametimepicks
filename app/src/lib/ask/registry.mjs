@@ -293,9 +293,9 @@ export const ASK_TOOLS = Object.freeze({
     version: 1,
     kind: "live",
     describe:
-      "Current live game state for a sport GameTime tracks live. MLB is supported. NFL live state is NOT " +
-      "available in GameTimePicks — if asked, say so and offer scheduled matchup context, recorded research " +
-      "or a published pregame forecast instead. Never describe a live score without calling this.",
+      "Current live game state (scheduled, in progress, final; the live score) from GameTime Live for MLB or NFL. " +
+      "Call it for any live-score question — the live gateway answers for the sports it publishes and refuses any " +
+      "other; repeat its answer, including a refusal, and never describe a live score without calling this.",
     args: {
       sport: { kind: "enum", options: SPORTS, required: true, describe: "The sport to read live state for." },
     },
