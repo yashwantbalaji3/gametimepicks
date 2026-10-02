@@ -64,13 +64,15 @@ test("the cron survives as a bounded recovery and cannot duplicate a generation"
 });
 
 test("the input gate runs BEFORE generation, and generation respects the guard", () => {
-  const gate = stepAt("input must actually be usable");
-  const gen = stepAt("Generate daily products");
+  // Session 5: the gate is the MLB classifier (pool gate + StatsAPI evidence); only MLB money steps depend on it.
+  const gate = stepAt("Classify today's MLB input");
+  const gen = stepAt("Generate MLB money products");
   assert.ok(gate !== -1, "no input gate");
   assert.ok(gen !== -1, "no generation step");
   assert.ok(gate < gen, "the gate must precede generation, or it gates nothing");
-  assert.match(runBodyAfter(gate), /check-pool-ready/, "the gate must call the validator");
+  assert.match(runBodyAfter(gate), /classify-mlb-input/, "the gate must call the classifier");
   assert.match(SRC.slice(gen, gen + 300), /already-generated/, "generation must respect the recovery guard");
+  assert.match(SRC.slice(gen, gen + 300), /steps\.mlb\.outputs\.verdict != 'INPUT_UNAVAILABLE'/, "MLB money steps must not run on an unusable slate");
 });
 
 test("every run block in this workflow is valid shell", () => {

@@ -92,7 +92,7 @@ let portfolioSource = null;
  * for this date, and only evaluates (with the live activation policy, exactly as
  * activate-daily-portfolio.mjs --apply does) when no published portfolio for the date exists.
  */
-if (board) {
+if (board && !arg("--mlb-unavailable", null)) {
   const published = read(path.join(DATA, "mr-dub", "daily-portfolio.json"));
   if (published?.date === DATE && Array.isArray(published.lanes)) {
     portfolio = published;
@@ -107,8 +107,22 @@ if (board) {
   }
 }
 
+/*
+ * SESSION 5 · PHASE B — daily-products no longer stops when the MLB slate is unusable; it skips the MLB money
+ * steps and passes the classifier's reason here (classify-mlb-input.mjs). The products did NOT evaluate, so the
+ * receipt says INPUTS_MISSING with that reason — never a live re-evaluation over the pool the gate refused.
+ */
+const MLB_UNAVAILABLE = arg("--mlb-unavailable", null);
+
 /** Turn one product's lanes into a receipt entry, preserving the policy's own reasons. */
 function productEntry(product, label) {
+  if (MLB_UNAVAILABLE) {
+    return {
+      product, label, state: "INPUTS_MISSING",
+      reason: `MLB input unavailable for ${DATE}: ${MLB_UNAVAILABLE}. The product was not evaluated; this is an operational gap, not a model decision.`,
+      candidatesEvaluated: 0, rejections: [], card: null,
+    };
+  }
   if (!board) {
     return {
       product, label, state: "INPUTS_MISSING",
