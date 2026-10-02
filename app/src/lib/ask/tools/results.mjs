@@ -36,7 +36,9 @@ import { ASK_ERROR, ASK_STATUS, askAssetPath } from "../contract.mjs";
    runtime does not import the projection builder. */
 export const MODEL_DETAIL_RECORD_TYPES = Object.freeze(["CANDIDATE_POOL_RECORD"]);
 
-const PRODUCT_LABEL = { "bank-builder": "Bank Builder", moonshot: "Moonshot", "parlay-lab": "Parlay Lab" };
+/* "parlay-lab" is the internal id; the rendered name is Suggested Parlays (Parlay Lab is retired in rendered copy), and
+   its record is the published cards (founder decision D1). */
+const PRODUCT_LABEL = { "bank-builder": "Bank Builder", moonshot: "Moonshot", "parlay-lab": "Suggested Parlays" };
 const PRODUCT_HREF = { "bank-builder": "/bank-builder/", moonshot: "/moonshot/", "parlay-lab": "/results/" };
 
 /** Load the projection, or a refusal that degrades one tool rather than the turn. */

@@ -222,7 +222,8 @@ export const ASK_TOOLS = Object.freeze({
     version: 1,
     kind: "results",
     describe:
-      "The SETTLED record for a GameTime product (Bank Builder, Moonshot, Parlay Lab), from the canonical " +
+      "The SETTLED record for a GameTime product (Bank Builder, Moonshot, Suggested Parlays = id parlay-lab: the " +
+      "cards we PUBLISHED, one per risk level a day — never every candidate slip graded), from the canonical " +
       "Results owner. Use for 'what is Bank Builder's record', 'how has Moonshot done'. Returns the CURRENT " +
       "record the owner designated, its era components, and — separately — legacy-era rows that are settled " +
       "history under a different policy. NEVER add a legacy row to the current record, and never add two " +
