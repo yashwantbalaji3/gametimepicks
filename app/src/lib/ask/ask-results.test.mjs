@@ -340,3 +340,21 @@ test("getResultsDay · a restated graded call passes the pick rule; a day total 
   assert.equal(verifyAnswer(`GameTime picked ${call} on 2026-09-27.`, evidence).ok, true);
   assert.equal(verifyAnswer("GameTime went 9-4 on 2026-09-27.", evidence).ok, false);
 });
+
+test("D1 · the Parlay Lab record is the published cards; candidate-pool cells are never a component or a legacy row", async () => {
+  const doc = {
+    ...FIXTURE,
+    headline: { ...FIXTURE.headline, byProduct: { ...FIXTURE.headline.byProduct, "parlay-lab": "lab:mlb:parlay-lab:POLICY_V2:stream" } },
+    cells: [
+      ...FIXTURE.cells,
+      { cellId: "lab:mlb:parlay-lab:POLICY_V2:stream", recordType: "LAB_CARD_RECORD", family: "lab", product: "parlay-lab", sport: "mlb", segment: "stream", era: "POLICY_V2", presentation: "CURRENT", n: 109, counts: { won: 21, lost: 88, pending: 0, push: 0, void: null }, decisive: 109, hitRate: 0.1927, ownerState: null, window: { from: "2026-08-17", to: null }, status: "LIVE", displayEligible: { eligible: true, reason: "published cards" }, asOf: null },
+      { cellId: "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-overall", recordType: "CANDIDATE_POOL_RECORD", family: "lab", product: "parlay-lab", sport: null, segment: "risk-ladder-overall", era: "UNSEGMENTED_WINDOW", presentation: "CURRENT", n: 1991, counts: { won: 383, lost: 1608, pending: null, push: null, void: null }, decisive: 1991, hitRate: null, ownerState: null, window: { from: "2026-05-25", to: "2026-09-27" }, status: "LIVE", displayEligible: { eligible: true, reason: "candidate pool" }, asOf: null },
+      { cellId: "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-tier-high", recordType: "CANDIDATE_POOL_RECORD", family: "lab", product: "parlay-lab", sport: null, market: "high", segment: "risk-ladder-tier-high", era: "UNSEGMENTED_WINDOW", presentation: "CURRENT", n: 500, counts: { won: 60, lost: 440, pending: 0, push: 0, void: null }, decisive: 500, hitRate: 0.12, ownerState: null, window: { from: "2026-05-25", to: "2026-09-27" }, status: "LIVE", displayEligible: { eligible: true, reason: "candidate pool" }, asOf: null },
+    ],
+  };
+  const r = await getProductRecord({ product: "parlay-lab" }, ctxWith(doc));
+  assert.equal(r.current.cellId, "lab:mlb:parlay-lab:POLICY_V2:stream");
+  const ids = [...r.components, ...r.legacy].map((c) => c.cellId);
+  assert.ok(!ids.some((id) => id.includes("risk-ladder")), `no candidate-pool cell is offered: ${ids.join(", ")}`);
+  assert.doesNotMatch(JSON.stringify(r), /383|1608|1,608/, "the candidate-pool figures never reach the writer");
+});

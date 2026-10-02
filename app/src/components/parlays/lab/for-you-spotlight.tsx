@@ -6,6 +6,7 @@ import { useReaderPrefs, type RiskTolerance } from "@/lib/prefs/reader-prefs";
 import { pickForYou, RISK_ORDER } from "@/lib/parlays/lab/style-replay.mjs";
 import type { LadderCard } from "@/components/parlays/risk-ladder-board";
 import ChanceMeter from "./chance-meter";
+import { isPublishedRecord } from "@/lib/parlays/published-band-record.mjs";
 import StyleReplayChart, { type ReplayItem } from "./style-replay-chart";
 
 /**
@@ -206,7 +207,7 @@ function SpotlightBody({
         className="flex flex-col gap-5 rounded-[14px] p-4"
         style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 40%, transparent)", border: "1px solid var(--vault-border)" }}
       >
-        <ChanceMeter decimal={dec} record={main.tierRecord} since={recordSince} />
+        <ChanceMeter decimal={dec} record={isPublishedRecord(main.tierRecord) ? main.tierRecord : null} since={(isPublishedRecord(main.tierRecord) ? main.tierRecord?.since : null) ?? recordSince} />
         <StyleReplayChart
           series={replay?.tiers[main.tier] ?? []}
           bankroll={bankroll}

@@ -4,7 +4,8 @@
  * the same risk level have actually landed.
  *
  * The first number is arithmetic on the price (1 / decimal odds) and includes the sportsbook's margin.
- * The second is a completed record: decided cards at this level and how many won. They share one
+ * The second is a completed record: decided PUBLISHED cards at this level and how many won (founder decision D1 —
+ * the caller passes the published-card band record, published-band-record.mjs; never the candidate pool). They share one
  * scale on purpose — whichever the eye lands on first, the other is already beside it.
  */
 interface Props {
@@ -64,19 +65,19 @@ export default function ChanceMeter({ decimal, record, since }: Props) {
       {actual != null && record ? (
         <Bar
           order={1}
-          label="What every candidate at this risk level has done"
+          label="What our published cards at this risk level have done"
           value={actual}
           fill="var(--vault-gold-bright)"
-          sub={`${record.wins} of ${decided} decided candidate slips at this level landed${since ? ` since ${fmtDate(since)}` : ""} — every candidate slip we generated and graded, not only the cards published here.`}
+          sub={`${record.wins} of ${decided} decided published cards at this level landed${since ? ` since ${fmtDate(since)}` : ""} — the cards we published, settled; a small sample, not a performance claim.`}
         />
       ) : (
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>No decided candidate slips at this level yet.</span>
+        <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>No published card at this level has settled yet.</span>
       )}
       {actual != null ? (
         <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
           {actual < implied
-            ? "Candidates at this level have landed less often than their prices implied."
-            : "Candidates at this level have landed at least as often as their prices implied — on a sample this size, that can be luck."}
+            ? "Our published cards at this level have landed less often than their prices implied."
+            : "Our published cards at this level have landed at least as often as their prices implied — on a sample this size, that can be luck."}
         </p>
       ) : null}
     </div>
