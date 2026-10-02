@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Session 5 · A4 — decide (and say how long to wait for) the zero-credit pregame refresh.
- * Reads the committed player boards; writes `decision`, `wait_seconds`, `reason` to GITHUB_OUTPUT.
- * The rule lives in src/lib/ops/pregame-free-refresh.mjs. Usage: --now <ISO>
+ * Reads the committed player boards. Usage: --now <ISO> [--json]
+ * --json prints the decision as ONE line of JSON on stdout (the workflow loop reads it with jq).
+ * The rule lives in src/lib/ops/pregame-free-refresh.mjs.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -21,7 +22,5 @@ const boards = fs.readdirSync(dir).filter((f) => /^\d+\.json$/.test(f)).map((f) 
 }).filter((b) => b?.artifact === "nfl-player-board");
 
 const d = decidePregameFreeRefresh({ boards, nowIso });
-console.log(`pregame-free-refresh: ${d.decision} · ${d.reason}${d.waitSeconds ? ` · wait ${d.waitSeconds}s` : ""}`);
-if (process.env.GITHUB_OUTPUT) {
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `decision=${d.decision}\nwait_seconds=${d.waitSeconds}\nreason=${d.reason.replace(/\n/g, " ")}\n`);
-}
+if (process.argv.includes("--json")) fs.writeSync(1, `${JSON.stringify(d)}\n`);
+else console.log(`pregame-free-refresh: ${d.decision}${d.pass ? ` (${d.pass})` : ""} · ${d.reason}${d.waitSeconds ? ` · wait ${d.waitSeconds}s` : ""}`);
