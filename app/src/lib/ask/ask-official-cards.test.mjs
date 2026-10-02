@@ -47,7 +47,9 @@ test("today's official cards: the published ladder card and its no-card tier, ve
   assert.match(text, /2031-09-30 official Medium risk card, 1 legs, combined \+127 American/);
   assert.match(text, /Low risk: no card was published — the ladder's own reason: no priced card in this tier/);
   assert.match(text, /does not model correlation/);
-  assert.doesNotMatch(text, /tierRecord|hit rate|wins|losses/i, "the ladder's tier record is the optimizer population — not this tool's to state");
+  /* The ladder's own `tierRecord` is the optimizer CANDIDATE population (model detail since D1) — never stated here.
+     With no published-card record in the projection, no record sentence exists at all. */
+  assert.doesNotMatch(text, /tierRecord|hit rate|wins|losses|candidate/i);
 });
 
 test("'show me the lowest-risk option' with no Low risk card says so — it never substitutes another tier", async () => {
@@ -132,4 +134,54 @@ test("LIVE: published lanes carry their own why-words into the projection, verba
     const own = src.lanes.find((x) => x.product === l.product && x.lane === l.lane);
     assert.deepEqual(l.why, (own?.whyThisCard ?? []).slice(0, 4), `${l.product} ${l.lane}: why-words must be the product's own`);
   }
+});
+
+/* ── Session 7 — published-card tier records and a real history window ─────────────────────────────── */
+const withRecord = (rec) => ({ ...parlays, official: { ...official, suggestedRecord: rec } });
+const execWith = (doc) => makeExecutor({ turn: makeAskLoader(fixtureFetchText({ "/data/ask/v1/parlays.json": doc })).beginTurn(), now: NOW });
+const PUB = { population: "PUBLISHED_CARDS", sport: "mlb", since: "2031-08-17", settledDays: 30, overall: { wins: 21, losses: 88, pushes: 0 }, byTier: { low: { tierLabel: "Low Risk", wins: 3, losses: 5, pushes: 0 }, medium: { tierLabel: "Medium Risk", wins: 9, losses: 31, pushes: 1 } } };
+
+test("'How have Low Risk cards performed?' answers with the PUBLISHED-card Low Risk record only", async () => {
+  const ex = execWith(withRecord(PUB));
+  const r = await ex.run({ id: "c1", name: "getOfficialProductCards", arguments: { product: "SUGGESTED_PARLAYS", riskTier: "LOW" } });
+  assert.deepEqual(Object.keys(r.data.products.suggestedParlays.record.byTier), ["low"]);
+  assert.equal(r.data.products.suggestedParlays.record.overall, null, "a tier question does not get the overall figure to add up");
+  const text = buildEvidence(ex.evidence).facts.map((f) => f.text).join("\n");
+  assert.match(text, /Low Risk published cards since 2031-08-17: 3–5 \(wins–losses\); this counts only published cards/);
+  assert.doesNotMatch(text, /Medium Risk published cards/);
+});
+
+test("a record whose population is not PUBLISHED_CARDS is never stated (the candidate pool cannot leak in)", async () => {
+  const r = await execWith(withRecord({ ...PUB, population: "CANDIDATE_POOL" })).run({ id: "c1", name: "getOfficialProductCards", arguments: { product: "SUGGESTED_PARLAYS" } });
+  assert.equal(r.data.products.suggestedParlays.record, null);
+});
+
+test("a risk level's record answers on a day with no ladder; without a tier, that day stays NOT PUBLISHED", async () => {
+  const ex = execWith(withRecord(PUB));
+  const r = await ex.run({ id: "c1", name: "getOfficialProductCards", arguments: { product: "SUGGESTED_PARLAYS", riskTier: "MEDIUM", date: "2031-09-28" } });
+  assert.equal(r.status, "OK");
+  assert.equal(r.data.products.suggestedParlays.state, "NOT PUBLISHED");
+  const text = buildEvidence(ex.evidence).facts.map((f) => f.text).join("\n");
+  assert.match(text, /no official Suggested Parlays ladder was published for 2031-09-28/);
+  assert.match(text, /Medium Risk published cards since 2031-08-17: 9–31–1 \(wins–losses–pushes\)/);
+  const plain = await execWith(withRecord(PUB)).run({ id: "c1", name: "getOfficialProductCards", arguments: { product: "SUGGESTED_PARLAYS", date: "2031-09-28" } });
+  assert.equal(plain.status, "UNSUPPORTED");
+});
+
+test("the offline router sends a risk level's performance to the official cards tool with that tier", async () => {
+  const provider = createFakeProvider();
+  const plan = async (q) => JSON.parse((await provider.plan({ user: `QUESTION: ${q}` })).text);
+  for (const [q, tier] of [["How have Low Risk cards performed?", "LOW"], ["What's the Longshot record?", "LONGSHOT"], ["How has medium risk done?", "MEDIUM"]]) {
+    const p = await plan(q);
+    const call = p.calls.find((c) => c.name === "getOfficialProductCards");
+    assert.ok(call, `${q} → ${JSON.stringify(p.calls)}`);
+    assert.equal(call.arguments.riskTier, tier);
+  }
+});
+
+test("the projection keeps a bounded multi-week history of official cards (not 3 days)", () => {
+  const src = fs.readFileSync(new URL("../../../scripts/ask/build-ask-projections.mjs", import.meta.url), "utf8");
+  const m = /const OFFICIAL_HISTORY_DAYS = (\d+);/.exec(src);
+  assert.ok(m && Number(m[1]) >= 14 && Number(m[1]) <= 60, "history window must be bounded and at least two weeks");
+  assert.match(src, /function buildOfficialCards\(days = OFFICIAL_HISTORY_DAYS\)/);
 });

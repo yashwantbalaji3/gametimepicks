@@ -251,6 +251,13 @@ function routePlan(user) {
     push("getPendingResults", {});
     return { intent: "RESULTS_PENDING", needsClarification: false, clarification: null, calls };
   }
+  /* Session 7 — a RISK LEVEL's performance ("How have Low Risk cards performed?") is the published-card record
+     per tier, carried by getOfficialProductCards (D1 population) — not a product's overall record. */
+  const tierAsked = has("low risk", "low-risk") ? "LOW" : has("medium risk", "medium-risk") ? "MEDIUM" : has("high risk", "high-risk") ? "HIGH" : has("longshot") ? "LONGSHOT" : null;
+  if (tierAsked && has("performed", "perform", "record", "how have", "how has", "how did", "done")) {
+    push("getOfficialProductCards", { product: "SUGGESTED_PARLAYS", riskTier: tierAsked });
+    return { intent: "PRODUCT_CARDS", needsClarification: false, clarification: null, calls };
+  }
   if (resultsProduct && has("record", "results", "how has", "how did", "done")) {
     push("getProductRecord", { product: resultsProduct });
     return { intent: "RESULTS_PRODUCT_RECORD", needsClarification: false, clarification: null, calls };
