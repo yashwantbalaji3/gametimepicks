@@ -166,9 +166,21 @@ jobs:
 
       # P230 · F2 — Homer Nukes is a governed product; its board is the freeze the settler reads.
       # A run that returns zero and writes no board leaves the day unfalsifiable.
+      #
+      # SESSION 7: an MLB OFF DAY (a postseason off day — 2026-10-02 — or any 0-game board) is the calendar.
+      # build-homer-nukes.mjs prints NO_SLATE and writes no board, BY DESIGN; demanding one failed this whole
+      # job on every off day, which also skipped the daily-products run chained to it (workflow_run on
+      # success) and left the day's product receipts waiting on the late cron backstop. The assert now runs
+      # only when the board has games, and only when a board exists at all (the step had no board gate).
       - name: Assert Homer Nukes produced its board
+        if: steps.board.outputs.have_board == 'true'
         run: |
           set -euo pipefail
+          GAMES=$(node -e "const b = require('./app/public/data/mlb/boards/${{ steps.cfg.outputs.date }}.json'); console.log(Array.isArray(b.games) ? b.games.length : -1)")
+          if [ "$GAMES" = "0" ]; then
+            echo "NO_SLATE: the ${{ steps.cfg.outputs.date }} board has 0 games — Homer Nukes publishes no board by design"
+            exit 0
+          fi
           node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" \
             "app/public/data/mlb/homer-nukes/${{ steps.cfg.outputs.date }}.json"
       # P230 · G — RE-RESOLVE THE MLB TIER GRID ON MLB'S OWN CADENCE.
