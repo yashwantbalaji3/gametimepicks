@@ -165,17 +165,24 @@ jobs:
       # empty, every game carrying the start time the pre-event filter needs, and written inside the
       # freshness bound. A producer run that went green with an empty unintended output fails here.
       # Exit 0 = usable pool or a legitimately empty slate; 20-23 = a named refusal.
-      - name: The input must actually be usable
-        id: pool
+      #
+      # SESSION 5 · PHASE B — MLB FAILS CLOSED WITHOUT TAKING EVERYTHING ELSE DOWN. A refused MLB slate used to
+      # exit 20 here and stop the whole job (2026-09-28: no receipts, no eligible legs for any sport, no
+      # projection or Ask refresh). The classifier (lib/daily-portfolio/mlb-input-verdict.mjs) now returns
+      # READY / NO_EVENTS (established only by a StatsAPI schedule captured on the day) / INPUT_UNAVAILABLE.
+      # Only the MLB money steps are gated on it; the job reports INPUT_UNAVAILABLE as a failure at the END,
+      # after everything that does not depend on MLB has been generated and committed.
+      - name: Classify today's MLB input
+        id: mlb
         if: steps.recovery.outputs.already-generated != 'true'
         run: |
           set -euo pipefail
-          npx tsx app/scripts/products/check-pool-ready.mjs \
+          npx tsx app/scripts/products/classify-mlb-input.mjs \
             --date "${{ steps.d.outputs.date }}" \
             --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-      - name: Generate daily products (NETWORK-FREE — no provider, no credits)
-        if: steps.recovery.outputs.already-generated != 'true'
+      - name: Generate MLB money products (NETWORK-FREE — no provider, no credits)
+        if: steps.recovery.outputs.already-generated != 'true' && steps.mlb.outputs.verdict != 'INPUT_UNAVAILABLE'
         run: |
           set -euo pipefail
           DATE="${{ steps.d.outputs.date }}"
@@ -190,6 +197,14 @@ jobs:
           # contradiction detection. Network-free like everything else in this workflow. Exit 1 on
           # a NEW contradiction stops the commit — a contradictory dashboard must not publish.
           node app/scripts/build-evidence-ledger.mjs
+
+      # Not gated on the MLB verdict: the ladder reads the optimizer pool (its own refusal exits 0 and says
+      # so), and the eligible-leg universe + selector shadow cover every sport.
+      - name: Generate sport-neutral products (NETWORK-FREE — no provider, no credits)
+        if: steps.recovery.outputs.already-generated != 'true' && github.event.inputs.dry_run != 'true'
+        run: |
+          set -euo pipefail
+          DATE="${{ steps.d.outputs.date }}"
           # Today's card per risk tier + the tier record. Network-free like everything else in this
           # job: it reads only committed parlay artifacts. Non-fatal — a day with no snapshot simply
           # publishes no cards and says so.
@@ -219,6 +234,7 @@ jobs:
           echo "protected money unchanged"
 
       - name: Validate the artifact before publishing
+        if: steps.mlb.outputs.verdict != 'INPUT_UNAVAILABLE'
         run: |
           set -euo pipefail
           node -e "
@@ -233,10 +249,15 @@ jobs:
       # authority decided — including the distinction a page cannot show on its own: a missing
       # slate is INPUTS_MISSING, never a no-play. It writes only its own receipt path.
       - name: Write the daily product receipt
+        env:
+          MLB_VERDICT: ${{ steps.mlb.outputs.verdict }}
+          MLB_REASON: ${{ steps.mlb.outputs.reason }}
         run: |
           set -euo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          npx tsx app/scripts/products/build-daily-product-receipts.mjs --now "$NOW" --date "${{ steps.d.outputs.date }}"
+          ARGS=(--now "$NOW" --date "${{ steps.d.outputs.date }}")
+          if [ "${MLB_VERDICT:-}" = "INPUT_UNAVAILABLE" ]; then ARGS+=(--mlb-unavailable "$MLB_REASON"); fi
+          npx tsx app/scripts/products/build-daily-product-receipts.mjs "${ARGS[@]}"
 
       # P211 R-D: the forward-coverage view regenerates on the same cadence as the receipts —
       # one derivation over the same canonical artifacts, so the operator's coverage panel can
@@ -430,3 +451,13 @@ jobs:
           # conflict — and the protected money files, always — fails loud.
           GENERATED_PATHS="app/public/data/mr-dub/daily-portfolio.json app/public/data/admin/ data/internal/products/ app/public/data/parlays/ data/internal/platform/ data/research-projection/ data/compare-projection/ data/lab-projection/ data/ask-projection/" \
             bash scripts/ci/commit-generated.sh "auto: daily products ${{ steps.d.outputs.date }} [skip ci]"
+
+      # SESSION 5 · PHASE B — the MLB refusal stays LOUD, but only after every product that does not depend on
+      # MLB has been generated and committed above. NO_EVENTS (established) is not a failure.
+      - name: MLB money products were not generated (input unavailable)
+        if: steps.mlb.outputs.verdict == 'INPUT_UNAVAILABLE'
+        env:
+          MLB_REASON: ${{ steps.mlb.outputs.reason }}
+        run: |
+          echo "::error::MLB money products were not generated for ${{ steps.d.outputs.date }} — ${MLB_REASON}. Every other product step ran; the receipt records INPUTS_MISSING."
+          exit 1
