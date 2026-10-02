@@ -80,6 +80,10 @@ export interface DailyPortfolioCard {
   legs: DailyPortfolioLeg[];
   correlationNote: string | null;
   shortfallNote: string | null;
+  /** Session 7 — the lane's OWN published reason for its state (`activationEligibility.reason`), verbatim. The
+   *  product's answer to "why no card today": a postseason off day, a missing slate, or a short slate are
+   *  different facts, and a page must not replace them with one generic sentence. Null when not published. */
+  laneReason?: string | null;
   narrative?: { title: string; story: string } | null; // Moonshot story (display-only)
   /** F1 Option A — the card's joint-probability basis over its legs ("market-implied" = a market construction). */
   jointProbabilityBasis?: JointProbabilityBasis | null;
@@ -126,6 +130,7 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
     legCount: l.legCount, targetLegs: l.targetLegs,
     legs: (l.legs ?? []).map((g: any) => ({ id: g.id ?? null, selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null, photoUrl: g.photoUrl ?? null, teamLogo: g.teamLogo ?? null, kickoffEt: g.kickoffEt ?? null, probabilityBasis: legBasis(g) })),
     correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null, narrative: l.narrative ?? null,
+    laneReason: typeof l.activationEligibility?.reason === "string" && l.activationEligibility.reason ? l.activationEligibility.reason : null,
     // A day published before the field existed (carried verbatim by the P257 rule) still names its basis
     // through `probabilitySource`; the card's basis is derived the same way, never copied from a claim.
     jointProbabilityBasis: jointProbabilityBasisOf((l.legs ?? []).map((g: any) => ({ probabilityBasis: legBasis(g) }))),
