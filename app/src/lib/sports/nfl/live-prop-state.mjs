@@ -563,6 +563,39 @@ export function promoteFinality(prior, nowIso, windowMs = RECONCILIATION_WINDOW_
 /** The live window: a game is trackable from kickoff until 8 hours later. */
 export const LIVE_WINDOW_MS = 8 * 3600_000;
 
+/**
+ * ── THE POST-FINAL SWEEP (Session 9 · B7) ────────────────────────────────────────────────────────
+ *
+ * ⚠ SETTLEMENT USED TO DEPEND ON SOMEONE WATCHING THE GAME. A prop was graded only by the live
+ * producer, only inside its 8-hour live window, and the only free runner of it is dispatch-only by
+ * design (nobody should re-open a live polling cadence by accident). So every live artifact on disk sat
+ * at IN_PROGRESS with `settled: 0`, the window closed behind it, and nothing could ever settle it.
+ *
+ * The sweep is the same producer, the same `buildLiveRows`, the same `settle` — one grader — pointed at
+ * games that are OVER instead of games that are live: kicked off at least `minAgeMs` ago and at most
+ * `lookbackMs` ago. It is what the scheduled, keyless settle step of nfl-event-window runs, so an
+ * ordinary Thursday / Sunday / Monday final settles without anyone dispatching anything:
+ *
+ *   first read at FINAL      → SETTLED / NO_MEASUREMENT, finality PROVISIONAL (window opens)
+ *   a read inside the window → a late stat block is re-attempted (shouldPollEvent says poll)
+ *   a read after it closes   → promoteFinality → CANONICAL, fetch-free; the game leaves the sweep
+ *
+ * A game that is not FINAL yet is skipped by the caller and written nowhere: the sweep never publishes
+ * live state, and a long game is simply picked up on the next run.
+ */
+export const POST_FINAL_MIN_AGE_MS = 3.5 * 3600_000;
+export const POST_FINAL_LOOKBACK_MS = 14 * 24 * 3600_000;
+
+/** Games that should be over: boards kicked off between `lookbackMs` and `minAgeMs` ago, one per event. */
+export function selectPostFinalTargets({ boards = [], scheduleRows = [], nowMs, minAgeMs = POST_FINAL_MIN_AGE_MS, lookbackMs = POST_FINAL_LOOKBACK_MS, only = null } = {}) {
+  const r = selectLiveTargets({ boards, scheduleRows, nowMs, windowMs: lookbackMs, only });
+  const seen = new Set();
+  const targets = r.targets
+    .filter((t) => nowMs - t.kickoffMs >= minAgeMs)
+    .filter((t) => (seen.has(t.providerEventId) ? false : (seen.add(t.providerEventId), true)));
+  return { ...r, targets };
+}
+
 /** `2026-09-27T17:00Z` and `2026-09-27T17:00:00Z` are one instant; boards write the short form. */
 export function kickoffMs(iso) {
   return Date.parse(String(iso ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));

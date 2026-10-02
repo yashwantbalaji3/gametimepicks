@@ -83,9 +83,11 @@ function diff(before, after) {
  * @param {object[]} priorRows   the ledger as committed (append-only; never reordered here)
  * @param {object}   artifact    one `live-props/<eventId>.json`
  * @param {string}   nowIso      the fold instant — used only for a correction's own timestamp
+ * @param {object}   [producedBy] the run that admitted a NEW row ({workflow, runId}); null off CI. Written once
+ *                                with the row, never moved — the evidence that the AUTOMATED path settled it.
  * @returns {{rows: object[], added: number, corrected: number, promoted: number, unchanged: number, skipped: number}}
  */
-export function foldEventIntoLedger(priorRows, artifact, nowIso) {
+export function foldEventIntoLedger(priorRows, artifact, nowIso, producedBy = null) {
   const byId = new Map((priorRows ?? []).map((r) => [r.settlementId, r]));
   const order = (priorRows ?? []).map((r) => r.settlementId);
   let added = 0, corrected = 0, promoted = 0, unchanged = 0, skipped = 0;
@@ -138,6 +140,7 @@ export function foldEventIntoLedger(priorRows, artifact, nowIso) {
         original: { ...now, at: row.settlement?.settledAt ?? nowIso },
         settledAt: row.settlement?.settledAt ?? nowIso,
         source: row.settlement?.source ?? null,
+        admittedBy: producedBy?.runId ? { workflow: producedBy.workflow ?? null, runId: String(producedBy.runId) } : null,
         corrections: [],
       });
       order.push(id);
@@ -193,11 +196,11 @@ export function foldEventIntoLedger(priorRows, artifact, nowIso) {
 }
 
 /** Fold a whole slate. Events are taken in a deterministic order so two runs agree byte for byte. */
-export function buildLedger({ prior = null, artifacts = [], nowIso }) {
+export function buildLedger({ prior = null, artifacts = [], nowIso, producedBy = null }) {
   let rows = prior?.rows ?? [];
   const totals = { added: 0, corrected: 0, promoted: 0, unchanged: 0, skipped: 0 };
   for (const a of [...artifacts].sort((x, y) => String(x?.providerEventId).localeCompare(String(y?.providerEventId)))) {
-    const r = foldEventIntoLedger(rows, a, nowIso);
+    const r = foldEventIntoLedger(rows, a, nowIso, producedBy);
     rows = r.rows;
     for (const k of Object.keys(totals)) totals[k] += r[k];
   }
