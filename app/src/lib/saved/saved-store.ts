@@ -69,6 +69,13 @@ export function useSavedForecasts() {
 
   const unsave = useCallback((id: string) => { write(remove(read(), id) as SavedForecast[]); }, [write]);
   const isSaved = useCallback((id: string) => items.some((i) => i.id === id), [items]);
+  /* Session 9 · account sync: add snapshots saved on another device. `upsert` validates each one through
+     isSavedForecast and never replaces a snapshot this device already holds (the original stands). */
+  const adopt = useCallback((snapshots: unknown[]) => {
+    let next = read();
+    for (const s of snapshots) next = upsert(next, s) as SavedForecast[];
+    write(next);
+  }, [write]);
 
-  return { items, ready, save, unsave, isSaved, clear: () => write([]) };
+  return { items, ready, save, unsave, isSaved, adopt, clear: () => write([]) };
 }

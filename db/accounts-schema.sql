@@ -154,6 +154,17 @@ create table if not exists public.beta_feedback (
   created_at timestamptz not null default now()
 );
 
+-- Session 9 (in-site form): the report's TYPE, and the follow label / saved snapshot that let another
+-- device show what was synced. All additive; a re-run converges.
+alter table public.beta_feedback add column if not exists kind text;
+alter table public.beta_feedback drop constraint if exists beta_feedback_kind_check;
+alter table public.beta_feedback add constraint beta_feedback_kind_check
+  check (kind is null or kind in ('bug', 'wrong_data', 'confusing', 'idea', 'other'));
+alter table public.user_follows add column if not exists label text check (label is null or char_length(label) <= 80);
+-- The saved forecast as the reader saved it: a copy of a PUBLISHED forecast, nothing private, bounded.
+alter table public.saved_items add column if not exists snapshot jsonb
+  check (snapshot is null or pg_column_size(snapshot) <= 16000);
+
 -- A placed bet may cite the official card it followed. A citation, never an identity guess: null when unknown.
 alter table public.bet_slips add column if not exists official_card_id text;
 

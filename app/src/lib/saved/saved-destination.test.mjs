@@ -98,6 +98,8 @@ test("SD8 · ⚠ every Saved consumer resolves through the one owner and never r
     "src/components/mobile-bottom-nav.tsx": (src) => (src.match(/\bsaved\.[a-zA-Z]+/g) || []).every((m) => m === "saved.ready" || m === "saved.items"),
     "src/components/brief/your-brief.tsx": (src) => !/href=\{/.test(src), // every link is a literal: /saved/, /following/
     "src/components/saved/save-forecast-button.tsx": (src) => !/\bhref\b/.test(src),
+    // Session 9: syncs saved snapshots with the account and renders one status sentence — no link at all.
+    "src/components/accounts/account-sync-panel.tsx": (src) => !/\bhref\b/.test(src),
   };
   const readers = [];
   const walk = (dir) => { for (const e of fs.readdirSync(path.join(APP, dir), { withFileTypes: true })) { const rel = path.join(dir, e.name); if (e.isDirectory()) walk(rel); else if (/\.tsx$/.test(e.name) && /useSavedForecasts\(\)/.test(read(rel))) readers.push(rel); } };

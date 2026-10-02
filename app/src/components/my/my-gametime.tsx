@@ -46,6 +46,7 @@ import { commitGate, computeSinceDeltas, currentGameEvidence, freshGameFacts, gr
 import { expandLedgers } from "@/lib/my/saved-settlements.mjs";
 import { resolveResult } from "@/lib/saved/results.mjs";
 import { resolveSavedDestination } from "@/lib/saved/saved-destination.mjs";
+import { forYouGames } from "@/lib/my/for-you-games.mjs";
 
 const MONO = "var(--font-mono)";
 const PREVIEW = 4;
@@ -207,6 +208,39 @@ function UpNextModule({ games, total }: { games: MyGame[]; total: number }) {
           {total > games.length ? <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)", margin: "6px 0 0" }}>Showing the next {games.length} of {total}.</p> : null}
         </>
       )}
+    </Module>
+  );
+}
+
+/* ─────────────── Your follows first (Session 9 · the For You ordering layer) ─────────────── */
+
+/**
+ * Today's published forecasts with the reader's follows first. ORDER ONLY: every row is the published game,
+ * unchanged, and the only reason shown is the reader's own choice — never a result, never a probability.
+ */
+function ForYouModule({ games, followed, nowMs }: { games: MyGame[]; followed: FollowRef[]; nowMs: number }) {
+  const { rows, total } = forYouGames(games, followed, { nowMs });
+  if (!rows.length) return null;
+  return (
+    <Module id="follows-first" title="Upcoming · your follows first">
+      <p style={{ fontSize: 12, color: "var(--vault-text-faint)", margin: "0 0 8px" }}>
+        Upcoming published games, ordered by what you follow on this device. Ordering never changes a forecast, and your own results are never used.
+      </p>
+      <ul style={grid}>
+        {rows.map(({ game: g, reasons }: { game: MyGame; reasons: string[] }) => {
+          const when = etDateTime(g.startUtc);
+          return (
+            <li key={`fy:${g.sport}:${g.gameId}`}>
+              <MaybeLink href={g.href} label={`${g.awayName} at ${g.homeName}, ${g.sport}, ${when ?? "time to be confirmed"}.${reasons.length ? ` ${reasons.join(". ")}.` : ""}`}>
+                <div style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", marginBottom: 4 }}>{g.sport} · {when}</div>
+                <div style={{ fontSize: 13.5, color: "var(--vault-text)" }}>{g.awayName} <span style={{ color: "var(--vault-text-faint)" }}>at</span> {g.homeName}</div>
+                {reasons.length ? <div style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-gold-bright)", marginTop: 6 }}>{reasons.join(" · ")}</div> : null}
+              </MaybeLink>
+            </li>
+          );
+        })}
+      </ul>
+      {total > rows.length ? <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)", margin: "6px 0 0" }}>Showing {rows.length} of {total}.</p> : null}
     </Module>
   );
 }
@@ -567,6 +601,9 @@ export default function MyGameTime({ model }: { model: MyReadModel }) {
       {followsMlb ? (
         <LiveNowModule followed={followed} upcomingMlbToday={model.upcoming.filter((g) => g.sport === "MLB")} onSlate={onSlate} />
       ) : null}
+
+      {/* 1b · Your follows first — the published slate, ordered by the reader's follows (lib/my/for-you-games.mjs). */}
+      {followUsable ? <ForYouModule games={model.upcoming} followed={followed} nowMs={nowMs} /> : null}
 
       {/* 2 · Up next */}
       {followsTeams ? <UpNextModule games={upcoming.games} total={upcoming.total} /> : null}

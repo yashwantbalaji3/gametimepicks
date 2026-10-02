@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-09-30T00:48:16Z",
+ "generatedAt": "2026-10-02T17:55:40Z",
  "totals": {
-  "routes": 86,
-  "public": 59,
+  "routes": 87,
+  "public": 60,
   "internal": 8,
   "redirects": 15,
   "archive": 2,
@@ -180,6 +180,16 @@
    "built": true
   },
   {
+   "route": "/feedback",
+   "classification": "public",
+   "indexable": false,
+   "owner": "product",
+   "purpose": "friends-beta feedback form: a signed-in tester reports a problem privately",
+   "dataOwner": "the tester's own beta_feedback row (RLS-scoped)",
+   "freshness": "per reader",
+   "built": true
+  },
+  {
    "route": "/following",
    "classification": "public",
    "indexable": false,
@@ -205,7 +215,7 @@
    "family": true,
    "dataOwner": "game detail artifacts",
    "freshness": "artifact stamps",
-   "built": "FAMILY (3 generated page(s))"
+   "built": "FAMILY (2 generated page(s))"
   },
   {
    "route": "/goal-rush",
@@ -323,7 +333,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (130 generated page(s))"
+   "built": "FAMILY (133 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -589,7 +599,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (115 generated page(s))"
+   "built": "FAMILY (118 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -691,7 +701,7 @@
    "purpose": "one static page per in-window date — same selector, date as the route (P209)",
    "dataOwner": "lib/simulate/day-view over per-sport owners",
    "freshness": "each owner's own stamp",
-   "built": "FAMILY (26 generated page(s))"
+   "built": "FAMILY (25 generated page(s))"
   },
   {
    "route": "/soccer/[league]",
@@ -774,7 +784,7 @@
    "purpose": "UFC per-bout model report (P251 · F3): the winner split over the two fighters, the method distribution (KO / submission / decision, read among fights that end with a winner), the round distribution with goes-the-distance stated as the method head's decision probability rather than a separate model, both fighters' tracked corpus profiles, and the three heads' held-out evidence printed WITH its denominator. Every figure is read from card-latest.json — nothing is computed here. Statically generated for every bout on the current card including the ones the model refuses to read, which render the producer's own refusal instead of a fabricated read. dynamicParams=false",
    "dataOwner": "public/data/ufc/card-latest.json via lib/sports/ufc/bout (build-time read)",
    "freshness": "the card artifact's own generatedAt, printed in the method section",
-   "built": "FAMILY (14 generated page(s))"
+   "built": "FAMILY (13 generated page(s))"
   },
   {
    "route": "/world-cup",
