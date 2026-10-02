@@ -756,7 +756,7 @@ function labCells(src, push) {
         owner: stamp, window: { from: strOrNull(r.firstDay), to: strOrNull(r.lastDay) },
         status: STATUSES.LIVE,
         displayEligible: eligible("shown only with its window printed — the owner spans the 2026-08-17 selection-policy change without segmenting its record"),
-        semantics: "parlays/risk-ladder/latest.json record.overall: whole paper cards W–L across every graded day and every tier. The owner's overall block carries wins/losses/staked/returned only — pending and pushes live on the per-tier cells and are not summed here.",
+        semantics: "parlays/risk-ladder/latest.json record.overall: every optimizer CANDIDATE slip graded (parlays/optimizer-graded, publicRiskSections) W–L across every graded day and every tier — the whole candidate pool, not only the cards the ladder published (those are lab-ledger's streams). The owner's overall block carries wins/losses/staked/returned only — pending and pushes live on the per-tier cells and are not summed here.",
       });
       push(overall);
     }
@@ -768,8 +768,8 @@ function labCells(src, push) {
         counts: { won: t.wins, lost: t.losses, pending: intOrNull(t.pending), push: intOrNull(t.pushes), void: null },
         owner: stamp, window: { from: strOrNull(r.firstDay), to: strOrNull(r.lastDay) },
         status: STATUSES.LIVE, hitRate: t.hitRate,
-        displayEligible: eligible("per-tier paper cards, shown with the window; pushes are out of decisive, pending is a count"),
-        semantics: `risk-ladder record.byTier.${tier}: decisive = wins + losses; pushes and pending carried separately by the owner.`,
+        displayEligible: eligible("per-band candidate slips (the optimizer's whole pool, not only published cards), shown with the window; pushes are out of decisive, pending is a count"),
+        semantics: `risk-ladder record.byTier.${tier}: every optimizer candidate slip in this price band, not only the published card; decisive = wins + losses; pushes and pending carried separately by the owner.`,
       }));
     }
   }
