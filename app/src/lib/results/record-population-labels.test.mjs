@@ -24,7 +24,8 @@ test("the four surfaces that render the candidate-pool record name it as candida
 
   const stream = src("src/components/results/risk-ladder-stream.tsx");
   assert.doesNotMatch(stream, /One flat unit per card,/);
-  assert.match(stream, /One flat unit per candidate slip the optimizer graded/);
+  assert.match(stream, /One flat unit per graded candidate slip/);
+  assert.doesNotMatch(stream.replace(/^.*import.*$/gm, ""), /optimizer/i, "internal pipeline vocabulary stays off /results (public-vocabulary guard)");
   assert.match(stream, /not only the cards the ladder\s+published/);
   assert.match(stream, /2026-08-17/, "the unsegmented policy change is stated");
 

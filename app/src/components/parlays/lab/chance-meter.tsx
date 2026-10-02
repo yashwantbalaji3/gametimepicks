@@ -67,7 +67,7 @@ export default function ChanceMeter({ decimal, record, since }: Props) {
           label="What every candidate at this risk level has done"
           value={actual}
           fill="var(--vault-gold-bright)"
-          sub={`${record.wins} of ${decided} decided candidate slips at this level landed${since ? ` since ${fmtDate(since)}` : ""} — every slip the optimizer graded, not only the cards published here.`}
+          sub={`${record.wins} of ${decided} decided candidate slips at this level landed${since ? ` since ${fmtDate(since)}` : ""} — every candidate slip we generated and graded, not only the cards published here.`}
         />
       ) : (
         <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>No decided candidate slips at this level yet.</span>
