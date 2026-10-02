@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-02T16:14:02.367Z",
+  "generatedAt": "2026-10-02T16:29:14.779Z",
   "canonical": {
     "record": "43-42",
     "bankroll": 15240.4,
@@ -105,7 +105,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-02",
-      "generatedAt": "2026-10-02T13:28:27Z",
+      "generatedAt": "2026-10-02T16:14:08Z",
       "sports": [
         {
           "sport": "epl",
@@ -135,14 +135,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 16,
-            "priced": 16,
+            "scheduled": 17,
+            "priced": 17,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:16 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:17 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -213,16 +213,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-02T16:08:22.983Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-10-02T16:29:14.007Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-02",
-    "etTime": "12:14",
+    "etTime": "12:29",
     "stages": [
       {
         "stage": "schedule",
