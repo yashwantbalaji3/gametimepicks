@@ -214,7 +214,7 @@ export async function runAskTurn(input, deps) {
 /** One plan, plus at most one repair when the model returned something unparseable (§91). */
 async function planWithRepair(state, deps, receipt, opts = {}) {
   const system = plannerSystemPrompt();
-  const user = plannerUserMessage(state, opts.priorEvidence);
+  const user = plannerUserMessage(state, opts.priorEvidence, deps.now);
 
   for (let attempt = 0; attempt <= ASK_BUDGET.maxLlmRetries; attempt += 1) {
     const res = await deps.provider.plan({
@@ -268,8 +268,18 @@ const SUBSTANTIVE_FOR_INTENT = Object.freeze({
   PRODUCT_CARDS: ["getOfficialProductCards"],
 });
 
-function plannerUserMessage(state, priorEvidence = null) {
+export function plannerUserMessage(state, priorEvidence = null, now = null) {
   const lines = [];
+  /*
+   * SESSION 7 — the planner never knew the year. "Show me the official cards from September 25" was planned as
+   * date 2025-09-25 on Production (2026-10-02) and answered NOT PUBLISHED for a day that was published. The
+   * ET product date is a fact the engine owns; stating it costs one line and removes the guess.
+   */
+  const at = typeof now === "function" ? now() : null;
+  if (at instanceof Date && Number.isFinite(at.getTime())) {
+    const et = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(at);
+    lines.push(`TODAY'S PRODUCT DATE (ET): ${et}`, "");
+  }
   if (priorEvidence?.facts?.length) {
     /*
      * The second pass is given what the first pass LEARNED, as facts — so "today is 2026-09-17" is
