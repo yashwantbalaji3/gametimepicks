@@ -118,9 +118,14 @@ test("LIVE · a day whose public artifact carries probabilities is not reported 
     0,
     `the public EPL artifact for ${window.date} carries ${withProbs} fixtures with probabilities, and the offered window still owes ${owed.length}`,
   );
+  /* The offered window types the PRICED market. A MODEL-ONLY row (READY_EXCEPT_ODDS + modelOnly) publishes
+     the model's grid before any odds exist, so the window correctly types its market by the odds source
+     (e.g. SOURCE_STALE through an international break, 2026-10-02) — it is not "owed" (asserted above),
+     and it is not a paired publication either. Only PAIRED rows must be typed published/started/settled. */
+  const paired = (doc.rows ?? []).filter((r) => r.probs && !r.modelOnly).length;
   const accountedFor = (epl.counts?.PUBLISHED ?? 0) + (epl.counts?.STARTED ?? 0) + (epl.counts?.SETTLED ?? 0);
   assert.ok(
-    accountedFor >= withProbs,
-    `${withProbs} fixtures carry public probabilities but only ${accountedFor} are typed published/started/settled`,
+    accountedFor >= paired,
+    `${paired} paired fixtures carry public probabilities but only ${accountedFor} are typed published/started/settled`,
   );
 });

@@ -133,7 +133,9 @@ test("🔴 §6 · every bucket's rate is over ITS decisive count, never over its
       assert.ok(Math.abs(b.hitRate - b.wins / dec) < 1e-9,
         `${setName}.${key}: rate ${b.hitRate} != ${b.wins}/${dec}`);
       /* The thing that was actually wrong: a rate over `total` would be a different number. */
-      if (b.total !== dec) {
+      /* With zero wins both readings are exactly 0 — nothing to tell apart, and nothing that could be wrong
+         (a 0-win bucket with voids appeared in the bot-refreshed cohort on 2026-10-02). */
+      if (b.total !== dec && b.wins > 0) {
         assert.ok(Math.abs(b.hitRate - b.wins / b.total) > 1e-9,
           `${key}: the rate happens to equal wins/total — this test cannot tell the two apart here`);
       }

@@ -17,7 +17,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { legLabel, loadSportLabLadder } from "./sport-lab-cards.ts";
+import { legLabel, loadSportLabLadder, loadCurrentSportLabLadder, loadSportLabCapabilityRefusal, sportLadderCapabilityRefusal } from "./sport-lab-cards.ts";
+import { canShowLiveProjections } from "../sport-capability-registry.ts";
 
 const APP = process.cwd();
 const readLadder = (dir) => {
@@ -87,7 +88,7 @@ test("a ladder for a DIFFERENT day is refused", () => {
    * how a product comes to look live while carrying nothing, so the refusal is the stronger claim
    * and is asserted here rather than skipped.
    */
-  if ((ufc.cards ?? []).length > 0) {
+  if ((ufc.cards ?? []).length > 0 && !sportLadderCapabilityRefusal("ufc")) {
     assert.ok(loadSportLabLadder("ufc", ufc.date), "a published ladder's own date must load");
   } else {
     assert.equal(loadSportLabLadder("ufc", ufc.date), null,
@@ -207,4 +208,33 @@ test("a band that HAS a card is never given a substitute", () => {
     [{ tier: "medium", reason: "stale entry" }, { tier: "high", reason: "y" }],
   ));
   assert.deepEqual(subs.map((s) => s.band), ["high"]);
+});
+
+/*
+ * SESSION 7 — the registry is read at the READ boundary. On 2026-10-02 the committed UFC ladder (dated
+ * 10-03, generated before #889's producer gate) still said PUBLISHED with two cards, and /ufc rendered
+ * them on Production while UFC was SCAFFOLD_ONLY. Every loader must refuse a gated sport whatever the
+ * artifact says, and the refusal must carry the registry's reason.
+ */
+test("a PUBLISHED ladder for a capability-gated sport is refused by every loader", () => {
+  for (const sport of ["mlb", "ufc", "epl", "nfl"]) {
+    const reason = sportLadderCapabilityRefusal(sport);
+    assert.equal(reason === null, canShowLiveProjections(sport), `${sport}: refusal must follow the registry`);
+    if (!reason) continue;
+    assert.match(reason, /capability registry lists/);
+    const dir = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl", nfl: "risk-ladder-nfl" }[sport];
+    const doc = readLadder(dir);
+    assert.equal(loadSportLabLadder(sport, doc?.date ?? "2026-10-03"), null, `${sport}: gated ladder must not load on its own date`);
+    assert.equal(loadCurrentSportLabLadder(sport, "2000-01-01"), null, `${sport}: gated ladder must not load as current`);
+    assert.equal(loadSportLabCapabilityRefusal(sport), reason, `${sport}: /cards must state the registry's reason`);
+  }
+});
+
+test("the lab settler asks the registry before grading a sport's ladder", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/parlays/settle-lab-cards.mjs"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  const gate = src.search(/if \(!canShowLiveProjections\(sport\)\)/);
+  const push = src.search(/sources\.push\(/);
+  assert.ok(gate > 0, "the settler must gate each ladder on canShowLiveProjections");
+  assert.ok(gate < push, "the gate must run before the ladder joins the settlement sources");
 });

@@ -21,6 +21,25 @@ import path from "node:path";
 
 import { RISK_ORDER } from "../prefs/bettor-tiers.mjs";
 import { substituteOffer } from "./risk-substitute.mjs";
+import { canShowLiveProjections, capabilityOf } from "../sport-capability-registry";
+
+/**
+ * SESSION 7 — THE REGISTRY IS READ AT THE READ BOUNDARY TOO, NOT ONLY BY THE PRODUCER.
+ *
+ * #889 made the ladder builders write CAPABILITY_GATED for a sport the registry does not allow to
+ * show model output. That gate is producer-side only, so a ladder written BEFORE it merged kept its
+ * PUBLISHED state: on 2026-10-02 `risk-ladder-ufc/latest.json` (generated 10-01 17:13Z, dated 10-03)
+ * still carried two UFC paper cards, /ufc rendered them on Production and the lab settler would have
+ * graded them into the public published-card record — for a sport that is SCAFFOLD_ONLY. A dormant
+ * artifact is not an empty check: every reader asks the registry, whatever the file says.
+ *
+ * Returns null when the sport may show its ladder, otherwise the reason (the producer's own wording).
+ */
+export function sportLadderCapabilityRefusal(sport: string): string | null {
+  if (canShowLiveProjections(sport)) return null;
+  const cap = capabilityOf(sport);
+  return `the capability registry lists ${cap.label} as ${cap.state}, which may not show forward-looking model output: ${cap.reason}`;
+}
 
 export interface SportLabLeg {
   eventId: string;
@@ -146,6 +165,7 @@ const DIRS: Record<string, string> = {
 export function loadSportLabLadder(sport: string, slateDay: string | null): SportLabLadder | null {
   const dir = DIRS[sport];
   if (!dir || !slateDay) return null;
+  if (sportLadderCapabilityRefusal(sport)) return null;
   try {
     const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/parlays", dir, "latest.json"), "utf8"));
     if (raw?.date !== slateDay) return null;
@@ -189,6 +209,7 @@ export function legLabel(l: SportLabLeg): string {
 export function loadCurrentSportLabLadder(sport: string, todayEt: string = etToday()): SportLabLadder | null {
   const dir = DIRS[sport];
   if (!dir) return null;
+  if (sportLadderCapabilityRefusal(sport)) return null;
   try {
     const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/parlays", dir, "latest.json"), "utf8"));
     const date = typeof raw?.date === "string" ? raw.date : null;
@@ -280,6 +301,9 @@ export function loadSportLabStreamRecord(sport: string): SportLabStreamRecord | 
 export function loadSportLabCapabilityRefusal(sport: string): string | null {
   const dir = DIRS[sport];
   if (!dir) return null;
+  /* The registry first: a PUBLISHED artifact for a gated sport is refused with the registry's reason. */
+  const gated = sportLadderCapabilityRefusal(sport);
+  if (gated) return gated;
   try {
     const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/parlays", dir, "latest.json"), "utf8"));
     return raw?.state === "CAPABILITY_GATED" && typeof raw.reason === "string" && raw.reason ? raw.reason : null;
