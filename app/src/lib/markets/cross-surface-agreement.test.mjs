@@ -27,7 +27,7 @@ function reportGamesByGameId() {
     if (p.sport !== "mlb") continue;
     const detail = getGameDetail("mlb", p.gameId);
     const intel = detail?.marketIntelligence;
-    if (intel) out.set(intel.gameId, intel);
+    if (intel) out.set(intel.gameId, { ...intel, date: detail.date ?? null });
   }
   return out;
 }
@@ -39,11 +39,19 @@ test("the Game Report and Market Center agree on every shared game", () => {
    * honestly stayed on 09-30 and this compared two different days — "no shared game", not a disagreement. When today's
    * game markets exist, the center is loaded for today; otherwise the newest date, as before.
    */
+  /*
+   * Session 5 · THE REPORT'S OWN SLATE DATE decides. On 2026-10-02 (a postseason off day) the report exposed the newest
+   * slate — 10-01, PHI @ ATL — while "today" had no team-markets file, so the center fell back to latestMarketDate()
+   * (09-30, the newest day with props too) and the two sides were two different days again. The center is loaded for
+   * the date of the games the report actually shows, whenever that date's team markets exist.
+   */
+  const report = reportGamesByGameId();
   const todayEt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-  const date = fs.existsSync(path.join(APP, "public/data/mlb/team-markets", `${todayEt}.json`)) ? todayEt : latestMarketDate();
+  const hasMarkets = (d) => d && fs.existsSync(path.join(APP, "public/data/mlb/team-markets", `${d}.json`));
+  const reportDates = [...new Set([...report.values()].map((r) => r.date).filter(Boolean))].sort();
+  const date = [todayEt, ...reportDates.reverse()].find(hasMarkets) ?? latestMarketDate();
   assert.ok(date, "a slate must exist");
   const center = loadMarketCenter(date, date, `${date}T17:00:00Z`);
-  const report = reportGamesByGameId();
 
   /*
    * A MID-FLIGHT DAY IS NOT A DEFECT (P233 · A). `gameDetailParams()` is today's games, and today's

@@ -12,6 +12,8 @@
  * Activating a lane raises open exposure + lowers available; it does NOT change active bankroll or the
  * crown (those only move on official settlement). Pure + deterministic given (root, nowIso, date).
  */
+import { canEnterPredictionProducts, capabilityState } from "../sport-capability-registry"; // relative: runs from the repo root
+import { legsFromDistinctEvents } from "../parlays/card-events.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, MOONSHOT_MIN_COMBINED_ODDS, type LaneCandidate, type ModelPick } from "../world-cup/model-qualified-picks";
@@ -215,10 +217,18 @@ function heldLane(product: "bank-builder" | "moonshot", r: { lane: string; nextS
 }
 
 /** Activation eligibility for a Bank Builder generated lane (pre-event, cutoff, full + target-fit). */
-function bbEligibility(g: GeneratedLane, nowMs: number, emptyReason: string | null = null): ActivationEligibility {
+/** Exported for its tests (Session 5 · D4/D5). */
+export function bbEligibility(g: GeneratedLane, nowMs: number, emptyReason: string | null = null): ActivationEligibility {
   if (g.legs.length === 0 && emptyReason) return { eligible: false, reason: emptyReason };
   if (g.legs.length < 2) return { eligible: false, reason: "fewer than 2 eligible legs — awaiting a full card" };
   if (!g.fitsTarget) return { eligible: false, reason: `no 2-leg combo reaches the Step ${g.step} target — candidate only` };
+  /* Founder decisions D4/D5 (Session 5), re-asserted at activation for Bank Builder AND Moonshot: a leg's sport must be
+     one the capability registry lets enter official products (UFC is gated), and no two legs may share a game. */
+  for (const l of g.legs) {
+    const sport = String((l as { sport?: string }).sport ?? "");
+    if (!canEnterPredictionProducts(sport)) return { eligible: false, reason: `${sport || "an unknown sport"} may not enter Bank Builder or Moonshot — capability registry state ${capabilityState(sport)}` };
+  }
+  if (!legsFromDistinctEvents(g.legs, (l: { gameId?: string | null }) => l.gameId ?? null)) return { eligible: false, reason: "two legs share a game — official cards hold one leg per event" };
   for (const l of g.legs) {
     const ms = l.kickoffUtc ? Date.parse(l.kickoffUtc) : NaN;
     if (!Number.isFinite(ms)) return { eligible: false, reason: `${l.matchup} has no machine kickoff` };

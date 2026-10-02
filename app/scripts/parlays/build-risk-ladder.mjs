@@ -27,6 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCommittedCoverage, marketContextFamilies, partitionByLegEligibility, marketContextReason } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 import { slipHasNotStarted } from "../../src/lib/parlays/started-guard.mjs";
+import { legsFromDistinctEvents } from "../../src/lib/parlays/card-events.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const GRADED = path.join(APP, "public", "data", "parlays", "optimizer-graded");
@@ -306,6 +307,8 @@ for (const tier of TIERS) {
     // gamePk map: a card containing a leg that can never grade can never grade itself.
     .filter((s) => (s.legs ?? []).every((l) => gamePkByGameId.get(String(l.gameId ?? "")) != null))
     .filter(notStarted)
+    /* Founder decision D5: no two legs from one game on an official card (card-events.mjs). */
+    .filter((s) => legsFromDistinctEvents(s.legs, (l) => gamePkByGameId.get(String(l.gameId ?? "")) ?? l.gameId ?? null))
     .filter((s) => (s.legs ?? []).length <= (BAND_MAX_LEGS[tier] ?? MAX_LEGS))
     .filter((s) => (s.legs ?? []).every((l) => !usedLegs.has(legKey(l))));
   if (!pool.length) {
@@ -314,7 +317,7 @@ for (const tier of TIERS) {
       reason: poolByTier[tier].length
         ? (poolByTier[tier].some((s) => combinedDecimal(s) != null && (s.legs ?? []).every((l) => gamePkByGameId.get(String(l.gameId ?? "")) != null)) && !poolByTier[tier].some(notStarted)
           ? "every candidate in this tier includes a game that had already started (or has no known start) when the ladder was built"
-          : "every card in this tier reused a leg already on the ladder, ran past the five-leg cap, or included a game that had already started")
+          : "every card in this tier reused a leg already on the ladder, ran past the five-leg cap, included a game that had already started, or held two legs from one game")
         : withheldByTier[tier]
           ? marketContextReason([...withheldFamilies])
           : "no priced card in this tier on today's slate",
