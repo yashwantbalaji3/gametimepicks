@@ -157,3 +157,21 @@ export function hubCounts(rows: HubGameRow[]): { scheduled: number; withReport: 
     started: rows.filter((r) => r.started).length,
   };
 }
+
+/**
+ * Session 5 · B8 — ONE set of event-status words on every hub card. MLB printed its raw market phase ("pregame",
+ * "started", "unknown"), NFL its read-model state ("in progress", "postponed"), EPL/UFC the shared default
+ * ("scheduled", "started or final"). The words below are the ones the shared card already used; a source that
+ * only knows the game began (not whether it ended) says exactly that, never "live" or "final".
+ */
+export type HubStatusInput = "SCHEDULED" | "PREGAME" | "IN_PROGRESS" | "FINAL" | "POSTPONED" | "STARTED" | "UNKNOWN";
+export function hubStatusWord(state: HubStatusInput | string | null | undefined, startedByClock: boolean): string {
+  switch (String(state ?? "").toUpperCase()) {
+    case "SCHEDULED": case "PREGAME": return "scheduled";
+    case "IN_PROGRESS": return "in progress";
+    case "FINAL": return "final";
+    case "POSTPONED": return "postponed";
+    case "STARTED": return "started or final";
+    default: return startedByClock ? "started or final" : "scheduled";
+  }
+}
