@@ -273,7 +273,10 @@ export default function TodayPage() {
   // ── Section 8 · No-play / unavailable notes — honest, discipline-framed. Built from the real states. ──
   const noPlayNotes: string[] = [];
   if (bbNoPlay) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
-  if (!moonshotActive) noPlayNotes.push("Moonshot is no-play — no two-leg card on today's slate reaches its rung's price, and the ladder waits rather than force one.");
+  /* Session 5 — the reason is the lane's OWN (the producer's shortfallNote), never a fixed sentence: on 2026-10-01 this
+     said "no two-leg card reaches its rung's price" while the lanes said "fewer than two eligible legs on the slate". */
+  const moonshotReason = dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.shortfallNote)?.shortfallNote?.replace(/\.\s*$/, "") ?? null;
+  if (!moonshotActive) noPlayNotes.push(`Moonshot is no-play${moonshotReason ? ` — ${moonshotReason.charAt(0).toLowerCase()}${moonshotReason.slice(1)}` : ""}. The ladder waits rather than force a card.`);
   if (slateReadyCount === 0) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
 
