@@ -27,7 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { evaluateCandidate, foldUniverse, CANDIDATE_STATE, SETTLEMENT_SUPPORT } from "../../src/lib/products/candidate-universe.mjs";
-import { candidatesFromNflBoard } from "../../src/lib/products/eligible-leg/from-nfl-board.mjs";
+import { loadNflBoardCandidates } from "../../src/lib/products/engine-v2/nfl-boards.mjs";
 import { PROBABILITY_BASIS, evaluateLegV2, eligibilityFunnel } from "../../src/lib/products/eligible-leg/v2.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -43,24 +43,20 @@ const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } cat
 const die = (m) => { console.error(`REFUSED: ${m}`); process.exit(2); };
 if (!DATE) die("--date <YYYY-MM-DD> is required — this command never guesses a slate");
 
-/* ── the families' OWN published states, which the product path never consulted ─────────────── */
-const status = read(path.join(APP, "public/data/nfl/model-status.json"));
-if (!status?.playerFamilies) die("nfl/model-status.json has no playerFamilies — cannot judge a family state");
-const familyState = new Map(status.playerFamilies.map((f) => [f.key, f.state]));
-/* anytimeTd sits outside playerFamilies in that artifact; its state is just as binding. */
-if (status.anytimeTd?.state) familyState.set("anytime_td", status.anytimeTd.state);
-
+/* ── ONE LOADER (Session 7): family states, boards, settlement tri-state and probability basis come from
+   lib/products/engine-v2/nfl-boards.mjs, the same owner the daily recommendation universe reads — so this
+   ops command and the products cannot disagree about a Sunday. ──────────────────────────────────────── */
+function nextDay(d) { const t = Date.parse(`${d}T00:00:00Z`); return new Date(t + 86400000).toISOString().slice(0, 10); }
 const BOARDS = path.join(APP, "public/data/nfl/player-board");
 if (!fs.existsSync(BOARDS)) die(`no player-board directory at ${BOARDS}`);
-
-const boards = fs.readdirSync(BOARDS).filter((f) => /^\d+\.json$/.test(f))
-  .map((f) => read(path.join(BOARDS, f)))
-  .filter((b) => b?.artifact === "nfl-player-board")
-  /* Sunday night games kick after midnight UTC, so the slate spans two UTC dates. */
-  .filter((b) => { const k = String(b.kickoffUtc ?? ""); return k.startsWith(DATE) || k.startsWith(nextDay(DATE)); })
-  .sort((a, b) => String(a.kickoffUtc).localeCompare(String(b.kickoffUtc)));
-
-function nextDay(d) { const t = Date.parse(`${d}T00:00:00Z`); return new Date(t + 86400000).toISOString().slice(0, 10); }
+const statusDoc = read(path.join(APP, "public/data/nfl/model-status.json"));
+if (!statusDoc?.playerFamilies) die("nfl/model-status.json has no playerFamilies — cannot judge a family state");
+/* Sunday night games kick after midnight UTC, so the slate spans two UTC dates. */
+const { boards, candidates, familyState, unknownFamilies } = loadNflBoardCandidates({
+  dataRoot: path.join(APP, "public/data"),
+  workflowsDir: path.resolve(APP, "..", ".github/workflows"),
+  boardFilter: (b) => { const k = String(b.kickoffUtc ?? ""); return k.startsWith(DATE) || k.startsWith(nextDay(DATE)); },
+});
 
 if (!boards.length) {
   console.log(`NO_BOARDS — ${DATE} has no published NFL player board. A result, not a gap.`);
@@ -69,42 +65,7 @@ if (!boards.length) {
 
 /* asOf is the boards' OWN generation instant, never a wall clock: this describes a frozen slate. */
 const asOf = boards[0].generatedAt;
-const BINARY = new Set(["anytime_td"]);
-
-/* ── settlement support, derived from the graded record and the schedule ─────────────────────── */
-const graded = read(path.join(APP, "public/data/nfl/graded-picks.json"));
-const gradedFamilies = new Set(
-  (Array.isArray(graded?.picks) ? graded.picks : [])
-    .map((r) => String(r.marketFamily ?? r.market ?? "").toLowerCase())
-    .filter(Boolean),
-);
-/* The settler is wired into nfl-live-props.yml and nfl-event-window.yml with --write, so the
-   machinery is armed even where nothing has been graded yet. Read from disk rather than asserted. */
-const wfDir = path.resolve(APP, "..", ".github/workflows");
-const settlerScheduled = fs.existsSync(wfDir) && fs.readdirSync(wfDir)
-  .some((f) => fs.readFileSync(path.join(wfDir, f), "utf8").includes("settle-nfl-live-props.mjs"));
-
-const FAMILY_TO_GRADED_LABEL = { player_rush_yds: "rush yards", player_reception_yds: "reception yards", player_receptions: "receptions", player_pass_yds: "pass yards", anytime_td: "anytime td" };
-function settlementSupportFor(fam) {
-  const label = (FAMILY_TO_GRADED_LABEL[fam] ?? fam).toLowerCase();
-  if (gradedFamilies.has(fam.toLowerCase()) || gradedFamilies.has(label)) return SETTLEMENT_SUPPORT.PROVEN;
-  return settlerScheduled ? SETTLEMENT_SUPPORT.SCHEDULED_UNPROVEN : SETTLEMENT_SUPPORT.UNSUPPORTED;
-}
-
-const basisFor = ({ projection, probability }) =>
-  probability != null ? PROBABILITY_BASIS.MODEL_PUBLISHED
-  : projection != null ? PROBABILITY_BASIS.MODEL_DISTRIBUTION_UNCONVERTED
-  : PROBABILITY_BASIS.NONE;
-const modelVersionFor = (fam) => status.playerFamilies.find((f) => f.key === fam)?.modelId ?? null;
-
-const candidates = [];
-const unknown = new Set();
-for (const b of boards) {
-  const r = candidatesFromNflBoard(b, { familyState, settlementSupportFor, probabilityBasisFor: basisFor, modelVersionFor });
-  candidates.push(...r.candidates);
-  for (const u of r.unknownFamilies) unknown.add(u);
-}
-if (unknown.size) console.error(`⚠ UNDECLARED FAMILIES SKIPPED: ${[...unknown].join(", ")} — add them to NFL_FAMILY_MARKET_SHAPE rather than letting them read as unpriced`);
+if (unknownFamilies.length) console.error(`⚠ UNDECLARED FAMILIES SKIPPED: ${unknownFamilies.join(", ")} — add them to NFL_FAMILY_MARKET_SHAPE rather than letting them read as unpriced`);
 
 const evaluated = candidates.map((c) => evaluateCandidate(c, { asOf, maxPriceAgeMs: MAX_PRICE_AGE_MS }));
 const fold = foldUniverse(evaluated);
