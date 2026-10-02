@@ -16,7 +16,7 @@ import path from "node:path";
 import { productDayFor } from "@/lib/product-day/product-day";
 import { currentEtDate } from "@/lib/freshness";
 import { etStamp } from "@/lib/et-stamp.mjs";
-import { DEFAULT_LABELS, type HubGameRow, type HubRead, type SportHubModel } from "./contract";
+import { DEFAULT_LABELS, hubStatusWord, type HubGameRow, type HubRead, type SportHubModel } from "./contract";
 import { loadNflEvents, currentPeriodKey, eventsInPeriod } from "@/lib/events/read-model";
 
 const ET = "America/New_York";
@@ -129,9 +129,8 @@ function readForGame(d: Record<string, any>): HubRead | null {
 
 /** Status from the artifact where one exists, never inferred over the top of it. */
 function statusOf(d: Record<string, any>, started: boolean): string {
-  const phase = d.marketIntelligence?.eventPhase;
-  if (typeof phase === "string" && phase) return phase.toLowerCase().replace(/_/g, " ");
-  return started ? "started or final" : "scheduled";
+  /* Session 5 · B8: the artifact's phase where one exists, in the shared hub words (hubStatusWord). */
+  return hubStatusWord(d.marketIntelligence?.eventPhase, started);
 }
 
 function gameRows(sport: "mlb" | "nfl", nowMs: number): HubGameRow[] {
@@ -289,7 +288,7 @@ export function nflHub(nowIso: string): SportHubModel {
           startUtc: e.scheduledUtc,
           startLabel: e.scheduledUtc ? etDateTimeLabel(e.scheduledUtc) : "TBD",
           matchup: e.participants.away && e.participants.home ? `${e.participants.away} at ${e.participants.home}` : e.eventId,
-          status: e.status.toLowerCase().replace(/_/g, " "),
+          status: hubStatusWord(e.status, started),
           started,
           read: nflReadFor(nflIndex, e.providerAliases[0]?.id),
           reportState: e.dimensions.model === "PUBLISHED" ? (started ? "ARCHIVE" : "READY") : "NONE",
