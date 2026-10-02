@@ -79,29 +79,146 @@ create table if not exists public.bet_slips (
 create index if not exists bet_slips_user_placed_idx on public.bet_slips (user_id, placed_at desc);
 create index if not exists bet_slips_user_status_idx on public.bet_slips (user_id, status);
 
+-- ── Friends beta: invite allowlist (Session 8) ─────────────────────────────────────────────────────
+-- Who may WRITE an account row. RLS is enabled with NO policy, so neither the anon key nor any signed-in
+-- user can read or change this table; the founder edits it in the SQL editor (docs/SUPABASE_BETA_SETUP.md).
+-- Emails live only here, never in the repository. Revoking sets revoked_at: the tester can still read,
+-- export and delete their own rows, but can write nothing new.
+create table if not exists public.beta_access (
+  email       text primary key check (email = lower(email)),
+  tester_code text unique,                 -- T1..T10: the only identity logs and notes ever use
+  invited_at  timestamptz not null default now(),
+  revoked_at  timestamptz
+);
+alter table public.beta_access enable row level security;
+
+-- Membership is answered by a SECURITY DEFINER function so policies can ask it without exposing the table.
+create or replace function public.is_beta_member() returns boolean
+  language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from public.beta_access
+    where email = lower(coalesce(auth.jwt() ->> 'email', '')) and revoked_at is null
+  );
+$$;
+revoke all on function public.is_beta_member() from public;
+grant execute on function public.is_beta_member() to authenticated;
+
+-- ── Preferences (Session 8) ────────────────────────────────────────────────────────────────────────
+-- What the person CHOSE. Nothing here is inferred, and nothing is ever raised automatically: a loss never
+-- moves a risk band. Personalisation may only filter and reorder official GameTimePicks items with these.
+create table if not exists public.user_preferences (
+  user_id            uuid primary key references auth.users (id) on delete cascade,
+  favorite_sports    text[] not null default '{}',
+  hidden_sports      text[] not null default '{}',
+  preferred_products text[] not null default '{}',
+  preferred_families text[] not null default '{}',
+  risk_bands         text[] not null default '{}'
+                     check (risk_bands <@ array['low', 'medium', 'high', 'longshot']::text[]),
+  hide_player_props  boolean not null default false,
+  daily_budget_note  numeric(12, 2) check (daily_budget_note is null or daily_budget_note > 0),
+  updated_at         timestamptz not null default now()
+);
+
+-- ── Follows and saves (Session 8) ──────────────────────────────────────────────────────────────────
+-- Canonical ids only (a name is not an identity): sport key, team / player / game / forecast / card id.
+create table if not exists public.user_follows (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade,
+  kind        text not null check (kind in ('sport', 'team', 'player', 'game')),
+  entity_id   text not null,
+  followed_at timestamptz not null default now(),
+  unique (user_id, kind, entity_id)
+);
+create table if not exists public.saved_items (
+  id        uuid primary key default gen_random_uuid(),
+  user_id   uuid not null references auth.users (id) on delete cascade,
+  kind      text not null check (kind in ('game', 'official_forecast', 'official_card')),
+  ref       text not null,
+  saved_at  timestamptz not null default now(),
+  unique (user_id, kind, ref)
+);
+
+-- ── Beta feedback (Session 8) ──────────────────────────────────────────────────────────────────────
+-- One report per row, owned by its author; the founder reads them with the dashboard, never another tester.
+create table if not exists public.beta_feedback (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  route      text not null,
+  sport      text,
+  product    text,
+  action     text,
+  expected   text,
+  actual     text,
+  severity   text not null default 'minor' check (severity in ('blocker', 'major', 'minor', 'idea')),
+  link       text,
+  created_at timestamptz not null default now()
+);
+
+-- A placed bet may cite the official card it followed. A citation, never an identity guess: null when unknown.
+alter table public.bet_slips add column if not exists official_card_id text;
+
 -- ── Row-level security ─────────────────────────────────────────────────────────────────────────────
 -- Enabled on every table, with policies that compare auth.uid() to the row's owner. There is no
 -- "read all" policy anywhere, and the anon key alone can therefore reach nothing.
 alter table public.profiles  enable row level security;
 alter table public.bet_slips enable row level security;
+alter table public.user_preferences enable row level security;
+alter table public.user_follows     enable row level security;
+alter table public.saved_items      enable row level security;
+alter table public.beta_feedback    enable row level security;
 
 drop policy if exists profiles_select_own on public.profiles;
 create policy profiles_select_own on public.profiles for select using (auth.uid() = id);
 drop policy if exists profiles_insert_own on public.profiles;
-create policy profiles_insert_own on public.profiles for insert with check (auth.uid() = id);
+create policy profiles_insert_own on public.profiles for insert with check (auth.uid() = id and public.is_beta_member());
 drop policy if exists profiles_update_own on public.profiles;
-create policy profiles_update_own on public.profiles for update using (auth.uid() = id) with check (auth.uid() = id);
+create policy profiles_update_own on public.profiles for update using (auth.uid() = id) with check (auth.uid() = id and public.is_beta_member());
 drop policy if exists profiles_delete_own on public.profiles;
 create policy profiles_delete_own on public.profiles for delete using (auth.uid() = id);
 
 drop policy if exists bet_slips_select_own on public.bet_slips;
 create policy bet_slips_select_own on public.bet_slips for select using (auth.uid() = user_id);
 drop policy if exists bet_slips_insert_own on public.bet_slips;
-create policy bet_slips_insert_own on public.bet_slips for insert with check (auth.uid() = user_id);
+create policy bet_slips_insert_own on public.bet_slips for insert with check (auth.uid() = user_id and public.is_beta_member());
 drop policy if exists bet_slips_update_own on public.bet_slips;
-create policy bet_slips_update_own on public.bet_slips for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy bet_slips_update_own on public.bet_slips for update using (auth.uid() = user_id) with check (auth.uid() = user_id and public.is_beta_member());
 drop policy if exists bet_slips_delete_own on public.bet_slips;
 create policy bet_slips_delete_own on public.bet_slips for delete using (auth.uid() = user_id);
+
+-- Session 8 tables: the same four own-row verbs. Writes also require an active beta invite; reading and
+-- deleting your own rows never do, so a revoked tester can always take their data with them.
+drop policy if exists user_preferences_select_own on public.user_preferences;
+create policy user_preferences_select_own on public.user_preferences for select using (auth.uid() = user_id);
+drop policy if exists user_preferences_insert_own on public.user_preferences;
+create policy user_preferences_insert_own on public.user_preferences for insert with check (auth.uid() = user_id and public.is_beta_member());
+drop policy if exists user_preferences_update_own on public.user_preferences;
+create policy user_preferences_update_own on public.user_preferences for update using (auth.uid() = user_id) with check (auth.uid() = user_id and public.is_beta_member());
+drop policy if exists user_preferences_delete_own on public.user_preferences;
+create policy user_preferences_delete_own on public.user_preferences for delete using (auth.uid() = user_id);
+drop policy if exists user_follows_select_own on public.user_follows;
+create policy user_follows_select_own on public.user_follows for select using (auth.uid() = user_id);
+drop policy if exists user_follows_insert_own on public.user_follows;
+create policy user_follows_insert_own on public.user_follows for insert with check (auth.uid() = user_id and public.is_beta_member());
+drop policy if exists user_follows_update_own on public.user_follows;
+create policy user_follows_update_own on public.user_follows for update using (auth.uid() = user_id) with check (auth.uid() = user_id and public.is_beta_member());
+drop policy if exists user_follows_delete_own on public.user_follows;
+create policy user_follows_delete_own on public.user_follows for delete using (auth.uid() = user_id);
+drop policy if exists saved_items_select_own on public.saved_items;
+create policy saved_items_select_own on public.saved_items for select using (auth.uid() = user_id);
+drop policy if exists saved_items_insert_own on public.saved_items;
+create policy saved_items_insert_own on public.saved_items for insert with check (auth.uid() = user_id and public.is_beta_member());
+drop policy if exists saved_items_update_own on public.saved_items;
+create policy saved_items_update_own on public.saved_items for update using (auth.uid() = user_id) with check (auth.uid() = user_id and public.is_beta_member());
+drop policy if exists saved_items_delete_own on public.saved_items;
+create policy saved_items_delete_own on public.saved_items for delete using (auth.uid() = user_id);
+drop policy if exists beta_feedback_select_own on public.beta_feedback;
+create policy beta_feedback_select_own on public.beta_feedback for select using (auth.uid() = user_id);
+drop policy if exists beta_feedback_insert_own on public.beta_feedback;
+create policy beta_feedback_insert_own on public.beta_feedback for insert with check (auth.uid() = user_id and public.is_beta_member());
+drop policy if exists beta_feedback_update_own on public.beta_feedback;
+create policy beta_feedback_update_own on public.beta_feedback for update using (auth.uid() = user_id) with check (auth.uid() = user_id and public.is_beta_member());
+drop policy if exists beta_feedback_delete_own on public.beta_feedback;
+create policy beta_feedback_delete_own on public.beta_feedback for delete using (auth.uid() = user_id);
 
 -- ── Slip images ────────────────────────────────────────────────────────────────────────────────────
 -- A PRIVATE bucket: no public URLs, ever. Objects live under `<user id>/<slip id>.<ext>`, and the
@@ -135,4 +252,7 @@ create trigger profiles_touch_updated_at before update on public.profiles
   for each row execute function public.touch_updated_at();
 drop trigger if exists bet_slips_touch_updated_at on public.bet_slips;
 create trigger bet_slips_touch_updated_at before update on public.bet_slips
+  for each row execute function public.touch_updated_at();
+drop trigger if exists user_preferences_touch_updated_at on public.user_preferences;
+create trigger user_preferences_touch_updated_at before update on public.user_preferences
   for each row execute function public.touch_updated_at();

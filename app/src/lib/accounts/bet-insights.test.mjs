@@ -71,3 +71,20 @@ test("findings state what happened, with a sample, and never instruct", () => {
   for (const advice of [/you should/i, /we recommend/i, /stop betting/i, /bet more/i, /\bbest bet\b/i]) assert.doesNotMatch(text, advice);
   assert.match(findings([]).find((x) => x.id === "overall").text, /Nothing has settled yet/);
 });
+
+test("Session 8: personal P/L — open exposure is pending stake, never a loss, never in net", () => {
+  const s = summarise([slip({ status: "won", stake: 10, returned: 25 }), slip({ status: "pending", stake: 40, returned: null }), slip({ status: "void", stake: 5, returned: 5 })]);
+  assert.equal(s.openExposure, 40);
+  assert.equal(s.losses, 0, "pending is not a loss");
+  assert.equal(s.net, 15, "only decided slips move net");
+});
+
+test("Session 8: a user's ledger never reaches official Mr. Dub money", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const dir = path.join(process.cwd(), "src/lib/accounts");
+  for (const f of fs.readdirSync(dir).filter((x) => /\.(mjs|ts)$/.test(x) && !x.includes(".test."))) {
+    const src = fs.readFileSync(path.join(dir, f), "utf8");
+    assert.ok(!/mr-dub|portfolio\.json|protected-fold/.test(src), `${f} must not read or write official Mr. Dub money`);
+  }
+});
