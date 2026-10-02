@@ -84,7 +84,9 @@ const ALWAYS_PUBLIC_DATA = ["build-info.json", "search/index.json"];
  *
  * A runtime-assembled `/data/` reference is tolerated ONLY under one of these prefixes; anything else still refuses.
  */
-const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/", "lab/v1/", "ask/v1/", "nfl/live-props/"];
+/* Session 5 · B7: nfl/reconciliation/ — the week reconciliation (PUBLIC_DERIVED, the NFL grading owner). The
+   /results/nfl season drill-down fetches `/data/nfl/reconciliation/<week>.json` for the week a reader opens. */
+const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/", "lab/v1/", "ask/v1/", "nfl/live-props/", "nfl/reconciliation/"];
 const underPublicDir = (rel) => ALWAYS_PUBLIC_DATA_DIRS.some((d) => rel === d.slice(0, -1) || rel.startsWith(d));
 
 if (process.env.NEXT_PUBLIC_INTERNAL_ROUTES === "1") {
