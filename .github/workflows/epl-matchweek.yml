@@ -353,7 +353,7 @@ jobs:
         working-directory: app
         run: |
           set -uo pipefail
-          node scripts/epl/build-epl-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
+          npx tsx scripts/epl/build-epl-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
             echo "::warning::EPL risk ladder refused this run"
 
       - name: Re-resolve the parlay tier grids

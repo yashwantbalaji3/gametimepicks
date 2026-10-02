@@ -64,19 +64,19 @@ export default function ChanceMeter({ decimal, record, since }: Props) {
       {actual != null && record ? (
         <Bar
           order={1}
-          label="What this risk level has actually done"
+          label="What every candidate at this risk level has done"
           value={actual}
           fill="var(--vault-gold-bright)"
-          sub={`${record.wins} of ${decided} decided cards at this level landed${since ? ` since ${fmtDate(since)}` : ""}.`}
+          sub={`${record.wins} of ${decided} decided candidate slips at this level landed${since ? ` since ${fmtDate(since)}` : ""} — every candidate slip we generated and graded, not only the cards published here.`}
         />
       ) : (
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>No decided cards at this level yet.</span>
+        <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>No decided candidate slips at this level yet.</span>
       )}
       {actual != null ? (
         <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
           {actual < implied
-            ? "Cards at this level have landed less often than their prices implied."
-            : "Cards at this level have landed at least as often as their prices implied — on a sample this size, that can be luck."}
+            ? "Candidates at this level have landed less often than their prices implied."
+            : "Candidates at this level have landed at least as often as their prices implied — on a sample this size, that can be luck."}
         </p>
       ) : null}
     </div>

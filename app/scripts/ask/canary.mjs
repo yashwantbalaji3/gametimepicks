@@ -159,15 +159,10 @@ const CASES = [
   { id: "06-live-mlb", group: "live", turns: ["What MLB games are live right now?"],
     expectToolAny: ["getLiveSlate"], expectGrounded: true },
 
-  { id: "07-live-nfl-refused", group: "live", turns: ["What NFL games are live right now?"],
-    /*
-     * ⚠ NO TOOL IS REQUIRED HERE, and demanding one was wrong. The model reads in the tool catalogue
-     * that NFL live state is not available and routes straight to the help corpus — which is the
-     * correct answer reached more cheaply than calling a tool that will refuse. What matters is the
-     * ANSWER: it must say GameTime does not have it, in product words.
-     */
-    expectGrounded: true,
-    mustMention: ["nfl"], mustNotMention: ["getLiveSlate", "UNSUPPORTED_SPORT", "ASSET_UNAVAILABLE"] },
+  { id: "07-live-nfl", group: "live", turns: ["What NFL games are live right now?"],
+    /* Session 5: NFL live has been public since 2026-09-25 (#682); the tool answers from the gateway. */
+    expectToolAny: ["getLiveSlate"], expectGrounded: true,
+    mustMention: ["nfl"], mustNotMention: ["UNSUPPORTED_SPORT", "ASSET_UNAVAILABLE"] },
 
   { id: "08-parlay-clarify", group: "parlay", turns: ["Give me the best parlays to place today"],
     expectClarification: true, expectNoTools: true,

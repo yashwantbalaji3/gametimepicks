@@ -26,6 +26,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCommittedCoverage, marketContextFamilies, partitionByLegEligibility, marketContextReason } from "../../src/lib/parlays/card-leg-eligibility.mjs";
+import { slipHasNotStarted } from "../../src/lib/parlays/started-guard.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const GRADED = path.join(APP, "public", "data", "parlays", "optimizer-graded");
@@ -79,7 +80,27 @@ function combinedDecimal(slip) {
   return d;
 }
 
+/* The canonical price bands (risk-odds-bands.ts: low ≤ +100 < medium ≤ +300 < high ≤ +600 < longshot). */
+const BANDS = [
+  ["low", (a) => a >= -200 && a <= 100],
+  ["medium", (a) => a > 100 && a <= 300],
+  ["high", (a) => a > 300 && a <= 600],
+  ["longshot", (a) => a > 600],
+];
+const bucketFor = (american) => BANDS.find(([, fits]) => fits(american))?.[0] ?? null;
+
 // ── 1 · THE LIFETIME RECORD, per tier ────────────────────────────────────────────────────────────
+/*
+ * SESSION 5 · B4 — THE RECORD IS BUCKETED BY PRICE, THE SAME BANDS AS THE CARDS IT SITS BESIDE.
+ *
+ * It used to bucket by the optimizer's SECTION KEY. The optimizer's sections are its own price spec
+ * (low < +300, medium +300–600, high +600–1000, longshot ≥ +1000 — parlay_optimizer.py), so across 94 days
+ * the "Low risk (−200 to +100)" row held 497 of 514 slips priced +100–+300, "Medium" 512 of 514 priced
+ * +300–+600, "High" 510 of 514 priced over +600. A Medium card on /build carried the record of High-band
+ * slips. Each graded slip now lands in the band of its own combined price; a slip with an unpriced leg has
+ * no price and therefore no band — it still counts in the overall W–L (as before) and is counted per day
+ * as `unbanded`, never guessed into a tier.
+ */
 /*
  * Derived from every graded day on disk each run, never incremented from the previous record.
  * A cumulative file rebuilt from one day's view is how the NFL experimental record got wiped
@@ -87,12 +108,21 @@ function combinedDecimal(slip) {
  */
 const record = Object.fromEntries(TIERS.map((t) => [t, { wins: 0, losses: 0, pushes: 0, pending: 0, staked: 0, returned: 0 }]));
 const gradedDays = new Set();
+let unbanded = 0;
+const overallUnbanded = { wins: 0, losses: 0 };
 for (const f of fs.readdirSync(GRADED).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()) {
   const doc = readJson(path.join(GRADED, f));
   if (!doc) continue;
   gradedDays.add(doc.date ?? f.slice(0, 10));
-  for (const { tier, slip } of slipsFor(doc)) {
+  for (const { slip } of slipsFor(doc)) {
     const st = String(slip.status ?? "pending").toLowerCase();
+    const d0 = combinedDecimal(slip);
+    const tier = d0 == null ? null : bucketFor(toAmerican(d0));
+    if (!tier) {
+      unbanded += 1;
+      if (st === "win") overallUnbanded.wins++; else if (st === "loss") overallUnbanded.losses++;
+      continue;
+    }
     const r = record[tier];
     if (st === "win") r.wins++; else if (st === "loss") r.losses++;
     else if (st === "push") { r.pushes++; continue; } else { r.pending++; continue; }
@@ -101,6 +131,11 @@ for (const f of fs.readdirSync(GRADED).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/
     r.staked += 1;
     if (st === "win") r.returned += d;
   }
+}
+/* Session 5 · B4: print the derived record and write nothing — the test's handle on the real producer. */
+if (process.argv.includes("--record-only")) {
+  fs.writeSync(1, `${JSON.stringify({ byTier: record, unbanded, overallUnbanded, gradedDays: gradedDays.size })}\n`);
+  process.exit(0);
 }
 for (const t of TIERS) {
   const r = record[t];
@@ -123,13 +158,7 @@ for (const t of TIERS) {
  * (risk-odds-bands.ts: low ≤ +100 < medium ≤ +300 < high ≤ +600 < longshot). Re-implementing the
  * thresholds would let today's ladder and tomorrow's record disagree about what "High risk" means.
  */
-const BANDS = [
-  ["low", (a) => a >= -200 && a <= 100],
-  ["medium", (a) => a > 100 && a <= 300],
-  ["high", (a) => a > 300 && a <= 600],
-  ["longshot", (a) => a > 600],
-];
-const bucketFor = (american) => BANDS.find(([, fits]) => fits(american))?.[0] ?? null;
+/* BANDS / bucketFor are declared above the record (Session 5): the record buckets by them too. */
 
 /*
  * SETTLEMENT IDENTITY TRAVELS WITH THE CARD.
@@ -154,12 +183,23 @@ const bucketFor = (american) => BANDS.find(([, fits]) => fits(american))?.[0] ??
  * qualify, the tier is honestly short rather than quietly broken.
  */
 const gamePkByGameId = new Map();
+/* Session 5 · B10 — the start of each leg's game, from the same board row that gives its gamePk. */
+const startByGameId = new Map();
 try {
   const board = readJson(path.join(APP, "public", "data", "mlb", "boards", `${DATE}.json`));
   for (const r of board?.leans ?? []) {
     if (r.gameId && r.gamePk) gamePkByGameId.set(String(r.gameId), r.gamePk);
+    const start = Date.parse(r.scheduledStart ?? r.commenceTime ?? "");
+    if (r.gameId && Number.isFinite(start)) startByGameId.set(String(r.gameId), start);
   }
 } catch { /* no board — legs publish without a gamePk and stay ungraded */ }
+/*
+ * SESSION 5 · B10 — A LEG WHOSE GAME HAS STARTED IS NEVER A SUGGESTION. The ladder only required a gamePk
+ * (the 2026-08-27 fix), and daily-products rebuilds it several times a day (five runs on 10-01), so a mid-day
+ * run could publish a card on a game already under way. Fails closed: a leg with no known start is excluded.
+ */
+const nowMs = Date.parse(NOW);
+const notStarted = (s) => slipHasNotStarted(s, startByGameId, nowMs);
 
 const gradedToday = readJson(path.join(GRADED, `${DATE}.json`));
 /*
@@ -265,13 +305,16 @@ for (const tier of TIERS) {
     // Every leg must carry a settlement identity BEFORE the card is scored. See the note above the
     // gamePk map: a card containing a leg that can never grade can never grade itself.
     .filter((s) => (s.legs ?? []).every((l) => gamePkByGameId.get(String(l.gameId ?? "")) != null))
+    .filter(notStarted)
     .filter((s) => (s.legs ?? []).length <= (BAND_MAX_LEGS[tier] ?? MAX_LEGS))
     .filter((s) => (s.legs ?? []).every((l) => !usedLegs.has(legKey(l))));
   if (!pool.length) {
     skipped.push({
       tier,
       reason: poolByTier[tier].length
-        ? "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
+        ? (poolByTier[tier].some((s) => combinedDecimal(s) != null && (s.legs ?? []).every((l) => gamePkByGameId.get(String(l.gameId ?? "")) != null)) && !poolByTier[tier].some(notStarted)
+          ? "every candidate in this tier includes a game that had already started (or has no known start) when the ladder was built"
+          : "every card in this tier reused a leg already on the ladder, ran past the five-leg cap, or included a game that had already started")
         : withheldByTier[tier]
           ? marketContextReason([...withheldFamilies])
           : "no priced card in this tier on today's slate",
@@ -444,9 +487,12 @@ const payload = {
     firstDay: [...gradedDays].sort()[0] ?? null,
     lastDay: [...gradedDays].sort().at(-1) ?? null,
     byTier: record,
+    /* Session 5 · B4: graded slips with an unpriced leg — no price, so no band; still in the overall W–L. */
+    unbanded,
+    bucketedBy: "combined price, canonical bands (risk-odds-bands.ts)",
     overall: {
-      wins: TIERS.reduce((n, t) => n + record[t].wins, 0),
-      losses: TIERS.reduce((n, t) => n + record[t].losses, 0),
+      wins: TIERS.reduce((n, t) => n + record[t].wins, 0) + overallUnbanded.wins,
+      losses: TIERS.reduce((n, t) => n + record[t].losses, 0) + overallUnbanded.losses,
       staked: totalStaked,
       returned: round(totalReturned, 2),
       roi: totalStaked ? round((totalReturned - totalStaked) / totalStaked) : null,
