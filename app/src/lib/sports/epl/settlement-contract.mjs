@@ -17,15 +17,20 @@
  *     as VOID_PENDING_REVIEW rather than guessing (the StatsAPI postponed lesson: "Final" strings
  *     without scores lie).
  *   - De-vig discipline and market vocabulary follow the MLB pipeline; this contract only GRADES.
+ *
+ * SESSION 6 · SOCCER CORE. The grading body moved to `lib/sports/soccer/settlement-contract.mjs`, which
+ * every soccer competition shares and which reads the competition's format (extra time, legs) from the
+ * registry. This file is now the Premier League's binding of it: the same exports, the same version, and
+ * outputs pinned byte-for-byte to the pre-extraction implementation by a 1,680-row golden grid
+ * (`lib/sports/soccer/__fixtures__/epl-settlement-golden.json`).
  */
+
+import { gradeSoccerLeg, settleSoccerSlate, OUTCOMES, RESULT_STATUSES } from "../soccer/settlement-contract.mjs";
 
 export const EPL_SETTLEMENT_CONTRACT_VERSION = 1;
 
-/** Grading outcomes — the same vocabulary the MLB settler writes. */
-export const OUTCOMES = Object.freeze(["WIN", "LOSS", "PUSH", "VOID_PENDING_REVIEW"]);
-
-/** Statuses an official result may carry; only FULL_TIME grades. */
-export const RESULT_STATUSES = Object.freeze(["FULL_TIME", "POSTPONED", "ABANDONED", "SUSPENDED", "IN_PLAY", "NOT_STARTED"]);
+/** Grading outcomes and result statuses — re-exported from the shared soccer contract. */
+export { OUTCOMES, RESULT_STATUSES };
 
 /**
  * @typedef {{ fixtureId: string, status: string, homeGoalsFT: number|null, awayGoalsFT: number|null }} EplOfficialResult
@@ -33,66 +38,17 @@ export const RESULT_STATUSES = Object.freeze(["FULL_TIME", "POSTPONED", "ABANDON
  */
 
 /**
- * Grade one leg against one official result. Pure and total: every input combination returns an
- * outcome, and everything un-gradeable is VOID_PENDING_REVIEW — never a guess, never a throw that
- * a batch settler would have to remember to catch.
+ * Grade one Premier League leg against one official result. Pure and total — see the shared contract.
  *
  * @param {EplLeg} leg
  * @param {EplOfficialResult} result
  * @returns {{ outcome: string, reason: string }}
  */
 export function gradeEplLeg(leg, result) {
-  if (!result || result.status !== "FULL_TIME") {
-    return { outcome: "VOID_PENDING_REVIEW", reason: `no gradeable result — status ${result?.status ?? "missing"} (only FULL_TIME grades)` };
-  }
-  const h = result.homeGoalsFT, a = result.awayGoalsFT;
-  if (!Number.isInteger(h) || !Number.isInteger(a) || h < 0 || a < 0) {
-    // The StatsAPI lesson: a "final" without real scores is a lie waiting to be graded.
-    return { outcome: "VOID_PENDING_REVIEW", reason: "FULL_TIME status without integer goals — quarantined, never guessed" };
-  }
-
-  if (leg.market === "match_result") {
-    const actual = h > a ? "home" : a > h ? "away" : "draw";
-    if (!["home", "away", "draw"].includes(leg.side)) {
-      return { outcome: "VOID_PENDING_REVIEW", reason: `unknown match_result side ${leg.side}` };
-    }
-    return leg.side === actual
-      ? { outcome: "WIN", reason: `FT ${h}-${a}: ${actual}` }
-      : { outcome: "LOSS", reason: `FT ${h}-${a}: ${actual}, leg took ${leg.side}` };
-  }
-
-  if (leg.market === "total_goals") {
-    if (typeof leg.line !== "number" || !(leg.side === "over" || leg.side === "under")) {
-      return { outcome: "VOID_PENDING_REVIEW", reason: "total_goals needs a numeric line and an over/under side" };
-    }
-    const total = h + a;
-    if (total === leg.line) return { outcome: "PUSH", reason: `FT total ${total} lands exactly on ${leg.line}` };
-    const overWon = total > leg.line;
-    return (leg.side === "over") === overWon
-      ? { outcome: "WIN", reason: `FT total ${total} vs ${leg.line}` }
-      : { outcome: "LOSS", reason: `FT total ${total} vs ${leg.line}` };
-  }
-
-  return { outcome: "VOID_PENDING_REVIEW", reason: `market ${leg.market} has no grading rule in contract v${EPL_SETTLEMENT_CONTRACT_VERSION}` };
+  return gradeSoccerLeg(leg, result, { competition: "epl" });
 }
 
-/**
- * Batch settle with the decisive-denominator rule: decisive = WIN + LOSS only; pushes and voids are
- * reported separately and the populations must reconcile exactly (the Sprint 052 accounting rule —
- * accounting starts from the GENERATED population, gap zero).
- */
+/** Batch settle with the decisive-denominator rule (shared contract), stamped with this contract's version. */
 export function settleEplSlate(legs, resultsByFixture) {
-  const graded = legs.map((l) => ({ leg: l, ...gradeEplLeg(l, resultsByFixture[l.fixtureId]) }));
-  const count = (o) => graded.filter((g) => g.outcome === o).length;
-  const summary = {
-    contractVersion: EPL_SETTLEMENT_CONTRACT_VERSION,
-    total: graded.length,
-    wins: count("WIN"),
-    losses: count("LOSS"),
-    pushes: count("PUSH"),
-    voids: count("VOID_PENDING_REVIEW"),
-    decisive: count("WIN") + count("LOSS"),
-  };
-  summary.reconciles = summary.wins + summary.losses + summary.pushes + summary.voids === summary.total;
-  return { graded, summary };
+  return settleSoccerSlate(legs, resultsByFixture, { competition: "epl", contractVersion: EPL_SETTLEMENT_CONTRACT_VERSION });
 }

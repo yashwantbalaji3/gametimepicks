@@ -363,3 +363,36 @@ test("🔴 card freshness is honest: fresh, last-known, unavailable — and noth
   assert.equal(cardFreshness({ gamePhase: "LIVE", feed: FEED.NOT_ASKED, observedAt: null, nowMs: 1 }), null, "not yet asked is not unavailable");
   assert.equal(cardFreshness({ gamePhase: "LIVE", feed: FEED.OK, observedAt: "garbage", nowMs: 1 }), null, "an unparseable stamp is not 'just now'");
 });
+
+/* ───────────────  Session 6 · "no TD" at FINAL needs a measurement taken AT the final  ─────────────── */
+
+test("🔴 FINAL anytime-TD: no read says nothing; a mid-game read says only what it saw; only a final read says 'no TD recorded'", () => {
+  const T = (liveRow, feed = FEED.OK) => trackForecast(TD, { gamePhase: "FINAL", feed, liveRow, nowMs: NOW }).status;
+  // No producer file (the dispatch-only free capture never ran): nothing was measured.
+  assert.equal(T(null, FEED.UNAVAILABLE), "Final · touchdown not measured · grading pending");
+  assert.equal(T(null, FEED.OK), "Final · touchdown not measured · grading pending");
+  // PIT @ CLE 2026-10-01: the file froze in Q2 with TD 0 for players ESPN's final credits with a TD.
+  const q2 = { live: { phase: "IN_PROGRESS", statValue: 0, observedAt: "2026-10-02T00:57:06Z" }, settlement: { state: "PENDING", finalStat: null } };
+  assert.equal(T(q2), "Final · no TD at last measurement · grading pending");
+  assert.doesNotMatch(T(q2), /no TD recorded/, "a Q2 zero must never be presented as the game's record");
+  // A read taken at the final, or an owner-written final stat, does support the claim.
+  assert.equal(T({ live: { phase: "FINAL", statValue: 0, observedAt: "2026-10-02T03:31:00Z" }, settlement: { state: "PENDING", finalStat: null } }), "Final · no TD recorded · grading pending");
+  assert.equal(T(lr(0, "2026-10-02T03:31:00Z", 0)), "Final · no TD recorded · grading pending");
+  // A touchdown seen at any read is a fact.
+  assert.equal(T({ ...q2, live: { ...q2.live, statValue: 1 } }), "Final · touchdown scored · grading pending");
+});
+
+test("🔴 the rendered TD row's final words come from tdFinal — a missing read never renders 'No TD recorded'", async () => {
+  const React = (await import("react")).default;
+  globalThis.React = React;
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { default: Row } = await import("../../components/live/featured-forecast-row.tsx");
+  const f = { ...TD, playerName: "Jaylen Warren", team: "PIT", label: "Anytime TD", portraitUrl: null };
+  const html = (liveRow) => renderToStaticMarkup(React.createElement(Row, { f, t: trackForecast(TD, { gamePhase: "FINAL", feed: FEED.UNAVAILABLE, liveRow, nowMs: NOW }), final: true }));
+  const none = html(null);
+  assert.match(none, />Not measured</);
+  assert.doesNotMatch(none, /No TD recorded/);
+  const q2 = html({ live: { phase: "IN_PROGRESS", statValue: 0, observedAt: "2026-10-02T00:57:06Z" }, settlement: { state: "PENDING", finalStat: null } });
+  assert.match(q2, />No TD at last measurement</);
+  assert.match(html(lr(0, "2026-10-02T03:31:00Z", 0)), />No TD recorded</);
+});
