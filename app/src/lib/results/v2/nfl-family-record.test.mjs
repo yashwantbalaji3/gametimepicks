@@ -22,8 +22,9 @@ test("the owner's weekly family summaries fold into one season record; voids nev
 });
 
 test("a pending week contributes nothing and is listed as pending — never counted as misses", () => {
-  const r = nflFamilyRecord([wk("2-03", [{ id: "winner", label: "Winner", checks: 16, hits: 11, voids: 0 }]), wk("2-04", [], [], 0, 16)]);
+  const r = nflFamilyRecord([wk("2-03", [{ id: "winner", label: "Winner", checks: 16, hits: 11, voids: 0 }]), wk("2-04", [{ id: "winner", label: "Winner", checks: 0, hits: 0, voids: 0 }], [], 0, 16)]);
   assert.equal(r.families[0].total.lost, 5);
+  assert.deepEqual(r.families[0].byWeek.map((w) => w.key), ["2-03"], "an opened week with nothing final is not a 0/0 cell or a drill-down entry");
   assert.deepEqual(r.weeks.at(-1), { key: "2-04", label: "2-04", gamesFinal: 0, gamesPending: 16 });
 });
 

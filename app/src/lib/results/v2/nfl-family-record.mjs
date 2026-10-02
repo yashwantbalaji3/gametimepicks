@@ -26,6 +26,9 @@ export function nflFamilyRecord(weeks) {
   for (const { key, label, report } of weeks ?? []) {
     const s = report?.summary ?? {};
     weekRows.push({ key, label: report?.period?.label ?? label ?? key, gamesFinal: s.gamesFinal ?? 0, gamesPending: s.gamesPending ?? 0 });
+    /* A week with no final game graded nothing: it is named as pending (weekRows), never a 0/0 cell or an empty
+       drill-down entry (Production 2026-10-02: "Week 4 · 0 decided" under every family). */
+    if (!(s.gamesFinal > 0)) continue;
     for (const p of s.props ?? []) {
       if (!Number.isInteger(p.checks) || !Number.isInteger(p.hits)) continue;
       const f = fams.get(p.id) ?? { id: p.id, label: p.label, group: p.group ?? null, target: p.target ?? null, counts: { won: 0, lost: 0, push: 0, void: 0 }, byWeek: [] };
