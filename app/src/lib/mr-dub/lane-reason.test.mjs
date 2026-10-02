@@ -36,3 +36,14 @@ test("/today renders the lane's reason first; the generic sentence is only the f
   assert.match(src, /msLaneReason \?\? "No Moonshot card today/);
   assert.match(src, /c\.laneReason\)\?\.laneReason \?\? dailyPortfolio\.cards\.find\(\(c\) => c\.product === "moonshot" && c\.shortfallNote\)/);
 });
+
+test("/moonshot's WAITING sentence carries the lane's own reason; the generic one is only the fallback", async () => {
+  const { deriveMoonshotState } = await import("../products/moonshot-state.mjs");
+  const base = { lane: null, portfolioMoonshot: { record: { wins: 0, losses: 0 } }, productLedger: null, hasScheduledGenerator: true, hasWiredSettler: true, today: "2031-10-02", todayLaneCount: 2 };
+  const withReason = deriveMoonshotState({ ...base, todayLaneReason: OFF_DAY });
+  const without = deriveMoonshotState(base);
+  assert.equal(withReason.lifecycle, "WAITING", "the fixture must reach WAITING, or this test proves nothing");
+  assert.match(withReason.publicNote, /postseason off day/);
+  assert.doesNotMatch(withReason.publicNote, /reaches the rung's price/);
+  assert.match(without.publicNote, /reaches the rung's price/);
+});

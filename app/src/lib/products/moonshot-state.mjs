@@ -223,6 +223,7 @@ export function moonshotRecordLabel(rec) {
  *                                                     note must not call it placed. Defaults to the published count.
  * @param {number}      [args.todayLaneCount]          Moonshot lanes in today's daily portfolio, card or not — evidence
  *                                                     the generator ran today even when it dealt nothing
+ * @param {string|null} [args.todayLaneReason]         today's Moonshot lane's own published no-card reason (Session 7)
  */
 export function deriveMoonshotState({
   lane, portfolioMoonshot, productLedger,
@@ -233,6 +234,9 @@ export function deriveMoonshotState({
   todayPublishedCardCount = 0,
   todayPlacedCardCount = null,
   todayLaneCount = 0,
+  /** Session 7: today's Moonshot lane's OWN published reason for having no card (activationEligibility.reason),
+   *  verbatim. A postseason off day is not "nothing reaches the rung's price". Null → the generic sentence. */
+  todayLaneReason = null,
   /** The lifecycle registry's founder gate for this product. Only the founder's token clears it, so
    *  it is open unless a caller has positive evidence otherwise. */
   founderGateOpen = true,
@@ -374,7 +378,9 @@ export function deriveMoonshotState({
                 ? `Today's Moonshot card is published. Paper-only, separate from the Bank Builder.`
                 : `Today's Moonshot card is shown as a candidate only — it does not reach its rung's price, so nothing is placed.`)
               : lifecycle === "WAITING"
-                ? `No Moonshot card is placed today: nothing on today's slate reaches the rung's price with two legs, and the ladder waits rather than force a card.`
+                ? (typeof todayLaneReason === "string" && todayLaneReason
+                  ? `No Moonshot card is placed today: ${todayLaneReason.replace(/\.\s*$/, "")}. The ladder waits for the next slate.`
+                  : `No Moonshot card is placed today: nothing on today's slate reaches the rung's price with two legs, and the ladder waits rather than force a card.`)
                 : `Moonshot's current state cannot be established from its artifacts.`;
 
   return {
