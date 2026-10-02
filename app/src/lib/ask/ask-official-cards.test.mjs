@@ -109,3 +109,27 @@ test("the planner prompt never asks a risk style before showing the official car
   assert.match(src, /Never ask this for today's official Suggested Parlays, Bank Builder or Moonshot/);
   assert.doesNotMatch(src, /"- If the user asks for parlays and has stated no risk preference/);
 });
+
+test("'why is this leg in the Bank Builder?' is answered in the product's own published words", async () => {
+  const withWhy = structuredClone(parlays);
+  withWhy.official.portfolios["2031-09-30"].lanes[0].why = ["Safest-fit (MLB): chosen to MAXIMIZE the chance all 2 legs land — a market-implied 36% chance (what the prices imply, not a forecast)."];
+  withWhy.official.portfolios["2031-09-30"].lanes[0].correlationNote = "Correlation checked: no shared game with Lane B.";
+  const ex = makeExecutor({ turn: makeAskLoader(fixtureFetchText({ "/data/ask/v1/parlays.json": withWhy })).beginTurn(), now: NOW });
+  await ex.run({ id: "c1", name: "getOfficialProductCards", arguments: { product: "BANK_BUILDER" } });
+  const text = buildEvidence(ex.evidence).facts.map((f) => f.text).join("\n");
+  assert.match(text, /the product's own reason for this card: Safest-fit \(MLB\): chosen to MAXIMIZE the chance all 2 legs land/);
+  assert.match(text, /Correlation checked: no shared game with Lane B\./);
+});
+
+test("LIVE: published lanes carry their own why-words into the projection, verbatim", () => {
+  const p = "../data/ask-projection/v1/parlays.json";
+  if (!fs.existsSync(p)) return;
+  const doc = JSON.parse(fs.readFileSync(p, "utf8"));
+  const pub = Object.values(doc.official?.portfolios ?? {}).find((x) => x.source === "published");
+  if (!pub) return;
+  const src = JSON.parse(fs.readFileSync("public/data/mr-dub/daily-portfolio.json", "utf8"));
+  for (const l of pub.lanes) {
+    const own = src.lanes.find((x) => x.product === l.product && x.lane === l.lane);
+    assert.deepEqual(l.why, (own?.whyThisCard ?? []).slice(0, 4), `${l.product} ${l.lane}: why-words must be the product's own`);
+  }
+});

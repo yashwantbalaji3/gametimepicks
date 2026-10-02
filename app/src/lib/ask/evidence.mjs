@@ -337,6 +337,9 @@ export function buildEvidence(envelopes) {
           for (const l of b.lanes) {
             if (l.state === "NO CARD PLACED") { say(`${b.date} ${label} lane ${l.lane} (step ${l.step}): NO CARD PLACED — the product's own reason: ${l.reason ?? "not stated"}`, [l.step]); continue; }
             say(`${b.date} ${label} lane ${l.lane} (step ${l.step}): ${l.state}${l.combinedOdds != null ? `, combined ${l.combinedOdds > 0 ? "+" : ""}${l.combinedOdds} American` : ""}${l.legs.length ? `, ${l.legs.length} legs` : ""}`, [l.step, l.combinedOdds, l.legs.length]);
+            /* Session 5 · B6: why the card is what it is — the product's own published words, never a re-derivation. */
+            for (const w of l.why ?? []) say(`${b.date} ${label} lane ${l.lane} — the product's own reason for this card: ${w}`);
+            if (l.correlationNote) say(`${b.date} ${label} lane ${l.lane} — ${l.correlationNote}`);
             for (const g of l.legs) say(`${b.date} ${label} lane ${l.lane} leg: ${g.selection} (${g.market}, ${g.matchup})${g.odds != null ? `, priced ${g.odds}${g.book ? ` at ${g.book}` : ""}` : ""}${g.probabilityBasis === "market-implied" ? ", its probability is the market's implied price, not a GameTime model" : ""}${g.result ? `, result ${g.result}${g.official ? ` (final ${g.official})` : ""}` : ""}`, [g.odds]);
           }
         }
