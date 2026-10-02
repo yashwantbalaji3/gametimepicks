@@ -1,6 +1,6 @@
 {
  "artifact": "lab-readiness",
- "compareContentSha256": "89c5feeff6a07d8d203fa53eb9733b855bad424ed99b3972dbb0952483e0d68c",
+ "compareContentSha256": "fbbf779fefea768ef64da801f79a48c014dae769d08f79086f8b3150b52da110",
  "games": {
   "EPL": {
    "blocker": "TEAM_RESULTS_UNSUPPORTED",
@@ -19,16 +19,16 @@
      "CURRENT_SEASON_ROLLING"
     ],
     "status": "PARTIAL",
-    "to": "2026-10-01T02:00:00Z"
+    "to": "2026-10-02T00:00:00Z"
    },
    "excluded": {
     "INCONSISTENT": 0,
-    "NOT_FINAL": 549,
-    "ONE_SIDE_ONLY": 4
+    "NOT_FINAL": 554,
+    "ONE_SIDE_ONLY": 0
    },
-   "hostKnown": 8288,
+   "hostKnown": 8289,
    "hostUnknown": 0,
-   "rows": 8288,
+   "rows": 8289,
    "seasons": [
     "MLB-2026",
     "MLB-2025",
@@ -37,7 +37,7 @@
    ],
    "shipped": true,
    "teams": 30,
-   "withMatchupPage": 157
+   "withMatchupPage": 158
   },
   "NFL": {
    "blocker": null,
@@ -50,16 +50,16 @@
      "CURRENT_SEASON_ROLLING"
     ],
     "status": "PARTIAL",
-    "to": "2026-09-29T00:15:00Z"
+    "to": "2026-10-02T00:15:00Z"
    },
    "excluded": {
     "INCONSISTENT": 0,
-    "NOT_FINAL": 65,
+    "NOT_FINAL": 64,
     "ONE_SIDE_ONLY": 0
    },
-   "hostKnown": 7206,
+   "hostKnown": 7207,
    "hostUnknown": 95,
-   "rows": 7301,
+   "rows": 7302,
    "seasons": [
     "NFL-2026",
     "NFL-2025",
@@ -92,7 +92,7 @@
    ],
    "shipped": true,
    "teams": 32,
-   "withMatchupPage": 48
+   "withMatchupPage": 49
   },
   "UFC": {
    "blocker": "SPORT_NOT_SUPPORTED",
@@ -222,7 +222,7 @@
      "MLB_PLAYER_CAPTURED_ONLY"
     ],
     "status": "LIMITED",
-    "to": "2026-10-01T02:00:00Z"
+    "to": "2026-10-02T00:00:00Z"
    },
    "families": [
     "MLB.hits",
@@ -231,15 +231,15 @@
     "MLB.pitcherStrikeouts"
    ],
    "familyRows": {
-    "MLB.hits": 16840,
-    "MLB.hitsRunsRbis": 15339,
+    "MLB.hits": 16854,
+    "MLB.hitsRunsRbis": 15353,
     "MLB.pitcherStrikeouts": 6,
-    "MLB.totalBases": 8181
+    "MLB.totalBases": 8188
    },
    "players": 271,
-   "rows": 16865,
+   "rows": 16879,
    "rowsBySeason": {
-    "MLB-2026": 16865
+    "MLB-2026": 16879
    },
    "seasonFamilies": {
     "MLB-2026": [
@@ -264,7 +264,7 @@
      "NFL_GAME_LINES_FROM_2023"
     ],
     "status": "PARTIAL",
-    "to": "2026-02-08T23:30:00Z"
+    "to": "2026-09-29T00:15:00Z"
    },
    "families": [
     "NFL.receivingYards",
@@ -281,35 +281,36 @@
     "NFL.interceptionsThrown"
    ],
    "familyRows": {
-    "NFL.interceptionsThrown": 1973,
-    "NFL.passAttempts": 9791,
-    "NFL.passCompletions": 9791,
-    "NFL.passingTds": 1973,
-    "NFL.passingYards": 9791,
-    "NFL.receivingTds": 35072,
-    "NFL.receivingYards": 35072,
-    "NFL.receptions": 35072,
-    "NFL.rushingAttempts": 24694,
-    "NFL.rushingTds": 24694,
-    "NFL.rushingYards": 24694,
-    "NFL.targets": 35072
+    "NFL.interceptionsThrown": 2083,
+    "NFL.passAttempts": 9901,
+    "NFL.passCompletions": 9901,
+    "NFL.passingTds": 2083,
+    "NFL.passingYards": 9901,
+    "NFL.receivingTds": 35838,
+    "NFL.receivingYards": 35838,
+    "NFL.receptions": 35838,
+    "NFL.rushingAttempts": 25089,
+    "NFL.rushingTds": 25089,
+    "NFL.rushingYards": 25089,
+    "NFL.targets": 35838
    },
-   "players": 727,
-   "rows": 38860,
+   "players": 733,
+   "rows": 39786,
    "rowsBySeason": {
     "NFL-2013": 215,
     "NFL-2014": 328,
     "NFL-2015": 541,
     "NFL-2016": 759,
     "NFL-2017": 1241,
-    "NFL-2018": 1807,
-    "NFL-2019": 2445,
-    "NFL-2020": 2996,
-    "NFL-2021": 3747,
-    "NFL-2022": 4851,
+    "NFL-2018": 1813,
+    "NFL-2019": 2461,
+    "NFL-2020": 2998,
+    "NFL-2021": 3760,
+    "NFL-2022": 4854,
     "NFL-2023": 5941,
-    "NFL-2024": 6952,
-    "NFL-2025": 7037
+    "NFL-2024": 6953,
+    "NFL-2025": 7076,
+    "NFL-2026": 846
    },
    "seasonFamilies": {
     "NFL-2013": [
@@ -473,9 +474,24 @@
      "NFL.passAttempts",
      "NFL.passingTds",
      "NFL.interceptionsThrown"
+    ],
+    "NFL-2026": [
+     "NFL.receivingYards",
+     "NFL.receptions",
+     "NFL.rushingYards",
+     "NFL.passingYards",
+     "NFL.targets",
+     "NFL.receivingTds",
+     "NFL.rushingAttempts",
+     "NFL.rushingTds",
+     "NFL.passCompletions",
+     "NFL.passAttempts",
+     "NFL.passingTds",
+     "NFL.interceptionsThrown"
     ]
    },
    "seasons": [
+    "NFL-2026",
     "NFL-2025",
     "NFL-2024",
     "NFL-2023",
@@ -500,28 +516,29 @@
    "shipped": false
   }
  },
- "researchContentSha256": "6a41e9886c042cfe362afa3aaa686fa2133663cbc5e712253d1be11c6b0bcc90",
+ "researchContentSha256": "2e05a27aa636d56dee8bb3e890dce25e24730aec723f89bd67c9677c811f066e",
  "rows": {
-  "games/MLB": 8288,
-  "games/NFL": 7301,
+  "games/MLB": 8289,
+  "games/NFL": 7302,
   "players/EPL/EPL-2022-23": 5347,
   "players/EPL/EPL-2023-24": 6230,
   "players/EPL/EPL-2024-25": 7836,
   "players/EPL/EPL-2025-26": 11007,
-  "players/MLB/MLB-2026": 16865,
+  "players/MLB/MLB-2026": 16879,
   "players/NFL/NFL-2013": 215,
   "players/NFL/NFL-2014": 328,
   "players/NFL/NFL-2015": 541,
   "players/NFL/NFL-2016": 759,
   "players/NFL/NFL-2017": 1241,
-  "players/NFL/NFL-2018": 1807,
-  "players/NFL/NFL-2019": 2445,
-  "players/NFL/NFL-2020": 2996,
-  "players/NFL/NFL-2021": 3747,
-  "players/NFL/NFL-2022": 4851,
+  "players/NFL/NFL-2018": 1813,
+  "players/NFL/NFL-2019": 2461,
+  "players/NFL/NFL-2020": 2998,
+  "players/NFL/NFL-2021": 3760,
+  "players/NFL/NFL-2022": 4854,
   "players/NFL/NFL-2023": 5941,
-  "players/NFL/NFL-2024": 6952,
-  "players/NFL/NFL-2025": 7037,
+  "players/NFL/NFL-2024": 6953,
+  "players/NFL/NFL-2025": 7076,
+  "players/NFL/NFL-2026": 846,
   "seasons/MLB": 120,
   "seasons/NFL": 893
  },
