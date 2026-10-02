@@ -101,3 +101,11 @@ test("LIVE: the built projection carries the official block from the published a
     for (const k of ["stake", "exposure", "potentialReturn", "activeBankroll"]) assert.ok(!(k in lane), `money field ${k} must not reach Ask`);
   }
 });
+
+test("the planner prompt never asks a risk style before showing the official cards (Production 2026-10-02)", () => {
+  // "What are today's suggested parlays?" was answered with "Could you please let me know your preferred risk style".
+  const src = fs.readFileSync("src/lib/ask/planner.mjs", "utf8");
+  assert.match(src, /asks to BUILD or explore parlay candidates and has stated no risk preference/);
+  assert.match(src, /Never ask this for today's official Suggested Parlays, Bank Builder or Moonshot/);
+  assert.doesNotMatch(src, /"- If the user asks for parlays and has stated no risk preference/);
+});
