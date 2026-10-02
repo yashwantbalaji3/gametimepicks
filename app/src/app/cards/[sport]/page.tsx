@@ -21,7 +21,7 @@ import Link from "next/link";
 
 import SportLabCards from "@/components/sport-lab-cards";
 import SectionHeader from "@/components/section-header";
-import { loadCurrentSportLabLadder, ladderDayLabel, type SportLabLadder, loadSportLabStreamRecord, loadSportLabStreamBlocker } from "@/lib/parlays/sport-lab-cards";
+import { loadCurrentSportLabLadder, ladderDayLabel, type SportLabLadder, loadSportLabStreamRecord, loadSportLabStreamBlocker, loadSportLabCapabilityRefusal } from "@/lib/parlays/sport-lab-cards";
 import { loadUfcResultsCoverage } from "@/lib/sports/ufc/coverage-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -100,6 +100,14 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
              the following slate is priced" read as a promise in front of a 16-game NFL week whose
              price authorization is a separate founder gate. */
           const blocker = loadSportLabStreamBlocker(params.sport);
+          const gated = loadSportLabCapabilityRefusal(params.sport);
+          if (gated) {
+            return (
+              <p className="mt-4" data-ladder-refusal="CAPABILITY_GATED" style={{ fontSize: 13, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
+                No {lane.label} cards are published: {gated}.
+              </p>
+            );
+          }
           return (
             <p className="mt-4" style={{ fontSize: 13, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
               No {lane.label} cards are published right now.{" "}
