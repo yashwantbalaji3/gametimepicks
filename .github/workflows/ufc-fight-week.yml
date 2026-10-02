@@ -169,7 +169,7 @@ jobs:
         working-directory: app
         run: |
           set -uo pipefail
-          node scripts/ufc/build-ufc-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
+          npx tsx scripts/ufc/build-ufc-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
             echo "::warning::UFC risk ladder refused this run"
 
       # THE PRE-FIGHT COMPARISON: what the model said, and what the market said, on the same bouts.

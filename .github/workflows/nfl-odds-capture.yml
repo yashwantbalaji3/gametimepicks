@@ -64,7 +64,7 @@ jobs:
         working-directory: app
         run: |
           set -euo pipefail
-          node scripts/nfl/build-nfl-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
+          npx tsx scripts/nfl/build-nfl-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
             echo "::warning::nfl ladder build failed — the capture is committed regardless"
 
       - name: Commit capture artifacts (ledger + private snapshot + public market display)
