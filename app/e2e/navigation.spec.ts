@@ -23,6 +23,8 @@ const PAGES = [
   { path: "/results/", heading: /results/i },
   { path: "/methodology/", heading: /methodology/i },
   { path: "/responsible-use/", heading: /responsible use/i },
+  // Session 6: /nba is a schedule + finals hub (no forecast), no longer a redirect to the archive.
+  { path: "/nba/", heading: /NBA/ },
 ];
 
 // /trends is a soft-retired route post-Phase 12. It must still respond
@@ -37,7 +39,8 @@ const PAGES = [
 const REDIRECTS = [
   { path: "/parlay-lab/", lands: /\/build\/?(#.*)?$/ },
   { path: "/board/", lands: /\/mlb\/board\/?$/ },
-  { path: "/nba/", lands: /\/results\/nba\/?$/ },
+  // "/nba/" left this table in Session 6: it is a schedule + finals hub again (asserted as a page above).
+  { path: "/nba/results/", lands: /\/results\/nba\/?$/ },
 ];
 
 const RETIRED = [
