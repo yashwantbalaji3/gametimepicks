@@ -3,18 +3,71 @@
  "artifact": "nfl-current-settlement",
  "dataClass": "PRIVATE_PAPER_RECORD",
  "date": "2026-10-01",
- "generatedAt": "2026-10-02T01:32:24Z",
+ "generatedAt": "2026-10-02T08:17:08Z",
  "scope": "NFL current-artifact settlement — a SEPARATE paper record. It never reads or writes MLB money, Bank Builder, Moonshot, or Mr. Dub.",
  "whatIsGraded": "the PRE-START MARKET consensus pinned in each artifact (favourite / home spread / over total). The team model ABSTAINS in preseason, so this is a market-accuracy record and is never reported as model performance.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401872964",
+   "providerEventId": "401872964",
    "matchup": "PIT @ CLE",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-10-02T00:15Z",
-   "observedStatus": "no result row"
-  },
+   "artifactFile": "data/internal/nfl/current/2026-10-01/401872964-2230Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-10-01T22:30:25Z",
+    "marketCapturedAt": "2026-10-01T19:45:24Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-09-30T15:51:14Z"
+     },
+     "rosters": {
+      "asOf": "2026-10-01T22:30:25Z"
+     },
+     "injuries": {
+      "asOf": "2026-10-01T22:30:43Z"
+     },
+     "odds": {
+      "asOf": "2026-10-01T19:45:24Z"
+     },
+     "strengthCutoff": "2026-10-01T22:30:25Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-10-02T08:17:08Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 27,
+    "away": 24
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "away",
+     "line": null,
+     "label": "market favourite (57.4% no-vig)",
+     "outcome": "LOSS",
+     "reason": "final 27-24: home, leg took away"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": 2.5,
+     "label": "home +2.5",
+     "outcome": "WIN",
+     "reason": "margin 3 covers 2.5"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 37.5,
+     "label": "over 37.5",
+     "outcome": "WIN",
+     "reason": "total 51 vs 37.5"
+    }
+   ]
+  }
+ ],
+ "pending": [
   {
    "canonicalEventId": "nfl-401872965",
    "matchup": "IND @ WSH",
@@ -108,15 +161,15 @@
  ],
  "accounting": {
   "artifactsForDate": 16,
-  "settled": 0,
-  "pending": 16,
+  "settled": 1,
+  "pending": 15,
   "reconciles": true,
-  "legs": 0,
-  "wins": 0,
-  "losses": 0,
+  "legs": 3,
+  "wins": 2,
+  "losses": 1,
   "pushes": 0,
   "voids": 0,
-  "decisive": 0,
+  "decisive": 3,
   "note": "decisive = WIN + LOSS only; pushes and voids are reported separately and pending is never a loss"
  }
 }
