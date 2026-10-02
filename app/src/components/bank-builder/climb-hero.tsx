@@ -82,6 +82,9 @@ export interface ClimbLane {
    * cannot reach it is the same species of error as staking the seed on rung two.
    */
   reachesTarget?: boolean | null;
+  /** Session 7 — the lane's OWN published reason for having no card today (verbatim), or null. When present it
+   *  replaces the generic "no card reached this step's price" sentence, which is only true on a short slate. */
+  noCardReason?: string | null;
   shortfall?: number | null;
   hasCard: boolean;          // false → polished awaiting state (a real money card is placed)
   // A REVIEW card is a $0 paper card whose legs ARE shown for founder/public review, but no money is
