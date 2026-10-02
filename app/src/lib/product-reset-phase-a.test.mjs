@@ -95,12 +95,20 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
    */
   const SIMULATED = new Set(["/mlb", "/nfl"]);
   const PUBLISHED_UNVALIDATED = new Set(["/epl"]);
+  /* Session 6 (founder decision 3): a FACTUAL hub — schedule and finals, no forecast. Its page must say so and its
+     nav entry must say so; neither may carry the "simulation pending" line, which would imply a model is coming. */
+  const FACTUAL_ONLY = new Set(["/nba"]);
   const PAGE_FOR = { "/mlb": "src/app/mlb/page.tsx", "/nfl": "src/app/nfl/page.tsx", "/epl": "src/app/epl/page.tsx", "/ufc": "src/app/ufc/page.tsx", "/nba": "src/app/nba/page.tsx" };
   const leagueLinks = [...nav.matchAll(/href: "(\/(?:mlb|nfl|epl|nba|ufc))"/g)].map((m) => m[1]);
   assert.ok(leagueLinks.length > 0, "the nav links at least one league");
   for (const href of leagueLinks) {
     const src = renderedSource(PAGE_FOR[href]);
     if (SIMULATED.has(href)) continue;
+    if (FACTUAL_ONLY.has(href)) {
+      assert.match(src, /Schedule only — no public forecast/, `${href} must state that it publishes no forecast`);
+      assert.match(nav, new RegExp(`href: "${href}"[\\s\\S]{0,160}?no forecast`), `${href}'s nav entry must say it publishes no forecast`);
+      continue;
+    }
     if (PUBLISHED_UNVALIDATED.has(href)) {
       // The nav entry and the page must agree, and both must carry the validation gap. Asserted on
       // the nav SOURCE (the entry is the thing that could imply too much) and the page source.
