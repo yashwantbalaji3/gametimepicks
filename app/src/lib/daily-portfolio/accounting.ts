@@ -12,8 +12,8 @@
  * Activating a lane raises open exposure + lowers available; it does NOT change active bankroll or the
  * crown (those only move on official settlement). Pure + deterministic given (root, nowIso, date).
  */
-import { canEnterPredictionProducts, capabilityState } from "@/lib/sport-capability-registry";
-import { legsFromDistinctEvents } from "@/lib/parlays/card-events.mjs";
+import { canEnterPredictionProducts, capabilityState } from "../sport-capability-registry"; // relative: runs from the repo root
+import { legsFromDistinctEvents } from "../parlays/card-events.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, MOONSHOT_MIN_COMBINED_ODDS, type LaneCandidate, type ModelPick } from "../world-cup/model-qualified-picks";
