@@ -70,7 +70,7 @@ export function receiptFromNflBoardCandidate(c) {
     participantId: c.participantId, participantDisplay: c.participant, teamId: c.team ? `nfl-team-${c.team}` : null, rosterTeam: c.team,
     family: c.marketFamily, marketKey: c.marketFamily, side: c.binary ? "yes" : "over", line: c.line, binary: c.binary,
     sportsbook: c.sportsbook, price: c.price, marketCapturedAt: c.marketCapturedAt, marketReceiptId: c.sportsbook ? "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md" : null,
-    forecastOwner: "nfl/player-board", modelVersion: c.modelVersion, projection: c.modelProjection,
+    forecastOwner: "nfl/player-board", modelVersion: c.modelVersion, projection: c.modelProjection, generatedAt: c.forecastGeneratedAt ?? null,
     probabilityDetail: NFL_BASIS_TO_DETAIL[c.probabilityBasis] ?? PROBABILITY_DETAIL.NONE, modelProbability: c.modelProbability,
     publicationStatus: c.familyState, modelStatus: c.familyState, familyValidationState: c.familyState,
     availabilityState: c.participation, roleState: c.participation,

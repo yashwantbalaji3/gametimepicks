@@ -51,7 +51,16 @@ export function loadNflBoardCandidates({ dataRoot, workflowsDir, date = null, bo
   };
   const probabilityBasisFor = ({ projection, probability }) =>
     probability != null ? "MODEL_PUBLISHED" : projection != null ? "MODEL_DISTRIBUTION_UNCONVERTED" : "NONE";
-  const modelVersionFor = (fam) => (status?.playerFamilies ?? []).find((f) => f.key === fam)?.modelId ?? null;
+  /* The model that produced a board's number is the BOARD's own record (Session 8): a share-level family names
+     its `model`; the anytime-TD v1 engine names itself in its basis. model-status.json is the fallback — it has
+     no entry for anytime TD, which is how every ATD receipt came out with modelVersion null. */
+  const modelVersionFor = (fam, board) => {
+    const f = board?.families?.[fam];
+    if (f?.model) return f.model;
+    const named = /^([a-z0-9-]+-v\d+)\b/i.exec(String(f?.basis ?? ""))?.[1];
+    if (named) return named;
+    return (status?.playerFamilies ?? []).find((x) => x.key === fam)?.modelId ?? null;
+  };
 
   const candidates = []; const unknown = new Set();
   for (const b of boards) {

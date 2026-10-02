@@ -81,8 +81,12 @@ export function evaluateReceiptV2(receipt, { asOf, floor = LEG_FLOOR_V2 } = {}) 
   const r = receipt, id = r.identity, m = r.market, f = r.forecast, c = r.context;
   const out = new Set();
 
-  /* 1 · sport — the registry, read here, whatever the artifact says. */
-  if (!id.sport || !canEnterPredictionProducts(id.sport)) out.add(EXCLUSION.SPORT_GATED);
+  /* 1 · sport — the registry, read here, whatever the artifact says. A sport below FULL_MODEL may enter
+         ONE family at a time, and only through an active family grant (family-gate.mjs: a founder grant AND
+         zero evidence blockers, derived at build). A grant for one family never admits another. */
+  if (!id.sport || !canEnterPredictionProducts(id.sport)) {
+    if (!(floor.grantedFamilies instanceof Set && floor.grantedFamilies.has(`${id.sport}:${m.family}`))) out.add(EXCLUSION.SPORT_GATED);
+  }
 
   /* 2 · identity — a leg that cannot be settled cannot be a product leg. */
   if (!id.eventId || !m.family || !m.side || (r.legClass === LEG_CLASS.PLAYER && !id.participantId)) out.add(EXCLUSION.IDENTITY_MISSING);
