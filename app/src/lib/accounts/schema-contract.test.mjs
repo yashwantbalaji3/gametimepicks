@@ -19,8 +19,56 @@ const SQL = fs.readFileSync(path.join(REPO, "db/accounts-schema.sql"), "utf8");
 const readOrEmpty = (p) => readSourceIfPresent(p) ?? "";
 const tables = [...SQL.matchAll(/create table if not exists public\.([a-z_]+)/g)].map((m) => m[1]);
 
+/* beta_access is the one table with no owner: RLS on and NO policy, so no client can touch it. */
+const NO_CLIENT_ACCESS = new Set(["beta_access"]);
+const owned = tables.filter((t) => !NO_CLIENT_ACCESS.has(t));
+
 test("the schema creates the tables the product needs, and nothing anonymous", () => {
-  assert.deepEqual(tables.sort(), ["bet_slips", "profiles"]);
+  assert.deepEqual(tables.sort(), ["bet_slips", "beta_access", "beta_feedback", "profiles", "saved_items", "user_follows", "user_preferences"]);
+});
+
+test("the beta allowlist is unreachable from any client: RLS on, no policy at all", () => {
+  assert.match(SQL, /alter table public\.beta_access\s+enable row level security/);
+  assert.ok(!/create policy \w+ on public\.beta_access/.test(SQL), "a policy on beta_access would expose the invite list");
+  assert.match(SQL, /function public\.is_beta_member\(\)[\s\S]{0,120}security definer set search_path = public/, "membership is asked through a definer function with a pinned search_path");
+  assert.match(SQL, /revoke all on function public\.is_beta_member\(\) from public/);
+});
+
+test("writes need an active invite; reading and deleting your own rows never do", () => {
+  for (const t of owned) {
+    const owner = t === "profiles" ? "id" : "user_id";
+    for (const verb of ["insert", "update"]) {
+      const line = SQL.match(new RegExp(`create policy ${t}_${verb}_own on public\\.${t}[^;]*;`))?.[0] ?? "";
+      assert.match(line, new RegExp(`auth\\.uid\\(\\) = ${owner} and public\\.is_beta_member\\(\\)`), `${t}: ${verb} must require the invite`);
+    }
+    for (const verb of ["select", "delete"]) {
+      const line = SQL.match(new RegExp(`create policy ${t}_${verb}_own on public\\.${t}[^;]*;`))?.[0] ?? "";
+      assert.ok(line && !/is_beta_member/.test(line), `${t}: ${verb} must stay open to the owner so a revoked tester keeps their data`);
+    }
+  }
+});
+
+test("every USING clause is exactly the owner check — a WITH CHECK naming the owner does not limit which rows are touched", () => {
+  for (const t of owned) {
+    const owner = t === "profiles" ? "id" : "user_id";
+    for (const verb of ["select", "update", "delete"]) {
+      const line = SQL.match(new RegExp(`create policy ${t}_${verb}_own on public\\.${t}[^;]*;`))?.[0] ?? "";
+      assert.match(line, new RegExp(`for ${verb} using \\(auth\\.uid\\(\\) = ${owner}\\)`), `${t}: ${verb} USING must be (auth.uid() = ${owner})`);
+    }
+    for (const verb of ["insert", "update"]) {
+      const line = SQL.match(new RegExp(`create policy ${t}_${verb}_own on public\\.${t}[^;]*;`))?.[0] ?? "";
+      assert.match(line, new RegExp(`with check \\(auth\\.uid\\(\\) = ${owner}`), `${t}: ${verb} WITH CHECK must start with the owner`);
+    }
+    // exactly one policy per verb: a second, looser policy would OR with the strict one
+    for (const verb of ["select", "insert", "update", "delete"]) {
+      const n = [...SQL.matchAll(new RegExp(`create policy \\w+ on public\\.${t} for ${verb}\\b`, "g"))].length;
+      assert.equal(n, 1, `${t}: ${n} ${verb} policies (policies are OR-ed — a second one widens access)`);
+    }
+  }
+});
+
+test("preferences are explicit choices: a risk band is only one of the four published levels", () => {
+  assert.match(SQL, /risk_bands[\s\S]{0,120}check \(risk_bands <@ array\['low', 'medium', 'high', 'longshot'\]::text\[\]\)/);
 });
 
 test("every table has row-level security enabled", () => {
@@ -30,7 +78,7 @@ test("every table has row-level security enabled", () => {
 });
 
 test("every table restricts all four verbs to the row's owner", () => {
-  for (const t of tables) {
+  for (const t of owned) {
     const owner = t === "profiles" ? "id" : "user_id";
     for (const verb of ["select", "insert", "update", "delete"]) {
       const policy = new RegExp(`create policy ${t}_${verb}_own on public\\.${t} for ${verb}[\\s\\S]{0,200}?auth\\.uid\\(\\) = ${owner}`);
@@ -54,7 +102,7 @@ test("slip images live in a PRIVATE bucket, one folder per person", () => {
 
 test("deleting the account takes the data with it", () => {
   const cascades = [...SQL.matchAll(/references auth\.users \(id\) on delete cascade/g)];
-  assert.equal(cascades.length, tables.length, "every table cascades from the auth user");
+  assert.equal(cascades.length, owned.length, "every owned table cascades from the auth user");
 });
 
 test("config is fail-closed: no project, no accounts — and never a key when it is not ready", () => {

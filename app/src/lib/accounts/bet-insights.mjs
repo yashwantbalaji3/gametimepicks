@@ -44,6 +44,8 @@ export function summarise(rows) {
   return {
     slips: rows.length,
     pending: rows.filter((r) => r.status === "pending").length,
+    // Open exposure: what is staked on slips still pending. Never a loss, never part of `net` (Session 8).
+    openExposure: Math.round(rows.filter((r) => r.status === "pending").reduce((n, r) => n + (r.stake ?? 0), 0) * 100) / 100,
     decided: decided.length,
     wins: decided.filter((r) => r.status === "won").length,
     losses: decided.filter((r) => r.status === "lost").length,
