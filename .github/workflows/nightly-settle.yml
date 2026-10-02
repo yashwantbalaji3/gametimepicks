@@ -321,6 +321,9 @@ jobs:
           # state and mr-dub/settled — regenerated here so docs/V17_SHADOW_REPORT.md and report.json can
           # never be a hand-kept number. It says SHADOW_RUNNING · NOT ADOPTED by construction.
           (cd app && npx tsx scripts/products/report-selector-shadow.mjs --write)
+          # Session 7: the Suggested Parlays V2 forward shadow, graded by the same linescore rule. SHADOW only —
+          # nothing public reads data/internal/products/engine-v2/.
+          (cd app && npx tsx scripts/products/suggested-parlays-shadow.mjs grade --write)
 
       # The risk ladder re-derives its whole record from every graded day, so it runs AFTER
       # settlement and never carries a number forward from the previous file.
