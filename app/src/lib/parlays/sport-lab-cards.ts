@@ -271,3 +271,19 @@ export function loadSportLabStreamRecord(sport: string): SportLabStreamRecord | 
     return { wins: rec.wins ?? 0, losses: rec.losses ?? 0, pushes: rec.pushes ?? 0, settledDays: stream?.settledDays ?? 0, byTier };
   } catch { return null; }
 }
+
+/**
+ * Session 5 · B8 — a ladder the producer REFUSED as a whole because the capability registry does not allow the sport
+ * to show model output (build-*-ladder.mjs CAPABILITY_GATED, #889). Returns the producer's own reason, or null.
+ * The generic "a ladder empties as events start" sentence is false for this state.
+ */
+export function loadSportLabCapabilityRefusal(sport: string): string | null {
+  const dir = DIRS[sport];
+  if (!dir) return null;
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/parlays", dir, "latest.json"), "utf8"));
+    return raw?.state === "CAPABILITY_GATED" && typeof raw.reason === "string" && raw.reason ? raw.reason : null;
+  } catch {
+    return null;
+  }
+}
