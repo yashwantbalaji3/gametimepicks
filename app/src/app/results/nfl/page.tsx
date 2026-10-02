@@ -113,7 +113,7 @@ function GamePlayers({ game }: { game: WeekGame }) {
 }
 
 export default function NflWeekReportPage() {
-  const { index, latest } = readNflWeekReports();
+  const { latest, earlier } = readNflWeekReports();
   /* P320: a row links to its archived pregame read only when that page is generated (the frozen revision exists). */
   const archived = new Set(archivedEventIds(path.join(process.cwd(), "public", "data")));
 
@@ -239,7 +239,7 @@ export default function NflWeekReportPage() {
         <p style={{ margin: 0 }}>{latest.source} {latest.disclaimer}</p>
         <p style={{ margin: "6px 0 0" }}>
           Graded {etKickoff(latest.generatedAt).replace(" ET", "")} ET
-          {(index?.weeks?.length ?? 0) > 1 ? ` · earlier weeks: ${index!.weeks.slice(0, -1).map((w) => `${w.label} ${pct(w.overall.rate)}`).join(" · ")}` : ""}
+          {earlier.length ? ` · earlier weeks: ${earlier.map((w) => `${w.label} ${pct(w.overall.rate)}`).join(" · ")}` : ""}
           {" · "}<Link href="/nfl/" style={{ color: "var(--vault-gold-bright)" }}>This week&rsquo;s NFL predictions</Link>
           {" · "}<Link href="/results/picks/nfl/" style={{ color: "var(--vault-gold-bright)" }}>NFL model record</Link>
         </p>
