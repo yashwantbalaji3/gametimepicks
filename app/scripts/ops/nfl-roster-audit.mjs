@@ -38,15 +38,26 @@ if (!boards.length) { console.log("NO_BOARDS — nothing upcoming to audit; a re
 
 const fdir = path.join(ROOT, "data/internal/research/nfl/replay/player-props-share-level-forward");
 const usage = new Set();
-for (const w of new Set(boards.map((b) => `${b.kickoffUtc.slice(0, 4)}-${String(b.week).padStart(2, "0")}`))) {
-  for (const k of currentSeasonUsageIndex({ forecast: read(path.join(fdir, `${w}.json`)), season: Number(w.slice(0, 4)) })) usage.add(k);
+/* Session 5 — the forecast's own share column per week, so the audit recomputes every share-sourced pool. */
+const sharesByWeek = new Map();
+const weekOf = (b) => `${b.kickoffUtc.slice(0, 4)}-${String(b.week).padStart(2, "0")}`;
+for (const w of new Set(boards.map(weekOf))) {
+  const forecast = read(path.join(fdir, `${w}.json`));
+  for (const k of currentSeasonUsageIndex({ forecast, season: Number(w.slice(0, 4)) })) usage.add(k);
+  const m = new Map();
+  if (forecast?.columns) {
+    const C = Object.fromEntries(forecast.columns.map((c, i) => [c, i]));
+    for (const r of forecast.rows ?? []) if (r[C.espnId] != null) m.set(`${r[C.espnId]}|${r[C.team]}|${r[C.market]}`, r[C.share]);
+  }
+  sharesByWeek.set(w, m);
 }
 
 const rows = [];
 let total = 0;
 const projectedAt = new Map();
 for (const b of boards) {
-  const v = auditBoard({ board: b, rosterByTeam, unavailable, usage });
+  const shares = sharesByWeek.get(weekOf(b));
+  const v = auditBoard({ board: b, rosterByTeam, unavailable, usage, shareOf: (id, team, market) => shares?.get(`${id}|${team}|${market}`) });
   if (!b.coverage) v.push({ code: "NO_COVERAGE_RECEIPT", team: null });
   total += v.length;
   for (const p of b.players ?? []) {

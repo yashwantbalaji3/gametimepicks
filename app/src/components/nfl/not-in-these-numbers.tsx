@@ -42,6 +42,10 @@ export function notInTheseNumbersRows(coverage: BoardCoverage | undefined, teams
       for (const n of r.notModeled ?? []) {
         if (n.family === "player_pass_yds") out.push({ team, playerId: r.playerId, name: r.name, label: "Not this team's passer", detail: "backup quarterback — the passing projection belongs to the depth chart's starter" });
         else if (n.family === "player_receptions") out.push({ team, playerId: r.playerId, name: r.name, label: "No receiving projection", detail: n.reason });
+        /* Session 5 — one line per team for a withheld pool, not one per holder: it is a team-level decision. */
+        else if (n.state === "WITHHELD_POOL_OVER_ALLOCATED" && !out.some((x) => x.team === team && x.playerId === `pool:${n.family}`)) {
+          out.push({ team, playerId: `pool:${n.family}`, name: n.family === "player_rush_yds" ? "Rushing" : n.family === "player_pass_yds" ? "Passing" : "Receiving", label: "Withheld for this game", detail: "the players' modelled shares add up to more of the team's opportunity than exists; these numbers are not renormalised to fit" });
+        }
       }
     }
   }

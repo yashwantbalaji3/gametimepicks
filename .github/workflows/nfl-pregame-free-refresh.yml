@@ -1,0 +1,93 @@
+# NFL pregame roster/usage + inactives refresh — FREE, for Thursday night (Session 5 · A3/A4).
+#
+# WHY. Thursday's boards were refreshed before kickoff by a manual zero-credit dispatch: the paid
+# nfl-kickoff-refresh fires 1–5 PM ET on Thursdays (its ≤120-minute rule cannot be true on time for a
+# 00:15Z kickoff) and GitHub delivered 1 of its 10 slots on 2026-10-01. Delivery here runs 1h40m–4h55m
+# late, so a cron cannot meet a deadline. And the official inactives (declared ~T-90, in the league
+# injuries feed we already capture) landed AFTER our last pre-kickoff capture.
+#
+# HOW. Whichever run arrives first decides from the committed boards (src/lib/ops/pregame-free-refresh.mjs)
+# and WAITS inside the job for each pass — ROSTER at T-105, INACTIVES at T-55 — re-deciding on freshly
+# pulled boards before every dispatch, and waiting for the event window to go idle after one.
+#
+# FREE BY CONSTRUCTION. No secret is named; the only dispatch is nfl-event-window with skip_odds=true
+# (the documented zero-credit chain) — never probe_props, never a paid step.
+#
+# DEDUPED. One group, never cancelled: a later arrival queues behind the waiting run and then decides
+# ALREADY_REFRESHED from the boards that run produced.
+name: nfl-pregame-free-refresh
+
+on:
+  schedule:
+    # Thursday UTC. A run arriving earlier than the horizon (T-375 min) exits NO_GAME and leaves it to a
+    # later delivery; four slots so a dropped or late slot is covered by another.
+    - cron: "0 17 * * 4"
+    - cron: "0 18 * * 4"
+    - cron: "0 19 * * 4"
+    - cron: "0 20 * * 4"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Decide and report, never wait or dispatch"
+        required: false
+        default: "false"
+
+concurrency:
+  group: nfl-pregame-free-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    # The horizon (375 min before kickoff) to the last pass (T-55) plus its window run, under GitHub's 360 cap.
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Wait for each pass and dispatch the zero-credit event window
+        working-directory: app
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          # An in-flight event window (any trigger) is waited out, never raced: its boards decide the next pass.
+          wait_idle() {
+            for _ in $(seq 1 45); do
+              n="$(gh run list --workflow=nfl-event-window.yml --limit 10 --json status --jq '[.[] | select(.status != "completed")] | length' || echo unknown)"
+              if [ "$n" = "0" ]; then return 0; fi
+              sleep 60
+            done
+            echo "::warning::nfl-event-window still running after 45 minutes"
+          }
+          for _ in 1 2 3 4 5 6; do
+            git pull --quiet --ff-only origin main
+            d="$(node scripts/nfl/decide-pregame-free-refresh.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --json)"
+            decision="$(echo "$d" | jq -r .decision)"
+            echo "$(date -u +%H:%M:%SZ) $decision $(echo "$d" | jq -r '.pass // ""') · $(echo "$d" | jq -r .reason)"
+            case "$decision" in
+              WAIT_THEN_DISPATCH)
+                if [ "${DRY:-false}" = "true" ]; then exit 0; fi
+                sleep "$(echo "$d" | jq -r .waitSeconds)"
+                ;;
+              DISPATCH_NOW)
+                if [ "${DRY:-false}" = "true" ]; then exit 0; fi
+                wait_idle
+                gh workflow run nfl-event-window.yml --ref main -f skip_odds=true -f lookahead_hours=18
+                echo "::notice::pregame free refresh dispatched nfl-event-window (skip_odds=true) — $(echo "$d" | jq -r .reason)"
+                sleep 90
+                wait_idle
+                ;;
+              *)
+                echo "::notice::pregame free refresh held — $decision: $(echo "$d" | jq -r .reason)"
+                exit 0
+                ;;
+            esac
+          done

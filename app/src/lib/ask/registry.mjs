@@ -177,6 +177,7 @@ export const ASK_TOOLS = Object.freeze({
       date: { kind: "isoDate", describe: "Product date (ET) as YYYY-MM-DD. Omit for today — the tool uses today's product date on its own, so do not call getGameTimeNow for it. Only pass a date when the user named a specific day, and never write a placeholder here." },
       gameId: { kind: "slug", describe: "One specific game's canonical id." },
       teamId: { kind: "slug", describe: "Only forecasts involving this team." },
+      playerId: { kind: "slug", describe: "A player id from resolveEntity: only the game this player has a published projection in, with that player's own row always included." },
       limit: { kind: "integer", min: 1, max: 20, default: 6, describe: "How many forecasts to return." },
     },
   },

@@ -368,6 +368,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           .filter((p) => p.markets.player_pass_yds?.median != null)
           .sort((a, b) => (b.markets.player_pass_yds!.median ?? 0) - (a.markets.player_pass_yds!.median ?? 0))
           .slice(0, 1);
+        /* Session 5 — the producer withholds a team's rushing when its carries pool is over-allocated. */
+        const rushWithheld = (abbr: string) => fams.player_rush_yds?.withheldTeams?.find((w) => w.team === abbr)?.reason ?? null;
         const rushTop = (abbr: string) => active(abbr)
           .filter((p) => p.markets.player_rush_yds?.median != null)
           .sort((a, b) => (b.markets.player_rush_yds!.median ?? 0) - (a.markets.player_rush_yds!.median ?? 0))
@@ -426,6 +428,11 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   </p>
                 ))}
               </div>
+            ) : null}
+            {hasRush && rushWithheld(t.abbr) ? (
+              <p data-pool-withheld="player_rush_yds" style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.5, color: "var(--vault-text-faint)" }}>
+                <span className="font-mono" style={{ fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase" }}>Rushing</span> — {rushWithheld(t.abbr)}
+              </p>
             ) : null}
             {hasRec && recTop(t.abbr).length ? (
               <div style={{ marginTop: 10 }}>

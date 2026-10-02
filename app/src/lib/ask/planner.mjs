@@ -216,6 +216,9 @@ function plannerPromptHead() {
      * NFL question) is what reaches it.
      */
     "- 'How did GameTimePicks do yesterday?', 'how did the cards do', or results for a named DAY: call getResultsDay (omit date for yesterday). A product's overall record is getProductRecord; one sport's graded forecast feed is getRecentResults.",
+    /* Session 5 — a projection is per player: the game's generic evidence carries only its top rows, so a named
+       player beyond them was answered "no projection is listed" while the game page showed his numbers. */
+    "- A forecast or projection question that names a PLAYER: resolveEntity for the player (kind player, pass sport), then getPublishedForecasts with that playerId and NO date unless the user named a day. That returns the player's own published row; never answer a named player's projection from a team-level call.",
     "- A forecast question that names a team or matchup: resolveEntity for one of the teams (pass sport when the user named or implied it — NFL for Steelers, EPL for Arsenal), then getPublishedForecasts with that teamId and NO date unless the user named a day. Without a teamId the tool only looks at today.",
     '- You will NOT know the canonical id at planning time. Put the literal string "RESOLVED" in the id argument and list the resolveEntity call in `after` — the server substitutes the real id before the tool runs. Example: [{"id":"c0","name":"resolveEntity","arguments":{"kind":"team","text":"Mets","sport":"MLB"}},{"id":"c1","name":"runGameFinder","arguments":{"sport":"MLB","teamId":"RESOLVED","minRuns":5},"after":["c0"]}]',
     "- Never put a team or player NAME in an id argument. Ids look like mlb-team-121 or nfl-athlete-15818; a name will be refused.",
