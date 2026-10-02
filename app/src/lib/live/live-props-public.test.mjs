@@ -30,8 +30,11 @@ test("every other runtime-assembled /data/ path still refuses", () => {
   assert.match(PRUNE, /process\.exit\(1\)/);
   const m = /const ALWAYS_PUBLIC_DATA_DIRS = \[([^\]]*)\]/.exec(PRUNE);
   const dirs = [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]);
-  assert.deepEqual(dirs.sort(), ["ask/v1/", "compare/v1/", "lab/v1/", "nfl/live-props/"],
-    "exactly four prefixes are tolerated; a fifth needs its own decision and its own note");
+  /* Session 5 · B7: the fifth — nfl/reconciliation/, the NFL week reconciliation (PUBLIC_DERIVED; the graded rows
+     /results/nfl already renders), fetched per week by the season drill-down. Its note is in prune-internal-routes.mjs
+     and its guard (every file PUBLIC_DERIVED) in lib/results/v2/nfl-family-record.test.mjs. */
+  assert.deepEqual(dirs.sort(), ["ask/v1/", "compare/v1/", "lab/v1/", "nfl/live-props/", "nfl/reconciliation/"],
+    "exactly five prefixes are tolerated; a sixth needs its own decision and its own note");
 });
 
 test("what we are publishing is what we said we are publishing", () => {
