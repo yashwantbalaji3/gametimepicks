@@ -349,22 +349,52 @@ export function trackForecast(forecast, { gamePhase = GAME_PHASE.PRE, liveRow = 
     stale,
     feed,
     settlement: settled,
-    status: settledStatusFor(settled) ?? statusFor({ rail, binary, gamePhase, feed, value: gamePhase === GAME_PHASE.FINAL ? finalStat : value, line: forecast.line, stale, hasRow: Boolean(liveRow) }),
+    /* Session 6 · the row's short anytime-TD final words come from this, never from its own `>= 1` test. */
+    tdFinal: binary ? tdFinalOf({ gamePhase, value: finalStat, measuredAtFinal: measuredAtFinalOf(liveRow, settled) }) : null,
+    status: settledStatusFor(settled) ?? statusFor({ rail, binary, gamePhase, feed, value: gamePhase === GAME_PHASE.FINAL ? finalStat : value, line: forecast.line, stale, hasRow: Boolean(liveRow), measuredAtFinal: measuredAtFinalOf(liveRow, settled) }),
     landmarks: binary ? null : railLandmarks({ line: forecast.line, gtp: forecast.modelValue, high: forecast.modelHigh, live: gamePhase === GAME_PHASE.FINAL ? finalStat : gamePhase === GAME_PHASE.LIVE ? value : null }),
   };
+}
+
+/**
+ * Session 6 · was the number we hold read AT the final, or earlier? A producer file frozen mid-game (the
+ * free capture is dispatch-only) still carries its Q2 value when the game ends: PIT @ CLE 2026-10-01 held
+ * TD 0 for two players ESPN's final credits with one each. Only a FINAL-phase observation or an owner-written
+ * final stat may support "no TD recorded".
+ */
+export const TD_FINAL = Object.freeze({ SCORED: "SCORED", NONE_AT_FINAL: "NONE_AT_FINAL", NONE_AT_LAST_READ: "NONE_AT_LAST_READ", NOT_MEASURED: "NOT_MEASURED" });
+/** The short words the row shows for each state — the same facts statusFor states in its longer form. */
+export const TD_FINAL_WORDS = Object.freeze({ SCORED: "Touchdown scored", NONE_AT_FINAL: "No TD recorded", NONE_AT_LAST_READ: "No TD at last measurement", NOT_MEASURED: "Not measured" });
+
+/** One anytime-TD final state, or null when the game is not over. */
+export function tdFinalOf({ gamePhase, value, measuredAtFinal }) {
+  if (gamePhase !== GAME_PHASE.FINAL) return null;
+  if (value !== null && value >= 1) return TD_FINAL.SCORED;
+  if (value === null) return TD_FINAL.NOT_MEASURED;
+  return measuredAtFinal ? TD_FINAL.NONE_AT_FINAL : TD_FINAL.NONE_AT_LAST_READ;
+}
+
+export function measuredAtFinalOf(liveRow, settled = null) {
+  if (num(settled?.finalStat) !== null || num(liveRow?.settlement?.finalStat) !== null) return true;
+  return String(liveRow?.live?.phase ?? "").toUpperCase() === "FINAL";
 }
 
 /**
  * The words a reader sees. Factual measurement language only — "currently", "last known",
  * "grading pending". No HIT, MISS, WIN, LOSS or CASHED is reachable from this function.
  */
-export function statusFor({ rail, binary, gamePhase, feed, value, line, stale, hasRow = true }) {
+export function statusFor({ rail, binary, gamePhase, feed, value, line, stale, hasRow = true, measuredAtFinal = false }) {
   const R = RAIL_STATE;
   if (gamePhase === GAME_PHASE.PRE) return rail === R.PRE_GAME_SNAPSHOT_MISSING ? "Pregame snapshot missing" : "Starts at kickoff";
   if (gamePhase === GAME_PHASE.UNKNOWN) return "Game status unavailable";
   if (gamePhase === GAME_PHASE.NOT_PLAYED) return "No live tracking for this game";
   if (gamePhase === GAME_PHASE.FINAL) {
-    if (binary) return value !== null && value >= 1 ? "Final · touchdown scored · grading pending" : "Final · no TD recorded · grading pending";
+    if (binary) {
+      /* A touchdown once scored is a fact at any read. "No TD" is a claim about the WHOLE game: it needs a
+         measurement taken at the final; an earlier read says only what it saw, and no read says nothing. */
+      const td = tdFinalOf({ gamePhase, value, measuredAtFinal });
+      return `Final · ${td === TD_FINAL.NOT_MEASURED ? "touchdown not measured" : TD_FINAL_WORDS[td][0].toLowerCase() + TD_FINAL_WORDS[td].slice(1)} · grading pending`;
+    }
     return value === null ? "Final · grading pending · no measurement yet" : "Final · grading pending";
   }
   if (feed === FEED.UNAVAILABLE && value === null) return "Live tracking temporarily unavailable";

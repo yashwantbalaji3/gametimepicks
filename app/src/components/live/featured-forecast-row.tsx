@@ -20,6 +20,7 @@
 import PlayerAvatar from "@/components/player-avatar";
 import type { FeaturedForecast, LiveModelStatus } from "@/lib/live/nfl-hub-data";
 import ForecastDetail from "./forecast-detail";
+import { TD_FINAL_WORDS } from "@/lib/live/featured-forecasts.mjs";
 
 export interface ForecastTracking {
   rail: string;
@@ -28,6 +29,8 @@ export interface ForecastTracking {
   ageMs: number | null;
   stale: boolean;
   status: string;
+  /** Session 6 · anytime-TD final state (null unless the row is binary and the game is over). */
+  tdFinal?: "SCORED" | "NONE_AT_FINAL" | "NONE_AT_LAST_READ" | "NOT_MEASURED" | null;
   /** The settlement owner's canonical answer, verbatim — present only when the row is CANONICAL. */
   settlement?: { state: string; forecastResult: string | null; lineResult: string | null; finalStat: number | null } | null;
   landmarks: { line: number | null; gtp: number | null; live: number | null; liveOverflow: boolean } | null;
@@ -139,7 +142,7 @@ export default function FeaturedForecastRow({ f, t, final, modelStatus = null, l
             <span style={{ minWidth: 0, gridColumn: "span 2" }}>
               <span style={S.numLabel}>{final ? "Final status" : "Live status"}</span>
               <span style={!final && measured !== null && measured >= 1 ? S.tdTextLive : S.tdText}>
-                {final ? (measured !== null && measured >= 1 ? "Touchdown scored" : "No TD recorded") : t.status}
+                {final ? TD_FINAL_WORDS[t.tdFinal ?? "NOT_MEASURED"] : t.status}
               </span>
             </span>
           </div>
