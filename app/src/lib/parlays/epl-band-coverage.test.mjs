@@ -84,7 +84,7 @@ function runBuilder(capture, extraArgs, now) {
   const tmp = path.join(os.tmpdir(), `gtp-epl-odds-${process.pid}-${Math.abs(now.length * 31 + extraArgs.length)}.json`);
   try {
     fs.writeFileSync(tmp, JSON.stringify(capture));
-    execFileSync("node", [path.join(APP, "scripts/epl/build-epl-ladder.mjs"), "--now", now, "--odds", tmp, ...extraArgs], { cwd: APP, encoding: "utf8" });
+    execFileSync("npx", ["tsx", path.join(APP, "scripts/epl/build-epl-ladder.mjs"), "--now", now, "--odds", tmp, ...extraArgs], { cwd: APP, encoding: "utf8" });
   } finally {
     fs.rmSync(tmp, { force: true });
   }
