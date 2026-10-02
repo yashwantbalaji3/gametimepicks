@@ -93,7 +93,7 @@ test("an uploaded slip is read by the SAME engine as our own cards, and claims n
   assert.match(panel, /from "@\/lib\/parlays\/lab\/slip-insight\.mjs"/, "one engine, not a second implementation");
   assert.match(panel, /not this slip, which has\s+not settled and which nothing here can predict/);
   assert.match(code(CONFIRM), /<SlipReadPanel/, "the read is shown BEFORE saving");
-  assert.match(code("src/app/account/page.tsx"), /loadRiskLadderRecord/, "the band record comes from the published ladder");
+  assert.match(code("src/app/account/page.tsx"), /loadPublishedBandRecord\(dataRoot\)/, "the band record is the published cards (founder decision D1)");
 });
 
 test("the record's trend keeps quiet weeks visible", () => {

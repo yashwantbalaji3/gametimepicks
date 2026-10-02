@@ -27,6 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCommittedCoverage, marketContextFamilies, partitionByLegEligibility, marketContextReason } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 import { slipHasNotStarted } from "../../src/lib/parlays/started-guard.mjs";
+import { publishedBandRecord } from "../../src/lib/parlays/published-band-record.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const GRADED = path.join(APP, "public", "data", "parlays", "optimizer-graded");
@@ -294,6 +295,8 @@ const BAND_MAX_LEGS = { low: 2, medium: 3, high: 4, longshot: 5 };
 const MAX_LEGS = 5;
 const SCORE_TIE = 0.02;             // within 2% of the best score counts as a tie on score
 
+// D1 · the published-card record by band, read once from the lab ledger (the owner that settles published cards).
+const PUBLISHED = publishedBandRecord(readJson(path.join(APP, "public", "data", "parlays", "lab-ledger.json")), "mlb");
 const cards = [];
 const skipped = [];
 const usedLegs = new Set();
@@ -342,11 +345,13 @@ for (const tier of TIERS) {
       odds: l.oddsForSide, result: l.result ?? null,
     })),
     status: String(best.status ?? "pending").toLowerCase(),
-    // The tier's own history travels WITH the card, so a reader never sees the pick without it.
-    tierRecord: {
-      wins: record[tier].wins, losses: record[tier].losses,
-      hitRate: record[tier].hitRate, roi: record[tier].roi,
-    },
+    /*
+     * The band's history travels WITH the card, so a reader never sees the pick without it — and it is the
+     * PUBLISHED cards' history (founder decision D1, Session 5): the lab ledger's MLB stream, settled from the
+     * cards this ladder actually published. The candidate pool (`record` above) is model detail and never rides
+     * on a card. A band with no settled published card carries null — "no settled card yet", never a stand-in.
+     */
+    tierRecord: PUBLISHED?.byTier?.[tier] ?? null,
   });
 }
 
@@ -531,6 +536,6 @@ for (const t of bettorTiers) {
 }
 console.log(`risk ladder ${DATE}: ${cards.length}/4 tiers carded${skipped.length ? ` · skipped ${skipped.map((s) => s.tier).join(", ")}` : ""}`);
 for (const c of cards) {
-  console.log(`  ${c.tierLabel.padEnd(12)} ${String(c.combinedAmerican > 0 ? "+" : "") + c.combinedAmerican} · ${c.legs.length} legs · tier record ${c.tierRecord.wins}-${c.tierRecord.losses} (roi ${c.tierRecord.roi == null ? "—" : (c.tierRecord.roi * 100).toFixed(1) + "%"})`);
+  console.log(`  ${c.tierLabel.padEnd(12)} ${String(c.combinedAmerican > 0 ? "+" : "") + c.combinedAmerican} · ${c.legs.length} legs · published band record ${c.tierRecord ? `${c.tierRecord.wins}-${c.tierRecord.losses} (roi ${c.tierRecord.roi == null ? "—" : (c.tierRecord.roi * 100).toFixed(1) + "%"})` : "none settled"}`);
 }
 console.log(`  lifetime ${payload.record.overall.wins}-${payload.record.overall.losses} across ${payload.record.gradedDays} graded days · roi ${(payload.record.overall.roi * 100).toFixed(1)}%`);

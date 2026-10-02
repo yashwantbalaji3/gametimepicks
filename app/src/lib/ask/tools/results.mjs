@@ -32,6 +32,10 @@
  */
 import { ASK_ERROR, ASK_STATUS, askAssetPath } from "../contract.mjs";
 
+/* Mirrors projection-core MODEL_DETAIL_RECORD_TYPES (pinned equal by record-population-labels.test.mjs); the Ask
+   runtime does not import the projection builder. */
+export const MODEL_DETAIL_RECORD_TYPES = Object.freeze(["CANDIDATE_POOL_RECORD"]);
+
 const PRODUCT_LABEL = { "bank-builder": "Bank Builder", moonshot: "Moonshot", "parlay-lab": "Parlay Lab" };
 const PRODUCT_HREF = { "bank-builder": "/bank-builder/", moonshot: "/moonshot/", "parlay-lab": "/results/" };
 
@@ -118,7 +122,10 @@ export async function getProductRecord(args, ctx) {
     };
   }
 
-  const own = (doc.cells ?? []).filter((c) => c.product === product || (c.family === "lab" && product === "parlay-lab"));
+  /* D1 (Session 5): the candidate pool is model detail — never a component or a legacy row of a product record. */
+  const own = (doc.cells ?? [])
+    .filter((c) => c.product === product || (c.family === "lab" && product === "parlay-lab"))
+    .filter((c) => !MODEL_DETAIL_RECORD_TYPES.includes(c.recordType));
 
   /*
    * THE OTHER CURRENT-ERA CELLS, listed and NOT added. A composite record is shown with its era

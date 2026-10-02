@@ -37,7 +37,13 @@ export const RECORD_TYPES = Object.freeze({
   CYCLE_COMPLETION: "CYCLE_COMPLETION",   // ladders completed / lost / open — never a W–L
   CALIBRATION_STATE: "CALIBRATION_STATE", // a model family's state word + n — never a number
   ERA_GAP: "ERA_GAP",                     // a disclosed hole in an owner's coverage — counts null
+  /* Founder decision D1 (Session 5): every optimizer CANDIDATE slip graded. Research / model detail — never a
+     product record, never a headline, never offered to Ask as a component of the published record. */
+  CANDIDATE_POOL_RECORD: "CANDIDATE_POOL_RECORD",
 });
+
+/** Record types that are model detail, not a public track record (D1). */
+export const MODEL_DETAIL_RECORD_TYPES = Object.freeze([RECORD_TYPES.CANDIDATE_POOL_RECORD]);
 
 /** The headline families. Never summed across; each has at most ONE designated headline cell. */
 export const FAMILIES = Object.freeze({
@@ -750,7 +756,7 @@ function labCells(src, push) {
     const stamp = { path: riskLadder.path, generatedAt: strOrNull(riskLadder.doc.generatedAt), stampField: "generatedAt" };
     if (r.overall && isInt(r.overall.wins) && isInt(r.overall.losses)) {
       overall = makeCell({
-        recordType: RECORD_TYPES.LAB_CARD_RECORD, family: FAMILIES.LAB, sport: null, product: "parlay-lab", segment: "risk-ladder-overall",
+        recordType: RECORD_TYPES.CANDIDATE_POOL_RECORD, family: FAMILIES.LAB, sport: null, product: "parlay-lab", segment: "risk-ladder-overall",
         era: ERAS.UNSEGMENTED_WINDOW, modelOrPolicyVersion: null,
         counts: { won: r.overall.wins, lost: r.overall.losses, pending: null, push: null, void: null },
         owner: stamp, window: { from: strOrNull(r.firstDay), to: strOrNull(r.lastDay) },
@@ -763,7 +769,7 @@ function labCells(src, push) {
     for (const [tier, t] of Object.entries(r.byTier ?? {})) {
       if (!isInt(t?.wins) || !isInt(t?.losses)) continue;
       push(makeCell({
-        recordType: RECORD_TYPES.LAB_CARD_RECORD, family: FAMILIES.LAB, sport: null, product: "parlay-lab", market: tier, segment: `risk-ladder-tier-${tier}`,
+        recordType: RECORD_TYPES.CANDIDATE_POOL_RECORD, family: FAMILIES.LAB, sport: null, product: "parlay-lab", market: tier, segment: `risk-ladder-tier-${tier}`,
         era: ERAS.UNSEGMENTED_WINDOW, modelOrPolicyVersion: null,
         counts: { won: t.wins, lost: t.losses, pending: intOrNull(t.pending), push: intOrNull(t.pushes), void: null },
         owner: stamp, window: { from: strOrNull(r.firstDay), to: strOrNull(r.lastDay) },
@@ -886,7 +892,9 @@ export function buildProjection(sources, { now }) {
   const byFamily = {
     [FAMILIES.PRODUCT]: find((c) => c.product === "bank-builder" && c.segment === "protected-record" && !LEGACY_ERAS.includes(c.era)),
     [FAMILIES.FORECAST]: find((c) => c.family === FAMILIES.FORECAST && c.sport === "mlb" && c.segment === "lifetime-summary") ?? find((c) => c.family === FAMILIES.FORECAST && c.sport === "mlb"),
-    [FAMILIES.LAB]: find((c) => c.family === FAMILIES.LAB && c.segment === "risk-ladder-overall"),
+    /* Founder decision D1 (Session 5): the public Lab record is the PUBLISHED cards — the lab ledger's MLB stream
+       (one card per risk level a day). The candidate pool (risk-ladder-overall) is model detail, never a headline. */
+    [FAMILIES.LAB]: find((c) => c.family === FAMILIES.LAB && c.recordType === RECORD_TYPES.LAB_CARD_RECORD && c.segment === "stream" && c.sport === "mlb"),
     [FAMILIES.CYCLE]: null,        // a table, never a headline figure
     [FAMILIES.MODEL_FAMILY]: null, // state words, never a headline figure
   };

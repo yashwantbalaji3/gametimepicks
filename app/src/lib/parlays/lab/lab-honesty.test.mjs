@@ -31,9 +31,9 @@ test("the price's chance is labelled as including the margin, beside the measure
   // code(), not prose(): these strings live in JSX attributes (sub="..."), which the tag-stripper removes.
   const m = code(LAB[1]);
   assert.match(m, /include the sportsbook's margin/);
-  assert.match(m, /What every candidate at this risk level has done/);
-  assert.match(m, /decided candidate slips at this level landed/, "the record names its sample — the optimizer candidate pool, not the published cards (Session 5)");
-  assert.match(m, /not only the cards published here/);
+  assert.match(m, /What our published cards at this risk level have done/);
+  assert.match(m, /decided published cards at this level landed/, "the record names its sample — the published cards (founder decision D1, Session 5)");
+  assert.match(m, /not a performance claim/);
 });
 
 test("the reader's numbers stay in their browser: the lab reuses the prefs store and sends nothing", () => {
@@ -79,6 +79,6 @@ test("the stand-in is offered as a trade and applied only on a tap", () => {
 
 test("the builder renders the gauges, and the page supplies the published band record", () => {
   assert.match(code("src/components/build-experience.tsx"), /<SlipGauges[\s\S]{0,200}byTier=\{bandByTier\}/);
-  assert.match(code("src/app/build/custom/page.tsx"), /loadRiskLadderRecord\(dataRoot\)\?\.byTier \?\? null/);
+  assert.match(code("src/app/build/custom/page.tsx"), /loadPublishedBandRecord\(dataRoot\)\?\.byTier \?\? null/);
   assert.match(code("src/app/build/custom/page.tsx"), /bandByTier=\{bandByTier\}/);
 });

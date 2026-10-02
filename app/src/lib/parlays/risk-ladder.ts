@@ -14,6 +14,7 @@ import type { LadderCard, LadderSkip } from "@/components/parlays/risk-ladder-bo
 import type { BettorTier } from "@/components/parlays/parlay-lab-entry";
 import { buildLegRecord } from "@/lib/parlays/lab/leg-record.mjs";
 import { buildShapeRecord } from "@/lib/parlays/lab/card-shape.mjs";
+import { publishedBandRecord } from "@/lib/parlays/published-band-record.mjs";
 
 export interface TierRecord {
   readonly wins: number;
@@ -40,6 +41,22 @@ export interface LabLedger {
     readonly wins: number; readonly losses: number; readonly roi: number | null; readonly note: string;
     readonly firstDay: string | null; readonly lastDay: string | null;
   };
+}
+
+/**
+ * D1 (Session 5) · the PUBLISHED cards' record by band — the only band record a public surface shows (builder,
+ * slip reader, chance meter). The candidate pool (`loadRiskLadderRecord`) is model detail.
+ */
+export function loadPublishedBandRecord(root: string, sport = "mlb"): PublishedBandRecord | null {
+  return publishedBandRecord(loadLabLedger(root), sport) as PublishedBandRecord | null;
+}
+export interface PublishedBandRecord {
+  readonly population: "PUBLISHED_CARDS";
+  readonly sport: string;
+  readonly since: string | null;
+  readonly settledDays: number;
+  readonly record: { readonly wins: number; readonly losses: number; readonly pushes: number; readonly hitRate: number | null; readonly roi: number | null };
+  readonly byTier: Readonly<Record<string, { readonly wins: number; readonly losses: number; readonly pushes: number; readonly hitRate: number | null; readonly roi: number | null; readonly population: string; readonly since: string | null }>>;
 }
 
 export function loadLabLedger(root: string): LabLedger | null {

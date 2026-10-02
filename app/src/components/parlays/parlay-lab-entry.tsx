@@ -172,7 +172,7 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
               return (
                 <button key={r.key} type="button" aria-pressed={on}
                   onClick={() => update({ risk: on ? null : r.key })}
-                  title={gated ? `Suggested from ${money(tier!.minBankroll)} a day — ${tier!.worstLosingRun} straight losers in the graded run` : tier?.blurb}
+                  title={gated ? `Suggested from ${money(tier!.minBankroll)} a day — ${tier!.worstLosingRun} straight losers when replayed over every graded candidate slip (model detail, not our record)` : tier?.blurb}
                   className="gtp-slip-btn rounded-[7px] font-mono uppercase tracking-[0.1em]"
                   style={{
                     padding: "5px 10px", fontSize: 10, cursor: "pointer",
@@ -236,8 +236,9 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
               style={{ background: "color-mix(in srgb, var(--vault-warn) 10%, transparent)", border: "1px solid var(--vault-warn)" }}>
               <p className="m-0" style={{ color: "var(--vault-text)", fontSize: 12.5, lineHeight: 1.6 }}>
                 We suggest this tier from <strong>{money(matched.minBankroll)}</strong> a day, and you
-                entered {money(prefs.bankroll)}. It went <strong>{matched.worstLosingRun} cards</strong>{" "}
-                without a win in the graded run
+                entered {money(prefs.bankroll)}. Replayed over every graded candidate slip in its price bands — model
+                detail, not the record of cards we published — it went <strong>{matched.worstLosingRun} slips</strong>{" "}
+                without a win
                 {matched.medianDaysToWin != null ? `, and typically waits about ${matched.medianDaysToWin} days between wins` : ""}.
               </p>
               <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 11, lineHeight: 1.55 }}>

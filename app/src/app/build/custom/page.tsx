@@ -21,7 +21,7 @@ import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import { buildSeedableCards } from "@/lib/parlays/seedable-cards";
-import { loadRiskLadderRecord, loadGradedLegRecord, loadCardShapeRecord } from "@/lib/parlays/risk-ladder";
+import { loadPublishedBandRecord, loadGradedLegRecord, loadCardShapeRecord } from "@/lib/parlays/risk-ladder";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -61,7 +61,7 @@ export default function ParlayCenterCustomPage() {
   const seedableCards = buildSeedableCards(dataRoot, ladderDate);
   /* P261: the lab's settled record by price band. A built card has no record of its own; the published
      cards at the same price are the honest comparison, and the builder labels it as exactly that. */
-  const bandByTier = loadRiskLadderRecord(dataRoot)?.byTier ?? null;
+  const bandByTier = loadPublishedBandRecord(dataRoot)?.byTier ?? null; // D1: published cards only
   /* P268 · the settled record of the leg families our cards have used, aggregated at build time so
      the page ships eight rows rather than 74 days of graded legs. */
   const legRecord = loadGradedLegRecord(dataRoot);

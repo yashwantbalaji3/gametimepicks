@@ -11,7 +11,7 @@
 import path from "node:path";
 import AccountExperience from "@/components/accounts/account-experience";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import { loadRiskLadderRecord, loadGradedLegRecord } from "@/lib/parlays/risk-ladder";
+import { loadPublishedBandRecord, loadGradedLegRecord } from "@/lib/parlays/risk-ladder";
 
 export const metadata = {
   ...withRouteMetadata("/account/", {
@@ -29,7 +29,7 @@ export default function AccountPage() {
    * so in those words.
    */
   const dataRoot = path.join(process.cwd(), "public", "data");
-  const bandByTier = loadRiskLadderRecord(dataRoot)?.byTier ?? null;
+  const bandByTier = loadPublishedBandRecord(dataRoot)?.byTier ?? null; // D1: published cards only
   /* P268 · the same settled leg record the builder shows, so a slip someone uploaded is read against
      exactly what our own cards did with legs of that kind. */
   const legRecord = loadGradedLegRecord(dataRoot);

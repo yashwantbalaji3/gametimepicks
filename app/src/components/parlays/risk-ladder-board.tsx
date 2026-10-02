@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { isPublishedRecord } from "@/lib/parlays/published-band-record.mjs";
 import Link from "next/link";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
@@ -56,12 +57,21 @@ export interface LadderCard {
   readonly combinedAmerican: number;
   readonly legs: readonly LadderLeg[];
   readonly status: string;
+  /* D1 (Session 5): the PUBLISHED cards' record in this band (published-band-record.mjs), or null when none has
+     settled. An artifact written before D1 carried the candidate pool here, with no `population` — never shown. */
   readonly tierRecord: {
     readonly wins: number;
     readonly losses: number;
     readonly hitRate: number | null;
     readonly roi: number | null;
-  };
+    readonly population?: string;
+    readonly since?: string | null;
+  } | null;
+}
+
+/** The band record a card may show publicly: the published cards' own, or nothing. */
+export function publishedTierRecord(card: Pick<LadderCard, "tierRecord">): NonNullable<LadderCard["tierRecord"]> | null {
+  return isPublishedRecord(card.tierRecord) ? card.tierRecord : null;
 }
 
 export interface LadderSkip { readonly tier: string; readonly reason: string }
@@ -102,6 +112,31 @@ function LegRow({ leg, right }: { leg: LadderLeg; right?: React.ReactNode }) {
 }
 
 /**
+ * THE BAND'S RECORD BESIDE THE CARD — our published cards at this risk level, settled (founder decision D1).
+ * No settled published card yet is said as that; the candidate pool is never shown in its place.
+ */
+function BandRecordRow({ record, edited }: { record: NonNullable<LadderCard["tierRecord"]> | null; edited: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5" data-band-record={record ? "published" : "none"}
+      style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
+      <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+        {edited ? "Band as published · our cards" : "Our published cards in this band"}
+      </span>
+      {record ? (
+        <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+          {record.wins}&ndash;{record.losses} ·{" "}
+          <span style={{ color: (record.roi ?? 0) < 0 ? "var(--vault-danger)" : "var(--vault-success)" }}>
+            {signedPct(record.roi)}
+          </span>
+        </span>
+      ) : (
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>none settled yet</span>
+      )}
+    </div>
+  );
+}
+
+/**
  * ONE CARD, with its own edited state.
  *
  * A substitution changes only the card it was made on, and it is LOCAL: the published artifact is
@@ -137,18 +172,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
         </span>
       </div>
 
-      <div className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5"
-        style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-          {edited ? "Band as published · all candidates" : "All candidates in this band"}
-        </span>
-        <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-          {card.tierRecord.wins}&ndash;{card.tierRecord.losses} ·{" "}
-          <span style={{ color: (card.tierRecord.roi ?? 0) < 0 ? "var(--vault-danger)" : "var(--vault-success)" }}>
-            {signedPct(card.tierRecord.roi)}
-          </span>
-        </span>
-      </div>
+      <BandRecordRow record={publishedTierRecord(card)} edited={edited} />
 
       <ul className="flex flex-col gap-2 list-none m-0 p-0">
         {/*
@@ -351,18 +375,7 @@ export default function RiskLadderBoard({
             </div>
 
             {/* The tier's history, on the same row as its price. */}
-            <div className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5"
-              style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
-              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-                All candidates in this band
-              </span>
-              <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-                {c.tierRecord.wins}&ndash;{c.tierRecord.losses} ·{" "}
-                <span style={{ color: (c.tierRecord.roi ?? 0) < 0 ? "var(--vault-danger)" : "var(--vault-success)" }}>
-                  {signedPct(c.tierRecord.roi)}
-                </span>
-              </span>
-            </div>
+            <BandRecordRow record={publishedTierRecord(c)} edited={false} />
 
             <ul className="flex flex-col gap-2 list-none m-0 p-0">
               {c.legs.map((l, i) => <LegRow key={`${l.player}:${i}`} leg={l} />)}

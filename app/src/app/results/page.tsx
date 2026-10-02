@@ -32,7 +32,7 @@ import Link from "next/link";
 
 import ResultsAccountingSection from "@/components/research/results-accounting-section";
 import RiskLadderStream from "@/components/results/risk-ladder-stream";
-import { loadRiskLadderRecord } from "@/lib/parlays/risk-ladder";
+import { loadRiskLadderRecord, loadPublishedBandRecord } from "@/lib/parlays/risk-ladder";
 import path from "node:path";
 import ResultsMarketBenchmark from "@/components/research/results-market-benchmark";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
@@ -379,7 +379,10 @@ export default function ResultsPage() {
       {/* The risk-ladder stream, in its own lane. Deliberately AFTER the settled product record and
           visibly separate: these paper cards never move the bankroll, and the bankroll's record
           never lends them credibility. */}
-      <RiskLadderStream record={loadRiskLadderRecord(path.join(process.cwd(), "public", "data"))} />
+      <RiskLadderStream
+        published={loadPublishedBandRecord(path.join(process.cwd(), "public", "data"))}
+        candidates={loadRiskLadderRecord(path.join(process.cwd(), "public", "data"))}
+      />
 
       {/* Session 3 · THE AUDIT IS ONE TAP AWAY, NOT 15,000px OF SCROLL. Everything from here down — the legacy parlay-card
           performance, the day's breakdowns, the model audit and the methodology — measured ~15,300px of a 33,000px page

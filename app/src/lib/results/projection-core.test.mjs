@@ -404,7 +404,11 @@ test("rule 6 · recordLabelOrNull: null for an absent cell, a count-less cell, a
 test("rule 6 · the headline is never a legacy era; a legacy era is reachable only by explicit era request", () => {
   assert.equal(headlineFor(P, FAMILIES.PRODUCT).cellId, BB_COMPOSITE);
   assert.equal(headlineFor(P, FAMILIES.FORECAST).cellId, "forecast:mlb:-:LIVE_LEDGER:lifetime-summary");
-  assert.equal(headlineFor(P, FAMILIES.LAB).cellId, "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-overall");
+  // D1 (Session 5): the Lab headline is the PUBLISHED cards (lab-ledger MLB stream), never the candidate pool
+  assert.equal(headlineFor(P, FAMILIES.LAB).cellId, "lab:mlb:parlay-lab:POLICY_V2:stream");
+  assert.equal(P.headline.byProduct["parlay-lab"], "lab:mlb:parlay-lab:POLICY_V2:stream");
+  for (const c of P.cells.filter((x) => x.segment?.startsWith("risk-ladder-"))) assert.equal(c.recordType, RECORD_TYPES.CANDIDATE_POOL_RECORD, `${c.cellId} is model detail`);
+  for (const id of Object.values(P.headline.byFamily).concat(Object.values(P.headline.byProduct ?? {}))) if (id) assert.notEqual(cellById(P, id).recordType, RECORD_TYPES.CANDIDATE_POOL_RECORD, `${id}: a candidate-pool cell is never a headline`);
   assert.equal(headlineFor(P, FAMILIES.CYCLE), null);
   for (const [, id] of Object.entries(P.headline.byFamily)) if (id) assert.ok(!LEGACY_ERAS.includes(cellById(P, id).era));
   // an artifact whose headline points at a legacy era is refused by the reader (mutation probe)
