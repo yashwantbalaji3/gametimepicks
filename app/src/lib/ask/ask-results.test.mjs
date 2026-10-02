@@ -359,3 +359,16 @@ test("D1 · the Parlay Lab record is the published cards; candidate-pool cells a
   assert.ok(!ids.some((id) => id.includes("risk-ladder")), `no candidate-pool cell is offered: ${ids.join(", ")}`);
   assert.doesNotMatch(JSON.stringify(r), /383|1608|1,608/, "the candidate-pool figures never reach the writer");
 });
+
+test("D1 · a PRE-D1 artifact (pool typed LAB_CARD_RECORD and named the headline) still never answers with the pool", async () => {
+  const pool = { cellId: "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-overall", recordType: "LAB_CARD_RECORD", family: "lab", product: "parlay-lab", sport: null, segment: "risk-ladder-overall", era: "UNSEGMENTED_WINDOW", presentation: "CURRENT", n: 1991, counts: { won: 383, lost: 1608, pending: null, push: null, void: null }, decisive: 1991, hitRate: null, ownerState: null, window: { from: "2026-05-25", to: "2026-10-01" }, status: "LIVE", displayEligible: { eligible: true, reason: "pool" }, asOf: null };
+  const tier = { ...pool, cellId: "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-tier-low", segment: "risk-ladder-tier-low", counts: { won: 200, lost: 294, pending: 0, push: 1, void: null } };
+  const stream = { ...pool, cellId: "lab:mlb:parlay-lab:POLICY_V2:stream", sport: "mlb", segment: "stream", era: "POLICY_V2", n: 109, counts: { won: 21, lost: 88, pending: 0, push: 0, void: null }, window: { from: "2026-08-17", to: null } };
+  const doc = { ...FIXTURE, headline: { ...FIXTURE.headline, byProduct: { ...FIXTURE.headline.byProduct, "parlay-lab": pool.cellId } }, cells: [...FIXTURE.cells, pool, tier, stream] };
+  const r = await getProductRecord({ product: "parlay-lab" }, ctxWith(doc));
+  assert.equal(r.current.cellId, stream.cellId, "the reader resolves the stale headline to the published cards");
+  assert.doesNotMatch(JSON.stringify(r), /383|1608|294/);
+  const noStream = { ...doc, cells: [...FIXTURE.cells, pool, tier] };
+  const r2 = await getProductRecord({ product: "parlay-lab" }, ctxWith(noStream));
+  assert.equal(r2.error, "NOT_PUBLISHED", "no published stream → no figure, never the pool");
+});

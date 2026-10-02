@@ -94,6 +94,26 @@ test("D1 · source pins: the Lab headline selector and the two candidate-pool ce
   const ask = await import("../ask/tools/results.mjs");
   assert.deepEqual([...ask.MODEL_DETAIL_RECORD_TYPES], [...core.MODEL_DETAIL_RECORD_TYPES], "Ask mirrors the projection's model-detail types");
   const src = fs.readFileSync("src/lib/results/projection-core.mjs", "utf8");
-  assert.match(src, /\[FAMILIES\.LAB\]: find\(\(c\) => c\.family === FAMILIES\.LAB && c\.recordType === RECORD_TYPES\.LAB_CARD_RECORD && c\.segment === "stream" && c\.sport === "mlb"\)/);
+  assert.match(src, /\[FAMILIES\.LAB\]: find\(isPublishedLabHeadline\)/);
+  assert.match(src, /export const isPublishedLabHeadline = \(c\) => c\?\.family === FAMILIES\.LAB && c\?\.recordType === RECORD_TYPES\.LAB_CARD_RECORD && c\?\.segment === "stream" && c\?\.sport === "mlb";/);
   assert.equal((src.match(/recordType: RECORD_TYPES\.CANDIDATE_POOL_RECORD/g) ?? []).length, 2, "overall + per-band candidate cells are model detail");
+});
+
+test("D1 · projection readers never hand out a pre-D1 candidate headline", async () => {
+  const core = await import("./projection-core.mjs");
+  const pool = { cellId: "lab:-:parlay-lab:UNSEGMENTED_WINDOW:risk-ladder-overall", recordType: "LAB_CARD_RECORD", family: "lab", sport: null, segment: "risk-ladder-overall", era: "UNSEGMENTED_WINDOW" };
+  const stream = { cellId: "lab:mlb:parlay-lab:POLICY_V2:stream", recordType: "LAB_CARD_RECORD", family: "lab", sport: "mlb", segment: "stream", era: "POLICY_V2" };
+  const p = { headline: { byFamily: { lab: pool.cellId }, byProduct: { "parlay-lab": pool.cellId } }, cells: [pool, stream] };
+  assert.equal(core.headlineForProduct(p, "parlay-lab").cellId, stream.cellId);
+  assert.equal(core.headlineFor(p, "lab").cellId, stream.cellId);
+  assert.equal(core.headlineForProduct({ ...p, cells: [pool] }, "parlay-lab"), null);
+  assert.ok(core.isCandidatePoolCell(pool) && !core.isCandidatePoolCell(stream));
+  const ask = await import("../ask/tools/results.mjs");
+  for (const c of [pool, stream, { ...pool, recordType: "CANDIDATE_POOL_RECORD", segment: "x" }]) assert.equal(ask.isCandidatePoolCell(c), core.isCandidatePoolCell(c), "Ask mirrors the projection rule");
+  // The LIVE committed artifact: whatever its vintage, the reader's Lab headline is never the pool.
+  const dir = "public/data/results/projection";
+  const latest = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}(\.r\d+)?\.json$/.test(f)).sort().at(-1);
+  const live = JSON.parse(fs.readFileSync(`${dir}/${latest}`, "utf8"));
+  const h = core.headlineForProduct(live, "parlay-lab");
+  if (h) assert.ok(!core.isCandidatePoolCell(h), `${latest}: headline ${h.cellId}`);
 });
