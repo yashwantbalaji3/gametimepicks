@@ -332,7 +332,9 @@ export function nflHub(nowIso: string): SportHubModel {
     freshness: null,
     rows,
     present: ["games", "products", "simulations", "picks", "results"],
-    emptyReason: "No NFL games are on the board. Fresh NFL odds are not being captured — the paid acquisition allowance has lapsed and renewal is a founder decision.",
+    /* Session 5 · B8: the lapsed-allowance sentence was stale (NFL odds were re-authorised — ODDS_AUTHORIZATION_NFL_2026)
+       and contradicted the page's own note. The fallback only means the schedule capture holds no game. */
+    emptyReason: "No NFL games are in the committed schedule capture, so the hub shows the most recent window on file.",
   };
 }
 
