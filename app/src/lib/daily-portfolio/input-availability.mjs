@@ -28,7 +28,8 @@ const exists = (p) => { try { return fs.statSync(p).isFile(); } catch { return f
 /**
  * @param {string} root  public/data
  * @param {string} date  YYYY-MM-DD
- * @returns {{status: string, sources: Array<{path: string, present: boolean, games: number|null}>}}
+ * @param {string} [nowIso]  the run's clock (season-state evidence must be captured on the date's ET day, not after now)
+ * @returns {{status: string, sources: Array<{path: string, present: boolean, games: number|null}>, reason?: string}}
  */
 export function poolAvailability(root, date, nowIso = new Date().toISOString()) {
   const candidates = [
