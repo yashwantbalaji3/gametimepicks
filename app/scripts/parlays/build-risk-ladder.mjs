@@ -26,6 +26,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCommittedCoverage, marketContextFamilies, partitionByLegEligibility, marketContextReason } from "../../src/lib/parlays/card-leg-eligibility.mjs";
+import { slipHasNotStarted } from "../../src/lib/parlays/started-guard.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const GRADED = path.join(APP, "public", "data", "parlays", "optimizer-graded");
@@ -154,12 +155,23 @@ const bucketFor = (american) => BANDS.find(([, fits]) => fits(american))?.[0] ??
  * qualify, the tier is honestly short rather than quietly broken.
  */
 const gamePkByGameId = new Map();
+/* Session 5 · B10 — the start of each leg's game, from the same board row that gives its gamePk. */
+const startByGameId = new Map();
 try {
   const board = readJson(path.join(APP, "public", "data", "mlb", "boards", `${DATE}.json`));
   for (const r of board?.leans ?? []) {
     if (r.gameId && r.gamePk) gamePkByGameId.set(String(r.gameId), r.gamePk);
+    const start = Date.parse(r.scheduledStart ?? r.commenceTime ?? "");
+    if (r.gameId && Number.isFinite(start)) startByGameId.set(String(r.gameId), start);
   }
 } catch { /* no board — legs publish without a gamePk and stay ungraded */ }
+/*
+ * SESSION 5 · B10 — A LEG WHOSE GAME HAS STARTED IS NEVER A SUGGESTION. The ladder only required a gamePk
+ * (the 2026-08-27 fix), and daily-products rebuilds it several times a day (five runs on 10-01), so a mid-day
+ * run could publish a card on a game already under way. Fails closed: a leg with no known start is excluded.
+ */
+const nowMs = Date.parse(NOW);
+const notStarted = (s) => slipHasNotStarted(s, startByGameId, nowMs);
 
 const gradedToday = readJson(path.join(GRADED, `${DATE}.json`));
 /*
@@ -265,13 +277,16 @@ for (const tier of TIERS) {
     // Every leg must carry a settlement identity BEFORE the card is scored. See the note above the
     // gamePk map: a card containing a leg that can never grade can never grade itself.
     .filter((s) => (s.legs ?? []).every((l) => gamePkByGameId.get(String(l.gameId ?? "")) != null))
+    .filter(notStarted)
     .filter((s) => (s.legs ?? []).length <= (BAND_MAX_LEGS[tier] ?? MAX_LEGS))
     .filter((s) => (s.legs ?? []).every((l) => !usedLegs.has(legKey(l))));
   if (!pool.length) {
     skipped.push({
       tier,
       reason: poolByTier[tier].length
-        ? "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
+        ? (poolByTier[tier].some((s) => combinedDecimal(s) != null && (s.legs ?? []).every((l) => gamePkByGameId.get(String(l.gameId ?? "")) != null)) && !poolByTier[tier].some(notStarted)
+          ? "every candidate in this tier includes a game that had already started (or has no known start) when the ladder was built"
+          : "every card in this tier reused a leg already on the ladder, ran past the five-leg cap, or included a game that had already started")
         : withheldByTier[tier]
           ? marketContextReason([...withheldFamilies])
           : "no priced card in this tier on today's slate",
