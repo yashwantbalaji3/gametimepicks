@@ -29,7 +29,8 @@ const visibleText = (html) => html
   .replace(/\s+/g, " ");
 
 const index = fs.existsSync(path.join(DATA, "index.json")) ? JSON.parse(fs.readFileSync(path.join(DATA, "index.json"), "utf8")) : null;
-const newest = index?.weeks?.at(-1) ?? null;
+/* The page reports the newest GRADED week (week-report-data.ts isGradedWeek); an opened, ungraded week is not a report. */
+const newest = (index?.weeks ?? []).filter((w) => (w.overall?.checks ?? 0) > 0 && (w.gamesFinal ?? 0) > 0).at(-1) ?? null;
 const report = newest ? JSON.parse(fs.readFileSync(path.join(DATA, `${newest.key}.json`), "utf8")) : null;
 
 test("a reconciled week exists, so the checks below are not vacuous", () => {
