@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-02T08:17:08Z",
- "sourceGeneratedAt": "2026-10-02T08:17:08Z",
+ "generatedAt": "2026-10-02T15:44:46Z",
+ "sourceGeneratedAt": "2026-10-02T15:44:46Z",
  "providerEventId": "401872972",
  "matchup": "NYJ @ CHI",
  "kickoffUtc": "2026-10-04T17:00Z",
@@ -28,11 +28,6 @@
      "team": "CHI",
      "sum": 1.1704,
      "reason": "withheld for CHI: the players' modelled shares add up to 117% of the team's carries, more than exists — shown again once the shares are reconciled"
-    },
-    {
-     "team": "NYJ",
-     "sum": 1.0606,
-     "reason": "withheld for NYJ: the players' modelled shares add up to 106% of the team's carries, more than exists — shown again once the shares are reconciled"
     }
    ]
   },
@@ -101,38 +96,20 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 48,
+  "absent": 42,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "NYJ": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 7,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
-    {
-     "playerId": "nfl-athlete-4427366",
-     "name": "Breece Hall",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.061) — family withheld for NYJ, never renormalised"
-      }
-     ]
-    },
     {
      "playerId": "nfl-athlete-4569618",
      "name": "Garrett Wilson",
@@ -143,28 +120,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4597500",
-     "name": "Adonai Mitchell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
-     "playerId": "nfl-athlete-4808766",
-     "name": "Mason Taylor",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-5083315",
@@ -205,48 +160,48 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds"
+      "player_pass_yds",
+      "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.061) — family withheld for NYJ, never renormalised"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4035537",
      "name": "Kene Nwangwu",
      "state": "PROJECTED",
      "families": [
-      "anytime_td"
+      "anytime_td",
+      "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.061) — family withheld for NYJ, never renormalised"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4685247",
      "name": "Braelon Allen",
      "state": "PROJECTED",
      "families": [
-      "anytime_td"
+      "anytime_td",
+      "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.061) — family withheld for NYJ, never renormalised"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4427366",
+     "name": "Breece Hall",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4597500",
+     "name": "Adonai Mitchell",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4808766",
+     "name": "Mason Taylor",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4361418",
@@ -460,17 +415,6 @@
    },
    {
     "team": "NYJ",
-    "pool": "carries",
-    "markets": [
-     "player_rush_yds"
-    ],
-    "sum": 1.0606,
-    "joined": 4,
-    "missed": 0,
-    "state": "OVER_ALLOCATED"
-   },
-   {
-    "team": "NYJ",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -490,6 +434,17 @@
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
+   },
+   {
+    "team": "NYJ",
+    "pool": "carries",
+    "markets": [
+     "player_rush_yds"
+    ],
+    "sum": 0.4455,
+    "joined": 3,
+    "missed": 0,
+    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -521,36 +476,6 @@
     },
     "anytime_td": {
      "probability": 0.5784,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4427366",
-   "name": "Breece Hall",
-   "team": "NYJ",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 20.301,
-     "p10": 0,
-     "p25": 2.42,
-     "median": 14.52,
-     "p75": 30.63,
-     "p90": 50.56,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.894,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.4207,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -658,36 +583,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4597500",
-   "name": "Adonai Mitchell",
-   "team": "NYJ",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 40.964,
-     "p10": 5.59,
-     "p25": 16.44,
-     "median": 35.32,
-     "p75": 58,
-     "p90": 85.24,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 3.5,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 6,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.2517,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4431611",
    "name": "Caleb Williams",
    "team": "CHI",
@@ -714,6 +609,15 @@
    "team": "NYJ",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 21.8468,
+     "p10": 1.0776,
+     "p25": 4.2394,
+     "median": 13.0145,
+     "p75": 30.1283,
+     "p90": 54.4001,
+     "pricingState": "NOT_PROBED"
+    },
     "anytime_td": {
      "probability": 0.2269,
      "pricingState": "NOT_PROBED"
@@ -853,36 +757,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4808766",
-   "name": "Mason Taylor",
-   "team": "NYJ",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 23.9,
-     "p10": 0,
-     "p25": 6.94,
-     "median": 18.18,
-     "p75": 35.23,
-     "p90": 54.34,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.475,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1287,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4361372",
    "name": "Jeremy Ruckert",
    "team": "NYJ",
@@ -948,6 +822,15 @@
    "team": "NYJ",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 14.591,
+     "p10": 0.1859,
+     "p25": 1.5307,
+     "median": 6.8994,
+     "p75": 19.5594,
+     "p90": 39.2308,
+     "pricingState": "NOT_PROBED"
+    },
     "player_pass_yds": {
      "mean": 241.699,
      "p10": 129.2612,
@@ -981,6 +864,15 @@
    "team": "NYJ",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 10.5993,
+     "p10": 0,
+     "p25": 0.2393,
+     "median": 3.0308,
+     "p75": 12.929,
+     "p90": 31.0486,
+     "pricingState": "NOT_PROBED"
+    },
     "anytime_td": {
      "probability": 0.0835,
      "pricingState": "NOT_PROBED"

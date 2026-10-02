@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-02T08:17:08Z",
- "sourceGeneratedAt": "2026-10-02T08:17:08Z",
+ "generatedAt": "2026-10-02T15:44:46Z",
+ "sourceGeneratedAt": "2026-10-02T15:44:46Z",
  "providerEventId": "401872965",
  "matchup": "IND @ WSH",
  "kickoffUtc": "2026-10-04T13:30Z",
@@ -26,8 +26,8 @@
    "withheldTeams": [
     {
      "team": "WSH",
-     "sum": 1.5518,
-     "reason": "withheld for WSH: the players' modelled shares add up to 155% of the team's carries, more than exists — shown again once the shares are reconciled"
+     "sum": 1.3333,
+     "reason": "withheld for WSH: the players' modelled shares add up to 133% of the team's carries, more than exists — shown again once the shares are reconciled"
     },
     {
      "team": "IND",
@@ -122,7 +122,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 52,
+  "absent": 51,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -295,8 +295,8 @@
   },
   "WSH": {
    "counts": {
-    "PROJECTED": 14,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 13,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -339,7 +339,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.552) — family withheld for WSH, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.333) — family withheld for WSH, never renormalised"
       }
      ]
     },
@@ -357,7 +357,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.552) — family withheld for WSH, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.333) — family withheld for WSH, never renormalised"
       }
      ]
     },
@@ -419,7 +419,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.552) — family withheld for WSH, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.333) — family withheld for WSH, never renormalised"
       }
      ]
     },
@@ -438,36 +438,15 @@
      "name": "Marcus Mariota",
      "state": "PROJECTED",
      "families": [
-      "anytime_td"
+      "anytime_td",
+      "player_pass_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN",
      "notModeled": [
       {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      },
-      {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.552) — family withheld for WSH, never renormalised"
-      }
-     ]
-    },
-    {
-     "playerId": "nfl-athlete-4426348",
-     "name": "Jayden Daniels",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds"
-     ],
-     "participation": "QUESTIONABLE",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.552) — family withheld for WSH, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.333) — family withheld for WSH, never renormalised"
       }
      ]
     },
@@ -483,7 +462,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.552) — family withheld for WSH, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.333) — family withheld for WSH, never renormalised"
       }
      ]
     },
@@ -499,9 +478,15 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.552) — family withheld for WSH, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.333) — family withheld for WSH, never renormalised"
       }
      ]
+    },
+    {
+     "playerId": "nfl-athlete-4426348",
+     "name": "Jayden Daniels",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-3930066",
@@ -538,21 +523,11 @@
    },
    {
     "team": "WSH",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4426348",
-     "name": "Jayden Daniels"
-    },
-    "snapshotAt": "2026-09-30T13:37:56Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-2576980",
-      "name": "Marcus Mariota"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
-     "nfl-athlete-4426348"
-    ]
+     "nfl-athlete-2576980"
+    ],
+    "removed": []
    }
   ],
   "pools": [
@@ -562,8 +537,8 @@
     "markets": [
      "player_rush_yds"
     ],
-    "sum": 1.5518,
-    "joined": 7,
+    "sum": 1.3333,
+    "joined": 6,
     "missed": 0,
     "state": "OVER_ALLOCATED"
    },
@@ -595,10 +570,10 @@
     "markets": [
      "player_pass_yds"
     ],
-    "sum": 0.7819,
+    "sum": 0.7356,
     "joined": 1,
     "missed": 0,
-    "state": "CONSERVED"
+    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -971,27 +946,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4426348",
-   "name": "Jayden Daniels",
-   "team": "WSH",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 155.7128,
-     "p10": 73.415,
-     "p25": 103.0835,
-     "median": 144.7539,
-     "p75": 196.4598,
-     "p90": 252.2124,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1463,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4567156",
    "name": "Treylon Burks",
    "team": "WSH",
@@ -1102,6 +1056,15 @@
    "team": "WSH",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 162.5109,
+     "p10": 76.0942,
+     "p25": 107.1708,
+     "median": 150.9095,
+     "p75": 205.2732,
+     "p90": 263.9644,
+     "pricingState": "NOT_PROBED"
+    },
     "anytime_td": {
      "probability": 0.0816,
      "pricingState": "NOT_PROBED"
