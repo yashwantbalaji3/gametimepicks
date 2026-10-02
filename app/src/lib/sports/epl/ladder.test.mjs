@@ -84,8 +84,21 @@ test("BANDS ARE PRICE RANGES, assigned by the canonical bucket function", () => 
   }
 });
 
+/* The producer's WHOLE-LADDER refusals (build-epl-ladder.mjs): no bands are attempted, so none can be
+   carded or skipped — the refusal must carry its reason and nothing else. 2026-10-02: STALE_PRICES (the newest
+   capture was 09-19) and this guard demanded four bands of a ladder that correctly built none. */
+const WHOLE_LADDER_REFUSALS = new Set(["NO_PRICES", "STALE_PRICES"]);
+
+test("a whole-ladder refusal states its reason and publishes nothing", () => {
+  if (!ladder || !WHOLE_LADDER_REFUSALS.has(ladder.state)) return;
+  assert.ok(ladder.reason?.length > 0, `${ladder.state}: a refused ladder must say why`);
+  assert.deepEqual(ladder.cards, [], "a refused ladder publishes no card");
+  assert.deepEqual(ladder.skipped, []);
+});
+
 test("an unreachable band is SKIPPED with its reason — thresholds are never widened", () => {
-  if (!ladder) return;
+  if (!ladder || WHOLE_LADDER_REFUSALS.has(ladder.state)) return;
+  assert.equal(ladder.state, "PUBLISHED", `unknown ladder state ${ladder.state} — a new refusal must be named, never passed silently`);
   for (const s of ladder.skipped ?? []) {
     assert.ok(s.reason?.length > 0, `${s.tier}: a skipped band must say why`);
   }
