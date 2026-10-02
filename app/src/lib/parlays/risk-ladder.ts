@@ -164,6 +164,30 @@ export interface RiskLadder {
   };
 }
 
+/**
+ * D3 (Session 5) · MLB's own season state (mlb/season-state.json, capture-mlb-season-state.mjs), or null.
+ * Read by every MLB card surface so an off-season never shows last season's cards as a current slate.
+ */
+export interface MlbSeasonStateDoc { readonly date: string; readonly state: string; readonly reason: string; readonly generatedAt?: string }
+export function loadMlbSeasonState(root: string): MlbSeasonStateDoc | null {
+  try { return JSON.parse(fs.readFileSync(path.join(root, "mlb", "season-state.json"), "utf8")) as MlbSeasonStateDoc; }
+  catch { return null; }
+}
+
+/**
+ * The ladder a page may show as MLB's current card set. Once StatsAPI says the season is over (OFF_SEASON, derived
+ * from no game remaining), a ladder dated on or before that capture is not shown (on the day itself it can only be an empty no-slate ladder) — the tiers carry the
+ * season reason instead. UNKNOWN / missing evidence changes nothing (fail closed to the existing behaviour).
+ */
+export function inSeasonLadder(ladder: RiskLadder | null, season: MlbSeasonStateDoc | null): { ladder: RiskLadder | null; offSeasonReason: string | null } {
+  return isOffSeasonFor(ladder?.date ?? null, season)
+    ? { ladder: null, offSeasonReason: `The MLB season is over — ${season!.reason}. Cards return when games do.` }
+    : { ladder, offSeasonReason: null };
+}
+export function isOffSeasonFor(cardDate: string | null, season: MlbSeasonStateDoc | null): boolean {
+  return season?.state === "OFF_SEASON" && typeof season.date === "string" && (cardDate == null || cardDate <= season.date);
+}
+
 /** The ladder for `date`, or null when none was published for it. */
 export function loadRiskLadder(root: string, date: string): RiskLadder | null {
   try {

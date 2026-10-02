@@ -92,7 +92,7 @@ let portfolioSource = null;
  * for this date, and only evaluates (with the live activation policy, exactly as
  * activate-daily-portfolio.mjs --apply does) when no published portfolio for the date exists.
  */
-if (board && !arg("--mlb-unavailable", null)) {
+if (board && !arg("--mlb-unavailable", null) && !arg("--mlb-off-season", null)) {
   const published = read(path.join(DATA, "mr-dub", "daily-portfolio.json"));
   if (published?.date === DATE && Array.isArray(published.lanes)) {
     portfolio = published;
@@ -113,9 +113,19 @@ if (board && !arg("--mlb-unavailable", null)) {
  * receipt says INPUTS_MISSING with that reason — never a live re-evaluation over the pool the gate refused.
  */
 const MLB_UNAVAILABLE = arg("--mlb-unavailable", null);
+/* D3 (Session 5): MLB is out of season by StatsAPI's own schedule (no game remains) — the money products are not in
+   today's universe. That is a calendar fact, not an operational gap (INPUTS_MISSING) and not a decision (NO_PLAY). */
+const MLB_OFF_SEASON = arg("--mlb-off-season", null);
 
 /** Turn one product's lanes into a receipt entry, preserving the policy's own reasons. */
 function productEntry(product, label) {
+  if (MLB_OFF_SEASON) {
+    return {
+      product, label, state: "OFF_SEASON",
+      reason: `MLB is out of season for ${DATE}: ${MLB_OFF_SEASON}. ${label} is not in the daily product universe until games return.`,
+      candidatesEvaluated: 0, rejections: [], card: null,
+    };
+  }
   if (MLB_UNAVAILABLE) {
     return {
       product, label, state: "INPUTS_MISSING",
@@ -241,7 +251,9 @@ const ufcCards = sportLadderEntry("ufc-cards", "UFC paper cards", "ufc");
 const eplCards = sportLadderEntry("epl-cards", "EPL paper cards", "epl");
 /* P243 · D-1: the MLB risk ladder settles daily and the multi grid freezes per-date — both were
    settled streams outside the governed set. The MLB ladder's dir carries no sport suffix. */
-const mlbCards = sportLadderEntry("mlb-cards", "MLB suggested cards", "mlb", "risk-ladder");
+const mlbCards = MLB_OFF_SEASON
+  ? { product: "mlb-cards", label: "MLB suggested cards", state: "OFF_SEASON", reason: `MLB is out of season for ${DATE}: ${MLB_OFF_SEASON}`, candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: true }
+  : sportLadderEntry("mlb-cards", "MLB suggested cards", "mlb", "risk-ladder");
 const multiCards = (() => {
   const dated = read(path.join(DATA, "parlays", "tier-grid", `multi-${DATE}.json`));
   const latest = read(path.join(DATA, "parlays", "tier-grid", "multi-latest.json"));
