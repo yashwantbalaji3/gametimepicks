@@ -25,12 +25,26 @@ import { MOONSHOT_LADDER } from "../moonshot/moonshot-ladder.mjs";
 const APP = process.cwd();
 const read = (f) => JSON.parse(fs.readFileSync(path.join(APP, "public/data/mr-dub", f), "utf8"));
 const clone = (x) => JSON.parse(JSON.stringify(x));
-const REAL = {
-  portfolio: read("portfolio.json"),
-  ledgerEvents: read("ledger.json").events,
-  summaryDays: read("daily-summary.json").days,
-  receipts: readReceiptsFrom(APP).filter((r) => r.date <= "2026-10-01"),
-};
+/*
+ * THE SCENARIOS RUN ON A FROZEN RECORD, NOT ON TODAY'S. The first version used the live record and pinned
+ * "folded through 2026-10-01" — true when written, false the next night (the fold reached 10-02), the
+ * world-state-pin class. The synthetic runs below start on 10-03, so they need a record that stops at a
+ * fixed day forever: the protected record re-folded from the write-once receipts through CUT, with the ledger
+ * and day chain cut at the same day. Live invariants (byte-identical folded days) use the record's OWN
+ * foldedThrough instead — see the second test.
+ */
+const CUT = "2026-10-01";
+const LIVE = { portfolio: read("portfolio.json"), receipts: readReceiptsFrom(APP) };
+const REAL = (() => {
+  const receipts = LIVE.receipts.filter((r) => r.date <= CUT);
+  const fold = foldReceipts(receipts);
+  return {
+    portfolio: applyFold(LIVE.portfolio, fold, { foldedAt: "2026-10-02T06:00:00Z", receipts }),
+    ledgerEvents: read("ledger.json").events.filter((e) => !(e.category === "protected_fold" && e.date > CUT)),
+    summaryDays: read("daily-summary.json").days.filter((d) => !(d.protectedFold && d.date > CUT)),
+    receipts,
+  };
+})();
 const BB_LADDER = LADDER_GOALS["bank-builder"].map((goal, i) => ({ step: i + 1, goal }));
 
 const lane = (product, laneId, step, stake, result, potentialReturn) => ({
@@ -71,10 +85,13 @@ const verdict = (data) => {
   return { ok: m.ok && inv.ok, reasons: [...m.reasons, ...inv.reasons], m };
 };
 
-test("the policy is C1, versioned, and prospective from the first unfolded day", () => {
+test("the policy is C1, versioned, and prospective from the first day unfolded when it was adopted", () => {
   assert.equal(COMPLETION_POLICY.id, "COMPLETION_BANKING_C1");
-  assert.equal(REAL.portfolio.protectedFold.foldedThrough, "2026-10-01");
-  assert.ok(COMPLETION_POLICY.effectiveFrom > REAL.portfolio.protectedFold.foldedThrough, "C1 must not reach into a folded day");
+  assert.equal(COMPLETION_POLICY.effectiveFrom, "2026-10-02", "adopted while the record was folded through 2026-10-01");
+  assert.deepEqual(REAL.portfolio.protectedFold.foldedThrough, CUT);
+  assert.deepEqual(reconcileMoney(REAL).reasons, [], "the frozen scenario record is itself a reconciled record");
+  /* No day folded before the policy carries a completion — C1 never reached backwards. */
+  assert.ok((LIVE.portfolio.protectedFold.days ?? []).every((d) => !d.completions || d.date >= COMPLETION_POLICY.effectiveFrom));
   assert.deepEqual(LADDER_GOALS.moonshot, MOONSHOT_LADDER.map((r) => r.goal), "Moonshot goals pinned to the live ladder");
   const src = fs.readFileSync(path.join(APP, "src/lib/bank-builder-ladder.ts"), "utf8");
   const goals = [...src.matchAll(/step:\s*\d+,\s*start:\s*\d+,\s*goal:\s*(\d+)/g)].map((m) => Number(m[1]));
@@ -84,10 +101,12 @@ test("the policy is C1, versioned, and prospective from the first unfolded day",
 test("no historical receipt completes a ladder, so C1 changes no folded day (receipts and record unchanged)", () => {
   const all = readReceiptsFrom(APP);
   assert.deepEqual(all.flatMap((r) => (r.lanes ?? []).filter(completesLadder).map((l) => `${r.date} ${l.product} ${l.lane}`)), []);
-  const fresh = foldReceipts(REAL.receipts);
-  assert.equal(JSON.stringify(fresh.days), JSON.stringify(REAL.portfolio.protectedFold.days), "every folded day byte-identical under C1");
-  assert.ok(fresh.days.every((d) => !("completions" in d)));
-  assert.deepEqual(checkProtectedLedger(REAL.portfolio, REAL.receipts).reasons, []);
+  /* LIVE: whatever the nightly fold has reached, every folded day re-folds byte-identically under C1. */
+  const through = LIVE.portfolio.protectedFold.foldedThrough;
+  const fresh = foldReceipts(LIVE.receipts.filter((r) => r.date <= through));
+  assert.equal(JSON.stringify(fresh.days), JSON.stringify(LIVE.portfolio.protectedFold.days), "every folded day byte-identical under C1");
+  assert.ok(fresh.days.every((d) => !("completions" in d) || d.date >= COMPLETION_POLICY.effectiveFrom));
+  assert.deepEqual(checkProtectedLedger(LIVE.portfolio, LIVE.receipts).reasons, []);
 });
 
 test("Bank Builder completion above target banks final − seed once; the lane restarts; the fold keeps going", () => {
