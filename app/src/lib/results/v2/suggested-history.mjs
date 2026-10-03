@@ -10,8 +10,8 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-
-export const TIER_LABEL = Object.freeze({ low: "Low risk", medium: "Medium risk", high: "High risk", longshot: "Longshot" });
+/* D2 · one risk taxonomy: tier labels come from their single owner, never a second table here. */
+import { publicRiskLabel } from "../../parlays/risk-odds-bands.mjs";
 const RESULT = Object.freeze({ win: "won", won: "won", loss: "lost", lost: "lost", push: "push", void: "void" });
 const TIERS = ["low", "medium", "high", "longshot"];
 const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
@@ -37,7 +37,7 @@ export function suggestedCardsFor(date, dataRoot = path.join(process.cwd(), "pub
       const s = c.slipId ? bySlip.get(c.slipId) : null;
       const legGrades = Array.isArray(s?.legs) && s.legs.length === (c.legs ?? []).length ? s.legs : null;
       return {
-        tier: c.tier, tierLabel: TIER_LABEL[c.tier] ?? c.tier, combinedAmerican: c.combinedAmerican ?? null,
+        tier: c.tier, tierLabel: publicRiskLabel(c.tier) ?? c.tier, combinedAmerican: c.combinedAmerican ?? null,
         result: RESULT[String(s?.result ?? "").toLowerCase()] ?? "pending",
         legs: (c.legs ?? []).map((g, i) => ({
           player: g.player ?? null, team: g.team ?? null, market: g.marketLabel ?? g.market ?? null, side: g.side ?? null,
@@ -46,7 +46,7 @@ export function suggestedCardsFor(date, dataRoot = path.join(process.cwd(), "pub
         })),
       };
     });
-  const skipped = (ladder.skipped ?? []).map((x) => ({ tier: x.tier, tierLabel: TIER_LABEL[x.tier] ?? x.tier, reason: x.reason ?? null }));
+  const skipped = (ladder.skipped ?? []).map((x) => ({ tier: x.tier, tierLabel: publicRiskLabel(x.tier) ?? x.tier, reason: x.reason ?? null }));
   if (!cards.length && !skipped.length) return null;
   return { date, generatedAt: ladder.generatedAt ?? null, settledAt: settled?.settledAt ?? null, cards, skipped };
 }

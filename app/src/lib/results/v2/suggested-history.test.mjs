@@ -26,7 +26,7 @@ test("published cards in tier order, graded by slipId from the lab's settled rec
   const d = suggestedCardsFor("2026-09-27", root);
   assert.deepEqual(d.cards.map((c) => [c.tier, c.result]), [["medium", "pending"], ["high", "lost"]], "another sport's receipt never grades an MLB card");
   assert.deepEqual(d.cards[1].legs.map((g) => g.result), ["won", "lost"]);
-  assert.deepEqual(d.skipped, [{ tier: "low", tierLabel: "Low risk", reason: "no priced card in this tier on today's slate" }]);
+  assert.deepEqual(d.skipped, [{ tier: "low", tierLabel: "Low Risk", reason: "no priced card in this tier on today's slate" }]);
 });
 
 test("mutation probes: pending is never a loss; misaligned leg grades are not guessed; the candidate record never appears", () => {
