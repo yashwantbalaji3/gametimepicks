@@ -20,6 +20,7 @@ import { simulateFullGame } from "../src/lib/mlb/full-game/simulate.ts";
 import { stableHash } from "../src/lib/game-simulations/rng.ts";
 import { ENGINE_LEVEL_CANDIDATE_V1, engineParamsFor } from "../src/lib/mlb/full-game/engine-candidates.ts";
 import { INPUT_SNAPSHOT_VERSION, foldSnapshot, snapshotRowFor } from "../src/lib/mlb/full-game/input-snapshot.mjs";
+import { carryFrozenPregame } from "../src/lib/mlb/full-game/frozen-carry.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
@@ -164,31 +165,15 @@ if (mismatch) {
  * morning forecast with an "unavailable" refusal (destroying the record) or, before this fix,
  * with a fresh simulation stamped pregame after first pitch (backfilling). Runs after the
  * probe, deterministically: the started set and the prior bytes are both fixed inputs.
+ * The pregame proof is PER GAME (lib/mlb/full-game/frozen-carry.mjs, Session 10): judging it by the
+ * prior FILE's generatedAt erased every game on the SECOND refresh after its first pitch.
  */
-let carriedForward = 0;
 /* Which games kept a PRIOR run's forecast. Their inputs are that run's, not this one's. */
-const carriedPks = new Set();
-if (priorArtifact?.games?.length) {
-  const priorByPk = new Map(priorArtifact.games.map((g) => [g.gamePk, g]));
-  artifact.games = artifact.games.map((g) => {
-    if (!startedByNow.has(g.gamePk)) return g;
-    const prior = priorByPk.get(g.gamePk);
-    // Carry ONLY a genuinely pregame prior: the prior FILE must predate this game's first
-    // pitch. The 2026-09-07 01:21Z artifact held three post-start simulations (the very bug
-    // this boundary fixes) — those may not be preserved as pregame either; the game refuses.
-    const priorIsPregame = prior
-      && prior.completeness?.level !== "unavailable"
-      && priorArtifact.generatedAt
-      && g.firstPitch
-      && Date.parse(priorArtifact.generatedAt) <= Date.parse(g.firstPitch);
-    if (priorIsPregame) {
-      carriedForward += 1;
-      carriedPks.add(g.gamePk);
-      return prior;
-    }
-    return g;
-  });
-}
+const carry = carryFrozenPregame({ games: artifact.games, priorArtifact, startedPks: startedByNow });
+artifact.games = carry.games;
+const carriedPks = carry.carriedPks;
+const carriedForward = carriedPks.size;
+if (carriedForward) artifact.frozenPregame = carry.frozenPregame;
 if (carriedForward) console.log(`[full-game-sim] ${carriedForward} started game(s) kept their frozen pregame simulation (never regenerated, never destroyed).`);
 
 // Reconciliation matrix.

@@ -126,7 +126,10 @@ test("⚠ A CARRIED-FORWARD FORECAST KEEPS ITS OWN ROW", () => {
   assert.equal(rebuilt.games[0].away.capturedAt, "T2");
 
   // And the generator must not even offer a row for a carried game.
-  assert.match(GEN_SRC, /carriedPks\.add\(g\.gamePk\)/, "the generator records which games were carried");
+  // Session 10: the carry decision lives in frozen-carry.mjs; the generator takes its carried set from there.
+  const CARRY_SRC = fs.readFileSync(path.join(process.cwd(), "src/lib/mlb/full-game/frozen-carry.mjs"), "utf8");
+  assert.match(CARRY_SRC, /carriedPks\.add\(g\.gamePk\)/, "the carry rule records which games were carried");
+  assert.match(GEN_SRC, /const carriedPks = carry\.carriedPks;/, "the generator uses that set");
   assert.match(GEN_SRC, /if \(carriedPks\.has\(g\.gamePk\)\) continue;/, "and skips them when building rows");
 });
 

@@ -172,6 +172,11 @@ test("P246 · the boundary holds against THIS RUN's clock, and frozen pregame en
   assert.match(driver, /Date\.parse\(g\.gameDate\) <= Date\.parse\(nowIso\)/, "the started set derives from the run's own clock");
   assert.match(driver, /boundedBoard/, "inputs come from the bounded copy");
   assert.match(driver, /sourceBoardHash: stableHash\(board\)/, "the source hash stays the committed board's");
-  assert.match(driver, /Date\.parse\(priorArtifact\.generatedAt\) <= Date\.parse\(g\.firstPitch\)/, "only a genuinely pregame prior is carried forward");
+  // Session 10: the carry decision moved to lib/mlb/full-game/frozen-carry.mjs (per-game proof, behaviour-tested
+  // in frozen-carry.test.mjs); the file rule is still there, beside the per-game ledger.
+  assert.match(driver, /carryFrozenPregame\(\{ games: artifact\.games, priorArtifact, startedPks: startedByNow \}\)/, "the driver carries through the per-game rule");
+  const lib = fs.readFileSync(path.join(process.cwd(), "src/lib/mlb/full-game/frozen-carry.mjs"), "utf8");
+  assert.match(lib, /Date\.parse\(priorArtifact\.generatedAt\) <= fp/, "only a genuinely pregame prior is carried forward");
+  assert.match(driver, /if \(carriedForward\) artifact\.frozenPregame = carry\.frozenPregame;/, "the per-game proof is WRITTEN, so the next refresh can read it (without it the second refresh erases the game)");
   assert.match(driver, /never regenerated, never destroyed/, "the carry-forward rule is stated where it acts");
 });
