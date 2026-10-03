@@ -292,6 +292,15 @@ export function gradeForecastGame(game, final, boxscore = null) {
     marginErr: r4(f.sim.margin.mean - (final.ftHome - final.ftAway)), marginAbsErr: r4(Math.abs(f.sim.margin.mean - (final.ftHome - final.ftAway))),
     totalErr: r4(f.sim.total.mean - (final.ftHome + final.ftAway)), totalAbsErr: r4(Math.abs(f.sim.total.mean - (final.ftHome + final.ftAway))),
   };
+  /* Session 10 · G5 — the facts the preregistered interval / overtime / timing metrics need, recorded per game
+     (grader-metrics.mjs aggregates them). An interval the artifact did not store is null, never "outside". */
+  const within = (q, actual) => (Number.isFinite(q?.p10) && Number.isFinite(q?.p90) ? (actual >= q.p10 && actual <= q.p90 ? 1 : 0) : null);
+  const intervals = {
+    margin: { actual: final.ftHome - final.ftAway, p10: f.sim.margin?.p10 ?? null, p90: f.sim.margin?.p90 ?? null, inside80: within(f.sim.margin, final.ftHome - final.ftAway) },
+    total: { actual: final.ftHome + final.ftAway, p10: f.sim.total?.p10 ?? null, p90: f.sim.total?.p90 ?? null, inside80: within(f.sim.total, final.ftHome + final.ftAway) },
+  };
+  const overtime = { simTieMass: Number.isFinite(f.sim?.tieMass) ? f.sim.tieMass : null, actual: typeof final.overtime === "boolean" ? final.overtime : null };
+  const timing = { inputAsOf: f.inputAsOf ?? null, tipUtc: game.dateUtc ?? null, preTip: Number.isFinite(Date.parse(f.inputAsOf ?? "")) && Number.isFinite(Date.parse(game.dateUtc ?? "")) ? Date.parse(f.inputAsOf) < Date.parse(game.dateUtc) : null };
 
   let players = null;
   if (boxscore?.boxscoreAvailable) {
@@ -310,12 +319,15 @@ export function gradeForecastGame(game, final, boxscore = null) {
         if (!pred) { players.playedButUnpredicted.push({ side: sideKey, providerAthleteId: id, name: a.name, minutes: a.minutes, pts: a.pts }); continue; }
         // Minutes error: predicted expected minutes vs actual minutes (the minutes model's own error).
         // Conditional production error: actual minutes × predicted rate vs actual stat (rate error alone).
-        const row = { side: sideKey, providerAthleteId: id, name: a.name, expectedMinutes: pred.expectedMinutes, actualMinutes: a.minutes, minutesAbsErr: r4(Math.abs(pred.expectedMinutes - a.minutes)), ratesBasis: pred.ratesBasis, conditional: {}, unconditional: {} };
+        const row = { side: sideKey, providerAthleteId: id, name: a.name, expectedMinutes: pred.expectedMinutes, actualMinutes: a.minutes, minutesAbsErr: r4(Math.abs(pred.expectedMinutes - a.minutes)), ratesBasis: pred.ratesBasis, conditional: {}, unconditional: {}, rates: {}, inside80: {}, atOrAboveMedian: {} };
         for (const k of STAT_KEYS) {
           const rate = pred.rates?.[k];
-          if (!Number.isInteger(a[k]) || !Number.isFinite(rate)) { row.conditional[k] = null; row.unconditional[k] = null; continue; }
+          row.rates[k] = Number.isFinite(rate) ? rate : null;
+          if (!Number.isInteger(a[k]) || !Number.isFinite(rate)) { row.conditional[k] = null; row.unconditional[k] = null; row.inside80[k] = null; row.atOrAboveMedian[k] = null; continue; }
           row.conditional[k] = r4(Math.abs(a.minutes * rate - a[k]));
           row.unconditional[k] = r4(Math.abs(pred[k].mean - a[k]));
+          row.inside80[k] = Number.isFinite(pred[k]?.p10) && Number.isFinite(pred[k]?.p90) ? (a[k] >= pred[k].p10 && a[k] <= pred[k].p90 ? 1 : 0) : null;
+          row.atOrAboveMedian[k] = Number.isFinite(pred[k]?.p50) ? (a[k] >= pred[k].p50 ? 1 : 0) : null;
         }
         players.rows.push(row);
       }
@@ -323,7 +335,7 @@ export function gradeForecastGame(game, final, boxscore = null) {
     }
   }
 
-  return { providerEventId: game.providerEventId, label: game.label, seasonType: game.seasonType, population: game.population, dateUtc: game.dateUtc, graded: true, final: { ftHome: final.ftHome, ftAway: final.ftAway, source: final.source ?? null }, winner, score, players };
+  return { providerEventId: game.providerEventId, label: game.label, seasonType: game.seasonType, population: game.population, dateUtc: game.dateUtc, graded: true, final: { ftHome: final.ftHome, ftAway: final.ftAway, source: final.source ?? null }, winner, score, intervals, overtime, timing, players };
 }
 
 const meanOf = (xs) => (xs.length ? r4(xs.reduce((s, x) => s + x, 0) / xs.length) : null);
