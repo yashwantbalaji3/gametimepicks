@@ -45,7 +45,7 @@ is context, never a gate-accepted role. The shipped contract enforces it (`ACCEP
   families, all pre-kickoff (≥ 43.4 h ahead), boards ingested them. **Not product-fresh:** the universe now marks
   636 Sunday legs `ODDS_STALE` (> 12 h). **Pending:** a ≤ 12 h capture before Sunday kickoffs. ⚠ GitHub delivered
   0 publication-watchdog runs 00:57Z–15:00Z+ on 10-03, so #932's tick never fired; #939 adds daily-products as a
-  second tick.
+  second tick (merged 15:32:56Z, `b5f9045856`).
 - **Practice squad:** today's boards 9 players / 12 rows → 0 with the merged producer (0 active players lost);
   public boards change on the next event-window run.
 - **Ask (Production):** all seven NFL eligibility questions answered by `getNflProductEligibility` from the
