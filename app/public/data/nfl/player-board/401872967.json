@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-03T14:18:35Z",
- "sourceGeneratedAt": "2026-10-03T14:18:35Z",
+ "generatedAt": "2026-10-03T16:52:00Z",
+ "sourceGeneratedAt": "2026-10-03T16:52:00Z",
  "providerEventId": "401872967",
  "matchup": "DAL @ HOU",
  "kickoffUtc": "2026-10-04T17:00Z",
@@ -25,14 +25,14 @@
    "model": "nfl-player-share-level-v1",
    "withheldTeams": [
     {
-     "team": "HOU",
-     "sum": 1.37,
-     "reason": "withheld for HOU: the players' modelled shares add up to 137% of the team's carries, more than exists — shown again once the shares are reconciled"
+     "team": "DAL",
+     "sum": 1.293,
+     "reason": "withheld for DAL: the players' modelled shares add up to 129% of the team's carries, more than exists — shown again once the shares are reconciled"
     },
     {
-     "team": "DAL",
-     "sum": 1.3471,
-     "reason": "withheld for DAL: the players' modelled shares add up to 135% of the team's carries, more than exists — shown again once the shares are reconciled"
+     "team": "HOU",
+     "sum": 1.0415,
+     "reason": "withheld for HOU: the players' modelled shares add up to 104% of the team's carries, more than exists — shown again once the shares are reconciled"
     }
    ]
   },
@@ -66,6 +66,19 @@
  "newArrivals": {},
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
+ "practiceSquadFiltered": 2,
+ "practiceSquadFilteredPlayers": [
+  {
+   "playerId": "nfl-athlete-4429939",
+   "name": "Jawhar Jordan",
+   "team": "HOU"
+  },
+  {
+   "playerId": "nfl-athlete-4360698",
+   "name": "Joe Milton III",
+   "team": "DAL"
+  }
+ ],
  "shareLevel": {
   "markets": [
    "anytime_td",
@@ -79,13 +92,13 @@
  "marketCoverage": {
   "probed": true,
   "priced": 40,
-  "absent": 12,
+  "absent": 10,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "DAL": {
    "counts": {
-    "PROJECTED": 10,
+    "PROJECTED": 9,
     "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
@@ -107,7 +120,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.347) — family withheld for DAL, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.293) — family withheld for DAL, never renormalised"
       }
      ]
     },
@@ -168,7 +181,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.347) — family withheld for DAL, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.293) — family withheld for DAL, never renormalised"
       }
      ]
     },
@@ -184,7 +197,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.347) — family withheld for DAL, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.293) — family withheld for DAL, never renormalised"
       }
      ]
     },
@@ -200,7 +213,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.347) — family withheld for DAL, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.293) — family withheld for DAL, never renormalised"
       }
      ]
     },
@@ -216,23 +229,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.347) — family withheld for DAL, never renormalised"
-      }
-     ]
-    },
-    {
-     "playerId": "nfl-athlete-4360698",
-     "name": "Joe Milton III",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.347) — family withheld for DAL, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.293) — family withheld for DAL, never renormalised"
       }
      ]
     }
@@ -240,7 +237,7 @@
   },
   "HOU": {
    "counts": {
-    "PROJECTED": 14,
+    "PROJECTED": 13,
     "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
@@ -348,7 +345,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.370) — family withheld for HOU, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.042) — family withheld for HOU, never renormalised"
       },
       {
        "family": "player_receptions",
@@ -374,7 +371,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.370) — family withheld for HOU, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.042) — family withheld for HOU, never renormalised"
       }
      ]
     },
@@ -391,23 +388,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.370) — family withheld for HOU, never renormalised"
-      }
-     ]
-    },
-    {
-     "playerId": "nfl-athlete-4429939",
-     "name": "Jawhar Jordan",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.370) — family withheld for HOU, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.042) — family withheld for HOU, never renormalised"
       }
      ]
     },
@@ -423,7 +404,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.370) — family withheld for HOU, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.042) — family withheld for HOU, never renormalised"
       },
       {
        "family": "player_receptions",
@@ -482,24 +463,24 @@
   ],
   "pools": [
    {
-    "team": "HOU",
-    "pool": "carries",
-    "markets": [
-     "player_rush_yds"
-    ],
-    "sum": 1.37,
-    "joined": 5,
-    "missed": 0,
-    "state": "OVER_ALLOCATED"
-   },
-   {
     "team": "DAL",
     "pool": "carries",
     "markets": [
      "player_rush_yds"
     ],
-    "sum": 1.3471,
-    "joined": 6,
+    "sum": 1.293,
+    "joined": 5,
+    "missed": 0,
+    "state": "OVER_ALLOCATED"
+   },
+   {
+    "team": "HOU",
+    "pool": "carries",
+    "markets": [
+     "player_rush_yds"
+    ],
+    "sum": 1.0415,
+    "joined": 4,
     "missed": 0,
     "state": "OVER_ALLOCATED"
    },
@@ -543,11 +524,11 @@
      "p75": 29.94,
      "p90": 46.08,
      "market": {
-      "line": 13.5,
-      "overOdds": -109,
-      "underOdds": -115,
+      "line": 12.5,
+      "overOdds": -113,
+      "underOdds": -111,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -559,18 +540,18 @@
      "p90": 5,
      "market": {
       "line": 2.5,
-      "overOdds": -126,
-      "underOdds": -102,
+      "overOdds": -113,
+      "underOdds": -113,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
      "probability": 0.5665,
      "market": {
-      "yesOdds": -130,
+      "yesOdds": -125,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -584,9 +565,9 @@
     "anytime_td": {
      "probability": 0.4428,
      "market": {
-      "yesOdds": -160,
+      "yesOdds": -140,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -609,7 +590,7 @@
       "overOdds": -110,
       "underOdds": -114,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -621,18 +602,18 @@
      "p90": 9,
      "market": {
       "line": 5.5,
-      "overOdds": -139,
-      "underOdds": 109,
+      "overOdds": -147,
+      "underOdds": 115,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
      "probability": 0.4083,
      "market": {
-      "yesOdds": 130,
+      "yesOdds": 135,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -651,11 +632,11 @@
      "p75": 57.21,
      "p90": 83.42,
      "market": {
-      "line": 74.5,
-      "overOdds": -111,
-      "underOdds": -113,
+      "line": 73.5,
+      "overOdds": -114,
+      "underOdds": -110,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -667,18 +648,18 @@
      "p90": 6,
      "market": {
       "line": 5.5,
-      "overOdds": 108,
-      "underOdds": -138,
+      "overOdds": -107,
+      "underOdds": -120,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
      "probability": 0.3244,
      "market": {
-      "yesOdds": 160,
+      "yesOdds": 150,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -692,9 +673,9 @@
     "anytime_td": {
      "probability": 0.3179,
      "market": {
-      "yesOdds": 200,
+      "yesOdds": 195,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -714,10 +695,10 @@
      "p90": 101.38,
      "market": {
       "line": 67.5,
-      "overOdds": -110,
-      "underOdds": -114,
+      "overOdds": -111,
+      "underOdds": -113,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -732,7 +713,7 @@
       "overOdds": -134,
       "underOdds": 105,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
@@ -740,20 +721,8 @@
      "market": {
       "yesOdds": 170,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4429939",
-   "name": "Jawhar Jordan",
-   "team": "HOU",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.2666,
-     "pricingState": "NOT_OFFERED"
     }
    }
   },
@@ -772,10 +741,10 @@
      "p90": 53.87,
      "market": {
       "line": 24.5,
-      "overOdds": -114,
-      "underOdds": -110,
+      "overOdds": -110,
+      "underOdds": -114,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -790,15 +759,15 @@
       "overOdds": -104,
       "underOdds": -122,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
      "probability": 0.2612,
      "market": {
-      "yesOdds": 300,
+      "yesOdds": 310,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -821,7 +790,7 @@
       "overOdds": -113,
       "underOdds": -111,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -833,18 +802,18 @@
      "p90": 6,
      "market": {
       "line": 3.5,
-      "overOdds": 102,
-      "underOdds": -130,
+      "overOdds": 105,
+      "underOdds": -134,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
      "probability": 0.2369,
      "market": {
-      "yesOdds": 330,
+      "yesOdds": 340,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -905,11 +874,11 @@
      "p75": 39.94,
      "p90": 60.8,
      "market": {
-      "line": 28.5,
-      "overOdds": -112,
-      "underOdds": -112,
+      "line": 27.5,
+      "overOdds": -110,
+      "underOdds": -114,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -921,10 +890,10 @@
      "p90": 5,
      "market": {
       "line": 2.5,
-      "overOdds": -124,
-      "underOdds": -103,
+      "overOdds": -119,
+      "underOdds": -107,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
@@ -932,7 +901,7 @@
      "market": {
       "yesOdds": 370,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -981,11 +950,11 @@
      "p75": 46.74,
      "p90": 70.99,
      "market": {
-      "line": 39.5,
-      "overOdds": -110,
-      "underOdds": -114,
+      "line": 41.5,
+      "overOdds": -111,
+      "underOdds": -113,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -997,18 +966,18 @@
      "p90": 6,
      "market": {
       "line": 4.5,
-      "overOdds": 110,
-      "underOdds": -140,
+      "overOdds": 101,
+      "underOdds": -129,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
      "probability": 0.1931,
      "market": {
-      "yesOdds": 245,
+      "yesOdds": 230,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -1022,9 +991,9 @@
     "anytime_td": {
      "probability": 0.1914,
      "market": {
-      "yesOdds": 900,
+      "yesOdds": 950,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -1044,10 +1013,10 @@
      "p90": 37.92,
      "market": {
       "line": 7.5,
-      "overOdds": -111,
-      "underOdds": -113,
+      "overOdds": -108,
+      "underOdds": -116,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -1059,10 +1028,10 @@
      "p90": 3,
      "market": {
       "line": 1.5,
-      "overOdds": 163,
-      "underOdds": -210,
+      "overOdds": 168,
+      "underOdds": -217,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
@@ -1070,7 +1039,7 @@
      "market": {
       "yesOdds": 800,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -1102,9 +1071,9 @@
     "anytime_td": {
      "probability": 0.1333,
      "market": {
-      "yesOdds": 750,
+      "yesOdds": 800,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -1120,7 +1089,7 @@
      "market": {
       "yesOdds": 600,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -1139,19 +1108,19 @@
      "p75": 297.1478,
      "p90": 369.8152,
      "market": {
-      "line": 266.5,
-      "overOdds": -113,
-      "underOdds": -111,
+      "line": 268.5,
+      "overOdds": -112,
+      "underOdds": -112,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
      "probability": 0.1077,
      "market": {
-      "yesOdds": 650,
+      "yesOdds": 700,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -1170,11 +1139,11 @@
      "p75": 19.6,
      "p90": 36.21,
      "market": {
-      "line": 23.5,
-      "overOdds": -114,
-      "underOdds": -110,
+      "line": 22.5,
+      "overOdds": -112,
+      "underOdds": -112,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "player_receptions": {
@@ -1186,18 +1155,18 @@
      "p90": 3,
      "market": {
       "line": 1.5,
-      "overOdds": -185,
-      "underOdds": 144,
+      "overOdds": -192,
+      "underOdds": 149,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
      "probability": 0.1057,
      "market": {
-      "yesOdds": 350,
+      "yesOdds": 380,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -1213,7 +1182,7 @@
      "market": {
       "yesOdds": 1300,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -1236,7 +1205,7 @@
       "overOdds": -111,
       "underOdds": -113,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     },
     "anytime_td": {
@@ -1244,7 +1213,7 @@
      "market": {
       "yesOdds": 500,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
+      "capturedAt": "2026-10-03T16:52:00Z"
      }
     }
    }
@@ -1257,18 +1226,6 @@
    "markets": {
     "anytime_td": {
      "probability": 0.0625,
-     "pricingState": "NOT_OFFERED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4360698",
-   "name": "Joe Milton III",
-   "team": "DAL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0499,
      "pricingState": "NOT_OFFERED"
     }
    }
