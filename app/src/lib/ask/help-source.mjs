@@ -255,8 +255,9 @@ const CHUNKS = [
       "MLB is GameTime's most fully modelled sport: daily boards, full-game simulations, published predictions " +
       "and nightly settlement. NFL publishes graded weekly forecasts and player ranges, labelled experimental. " +
       "EPL and Ligue 1 publish experimental match forecasts that are graded. UFC has fighter research and " +
-      "market-implied reads. NBA is a historical archive — its settled record stays published, but it is " +
-      "off-season with no live projection capability. Which markets are published, paused or market context " +
+      "market-implied reads. NBA publishes its schedule and official finals; no NBA forecast is published, " +
+      "because no NBA model has yet passed its preregistered validation, and the May–June settled archive stays " +
+      "published as history. Which markets are published, paused or market context " +
       "today, and which can supply a parlay leg, changes: Ask reads the live coverage registry for it.",
   },
   {
