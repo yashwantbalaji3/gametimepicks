@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-02T16:52:45Z",
+ "generatedAt": "2026-10-03T10:25:49Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -15,7 +15,7 @@
    "id": "mlb",
    "label": "MLB",
    "live": false,
-   "blocked": "no price capture for 2026-10-02 yet — the sport's own generation runs later in the day (newest capture 2026-09-30); only 0 priced games — the ladder needs 4",
+   "blocked": "no price capture for 2026-10-03 yet — the sport's own generation runs later in the day (newest capture 2026-09-30); only 0 priced games — the ladder needs 4",
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": null,
@@ -75,12 +75,11 @@
   {
    "id": "nfl",
    "label": "NFL",
-   "live": false,
-   "blocked": "only 0 priced games — the ladder needs 4",
+   "live": true,
    "evidence": {
-    "pricedGames": 0,
-    "pricesCapturedAt": "2026-10-01T19:45:24Z",
-    "priceAgeDays": 0.88,
+    "pricedGames": 15,
+    "pricesCapturedAt": "2026-10-03T00:10:51Z",
+    "priceAgeDays": 0.43,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -140,7 +139,7 @@
    "evidence": {
     "pricedGames": 11,
     "pricesCapturedAt": "2026-10-01T17:13:14Z",
-    "priceAgeDays": 0.99,
+    "priceAgeDays": 1.72,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true
    },
@@ -197,11 +196,11 @@
    "id": "epl",
    "label": "Premier League",
    "live": false,
-   "blocked": "the last price capture is 12.8 days old",
+   "blocked": "the last price capture is 13.5 days old",
    "evidence": {
     "pricedGames": 20,
     "pricesCapturedAt": "2026-09-19T22:35:26Z",
-    "priceAgeDays": 12.76,
+    "priceAgeDays": 13.49,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },
@@ -257,13 +256,14 @@
   {
    "id": "multi",
    "label": "Multi-sport",
-   "live": false,
-   "blocked": "a cross-sport card needs two live sports; only UFC is cleared",
+   "live": true,
    "evidence": {
     "liveSports": [
+     "nfl",
      "ufc"
     ],
     "liveLabels": [
+     "NFL",
      "UFC"
     ]
    },
