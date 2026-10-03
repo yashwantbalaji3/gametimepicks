@@ -1,0 +1,115 @@
+# NBA forecast window — every game gets a pre-tip forecast opportunity (Session 10 · G2).
+#
+# ⚠ WHY THIS EXISTS. The NBA experimental forecasts (v0 = the preregistered shadow, v0.1 = roster-gated
+# research) were built only inside sport-schedules, once a day. That cron is 09:07Z and GitHub delivered it
+# 14:09Z–17:35Z over the 12 days before 2026-10-03 — so any game that tips before the run arrives (opening
+# day's 19:00Z BOS @ DET, the 17:00–21:00Z weekend / holiday tips, the 10:00Z and 12:00Z international
+# preseason games) was never forecast before tip, and the preregistration only counts pre-tip artifacts.
+#
+# This workflow asks one free question often: does a game tip within 8 hours that v0 has not forecast? If so
+# it captures the injuries feed FIRST (free ESPN, G4), then builds only that game (write-once: a stored game
+# is never rewritten, a tipped game is refused — lib/sports/nba/forecast-receipt.mjs), verifies no committed
+# forecast changed, and commits. Overlapping or repeated runs are no-ops by construction.
+#
+# CLOCKS. Its own hourly cron (best-effort, like every cron here) plus `workflow_run` on publication-watchdog
+# (dense 12–22Z) and daily-products — the same two clocks nfl-kickoff-refresh relies on, measured to deliver
+# when single crons are dropped.
+#
+# ⚠ OWN CONCURRENCY GROUP, DELIBERATELY NOT gtp-generated-artifacts: a pending run in a group cancels the
+# previous pending one, and a dense tick in the shared writer group would cancel daily-products / settle runs.
+# It writes only data/internal/research/nba/** and injuries/nba/latest.json; a push race with another writer
+# is handled by re-planning on the new main (the write-once builder makes that correct), up to 3 times.
+#
+# FREE: no secrets, no paid provider, no npm install (the scripts are dependency-free .mjs).
+name: nba-forecast-window
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_run:
+    workflows: ["publication-watchdog", "daily-products"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Decide and report, but never build or commit"
+        required: false
+        default: "false"
+
+concurrency:
+  group: nba-forecast-window
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  window:
+    # THE TRUST BOUNDARY ON A workflow_run TRIGGER: only a default-branch run may tick this; nothing from the
+    # triggering run is read or executed.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.head_branch == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Is a pre-tip NBA forecast owed?
+        id: decide
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nba/decide-nba-forecast-window.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Capture injuries, build the owed forecasts, verify, commit
+        id: build
+        if: steps.decide.outputs.decision == 'BUILD' && github.event.inputs.dry_run != 'true'
+        working-directory: app
+        env:
+          DATES: ${{ steps.decide.outputs.dates }}
+        run: |
+          set -uo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git fetch -q origin main
+          for ATTEMPT in 1 2 3; do
+            git reset -q --hard origin/main
+            NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            # G4 — injuries first, at the forecast's own instant. A failed capture writes nothing (last-known-good
+            # stands) and the receipt records that snapshot's real age; it never blocks the forecast.
+            node scripts/sports/capture-injuries.mjs --now "$NOW" \
+              || echo "::warning::injuries capture refused — receipts record the committed snapshot and its age"
+            V0_FAILED=0
+            for D in $DATES; do
+              # v0 is the preregistered record: its refusal fails the run. v0.1 is research: its roster gate
+              # refusing is the gate working, so it warns and never costs v0 the game.
+              node scripts/nba/build-nba-experimental-forecasts.mjs --date "$D" --now "$NOW" --write --family v0 --horizon-hours 8 || V0_FAILED=1
+              node scripts/nba/build-nba-experimental-forecasts.mjs --date "$D" --now "$NOW" --write --family v0.1 --horizon-hours 8 \
+                || echo "::warning::v0.1 refused for $D (roster gate) — v0 unaffected"
+            done
+            if [ "$V0_FAILED" = "1" ]; then echo "::error::v0 forecast build refused"; exit 1; fi
+            git add ../data/internal/research/nba/experimental/ ../data/internal/research/nba/experimental-v0.1/
+            if git diff --cached --quiet; then echo "no forecast added — nothing to commit"; exit 0; fi
+            # Never commit a run that changed or removed an already-committed forecast.
+            node scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD || exit 1
+            # The exact injury snapshot the receipts hash, so the hash can be checked against history.
+            git add ../data/internal/research/injuries/nba/latest.json
+            git commit -q -m "auto: nba pre-tip forecast window $NOW [skip ci]"
+            if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; exit 0; fi
+            # Lost a race with another writer: re-plan on the new main (the write-once builder makes that correct).
+            echo "::warning::push lost a race (attempt $ATTEMPT) — re-planning on the new main"
+            sleep $((ATTEMPT * 15))
+            git fetch -q origin main
+          done
+          echo "::error::could not push after 3 attempts"
+          exit 1
+
+      - name: Report a hold
+        if: steps.decide.outputs.decision != 'BUILD'
+        run: echo "::notice::nba-forecast-window held — no NBA game tips within 8 h without a v0 forecast"
