@@ -76,3 +76,42 @@ test("the two families are separate steps with separate commits — a v0.1 refus
   assert.match(yaml, /steps\.nbaexp\.outputs\.state == 'BUILT'[\s\S]{0,400}?git add data\/internal\/research\/nba\/experimental\//, "v0's commit is gated on v0's own step and stages only v0's directory");
   assert.match(yaml, /steps\.nbaexpv01\.outputs\.state == 'BUILT'[\s\S]{0,500}?git add data\/internal\/research\/nba\/experimental-v0\.1\//, "v0.1's commit is gated on v0.1's own step and stages only v0.1's directory");
 });
+
+/* ── Session 10 · G4 / G2 ─────────────────────────────────────────────────────────────────────── */
+
+test("G4 · the injuries capture (and its commit) runs BEFORE both NBA forecast families", () => {
+  const yaml = fs.readFileSync(WORKFLOW, "utf8");
+  const ids = stepIdsInOrder(yaml);
+  for (const id of ["injuries", "nbaexp", "nbaexpv01"]) assert.notEqual(at(ids, id), -1, `step id ${id} must exist`);
+  assert.ok(at(ids, "injuries") < at(ids, "nbaexp"), `injuries (${at(ids, "injuries")}) must precede nbaexp (${at(ids, "nbaexp")}) — otherwise every forecast reads the PREVIOUS capture`);
+  assert.ok(at(ids, "injuries") < at(ids, "nbaexpv01"), "injuries must precede nbaexpv01");
+  const commitInjuries = yaml.indexOf('git commit -m "auto: injuries facts capture [skip ci]"');
+  const nbaexpStep = yaml.indexOf("id: nbaexp\n");
+  assert.ok(commitInjuries > 0 && nbaexpStep > 0 && commitInjuries < nbaexpStep, "the injuries commit (which may restore HEAD's bytes) settles the file before the forecast hashes it");
+});
+
+test("G7 · every NBA research commit verifies no committed forecast was rewritten", () => {
+  const yaml = fs.readFileSync(WORKFLOW, "utf8");
+  for (const dir of ["experimental/", "experimental-v0\\.1/"]) {
+    assert.match(yaml, new RegExp(`git add data/internal/research/nba/${dir}\\n[^\\n]*\\n\\s*node app/scripts/nba/verify-nba-forecast-receipts\\.mjs --against HEAD`), `${dir} commit must run the frozen-game guard before committing`);
+  }
+});
+
+const WINDOW = path.resolve(process.cwd(), "..", ".github", "workflows", "nba-forecast-window.yml");
+
+test("G2 · the pre-tip window: free, own concurrency group, injuries → v0 → v0.1 → verify → commit", () => {
+  const yaml = fs.readFileSync(WINDOW, "utf8");
+  const body = yaml.replace(/^\s*#.*$/gm, "");
+  assert.doesNotMatch(body, /secrets\./, "the window is free — it must reference no secret");
+  assert.match(body, /group: nba-forecast-window\n/, "own concurrency group (a dense tick in gtp-generated-artifacts would cancel other writers' pending runs)");
+  assert.doesNotMatch(body, /gtp-generated-artifacts/);
+  assert.match(body, /workflow_run:\n\s+workflows: \["publication-watchdog", "daily-products"\]/, "ticks on the two clocks that deliver");
+  assert.match(body, /head_branch == github\.event\.repository\.default_branch/, "workflow_run trust boundary");
+  const order = ["decide-nba-forecast-window.mjs", "capture-injuries.mjs", "--family v0 --horizon-hours 8", "--family v0.1 --horizon-hours 8", "verify-nba-forecast-receipts.mjs --against HEAD", "git commit"];
+  const pos = order.map((s) => body.indexOf(s));
+  for (let i = 0; i < order.length; i += 1) assert.ok(pos[i] > 0, `${order[i]} must appear`);
+  for (let i = 1; i < order.length; i += 1) assert.ok(pos[i - 1] < pos[i], `${order[i - 1]} must come before ${order[i]}`);
+  // v0.1's refusal is the roster gate working: it must never stop v0 or fail the run.
+  assert.match(body, /--family v0\.1 --horizon-hours 8 \\\n[^\n]*\|\| echo "::warning::/, "v0.1 refusal warns, never fails");
+  assert.match(body, /--family v0 --horizon-hours 8 \|\| V0_FAILED=1/, "v0 refusal is recorded and fails the run");
+});
