@@ -83,7 +83,9 @@ test("the kickoff checker itself never buys anything", () => {
 
 test("the kickoff checker also ticks on a workflow that DELIVERS (Session 9: its own crons delivered 1 of 10 on TNF)", () => {
   const src = wf("nfl-kickoff-refresh.yml");
-  assert.match(src, /workflow_run:\s*\n\s*workflows: \["publication-watchdog"\]\s*\n\s*types: \[completed\]/);
+  assert.match(src, /workflow_run:\s*\n\s*workflows: \["publication-watchdog", "daily-products"\]\s*\n\s*types: \[completed\]/);
+  /* Never ticked by the workflow it dispatches: a failed capture must not re-trigger a paid run of itself. */
+  assert.ok(!/workflows: \[[^\]]*nfl-event-window/.test(src), "nfl-event-window must not be a tick source");
   assert.match(src, /github\.event\.workflow_run\.head_branch == github\.event\.repository\.default_branch/, "default-branch only");
   const watchdog = scheduleCrons(wf("publication-watchdog.yml"));
   assert.ok(watchdog.length >= 12, "the tick source must itself be dense");
