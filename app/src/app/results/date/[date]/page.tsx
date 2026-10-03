@@ -28,6 +28,8 @@ import { sportsWithoutBoards, topBoardDates, topBoardsFor } from "@/lib/results/
 import ProductReceipts from "@/components/results/product-receipts";
 import DayNav from "@/components/results/day-nav";
 import { productReceiptDates, productReceiptsFor } from "@/lib/results/v2/product-receipts";
+import SuggestedReceipts from "@/components/results/suggested-receipts";
+import { suggestedCardDates } from "@/lib/results/v2/suggested-history.mjs";
 
 interface PageProps {
   params: { date: string };
@@ -42,7 +44,7 @@ export function generateStaticParams() {
   const mlbDates = getMlbAvailableResultDates().dates ?? [];
   // A frozen Top-5 day gets its page before any result exists — the board is published pre-kickoff.
   // G-4: a day with a product receipt (Bank Builder / Moonshot) has a page too.
-  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates()])).sort();
+  const all = Array.from(new Set([...nbaDates, ...mlbDates, ...suggestedCardDates(), ...resultsDayDates(), ...topBoardDates(), ...productReceiptDates()])).sort();
   return all.map((date) => ({ date }));
 }
 
@@ -70,7 +72,7 @@ export default function ResultsDatePage({ params }: PageProps) {
   const nbaAllDates = new Set(getAvailableSettlementDates());
   const mlbAllDates = new Set(getMlbAvailableResultDates().dates ?? []);
   const date = params.date;
-  const dayDates = new Set([...resultsDayDates(), ...topBoardDates(), ...productReceiptDates()]);
+  const dayDates = new Set([...resultsDayDates(), ...topBoardDates(), ...productReceiptDates(), ...suggestedCardDates()]);
   const hasAny = nbaAllDates.has(date) || mlbAllDates.has(date) || dayDates.has(date);
   if (!hasAny) {
     notFound();
@@ -130,6 +132,8 @@ export default function ResultsDatePage({ params }: PageProps) {
       <TopBoards day={topBoardsFor(date)} without={sportsWithoutBoards()} dayLabel={formatDateLong(date)} />
 
       <ProductReceipts day={productReceiptsFor(date)} />
+      {/* Session 9 overnight · the Suggested Parlays cards this day published, with their settled grades. */}
+      <SuggestedReceipts date={date} />
 
       {(nbaDecisive > 0 || mlbDecisive > 0 || nbaRows.length > 0 || mlbRows.length > 0) && (
         <div className="mt-12 rounded-xl px-4 py-3" style={{ border: "1px dashed var(--vault-border)" }}>
