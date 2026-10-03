@@ -28,7 +28,7 @@ export const ASK_TOOL_REGISTRY_VERSION = 1;
  * The system/planner/writer prompt version. Bumped on ANY prompt text change so a receipt can never
  * describe a run by a prompt that has since been edited underneath it (§67 — no hidden prompt drift).
  */
-export const ASK_PROMPT_VERSION = 6;
+export const ASK_PROMPT_VERSION = 7;
 
 /** The committed projection the emit step publishes, and the public prefix it publishes to. */
 export const ASK_PROJECTION_SCHEMA_VERSION = 1;
@@ -502,6 +502,8 @@ export const askAssetPath = Object.freeze({
   /* §10's coverage registry, projected for Ask: what is published, what has been measured, and
      whether the measurement allows it to be called a forecast. */
   coverage: () => `${ASK_ASSET_PREFIX}/coverage.json`,
+  /* Session 9 · the NFL family-level product gate, republished in public terms (daily). */
+  nflEligibility: () => `${ASK_ASSET_PREFIX}/nfl-eligibility.json`,
   recent: (sport, shard) => `${ASK_ASSET_PREFIX}/recent/${String(sport).toLowerCase()}/${shard}.json`,
 });
 
@@ -557,7 +559,7 @@ export const askStoredGzipped = (rel) => /^recent\//.test(rel);
  * rebuilt nightly by the settlement pipeline, so committing it would leave `ask:check` reporting the
  * projection stale on `main` every morning — a currency check that cries wolf is one nobody reads.
  */
-export const ASK_DAILY_FILES = Object.freeze(["forecasts.json", "parlays.json", "results.json"]);
+export const ASK_DAILY_FILES = Object.freeze(["forecasts.json", "parlays.json", "results.json", "nfl-eligibility.json"]);
 export const isAskDailyFile = (rel) => ASK_DAILY_FILES.includes(rel);
 
 /** The committed filename for a projection-relative path. The PUBLIC emit always writes plain JSON. */

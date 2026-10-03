@@ -265,7 +265,7 @@ const SUBSTANTIVE_FOR_INTENT = Object.freeze({
   LIVE_STATUS: ["getLiveSlate"],
   PARLAY_REQUEST: ["getOfficialProductCards", "getParlayCandidates"],
   BANKROLL_PARLAY_REQUEST: ["getParlayCandidates"],
-  PRODUCT_CARDS: ["getOfficialProductCards"],
+  PRODUCT_CARDS: ["getOfficialProductCards", "getNflProductEligibility"],
 });
 
 export function plannerUserMessage(state, priorEvidence = null, now = null) {
@@ -461,6 +461,7 @@ function toolStatusCopy(name) {
     getPublishedForecasts: "Loading published forecasts…",
     getParlayCandidates: "Checking GameTime parlay candidates…",
     getOfficialProductCards: "Reading today's official cards…",
+    getNflProductEligibility: "Checking NFL product eligibility…",
     getLiveSlate: "Checking live games…",
     searchGameTimeHelp: "Checking the GameTime guide…",
     calculate: "Working out the numbers…",

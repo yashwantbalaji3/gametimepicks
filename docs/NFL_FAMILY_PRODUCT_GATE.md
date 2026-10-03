@@ -69,34 +69,63 @@ settlement. A grant for `anytime_td` never admits `player_receptions`, and that 
 whose forward evidence is (a) incomplete and (b) currently miscalibrated high. That is a model gate, not
 plumbing. The forward test resolves itself at n = 1,000 (roughly 2 more weeks of slates). Nothing was tuned.
 
-## 3. NFL prop settlement — current truth
+## 3. NFL prop settlement — operational path (Session 9)
 
-- **Grading logic exists:** `lib/sports/nfl/live-prop-state.mjs` reads the ESPN summary.
-  - ATD settles YES/NO on any touchdown.
-  - No stat row gives NO_MEASUREMENT, which is neither void nor loss.
-  - A game that is not final stays PENDING.
-- **The producer that would run it is not automated:**
-  - `nfl-live-props` (paid) is `disabled_manually`.
-  - `nfl-live-props-free` is **workflow_dispatch only, by design** (a header comment forbids a schedule). Its last run was 10-02 00:56Z, before PIT @ CLE went final.
-  - All `nfl/live-props/*.json` are `IN_PROGRESS` with `settled: 0`.
-  - `data/internal/nfl/prop-settlement/` does not exist.
-- **`settlementSupport` is mis-derived.** `nfl-boards.mjs` reports SCHEDULED_UNPROVEN whenever *any workflow file mentions* the settler, and the only files that do are a disabled workflow and a dispatch-only workflow. The state still blocks, so this does not change any decision, but "scheduled" is false.
-- **A separate model record** (`reconciliation/2-0N.json`, ESPN box scores) grades ATD.
+**One grader, one ledger, now on a schedule.**
 
-  | Week | Graded | Scored | Expected | Void |
-  |---|---|---|---|---|
-  | 1 | 180 | 49 | 39.9 | 42 |
-  | 2 | 256 | 45 | 62.3 | 53 |
-  | 3 | 246 | 60 | 58.8 | 63 |
-  | TNF | 16 | 5 | 3.2 | 2 |
+| Piece | Owner |
+|---|---|
+| Grader (the only one) | `lib/sports/nfl/live-prop-state.mjs` `settle` / `buildLiveRows` — ESPN summary, by ESPN athlete id; volume families vs the FROZEN pregame line (OVER/UNDER/PUSH), ATD YES/NO on scored (never thrown) TDs; not-final = PENDING; no stat row at FINAL = NO_MEASUREMENT (never a loss, never "no TD") |
+| Frozen pregame block | minted only from a board AND a price that prove they predate kickoff (`pregameProvenance`); a post-kickoff board or price mints nothing and the ledger admits nothing |
+| Post-final sweep (Session 9) | `capture-live-props.mjs --post-final`: the same producer aimed at games kicked off 3.5 h – 14 days ago and not yet CANONICAL; writes only a FINAL read |
+| Canonical ledger | `data/internal/nfl/prop-settlement/<ET date>.json` (`settle-nfl-live-props.mjs --write`, `lib/sports/nfl/prop-settlement-ledger.mjs`): one row per `event:player:family`, append-only — `frozen`, `original`, `settledAt` never move; a changed answer appends to `corrections`; `admittedBy` names the CI run that admitted the row |
+| Cadence | `nfl-event-window.yml` settle step — scheduled (14:30Z, 15:00Z, 21:00Z daily; 13:00Z Fri–Sun), keyless, free, `if: !cancelled()` so an earlier failure cannot skip it |
+| Reconciliation | first FINAL read → PROVISIONAL; a read inside the 3-hour window re-attempts late stat blocks (NO_MEASUREMENT → SETTLED is recorded as a recovery); after it closes the promotion sweep sets CANONICAL fetch-free |
 
-  It is not the product settlement path, and the gate does not read it.
+**`settlementSupport` is derived from ledger evidence** (`lib/sports/nfl/prop-settlement-support.mjs`, read by
+`engine-v2/nfl-boards.mjs`), replacing "a workflow file mentions the settler":
+- **PROVEN** — the ledger holds ≥ 1 row of that family that is CANONICAL, OBSERVED, graded against the frozen
+  market (line result present), and **admitted by a CI run** (a local fold admits `admittedBy: null` and proves
+  nothing).
+- **SCHEDULED_UNPROVEN** — no such row yet, but a workflow with a `schedule:` trigger runs both the sweep and the
+  fold.
+- **UNSUPPORTED** — neither.
 
-**To reach PROVEN** (each step is an ops/founder decision, and none of them was made this session):
-1. A cadence for the free (ESPN, $0) live-props producer after finals. The comment says a human chose to
-   stop that cadence.
-2. Fold the FINAL rows into `data/internal/nfl/prop-settlement/`.
-3. Have `nfl-boards.mjs` read that ledger instead of `graded-picks.json`.
+PROVEN is per family: a canonical ATD row does not prove receptions. A PROVEN settlement path clears only the
+SETTLEMENT_NOT_PROVEN blocker; every other blocker (model, role, price, founder grant) is independent.
+
+**Not covered (stated, not hidden):** an official stat correction that arrives after a game reaches CANONICAL is
+not re-polled; the ledger's correction path applies only to re-reads of committed evidence. The sweep's lookback is
+14 days.
+
+## 3b. Role confirmation — the contract, and why it confirms nothing yet (Session 9)
+
+`lib/sports/nfl/role-confirmation.mjs` is the pregame role receipt per (event, player, family): event, player,
+team, family role, state, reasons, source, capturedAt, sourceAsOf, expiresAt (= kickoff). Fail-closed:
+"not inactive" never becomes "confirmed"; availability evidence can only remove.
+
+| Source in the repo | Proves | Freshness |
+|---|---|---|
+| ESPN rosters (every event window) | team membership (practice squad is not a role) | capture clock |
+| ESPN injuries (every window; T-55 Thu/Mon) | availability only | `generatedAt`, per-entry `statedAt` |
+| nflverse depth chart (Wed/Sat 08:12Z) | a depth ORDER (QBs parsed) — "not official actives" | snapshot `timestamp`: 35–84 h old at kickoff at this cadence |
+| usage / snaps | last week's workload (postgame) | lags a week |
+
+| Family | Role it needs | Positive source | Today |
+|---|---|---|---|
+| passing yards | QB1 / primary passer | depth-chart QB rank 1, ≤ 36 h old at kickoff, uncontradicted by a later QB designation | `PROJECTED_DEPTH_STARTER` at best — **not** a gate-accepted state (measured 82/90 team-games, W1–4; accepting it is a founder/methodology decision) |
+| rushing yards | lead rusher | none (RB1 led rushing 80/92; committees) | ROLE_UNCERTAIN |
+| receiving yards / receptions | a receiving role | none (depth rank is not volume) | ROLE_UNCERTAIN |
+| anytime TD | an active offensive role | none (no Sunday post-inactives pass) | ROLE_UNCERTAIN |
+
+Real slate (`scripts/nfl/report-role-confirmation.mjs`, 2026-10-02 17:41Z, Week 4 Sunday/SNF/MNF boards):
+**763 rows, 0 gate-satisfying** — QB rows fail on depth-chart staleness (28), Q/D designations block 96, and
+**11 rows belong to practice-squad players** (9 ATD, 2 receiving): a board-producer defect (rosters include the
+practice squad and nothing filters it) recorded as an open item.
+
+To ever confirm a role, all of these are needed and none is a code-only change: a depth-chart capture inside the
+36 h bound (a Sunday-morning acquisition), a Sunday post-inactives pass, and a founder decision on whether a
+projected depth starter may count as confirmed for passing. Other families have no positive source at all.
 
 ## 4. Other NFL families
 

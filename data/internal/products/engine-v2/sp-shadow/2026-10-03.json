@@ -1,0 +1,329 @@
+{
+ "schema": "sp-shadow-day@1",
+ "artifact": "suggested-parlays-v2-shadow",
+ "dataClass": "internal-research",
+ "status": "SHADOW — not published, not counted in any public record",
+ "date": "2026-10-03",
+ "asOf": "2026-10-03T10:36:46Z",
+ "generatedAt": "2026-10-03T10:36:47.357Z",
+ "policy": "SP-V2@c0526c1512ed",
+ "legFloor": "leg-floor@2",
+ "universeHash": "43b38e29f564",
+ "eligibleLegs": 24,
+ "tiers": [
+  {
+   "tier": "low",
+   "label": "Low Risk",
+   "band": {
+    "minAmerican": -200,
+    "maxAmerican": 100
+   },
+   "objective": "maxJointProbability",
+   "maxLegs": 2,
+   "minLegProbability": null,
+   "state": "NO_QUALIFYING_CARD",
+   "reasonCode": "NO_CARD_IN_BAND",
+   "card": null,
+   "alternatives": [],
+   "candidatesConsidered": 0,
+   "graded": null
+  },
+  {
+   "tier": "medium",
+   "label": "Medium Risk",
+   "band": {
+    "minAmerican": 100,
+    "maxAmerican": 300
+   },
+   "objective": "maxFairRatio",
+   "maxLegs": 3,
+   "minLegProbability": 0.4,
+   "state": "PUBLISHABLE",
+   "card": {
+    "legs": [
+     {
+      "receiptId": "mlb:849830:mlb_moneyline:-:home:",
+      "sport": "mlb",
+      "eventId": "849830",
+      "eventStartUtc": "2026-10-04T00:30:00Z",
+      "matchup": "San Diego Padres @ Milwaukee Brewers",
+      "family": "team_result",
+      "marketKey": "mlb_moneyline",
+      "side": "home",
+      "line": null,
+      "selection": "Milwaukee Brewers to win",
+      "price": -203,
+      "sportsbook": "draftkings",
+      "marketCapturedAt": "2026-10-03T10:29:50.243Z",
+      "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+      "probabilityKind": "MARKET_IMPLIED",
+      "readableProbability": 0.6406,
+      "forecastId": null,
+      "correlationGroup": "event:mlb:849830",
+      "reason": "passed every leg-floor@2 gate; market-implied (de-vigged draftkings) 64.1% — not a GameTimePicks forecast; clears this tier's 40% per-leg floor"
+     },
+     {
+      "receiptId": "mlb:849828:mlb_moneyline:-:home:",
+      "sport": "mlb",
+      "eventId": "849828",
+      "eventStartUtc": "2026-10-03T20:00:00Z",
+      "matchup": "Atlanta Braves @ Los Angeles Dodgers",
+      "family": "team_result",
+      "marketKey": "mlb_moneyline",
+      "side": "home",
+      "line": null,
+      "selection": "Los Angeles Dodgers to win",
+      "price": -212,
+      "sportsbook": "draftkings",
+      "marketCapturedAt": "2026-10-03T10:29:50.243Z",
+      "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+      "probabilityKind": "MARKET_IMPLIED",
+      "readableProbability": 0.6497,
+      "forecastId": null,
+      "correlationGroup": "event:mlb:849828",
+      "reason": "passed every leg-floor@2 gate; market-implied (de-vigged draftkings) 65.0% — not a GameTimePicks forecast; clears this tier's 40% per-leg floor"
+     }
+    ],
+    "legCount": 2,
+    "combinedDecimal": 2.196672553211265,
+    "combinedAmerican": 120,
+    "pricingKind": "DERIVED_INDEPENDENT_PRODUCT",
+    "jointProbability": 0.41619782,
+    "jointProbabilityBasis": "MARKET_IMPLIED",
+    "fairRatio": 0.9142503279003625,
+    "minLegProbability": 0.6406,
+    "rationale": "Medium Risk: of 139 conflict-free cards inside the band, this one has the highest fair ratio at 0.01 resolution (least of the price kept by the book), then the highest joint probability; then fewer legs."
+   },
+   "alternatives": [
+    {
+     "key": "mlb:849828:mlb_moneyline:-:home:|mlb:849835:mlb_run_line:-:away:1.5",
+     "combinedAmerican": 121,
+     "jointProbability": 0.41346908,
+     "fairRatio": 0.9142813960140325,
+     "legs": 2
+    },
+    {
+     "key": "mlb:849830:mlb_moneyline:-:home:|mlb:849835:mlb_run_line:-:away:1.5",
+     "combinedAmerican": 124,
+     "jointProbability": 0.40767783999999996,
+     "fairRatio": 0.914285448683813,
+     "legs": 2
+    },
+    {
+     "key": "mlb:849828:mlb_moneyline:-:home:|mlb:849829:mlb_run_line:-:away:1.5",
+     "combinedAmerican": 131,
+     "jointProbability": 0.39612209000000004,
+     "fairRatio": 0.9142062986192111,
+     "legs": 2
+    }
+   ],
+   "candidatesConsidered": 139,
+   "graded": null
+  },
+  {
+   "tier": "high",
+   "label": "High Risk",
+   "band": {
+    "minAmerican": 300,
+    "maxAmerican": 600
+   },
+   "objective": "maxFairRatio",
+   "maxLegs": 4,
+   "minLegProbability": 0.35,
+   "state": "PUBLISHABLE",
+   "card": {
+    "legs": [
+     {
+      "receiptId": "mlb:849830:mlb_run_line:-:away:1.5",
+      "sport": "mlb",
+      "eventId": "849830",
+      "eventStartUtc": "2026-10-04T00:30:00Z",
+      "matchup": "San Diego Padres @ Milwaukee Brewers",
+      "family": "team_spread",
+      "marketKey": "mlb_run_line",
+      "side": "away",
+      "line": 1.5,
+      "selection": "San Diego Padres +1.5",
+      "price": -132,
+      "sportsbook": "draftkings",
+      "marketCapturedAt": "2026-10-03T10:29:50.243Z",
+      "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+      "probabilityKind": "MARKET_IMPLIED",
+      "readableProbability": 0.5444,
+      "forecastId": null,
+      "correlationGroup": "event:mlb:849830",
+      "reason": "passed every leg-floor@2 gate; market-implied (de-vigged draftkings) 54.4% — not a GameTimePicks forecast; clears this tier's 35% per-leg floor"
+     },
+     {
+      "receiptId": "mlb:849828:mlb_moneyline:-:away:",
+      "sport": "mlb",
+      "eventId": "849828",
+      "eventStartUtc": "2026-10-03T20:00:00Z",
+      "matchup": "Atlanta Braves @ Los Angeles Dodgers",
+      "family": "team_result",
+      "marketKey": "mlb_moneyline",
+      "side": "away",
+      "line": null,
+      "selection": "Atlanta Braves to win",
+      "price": 173,
+      "sportsbook": "draftkings",
+      "marketCapturedAt": "2026-10-03T10:29:50.243Z",
+      "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+      "probabilityKind": "MARKET_IMPLIED",
+      "readableProbability": 0.3503,
+      "forecastId": null,
+      "correlationGroup": "event:mlb:849828",
+      "reason": "passed every leg-floor@2 gate; market-implied (de-vigged draftkings) 35.0% — not a GameTimePicks forecast; clears this tier's 35% per-leg floor"
+     }
+    ],
+    "legCount": 2,
+    "combinedDecimal": 4.798181818181818,
+    "combinedAmerican": 380,
+    "pricingKind": "DERIVED_INDEPENDENT_PRODUCT",
+    "jointProbability": 0.19070332,
+    "jointProbabilityBasis": "MARKET_IMPLIED",
+    "fairRatio": 0.915029202690909,
+    "minLegProbability": 0.3503,
+    "rationale": "High Risk: of 315 conflict-free cards inside the band, this one has the highest fair ratio at 0.01 resolution (least of the price kept by the book), then the highest joint probability; then fewer legs."
+   },
+   "alternatives": [
+    {
+     "key": "mlb:849829:mlb_moneyline:-:away:|mlb:849830:mlb_run_line:-:away:1.5",
+     "combinedAmerican": 302,
+     "jointProbability": 0.227287,
+     "fairRatio": 0.9147957375757575,
+     "legs": 2
+    },
+    {
+     "key": "mlb:849830:mlb_total_runs:-:over:7|mlb:849835:mlb_moneyline:-:away:",
+     "combinedAmerican": 303,
+     "jointProbability": 0.22602725999999998,
+     "fairRatio": 0.9112934779071428,
+     "legs": 2
+    },
+    {
+     "key": "mlb:849830:mlb_run_line:-:home:-1.5|mlb:849835:mlb_total_runs:-:over:7",
+     "combinedAmerican": 306,
+     "jointProbability": 0.2248386,
+     "fairRatio": 0.9134330786915889,
+     "legs": 2
+    }
+   ],
+   "candidatesConsidered": 315,
+   "graded": null
+  },
+  {
+   "tier": "longshot",
+   "label": "Longshot",
+   "band": {
+    "minAmerican": 600,
+    "maxAmerican": null
+   },
+   "objective": "maxFairRatio",
+   "maxLegs": 5,
+   "minLegProbability": 0.25,
+   "state": "PUBLISHABLE",
+   "card": {
+    "legs": [
+     {
+      "receiptId": "mlb:849830:mlb_run_line:-:home:-1.5",
+      "sport": "mlb",
+      "eventId": "849830",
+      "eventStartUtc": "2026-10-04T00:30:00Z",
+      "matchup": "San Diego Padres @ Milwaukee Brewers",
+      "family": "team_spread",
+      "marketKey": "mlb_run_line",
+      "side": "home",
+      "line": -1.5,
+      "selection": "Milwaukee Brewers -1.5",
+      "price": 110,
+      "sportsbook": "draftkings",
+      "marketCapturedAt": "2026-10-03T10:29:50.243Z",
+      "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+      "probabilityKind": "MARKET_IMPLIED",
+      "readableProbability": 0.4556,
+      "forecastId": null,
+      "correlationGroup": "event:mlb:849830",
+      "reason": "passed every leg-floor@2 gate; market-implied (de-vigged draftkings) 45.6% — not a GameTimePicks forecast; clears this tier's 25% per-leg floor"
+     },
+     {
+      "receiptId": "mlb:849829:mlb_run_line:-:away:1.5",
+      "sport": "mlb",
+      "eventId": "849829",
+      "eventStartUtc": "2026-10-03T17:00:00Z",
+      "matchup": "Chicago White Sox @ Cleveland Guardians",
+      "family": "team_spread",
+      "marketKey": "mlb_run_line",
+      "side": "away",
+      "line": 1.5,
+      "selection": "Chicago White Sox +1.5",
+      "price": -176,
+      "sportsbook": "draftkings",
+      "marketCapturedAt": "2026-10-03T10:29:50.243Z",
+      "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+      "probabilityKind": "MARKET_IMPLIED",
+      "readableProbability": 0.6097,
+      "forecastId": null,
+      "correlationGroup": "event:mlb:849829",
+      "reason": "passed every leg-floor@2 gate; market-implied (de-vigged draftkings) 61.0% — not a GameTimePicks forecast; clears this tier's 25% per-leg floor"
+     },
+     {
+      "receiptId": "mlb:849835:mlb_moneyline:-:away:",
+      "sport": "mlb",
+      "eventId": "849835",
+      "eventStartUtc": "2026-10-03T22:30:00Z",
+      "matchup": "New York Yankees @ Tampa Bay Rays",
+      "family": "team_result",
+      "marketKey": "mlb_moneyline",
+      "side": "away",
+      "line": null,
+      "selection": "New York Yankees to win",
+      "price": 113,
+      "sportsbook": "draftkings",
+      "marketCapturedAt": "2026-10-03T10:29:50.243Z",
+      "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+      "probabilityKind": "MARKET_IMPLIED",
+      "readableProbability": 0.4482,
+      "forecastId": null,
+      "correlationGroup": "event:mlb:849835",
+      "reason": "passed every leg-floor@2 gate; market-implied (de-vigged draftkings) 44.8% — not a GameTimePicks forecast; clears this tier's 25% per-leg floor"
+     }
+    ],
+    "legCount": 3,
+    "combinedDecimal": 7.014477272727274,
+    "combinedAmerican": 601,
+    "pricingKind": "DERIVED_INDEPENDENT_PRODUCT",
+    "jointProbability": 0.124500691224,
+    "jointProbabilityBasis": "MARKET_IMPLIED",
+    "fairRatio": 0.8733072690295839,
+    "minLegProbability": 0.4482,
+    "rationale": "Longshot: of 875 conflict-free cards inside the band, this one has the highest fair ratio at 0.01 resolution (least of the price kept by the book), then the highest joint probability; then fewer legs."
+   },
+   "alternatives": [
+    {
+     "key": "mlb:849828:mlb_run_line:-:away:1.5|mlb:849829:mlb_total_runs:-:under:7|mlb:849830:mlb_run_line:-:home:-1.5",
+     "combinedAmerican": 601,
+     "jointProbability": 0.12444445196000001,
+     "fairRatio": 0.87195031569161,
+     "legs": 3
+    },
+    {
+     "key": "mlb:849828:mlb_run_line:-:away:1.5|mlb:849829:mlb_total_runs:-:over:7|mlb:849835:mlb_total_runs:-:under:7",
+     "combinedAmerican": 601,
+     "jointProbability": 0.12417146334999998,
+     "fairRatio": 0.8701046349961069,
+     "legs": 3
+    },
+    {
+     "key": "mlb:849828:mlb_run_line:-:away:1.5|mlb:849829:mlb_total_runs:-:over:7|mlb:849830:mlb_total_runs:-:over:7",
+     "combinedAmerican": 604,
+     "jointProbability": 0.12363212036999997,
+     "fairRatio": 0.8699567835209698,
+     "legs": 3
+    }
+   ],
+   "candidatesConsidered": 875,
+   "graded": null
+  }
+ ]
+}

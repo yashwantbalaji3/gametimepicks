@@ -96,7 +96,7 @@ if (portfolio && ledger && daily) {
   const dir = path.join(ROOT, "mr-dub", "settled");
   const receipts = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().map((f) => ({ ...JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")), date: f.slice(0, 10) })) : [];
   const m = reconcileMoney({ portfolio, ledgerEvents: ledger.events ?? [], summaryDays: daily.days ?? [], receipts });
-  if (m.ok) P(`reconcile: ${m.summary.rows} card movements → $${m.summary.recomputedBankroll}, peak $${m.summary.peak} == crown`);
+  if (m.ok) P(`reconcile: ${m.summary.rows} card movements → $${m.summary.recomputedBankroll}, peak $${m.summary.peak} == high-water mark`);
   else for (const r of m.reasons.slice(0, 8)) C("reconcile:card-movements", r);
 }
 

@@ -208,7 +208,7 @@ export default function DailyPortfolioSection({ portfolio, bankBuilderAlternativ
         <StatChip label="Open exposure (at risk)" value={money(portfolio.openExposure)} />
         <StatChip label="Available" value={money(portfolio.availableBankroll)} />
         <StatChip label="Potential return" value={money(portfolio.potentialReturn)} accent="var(--vault-success)" />
-        <StatChip label="Peak paper bankroll" value={money(portfolio.crownBankroll)} faint />
+        <StatChip label="Peak paper bankroll" value={money(portfolio.peakBankroll)} faint />
       </div>
 
       {/* Lane cards — 2×2 on desktop, single column on mobile. A flagship product with no lane today shows

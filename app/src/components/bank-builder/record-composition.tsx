@@ -37,8 +37,12 @@ export default function RecordComposition({ recordLabel, window, composition, ba
       {backlog?.haltedAt && waiting > 0 ? (
         <p className="m-0 mt-1">
           Not yet in this record: {waiting} decided {productLabel} result{waiting === 1 ? "" : "s"} after {day(backlog.after)} ({bb!.won}–{bb!.lost}).
-          The record folds day by day and waits while any placed leg is unsettled — held since {day(backlog.haltedAt)} by{" "}
-          {backlog.blocking.flatMap((b) => b.legs.map((l) => `${l.matchup ?? "a game"} · ${l.selection ?? "a leg"}${b.product ? ` (${b.product === "moonshot" ? "Moonshot" : "Bank Builder"} lane ${b.lane ?? "?"})` : ""}`)).join("; ") || "an unsettled leg"}.
+          {backlog.blocking.length ? (
+            <>The record folds day by day and waits while any placed leg is unsettled — held since {day(backlog.haltedAt)} by{" "}
+            {backlog.blocking.flatMap((b) => b.legs.map((l) => `${l.matchup ?? "a game"} · ${l.selection ?? "a leg"}${b.product ? ` (${b.product === "moonshot" ? "Moonshot" : "Bank Builder"} lane ${b.lane ?? "?"})` : ""}`)).join("; ") || "an unsettled leg"}.</>
+          ) : (
+            <>The record folds day by day and is held since {day(backlog.haltedAt)} for an operator review of that day&rsquo;s receipt.</>
+          )}
         </p>
       ) : null}
     </section>

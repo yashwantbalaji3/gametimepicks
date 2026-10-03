@@ -74,7 +74,10 @@ let wrote = 0;
 for (const date of [...byDate.keys()].sort()) {
   const outPath = path.join(OUT_DIR, `${date}.json`);
   const prior = read(outPath);
-  const { rows, added, corrected, promoted, unchanged, skipped, counts } = buildLedger({ prior, artifacts: byDate.get(date), nowIso: NOW });
+  /* Which run admitted a row is recorded on the row (never moved). On CI that is the scheduled workflow;
+     off CI it is null — and only CI-admitted canonical rows can prove a family's settlement path. */
+  const producedBy = process.env.GITHUB_RUN_ID ? { workflow: process.env.GITHUB_WORKFLOW ?? null, runId: process.env.GITHUB_RUN_ID } : null;
+  const { rows, added, corrected, promoted, unchanged, skipped, counts } = buildLedger({ prior, artifacts: byDate.get(date), nowIso: NOW, producedBy });
 
   const record = {
     schemaVersion: 1,

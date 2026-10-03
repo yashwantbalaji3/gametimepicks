@@ -94,19 +94,23 @@ test("a candidate (awaiting) card is not exposure; a placed open card is — at 
   assert.deepEqual([open[0].product, open[0].seedAtRisk, open[0].stake], ["moonshot", 25, 100.17]);
 });
 
-test("the fold HALTS on a completed ladder (operator-gated) instead of folding it as a $0 roll", () => {
+test("a completed ladder no longer halts the fold: since C1 it banks (final − seed) and later days fold (Session 9)", () => {
   const receipts = readReceiptsFrom(APP).filter((r) => r.date <= "2026-10-01");
   const done = [...receipts, { date: "2026-10-03", lanes: [{ product: "moonshot", lane: "B", step: FINAL_STEP.moonshot, stake: 400, status: "won", result: "won", potentialReturn: 1010 }] },
     { date: "2026-10-04", lanes: [{ product: "bank-builder", lane: "A", step: 1, stake: 100, status: "lost", result: "lost" }] }];
   const f = foldReceipts(done);
-  assert.equal(f.foldedThrough, "2026-10-01");
-  assert.deepEqual([f.haltedAt, f.haltReason], ["2026-10-03", HALT.COMPLETION]);
-  const b = foldBacklog(done, { after: "2026-10-01" });
-  assert.deepEqual([b.haltedAt, b.haltReason], ["2026-10-03", HALT.COMPLETION]);
+  assert.deepEqual([f.foldedThrough, f.haltReason], ["2026-10-04", null]);
+  assert.equal(f.days.find((d) => d.date === "2026-10-03").completions[0].banked, 985);
+  assert.equal(f.days.find((d) => d.date === "2026-10-03").delta, 985);
+  assert.equal(foldBacklog(done, { after: "2026-10-01" }).haltReason, null);
+  // the Session 8 halt survives for a completion the policy does not cover (dated before it took effect)
+  const early = foldReceipts([...receipts.filter((r) => r.date <= "2026-09-29"), { date: "2026-09-30", lanes: [{ product: "moonshot", lane: "B", step: FINAL_STEP.moonshot, stake: 400, status: "won", result: "won", potentialReturn: 1010 }] }]);
+  assert.deepEqual([early.haltedAt, early.haltReason], ["2026-09-30", HALT.COMPLETION]);
   // a non-final win still rolls and folds
   const roll = foldReceipts([...receipts, { date: "2026-10-03", lanes: [{ product: "moonshot", lane: "B", step: FINAL_STEP.moonshot - 1, stake: 100, status: "won", result: "won", potentialReturn: 410 }] }]);
   assert.equal(roll.foldedThrough, "2026-10-03");
   assert.equal(roll.haltReason, null);
+  assert.equal(roll.days.at(-1).delta, 0);
 });
 
 test("an unknown product halts the fold — only official products move money", () => {
