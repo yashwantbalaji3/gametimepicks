@@ -7,7 +7,7 @@
  "modelVersion": "mlb-fullgame-2026.08-pa-v2",
  "simulationVersion": 1,
  "sourceBoardHash": "1816e3c030c909f5dab9d2092639773ded8f79a1cbdfe3102e332b57d0c572cb",
- "updatedAt": "2026-10-03T18:46:02.000Z",
+ "updatedAt": "2026-10-03T19:19:58.000Z",
  "games": [
   {
    "gamePk": 849828,
@@ -77,9 +77,9 @@
    "awayTeam": "CWS",
    "homeTeam": "CLE",
    "firstPitch": "2026-10-03T17:00:00Z",
-   "artifactHash": "322f2e1e9fc8c9a8bfccb162e6c8bfdc0a43dbd61f3b33220acf221b56660739",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "d54026e1b6b8732949d89a697aecc8989aa71aa9a412b9ccc3db29471d123869",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
     "source": "confirmed",
     "capturedAt": "2026-10-03T15:03:43.729Z",
@@ -131,7 +131,8 @@
    "missingFamilies": [
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   },
   {
@@ -206,45 +207,45 @@
    "awayTeam": "NYY",
    "homeTeam": "TB",
    "firstPitch": "2026-10-03T22:30:00Z",
-   "artifactHash": "9e91c11e87cd2106e93127a520cf81c2e3d86350b5eae9ac3f6cf02d626c9bd9",
+   "artifactHash": "156a40b96e2c0034a65febdab14c9f04b2082358c2e523c84a4632e0a33c1c7e",
    "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-10-03T19:19:57.686Z",
+    "minutesToFirstPitch": 190,
     "batterIds": [
      700250,
      641355,
+     671277,
+     682987,
      806146,
      665862,
-     682987,
      663757,
      669224,
-     641857,
-     -9
+     641857
     ],
-    "realCount": 8,
+    "realCount": 9,
     "ratedCount": 8,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-10-03T19:19:57.686Z",
+    "minutesToFirstPitch": 190,
     "batterIds": [
+     650490,
+     666018,
      691406,
+     689414,
      802415,
      683748,
-     666018,
-     689414,
+     676356,
      680700,
-     656775,
-     670764,
-     -9
+     670764
     ],
-    "realCount": 8,
-    "ratedCount": 8,
+    "realCount": 9,
+    "ratedCount": 7,
     "paddedSlots": 0
    },
    "awayStarter": {
@@ -258,7 +259,6 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
