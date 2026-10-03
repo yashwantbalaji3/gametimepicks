@@ -7,6 +7,8 @@ import SlipUpload, { type SlipReadResult } from "./slip-upload";
 import SlipConfirm from "./slip-confirm";
 import MyBetsRecord from "./my-bets-record";
 import StyleSyncPanel from "./style-sync-panel";
+import AccountSyncPanel from "./account-sync-panel";
+import Link from "next/link";
 import type { LegRecordView } from "@/components/parlays/lab/leg-record-list";
 
 /**
@@ -116,6 +118,13 @@ export default function AccountExperience({ bandByTier = null, legRecord = null 
       {/* The style the reader already stated in the Parlay Center, reconciled with the copy their
           account holds — shown before their record, because it is what decided which cards they saw. */}
       <StyleSyncPanel userId={user.id} />
+
+      {/* Session 9: follows and saved forecasts follow the reader across devices (union; nothing silently removed). */}
+      <AccountSyncPanel userId={user.id} />
+
+      <p className="m-0" style={{ fontSize: 13, color: "var(--vault-text-mute)" }}>
+        Testing the beta? <Link href="/feedback?from=/account" style={{ color: "var(--vault-gold-bright)" }}>Send feedback</Link> — private to you and the team.
+      </p>
 
       <MyBetsRecord userId={user.id} refreshKey={refreshKey} />
     </div>

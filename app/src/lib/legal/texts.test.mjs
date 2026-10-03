@@ -90,6 +90,7 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
     /\b(localStorage|sessionStorage)\.(setItem|getItem)/.test(src) || /\bwindow\.(localStorage|sessionStorage)\b/.test(src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""));
   const users = SOURCE.filter((f) => usesStorage(readSource(f))).map((f) => path.relative(SRC, f)).sort();
   assert.deepEqual(users, [
+    "components/accounts/account-sync-panel.tsx",
     "components/analytics-bootstrap.tsx",
     "lib/follow/follow-store.ts",
     "lib/my/observation-store.ts",
@@ -100,6 +101,8 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
   assert.match(renderLegal("privacy").text, /the forecasts you save/, "saved forecasts are described in the notice");
   // v1.1.2: NFL players are followable, so the notice must say players — "teams you follow" became incomplete.
   assert.match(renderLegal("privacy").text, /the teams and players you follow/, "followed players are described in the notice");
+  // Session 9: the signed-in account sync keeps a last-synced list in the browser, and the notice must say so.
+  assert.match(renderLegal("privacy").text, /a short list of which ones were last synced/, "the account-sync baseline is described in the notice");
   // v1.1.4: My GameTime's observation record (lib/my/observation-*) is a sixth use, and the notice must name it.
   assert.match(renderLegal("privacy").text, /short record of how far the games of the teams you follow, and your saved forecasts, had got/, "the observation record is described in the notice");
   assert.match(renderLegal("privacy").text, /holds no scores, pages or browsing history, stays in your browser and is never sent to us/);

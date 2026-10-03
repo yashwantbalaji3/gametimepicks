@@ -87,6 +87,9 @@ export const ROUTE_TABLE = Object.freeze({
      bet record, keyed to their id by row-level security. Noindex, and out of the nav until the keys
      land. Its data owner is the READER — nothing here ever enters the site's published record. */
   "/account": { classification: "public", owner: "product", purpose: "the reader's own bet record: add a slip, confirm what was read, see how it has gone", dataOwner: "the reader's own rows (RLS-scoped)", freshness: "per reader" },
+  /* Session 9 · the friends-beta feedback form. Signed-in testers only; one own-row insert into
+     beta_feedback (RLS). Nothing personal is in the exported HTML; noindex; out of the nav like /account. */
+  "/feedback": { classification: "public", indexable: false, owner: "product", purpose: "friends-beta feedback form: a signed-in tester reports a problem privately", dataOwner: "the tester's own beta_feedback row (RLS-scoped)", freshness: "per reader" },
   // Rewritten 2026-08-20: this said /epl "publishes nothing predictive" while the page was rendering
   // a per-fixture 1X2 table. The registry describes what a route DOES; a stale description here is a
   // false answer to the audit that reads it.
