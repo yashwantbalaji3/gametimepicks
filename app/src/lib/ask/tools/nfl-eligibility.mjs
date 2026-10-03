@@ -33,6 +33,7 @@ export async function getNflProductEligibility(args, ctx) {
     generatedAt: doc.generatedAt ?? null,
     slate: doc.slate ?? null,
     sport: doc.sport ?? null,
+    prices: doc.prices ?? null,
     products: doc.products ?? [],
     families,
   };

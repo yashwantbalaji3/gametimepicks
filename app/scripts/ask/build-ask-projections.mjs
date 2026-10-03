@@ -931,7 +931,7 @@ function buildNflEligibility() {
   const doc = JSON.parse(fs.readFileSync(file, "utf8"));
   if (doc?.artifact !== "nfl-family-eligibility" || doc?.dataClass !== "PUBLIC_DERIVED") { notes.push("nfl family eligibility refused: not the public record"); return { ...base, available: false, generatedAt: null, families: [] }; }
   return {
-    ...base, available: true, generatedAt: doc.generatedAt ?? null, slate: doc.slate ?? null, sport: doc.sport ?? null,
+    ...base, available: true, generatedAt: doc.generatedAt ?? null, slate: doc.slate ?? null, sport: doc.sport ?? null, prices: doc.prices ?? null,
     products: doc.products ?? [],
     families: (doc.families ?? []).map((f) => ({ family: f.family, label: f.label, eligibleForOfficialProducts: f.eligibleForOfficialProducts === true, gtpProbability: f.gtpProbability === true, blockers: f.blockers ?? [], evidence: f.evidence ?? null })),
   };

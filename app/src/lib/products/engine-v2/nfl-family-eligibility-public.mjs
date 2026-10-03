@@ -51,8 +51,11 @@ function publicBlocker(b) {
  * @param {{from:string|null, to:string|null, events:number}} o.slate
  * @param {string} o.generatedAt
  * @param {string} o.sportState  the sport registry state (NFL: EXPERIMENTAL_PUBLIC)
+ * @param {{capturedAt:string|null, maxAgeHours:number}|null} [o.prices]  the latest pregame prop-price capture and
+ *   the product freshness rule. A held price is not a FRESH price: products refuse one older than maxAgeHours at
+ *   activation (LEG_BOUNDS), so the record says when prices were captured instead of implying "current".
  */
-export function buildPublicFamilyEligibility({ gates, slate, generatedAt, sportState }) {
+export function buildPublicFamilyEligibility({ gates, slate, generatedAt, sportState, prices = null }) {
   const families = (gates ?? []).map((g) => {
     const f = g.evidence?.forward ?? null;
     const s = g.evidence?.slate ?? {};
@@ -77,6 +80,7 @@ export function buildPublicFamilyEligibility({ gates, slate, generatedAt, sportS
     dataClass: "PUBLIC_DERIVED",
     generatedAt,
     slate,
+    prices: prices ? { capturedAt: prices.capturedAt ?? null, maxAgeHoursForProducts: prices.maxAgeHours ?? null } : null,
     sport: {
       state: sportState,
       says: sportState === "FULL_MODEL"

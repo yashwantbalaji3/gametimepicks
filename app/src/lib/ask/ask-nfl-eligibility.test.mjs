@@ -22,8 +22,8 @@ const GATES = [
   { family: "player_pass_yds", state: "GATED", publicationState: "ESTIMATE_BELOW_BAR", blockers: ["FAMILY_NOT_PUBLISHED", "NO_MODEL_PROBABILITY", "MODEL_FORWARD_ACCUMULATING", "ROLE_CONFIRMATION_UNAVAILABLE", "PRICES_NOT_CAPTURED", "SETTLEMENT_NOT_PROVEN", "NO_FOUNDER_GRANT"],
     evidence: { forward: { state: "ACCUMULATING", n: 66, needed: 300, metrics: { level: 1.0133, ece: 0.1077 } }, slate: { candidates: 27, modelProbability: 0, roleConfirmed: 0, priced: 0, settlementProven: false } } },
 ];
-const pub = (gates) => buildPublicFamilyEligibility({ gates, generatedAt: "2026-10-02T18:00:00Z", sportState: "EXPERIMENTAL_PUBLIC", slate: { from: "2026-10-04", to: "2026-10-05", events: 15 } });
-const projection = (doc) => ({ schemaVersion: 1, artifact: "ask-nfl-eligibility", available: true, generatedAt: doc.generatedAt, slate: doc.slate, sport: doc.sport, products: doc.products, families: doc.families });
+const pub = (gates) => buildPublicFamilyEligibility({ gates, generatedAt: "2026-10-02T18:00:00Z", sportState: "EXPERIMENTAL_PUBLIC", slate: { from: "2026-10-04", to: "2026-10-05", events: 15 }, prices: { capturedAt: "2026-10-02T18:08:45Z", maxAgeHours: 12 } });
+const projection = (doc) => ({ schemaVersion: 1, artifact: "ask-nfl-eligibility", available: true, generatedAt: doc.generatedAt, slate: doc.slate, sport: doc.sport, prices: doc.prices, products: doc.products, families: doc.families });
 const run = async (doc, args = {}) => {
   const ex = makeExecutor({ turn: makeAskLoader(fixtureFetchText({ "/data/ask/v1/nfl-eligibility.json": doc })).beginTurn(), now: NOW });
   const r = await ex.run({ id: "c1", name: "getNflProductEligibility", arguments: args });
@@ -82,4 +82,10 @@ test("the seven NFL-eligibility questions route to getNflProductEligibility, not
   }
   assert.equal((await plan("What is blocking Anytime TD?")).calls.at(-1).arguments.family, "anytime_td");
   assert.equal((await plan("What is today's Bank Builder?")).calls.at(-1).name, "getOfficialProductCards", "today's card is still the cards tool");
+});
+
+test("'are NFL prop prices current?' is answered with WHEN they were captured and the product age rule — never 'current'", async () => {
+  const { text } = await run(projection(pub(GATES)));
+  assert.match(text, /latest NFL pregame prop prices were captured at 2026-10-02T18:08:45Z; official products only use a price captured within 12 hours of activation/);
+  assert.doesNotMatch(text, /prices are current|fresh prices/i);
 });

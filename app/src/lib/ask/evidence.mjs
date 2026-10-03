@@ -511,6 +511,9 @@ export function buildEvidence(envelopes) {
          */
         const slate = d.slate?.from ? `the NFL slate ${d.slate.from}${d.slate.to && d.slate.to !== d.slate.from ? ` to ${d.slate.to}` : ""} (${d.slate.events} games)` : "the next NFL slate";
         if (d.sport?.says) say(`${d.sport.says}`);
+        /* A held price is not a fresh one: say WHEN, and the age products accept — never "current". */
+        if (d.prices?.capturedAt) say(`the latest NFL pregame prop prices were captured at ${d.prices.capturedAt}${d.prices.maxAgeHoursForProducts != null ? `; official products only use a price captured within ${d.prices.maxAgeHoursForProducts} hours of activation` : ""}`);
+        else if (d.prices) say("GameTimePicks holds no NFL pregame prop-price capture for this slate");
         for (const p of d.products ?? []) say(`${p.label}: NFL ${p.nflEligible ? "is" : "is not"} eligible on ${slate} — ${p.reason}`);
         for (const f of (d.families ?? []).slice(0, 5)) {
           const e = f.evidence ?? {};

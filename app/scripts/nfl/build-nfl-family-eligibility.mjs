@@ -18,6 +18,7 @@ import { loadNflBoardCandidates, etDateOf } from "../../src/lib/products/engine-
 import { receiptFromNflBoardCandidate } from "../../src/lib/products/engine-v2/sources.mjs";
 import { deriveNflFamilyGates } from "../../src/lib/products/engine-v2/family-gate.mjs";
 import { sportState } from "../../src/lib/products/engine-v2/eligibility.mjs";
+import { LEG_BOUNDS } from "../../src/lib/products/eligible-leg/contract.mjs";
 import { buildPublicFamilyEligibility } from "../../src/lib/products/engine-v2/nfl-family-eligibility-public.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -39,8 +40,10 @@ export function buildFamilyEligibility({ now = NOW, root = path.join(APP, "publi
   const forwardReceipt = (() => { try { return JSON.parse(fs.readFileSync(path.join(repo, "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json"), "utf8")); } catch { return null; } })();
   const gates = deriveNflFamilyGates({ receipts, forwardReceipt, familyState: boards.familyState });
   const dates = boards.boards.map((b) => etDateOf(String(b.kickoffUtc).replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"))).filter(Boolean).sort();
+  const markets = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "nfl/markets/latest.json"), "utf8")); } catch { return null; } })();
   return buildPublicFamilyEligibility({
     gates, generatedAt: now, sportState: sportState("nfl"),
+    prices: { capturedAt: markets?.propPrices?.capturedAt ?? null, maxAgeHours: LEG_BOUNDS.maxPriceAgeMs / 3600_000 },
     slate: { from: dates[0] ?? null, to: dates.at(-1) ?? null, events: new Set(boards.boards.map((b) => b.providerEventId)).size },
   });
 }
