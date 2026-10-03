@@ -443,6 +443,54 @@ jobs:
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 
+      # ── INJURIES BEFORE THE NBA FORECASTS (Session 10 · G4) ─────────────────────────────────────
+      # These two steps used to run AFTER the NBA forecast steps, so every forecast read the PREVIOUS
+      # capture (the 2026-10-03 artifact: a 14-hour-old snapshot, while a fresh one was taken minutes
+      # later in the same job). Capture first; each forecast receipt records the snapshot it read (hash,
+      # capture time, age) and the builder refuses one captured after its instant. Order is pinned by
+      # experimental-pipeline-order.test.mjs.
+      - name: Capture NFL+NBA injuries facts (ESPN public feed, no key; prose never stored)
+        id: injuries
+        working-directory: app
+        run: |
+          set -uo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if node scripts/sports/capture-injuries.mjs --now "$NOW"; then
+            echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          else
+            # Recorded, not fatal. The commit step for THIS capture is gated on CAPTURED, so
+            # nothing partial publishes; the final step turns any refusal into a red run.
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"
+            echo "NFL+NBA injuries" >> "$REFUSALS"
+          fi
+
+      - name: Commit injuries captures if content changed
+        if: github.event.inputs.dry_run != 'true' && steps.injuries.outputs.state == 'CAPTURED'
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/research/injuries/
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          if node -e "
+            const { execSync } = require('child_process');
+            const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; delete o.sourceAsOf; return JSON.stringify(o); };
+            let same = true;
+            for (const s of ['nfl','nba']) {
+              const f = 'data/internal/research/injuries/' + s + '/latest.json';
+              let head; try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { same = false; break; }
+              if (strip(head) !== strip(require('fs').readFileSync(f, 'utf8'))) { same = false; break; }
+            }
+            process.exit(same ? 0 : 1);
+          "; then
+            echo "only capture stamps moved — injuries facts unchanged"
+            git reset; git checkout -q -- data/internal/research/injuries/ || true
+            exit 0
+          fi
+          git commit -m "auto: injuries facts capture [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
       # v1.7 NBA track N2/N3 — the PRESEASON-EXPERIMENTAL pipeline, internal only. Grades yesterday's
       # forecasts from the finals just captured (fetching the new game's box score from the same free
       # ESPN summary endpoint, paced), then builds today's forecasts from the canonical corpus, the
@@ -508,6 +556,7 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add data/internal/research/nba/experimental/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          node app/scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD
           git commit -m "auto: nba experimental forecasts (internal research) [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
@@ -520,49 +569,8 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add data/internal/research/nba/experimental-v0.1/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          node app/scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD
           git commit -m "auto: nba experimental forecasts v0.1 (roster-gated research) [skip ci]"
-          git pull --rebase --autostash origin main
-          git push origin HEAD:main
-
-      - name: Capture NFL+NBA injuries facts (ESPN public feed, no key; prose never stored)
-        id: injuries
-        working-directory: app
-        run: |
-          set -uo pipefail
-          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          if node scripts/sports/capture-injuries.mjs --now "$NOW"; then
-            echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
-          else
-            # Recorded, not fatal. The commit step for THIS capture is gated on CAPTURED, so
-            # nothing partial publishes; the final step turns any refusal into a red run.
-            echo "state=FAILED" >> "$GITHUB_OUTPUT"
-            echo "NFL+NBA injuries" >> "$REFUSALS"
-          fi
-
-      - name: Commit injuries captures if content changed
-        if: github.event.inputs.dry_run != 'true' && steps.injuries.outputs.state == 'CAPTURED'
-        run: |
-          set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
-          git add data/internal/research/injuries/
-          if git diff --cached --quiet; then echo "no change"; exit 0; fi
-          if node -e "
-            const { execSync } = require('child_process');
-            const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; delete o.sourceAsOf; return JSON.stringify(o); };
-            let same = true;
-            for (const s of ['nfl','nba']) {
-              const f = 'data/internal/research/injuries/' + s + '/latest.json';
-              let head; try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { same = false; break; }
-              if (strip(head) !== strip(require('fs').readFileSync(f, 'utf8'))) { same = false; break; }
-            }
-            process.exit(same ? 0 : 1);
-          "; then
-            echo "only capture stamps moved — injuries facts unchanged"
-            git reset; git checkout -q -- data/internal/research/injuries/ || true
-            exit 0
-          fi
-          git commit -m "auto: injuries facts capture [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 
