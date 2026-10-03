@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "sport": "nba",
  "dataClass": "RESULTS_CAPTURE",
- "generatedAt": "2026-10-01T16:18:57Z",
- "sourceAsOf": "2026-10-01T16:18:57Z",
+ "generatedAt": "2026-10-03T14:17:00Z",
+ "sourceAsOf": "2026-10-03T14:17:00Z",
  "windowDays": 9,
  "state": "NO_RESULTS_YET",
  "source": {
@@ -12,7 +12,29 @@
   "license": "public JSON endpoint, no key; used as a point-in-time snapshot with attribution — same class of usage as the schedule capture",
   "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=202609&limit=1000 https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=202610&limit=1000"
  },
- "rowCount": 0,
+ "rowCount": 1,
  "completedCount": 0,
- "rows": []
+ "rows": [
+  {
+   "providerEventId": "401902644",
+   "shortName": "MIA @ TOR",
+   "dateUtc": "2026-10-03T23:00Z",
+   "statusRaw": "STATUS_SCHEDULED",
+   "seasonType": 1,
+   "neutralSite": false,
+   "home": {
+    "abbr": "TOR",
+    "name": "Toronto Raptors",
+    "providerTeamId": "28"
+   },
+   "away": {
+    "abbr": "MIA",
+    "name": "Miami Heat",
+    "providerTeamId": "14"
+   },
+   "ftHome": 0,
+   "ftAway": 0,
+   "capturedAt": "2026-10-03T14:17:00Z"
+  }
+ ]
 }
