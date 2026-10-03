@@ -84,3 +84,25 @@ test("rendered rows carry no probability, pick or projection words", () => {
   assert.doesNotMatch(html, /\d+(\.\d+)?%/, "a percentage on the NBA hub would be a forecast");
   assert.doesNotMatch(html, /\b(pick|projected|projection|favou?red|edge|lean)\b/i);
 });
+
+/*
+ * 2026-10-03 audit · G1 — the REAL capture's window starts at the capture instant, so a played game is gone
+ * from schedule/latest.json by the run that folds its final. The fixture above keeps past rows the real
+ * capture never produces, which is how "the hub can never print a final" passed. This one is realistic.
+ */
+test("a final the schedule has already dropped is listed from the finals record (and only from it)", () => {
+  const played = SCHEDULE.rows[0];
+  const realistic = { ...SCHEDULE, rows: SCHEDULE.rows.filter((r) => r.providerEventId !== played.providerEventId) };
+  const h = nbaHubFrom({ nowIso: NOW, schedule: realistic, finals: FINALS });
+  const row = h.rows.find((r) => r.id === played.providerEventId);
+  assert.ok(row, "the recorded final appears even though the schedule no longer carries it");
+  assert.equal(row.status, "final");
+  assert.match(row.reportNote, /^Final · .* 104 – .* 112/);
+  assert.equal(row.read, null, "a final row carries no forecast");
+  // MUTATION PROBE · the old schedule-only hub: with no finals record nothing can print, and no row is invented
+  const none = nbaHubFrom({ nowIso: NOW, schedule: realistic, finals: null });
+  assert.equal(none.rows.find((r) => r.id === played.providerEventId), undefined, "no record → no final, never inferred");
+  // a final outside the 3-day look-back stays off the page; the schedule copy is never duplicated
+  assert.equal(nbaHubFrom({ nowIso: "2026-10-20T16:00:00Z", schedule: realistic, finals: FINALS }).rows.find((r) => r.id === played.providerEventId), undefined);
+  assert.equal(nbaHubFrom({ nowIso: NOW, schedule: SCHEDULE, finals: FINALS }).rows.filter((r) => r.id === played.providerEventId).length, 1);
+});

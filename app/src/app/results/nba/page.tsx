@@ -36,7 +36,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 export const metadata = withRouteMetadata("/results/nba/", {
   title: "NBA Model Audit (archive) · GameTime Picks",
   description:
-    "The settled NBA archive — every lean graded against the verified final box score. Historical record only; NBA is no longer covered.",
+    "The settled May–June NBA archive — every lean graded against the verified final box score. Historical record only; the current season's schedule and finals are on /nba, with no forecast published.",
 });
 
 function findLatestScoredBoardDate(): string | null {

@@ -87,6 +87,42 @@ export function nbaHubFrom({ nowIso, schedule, finals }: { nowIso: string; sched
       separator: "@",
     });
   }
+  /*
+   * ⚠ A FINAL THE SCHEDULE NO LONGER CARRIES (2026-10-03 audit, G1). The schedule capture's window starts at
+   * the capture instant, so a game leaves `schedule/latest.json` on the very run that folds its final into
+   * the record — the hub, iterating the schedule alone, could never print a final. Games inside the hub's
+   * look-back window are therefore also taken from the FINALS RECORD itself, the only owner allowed to say a
+   * game is over. Nothing is inferred: a game neither artifact holds is simply absent.
+   */
+  const listed = new Set(rows.map((r) => r.id));
+  for (const f of finals?.finals ?? []) {
+    const t = Date.parse(f.dateUtc ?? "");
+    if (!f.providerEventId || listed.has(String(f.providerEventId)) || !Number.isFinite(t) || t < lo || t > now) continue;
+    const fin = finalFor(finals, f.providerEventId);
+    if (fin.state !== "FINAL" && fin.state !== "FINAL_UNDER_REVIEW") continue;
+    const sideLabel = (s: Record<string, any> | null | undefined) => (s?.tricode ?? s?.espnAbbr ?? s?.name ?? null) as string | null;
+    const awayLabel = sideLabel(f.away), homeLabel = sideLabel(f.home);
+    if (!awayLabel || !homeLabel) { unidentified++; continue; }
+    const awayTeam = f.away?.providerTeamId != null ? espnTeamById(String(f.away.providerTeamId)) : null;
+    const homeTeam = f.home?.providerTeamId != null ? espnTeamById(String(f.home.providerTeamId)) : null;
+    const preseason = f.seasonType === 1;
+    rows.push({
+      id: String(f.providerEventId),
+      startUtc: f.dateUtc,
+      startLabel: startLabel(f.dateUtc),
+      matchup: `${awayLabel} @ ${homeLabel}${preseason ? " · preseason" : ""}`,
+      status: "final",
+      started: true,
+      read: null,
+      reportState: "NONE",
+      reportHref: null,
+      reportNote: `Final · ${awayLabel} ${fin.ftAway} – ${homeLabel} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}`,
+      participants: [[awayLabel, awayTeam], [homeLabel, homeTeam]].map(([name, team]) => ({ name: name as string, logoTeam: team ? (team as any).espnAbbr : null, logoSport: team ? ("nba" as const) : null })),
+      separator: "@",
+    });
+  }
+  rows.sort((a, b) => Date.parse(a.startUtc!) - Date.parse(b.startUtc!));
+
   const upcoming = rows.filter((r) => !r.started).sort((a, b) => Date.parse(a.startUtc!) - Date.parse(b.startUtc!));
   const next = upcoming[0];
   const nextIsPreseason = next ? next.matchup.endsWith("· preseason") : false;
