@@ -7,7 +7,7 @@
  "modelVersion": "mlb-fullgame-2026.08-pa-v2",
  "simulationVersion": 1,
  "sourceBoardHash": "1816e3c030c909f5dab9d2092639773ded8f79a1cbdfe3102e332b57d0c572cb",
- "updatedAt": "2026-10-03T20:02:41.000Z",
+ "updatedAt": "2026-10-03T21:40:31.000Z",
  "games": [
   {
    "gamePk": 849828,
@@ -16,32 +16,32 @@
    "awayTeam": "ATL",
    "homeTeam": "LAD",
    "firstPitch": "2026-10-03T20:00:00Z",
-   "artifactHash": "d574bc01fc6a2b75ea0d03ec82272d9bb8150a7c38dbf913d238d75a5ecb3a55",
-   "completenessLevel": "degraded",
-   "startedBeforeGeneration": false,
+   "artifactHash": "7f9d060cb24c0cd217db266197c44d89cc3c122a2150729e423361665b418ff8",
+   "completenessLevel": "unavailable",
+   "startedBeforeGeneration": true,
    "away": {
-    "source": "confirmed",
-    "capturedAt": "2026-10-03T18:46:02.160Z",
-    "minutesToFirstPitch": 74,
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
     "batterIds": [
      686948,
-     660670,
-     645277,
-     621566,
      671739,
-     643289,
+     621566,
+     645277,
      663586,
      669221,
-     673490
+     673490,
+     -8,
+     -9
     ],
-    "realCount": 9,
+    "realCount": 7,
     "ratedCount": 7,
     "paddedSlots": 0
    },
    "home": {
     "source": "confirmed",
-    "capturedAt": "2026-10-03T18:46:02.160Z",
-    "minutesToFirstPitch": 74,
+    "capturedAt": "2026-10-03T18:27:07.624Z",
+    "minutesToFirstPitch": 93,
     "batterIds": [
      605141,
      660271,
@@ -65,9 +65,11 @@
    },
    "missingFamilies": [
     "away_probable_starter",
+    "confirmed_batting_order",
     "park_run_factors",
     "weather",
-    "batter_handedness_splits"
+    "batter_handedness_splits",
+    "pre_event_window"
    ]
   },
   {
@@ -142,45 +144,45 @@
    "awayTeam": "SD",
    "homeTeam": "MIL",
    "firstPitch": "2026-10-04T00:30:00Z",
-   "artifactHash": "eaa7ca6a1a89ea6a4a2f30c3504b46890abf18debc01d944121e03b69a9ad9c6",
-   "completenessLevel": "ready",
+   "artifactHash": "36a8e99b6ae2d9bcb032970224fbc5581ed74456c117269979e60eaacb6a90fb",
+   "completenessLevel": "degraded",
    "startedBeforeGeneration": false,
    "away": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-10-03T21:40:30.970Z",
+    "minutesToFirstPitch": 169,
     "batterIds": [
      665487,
-     664034,
+     687957,
      592518,
+     664034,
      701538,
      593428,
-     687957,
-     669720,
-     630105,
-     806956
+     806956,
+     669134,
+     630105
     ],
     "realCount": 9,
-    "ratedCount": 9,
+    "ratedCount": 8,
     "paddedSlots": 0
    },
    "home": {
-    "source": "prop-derived",
-    "capturedAt": null,
-    "minutesToFirstPitch": null,
+    "source": "confirmed",
+    "capturedAt": "2026-10-03T21:40:30.970Z",
+    "minutesToFirstPitch": 169,
     "batterIds": [
      694192,
      668930,
      661388,
+     641343,
      592885,
-     683734,
-     687401,
      806198,
      800325,
-     669003
+     669003,
+     687401
     ],
     "realCount": 9,
-    "ratedCount": 9,
+    "ratedCount": 8,
     "paddedSlots": 0
    },
    "awayStarter": {
@@ -194,7 +196,6 @@
     "hasStrikeoutProjection": true
    },
    "missingFamilies": [
-    "confirmed_batting_order",
     "park_run_factors",
     "weather",
     "batter_handedness_splits"
