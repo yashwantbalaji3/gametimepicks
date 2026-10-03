@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849828,
+  "date": "2026-10-03",
+  "capturedAt": "2026-10-03T18:27:07.306Z",
+  "availableAt": "2026-10-03T18:27:07.306Z",
+  "eventStartTime": "2026-10-03T20:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669373,
+      "name": "Tarik Skubal",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 8,
+      "lastStartDate": "2026-09-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 6.6,
+        "bbAvg": 1.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 9.28,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 158.67,
+        "k": 186,
+        "bb": 27,
+        "er": 48,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 689266,
+      "name": "Dylan Dodd",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-10-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-10-03T18:27:07.306Z"
+  },
+  "recordHash": "090e6ff60c66e00f18e39c8378746851c3ce269d7c2d94734821b435c2e9ba0f"
+}
