@@ -45,12 +45,16 @@ export function checkMoneyIntegrity(d: MoneyDocs): MoneyViolation[] {
   if (!near(round2(b.crownTotal ?? 0), crownSum)) crit("banked.crownTotal=Σ-finals", `banked crownTotal ${b.crownTotal} ≠ Σ finals ${crownSum}`);
   for (const l of b.ladders ?? []) if (l.official !== true) crit("ladder-official", `banked ladder "${l.label ?? l.ladder}" is not flagged official`);
 
-  // 2) bankroll ≤ crown and bankroll > 0 (cumulative-crown invariants).
-  if (bankroll > crown + 0.01) crit("bankroll≤crown", `bankroll ${bankroll} > crown ${crown}`);
+  // 2) bankroll ≤ high-water mark, the HWM never below the June crown, bankroll > 0. The crown is the June
+  //    era's peak (a frozen history key); since completion banking C1 (Session 9) a completed run can lift the
+  //    bankroll past it, so the ceiling is the DERIVED all-time peak — which equals the crown until that day.
+  const hwm = round2(typeof p.highWaterMark === "number" ? p.highWaterMark : crown);
+  if (hwm < crown - 0.01) crit("hwm≥crown", `high-water mark ${hwm} < crown ${crown}`);
+  if (bankroll > hwm + 0.01) crit("bankroll≤hwm", `bankroll ${bankroll} > high-water mark ${hwm}`);
   if (bankroll <= 0) crit("bankroll>0", `bankroll is ${bankroll} (non-positive)`);
 
-  // 3) drawdown reconciles: drawdown = crown − bankroll (all realized losses).
-  if (!near(drawdown, round2(crown - bankroll))) crit("drawdown=crown−bankroll", `drawdown ${drawdown} ≠ crown−bankroll ${round2(crown - bankroll)}`);
+  // 3) drawdown reconciles: drawdown = high-water mark − bankroll.
+  if (!near(drawdown, round2(hwm - bankroll))) crit("drawdown=hwm−bankroll", `drawdown ${drawdown} ≠ hwm−bankroll ${round2(hwm - bankroll)}`);
 
   // 4) settled profit + ROI derive from bankroll.
   const profit = round2(bankroll - start);

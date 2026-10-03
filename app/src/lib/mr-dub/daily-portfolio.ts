@@ -93,6 +93,7 @@ export interface DailyPortfolio {
   startingBankroll: number;
   activeBankroll: number;
   crownBankroll: number;     // historical completed ladder — separate
+  peakBankroll: number;      // the all-time high-water mark (= the crown until a C1 completion passes it)
   openExposure: number;      // Σ ACTIVE stakes (0 while candidates)
   availableBankroll: number;
   potentialReturn: number;   // Σ candidate potential returns if activated + won
@@ -139,6 +140,7 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
   const anyActive = cards.some((c) => c.status === "active");
   return {
     date, startingBankroll: p.activeBankroll, activeBankroll: p.activeBankroll, crownBankroll: p.crownBankroll,
+    peakBankroll: readCanonicalMoney(root).peakBankroll,
     openExposure: p.openExposure, availableBankroll: p.availableBankroll, potentialReturn: p.potentialReturn,
     exposure: { core: p.products?.bankBuilder?.exposure ?? 0, moonshot: p.products?.moonshot?.exposure ?? 0, total: p.openExposure },
     cards, anyActive,
@@ -156,7 +158,7 @@ export function buildDailyPortfolio(root: string, nowIso: string, date: string):
 
   // SINGLE source of truth — canonical portfolio.json, else derived from banked-ladders.json, else THROW
   // (no stale hardcoded fallback; Rule 2). Shared with accounting.ts so money is read exactly one way.
-  const { activeBankroll, crownBankroll } = readCanonicalMoney(root);
+  const { activeBankroll, crownBankroll, peakBankroll } = readCanonicalMoney(root);
 
   const pool = loadWorldCupModelPicks(root, nowIso, date);
   const lanes = buildDailyLaneCandidates(pool, date);
@@ -171,7 +173,7 @@ export function buildDailyPortfolio(root: string, nowIso: string, date: string):
   const anyActive = cards.some((c) => c.status === "active");
 
   return {
-    date, startingBankroll: activeBankroll, activeBankroll, crownBankroll,
+    date, startingBankroll: activeBankroll, activeBankroll, crownBankroll, peakBankroll,
     openExposure, availableBankroll: Number((activeBankroll - openExposure).toFixed(2)),
     potentialReturn,
     exposure: { core: coreExposure, moonshot: moonshotExposure, total: openExposure },

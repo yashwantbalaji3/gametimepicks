@@ -82,6 +82,16 @@ jobs:
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           node app/scripts/ufc/build-ufc-card.mjs --now "$NOW"
 
+      # FREE (Session 9 · main-health): when the card's bout universe changed since the last PAID capture,
+      # recompute ONLY the odds snapshot's coverage metadata against the current card — no provider call,
+      # no credit, no price row touched. Without it a bout added on a non-priced day left "11 of 13 priced"
+      # beside a 14-bout card until the next Tue/Thu/Sat slot (which GitHub may drop), and the published-
+      # snapshot guard turned every PR red. On priced days the capture below rewrites all of it anyway.
+      - name: Recompute odds coverage against the rebuilt card (free, prices untouched)
+        run: |
+          set -euo pipefail
+          node app/scripts/ufc/recompute-ufc-odds-coverage.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
       # POPULATION-EXACT OR RED (P197 · Release A1). The 08-22 card shipped 7 of 13 bouts looking
       # complete; this re-fetches the provider's own event and refuses (exit 2, job fails) when the
       # just-built card and the authority disagree. A fetch failure is SOURCE_STALE and exits 0 —
