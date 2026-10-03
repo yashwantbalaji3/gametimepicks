@@ -507,7 +507,7 @@ export default function BankBuilderPage() {
           the existing dense ladder components, which remain below unchanged. */}
       <ClimbHero
         currentBankroll={dailyPortfolio.activeBankroll}
-        peakBankroll={dailyPortfolio.crownBankroll}
+        peakBankroll={dailyPortfolio.peakBankroll}
         openExposure={dailyPortfolio.exposure.core}
         recordLabel={recordLabel}
         lanes={climbLanes}

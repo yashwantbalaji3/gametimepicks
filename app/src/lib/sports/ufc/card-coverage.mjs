@@ -149,7 +149,90 @@ export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyO
  * write, because a coverage block that does not add up is worse than no coverage block.
  */
 export function coverageReconciles(coverage) {
-  return coverage.priced + coverage.marketNotOpen + coverage.joinFailed === coverage.cardBouts;
+  return coverage.priced + coverage.marketNotOpen + coverage.joinFailed + (coverage.addedAfterCapture ?? 0) === coverage.cardBouts;
+}
+
+/** A bout the free card refresh added after the last paid capture: not checked against any market. */
+export const ADDED_AFTER_CAPTURE = "ADDED_AFTER_CAPTURE";
+
+/**
+ * RECOMPUTE COVERAGE AGAINST THE CURRENT CARD — FREE, AND PRICES UNTOUCHED (Session 9 · main-health).
+ *
+ * ⚠ THE STALE DENOMINATOR. The card is rebuilt daily by the free refresh; prices are bought only on the
+ * Tue/Thu/Sat priced slots. On 2026-10-02 the refresh added a 14th bout while `odds-latest.json` still
+ * described the 13-bout card it was captured against — "11 of 13 priced" beside a card of 14, a stale claim
+ * the published-snapshot guard correctly failed on (and, with it, every PR on main). GitHub then dropped the
+ * Saturday priced slot that would have rewritten it.
+ *
+ * This recomputes ONLY the coverage metadata from the stored snapshot and the current card. No provider is
+ * called and no price row is created, changed or re-derived:
+ *   · a priced row whose bout is still on the card stays exactly as captured;
+ *   · a priced row whose bout LEFT the card moves, byte-identical, to `droppedFromCard` (out of the
+ *     denominator, never deleted);
+ *   · an unpriced bout keeps the state the capture gave it (MARKET_NOT_OPEN / JOIN_FAILED);
+ *   · a bout the capture never saw is ADDED_AFTER_CAPTURE — unpriced, unchecked, never guessed open or closed.
+ * Readiness and blockers are re-derived by the same rules as the capture. The next paid capture remains the
+ * only owner of prices and rewrites all of this.
+ *
+ * @returns {null | object}  the recomputed snapshot, or null when there is nothing to recompute (no
+ *   snapshot, no card, a different event, or the bout universe is unchanged)
+ */
+export function recomputeCoverageAgainstCard({ snapshot, card, nowIso }) {
+  if (!snapshot || !card || !Array.isArray(card.bouts)) return null;
+  if (String(snapshot.event?.providerEventId ?? "") !== String(card.event?.providerEventId ?? "")) return null;
+  const cardIds = card.bouts.map((b) => String(b.boutId));
+  const onCard = new Set(cardIds);
+  const prior = [...(snapshot.bouts ?? []), ...(snapshot.droppedFromCard ?? [])];
+  const pricedById = new Map(prior.map((b) => [String(b.boutId), b]));
+  const unpricedById = new Map((snapshot.unpricedBouts ?? []).map((u) => [String(u.boutId), u]));
+  const sameUniverse = (snapshot.coverage?.cardBouts === cardIds.length)
+    && cardIds.every((id) => pricedById.has(id) || unpricedById.has(id))
+    && (snapshot.bouts ?? []).every((b) => onCard.has(String(b.boutId)));
+  if (sameUniverse) return null;
+
+  const bouts = cardIds.filter((id) => pricedById.has(id)).map((id) => pricedById.get(id));
+  const droppedFromCard = prior.filter((b) => !onCard.has(String(b.boutId)));
+  const unpriced = card.bouts.filter((b) => !pricedById.has(String(b.boutId))).map((b) => {
+    const was = unpricedById.get(String(b.boutId));
+    if (was) return was;
+    return {
+      boutId: b.boutId ?? null, red: b.red?.name ?? null, blue: b.blue?.name ?? null,
+      matchup: `${b.red?.name ?? "?"} vs ${b.blue?.name ?? "?"}`, weightClass: b.weightClass ?? null, startUtc: b.startUtc ?? null,
+      state: ADDED_AFTER_CAPTURE,
+      reason: `added to the card after the last price capture (${snapshot.generatedAt ?? "unknown"}) — not yet checked against any market`,
+      nextCheck: "the next scheduled ufc-odds-refresh slot",
+    };
+  });
+  const coverage = {
+    cardBouts: cardIds.length,
+    priced: bouts.length,
+    marketNotOpen: unpriced.filter((u) => u.state === "MARKET_NOT_OPEN").length,
+    joinFailed: unpriced.filter((u) => u.state === "JOIN_FAILED").length,
+    addedAfterCapture: unpriced.filter((u) => u.state === ADDED_AFTER_CAPTURE).length,
+    unmatchedProviderEvents: snapshot.coverage?.unmatchedProviderEvents ?? 0,
+  };
+  // The capture's own identity verdict is preserved verbatim; it is a statement about the bought bytes.
+  const mismatchBlocker = (snapshot.blockers ?? []).find((x) => /^the odds artifact describes event /.test(x)) ?? null;
+  const eventMismatch = Boolean(mismatchBlocker);
+  const blockers = [];
+  if (mismatchBlocker) blockers.push(mismatchBlocker);
+  if (!coverage.priced && !eventMismatch) blockers.push("the provider returned no h2h market that joined to this card");
+  if (coverage.joinFailed) blockers.push(`${coverage.joinFailed} bout(s) could not be joined to a provider event that exists — a defect, not a closed market`);
+  if (coverage.marketNotOpen) blockers.push(`${coverage.marketNotOpen} of ${coverage.cardBouts} bouts have no posted h2h market yet`);
+  if (coverage.addedAfterCapture) blockers.push(`${coverage.addedAfterCapture} bout(s) were added to the card after the last price capture and have not been priced`);
+  return {
+    ...snapshot,
+    bouts,
+    eventCount: bouts.length,
+    marketCount: bouts.length,
+    unpricedBouts: unpriced,
+    coverage,
+    oddsReady: !eventMismatch && coverage.priced > 0 && coverage.priced === coverage.cardBouts,
+    partiallyPriced: !eventMismatch && coverage.priced > 0 && coverage.priced < coverage.cardBouts,
+    blockers,
+    ...(droppedFromCard.length ? { droppedFromCard } : {}),
+    coverageRecomputed: { at: nowIso ?? null, againstCardGeneratedAt: card.generatedAt ?? null, providerCalls: 0, creditsSpent: 0, pricesFrom: snapshot.generatedAt ?? null },
+  };
 }
 
 /**
