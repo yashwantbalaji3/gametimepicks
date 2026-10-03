@@ -100,8 +100,10 @@ check("ledger Σprofit == settledProfit", sumProfit, portfolio.settledProfit, "l
 check("day-chain first opening == $100", firstOpening, START, "daily-summary");
 check("day-chain last closing == bankroll", lastClosing, portfolio.currentBankroll, "daily-summary vs portfolio");
 check("crown (Σ ladder finals) == crownBankroll", crownFromLadders, portfolio.crownBankroll, "banked-ladders vs portfolio");
-check("crown == HWM", portfolio.crownBankroll, portfolio.highWaterMark, "portfolio.json");
-check("crown − bankroll == drawdown", r2(portfolio.crownBankroll - portfolio.currentBankroll), portfolio.drawdown, "portfolio.json");
+// C1 (Session 9): the HWM is the derived all-time peak; it equals the June crown until a completed run
+// banks past it, and can never sit below it.
+check("HWM == max(crown, HWM)", Math.max(portfolio.crownBankroll, portfolio.highWaterMark), portfolio.highWaterMark, "portfolio.json");
+check("HWM − bankroll == drawdown", r2(portfolio.highWaterMark - portfolio.currentBankroll), portfolio.drawdown, "portfolio.json");
 check("ROI multiple == settledProfit/$100", r2(portfolio.settledProfit / START), portfolio.roiMultiple, "portfolio.json");
 check("master BB profit == settledProfit", bbEntry?.profit, portfolio.settledProfit, "master-ledger vs portfolio");
 check("master BB record W == canonical", bbEntry?.record.wins, portfolio.record.wins, "master-ledger vs portfolio");
@@ -114,7 +116,7 @@ const oeBreakdownSum = r2(oe.byProduct.reduce((s, p) => s + p.amount, 0));
 check("open-exposure breakdown sums to total", oeBreakdownSum, oe.total, "open-exposure helper");
 check("master open exposure == cross-product total", oe.total, master.aggregate.openExposure, "master-ledger vs open-exposure helper");
 check("calendar bankroll == portfolio", cal.stats.currentBankroll, portfolio.currentBankroll, "calendar vs portfolio");
-check("calendar HWM == portfolio crown", cal.stats.highWaterMark, portfolio.crownBankroll, "calendar vs portfolio");
+check("calendar HWM == portfolio HWM", cal.stats.highWaterMark, portfolio.highWaterMark, "calendar vs portfolio");
 check("calendar ROI == portfolio ROI", cal.stats.roiMultiple, portfolio.roiMultiple, "calendar vs portfolio");
 check("readCanonicalMoney bankroll == portfolio", canon.activeBankroll, portfolio.currentBankroll, "accounting vs portfolio");
 check("readCanonicalMoney crown == portfolio", canon.crownBankroll, portfolio.crownBankroll, "accounting vs portfolio");

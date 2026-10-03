@@ -2,7 +2,8 @@
 
 The canonical description of how official Mr. Dub money is owned, moved, reconciled and displayed.
 Versioned with the code; `npm run money:audit` (in `app/`) proves every statement below against the
-committed data. Established Session 8 (2026-10-02). Accounting rules are **unchanged** by that session.
+committed data. Established Session 8 (2026-10-02). Session 9 (2026-10-02) added the founder's completion
+banking rule **C1** (§5); nothing else in the accounting changed, and no folded day was restated.
 
 ## 1. Owners
 
@@ -20,7 +21,7 @@ committed data. Established Session 8 (2026-10-02). Accounting rules are **uncha
 There is no second money ledger. The movements are derived from the owners above on every read, so they
 cannot drift from them.
 
-## 2. Accounting semantics (as found — not changed)
+## 2. Accounting semantics
 
 **Era PROTECTED_BASE (2026-06-09 → 07-07):** the ledger rows as booked. The two June ladders banked their
 final value into the bankroll (ladder 2 completed on 06-24 → **$20,465.40, the crown**). July lost steps cost
@@ -33,7 +34,7 @@ their $100 seed. Closes at $19,065.40 (`PROTECTED_BASE`).
 | LOSS | − seed (Bank Builder $100, Moonshot $25) |
 | WIN, non-final rung | 0 — the payout rolls into the next rung's stake |
 | PUSH / VOID | 0 — seed returned |
-| WIN on the **final rung** (a completed run) | **undefined — founder gate (§5).** The fold halts. |
+| WIN that **completes the ladder** (the final rung, or an earlier rung whose real payout clears the final goal) | **+ (final settled value − seed), once** — `COMPLETION_BANKING_C1`, from 2026-10-02 (§5) |
 
 Each movement records both views, never conflated:
 - `stake / return / economicPnl` — the lane ticket (stake = the rolled lane balance at risk);
@@ -46,8 +47,11 @@ bankroll movement is −$100.
 is not exposure. A placed (`status: active`) card that has not settled is open exposure. Pending never
 creates a realized loss: the fold halts on an open day.
 
-**Peak:** derived. The peak is the maximum of $100 and every `bankrollAfter` across the movement chain, and
-it must equal both the stored `crownBankroll` and `highWaterMark`.
+**Peak:** derived. The peak is the maximum of $100, every July-era `bankrollAfter`, and every Rule S folded
+day's close (the fold's granularity). It must equal the stored `highWaterMark`. The **crown**
+(`crownBankroll`, $20,465.40) is the June era's peak: a hash-locked history key that never moves and must sit
+at or below the peak. The two are equal until a C1 completion lifts the bankroll past June; from then on the
+public "Historical peak" is the high-water mark, and drawdown = high-water mark − bankroll.
 
 ## 3. Reconciliation (`npm run money:audit`, also health-check §3b = the deploy gate)
 
@@ -61,9 +65,13 @@ It fails closed on any of the following, and repairs nothing:
    won step's return. This catches a stake or return edited after the fact.
 6. The day chain fails: an opening ≠ the prior close, a closing ≠ opening + P/L, Σ movements per day ≠ the
    day P/L, or the last close ≠ the bankroll.
-7. The recomputed peak ≠ the stored crown or the high-water mark.
-8. An unknown product (e.g. a shadow product) appears in a receipt, or a completed run appears inside a
-   folded day.
+7. The recomputed peak ≠ the stored high-water mark, the crown ≠ the June crown, or the crown sits above the
+   peak.
+8. An unknown product (e.g. a shadow product) appears in a receipt, or a completion dated before C1 took
+   effect appears inside a folded day.
+9. (C1) A completed run's bankroll movement ≠ its card's settled return − the product seed, or its
+   completion receipt (policy, seed, final value, banked) does not re-prove from the card.
+10. The ledger's fold rows: more than one per date, or one whose `paperProfit` ≠ Σ its day's card movements.
 
 Mutation probes (`money-movements.test.mjs`): each one lands on a copy of the real record and is caught.
 - settled loss omitted
@@ -81,6 +89,10 @@ Mutation probes (`money-movements.test.mjs`): each one lands on a copy of the re
 - historical row disappears
 - bankroll edited
 - completed ladder folded as a roll
+- Session 9 · C1 (`completion-banking.test.mjs`, each lands on a correctly folded completion and is caught):
+  C2 full-value banking, C3 forfeiture, seed double-counted, wrong seed, duplicate completion (card twice,
+  ledger row twice), final value changed after banking, banked before settlement, June row rewritten, crown
+  raised to the new peak, completion dropped (folded as a roll), high-water mark not recomputed
 
 ## 4. State at 2026-10-02 (folded through 2026-10-01)
 
@@ -94,29 +106,40 @@ Mutation probes (`money-movements.test.mjs`): each one lands on a copy of the re
 | Record | Bank Builder 43–42; Moonshot 5–41 (own line) |
 | Lanes | BB A step 1 ($100), BB B step 3 ($951.89 carried), MS A step 1 ($25), MS B step 2 ($100.17 carried) |
 
-## 5. Founder gate — completion banking (open)
+## 5. Completion banking — C1 (founder decision, Session 9, 2026-10-02)
 
-Under Rule S as written, **the bankroll can only stay flat or fall**:
-- losses cost seeds;
-- wins roll;
-- a completed run has no rule.
+**Rule.** A completed ladder banks its **final settled value − the lane's original seed**, once
+(`COMPLETION_POLICY` in `lib/mr-dub/protected-fold.mjs`, id `COMPLETION_BANKING_C1`). The seed was never
+deducted when the run started, so it is not profit; the payout above it is. This is symmetric with "a loss
+costs the seed": ticket P/L summed over a run equals the run's bankroll movement in both directions.
+Rejected: **C2** (bank the full final value, the June precedent — overstates by the seed) and **C3**
+(forfeit the run — the bankroll could then never rise).
 
-So the protected bankroll cannot return above the $20,465.40 peak under the current semantics, however the
-models perform. The only upward movement in the record's history was the June completion banking.
+**What completes a run.** The lane machine's own rule (`products/ladder-position.mjs`), shared through
+`completesLadder`: a won final rung (Bank Builder step 5, Moonshot step 3), or a won earlier rung whose real
+payout already clears the final goal ($10,000 / $1,000). A push or void on the final rung is not a
+completion: the stake comes back and the same rung is played again. A pending final rung halts the fold
+(open day) — nothing is banked before settlement.
 
-Until Session 8, the nightly fold would have counted a completed run (BB step 5 or Moonshot step 3 won) as a
-$0 roll, which silently forfeits it. The live settler flags the same event "operator-gated". The fold now
-**halts** with `LADDER_COMPLETION_OPERATOR_GATED` instead, and nothing after that day folds until a rule
-exists.
+**Effective boundary — prospective only.** C1 covers completions in receipts dated **on or after
+2026-10-02**, the first day the record had not folded when it was adopted (folded through 2026-10-01). No
+receipt between 07-08 and 10-01 completes a ladder, so every folded day is byte-identical under C1 (a test
+proves it). A completion dated before the boundary still halts the fold with
+`LADDER_COMPLETION_OPERATOR_GATED` — it is never banked retroactively. June's banking (C2-style, the crown)
+is history and stays as booked.
 
-This is live-relevant now. Bank Builder B is two wins from completing and Moonshot B is two wins from
-completing.
+**Completion receipt.** The folded day carries `completions[]` (only on a day that completed a run, so no
+other day's bytes change), mirrored on that day's `ledger.json` fold row:
+`policy · effectiveFrom · product · lane · cycle · step · seed · finalValue · banked · source
+(mr-dub/settled/<date>.json#lanes[i]) · settledAt`. `money:audit` re-derives `banked` from the card itself and
+fails if the receipt disagrees.
 
-The options (the founder decides; nothing is implemented):
-- **C1 — bank `finalValue − seed`:** the run's economic profit. Symmetric with "a loss costs the seed".
-- **C2 — bank `finalValue`:** the June 24 precedent. Overstates by the seed, because the seed is never
-  deducted at the start.
-- **C3 — bank nothing:** the run is forfeited. This makes the bankroll monotone non-increasing for good.
+**Once.** Each settled day folds exactly once (`foldLedgerRows` refuses to restate a folded day, including
+its completions), the protected invariant replays a fresh fold every night, and a duplicate card or ledger
+row is a reconciliation failure. A completed card with no real settled value halts
+(`LADDER_COMPLETION_VALUE_MISSING`) instead of banking a guess.
 
-**Recommendation: C1.** It is the only option under which ticket P/L summed over a run equals the run's
-bankroll movement, in both directions.
+**Lifecycle.** The lane restarts at Step 1 with its seed the next day (unchanged lane machine); the fold
+continues through later days — a completed run no longer blocks the record.
+
+**Peak.** See §2: the high-water mark recomputes from the folded path; the June crown never moves.

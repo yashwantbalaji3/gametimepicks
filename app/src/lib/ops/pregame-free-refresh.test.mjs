@@ -69,7 +69,13 @@ test("A4 · CONTRACT: free by construction, waits inside its timeout, re-decides
 });
 
 test("A4 · CONTRACT: the paid kickoff refresh is unchanged by this (no new paid path)", () => {
-  assert.match(fs.readFileSync("../.github/workflows/nfl-kickoff-refresh.yml", "utf8"), /cron: "\*\/30 17-21 \* \* 4"/);
+  /* The intent, not one cron string (Session 9 widened the band to 23Z and added a workflow_run tick):
+     still Thursday-covered, still keyless, and still the ONE paid dispatch with the same inputs. */
+  const src = fs.readFileSync("../.github/workflows/nfl-kickoff-refresh.yml", "utf8");
+  assert.match(src, /cron: "\*\/30 17-2\d \* \* 4"/);
+  assert.ok(!/ODDS_API_KEY|secrets\.ODDS/.test(src));
+  assert.equal((src.match(/gh workflow run /g) ?? []).length, 1);
+  assert.match(src, /gh workflow run nfl-event-window\.yml --ref main \\\n\s*-f probe_props=all -f week_window=true -f lookahead_hours=18/);
 });
 
 test("MNF · the same two passes for a Monday 00:15Z-Tuesday kickoff", () => {

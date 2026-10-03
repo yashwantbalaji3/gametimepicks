@@ -107,7 +107,7 @@ export interface ClimbCompletedLadder {
 }
 export interface ClimbHeroProps {
   currentBankroll: number;   // dailyPortfolio.activeBankroll
-  peakBankroll: number;      // dailyPortfolio.crownBankroll
+  peakBankroll: number;      // dailyPortfolio.peakBankroll (the all-time high-water mark)
   openExposure: number;      // dailyPortfolio.openExposure
   recordLabel: string;       // public record, e.g. "15–7"
   lanes: ClimbLane[];        // Lane A, Lane B (already filtered/derived on the page)
