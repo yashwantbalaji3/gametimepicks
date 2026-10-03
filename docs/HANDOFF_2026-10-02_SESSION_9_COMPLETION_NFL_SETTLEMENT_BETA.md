@@ -9,9 +9,52 @@ Point-in-time record. Current truth lives in the repo, Production and the canoni
 **Start state (verified ~16:55Z):** main = Production = `9fc6d692` (bot data commit after Session 8's `a78aa1dd50`).
 Only open PR: #716 (intentional HOLD, untouched).
 
-**End state:** five Session 9 PRs open, all built and tested; **none merged by this session** — the merge
-action was refused by the session's permission classifier ("merge without review"), so merging is the founder's.
-Main = Production = `679baf4ed9` (bot data only) when this was written. See §11.
+**End state (closeout, 2026-10-03):** every Session 9 code PR is merged, in order, each on a green exact head
+after a fresh merge of `main` (never a rebase), each verified on `main` and in Production:
+
+| PR | What | Merged | Merge commit |
+|---|---|---|---|
+| #938 | UFC main-health: free coverage recompute (main was red from stale UFC odds coverage) | 2026-10-03 12:23:39Z | `edc64d21ad` |
+| #930 | C1 completion banking | 12:48:06Z | `f82709187c` |
+| #931 | NFL prop settlement: scheduled post-final sweep + ledger-derived PROVEN | 13:05:01Z | `beebabc964` |
+| #932 | NFL role contract + kickoff-refresh `workflow_run` | 13:24:56Z | `1ae886b43b` |
+| #933 | Beta: live RLS, sync, `/feedback`, follows-first, Mr. Dub separation guard | 13:47:43Z | `4c51d0ec67` |
+| #934 | Ask NFL eligibility (+ price capture time / 12 h rule) | 14:10:44Z | `fbd002472f` |
+| #936 | NFL boards: practice-squad players get no board row | 14:33:58Z | `44d18337a0` |
+| #937 | Results: Suggested Parlays day history | 15:06:15Z | `e26cc3ce9c` |
+
+Production at closeout: `84e518c8` (includes all of the above). The full-day continuation after this closeout is
+recorded additively in `HANDOFF_2026-10-03_FULL_DAY_CONTINUATION.md`.
+
+**Founder decision recorded (2026-10-02):** `PROJECTED_DEPTH_STARTER ≠ ROLE_CONFIRMED`. A fresh depth-chart QB1
+is context, never a gate-accepted role. The shipped contract enforces it (`ACCEPTED_BY_GATE` excludes it; tested).
+
+### Runtime / Production evidence (actual, not expected)
+
+- **C1 / money (Production):** `/mr-dub` shows $15,240.40 · peak $20,465.40 (06-24) · −$5,225.00 · $0.00 open at
+  390 and 1280 px, equal to `money:audit` (127 movements, folded through 2026-10-02, 0 completions banked yet).
+  Health gate HEALTHY; forensic audit "mathematically perfect". Live lanes on 10-03: BB B step 3 ($951.89),
+  MS B step 2 ($100.17) — the first real C1 completion is possible within days.
+- **NFL settlement (runtime, part 1 proven):** CI run `37129088859` (nfl-event-window, 2026-10-03 14:17Z, a
+  workflow_dispatch of the owner workflow) settled 32 finished games → **1,867 rows** in
+  `data/internal/nfl/prop-settlement/` (commit `d41be5bbb6`): all unique, all frozen, all `admittedBy` that run,
+  0 unmeasured rows graded, all PROVISIONAL. Exemplar unchanged from the local proof (Kalif Raymond ATD, 0.2841,
+  DK +500 @ 22:24:41Z pre-kickoff → YES). **Pending:** the reconciliation run that promotes them to CANONICAL
+  (≥ 3 h later) and therefore `settlementSupport = PROVEN`; every family is `SCHEDULED_UNPROVEN` until then.
+- **NFL prices:** real capture 2026-10-02 18:08:45Z (Friday sweep, delivered 5 h late): 870 DraftKings rows, 5
+  families, all pre-kickoff (≥ 43.4 h ahead), boards ingested them. **Not product-fresh:** the universe now marks
+  636 Sunday legs `ODDS_STALE` (> 12 h). **Pending:** a ≤ 12 h capture before Sunday kickoffs. ⚠ GitHub delivered
+  0 publication-watchdog runs 00:57Z–15:00Z+ on 10-03, so #932's tick never fired; #939 adds daily-products as a
+  second tick.
+- **Practice squad:** today's boards 9 players / 12 rows → 0 with the merged producer (0 active players lost);
+  public boards change on the next event-window run.
+- **Ask (Production):** all seven NFL eligibility questions answered by `getNflProductEligibility` from the
+  public gate record; the price answer states the capture time and the 12 h rule rather than "current".
+- **Results (Production):** `/results/date/<day>` shows that day's published Suggested Parlays (109 cards across
+  44 ladder days, all graded) at 390/1280, no overflow, no console errors.
+- **Beta (Production):** `/account`, `/feedback`, `/my`, `/following`, `/saved` clean at 390/1280; accounts
+  correctly closed; no secret or private data in the HTML. **Hosted Supabase: still none** → CODE-READY, NOT
+  HOSTED-LIVE; the single external dependency.
 
 ## 1. Outcome in one paragraph
 
