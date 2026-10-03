@@ -3,6 +3,11 @@
  * LIVE NFL PLAYER-PROP TRACKING (Phase 5 · V1) — the stat so far, beside the forecast we froze.
  *
  *   node app/scripts/nfl/capture-live-props.mjs --now <ISO> [--event <id>] [--dry-run]
+ *   node app/scripts/nfl/capture-live-props.mjs --now <ISO> --post-final   # settle games that are OVER
+ *
+ * `--post-final` (Session 9) is the scheduled, keyless settlement sweep: the same rows, the same grader,
+ * aimed at games kicked off 3.5 h – 14 days ago instead of games in their live window. It writes only a
+ * FINAL read; see selectPostFinalTargets in lib/sports/nfl/live-prop-state.mjs.
  *
  * THREE TRUTHS, AND ONLY ONE OF THEM MOVES:
  *
@@ -26,7 +31,7 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildLiveRows, phaseOf, promoteFinality, selectLiveTargets, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
+import { buildLiveRows, phaseOf, promoteFinality, selectLiveTargets, selectPostFinalTargets, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -109,7 +114,8 @@ if (promoted === 0) console.log("no artifact was awaiting promotion to CANONICAL
 if (PROMOTE_ONLY) process.exit(0);
 
 /* The rule itself lives in the library, where a behavioural test can hold it. This does IO. */
-const { targets, disagreements, verdict } = selectLiveTargets({ boards, scheduleRows: schedule?.rows ?? [], nowMs, only });
+const POST_FINAL = process.argv.includes("--post-final");
+const { targets, disagreements, verdict } = (POST_FINAL ? selectPostFinalTargets : selectLiveTargets)({ boards, scheduleRows: schedule?.rows ?? [], nowMs, only });
 
 /*
  * ⚠ A CONTESTED FIXTURE IS EXCLUDED, NOT A REASON TO ABANDON THE SLATE.
@@ -142,7 +148,7 @@ if (verdict === "REFUSE_UNRECONCILABLE") {
 }
 
 if (!targets.length) {
-  console.log(`no NFL game is in its live window at ${NOW} — nothing to track`);
+  console.log(POST_FINAL ? `no NFL game finished within the post-final lookback at ${NOW} — nothing to settle` : `no NFL game is in its live window at ${NOW} — nothing to track`);
   process.exit(0);
 }
 
@@ -172,6 +178,9 @@ for (const ev of targets) {
   if (!res.ok) { console.log(`${ev.shortName}: provider ${res.status} — no live state written, previous file left intact`); continue; }
   const summary = await res.json();
   const phase = phaseOf(summary);
+  /* The sweep settles finished games and nothing else: a game still running is left to the next run,
+     and its previous artifact (if any) is not touched. */
+  if (POST_FINAL && phase !== "FINAL") { console.log(`${ev.shortName}: ${phase} at ${NOW} — not final yet, nothing written (post-final sweep)`); continue; }
 
   /* The sealing rule, the settlement idempotency and the join all live in the library — see
      buildLiveRows. This script does IO and nothing else. */

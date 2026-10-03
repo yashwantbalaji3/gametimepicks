@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "products/cycle-table",
   "dataClass": "internal-research",
-  "generatedAt": "2026-10-02T16:00:47.078Z",
+  "generatedAt": "2026-10-03T13:22:22.986Z",
   "rule": "won → carry real payout, skip rungs the payout already clears; lost → cycle ends; void/push → same rung; pending → open. Identical to ladder-position.mjs positionFromReceipts.",
   "sources": {
     "receipts": "app/public/data/mr-dub/settled/<date>.json",
@@ -12,16 +12,16 @@
     ]
   },
   "coverage": {
-    "receipts": 48,
+    "receipts": 49,
     "firstDate": "2026-08-15",
-    "lastDate": "2026-10-01"
+    "lastDate": "2026-10-02"
   },
   "eras": [
     {
       "era": "RECEIPTED",
       "from": "2026-08-15",
-      "to": "2026-10-01",
-      "receipts": 48,
+      "to": "2026-10-02",
+      "receipts": 49,
       "source": "mr-dub/settled/<date>.json",
       "cyclesDerived": true
     },
@@ -109,14 +109,14 @@
         "meanFurthestPublishedStep": 1.62,
         "placedLaneDays": 52,
         "decidedLaneDays": 52,
-        "noPlayLaneDays": 44
+        "noPlayLaneDays": 46
       },
       "lanes": {
         "A": {
           "placedLaneDays": 26,
           "decidedLaneDays": 26,
           "pendingLaneDays": 0,
-          "noPlayLaneDays": 22,
+          "noPlayLaneDays": 23,
           "cycles": [
             {
               "cycleId": "bank-builder:A:1",
@@ -714,6 +714,11 @@
               "date": "2026-10-01",
               "state": "NO_PLAY_RECEIPTED",
               "note": null
+            },
+            {
+              "date": "2026-10-02",
+              "state": "NO_PLAY_RECEIPTED",
+              "note": null
             }
           ]
         },
@@ -721,7 +726,7 @@
           "placedLaneDays": 26,
           "decidedLaneDays": 26,
           "pendingLaneDays": 0,
-          "noPlayLaneDays": 22,
+          "noPlayLaneDays": 23,
           "cycles": [
             {
               "cycleId": "bank-builder:B:1",
@@ -1370,6 +1375,11 @@
               "date": "2026-10-01",
               "state": "NO_PLAY_RECEIPTED",
               "note": null
+            },
+            {
+              "date": "2026-10-02",
+              "state": "NO_PLAY_RECEIPTED",
+              "note": null
             }
           ]
         }
@@ -1406,14 +1416,14 @@
         "meanFurthestPublishedStep": 1.1,
         "placedLaneDays": 46,
         "decidedLaneDays": 46,
-        "noPlayLaneDays": 50
+        "noPlayLaneDays": 52
       },
       "lanes": {
         "A": {
           "placedLaneDays": 21,
           "decidedLaneDays": 21,
           "pendingLaneDays": 0,
-          "noPlayLaneDays": 27,
+          "noPlayLaneDays": 28,
           "cycles": [
             {
               "cycleId": "moonshot:A:1",
@@ -2088,6 +2098,11 @@
               "date": "2026-10-01",
               "state": "NO_PLAY_RECEIPTED",
               "note": null
+            },
+            {
+              "date": "2026-10-02",
+              "state": "NO_PLAY_RECEIPTED",
+              "note": null
             }
           ]
         },
@@ -2095,7 +2110,7 @@
           "placedLaneDays": 25,
           "decidedLaneDays": 25,
           "pendingLaneDays": 0,
-          "noPlayLaneDays": 23,
+          "noPlayLaneDays": 24,
           "cycles": [
             {
               "cycleId": "moonshot:B:1",
@@ -2856,6 +2871,11 @@
             },
             {
               "date": "2026-10-01",
+              "state": "NO_PLAY_RECEIPTED",
+              "note": null
+            },
+            {
+              "date": "2026-10-02",
               "state": "NO_PLAY_RECEIPTED",
               "note": null
             }

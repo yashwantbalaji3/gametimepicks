@@ -1,15 +1,15 @@
 {
   "kind": "publication-slo",
-  "date": "2026-10-02",
+  "date": "2026-10-03",
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "NO_EVENT",
-      "reason": "no events in this sport's forward horizon",
+      "state": "PUBLISHED",
+      "reason": "all 4 event(s) in the horizon carry a forecast",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 0,
-        "published": 0,
+        "scheduled": 4,
+        "published": 4,
         "missedCoverage": 0,
         "awaiting": 0
       }
@@ -28,44 +28,77 @@
     },
     "ufc": {
       "state": "PUBLISHING",
-      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
+      "reason": "3 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-10-03T18:30:00.000Z",
       "counts": {
-        "scheduled": 13,
+        "scheduled": 14,
         "published": 11,
         "missedCoverage": 0,
-        "awaiting": 2
+        "awaiting": 3
       },
       "missed": []
     },
     "epl": {
       "state": "PUBLISHED",
-      "reason": "all 9 event(s) in the horizon carry a forecast",
+      "reason": "all 10 event(s) in the horizon carry a forecast",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 9,
-        "published": 9,
+        "scheduled": 10,
+        "published": 10,
         "missedCoverage": 0,
         "awaiting": 0
       }
     }
   },
-  "checkedAt": "2026-10-02T17:42:30.393Z",
+  "checkedAt": "2026-10-03T13:29:14.022Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "NO_EVENT",
-  "reason": "no games are scheduled for this date",
+  "state": "PUBLISHED",
+  "reason": "board published with 155 rows",
   "publishDeadlineUtc": null,
-  "scheduledGames": 0,
-  "pregameRemaining": 0,
+  "scheduledGames": 4,
+  "pregameRemaining": 4,
   "alreadyStarted": 0,
   "board": {
     "present": true,
-    "leans": 0,
-    "pendingReason": "no_events",
-    "generatedAt": "2026-10-02T11:10:29.253252+00:00",
-    "scheduledGames": 0,
+    "leans": 155,
+    "pendingReason": null,
+    "generatedAt": "2026-10-03T10:28:13.277325+00:00",
+    "scheduledGames": 4,
     "startedBeforeGeneration": 0
   },
-  "games": []
+  "games": [
+    {
+      "gamePk": 849829,
+      "startUtc": "2026-10-03T17:00:00Z",
+      "away": "Chicago White Sox",
+      "home": "Cleveland Guardians",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 849828,
+      "startUtc": "2026-10-03T20:00:00Z",
+      "away": "Atlanta Braves",
+      "home": "Los Angeles Dodgers",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 849835,
+      "startUtc": "2026-10-03T22:30:00Z",
+      "away": "New York Yankees",
+      "home": "Tampa Bay Rays",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 849830,
+      "startUtc": "2026-10-04T00:30:00Z",
+      "away": "San Diego Padres",
+      "home": "Milwaukee Brewers",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    }
+  ]
 }
