@@ -246,11 +246,14 @@ export function bbEligibility(g: GeneratedLane, nowMs: number, emptyReason: stri
  * once made the regenerator silently write a single-ladder total over the real cumulative-crown bankroll.
  * If neither canonical file is readable, we THROW (fail loudly) rather than fabricate a bankroll.
  */
-export function readCanonicalMoney(root: string): { activeBankroll: number; crownBankroll: number } {
+export function readCanonicalMoney(root: string): { activeBankroll: number; crownBankroll: number; peakBankroll: number } {
   try {
     const p = JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "portfolio.json"), "utf8"));
     if (typeof p.currentBankroll === "number" && typeof p.crownBankroll === "number") {
-      return { activeBankroll: p.currentBankroll, crownBankroll: p.crownBankroll };
+      // peak = the derived all-time high-water mark. It equals the June crown until a completed run banks
+      // past it (completion banking C1, Session 9); the crown itself is a frozen history key.
+      const peakBankroll = typeof p.highWaterMark === "number" ? Math.max(p.highWaterMark, p.crownBankroll) : p.crownBankroll;
+      return { activeBankroll: p.currentBankroll, crownBankroll: p.crownBankroll, peakBankroll };
     }
   } catch { /* fall through to the per-event ledger */ }
   // Derive the CURRENT figures from the per-event ledger (Σ realized paperProfit + the original seed) and
@@ -262,7 +265,7 @@ export function readCanonicalMoney(root: string): { activeBankroll: number; crow
   const seed = Number(banked.ladders?.[0]?.start ?? 100) || 100;
   const sumProfit = round2((ledger.events ?? []).reduce((s: number, e: any) => s + (Number(e.paperProfit) || 0), 0));
   const crownBankroll = round2((banked.ladders ?? []).reduce((s: number, l: any) => s + (Number(l.final) || 0), 0) || banked.crownTotal);
-  return { activeBankroll: round2(seed + sumProfit), crownBankroll };
+  return { activeBankroll: round2(seed + sumProfit), crownBankroll, peakBankroll: crownBankroll };
 }
 
 const round2 = (n: number) => Number(n.toFixed(2));

@@ -17,17 +17,18 @@
  *   PROTECTED_BASE (2026-06-09 → 07-07) — the ledger rows as booked: completed ladders banked their final
  *       value (that is how the $20,465.40 crown was reached on 06-24), lost July steps cost their $100 seed.
  *   RULE_S (2026-07-08 →) — founder, 2026-09-10: a lost step costs its seed (Bank Builder $100, Moonshot
- *       $25); a won step rolls and never moves the bankroll; void/push return the seed. A won FINAL rung
- *       (a completed run) has no written rule — the fold halts on it (protected-fold.mjs · FINAL_STEP).
+ *       $25); a won step rolls and never moves the bankroll; void/push return the seed. A COMPLETED run banks
+ *       its final settled value minus the seed, once (COMPLETION_BANKING_C1, founder, Session 9 — from
+ *       2026-10-02; an earlier completion still halts the fold, nothing is restated).
  *
  * Each Rule S movement carries BOTH views, never conflated:
  *   stake / return / economicPnl — what the lane's ticket did (stake = the rolled lane balance at risk)
  *   bankrollDelta                — what the protected bankroll did under Rule S
  * e.g. Bank Builder A step 4, 2026-09-30: stake $1,435.47 lost → economicPnl −$1,435.47, bankrollDelta −$100.
  */
-import { FINAL_STEP, PROTECTED_BASE, SEED, foldReceipts } from "./protected-fold.mjs";
+import { COMPLETION_POLICY, PROTECTED_BASE, SEED, completesLadder, foldReceipts, nextStepAfterWin } from "./protected-fold.mjs";
 
-export const MONEY_MOVEMENTS_VERSION = "money-movements@1";
+export const MONEY_MOVEMENTS_VERSION = "money-movements@2"; // @2: completion banking C1
 export const ERA = Object.freeze({ BASE: "PROTECTED_BASE", RULE_S: "RULE_S" });
 
 const PLACED = new Set(["active", "won", "lost", "void", "push"]);
@@ -72,13 +73,19 @@ function ruleSMovements(receipts, foldedThrough) {
   const out = [];
   if (!foldedThrough) return out;
   const ordered = [...(receipts ?? [])].filter((r) => r?.date > PROTECTED_BASE.asOf && r.date <= foldedThrough).sort((a, b) => a.date.localeCompare(b.date));
+  // The fold's own completion receipts (cycle included) — one source for what a completion banked.
+  const folded = new Map();
+  for (const d of foldReceipts(receipts ?? [], {}).days) for (const c of d.completions ?? []) folded.set(c.source, c);
   for (const r of ordered) {
     (r.lanes ?? []).forEach((l, idx) => {
       if (!isPlaced(l)) return; // a candidate / awaiting row is not a placed card: no money, no exposure
       const res = String(l.result ?? "pending");
       if (!(l.product in SEED)) throw new Error(`money: ${r.date} lanes[${idx}] has product "${l.product}" — only official products move money`);
       if (!DECIDED.has(res)) throw new Error(`money: ${r.date} ${l.product} ${l.lane} is "${res}" inside a folded day`);
-      if (res === "won" && Number(l.step) >= FINAL_STEP[l.product]) throw new Error(`money: ${r.date} ${l.product} ${l.lane} completed its ladder — Rule S has no completion rule (founder gate)`);
+      const completed = completesLadder({ ...l, result: res });
+      if (completed && r.date < COMPLETION_POLICY.effectiveFrom) throw new Error(`money: ${r.date} ${l.product} ${l.lane} completed its ladder before ${COMPLETION_POLICY.id} took effect (${COMPLETION_POLICY.effectiveFrom}) — operator-gated, never banked retroactively`);
+      const completion = completed ? folded.get(`mr-dub/settled/${r.date}.json#lanes[${idx}]`) : null;
+      if (completed && !completion) throw new Error(`money: ${r.date} ${l.product} ${l.lane} completed its ladder but the fold carries no completion receipt for it`);
       const stake = round2(Number(l.stake));
       const ret = res === "won" ? round2(Number(l.potentialReturn)) : res === "lost" ? 0 : stake;
       out.push({
@@ -88,12 +95,13 @@ function ruleSMovements(receipts, foldedThrough) {
         product: l.product,
         lane: l.lane,
         step: l.step,
-        kind: res === "won" ? "step_rolled" : res === "lost" ? "seed_lost" : "seed_returned",
+        kind: completed ? "ladder_completed" : res === "won" ? "step_rolled" : res === "lost" ? "seed_lost" : "seed_returned",
         stake,
         return: ret,
         settledDecimal: stake > 0 && Number(l.potentialReturn) > 0 ? round2(l.potentialReturn / stake) : null,
         result: RESULT[res],
-        bankrollDelta: res === "lost" ? -SEED[l.product] : 0,
+        bankrollDelta: res === "lost" ? -SEED[l.product] : completed ? completion.banked : 0,
+        ...(completed ? { completion } : {}),
         economicPnl: round2(ret - stake),
         settledAt: r.settledAt ?? null,
         legs: (l.legs ?? []).map((g) => ({ id: g.id ?? null, matchup: g.matchup ?? null, selection: g.selection ?? null, official: g.official ?? null, result: g.result ?? null, gamePk: g.gamePk ?? null, eventId: g.eventId ?? null })),
@@ -161,8 +169,12 @@ export function reconcileMoney({ portfolio, ledgerEvents, summaryDays, receipts 
   // 4 · Rule S per row, and per folded day against the record's own fold
   const ruleS = movements.filter((m) => m.era === ERA.RULE_S);
   for (const m of ruleS) {
-    const want = m.result === "LOSS" ? -SEED[m.product] : 0;
-    if (m.bankrollDelta !== want) reasons.push(`${m.movementId}: ${m.result} moved the bankroll ${m.bankrollDelta}, Rule S says ${want}`);
+    // C1: a completed run banks (final value − seed), re-derived here from the card itself, never trusted
+    // from the receipt it rides on. Everything else is Rule S.
+    const want = m.result === "LOSS" ? -SEED[m.product] : m.kind === "ladder_completed" ? round2(m.return - SEED[m.product]) : 0;
+    if (m.bankrollDelta !== want) reasons.push(`${m.movementId}: ${m.result}${m.kind === "ladder_completed" ? " (completed ladder)" : ""} moved the bankroll ${m.bankrollDelta}, ${m.kind === "ladder_completed" ? COMPLETION_POLICY.id : "Rule S"} says ${want}`);
+    if (m.kind === "ladder_completed" && (m.completion?.policy !== COMPLETION_POLICY.id || m.completion?.seed !== SEED[m.product] || m.completion?.finalValue !== m.return || m.completion?.banked !== want))
+      reasons.push(`${m.movementId}: the completion receipt does not re-prove (policy ${m.completion?.policy}, seed ${m.completion?.seed}, final ${m.completion?.finalValue}, banked ${m.completion?.banked})`);
     if (m.result === "WIN" && !(m.return > m.stake)) reasons.push(`${m.movementId}: a win returned $${m.return} on $${m.stake}`);
   }
   const fold = portfolio?.protectedFold;
@@ -175,15 +187,22 @@ export function reconcileMoney({ portfolio, ledgerEvents, summaryDays, receipts 
     }
   }
 
-  // 5 · stake carry: a step-1 stake is the seed; every later stake is exactly the prior won step's return
-  //     (catches a stake or a return edited after the fact). Uses every PLACED row, open ones included.
+  // 5 · stake carry: a step-1 stake is the seed; every later stake is exactly the prior won step's return, on
+  //     the rung that return carries into (a payout clearing a later goal skips to it — ladder-position.mjs).
+  //     A completed run is never carried: its lane restarts at step 1. Catches a stake or a return edited after
+  //     the fact. Uses every PLACED row, open ones included.
   const lanes = {};
   for (const r of [...(receipts ?? [])].filter((x) => x?.date > PROTECTED_BASE.asOf).sort((a, b) => a.date.localeCompare(b.date)))
     for (const l of r.lanes ?? []) if (isPlaced(l)) (lanes[`${l.product}:${l.lane}`] ??= []).push({ date: r.date, ...l, result: String(l.result ?? "pending") });
   for (const [k, rows] of Object.entries(lanes)) rows.forEach((row, i) => {
     const prev = rows[i - 1];
+    // a push / void returns the stake: the lane plays the SAME rung with the SAME stake again (ladder-position.mjs)
+    if (prev && (prev.result === "push" || prev.result === "void")) {
+      if (Number(row.step) !== Number(prev.step) || !near(row.stake, prev.stake)) reasons.push(`${k} ${row.date} step ${row.step} stake $${row.stake} does not replay the ${prev.result} ${prev.date} step ${prev.step} at $${prev.stake}`);
+      return;
+    }
     if (Number(row.step) === 1) { if (!near(row.stake, SEED[row.product])) reasons.push(`${k} ${row.date} step 1 stake $${row.stake} ≠ seed $${SEED[row.product]}`); return; }
-    if (!prev || prev.result !== "won" || Number(prev.step) !== Number(row.step) - 1 || Math.abs(Number(prev.potentialReturn) - Number(row.stake)) >= 0.02)
+    if (!prev || prev.result !== "won" || completesLadder(prev) || nextStepAfterWin(prev) !== Number(row.step) || Math.abs(Number(prev.potentialReturn) - Number(row.stake)) >= 0.02)
       reasons.push(`${k} ${row.date} step ${row.step} stake $${row.stake} is not the carried return of a won step ${Number(row.step) - 1}${prev ? ` (prior: ${prev.date} step ${prev.step} ${prev.result} $${prev.potentialReturn})` : ""}`);
   });
 
@@ -199,10 +218,28 @@ export function reconcileMoney({ portfolio, ledgerEvents, summaryDays, receipts 
   for (const date of movedDates) if (!days.some((d) => d.date === date)) reasons.push(`${date}: money moved but the day chain has no row`);
   if (days.length && !near(days.at(-1).closing, portfolio?.currentBankroll)) reasons.push(`the day chain closes at $${days.at(-1).closing}, not the bankroll $${portfolio?.currentBankroll}`);
 
-  // 7 · peak: derived, never stored-only. max(start, every balance after) = crown = high-water mark
+  // 6b · the ledger's fold rows (ledger.json `protected_fold`): exactly one per date, each equal to Σ that
+  //      day's card movements. A fold row applied twice moves Σ ledger without moving a single card.
+  const foldRows = (ledgerEvents ?? []).filter((e) => e?.category === "protected_fold");
+  const perDate = new Map();
+  for (const e of foldRows) perDate.set(e.date, (perDate.get(e.date) ?? 0) + 1);
+  for (const [date, n] of perDate) if (n > 1) reasons.push(`ledger: ${n} protected_fold rows for ${date} (a folded day applied ${n}×)`);
+  for (const e of foldRows) {
+    const sum = round2(ruleS.filter((m) => m.date === e.date).reduce((s, m) => s + m.bankrollDelta, 0)) || 0;
+    if (!near(sum, e.paperProfit)) reasons.push(`ledger: ${e.date} fold row moves ${e.paperProfit}, its cards move ${sum}`);
+  }
+
+  // 7 · peak: derived, never stored-only. The July history peaks per booked row; the Rule S era at each folded
+  //     day's CLOSE (the fold's granularity — a completion and a loss settled the same night are one close).
+  //     peak = the stored high-water mark. The crown is the June era's peak, a frozen history key: it must
+  //     equal the protected base's and can only sit at or below the all-time peak (C1 lets a run rise past it).
   let peak = start, peakDate = portfolio?.startingDate ?? null;
-  for (const m of movements) if (m.bankrollAfter > peak + 0.005) { peak = m.bankrollAfter; peakDate = m.date; }
-  if (!near(peak, portfolio?.crownBankroll)) reasons.push(`recomputed peak $${peak} ≠ stored crown $${portfolio?.crownBankroll}`);
+  movements.forEach((m, i) => {
+    const dayClose = m.era === ERA.BASE || movements[i + 1]?.date !== m.date;
+    if (dayClose && m.bankrollAfter > peak + 0.005) { peak = m.bankrollAfter; peakDate = m.date; }
+  });
+  if (!near(portfolio?.crownBankroll, PROTECTED_BASE.crownBankroll)) reasons.push(`stored crown $${portfolio?.crownBankroll} ≠ the June crown $${PROTECTED_BASE.crownBankroll} (a history key)`);
+  if (Number(portfolio?.crownBankroll) > peak + 0.005) reasons.push(`the crown $${portfolio?.crownBankroll} sits above the recomputed peak $${peak}`);
   if (!near(peak, portfolio?.highWaterMark)) reasons.push(`recomputed peak $${peak} ≠ stored high-water mark $${portfolio?.highWaterMark}`);
 
   const open = openPositions(receipts, fold?.foldedThrough ?? null);
@@ -227,6 +264,9 @@ export function reconcileMoney({ portfolio, ledgerEvents, summaryDays, receipts 
       openPositions: open.length,
       openSeedAtRisk: round2(open.reduce((s, o) => s + (o.seedAtRisk ?? 0), 0)),
       openLaneStake: round2(open.reduce((s, o) => s + o.stake, 0)),
+      completionPolicy: { id: COMPLETION_POLICY.id, effectiveFrom: COMPLETION_POLICY.effectiveFrom },
+      completions: ruleS.filter((m) => m.kind === "ladder_completed").length,
+      completionsBanked: round2(ruleS.filter((m) => m.kind === "ladder_completed").reduce((s, m) => s + m.bankrollDelta, 0)),
     },
   };
 }

@@ -321,6 +321,22 @@ export const ASK_TOOLS = Object.freeze({
     },
   },
 
+  getNflProductEligibility: {
+    version: 1,
+    kind: "coverage",
+    describe:
+      "Why NFL is or is not in an official product (Bank Builder, Moonshot, Suggested Parlays), and what is " +
+      "blocking each NFL player market (anytime touchdown, passing yards, rushing yards, receiving yards, " +
+      "receptions): model probability, forward test, confirmed roles, pregame prices, settlement, approval. " +
+      "Call this for ANY question about NFL product eligibility or what would need to happen for NFL to be " +
+      "eligible — not getOfficialProductCards (which lists today's cards) and not getCoverage (which says " +
+      "whether a market may be called a forecast). Each blocker carries its own evidence and the condition " +
+      "that clears it; repeat them, never soften or predict a date.",
+    args: {
+      family: { kind: "enum", options: ["anytime_td", "player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"], required: false, describe: "Optional: narrow to one NFL market." },
+    },
+  },
+
   searchGameTimeHelp: {
     version: 1,
     kind: "help",

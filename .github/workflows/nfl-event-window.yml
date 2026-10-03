@@ -549,6 +549,17 @@ jobs:
           node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" \
             app/public/data/nfl/end-zone-vault/latest.json
 
+      # Session 9 · the family-level product gate on the NEXT NFL slate, in public terms — what Ask cites for
+      # "why isn't NFL in Bank Builder?". Free, reads committed files only; written only when its content changes.
+      # Non-blocking: an explanation must never be why the window's artifacts fail to commit.
+      - name: Publish the NFL family eligibility record (free)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -euo pipefail
+          npx tsx scripts/nfl/build-nfl-family-eligibility.mjs --now "${{ steps.window.outputs.now }}" --write
+
       - name: Commit the window's artifacts
         if: >-
           always() &&
@@ -576,12 +587,18 @@ jobs:
 
       # Settlement is INDEPENDENT of the window gate: last night's finals settle even when
       # tonight has no events. It is idempotent (exactly-once by canonicalEventId) and free.
+      #
+      # ⚠ `!cancelled()`: an earlier step failing (a paid capture, a forecast build, a push race) must not
+      # skip last night's settlement — that is how a finished slate sat unsettled. Free and keyless.
       - name: Settle yesterday's and today's current artifacts
         id: settle
+        if: ${{ !cancelled() }}
         working-directory: app
         run: |
           set -euo pipefail
           NOW="${{ steps.window.outputs.now }}"
+          # The window step stamps NOW; if it failed before stamping, settle on the runner clock rather than refuse.
+          if [ -z "$NOW" ]; then NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"; fi
           for D in "$(date -u -d 'yesterday' +%Y-%m-%d 2>/dev/null || date -u -v-1d +%Y-%m-%d)" "$(date -u +%Y-%m-%d)"; do
             if [ -d "../data/internal/nfl/current/$D" ]; then
               node scripts/nfl/settle-nfl-current.mjs --now "$NOW" --date "$D"
@@ -613,7 +630,18 @@ jobs:
           # live slot: Thursday night kicks at 00:15Z and closes at ~06:30Z, after the last Friday
           # cron at 04:45Z. Fetch-free — promotion is a statement about the clock, so it costs nothing
           # and must run before the fold below so the ledger copies the promoted state in the same run.
-          node scripts/nfl/capture-live-props.mjs --now "$NOW" --promote-only
+          #
+          # ── THE POST-FINAL SWEEP (Session 9 · B7) ─────────────────────────────────────────────
+          #
+          # ⚠ NOTHING EVER SETTLED A PROP. Grading happened only inside the live producer's 8-hour
+          # window, and the free runner of it is dispatch-only by design — so every live artifact sat
+          # IN_PROGRESS forever. `--post-final` runs the SAME producer and grader against games that
+          # are OVER (kicked off 3.5 h – 14 days ago, not yet CANONICAL): the first FINAL read settles
+          # PROVISIONAL, a read inside the 3-hour window re-attempts late stat blocks, a read after it
+          # promotes to CANONICAL (the promotion sweep runs first on every invocation). Free (ESPN),
+          # keyless, and it never writes a game that is not FINAL. TNF / Sunday / SNF / MNF finals all
+          # land in one of this workflow's daily slots — nobody has to dispatch anything.
+          node scripts/nfl/capture-live-props.mjs --now "$NOW" --post-final
 
           node scripts/nfl/settle-nfl-live-props.mjs --now "$NOW" --write
 
@@ -628,6 +656,7 @@ jobs:
       # factor; adopting one needs a preregistration and a held-out evaluation, like every other
       # promotion here. Non-blocking: a monitor must not be why settlement fails.
       - name: Publish interval calibration (measure, never auto-tune)
+        if: ${{ !cancelled() }}
         working-directory: app
         continue-on-error: true
         run: |
@@ -645,6 +674,7 @@ jobs:
       # the forecast generator publishes the challenger's band only when this report says PROMOTE.
       # Non-blocking, like the monitor above: grading must never be why settlement fails.
       - name: Grade the margin-interval challenger in shadow (preregistered, contract-gated)
+        if: ${{ !cancelled() }}
         working-directory: app
         continue-on-error: true
         run: |
@@ -656,6 +686,7 @@ jobs:
       # official box score. Idempotent and quiet: an unchanged week is not rewritten, so a run with no new
       # finals commits nothing and triggers no deploy. Non-blocking: a report must never fail settlement.
       - name: Reconcile the NFL week against official box scores
+        if: ${{ !cancelled() }}
         working-directory: app
         continue-on-error: true
         run: |
@@ -663,6 +694,7 @@ jobs:
           node scripts/nfl/build-nfl-week-reconciliation.mjs --now "${{ steps.window.outputs.now }}"
 
       - name: Commit settlement receipts
+        if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"

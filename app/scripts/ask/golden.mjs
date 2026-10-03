@@ -546,6 +546,11 @@ export const GOLDEN = [
 
   /* ─────────────────────  RESULTS DAY (Session 2 · classes D, E, F)  ───────────────────── */
   /* "Yesterday" is the ET day before the product date; the answer is the Results day page's items, never a sum. */
+  /* Session 9 · NFL product eligibility comes from the family-gate record, blocker by blocker — never a stock sentence. */
+  { id: "nfl-elig-01", category: "coverage", q: "Why isn't NFL in today's Bank Builder?", fixture: "nfl-eligibility-gated",
+    expectTools: ["getNflProductEligibility"], expectGrounded: true, mustMention: ["not eligible"], mustNotMention: ["guaranteed", "coming soon"] },
+  { id: "nfl-elig-02", category: "coverage", q: "What is blocking Anytime TD?", fixture: "nfl-eligibility-gated",
+    expectTools: ["getNflProductEligibility"], expectGrounded: true, mustMention: ["anytime touchdown"], mustNotMention: ["coming soon"] },
   { id: "rday-01", category: "results", q: "How did GameTimePicks do yesterday?", fixture: "results-day-settled",
     expectIntent: "RESULTS_RECENT", expectTools: ["getResultsDay"], expectGrounded: true, expectLink: "/results/date/2026-09-16/",
     mustMention: ["2026-09-16", "bank builder"], mustNotMention: ["%", "overall record"] },

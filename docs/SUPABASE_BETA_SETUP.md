@@ -1,4 +1,4 @@
-# Friends beta on Supabase — setup and operation (Session 8)
+# Friends beta on Supabase — setup and operation (Sessions 8–9)
 
 The account foundation is built and **off** until a Supabase project exists:
 - schema with own-row RLS;
@@ -29,9 +29,9 @@ An optional standalone version for a helper is [`OPTIONAL_DP_SUPABASE_SETUP.md`]
 | `profiles` | display name (optional) and self-set limits | own row only |
 | `bet_slips` | bets the person actually placed (legs as jsonb, an optional `official_card_id` citation) | own rows only |
 | `user_preferences` | **explicit** sports, products, families, risk bands, "hide player props" | own row only |
-| `user_follows` | canonical ids: sport, team, player, game | own rows only |
-| `saved_items` | game / official forecast / official card refs | own rows only |
-| `beta_feedback` | route, sport, product, action, expected, actual, severity, link | own rows only (the founder reads them in the dashboard) |
+| `user_follows` | canonical ids: sport, team, player, game (+ optional display `label`, S9) | own rows only |
+| `saved_items` | game / official forecast / official card refs (+ the saved forecast `snapshot`, a copy of public data, S9) | own rows only |
+| `beta_feedback` | route, sport, product, `kind` (S9), expected, actual, severity, link | own rows only (the founder reads them in the dashboard) |
 | `beta_access` | the invite list: email, tester code T1–T10, revoked_at | **no client access at all** (RLS on, no policy) |
 
 - Every **write** (insert/update) also requires `public.is_beta_member()`.
@@ -53,13 +53,49 @@ An optional standalone version for a helper is [`OPTIONAL_DP_SUPABASE_SETUP.md`]
 4. **In logs and notes, use the tester code (T1–T10), never an email or name.** Emails live only in the
    `beta_access` table, never in this repository (`data/internal/beta/cohort-contract.json` rule).
 
-## Feedback
+## Live RLS proof (Session 9) — executed, not regex-matched
 
-The `beta_feedback` table and its RLS are ready. **There is no in-site form yet**; adding one to `/account` is
-the next account task. Until it ships, testers report to the founder directly, and the founder transcribes
-each report into `docs/beta/FEEDBACK_LOG.md` using tester codes only. Each report records route, sport,
-product, what they did, expected, actual, severity and an optional screenshot link. One tester never sees
-another tester's report.
+`node app/scripts/accounts/rls-live.mjs` runs `db/rls-live/two-account-isolation.sql` against the real
+`db/accounts-schema.sql` in a real Postgres, as the real roles with real JWT claims, inside one transaction
+that is rolled back:
+- **Local** (default): a throwaway cluster (unix socket only) + `db/rls-live/supabase-shim.sql`, which
+  reproduces Supabase's roles, **default grants** (anon/authenticated get ALL on public tables, so RLS is the
+  only barrier — otherwise the test would pass on a permission error), `auth.uid()`/`auth.jwt()` and storage.
+- **Hosted:** `RLS_DB_URL=<the project's postgres connection string> node app/scripts/accounts/rls-live.mjs --hosted`
+  runs the battery alone against the real project (read the string from the dashboard; it is never printed).
+
+The battery proves, for profiles, preferences, follows, saved, bets (incl. their legs), feedback and slip
+images: A reads A / B reads B; A cannot read, update (WHERE'd **and** blanket), re-assign or delete B's rows
+and vice versa; anonymous reads 0 rows everywhere and cannot write; an uninvited account cannot onboard; a
+revoked tester keeps read/delete and loses write; the invite list is unreadable; every `public` table has RLS
+and is covered. `--all-mutations` injects 8 defects (RLS off, open SELECT, open UPDATE USING, anon read, no
+invite check, readable allowlist, any-folder storage, an unprotected new table) and each must be caught.
+`src/lib/accounts/rls-live.test.mjs` runs both where Postgres exists and is skipped *by name* where it does not.
+
+**Status:** the local proof passes (2026-10-02). The hosted run waits on the project (below).
+
+## Follows, saves and preferences across devices (Session 9)
+
+`/account` runs `AccountSyncPanel` after sign-in (`lib/accounts/account-sync.mjs`):
+
+| Type | Strategy |
+|---|---|
+| follows | **union** by canonical id; a removal propagates only if made since the last sync (per-account baseline in this browser). First sign-in on a device removes nothing on either side |
+| saved forecasts | **union** by id, the account keeps the immutable snapshot; same id → the device's original stands; removals as above |
+| style (risk / bankroll / unit) | unchanged (`style-sync.mjs`): adopt only into an empty device, otherwise both shown and the reader picks |
+| preferences (`user_preferences`) | account only — no device copy, nothing to merge |
+| bets | account only; never on the device, never in Mr. Dub |
+
+What happened is always shown as one sentence. A non-canonical id (a name) is refused, never adopted.
+
+## Feedback (Session 9)
+
+**In-site form:** `/feedback` (linked from `/account`; `?from=<path>` pre-fills the page). Signed-in testers
+only; one own-row insert into `beta_feedback` (type, severity, optional sport/product, what happened, what was
+expected, the page path — never a query string). The founder reads reports in the Supabase dashboard
+(Table editor → `beta_feedback`, or `select * from beta_feedback order by created_at desc`). No client — the
+form included — can list anyone's feedback but their own; there is deliberately no privileged admin page in the
+static site. `docs/beta/FEEDBACK_LOG.md` remains for reports that arrive outside the site.
 
 ## Acceptance once the project exists (two test accounts)
 
@@ -68,7 +104,8 @@ Run in this order and record the result in the Session handoff:
 2. A follows NFL and B follows MLB. Their For You orders differ (`lib/my/for-you-order.mjs`), and the
    official forecasts and cards are byte-identical for both.
 3. A records a manual bet. B cannot see it, and an anonymous client reads 0 rows (`npm run accounts:verify`
-   REFUSES otherwise).
+   REFUSES otherwise). Then run the full battery against the project:
+   `RLS_DB_URL=… node app/scripts/accounts/rls-live.mjs --hosted` → `RLS LIVE ISOLATION: PASS`.
 4. A's personal P/L shows staked / returned / net / open exposure correctly.
 5. `npm run money:audit` is unchanged before and after. A user's bets never touch Mr. Dub money; a test
    forbids the accounts libs from reading it.

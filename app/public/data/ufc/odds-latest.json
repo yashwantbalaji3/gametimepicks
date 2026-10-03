@@ -381,6 +381,17 @@
  ],
  "unpricedBouts": [
   {
+   "boutId": "401927906",
+   "red": "Marcus McGhee",
+   "blue": "Anthony Romero",
+   "matchup": "Marcus McGhee vs Anthony Romero",
+   "weightClass": "Featherweight",
+   "startUtc": "2026-10-03T22:00Z",
+   "state": "ADDED_AFTER_CAPTURE",
+   "reason": "added to the card after the last price capture (2026-10-01T17:13:14Z) — not yet checked against any market",
+   "nextCheck": "the next scheduled ufc-odds-refresh slot"
+  },
+  {
    "boutId": "401912274",
    "red": "Johnny Walker",
    "blue": "Mick Parkin",
@@ -404,10 +415,11 @@
   }
  ],
  "coverage": {
-  "cardBouts": 13,
+  "cardBouts": 14,
   "priced": 11,
   "marketNotOpen": 0,
   "joinFailed": 2,
+  "addedAfterCapture": 1,
   "unmatchedProviderEvents": 2
  },
  "aliasJoins": [],
@@ -415,7 +427,8 @@
  "partiallyPriced": false,
  "blockers": [
   "the odds artifact describes event 4a469d6a287808bf75aa8a246197f51d, not this card (600061182) — no prices have been captured for it yet",
-  "2 bout(s) could not be joined to a provider event that exists — a defect, not a closed market"
+  "2 bout(s) could not be joined to a provider event that exists — a defect, not a closed market",
+  "1 bout(s) were added to the card after the last price capture and have not been priced"
  ],
  "creditCost": 1,
  "derivedFrom": null,
@@ -425,5 +438,12 @@
   "ceiling": 500,
   "cumulative": 30
  },
- "note": "Fight-winner prices only, median across posted US books. Paper-only; no wagers are placed."
+ "note": "Fight-winner prices only, median across posted US books. Paper-only; no wagers are placed.",
+ "coverageRecomputed": {
+  "at": "2026-10-03T11:57:41Z",
+  "againstCardGeneratedAt": "2026-10-02T18:17:58Z",
+  "providerCalls": 0,
+  "creditsSpent": 0,
+  "pricesFrom": "2026-10-01T17:13:14Z"
+ }
 }

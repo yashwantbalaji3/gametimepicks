@@ -172,6 +172,8 @@ const APPROVED_DESTINATIONS = new Set([
      a nav entry pointing at that would be an invitation to nothing. It joins the nav when the keys
      land. Noindex either way: a personal record has no business in search results. */
   "/account",
+  /* Session 9: the beta feedback form — out of the nav for the same reason as /account (signed-in testers only). */
+  "/feedback",
 ]);
 
 /** Nothing in a nav surface may point at any of these, however it is labelled. */

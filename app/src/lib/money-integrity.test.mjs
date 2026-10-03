@@ -31,16 +31,30 @@ test("catches a PHANTOM crown (crown ≠ Σ official finals)", () => {
   assert.ok(vs.some((v) => v.rule === "crown=Σ-official-finals"), "phantom crown caught");
 });
 
-test("catches bankroll > crown", () => {
-  const d = docs(); d.portfolio.currentBankroll = d.portfolio.crownBankroll + 1000;
+test("catches bankroll > high-water mark (C1: the ceiling is the derived peak, not the June crown)", () => {
+  const d = docs(); d.portfolio.currentBankroll = d.portfolio.highWaterMark + 1000;
   const vs = crit(checkMoneyIntegrity(d));
-  assert.ok(vs.some((v) => v.rule === "bankroll≤crown"), "bankroll>crown caught");
+  assert.ok(vs.some((v) => v.rule === "bankroll≤hwm"), "bankroll>hwm caught");
 });
 
-test("catches a drawdown that doesn't reconcile to crown − bankroll", () => {
+test("a bankroll above the June crown is valid once the high-water mark carries it (a C1 completion)", () => {
+  const d = docs();
+  d.portfolio.currentBankroll = d.portfolio.crownBankroll + 1000; d.portfolio.highWaterMark = d.portfolio.currentBankroll; d.portfolio.drawdown = 0;
+  d.portfolio.settledProfit = Math.round((d.portfolio.currentBankroll - 100) * 100) / 100; d.portfolio.roi = d.portfolio.settledProfit / 100;
+  if (d.daily) d.daily.activeBankroll = d.portfolio.currentBankroll;
+  const vs = crit(checkMoneyIntegrity(d)).filter((v) => /crown|hwm|drawdown/.test(v.rule));
+  assert.deepEqual(vs, []);
+});
+
+test("catches a high-water mark below the June crown", () => {
+  const d = docs(); d.portfolio.highWaterMark = d.portfolio.crownBankroll - 1;
+  assert.ok(crit(checkMoneyIntegrity(d)).some((v) => v.rule === "hwm≥crown"));
+});
+
+test("catches a drawdown that doesn't reconcile to hwm − bankroll", () => {
   const d = docs(); d.portfolio.drawdown = (d.portfolio.drawdown ?? 0) + 250;
   const vs = crit(checkMoneyIntegrity(d));
-  assert.ok(vs.some((v) => v.rule === "drawdown=crown−bankroll"), "drawdown drift caught");
+  assert.ok(vs.some((v) => v.rule === "drawdown=hwm−bankroll"), "drawdown drift caught");
 });
 
 test("catches settled-profit drift (profit ≠ bankroll − $100)", () => {

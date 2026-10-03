@@ -31,10 +31,14 @@ if (!pre.ok) { console.error(`REFUSED: the record is not intact BEFORE folding �
 
 const fold = foldReceipts(receipts);
 const APPLY = process.argv.includes("--apply");
-/* An open day halts the fold every night and is routine. Any OTHER halt is a decision the record cannot
-   make for itself (a completed ladder: Rule S does not say what it banks) — say so loudly in the run. */
+/* An open day halts the fold every night and is routine. Any OTHER halt is something the record cannot
+   resolve for itself — a completion dated before COMPLETION_BANKING_C1 took effect, a completed card with no
+   real settled value, an unknown product — so say so loudly in the run. A completion ON or after the policy
+   date is not a halt: it banks (final value − seed) once, inside its folded day. */
 if (fold.haltReason && fold.haltReason !== HALT.OPEN_DAY)
-  console.log(`::warning::protected fold halted at ${fold.haltedAt}: ${fold.haltReason} — nothing after it folds until the founder writes the rule (docs/MR_DUB_MONEY_LEDGER.md)`);
+  console.log(`::warning::protected fold halted at ${fold.haltedAt}: ${fold.haltReason} — nothing after it folds until an operator resolves it (docs/MR_DUB_MONEY_LEDGER.md)`);
+for (const d of fold.days) for (const c of d.completions ?? [])
+  console.log(`[fold] ${d.date}: ${c.product} ${c.lane} (cycle ${c.cycle}) completed its ladder at $${c.finalValue} → banks $${c.banked} (${c.policy}: final value − $${c.seed} seed)`);
 
 /* The derived money files carry one row per folded day (health gate: Σ ledger == settledProfit, the
    day chain closes on the bankroll). Synced on every run — including a night with nothing new — and
