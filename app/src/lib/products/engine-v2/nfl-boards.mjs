@@ -4,7 +4,9 @@
  * The rules are the ones `scripts/ops/sunday-candidate-universe.mjs` established, moved here so the
  * daily universe and the Sunday ops command cannot disagree:
  *   · family state from nfl/model-status.json (anytime TD sits outside playerFamilies and is just as binding);
- *   · settlement support is a TRI-STATE derived from the graded record and whether a settler is scheduled;
+ *   · settlement support is a TRI-STATE derived from the canonical prop-settlement LEDGER (PROVEN needs a
+ *     CI-admitted canonical graded row of that family) and whether the post-final sweep is SCHEDULED
+ *     (Session 9 — lib/sports/nfl/prop-settlement-support.mjs; "a workflow mentions the settler" is gone);
  *   · a probability exists only where the board publishes one; a distribution is its own basis.
  * Reads committed files only.
  */
@@ -12,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { candidatesFromNflBoard } from "../eligible-leg/from-nfl-board.mjs";
 import { SETTLEMENT_SUPPORT } from "../candidate-universe.mjs";
+import { readSettlementSupport } from "../../sports/nfl/prop-settlement-support.mjs";
 
 const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
@@ -21,13 +24,12 @@ export function etDateOf(iso) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(t));
 }
 
-const FAMILY_TO_GRADED_LABEL = { player_rush_yds: "rush yards", player_reception_yds: "reception yards", player_receptions: "receptions", player_pass_yds: "pass yards", anytime_td: "anytime td" };
 
 /**
- * @param {{ dataRoot: string, workflowsDir: string, date?: string|null, boardFilter?: (b)=>boolean }} o
+ * @param {{ dataRoot: string, workflowsDir: string, settlementDir?: string, date?: string|null, boardFilter?: (b)=>boolean }} o
  * @returns {{ boards: object[], candidates: object[], familyState: Map, unknownFamilies: string[] }}
  */
-export function loadNflBoardCandidates({ dataRoot, workflowsDir, date = null, boardFilter = null }) {
+export function loadNflBoardCandidates({ dataRoot, workflowsDir, settlementDir = null, date = null, boardFilter = null }) {
   const status = read(path.join(dataRoot, "nfl/model-status.json"));
   const familyState = new Map((status?.playerFamilies ?? []).map((f) => [f.key, f.state]));
   if (status?.anytimeTd?.state) familyState.set("anytime_td", status.anytimeTd.state);
@@ -40,15 +42,10 @@ export function loadNflBoardCandidates({ dataRoot, workflowsDir, date = null, bo
     .filter((b) => (boardFilter ? boardFilter(b) : date ? etDateOf(b.kickoffUtc) === date : true))
     .sort((a, b) => String(a.kickoffUtc).localeCompare(String(b.kickoffUtc)));
 
-  const graded = read(path.join(dataRoot, "nfl/graded-picks.json"));
-  const gradedFamilies = new Set((Array.isArray(graded?.picks) ? graded.picks : []).map((r) => String(r.marketFamily ?? r.market ?? "").toLowerCase()).filter(Boolean));
-  const settlerScheduled = fs.existsSync(workflowsDir) && fs.readdirSync(workflowsDir)
-    .some((f) => fs.readFileSync(path.join(workflowsDir, f), "utf8").includes("settle-nfl-live-props.mjs"));
-  const settlementSupportFor = (fam) => {
-    const label = (FAMILY_TO_GRADED_LABEL[fam] ?? fam).toLowerCase();
-    if (gradedFamilies.has(fam.toLowerCase()) || gradedFamilies.has(label)) return SETTLEMENT_SUPPORT.PROVEN;
-    return settlerScheduled ? SETTLEMENT_SUPPORT.SCHEDULED_UNPROVEN : SETTLEMENT_SUPPORT.UNSUPPORTED;
-  };
+  // The ledger lives in the repo's data/internal tree, beside .github/ — derived from workflowsDir when not given.
+  const ledgerDir = settlementDir ?? (workflowsDir ? path.resolve(workflowsDir, "..", "..", "data/internal/nfl/prop-settlement") : null);
+  const support = readSettlementSupport({ ledgerDir, workflowsDir });
+  const settlementSupportFor = (fam) => SETTLEMENT_SUPPORT[support.supportFor(fam)] ?? SETTLEMENT_SUPPORT.UNSUPPORTED;
   const probabilityBasisFor = ({ projection, probability }) =>
     probability != null ? "MODEL_PUBLISHED" : projection != null ? "MODEL_DISTRIBUTION_UNCONVERTED" : "NONE";
   /* The model that produced a board's number is the BOARD's own record (Session 8): a share-level family names
@@ -68,5 +65,5 @@ export function loadNflBoardCandidates({ dataRoot, workflowsDir, date = null, bo
     candidates.push(...r.candidates);
     for (const u of r.unknownFamilies) unknown.add(u);
   }
-  return { boards, candidates, familyState, unknownFamilies: [...unknown] };
+  return { boards, candidates, familyState, unknownFamilies: [...unknown], settlementSupport: { provenFamilies: support.provenFamilies, scheduled: support.scheduled, evidence: support.evidence } };
 }
