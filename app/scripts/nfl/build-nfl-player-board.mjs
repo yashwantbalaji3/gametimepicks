@@ -36,7 +36,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveNewArrivals, shadowProjectedArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
-import { applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
+import { activeRosterIndex, applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 import { indexDepthCharts } from "../../src/lib/sports/nfl/depth-chart.mjs";
 import { overAllocationReason, SHARE_MARKETS, withholdOverAllocatedPools } from "../../src/lib/sports/nfl/opportunity-conservation.mjs";
 import { splitMatchup } from "../../src/lib/sports/nfl/matchup.mjs";
@@ -163,15 +163,8 @@ const newArrivalsByEvent = (() => {
  * is empty (a provider blip), that team is NOT filtered — we do not wipe a board because our own
  * feed failed. `departedFiltered` records what was removed so the count is never silent.
  */
-const rosterByTeam = (() => {
-  const m = new Map();
-  const doc = read(path.join(APP, "public/data/nfl/rosters/latest.json"));
-  for (const t of doc?.teams ?? []) {
-    const ids = new Set((t.players ?? []).map((p) => `nfl-athlete-${p.id}`));
-    if (ids.size) m.set(t.teamAbbr, ids);
-  }
-  return m;
-})();
+/* Session 9 overnight · D1: the ACTIVE roster — the practice squad is not membership (see activeRosterIndex). */
+const { active: rosterByTeam, practiceSquad } = activeRosterIndex(read(path.join(APP, "public/data/nfl/rosters/latest.json")));
 
 const ROLE_TO_BOARD = { OUT: "INACTIVE", INACTIVE: "INACTIVE", QUESTIONABLE: "QUESTIONABLE", ACTIVE_PROJECTED: "ACTIVE_PROJECTED", ACTIVE_UNCERTAIN: "AVAILABLE_ROLE_UNCERTAIN", SOURCE_STALE: "AVAILABLE_ROLE_UNCERTAIN" };
 const designationByPlayer = (() => {
@@ -349,10 +342,14 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
      (which fails open on a missing roster): with no pull toward zero a departed player's share never fades,
      so the forecast still lists players who left — no roster for the team, or not on it, means no row. */
   let shareLevelRosterDropped = 0;
+  let practiceSquadFiltered = 0;
+  const practiceSquadNamed = [];
   const noRole = [];
   for (const row of shareLevel?.players ?? []) {
     const roster = rosterByTeam.get(row.team);
     if (!roster || !roster.has(row.playerId)) {
+      /* Off the ACTIVE roster because he is on this team's practice squad: named as such, not as departed. */
+      if (practiceSquad.get(row.playerId) === row.team) { practiceSquadFiltered += 1; practiceSquadNamed.push({ playerId: row.playerId, name: row.name, team: row.team }); continue; }
       shareLevelRosterDropped += 1;
       /* Session 4: a player with THIS season's usage here who has since left the roster is named, not silently dropped. */
       if (currentUsage.has(`${row.team}:${row.playerId}`)) noRole.push({ playerId: row.playerId, name: row.name, team: row.team, reason: `not on ${row.team}'s current roster` });
@@ -372,6 +369,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     const kept = [];
     for (const pl of players) {
       const roster = rosterByTeam.get(pl.team);
+      if (practiceSquad.get(pl.playerId) === pl.team) { practiceSquadFiltered += 1; practiceSquadNamed.push({ playerId: pl.playerId, name: pl.name, team: pl.team }); continue; }
       if (roster && !roster.has(pl.playerId)) { departedFiltered += 1; continue; }
       kept.push(pl);
     }
@@ -492,6 +490,10 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     arrivalsShadowed,
     /* Rows removed because the player is no longer on that roster — counted, never silent. */
     departedFiltered,
+    /* Session 9 overnight: rows removed because the player is on the team's PRACTICE SQUAD (not the active
+       roster; no game-day elevation source exists) — counted and named, never silent. */
+    practiceSquadFiltered,
+    practiceSquadFilteredPlayers: [...new Map(practiceSquadNamed.map((x) => [x.playerId, x])).values()],
     /* Share-level forecast use for this board: rows joined, rows dropped by the roster gate, rows without an ESPN id. */
     shareLevel: shareLevel ? { markets: [...shareLevel.markets].sort(), rows: shareLevel.players.length, rosterDropped: shareLevelRosterDropped, withoutEspnId: shareLevel.withoutEspnId } : null,
     /* Market coverage for THIS board, so a surface's price count can be checked against the
@@ -507,7 +509,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const unavailableIds = new Map(excluded.map((e) => [e.playerId, e.reason]));
   for (const [id, b] of ineligible) unavailableIds.set(id, b.status);
   const expected = new Set((shareLevel?.players ?? []).map((r) => `${r.team}:${r.playerId}`).filter((k) => currentUsage.has(k)));
-  const violations = auditBoard({ board: artifact, rosterByTeam, unavailable: unavailableIds, usage: currentUsage, expected, shareOf: (id, team, market) => shareIndex.get(`${id}|${team}|${market}`) });
+  const violations = auditBoard({ board: artifact, rosterByTeam, practiceSquad, unavailable: unavailableIds, usage: currentUsage, expected, shareOf: (id, team, market) => shareIndex.get(`${id}|${team}|${market}`) });
   artifact.integrity.violations = violations.length;
   /* Loud, recorded, and NOT a refusal here: a generator that refuses takes every board down with the
      one bad row (the 62-hour Aug 1–3 outage). The audit test fails main instead. */

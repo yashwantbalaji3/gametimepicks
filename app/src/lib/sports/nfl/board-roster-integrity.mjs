@@ -196,7 +196,31 @@ export function buildCoverage({ teams, players, excluded, arrivals, qbRules, noR
  *                       season's games — the model's own materiality, no threshold invented here.
  *                       Each must end in a coverage state; silence is MATERIAL_OMISSION (§30).
  */
-export function auditBoard({ board, rosterByTeam, unavailable, usage = null, expected = null, shareOf = null }) {
+/**
+ * THE ACTIVE ROSTER (Session 9 overnight · D1). ESPN's team roster carries the PRACTICE SQUAD beside the
+ * active roster (`status.type: "practice-squad"`, ~495 players league-wide). A practice-squad player is not
+ * on the 53-man roster and plays only if elevated on game day — and no elevation source exists in this
+ * repository — so membership for projection purposes is the ACTIVE roster only. Fails closed: an unknown
+ * status is kept (it is not a practice-squad claim), practice squad is removed and named.
+ *
+ * @param {{teams?: Array<{teamAbbr:string, players?: Array<{id:any, status?:{type?:string}}>}>}|null} rosterDoc
+ * @returns {{ active: Map<string, Set<string>>, practiceSquad: Map<string, string> }}  ids are `nfl-athlete-<id>`
+ */
+export function activeRosterIndex(rosterDoc) {
+  const active = new Map(); const practiceSquad = new Map();
+  for (const t of rosterDoc?.teams ?? []) {
+    const ids = new Set();
+    for (const p of t.players ?? []) {
+      const id = `nfl-athlete-${p.id}`;
+      if (String(p?.status?.type ?? "").toLowerCase() === "practice-squad") practiceSquad.set(id, t.teamAbbr);
+      else ids.add(id);
+    }
+    if (ids.size) active.set(t.teamAbbr, ids);
+  }
+  return { active, practiceSquad };
+}
+
+export function auditBoard({ board, rosterByTeam, unavailable, usage = null, expected = null, shareOf = null, practiceSquad = null }) {
   const v = [];
   /* Session 5 — a share-sourced family still published on an over-allocated team pool. Recomputed from the
      forecast's own shares (shareOf), never read back from the producer's record of what it withheld. */
@@ -220,7 +244,8 @@ export function auditBoard({ board, rosterByTeam, unavailable, usage = null, exp
     if (seen.has(p.playerId)) v.push({ code: "DUPLICATE_IDENTITY", team: p.team, playerId: p.playerId, name: p.name, also: seen.get(p.playerId) });
     seen.set(p.playerId, p.team);
     const roster = rosterByTeam?.get(p.team);
-    if (roster && roster.size && !roster.has(p.playerId)) v.push({ code: "OFF_ROSTER", team: p.team, playerId: p.playerId, name: p.name });
+    if (practiceSquad?.get(p.playerId) === p.team) v.push({ code: "PRACTICE_SQUAD_PROJECTED", team: p.team, playerId: p.playerId, name: p.name, families: Object.keys(p.markets ?? {}) });
+    else if (roster && roster.size && !roster.has(p.playerId)) v.push({ code: "OFF_ROSTER", team: p.team, playerId: p.playerId, name: p.name });
     if (unavailable?.has(p.playerId) || isUnavailableState(p.participation)) {
       v.push({ code: "UNAVAILABLE_PROJECTED", team: p.team, playerId: p.playerId, name: p.name, families: Object.keys(p.markets ?? {}) });
     }
