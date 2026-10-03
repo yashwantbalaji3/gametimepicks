@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849830,
+  "date": "2026-10-03",
+  "capturedAt": "2026-10-03T00:04:37.259Z",
+  "availableAt": "2026-10-03T00:04:37.259Z",
+  "eventStartTime": "2026-10-04T00:30:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-30",
+    "2026-10-01",
+    "2026-10-02"
+  ],
+  "home": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 80,
+      "relievers": [
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 6,
+          "dates": [
+            "2026-09-30"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 5,
+          "dates": [
+            "2026-09-30"
+          ]
+        },
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-30"
+          ]
+        },
+        {
+          "id": 592094,
+          "name": "Jason Adam",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-30,2026-10-01,2026-10-02) + feed/live box scores",
+    "capturedAt": "2026-10-03T00:04:37.259Z"
+  },
+  "recordHash": "96c7dc31cfa5e42b7e53b97c3fcae535610a72e71399fcf1ae464191b5aa5ccd"
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849828,
+  "date": "2026-10-03",
+  "capturedAt": "2026-10-03T00:04:37.259Z",
+  "availableAt": "2026-10-03T00:04:37.259Z",
+  "eventStartTime": "2026-10-03T20:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-30",
+    "2026-10-01",
+    "2026-10-02"
+  ],
+  "home": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 132,
+      "relievers": [
+        {
+          "id": 800311,
+          "name": "Didier Fuentes",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 7,
+          "dates": [
+            "2026-09-30",
+            "2026-10-01"
+          ]
+        },
+        {
+          "id": 656550,
+          "name": "Grant Holmes",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-10-01"
+          ]
+        },
+        {
+          "id": 519242,
+          "name": "Chris Sale",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-10-01"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-09-30"
+          ]
+        },
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-10-01"
+          ]
+        },
+        {
+          "id": 663158,
+          "name": "Robert Suarez",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-10-01"
+          ]
+        },
+        {
+          "id": 628452,
+          "name": "Raisel Iglesias",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-30,2026-10-01,2026-10-02) + feed/live box scores",
+    "capturedAt": "2026-10-03T00:04:37.259Z"
+  },
+  "recordHash": "9e4d669e25c5845631eabadb6445190aa10f4147c349480c7d85d9336c184138"
+}
