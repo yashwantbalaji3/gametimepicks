@@ -29,6 +29,7 @@ import { fileURLToPath } from "node:url";
 
 import { gradeForecastGame, summariseGrades, LABELS, familySpec, familyGuard, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { parseSummary, LabelOrderError } from "../../src/lib/sports/nba/boxscore-parse.mjs";
+import { validationByLabel } from "../../src/lib/sports/nba/grader-metrics.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const NBA = path.resolve(APP, "..", "data", "internal", "research", "nba");
@@ -68,7 +69,7 @@ function findFinal(id) {
   const r = resultsById.get(id);
   if (r && Number.isInteger(r.ftHome) && Number.isInteger(r.ftAway)) return { ftHome: r.ftHome, ftAway: r.ftAway, source: "results-capture" };
   const c = corpusById.get(id);
-  if (c && Number.isInteger(c.ftHome) && Number.isInteger(c.ftAway)) return { ftHome: c.ftHome, ftAway: c.ftAway, source: "corpus-v1" };
+  if (c && Number.isInteger(c.ftHome) && Number.isInteger(c.ftAway)) return { ftHome: c.ftHome, ftAway: c.ftAway, source: "corpus-v1", overtime: typeof c.overtime === "boolean" ? c.overtime : undefined };
   return null;
 }
 function findBoxscore(id) {
@@ -149,13 +150,21 @@ for (const file of files) {
   for (const [label, b] of Object.entries(summary)) if (b.games) console.log(`  ${label}: games ${b.games} · elo brier ${b.winner.elo.brier} ll ${b.winner.elo.logLoss} · sim brier ${b.winner.sim.brier} ll ${b.winner.sim.logLoss} · margin MAE ${b.score.marginMAE} · total MAE ${b.score.totalMAE} · minutes MAE ${b.players.minutesMAE} (rows ${b.players.matchedRows}) · cond pts MAE ${b.players.conditionalMAE.pts}`);
 }
 
+/* Session 10 · G5 — the preregistered validation block (grader-metrics.mjs), cumulative, one block per label. */
+const buildValidation = (allEntries) => validationByLabel(allEntries, { computedAt: NOW });
+
 if (WRITE) {
   const byDate = new Map(ledger.entries.map((e) => [e.date, e]));
   for (const e of entries) if (e.graded > 0 || !byDate.has(e.date)) byDate.set(e.date, e);
   ledger.entries = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+  ledger.validation = buildValidation(ledger.entries);
   ledger.updatedAt = NOW;
   ledger.requestsMade = requestsMade;
   fs.mkdirSync(EXP, { recursive: true });
   fs.writeFileSync(LEDGER, JSON.stringify(ledger, null, 1));
   console.log(`wrote ${path.relative(path.resolve(APP, ".."), LEDGER)} (${ledger.entries.length} date entries)`);
 } else console.log("dry run — pass --write to append to the ledger");
+{
+  const v = buildValidation([...(WRITE ? ledger.entries : [...new Map([...ledger.entries, ...entries].map((e) => [e.date, e])).values()])]);
+  for (const [label, m] of Object.entries(v.byLabel)) console.log(`[validation] ${label}: games ${m.games} · pre-tip ${m.timing.preTip}/${m.games} · sim brier ${m.winner.sim.brier} ece ${m.winner.sim.ece} · margin cov80 ${m.margin.coverage80} · states ${Object.entries(m.states).map(([k, s]) => `${k}=${s.state}`).join(" ")}`);
+}
