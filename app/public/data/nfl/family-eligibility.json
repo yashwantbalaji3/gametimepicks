@@ -1,0 +1,275 @@
+{
+ "schema": "nfl-family-eligibility@1",
+ "artifact": "nfl-family-eligibility",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-10-03T14:18:35Z",
+ "slate": {
+  "from": "2026-10-04",
+  "to": "2026-10-05",
+  "events": 15
+ },
+ "prices": {
+  "capturedAt": "2026-10-02T18:08:45Z",
+  "maxAgeHoursForProducts": 12
+ },
+ "sport": {
+  "state": "EXPERIMENTAL_PUBLIC",
+  "says": "NFL is not admitted to official products sport-wide; a single market may enter only when every condition below clears for it"
+ },
+ "products": [
+  {
+   "key": "bank-builder",
+   "label": "Bank Builder",
+   "nflEligible": false,
+   "reason": "no NFL market has cleared every condition"
+  },
+  {
+   "key": "moonshot",
+   "label": "Moonshot",
+   "nflEligible": false,
+   "reason": "no NFL market has cleared every condition"
+  },
+  {
+   "key": "suggested-parlays",
+   "label": "Suggested Parlays",
+   "nflEligible": false,
+   "reason": "no NFL market has cleared every condition"
+  }
+ ],
+ "families": [
+  {
+   "family": "anytime_td",
+   "label": "Anytime touchdown",
+   "eligibleForOfficialProducts": false,
+   "gtpProbability": true,
+   "blockers": [
+    {
+     "code": "FORWARD_TEST_IN_PROGRESS",
+     "says": "the model's live 2026 forward test has not reached its sample size, so it has no verdict yet",
+     "clearsWhen": "the forward test reaches its sample size and passes its bars"
+    },
+    {
+     "code": "ROLE_NOT_CONFIRMED",
+     "says": "no player's game-day role is positively confirmed before kickoff — being listed as not out is not the same as a confirmed role",
+     "clearsWhen": "a pregame source positively confirms each player's role for this market"
+    },
+    {
+     "code": "SETTLEMENT_NOT_PROVEN",
+     "says": "this market has not yet been graded end to end through the automatic settlement path",
+     "clearsWhen": "the automatic post-game settlement grades this market and reaches its final, reconciled state"
+    },
+    {
+     "code": "NOT_APPROVED_FOR_PRODUCTS",
+     "says": "the market has not been approved for official products",
+     "clearsWhen": "every other condition clears and the market is explicitly approved for official products"
+    }
+   ],
+   "evidence": {
+    "forwardTest": {
+     "state": "ACCUMULATING",
+     "n": 524,
+     "needed": 1000,
+     "calibrationLevel": 1.182,
+     "ece": 0.043
+    },
+    "slate": {
+     "candidates": 295,
+     "withGtpProbability": 295,
+     "roleConfirmed": 0,
+     "priced": 250
+    },
+    "settlementProven": false
+   }
+  },
+  {
+   "family": "player_pass_yds",
+   "label": "Passing yards",
+   "eligibleForOfficialProducts": false,
+   "gtpProbability": false,
+   "blockers": [
+    {
+     "code": "BELOW_PUBLICATION_BAR",
+     "says": "the model for this market has not cleared its own publication bar",
+     "clearsWhen": "the model clears its publication bar on fresh evidence"
+    },
+    {
+     "code": "PROJECTION_ONLY",
+     "says": "GameTimePicks publishes a projected range for this market, not a calibrated probability",
+     "clearsWhen": "a calibrated probability model for the market passes its own validation (a projection is never turned into a probability)"
+    },
+    {
+     "code": "FORWARD_TEST_IN_PROGRESS",
+     "says": "the model's live 2026 forward test has not reached its sample size, so it has no verdict yet",
+     "clearsWhen": "the forward test reaches its sample size and passes its bars"
+    },
+    {
+     "code": "ROLE_NOT_CONFIRMED",
+     "says": "no player's game-day role is positively confirmed before kickoff — being listed as not out is not the same as a confirmed role",
+     "clearsWhen": "a pregame source positively confirms each player's role for this market"
+    },
+    {
+     "code": "SETTLEMENT_NOT_PROVEN",
+     "says": "this market has not yet been graded end to end through the automatic settlement path",
+     "clearsWhen": "the automatic post-game settlement grades this market and reaches its final, reconciled state"
+    },
+    {
+     "code": "NOT_APPROVED_FOR_PRODUCTS",
+     "says": "the market has not been approved for official products",
+     "clearsWhen": "every other condition clears and the market is explicitly approved for official products"
+    }
+   ],
+   "evidence": {
+    "forwardTest": {
+     "state": "ACCUMULATING",
+     "n": 66,
+     "needed": 300,
+     "calibrationLevel": 1.013,
+     "ece": 0.108
+    },
+    "slate": {
+     "candidates": 29,
+     "withGtpProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 28
+    },
+    "settlementProven": false
+   }
+  },
+  {
+   "family": "player_reception_yds",
+   "label": "Receiving yards",
+   "eligibleForOfficialProducts": false,
+   "gtpProbability": false,
+   "blockers": [
+    {
+     "code": "PROJECTION_ONLY",
+     "says": "GameTimePicks publishes a projected range for this market, not a calibrated probability",
+     "clearsWhen": "a calibrated probability model for the market passes its own validation (a projection is never turned into a probability)"
+    },
+    {
+     "code": "NO_FORWARD_TEST",
+     "says": "the published model has no live forward test registered",
+     "clearsWhen": "a forward test is registered and passes"
+    },
+    {
+     "code": "ROLE_NOT_CONFIRMED",
+     "says": "no player's game-day role is positively confirmed before kickoff — being listed as not out is not the same as a confirmed role",
+     "clearsWhen": "a pregame source positively confirms each player's role for this market"
+    },
+    {
+     "code": "SETTLEMENT_NOT_PROVEN",
+     "says": "this market has not yet been graded end to end through the automatic settlement path",
+     "clearsWhen": "the automatic post-game settlement grades this market and reaches its final, reconciled state"
+    },
+    {
+     "code": "NOT_APPROVED_FOR_PRODUCTS",
+     "says": "the market has not been approved for official products",
+     "clearsWhen": "every other condition clears and the market is explicitly approved for official products"
+    }
+   ],
+   "evidence": {
+    "forwardTest": null,
+    "slate": {
+     "candidates": 188,
+     "withGtpProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 148
+    },
+    "settlementProven": false
+   }
+  },
+  {
+   "family": "player_receptions",
+   "label": "Receptions",
+   "eligibleForOfficialProducts": false,
+   "gtpProbability": false,
+   "blockers": [
+    {
+     "code": "PROJECTION_ONLY",
+     "says": "GameTimePicks publishes a projected range for this market, not a calibrated probability",
+     "clearsWhen": "a calibrated probability model for the market passes its own validation (a projection is never turned into a probability)"
+    },
+    {
+     "code": "NO_FORWARD_TEST",
+     "says": "the published model has no live forward test registered",
+     "clearsWhen": "a forward test is registered and passes"
+    },
+    {
+     "code": "ROLE_NOT_CONFIRMED",
+     "says": "no player's game-day role is positively confirmed before kickoff — being listed as not out is not the same as a confirmed role",
+     "clearsWhen": "a pregame source positively confirms each player's role for this market"
+    },
+    {
+     "code": "SETTLEMENT_NOT_PROVEN",
+     "says": "this market has not yet been graded end to end through the automatic settlement path",
+     "clearsWhen": "the automatic post-game settlement grades this market and reaches its final, reconciled state"
+    },
+    {
+     "code": "NOT_APPROVED_FOR_PRODUCTS",
+     "says": "the market has not been approved for official products",
+     "clearsWhen": "every other condition clears and the market is explicitly approved for official products"
+    }
+   ],
+   "evidence": {
+    "forwardTest": null,
+    "slate": {
+     "candidates": 188,
+     "withGtpProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 143
+    },
+    "settlementProven": false
+   }
+  },
+  {
+   "family": "player_rush_yds",
+   "label": "Rushing yards",
+   "eligibleForOfficialProducts": false,
+   "gtpProbability": false,
+   "blockers": [
+    {
+     "code": "PROJECTION_ONLY",
+     "says": "GameTimePicks publishes a projected range for this market, not a calibrated probability",
+     "clearsWhen": "a calibrated probability model for the market passes its own validation (a projection is never turned into a probability)"
+    },
+    {
+     "code": "FORWARD_TEST_IN_PROGRESS",
+     "says": "the model's live 2026 forward test has not reached its sample size, so it has no verdict yet",
+     "clearsWhen": "the forward test reaches its sample size and passes its bars"
+    },
+    {
+     "code": "ROLE_NOT_CONFIRMED",
+     "says": "no player's game-day role is positively confirmed before kickoff — being listed as not out is not the same as a confirmed role",
+     "clearsWhen": "a pregame source positively confirms each player's role for this market"
+    },
+    {
+     "code": "SETTLEMENT_NOT_PROVEN",
+     "says": "this market has not yet been graded end to end through the automatic settlement path",
+     "clearsWhen": "the automatic post-game settlement grades this market and reaches its final, reconciled state"
+    },
+    {
+     "code": "NOT_APPROVED_FOR_PRODUCTS",
+     "says": "the market has not been approved for official products",
+     "clearsWhen": "every other condition clears and the market is explicitly approved for official products"
+    }
+   ],
+   "evidence": {
+    "forwardTest": {
+     "state": "ACCUMULATING",
+     "n": 216,
+     "needed": 300,
+     "calibrationLevel": 1.129,
+     "ece": 0.062
+    },
+    "slate": {
+     "candidates": 38,
+     "withGtpProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 27
+    },
+    "settlementProven": false
+   }
+  }
+ ],
+ "howToRead": "Each market lists every condition it does not meet, in plain words, with the evidence behind it and what would clear it. A cleared condition simply disappears from the list; nothing here is a pick."
+}

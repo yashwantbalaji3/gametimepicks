@@ -503,6 +503,29 @@ export function buildEvidence(envelopes) {
         break;
       }
 
+      case "getNflProductEligibility": {
+        /*
+         * Session 9 · G — every reason is the record's own blocker, said with its evidence and with what
+         * would clear it. Never "coming soon", never a pick: a market is either eligible or it lists what
+         * it does not meet.
+         */
+        const slate = d.slate?.from ? `the NFL slate ${d.slate.from}${d.slate.to && d.slate.to !== d.slate.from ? ` to ${d.slate.to}` : ""} (${d.slate.events} games)` : "the next NFL slate";
+        if (d.sport?.says) say(`${d.sport.says}`);
+        /* A held price is not a fresh one: say WHEN, and the age products accept — never "current". */
+        if (d.prices?.capturedAt) say(`the latest NFL pregame prop prices were captured at ${d.prices.capturedAt}${d.prices.maxAgeHoursForProducts != null ? `; official products only use a price captured within ${d.prices.maxAgeHoursForProducts} hours of activation` : ""}`);
+        else if (d.prices) say("GameTimePicks holds no NFL pregame prop-price capture for this slate");
+        for (const p of d.products ?? []) say(`${p.label}: NFL ${p.nflEligible ? "is" : "is not"} eligible on ${slate} — ${p.reason}`);
+        for (const f of (d.families ?? []).slice(0, 5)) {
+          const e = f.evidence ?? {};
+          say(`NFL ${f.label}: ${f.eligibleForOfficialProducts ? "eligible for official products" : "not eligible for official products"}; GameTimePicks ${f.gtpProbability ? "publishes a model probability" : "publishes no model probability"} for it`);
+          for (const b of f.blockers ?? []) say(`NFL ${f.label} — ${b.says}; this clears when ${b.clearsWhen}`);
+          const ft = e.forwardTest;
+          if (ft && ft.n != null && ft.needed != null) say(`NFL ${f.label} forward test: ${ft.n} of ${ft.needed} predictions graded so far${ft.calibrationLevel != null ? `, calibration level ${ft.calibrationLevel}` : ""}${ft.ece != null ? `, calibration error ${ft.ece}` : ""}`);
+          if (e.slate) say(`NFL ${f.label} on ${slate}: ${e.slate.candidates} candidate legs, ${e.slate.withGtpProbability} with a model probability, ${e.slate.roleConfirmed} with a confirmed role, ${e.slate.priced} with a pregame price; settlement ${e.settlementProven ? "proven" : "not yet proven"}`);
+        }
+        break;
+      }
+
       case "searchGameTimeHelp":
         for (const s of d.sections ?? []) say(`GameTimePicks help — ${s.title}: ${s.text}`);
         break;
@@ -560,6 +583,7 @@ function unsupportedSentence(env) {
   const what = {
     getLiveSlate: `GameTimePicks does not currently hold live game state for ${env.arguments?.sport ?? "that sport"}`,
     getCoverage: `GameTimePicks publishes no coverage registry for ${env.arguments?.sport ?? "that sport"}`,
+    getNflProductEligibility: "GameTimePicks has not published an NFL product-eligibility record for that",
     runGameFinder: `GameTimePicks does not currently hold recorded team game results for ${env.arguments?.sport ?? "that sport"}`,
     getSeasonExplorer: `GameTimePicks does not currently hold recorded season totals for ${env.arguments?.sport ?? "that sport"}`,
     runPlayerResearchQuery: "GameTimePicks does not currently hold that recorded player data",

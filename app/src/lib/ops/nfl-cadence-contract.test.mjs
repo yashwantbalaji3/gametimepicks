@@ -80,3 +80,12 @@ test("the kickoff checker itself never buys anything", () => {
     "the checker reads committed artifacts and dispatches; giving it the provider key would let a decision step spend");
   assert.ok(/decide-kickoff-refresh\.mjs/.test(src), "it must go through the typed decision, not inline logic");
 });
+
+test("the kickoff checker also ticks on a workflow that DELIVERS (Session 9: its own crons delivered 1 of 10 on TNF)", () => {
+  const src = wf("nfl-kickoff-refresh.yml");
+  assert.match(src, /workflow_run:\s*\n\s*workflows: \["publication-watchdog"\]\s*\n\s*types: \[completed\]/);
+  assert.match(src, /github\.event\.workflow_run\.head_branch == github\.event\.repository\.default_branch/, "default-branch only");
+  const watchdog = scheduleCrons(wf("publication-watchdog.yml"));
+  assert.ok(watchdog.length >= 12, "the tick source must itself be dense");
+  for (const day of ["1", "4"]) assert.ok(scheduleCrons(src).some((c) => c.includes("17-23") && c.trim().endsWith(day)), `day ${day} band reaches 23Z`);
+});

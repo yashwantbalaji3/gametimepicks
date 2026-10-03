@@ -919,6 +919,24 @@ const add = (rel, doc) => {
  * 18,659 settled leans the model loses to the market. `modelExists` is not `historicallyTested` is
  * not `currentValidationState` is not `publicEligible` is not `settlementSupported`.
  */
+/**
+ * Session 9 · NFL product eligibility — the family-level product gate, as the PUBLIC record publishes it
+ * (`public/data/nfl/family-eligibility.json`, written by scripts/nfl/build-nfl-family-eligibility.mjs).
+ * Daily (it moves with the slate). Always emitted: an absent record is `available: false`, never a missing file.
+ */
+function buildNflEligibility() {
+  const file = path.join(APP, "public/data/nfl/family-eligibility.json");
+  const base = { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-nfl-eligibility" };
+  if (!fs.existsSync(file)) { notes.push("nfl family eligibility absent"); return { ...base, available: false, generatedAt: null, families: [] }; }
+  const doc = JSON.parse(fs.readFileSync(file, "utf8"));
+  if (doc?.artifact !== "nfl-family-eligibility" || doc?.dataClass !== "PUBLIC_DERIVED") { notes.push("nfl family eligibility refused: not the public record"); return { ...base, available: false, generatedAt: null, families: [] }; }
+  return {
+    ...base, available: true, generatedAt: doc.generatedAt ?? null, slate: doc.slate ?? null, sport: doc.sport ?? null, prices: doc.prices ?? null,
+    products: doc.products ?? [],
+    families: (doc.families ?? []).map((f) => ({ family: f.family, label: f.label, eligibleForOfficialProducts: f.eligibleForOfficialProducts === true, gtpProbability: f.gtpProbability === true, blockers: f.blockers ?? [], evidence: f.evidence ?? null })),
+  };
+}
+
 function buildCoverage() {
   const rows = Array.isArray(MARKET_COVERAGE) ? MARKET_COVERAGE : Object.values(MARKET_COVERAGE ?? {});
   /* ⚠ NO TIMESTAMP. Every other doc here is deterministic so the COMMITTED projection is
@@ -969,6 +987,7 @@ add("parlays.json", buildParlays());
 for (const [key, doc] of Object.entries(buildRecent())) add(`recent/${key}.json`, doc);
 add("results.json", buildResults());
 add("coverage.json", buildCoverage());
+add("nfl-eligibility.json", buildNflEligibility());
 const help = buildHelpCorpus();
 assertLinks("help corpus", help.chunks.flatMap((c) => (c.route ? [{ href: c.route }] : [])));
 add("help.json", help);

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849835,
+  "date": "2026-10-03",
+  "capturedAt": "2026-10-03T15:03:43.537Z",
+  "availableAt": "2026-10-03T15:03:43.537Z",
+  "eventStartTime": "2026-10-03T22:30:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656876,
+      "name": "Drew Rasmussen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 30,
+      "restDays": 11,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.67,
+        "ipAvg": 6.33,
+        "kAvg": 6.2,
+        "bbAvg": 1.4,
+        "erAvg": 1,
+        "hrAvg": 0.2,
+        "kPer9": 8.81,
+        "workloadIpLast5": 31.67
+      },
+      "seasonToDate": {
+        "starts": 30,
+        "ip": 172,
+        "k": 174,
+        "bb": 32,
+        "er": 51,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 543037,
+      "name": "Gerrit Cole",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 10,
+      "lastStartDate": "2026-09-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 5.2,
+        "bbAvg": 0.8,
+        "erAvg": 3.2,
+        "hrAvg": 1.8,
+        "kPer9": 8.26,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 127,
+        "k": 131,
+        "bb": 25,
+        "er": 51,
+        "hr": 22
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-10-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-10-03T15:03:43.537Z"
+  },
+  "recordHash": "8bf749e8253abee09de2bc7ac221494f52ea1c22bebd3584bcd518ee82388510"
+}

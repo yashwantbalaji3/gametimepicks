@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849829,
+  "date": "2026-10-03",
+  "capturedAt": "2026-10-03T15:03:43.946Z",
+  "availableAt": "2026-10-03T15:03:43.946Z",
+  "eventStartTime": "2026-10-03T17:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-30",
+    "2026-10-01",
+    "2026-10-02"
+  ],
+  "home": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 82,
+      "relievers": [
+        {
+          "id": 607200,
+          "name": "Erick Fedde",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-09-30"
+          ]
+        },
+        {
+          "id": 663855,
+          "name": "Jordan Hicks",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 6,
+          "dates": [
+            "2026-09-30"
+          ]
+        },
+        {
+          "id": 623211,
+          "name": "Huascar Brazobán",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 1,
+          "dates": [
+            "2026-09-30"
+          ]
+        },
+        {
+          "id": 641743,
+          "name": "Anthony Kay",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-09-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-30,2026-10-01,2026-10-02) + feed/live box scores",
+    "capturedAt": "2026-10-03T15:03:43.946Z"
+  },
+  "recordHash": "082a7124717f361345ac8eea029241165123d223d445776ebb39a6ca03010fc5"
+}

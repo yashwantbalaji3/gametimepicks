@@ -31,6 +31,7 @@ console.log(`  current bankroll   ${usd(s.currentBankroll)}   (recomputed ${usd(
 console.log(`  historical peak    ${usd(s.peak)} on ${s.peakDate}   (stored crown ${usd(s.storedCrown)})`);
 console.log(`  difference         ${usd(s.deltaToPeak)}`);
 console.log(`  open positions     ${s.openPositions} · seed at risk ${usd(s.openSeedAtRisk)} · lane stake ${usd(s.openLaneStake)}`);
+console.log(`  completion policy  ${s.completionPolicy.id} from ${s.completionPolicy.effectiveFrom} · ${s.completions} completed run(s) banked ${usd(s.completionsBanked)}`);
 console.log(`  folded through     ${s.foldedThrough} · ${s.rows} movements (${Object.entries(s.rowsByEra).map(([k, v]) => `${k} ${v}`).join(", ")})`);
 console.log("");
 const rows = process.argv.includes("--all") ? r.movements : r.movements.slice(-15);
@@ -43,4 +44,4 @@ console.log("");
 const reasons = [...r.reasons, ...inv.reasons.map((x) => `protected invariant: ${x}`)];
 if (arg("--json")) { fs.writeFileSync(arg("--json"), JSON.stringify({ ...r, invariant: inv }, null, 2) + "\n"); console.log(`  wrote ${arg("--json")}`); }
 if (reasons.length) { console.error(`=== ✗ MONEY DOES NOT RECONCILE (${reasons.length}) ===`); for (const x of reasons) console.error(`  ✗ ${x}`); process.exit(1); }
-console.log("=== ✓ RECONCILED — starting $100 + every official movement = the bankroll; recomputed peak = crown ===");
+console.log("=== ✓ RECONCILED — starting $100 + every official movement = the bankroll; recomputed peak = high-water mark (≥ the June crown) ===");

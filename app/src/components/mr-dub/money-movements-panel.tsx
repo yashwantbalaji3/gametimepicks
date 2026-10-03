@@ -11,6 +11,7 @@ import SectionHeader from "@/components/section-header";
 export interface MoneyMovementRow {
   movementId: string; date: string; product: string; lane: string | null; step: number | null;
   stake: number; return: number; economicPnl: number | null; bankrollDelta: number; bankrollAfter: number; result: string;
+  kind?: string; // "ladder_completed" = a completed run banked under C1 (final value − seed)
 }
 export interface MoneyMovementsView {
   ok: boolean;
@@ -62,7 +63,7 @@ export default function MoneyMovementsPanel({ view }: { view: MoneyMovementsView
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="min-w-0" style={{ color: "var(--vault-text)" }}>
                     <span className="font-mono tabular-nums mr-2" style={{ color: "var(--vault-text-mute)" }}>{m.date}</span>
-                    {PRODUCT[m.product] ?? m.product}{m.lane ? ` · ${m.lane === "crown" ? "Crown ladder" : `Lane ${m.lane}`}` : ""}{m.step != null ? ` · Step ${m.step}` : ""} · {RESULT[m.result] ?? m.result}
+                    {PRODUCT[m.product] ?? m.product}{m.lane ? ` · ${m.lane === "crown" ? "Crown ladder" : `Lane ${m.lane}`}` : ""}{m.step != null ? ` · Step ${m.step}` : ""} · {m.kind === "ladder_completed" ? "Completed the ladder · banked final value − seed" : RESULT[m.result] ?? m.result}
                   </span>
                   <span className="shrink-0 font-mono tabular-nums" style={{ color: "var(--vault-text)" }}>{usd(m.bankrollAfter)}</span>
                 </div>

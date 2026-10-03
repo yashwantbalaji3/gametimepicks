@@ -22,6 +22,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildPublicFamilyEligibility } from "../../src/lib/products/engine-v2/nfl-family-eligibility-public.mjs";
 
 const FORECASTS = "/data/ask/v1/forecasts.json";
 const PARLAYS = "/data/ask/v1/parlays.json";
@@ -38,6 +39,16 @@ const syntheticEligible = (doc) => ({ ...doc, byDate: Object.fromEntries(Object.
     legs: s.legs.map((l) => ({ ...l, market: "synthetic_eligible_family", marketLabel: "Synthetic eligible family" })) }))])) }])) });
 
 const RESULTS = "/data/ask/v1/results.json";
+/* Session 9 · a pinned NFL family-gate record (the Sunday 10-04 shape), so the eval never depends on the day's slate. */
+const NFL_ELIGIBILITY = "/data/ask/v1/nfl-eligibility.json";
+const nflEligibilityDoc = () => {
+  const d = buildPublicFamilyEligibility({
+    generatedAt: "2026-09-17T12:00:00Z", sportState: "EXPERIMENTAL_PUBLIC", slate: { from: "2026-09-20", to: "2026-09-21", events: 15 },
+    gates: [{ family: "anytime_td", state: "GATED", blockers: ["MODEL_FORWARD_ACCUMULATING", "ROLE_CONFIRMATION_UNAVAILABLE", "PRICES_NOT_CAPTURED", "SETTLEMENT_NOT_PROVEN", "NO_FOUNDER_GRANT"],
+      evidence: { forward: { state: "ACCUMULATING", n: 524, needed: 1000, metrics: { level: 1.18, ece: 0.043 } }, slate: { candidates: 288, modelProbability: 288, roleConfirmed: 0, priced: 0, settlementProven: false } } }],
+  });
+  return { schemaVersion: 1, artifact: "ask-nfl-eligibility", available: true, generatedAt: d.generatedAt, slate: d.slate, sport: d.sport, products: d.products, families: d.families };
+};
 /** A results asset carrying only frozen Results V2 days, each moved to a new date. Nothing inside a day changes. */
 const resultsDoc = (moves) => ({
   schemaVersion: 1, artifact: "ask-results", available: true, cells: [], headline: {}, recent: {}, excluded: [],
@@ -131,6 +142,7 @@ export const EVAL_FIXTURES = Object.freeze({
    * Session 2 · RESULTS DAYS — real Results V2 days (2026-09-30 projection), re-dated so the eval's pinned "yesterday"
    * (2026-09-16) is the settled 09-27 day, or the all-pending 09-29 day, or absent.
    */
+  "nfl-eligibility-gated": { [NFL_ELIGIBILITY]: nflEligibilityDoc() },
   "results-day-settled": { [RESULTS]: resultsDoc({ "2026-09-27": "2026-09-16", "2026-09-29": "2026-09-14" }) },
   "results-day-pending": { [RESULTS]: resultsDoc({ "2026-09-29": "2026-09-16", "2026-09-27": "2026-09-13" }) },
   "results-day-missing": { [RESULTS]: resultsDoc({ "2026-09-27": "2026-09-13", "2026-09-29": "2026-09-12" }) },
