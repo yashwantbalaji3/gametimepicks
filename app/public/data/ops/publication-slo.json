@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-10-03",
-  "platformState": "INCIDENT",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -27,16 +27,27 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "2 event(s) have no forecast and the earliest one's deadline (2026-10-03T18:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-10-03T18:30:00.000Z",
+      "state": "MISSED_COVERAGE",
+      "reason": "2 of 14 event(s) started with no pre-event forecast; nothing is still pending",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 14,
         "published": 12,
-        "missedCoverage": 0,
-        "awaiting": 2
+        "missedCoverage": 2,
+        "awaiting": 0
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "401912274",
+          "label": "Johnny Walker vs Mick Parkin",
+          "startUtc": "2026-10-03T20:00Z"
+        },
+        {
+          "id": "401917346",
+          "label": "Rafael Dos Anjos vs Alexander Hernandez",
+          "startUtc": "2026-10-03T20:00Z"
+        }
+      ]
     },
     "epl": {
       "state": "PUBLISHED",
@@ -50,15 +61,15 @@
       }
     }
   },
-  "checkedAt": "2026-10-03T19:20:02.706Z",
+  "checkedAt": "2026-10-03T20:02:45.562Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
   "reason": "board published with 155 rows",
   "publishDeadlineUtc": null,
   "scheduledGames": 4,
-  "pregameRemaining": 3,
-  "alreadyStarted": 1,
+  "pregameRemaining": 2,
+  "alreadyStarted": 2,
   "board": {
     "present": true,
     "leans": 155,
@@ -73,7 +84,7 @@
       "startUtc": "2026-10-03T17:00:00Z",
       "away": "Chicago White Sox",
       "home": "Cleveland Guardians",
-      "detailedState": "In Progress",
+      "detailedState": "Final",
       "pregameAtCheck": false
     },
     {
@@ -81,8 +92,8 @@
       "startUtc": "2026-10-03T20:00:00Z",
       "away": "Atlanta Braves",
       "home": "Los Angeles Dodgers",
-      "detailedState": "Pre-Game",
-      "pregameAtCheck": true
+      "detailedState": "Warmup",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 849835,
